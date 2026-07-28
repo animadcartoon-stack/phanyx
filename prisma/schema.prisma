@@ -3028,6 +3028,12 @@ model PagamentoHoleriteRH {
   reciboAssinadoUrl           String?
   reciboAssinadoHash          String?
   dadosPagamentoHash          String
+  tokenAssinaturaHash         String?                   @unique
+  tokenAssinaturaExpiraEm     DateTime?
+  assinaturaSolicitadaEm      DateTime?
+  tipoAssinatura              String?
+  assinaturaImagemUrl         String?
+  assinaturaImagemHash        String?
   registradoEm                DateTime                  @default(now())
   confirmadoPeloFuncionarioEm DateTime?
   ipConfirmacao               String?
@@ -3060,6 +3066,7 @@ model PagamentoHoleriteRH {
   @@index([canceladoPorId])
   @@index([status])
   @@index([pagoEm])
+  @@index([tokenAssinaturaExpiraEm])
 }
 
 model PontoFuncionarioRH {

@@ -6,6 +6,7 @@ import {
 } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
+import { get } from "@vercel/blob";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -162,6 +163,60 @@ async function carregarLogo(
     return null;
   } catch (error) {
     console.error("Não foi possível carregar a logo no recibo:", error);
+
+    return null;
+  }
+}
+
+async function carregarAssinaturaPrivada(
+  pdfDoc: PDFDocument,
+  assinaturaUrl?: string | null,
+): Promise<PDFImage | null> {
+  if (!assinaturaUrl) return null;
+
+  const token = process.env.RH_PONTO_READ_WRITE_TOKEN?.trim();
+
+  if (!token) {
+    console.error(
+      "RH_PONTO_READ_WRITE_TOKEN não configurado para leitura da assinatura.",
+    );
+
+    return null;
+  }
+
+  try {
+    const resultado = await get(assinaturaUrl, {
+      access: "private",
+      token,
+      useCache: false,
+    });
+
+    if (!resultado || resultado.statusCode !== 200 || !resultado.stream) {
+      return null;
+    }
+
+    const bytes = new Uint8Array(
+      await new Response(resultado.stream).arrayBuffer(),
+    );
+
+    const ehPng =
+      bytes.length >= 8 &&
+      bytes[0] === 0x89 &&
+      bytes[1] === 0x50 &&
+      bytes[2] === 0x4e &&
+      bytes[3] === 0x47 &&
+      bytes[4] === 0x0d &&
+      bytes[5] === 0x0a &&
+      bytes[6] === 0x1a &&
+      bytes[7] === 0x0a;
+
+    if (!ehPng) {
+      return null;
+    }
+
+    return await pdfDoc.embedPng(bytes);
+  } catch (error) {
+    console.error("Não foi possível carregar a assinatura privada:", error);
 
     return null;
   }
@@ -329,6 +384,15 @@ export async function GET(
 
     const logo = await carregarLogo(pdfDoc, configuracao?.logoUrl);
 
+    const assinaturaFuncionario = await carregarAssinaturaPrivada(
+      pdfDoc,
+      pagamento.assinaturaImagemUrl,
+    );
+
+    const assinaturaConfirmada =
+      pagamento.status === StatusPagamentoHoleriteRH.CONFIRMADO_FUNCIONARIO &&
+      Boolean(pagamento.confirmadoPeloFuncionarioEm && assinaturaFuncionario);
+
     const { width, height } = pagina.getSize();
 
     function escrever(
@@ -442,6 +506,34 @@ export async function GET(
       const altura = logo.height * escala;
 
       pagina.drawImage(logo, {
+        x: x + (larguraMaxima - largura) / 2,
+
+        y: y + (alturaMaxima - altura) / 2,
+
+        width: largura,
+        height: altura,
+      });
+    }
+
+    function desenharAssinaturaFuncionario(
+      x: number,
+      y: number,
+      larguraMaxima: number,
+      alturaMaxima: number,
+    ) {
+      if (!assinaturaFuncionario) return;
+
+      const escala = Math.min(
+        larguraMaxima / assinaturaFuncionario.width,
+
+        alturaMaxima / assinaturaFuncionario.height,
+      );
+
+      const largura = assinaturaFuncionario.width * escala;
+
+      const altura = assinaturaFuncionario.height * escala;
+
+      pagina.drawImage(assinaturaFuncionario, {
         x: x + (larguraMaxima - largura) / 2,
 
         y: y + (alturaMaxima - altura) / 2,
@@ -724,9 +816,9 @@ export async function GET(
         fonteNormal,
         6.5,
         largura - 40,
-      ).slice(0, 3);
+      ).slice(0, 2);
 
-      let declaracaoY = base + 83;
+      let declaracaoY = base + 88;
 
       linhasDeclaracao.forEach((linhaDeclaracao) => {
         escrever(linhaDeclaracao, margem + 20, declaracaoY, 6.5);
@@ -736,6 +828,11 @@ export async function GET(
 
       const assinaturaY = base + 40;
       const assinaturaLargura = 205;
+
+      const assinaturaFuncionarioX = margem + largura - 35 - assinaturaLargura;
+
+      const centroAssinaturaFuncionario =
+        assinaturaFuncionarioX + assinaturaLargura / 2;
 
       linha(
         margem + 35,
@@ -752,6 +849,30 @@ export async function GET(
         assinaturaY,
         0.8,
       );
+
+      if (assinaturaConfirmada) {
+        escreverCentro(
+          "ASSINADO ELETRONICAMENTE",
+          centroAssinaturaFuncionario,
+          assinaturaY + 34,
+          5.2,
+          true,
+        );
+
+        escreverCentro(
+          dataHoraBR(pagamento.confirmadoPeloFuncionarioEm),
+          centroAssinaturaFuncionario,
+          assinaturaY + 27,
+          4.8,
+        );
+
+        desenharAssinaturaFuncionario(
+          assinaturaFuncionarioX + 18,
+          assinaturaY + 3,
+          assinaturaLargura - 36,
+          20,
+        );
+      }
 
       escreverCentro(
         pagamento.registradoPor?.nome ||
@@ -772,15 +893,18 @@ export async function GET(
 
       escreverCentro(
         holerite.funcionario.nome,
-        margem + largura - 35 - assinaturaLargura / 2,
+        centroAssinaturaFuncionario,
         assinaturaY - 12,
         6.5,
         true,
       );
 
       escreverCentro(
-        "Assinatura do Funcionário",
-        margem + largura - 35 - assinaturaLargura / 2,
+        assinaturaConfirmada
+          ? "Assinatura eletrônica do funcionário"
+          : "Assinatura do Funcionário",
+
+        centroAssinaturaFuncionario,
         assinaturaY - 22,
         6,
       );
@@ -795,6 +919,35 @@ export async function GET(
         false,
         largura - 24,
       );
+      if (assinaturaConfirmada) {
+        const assinaturaHashCurto = pagamento.assinaturaImagemHash
+          ?.slice(0, 16)
+          .toUpperCase();
+
+        const confirmacaoHashCurto = pagamento.confirmacaoHash
+          ?.slice(0, 16)
+          .toUpperCase();
+
+        escrever(
+          [
+            assinaturaHashCurto
+              ? `Assinatura SHA-256: ${assinaturaHashCurto}...`
+              : null,
+
+            confirmacaoHashCurto
+              ? `Confirmação SHA-256: ${confirmacaoHashCurto}...`
+              : null,
+          ]
+            .filter(Boolean)
+            .join(" | "),
+
+          margem + 250,
+          base + 9,
+          4.3,
+          false,
+          largura - 262,
+        );
+      }
     }
 
     const margemSuperior = 26;

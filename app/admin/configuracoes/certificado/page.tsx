@@ -6,14 +6,7 @@ import FloatingShapeInspector from "./components/FloatingShapeInspector";
 import PhanyxToast from "@/components/ui/PhanyxToast";
 import CertificadoRender from "@/components/certificados/CertificadoRender";
 
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type MouseEvent,
-} from "react";
-
+import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 
 type CampoCertificado = {
   id: number;
@@ -70,16 +63,16 @@ type CampoCertificado = {
   filter?: string | null;
 
   forma?:
-  | "RETANGULO"
-  | "QUADRADO"
-  | "CIRCULO"
-  | "LINHA"
-  | "ESTRELA"
-  | "TRIANGULO"
-  | "SETA"
-  | "LOSANGO"
-  | "LIVRE"
-  | null;
+    | "RETANGULO"
+    | "QUADRADO"
+    | "CIRCULO"
+    | "LINHA"
+    | "ESTRELA"
+    | "TRIANGULO"
+    | "SETA"
+    | "LOSANGO"
+    | "LIVRE"
+    | null;
 
   raioBorda?: number | null;
   pontasEstrela?: number | null;
@@ -110,16 +103,18 @@ type CampoCertificado = {
 
   sombraAngulo?: number | null;
   sombraDistancia?: number | null;
-  pontosForma?: {
-    id: string;
-    x: number;
-    y: number;
-    tipo?: "reto" | "curvo";
-    inX?: number;
-    inY?: number;
-    outX?: number;
-    outY?: number;
-  }[] | null;
+  pontosForma?:
+    | {
+        id: string;
+        x: number;
+        y: number;
+        tipo?: "reto" | "curvo";
+        inX?: number;
+        inY?: number;
+        outX?: number;
+        outY?: number;
+      }[]
+    | null;
 
   array?: {
     ativo: boolean;
@@ -159,46 +154,41 @@ type ModalidadeCertificadoValor =
   | "EJA"
   | "OUTRO";
 
-type FiltroSituacaoModelo =
-  | "TODOS"
-  | "RASCUNHOS"
-  | "PUBLICADOS";
+type FiltroSituacaoModelo = "TODOS" | "RASCUNHOS" | "PUBLICADOS";
 
-type OrdemListaModelos =
-  | "MAIS_RECENTES"
-  | "MAIS_ANTIGOS";
+type OrdemListaModelos = "MAIS_RECENTES" | "MAIS_ANTIGOS";
 
 const MODALIDADES_CERTIFICADO: {
   valor: ModalidadeCertificadoValor;
   label: string;
 }[] = [
-    { valor: "GERAL", label: "Geral" },
-    { valor: "BACHARELADO", label: "Bacharelado" },
-    { valor: "LICENCIATURA", label: "Licenciatura" },
-    { valor: "TECNOLOGO", label: "Tecnólogo" },
-    { valor: "POS_GRADUACAO", label: "Pós-graduação" },
-    { valor: "MBA", label: "MBA" },
-    { valor: "MESTRADO", label: "Mestrado" },
-    { valor: "DOUTORADO", label: "Doutorado" },
-    { valor: "TECNICO", label: "Curso Técnico" },
-    { valor: "CURSO_LIVRE", label: "Curso Livre" },
-    { valor: "OFICINA", label: "Oficina" },
-    { valor: "ENSINO_MEDIO", label: "Ensino Médio" },
-    {
-      valor: "ENSINO_FUNDAMENTAL",
-      label: "Ensino Fundamental",
-    },
-    {
-      valor: "EDUCACAO_INFANTIL",
-      label: "Educação Infantil",
-    },
-    { valor: "PRE_ESCOLA", label: "Pré-escola" },
-    { valor: "EXTENSAO", label: "Extensão" },
-    { valor: "CAPACITACAO", label: "Capacitação" },
-    { valor: "TREINAMENTO", label: "Treinamento" },
-    { valor: "EJA", label: "EJA" },
-    { valor: "OUTRO", label: "Outro" },
-  ];
+  { valor: "GERAL", label: "Geral" },
+  { valor: "BACHARELADO", label: "Bacharelado" },
+  { valor: "LICENCIATURA", label: "Licenciatura" },
+  { valor: "TECNOLOGO", label: "Tecnólogo" },
+  { valor: "POS_GRADUACAO", label: "Pós-graduação" },
+  { valor: "MBA", label: "MBA" },
+  { valor: "MESTRADO", label: "Mestrado" },
+  { valor: "DOUTORADO", label: "Doutorado" },
+  { valor: "TECNICO", label: "Curso Técnico" },
+  { valor: "CURSO_LIVRE", label: "Curso Livre" },
+  { valor: "OFICINA", label: "Oficina" },
+  { valor: "ENSINO_MEDIO", label: "Ensino Médio" },
+  {
+    valor: "ENSINO_FUNDAMENTAL",
+    label: "Ensino Fundamental",
+  },
+  {
+    valor: "EDUCACAO_INFANTIL",
+    label: "Educação Infantil",
+  },
+  { valor: "PRE_ESCOLA", label: "Pré-escola" },
+  { valor: "EXTENSAO", label: "Extensão" },
+  { valor: "CAPACITACAO", label: "Capacitação" },
+  { valor: "TREINAMENTO", label: "Treinamento" },
+  { valor: "EJA", label: "EJA" },
+  { valor: "OUTRO", label: "Outro" },
+];
 
 const FONTES = [
   // Padrão
@@ -276,9 +266,7 @@ function rgbToHex(r: number, g: number, b: number) {
     "#" +
     [r, g, b]
       .map((valor) =>
-        Math.max(0, Math.min(255, valor))
-          .toString(16)
-          .padStart(2, "0")
+        Math.max(0, Math.min(255, valor)).toString(16).padStart(2, "0"),
       )
       .join("")
   );
@@ -304,7 +292,11 @@ function normalizarMarcadorDisciplinas(valor: any) {
 
   if (normalizado === "bolinha") return "•";
   if (normalizado === "seta" || normalizado === "setinha") return "➤";
-  if (normalizado === "traco" || normalizado === "traço" || normalizado === "tracinho") {
+  if (
+    normalizado === "traco" ||
+    normalizado === "traço" ||
+    normalizado === "tracinho"
+  ) {
     return "-";
   }
 
@@ -322,14 +314,14 @@ function quantidadeDisciplinasDoCampo(campo: Partial<CampoCertificado>) {
 function textoDisciplinasExemplo(campo: Partial<CampoCertificado>) {
   const quantidade = quantidadeDisciplinasDoCampo(campo);
   const marcador = normalizarMarcadorDisciplinas(
-    campo.marcador ?? campo.dadosJson?.marcador
+    campo.marcador ?? campo.dadosJson?.marcador,
   );
 
   return Array.from({ length: quantidade })
     .map((_, index) =>
       marcador
         ? `${marcador} Disciplina ${index + 1}`
-        : `Disciplina ${index + 1}`
+        : `Disciplina ${index + 1}`,
     )
     .join("\n");
 }
@@ -345,13 +337,13 @@ function quantidadeColunasDisciplinasDoCampo(campo: Partial<CampoCertificado>) {
 function listaDisciplinasExemplo(campo: Partial<CampoCertificado>) {
   const quantidade = quantidadeDisciplinasDoCampo(campo);
   const marcador = normalizarMarcadorDisciplinas(
-    campo.marcador ?? campo.dadosJson?.marcador
+    campo.marcador ?? campo.dadosJson?.marcador,
   );
 
   return Array.from({ length: quantidade }).map((_, index) =>
     marcador
       ? `${marcador} Disciplina ${index + 1}`
-      : `Disciplina ${index + 1}`
+      : `Disciplina ${index + 1}`,
   );
 }
 
@@ -418,11 +410,7 @@ function cssColorToHex(cor: string) {
     return "";
   }
 
-  return rgbToHex(
-    Number(match[0]),
-    Number(match[1]),
-    Number(match[2])
-  );
+  return rgbToHex(Number(match[0]), Number(match[1]), Number(match[2]));
 }
 
 function calcularSombra(angulo: number, distancia: number) {
@@ -481,14 +469,10 @@ function efeitosTextoCampoCss(campo: Partial<CampoCertificado>) {
 
   if (campo.sombraAtiva) {
     const cor = campo.sombraCor || "#000000";
-    const opacidade = normalizarOpacidadeEfeito(
-      campo.sombraOpacidade,
-      0.35
-    );
+    const opacidade = normalizarOpacidadeEfeito(campo.sombraOpacidade, 0.35);
 
     const distancia =
-      campo.sombraDistancia !== null &&
-        campo.sombraDistancia !== undefined
+      campo.sombraDistancia !== null && campo.sombraDistancia !== undefined
         ? Number(campo.sombraDistancia)
         : 4;
 
@@ -521,9 +505,7 @@ function efeitosTextoCampoCss(campo: Partial<CampoCertificado>) {
     textShadow: sombras.length ? sombras.join(", ") : "none",
 
     WebkitTextStrokeColor:
-      contornoAtivo && contornoTipo === "interno"
-        ? contornoCor
-        : "transparent",
+      contornoAtivo && contornoTipo === "interno" ? contornoCor : "transparent",
 
     WebkitTextStrokeWidth:
       contornoAtivo && contornoTipo === "interno"
@@ -681,13 +663,9 @@ function criarPontosIniciaisForma(forma?: CampoCertificado["forma"]) {
     const pontos = [];
 
     for (let i = 0; i < pontas * 2; i++) {
-      const angulo =
-        (Math.PI * i) / pontas - Math.PI / 2;
+      const angulo = (Math.PI * i) / pontas - Math.PI / 2;
 
-      const raio =
-        i % 2 === 0
-          ? raioExterno
-          : raioInterno;
+      const raio = i % 2 === 0 ? raioExterno : raioInterno;
 
       const x = cx + Math.cos(angulo) * raio;
       const y = cy + Math.sin(angulo) * raio;
@@ -707,7 +685,6 @@ function criarPontosIniciaisForma(forma?: CampoCertificado["forma"]) {
 }
 
 export default function ConfiguracaoCertificadoPage() {
-
   const moldurasPaisagem = [
     "/molduras-certificado/modo-paisagem/moldura-01.png",
     "/molduras-certificado/modo-paisagem/moldura-02.png",
@@ -792,7 +769,9 @@ export default function ConfiguracaoCertificadoPage() {
 
   const historicoTextoLivreRef = useRef<Record<number, string[]>>({});
 
-  const [tipoContornoTexto, setTipoContornoTexto] = useState<"interno" | "externo">("externo");
+  const [tipoContornoTexto, setTipoContornoTexto] = useState<
+    "interno" | "externo"
+  >("externo");
   const [opcoesTextoAberto, setOpcoesTextoAberto] = useState(false);
   const [espacamentoLetrasTexto, setEspacamentoLetrasTexto] = useState(0);
   const [espacamentoPalavrasTexto, setEspacamentoPalavrasTexto] = useState(0);
@@ -874,8 +853,8 @@ export default function ConfiguracaoCertificadoPage() {
       prev.map((campo) =>
         camposSelecionadosIds.includes(campo.id)
           ? { ...campo, grupoId: novoGrupoId }
-          : campo
-      )
+          : campo,
+      ),
     );
   }
 
@@ -889,8 +868,8 @@ export default function ConfiguracaoCertificadoPage() {
 
     setCampos((prev) =>
       prev.map((campo) =>
-        campo.grupoId === grupoId ? { ...campo, grupoId: null } : campo
-      )
+        campo.grupoId === grupoId ? { ...campo, grupoId: null } : campo,
+      ),
     );
   }
 
@@ -934,8 +913,7 @@ export default function ConfiguracaoCertificadoPage() {
 
   function atualizarCamposComHistorico(
     atualizador:
-      | CampoCertificado[]
-      | ((prev: CampoCertificado[]) => CampoCertificado[])
+      CampoCertificado[] | ((prev: CampoCertificado[]) => CampoCertificado[]),
   ) {
     setCampos((prev) => {
       setHistorico((hist) => [...hist, prev]);
@@ -949,11 +927,7 @@ export default function ConfiguracaoCertificadoPage() {
     });
   }
 
-  function gerarPontosEstrela(
-    pontas = 5,
-    raioInterno = 35,
-    raioExterno = 50
-  ) {
+  function gerarPontosEstrela(pontas = 5, raioInterno = 35, raioExterno = 50) {
     const pontos = [];
 
     const total = pontas * 2;
@@ -961,10 +935,7 @@ export default function ConfiguracaoCertificadoPage() {
     for (let i = 0; i < total; i++) {
       const angulo = (Math.PI * 2 * i) / total - Math.PI / 2;
 
-      const raio =
-        i % 2 === 0
-          ? raioExterno
-          : raioInterno;
+      const raio = i % 2 === 0 ? raioExterno : raioInterno;
 
       pontos.push({
         id: crypto.randomUUID(),
@@ -977,9 +948,11 @@ export default function ConfiguracaoCertificadoPage() {
     return pontos;
   }
 
-  const [camposSelecionadosIds, setCamposSelecionadosIds] = useState<number[]>([]);
+  const [camposSelecionadosIds, setCamposSelecionadosIds] = useState<number[]>(
+    [],
+  );
   const [campoSelecionadoId, setCampoSelecionadoId] = useState<number | null>(
-    null
+    null,
   );
 
   const [pontoFormaSelecionado, setPontoFormaSelecionado] = useState<{
@@ -1132,11 +1105,7 @@ export default function ConfiguracaoCertificadoPage() {
       const alvo = e.target as HTMLElement | null;
       const tag = alvo?.tagName?.toLowerCase();
 
-      if (
-        tag === "input" ||
-        tag === "textarea" ||
-        alvo?.isContentEditable
-      ) {
+      if (tag === "input" || tag === "textarea" || alvo?.isContentEditable) {
         return;
       }
 
@@ -1154,7 +1123,7 @@ export default function ConfiguracaoCertificadoPage() {
               pontosFormaLivreRef.current = [];
 
               setCampos((camposAtuais) =>
-                camposAtuais.filter((campo) => campo.id !== -999999)
+                camposAtuais.filter((campo) => campo.id !== -999999),
               );
 
               setMensagemSucesso("Criação da forma livre cancelada.");
@@ -1196,9 +1165,7 @@ export default function ConfiguracaoCertificadoPage() {
     setPontosFormaLivre([]);
     pontosFormaLivreRef.current = [];
 
-    setCampos((prev) =>
-      prev.filter((campo) => campo.id !== -999999)
-    );
+    setCampos((prev) => prev.filter((campo) => campo.id !== -999999));
 
     setCampoSelecionadoId(null);
     setCamposSelecionadosIds([]);
@@ -1306,7 +1273,9 @@ export default function ConfiguracaoCertificadoPage() {
       selecionarCampoUnico(novoId);
       setModoFormaLivre(false);
       setPontosFormaLivre([]);
-      setMensagemSucesso("Forma livre criada. Agora você pode editar pontos e tangentes.");
+      setMensagemSucesso(
+        "Forma livre criada. Agora você pode editar pontos e tangentes.",
+      );
 
       return true;
     }
@@ -1326,33 +1295,25 @@ export default function ConfiguracaoCertificadoPage() {
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
   const [publicando, setPublicando] = useState(false);
-  const [modalPublicacaoAberto, setModalPublicacaoAberto] =
-    useState(false);
+  const [modalPublicacaoAberto, setModalPublicacaoAberto] = useState(false);
 
-  const [modelosCertificado, setModelosCertificado] =
-    useState<any[]>([]);
+  const [modelosCertificado, setModelosCertificado] = useState<any[]>([]);
 
-  const [
-    filtroSituacaoModelos,
-    setFiltroSituacaoModelos,
-  ] = useState<FiltroSituacaoModelo>("TODOS");
+  const [filtroSituacaoModelos, setFiltroSituacaoModelos] =
+    useState<FiltroSituacaoModelo>("TODOS");
 
-  const [
-    ordemListaModelos,
-    setOrdemListaModelos,
-  ] = useState<OrdemListaModelos>("MAIS_RECENTES");
+  const [ordemListaModelos, setOrdemListaModelos] =
+    useState<OrdemListaModelos>("MAIS_RECENTES");
 
-  const [modelosArquivados, setModelosArquivados] =
-    useState<any[]>([]);
+  const [modelosArquivados, setModelosArquivados] = useState<any[]>([]);
 
-  const [modalArquivadosAberto, setModalArquivadosAberto] =
-    useState(false);
+  const [modalArquivadosAberto, setModalArquivadosAberto] = useState(false);
 
-  const [restaurandoModeloId, setRestaurandoModeloId] =
-    useState<number | null>(null);
+  const [restaurandoModeloId, setRestaurandoModeloId] = useState<number | null>(
+    null,
+  );
 
-  const [modeloAtivoId, setModeloAtivoId] =
-    useState<number | null>(null);
+  const [modeloAtivoId, setModeloAtivoId] = useState<number | null>(null);
 
   const [resumoModelos, setResumoModelos] = useState<{
     plano: string;
@@ -1370,62 +1331,44 @@ export default function ConfiguracaoCertificadoPage() {
     podeCriar: false,
   });
 
-  const [trocandoModelo, setTrocandoModelo] =
-    useState(false);
+  const [trocandoModelo, setTrocandoModelo] = useState(false);
 
-  const [criandoModelo, setCriandoModelo] =
-    useState(false);
+  const [criandoModelo, setCriandoModelo] = useState(false);
 
-  const [novoModeloFormAberto, setNovoModeloFormAberto] =
-    useState(false);
+  const [novoModeloFormAberto, setNovoModeloFormAberto] = useState(false);
 
-  const [novoModeloNome, setNovoModeloNome] =
-    useState("");
+  const [novoModeloNome, setNovoModeloNome] = useState("");
 
-  const [novoModeloDescricao, setNovoModeloDescricao] =
-    useState("");
+  const [novoModeloDescricao, setNovoModeloDescricao] = useState("");
 
   const [novoModeloModalidade, setNovoModeloModalidade] =
     useState<ModalidadeCertificadoValor>("GERAL");
 
-  const [
-    novoModeloPadraoModalidade,
-    setNovoModeloPadraoModalidade,
-  ] = useState(false);
-
-  const [menuModelosAberto, setMenuModelosAberto] =
+  const [novoModeloPadraoModalidade, setNovoModeloPadraoModalidade] =
     useState(false);
 
-  const [modalEditarModeloAberto, setModalEditarModeloAberto] =
-    useState(false);
+  const [menuModelosAberto, setMenuModelosAberto] = useState(false);
+
+  const [modalEditarModeloAberto, setModalEditarModeloAberto] = useState(false);
 
   const [modalArquivarModeloAberto, setModalArquivarModeloAberto] =
     useState(false);
 
-  const [nomeModeloEditando, setNomeModeloEditando] =
-    useState("");
+  const [nomeModeloEditando, setNomeModeloEditando] = useState("");
 
-  const [descricaoModeloEditando, setDescricaoModeloEditando] =
-    useState("");
+  const [descricaoModeloEditando, setDescricaoModeloEditando] = useState("");
 
-  const [
-    modalidadeModeloEditando,
-    setModalidadeModeloEditando,
-  ] = useState<ModalidadeCertificadoValor>("GERAL");
+  const [modalidadeModeloEditando, setModalidadeModeloEditando] =
+    useState<ModalidadeCertificadoValor>("GERAL");
 
-  const [
-    padraoModalidadeModeloEditando,
-    setPadraoModalidadeModeloEditando,
-  ] = useState(false);
-
-  const [salvandoDadosModelo, setSalvandoDadosModelo] =
+  const [padraoModalidadeModeloEditando, setPadraoModalidadeModeloEditando] =
     useState(false);
 
-  const [definindoPadraoModelo, setDefinindoPadraoModelo] =
-    useState(false);
+  const [salvandoDadosModelo, setSalvandoDadosModelo] = useState(false);
 
-  const [arquivandoModelo, setArquivandoModelo] =
-    useState(false);
+  const [definindoPadraoModelo, setDefinindoPadraoModelo] = useState(false);
+
+  const [arquivandoModelo, setArquivandoModelo] = useState(false);
 
   const [enviandoArquivo, setEnviandoArquivo] = useState(false);
   const [salvandoCampo, setSalvandoCampo] = useState(false);
@@ -1433,7 +1376,9 @@ export default function ConfiguracaoCertificadoPage() {
   const [mensagemErro, setMensagemErro] = useState("");
   const [orientacao, setOrientacao] = useState<OrientacaoEditor>("paisagem");
   const [tamanhoPapel, setTamanhoPapel] = useState<"A5" | "A4" | "A3">("A4");
-  const [modoCorDocumento, setModoCorDocumento] = useState<"RGB" | "CMYK">("RGB");
+  const [modoCorDocumento, setModoCorDocumento] = useState<"RGB" | "CMYK">(
+    "RGB",
+  );
   const [corFundoPagina, setCorFundoPagina] = useState("#ffffff");
   const [modoFundo, setModoFundo] = useState<"modelo" | "phanyx">("modelo");
 
@@ -1453,7 +1398,7 @@ export default function ConfiguracaoCertificadoPage() {
   });
 
   function trazerPainelFlutuanteParaFrente(
-    painel: "barraSelecao" | "opcoesForma" | "arrayModal"
+    painel: "barraSelecao" | "opcoesForma" | "arrayModal",
   ) {
     zIndexFlutuanteRef.current += 1;
 
@@ -1470,8 +1415,12 @@ export default function ConfiguracaoCertificadoPage() {
     campoId: number;
   } | null>(null);
 
-  const [camadaArrastandoId, setCamadaArrastandoId] = useState<number | null>(null);
-  const [camadaRenomeandoId, setCamadaRenomeandoId] = useState<number | null>(null);
+  const [camadaArrastandoId, setCamadaArrastandoId] = useState<number | null>(
+    null,
+  );
+  const [camadaRenomeandoId, setCamadaRenomeandoId] = useState<number | null>(
+    null,
+  );
   const [nomeCamadaEditando, setNomeCamadaEditando] = useState("");
 
   const [menuDownloadAberto, setMenuDownloadAberto] = useState(false);
@@ -1490,8 +1439,13 @@ export default function ConfiguracaoCertificadoPage() {
     altura: number;
   } | null>(null);
 
-  const [inicioArrastoCanvas, setInicioArrastoCanvas] = useState({ x: 0, y: 0 });
-  const [corTextoSelecionado, setCorTextoSelecionado] = useState<string | null>(null);
+  const [inicioArrastoCanvas, setInicioArrastoCanvas] = useState({
+    x: 0,
+    y: 0,
+  });
+  const [corTextoSelecionado, setCorTextoSelecionado] = useState<string | null>(
+    null,
+  );
 
   const [editorCorGradiente, setEditorCorGradiente] = useState<{
     campoId: number;
@@ -1512,7 +1466,7 @@ export default function ConfiguracaoCertificadoPage() {
   function adicionarImagemBiblioteca(
     imagemUrl: string,
     largura = 180,
-    altura = 180
+    altura = 180,
   ) {
     const novoId = Date.now();
 
@@ -1622,7 +1576,11 @@ export default function ConfiguracaoCertificadoPage() {
   } | null>(null);
 
   useEffect(() => {
-    function calcularOffsetTexto(root: HTMLElement, node: Node, offset: number) {
+    function calcularOffsetTexto(
+      root: HTMLElement,
+      node: Node,
+      offset: number,
+    ) {
       let total = 0;
 
       const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
@@ -1655,7 +1613,9 @@ export default function ConfiguracaoCertificadoPage() {
           ? range.startContainer.parentElement
           : (range.startContainer as HTMLElement);
 
-      const editor = inicioEl?.closest("[data-texto-livre-id]") as HTMLElement | null;
+      const editor = inicioEl?.closest(
+        "[data-texto-livre-id]",
+      ) as HTMLElement | null;
 
       if (!editor) return;
 
@@ -1664,13 +1624,13 @@ export default function ConfiguracaoCertificadoPage() {
       const inicio = calcularOffsetTexto(
         editor,
         range.startContainer,
-        range.startOffset
+        range.startOffset,
       );
 
       const fim = calcularOffsetTexto(
         editor,
         range.endContainer,
-        range.endOffset
+        range.endOffset,
       );
 
       selecaoTextoRef.current = range.cloneRange();
@@ -1685,8 +1645,7 @@ export default function ConfiguracaoCertificadoPage() {
           ? range.startContainer.parentElement
           : (range.startContainer as HTMLElement);
 
-      const elementoFinalCor =
-        elementoCor?.closest("span") || elementoCor;
+      const elementoFinalCor = elementoCor?.closest("span") || elementoCor;
 
       const cor = elementoFinalCor
         ? window.getComputedStyle(elementoFinalCor).color
@@ -1695,7 +1654,6 @@ export default function ConfiguracaoCertificadoPage() {
       const corHex = cssColorToHex(cor);
 
       setCorTextoSelecionado(corHex || null);
-
     }
 
     document.addEventListener("selectionchange", salvarSelecaoTextoLivre);
@@ -1762,8 +1720,7 @@ export default function ConfiguracaoCertificadoPage() {
   const modeloAtivo = useMemo(() => {
     return (
       modelosCertificado.find(
-        (modelo: any) =>
-          Number(modelo.id) === Number(modeloAtivoId)
+        (modelo: any) => Number(modelo.id) === Number(modeloAtivoId),
       ) || null
     );
   }, [modelosCertificado, modeloAtivoId]);
@@ -1771,51 +1728,39 @@ export default function ConfiguracaoCertificadoPage() {
   const modelosFiltradosOrdenados = useMemo(() => {
     return modelosCertificado
       .map((modelo: any) => {
-        const versoes = Array.isArray(modelo?.versoes)
-          ? modelo.versoes
-          : [];
+        const versoes = Array.isArray(modelo?.versoes) ? modelo.versoes : [];
 
         const versaoRascunho = versoes.find(
           (versao: any) =>
-            String(versao?.tipo || "").toUpperCase() ===
-            "RASCUNHO"
+            String(versao?.tipo || "").toUpperCase() === "RASCUNHO",
         );
 
         const versaoPublicada = versoes.find(
           (versao: any) =>
-            String(versao?.tipo || "").toUpperCase() ===
-            "PUBLICADO"
+            String(versao?.tipo || "").toUpperCase() === "PUBLICADO",
         );
 
         const publicado =
-          Boolean(modelo?.publicadoEm) ||
-          Boolean(versaoPublicada);
+          Boolean(modelo?.publicadoEm) || Boolean(versaoPublicada);
 
         const datasAlteracao = [
           modelo?.atualizadoEm,
           versaoRascunho?.atualizadoEm,
         ]
           .map((data) => {
-            const timestamp = data
-              ? new Date(data).getTime()
-              : 0;
+            const timestamp = data ? new Date(data).getTime() : 0;
 
-            return Number.isFinite(timestamp)
-              ? timestamp
-              : 0;
+            return Number.isFinite(timestamp) ? timestamp : 0;
           })
           .filter((timestamp) => timestamp > 0);
 
         const ultimaAlteracaoTimestamp =
-          datasAlteracao.length > 0
-            ? Math.max(...datasAlteracao)
-            : 0;
+          datasAlteracao.length > 0 ? Math.max(...datasAlteracao) : 0;
 
         return {
           ...modelo,
           _publicado: publicado,
-          _ultimaAlteracaoTimestamp:
-            ultimaAlteracaoTimestamp,
+          _ultimaAlteracaoTimestamp: ultimaAlteracaoTimestamp,
         };
       })
       .filter((modelo: any) => {
@@ -1830,40 +1775,26 @@ export default function ConfiguracaoCertificadoPage() {
         return true;
       })
       .sort((modeloA: any, modeloB: any) => {
-        const dataA = Number(
-          modeloA._ultimaAlteracaoTimestamp || 0
-        );
+        const dataA = Number(modeloA._ultimaAlteracaoTimestamp || 0);
 
-        const dataB = Number(
-          modeloB._ultimaAlteracaoTimestamp || 0
-        );
+        const dataB = Number(modeloB._ultimaAlteracaoTimestamp || 0);
 
         return ordemListaModelos === "MAIS_ANTIGOS"
           ? dataA - dataB
           : dataB - dataA;
       });
-  }, [
-    modelosCertificado,
-    filtroSituacaoModelos,
-    ordemListaModelos,
-  ]);
+  }, [modelosCertificado, filtroSituacaoModelos, ordemListaModelos]);
 
   const totalModelosRascunho = useMemo(() => {
     return modelosCertificado.filter((modelo: any) => {
-      const versoes = Array.isArray(modelo?.versoes)
-        ? modelo.versoes
-        : [];
+      const versoes = Array.isArray(modelo?.versoes) ? modelo.versoes : [];
 
       const possuiVersaoPublicada = versoes.some(
         (versao: any) =>
-          String(versao?.tipo || "").toUpperCase() ===
-          "PUBLICADO"
+          String(versao?.tipo || "").toUpperCase() === "PUBLICADO",
       );
 
-      return (
-        !modelo?.publicadoEm &&
-        !possuiVersaoPublicada
-      );
+      return !modelo?.publicadoEm && !possuiVersaoPublicada;
     }).length;
   }, [modelosCertificado]);
 
@@ -1888,30 +1819,24 @@ export default function ConfiguracaoCertificadoPage() {
 
   function aplicarConfiguracaoVisualCertificado(
     configuracao: any,
-    dataInstituicao: any
+    dataInstituicao: any,
   ) {
     const templateUrl = String(
-      configuracao?.templateUrl ??
-      configuracao?.certificadoTemplateUrl ??
-      ""
+      configuracao?.templateUrl ?? configuracao?.certificadoTemplateUrl ?? "",
     );
 
     const previewUrl = String(
-      configuracao?.previewUrl ??
-      configuracao?.certificadoPreviewUrl ??
-      ""
+      configuracao?.previewUrl ?? configuracao?.certificadoPreviewUrl ?? "",
     );
 
     const coordenadorNome = String(
       configuracao?.coordenadorNome ??
-      configuracao?.certificadoCoordenadorNome ??
-      ""
+        configuracao?.certificadoCoordenadorNome ??
+        "",
     );
 
     const cidade = String(
-      configuracao?.cidade ??
-      configuracao?.certificadoCidade ??
-      ""
+      configuracao?.cidade ?? configuracao?.certificadoCidade ?? "",
     );
 
     setCertificadoTemplateUrl(templateUrl);
@@ -1920,73 +1845,62 @@ export default function ConfiguracaoCertificadoPage() {
     setCertificadoCidade(cidade);
 
     const modoFundoRecebido = String(
-      configuracao?.modoFundo ??
-      configuracao?.certificadoModoFundo ??
-      "modelo"
+      configuracao?.modoFundo ?? configuracao?.certificadoModoFundo ?? "modelo",
     ).toLowerCase();
 
     setModoFundo(
-      modoFundoRecebido === "phanyx" ||
-        modoFundoRecebido === "cor"
+      modoFundoRecebido === "phanyx" || modoFundoRecebido === "cor"
         ? "phanyx"
-        : "modelo"
+        : "modelo",
     );
 
     const corFundoRecebida = String(
       configuracao?.corFundoPagina ??
-      configuracao?.certificadoCorFundoPagina ??
-      "#ffffff"
+        configuracao?.certificadoCorFundoPagina ??
+        "#ffffff",
     ).trim();
 
     setCorFundoPagina(
-      /^#[0-9a-fA-F]{6}$/.test(corFundoRecebida)
-        ? corFundoRecebida
-        : "#ffffff"
+      /^#[0-9a-fA-F]{6}$/.test(corFundoRecebida) ? corFundoRecebida : "#ffffff",
     );
 
     const tamanhoPapelRecebido = String(
       configuracao?.tamanhoPapel ??
-      configuracao?.certificadoTamanhoPapel ??
-      "A4"
+        configuracao?.certificadoTamanhoPapel ??
+        "A4",
     ).toUpperCase();
 
     setTamanhoPapel(
-      tamanhoPapelRecebido === "A5" ||
-        tamanhoPapelRecebido === "A3"
+      tamanhoPapelRecebido === "A5" || tamanhoPapelRecebido === "A3"
         ? tamanhoPapelRecebido
-        : "A4"
+        : "A4",
     );
 
     const orientacaoRecebida = String(
       configuracao?.orientacao ??
-      configuracao?.certificadoOrientacao ??
-      "paisagem"
+        configuracao?.certificadoOrientacao ??
+        "paisagem",
     ).toLowerCase();
 
-    setOrientacao(
-      orientacaoRecebida === "retrato"
-        ? "retrato"
-        : "paisagem"
-    );
+    setOrientacao(orientacaoRecebida === "retrato" ? "retrato" : "paisagem");
 
     setCertificadoAssinaturaUrl(
       String(
         configuracao?.assinaturaUrl ??
-        configuracao?.certificadoAssinaturaUrl ??
-        dataInstituicao?.certificadoAssinaturaUrl ??
-        dataInstituicao?.configuracaoInstituicao
-          ?.certificadoAssinaturaUrl ??
-        ""
-      )
+          configuracao?.certificadoAssinaturaUrl ??
+          dataInstituicao?.certificadoAssinaturaUrl ??
+          dataInstituicao?.configuracaoInstituicao?.certificadoAssinaturaUrl ??
+          "",
+      ),
     );
 
     setNomeDiretorInstituicao(
       String(
         dataInstituicao?.responsavelNome ??
-        configuracao?.coordenadorNome ??
-        configuracao?.certificadoCoordenadorNome ??
-        ""
-      )
+          configuracao?.coordenadorNome ??
+          configuracao?.certificadoCoordenadorNome ??
+          "",
+      ),
     );
   }
 
@@ -1994,16 +1908,16 @@ export default function ConfiguracaoCertificadoPage() {
     setCampos(
       Array.isArray(dataCampos?.campos)
         ? dataCampos.campos.map((campo: any) => {
-          const dados = campo.dadosJson || {};
+            const dados = campo.dadosJson || {};
 
-          return {
-            ...dados,
-            ...campo,
-            bancoId: campo.id,
-            id: campo.id,
-          };
-        })
-        : []
+            return {
+              ...dados,
+              ...campo,
+              bancoId: campo.id,
+              id: campo.id,
+            };
+          })
+        : [],
     );
 
     setCampoSelecionadoId(null);
@@ -2014,88 +1928,63 @@ export default function ConfiguracaoCertificadoPage() {
   }
 
   async function recarregarListaModelosCertificado() {
-    const resposta = await fetch(
-      "/api/admin/certificado-modelos",
-      {
-        cache: "no-store",
-      }
-    );
+    const resposta = await fetch("/api/admin/certificado-modelos", {
+      cache: "no-store",
+    });
 
     const dados = await resposta.json();
 
     if (!resposta.ok) {
       throw new Error(
         dados?.detalhe ||
-        dados?.error ||
-        "Erro ao atualizar a lista de modelos."
+          dados?.error ||
+          "Erro ao atualizar a lista de modelos.",
       );
     }
 
-    const todosModelos = Array.isArray(dados?.modelos)
-      ? dados.modelos
-      : [];
+    const todosModelos = Array.isArray(dados?.modelos) ? dados.modelos : [];
 
     const modelosAtivos = todosModelos.filter(
-      (modelo: any) =>
-        modelo?.ativo === true &&
-        modelo?.arquivado !== true
+      (modelo: any) => modelo?.ativo === true && modelo?.arquivado !== true,
     );
 
     const modelosArquivadosRecebidos = todosModelos.filter(
-      (modelo: any) =>
-        modelo?.arquivado === true ||
-        modelo?.ativo === false
+      (modelo: any) => modelo?.arquivado === true || modelo?.ativo === false,
     );
 
     setModelosCertificado(modelosAtivos);
     setModelosArquivados(modelosArquivadosRecebidos);
 
     setResumoModelos({
-      plano: String(
-        dados?.resumo?.plano || "ESSENCIAL"
-      ),
+      plano: String(dados?.resumo?.plano || "ESSENCIAL"),
 
       limite:
-        dados?.resumo?.ilimitado === true ||
-          dados?.resumo?.limite === null
+        dados?.resumo?.ilimitado === true || dados?.resumo?.limite === null
           ? null
           : Number(dados?.resumo?.limite ?? 1),
 
       ilimitado:
-        dados?.resumo?.ilimitado === true ||
-        dados?.resumo?.limite === null,
+        dados?.resumo?.ilimitado === true || dados?.resumo?.limite === null,
 
-      utilizados: Number(
-        dados?.resumo?.utilizados ?? 0
-      ),
+      utilizados: Number(dados?.resumo?.utilizados ?? 0),
 
       restantes:
-        dados?.resumo?.ilimitado === true ||
-          dados?.resumo?.restantes === null
+        dados?.resumo?.ilimitado === true || dados?.resumo?.restantes === null
           ? null
           : Number(dados?.resumo?.restantes ?? 0),
 
-      podeCriar:
-        dados?.resumo?.podeCriar === true,
+      podeCriar: dados?.resumo?.podeCriar === true,
     });
 
     return modelosAtivos;
   }
 
-  async function abrirModeloCertificado(
-    modeloId: number
-  ) {
-    if (
-      !Number.isInteger(modeloId) ||
-      modeloId <= 0
-    ) {
+  async function abrirModeloCertificado(modeloId: number) {
+    if (!Number.isInteger(modeloId) || modeloId <= 0) {
       return;
     }
 
-    if (
-      modeloId === modeloAtivoIdRef.current &&
-      versaoRascunhoIdRef.current
-    ) {
+    if (modeloId === modeloAtivoIdRef.current && versaoRascunhoIdRef.current) {
       return;
     }
 
@@ -2109,71 +1998,56 @@ export default function ConfiguracaoCertificadoPage() {
        */
       resetarConfiguracaoVisualCertificado();
 
-      const [
-        respostaRascunho,
-        respostaCampos,
-        respostaInstituicao,
-      ] = await Promise.all([
-        fetch(
-          `/api/admin/certificado-modelos/${modeloId}/rascunho`,
-          {
+      const [respostaRascunho, respostaCampos, respostaInstituicao] =
+        await Promise.all([
+          fetch(`/api/admin/certificado-modelos/${modeloId}/rascunho`, {
             cache: "no-store",
-          }
-        ),
+          }),
 
-        fetch(
-          `/api/admin/certificado-campos?modeloId=${modeloId}&versao=RASCUNHO`,
-          {
+          fetch(
+            `/api/admin/certificado-campos?modeloId=${modeloId}&versao=RASCUNHO`,
+            {
+              cache: "no-store",
+            },
+          ),
+
+          fetch("/api/admin/configuracoes/instituicao", {
             cache: "no-store",
-          }
-        ),
+          }),
+        ]);
 
-        fetch(
-          "/api/admin/configuracoes/instituicao",
-          {
-            cache: "no-store",
-          }
-        ),
-      ]);
+      const dadosRascunho = await respostaRascunho.json();
 
-      const dadosRascunho =
-        await respostaRascunho.json();
+      const dadosCampos = await respostaCampos.json();
 
-      const dadosCampos =
-        await respostaCampos.json();
-
-      const dadosInstituicao =
-        await respostaInstituicao
-          .json()
-          .catch(() => ({}));
+      const dadosInstituicao = await respostaInstituicao
+        .json()
+        .catch(() => ({}));
 
       if (!respostaRascunho.ok) {
         throw new Error(
           dadosRascunho?.detalhe ||
-          dadosRascunho?.error ||
-          "Erro ao abrir o rascunho do modelo."
+            dadosRascunho?.error ||
+            "Erro ao abrir o rascunho do modelo.",
         );
       }
 
       if (!respostaCampos.ok) {
         throw new Error(
           dadosCampos?.detalhe ||
-          dadosCampos?.error ||
-          "Erro ao abrir os elementos do modelo."
+            dadosCampos?.error ||
+            "Erro ao abrir os elementos do modelo.",
         );
       }
 
       const rascunho = dadosRascunho?.rascunho;
 
       if (!rascunho?.id) {
-        throw new Error(
-          "O modelo selecionado não possui rascunho."
-        );
+        throw new Error("O modelo selecionado não possui rascunho.");
       }
 
       modeloAtivoIdRef.current = modeloId;
-      versaoRascunhoIdRef.current =
-        Number(rascunho.id);
+      versaoRascunhoIdRef.current = Number(rascunho.id);
 
       setModeloAtivoId(modeloId);
 
@@ -2183,37 +2057,28 @@ export default function ConfiguracaoCertificadoPage() {
        */
       resetarConfiguracaoVisualCertificado();
 
-      aplicarConfiguracaoVisualCertificado(
-        rascunho,
-        dadosInstituicao
-      );
+      aplicarConfiguracaoVisualCertificado(rascunho, dadosInstituicao);
 
       aplicarCamposCarregados(dadosCampos);
 
-      const modeloAberto =
-        modelosCertificado.find(
-          (modelo: any) =>
-            Number(modelo.id) === modeloId
-        );
+      const modeloAberto = modelosCertificado.find(
+        (modelo: any) => Number(modelo.id) === modeloId,
+      );
 
       setMensagemSucesso(
         modeloAberto?.nome
           ? `Modelo “${modeloAberto.nome}” aberto no editor.`
-          : "Modelo aberto no editor."
+          : "Modelo aberto no editor.",
       );
 
       setTimeout(() => {
         setMensagemSucesso("");
       }, 2500);
     } catch (error: any) {
-      console.error(
-        "ERRO AO TROCAR MODELO DE CERTIFICADO:",
-        error
-      );
+      console.error("ERRO AO TROCAR MODELO DE CERTIFICADO:", error);
 
       setMensagemErro(
-        error?.message ||
-        "Erro ao abrir o modelo de certificado."
+        error?.message || "Erro ao abrir o modelo de certificado.",
       );
     } finally {
       setTrocandoModelo(false);
@@ -2225,9 +2090,7 @@ export default function ConfiguracaoCertificadoPage() {
     const descricao = novoModeloDescricao.trim();
 
     if (nome.length < 3) {
-      setMensagemErro(
-        "Informe um nome com pelo menos 3 caracteres."
-      );
+      setMensagemErro("Informe um nome com pelo menos 3 caracteres.");
       return;
     }
 
@@ -2235,37 +2098,32 @@ export default function ConfiguracaoCertificadoPage() {
       setCriandoModelo(true);
       setMensagemErro("");
 
-      const resposta = await fetch(
-        "/api/admin/certificado-modelos",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            nome,
-            descricao: descricao || null,
-            modalidade: novoModeloModalidade,
-            padraoGeral: false,
-            padraoModalidade: novoModeloPadraoModalidade,
-            copiarLegado: false,
-          }),
-        }
-      );
+      const resposta = await fetch("/api/admin/certificado-modelos", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nome,
+          descricao: descricao || null,
+          modalidade: novoModeloModalidade,
+          padraoGeral: false,
+          padraoModalidade: novoModeloPadraoModalidade,
+          copiarLegado: false,
+        }),
+      });
 
       const dados = await resposta.json();
 
       if (!resposta.ok) {
         throw new Error(
           dados?.detalhe ||
-          dados?.error ||
-          "Erro ao criar o modelo de certificado."
+            dados?.error ||
+            "Erro ao criar o modelo de certificado.",
         );
       }
 
-      const novoModeloId = Number(
-        dados?.modelo?.id || dados?.id
-      );
+      const novoModeloId = Number(dados?.modelo?.id || dados?.id);
 
       await recarregarListaModelosCertificado();
 
@@ -2275,31 +2133,20 @@ export default function ConfiguracaoCertificadoPage() {
       setNovoModeloPadraoModalidade(false);
       setNovoModeloFormAberto(false);
 
-      if (
-        Number.isInteger(novoModeloId) &&
-        novoModeloId > 0
-      ) {
-        await abrirModeloCertificado(
-          novoModeloId
-        );
+      if (Number.isInteger(novoModeloId) && novoModeloId > 0) {
+        await abrirModeloCertificado(novoModeloId);
       }
 
-      setMensagemSucesso(
-        "Novo modelo de certificado criado com sucesso."
-      );
+      setMensagemSucesso("Novo modelo de certificado criado com sucesso.");
 
       setTimeout(() => {
         setMensagemSucesso("");
       }, 3000);
     } catch (error: any) {
-      console.error(
-        "ERRO AO CRIAR MODELO DE CERTIFICADO:",
-        error
-      );
+      console.error("ERRO AO CRIAR MODELO DE CERTIFICADO:", error);
 
       setMensagemErro(
-        error?.message ||
-        "Erro ao criar o modelo de certificado."
+        error?.message || "Erro ao criar o modelo de certificado.",
       );
     } finally {
       setCriandoModelo(false);
@@ -2308,35 +2155,25 @@ export default function ConfiguracaoCertificadoPage() {
 
   function abrirEdicaoModeloAtual() {
     if (!modeloAtivo) {
-      setMensagemErro(
-        "Nenhum modelo de certificado está selecionado."
-      );
+      setMensagemErro("Nenhum modelo de certificado está selecionado.");
       return;
     }
 
-    setNomeModeloEditando(
-      String(modeloAtivo.nome || "")
-    );
+    setNomeModeloEditando(String(modeloAtivo.nome || ""));
 
-    setDescricaoModeloEditando(
-      String(modeloAtivo.descricao || "")
-    );
+    setDescricaoModeloEditando(String(modeloAtivo.descricao || ""));
 
     const modalidadeAtual = String(
-      modeloAtivo.modalidade || "GERAL"
+      modeloAtivo.modalidade || "GERAL",
     ) as ModalidadeCertificadoValor;
 
     setModalidadeModeloEditando(
-      MODALIDADES_CERTIFICADO.some(
-        (item) => item.valor === modalidadeAtual
-      )
+      MODALIDADES_CERTIFICADO.some((item) => item.valor === modalidadeAtual)
         ? modalidadeAtual
-        : "GERAL"
+        : "GERAL",
     );
 
-    setPadraoModalidadeModeloEditando(
-      modeloAtivo.padraoModalidade === true
-    );
+    setPadraoModalidadeModeloEditando(modeloAtivo.padraoModalidade === true);
 
     setModalEditarModeloAberto(true);
   }
@@ -2346,20 +2183,13 @@ export default function ConfiguracaoCertificadoPage() {
     const nome = nomeModeloEditando.trim();
     const descricao = descricaoModeloEditando.trim();
 
-    if (
-      !Number.isInteger(modeloId) ||
-      modeloId <= 0
-    ) {
-      setMensagemErro(
-        "Nenhum modelo de certificado está selecionado."
-      );
+    if (!Number.isInteger(modeloId) || modeloId <= 0) {
+      setMensagemErro("Nenhum modelo de certificado está selecionado.");
       return;
     }
 
     if (nome.length < 3) {
-      setMensagemErro(
-        "O nome do modelo precisa ter pelo menos 3 caracteres."
-      );
+      setMensagemErro("O nome do modelo precisa ter pelo menos 3 caracteres.");
       return;
     }
 
@@ -2380,7 +2210,7 @@ export default function ConfiguracaoCertificadoPage() {
             modalidade: modalidadeModeloEditando,
             padraoModalidade: padraoModalidadeModeloEditando,
           }),
-        }
+        },
       );
 
       const dados = await resposta.json();
@@ -2388,8 +2218,8 @@ export default function ConfiguracaoCertificadoPage() {
       if (!resposta.ok) {
         throw new Error(
           dados?.detalhe ||
-          dados?.error ||
-          "Erro ao atualizar os dados do modelo."
+            dados?.error ||
+            "Erro ao atualizar os dados do modelo.",
         );
       }
 
@@ -2402,22 +2232,17 @@ export default function ConfiguracaoCertificadoPage() {
       setPadraoModalidadeModeloEditando(false);
 
       setMensagemSucesso(
-        dados?.mensagem ||
-        "Dados do modelo atualizados com sucesso."
+        dados?.mensagem || "Dados do modelo atualizados com sucesso.",
       );
 
       setTimeout(() => {
         setMensagemSucesso("");
       }, 3000);
     } catch (error: any) {
-      console.error(
-        "ERRO AO ATUALIZAR MODELO DE CERTIFICADO:",
-        error
-      );
+      console.error("ERRO AO ATUALIZAR MODELO DE CERTIFICADO:", error);
 
       setMensagemErro(
-        error?.message ||
-        "Erro ao atualizar os dados do modelo."
+        error?.message || "Erro ao atualizar os dados do modelo.",
       );
     } finally {
       setSalvandoDadosModelo(false);
@@ -2427,13 +2252,8 @@ export default function ConfiguracaoCertificadoPage() {
   async function definirModeloAtualComoPadraoGeral() {
     const modeloId = Number(modeloAtivo?.id);
 
-    if (
-      !Number.isInteger(modeloId) ||
-      modeloId <= 0
-    ) {
-      setMensagemErro(
-        "Nenhum modelo de certificado está selecionado."
-      );
+    if (!Number.isInteger(modeloId) || modeloId <= 0) {
+      setMensagemErro("Nenhum modelo de certificado está selecionado.");
       return;
     }
 
@@ -2455,7 +2275,7 @@ export default function ConfiguracaoCertificadoPage() {
           body: JSON.stringify({
             padraoGeral: true,
           }),
-        }
+        },
       );
 
       const dados = await resposta.json();
@@ -2463,29 +2283,25 @@ export default function ConfiguracaoCertificadoPage() {
       if (!resposta.ok) {
         throw new Error(
           dados?.detalhe ||
-          dados?.error ||
-          "Erro ao definir o modelo como padrão geral."
+            dados?.error ||
+            "Erro ao definir o modelo como padrão geral.",
         );
       }
 
       await recarregarListaModelosCertificado();
 
       setMensagemSucesso(
-        `O modelo “${modeloAtivo?.nome}” agora é o padrão geral.`
+        `O modelo “${modeloAtivo?.nome}” agora é o padrão geral.`,
       );
 
       setTimeout(() => {
         setMensagemSucesso("");
       }, 3000);
     } catch (error: any) {
-      console.error(
-        "ERRO AO DEFINIR MODELO PADRÃO:",
-        error
-      );
+      console.error("ERRO AO DEFINIR MODELO PADRÃO:", error);
 
       setMensagemErro(
-        error?.message ||
-        "Erro ao definir o modelo como padrão geral."
+        error?.message || "Erro ao definir o modelo como padrão geral.",
       );
     } finally {
       setDefinindoPadraoModelo(false);
@@ -2494,9 +2310,7 @@ export default function ConfiguracaoCertificadoPage() {
 
   function solicitarArquivamentoModeloAtual() {
     if (!modeloAtivo) {
-      setMensagemErro(
-        "Nenhum modelo de certificado está selecionado."
-      );
+      setMensagemErro("Nenhum modelo de certificado está selecionado.");
       return;
     }
 
@@ -2505,17 +2319,10 @@ export default function ConfiguracaoCertificadoPage() {
 
   async function arquivarModeloAtual() {
     const modeloId = Number(modeloAtivo?.id);
-    const nomeModelo = String(
-      modeloAtivo?.nome || "Modelo"
-    );
+    const nomeModelo = String(modeloAtivo?.nome || "Modelo");
 
-    if (
-      !Number.isInteger(modeloId) ||
-      modeloId <= 0
-    ) {
-      setMensagemErro(
-        "Nenhum modelo de certificado está selecionado."
-      );
+    if (!Number.isInteger(modeloId) || modeloId <= 0) {
+      setMensagemErro("Nenhum modelo de certificado está selecionado.");
       return;
     }
 
@@ -2533,60 +2340,45 @@ export default function ConfiguracaoCertificadoPage() {
           body: JSON.stringify({
             acao: "ARQUIVAR",
           }),
-        }
+        },
       );
 
       const dados = await resposta.json();
 
       if (!resposta.ok) {
         throw new Error(
-          dados?.detalhe ||
-          dados?.error ||
-          "Erro ao arquivar o modelo."
+          dados?.detalhe || dados?.error || "Erro ao arquivar o modelo.",
         );
       }
 
-      const modelosRestantes =
-        await recarregarListaModelosCertificado();
+      const modelosRestantes = await recarregarListaModelosCertificado();
 
       setModalArquivarModeloAberto(false);
 
       const proximoModelo =
+        modelosRestantes.find((modelo: any) => modelo.padraoGeral === true) ||
         modelosRestantes.find(
-          (modelo: any) =>
-            modelo.padraoGeral === true
-        ) ||
-        modelosRestantes.find(
-          (modelo: any) =>
-            modelo.padraoModalidade === true
+          (modelo: any) => modelo.padraoModalidade === true,
         ) ||
         modelosRestantes[0] ||
         null;
 
       if (proximoModelo?.id) {
-        await abrirModeloCertificado(
-          Number(proximoModelo.id)
-        );
+        await abrirModeloCertificado(Number(proximoModelo.id));
       }
 
-      setMensagemSucesso(
-        `O modelo “${nomeModelo}” foi arquivado com sucesso.`
-      );
+      setMensagemSucesso(`O modelo “${nomeModelo}” foi arquivado com sucesso.`);
 
       setTimeout(() => {
         setMensagemSucesso("");
       }, 3500);
     } catch (error: any) {
-      console.error(
-        "ERRO AO ARQUIVAR MODELO DE CERTIFICADO:",
-        error
-      );
+      console.error("ERRO AO ARQUIVAR MODELO DE CERTIFICADO:", error);
 
       setModalArquivarModeloAberto(false);
 
       setMensagemErro(
-        error?.message ||
-        "Erro ao arquivar o modelo de certificado."
+        error?.message || "Erro ao arquivar o modelo de certificado.",
       );
     } finally {
       setArquivandoModelo(false);
@@ -2595,17 +2387,10 @@ export default function ConfiguracaoCertificadoPage() {
 
   async function restaurarModeloArquivado(modelo: any) {
     const modeloId = Number(modelo?.id);
-    const nomeModelo = String(
-      modelo?.nome || "Modelo"
-    );
+    const nomeModelo = String(modelo?.nome || "Modelo");
 
-    if (
-      !Number.isInteger(modeloId) ||
-      modeloId <= 0
-    ) {
-      setMensagemErro(
-        "Não foi possível identificar o modelo arquivado."
-      );
+    if (!Number.isInteger(modeloId) || modeloId <= 0) {
+      setMensagemErro("Não foi possível identificar o modelo arquivado.");
       return;
     }
 
@@ -2624,18 +2409,14 @@ export default function ConfiguracaoCertificadoPage() {
           body: JSON.stringify({
             acao: "RESTAURAR",
           }),
-        }
+        },
       );
 
-      const dados = await resposta
-        .json()
-        .catch(() => ({}));
+      const dados = await resposta.json().catch(() => ({}));
 
       if (!resposta.ok) {
         throw new Error(
-          dados?.detalhe ||
-          dados?.error ||
-          "Erro ao restaurar o modelo."
+          dados?.detalhe || dados?.error || "Erro ao restaurar o modelo.",
         );
       }
 
@@ -2646,21 +2427,17 @@ export default function ConfiguracaoCertificadoPage() {
       await abrirModeloCertificado(modeloId);
 
       setMensagemSucesso(
-        `O modelo “${nomeModelo}” foi restaurado com sucesso.`
+        `O modelo “${nomeModelo}” foi restaurado com sucesso.`,
       );
 
       setTimeout(() => {
         setMensagemSucesso("");
       }, 3500);
     } catch (error: any) {
-      console.error(
-        "ERRO AO RESTAURAR MODELO DE CERTIFICADO:",
-        error
-      );
+      console.error("ERRO AO RESTAURAR MODELO DE CERTIFICADO:", error);
 
       setMensagemErro(
-        error?.message ||
-        "Erro ao restaurar o modelo de certificado."
+        error?.message || "Erro ao restaurar o modelo de certificado.",
       );
     } finally {
       setRestaurandoModeloId(null);
@@ -2673,92 +2450,71 @@ export default function ConfiguracaoCertificadoPage() {
         setCarregando(true);
         setMensagemErro("");
 
-        const [resModelos, resInstituicao] =
-          await Promise.all([
-            fetch("/api/admin/certificado-modelos", {
-              cache: "no-store",
-            }),
+        const [resModelos, resInstituicao] = await Promise.all([
+          fetch("/api/admin/certificado-modelos", {
+            cache: "no-store",
+          }),
 
-            fetch("/api/admin/configuracoes/instituicao", {
-              cache: "no-store",
-            }),
-          ]);
+          fetch("/api/admin/configuracoes/instituicao", {
+            cache: "no-store",
+          }),
+        ]);
 
         const dataModelos = await resModelos.json();
 
-        const dataInstituicao =
-          await resInstituicao
-            .json()
-            .catch(() => ({}));
+        const dataInstituicao = await resInstituicao.json().catch(() => ({}));
 
         if (!resModelos.ok) {
           throw new Error(
             dataModelos?.detalhe ||
-            dataModelos?.error ||
-            "Erro ao buscar modelos de certificado."
+              dataModelos?.error ||
+              "Erro ao buscar modelos de certificado.",
           );
         }
 
-        const todosModelos = Array.isArray(
-          dataModelos?.modelos
-        )
+        const todosModelos = Array.isArray(dataModelos?.modelos)
           ? dataModelos.modelos
           : [];
 
         const modelosAtivos = todosModelos.filter(
-          (modelo: any) =>
-            modelo?.ativo === true &&
-            modelo?.arquivado !== true
+          (modelo: any) => modelo?.ativo === true && modelo?.arquivado !== true,
         );
 
         const modelosArquivadosRecebidos = todosModelos.filter(
           (modelo: any) =>
-            modelo?.arquivado === true ||
-            modelo?.ativo === false
+            modelo?.arquivado === true || modelo?.ativo === false,
         );
 
         setModelosCertificado(modelosAtivos);
         setModelosArquivados(modelosArquivadosRecebidos);
         setResumoModelos({
-          plano: String(
-            dataModelos?.resumo?.plano || "ESSENCIAL"
-          ),
+          plano: String(dataModelos?.resumo?.plano || "ESSENCIAL"),
 
           limite:
             dataModelos?.resumo?.ilimitado === true ||
-              dataModelos?.resumo?.limite === null
+            dataModelos?.resumo?.limite === null
               ? null
-              : Number(
-                dataModelos?.resumo?.limite ?? 1
-              ),
+              : Number(dataModelos?.resumo?.limite ?? 1),
 
           ilimitado:
             dataModelos?.resumo?.ilimitado === true ||
             dataModelos?.resumo?.limite === null,
 
-          utilizados: Number(
-            dataModelos?.resumo?.utilizados ?? 0
-          ),
+          utilizados: Number(dataModelos?.resumo?.utilizados ?? 0),
 
           restantes:
             dataModelos?.resumo?.ilimitado === true ||
-              dataModelos?.resumo?.restantes === null
+            dataModelos?.resumo?.restantes === null
               ? null
-              : Number(
-                dataModelos?.resumo?.restantes ?? 0
-              ),
+              : Number(dataModelos?.resumo?.restantes ?? 0),
 
-          podeCriar:
-            dataModelos?.resumo?.podeCriar === true,
+          podeCriar: dataModelos?.resumo?.podeCriar === true,
         });
 
         const modeloInicial =
+          modelosAtivos.find((modelo: any) => modelo.padraoGeral === true) ||
           modelosAtivos.find(
-            (modelo: any) => modelo.padraoGeral === true
-          ) ||
-          modelosAtivos.find(
-            (modelo: any) =>
-              modelo.padraoModalidade === true
+            (modelo: any) => modelo.padraoModalidade === true,
           ) ||
           modelosAtivos[0] ||
           null;
@@ -2770,62 +2526,50 @@ export default function ConfiguracaoCertificadoPage() {
         if (modeloInicial) {
           const modeloId = Number(modeloInicial.id);
 
-          const [resRascunho, resCampos] =
-            await Promise.all([
-              fetch(
-                `/api/admin/certificado-modelos/${modeloId}/rascunho`,
-                {
-                  cache: "no-store",
-                }
-              ),
+          const [resRascunho, resCampos] = await Promise.all([
+            fetch(`/api/admin/certificado-modelos/${modeloId}/rascunho`, {
+              cache: "no-store",
+            }),
 
-              fetch(
-                `/api/admin/certificado-campos?modeloId=${modeloId}&versao=RASCUNHO`,
-                {
-                  cache: "no-store",
-                }
-              ),
-            ]);
+            fetch(
+              `/api/admin/certificado-campos?modeloId=${modeloId}&versao=RASCUNHO`,
+              {
+                cache: "no-store",
+              },
+            ),
+          ]);
 
-          const dataRascunho =
-            await resRascunho.json();
+          const dataRascunho = await resRascunho.json();
 
-          const dataCampos =
-            await resCampos.json();
+          const dataCampos = await resCampos.json();
 
           if (!resRascunho.ok) {
             throw new Error(
               dataRascunho?.detalhe ||
-              dataRascunho?.error ||
-              "Erro ao buscar o rascunho do modelo."
+                dataRascunho?.error ||
+                "Erro ao buscar o rascunho do modelo.",
             );
           }
 
           if (!resCampos.ok) {
             throw new Error(
               dataCampos?.detalhe ||
-              dataCampos?.error ||
-              "Erro ao buscar os campos do rascunho."
+                dataCampos?.error ||
+                "Erro ao buscar os campos do rascunho.",
             );
           }
 
           const rascunho = dataRascunho?.rascunho;
 
           if (!rascunho?.id) {
-            throw new Error(
-              "O modelo selecionado não possui rascunho."
-            );
+            throw new Error("O modelo selecionado não possui rascunho.");
           }
 
           modeloAtivoIdRef.current = modeloId;
-          versaoRascunhoIdRef.current =
-            Number(rascunho.id);
+          versaoRascunhoIdRef.current = Number(rascunho.id);
           setModeloAtivoId(modeloId);
 
-          aplicarConfiguracaoVisualCertificado(
-            rascunho,
-            dataInstituicao
-          );
+          aplicarConfiguracaoVisualCertificado(rascunho, dataInstituicao);
 
           aplicarCamposCarregados(dataCampos);
 
@@ -2840,57 +2584,44 @@ export default function ConfiguracaoCertificadoPage() {
         versaoRascunhoIdRef.current = null;
         setModeloAtivoId(null);
 
-        const [resConfig, resCampos] =
-          await Promise.all([
-            fetch(
-              "/api/admin/configuracoes/certificado",
-              {
-                cache: "no-store",
-              }
-            ),
+        const [resConfig, resCampos] = await Promise.all([
+          fetch("/api/admin/configuracoes/certificado", {
+            cache: "no-store",
+          }),
 
-            fetch("/api/admin/certificado-campos", {
-              cache: "no-store",
-            }),
-          ]);
+          fetch("/api/admin/certificado-campos", {
+            cache: "no-store",
+          }),
+        ]);
 
-        const dataConfig =
-          await resConfig.json();
+        const dataConfig = await resConfig.json();
 
-        const dataCampos =
-          await resCampos.json();
+        const dataCampos = await resCampos.json();
 
         if (!resConfig.ok) {
           throw new Error(
             dataConfig?.detalhe ||
-            dataConfig?.error ||
-            "Erro ao buscar configuração legada."
+              dataConfig?.error ||
+              "Erro ao buscar configuração legada.",
           );
         }
 
         if (!resCampos.ok) {
           throw new Error(
             dataCampos?.detalhe ||
-            dataCampos?.error ||
-            "Erro ao buscar campos legados."
+              dataCampos?.error ||
+              "Erro ao buscar campos legados.",
           );
         }
 
-        aplicarConfiguracaoVisualCertificado(
-          dataConfig,
-          dataInstituicao
-        );
+        aplicarConfiguracaoVisualCertificado(dataConfig, dataInstituicao);
 
         aplicarCamposCarregados(dataCampos);
       } catch (error: any) {
-        console.error(
-          "ERRO AO CARREGAR EDITOR DE CERTIFICADO:",
-          error
-        );
+        console.error("ERRO AO CARREGAR EDITOR DE CERTIFICADO:", error);
 
         setMensagemErro(
-          error?.message ||
-          "Erro ao carregar configuração do certificado."
+          error?.message || "Erro ao carregar configuração do certificado.",
         );
       } finally {
         setCarregando(false);
@@ -2911,9 +2642,7 @@ export default function ConfiguracaoCertificadoPage() {
         tag === "select" ||
         Boolean(alvo?.isContentEditable) ||
         Boolean(
-          alvo?.closest?.(
-            '[contenteditable="true"], [data-texto-livre-id]'
-          )
+          alvo?.closest?.('[contenteditable="true"], [data-texto-livre-id]'),
         );
 
       if (e.code === "Space") {
@@ -2949,7 +2678,7 @@ export default function ConfiguracaoCertificadoPage() {
         campoSelecionadoId === pontoFormaSelecionado.campoId
       ) {
         const campoForma = campos.find(
-          (campo) => campo.id === pontoFormaSelecionado.campoId
+          (campo) => campo.id === pontoFormaSelecionado.campoId,
         );
 
         const pontos = Array.isArray((campoForma as any)?.pontosForma)
@@ -2957,7 +2686,7 @@ export default function ConfiguracaoCertificadoPage() {
           : [];
 
         const pontoExiste = pontos.some(
-          (ponto) => ponto.id === pontoFormaSelecionado.pontoId
+          (ponto) => ponto.id === pontoFormaSelecionado.pontoId,
         );
 
         if (campoForma?.tipo === "FORMA" && pontoExiste) {
@@ -2969,7 +2698,7 @@ export default function ConfiguracaoCertificadoPage() {
             setMensagemErro(
               campoForma.forma === "LINHA"
                 ? "A linha precisa ter pelo menos 2 pontos."
-                : "A forma precisa ter pelo menos 3 pontos."
+                : "A forma precisa ter pelo menos 3 pontos.",
             );
 
             setTimeout(() => setMensagemErro(""), 2500);
@@ -2977,22 +2706,22 @@ export default function ConfiguracaoCertificadoPage() {
           }
 
           const novosPontos = pontos.filter(
-            (ponto) => ponto.id !== pontoFormaSelecionado.pontoId
+            (ponto) => ponto.id !== pontoFormaSelecionado.pontoId,
           );
 
           setCampos((prev) =>
             prev.map((campo) =>
               campo.id === pontoFormaSelecionado.campoId
                 ? {
-                  ...campo,
-                  pontosForma: novosPontos,
-                  dadosJson: {
-                    ...((campo as any).dadosJson || {}),
+                    ...campo,
                     pontosForma: novosPontos,
-                  },
-                }
-                : campo
-            )
+                    dadosJson: {
+                      ...((campo as any).dadosJson || {}),
+                      pontosForma: novosPontos,
+                    },
+                  }
+                : campo,
+            ),
           );
 
           setPontoFormaSelecionado(null);
@@ -3033,9 +2762,7 @@ export default function ConfiguracaoCertificadoPage() {
         tag === "select" ||
         Boolean(alvo?.isContentEditable) ||
         Boolean(
-          alvo?.closest?.(
-            '[contenteditable="true"], [data-texto-livre-id]'
-          )
+          alvo?.closest?.('[contenteditable="true"], [data-texto-livre-id]'),
         );
 
       if (estaDigitando) return;
@@ -3051,7 +2778,12 @@ export default function ConfiguracaoCertificadoPage() {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [campoSelecionadoId, camposSelecionadosIds, campos, pontoFormaSelecionado]);
+  }, [
+    campoSelecionadoId,
+    camposSelecionadosIds,
+    campos,
+    pontoFormaSelecionado,
+  ]);
 
   const baseCanvas = TAMANHOS_PAPEL[tamanhoPapel][orientacao];
 
@@ -3087,18 +2819,20 @@ export default function ConfiguracaoCertificadoPage() {
     return Math.min(
       1,
       larguraMaxima / baseCanvas.largura,
-      alturaMaxima / baseCanvas.altura
+      alturaMaxima / baseCanvas.altura,
     );
   }, [baseCanvas.largura, baseCanvas.altura]);
 
   const campoSelecionado = useMemo(
-
     () => campos.find((campo) => campo.id === campoSelecionadoId) || null,
-    [campos, campoSelecionadoId]
+    [campos, campoSelecionadoId],
   );
 
   function atualizarColunasDisciplinasCampo(valor: number) {
-    if (!campoSelecionado || campoSelecionado.tipo !== "DISCIPLINAS_CONCLUIDAS") {
+    if (
+      !campoSelecionado ||
+      campoSelecionado.tipo !== "DISCIPLINAS_CONCLUIDAS"
+    ) {
       return;
     }
 
@@ -3119,7 +2853,7 @@ export default function ConfiguracaoCertificadoPage() {
           lineHeight,
           altura: Math.max(
             Number(campo.altura || 0),
-            Math.ceil(linhasVisuais * tamanho * lineHeight + 18)
+            Math.ceil(linhasVisuais * tamanho * lineHeight + 18),
           ),
           dadosJson: {
             ...((campo as any).dadosJson || {}),
@@ -3128,12 +2862,15 @@ export default function ConfiguracaoCertificadoPage() {
             lineHeight,
           },
         };
-      })
+      }),
     );
   }
 
   function atualizarEspacoColunasDisciplinasCampo(valor: number) {
-    if (!campoSelecionado || campoSelecionado.tipo !== "DISCIPLINAS_CONCLUIDAS") {
+    if (
+      !campoSelecionado ||
+      campoSelecionado.tipo !== "DISCIPLINAS_CONCLUIDAS"
+    ) {
       return;
     }
 
@@ -3154,16 +2891,22 @@ export default function ConfiguracaoCertificadoPage() {
             lineHeight: campo.lineHeight ?? 1.35,
           },
         };
-      })
+      }),
     );
   }
 
   function atualizarQuantidadeDisciplinasCampo(valor: number) {
-    if (!campoSelecionado || campoSelecionado.tipo !== "DISCIPLINAS_CONCLUIDAS") {
+    if (
+      !campoSelecionado ||
+      campoSelecionado.tipo !== "DISCIPLINAS_CONCLUIDAS"
+    ) {
       return;
     }
 
-    const quantidade = Math.max(1, Math.min(80, Math.round(Number(valor || 1))));
+    const quantidade = Math.max(
+      1,
+      Math.min(80, Math.round(Number(valor || 1))),
+    );
 
     setCampos((prev) =>
       prev.map((campo) => {
@@ -3181,7 +2924,7 @@ export default function ConfiguracaoCertificadoPage() {
           lineHeight,
           altura: Math.max(
             Number(campo.altura || 0),
-            Math.ceil(linhasVisuais * tamanho * lineHeight + 18)
+            Math.ceil(linhasVisuais * tamanho * lineHeight + 18),
           ),
           dadosJson: {
             ...((campo as any).dadosJson || {}),
@@ -3190,7 +2933,7 @@ export default function ConfiguracaoCertificadoPage() {
             lineHeight,
           },
         };
-      })
+      }),
     );
   }
 
@@ -3212,7 +2955,7 @@ export default function ConfiguracaoCertificadoPage() {
         return campos
           .filter(
             (item) =>
-              item.grupoId === campo.grupoId && !(item as any).arrayPreview
+              item.grupoId === campo.grupoId && !(item as any).arrayPreview,
           )
           .map((item) => item.id);
       }
@@ -3232,14 +2975,14 @@ export default function ConfiguracaoCertificadoPage() {
 
     const maxX = Math.max(
       ...itens.map(
-        (campo) => Number(campo.x || 0) + Number(campo.largura || 120)
-      )
+        (campo) => Number(campo.x || 0) + Number(campo.largura || 120),
+      ),
     );
 
     const maxY = Math.max(
       ...itens.map(
-        (campo) => Number(campo.y || 0) + Number(campo.altura || 40)
-      )
+        (campo) => Number(campo.y || 0) + Number(campo.altura || 40),
+      ),
     );
 
     return {
@@ -3270,16 +3013,16 @@ export default function ConfiguracaoCertificadoPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setMensagemErro(data?.detalhe || data?.error || "Erro ao enviar arquivo.");
+        setMensagemErro(
+          data?.detalhe || data?.error || "Erro ao enviar arquivo.",
+        );
         return;
       }
 
       setCertificadoTemplateUrl(data.url || "");
 
       setCertificadoPreviewUrl(
-        data.previewUrl ||
-        data.certificadoPreviewUrl ||
-        ""
+        data.previewUrl || data.certificadoPreviewUrl || "",
       );
 
       setMensagemSucesso("Modelo do certificado enviado com sucesso.");
@@ -3492,27 +3235,29 @@ export default function ConfiguracaoCertificadoPage() {
           negrito: tipo === "TEXTO_LIVRE" && textoTipo === "TITULO",
 
           lineHeight: tipo === "DISCIPLINAS_CONCLUIDAS" ? 1.35 : undefined,
-          quantidadeDisciplinas: tipo === "DISCIPLINAS_CONCLUIDAS" ? 3 : undefined,
+          quantidadeDisciplinas:
+            tipo === "DISCIPLINAS_CONCLUIDAS" ? 3 : undefined,
           colunasDisciplinas: tipo === "DISCIPLINAS_CONCLUIDAS" ? 1 : undefined,
           espacoColunasDisciplinas:
             tipo === "DISCIPLINAS_CONCLUIDAS" ? 12 : undefined,
           dadosJson:
             tipo === "DISCIPLINAS_CONCLUIDAS"
               ? {
-                quantidadeDisciplinas: 3,
-                colunasDisciplinas: 1,
-                espacoColunasDisciplinas: 12,
-                lineHeight: 1.35,
-              }
+                  quantidadeDisciplinas: 3,
+                  colunasDisciplinas: 1,
+                  espacoColunasDisciplinas: 12,
+                  lineHeight: 1.35,
+                }
               : undefined,
-
         }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setMensagemErro(data?.detalhe || data?.error || "Erro ao adicionar campo.");
+        setMensagemErro(
+          data?.detalhe || data?.error || "Erro ao adicionar campo.",
+        );
         return;
       }
 
@@ -3523,19 +3268,19 @@ export default function ConfiguracaoCertificadoPage() {
           ...data,
           quantidadeDisciplinas:
             tipo === "DISCIPLINAS_CONCLUIDAS"
-              ? data?.dadosJson?.quantidadeDisciplinas ?? 3
+              ? (data?.dadosJson?.quantidadeDisciplinas ?? 3)
               : data?.quantidadeDisciplinas,
           colunasDisciplinas:
             tipo === "DISCIPLINAS_CONCLUIDAS"
-              ? data?.dadosJson?.colunasDisciplinas ?? 1
+              ? (data?.dadosJson?.colunasDisciplinas ?? 1)
               : data?.colunasDisciplinas,
           espacoColunasDisciplinas:
             tipo === "DISCIPLINAS_CONCLUIDAS"
-              ? data?.dadosJson?.espacoColunasDisciplinas ?? 12
+              ? (data?.dadosJson?.espacoColunasDisciplinas ?? 12)
               : data?.espacoColunasDisciplinas,
           lineHeight:
             tipo === "DISCIPLINAS_CONCLUIDAS"
-              ? data?.dadosJson?.lineHeight ?? 1.35
+              ? (data?.dadosJson?.lineHeight ?? 1.35)
               : data?.lineHeight,
         },
       ]);
@@ -3547,12 +3292,12 @@ export default function ConfiguracaoCertificadoPage() {
 
   async function atualizarCampo(
     id: number,
-    payload: Partial<CampoCertificado>
+    payload: Partial<CampoCertificado>,
   ) {
     try {
       if (payload.tipo === "IMAGEM" || payload.tipo === "FORMA") {
         setCampos((prev) =>
-          prev.map((c) => (c.id === id ? { ...c, ...payload } : c))
+          prev.map((c) => (c.id === id ? { ...c, ...payload } : c)),
         );
         return;
       }
@@ -3573,7 +3318,9 @@ export default function ConfiguracaoCertificadoPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setMensagemErro(data?.detalhe || data?.error || "Erro ao atualizar campo.");
+        setMensagemErro(
+          data?.detalhe || data?.error || "Erro ao atualizar campo.",
+        );
         return;
       }
 
@@ -3581,12 +3328,12 @@ export default function ConfiguracaoCertificadoPage() {
         prev.map((c) =>
           c.id === id
             ? {
-              ...c,
-              ...data,
-              ...payload,
-            }
-            : c
-        )
+                ...c,
+                ...data,
+                ...payload,
+              }
+            : c,
+        ),
       );
     } catch {
       setMensagemErro("Erro ao atualizar campo.");
@@ -3640,7 +3387,7 @@ export default function ConfiguracaoCertificadoPage() {
       }
 
       setCampos((prev) =>
-        prev.filter((c) => !camposParaExcluir.some((item) => item.id === c.id))
+        prev.filter((c) => !camposParaExcluir.some((item) => item.id === c.id)),
       );
 
       if (campoSelecionadoId === id) {
@@ -3656,7 +3403,7 @@ export default function ConfiguracaoCertificadoPage() {
 
   function atualizarCampoLocal<K extends keyof CampoCertificado>(
     chave: K,
-    valor: CampoCertificado[K]
+    valor: CampoCertificado[K],
   ) {
     if (!campoSelecionado) return;
 
@@ -3684,18 +3431,18 @@ export default function ConfiguracaoCertificadoPage() {
             ...campoAtualizado,
             altura: Math.max(
               Number(campoAtualizado.altura || 0),
-              Math.ceil(novoTamanho * 1.65)
+              Math.ceil(novoTamanho * 1.65),
             ),
             largura: Math.max(
               Number(campoAtualizado.largura || 0),
-              Math.ceil(novoTamanho * 8)
+              Math.ceil(novoTamanho * 8),
             ),
             lineHeight: campoAtualizado.lineHeight || 1.2,
           };
         }
 
         return campoAtualizado;
-      })
+      }),
     );
   }
 
@@ -3734,7 +3481,7 @@ export default function ConfiguracaoCertificadoPage() {
         rotate: Number(base.rotate || 0) + Number(arrayRotacao || 0) * passo,
         opacity: Math.max(
           0.05,
-          Number(base.opacity || 1) * Math.pow(opacidade, passo)
+          Number(base.opacity || 1) * Math.pow(opacidade, passo),
         ),
         ordem: Number(base.ordem || 5) + passo,
         nomeCamada: `${base.nomeCamada || base.forma || "Forma"} cópia ${passo}`,
@@ -3749,15 +3496,12 @@ export default function ConfiguracaoCertificadoPage() {
       (campo) =>
         ids.includes(campo.id) &&
         campo.tipo === "FORMA" &&
-        !(campo as any).arrayPreview
+        !(campo as any).arrayPreview,
     );
 
     if (bases.length === 0) return [];
 
-    const quantidade = Math.max(
-      1,
-      Math.min(100, Number(arrayQuantidade || 1))
-    );
+    const quantidade = Math.max(1, Math.min(100, Number(arrayQuantidade || 1)));
 
     const anguloRad = (Number(arrayAngulo || 0) * Math.PI) / 180;
     const escalaPorCopia = Number(arrayEscala || 100) / 100;
@@ -3806,7 +3550,7 @@ export default function ConfiguracaoCertificadoPage() {
           opacity: Math.max(
             0.05,
             Number((base as any).opacity || 1) *
-            Math.pow(opacidadePorCopia, passo)
+              Math.pow(opacidadePorCopia, passo),
           ),
           grupoId: novoGrupoId,
         };
@@ -3850,7 +3594,7 @@ export default function ConfiguracaoCertificadoPage() {
       (campo) =>
         ids.includes(campo.id) &&
         campo.tipo === "FORMA" &&
-        !(campo as any).arrayPreview
+        !(campo as any).arrayPreview,
     );
 
     if (itens.length === 0) {
@@ -3880,11 +3624,13 @@ export default function ConfiguracaoCertificadoPage() {
       (campo) =>
         ids.includes(campo.id) &&
         campo.tipo === "FORMA" &&
-        !(campo as any).arrayPreview
+        !(campo as any).arrayPreview,
     );
 
     if (formasSelecionadas.length === 0) {
-      setMensagemErro("Selecione uma forma ou grupo de formas para aplicar Array.");
+      setMensagemErro(
+        "Selecione uma forma ou grupo de formas para aplicar Array.",
+      );
       setTimeout(() => setMensagemErro(""), 2200);
       return;
     }
@@ -3927,18 +3673,18 @@ export default function ConfiguracaoCertificadoPage() {
       prev.map((campo) =>
         campo.id === campoBase.id
           ? ({
-            ...campo,
-            arrayAtivo: true,
-            arrayConfig,
-            nomeCamada: campo.nomeCamada || "Array",
-            dadosJson: {
-              ...((campo as any).dadosJson || {}),
+              ...campo,
               arrayAtivo: true,
               arrayConfig,
-            },
-          } as any)
-          : campo
-      )
+              nomeCamada: campo.nomeCamada || "Array",
+              dadosJson: {
+                ...((campo as any).dadosJson || {}),
+                arrayAtivo: true,
+                arrayConfig,
+              },
+            } as any)
+          : campo,
+      ),
     );
 
     setCopiasPreviewArray([]);
@@ -3967,7 +3713,7 @@ export default function ConfiguracaoCertificadoPage() {
         return campos
           .filter(
             (item) =>
-              item.grupoId === campo.grupoId && !(item as any).arrayPreview
+              item.grupoId === campo.grupoId && !(item as any).arrayPreview,
           )
           .map((item) => item.id);
       }
@@ -4021,7 +3767,7 @@ export default function ConfiguracaoCertificadoPage() {
               y: novoY,
             },
           } as CampoCertificado;
-        }
+        },
       );
 
       const novosIds = novosCampos.map((campo) => campo.id);
@@ -4084,7 +3830,7 @@ export default function ConfiguracaoCertificadoPage() {
                 y: novoY,
               },
             };
-          })
+          }),
         );
 
         return;
@@ -4107,7 +3853,7 @@ export default function ConfiguracaoCertificadoPage() {
         });
 
         setMensagemSucesso(
-          itensCopiados.length > 1 ? "Grupo copiado." : "Campo copiado."
+          itensCopiados.length > 1 ? "Grupo copiado." : "Campo copiado.",
         );
         setTimeout(() => setMensagemSucesso(""), 1200);
 
@@ -4121,7 +3867,7 @@ export default function ConfiguracaoCertificadoPage() {
           24,
           Array.isArray(campoCopiado?.itens) && campoCopiado.itens.length > 1
             ? "Grupo colado."
-            : "Campo colado."
+            : "Campo colado.",
         );
 
         return;
@@ -4134,7 +3880,7 @@ export default function ConfiguracaoCertificadoPage() {
           0,
           Array.isArray(campoCopiado?.itens) && campoCopiado.itens.length > 1
             ? "Grupo colado no mesmo lugar."
-            : "Campo colado no mesmo lugar."
+            : "Campo colado no mesmo lugar.",
         );
 
         return;
@@ -4146,12 +3892,7 @@ export default function ConfiguracaoCertificadoPage() {
     return () => {
       window.removeEventListener("keydown", handleCopiarColar);
     };
-  }, [
-    campoCopiado,
-    campos,
-    camposSelecionadosIds,
-    campoSelecionadoId,
-  ]);
+  }, [campoCopiado, campos, camposSelecionadosIds, campoSelecionadoId]);
 
   function abrirMenuFerramentasSelecao() {
     const ids = idsAlvoDaAcao();
@@ -4170,7 +3911,9 @@ export default function ConfiguracaoCertificadoPage() {
     const campo = campos.find((item) => item.id === campoIdMenu);
 
     if (!campo || campo.tipo !== "FORMA") {
-      setMensagemErro("As ferramentas avançadas estão disponíveis para formas.");
+      setMensagemErro(
+        "As ferramentas avançadas estão disponíveis para formas.",
+      );
       setTimeout(() => setMensagemErro(""), 2200);
       return;
     }
@@ -4187,7 +3930,10 @@ export default function ConfiguracaoCertificadoPage() {
     trazerPainelFlutuanteParaFrente("opcoesForma");
     setShapeInspectorAberto(true);
     setShapeInspectorPosicao({
-      x: Math.max(24, Math.min(window.innerWidth - 340, window.innerWidth - 390)),
+      x: Math.max(
+        24,
+        Math.min(window.innerWidth - 340, window.innerWidth - 390),
+      ),
       y: 160,
     });
   }
@@ -4204,7 +3950,7 @@ export default function ConfiguracaoCertificadoPage() {
 
   function selecionarCampoNoCanvas(
     event: React.MouseEvent<HTMLDivElement>,
-    campo: CampoCertificado
+    campo: CampoCertificado,
   ) {
     event.stopPropagation();
 
@@ -4270,7 +4016,7 @@ export default function ConfiguracaoCertificadoPage() {
         tamanho: Number(campo.tamanho || 18),
         contornoEspessura:
           campo.contornoEspessura !== null &&
-            campo.contornoEspessura !== undefined
+          campo.contornoEspessura !== undefined
             ? Number(campo.contornoEspessura)
             : null,
         sombraBlur:
@@ -4296,13 +4042,11 @@ export default function ConfiguracaoCertificadoPage() {
       const deltaY = (ev.clientY - startY) / escala;
 
       const deltaDominante =
-        Math.abs(deltaX) >= Math.abs(deltaY)
-          ? deltaX
-          : deltaY * proporcaoGrupo;
+        Math.abs(deltaX) >= Math.abs(deltaY) ? deltaX : deltaY * proporcaoGrupo;
 
       const novaLarguraGrupo = Math.max(
         1,
-        caixaInicial.largura + deltaDominante
+        caixaInicial.largura + deltaDominante,
       );
 
       const fator = Math.max(0.02, novaLarguraGrupo / caixaInicial.largura);
@@ -4310,7 +4054,7 @@ export default function ConfiguracaoCertificadoPage() {
       setCampos((prev) =>
         prev.map((campo) => {
           const itemInicial = itensIniciais.find(
-            (item) => item.id === campo.id
+            (item) => item.id === campo.id,
           );
 
           if (!itemInicial) return campo;
@@ -4339,7 +4083,7 @@ export default function ConfiguracaoCertificadoPage() {
             campo.tipo === "DISCIPLINAS_CONCLUIDAS"
           ) {
             novosDados.tamanho = arredondar(
-              Math.max(1, itemInicial.tamanho * fator)
+              Math.max(1, itemInicial.tamanho * fator),
             );
           }
 
@@ -4348,19 +4092,19 @@ export default function ConfiguracaoCertificadoPage() {
             itemInicial.contornoEspessura !== null
           ) {
             novosDados.contornoEspessura = arredondar(
-              Math.max(0.1, itemInicial.contornoEspessura * fator)
+              Math.max(0.1, itemInicial.contornoEspessura * fator),
             );
           }
 
           if (itemInicial.sombraBlur !== null) {
             novosDados.sombraBlur = arredondar(
-              Math.max(0, itemInicial.sombraBlur * fator)
+              Math.max(0, itemInicial.sombraBlur * fator),
             );
           }
 
           if (itemInicial.sombraDistancia !== null) {
             novosDados.sombraDistancia = arredondar(
-              itemInicial.sombraDistancia * fator
+              itemInicial.sombraDistancia * fator,
             );
           }
 
@@ -4380,7 +4124,7 @@ export default function ConfiguracaoCertificadoPage() {
               ...novosDados,
             },
           };
-        })
+        }),
       );
     };
 
@@ -4426,7 +4170,7 @@ export default function ConfiguracaoCertificadoPage() {
 
     const anguloInicialMouse = Math.atan2(
       e.clientY - centroTelaY,
-      e.clientX - centroTelaX
+      e.clientX - centroTelaX,
     );
 
     const itensIniciais = campos
@@ -4452,7 +4196,7 @@ export default function ConfiguracaoCertificadoPage() {
     const mover = (ev: globalThis.MouseEvent) => {
       const anguloAtualMouse = Math.atan2(
         ev.clientY - centroTelaY,
-        ev.clientX - centroTelaX
+        ev.clientX - centroTelaX,
       );
 
       const deltaRad = anguloAtualMouse - anguloInicialMouse;
@@ -4488,7 +4232,7 @@ export default function ConfiguracaoCertificadoPage() {
               ...novosDados,
             },
           };
-        })
+        }),
       );
     };
 
@@ -4526,7 +4270,7 @@ export default function ConfiguracaoCertificadoPage() {
 
   function atualizarGeometriaCampo(
     campo: CampoCertificado,
-    valores: Partial<CampoCertificado>
+    valores: Partial<CampoCertificado>,
   ) {
     return {
       ...campo,
@@ -4557,14 +4301,14 @@ export default function ConfiguracaoCertificadoPage() {
 
     const maxX = Math.max(
       ...itens.map(
-        (campo) => Number(campo.x || 0) + Number(campo.largura || 120)
-      )
+        (campo) => Number(campo.x || 0) + Number(campo.largura || 120),
+      ),
     );
 
     const maxY = Math.max(
       ...itens.map(
-        (campo) => Number(campo.y || 0) + Number(campo.altura || 40)
-      )
+        (campo) => Number(campo.y || 0) + Number(campo.altura || 40),
+      ),
     );
 
     const largura = Math.max(1, maxX - minX);
@@ -4603,10 +4347,9 @@ export default function ConfiguracaoCertificadoPage() {
 
       const itensDaUnidade = grupoId
         ? campos.filter(
-          (item) =>
-            (item as any).grupoId === grupoId &&
-            !(item as any).arrayPreview
-        )
+            (item) =>
+              (item as any).grupoId === grupoId && !(item as any).arrayPreview,
+          )
         : [campo];
 
       const atuais = mapa.get(chave) || [];
@@ -4636,7 +4379,7 @@ export default function ConfiguracaoCertificadoPage() {
   function escalarCampoDentroDaUnidade(
     campo: CampoCertificado,
     unidade: UnidadeAlinhamento,
-    fator: number
+    fator: number,
   ) {
     const x = Number(campo.x || 0);
     const y = Number(campo.y || 0);
@@ -4659,7 +4402,7 @@ export default function ConfiguracaoCertificadoPage() {
     ) {
       novosDados.tamanho = Math.max(
         4,
-        Math.round(Number(campo.tamanho || 18) * fator)
+        Math.round(Number(campo.tamanho || 18) * fator),
       );
     }
 
@@ -4670,7 +4413,9 @@ export default function ConfiguracaoCertificadoPage() {
     const ids = idsAlvoDaAcao();
 
     if (ids.length === 0) {
-      setMensagemErro("Selecione um elemento ou grupo para centralizar na página.");
+      setMensagemErro(
+        "Selecione um elemento ou grupo para centralizar na página.",
+      );
       setTimeout(() => setMensagemErro(""), 2200);
       return;
     }
@@ -4680,7 +4425,7 @@ export default function ConfiguracaoCertificadoPage() {
         ids.includes(campo.id) &&
         campo.id !== -999999 &&
         campo.arrayPreview !== true &&
-        !campo.idOriginalArray
+        !campo.idOriginalArray,
     );
 
     if (itens.length === 0) {
@@ -4696,14 +4441,14 @@ export default function ConfiguracaoCertificadoPage() {
 
     const maxX = Math.max(
       ...itens.map(
-        (campo: any) => Number(campo.x || 0) + Number(campo.largura || 120)
-      )
+        (campo: any) => Number(campo.x || 0) + Number(campo.largura || 120),
+      ),
     );
 
     const maxY = Math.max(
       ...itens.map(
-        (campo: any) => Number(campo.y || 0) + Number(campo.altura || 40)
-      )
+        (campo: any) => Number(campo.y || 0) + Number(campo.altura || 40),
+      ),
     );
 
     const larguraSelecao = maxX - minX;
@@ -4739,7 +4484,7 @@ export default function ConfiguracaoCertificadoPage() {
             ...novosDados,
           },
         };
-      })
+      }),
     );
 
     setMensagemSucesso("Seleção centralizada na página.");
@@ -4750,7 +4495,9 @@ export default function ConfiguracaoCertificadoPage() {
     const ids = idsAlvoDaAcao();
 
     if (ids.length === 0) {
-      setMensagemErro("Selecione uma forma ou grupo para duplicar no lado oposto.");
+      setMensagemErro(
+        "Selecione uma forma ou grupo para duplicar no lado oposto.",
+      );
       setTimeout(() => setMensagemErro(""), 1800);
       return;
     }
@@ -4772,19 +4519,23 @@ export default function ConfiguracaoCertificadoPage() {
 
     registrarHistoricoAntesDaAcao();
 
-    const minX = Math.min(...itensOriginais.map((campo: any) => Number(campo.x || 0)));
-    const minY = Math.min(...itensOriginais.map((campo: any) => Number(campo.y || 0)));
+    const minX = Math.min(
+      ...itensOriginais.map((campo: any) => Number(campo.x || 0)),
+    );
+    const minY = Math.min(
+      ...itensOriginais.map((campo: any) => Number(campo.y || 0)),
+    );
 
     const maxX = Math.max(
       ...itensOriginais.map(
-        (campo: any) => Number(campo.x || 0) + Number(campo.largura || 120)
-      )
+        (campo: any) => Number(campo.x || 0) + Number(campo.largura || 120),
+      ),
     );
 
     const maxY = Math.max(
       ...itensOriginais.map(
-        (campo: any) => Number(campo.y || 0) + Number(campo.altura || 40)
-      )
+        (campo: any) => Number(campo.y || 0) + Number(campo.altura || 40),
+      ),
     );
 
     const larguraSelecao = maxX - minX;
@@ -4851,7 +4602,7 @@ export default function ConfiguracaoCertificadoPage() {
         ? "Duplicado no lado oposto horizontal."
         : eixo === "Y"
           ? "Duplicado no lado oposto vertical."
-          : "Duplicado no lado oposto da página."
+          : "Duplicado no lado oposto da página.",
     );
 
     setTimeout(() => setMensagemSucesso(""), 1600);
@@ -4867,12 +4618,14 @@ export default function ConfiguracaoCertificadoPage() {
       | "BAIXO"
       | "MESMA_LARGURA"
       | "MESMA_ALTURA"
-      | "MESMO_TAMANHO"
+      | "MESMO_TAMANHO",
   ) {
     const unidades = unidadesSelecionadasParaAlinhamento();
 
     if (unidades.length < 2) {
-      setMensagemErro("Selecione pelo menos dois elementos ou grupos para alinhar.");
+      setMensagemErro(
+        "Selecione pelo menos dois elementos ou grupos para alinhar.",
+      );
       setTimeout(() => setMensagemErro(""), 2500);
       return;
     }
@@ -4881,11 +4634,11 @@ export default function ConfiguracaoCertificadoPage() {
       unidades.find(
         (unidade) =>
           campoSelecionadoId !== null &&
-          unidade.ids.includes(campoSelecionadoId)
+          unidade.ids.includes(campoSelecionadoId),
       ) || unidades[unidades.length - 1];
 
     const unidadesAlvo = unidades.filter(
-      (unidade) => unidade.chave !== referencia.chave
+      (unidade) => unidade.chave !== referencia.chave,
     );
 
     if (unidadesAlvo.length === 0) {
@@ -4899,7 +4652,7 @@ export default function ConfiguracaoCertificadoPage() {
     setCampos((prev) =>
       prev.map((campo) => {
         const unidade = unidadesAlvo.find((item) =>
-          item.ids.includes(campo.id)
+          item.ids.includes(campo.id),
         );
 
         if (!unidade) return campo;
@@ -4977,7 +4730,8 @@ export default function ConfiguracaoCertificadoPage() {
         }
 
         if (tipo === "MESMO_TAMANHO") {
-          const fatorLargura = referencia.largura / Math.max(1, unidade.largura);
+          const fatorLargura =
+            referencia.largura / Math.max(1, unidade.largura);
           const fatorAltura = referencia.altura / Math.max(1, unidade.altura);
 
           const fator = Math.min(fatorLargura, fatorAltura);
@@ -4986,7 +4740,7 @@ export default function ConfiguracaoCertificadoPage() {
         }
 
         return campo;
-      })
+      }),
     );
 
     setMensagemSucesso("Elementos alinhados.");
@@ -5011,14 +4765,14 @@ export default function ConfiguracaoCertificadoPage() {
 
     const maxX = Math.max(
       ...itens.map(
-        (campo) => Number(campo.x || 0) + Number(campo.largura || 120)
-      )
+        (campo) => Number(campo.x || 0) + Number(campo.largura || 120),
+      ),
     );
 
     const maxY = Math.max(
       ...itens.map(
-        (campo) => Number(campo.y || 0) + Number(campo.altura || 40)
-      )
+        (campo) => Number(campo.y || 0) + Number(campo.altura || 40),
+      ),
     );
 
     const larguraGrupo = maxX - minX;
@@ -5038,17 +4792,17 @@ export default function ConfiguracaoCertificadoPage() {
         const novosDados =
           direcao === "HORIZONTAL"
             ? {
-              x: temGrupo
-                ? Math.round(minX + larguraGrupo - (x - minX) - largura)
-                : x,
-              flipX: !(campo as any).flipX,
-            }
+                x: temGrupo
+                  ? Math.round(minX + larguraGrupo - (x - minX) - largura)
+                  : x,
+                flipX: !(campo as any).flipX,
+              }
             : {
-              y: temGrupo
-                ? Math.round(minY + alturaGrupo - (y - minY) - altura)
-                : y,
-              flipY: !(campo as any).flipY,
-            };
+                y: temGrupo
+                  ? Math.round(minY + alturaGrupo - (y - minY) - altura)
+                  : y,
+                flipY: !(campo as any).flipY,
+              };
 
         return {
           ...campo,
@@ -5058,13 +4812,13 @@ export default function ConfiguracaoCertificadoPage() {
             ...novosDados,
           },
         };
-      })
+      }),
     );
 
     setMensagemSucesso(
       direcao === "HORIZONTAL"
         ? "Virado horizontalmente."
-        : "Virado verticalmente."
+        : "Virado verticalmente.",
     );
 
     setTimeout(() => setMensagemSucesso(""), 1500);
@@ -5081,8 +4835,8 @@ export default function ConfiguracaoCertificadoPage() {
 
     setCampos((prev) =>
       prev.map((item) =>
-        ids.includes(item.id) ? ({ ...item, [chave]: valor } as any) : item
-      )
+        ids.includes(item.id) ? ({ ...item, [chave]: valor } as any) : item,
+      ),
     );
   }
 
@@ -5102,7 +4856,7 @@ export default function ConfiguracaoCertificadoPage() {
     }
 
     const editor = document.querySelector(
-      `[data-texto-livre-id="${campoSelecionadoId}"]`
+      `[data-texto-livre-id="${campoSelecionadoId}"]`,
     ) as HTMLElement | null;
 
     if (!editor) return tamanhoSelecaoTexto || 18;
@@ -5125,16 +4879,22 @@ export default function ConfiguracaoCertificadoPage() {
   }
 
   function alterarTamanhoTextoSelecionado(delta: number) {
-    if (campoSelecionado?.tipo !== "TEXTO_LIVRE" || !temSelecaoTextoLivreAtiva()) {
+    if (
+      campoSelecionado?.tipo !== "TEXTO_LIVRE" ||
+      !temSelecaoTextoLivreAtiva()
+    ) {
       atualizarCampoLocal(
         "tamanho",
-        Math.max(6, Math.min(120, (campoSelecionado?.tamanho || 18) + delta)) as any
+        Math.max(
+          6,
+          Math.min(120, (campoSelecionado?.tamanho || 18) + delta),
+        ) as any,
       );
       return;
     }
 
     const editor = document.querySelector(
-      `[data-texto-livre-id="${campoSelecionadoId}"]`
+      `[data-texto-livre-id="${campoSelecionadoId}"]`,
     ) as HTMLElement | null;
 
     const selecao = window.getSelection();
@@ -5203,18 +4963,18 @@ export default function ConfiguracaoCertificadoPage() {
       prev.map((campo) =>
         campo.id === campoId
           ? {
-            ...campo,
-            texto: editor.innerText,
-            textoHtml: editor.innerHTML,
-          }
-          : campo
-      )
+              ...campo,
+              texto: editor.innerText,
+              textoHtml: editor.innerHTML,
+            }
+          : campo,
+      ),
     );
   }
 
   function inserirMarcadorTextoSelecionado(marcador: string) {
     const editor = document.querySelector(
-      `[data-texto-livre-id="${campoSelecionadoId}"]`
+      `[data-texto-livre-id="${campoSelecionadoId}"]`,
     ) as HTMLElement | null;
 
     if (!editor) return;
@@ -5261,8 +5021,8 @@ export default function ConfiguracaoCertificadoPage() {
       prev.map((campo) =>
         campo.id === campoId
           ? { ...campo, texto: editor.innerText, textoHtml: editor.innerHTML }
-          : campo
-      )
+          : campo,
+      ),
     );
 
     return true;
@@ -5286,7 +5046,7 @@ export default function ConfiguracaoCertificadoPage() {
   function aplicarContornoTextoSelecionado(
     cor: string,
     espessura: number,
-    tipo: "interno" | "externo" = tipoContornoTexto
+    tipo: "interno" | "externo" = tipoContornoTexto,
   ) {
     if (!contornoTextoAtivo) return;
 
@@ -5313,7 +5073,7 @@ export default function ConfiguracaoCertificadoPage() {
     aplicandoEstiloTextoRef.current = true;
 
     const editor = document.querySelector(
-      `[data-texto-livre-id="${campoSelecionadoId}"]`
+      `[data-texto-livre-id="${campoSelecionadoId}"]`,
     ) as HTMLElement | null;
 
     if (!editor) {
@@ -5393,11 +5153,10 @@ export default function ConfiguracaoCertificadoPage() {
     );
   }
 
-
   function aplicarEstiloTextoOuCampoInteiro(
     chave: keyof CampoCertificado,
     valor: any,
-    estilo: React.CSSProperties
+    estilo: React.CSSProperties,
   ) {
     if (temSelecaoTextoLivreAtiva()) {
       aplicarEstiloTextoSelecionado(estilo);
@@ -5418,9 +5177,7 @@ export default function ConfiguracaoCertificadoPage() {
   }
 
   function camadasOrdenadas() {
-    return campos
-      .slice()
-      .sort((a, b) => (b.ordem || 0) - (a.ordem || 0));
+    return campos.slice().sort((a, b) => (b.ordem || 0) - (a.ordem || 0));
   }
 
   function moverCamadaPara(campoId: number, destino: "cima" | "baixo") {
@@ -5447,7 +5204,7 @@ export default function ConfiguracaoCertificadoPage() {
           ...campo,
           ordem: lista.length - novoIndex,
         };
-      })
+      }),
     );
   }
 
@@ -5472,15 +5229,14 @@ export default function ConfiguracaoCertificadoPage() {
           ...campo,
           ordem: lista.length - novoIndex,
         };
-      })
+      }),
     );
   }
 
   function iniciarDrag(
     event: MouseEvent<HTMLDivElement>,
-    campo: CampoCertificado
+    campo: CampoCertificado,
   ) {
-
     if (campo.bloqueado) {
       setCampoSelecionadoId(campo.id);
       setCamposSelecionadosIds([campo.id]);
@@ -5490,10 +5246,10 @@ export default function ConfiguracaoCertificadoPage() {
 
     const idsDoGrupo = campo.grupoId
       ? campos
-        .filter((item) => item.grupoId === campo.grupoId)
-        .map((item) => item.id)
+          .filter((item) => item.grupoId === campo.grupoId)
+          .map((item) => item.id)
       : camposSelecionadosIds.length > 1 &&
-        camposSelecionadosIds.includes(campo.id)
+          camposSelecionadosIds.includes(campo.id)
         ? camposSelecionadosIds
         : [campo.id];
 
@@ -5503,7 +5259,8 @@ export default function ConfiguracaoCertificadoPage() {
       campoId: campo.id,
       offsetX: (event.clientX - rect.left) / escala,
       offsetY: (event.clientY - rect.top) / escala,
-      grupoId: campo.grupoId || (idsDoGrupo.length > 1 ? "selecao-temporaria" : null),
+      grupoId:
+        campo.grupoId || (idsDoGrupo.length > 1 ? "selecao-temporaria" : null),
       inicioX: campo.x,
       inicioY: campo.y,
       posicoesIniciais: campos
@@ -5518,7 +5275,7 @@ export default function ConfiguracaoCertificadoPage() {
   function iniciarCrop(
     e: React.MouseEvent,
     campo: CampoCertificado,
-    direcao: "top" | "bottom" | "left" | "right"
+    direcao: "top" | "bottom" | "left" | "right",
   ) {
     e.stopPropagation();
     e.preventDefault();
@@ -5548,7 +5305,6 @@ export default function ConfiguracaoCertificadoPage() {
       (campo as any).cropBaseH ||
       alturaInicial + cropInicial.top + cropInicial.bottom;
 
-
     const move = (ev: globalThis.MouseEvent) => {
       const dx = ev.clientX - startX;
       const dy = ev.clientY - startY;
@@ -5566,7 +5322,7 @@ export default function ConfiguracaoCertificadoPage() {
           if (direcao === "left") {
             const delta = Math.max(
               -cropInicial.left,
-              Math.min(ev.clientX - startX, larguraInicial - 40)
+              Math.min(ev.clientX - startX, larguraInicial - 40),
             );
 
             novoCrop.left = cropInicial.left + delta;
@@ -5577,7 +5333,7 @@ export default function ConfiguracaoCertificadoPage() {
           if (direcao === "right") {
             const delta = Math.max(
               -cropInicial.right,
-              Math.min(startX - ev.clientX, larguraInicial - 40)
+              Math.min(startX - ev.clientX, larguraInicial - 40),
             );
 
             novoCrop.right = cropInicial.right + delta;
@@ -5586,14 +5342,20 @@ export default function ConfiguracaoCertificadoPage() {
           }
 
           if (direcao === "top") {
-            const delta = Math.max(-cropInicial.top, Math.min(dy, alturaInicial - 40));
+            const delta = Math.max(
+              -cropInicial.top,
+              Math.min(dy, alturaInicial - 40),
+            );
             novoCrop.top = cropInicial.top + delta;
             novoY = yInicial + delta;
             novaAltura = alturaInicial - delta;
           }
 
           if (direcao === "bottom") {
-            const delta = Math.max(-cropInicial.bottom, Math.min(-dy, alturaInicial - 40));
+            const delta = Math.max(
+              -cropInicial.bottom,
+              Math.min(-dy, alturaInicial - 40),
+            );
             novoCrop.bottom = cropInicial.bottom + delta;
             novaAltura = alturaInicial - delta;
           }
@@ -5608,7 +5370,7 @@ export default function ConfiguracaoCertificadoPage() {
             cropBaseW,
             cropBaseH,
           };
-        })
+        }),
       );
     };
 
@@ -5621,10 +5383,7 @@ export default function ConfiguracaoCertificadoPage() {
     window.addEventListener("mouseup", up);
   }
 
-  function iniciarCropPro(
-    e: React.MouseEvent,
-    campo: CampoCertificado
-  ) {
+  function iniciarCropPro(e: React.MouseEvent, campo: CampoCertificado) {
     e.stopPropagation();
     e.preventDefault();
 
@@ -5662,7 +5421,7 @@ export default function ConfiguracaoCertificadoPage() {
             ...item,
             crop: novoCrop,
           };
-        })
+        }),
       );
     };
 
@@ -5699,14 +5458,14 @@ export default function ConfiguracaoCertificadoPage() {
 
       const maxParaDentro = Math.min(
         (larguraInicial - 40) / 2,
-        (alturaInicial - 40) / 2
+        (alturaInicial - 40) / 2,
       );
 
       const maxParaFora = -Math.min(
         cropInicial.top,
         cropInicial.bottom,
         cropInicial.left,
-        cropInicial.right
+        cropInicial.right,
       );
 
       const delta = Math.max(maxParaFora, Math.min(bruto, maxParaDentro));
@@ -5715,20 +5474,20 @@ export default function ConfiguracaoCertificadoPage() {
         prev.map((item) =>
           item.id === campo.id
             ? {
-              ...item,
-              x: Math.round(xInicial + delta),
-              y: Math.round(yInicial + delta),
-              largura: Math.max(40, Math.round(larguraInicial - delta * 2)),
-              altura: Math.max(40, Math.round(alturaInicial - delta * 2)),
-              crop: {
-                top: Math.max(0, cropInicial.top + delta),
-                bottom: Math.max(0, cropInicial.bottom + delta),
-                left: Math.max(0, cropInicial.left + delta),
-                right: Math.max(0, cropInicial.right + delta),
-              },
-            }
-            : item
-        )
+                ...item,
+                x: Math.round(xInicial + delta),
+                y: Math.round(yInicial + delta),
+                largura: Math.max(40, Math.round(larguraInicial - delta * 2)),
+                altura: Math.max(40, Math.round(alturaInicial - delta * 2)),
+                crop: {
+                  top: Math.max(0, cropInicial.top + delta),
+                  bottom: Math.max(0, cropInicial.bottom + delta),
+                  left: Math.max(0, cropInicial.left + delta),
+                  right: Math.max(0, cropInicial.right + delta),
+                },
+              }
+            : item,
+        ),
       );
     };
 
@@ -5747,7 +5506,7 @@ export default function ConfiguracaoCertificadoPage() {
 
     registrarHistoricoAntesDaAcao();
 
-    const elemento = (e.currentTarget.parentElement as HTMLElement);
+    const elemento = e.currentTarget.parentElement as HTMLElement;
     if (!elemento) return;
 
     const rect = elemento.getBoundingClientRect();
@@ -5763,11 +5522,11 @@ export default function ConfiguracaoCertificadoPage() {
         prev.map((item) =>
           item.id === campo.id
             ? {
-              ...item,
-              rotate: Math.round(angulo + 90),
-            }
-            : item
-        )
+                ...item,
+                rotate: Math.round(angulo + 90),
+              }
+            : item,
+        ),
       );
     };
 
@@ -5818,7 +5577,7 @@ export default function ConfiguracaoCertificadoPage() {
       setCampos((prev) =>
         prev.map((item) => {
           const posInicial = dragRef.current?.posicoesIniciais.find(
-            (pos) => pos.id === item.id
+            (pos) => pos.id === item.id,
           );
 
           if (!posInicial) return item;
@@ -5828,7 +5587,7 @@ export default function ConfiguracaoCertificadoPage() {
             x: posInicial.x + deltaX,
             y: posInicial.y + deltaY,
           };
-        })
+        }),
       );
 
       return;
@@ -5838,8 +5597,8 @@ export default function ConfiguracaoCertificadoPage() {
       prev.map((item) =>
         item.id === dragRef.current?.campoId
           ? { ...item, x: Math.round(novoX), y: Math.round(novoY) }
-          : item
-      )
+          : item,
+      ),
     );
   }
 
@@ -5875,11 +5634,14 @@ export default function ConfiguracaoCertificadoPage() {
   async function salvarCampoSelecionado() {
     if (!campoSelecionado) return;
 
-    if (campoSelecionado.tipo === "IMAGEM" || campoSelecionado.tipo === "FORMA") {
+    if (
+      campoSelecionado.tipo === "IMAGEM" ||
+      campoSelecionado.tipo === "FORMA"
+    ) {
       setMensagemSucesso(
         campoSelecionado.tipo === "IMAGEM"
           ? "Imagem ajustada no editor."
-          : "Forma ajustada no editor."
+          : "Forma ajustada no editor.",
       );
       setTimeout(() => setMensagemSucesso(""), 2500);
       return;
@@ -5914,38 +5676,36 @@ export default function ConfiguracaoCertificadoPage() {
   function baixarArquivo() {
     if (formatoDownload === "png") {
       setMensagemErro(
-        "O download em PNG ainda está em desenvolvimento no Editor PHANYX."
+        "O download em PNG ainda está em desenvolvimento no Editor PHANYX.",
       );
       return;
     }
 
     if (formatoDownload === "jpg") {
       setMensagemErro(
-        "O download em JPG ainda está em desenvolvimento no Editor PHANYX."
+        "O download em JPG ainda está em desenvolvimento no Editor PHANYX.",
       );
       return;
     }
 
     if (formatoDownload === "pdf") {
       setMensagemErro(
-        "O download em PDF padrão ainda está em desenvolvimento no Editor PHANYX."
+        "O download em PDF padrão ainda está em desenvolvimento no Editor PHANYX.",
       );
       return;
     }
 
     if (formatoDownload === "pdf-impressao") {
       setMensagemErro(
-        "O download em PDF para impressão ainda está em desenvolvimento no Editor PHANYX."
+        "O download em PDF para impressão ainda está em desenvolvimento no Editor PHANYX.",
       );
       return;
     }
   }
 
-  async function salvarRascunhoCompleto(
-    opcoes?: {
-      silencioso?: boolean;
-    }
-  ): Promise<boolean> {
+  async function salvarRascunhoCompleto(opcoes?: {
+    silencioso?: boolean;
+  }): Promise<boolean> {
     try {
       setSalvando(true);
       setMensagemErro("");
@@ -5955,7 +5715,7 @@ export default function ConfiguracaoCertificadoPage() {
 
       if (!modeloId || !versaoRascunhoId) {
         throw new Error(
-          "Nenhum modelo de certificado com rascunho está selecionado."
+          "Nenhum modelo de certificado com rascunho está selecionado.",
         );
       }
 
@@ -5973,8 +5733,7 @@ export default function ConfiguracaoCertificadoPage() {
             templateUrl: certificadoTemplateUrl || null,
             previewUrl: certificadoPreviewUrl || null,
             assinaturaUrl: certificadoAssinaturaUrl || null,
-            coordenadorNome:
-              certificadoCoordenadorNome || null,
+            coordenadorNome: certificadoCoordenadorNome || null,
             cidade: certificadoCidade || null,
 
             modoFundo,
@@ -5985,7 +5744,7 @@ export default function ConfiguracaoCertificadoPage() {
             larguraBase: baseCanvas.largura,
             alturaBase: baseCanvas.altura,
           }),
-        }
+        },
       );
 
       const dataConfig = await resConfig.json();
@@ -5993,47 +5752,43 @@ export default function ConfiguracaoCertificadoPage() {
       if (!resConfig.ok) {
         throw new Error(
           dataConfig?.detalhe ||
-          dataConfig?.error ||
-          "Erro ao salvar as configurações do rascunho."
+            dataConfig?.error ||
+            "Erro ao salvar as configurações do rascunho.",
         );
       }
 
-      const camposParaSalvar = campos.filter(
-        (campo: any) => {
-          if (!campo) return false;
-          if (campo.id === -999999) return false;
-          if (campo.arrayPreview === true) return false;
-          if (campo.idOriginalArray) return false;
-          if (!String(campo.tipo || "").trim()) return false;
+      const camposParaSalvar = campos.filter((campo: any) => {
+        if (!campo) return false;
+        if (campo.id === -999999) return false;
+        if (campo.arrayPreview === true) return false;
+        if (campo.idOriginalArray) return false;
+        if (!String(campo.tipo || "").trim()) return false;
 
-          return true;
-        }
-      );
+        return true;
+      });
 
-      const payloadCampos = camposParaSalvar.map(
-        (campo: any) => {
-          const campoLimpo: any = {
-            ...campo,
-          };
+      const payloadCampos = camposParaSalvar.map((campo: any) => {
+        const campoLimpo: any = {
+          ...campo,
+        };
 
-          /*
-           * Remove dados de controle ou pertencentes ao registro antigo.
-           * A API criará novos IDs exclusivamente dentro do RASCUNHO.
-           */
-          delete campoLimpo.id;
-          delete campoLimpo.bancoId;
-          delete campoLimpo.tempId;
-          delete campoLimpo.arrayPreview;
-          delete campoLimpo.idOriginalArray;
+        /*
+         * Remove dados de controle ou pertencentes ao registro antigo.
+         * A API criará novos IDs exclusivamente dentro do RASCUNHO.
+         */
+        delete campoLimpo.id;
+        delete campoLimpo.bancoId;
+        delete campoLimpo.tempId;
+        delete campoLimpo.arrayPreview;
+        delete campoLimpo.idOriginalArray;
 
-          delete campoLimpo.instituicaoId;
-          delete campoLimpo.certificadoModeloVersaoId;
-          delete campoLimpo.createdAt;
-          delete campoLimpo.updatedAt;
+        delete campoLimpo.instituicaoId;
+        delete campoLimpo.certificadoModeloVersaoId;
+        delete campoLimpo.createdAt;
+        delete campoLimpo.updatedAt;
 
-          return campoLimpo;
-        }
-      );
+        return campoLimpo;
+      });
 
       /*
        * Salva somente os campos da versão RASCUNHO selecionada.
@@ -6050,7 +5805,7 @@ export default function ConfiguracaoCertificadoPage() {
             removerAusentes: true,
             campos: payloadCampos,
           }),
-        }
+        },
       );
 
       const dataCampos = await resCampos.json();
@@ -6058,25 +5813,23 @@ export default function ConfiguracaoCertificadoPage() {
       if (!resCampos.ok) {
         throw new Error(
           dataCampos?.detalhe ||
-          dataCampos?.error ||
-          "Erro ao salvar os campos do rascunho."
+            dataCampos?.error ||
+            "Erro ao salvar os campos do rascunho.",
         );
       }
 
       if (Array.isArray(dataCampos?.campos)) {
-        const camposSalvos = dataCampos.campos.map(
-          (campo: any) => {
-            const dados = campo?.dadosJson || {};
+        const camposSalvos = dataCampos.campos.map((campo: any) => {
+          const dados = campo?.dadosJson || {};
 
-            return {
-              ...campo,
-              ...dados,
+          return {
+            ...campo,
+            ...dados,
 
-              id: campo.id,
-              bancoId: campo.id,
-            };
-          }
-        );
+            id: campo.id,
+            bancoId: campo.id,
+          };
+        });
 
         setCampos(camposSalvos);
         setCampoSelecionadoId(null);
@@ -6088,7 +5841,7 @@ export default function ConfiguracaoCertificadoPage() {
 
       if (!opcoes?.silencioso) {
         setMensagemSucesso(
-          "Rascunho salvo com sucesso. A versão publicada usada pelos alunos não foi alterada."
+          "Rascunho salvo com sucesso. A versão publicada usada pelos alunos não foi alterada.",
         );
 
         setTimeout(() => {
@@ -6098,14 +5851,10 @@ export default function ConfiguracaoCertificadoPage() {
 
       return true;
     } catch (error: any) {
-      console.error(
-        "ERRO AO SALVAR RASCUNHO DO CERTIFICADO:",
-        error
-      );
+      console.error("ERRO AO SALVAR RASCUNHO DO CERTIFICADO:", error);
 
       setMensagemErro(
-        error?.message ||
-        "Erro ao salvar o rascunho do certificado."
+        error?.message || "Erro ao salvar o rascunho do certificado.",
       );
       return false;
     } finally {
@@ -6121,9 +5870,7 @@ export default function ConfiguracaoCertificadoPage() {
       const modeloId = modeloAtivoIdRef.current;
 
       if (!modeloId) {
-        throw new Error(
-          "Nenhum modelo de certificado está selecionado."
-        );
+        throw new Error("Nenhum modelo de certificado está selecionado.");
       }
 
       /*
@@ -6135,12 +5882,11 @@ export default function ConfiguracaoCertificadoPage() {
 
       /*
        * Antes de publicar, salva tudo o que está atualmente
-           * aberto no editor dentro do RASCUNHO.
-           */
-      const rascunhoSalvo =
-        await salvarRascunhoCompleto({
-          silencioso: true,
-        });
+       * aberto no editor dentro do RASCUNHO.
+       */
+      const rascunhoSalvo = await salvarRascunhoCompleto({
+        silencioso: true,
+      });
 
       if (!rascunhoSalvo) {
         return;
@@ -6150,42 +5896,32 @@ export default function ConfiguracaoCertificadoPage() {
         `/api/admin/certificado-modelos/${modeloId}/publicar`,
         {
           method: "POST",
-        }
+        },
       );
 
       const dados = await resposta.json();
 
       if (!resposta.ok) {
         throw new Error(
-          dados?.detalhe ||
-          dados?.error ||
-          "Erro ao publicar o modelo final."
+          dados?.detalhe || dados?.error || "Erro ao publicar o modelo final.",
         );
       }
 
-      const totalCampos = Number(
-        dados?.publicacao?.totalCampos || 0
-      );
+      const totalCampos = Number(dados?.publicacao?.totalCampos || 0);
 
       setMensagemSucesso(
         totalCampos > 0
           ? `Modelo final publicado com sucesso. ${totalCampos} elementos foram enviados para a versão publicada.`
-          : "Modelo final publicado com sucesso."
+          : "Modelo final publicado com sucesso.",
       );
 
       setTimeout(() => {
         setMensagemSucesso("");
       }, 5000);
     } catch (error: any) {
-      console.error(
-        "ERRO AO PUBLICAR MODELO FINAL:",
-        error
-      );
+      console.error("ERRO AO PUBLICAR MODELO FINAL:", error);
 
-      setMensagemErro(
-        error?.message ||
-        "Erro ao publicar o modelo final."
-      );
+      setMensagemErro(error?.message || "Erro ao publicar o modelo final.");
     } finally {
       setPublicando(false);
     }
@@ -6231,7 +5967,7 @@ export default function ConfiguracaoCertificadoPage() {
             Number(config.rotacaoPorCopia || 0) * passo,
           opacity: Math.max(
             0.05,
-            Number(campo.opacity || 1) * Math.pow(opacidade, passo)
+            Number(campo.opacity || 1) * Math.pow(opacidade, passo),
           ),
         });
       }
@@ -6257,24 +5993,22 @@ export default function ConfiguracaoCertificadoPage() {
       prev.map((campo) =>
         ids.includes(campo.id)
           ? {
-            ...campo,
-            contornoTextoAtivo: !campo.contornoTextoAtivo,
-            contornoTextoCor:
-              campo.contornoTextoCor || corContornoTexto || "#000000",
-            contornoTextoEspessura:
-              campo.contornoTextoEspessura ??
-              espessuraContornoTexto ??
-              1,
-            contornoTextoTipo:
-              campo.contornoTextoTipo || tipoContornoTexto || "externo",
-          }
-          : campo
-      )
+              ...campo,
+              contornoTextoAtivo: !campo.contornoTextoAtivo,
+              contornoTextoCor:
+                campo.contornoTextoCor || corContornoTexto || "#000000",
+              contornoTextoEspessura:
+                campo.contornoTextoEspessura ?? espessuraContornoTexto ?? 1,
+              contornoTextoTipo:
+                campo.contornoTextoTipo || tipoContornoTexto || "externo",
+            }
+          : campo,
+      ),
     );
   }
 
   function atualizarContornoTextoCampoSelecionado(
-    patch: Partial<CampoCertificado>
+    patch: Partial<CampoCertificado>,
   ) {
     const ids = idsAlvoDaAcao();
 
@@ -6284,22 +6018,19 @@ export default function ConfiguracaoCertificadoPage() {
       prev.map((campo) =>
         ids.includes(campo.id)
           ? {
-            ...campo,
-            ...patch,
-            contornoTextoAtivo: true,
-          }
-          : campo
-      )
+              ...campo,
+              ...patch,
+              contornoTextoAtivo: true,
+            }
+          : campo,
+      ),
     );
   }
 
   const camposPreviewCertificado = [
     ...camposComArrayVirtual(),
     ...copiasPreviewArray,
-  ].sort(
-    (a: any, b: any) =>
-      Number(a.ordem || 0) - Number(b.ordem || 0)
-  );
+  ].sort((a: any, b: any) => Number(a.ordem || 0) - Number(b.ordem || 0));
 
   const dadosPreviewCertificado = {
     nomeAluno: "José Exemplo da Silva",
@@ -6397,12 +6128,9 @@ export default function ConfiguracaoCertificadoPage() {
           ...prev,
           x: Math.max(
             margem,
-            Math.min(window.innerWidth - larguraPainel - margem, novoX)
+            Math.min(window.innerWidth - larguraPainel - margem, novoX),
           ),
-          y: Math.max(
-            margem,
-            Math.min(window.innerHeight - 80, novoY)
-          ),
+          y: Math.max(margem, Math.min(window.innerHeight - 80, novoY)),
         };
       });
     };
@@ -6430,12 +6158,12 @@ export default function ConfiguracaoCertificadoPage() {
       )}
 
       <style jsx global>{`
-  [data-texto-livre-id]::selection,
-  [data-texto-livre-id] *::selection {
-    background: rgba(37, 99, 235, 0.35);
-    color: inherit;
-  }
-`}</style>
+        [data-texto-livre-id]::selection,
+        [data-texto-livre-id] *::selection {
+          background: rgba(37, 99, 235, 0.35);
+          color: inherit;
+        }
+      `}</style>
 
       {mensagemSucesso && (
         <div className="mb-4">
@@ -6459,7 +6187,9 @@ export default function ConfiguracaoCertificadoPage() {
           </h2>
 
           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-700">
-            O editor visual de certificados, campos dinâmicos, emissão automática e validação por QR Code estão disponíveis a partir do Plano Profissional.
+            O editor visual de certificados, campos dinâmicos, emissão
+            automática e validação por QR Code estão disponíveis a partir do
+            Plano Profissional.
           </p>
 
           <a
@@ -6480,15 +6210,15 @@ export default function ConfiguracaoCertificadoPage() {
             Editor PHANYX de Certificados
           </h1>
           <p className="mt-2 text-slate-600">
-            Faça upload do modelo, adicione campos dinâmicos e posicione no lugar
-            exato onde o sistema deverá escrever as informações do aluno.
+            Faça upload do modelo, adicione campos dinâmicos e posicione no
+            lugar exato onde o sistema deverá escrever as informações do aluno.
           </p>
         </div>
         <button
           onClick={() => {
             if (!podeUsarEditorCertificados) {
               setMensagemErro(
-                "O Editor PHANYX de Certificados está disponível a partir do Plano Profissional."
+                "O Editor PHANYX de Certificados está disponível a partir do Plano Profissional.",
               );
               return;
             }
@@ -6526,8 +6256,7 @@ export default function ConfiguracaoCertificadoPage() {
             </h2>
 
             <p className="mt-1 text-sm text-slate-500">
-              Salve o rascunho antes de trocar para outro
-              modelo.
+              Salve o rascunho antes de trocar para outro modelo.
             </p>
           </div>
 
@@ -6549,11 +6278,7 @@ export default function ConfiguracaoCertificadoPage() {
 
             <button
               type="button"
-              onClick={() =>
-                setNovoModeloFormAberto(
-                  (anterior) => !anterior
-                )
-              }
+              onClick={() => setNovoModeloFormAberto((anterior) => !anterior)}
               disabled={
                 !resumoModelos.podeCriar ||
                 criandoModelo ||
@@ -6576,31 +6301,21 @@ export default function ConfiguracaoCertificadoPage() {
             <div className="relative">
               <button
                 type="button"
-                disabled={
-                  trocandoModelo ||
-                  salvando ||
-                  publicando
-                }
-                onClick={() =>
-                  setMenuModelosAberto(
-                    (aberto) => !aberto
-                  )
-                }
+                disabled={trocandoModelo || salvando || publicando}
+                onClick={() => setMenuModelosAberto((aberto) => !aberto)}
                 className="phanyx-cert-modelo-seletor flex w-full items-center justify-between gap-3 rounded-xl border border-slate-300 bg-white px-4 py-3 text-left text-sm font-semibold text-slate-900 outline-none transition disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <span className="truncate">
-                  {modeloAtivo?.nome ||
-                    "Selecionar modelo"}
+                  {modeloAtivo?.nome || "Selecionar modelo"}
                 </span>
 
                 <svg
                   aria-hidden="true"
                   viewBox="0 0 20 20"
                   fill="currentColor"
-                  className={`h-5 w-5 shrink-0 transition ${menuModelosAberto
-                      ? "rotate-180"
-                      : ""
-                    }`}
+                  className={`h-5 w-5 shrink-0 transition ${
+                    menuModelosAberto ? "rotate-180" : ""
+                  }`}
                 >
                   <path
                     fillRule="evenodd"
@@ -6612,46 +6327,38 @@ export default function ConfiguracaoCertificadoPage() {
 
               {menuModelosAberto && (
                 <div className="phanyx-cert-modelo-menu absolute left-0 right-0 top-full z-[200] mt-2 max-h-72 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1.5 shadow-2xl">
-                  {modelosCertificado.map(
-                    (modelo: any) => {
-                      const selecionado =
-                        Number(modelo.id) ===
-                        Number(modeloAtivoId);
+                  {modelosCertificado.map((modelo: any) => {
+                    const selecionado =
+                      Number(modelo.id) === Number(modeloAtivoId);
 
-                      return (
-                        <button
-                          key={modelo.id}
-                          type="button"
-                          onClick={() => {
-                            setMenuModelosAberto(false);
+                    return (
+                      <button
+                        key={modelo.id}
+                        type="button"
+                        onClick={() => {
+                          setMenuModelosAberto(false);
 
-                            if (!selecionado) {
-                              void abrirModeloCertificado(
-                                Number(modelo.id)
-                              );
-                            }
-                          }}
-                          className={`phanyx-cert-modelo-opcao flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 text-left text-sm font-semibold transition ${selecionado
-                              ? "is-active"
-                              : ""
-                            }`}
-                        >
-                          <span className="truncate">
-                            {modelo.nome}
+                          if (!selecionado) {
+                            void abrirModeloCertificado(Number(modelo.id));
+                          }
+                        }}
+                        className={`phanyx-cert-modelo-opcao flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 text-left text-sm font-semibold transition ${
+                          selecionado ? "is-active" : ""
+                        }`}
+                      >
+                        <span className="truncate">{modelo.nome}</span>
+
+                        {selecionado && (
+                          <span
+                            className="text-base"
+                            aria-label="Modelo selecionado"
+                          >
+                            ✓
                           </span>
-
-                          {selecionado && (
-                            <span
-                              className="text-base"
-                              aria-label="Modelo selecionado"
-                            >
-                              ✓
-                            </span>
-                          )}
-                        </button>
-                      );
-                    }
-                  )}
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -6671,8 +6378,7 @@ export default function ConfiguracaoCertificadoPage() {
                 </p>
 
                 <p className="mt-1 text-lg font-black text-slate-900">
-                  {modeloAtivo?.nome ||
-                    "Nenhum modelo selecionado"}
+                  {modeloAtivo?.nome || "Nenhum modelo selecionado"}
                 </p>
 
                 {modeloAtivo?.descricao && (
@@ -6690,14 +6396,13 @@ export default function ConfiguracaoCertificadoPage() {
                 )}
 
                 <span
-                  className={`rounded-full px-3 py-1 text-xs font-bold ${modeloAtivo?.publicadoEm
+                  className={`rounded-full px-3 py-1 text-xs font-bold ${
+                    modeloAtivo?.publicadoEm
                       ? "bg-green-100 text-green-800"
                       : "bg-amber-100 text-amber-800"
-                    }`}
+                  }`}
                 >
-                  {modeloAtivo?.publicadoEm
-                    ? "Publicado"
-                    : "Somente rascunho"}
+                  {modeloAtivo?.publicadoEm ? "Publicado" : "Somente rascunho"}
                 </span>
               </div>
             </div>
@@ -6734,10 +6439,11 @@ export default function ConfiguracaoCertificadoPage() {
                     publicando ||
                     trocandoModelo
                   }
-                  className={`inline-flex min-h-9 items-center justify-center rounded-lg px-3 py-2 text-xs font-bold text-white transition disabled:cursor-not-allowed disabled:opacity-60 ${modeloAtivo.padraoGeral
+                  className={`inline-flex min-h-9 items-center justify-center rounded-lg px-3 py-2 text-xs font-bold text-white transition disabled:cursor-not-allowed disabled:opacity-60 ${
+                    modeloAtivo.padraoGeral
                       ? "bg-slate-500"
                       : "bg-blue-600 hover:bg-blue-700"
-                    }`}
+                  }`}
                 >
                   {definindoPadraoModelo
                     ? "Definindo..."
@@ -6759,9 +6465,7 @@ export default function ConfiguracaoCertificadoPage() {
                   }
                   className="inline-flex min-h-9 items-center justify-center rounded-lg border border-red-500 bg-transparent px-3 py-2 text-xs font-bold text-red-500 transition hover:bg-red-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {arquivandoModelo
-                    ? "Arquivando..."
-                    : "Arquivar modelo"}
+                  {arquivandoModelo ? "Arquivando..." : "Arquivar modelo"}
                 </button>
               </div>
             )}
@@ -6784,39 +6488,36 @@ export default function ConfiguracaoCertificadoPage() {
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
-                  onClick={() =>
-                    setFiltroSituacaoModelos("TODOS")
-                  }
-                  className={`rounded-lg border px-3 py-2 text-xs font-bold transition ${filtroSituacaoModelos === "TODOS"
+                  onClick={() => setFiltroSituacaoModelos("TODOS")}
+                  className={`rounded-lg border px-3 py-2 text-xs font-bold transition ${
+                    filtroSituacaoModelos === "TODOS"
                       ? "border-blue-600 bg-blue-600 text-white"
                       : "border-slate-300 bg-white text-slate-700 hover:border-blue-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
-                    }`}
+                  }`}
                 >
                   Todos ({modelosCertificado.length})
                 </button>
 
                 <button
                   type="button"
-                  onClick={() =>
-                    setFiltroSituacaoModelos("RASCUNHOS")
-                  }
-                  className={`rounded-lg border px-3 py-2 text-xs font-bold transition ${filtroSituacaoModelos === "RASCUNHOS"
+                  onClick={() => setFiltroSituacaoModelos("RASCUNHOS")}
+                  className={`rounded-lg border px-3 py-2 text-xs font-bold transition ${
+                    filtroSituacaoModelos === "RASCUNHOS"
                       ? "border-amber-500 bg-amber-500 text-white"
                       : "border-slate-300 bg-white text-slate-700 hover:border-amber-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
-                    }`}
+                  }`}
                 >
                   Rascunhos ({totalModelosRascunho})
                 </button>
 
                 <button
                   type="button"
-                  onClick={() =>
-                    setFiltroSituacaoModelos("PUBLICADOS")
-                  }
-                  className={`rounded-lg border px-3 py-2 text-xs font-bold transition ${filtroSituacaoModelos === "PUBLICADOS"
+                  onClick={() => setFiltroSituacaoModelos("PUBLICADOS")}
+                  className={`rounded-lg border px-3 py-2 text-xs font-bold transition ${
+                    filtroSituacaoModelos === "PUBLICADOS"
                       ? "border-emerald-600 bg-emerald-600 text-white"
                       : "border-slate-300 bg-white text-slate-700 hover:border-emerald-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
-                    }`}
+                  }`}
                 >
                   Publicados ({totalModelosPublicados})
                 </button>
@@ -6825,19 +6526,13 @@ export default function ConfiguracaoCertificadoPage() {
               <select
                 value={ordemListaModelos}
                 onChange={(evento) =>
-                  setOrdemListaModelos(
-                    evento.target.value as OrdemListaModelos
-                  )
+                  setOrdemListaModelos(evento.target.value as OrdemListaModelos)
                 }
                 className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-700 outline-none focus:border-blue-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
               >
-                <option value="MAIS_RECENTES">
-                  Mais recentes primeiro
-                </option>
+                <option value="MAIS_RECENTES">Mais recentes primeiro</option>
 
-                <option value="MAIS_ANTIGOS">
-                  Mais antigos primeiro
-                </option>
+                <option value="MAIS_ANTIGOS">Mais antigos primeiro</option>
               </select>
             </div>
           </div>
@@ -6854,102 +6549,88 @@ export default function ConfiguracaoCertificadoPage() {
                 Nenhum modelo encontrado neste filtro.
               </div>
             ) : (
-              modelosFiltradosOrdenados.map(
-                (modelo: any) => {
-                  const selecionado =
-                    Number(modelo.id) ===
-                    Number(modeloAtivoId);
+              modelosFiltradosOrdenados.map((modelo: any) => {
+                const selecionado = Number(modelo.id) === Number(modeloAtivoId);
 
-                  const modalidadeLabel =
-                    MODALIDADES_CERTIFICADO.find(
-                      (item) =>
-                        String(item.valor) ===
-                        String(
-                          modelo?.modalidade || "GERAL"
-                        )
-                    )?.label || "Geral";
+                const modalidadeLabel =
+                  MODALIDADES_CERTIFICADO.find(
+                    (item) =>
+                      String(item.valor) ===
+                      String(modelo?.modalidade || "GERAL"),
+                  )?.label || "Geral";
 
-                  const ultimaAlteracao =
-                    Number(
-                      modelo?._ultimaAlteracaoTimestamp ||
-                      0
-                    ) > 0
-                      ? new Date(
-                        modelo._ultimaAlteracaoTimestamp
-                      ).toLocaleString("pt-BR", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })
-                      : "Data não disponível";
+                const ultimaAlteracao =
+                  Number(modelo?._ultimaAlteracaoTimestamp || 0) > 0
+                    ? new Date(modelo._ultimaAlteracaoTimestamp).toLocaleString(
+                        "pt-BR",
+                        {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        },
+                      )
+                    : "Data não disponível";
 
-                  return (
-                    <button
-                      key={modelo.id}
-                      type="button"
-                      disabled={
-                        trocandoModelo ||
-                        salvando ||
-                        publicando
+                return (
+                  <button
+                    key={modelo.id}
+                    type="button"
+                    disabled={trocandoModelo || salvando || publicando}
+                    onClick={() => {
+                      if (!selecionado) {
+                        void abrirModeloCertificado(Number(modelo.id));
                       }
-                      onClick={() => {
-                        if (!selecionado) {
-                          void abrirModeloCertificado(
-                            Number(modelo.id)
-                          );
-                        }
-                      }}
-                      className={`grid w-full gap-3 px-4 py-4 text-left transition disabled:cursor-not-allowed disabled:opacity-60 md:grid-cols-[minmax(0,1.5fr)_minmax(150px,0.8fr)_minmax(190px,0.7fr)] md:items-center md:gap-4 ${selecionado
-                          ? "bg-blue-50 dark:bg-blue-950/30"
-                          : "bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800"
-                        }`}
-                    >
-                      <span className="min-w-0">
-                        <span className="flex flex-wrap items-center gap-2">
-                          <span className="truncate text-sm font-black text-slate-900 dark:text-white">
-                            {modelo.nome}
+                    }}
+                    className={`grid w-full gap-3 px-4 py-4 text-left transition disabled:cursor-not-allowed disabled:opacity-60 md:grid-cols-[minmax(0,1.5fr)_minmax(150px,0.8fr)_minmax(190px,0.7fr)] md:items-center md:gap-4 ${
+                      selecionado
+                        ? "bg-blue-50 dark:bg-blue-950/30"
+                        : "bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800"
+                    }`}
+                  >
+                    <span className="min-w-0">
+                      <span className="flex flex-wrap items-center gap-2">
+                        <span className="truncate text-sm font-black text-slate-900 dark:text-white">
+                          {modelo.nome}
+                        </span>
+
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-[10px] font-black uppercase ${
+                            modelo._publicado
+                              ? "bg-emerald-100 text-emerald-800"
+                              : "bg-amber-100 text-amber-800"
+                          }`}
+                        >
+                          {modelo._publicado ? "Publicado" : "Rascunho"}
+                        </span>
+
+                        {selecionado && (
+                          <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-black uppercase text-blue-800">
+                            Aberto
                           </span>
+                        )}
+                      </span>
+                    </span>
 
-                          <span
-                            className={`rounded-full px-2 py-0.5 text-[10px] font-black uppercase ${modelo._publicado
-                                ? "bg-emerald-100 text-emerald-800"
-                                : "bg-amber-100 text-amber-800"
-                              }`}
-                          >
-                            {modelo._publicado
-                              ? "Publicado"
-                              : "Rascunho"}
-                          </span>
-
-                          {selecionado && (
-                            <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-black uppercase text-blue-800">
-                              Aberto
-                            </span>
-                          )}
-                        </span>
+                    <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                      <span className="mr-2 font-bold text-slate-500 md:hidden">
+                        Modalidade:
                       </span>
 
-                      <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        <span className="mr-2 font-bold text-slate-500 md:hidden">
-                          Modalidade:
-                        </span>
+                      {modalidadeLabel}
+                    </span>
 
-                        {modalidadeLabel}
+                    <span className="text-sm text-slate-600 dark:text-slate-300">
+                      <span className="mr-2 font-bold text-slate-500 md:hidden">
+                        Última alteração:
                       </span>
 
-                      <span className="text-sm text-slate-600 dark:text-slate-300">
-                        <span className="mr-2 font-bold text-slate-500 md:hidden">
-                          Última alteração:
-                        </span>
-
-                        {ultimaAlteracao}
-                      </span>
-                    </button>
-                  );
-                }
-              )
+                      {ultimaAlteracao}
+                    </span>
+                  </button>
+                );
+              })
             )}
           </div>
         </div>
@@ -6965,11 +6646,7 @@ export default function ConfiguracaoCertificadoPage() {
                 <input
                   type="text"
                   value={novoModeloNome}
-                  onChange={(evento) =>
-                    setNovoModeloNome(
-                      evento.target.value
-                    )
-                  }
+                  onChange={(evento) => setNovoModeloNome(evento.target.value)}
                   placeholder="Ex.: Certificado de Extensão"
                   maxLength={120}
                   className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-500"
@@ -6985,9 +6662,7 @@ export default function ConfiguracaoCertificadoPage() {
                   type="text"
                   value={novoModeloDescricao}
                   onChange={(evento) =>
-                    setNovoModeloDescricao(
-                      evento.target.value
-                    )
+                    setNovoModeloDescricao(evento.target.value)
                   }
                   placeholder="Descrição opcional"
                   maxLength={500}
@@ -7004,8 +6679,8 @@ export default function ConfiguracaoCertificadoPage() {
                   <select
                     value={novoModeloModalidade}
                     onChange={(evento) => {
-                      const modalidade =
-                        evento.target.value as ModalidadeCertificadoValor;
+                      const modalidade = evento.target
+                        .value as ModalidadeCertificadoValor;
 
                       setNovoModeloModalidade(modalidade);
 
@@ -7023,8 +6698,8 @@ export default function ConfiguracaoCertificadoPage() {
                   </select>
 
                   <p className="mt-2 text-xs text-slate-500">
-                    Esta modalidade será comparada com o tipo definido no cadastro do
-                    curso.
+                    Esta modalidade será comparada com o tipo definido no
+                    cadastro do curso.
                   </p>
                 </div>
 
@@ -7050,13 +6725,12 @@ export default function ConfiguracaoCertificadoPage() {
                     </span>
 
                     <span className="phanyx-certificado-padrao-modalidade-descricao mt-1 block text-xs leading-5">
-                      Será usado automaticamente quando o curso não possuir um modelo
-                      específico vinculado.
+                      Será usado automaticamente quando o curso não possuir um
+                      modelo específico vinculado.
                     </span>
                   </span>
                 </label>
               </div>
-
             </div>
 
             <div className="mt-4 flex flex-wrap justify-end gap-3">
@@ -7083,22 +6757,19 @@ export default function ConfiguracaoCertificadoPage() {
                 }}
                 className="rounded-xl bg-blue-600 px-5 py-2 text-sm font-bold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {criandoModelo
-                  ? "Criando..."
-                  : "Criar modelo"}
+                {criandoModelo ? "Criando..." : "Criar modelo"}
               </button>
             </div>
           </div>
         )}
 
-        {!resumoModelos.podeCriar &&
-          resumoModelos.limite !== null && (
-            <p className="mt-4 text-xs font-semibold text-amber-700">
-              O limite de {resumoModelos.limite} modelo(s) ativo(s)
-              do Plano {resumoModelos.plano} foi atingido.
-              Modelos arquivados não consomem o limite.
-            </p>
-          )}
+        {!resumoModelos.podeCriar && resumoModelos.limite !== null && (
+          <p className="mt-4 text-xs font-semibold text-amber-700">
+            O limite de {resumoModelos.limite} modelo(s) ativo(s) do Plano{" "}
+            {resumoModelos.plano} foi atingido. Modelos arquivados não consomem
+            o limite.
+          </p>
+        )}
       </div>
 
       <div className="mb-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -7108,7 +6779,8 @@ export default function ConfiguracaoCertificadoPage() {
               Modelo institucional
             </h2>
             <p className="mt-1 text-sm text-slate-500">
-              Envie um PDF-base para ser usado como modelo oficial de certificado.
+              Envie um PDF-base para ser usado como modelo oficial de
+              certificado.
             </p>
           </div>
 
@@ -7172,7 +6844,6 @@ export default function ConfiguracaoCertificadoPage() {
                       d="M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"
                     />
                   </svg>
-
                   Enviar modelo PDF
                 </>
               )}
@@ -7180,18 +6851,16 @@ export default function ConfiguracaoCertificadoPage() {
           </div>
 
           <p className="mt-3 text-xs text-slate-500">
-            Depois do upload, o modelo salvo continuará abrindo no editor abaixo,
-            mesmo após atualizar a página.
+            Depois do upload, o modelo salvo continuará abrindo no editor
+            abaixo, mesmo após atualizar a página.
           </p>
         </div>
       </div>
 
       <section
-
         id="editor-certificado"
         className="rounded-3xl border border-slate-200 bg-white shadow-sm"
       >
-
         <div className="phanyx-certificado-toolbar sticky top-0 z-40 mb-6 flex items-center justify-between rounded-2xl border border-blue-700 bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 px-6 py-3 shadow-lg">
           <div className="flex items-center gap-3">
             {!mostrarPainelCampos && (
@@ -7204,10 +6873,7 @@ export default function ConfiguracaoCertificadoPage() {
               </button>
             )}
 
-            <h2 className="text-sm font-semibold text-white">
-              Editor PHANYX
-            </h2>
-
+            <h2 className="text-sm font-semibold text-white">Editor PHANYX</h2>
           </div>
           <button
             type="button"
@@ -7220,10 +6886,11 @@ export default function ConfiguracaoCertificadoPage() {
             <button
               type="button"
               onClick={() => setTamanhoPapel("A5")}
-              className={`rounded-lg px-3 py-1 text-sm ${tamanhoPapel === "A5"
+              className={`rounded-lg px-3 py-1 text-sm ${
+                tamanhoPapel === "A5"
                   ? "bg-white text-blue-700"
                   : "bg-white/20 text-white hover:bg-white/30"
-                }`}
+              }`}
             >
               A5
             </button>
@@ -7231,10 +6898,11 @@ export default function ConfiguracaoCertificadoPage() {
             <button
               type="button"
               onClick={() => setTamanhoPapel("A4")}
-              className={`rounded-lg px-3 py-1 text-sm ${tamanhoPapel === "A4"
+              className={`rounded-lg px-3 py-1 text-sm ${
+                tamanhoPapel === "A4"
                   ? "bg-white text-blue-700"
                   : "bg-white/20 text-white hover:bg-white/30"
-                }`}
+              }`}
             >
               A4
             </button>
@@ -7242,20 +6910,22 @@ export default function ConfiguracaoCertificadoPage() {
             <button
               type="button"
               onClick={() => setTamanhoPapel("A3")}
-              className={`rounded-lg px-3 py-1 text-sm ${tamanhoPapel === "A3"
+              className={`rounded-lg px-3 py-1 text-sm ${
+                tamanhoPapel === "A3"
                   ? "bg-white text-blue-700"
                   : "bg-white/20 text-white hover:bg-white/30"
-                }`}
+              }`}
             >
               A3
             </button>
             <button
               type="button"
               onClick={() => setOrientacao("paisagem")}
-              className={`rounded-lg px-3 py-1 text-sm ${orientacao === "paisagem"
+              className={`rounded-lg px-3 py-1 text-sm ${
+                orientacao === "paisagem"
                   ? "bg-white text-blue-700"
                   : "bg-white/20 text-white hover:bg-white/30"
-                }`}
+              }`}
             >
               Paisagem
             </button>
@@ -7263,10 +6933,11 @@ export default function ConfiguracaoCertificadoPage() {
             <button
               type="button"
               onClick={() => setOrientacao("retrato")}
-              className={`rounded-lg px-3 py-1 text-sm ${orientacao === "retrato"
+              className={`rounded-lg px-3 py-1 text-sm ${
+                orientacao === "retrato"
                   ? "bg-white text-blue-700"
                   : "bg-white/20 text-white hover:bg-white/30"
-                }`}
+              }`}
             >
               Retrato
             </button>
@@ -7279,10 +6950,11 @@ export default function ConfiguracaoCertificadoPage() {
 
                 atualizarCampoLocal("bloqueado", !campoSelecionado.bloqueado);
               }}
-              className={`rounded-lg px-3 py-2 text-sm font-medium transition ${campoSelecionado?.bloqueado
+              className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
+                campoSelecionado?.bloqueado
                   ? "bg-yellow-300 text-slate-900"
                   : "bg-white/20 text-white border border-white/30 hover:bg-white/30"
-                }`}
+              }`}
             >
               {campoSelecionado?.bloqueado ? "🔒 Bloqueado" : "🔓 Livre"}
             </button>
@@ -7290,15 +6962,15 @@ export default function ConfiguracaoCertificadoPage() {
             <button
               type="button"
               onClick={() => setModoMao((prev) => !prev)}
-              className={`rounded-lg px-3 py-2 text-sm font-medium transition ${modoMao
+              className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
+                modoMao
                   ? "bg-white text-blue-700"
                   : "bg-white/20 text-white border border-white/30 hover:bg-white/30"
-                }`}
+              }`}
               title="Ferramenta mãozinha (atalho: espaço)"
             >
               ✋ Mão
             </button>
-
           </div>
 
           <div className="flex items-center gap-4">
@@ -7371,9 +7043,15 @@ export default function ConfiguracaoCertificadoPage() {
                       className="w-full rounded-xl border border-slate-300 bg-slate-100 px-4 py-3 text-sm outline-none"
                     >
                       <option value="png">PNG (ideal para imagens)</option>
-                      <option value="jpg">JPG (ideal para tamanhos de arquivo pequenos)</option>
-                      <option value="pdf">PDF padrão (ideal para documentos)</option>
-                      <option value="pdf-impressao">Impressão de PDF (ideal para impressão)</option>
+                      <option value="jpg">
+                        JPG (ideal para tamanhos de arquivo pequenos)
+                      </option>
+                      <option value="pdf">
+                        PDF padrão (ideal para documentos)
+                      </option>
+                      <option value="pdf-impressao">
+                        Impressão de PDF (ideal para impressão)
+                      </option>
                     </select>
                   </div>
 
@@ -7393,17 +7071,16 @@ export default function ConfiguracaoCertificadoPage() {
         </div>
 
         <div
-          className={`grid h-[620px] min-h-[620px] grid-cols-1 ${mostrarPainelCampos
+          className={`grid h-[620px] min-h-[620px] grid-cols-1 ${
+            mostrarPainelCampos
               ? "lg:grid-cols-[320px_minmax(0,1fr)_300px]"
               : "lg:grid-cols-[minmax(0,1fr)_300px]"
-            }`}
+          }`}
         >
-
           {mostrarPainelCampos && !modoAmplo && (
             <aside className="max-h-[calc(100vh-360px)] overflow-y-auto border-b border-slate-200 bg-slate-50 p-5 lg:border-b-0 lg:border-r">
               <div className="mb-4 flex flex-col gap-3 pr-20">
                 <div className="w-full">
-
                   <button
                     type="button"
                     onClick={() => setMostrarPainelCampos(false)}
@@ -7423,20 +7100,17 @@ export default function ConfiguracaoCertificadoPage() {
 
                   {camposDinamicosAberto && (
                     <p className="mt-2 rounded-xl bg-blue-50 px-3 py-2 text-xs leading-relaxed text-slate-600">
-                      Organize o certificado por grupos e clique para adicionar um campo.
+                      Organize o certificado por grupos e clique para adicionar
+                      um campo.
                     </p>
                   )}
                 </div>
 
                 <div className="phanyx-certificado-outliner mt-3 overflow-hidden border">
                   <div className="phanyx-certificado-outliner-header flex items-center justify-between border-b px-2 py-1">
-                    <h3 className="text-xs font-bold uppercase">
-                      CENA
-                    </h3>
+                    <h3 className="text-xs font-bold uppercase">CENA</h3>
 
-                    <span className="text-[10px]">
-                      {campos.length}
-                    </span>
+                    <span className="text-[10px]">{campos.length}</span>
                   </div>
 
                   <div className="max-h-[190px] overflow-y-auto overflow-x-hidden">
@@ -7456,12 +7130,21 @@ export default function ConfiguracaoCertificadoPage() {
                           const lista = camadasOrdenadas();
 
                           if (e.shiftKey && campoSelecionadoId) {
-                            const inicio = lista.findIndex((item) => item.id === campoSelecionadoId);
-                            const fim = lista.findIndex((item) => item.id === campo.id);
+                            const inicio = lista.findIndex(
+                              (item) => item.id === campoSelecionadoId,
+                            );
+                            const fim = lista.findIndex(
+                              (item) => item.id === campo.id,
+                            );
 
                             if (inicio >= 0 && fim >= 0) {
-                              const [min, max] = [Math.min(inicio, fim), Math.max(inicio, fim)];
-                              const ids = lista.slice(min, max + 1).map((item) => item.id);
+                              const [min, max] = [
+                                Math.min(inicio, fim),
+                                Math.max(inicio, fim),
+                              ];
+                              const ids = lista
+                                .slice(min, max + 1)
+                                .map((item) => item.id);
 
                               setCamposSelecionadosIds(ids);
                               setCampoSelecionadoId(campo.id);
@@ -7473,7 +7156,7 @@ export default function ConfiguracaoCertificadoPage() {
                             setCamposSelecionadosIds((prev) =>
                               prev.includes(campo.id)
                                 ? prev.filter((id) => id !== campo.id)
-                                : [...prev, campo.id]
+                                : [...prev, campo.id],
                             );
 
                             setCampoSelecionadoId(campo.id);
@@ -7498,10 +7181,11 @@ export default function ConfiguracaoCertificadoPage() {
                             campoId: campo.id,
                           });
                         }}
-                        className={`flex h-7 cursor-pointer items-center gap-2 border-b border-slate-200 px-2 text-xs ${camposSelecionadosIds.includes(campo.id)
+                        className={`flex h-7 cursor-pointer items-center gap-2 border-b border-slate-200 px-2 text-xs ${
+                          camposSelecionadosIds.includes(campo.id)
                             ? "bg-blue-100 text-blue-700"
                             : "bg-white text-slate-700 hover:bg-slate-100"
-                          }`}
+                        }`}
                       >
                         <span className="cursor-grab text-[10px] text-slate-400">
                           ☰
@@ -7511,14 +7195,22 @@ export default function ConfiguracaoCertificadoPage() {
                           <input
                             autoFocus
                             value={nomeCamadaEditando}
-                            onChange={(e) => setNomeCamadaEditando(e.target.value)}
+                            onChange={(e) =>
+                              setNomeCamadaEditando(e.target.value)
+                            }
                             onBlur={() => {
-                              atualizarCampoLocal("nomeCamada" as any, nomeCamadaEditando as any);
+                              atualizarCampoLocal(
+                                "nomeCamada" as any,
+                                nomeCamadaEditando as any,
+                              );
                               setCamadaRenomeandoId(null);
                             }}
                             onKeyDown={(e) => {
                               if (e.key === "Enter") {
-                                atualizarCampoLocal("nomeCamada" as any, nomeCamadaEditando as any);
+                                atualizarCampoLocal(
+                                  "nomeCamada" as any,
+                                  nomeCamadaEditando as any,
+                                );
                                 setCamadaRenomeandoId(null);
                               }
                             }}
@@ -7531,7 +7223,10 @@ export default function ConfiguracaoCertificadoPage() {
                         )}
 
                         {campo.bloqueado && (
-                          <span className="text-[10px]" title="Elemento travado">
+                          <span
+                            className="text-[10px]"
+                            title="Elemento travado"
+                          >
                             🔒
                           </span>
                         )}
@@ -7539,8 +7234,6 @@ export default function ConfiguracaoCertificadoPage() {
                     ))}
                   </div>
                 </div>
-
-
               </div>
 
               <div className="mb-4 inline-flex rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
@@ -7556,10 +7249,11 @@ export default function ConfiguracaoCertificadoPage() {
                   <button
                     type="button"
                     onClick={() => setModoFundo("modelo")}
-                    className={`rounded-xl border px-3 py-2 text-xs font-bold ${modoFundo === "modelo"
+                    className={`rounded-xl border px-3 py-2 text-xs font-bold ${
+                      modoFundo === "modelo"
                         ? "border-blue-600 bg-blue-600 text-white"
                         : "bg-white text-slate-700"
-                      }`}
+                    }`}
                   >
                     Usar modelo
                   </button>
@@ -7567,10 +7261,11 @@ export default function ConfiguracaoCertificadoPage() {
                   <button
                     type="button"
                     onClick={() => setModoFundo("phanyx")}
-                    className={`rounded-xl border px-3 py-2 text-xs font-bold ${modoFundo === "phanyx"
+                    className={`rounded-xl border px-3 py-2 text-xs font-bold ${
+                      modoFundo === "phanyx"
                         ? "border-blue-600 bg-blue-600 text-white"
                         : "bg-white text-slate-700"
-                      }`}
+                    }`}
                   >
                     Criar do zero
                   </button>
@@ -7592,7 +7287,13 @@ export default function ConfiguracaoCertificadoPage() {
                   />
 
                   <div className="grid grid-cols-5 gap-2">
-                    {["#ffffff", "#f8fafc", "#fef3c7", "#eff6ff", "#f0fdf4"].map((cor) => (
+                    {[
+                      "#ffffff",
+                      "#f8fafc",
+                      "#fef3c7",
+                      "#eff6ff",
+                      "#f0fdf4",
+                    ].map((cor) => (
                       <button
                         key={cor}
                         type="button"
@@ -7614,7 +7315,10 @@ export default function ConfiguracaoCertificadoPage() {
                   Imagens do certificado
                 </p>
 
-                <details className="mb-3 rounded-xl border bg-slate-50 p-3" open>
+                <details
+                  className="mb-3 rounded-xl border bg-slate-50 p-3"
+                  open
+                >
                   <summary className="cursor-pointer text-xs font-bold text-slate-700">
                     Molduras paisagem
                   </summary>
@@ -7682,7 +7386,6 @@ export default function ConfiguracaoCertificadoPage() {
                           className="h-14 w-full object-contain"
                         />
                       </button>
-
                     ))}
                   </div>
                 </details>
@@ -7722,7 +7425,9 @@ export default function ConfiguracaoCertificadoPage() {
                 </div>
 
                 <p className="mt-3 text-[11px] leading-5 text-slate-500">
-                  Adicione caixas de texto livres, como no PowerPoint. Depois selecione no certificado para ajustar fonte, sombra, ordem e tamanho.
+                  Adicione caixas de texto livres, como no PowerPoint. Depois
+                  selecione no certificado para ajustar fonte, sombra, ordem e
+                  tamanho.
                 </p>
               </div>
 
@@ -7743,7 +7448,6 @@ export default function ConfiguracaoCertificadoPage() {
 
                 {formasAbertas && (
                   <>
-
                     <div className="grid grid-cols-4 gap-2">
                       <button
                         type="button"
@@ -7755,7 +7459,8 @@ export default function ConfiguracaoCertificadoPage() {
                               id: Date.now(),
                               tipo: "FORMA",
                               forma: "RETANGULO",
-                              pontosForma: criarPontosIniciaisForma("RETANGULO"),
+                              pontosForma:
+                                criarPontosIniciaisForma("RETANGULO"),
                               mostrarPreenchimento: true,
                               mostrarContorno: true,
                               preenchimentoCor: "#1d4ed8",
@@ -7938,7 +7643,8 @@ export default function ConfiguracaoCertificadoPage() {
                               id: Date.now() + 5,
                               tipo: "FORMA",
                               forma: "TRIANGULO",
-                              pontosForma: criarPontosIniciaisForma("TRIANGULO"),
+                              pontosForma:
+                                criarPontosIniciaisForma("TRIANGULO"),
                               mostrarPreenchimento: true,
                               mostrarContorno: true,
                               preenchimentoCor: "#1d4ed8",
@@ -7957,9 +7663,7 @@ export default function ConfiguracaoCertificadoPage() {
                         className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
                       >
                         <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 group-hover:bg-blue-100">
-                          <span
-                            className="h-0 w-0 border-x-[14px] border-b-[24px] border-x-transparent border-b-blue-700"
-                          />
+                          <span className="h-0 w-0 border-x-[14px] border-b-[24px] border-x-transparent border-b-blue-700" />
                         </span>
                         <span className="mt-2 text-[11px] font-semibold text-slate-700">
                           Triângulo
@@ -7994,7 +7698,9 @@ export default function ConfiguracaoCertificadoPage() {
                         className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
                       >
                         <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 group-hover:bg-blue-100">
-                          <span className="text-3xl font-black text-blue-700">➜</span>
+                          <span className="text-3xl font-black text-blue-700">
+                            ➜
+                          </span>
                         </span>
                         <span className="mt-2 text-[11px] font-semibold text-slate-700">
                           Seta
@@ -8039,7 +7745,9 @@ export default function ConfiguracaoCertificadoPage() {
                       <button
                         type="button"
                         onClick={() => {
-                          setCampos((prev) => prev.filter((campo) => campo.id !== -999999));
+                          setCampos((prev) =>
+                            prev.filter((campo) => campo.id !== -999999),
+                          );
                           setModoFormaLivre(true);
                           setPontosFormaLivre([]);
                           pontosFormaLivreRef.current = [];
@@ -8048,7 +7756,7 @@ export default function ConfiguracaoCertificadoPage() {
                           setPontoFormaSelecionado(null);
 
                           setMensagemSucesso(
-                            "Forma livre ativada. Clique no papel para criar pontos. Clique perto do primeiro ponto para fechar."
+                            "Forma livre ativada. Clique no papel para criar pontos. Clique perto do primeiro ponto para fechar.",
                           );
                         }}
                         className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
@@ -8060,7 +7768,6 @@ export default function ConfiguracaoCertificadoPage() {
                           Livre
                         </span>
                       </button>
-
                     </div>
                     <label className="flex cursor-pointer flex-col items-center justify-center rounded-xl bg-blue-50 px-4 py-4 text-center transition hover:bg-blue-100">
                       <span className="text-2xl">🖼️</span>
@@ -8122,20 +7829,38 @@ export default function ConfiguracaoCertificadoPage() {
               <div className="space-y-4">
                 {/* Informações do aluno */}
                 <div className="rounded-2xl border border-slate-200 bg-white">
-                  <button type="button" onClick={() => setSecaoAberta(secaoAberta === "aluno" ? null : "aluno")} className="flex w-full items-center justify-between px-4 py-3 text-left">
-                    <span className="text-xs font-bold uppercase tracking-wide text-slate-500">Informações do aluno</span>
-                    <span className="text-slate-500">{secaoAberta === "aluno" ? "−" : "+"}</span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSecaoAberta(secaoAberta === "aluno" ? null : "aluno")
+                    }
+                    className="flex w-full items-center justify-between px-4 py-3 text-left"
+                  >
+                    <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
+                      Informações do aluno
+                    </span>
+                    <span className="text-slate-500">
+                      {secaoAberta === "aluno" ? "−" : "+"}
+                    </span>
                   </button>
 
                   {secaoAberta === "aluno" && (
                     <div className="space-y-2 border-t border-slate-100 px-4 py-3">
                       {[
                         { tipo: "NOME_ALUNO", label: "Nome do aluno" },
-                        { tipo: "NUMERO_MATRICULA", label: "Número da matrícula" },
+                        {
+                          tipo: "NUMERO_MATRICULA",
+                          label: "Número da matrícula",
+                        },
                         { tipo: "CPF_ALUNO", label: "CPF do aluno" },
                         { tipo: "RG_ALUNO", label: "RG do aluno" },
                       ].map((item) => (
-                        <button key={item.tipo} type="button" onClick={() => adicionarCampo(item.tipo)} className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100">
+                        <button
+                          key={item.tipo}
+                          type="button"
+                          onClick={() => adicionarCampo(item.tipo)}
+                          className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
+                        >
                           {item.label}
                         </button>
                       ))}
@@ -8145,16 +7870,29 @@ export default function ConfiguracaoCertificadoPage() {
 
                 {/* Informações do curso */}
                 <div className="rounded-2xl border border-slate-200 bg-white">
-                  <button type="button" onClick={() => setSecaoAberta(secaoAberta === "curso" ? null : "curso")} className="flex w-full items-center justify-between px-4 py-3 text-left">
-                    <span className="text-xs font-bold uppercase tracking-wide text-slate-500">Informações do curso</span>
-                    <span className="text-slate-500">{secaoAberta === "curso" ? "−" : "+"}</span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSecaoAberta(secaoAberta === "curso" ? null : "curso")
+                    }
+                    className="flex w-full items-center justify-between px-4 py-3 text-left"
+                  >
+                    <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
+                      Informações do curso
+                    </span>
+                    <span className="text-slate-500">
+                      {secaoAberta === "curso" ? "−" : "+"}
+                    </span>
                   </button>
 
                   {secaoAberta === "curso" && (
                     <div className="space-y-2 border-t border-slate-100 px-4 py-3">
                       {[
                         { tipo: "NOME_CURSO", label: "Nome do curso" },
-                        { tipo: "DISCIPLINAS_CONCLUIDAS", label: "Disciplinas concluídas" },
+                        {
+                          tipo: "DISCIPLINAS_CONCLUIDAS",
+                          label: "Disciplinas concluídas",
+                        },
                         { tipo: "CARGA_HORARIA", label: "Carga horária" },
                         { tipo: "ANO_CONCLUSAO", label: "Ano de conclusão" },
                         { tipo: "DATA_CONCLUSAO", label: "Data de conclusão" },
@@ -8164,7 +7902,12 @@ export default function ConfiguracaoCertificadoPage() {
                         { tipo: "TURMA", label: "Turma" },
                         { tipo: "POLO", label: "Polo" },
                       ].map((item) => (
-                        <button key={item.tipo} type="button" onClick={() => adicionarCampo(item.tipo)} className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100">
+                        <button
+                          key={item.tipo}
+                          type="button"
+                          onClick={() => adicionarCampo(item.tipo)}
+                          className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
+                        >
                           {item.label}
                         </button>
                       ))}
@@ -8174,23 +7917,51 @@ export default function ConfiguracaoCertificadoPage() {
 
                 {/* Informações institucionais */}
                 <div className="rounded-2xl border border-slate-200 bg-white">
-                  <button type="button" onClick={() => setSecaoAberta(secaoAberta === "institucional" ? null : "institucional")} className="flex w-full items-center justify-between px-4 py-3 text-left">
-                    <span className="text-xs font-bold uppercase tracking-wide text-slate-500">Informações institucionais</span>
-                    <span className="text-slate-500">{secaoAberta === "institucional" ? "−" : "+"}</span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSecaoAberta(
+                        secaoAberta === "institucional"
+                          ? null
+                          : "institucional",
+                      )
+                    }
+                    className="flex w-full items-center justify-between px-4 py-3 text-left"
+                  >
+                    <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
+                      Informações institucionais
+                    </span>
+                    <span className="text-slate-500">
+                      {secaoAberta === "institucional" ? "−" : "+"}
+                    </span>
                   </button>
 
                   {secaoAberta === "institucional" && (
                     <div className="space-y-2 border-t border-slate-100 px-4 py-3">
                       {[
-                        { tipo: "NOME_INSTITUICAO", label: "Nome da instituição" },
-                        { tipo: "CNPJ_INSTITUICAO", label: "CNPJ da instituição" },
+                        {
+                          tipo: "NOME_INSTITUICAO",
+                          label: "Nome da instituição",
+                        },
+                        {
+                          tipo: "CNPJ_INSTITUICAO",
+                          label: "CNPJ da instituição",
+                        },
                         { tipo: "CIDADE", label: "Cidade" },
                         { tipo: "DATA_EMISSAO", label: "Data de emissão" },
                         { tipo: "NOME_DIRETOR", label: "Nome do diretor" },
                         { tipo: "ASSINATURA", label: "Assinatura do diretor" },
-                        { tipo: "LOGO_INSTITUICAO", label: "Logo da instituição" },
+                        {
+                          tipo: "LOGO_INSTITUICAO",
+                          label: "Logo da instituição",
+                        },
                       ].map((item) => (
-                        <button key={item.tipo} type="button" onClick={() => adicionarCampo(item.tipo)} className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100">
+                        <button
+                          key={item.tipo}
+                          type="button"
+                          onClick={() => adicionarCampo(item.tipo)}
+                          className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
+                        >
                           {item.label}
                         </button>
                       ))}
@@ -8200,21 +7971,47 @@ export default function ConfiguracaoCertificadoPage() {
 
                 {/* Textos livres */}
                 <div className="rounded-2xl border border-slate-200 bg-white">
-                  <button type="button" onClick={() => setSecaoAberta(secaoAberta === "textos" ? null : "textos")} className="flex w-full items-center justify-between px-4 py-3 text-left">
-                    <span className="text-xs font-bold uppercase tracking-wide text-slate-500">Textos livres</span>
-                    <span className="text-slate-500">{secaoAberta === "textos" ? "−" : "+"}</span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSecaoAberta(secaoAberta === "textos" ? null : "textos")
+                    }
+                    className="flex w-full items-center justify-between px-4 py-3 text-left"
+                  >
+                    <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
+                      Textos livres
+                    </span>
+                    <span className="text-slate-500">
+                      {secaoAberta === "textos" ? "−" : "+"}
+                    </span>
                   </button>
 
                   {secaoAberta === "textos" && (
                     <div className="grid grid-cols-2 gap-2 border-t border-slate-100 px-4 py-3">
-                      <button type="button" onClick={() => adicionarCampo("TEXTO_LIVRE", "TITULO")} className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50">
-                        <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-2xl font-black text-blue-700">T</span>
-                        <span className="mt-2 text-[11px] font-semibold text-slate-700">Título</span>
+                      <button
+                        type="button"
+                        onClick={() => adicionarCampo("TEXTO_LIVRE", "TITULO")}
+                        className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
+                      >
+                        <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-2xl font-black text-blue-700">
+                          T
+                        </span>
+                        <span className="mt-2 text-[11px] font-semibold text-slate-700">
+                          Título
+                        </span>
                       </button>
 
-                      <button type="button" onClick={() => adicionarCampo("TEXTO_LIVRE", "TEXTO")} className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50">
-                        <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-lg font-black text-blue-700">Tx</span>
-                        <span className="mt-2 text-[11px] font-semibold text-slate-700">Texto</span>
+                      <button
+                        type="button"
+                        onClick={() => adicionarCampo("TEXTO_LIVRE", "TEXTO")}
+                        className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
+                      >
+                        <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-lg font-black text-blue-700">
+                          Tx
+                        </span>
+                        <span className="mt-2 text-[11px] font-semibold text-slate-700">
+                          Texto
+                        </span>
                       </button>
                     </div>
                   )}
@@ -8222,19 +8019,42 @@ export default function ConfiguracaoCertificadoPage() {
 
                 {/* Validação */}
                 <div className="rounded-2xl border border-slate-200 bg-white">
-                  <button type="button" onClick={() => setSecaoAberta(secaoAberta === "validacao" ? null : "validacao")} className="flex w-full items-center justify-between px-4 py-3 text-left">
-                    <span className="text-xs font-bold uppercase tracking-wide text-slate-500">Validação</span>
-                    <span className="text-slate-500">{secaoAberta === "validacao" ? "−" : "+"}</span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSecaoAberta(
+                        secaoAberta === "validacao" ? null : "validacao",
+                      )
+                    }
+                    className="flex w-full items-center justify-between px-4 py-3 text-left"
+                  >
+                    <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
+                      Validação
+                    </span>
+                    <span className="text-slate-500">
+                      {secaoAberta === "validacao" ? "−" : "+"}
+                    </span>
                   </button>
 
                   {secaoAberta === "validacao" && (
                     <div className="space-y-2 border-t border-slate-100 px-4 py-3">
                       {[
-                        { tipo: "NUMERO_CERTIFICADO", label: "Número do certificado" },
+                        {
+                          tipo: "NUMERO_CERTIFICADO",
+                          label: "Número do certificado",
+                        },
                         { tipo: "QR_CODE", label: "QR Code" },
-                        { tipo: "CODIGO_VALIDACAO", label: "Código de validação" },
+                        {
+                          tipo: "CODIGO_VALIDACAO",
+                          label: "Código de validação",
+                        },
                       ].map((item) => (
-                        <button key={item.tipo} type="button" onClick={() => adicionarCampo(item.tipo)} className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100">
+                        <button
+                          key={item.tipo}
+                          type="button"
+                          onClick={() => adicionarCampo(item.tipo)}
+                          className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
+                        >
                           {item.label}
                         </button>
                       ))}
@@ -8245,7 +8065,8 @@ export default function ConfiguracaoCertificadoPage() {
             </aside>
           )}
 
-          {(camposSelecionadosIds.length >= 1 || campoSelecionadoId !== null) && (
+          {(camposSelecionadosIds.length >= 1 ||
+            campoSelecionadoId !== null) && (
             <div
               data-barra-selecao-certificado="true"
               onMouseDown={(e) => {
@@ -8265,9 +8086,12 @@ export default function ConfiguracaoCertificadoPage() {
                   className="cursor-move select-none rounded-lg px-2 py-1 hover:bg-white/10"
                   title="Arraste para mover esta barra"
                 >
-                  <p className="text-sm font-bold">↕ Alinhar elementos selecionados</p>
+                  <p className="text-sm font-bold">
+                    ↕ Alinhar elementos selecionados
+                  </p>
                   <p className="text-xs text-slate-300">
-                    Arraste esta área para mover a barra. Referência: último elemento ativo selecionado.
+                    Arraste esta área para mover a barra. Referência: último
+                    elemento ativo selecionado.
                   </p>
                 </div>
 
@@ -8469,7 +8293,6 @@ export default function ConfiguracaoCertificadoPage() {
                 if (e.target === e.currentTarget) {
                   setCamposSelecionadosIds([]);
                   setCampoSelecionadoId(null);
-
                 }
 
                 iniciarArrastoCanvas(e);
@@ -8479,11 +8302,12 @@ export default function ConfiguracaoCertificadoPage() {
               onMouseLeave={finalizarArrastoCanvas}
               className="relative flex min-h-0 flex-1 items-start justify-start overflow-auto bg-[#eef2f7] p-8"
               style={{
-                cursor: modoMao || espacoPressionado
-                  ? arrastandoCanvas
-                    ? "grabbing"
-                    : "grab"
-                  : "default",
+                cursor:
+                  modoMao || espacoPressionado
+                    ? arrastandoCanvas
+                      ? "grabbing"
+                      : "grab"
+                    : "default",
               }}
             >
               <div
@@ -8496,7 +8320,6 @@ export default function ConfiguracaoCertificadoPage() {
                   margin: "auto",
                 }}
               >
-
                 <div
                   ref={canvasRef}
 
@@ -8526,7 +8349,8 @@ export default function ConfiguracaoCertificadoPage() {
                   style={{
                     width: `${baseCanvas.largura}px`,
                     height: `${baseCanvas.altura}px`,
-                    backgroundColor: modoFundo === "phanyx" ? corFundoPagina : "#ffffff",
+                    backgroundColor:
+                      modoFundo === "phanyx" ? corFundoPagina : "#ffffff",
                     transform: `scale(${escala})`,
                     transformOrigin: "top left",
                   }}
@@ -8542,7 +8366,6 @@ export default function ConfiguracaoCertificadoPage() {
                       <div className="absolute left-4 top-4 z-10 rounded-lg bg-white/90 px-3 py-1 text-xs font-medium text-slate-500 shadow-sm">
                         Modelo carregado • arraste os campos para posicionar
                       </div>
-
                     </>
                   ) : null}
 
@@ -8620,7 +8443,10 @@ export default function ConfiguracaoCertificadoPage() {
 
                   {[
                     ...campos.flatMap((campo) => {
-                      if (campo.tipo !== "FORMA" || !(campo as any).arrayAtivo) {
+                      if (
+                        campo.tipo !== "FORMA" ||
+                        !(campo as any).arrayAtivo
+                      ) {
                         return [campo];
                       }
 
@@ -8628,38 +8454,50 @@ export default function ConfiguracaoCertificadoPage() {
                       if (!config?.ativo) return [campo];
 
                       const quantidade = Number(config.quantidade || 1);
-                      const anguloRad = (Number(config.angulo || 0) * Math.PI) / 180;
+                      const anguloRad =
+                        (Number(config.angulo || 0) * Math.PI) / 180;
 
                       const escala = Number(config.escala || 100) / 100;
                       const opacidade = Number(config.opacidade || 100) / 100;
 
-                      const copias = Array.from({ length: quantidade }).map((_, index) => {
-                        const passo = index + 1;
+                      const copias = Array.from({ length: quantidade }).map(
+                        (_, index) => {
+                          const passo = index + 1;
 
-                        const baseX = Number(config.distanciaX || 0) * passo;
-                        const baseY = Number(config.distanciaY || 0) * passo;
+                          const baseX = Number(config.distanciaX || 0) * passo;
+                          const baseY = Number(config.distanciaY || 0) * passo;
 
-                        const deslocamentoX =
-                          baseX * Math.cos(anguloRad) - baseY * Math.sin(anguloRad);
+                          const deslocamentoX =
+                            baseX * Math.cos(anguloRad) -
+                            baseY * Math.sin(anguloRad);
 
-                        const deslocamentoY =
-                          baseX * Math.sin(anguloRad) + baseY * Math.cos(anguloRad);
+                          const deslocamentoY =
+                            baseX * Math.sin(anguloRad) +
+                            baseY * Math.cos(anguloRad);
 
-                        return {
-                          ...campo,
-                          id: Number(`${campo.id}${passo}`),
-                          arrayPreview: true,
-                          x: Number(campo.x || 0) + deslocamentoX,
-                          y: Number(campo.y || 0) + deslocamentoY,
-                          largura: Number(campo.largura || 100) * Math.pow(escala, passo),
-                          altura: Number(campo.altura || 100) * Math.pow(escala, passo),
-                          rotate: Number((campo as any).rotate || 0) + Number(config.rotacaoPorCopia || 0) * passo,
-                          opacity: Math.max(
-                            0.05,
-                            Number(campo.opacity || 1) * Math.pow(opacidade, passo)
-                          ),
-                        };
-                      });
+                          return {
+                            ...campo,
+                            id: Number(`${campo.id}${passo}`),
+                            arrayPreview: true,
+                            x: Number(campo.x || 0) + deslocamentoX,
+                            y: Number(campo.y || 0) + deslocamentoY,
+                            largura:
+                              Number(campo.largura || 100) *
+                              Math.pow(escala, passo),
+                            altura:
+                              Number(campo.altura || 100) *
+                              Math.pow(escala, passo),
+                            rotate:
+                              Number((campo as any).rotate || 0) +
+                              Number(config.rotacaoPorCopia || 0) * passo,
+                            opacity: Math.max(
+                              0.05,
+                              Number(campo.opacity || 1) *
+                                Math.pow(opacidade, passo),
+                            ),
+                          };
+                        },
+                      );
 
                       return [campo, ...copias];
                     }),
@@ -8667,13 +8505,12 @@ export default function ConfiguracaoCertificadoPage() {
                   ]
                     .sort(
                       (a: any, b: any) =>
-                        Number(a.ordem || 0) - Number(b.ordem || 0)
+                        Number(a.ordem || 0) - Number(b.ordem || 0),
                     )
                     .map((c) => {
-
-
                       if (c.tipo === "IMAGEM") {
-                        const selecionadoImagem = camposSelecionadosIds.includes(c.id);
+                        const selecionadoImagem =
+                          camposSelecionadosIds.includes(c.id);
 
                         return (
                           <div
@@ -8683,11 +8520,15 @@ export default function ConfiguracaoCertificadoPage() {
 
                               if (event.button === 2) return;
 
-                              if (event.shiftKey || event.ctrlKey || event.metaKey) {
+                              if (
+                                event.shiftKey ||
+                                event.ctrlKey ||
+                                event.metaKey
+                              ) {
                                 setCamposSelecionadosIds((prev) =>
                                   prev.includes(c.id)
                                     ? prev.filter((id) => id !== c.id)
-                                    : [...prev, c.id]
+                                    : [...prev, c.id],
                                 );
 
                                 setCampoSelecionadoId(c.id);
@@ -8718,10 +8559,15 @@ export default function ConfiguracaoCertificadoPage() {
                               width: `${c.largura || 150}px`,
                               height: `${c.altura || 150}px`,
                               cursor: "move",
-                              zIndex: campoSelecionadoId === c.id ? 99999 : c.ordem || 10,
+                              zIndex:
+                                campoSelecionadoId === c.id
+                                  ? 99999
+                                  : c.ordem || 10,
                               pointerEvents: c.bloqueado ? "none" : "auto",
                               transform: `rotate(${(c as any).rotate || 0}deg)`,
-                              border: selecionadoImagem ? "2px solid #2563eb" : "1px dashed #93c5fd",
+                              border: selecionadoImagem
+                                ? "2px solid #2563eb"
+                                : "1px dashed #93c5fd",
 
                               borderRadius: "10px",
                               background: "transparent",
@@ -8731,12 +8577,12 @@ export default function ConfiguracaoCertificadoPage() {
 
                                   const { x, y } = calcularSombra(
                                     (c as any).sombraAngulo ?? 45,
-                                    (c as any).sombraDistancia ?? 20
+                                    (c as any).sombraDistancia ?? 20,
                                   );
 
                                   return `${x}px ${y}px ${c.sombraBlur || 20}px ${hexToRgba(
                                     c.sombraCor || "#000000",
-                                    (c.sombraOpacidade ?? 40) / 100
+                                    (c.sombraOpacidade ?? 40) / 100,
                                   )}`;
                                 })();
 
@@ -8744,7 +8590,11 @@ export default function ConfiguracaoCertificadoPage() {
                                   ? "0 0 0 3px rgba(37, 99, 235, 0.25)"
                                   : "";
 
-                                return [glowSelecao, sombraBase].filter(Boolean).join(", ") || "none";
+                                return (
+                                  [glowSelecao, sombraBase]
+                                    .filter(Boolean)
+                                    .join(", ") || "none"
+                                );
                               })(),
                             }}
                           >
@@ -8753,8 +8603,9 @@ export default function ConfiguracaoCertificadoPage() {
                               style={{
                                 backgroundImage: `url(${(c as any).imagemUrl})`,
                                 backgroundRepeat: "no-repeat",
-                                backgroundSize: `${(c as any).cropBaseW || (c.largura || 150)}px ${(c as any).cropBaseH || (c.altura || 150)
-                                  }px`,
+                                backgroundSize: `${(c as any).cropBaseW || c.largura || 150}px ${
+                                  (c as any).cropBaseH || c.altura || 150
+                                }px`,
                                 backgroundPosition: `-${c.crop?.left || 0}px -${c.crop?.top || 0}px`,
                                 opacity: c.opacity || 1,
                                 filter: (c as any).filter || "none",
@@ -8844,46 +8695,62 @@ export default function ConfiguracaoCertificadoPage() {
                                     const startW = c.largura || 150;
                                     const startH = c.altura || 150;
 
-                                    const move = (ev: globalThis.MouseEvent) => {
-                                      const novoW = Math.max(40, startW + ev.clientX - startX);
+                                    const move = (
+                                      ev: globalThis.MouseEvent,
+                                    ) => {
+                                      const novoW = Math.max(
+                                        40,
+                                        startW + ev.clientX - startX,
+                                      );
                                       const proporcao = startW / startH;
 
                                       const novoH = ev.shiftKey
                                         ? Math.max(40, novoW / proporcao)
-                                        : Math.max(40, startH + ev.clientY - startY);
+                                        : Math.max(
+                                            40,
+                                            startH + ev.clientY - startY,
+                                          );
 
                                       setCampos((prev) =>
                                         prev.map((item) =>
                                           item.id === c.id
                                             ? {
-                                              ...item,
-                                              largura: novoW,
-                                              altura: novoH,
-                                              crop: item.crop || {
-                                                top: 0,
-                                                left: 0,
-                                                right: 0,
-                                                bottom: 0,
-                                              },
-                                              cropBaseW:
-                                                novoW + (item.crop?.left || 0) + (item.crop?.right || 0),
-                                              cropBaseH:
-                                                novoH + (item.crop?.top || 0) + (item.crop?.bottom || 0),
-                                            }
-                                            : item
-                                        )
+                                                ...item,
+                                                largura: novoW,
+                                                altura: novoH,
+                                                crop: item.crop || {
+                                                  top: 0,
+                                                  left: 0,
+                                                  right: 0,
+                                                  bottom: 0,
+                                                },
+                                                cropBaseW:
+                                                  novoW +
+                                                  (item.crop?.left || 0) +
+                                                  (item.crop?.right || 0),
+                                                cropBaseH:
+                                                  novoH +
+                                                  (item.crop?.top || 0) +
+                                                  (item.crop?.bottom || 0),
+                                              }
+                                            : item,
+                                        ),
                                       );
                                     };
 
                                     const up = () => {
-                                      window.removeEventListener("mousemove", move);
+                                      window.removeEventListener(
+                                        "mousemove",
+                                        move,
+                                      );
                                       window.removeEventListener("mouseup", up);
                                     };
 
                                     window.addEventListener("mousemove", move);
                                     window.addEventListener("mouseup", up);
                                   }}
-                                  className="absolute bottom-[-12px] right-[-12px] z-[999999] h-6 w-6 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow-lg" title="Aumentar/diminuir tudo junto"
+                                  className="absolute bottom-[-12px] right-[-12px] z-[999999] h-6 w-6 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
+                                  title="Aumentar/diminuir tudo junto"
                                 />
                               </>
                             )}
@@ -8892,20 +8759,26 @@ export default function ConfiguracaoCertificadoPage() {
                       }
 
                       if (c.tipo === "FORMA") {
-                        const selecionado = camposSelecionadosIds.includes(c.id);
+                        const selecionado = camposSelecionadosIds.includes(
+                          c.id,
+                        );
                         const formaEstaAgrupada = Boolean((c as any).grupoId);
-                        const podeEditarFormaIndividual = selecionado && !formaEstaAgrupada;
+                        const podeEditarFormaIndividual =
+                          selecionado && !formaEstaAgrupada;
                         return (
                           <div
                             key={c.id}
                             data-campo-certificado-id={c.id}
-                            onMouseDown={(event) => selecionarCampoNoCanvas(event, c)}
+                            onMouseDown={(event) =>
+                              selecionarCampoNoCanvas(event, c)
+                            }
                             onContextMenu={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
 
                               const idsDoAlvo = idsDoCampoOuGrupo(c);
-                              const clicouEmItemJaSelecionado = camposSelecionadosIds.includes(c.id);
+                              const clicouEmItemJaSelecionado =
+                                camposSelecionadosIds.includes(c.id);
 
                               setCampoSelecionadoId(c.id);
                               setPontoFormaSelecionado(null);
@@ -8921,8 +8794,11 @@ export default function ConfiguracaoCertificadoPage() {
                                 campoId: c.id,
                               });
                             }}
-                            className={`absolute z-20 select-none overflow-visible ${(c as any).arrayPreview ? "pointer-events-none opacity-60" : ""
-                              }`}
+                            className={`absolute z-20 select-none overflow-visible ${
+                              (c as any).arrayPreview
+                                ? "pointer-events-none opacity-60"
+                                : ""
+                            }`}
                             style={{
                               left: `${c.x}px`,
                               top: `${c.y}px`,
@@ -8930,7 +8806,9 @@ export default function ConfiguracaoCertificadoPage() {
                               height: `${c.altura || 80}px`,
                               cursor: "move",
                               overflow: "visible",
-                              zIndex: (c as any).arrayPreview ? 1 : c.ordem || 5,
+                              zIndex: (c as any).arrayPreview
+                                ? 1
+                                : c.ordem || 5,
                               pointerEvents: c.bloqueado ? "none" : "auto",
                               transform: `
   rotate(${(c as any).rotate || 0}deg)
@@ -8943,42 +8821,58 @@ export default function ConfiguracaoCertificadoPage() {
 
                                 const { x, y } = calcularSombra(
                                   (c as any).sombraAngulo ?? 45,
-                                  (c as any).sombraDistancia ?? 20
+                                  (c as any).sombraDistancia ?? 20,
                                 );
 
                                 return `${x}px ${y}px ${c.sombraBlur || 20}px ${hexToRgba(
                                   c.sombraCor || "#000000",
-                                  (c.sombraOpacidade ?? 40) / 100
+                                  (c.sombraOpacidade ?? 40) / 100,
                                 )}`;
                               })(),
-
                             }}
                           >
                             <div
                               className="relative h-full w-full overflow-visible"
                               onDoubleClick={(e) => {
-
                                 if (!(c as any).usarGradiente) return;
 
                                 e.stopPropagation();
                                 e.preventDefault();
 
-                                const rect = e.currentTarget.getBoundingClientRect();
+                                const rect =
+                                  e.currentTarget.getBoundingClientRect();
                                 const posicao = Math.round(
-                                  Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100))
+                                  Math.max(
+                                    0,
+                                    Math.min(
+                                      100,
+                                      ((e.clientX - rect.left) / rect.width) *
+                                        100,
+                                    ),
+                                  ),
                                 );
 
                                 const stops = [
                                   ...(((c as any).degradeStops || [
                                     { cor: c.cor || "#1d4ed8", posicao: 0 },
-                                    { cor: (c as any).cor2 || "#60a5fa", posicao: 100 },
+                                    {
+                                      cor: (c as any).cor2 || "#60a5fa",
+                                      posicao: 100,
+                                    },
                                   ]) as any[]),
                                   { cor: "#ffffff", posicao },
                                 ].sort((a, b) => a.posicao - b.posicao);
 
-                                atualizarCampoLocal("degradeStops" as any, stops);
+                                atualizarCampoLocal(
+                                  "degradeStops" as any,
+                                  stops,
+                                );
                               }}
-                              title={(c as any).usarGradiente ? "Dê dois cliques para adicionar ponto de degradê" : undefined}
+                              title={
+                                (c as any).usarGradiente
+                                  ? "Dê dois cliques para adicionar ponto de degradê"
+                                  : undefined
+                              }
                               style={{
                                 background:
                                   c.pontosForma && c.pontosForma.length > 0
@@ -8987,23 +8881,48 @@ export default function ConfiguracaoCertificadoPage() {
                                       ? "transparent"
                                       : (c as any).usarGradiente
                                         ? (c as any).degradeTipo === "radial"
-                                          ? `radial-gradient(circle, ${((c as any).degradeStops || [
-                                            { cor: c.cor || "#1d4ed8", posicao: 0 },
-                                            { cor: (c as any).cor2 || "#60a5fa", posicao: 100 },
-                                          ])
-                                            .map((stop: any) =>
-                                              `${stop.cor} ${stop.posicao}%`
+                                          ? `radial-gradient(circle, ${(
+                                              (c as any).degradeStops || [
+                                                {
+                                                  cor: c.cor || "#1d4ed8",
+                                                  posicao: 0,
+                                                },
+                                                {
+                                                  cor:
+                                                    (c as any).cor2 ||
+                                                    "#60a5fa",
+                                                  posicao: 100,
+                                                },
+                                              ]
                                             )
-                                            .join(", ")})`
-                                          : `linear-gradient(${(c as any).degradeAngulo ?? 90}deg, ${((c as any).degradeStops || [
-                                            { cor: c.cor || "#1d4ed8", posicao: 0 },
-                                            { cor: (c as any).cor2 || "#60a5fa", posicao: 100 },
-                                          ])
-                                            .map((stop: any) =>
-                                              `${hexToRgba(stop.cor, c.opacity || 1)} ${stop.posicao}%`
+                                              .map(
+                                                (stop: any) =>
+                                                  `${stop.cor} ${stop.posicao}%`,
+                                              )
+                                              .join(", ")})`
+                                          : `linear-gradient(${(c as any).degradeAngulo ?? 90}deg, ${(
+                                              (c as any).degradeStops || [
+                                                {
+                                                  cor: c.cor || "#1d4ed8",
+                                                  posicao: 0,
+                                                },
+                                                {
+                                                  cor:
+                                                    (c as any).cor2 ||
+                                                    "#60a5fa",
+                                                  posicao: 100,
+                                                },
+                                              ]
                                             )
-                                            .join(", ")})`
-                                        : hexToRgba(c.cor || "#1d4ed8", c.opacity || 1),
+                                              .map(
+                                                (stop: any) =>
+                                                  `${hexToRgba(stop.cor, c.opacity || 1)} ${stop.posicao}%`,
+                                              )
+                                              .join(", ")})`
+                                        : hexToRgba(
+                                            c.cor || "#1d4ed8",
+                                            c.opacity || 1,
+                                          ),
 
                                 border:
                                   c.pontosForma && c.pontosForma.length > 0
@@ -9032,56 +8951,74 @@ export default function ConfiguracaoCertificadoPage() {
                                     : "hidden",
                               }}
                             >
-
-                              {c.tipo === "FORMA" && c.pontosForma && c.pontosForma.length > 0 && (
-                                <div data-campo-certificado-id={c.id}>
-                                  <FormaVetorial
-                                    campo={c as any}
-                                    selecionado={selecionado && !formaEstaAgrupada}
-                                    modo="editor"
-                                    mostrarHandles={mostrarHandlesForma && !formaEstaAgrupada}
-                                    pontoSelecionadoId={
-                                      pontoFormaSelecionado?.campoId === c.id
-                                        ? pontoFormaSelecionado.pontoId
-                                        : null
-                                    }
-                                    onSelecionarPonto={(pontoId) => {
-                                      setCampoSelecionadoId(c.id);
-                                      setCamposSelecionadosIds(idsDoCampoOuGrupo(c));
-
-                                      if (formaEstaAgrupada) {
-                                        setPontoFormaSelecionado(null);
-                                        return;
+                              {c.tipo === "FORMA" &&
+                                c.pontosForma &&
+                                c.pontosForma.length > 0 && (
+                                  <div data-campo-certificado-id={c.id}>
+                                    <FormaVetorial
+                                      campo={c as any}
+                                      selecionado={
+                                        selecionado && !formaEstaAgrupada
                                       }
-
-                                      setPontoFormaSelecionado(
-                                        pontoId
-                                          ? {
-                                            campoId: c.id,
-                                            pontoId,
-                                          }
+                                      modo="editor"
+                                      mostrarHandles={
+                                        mostrarHandlesForma &&
+                                        !formaEstaAgrupada
+                                      }
+                                      pontoSelecionadoId={
+                                        pontoFormaSelecionado?.campoId === c.id
+                                          ? pontoFormaSelecionado.pontoId
                                           : null
-                                      );
-                                    }}
-                                    onChange={(campoAtualizado) => {
-                                      if (formaEstaAgrupada) return;
+                                      }
+                                      onSelecionarPonto={(pontoId) => {
+                                        setCampoSelecionadoId(c.id);
+                                        setCamposSelecionadosIds(
+                                          idsDoCampoOuGrupo(c),
+                                        );
 
-                                      setCampos((prev) =>
-                                        prev.map((item) =>
-                                          item.id === c.id ? ({ ...item, ...campoAtualizado } as any) : item
-                                        )
-                                      );
-                                    }}
-                                  />
-                                </div>
-                              )}
+                                        if (formaEstaAgrupada) {
+                                          setPontoFormaSelecionado(null);
+                                          return;
+                                        }
+
+                                        setPontoFormaSelecionado(
+                                          pontoId
+                                            ? {
+                                                campoId: c.id,
+                                                pontoId,
+                                              }
+                                            : null,
+                                        );
+                                      }}
+                                      onChange={(campoAtualizado) => {
+                                        if (formaEstaAgrupada) return;
+
+                                        setCampos((prev) =>
+                                          prev.map((item) =>
+                                            item.id === c.id
+                                              ? ({
+                                                  ...item,
+                                                  ...campoAtualizado,
+                                                } as any)
+                                              : item,
+                                          ),
+                                        );
+                                      }}
+                                    />
+                                  </div>
+                                )}
 
                               {selecionado && (c as any).usarGradiente && (
                                 <div className="pointer-events-none absolute inset-0 z-[9998]">
-                                  {(((c as any).degradeStops || [
-                                    { cor: c.cor || "#1d4ed8", posicao: 0 },
-                                    { cor: (c as any).cor2 || "#60a5fa", posicao: 100 },
-                                  ]) as any[]).map((stop, index) => (
+                                  {(
+                                    ((c as any).degradeStops || [
+                                      { cor: c.cor || "#1d4ed8", posicao: 0 },
+                                      {
+                                        cor: (c as any).cor2 || "#60a5fa",
+                                        posicao: 100,
+                                      },
+                                    ]) as any[]
+                                  ).map((stop, index) => (
                                     <button
                                       key={index}
                                       type="button"
@@ -9123,13 +9060,21 @@ export default function ConfiguracaoCertificadoPage() {
                                         e.stopPropagation();
                                         e.preventDefault();
 
-                                        const rect = e.currentTarget.parentElement?.getBoundingClientRect();
+                                        const rect =
+                                          e.currentTarget.parentElement?.getBoundingClientRect();
                                         if (!rect) return;
 
-                                        const move = (ev: globalThis.MouseEvent) => {
+                                        const move = (
+                                          ev: globalThis.MouseEvent,
+                                        ) => {
                                           const posicao = Math.max(
                                             0,
-                                            Math.min(100, ((ev.clientX - rect.left) / rect.width) * 100)
+                                            Math.min(
+                                              100,
+                                              ((ev.clientX - rect.left) /
+                                                rect.width) *
+                                                100,
+                                            ),
                                           );
 
                                           setCampos((prev) =>
@@ -9137,9 +9082,18 @@ export default function ConfiguracaoCertificadoPage() {
                                               if (item.id !== c.id) return item;
 
                                               const stops = [
-                                                ...(((item as any).degradeStops || [
-                                                  { cor: item.cor || "#1d4ed8", posicao: 0 },
-                                                  { cor: (item as any).cor2 || "#60a5fa", posicao: 100 },
+                                                ...(((item as any)
+                                                  .degradeStops || [
+                                                  {
+                                                    cor: item.cor || "#1d4ed8",
+                                                    posicao: 0,
+                                                  },
+                                                  {
+                                                    cor:
+                                                      (item as any).cor2 ||
+                                                      "#60a5fa",
+                                                    posicao: 100,
+                                                  },
                                                 ]) as any[]),
                                               ];
 
@@ -9150,18 +9104,30 @@ export default function ConfiguracaoCertificadoPage() {
 
                                               return {
                                                 ...item,
-                                                degradeStops: stops.sort((a, b) => a.posicao - b.posicao),
+                                                degradeStops: stops.sort(
+                                                  (a, b) =>
+                                                    a.posicao - b.posicao,
+                                                ),
                                               } as any;
-                                            })
+                                            }),
                                           );
                                         };
 
                                         const up = () => {
-                                          window.removeEventListener("mousemove", move);
-                                          window.removeEventListener("mouseup", up);
+                                          window.removeEventListener(
+                                            "mousemove",
+                                            move,
+                                          );
+                                          window.removeEventListener(
+                                            "mouseup",
+                                            up,
+                                          );
                                         };
 
-                                        window.addEventListener("mousemove", move);
+                                        window.addEventListener(
+                                          "mousemove",
+                                          move,
+                                        );
                                         window.addEventListener("mouseup", up);
                                       }}
                                       onDoubleClick={(e) => {
@@ -9188,294 +9154,430 @@ export default function ConfiguracaoCertificadoPage() {
                                   ))}
                                 </div>
                               )}
-
                             </div>
 
-                            {selecionado && !caixaDoGrupoSelecionado && !formaEstaAgrupada && (
-                              <>
-                                {/* girar */}
-                                <button
-                                  type="button"
-                                  onMouseDown={(e) => iniciarRotacao(e, c)}
-                                  className="absolute left-1/2 top-[-34px] h-7 w-7 -translate-x-1/2 rounded-full bg-blue-600 text-xs text-white shadow"
-                                  title="Arraste para rotacionar"
-                                >
-                                  ↻
-                                </button>
-
-                                {/* CENTRAL (CROP PRO) */}
-                                <div
-                                  onMouseDown={(e) => iniciarCropPro(e, c)}
-                                  className="absolute inset-0 flex items-center justify-center pointer-events-none"
-                                >
-                                  <div className="w-6 h-6 bg-purple-500 rounded-full cursor-move pointer-events-auto shadow-lg" />
-                                </div>
-
-                                {/* canto inferior direito */}
-                                <div
-                                  onMouseDown={(e) => {
-                                    e.stopPropagation();
-
-                                    const startX = e.clientX;
-                                    const startY = e.clientY;
-                                    const startW = c.largura || 100;
-                                    const startH = c.altura || 80;
-
-                                    const proporcao = startW / startH;
-
-                                    const move = (ev: globalThis.MouseEvent) => {
-                                      setCampos((prev) =>
-                                        prev.map((item) =>
-                                          item.id === c.id
-                                            ? {
-                                              ...item,
-                                              largura: ev.shiftKey
-                                                ? Math.max(20, startW + ev.clientX - startX)
-                                                : Math.max(20, startW + ev.clientX - startX),
-
-                                              altura: ev.shiftKey
-                                                ? Math.max(4, (startW + ev.clientX - startX) / proporcao)
-                                                : Math.max(4, startH + ev.clientY - startY),
-                                            }
-                                            : item
-                                        )
-                                      );
-                                    };
-
-                                    const up = () => {
-                                      window.removeEventListener("mousemove", move);
-                                      window.removeEventListener("mouseup", up);
-                                    };
-
-                                    window.addEventListener("mousemove", move);
-                                    window.addEventListener("mouseup", up);
-                                  }}
-                                  className="absolute bottom-[-10px] right-[-10px] z-[999999] h-6 w-6 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
-                                  title="Redimensionar"
-                                />
-
-                                {/* direita */}
-                                <div
-                                  onMouseDown={(e) => {
-                                    e.stopPropagation();
-
-                                    const startX = e.clientX;
-                                    const startW = c.largura || 100;
-
-                                    const move = (ev: globalThis.MouseEvent) => {
-                                      setCampos((prev) =>
-                                        prev.map((item) =>
-                                          item.id === c.id
-                                            ? {
-                                              ...item,
-                                              largura: Math.max(20, startW + ev.clientX - startX),
-                                            }
-                                            : item
-                                        )
-                                      );
-                                    };
-
-                                    const up = () => {
-                                      window.removeEventListener("mousemove", move);
-                                      window.removeEventListener("mouseup", up);
-                                    };
-
-                                    window.addEventListener("mousemove", move);
-                                    window.addEventListener("mouseup", up);
-                                  }}
-                                  className="absolute right-[-6px] top-1/2 h-4 w-4 -translate-y-1/2 cursor-ew-resize rounded-full border-2 border-white bg-blue-600 shadow"
-                                  title="Ajustar largura"
-                                />
-
-                                {/* baixo */}
-                                <div
-                                  onMouseDown={(e) => {
-                                    e.stopPropagation();
-
-                                    const startY = e.clientY;
-                                    const startH = c.altura || 80;
-
-                                    const move = (ev: globalThis.MouseEvent) => {
-                                      setCampos((prev) =>
-                                        prev.map((item) =>
-                                          item.id === c.id
-                                            ? {
-                                              ...item,
-                                              altura: Math.max(4, startH + ev.clientY - startY),
-                                            }
-                                            : item
-                                        )
-                                      );
-                                    };
-
-                                    const up = () => {
-                                      window.removeEventListener("mousemove", move);
-                                      window.removeEventListener("mouseup", up);
-                                    };
-
-                                    window.addEventListener("mousemove", move);
-                                    window.addEventListener("mouseup", up);
-                                  }}
-                                  className="absolute bottom-[-6px] left-1/2 h-4 w-4 -translate-x-1/2 cursor-ns-resize rounded-full border-2 border-white bg-blue-600 shadow"
-                                  title="Ajustar altura"
-                                />
-                                <div
-                                  onMouseDown={(e) => iniciarCropTodos(e, c)}
-                                  className="absolute left-[-10px] top-[-10px] z-[9999] flex h-6 w-6 cursor-nwse-resize items-center justify-center rounded-md bg-purple-600 text-xs font-bold text-white shadow"
-                                  title="Corte pelos 4 lados"
-                                >
-                                  ┍
-                                </div>
-
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    excluirCampo((c as any).bancoId || c.id);
-                                  }}
-                                  className="absolute right-[-10px] top-[-10px] z-[9999] flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-xs text-white shadow hover:bg-red-700"
-                                  title="Excluir"
-                                >
-                                  ✕
-                                </button>
-
-                                {selecionado && !caixaDoGrupoSelecionado && !formaEstaAgrupada && (
+                            {selecionado &&
+                              !caixaDoGrupoSelecionado &&
+                              !formaEstaAgrupada && (
+                                <>
+                                  {/* girar */}
                                   <button
                                     type="button"
+                                    onMouseDown={(e) => iniciarRotacao(e, c)}
+                                    className="absolute left-1/2 top-[-34px] h-7 w-7 -translate-x-1/2 rounded-full bg-blue-600 text-xs text-white shadow"
+                                    title="Arraste para rotacionar"
+                                  >
+                                    ↻
+                                  </button>
+
+                                  {/* CENTRAL (CROP PRO) */}
+                                  <div
+                                    onMouseDown={(e) => iniciarCropPro(e, c)}
+                                    className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                                  >
+                                    <div className="w-6 h-6 bg-purple-500 rounded-full cursor-move pointer-events-auto shadow-lg" />
+                                  </div>
+
+                                  {/* canto inferior direito */}
+                                  <div
                                     onMouseDown={(e) => {
                                       e.stopPropagation();
-                                      e.preventDefault();
 
                                       const startX = e.clientX;
                                       const startY = e.clientY;
-                                      const startW = c.largura || 120;
-                                      const startH = c.altura || 120;
+                                      const startW = c.largura || 100;
+                                      const startH = c.altura || 80;
+
                                       const proporcao = startW / startH;
 
-                                      const move = (ev: globalThis.MouseEvent) => {
-                                        const deltaX = ev.clientX - startX;
-                                        const deltaY = ev.clientY - startY;
-
-                                        let novaLargura = Math.max(20, startW + deltaX);
-                                        let novaAltura = Math.max(20, startH + deltaY);
-
-                                        if (ev.shiftKey) {
-                                          novaAltura = Math.max(20, novaLargura / proporcao);
-                                        }
-
+                                      const move = (
+                                        ev: globalThis.MouseEvent,
+                                      ) => {
                                         setCampos((prev) =>
                                           prev.map((item) =>
                                             item.id === c.id
                                               ? {
-                                                ...item,
-                                                largura: Math.round(novaLargura),
-                                                altura: Math.round(novaAltura),
-                                              }
-                                              : item
-                                          )
+                                                  ...item,
+                                                  largura: ev.shiftKey
+                                                    ? Math.max(
+                                                        20,
+                                                        startW +
+                                                          ev.clientX -
+                                                          startX,
+                                                      )
+                                                    : Math.max(
+                                                        20,
+                                                        startW +
+                                                          ev.clientX -
+                                                          startX,
+                                                      ),
+
+                                                  altura: ev.shiftKey
+                                                    ? Math.max(
+                                                        4,
+                                                        (startW +
+                                                          ev.clientX -
+                                                          startX) /
+                                                          proporcao,
+                                                      )
+                                                    : Math.max(
+                                                        4,
+                                                        startH +
+                                                          ev.clientY -
+                                                          startY,
+                                                      ),
+                                                }
+                                              : item,
+                                          ),
                                         );
                                       };
 
                                       const up = () => {
-                                        window.removeEventListener("mousemove", move);
-                                        window.removeEventListener("mouseup", up);
+                                        window.removeEventListener(
+                                          "mousemove",
+                                          move,
+                                        );
+                                        window.removeEventListener(
+                                          "mouseup",
+                                          up,
+                                        );
                                       };
 
-                                      window.addEventListener("mousemove", move);
+                                      window.addEventListener(
+                                        "mousemove",
+                                        move,
+                                      );
                                       window.addEventListener("mouseup", up);
                                     }}
-                                    className="absolute -bottom-3 -right-3 z-[999999] h-6 w-6 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
-                                    title="Redimensionar forma inteira"
+                                    className="absolute bottom-[-10px] right-[-10px] z-[999999] h-6 w-6 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
+                                    title="Redimensionar"
                                   />
-                                )}
 
-                                {c.forma === "LINHA" && (
-                                  <>
-                                    {/* PONTO INÍCIO */}
-                                    <div
-                                      onMouseDown={(e) => {
-                                        e.stopPropagation();
+                                  {/* direita */}
+                                  <div
+                                    onMouseDown={(e) => {
+                                      e.stopPropagation();
 
-                                        const startX = e.clientX;
-                                        const startY = e.clientY;
-                                        const startLeft = c.x;
-                                        const startTop = c.y;
-                                        const startW = c.largura || 100;
-                                        const startH = c.altura || 2;
+                                      const startX = e.clientX;
+                                      const startW = c.largura || 100;
 
-                                        const move = (ev: globalThis.MouseEvent) => {
-                                          setCampos((prev) =>
-                                            prev.map((item) =>
-                                              item.id === c.id
-                                                ? {
+                                      const move = (
+                                        ev: globalThis.MouseEvent,
+                                      ) => {
+                                        setCampos((prev) =>
+                                          prev.map((item) =>
+                                            item.id === c.id
+                                              ? {
                                                   ...item,
-                                                  x: startLeft + (ev.clientX - startX),
-                                                  y: startTop + (ev.clientY - startY),
-                                                  largura: startW - (ev.clientX - startX),
-                                                  altura: startH - (ev.clientY - startY),
+                                                  largura: Math.max(
+                                                    20,
+                                                    startW +
+                                                      ev.clientX -
+                                                      startX,
+                                                  ),
                                                 }
-                                                : item
-                                            )
-                                          );
-                                        };
+                                              : item,
+                                          ),
+                                        );
+                                      };
 
-                                        const up = () => {
-                                          window.removeEventListener("mousemove", move);
-                                          window.removeEventListener("mouseup", up);
-                                        };
+                                      const up = () => {
+                                        window.removeEventListener(
+                                          "mousemove",
+                                          move,
+                                        );
+                                        window.removeEventListener(
+                                          "mouseup",
+                                          up,
+                                        );
+                                      };
 
-                                        window.addEventListener("mousemove", move);
-                                        window.addEventListener("mouseup", up);
-                                      }}
-                                      className="absolute left-[-6px] top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-white border border-blue-600 cursor-pointer"
-                                    />
+                                      window.addEventListener(
+                                        "mousemove",
+                                        move,
+                                      );
+                                      window.addEventListener("mouseup", up);
+                                    }}
+                                    className="absolute right-[-6px] top-1/2 h-4 w-4 -translate-y-1/2 cursor-ew-resize rounded-full border-2 border-white bg-blue-600 shadow"
+                                    title="Ajustar largura"
+                                  />
 
-                                    {/* PONTO FINAL */}
-                                    <div
-                                      onMouseDown={(e) => {
-                                        e.stopPropagation();
+                                  {/* baixo */}
+                                  <div
+                                    onMouseDown={(e) => {
+                                      e.stopPropagation();
 
-                                        const startX = e.clientX;
-                                        const startY = e.clientY;
-                                        const startW = c.largura || 100;
-                                        const startH = c.altura || 2;
+                                      const startY = e.clientY;
+                                      const startH = c.altura || 80;
 
-                                        const move = (ev: globalThis.MouseEvent) => {
-                                          setCampos((prev) =>
-                                            prev.map((item) =>
-                                              item.id === c.id
-                                                ? {
+                                      const move = (
+                                        ev: globalThis.MouseEvent,
+                                      ) => {
+                                        setCampos((prev) =>
+                                          prev.map((item) =>
+                                            item.id === c.id
+                                              ? {
                                                   ...item,
-                                                  largura: Math.max(2, startW + (ev.clientX - startX)),
-                                                  altura: Math.max(2, startH + (ev.clientY - startY)),
+                                                  altura: Math.max(
+                                                    4,
+                                                    startH +
+                                                      ev.clientY -
+                                                      startY,
+                                                  ),
                                                 }
-                                                : item
-                                            )
+                                              : item,
+                                          ),
+                                        );
+                                      };
+
+                                      const up = () => {
+                                        window.removeEventListener(
+                                          "mousemove",
+                                          move,
+                                        );
+                                        window.removeEventListener(
+                                          "mouseup",
+                                          up,
+                                        );
+                                      };
+
+                                      window.addEventListener(
+                                        "mousemove",
+                                        move,
+                                      );
+                                      window.addEventListener("mouseup", up);
+                                    }}
+                                    className="absolute bottom-[-6px] left-1/2 h-4 w-4 -translate-x-1/2 cursor-ns-resize rounded-full border-2 border-white bg-blue-600 shadow"
+                                    title="Ajustar altura"
+                                  />
+                                  <div
+                                    onMouseDown={(e) => iniciarCropTodos(e, c)}
+                                    className="absolute left-[-10px] top-[-10px] z-[9999] flex h-6 w-6 cursor-nwse-resize items-center justify-center rounded-md bg-purple-600 text-xs font-bold text-white shadow"
+                                    title="Corte pelos 4 lados"
+                                  >
+                                    ┍
+                                  </div>
+
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      excluirCampo((c as any).bancoId || c.id);
+                                    }}
+                                    className="absolute right-[-10px] top-[-10px] z-[9999] flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-xs text-white shadow hover:bg-red-700"
+                                    title="Excluir"
+                                  >
+                                    ✕
+                                  </button>
+
+                                  {selecionado &&
+                                    !caixaDoGrupoSelecionado &&
+                                    !formaEstaAgrupada && (
+                                      <button
+                                        type="button"
+                                        onMouseDown={(e) => {
+                                          e.stopPropagation();
+                                          e.preventDefault();
+
+                                          const startX = e.clientX;
+                                          const startY = e.clientY;
+                                          const startW = c.largura || 120;
+                                          const startH = c.altura || 120;
+                                          const proporcao = startW / startH;
+
+                                          const move = (
+                                            ev: globalThis.MouseEvent,
+                                          ) => {
+                                            const deltaX = ev.clientX - startX;
+                                            const deltaY = ev.clientY - startY;
+
+                                            let novaLargura = Math.max(
+                                              20,
+                                              startW + deltaX,
+                                            );
+                                            let novaAltura = Math.max(
+                                              20,
+                                              startH + deltaY,
+                                            );
+
+                                            if (ev.shiftKey) {
+                                              novaAltura = Math.max(
+                                                20,
+                                                novaLargura / proporcao,
+                                              );
+                                            }
+
+                                            setCampos((prev) =>
+                                              prev.map((item) =>
+                                                item.id === c.id
+                                                  ? {
+                                                      ...item,
+                                                      largura:
+                                                        Math.round(novaLargura),
+                                                      altura:
+                                                        Math.round(novaAltura),
+                                                    }
+                                                  : item,
+                                              ),
+                                            );
+                                          };
+
+                                          const up = () => {
+                                            window.removeEventListener(
+                                              "mousemove",
+                                              move,
+                                            );
+                                            window.removeEventListener(
+                                              "mouseup",
+                                              up,
+                                            );
+                                          };
+
+                                          window.addEventListener(
+                                            "mousemove",
+                                            move,
                                           );
-                                        };
+                                          window.addEventListener(
+                                            "mouseup",
+                                            up,
+                                          );
+                                        }}
+                                        className="absolute -bottom-3 -right-3 z-[999999] h-6 w-6 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
+                                        title="Redimensionar forma inteira"
+                                      />
+                                    )}
 
-                                        const up = () => {
-                                          window.removeEventListener("mousemove", move);
-                                          window.removeEventListener("mouseup", up);
-                                        };
+                                  {c.forma === "LINHA" && (
+                                    <>
+                                      {/* PONTO INÍCIO */}
+                                      <div
+                                        onMouseDown={(e) => {
+                                          e.stopPropagation();
 
-                                        window.addEventListener("mousemove", move);
-                                        window.addEventListener("mouseup", up);
-                                      }}
-                                      className="absolute right-[-6px] top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-white border border-blue-600 cursor-pointer"
-                                    />
-                                  </>
-                                )}
+                                          const startX = e.clientX;
+                                          const startY = e.clientY;
+                                          const startLeft = c.x;
+                                          const startTop = c.y;
+                                          const startW = c.largura || 100;
+                                          const startH = c.altura || 2;
 
-                              </>
-                            )}
+                                          const move = (
+                                            ev: globalThis.MouseEvent,
+                                          ) => {
+                                            setCampos((prev) =>
+                                              prev.map((item) =>
+                                                item.id === c.id
+                                                  ? {
+                                                      ...item,
+                                                      x:
+                                                        startLeft +
+                                                        (ev.clientX - startX),
+                                                      y:
+                                                        startTop +
+                                                        (ev.clientY - startY),
+                                                      largura:
+                                                        startW -
+                                                        (ev.clientX - startX),
+                                                      altura:
+                                                        startH -
+                                                        (ev.clientY - startY),
+                                                    }
+                                                  : item,
+                                              ),
+                                            );
+                                          };
 
+                                          const up = () => {
+                                            window.removeEventListener(
+                                              "mousemove",
+                                              move,
+                                            );
+                                            window.removeEventListener(
+                                              "mouseup",
+                                              up,
+                                            );
+                                          };
+
+                                          window.addEventListener(
+                                            "mousemove",
+                                            move,
+                                          );
+                                          window.addEventListener(
+                                            "mouseup",
+                                            up,
+                                          );
+                                        }}
+                                        className="absolute left-[-6px] top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-white border border-blue-600 cursor-pointer"
+                                      />
+
+                                      {/* PONTO FINAL */}
+                                      <div
+                                        onMouseDown={(e) => {
+                                          e.stopPropagation();
+
+                                          const startX = e.clientX;
+                                          const startY = e.clientY;
+                                          const startW = c.largura || 100;
+                                          const startH = c.altura || 2;
+
+                                          const move = (
+                                            ev: globalThis.MouseEvent,
+                                          ) => {
+                                            setCampos((prev) =>
+                                              prev.map((item) =>
+                                                item.id === c.id
+                                                  ? {
+                                                      ...item,
+                                                      largura: Math.max(
+                                                        2,
+                                                        startW +
+                                                          (ev.clientX - startX),
+                                                      ),
+                                                      altura: Math.max(
+                                                        2,
+                                                        startH +
+                                                          (ev.clientY - startY),
+                                                      ),
+                                                    }
+                                                  : item,
+                                              ),
+                                            );
+                                          };
+
+                                          const up = () => {
+                                            window.removeEventListener(
+                                              "mousemove",
+                                              move,
+                                            );
+                                            window.removeEventListener(
+                                              "mouseup",
+                                              up,
+                                            );
+                                          };
+
+                                          window.addEventListener(
+                                            "mousemove",
+                                            move,
+                                          );
+                                          window.addEventListener(
+                                            "mouseup",
+                                            up,
+                                          );
+                                        }}
+                                        className="absolute right-[-6px] top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-white border border-blue-600 cursor-pointer"
+                                      />
+                                    </>
+                                  )}
+                                </>
+                              )}
                           </div>
                         );
                       }
 
                       if (c.tipo === "TEXTO_LIVRE") {
-                        const selecionadoTexto = camposSelecionadosIds.includes(c.id);
+                        const selecionadoTexto = camposSelecionadosIds.includes(
+                          c.id,
+                        );
 
                         return (
                           <div
@@ -9519,7 +9621,10 @@ export default function ConfiguracaoCertificadoPage() {
                               top: `${c.y}px`,
                               width: `${c.largura || 320}px`,
                               height: `${c.altura || 120}px`,
-                              zIndex: campoSelecionadoId === c.id ? 99999 : c.ordem || 20,
+                              zIndex:
+                                campoSelecionadoId === c.id
+                                  ? 99999
+                                  : c.ordem || 20,
                               pointerEvents: c.bloqueado ? "none" : "auto",
                             }}
                           >
@@ -9562,7 +9667,8 @@ export default function ConfiguracaoCertificadoPage() {
                                 e.stopPropagation();
 
                                 const editor = e.currentTarget;
-                                const texto = e.clipboardData.getData("text/plain");
+                                const texto =
+                                  e.clipboardData.getData("text/plain");
 
                                 if (!texto.trim()) return;
                                 const textoAtual = editor.innerText.trim();
@@ -9581,7 +9687,10 @@ export default function ConfiguracaoCertificadoPage() {
                                   if (
                                     selecao &&
                                     selecao.rangeCount > 0 &&
-                                    editor.contains(selecao.getRangeAt(0).commonAncestorContainer)
+                                    editor.contains(
+                                      selecao.getRangeAt(0)
+                                        .commonAncestorContainer,
+                                    )
                                   ) {
                                     const range = selecao.getRangeAt(0);
 
@@ -9610,7 +9719,10 @@ export default function ConfiguracaoCertificadoPage() {
                               onKeyDown={(e) => {
                                 e.stopPropagation();
 
-                                if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "v") {
+                                if (
+                                  (e.ctrlKey || e.metaKey) &&
+                                  e.key.toLowerCase() === "v"
+                                ) {
                                   const editor = e.currentTarget;
                                   const textoAtual = editor.innerText.trim();
 
@@ -9621,24 +9733,29 @@ export default function ConfiguracaoCertificadoPage() {
                                   if (ehTextoPadrao) {
                                     e.preventDefault();
 
-                                    navigator.clipboard.readText().then((texto) => {
-                                      if (!texto.trim()) return;
+                                    navigator.clipboard
+                                      .readText()
+                                      .then((texto) => {
+                                        if (!texto.trim()) return;
 
-                                      salvarHistoricoTextoLivre(editor);
-
-                                      editor.textContent = texto;
-                                      atualizarTextoLivreNoEstado(editor);
-
-                                      setTimeout(() => {
                                         salvarHistoricoTextoLivre(editor);
-                                      }, 0);
-                                    });
+
+                                        editor.textContent = texto;
+                                        atualizarTextoLivreNoEstado(editor);
+
+                                        setTimeout(() => {
+                                          salvarHistoricoTextoLivre(editor);
+                                        }, 0);
+                                      });
 
                                     return;
                                   }
                                 }
 
-                                if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
+                                if (
+                                  (e.ctrlKey || e.metaKey) &&
+                                  e.key.toLowerCase() === "z"
+                                ) {
                                   if (desfazerTextoLivre(e.currentTarget)) {
                                     e.preventDefault();
                                     return;
@@ -9646,33 +9763,48 @@ export default function ConfiguracaoCertificadoPage() {
                                 }
 
                                 const editor = e.currentTarget;
-                                const marcador = editor.getAttribute("data-marcador-ativo");
+                                const marcador = editor.getAttribute(
+                                  "data-marcador-ativo",
+                                );
 
                                 if (!marcador) return;
 
-                                const textoAntes = obterTextoAntesDoCursor(editor);
-                                const linhaAtual = textoAntes.split("\n").pop() || "";
+                                const textoAntes =
+                                  obterTextoAntesDoCursor(editor);
+                                const linhaAtual =
+                                  textoAntes.split("\n").pop() || "";
 
                                 if (e.key === "Enter") {
                                   e.preventDefault();
 
                                   if (linhaAtual.trim() === marcador) {
-                                    editor.removeAttribute("data-marcador-ativo");
+                                    editor.removeAttribute(
+                                      "data-marcador-ativo",
+                                    );
                                     inserirTextoNoCursor(editor, "\n");
                                   } else {
-                                    inserirTextoNoCursor(editor, `\n${marcador} `);
+                                    inserirTextoNoCursor(
+                                      editor,
+                                      `\n${marcador} `,
+                                    );
                                   }
 
                                   atualizarTextoLivreNoEstado(editor);
                                   return;
                                 }
 
-                                if (e.key === "Backspace" && linhaAtual === `${marcador} `) {
+                                if (
+                                  e.key === "Backspace" &&
+                                  linhaAtual === `${marcador} `
+                                ) {
                                   editor.removeAttribute("data-marcador-ativo");
                                   return;
                                 }
 
-                                if (e.key === " " && linhaAtual === `${marcador} `) {
+                                if (
+                                  e.key === " " &&
+                                  linhaAtual === `${marcador} `
+                                ) {
                                   e.preventDefault();
                                   editor.removeAttribute("data-marcador-ativo");
                                   inserirTextoNoCursor(editor, "\n");
@@ -9692,12 +9824,12 @@ export default function ConfiguracaoCertificadoPage() {
                                   prev.map((item) =>
                                     item.id === c.id
                                       ? {
-                                        ...item,
-                                        texto,
-                                        textoHtml,
-                                      }
-                                      : item
-                                  )
+                                          ...item,
+                                          texto,
+                                          textoHtml,
+                                        }
+                                      : item,
+                                  ),
                                 );
                               }}
                               onBlur={(e) => {
@@ -9706,12 +9838,17 @@ export default function ConfiguracaoCertificadoPage() {
 
                                 setCampos((prev) =>
                                   prev.map((item) =>
-                                    item.id === c.id ? { ...item, texto, textoHtml } : item
-                                  )
+                                    item.id === c.id
+                                      ? { ...item, texto, textoHtml }
+                                      : item,
+                                  ),
                                 );
                               }}
                               onBeforeInput={(e) => {
-                                if ((e.nativeEvent as InputEvent).inputType === "insertFromPaste") {
+                                if (
+                                  (e.nativeEvent as InputEvent).inputType ===
+                                  "insertFromPaste"
+                                ) {
                                   return;
                                 }
 
@@ -9720,12 +9857,21 @@ export default function ConfiguracaoCertificadoPage() {
                               onMouseUp={() => {
                                 const selecao = window.getSelection();
 
-                                if (selecao && selecao.rangeCount > 0 && selecao.toString().trim()) {
-                                  const range = selecao.getRangeAt(0).cloneRange();
+                                if (
+                                  selecao &&
+                                  selecao.rangeCount > 0 &&
+                                  selecao.toString().trim()
+                                ) {
+                                  const range = selecao
+                                    .getRangeAt(0)
+                                    .cloneRange();
                                   selecaoTextoRef.current = range;
 
-                                  const elemento = selecao.anchorNode?.parentElement;
-                                  const cor = elemento ? window.getComputedStyle(elemento).color : "";
+                                  const elemento =
+                                    selecao.anchorNode?.parentElement;
+                                  const cor = elemento
+                                    ? window.getComputedStyle(elemento).color
+                                    : "";
                                   const corHex = cssColorToHex(cor);
 
                                   setCorTextoSelecionado(corHex || null);
@@ -9734,22 +9880,33 @@ export default function ConfiguracaoCertificadoPage() {
                               onKeyUp={() => {
                                 const selecao = window.getSelection();
 
-                                if (selecao && selecao.rangeCount > 0 && selecao.toString().trim()) {
-                                  selecaoTextoRef.current = selecao.getRangeAt(0).cloneRange();
+                                if (
+                                  selecao &&
+                                  selecao.rangeCount > 0 &&
+                                  selecao.toString().trim()
+                                ) {
+                                  selecaoTextoRef.current = selecao
+                                    .getRangeAt(0)
+                                    .cloneRange();
                                 }
                               }}
-                              className={`h-full w-full overflow-hidden rounded-md px-2 py-1 outline-none ${selecionadoTexto
+                              className={`h-full w-full overflow-hidden rounded-md px-2 py-1 outline-none ${
+                                selecionadoTexto
                                   ? "border-2 border-blue-600 bg-blue-50/10"
                                   : "border border-blue-400/60 bg-transparent"
-                                }`}
+                              }`}
                               style={{
                                 fontFamily: c.fonte || "Arial",
                                 fontSize: `${c.tamanho || 18}px`,
                                 color: c.cor || "#1e3a8a",
                                 fontWeight: c.negrito ? "bold" : "normal",
                                 fontStyle: c.italico ? "italic" : "normal",
-                                textDecoration: c.sublinhado ? "underline" : "none",
-                                textAlign: (c.alinhamento as "left" | "center" | "right") || "left",
+                                textDecoration: c.sublinhado
+                                  ? "underline"
+                                  : "none",
+                                textAlign:
+                                  (c.alinhamento as
+                                    "left" | "center" | "right") || "left",
                                 lineHeight: c.lineHeight || 1.3,
                                 letterSpacing: (c as any).letterSpacing ?? 0,
                                 wordSpacing: (c as any).wordSpacing ?? 0,
@@ -9761,9 +9918,7 @@ export default function ConfiguracaoCertificadoPage() {
                                 writingMode: "horizontal-tb",
                                 caretColor: c.cor || "#1e3a8a",
                               }}
-                            >
-
-                            </div>
+                            ></div>
 
                             {selecionadoTexto && (
                               <button
@@ -9813,27 +9968,34 @@ export default function ConfiguracaoCertificadoPage() {
                                       prev.map((item) =>
                                         item.id === c.id
                                           ? {
-                                            ...item,
-                                            largura: Math.max(
-                                              80,
-                                              Math.round(
-                                                larguraInicial + (ev.clientX - startX) / escala
-                                              )
-                                            ),
-                                            altura: Math.max(
-                                              40,
-                                              Math.round(
-                                                alturaInicial + (ev.clientY - startY) / escala
-                                              )
-                                            ),
-                                          }
-                                          : item
-                                      )
+                                              ...item,
+                                              largura: Math.max(
+                                                80,
+                                                Math.round(
+                                                  larguraInicial +
+                                                    (ev.clientX - startX) /
+                                                      escala,
+                                                ),
+                                              ),
+                                              altura: Math.max(
+                                                40,
+                                                Math.round(
+                                                  alturaInicial +
+                                                    (ev.clientY - startY) /
+                                                      escala,
+                                                ),
+                                              ),
+                                            }
+                                          : item,
+                                      ),
                                     );
                                   };
 
                                   const up = () => {
-                                    window.removeEventListener("mousemove", move);
+                                    window.removeEventListener(
+                                      "mousemove",
+                                      move,
+                                    );
                                     window.removeEventListener("mouseup", up);
                                   };
 
@@ -9856,11 +10018,15 @@ export default function ConfiguracaoCertificadoPage() {
 
                             if (event.button === 2) return;
 
-                            if (event.shiftKey || event.ctrlKey || event.metaKey) {
+                            if (
+                              event.shiftKey ||
+                              event.ctrlKey ||
+                              event.metaKey
+                            ) {
                               setCamposSelecionadosIds((prev) =>
                                 prev.includes(c.id)
                                   ? prev.filter((id) => id !== c.id)
-                                  : [...prev, c.id]
+                                  : [...prev, c.id],
                               );
 
                               setCampoSelecionadoId(c.id);
@@ -9885,21 +10051,27 @@ export default function ConfiguracaoCertificadoPage() {
                               campoId: c.id,
                             });
                           }}
-                          className={`absolute z-20 select-none rounded-md border px-1 py-0 text-[10px] ${camposSelecionadosIds.includes(c.id)
-                              ? c.tipo === "ASSINATURA" || c.tipo === "LOGO_INSTITUICAO"
+                          className={`absolute z-20 select-none rounded-md border px-1 py-0 text-[10px] ${
+                            camposSelecionadosIds.includes(c.id)
+                              ? c.tipo === "ASSINATURA" ||
+                                c.tipo === "LOGO_INSTITUICAO"
                                 ? "border-blue-600 bg-transparent text-blue-900"
                                 : "border-blue-600 bg-blue-600/90 text-white"
                               : "border-blue-300 bg-transparent text-blue-900"
-                            }`}
+                          }`}
                           style={{
                             left: `${c.x}px`,
                             top: `${c.y}px`,
                             width: `${c.largura || (c.tipo === "ASSINATURA" ? 260 : 120)}px`,
                             height: `${c.altura || (c.tipo === "ASSINATURA" ? 90 : Math.ceil((c.tamanho || 18) * 1.65))}px`,
-                            zIndex: campoSelecionadoId === c.id ? 99999 : c.ordem || 1,
+                            zIndex:
+                              campoSelecionadoId === c.id
+                                ? 99999
+                                : c.ordem || 1,
                             pointerEvents: c.bloqueado ? "none" : "auto",
                             textAlign:
-                              (c.alinhamento as "left" | "center" | "right") || "left",
+                              (c.alinhamento as "left" | "center" | "right") ||
+                              "left",
                             fontSize: `${c.tamanho || 12}px`,
                             color: c.cor || "#1e3a8a",
                             cursor: "default",
@@ -9917,9 +10089,17 @@ export default function ConfiguracaoCertificadoPage() {
                             letterSpacing: `${(c as any).letterSpacing ?? 0}px`,
                             wordSpacing: `${(c as any).wordSpacing ?? 0}px`,
                             whiteSpace:
-                              c.tipo === "DISCIPLINAS_CONCLUIDAS" ? "pre-wrap" : "nowrap",
-                            display: c.tipo === "DISCIPLINAS_CONCLUIDAS" ? "block" : "flex",
-                            alignItems: c.tipo === "DISCIPLINAS_CONCLUIDAS" ? undefined : "center",
+                              c.tipo === "DISCIPLINAS_CONCLUIDAS"
+                                ? "pre-wrap"
+                                : "nowrap",
+                            display:
+                              c.tipo === "DISCIPLINAS_CONCLUIDAS"
+                                ? "block"
+                                : "flex",
+                            alignItems:
+                              c.tipo === "DISCIPLINAS_CONCLUIDAS"
+                                ? undefined
+                                : "center",
                             justifyContent:
                               c.alinhamento === "center"
                                 ? "center"
@@ -9937,7 +10117,7 @@ export default function ConfiguracaoCertificadoPage() {
                                 height: "100%",
                                 display: "grid",
                                 gridTemplateColumns: `repeat(${quantidadeColunasDisciplinasDoCampo(
-                                  c
+                                  c,
                                 )}, minmax(0, 1fr))`,
                                 columnGap: `${espacoColunasDisciplinasDoCampo(c)}px`,
                                 rowGap: "2px",
@@ -9952,201 +10132,231 @@ export default function ConfiguracaoCertificadoPage() {
                                 overflow: "hidden",
                               }}
                             >
-                              {listaDisciplinasExemplo(c).map((disciplina, index) => (
-                                <div
-                                  key={`${c.id}-disciplina-${index}`}
-                                  style={{
-                                    minWidth: 0,
-                                    overflow: "hidden",
-                                    textOverflow: "ellipsis",
-                                  }}
-                                >
-                                  {disciplina}
-                                </div>
-                              ))}
+                              {listaDisciplinasExemplo(c).map(
+                                (disciplina, index) => (
+                                  <div
+                                    key={`${c.id}-disciplina-${index}`}
+                                    style={{
+                                      minWidth: 0,
+                                      overflow: "hidden",
+                                      textOverflow: "ellipsis",
+                                    }}
+                                  >
+                                    {disciplina}
+                                  </div>
+                                ),
+                              )}
                             </div>
-                          )
-                            : c.tipo === "APROVEITAMENTO"
-                              ? "100%"
-                              : c.tipo === "FREQUENCIA_TOTAL"
-                                ? "FREQUÊNCIA TOTAL"
-                                : c.tipo === "NOME_ALUNO"
-                                  ? "Nome do aluno"
-                                  : c.tipo === "NOME_CURSO"
-                                    ? "Nome do curso"
-                                    : c.tipo === "DATA_EMISSAO"
-                                      ? "00/00/0000"
-                                      : c.tipo === "ASSINATURA" ? (
-                                        certificadoAssinaturaUrl ? (
-                                          <img
-                                            src={certificadoAssinaturaUrl}
-                                            alt="Assinatura do diretor"
-                                            draggable={false}
-                                            style={{
-                                              width: "100%",
-                                              height: "100%",
-                                              objectFit: "contain",
-                                              display: "block",
-                                              pointerEvents: "none",
-                                            }}
-                                          />
-                                        ) : (
-                                          "Assinatura"
-                                        )
-                                      ) : c.tipo}
-
-                          {camposSelecionadosIds.includes(c.id) && c.tipo === "ASSINATURA" && (
-                            <>
-                              {/* Redimensionar largura e altura */}
-                              <div
-                                onMouseDown={(e) => {
-                                  e.stopPropagation();
-                                  e.preventDefault();
-
-                                  const startX = e.clientX;
-                                  const startY = e.clientY;
-                                  const startW = Number(c.largura || 260);
-                                  const startH = Number(c.altura || 90);
-
-                                  let novaLargura = startW;
-                                  let novaAltura = startH;
-
-                                  const move = (ev: globalThis.MouseEvent) => {
-                                    novaLargura = Math.max(
-                                      40,
-                                      Math.round(startW + (ev.clientX - startX) / escala)
-                                    );
-
-                                    novaAltura = Math.max(
-                                      18,
-                                      Math.round(startH + (ev.clientY - startY) / escala)
-                                    );
-
-                                    setCampos((prev) =>
-                                      prev.map((item) =>
-                                        item.id === c.id
-                                          ? {
-                                            ...item,
-                                            largura: novaLargura,
-                                            altura: novaAltura,
-                                          }
-                                          : item
-                                      )
-                                    );
-                                  };
-
-                                  const up = () => {
-                                    window.removeEventListener("mousemove", move);
-                                    window.removeEventListener("mouseup", up);
-
-                                    void atualizarCampo(c.id, {
-                                      largura: novaLargura,
-                                      altura: novaAltura,
-                                    });
-                                  };
-
-                                  window.addEventListener("mousemove", move);
-                                  window.addEventListener("mouseup", up);
+                          ) : c.tipo === "APROVEITAMENTO" ? (
+                            "100%"
+                          ) : c.tipo === "FREQUENCIA_TOTAL" ? (
+                            "FREQUÊNCIA TOTAL"
+                          ) : c.tipo === "NOME_ALUNO" ? (
+                            "Nome do aluno"
+                          ) : c.tipo === "NOME_CURSO" ? (
+                            "Nome do curso"
+                          ) : c.tipo === "DATA_EMISSAO" ? (
+                            "00/00/0000"
+                          ) : c.tipo === "ASSINATURA" ? (
+                            certificadoAssinaturaUrl ? (
+                              <img
+                                src={certificadoAssinaturaUrl}
+                                alt="Assinatura do diretor"
+                                draggable={false}
+                                style={{
+                                  width: "100%",
+                                  height: "100%",
+                                  objectFit: "contain",
+                                  display: "block",
+                                  pointerEvents: "none",
                                 }}
-                                className="absolute -bottom-3 -right-3 z-[999999] h-6 w-6 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
-                                title="Redimensionar assinatura"
                               />
-
-                              {/* Ajustar só largura */}
-                              <div
-                                onMouseDown={(e) => {
-                                  e.stopPropagation();
-                                  e.preventDefault();
-
-                                  const startX = e.clientX;
-                                  const startW = Number(c.largura || 260);
-
-                                  let novaLargura = startW;
-
-                                  const move = (ev: globalThis.MouseEvent) => {
-                                    novaLargura = Math.max(
-                                      40,
-                                      Math.round(startW + (ev.clientX - startX) / escala)
-                                    );
-
-                                    setCampos((prev) =>
-                                      prev.map((item) =>
-                                        item.id === c.id
-                                          ? {
-                                            ...item,
-                                            largura: novaLargura,
-                                          }
-                                          : item
-                                      )
-                                    );
-                                  };
-
-                                  const up = () => {
-                                    window.removeEventListener("mousemove", move);
-                                    window.removeEventListener("mouseup", up);
-
-                                    void atualizarCampo(c.id, {
-                                      largura: novaLargura,
-                                    });
-                                  };
-
-                                  window.addEventListener("mousemove", move);
-                                  window.addEventListener("mouseup", up);
-                                }}
-                                className="absolute -right-2 top-1/2 z-[999999] h-5 w-5 -translate-y-1/2 cursor-ew-resize rounded-full border-2 border-white bg-blue-600 shadow"
-                                title="Ajustar largura"
-                              />
-
-                              {/* Ajustar só altura */}
-                              <div
-                                onMouseDown={(e) => {
-                                  e.stopPropagation();
-                                  e.preventDefault();
-
-                                  const startY = e.clientY;
-                                  const startH = Number(c.altura || 90);
-
-                                  let novaAltura = startH;
-
-                                  const move = (ev: globalThis.MouseEvent) => {
-                                    novaAltura = Math.max(
-                                      18,
-                                      Math.round(startH + (ev.clientY - startY) / escala)
-                                    );
-
-                                    setCampos((prev) =>
-                                      prev.map((item) =>
-                                        item.id === c.id
-                                          ? {
-                                            ...item,
-                                            altura: novaAltura,
-                                          }
-                                          : item
-                                      )
-                                    );
-                                  };
-
-                                  const up = () => {
-                                    window.removeEventListener("mousemove", move);
-                                    window.removeEventListener("mouseup", up);
-
-                                    void atualizarCampo(c.id, {
-                                      altura: novaAltura,
-                                    });
-                                  };
-
-                                  window.addEventListener("mousemove", move);
-                                  window.addEventListener("mouseup", up);
-                                }}
-                                className="absolute -bottom-2 left-1/2 z-[999999] h-5 w-5 -translate-x-1/2 cursor-ns-resize rounded-full border-2 border-white bg-blue-600 shadow"
-                                title="Ajustar altura"
-                              />
-                            </>
+                            ) : (
+                              "Assinatura"
+                            )
+                          ) : (
+                            c.tipo
                           )}
+
+                          {camposSelecionadosIds.includes(c.id) &&
+                            c.tipo === "ASSINATURA" && (
+                              <>
+                                {/* Redimensionar largura e altura */}
+                                <div
+                                  onMouseDown={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+
+                                    const startX = e.clientX;
+                                    const startY = e.clientY;
+                                    const startW = Number(c.largura || 260);
+                                    const startH = Number(c.altura || 90);
+
+                                    let novaLargura = startW;
+                                    let novaAltura = startH;
+
+                                    const move = (
+                                      ev: globalThis.MouseEvent,
+                                    ) => {
+                                      novaLargura = Math.max(
+                                        40,
+                                        Math.round(
+                                          startW +
+                                            (ev.clientX - startX) / escala,
+                                        ),
+                                      );
+
+                                      novaAltura = Math.max(
+                                        18,
+                                        Math.round(
+                                          startH +
+                                            (ev.clientY - startY) / escala,
+                                        ),
+                                      );
+
+                                      setCampos((prev) =>
+                                        prev.map((item) =>
+                                          item.id === c.id
+                                            ? {
+                                                ...item,
+                                                largura: novaLargura,
+                                                altura: novaAltura,
+                                              }
+                                            : item,
+                                        ),
+                                      );
+                                    };
+
+                                    const up = () => {
+                                      window.removeEventListener(
+                                        "mousemove",
+                                        move,
+                                      );
+                                      window.removeEventListener("mouseup", up);
+
+                                      void atualizarCampo(c.id, {
+                                        largura: novaLargura,
+                                        altura: novaAltura,
+                                      });
+                                    };
+
+                                    window.addEventListener("mousemove", move);
+                                    window.addEventListener("mouseup", up);
+                                  }}
+                                  className="absolute -bottom-3 -right-3 z-[999999] h-6 w-6 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
+                                  title="Redimensionar assinatura"
+                                />
+
+                                {/* Ajustar só largura */}
+                                <div
+                                  onMouseDown={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+
+                                    const startX = e.clientX;
+                                    const startW = Number(c.largura || 260);
+
+                                    let novaLargura = startW;
+
+                                    const move = (
+                                      ev: globalThis.MouseEvent,
+                                    ) => {
+                                      novaLargura = Math.max(
+                                        40,
+                                        Math.round(
+                                          startW +
+                                            (ev.clientX - startX) / escala,
+                                        ),
+                                      );
+
+                                      setCampos((prev) =>
+                                        prev.map((item) =>
+                                          item.id === c.id
+                                            ? {
+                                                ...item,
+                                                largura: novaLargura,
+                                              }
+                                            : item,
+                                        ),
+                                      );
+                                    };
+
+                                    const up = () => {
+                                      window.removeEventListener(
+                                        "mousemove",
+                                        move,
+                                      );
+                                      window.removeEventListener("mouseup", up);
+
+                                      void atualizarCampo(c.id, {
+                                        largura: novaLargura,
+                                      });
+                                    };
+
+                                    window.addEventListener("mousemove", move);
+                                    window.addEventListener("mouseup", up);
+                                  }}
+                                  className="absolute -right-2 top-1/2 z-[999999] h-5 w-5 -translate-y-1/2 cursor-ew-resize rounded-full border-2 border-white bg-blue-600 shadow"
+                                  title="Ajustar largura"
+                                />
+
+                                {/* Ajustar só altura */}
+                                <div
+                                  onMouseDown={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+
+                                    const startY = e.clientY;
+                                    const startH = Number(c.altura || 90);
+
+                                    let novaAltura = startH;
+
+                                    const move = (
+                                      ev: globalThis.MouseEvent,
+                                    ) => {
+                                      novaAltura = Math.max(
+                                        18,
+                                        Math.round(
+                                          startH +
+                                            (ev.clientY - startY) / escala,
+                                        ),
+                                      );
+
+                                      setCampos((prev) =>
+                                        prev.map((item) =>
+                                          item.id === c.id
+                                            ? {
+                                                ...item,
+                                                altura: novaAltura,
+                                              }
+                                            : item,
+                                        ),
+                                      );
+                                    };
+
+                                    const up = () => {
+                                      window.removeEventListener(
+                                        "mousemove",
+                                        move,
+                                      );
+                                      window.removeEventListener("mouseup", up);
+
+                                      void atualizarCampo(c.id, {
+                                        altura: novaAltura,
+                                      });
+                                    };
+
+                                    window.addEventListener("mousemove", move);
+                                    window.addEventListener("mouseup", up);
+                                  }}
+                                  className="absolute -bottom-2 left-1/2 z-[999999] h-5 w-5 -translate-x-1/2 cursor-ns-resize rounded-full border-2 border-white bg-blue-600 shadow"
+                                  title="Ajustar altura"
+                                />
+                              </>
+                            )}
                         </div>
                       );
                     })}
-
                 </div>
               </div>
             </div>
@@ -10162,41 +10372,54 @@ export default function ConfiguracaoCertificadoPage() {
                 Zoom {zoom}%
               </span>
 
-              {campoSelecionado?.tipo === "FORMA" && !(campoSelecionado as any)?.grupoId && (
-                <div className="mt-3 flex flex-wrap items-center justify-center gap-2 rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-xs font-semibold text-white shadow-xl">
-                  <button type="button" className="rounded-lg border border-slate-600 px-3 py-2 hover:bg-slate-800">
-                    + Ponto
-                  </button>
+              {campoSelecionado?.tipo === "FORMA" &&
+                !(campoSelecionado as any)?.grupoId && (
+                  <div className="mt-3 flex flex-wrap items-center justify-center gap-2 rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-xs font-semibold text-white shadow-xl">
+                    <button
+                      type="button"
+                      className="rounded-lg border border-slate-600 px-3 py-2 hover:bg-slate-800"
+                    >
+                      + Ponto
+                    </button>
 
-                  <button type="button" className="rounded-lg border border-slate-600 px-3 py-2 hover:bg-slate-800">
-                    - Ponto
-                  </button>
+                    <button
+                      type="button"
+                      className="rounded-lg border border-slate-600 px-3 py-2 hover:bg-slate-800"
+                    >
+                      - Ponto
+                    </button>
 
-                  <button type="button" className="rounded-lg border border-slate-600 px-3 py-2 hover:bg-slate-800">
-                    Curvar
-                  </button>
+                    <button
+                      type="button"
+                      className="rounded-lg border border-slate-600 px-3 py-2 hover:bg-slate-800"
+                    >
+                      Curvar
+                    </button>
 
-                  <button type="button" className="rounded-lg border border-slate-600 px-3 py-2 hover:bg-slate-800">
-                    Pontudo
-                  </button>
+                    <button
+                      type="button"
+                      className="rounded-lg border border-slate-600 px-3 py-2 hover:bg-slate-800"
+                    >
+                      Pontudo
+                    </button>
 
-                  <button
-                    type="button"
-                    onClick={() => setModalArrayAberto(true)}
-                    className="rounded-lg border border-blue-500 px-3 py-2 text-blue-300 hover:bg-blue-950"
-                  >
-                    🔁 Array
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => setModalArrayAberto(true)}
+                      className="rounded-lg border border-blue-500 px-3 py-2 text-blue-300 hover:bg-blue-950"
+                    >
+                      🔁 Array
+                    </button>
 
-                  <button
-                    type="button"
-                    onClick={() => setMostrarHandlesForma((prev) => !prev)}
-                    className="rounded-lg border border-slate-600 px-3 py-2 hover:bg-slate-800"
-                  >
-                    Pontos
-                  </button>
-                </div>
-              )}
+                    <button
+                      type="button"
+                      onClick={() => setMostrarHandlesForma((prev) => !prev)}
+                      className="rounded-lg border border-slate-600 px-3 py-2 hover:bg-slate-800"
+                    >
+                      Pontos
+                    </button>
+                  </div>
+                )}
 
               <span className="phanyx-cert-editor-status-pill">
                 {canvasWidth} × {canvasHeight}
@@ -10254,7 +10477,10 @@ export default function ConfiguracaoCertificadoPage() {
                         const temTextoSelecionado =
                           selecao && selecao.toString().trim().length > 0;
 
-                        if (temTextoSelecionado && campoSelecionado?.tipo === "TEXTO_LIVRE") {
+                        if (
+                          temTextoSelecionado &&
+                          campoSelecionado?.tipo === "TEXTO_LIVRE"
+                        ) {
                           aplicarEstiloTextoSelecionado({ color: cor });
                           return;
                         }
@@ -10293,10 +10519,14 @@ export default function ConfiguracaoCertificadoPage() {
                               setEditorCorGradiente((prev) =>
                                 prev
                                   ? {
-                                    ...prev,
-                                    cor: rgbToHex(novoRgb.r, novoRgb.g, novoRgb.b),
-                                  }
-                                  : prev
+                                      ...prev,
+                                      cor: rgbToHex(
+                                        novoRgb.r,
+                                        novoRgb.g,
+                                        novoRgb.b,
+                                      ),
+                                    }
+                                  : prev,
                               );
                             }}
                             className="w-full rounded-xl border px-2 py-2 text-sm"
@@ -10314,7 +10544,7 @@ export default function ConfiguracaoCertificadoPage() {
                     value={editorCorGradiente.cor}
                     onChange={(e) =>
                       setEditorCorGradiente((prev) =>
-                        prev ? { ...prev, cor: e.target.value } : prev
+                        prev ? { ...prev, cor: e.target.value } : prev,
                       )
                     }
                     className="mt-1 w-full rounded-xl border px-3 py-2 text-sm"
@@ -10325,7 +10555,7 @@ export default function ConfiguracaoCertificadoPage() {
                     value={editorCorGradiente.cor}
                     onChange={(e) =>
                       setEditorCorGradiente((prev) =>
-                        prev ? { ...prev, cor: e.target.value } : prev
+                        prev ? { ...prev, cor: e.target.value } : prev,
                       )
                     }
                     className="mt-1 w-full rounded-xl border px-3 py-2 text-sm"
@@ -10337,12 +10567,16 @@ export default function ConfiguracaoCertificadoPage() {
                     onClick={() => {
                       setCampos((prev) =>
                         prev.map((item) => {
-                          if (item.id !== editorCorGradiente.campoId) return item;
+                          if (item.id !== editorCorGradiente.campoId)
+                            return item;
 
                           const stops = [
                             ...(((item as any).degradeStops || [
                               { cor: item.cor || "#1d4ed8", posicao: 0 },
-                              { cor: (item as any).cor2 || "#60a5fa", posicao: 100 },
+                              {
+                                cor: (item as any).cor2 || "#60a5fa",
+                                posicao: 100,
+                              },
                             ]) as any[]),
                           ];
 
@@ -10352,7 +10586,7 @@ export default function ConfiguracaoCertificadoPage() {
                           };
 
                           return { ...item, degradeStops: stops } as any;
-                        })
+                        }),
                       );
 
                       setEditorCorGradiente(null);
@@ -10377,7 +10611,9 @@ export default function ConfiguracaoCertificadoPage() {
                 <button
                   type="button"
                   onClick={() => {
-                    const campo = campos.find((item) => item.id === menuPontoGradiente.campoId);
+                    const campo = campos.find(
+                      (item) => item.id === menuPontoGradiente.campoId,
+                    );
                     if (!campo) return;
 
                     const stops = [
@@ -10399,7 +10635,7 @@ export default function ConfiguracaoCertificadoPage() {
 
                     atualizarCampoLocal(
                       "degradeStops" as any,
-                      stops.sort((a, b) => a.posicao - b.posicao)
+                      stops.sort((a, b) => a.posicao - b.posicao),
                     );
 
                     setMenuPontoGradiente(null);
@@ -10412,7 +10648,9 @@ export default function ConfiguracaoCertificadoPage() {
                 <button
                   type="button"
                   onClick={() => {
-                    const campo = campos.find((item) => item.id === menuPontoGradiente.campoId);
+                    const campo = campos.find(
+                      (item) => item.id === menuPontoGradiente.campoId,
+                    );
                     if (!campo) return;
 
                     const stops = [
@@ -10433,7 +10671,7 @@ export default function ConfiguracaoCertificadoPage() {
 
                     atualizarCampoLocal(
                       "degradeStops" as any,
-                      stops.sort((a, b) => a.posicao - b.posicao)
+                      stops.sort((a, b) => a.posicao - b.posicao),
                     );
 
                     setMenuPontoGradiente(null);
@@ -10446,7 +10684,9 @@ export default function ConfiguracaoCertificadoPage() {
                 <button
                   type="button"
                   onClick={() => {
-                    const campo = campos.find((item) => item.id === menuPontoGradiente.campoId);
+                    const campo = campos.find(
+                      (item) => item.id === menuPontoGradiente.campoId,
+                    );
                     if (!campo) return;
 
                     const stops = [
@@ -10491,27 +10731,28 @@ export default function ConfiguracaoCertificadoPage() {
                 onAtualizarCampo={(campoAtualizado) => {
                   setCampos((prev) =>
                     prev.map((c) =>
-                      c.id === campoAtualizado.id ? (campoAtualizado as any) : c
-                    )
+                      c.id === campoAtualizado.id
+                        ? (campoAtualizado as any)
+                        : c,
+                    ),
                   );
                 }}
                 setMostrarHandlesForma={setMostrarHandlesForma}
               />
             </div>
-
           </main>
 
           {!modoAmplo && (
-            <aside className="relative max-h-[calc(100vh-360px)] overflow-y-auto border-b border-slate-200 bg-slate-50 p-5 lg:border-b-0 lg:border-r">            <button
-              type="button"
-              onClick={() => setPainelCampoAberto((prev) => !prev)}
-              className="mb-4 flex w-full items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left text-lg font-bold text-slate-900 shadow-sm"
-            >
-              <span>Campo selecionado</span>
-              <span>{painelCampoAberto ? "−" : "+"}</span>
-
-            </button>
-
+            <aside className="relative max-h-[calc(100vh-360px)] overflow-y-auto border-b border-slate-200 bg-slate-50 p-5 lg:border-b-0 lg:border-r">
+              {" "}
+              <button
+                type="button"
+                onClick={() => setPainelCampoAberto((prev) => !prev)}
+                className="mb-4 flex w-full items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left text-lg font-bold text-slate-900 shadow-sm"
+              >
+                <span>Campo selecionado</span>
+                <span>{painelCampoAberto ? "−" : "+"}</span>
+              </button>
               {campoSelecionado ? (
                 <div className="space-y-4 text-sm text-slate-700">
                   {painelCampoAberto && (
@@ -10520,7 +10761,9 @@ export default function ConfiguracaoCertificadoPage() {
                         <div className="rounded-2xl border border-slate-200 bg-white">
                           <button
                             type="button"
-                            onClick={() => setOpcoesImagemAberto((prev) => !prev)}
+                            onClick={() =>
+                              setOpcoesImagemAberto((prev) => !prev)
+                            }
                             className="flex w-full items-center justify-between px-4 py-3 text-sm font-semibold text-slate-700"
                           >
                             Opções da imagem
@@ -10551,7 +10794,12 @@ export default function ConfiguracaoCertificadoPage() {
                                       <button
                                         type="button"
                                         onClick={() =>
-                                          atualizarCampoLocal("rotate" as any, Number(campoSelecionado?.rotate || 0) - 15)
+                                          atualizarCampoLocal(
+                                            "rotate" as any,
+                                            Number(
+                                              campoSelecionado?.rotate || 0,
+                                            ) - 15,
+                                          )
                                         }
                                         className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
                                       >
@@ -10561,7 +10809,12 @@ export default function ConfiguracaoCertificadoPage() {
                                       <button
                                         type="button"
                                         onClick={() =>
-                                          atualizarCampoLocal("rotate" as any, Number(campoSelecionado?.rotate || 0) + 15)
+                                          atualizarCampoLocal(
+                                            "rotate" as any,
+                                            Number(
+                                              campoSelecionado?.rotate || 0,
+                                            ) + 15,
+                                          )
                                         }
                                         className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
                                       >
@@ -10571,7 +10824,10 @@ export default function ConfiguracaoCertificadoPage() {
                                       <button
                                         type="button"
                                         onClick={() =>
-                                          atualizarCampoLocal("flipX" as any, !campoSelecionado?.flipX)
+                                          atualizarCampoLocal(
+                                            "flipX" as any,
+                                            !campoSelecionado?.flipX,
+                                          )
                                         }
                                         className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
                                       >
@@ -10581,7 +10837,10 @@ export default function ConfiguracaoCertificadoPage() {
                                       <button
                                         type="button"
                                         onClick={() =>
-                                          atualizarCampoLocal("flipY" as any, !campoSelecionado?.flipY)
+                                          atualizarCampoLocal(
+                                            "flipY" as any,
+                                            !campoSelecionado?.flipY,
+                                          )
                                         }
                                         className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
                                       >
@@ -10590,7 +10849,12 @@ export default function ConfiguracaoCertificadoPage() {
 
                                       <button
                                         type="button"
-                                        onClick={() => atualizarCampoLocal("objectFit" as any, "contain")}
+                                        onClick={() =>
+                                          atualizarCampoLocal(
+                                            "objectFit" as any,
+                                            "contain",
+                                          )
+                                        }
                                         className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
                                       >
                                         Inteira
@@ -10598,7 +10862,12 @@ export default function ConfiguracaoCertificadoPage() {
 
                                       <button
                                         type="button"
-                                        onClick={() => atualizarCampoLocal("objectFit" as any, "cover")}
+                                        onClick={() =>
+                                          atualizarCampoLocal(
+                                            "objectFit" as any,
+                                            "cover",
+                                          )
+                                        }
                                         className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
                                       >
                                         Cortar
@@ -10616,7 +10885,9 @@ export default function ConfiguracaoCertificadoPage() {
                                         onClick={() =>
                                           atualizarCampoLocal(
                                             "ordem",
-                                            Number(campoSelecionado?.ordem || 10) + 1
+                                            Number(
+                                              campoSelecionado?.ordem || 10,
+                                            ) + 1,
                                           )
                                         }
                                         className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
@@ -10629,7 +10900,12 @@ export default function ConfiguracaoCertificadoPage() {
                                         onClick={() =>
                                           atualizarCampoLocal(
                                             "ordem",
-                                            Math.max(0, Number(campoSelecionado?.ordem || 10) - 1)
+                                            Math.max(
+                                              0,
+                                              Number(
+                                                campoSelecionado?.ordem || 10,
+                                              ) - 1,
+                                            ),
                                           )
                                         }
                                         className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
@@ -10639,7 +10915,9 @@ export default function ConfiguracaoCertificadoPage() {
 
                                       <button
                                         type="button"
-                                        onClick={() => atualizarCampoLocal("ordem", 999)}
+                                        onClick={() =>
+                                          atualizarCampoLocal("ordem", 999)
+                                        }
                                         className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
                                       >
                                         ⏫ Frente total
@@ -10647,7 +10925,9 @@ export default function ConfiguracaoCertificadoPage() {
 
                                       <button
                                         type="button"
-                                        onClick={() => atualizarCampoLocal("ordem", 0)}
+                                        onClick={() =>
+                                          atualizarCampoLocal("ordem", 0)
+                                        }
                                         className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
                                       >
                                         ⏬ Fundo total
@@ -10662,7 +10942,12 @@ export default function ConfiguracaoCertificadoPage() {
                                     <div className="grid grid-cols-2 gap-2">
                                       <button
                                         type="button"
-                                        onClick={() => atualizarCampoLocal("filter" as any, "none")}
+                                        onClick={() =>
+                                          atualizarCampoLocal(
+                                            "filter" as any,
+                                            "none",
+                                          )
+                                        }
                                         className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
                                       >
                                         Normal
@@ -10670,7 +10955,12 @@ export default function ConfiguracaoCertificadoPage() {
 
                                       <button
                                         type="button"
-                                        onClick={() => atualizarCampoLocal("filter" as any, "grayscale(1)")}
+                                        onClick={() =>
+                                          atualizarCampoLocal(
+                                            "filter" as any,
+                                            "grayscale(1)",
+                                          )
+                                        }
                                         className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
                                       >
                                         P&B
@@ -10678,7 +10968,12 @@ export default function ConfiguracaoCertificadoPage() {
 
                                       <button
                                         type="button"
-                                        onClick={() => atualizarCampoLocal("filter" as any, "sepia(1)")}
+                                        onClick={() =>
+                                          atualizarCampoLocal(
+                                            "filter" as any,
+                                            "sepia(1)",
+                                          )
+                                        }
                                         className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
                                       >
                                         Sépia
@@ -10686,7 +10981,12 @@ export default function ConfiguracaoCertificadoPage() {
 
                                       <button
                                         type="button"
-                                        onClick={() => atualizarCampoLocal("filter" as any, "contrast(1.25) saturate(1.3)")}
+                                        onClick={() =>
+                                          atualizarCampoLocal(
+                                            "filter" as any,
+                                            "contrast(1.25) saturate(1.3)",
+                                          )
+                                        }
                                         className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
                                       >
                                         Vivo
@@ -10700,7 +11000,12 @@ export default function ConfiguracaoCertificadoPage() {
                                   <div className="grid grid-cols-2 gap-2">
                                     <button
                                       type="button"
-                                      onClick={() => atualizarCampoLocal("objectFit" as any, "contain" as any)}
+                                      onClick={() =>
+                                        atualizarCampoLocal(
+                                          "objectFit" as any,
+                                          "contain" as any,
+                                        )
+                                      }
                                       className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
                                     >
                                       Mostrar inteira
@@ -10708,7 +11013,12 @@ export default function ConfiguracaoCertificadoPage() {
 
                                     <button
                                       type="button"
-                                      onClick={() => atualizarCampoLocal("objectFit" as any, "cover" as any)}
+                                      onClick={() =>
+                                        atualizarCampoLocal(
+                                          "objectFit" as any,
+                                          "cover" as any,
+                                        )
+                                      }
                                       className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
                                     >
                                       Cortar/preencher
@@ -10718,12 +11028,23 @@ export default function ConfiguracaoCertificadoPage() {
                                       onClick={() => {
                                         if (!campoSelecionado) return;
 
-                                        const largura = campoSelecionado.largura || 150;
-                                        const altura = campoSelecionado.altura || 150;
-                                        const tamanho = Math.min(largura, altura);
+                                        const largura =
+                                          campoSelecionado.largura || 150;
+                                        const altura =
+                                          campoSelecionado.altura || 150;
+                                        const tamanho = Math.min(
+                                          largura,
+                                          altura,
+                                        );
 
-                                        const corteHorizontal = Math.max(0, (largura - tamanho) / 2);
-                                        const corteVertical = Math.max(0, (altura - tamanho) / 2);
+                                        const corteHorizontal = Math.max(
+                                          0,
+                                          (largura - tamanho) / 2,
+                                        );
+                                        const corteVertical = Math.max(
+                                          0,
+                                          (altura - tamanho) / 2,
+                                        );
 
                                         atualizarCampoLocal("crop" as any, {
                                           top: corteVertical,
@@ -10732,10 +11053,22 @@ export default function ConfiguracaoCertificadoPage() {
                                           right: corteHorizontal,
                                         });
 
-                                        atualizarCampoLocal("cropBaseW" as any, largura);
-                                        atualizarCampoLocal("cropBaseH" as any, altura);
-                                        atualizarCampoLocal("largura" as any, tamanho);
-                                        atualizarCampoLocal("altura" as any, tamanho);
+                                        atualizarCampoLocal(
+                                          "cropBaseW" as any,
+                                          largura,
+                                        );
+                                        atualizarCampoLocal(
+                                          "cropBaseH" as any,
+                                          altura,
+                                        );
+                                        atualizarCampoLocal(
+                                          "largura" as any,
+                                          tamanho,
+                                        );
+                                        atualizarCampoLocal(
+                                          "altura" as any,
+                                          tamanho,
+                                        );
                                       }}
                                       className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
                                     >
@@ -10753,7 +11086,9 @@ export default function ConfiguracaoCertificadoPage() {
                                     const tamanho = Number(e.target.value);
 
                                     if (temSelecaoTextoLivreSalva()) {
-                                      aplicarEstiloTextoSelecionado({ fontSize: `${tamanho}px` });
+                                      aplicarEstiloTextoSelecionado({
+                                        fontSize: `${tamanho}px`,
+                                      });
                                       return;
                                     }
 
@@ -10791,13 +11126,16 @@ export default function ConfiguracaoCertificadoPage() {
                               </p>
 
                               <p className="mt-1 text-xs leading-5 text-slate-400">
-                                Defina quantas disciplinas esta tag deve mostrar no certificado.
+                                Defina quantas disciplinas esta tag deve mostrar
+                                no certificado.
                               </p>
                             </div>
 
                             <button
                               type="button"
-                              onClick={() => setPopupDisciplinasAberto((prev) => !prev)}
+                              onClick={() =>
+                                setPopupDisciplinasAberto((prev) => !prev)
+                              }
                               className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-700"
                             >
                               Configurar
@@ -10815,7 +11153,9 @@ export default function ConfiguracaoCertificadoPage() {
                                   type="button"
                                   onClick={() =>
                                     atualizarQuantidadeDisciplinasCampo(
-                                      quantidadeDisciplinasDoCampo(campoSelecionado) - 1
+                                      quantidadeDisciplinasDoCampo(
+                                        campoSelecionado,
+                                      ) - 1,
                                     )
                                   }
                                   className="h-10 w-10 rounded-xl border border-slate-700 text-lg font-bold text-white hover:bg-slate-800"
@@ -10827,9 +11167,13 @@ export default function ConfiguracaoCertificadoPage() {
                                   type="number"
                                   min={1}
                                   max={80}
-                                  value={quantidadeDisciplinasDoCampo(campoSelecionado)}
+                                  value={quantidadeDisciplinasDoCampo(
+                                    campoSelecionado,
+                                  )}
                                   onChange={(e) =>
-                                    atualizarQuantidadeDisciplinasCampo(Number(e.target.value))
+                                    atualizarQuantidadeDisciplinasCampo(
+                                      Number(e.target.value),
+                                    )
                                   }
                                   className="h-10 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 text-center text-sm font-bold text-white outline-none focus:border-blue-500"
                                 />
@@ -10838,7 +11182,9 @@ export default function ConfiguracaoCertificadoPage() {
                                   type="button"
                                   onClick={() =>
                                     atualizarQuantidadeDisciplinasCampo(
-                                      quantidadeDisciplinasDoCampo(campoSelecionado) + 1
+                                      quantidadeDisciplinasDoCampo(
+                                        campoSelecionado,
+                                      ) + 1,
                                     )
                                   }
                                   className="h-10 w-10 rounded-xl border border-slate-700 text-lg font-bold text-white hover:bg-slate-800"
@@ -10850,7 +11196,9 @@ export default function ConfiguracaoCertificadoPage() {
                               <div className="mt-3 flex justify-end">
                                 <button
                                   type="button"
-                                  onClick={() => setPopupDisciplinasAberto(false)}
+                                  onClick={() =>
+                                    setPopupDisciplinasAberto(false)
+                                  }
                                   className="rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-700"
                                 >
                                   Aplicar
@@ -10871,7 +11219,9 @@ export default function ConfiguracaoCertificadoPage() {
                             type="button"
                             onClick={() =>
                               atualizarColunasDisciplinasCampo(
-                                quantidadeColunasDisciplinasDoCampo(campoSelecionado) - 1
+                                quantidadeColunasDisciplinasDoCampo(
+                                  campoSelecionado,
+                                ) - 1,
                               )
                             }
                             className="h-10 w-10 rounded-xl border border-slate-700 text-lg font-bold text-white hover:bg-slate-800"
@@ -10883,9 +11233,13 @@ export default function ConfiguracaoCertificadoPage() {
                             type="number"
                             min={1}
                             max={4}
-                            value={quantidadeColunasDisciplinasDoCampo(campoSelecionado)}
+                            value={quantidadeColunasDisciplinasDoCampo(
+                              campoSelecionado,
+                            )}
                             onChange={(e) =>
-                              atualizarColunasDisciplinasCampo(Number(e.target.value))
+                              atualizarColunasDisciplinasCampo(
+                                Number(e.target.value),
+                              )
                             }
                             className="h-10 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 text-center text-sm font-bold text-white outline-none focus:border-blue-500"
                           />
@@ -10894,7 +11248,9 @@ export default function ConfiguracaoCertificadoPage() {
                             type="button"
                             onClick={() =>
                               atualizarColunasDisciplinasCampo(
-                                quantidadeColunasDisciplinasDoCampo(campoSelecionado) + 1
+                                quantidadeColunasDisciplinasDoCampo(
+                                  campoSelecionado,
+                                ) + 1,
                               )
                             }
                             className="h-10 w-10 rounded-xl border border-slate-700 text-lg font-bold text-white hover:bg-slate-800"
@@ -10904,7 +11260,8 @@ export default function ConfiguracaoCertificadoPage() {
                         </div>
 
                         <p className="mt-2 text-[11px] leading-5 text-slate-400">
-                          Use 2 ou 3 colunas quando o certificado tiver muitas disciplinas.
+                          Use 2 ou 3 colunas quando o certificado tiver muitas
+                          disciplinas.
                         </p>
                       </div>
 
@@ -10918,16 +11275,23 @@ export default function ConfiguracaoCertificadoPage() {
                           min={0}
                           max={80}
                           step={1}
-                          value={espacoColunasDisciplinasDoCampo(campoSelecionado)}
+                          value={espacoColunasDisciplinasDoCampo(
+                            campoSelecionado,
+                          )}
                           onChange={(e) =>
-                            atualizarEspacoColunasDisciplinasCampo(Number(e.target.value))
+                            atualizarEspacoColunasDisciplinasCampo(
+                              Number(e.target.value),
+                            )
                           }
                           className="w-full"
                         />
 
                         <div className="mt-1 flex justify-between text-[11px] text-slate-400">
                           <span>Mais juntas</span>
-                          <strong>{espacoColunasDisciplinasDoCampo(campoSelecionado)}px</strong>
+                          <strong>
+                            {espacoColunasDisciplinasDoCampo(campoSelecionado)}
+                            px
+                          </strong>
                           <span>Mais afastadas</span>
                         </div>
                       </div>
@@ -10948,11 +11312,16 @@ export default function ConfiguracaoCertificadoPage() {
                                 type="number"
                                 min={20}
                                 max={2000}
-                                value={Math.round(Number(campoSelecionado.largura || 220))}
+                                value={Math.round(
+                                  Number(campoSelecionado.largura || 220),
+                                )}
                                 onChange={(e) =>
                                   atualizarCampoLocal(
                                     "largura" as any,
-                                    Math.max(20, Number(e.target.value || 20)) as any
+                                    Math.max(
+                                      20,
+                                      Number(e.target.value || 20),
+                                    ) as any,
                                   )
                                 }
                                 className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
@@ -10968,11 +11337,16 @@ export default function ConfiguracaoCertificadoPage() {
                                 type="number"
                                 min={12}
                                 max={2000}
-                                value={Math.round(Number(campoSelecionado.altura || 40))}
+                                value={Math.round(
+                                  Number(campoSelecionado.altura || 40),
+                                )}
                                 onChange={(e) =>
                                   atualizarCampoLocal(
                                     "altura" as any,
-                                    Math.max(12, Number(e.target.value || 12)) as any
+                                    Math.max(
+                                      12,
+                                      Number(e.target.value || 12),
+                                    ) as any,
                                   )
                                 }
                                 className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
@@ -10981,266 +11355,337 @@ export default function ConfiguracaoCertificadoPage() {
                           </div>
 
                           <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
-                            Use a largura para fazer tags como nome do curso, nome do aluno e cidade
-                            caberem em uma linha.
+                            Use a largura para fazer tags como nome do curso,
+                            nome do aluno e cidade caberem em uma linha.
                           </p>
                         </div>
                       )}
 
-                      {campoSelecionado?.tipo === "FORMA" && !(campoSelecionado as any)?.grupoId && (
-                        <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                          <p className="mb-3 text-sm font-semibold text-slate-700">
-                            Aparência da forma
-                          </p>
+                      {campoSelecionado?.tipo === "FORMA" &&
+                        !(campoSelecionado as any)?.grupoId && (
+                          <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                            <p className="mb-3 text-sm font-semibold text-slate-700">
+                              Aparência da forma
+                            </p>
 
-                          <div className="space-y-3">
-                            <div>
+                            <div className="space-y-3">
                               <div>
-                                <p className="mb-1 text-xs font-semibold text-slate-500">
-                                  Preenchimento
-                                </p>
+                                <div>
+                                  <p className="mb-1 text-xs font-semibold text-slate-500">
+                                    Preenchimento
+                                  </p>
 
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    atualizarCampoLocal(
-                                      "mostrarPreenchimento" as any,
-                                      !(campoSelecionado as any)?.mostrarPreenchimento
-                                    )
-                                  }
-                                  className="mb-2 w-full rounded-xl border border-slate-500 px-3 py-2 text-xs font-semibold"
-                                >
-                                  {(campoSelecionado as any)?.mostrarPreenchimento
-                                    ? "Remover preenchimento"
-                                    : "Ativar preenchimento"}
-                                </button>
-
-                                <div className="grid grid-cols-2 gap-2">
                                   <button
                                     type="button"
                                     onClick={() =>
                                       atualizarCampoLocal(
                                         "mostrarPreenchimento" as any,
-                                        (campoSelecionado as any)?.mostrarPreenchimento === false ? true : false
+                                        !(campoSelecionado as any)
+                                          ?.mostrarPreenchimento,
                                       )
                                     }
-                                    className="rounded-lg border bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-100"
+                                    className="mb-2 w-full rounded-xl border border-slate-500 px-3 py-2 text-xs font-semibold"
                                   >
-                                    {(campoSelecionado as any)?.mostrarPreenchimento === false
-                                      ? "Sem preenchimento"
-                                      : "Com preenchimento"}
+                                    {(campoSelecionado as any)
+                                      ?.mostrarPreenchimento
+                                      ? "Remover preenchimento"
+                                      : "Ativar preenchimento"}
                                   </button>
 
-                                  <input
-                                    type="color"
-                                    value={(campoSelecionado as any)?.preenchimentoCor || campoSelecionado?.cor || "#1d4ed8"}
-                                    onChange={(e) =>
-                                      atualizarCampoLocal("preenchimentoCor" as any, e.target.value)
+                                  <div className="grid grid-cols-2 gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        atualizarCampoLocal(
+                                          "mostrarPreenchimento" as any,
+                                          (campoSelecionado as any)
+                                            ?.mostrarPreenchimento === false
+                                            ? true
+                                            : false,
+                                        )
+                                      }
+                                      className="rounded-lg border bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-100"
+                                    >
+                                      {(campoSelecionado as any)
+                                        ?.mostrarPreenchimento === false
+                                        ? "Sem preenchimento"
+                                        : "Com preenchimento"}
+                                    </button>
+
+                                    <input
+                                      type="color"
+                                      value={
+                                        (campoSelecionado as any)
+                                          ?.preenchimentoCor ||
+                                        campoSelecionado?.cor ||
+                                        "#1d4ed8"
+                                      }
+                                      onChange={(e) =>
+                                        atualizarCampoLocal(
+                                          "preenchimentoCor" as any,
+                                          e.target.value,
+                                        )
+                                      }
+                                      className="h-10 w-full cursor-pointer rounded-lg border"
+                                    />
+                                  </div>
+                                </div>
+
+                                <div>
+                                  <p className="mb-1 text-xs font-semibold text-slate-500">
+                                    Contorno
+                                  </p>
+
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      atualizarCampoLocal(
+                                        "mostrarContorno" as any,
+                                        !(campoSelecionado as any)
+                                          ?.mostrarContorno,
+                                      )
                                     }
-                                    className="h-10 w-full cursor-pointer rounded-lg border"
+                                    className="mb-2 w-full rounded-xl border border-slate-500 px-3 py-2 text-xs font-semibold"
+                                  >
+                                    {(campoSelecionado as any)?.mostrarContorno
+                                      ? "Remover contorno"
+                                      : "Ativar contorno"}
+                                  </button>
+
+                                  <div className="grid grid-cols-2 gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        const ativo =
+                                          (campoSelecionado as any)
+                                            ?.mostrarContorno === false
+                                            ? true
+                                            : false;
+
+                                        if (
+                                          campoSelecionado?.tipo ===
+                                            "TEXTO_LIVRE" &&
+                                          temSelecaoTextoLivreSalva()
+                                        ) {
+                                          aplicarEstiloTextoSelecionado({
+                                            WebkitTextStrokeWidth: ativo
+                                              ? `${(campoSelecionado as any)?.contornoEspessura || 1.5}px`
+                                              : "0px",
+                                            WebkitTextStrokeColor:
+                                              (campoSelecionado as any)
+                                                ?.contornoCor || "#1d4ed8",
+                                          } as React.CSSProperties);
+
+                                          return;
+                                        }
+
+                                        atualizarCampoLocal(
+                                          "mostrarContorno" as any,
+                                          ativo,
+                                        );
+                                      }}
+                                      className="rounded-lg border bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-100"
+                                    >
+                                      {(campoSelecionado as any)
+                                        ?.mostrarContorno === false
+                                        ? "Sem contorno"
+                                        : "Com contorno"}
+                                    </button>
+
+                                    <input
+                                      type="color"
+                                      value={
+                                        (campoSelecionado as any)
+                                          ?.contornoCor ||
+                                        campoSelecionado?.cor ||
+                                        "#1d4ed8"
+                                      }
+                                      onChange={(e) =>
+                                        atualizarCampoLocal(
+                                          "contornoCor" as any,
+                                          e.target.value,
+                                        )
+                                      }
+                                      className="h-10 w-full cursor-pointer rounded-lg border"
+                                    />
+                                  </div>
+
+                                  <label className="mb-2 block text-xs font-semibold text-slate-600">
+                                    Tipo do contorno
+                                  </label>
+
+                                  <div className="mb-3 flex gap-2">
+                                    <button
+                                      type="button"
+                                      onMouseDown={(e) => e.preventDefault()}
+                                      onClick={() => {
+                                        setTipoContornoTexto("externo");
+
+                                        aplicarContornoTextoSelecionado(
+                                          corContornoTexto,
+                                          espessuraContornoTexto,
+                                          "externo",
+                                        );
+                                      }}
+                                      className={`rounded-lg px-3 py-2 text-xs font-bold ${
+                                        tipoContornoTexto === "externo"
+                                          ? "bg-blue-600 text-white"
+                                          : "border"
+                                      }`}
+                                    >
+                                      Externo
+                                    </button>
+
+                                    <button
+                                      type="button"
+                                      onMouseDown={(e) => e.preventDefault()}
+                                      onClick={() => {
+                                        setTipoContornoTexto("interno");
+
+                                        aplicarContornoTextoSelecionado(
+                                          corContornoTexto,
+                                          espessuraContornoTexto,
+                                          "interno",
+                                        );
+                                      }}
+                                      className={`rounded-lg px-3 py-2 text-xs font-bold ${
+                                        tipoContornoTexto === "interno"
+                                          ? "bg-blue-600 text-white"
+                                          : "border"
+                                      }`}
+                                    >
+                                      Interno
+                                    </button>
+                                  </div>
+
+                                  <label className="mt-3 block text-xs text-slate-500">
+                                    Espessura do contorno
+                                  </label>
+                                  <input
+                                    type="range"
+                                    min={0}
+                                    max={20}
+                                    value={
+                                      (campoSelecionado as any)
+                                        ?.contornoEspessura ?? 1.5
+                                    }
+                                    onChange={(e) =>
+                                      atualizarCampoLocal(
+                                        "contornoEspessura" as any,
+                                        Number(e.target.value),
+                                      )
+                                    }
+                                    className="w-full"
                                   />
                                 </div>
                               </div>
 
                               <div>
                                 <p className="mb-1 text-xs font-semibold text-slate-500">
-                                  Contorno
+                                  Transparência
                                 </p>
 
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    atualizarCampoLocal(
-                                      "mostrarContorno" as any,
-                                      !(campoSelecionado as any)?.mostrarContorno
-                                    )
-                                  }
-                                  className="mb-2 w-full rounded-xl border border-slate-500 px-3 py-2 text-xs font-semibold"
-                                >
-                                  {(campoSelecionado as any)?.mostrarContorno
-                                    ? "Remover contorno"
-                                    : "Ativar contorno"}
-                                </button>
-
-                                <div className="grid grid-cols-2 gap-2">
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      const ativo =
-                                        (campoSelecionado as any)?.mostrarContorno === false ? true : false;
-
-                                      if (
-                                        campoSelecionado?.tipo === "TEXTO_LIVRE" &&
-                                        temSelecaoTextoLivreSalva()
-                                      ) {
-                                        aplicarEstiloTextoSelecionado({
-                                          WebkitTextStrokeWidth: ativo
-                                            ? `${(campoSelecionado as any)?.contornoEspessura || 1.5}px`
-                                            : "0px",
-                                          WebkitTextStrokeColor:
-                                            (campoSelecionado as any)?.contornoCor || "#1d4ed8",
-                                        } as React.CSSProperties);
-
-                                        return;
-                                      }
-
-                                      atualizarCampoLocal("mostrarContorno" as any, ativo);
-                                    }}
-                                    className="rounded-lg border bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-100"
-                                  >
-                                    {(campoSelecionado as any)?.mostrarContorno === false
-                                      ? "Sem contorno"
-                                      : "Com contorno"}
-                                  </button>
-
-                                  <input
-                                    type="color"
-                                    value={(campoSelecionado as any)?.contornoCor || campoSelecionado?.cor || "#1d4ed8"}
-                                    onChange={(e) =>
-                                      atualizarCampoLocal("contornoCor" as any, e.target.value)
-                                    }
-                                    className="h-10 w-full cursor-pointer rounded-lg border"
-                                  />
-                                </div>
-
-                                <label className="mb-2 block text-xs font-semibold text-slate-600">
-                                  Tipo do contorno
-                                </label>
-
-                                <div className="mb-3 flex gap-2">
-                                  <button
-                                    type="button"
-                                    onMouseDown={(e) => e.preventDefault()}
-                                    onClick={() => {
-                                      setTipoContornoTexto("externo");
-
-                                      aplicarContornoTextoSelecionado(
-                                        corContornoTexto,
-                                        espessuraContornoTexto,
-                                        "externo"
-                                      );
-                                    }}
-                                    className={`rounded-lg px-3 py-2 text-xs font-bold ${tipoContornoTexto === "externo" ? "bg-blue-600 text-white" : "border"
-                                      }`}
-                                  >
-                                    Externo
-                                  </button>
-
-                                  <button
-                                    type="button"
-                                    onMouseDown={(e) => e.preventDefault()}
-                                    onClick={() => {
-                                      setTipoContornoTexto("interno");
-
-                                      aplicarContornoTextoSelecionado(
-                                        corContornoTexto,
-                                        espessuraContornoTexto,
-                                        "interno"
-                                      );
-                                    }}
-                                    className={`rounded-lg px-3 py-2 text-xs font-bold ${tipoContornoTexto === "interno" ? "bg-blue-600 text-white" : "border"
-                                      }`}
-                                  >
-                                    Interno
-                                  </button>
-                                </div>
-
                                 <label className="mt-3 block text-xs text-slate-500">
-                                  Espessura do contorno
+                                  Arredondamento dos cantos
                                 </label>
                                 <input
                                   type="range"
                                   min={0}
-                                  max={20}
-                                  value={(campoSelecionado as any)?.contornoEspessura ?? 1.5}
+                                  max={80}
+                                  value={
+                                    (campoSelecionado as any)?.raioBorda ?? 8
+                                  }
                                   onChange={(e) =>
-                                    atualizarCampoLocal("contornoEspessura" as any, Number(e.target.value))
+                                    atualizarCampoLocal(
+                                      "raioBorda" as any,
+                                      Number(e.target.value),
+                                    )
+                                  }
+                                  className="w-full"
+                                />
+
+                                <input
+                                  type="range"
+                                  min={0.1}
+                                  max={1}
+                                  step={0.05}
+                                  value={campoSelecionado?.opacity || 1}
+                                  onChange={(e) =>
+                                    atualizarCampoLocal(
+                                      "opacity" as any,
+                                      Number(e.target.value),
+                                    )
                                   }
                                   className="w-full"
                                 />
                               </div>
-                            </div>
 
-                            <div>
-                              <p className="mb-1 text-xs font-semibold text-slate-500">
-                                Transparência
-                              </p>
-
-                              <label className="mt-3 block text-xs text-slate-500">
-                                Arredondamento dos cantos
-                              </label>
-                              <input
-                                type="range"
-                                min={0}
-                                max={80}
-                                value={(campoSelecionado as any)?.raioBorda ?? 8}
-                                onChange={(e) =>
-                                  atualizarCampoLocal("raioBorda" as any, Number(e.target.value))
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  atualizarCampoLocal(
+                                    "usarGradiente" as any,
+                                    !(campoSelecionado as any)?.usarGradiente,
+                                  )
                                 }
-                                className="w-full"
-                              />
+                                className="w-full rounded-xl border bg-slate-50 px-3 py-2 text-xs font-semibold hover:bg-slate-100"
+                              >
+                                {(campoSelecionado as any)?.usarGradiente
+                                  ? "Desativar degradê"
+                                  : "Ativar degradê"}
+                              </button>
 
-                              <input
-                                type="range"
-                                min={0.1}
-                                max={1}
-                                step={0.05}
-                                value={campoSelecionado?.opacity || 1}
-                                onChange={(e) =>
-                                  atualizarCampoLocal("opacity" as any, Number(e.target.value))
-                                }
-                                className="w-full"
-                              />
-                            </div>
+                              {(campoSelecionado as any)?.usarGradiente && (
+                                <>
+                                  <div>
+                                    <p className="mb-1 text-xs font-semibold text-slate-500">
+                                      Segunda cor
+                                    </p>
+                                    <input
+                                      type="color"
+                                      value={
+                                        (campoSelecionado as any)?.cor2 ||
+                                        "#60a5fa"
+                                      }
+                                      onChange={(e) =>
+                                        atualizarCampoLocal(
+                                          "cor2" as any,
+                                          e.target.value,
+                                        )
+                                      }
+                                      className="h-10 w-full cursor-pointer rounded-lg border"
+                                    />
+                                  </div>
 
-                            <button
-                              type="button"
-                              onClick={() =>
-                                atualizarCampoLocal(
-                                  "usarGradiente" as any,
-                                  !(campoSelecionado as any)?.usarGradiente
-                                )
-                              }
-                              className="w-full rounded-xl border bg-slate-50 px-3 py-2 text-xs font-semibold hover:bg-slate-100"
-                            >
-                              {(campoSelecionado as any)?.usarGradiente
-                                ? "Desativar degradê"
-                                : "Ativar degradê"}
-                            </button>
-
-                            {(campoSelecionado as any)?.usarGradiente && (
-                              <>
-                                <div>
-                                  <p className="mb-1 text-xs font-semibold text-slate-500">
-                                    Segunda cor
-                                  </p>
-                                  <input
-                                    type="color"
-                                    value={(campoSelecionado as any)?.cor2 || "#60a5fa"}
-                                    onChange={(e) =>
-                                      atualizarCampoLocal("cor2" as any, e.target.value)
+                                  <select
+                                    value={
+                                      (campoSelecionado as any)
+                                        ?.direcaoGradiente || "90deg"
                                     }
-                                    className="h-10 w-full cursor-pointer rounded-lg border"
-                                  />
-                                </div>
-
-                                <select
-                                  value={(campoSelecionado as any)?.direcaoGradiente || "90deg"}
-                                  onChange={(e) =>
-                                    atualizarCampoLocal("direcaoGradiente" as any, e.target.value)
-                                  }
-                                  className="w-full rounded-xl border px-3 py-2 text-sm"
-                                >
-                                  <option value="90deg">Esquerda para direita</option>
-                                  <option value="180deg">Cima para baixo</option>
-                                  <option value="45deg">Diagonal</option>
-                                  <option value="135deg">Diagonal invertida</option>
-                                </select>
-                              </>
-                            )}
+                                    onChange={(e) =>
+                                      atualizarCampoLocal(
+                                        "direcaoGradiente" as any,
+                                        e.target.value,
+                                      )
+                                    }
+                                    className="w-full rounded-xl border px-3 py-2 text-sm"
+                                  >
+                                    <option value="90deg">
+                                      Esquerda para direita
+                                    </option>
+                                    <option value="180deg">
+                                      Cima para baixo
+                                    </option>
+                                    <option value="45deg">Diagonal</option>
+                                    <option value="135deg">
+                                      Diagonal invertida
+                                    </option>
+                                  </select>
+                                </>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label className="mb-1 block text-xs font-medium text-slate-600">
@@ -11280,7 +11725,10 @@ export default function ConfiguracaoCertificadoPage() {
                             type="number"
                             value={campoSelecionado.largura || 220}
                             onChange={(e) =>
-                              atualizarCampoLocal("largura", Number(e.target.value))
+                              atualizarCampoLocal(
+                                "largura",
+                                Number(e.target.value),
+                              )
                             }
                             className="w-full rounded-xl border border-slate-300 px-3 py-2"
                           />
@@ -11294,7 +11742,10 @@ export default function ConfiguracaoCertificadoPage() {
                             type="number"
                             value={campoSelecionado.altura || 40}
                             onChange={(e) =>
-                              atualizarCampoLocal("altura", Number(e.target.value))
+                              atualizarCampoLocal(
+                                "altura",
+                                Number(e.target.value),
+                              )
                             }
                             className="w-full rounded-xl border border-slate-300 px-3 py-2"
                           />
@@ -11315,9 +11766,13 @@ export default function ConfiguracaoCertificadoPage() {
                               return;
                             }
 
-                            aplicarEstiloTextoOuCampoInteiro("fonte", novaFonte, {
-                              fontFamily: novaFonte,
-                            });
+                            aplicarEstiloTextoOuCampoInteiro(
+                              "fonte",
+                              novaFonte,
+                              {
+                                fontFamily: novaFonte,
+                              },
+                            );
                           }}
                           className="w-full rounded-xl border border-slate-300 px-3 py-2"
                         >
@@ -11337,14 +11792,19 @@ export default function ConfiguracaoCertificadoPage() {
                           type="button"
                           onMouseDown={(e) => e.preventDefault()}
                           onClick={() =>
-                            aplicarEstiloTextoOuCampoInteiro("negrito", !campoSelecionado.negrito, {
-                              fontWeight: "700",
-                            })
+                            aplicarEstiloTextoOuCampoInteiro(
+                              "negrito",
+                              !campoSelecionado.negrito,
+                              {
+                                fontWeight: "700",
+                              },
+                            )
                           }
-                          className={`px-3 py-1 rounded border text-sm ${campoSelecionado.negrito
+                          className={`px-3 py-1 rounded border text-sm ${
+                            campoSelecionado.negrito
                               ? "bg-blue-600 text-white"
                               : "bg-white text-gray-700"
-                            }`}
+                          }`}
                         >
                           B
                         </button>
@@ -11353,14 +11813,19 @@ export default function ConfiguracaoCertificadoPage() {
                           type="button"
                           onMouseDown={(e) => e.preventDefault()}
                           onClick={() =>
-                            aplicarEstiloTextoOuCampoInteiro("italico", !campoSelecionado.italico, {
-                              fontStyle: "italic",
-                            })
+                            aplicarEstiloTextoOuCampoInteiro(
+                              "italico",
+                              !campoSelecionado.italico,
+                              {
+                                fontStyle: "italic",
+                              },
+                            )
                           }
-                          className={`px-3 py-1 rounded border text-sm italic ${campoSelecionado.italico
+                          className={`px-3 py-1 rounded border text-sm italic ${
+                            campoSelecionado.italico
                               ? "bg-blue-600 text-white"
                               : "bg-white text-gray-700"
-                            }`}
+                          }`}
                         >
                           I
                         </button>
@@ -11369,14 +11834,19 @@ export default function ConfiguracaoCertificadoPage() {
                           type="button"
                           onMouseDown={(e) => e.preventDefault()}
                           onClick={() =>
-                            aplicarEstiloTextoOuCampoInteiro("sublinhado", !campoSelecionado.sublinhado, {
-                              textDecoration: "underline",
-                            })
+                            aplicarEstiloTextoOuCampoInteiro(
+                              "sublinhado",
+                              !campoSelecionado.sublinhado,
+                              {
+                                textDecoration: "underline",
+                              },
+                            )
                           }
-                          className={`px-3 py-1 rounded border text-sm underline ${campoSelecionado.sublinhado
+                          className={`px-3 py-1 rounded border text-sm underline ${
+                            campoSelecionado.sublinhado
                               ? "bg-blue-600 text-white"
                               : "bg-white text-gray-700"
-                            }`}
+                          }`}
                         >
                           U
                         </button>
@@ -11387,9 +11857,14 @@ export default function ConfiguracaoCertificadoPage() {
                         </label>
 
                         <select
-                          value={(campoSelecionado as any)?.textoModo || "NORMAL"}
+                          value={
+                            (campoSelecionado as any)?.textoModo || "NORMAL"
+                          }
                           onChange={(e) =>
-                            atualizarCampoLocal("textoModo" as any, e.target.value as any)
+                            atualizarCampoLocal(
+                              "textoModo" as any,
+                              e.target.value as any,
+                            )
                           }
                           className="w-full rounded-xl border border-slate-300 px-3 py-2"
                         >
@@ -11414,7 +11889,10 @@ export default function ConfiguracaoCertificadoPage() {
                                 return;
                               }
 
-                              const novoTamanho = Math.max(6, (campoSelecionado?.tamanho || 18) - 2);
+                              const novoTamanho = Math.max(
+                                6,
+                                (campoSelecionado?.tamanho || 18) - 2,
+                              );
                               atualizarCampoLocal("tamanho", novoTamanho);
                             }}
                             className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-bold"
@@ -11426,12 +11904,19 @@ export default function ConfiguracaoCertificadoPage() {
                             type="number"
                             min={6}
                             max={120}
-                            value={tamanhoSelecaoTexto ?? campoSelecionado?.tamanho ?? 18}
+                            value={
+                              tamanhoSelecaoTexto ??
+                              campoSelecionado?.tamanho ??
+                              18
+                            }
                             onChange={(e) => {
                               const tamanho = Number(e.target.value);
                               setTamanhoSelecaoTexto(tamanho);
 
-                              if (campoSelecionado?.tipo === "TEXTO_LIVRE" && temSelecaoTextoLivreSalva()) {
+                              if (
+                                campoSelecionado?.tipo === "TEXTO_LIVRE" &&
+                                temSelecaoTextoLivreSalva()
+                              ) {
                                 aplicarEstiloTextoSelecionado({
                                   fontSize: `${tamanho}px`,
                                 });
@@ -11454,7 +11939,10 @@ export default function ConfiguracaoCertificadoPage() {
                                 return;
                               }
 
-                              const novoTamanho = Math.min(120, (campoSelecionado?.tamanho || 18) + 2);
+                              const novoTamanho = Math.min(
+                                120,
+                                (campoSelecionado?.tamanho || 18) + 2,
+                              );
                               atualizarCampoLocal("tamanho", novoTamanho);
                             }}
                             className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-bold"
@@ -11470,7 +11958,11 @@ export default function ConfiguracaoCertificadoPage() {
                         </label>
                         <input
                           type="color"
-                          value={corTextoSelecionado || campoSelecionado?.cor || "#1e3a8a"}
+                          value={
+                            corTextoSelecionado ||
+                            campoSelecionado?.cor ||
+                            "#1e3a8a"
+                          }
                           onClick={(e) => {
                             e.stopPropagation();
                           }}
@@ -11510,7 +12002,10 @@ export default function ConfiguracaoCertificadoPage() {
                             const valor = Number(e.target.value);
                             setEspacamentoLetrasTexto(valor);
 
-                            if (campoSelecionado?.tipo === "TEXTO_LIVRE" && temSelecaoTextoLivreSalva()) {
+                            if (
+                              campoSelecionado?.tipo === "TEXTO_LIVRE" &&
+                              temSelecaoTextoLivreSalva()
+                            ) {
                               aplicarEstiloTextoSelecionado({
                                 letterSpacing: `${valor}px`,
                               });
@@ -11536,7 +12031,10 @@ export default function ConfiguracaoCertificadoPage() {
                             const valor = Number(e.target.value);
                             setEspacamentoPalavrasTexto(valor);
 
-                            if (campoSelecionado?.tipo === "TEXTO_LIVRE" && temSelecaoTextoLivreSalva()) {
+                            if (
+                              campoSelecionado?.tipo === "TEXTO_LIVRE" &&
+                              temSelecaoTextoLivreSalva()
+                            ) {
                               aplicarEstiloTextoSelecionado({
                                 wordSpacing: `${valor}px`,
                               });
@@ -11573,10 +12071,46 @@ export default function ConfiguracaoCertificadoPage() {
                         {opcoesTextoAberto && (
                           <div className="space-y-4 border-t border-slate-100 p-4">
                             <div className="grid grid-cols-2 gap-2">
-                              <button type="button" onClick={() => atualizarCampoLocal("ordem", (campoSelecionado?.ordem || 1) + 1)} className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100">🔼 Frente</button>
-                              <button type="button" onClick={() => atualizarCampoLocal("ordem", (campoSelecionado?.ordem || 1) - 1)} className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100">🔽 Trás</button>
-                              <button type="button" onClick={() => atualizarCampoLocal("ordem", 999)} className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100">⏫ Topo</button>
-                              <button type="button" onClick={() => atualizarCampoLocal("ordem", 0)} className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100">⏬ Fundo</button>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  atualizarCampoLocal(
+                                    "ordem",
+                                    (campoSelecionado?.ordem || 1) + 1,
+                                  )
+                                }
+                                className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
+                              >
+                                🔼 Frente
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  atualizarCampoLocal(
+                                    "ordem",
+                                    (campoSelecionado?.ordem || 1) - 1,
+                                  )
+                                }
+                                className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
+                              >
+                                🔽 Trás
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  atualizarCampoLocal("ordem", 999)
+                                }
+                                className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
+                              >
+                                ⏫ Topo
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => atualizarCampoLocal("ordem", 0)}
+                                className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
+                              >
+                                ⏬ Fundo
+                              </button>
                             </div>
 
                             {campoSelecionado.tipo !== "IMAGEM" && (
@@ -11586,8 +12120,42 @@ export default function ConfiguracaoCertificadoPage() {
                                     Espaçamento entre linhas
                                   </p>
                                   <div className="flex gap-2">
-                                    <button type="button" onClick={() => atualizarCampoLocal("lineHeight", Math.max(0.8, Number(campoSelecionado?.lineHeight || 1.3) - 0.1))} className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100">Aproximar ↑</button>
-                                    <button type="button" onClick={() => atualizarCampoLocal("lineHeight", Math.min(3, Number(campoSelecionado?.lineHeight || 1.3) + 0.1))} className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100">Afastar ↓</button>
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        atualizarCampoLocal(
+                                          "lineHeight",
+                                          Math.max(
+                                            0.8,
+                                            Number(
+                                              campoSelecionado?.lineHeight ||
+                                                1.3,
+                                            ) - 0.1,
+                                          ),
+                                        )
+                                      }
+                                      className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
+                                    >
+                                      Aproximar ↑
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        atualizarCampoLocal(
+                                          "lineHeight",
+                                          Math.min(
+                                            3,
+                                            Number(
+                                              campoSelecionado?.lineHeight ||
+                                                1.3,
+                                            ) + 0.1,
+                                          ),
+                                        )
+                                      }
+                                      className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
+                                    >
+                                      Afastar ↓
+                                    </button>
                                   </div>
                                 </div>
 
@@ -11596,10 +12164,42 @@ export default function ConfiguracaoCertificadoPage() {
                                     Marcador da lista
                                   </p>
                                   <div className="grid grid-cols-2 gap-2">
-                                    <button type="button" onClick={() => atualizarCampoLocal("marcador", null)} className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100">Nenhum</button>
-                                    <button type="button" onClick={() => atualizarCampoLocal("marcador", "•")} className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100">• Bolinha</button>
-                                    <button type="button" onClick={() => atualizarCampoLocal("marcador", "➤")} className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100">➤ Setinha</button>
-                                    <button type="button" onClick={() => atualizarCampoLocal("marcador", "-")} className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100">- Traço</button>
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        atualizarCampoLocal("marcador", null)
+                                      }
+                                      className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
+                                    >
+                                      Nenhum
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        atualizarCampoLocal("marcador", "•")
+                                      }
+                                      className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
+                                    >
+                                      • Bolinha
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        atualizarCampoLocal("marcador", "➤")
+                                      }
+                                      className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
+                                    >
+                                      ➤ Setinha
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        atualizarCampoLocal("marcador", "-")
+                                      }
+                                      className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
+                                    >
+                                      - Traço
+                                    </button>
                                   </div>
                                 </div>
                               </>
@@ -11609,24 +12209,32 @@ export default function ConfiguracaoCertificadoPage() {
                               <button
                                 type="button"
                                 onClick={() => {
-                                  if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
+                                  if (
+                                    campoSelecionado?.tipo === "TEXTO_LIVRE"
+                                  ) {
                                     if (!temSelecaoTextoLivreAtiva()) return;
 
                                     aplicarEstiloTextoSelecionado({
-                                      textShadow: "3px 3px 6px rgba(0,0,0,0.45)",
+                                      textShadow:
+                                        "3px 3px 6px rgba(0,0,0,0.45)",
                                     });
 
                                     setMenuContexto(null);
                                     return;
                                   }
 
-                                  atualizarCampoLocal("sombraAtiva" as any, true);
+                                  atualizarCampoLocal(
+                                    "sombraAtiva" as any,
+                                    true,
+                                  );
                                   setMenuContexto(null);
                                 }}
                                 className="w-full flex items-center justify-between text-sm font-semibold text-left"
                               >
                                 Sombra projetada
-                                <span className={`transition-transform ${sombraAberta ? "rotate-180" : ""}`}>
+                                <span
+                                  className={`transition-transform ${sombraAberta ? "rotate-180" : ""}`}
+                                >
                                   ▼
                                 </span>
                               </button>
@@ -11636,7 +12244,8 @@ export default function ConfiguracaoCertificadoPage() {
                                   <button
                                     type="button"
                                     onClick={() => {
-                                      const ativa = !campoSelecionado?.sombraAtiva;
+                                      const ativa =
+                                        !campoSelecionado?.sombraAtiva;
                                       atualizarCampoLocal("sombraAtiva", ativa);
 
                                       if (temSelecaoTextoLivreAtiva()) {
@@ -11649,24 +12258,35 @@ export default function ConfiguracaoCertificadoPage() {
                                     }}
                                     className="mt-3 w-full rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold hover:bg-slate-50"
                                   >
-                                    {campoSelecionado?.sombraAtiva ? "Desativar sombra" : "Ativar sombra"}
+                                    {campoSelecionado?.sombraAtiva
+                                      ? "Desativar sombra"
+                                      : "Ativar sombra"}
                                   </button>
 
-                                  <label className="mt-3 block text-xs text-slate-500">Cor da sombra</label>
+                                  <label className="mt-3 block text-xs text-slate-500">
+                                    Cor da sombra
+                                  </label>
                                   <input
                                     type="color"
-                                    value={campoSelecionado?.sombraCor || "#000000"}
+                                    value={
+                                      campoSelecionado?.sombraCor || "#000000"
+                                    }
                                     onChange={(e) => {
                                       const valor = e.target.value;
                                       atualizarCampoLocal("sombraCor", valor);
 
                                       if (temSelecaoTextoLivreAtiva()) {
-                                        const blur = campoSelecionado?.sombraBlur ?? 20;
-                                        const opacidade = (campoSelecionado?.sombraOpacidade ?? 40) / 100;
+                                        const blur =
+                                          campoSelecionado?.sombraBlur ?? 20;
+                                        const opacidade =
+                                          (campoSelecionado?.sombraOpacidade ??
+                                            40) / 100;
 
                                         const { x, y } = calcularSombra(
-                                          (campoSelecionado as any)?.sombraAngulo ?? 45,
-                                          (campoSelecionado as any)?.sombraDistancia ?? 20
+                                          (campoSelecionado as any)
+                                            ?.sombraAngulo ?? 45,
+                                          (campoSelecionado as any)
+                                            ?.sombraDistancia ?? 20,
                                         );
 
                                         aplicarEstiloTextoSelecionado({
@@ -11677,24 +12297,38 @@ export default function ConfiguracaoCertificadoPage() {
                                     className="h-10 w-full cursor-pointer rounded-xl border border-slate-300"
                                   />
 
-                                  <label className="text-xs text-gray-600">Ângulo</label>
+                                  <label className="text-xs text-gray-600">
+                                    Ângulo
+                                  </label>
                                   <input
                                     type="range"
                                     min={0}
                                     max={360}
-                                    value={(campoSelecionado as any)?.sombraAngulo ?? 45}
+                                    value={
+                                      (campoSelecionado as any)?.sombraAngulo ??
+                                      45
+                                    }
                                     onChange={(e) => {
                                       const valor = Number(e.target.value);
-                                      atualizarCampoLocal("sombraAngulo", valor as any);
+                                      atualizarCampoLocal(
+                                        "sombraAngulo",
+                                        valor as any,
+                                      );
 
                                       if (temSelecaoTextoLivreAtiva()) {
-                                        const blur = campoSelecionado?.sombraBlur ?? 20;
-                                        const cor = campoSelecionado?.sombraCor || "#000000";
-                                        const opacidade = (campoSelecionado?.sombraOpacidade ?? 40) / 100;
+                                        const blur =
+                                          campoSelecionado?.sombraBlur ?? 20;
+                                        const cor =
+                                          campoSelecionado?.sombraCor ||
+                                          "#000000";
+                                        const opacidade =
+                                          (campoSelecionado?.sombraOpacidade ??
+                                            40) / 100;
 
                                         const { x, y } = calcularSombra(
                                           valor,
-                                          (campoSelecionado as any)?.sombraDistancia ?? 20
+                                          (campoSelecionado as any)
+                                            ?.sombraDistancia ?? 20,
                                         );
 
                                         aplicarEstiloTextoSelecionado({
@@ -11704,24 +12338,38 @@ export default function ConfiguracaoCertificadoPage() {
                                     }}
                                   />
 
-                                  <label className="text-xs text-gray-600 mt-2">Distância</label>
+                                  <label className="text-xs text-gray-600 mt-2">
+                                    Distância
+                                  </label>
                                   <input
                                     type="range"
                                     min={0}
                                     max={100}
-                                    value={(campoSelecionado as any)?.sombraDistancia ?? 20}
+                                    value={
+                                      (campoSelecionado as any)
+                                        ?.sombraDistancia ?? 20
+                                    }
                                     onChange={(e) => {
                                       const valor = Number(e.target.value);
-                                      atualizarCampoLocal("sombraDistancia", valor as any);
+                                      atualizarCampoLocal(
+                                        "sombraDistancia",
+                                        valor as any,
+                                      );
 
                                       if (temSelecaoTextoLivreAtiva()) {
-                                        const blur = campoSelecionado?.sombraBlur ?? 20;
-                                        const cor = campoSelecionado?.sombraCor || "#000000";
-                                        const opacidade = (campoSelecionado?.sombraOpacidade ?? 40) / 100;
+                                        const blur =
+                                          campoSelecionado?.sombraBlur ?? 20;
+                                        const cor =
+                                          campoSelecionado?.sombraCor ||
+                                          "#000000";
+                                        const opacidade =
+                                          (campoSelecionado?.sombraOpacidade ??
+                                            40) / 100;
 
                                         const { x, y } = calcularSombra(
-                                          (campoSelecionado as any)?.sombraAngulo ?? 45,
-                                          valor
+                                          (campoSelecionado as any)
+                                            ?.sombraAngulo ?? 45,
+                                          valor,
                                         );
 
                                         aplicarEstiloTextoSelecionado({
@@ -11731,7 +12379,9 @@ export default function ConfiguracaoCertificadoPage() {
                                     }}
                                   />
 
-                                  <label className="mt-3 block text-xs text-slate-500">Desfoque</label>
+                                  <label className="mt-3 block text-xs text-slate-500">
+                                    Desfoque
+                                  </label>
                                   <input
                                     type="range"
                                     min={0}
@@ -11742,12 +12392,18 @@ export default function ConfiguracaoCertificadoPage() {
                                       atualizarCampoLocal("sombraBlur", valor);
 
                                       if (temSelecaoTextoLivreAtiva()) {
-                                        const cor = campoSelecionado?.sombraCor || "#000000";
-                                        const opacidade = (campoSelecionado?.sombraOpacidade ?? 40) / 100;
+                                        const cor =
+                                          campoSelecionado?.sombraCor ||
+                                          "#000000";
+                                        const opacidade =
+                                          (campoSelecionado?.sombraOpacidade ??
+                                            40) / 100;
 
                                         const { x, y } = calcularSombra(
-                                          (campoSelecionado as any)?.sombraAngulo ?? 45,
-                                          (campoSelecionado as any)?.sombraDistancia ?? 20
+                                          (campoSelecionado as any)
+                                            ?.sombraAngulo ?? 45,
+                                          (campoSelecionado as any)
+                                            ?.sombraDistancia ?? 20,
                                         );
 
                                         aplicarEstiloTextoSelecionado({
@@ -11758,25 +12414,37 @@ export default function ConfiguracaoCertificadoPage() {
                                     className="w-full"
                                   />
 
-                                  <label className="mt-3 block text-xs text-slate-500">Opacidade</label>
+                                  <label className="mt-3 block text-xs text-slate-500">
+                                    Opacidade
+                                  </label>
                                   <input
                                     type="range"
                                     min={0}
                                     max={100}
                                     step={1}
-                                    value={campoSelecionado?.sombraOpacidade ?? 40}
+                                    value={
+                                      campoSelecionado?.sombraOpacidade ?? 40
+                                    }
                                     onChange={(e) => {
                                       const valor = Number(e.target.value);
-                                      atualizarCampoLocal("sombraOpacidade", valor);
+                                      atualizarCampoLocal(
+                                        "sombraOpacidade",
+                                        valor,
+                                      );
 
                                       if (temSelecaoTextoLivreAtiva()) {
-                                        const blur = campoSelecionado?.sombraBlur ?? 20;
-                                        const cor = campoSelecionado?.sombraCor || "#000000";
+                                        const blur =
+                                          campoSelecionado?.sombraBlur ?? 20;
+                                        const cor =
+                                          campoSelecionado?.sombraCor ||
+                                          "#000000";
                                         const opacidade = valor / 100;
 
                                         const { x, y } = calcularSombra(
-                                          (campoSelecionado as any)?.sombraAngulo ?? 45,
-                                          (campoSelecionado as any)?.sombraDistancia ?? 20
+                                          (campoSelecionado as any)
+                                            ?.sombraAngulo ?? 45,
+                                          (campoSelecionado as any)
+                                            ?.sombraDistancia ?? 20,
                                         );
 
                                         aplicarEstiloTextoSelecionado({
@@ -11800,7 +12468,9 @@ export default function ConfiguracaoCertificadoPage() {
 
                               <button
                                 type="button"
-                                onClick={() => excluirCampo(campoSelecionado.id)}
+                                onClick={() =>
+                                  excluirCampo(campoSelecionado.id)
+                                }
                                 className="flex-1 rounded-xl bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-700"
                               >
                                 Excluir
@@ -11809,20 +12479,17 @@ export default function ConfiguracaoCertificadoPage() {
                           </div>
                         )}
                       </div>
-
                     </>
                   )}
                 </div>
               ) : (
                 <p className="text-sm text-slate-500">
-                  Primeiro clique em um campo da esquerda para adicionar ao editor.
-                  Depois clique e arraste o campo sobre o certificado para
-                  posicionar.
+                  Primeiro clique em um campo da esquerda para adicionar ao
+                  editor. Depois clique e arraste o campo sobre o certificado
+                  para posicionar.
                 </p>
-              )
-              }
+              )}
             </aside>
-
           )}
 
           {menuCamada && (
@@ -11836,7 +12503,9 @@ export default function ConfiguracaoCertificadoPage() {
                 type="button"
                 onClick={() => {
                   setCamadaRenomeandoId(menuCamada.campoId);
-                  const campo = campos.find((item) => item.id === menuCamada.campoId);
+                  const campo = campos.find(
+                    (item) => item.id === menuCamada.campoId,
+                  );
                   setNomeCamadaEditando(campo?.nomeCamada || "");
                   setMenuCamada(null);
                 }}
@@ -11870,7 +12539,9 @@ export default function ConfiguracaoCertificadoPage() {
               <button
                 type="button"
                 onClick={() => {
-                  const campo = campos.find((item) => item.id === menuCamada.campoId);
+                  const campo = campos.find(
+                    (item) => item.id === menuCamada.campoId,
+                  );
                   if (campo) atualizarCampoLocal("bloqueado", !campo.bloqueado);
                   setMenuCamada(null);
                 }}
@@ -11891,9 +12562,7 @@ export default function ConfiguracaoCertificadoPage() {
               </button>
             </div>
           )}
-
         </div>
-
       </section>
 
       <div className="mt-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -11953,9 +12622,7 @@ export default function ConfiguracaoCertificadoPage() {
               disabled={salvando}
               className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {salvando
-                ? "Salvando..."
-                : "Salvar dados do rascunho"}
+              {salvando ? "Salvando..." : "Salvar dados do rascunho"}
             </button>
           </div>
         </div>
@@ -12180,14 +12847,16 @@ export default function ConfiguracaoCertificadoPage() {
           style={{
             position: "fixed",
             top: Math.max(8, Math.min(menuContexto.y, window.innerHeight - 80)),
-            left: Math.max(8, Math.min(menuContexto.x, window.innerWidth - 460)),
+            left: Math.max(
+              8,
+              Math.min(menuContexto.x, window.innerWidth - 460),
+            ),
             zIndex: 9999999,
             maxHeight: "500px",
             overflowY: "auto",
           }}
           className="bg-white border shadow-lg rounded-lg p-2 text-sm"
         >
-
           <div
             data-arrastar-menu-contexto
             onMouseDown={iniciarArrasteMenuContexto}
@@ -12252,7 +12921,10 @@ export default function ConfiguracaoCertificadoPage() {
           <button
             type="button"
             onClick={() => {
-              atualizarCamposAlvo("ordem", Math.max(0, (campoSelecionado?.ordem || 1) - 1));
+              atualizarCamposAlvo(
+                "ordem",
+                Math.max(0, (campoSelecionado?.ordem || 1) - 1),
+              );
               setMenuContexto(null);
             }}
             className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
@@ -12297,10 +12969,12 @@ export default function ConfiguracaoCertificadoPage() {
                       atualizarCamposAlvo("alinhamento", "left");
                       setMenuContexto(null);
                     }}
-                    className={`rounded-lg border px-2 py-1 text-xs font-bold ${campoSelecionado.alinhamento === "left" || !campoSelecionado.alinhamento
+                    className={`rounded-lg border px-2 py-1 text-xs font-bold ${
+                      campoSelecionado.alinhamento === "left" ||
+                      !campoSelecionado.alinhamento
                         ? "border-blue-600 bg-blue-600 text-white"
                         : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
-                      }`}
+                    }`}
                   >
                     ⬅ Esquerda
                   </button>
@@ -12311,10 +12985,11 @@ export default function ConfiguracaoCertificadoPage() {
                       atualizarCamposAlvo("alinhamento", "center");
                       setMenuContexto(null);
                     }}
-                    className={`rounded-lg border px-2 py-1 text-xs font-bold ${campoSelecionado.alinhamento === "center"
+                    className={`rounded-lg border px-2 py-1 text-xs font-bold ${
+                      campoSelecionado.alinhamento === "center"
                         ? "border-blue-600 bg-blue-600 text-white"
                         : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
-                      }`}
+                    }`}
                   >
                     ↔ Centro
                   </button>
@@ -12325,10 +13000,11 @@ export default function ConfiguracaoCertificadoPage() {
                       atualizarCamposAlvo("alinhamento", "right");
                       setMenuContexto(null);
                     }}
-                    className={`rounded-lg border px-2 py-1 text-xs font-bold ${campoSelecionado.alinhamento === "right"
+                    className={`rounded-lg border px-2 py-1 text-xs font-bold ${
+                      campoSelecionado.alinhamento === "right"
                         ? "border-blue-600 bg-blue-600 text-white"
                         : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
-                      }`}
+                    }`}
                   >
                     Direita ➡
                   </button>
@@ -12337,9 +13013,7 @@ export default function ConfiguracaoCertificadoPage() {
             )}
 
           <div className="border-t border-slate-200 px-3 py-2">
-            <p className="mb-2 text-xs font-bold text-slate-500">
-              Marcadores
-            </p>
+            <p className="mb-2 text-xs font-bold text-slate-500">Marcadores</p>
 
             <div className="space-y-1">
               <button
@@ -12442,19 +13116,20 @@ export default function ConfiguracaoCertificadoPage() {
             </button>
           )}
 
-          {campoSelecionado?.tipo === "FORMA" && !(campoSelecionado as any)?.grupoId && (
-            <button
-              type="button"
-              onClick={() => {
-                setModalArrayAberto(true);
-                trazerPainelFlutuanteParaFrente("arrayModal");
-                setMenuContexto(null);
-              }}
-              className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
-            >
-              📐 Array...
-            </button>
-          )}
+          {campoSelecionado?.tipo === "FORMA" &&
+            !(campoSelecionado as any)?.grupoId && (
+              <button
+                type="button"
+                onClick={() => {
+                  setModalArrayAberto(true);
+                  trazerPainelFlutuanteParaFrente("arrayModal");
+                  setMenuContexto(null);
+                }}
+                className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
+              >
+                📐 Array...
+              </button>
+            )}
 
           {campoSelecionado?.tipo === "TEXTO_LIVRE" && (
             <>
@@ -12516,7 +13191,9 @@ export default function ConfiguracaoCertificadoPage() {
                 type="button"
                 onMouseDown={(e) => {
                   e.preventDefault();
-                  aplicarEstiloTextoSelecionado({ textDecoration: "underline" });
+                  aplicarEstiloTextoSelecionado({
+                    textDecoration: "underline",
+                  });
                   setMenuContexto(null);
                 }}
                 className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
@@ -12531,11 +13208,12 @@ export default function ConfiguracaoCertificadoPage() {
 
                     const blur = campoSelecionado?.sombraBlur ?? 6;
                     const cor = campoSelecionado?.sombraCor || "#000000";
-                    const opacidade = (campoSelecionado?.sombraOpacidade ?? 65) / 100;
+                    const opacidade =
+                      (campoSelecionado?.sombraOpacidade ?? 65) / 100;
 
                     const { x, y } = calcularSombra(
                       (campoSelecionado as any)?.sombraAngulo ?? 45,
-                      (campoSelecionado as any)?.sombraDistancia ?? 3
+                      (campoSelecionado as any)?.sombraDistancia ?? 3,
                     );
 
                     aplicarEstiloTextoSelecionado({
@@ -12552,18 +13230,18 @@ export default function ConfiguracaoCertificadoPage() {
                     prev.map((campo) =>
                       ids.includes(campo.id)
                         ? {
-                          ...campo,
-                          sombraAtiva: !campo.sombraAtiva,
-                          sombraAngulo: campo.sombraAngulo ?? 45,
-                          sombraDistancia: campo.sombraDistancia ?? 8,
-                          sombraX: campo.sombraX ?? 6,
-                          sombraY: campo.sombraY ?? 6,
-                          sombraBlur: campo.sombraBlur ?? 10,
-                          sombraCor: campo.sombraCor || "#000000",
-                          sombraOpacidade: campo.sombraOpacidade ?? 45,
-                        }
-                        : campo
-                    )
+                            ...campo,
+                            sombraAtiva: !campo.sombraAtiva,
+                            sombraAngulo: campo.sombraAngulo ?? 45,
+                            sombraDistancia: campo.sombraDistancia ?? 8,
+                            sombraX: campo.sombraX ?? 6,
+                            sombraY: campo.sombraY ?? 6,
+                            sombraBlur: campo.sombraBlur ?? 10,
+                            sombraCor: campo.sombraCor || "#000000",
+                            sombraOpacidade: campo.sombraOpacidade ?? 45,
+                          }
+                        : campo,
+                    ),
                   );
 
                   setMenuContexto(null);
@@ -12587,7 +13265,9 @@ export default function ConfiguracaoCertificadoPage() {
                   }}
                   className="mb-3 w-full rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold hover:bg-slate-50"
                 >
-                  {contornoTextoAtivo ? "Desativar contorno" : "Ativar contorno"}
+                  {contornoTextoAtivo
+                    ? "Desativar contorno"
+                    : "Ativar contorno"}
                 </button>
 
                 <label className="mb-1 block text-[11px] font-semibold text-slate-500">
@@ -12679,14 +13359,15 @@ export default function ConfiguracaoCertificadoPage() {
                   aplicarContornoTextoSelecionado(
                     corContornoTexto,
                     espessuraContornoTexto,
-                    "externo"
+                    "externo",
                   );
                 }
               }}
-              className={`rounded-lg px-3 py-2 text-xs font-bold ${tipoContornoTexto === "externo"
+              className={`rounded-lg px-3 py-2 text-xs font-bold ${
+                tipoContornoTexto === "externo"
                   ? "bg-blue-600 text-white"
                   : "border border-slate-600 text-slate-200"
-                }`}
+              }`}
             >
               Externo
             </button>
@@ -12706,14 +13387,15 @@ export default function ConfiguracaoCertificadoPage() {
                   aplicarContornoTextoSelecionado(
                     corContornoTexto,
                     espessuraContornoTexto,
-                    "interno"
+                    "interno",
                   );
                 }
               }}
-              className={`rounded-lg px-3 py-2 text-xs font-bold ${tipoContornoTexto === "interno"
+              className={`rounded-lg px-3 py-2 text-xs font-bold ${
+                tipoContornoTexto === "interno"
                   ? "bg-blue-600 text-white"
                   : "border border-slate-600 text-slate-200"
-                }`}
+              }`}
             >
               Interno
             </button>
@@ -12815,19 +13497,42 @@ export default function ConfiguracaoCertificadoPage() {
 
           <hr className="my-1" />
 
-          <button onClick={() => { setMenuContexto(null); }} className="block w-full text-left px-3 py-1 hover:bg-gray-100">
+          <button
+            onClick={() => {
+              setMenuContexto(null);
+            }}
+            className="block w-full text-left px-3 py-1 hover:bg-gray-100"
+          >
             Sem marcador
           </button>
 
-          <button onClick={() => { inserirMarcadorTextoSelecionado("• "); setMenuContexto(null); }} className="block w-full text-left px-3 py-1 hover:bg-gray-100">
+          <button
+            onClick={() => {
+              inserirMarcadorTextoSelecionado("• ");
+              setMenuContexto(null);
+            }}
+            className="block w-full text-left px-3 py-1 hover:bg-gray-100"
+          >
             • Bolinha
           </button>
 
-          <button onClick={() => { inserirMarcadorTextoSelecionado("➤ "); setMenuContexto(null); }} className="block w-full text-left px-3 py-1 hover:bg-gray-100">
+          <button
+            onClick={() => {
+              inserirMarcadorTextoSelecionado("➤ ");
+              setMenuContexto(null);
+            }}
+            className="block w-full text-left px-3 py-1 hover:bg-gray-100"
+          >
             ➤ Setinha
           </button>
 
-          <button onClick={() => { inserirMarcadorTextoSelecionado("- "); setMenuContexto(null); }} className="block w-full text-left px-3 py-1 hover:bg-gray-100">
+          <button
+            onClick={() => {
+              inserirMarcadorTextoSelecionado("- ");
+              setMenuContexto(null);
+            }}
+            className="block w-full text-left px-3 py-1 hover:bg-gray-100"
+          >
             - Tracinho
           </button>
         </div>
@@ -12865,8 +13570,8 @@ export default function ConfiguracaoCertificadoPage() {
                 </h2>
 
                 <p className="mt-1 text-sm text-slate-300">
-                  Altere o nome, a descrição e a modalidade. O conteúdo visual do
-                  certificado não será modificado.
+                  Altere o nome, a descrição e a modalidade. O conteúdo visual
+                  do certificado não será modificado.
                 </p>
               </div>
 
@@ -12952,8 +13657,8 @@ export default function ConfiguracaoCertificadoPage() {
                   value={modalidadeModeloEditando}
                   disabled={salvandoDadosModelo}
                   onChange={(evento) => {
-                    const modalidade =
-                      evento.target.value as ModalidadeCertificadoValor;
+                    const modalidade = evento.target
+                      .value as ModalidadeCertificadoValor;
 
                     setModalidadeModeloEditando(modalidade);
 
@@ -12971,28 +13676,26 @@ export default function ConfiguracaoCertificadoPage() {
                 </select>
 
                 <p className="mt-2 text-xs text-slate-400">
-                  O sistema usará esta modalidade para relacionar o modelo ao tipo
-                  cadastrado no curso.
+                  O sistema usará esta modalidade para relacionar o modelo ao
+                  tipo cadastrado no curso.
                 </p>
               </div>
 
               <label
-                className={`flex items-start gap-3 rounded-xl border p-4 transition ${modalidadeModeloEditando === "GERAL"
+                className={`flex items-start gap-3 rounded-xl border p-4 transition ${
+                  modalidadeModeloEditando === "GERAL"
                     ? "cursor-not-allowed border-slate-700 bg-slate-800/60 opacity-60"
                     : "cursor-pointer border-slate-600 bg-slate-950"
-                  }`}
+                }`}
               >
                 <input
                   type="checkbox"
                   checked={padraoModalidadeModeloEditando}
                   disabled={
-                    salvandoDadosModelo ||
-                    modalidadeModeloEditando === "GERAL"
+                    salvandoDadosModelo || modalidadeModeloEditando === "GERAL"
                   }
                   onChange={(evento) => {
-                    setPadraoModalidadeModeloEditando(
-                      evento.target.checked
-                    );
+                    setPadraoModalidadeModeloEditando(evento.target.checked);
                   }}
                   className="mt-1 h-4 w-4"
                 />
@@ -13003,8 +13706,8 @@ export default function ConfiguracaoCertificadoPage() {
                   </span>
 
                   <span className="mt-1 block text-xs text-slate-400">
-                    Será escolhido automaticamente para cursos dessa modalidade que
-                    não tenham um modelo específico vinculado.
+                    Será escolhido automaticamente para cursos dessa modalidade
+                    que não tenham um modelo específico vinculado.
                   </span>
                 </span>
               </label>
@@ -13025,17 +13728,14 @@ export default function ConfiguracaoCertificadoPage() {
               <button
                 type="button"
                 disabled={
-                  salvandoDadosModelo ||
-                  nomeModeloEditando.trim().length < 3
+                  salvandoDadosModelo || nomeModeloEditando.trim().length < 3
                 }
                 onClick={() => {
                   void salvarDadosModeloAtual();
                 }}
                 className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {salvandoDadosModelo
-                  ? "Salvando..."
-                  : "Salvar alterações"}
+                {salvandoDadosModelo ? "Salvando..." : "Salvar alterações"}
               </button>
             </div>
           </div>
@@ -13074,8 +13774,8 @@ export default function ConfiguracaoCertificadoPage() {
                 </h2>
 
                 <p className="mt-1 text-sm text-slate-300">
-                  O modelo será retirado da lista de modelos ativos,
-                  mas seu histórico e suas versões serão preservados.
+                  O modelo será retirado da lista de modelos ativos, mas seu
+                  histórico e suas versões serão preservados.
                 </p>
               </div>
 
@@ -13116,17 +13816,16 @@ export default function ConfiguracaoCertificadoPage() {
                   </p>
 
                   <p className="mt-1 text-sm">
-                    Ao arquivá-lo, ele deixará de ser o modelo padrão.
-                    Defina outro modelo como padrão geral depois do
-                    arquivamento.
+                    Ao arquivá-lo, ele deixará de ser o modelo padrão. Defina
+                    outro modelo como padrão geral depois do arquivamento.
                   </p>
                 </div>
               )}
 
               <p className="text-sm text-slate-300">
-                Modelos vinculados a cursos não podem ser arquivados.
-                Nesse caso, o sistema exibirá a orientação necessária
-                sem apagar nenhuma informação.
+                Modelos vinculados a cursos não podem ser arquivados. Nesse
+                caso, o sistema exibirá a orientação necessária sem apagar
+                nenhuma informação.
               </p>
             </div>
 
@@ -13150,9 +13849,7 @@ export default function ConfiguracaoCertificadoPage() {
                 }}
                 className="rounded-xl bg-red-600 px-5 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {arquivandoModelo
-                  ? "Arquivando..."
-                  : "Arquivar modelo"}
+                {arquivandoModelo ? "Arquivando..." : "Arquivar modelo"}
               </button>
             </div>
           </div>
@@ -13191,17 +13888,15 @@ export default function ConfiguracaoCertificadoPage() {
                 </h2>
 
                 <p className="mt-1 text-sm !text-slate-600 dark:!text-slate-300">
-                  Restaure um modelo para utilizá-lo novamente no
-                  editor e nas configurações dos cursos.
+                  Restaure um modelo para utilizá-lo novamente no editor e nas
+                  configurações dos cursos.
                 </p>
               </div>
 
               <button
                 type="button"
                 disabled={restaurandoModeloId !== null}
-                onClick={() =>
-                  setModalArquivadosAberto(false)
-                }
+                onClick={() => setModalArquivadosAberto(false)}
                 className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-300 bg-white text-xl font-bold !text-slate-500 transition hover:bg-slate-100 hover:!text-slate-900 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:!text-slate-300 dark:hover:bg-slate-800 dark:hover:!text-white"
                 aria-label="Fechar modelos arquivados"
               >
@@ -13233,16 +13928,14 @@ export default function ConfiguracaoCertificadoPage() {
                     >
                       <div className="min-w-0">
                         <p className="truncate font-black !text-slate-900 dark:!text-white">
-                          {String(
-                            modelo?.nome ||
-                            "Modelo sem nome"
-                          )}
+                          {String(modelo?.nome || "Modelo sem nome")}
                         </p>
 
                         <p className="mt-1 text-xs font-bold uppercase tracking-wide !text-slate-500 dark:!text-slate-400">
-                          {String(
-                            modelo?.modalidade || "GERAL"
-                          ).replace(/_/g, " ")}
+                          {String(modelo?.modalidade || "GERAL").replace(
+                            /_/g,
+                            " ",
+                          )}
                         </p>
 
                         {modelo?.descricao && (
@@ -13254,17 +13947,11 @@ export default function ConfiguracaoCertificadoPage() {
 
                       <button
                         type="button"
-                        disabled={
-                          restaurandoModeloId !== null
-                        }
-                        onClick={() =>
-                          restaurarModeloArquivado(modelo)
-                        }
+                        disabled={restaurandoModeloId !== null}
+                        onClick={() => restaurarModeloArquivado(modelo)}
                         className="inline-flex min-w-[130px] items-center justify-center rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-black text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
                       >
-                        {restaurandoEsteModelo
-                          ? "Restaurando..."
-                          : "Restaurar"}
+                        {restaurandoEsteModelo ? "Restaurando..." : "Restaurar"}
                       </button>
                     </div>
                   );
@@ -13276,9 +13963,7 @@ export default function ConfiguracaoCertificadoPage() {
               <button
                 type="button"
                 disabled={restaurandoModeloId !== null}
-                onClick={() =>
-                  setModalArquivadosAberto(false)
-                }
+                onClick={() => setModalArquivadosAberto(false)}
                 className="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold !text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:!text-white dark:hover:bg-slate-700"
               >
                 Fechar
@@ -13324,9 +14009,7 @@ export default function ConfiguracaoCertificadoPage() {
                 <button
                   type="button"
                   disabled={publicando}
-                  onClick={() =>
-                    setModalPublicacaoAberto(false)
-                  }
+                  onClick={() => setModalPublicacaoAberto(false)}
                   className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 bg-white text-xl font-bold !text-slate-500 transition hover:bg-slate-100 hover:!text-slate-900 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:!text-slate-300 dark:hover:bg-slate-800 dark:hover:!text-white"
                 >
                   ×
@@ -13336,19 +14019,18 @@ export default function ConfiguracaoCertificadoPage() {
 
             <div className="space-y-4 px-6 py-5">
               <p className="text-sm leading-6 !text-slate-700 dark:!text-slate-300">
-                O rascunho atual será salvo e substituirá a versão
-                publicada deste modelo.
+                O rascunho atual será salvo e substituirá a versão publicada
+                deste modelo.
               </p>
 
               <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
-                <strong>Atenção:</strong> os alunos e as novas
-                emissões passarão a usar esta versão depois da
-                publicação.
+                <strong>Atenção:</strong> os alunos e as novas emissões passarão
+                a usar esta versão depois da publicação.
               </div>
 
               <p className="text-xs leading-5 !text-slate-600 dark:!text-slate-400">
-                Certificados em PDF que já foram emitidos e
-                armazenados não serão modificados.
+                Certificados em PDF que já foram emitidos e armazenados não
+                serão modificados.
               </p>
             </div>
 
@@ -13356,9 +14038,7 @@ export default function ConfiguracaoCertificadoPage() {
               <button
                 type="button"
                 disabled={publicando}
-                onClick={() =>
-                  setModalPublicacaoAberto(false)
-                }
+                onClick={() => setModalPublicacaoAberto(false)}
                 className="rounded-xl border border-slate-300 !bg-white px-5 py-3 text-sm font-bold !text-slate-700 transition hover:!bg-slate-100 disabled:opacity-50 dark:border-slate-600 dark:!bg-slate-800 dark:!text-white dark:hover:!bg-slate-700"
               >
                 Cancelar
