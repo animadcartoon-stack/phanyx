@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import PagamentoHoleriteModal from "@/components/rh/PagamentoHoleriteModal";
+import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 
 type Funcionario = {
   id: number;
@@ -63,6 +64,17 @@ type LinkAssinaturaRH = {
     nome: string;
     email: string;
   };
+};
+
+type AvisoCpfAssinaturaRH = {
+  codigo:
+    | "CPF_FUNCIONARIO_AUSENTE"
+    | "CPF_FUNCIONARIO_INVALIDO";
+
+  funcionarioId: number;
+  funcionarioNome: string;
+  cadastroCpfUrl: string;
+  mensagem: string;
 };
 
 const eventoInicial: Evento = {
@@ -129,6 +141,11 @@ export default function Page() {
   const [erroAssinatura, setErroAssinatura] = useState("");
 
   const [linkCopiado, setLinkCopiado] = useState(false);
+
+  const [
+  avisoCpfAssinatura,
+  setAvisoCpfAssinatura,
+] = useState<AvisoCpfAssinaturaRH | null>(null);
 
   const [motivoArquivo, setMotivoArquivo] = useState("");
 
@@ -292,6 +309,7 @@ export default function Page() {
       setLinkAssinatura(null);
       setErroAssinatura("");
       setLinkCopiado(false);
+      setAvisoCpfAssinatura(null);
       setGerandoLinkAssinatura(true);
       setErro("");
       setSucesso("");
@@ -305,11 +323,55 @@ export default function Page() {
 
       const dados = await resposta.json().catch(() => null);
 
-      if (!resposta.ok) {
-        throw new Error(
-          dados?.error || "Não foi possível gerar o link de assinatura.",
-        );
-      }
+const codigoErro = String(dados?.codigo || "");
+
+if (
+  !resposta.ok &&
+  [
+    "CPF_FUNCIONARIO_AUSENTE",
+    "CPF_FUNCIONARIO_INVALIDO",
+  ].includes(codigoErro)
+) {
+  const funcionarioIdErro = Number(
+    dados?.funcionarioId,
+  );
+
+  setAvisoCpfAssinatura({
+    codigo:
+      codigoErro as AvisoCpfAssinaturaRH["codigo"],
+
+    funcionarioId: funcionarioIdErro,
+
+    funcionarioNome: String(
+      dados?.funcionarioNome ||
+        holerite.funcionario?.nome ||
+        "Funcionário",
+    ),
+
+    cadastroCpfUrl: String(
+      dados?.cadastroCpfUrl ||
+        `/admin/funcionarios/${funcionarioIdErro}`,
+    ),
+
+    mensagem: String(
+      dados?.error ||
+        "Cadastre um CPF válido antes de gerar o link de assinatura.",
+    ),
+  });
+
+  setHoleriteParaAssinatura(null);
+  setLinkAssinatura(null);
+  setErroAssinatura("");
+
+  return;
+}
+
+if (!resposta.ok) {
+  throw new Error(
+    dados?.error ||
+      "Não foi possível gerar o link de assinatura.",
+  );
+}
 
       setLinkAssinatura({
         pagamentoId: Number(dados.pagamentoId),
@@ -1058,6 +1120,36 @@ export default function Page() {
           </div>
         </div>
       )}
+
+      <PhanyxConfirmModal
+  aberto={Boolean(avisoCpfAssinatura)}
+  titulo={
+    avisoCpfAssinatura?.codigo ===
+    "CPF_FUNCIONARIO_INVALIDO"
+      ? "CPF do funcionário inválido"
+      : "CPF do funcionário não cadastrado"
+  }
+  mensagem={
+    avisoCpfAssinatura
+      ? `${avisoCpfAssinatura.mensagem} O CPF será utilizado para validar a identidade do funcionário no momento da assinatura do recibo.`
+      : ""
+  }
+  textoConfirmar="Cadastrar CPF"
+  textoCancelar="Agora não"
+  onCancelar={() => {
+    setAvisoCpfAssinatura(null);
+  }}
+  onConfirmar={() => {
+    const destino =
+      avisoCpfAssinatura?.cadastroCpfUrl;
+
+    setAvisoCpfAssinatura(null);
+
+    if (destino) {
+      window.location.href = destino;
+    }
+  }}
+/>
 
     </div>
   );

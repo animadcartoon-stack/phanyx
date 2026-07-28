@@ -20,6 +20,47 @@ function calcularHashToken(token: string) {
   return createHash("sha256").update(token).digest("hex");
 }
 
+function somenteNumeros(valor: unknown) {
+  return String(valor || "").replace(/\D/g, "");
+}
+
+function cpfValido(valor: unknown) {
+  const cpf = somenteNumeros(valor);
+
+  if (
+    cpf.length !== 11 ||
+    /^(\d)\1{10}$/.test(cpf)
+  ) {
+    return false;
+  }
+
+  function calcularDigito(quantidade: number) {
+    let soma = 0;
+
+    for (
+      let indice = 0;
+      indice < quantidade;
+      indice += 1
+    ) {
+      soma +=
+        Number(cpf[indice]) *
+        (quantidade + 1 - indice);
+    }
+
+    const resto = soma % 11;
+
+    return resto < 2 ? 0 : 11 - resto;
+  }
+
+  const primeiroDigito = calcularDigito(9);
+  const segundoDigito = calcularDigito(10);
+
+  return (
+    primeiroDigito === Number(cpf[9]) &&
+    segundoDigito === Number(cpf[10])
+  );
+}
+
 export async function POST(
   req: NextRequest,
   {
@@ -90,6 +131,7 @@ export async function POST(
           select: {
             id: true,
             nome: true,
+            cpf: true,
             userId: true,
 
             user: {
@@ -188,6 +230,35 @@ export async function POST(
         },
       );
     }
+
+    const cpfFuncionario = somenteNumeros(
+  holerite.funcionario.cpf,
+);
+
+if (!cpfFuncionario || !cpfValido(cpfFuncionario)) {
+  const cpfAusente = !cpfFuncionario;
+
+  return NextResponse.json(
+    {
+      error: cpfAusente
+        ? `Cadastre o CPF de ${holerite.funcionario.nome} antes de gerar o link de assinatura.`
+        : `O CPF cadastrado para ${holerite.funcionario.nome} é inválido. Corrija o cadastro antes de gerar o link de assinatura.`,
+
+      codigo: cpfAusente
+        ? "CPF_FUNCIONARIO_AUSENTE"
+        : "CPF_FUNCIONARIO_INVALIDO",
+
+      funcionarioId: holerite.funcionario.id,
+      funcionarioNome: holerite.funcionario.nome,
+
+      cadastroCpfUrl:
+        `/admin/funcionarios/${holerite.funcionario.id}`,
+    },
+    {
+      status: 422,
+    },
+  );
+}
 
     const agora = new Date();
 

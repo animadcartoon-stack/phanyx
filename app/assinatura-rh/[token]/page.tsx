@@ -104,6 +104,7 @@ export default function AssinaturaReciboRHPage() {
     : String(tokenParam || "");
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const resultadoAssinaturaRef = useRef<HTMLDivElement | null>(null);
 
   const [documento, setDocumento] = useState<DocumentoAssinaturaRH | null>(
     null,
@@ -286,28 +287,30 @@ export default function AssinaturaReciboRHPage() {
     if (!documento) return;
 
     if (!documento.podeAssinar) {
-      setErro("Este recibo não está disponível para assinatura.");
-
+      mostrarErroAssinatura(
+        "Este recibo não está disponível para assinatura.",
+      );
       return;
     }
 
     if (!nomeConfirmacao.trim()) {
-      setErro("Confirme seu nome completo.");
-
+      mostrarErroAssinatura("Confirme seu nome completo.");
       return;
     }
 
-    if (!cpfConfirmacao.trim()) {
-      setErro("Informe seu CPF.");
+    const cpfNumerico = cpfConfirmacao.replace(/\D/g, "");
 
+    if (cpfNumerico.length !== 11) {
+      mostrarErroAssinatura(
+        "Informe um CPF válido com 11 números.",
+      );
       return;
     }
 
     if (!aceitouTermos) {
-      setErro(
-        "Você precisa declarar que leu o recibo e reconhece o recebimento antes de assinar.",
+      mostrarErroAssinatura(
+        "Marque a declaração de recebimento antes de confirmar a assinatura.",
       );
-
       return;
     }
 
@@ -315,7 +318,9 @@ export default function AssinaturaReciboRHPage() {
 
     if (tipoAssinatura === "DESENHO") {
       if (!assinaturaDesenhada) {
-        setErro("Desenhe sua assinatura no campo indicado.");
+        mostrarErroAssinatura(
+          "Desenhe sua assinatura no campo indicado.",
+        );
 
         return;
       }
@@ -323,7 +328,9 @@ export default function AssinaturaReciboRHPage() {
       assinaturaBase64 = canvasRef.current?.toDataURL("image/png") || "";
     } else {
       if (!assinaturaDigital.trim()) {
-        setErro("Digite seu nome completo para gerar a assinatura.");
+        mostrarErroAssinatura(
+          "Digite seu nome completo para gerar a assinatura.",
+        );
 
         return;
       }
@@ -373,6 +380,18 @@ export default function AssinaturaReciboRHPage() {
     } finally {
       setAssinando(false);
     }
+  }
+
+  function mostrarErroAssinatura(mensagem: string) {
+    setSucesso("");
+    setErro(mensagem);
+
+    window.requestAnimationFrame(() => {
+      resultadoAssinaturaRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    });
   }
 
   useEffect(() => {
@@ -646,11 +665,22 @@ export default function AssinaturaReciboRHPage() {
 
                     <input
                       value={cpfConfirmacao}
-                      onChange={(event) =>
-                        setCpfConfirmacao(event.target.value)
-                      }
+                      onChange={(event) => {
+                        const numeros = event.target.value
+                          .replace(/\D/g, "")
+                          .slice(0, 11);
+
+                        const formatado = numeros
+                          .replace(/^(\d{3})(\d)/, "$1.$2")
+                          .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
+                          .replace(/\.(\d{3})(\d)/, ".$1-$2");
+
+                        setCpfConfirmacao(formatado);
+                        setErro("");
+                      }}
                       disabled={assinando}
                       inputMode="numeric"
+                      maxLength={14}
                       placeholder="Informe seu CPF"
                       className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-900 outline-none focus:border-emerald-500"
                     />
@@ -662,11 +692,10 @@ export default function AssinaturaReciboRHPage() {
                     type="button"
                     disabled={assinando}
                     onClick={() => setTipoAssinatura("DESENHO")}
-                    className={`rounded-xl border px-4 py-3 text-sm font-bold ${
-                      tipoAssinatura === "DESENHO"
-                        ? "border-emerald-500 bg-emerald-50 text-emerald-800"
-                        : "border-slate-300 text-slate-700"
-                    }`}
+                    className={`rounded-xl border px-4 py-3 text-sm font-bold ${tipoAssinatura === "DESENHO"
+                      ? "border-emerald-500 bg-emerald-50 text-emerald-800"
+                      : "border-slate-300 text-slate-700"
+                      }`}
                   >
                     ✍️ Desenhar assinatura
                   </button>
@@ -675,11 +704,10 @@ export default function AssinaturaReciboRHPage() {
                     type="button"
                     disabled={assinando}
                     onClick={() => setTipoAssinatura("DIGITAL")}
-                    className={`rounded-xl border px-4 py-3 text-sm font-bold ${
-                      tipoAssinatura === "DIGITAL"
-                        ? "border-blue-500 bg-blue-50 text-blue-800"
-                        : "border-slate-300 text-slate-700"
-                    }`}
+                    className={`rounded-xl border px-4 py-3 text-sm font-bold ${tipoAssinatura === "DIGITAL"
+                      ? "border-blue-500 bg-blue-50 text-blue-800"
+                      : "border-slate-300 text-slate-700"
+                      }`}
                   >
                     🔐 Assinatura digitada
                   </button>
@@ -756,15 +784,41 @@ export default function AssinaturaReciboRHPage() {
                   </span>
                 </label>
 
+                <div
+                  ref={resultadoAssinaturaRef}
+                  aria-live="polite"
+                  className="mt-5"
+                >
+                  {erro && (
+                    <div className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800">
+                      <p className="font-bold">
+                        Não foi possível confirmar a assinatura
+                      </p>
+
+                      <p className="mt-1">{erro}</p>
+                    </div>
+                  )}
+
+                  {sucesso && (
+                    <div className="rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+                      <p className="font-bold">
+                        Recebimento confirmado e assinatura registrada
+                      </p>
+
+                      <p className="mt-1">{sucesso}</p>
+                    </div>
+                  )}
+                </div>
+
                 <button
                   type="button"
                   onClick={assinarRecibo}
                   disabled={assinando}
-                  className="mt-5 w-full rounded-xl bg-emerald-600 px-5 py-3 font-bold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="w-full rounded-xl bg-emerald-600 px-5 py-3 font-bold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {assinando
-                    ? "Assinando recibo..."
-                    : "Confirmar recebimento e assinar"}
+                    ? "Confirmando assinatura..."
+                    : "Confirmar recebimento e registrar assinatura"}
                 </button>
               </section>
             )}
