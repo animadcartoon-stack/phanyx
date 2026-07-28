@@ -283,14 +283,15 @@ model User {
   certificadoModelosCriados    CertificadoModelo[] @relation("CertificadoModeloCriadoPor")
   certificadoModelosPublicados CertificadoModelo[] @relation("CertificadoModeloPublicadoPor")
 
-  planosComissaoRHCriados             PlanoComissaoRH[]                @relation("PlanoComissaoRHCriadoPor")
-  regrasComissaoRHCriadas             RegraComissaoRH[]                @relation("RegraComissaoRHCriadoPor")
-  funcionariosPlanosComissaoRHCriados FuncionarioPlanoComissaoRH[]     @relation("FuncionarioPlanoComissaoRHCriadoPor")
-  participantesComerciaisCriados      MatriculaParticipanteComercial[] @relation("MatriculaParticipanteComercialCriadoPor")
-  lancamentosComissaoRHCriados        LancamentoComissaoRH[]           @relation("LancamentoComissaoRHCriadoPor")
-  lancamentosComissaoRHAprovados      LancamentoComissaoRH[]           @relation("LancamentoComissaoRHAprovadoPor")
-  lancamentosComissaoRHReprovados     LancamentoComissaoRH[]           @relation("LancamentoComissaoRHReprovadoPor")
-  lancamentosComissaoRHEstornados     LancamentoComissaoRH[]           @relation("LancamentoComissaoRHEstornadoPor")
+  planosComissaoRHCriados               PlanoComissaoRH[]                @relation("PlanoComissaoRHCriadoPor")
+  regrasComissaoRHCriadas               RegraComissaoRH[]                @relation("RegraComissaoRHCriadoPor")
+  funcionariosPlanosComissaoRHCriados   FuncionarioPlanoComissaoRH[]     @relation("FuncionarioPlanoComissaoRHCriadoPor")
+  participantesComerciaisCriados        MatriculaParticipanteComercial[] @relation("MatriculaParticipanteComercialCriadoPor")
+  lancamentosComissaoRHCriados          LancamentoComissaoRH[]           @relation("LancamentoComissaoRHCriadoPor")
+  lancamentosComissaoRHAprovados        LancamentoComissaoRH[]           @relation("LancamentoComissaoRHAprovadoPor")
+  lancamentosComissaoRHReprovados       LancamentoComissaoRH[]           @relation("LancamentoComissaoRHReprovadoPor")
+  lancamentosComissaoRHEnviadosHolerite LancamentoComissaoRH[]           @relation("LancamentoComissaoRHEnviadoHoleritePor")
+  lancamentosComissaoRHEstornados       LancamentoComissaoRH[]           @relation("LancamentoComissaoRHEstornadoPor")
 
   programasRemuneracaoVariavelRHCriados                ProgramaRemuneracaoVariavelRH[]             @relation("ProgramaRemuneracaoVariavelRHCriadoPor")
   programasRemuneracaoVariavelRHAprovados              ProgramaRemuneracaoVariavelRH[]             @relation("ProgramaRemuneracaoVariavelRHAprovadoPor")
@@ -319,6 +320,7 @@ model User {
   restricoesRematriculaAplicadas RestricaoRematriculaAluno[]     @relation("RestricaoRematriculaAplicadaPor")
   restricoesRematriculaRemovidas RestricaoRematriculaAluno[]     @relation("RestricaoRematriculaRemovidaPor")
   historicosRestricaoRematricula RestricaoRematriculaHistorico[] @relation("RestricaoRematriculaHistoricoRealizadoPor")
+  lancamentoComissaoRHs          LancamentoComissaoRH[]
 
   @@index([instituicaoId])
   @@index([role])
@@ -4044,6 +4046,7 @@ model LancamentoComissaoRH {
   criadoPorId             Int?
   aprovadoPorId           Int?
   reprovadoPorId          Int?
+  enviadoHoleritePorId    Int?
   estornadoPorId          Int?
   chaveCalculo            String
   origem                  OrigemLancamentoComissaoRH @default(AUTOMATICA)
@@ -4087,7 +4090,10 @@ model LancamentoComissaoRH {
   criadoPor             User?                           @relation("LancamentoComissaoRHCriadoPor", fields: [criadoPorId], references: [id])
   aprovadoPor           User?                           @relation("LancamentoComissaoRHAprovadoPor", fields: [aprovadoPorId], references: [id])
   reprovadoPor          User?                           @relation("LancamentoComissaoRHReprovadoPor", fields: [reprovadoPorId], references: [id])
+  enviadoHoleritePor    User?                           @relation("LancamentoComissaoRHEnviadoHoleritePor", fields: [enviadoHoleritePorId], references: [id], onDelete: SetNull)
   estornadoPor          User?                           @relation("LancamentoComissaoRHEstornadoPor", fields: [estornadoPorId], references: [id])
+  user                  User?                           @relation(fields: [userId], references: [id])
+  userId                Int?
 
   @@unique([instituicaoId, chaveCalculo])
   @@index([instituicaoId])
@@ -4098,6 +4104,7 @@ model LancamentoComissaoRH {
   @@index([regraId])
   @@index([pagamentoId])
   @@index([holeriteEventoId])
+  @@index([enviadoHoleritePorId])
   @@index([status])
   @@index([competenciaMes, competenciaAno])
 }

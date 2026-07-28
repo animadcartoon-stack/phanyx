@@ -262,6 +262,14 @@ export async function GET(
             },
           },
 
+          enviadoHoleritePor: {
+            select: {
+              id: true,
+              nome: true,
+              email: true,
+            },
+          },
+
           reprovadoPor: {
             select: {
               id: true,
