@@ -146,6 +146,8 @@ model Instituicao {
   rescisoesRH                                 RescisaoRH[]
   holeritesRH                                 HoleriteRH[]
   pagamentosHoleriteRH                        PagamentoHoleriteRH[]
+  contasBancariasFuncionariosRH               ContaBancariaFuncionarioRH[]
+  itensPagamentoHoleriteRH                    ItemPagamentoHoleriteRH[]
   pontosRH                                    PontoFuncionarioRH[]
   autorizacoesCorrecaoPontoRH                 AutorizacaoCorrecaoPontoRH[]
   solicitacoesCorrecaoPontoRH                 SolicitacaoCorrecaoPontoRH[]
@@ -1443,6 +1445,7 @@ model Funcionario {
   rescisoesRH                                 RescisaoRH[]
   holeritesRH                                 HoleriteRH[]
   pagamentosHoleriteRH                        PagamentoHoleriteRH[]
+  contasBancariasRH                           ContaBancariaFuncionarioRH[]
   pontosRH                                    PontoFuncionarioRH[]
   autorizacoesCorrecaoPontoRH                 AutorizacaoCorrecaoPontoRH[]
   solicitacoesCorrecaoPontoRH                 SolicitacaoCorrecaoPontoRH[]
@@ -3056,6 +3059,8 @@ model PagamentoHoleriteRH {
   substitui         PagamentoHoleriteRH? @relation("PagamentoHoleriteRHSubstituicao", fields: [substituiPagamentoId], references: [id], onDelete: SetNull)
   substituidoPor    PagamentoHoleriteRH? @relation("PagamentoHoleriteRHSubstituicao")
 
+  itens ItemPagamentoHoleriteRH[]
+
   @@unique([instituicaoId, reciboNumero])
   @@index([instituicaoId])
   @@index([funcionarioId])
@@ -3067,6 +3072,74 @@ model PagamentoHoleriteRH {
   @@index([status])
   @@index([pagoEm])
   @@index([tokenAssinaturaExpiraEm])
+}
+
+model ContaBancariaFuncionarioRH {
+  id               Int                       @id @default(autoincrement())
+  instituicaoId    Int
+  funcionarioId    Int
+  finalidade       FinalidadeContaBancariaRH
+  bancoCodigo      String?
+  bancoNome        String?
+  agencia          String?
+  conta            String?
+  tipoConta        TipoContaBancariaRH?
+  tipoChavePix     TipoChavePixRH?
+  chavePix         String?
+  titularNome      String?
+  titularDocumento String?
+  ativo            Boolean                   @default(true)
+  criadoEm         DateTime                  @default(now())
+  atualizadoEm     DateTime                  @updatedAt
+
+  instituicao    Instituicao               @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  funcionario    Funcionario               @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
+  itensPagamento ItemPagamentoHoleriteRH[]
+
+  @@unique([funcionarioId, finalidade])
+  @@index([instituicaoId])
+  @@index([instituicaoId, finalidade])
+  @@index([funcionarioId])
+}
+
+model ItemPagamentoHoleriteRH {
+  id                         Int                            @id @default(autoincrement())
+  instituicaoId              Int
+  pagamentoHoleriteId        Int
+  contaBancariaFuncionarioId Int?
+  tipoItem                   TipoItemPagamentoHoleriteRH
+  origemConta                OrigemContaPagamentoHoleriteRH
+  formaPagamento             FormaPagamentoHoleriteRH
+  valorPago                  Decimal                        @db.Decimal(10, 2)
+  pagoEm                     DateTime
+  identificadorTransacao     String?
+  bancoOrigemCodigo          String?
+  bancoOrigemNome            String?
+  agenciaOrigemMascarada     String?
+  contaOrigemMascarada       String?
+  bancoDestinoCodigo         String?
+  bancoDestinoNome           String?
+  agenciaDestinoMascarada    String?
+  contaDestinoMascarada      String?
+  tipoContaDestino           TipoContaBancariaRH?
+  tipoChavePixDestino        TipoChavePixRH?
+  chavePixDestinoMascarada   String?
+  chavePixDestinoHash        String?
+  titularDestinoSnapshot     String?
+  titularDocumentoMascarado  String?
+  observacoes                String?                        @db.Text
+  criadoEm                   DateTime                       @default(now())
+  atualizadoEm               DateTime                       @updatedAt
+
+  instituicao              Instituicao                 @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  pagamentoHolerite        PagamentoHoleriteRH         @relation(fields: [pagamentoHoleriteId], references: [id], onDelete: Cascade)
+  contaBancariaFuncionario ContaBancariaFuncionarioRH? @relation(fields: [contaBancariaFuncionarioId], references: [id], onDelete: SetNull)
+
+  @@index([instituicaoId])
+  @@index([pagamentoHoleriteId])
+  @@index([contaBancariaFuncionarioId])
+  @@index([tipoItem])
+  @@index([origemConta])
 }
 
 model PontoFuncionarioRH {
@@ -4926,6 +4999,40 @@ enum TipoRemuneracaoRH {
   POR_DISCIPLINA
   MISTO
   SEM_REMUNERACAO
+}
+
+enum FinalidadeContaBancariaRH {
+  SALARIO
+  COMISSAO_REMUNERACAO_VARIAVEL
+}
+
+enum TipoContaBancariaRH {
+  CORRENTE
+  POUPANCA
+  SALARIO
+  PAGAMENTO
+  OUTRA
+}
+
+enum TipoChavePixRH {
+  CPF
+  CNPJ
+  EMAIL
+  TELEFONE
+  ALEATORIA
+}
+
+enum TipoItemPagamentoHoleriteRH {
+  SALARIO_E_DEMAIS
+  COMISSAO
+  REMUNERACAO_VARIAVEL
+  OUTRO
+}
+
+enum OrigemContaPagamentoHoleriteRH {
+  CONTA_SALARIO
+  CONTA_COMISSAO
+  MANUAL
 }
 
 enum StatusPeriodoMatricula {
