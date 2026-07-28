@@ -87,7 +87,14 @@ export default function Page() {
 
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
-  const [holeriteParaArquivar, setHoleriteParaArquivar] = useState<Holerite | null>(null);
+  const [holeriteParaArquivar, setHoleriteParaArquivar] =
+    useState<Holerite | null>(null);
+
+  const [holeriteParaPagar, setHoleriteParaPagar] = useState<Holerite | null>(
+    null,
+  );
+
+  const [pagando, setPagando] = useState(false);
 
   const [motivoArquivo, setMotivoArquivo] = useState("");
 
@@ -96,7 +103,9 @@ export default function Page() {
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
 
-  const funcionarioSelecionado = funcionarios.find((f) => f.id === funcionarioId);
+  const funcionarioSelecionado = funcionarios.find(
+    (f) => f.id === funcionarioId,
+  );
 
   const funcionariosFiltrados = useMemo(() => {
     const termo = funcionarioBusca.trim().toLowerCase();
@@ -128,15 +137,12 @@ export default function Page() {
       setCarregando(true);
       setErro("");
 
-      const [
-  resFuncionarios,
-  resHolerites,
-  resEventosFolha,
-] = await Promise.all([
-        fetch("/api/admin/funcionarios"),
-        fetch("/api/admin/rh/holerites"),
-        fetch("/api/admin/rh/eventos-folha"),
-      ]);
+      const [resFuncionarios, resHolerites, resEventosFolha] =
+        await Promise.all([
+          fetch("/api/admin/funcionarios"),
+          fetch("/api/admin/rh/holerites"),
+          fetch("/api/admin/rh/eventos-folha"),
+        ]);
 
       if (!resFuncionarios.ok) {
         throw new Error("Não foi possível carregar os funcionários.");
@@ -150,27 +156,23 @@ export default function Page() {
       const dadosHolerites = await resHolerites.json();
       const dadosEventosFolha = await resEventosFolha.json();
 
-
       setFuncionarios(
         dadosFuncionarios.funcionarios ||
           dadosFuncionarios.items ||
           dadosFuncionarios ||
-          []
+          [],
       );
 
       setHolerites(
         dadosHolerites.holerites ||
           dadosHolerites.items ||
           dadosHolerites ||
-          []
+          [],
       );
 
       setEventosPadrao(
-  Array.isArray(dadosEventosFolha)
-    ? dadosEventosFolha
-    : []
-);
-
+        Array.isArray(dadosEventosFolha) ? dadosEventosFolha : [],
+      );
     } catch (error: any) {
       setErro(error?.message || "Erro ao carregar dados de holerites.");
     } finally {
@@ -186,8 +188,7 @@ export default function Page() {
     setFuncionarioId(funcionario.id);
     setFuncionarioBusca(funcionario.nome);
 
-    const salario =
-      funcionario.salarioBase ?? funcionario.salario ?? "";
+    const salario = funcionario.salarioBase ?? funcionario.salario ?? "";
 
     setSalarioBase(salario ? String(salario) : "");
   }
@@ -195,8 +196,8 @@ export default function Page() {
   function atualizarEvento(index: number, campo: keyof Evento, valor: string) {
     setEventos((atuais) =>
       atuais.map((evento, i) =>
-        i === index ? { ...evento, [campo]: valor } : evento
-      )
+        i === index ? { ...evento, [campo]: valor } : evento,
+      ),
     );
   }
 
@@ -208,46 +209,105 @@ export default function Page() {
     setEventos((atuais) => atuais.filter((_, i) => i !== index));
   }
 
-async function arquivarHolerite() {
-  if (!holeriteParaArquivar) return;
+  async function arquivarHolerite() {
+    if (!holeriteParaArquivar) return;
 
-  if (!motivoArquivo.trim()) {
-    setErro("Informe o motivo do arquivamento.");
-    return;
-  }
-
-  try {
-    setErro("");
-    setSucesso("");
-    setArquivando(true);
-
-    const res = await fetch("/api/admin/rh/holerites", {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        holeriteId: holeriteParaArquivar.id,
-        motivoArquivo,
-      }),
-    });
-
-    const dados = await res.json().catch(() => null);
-
-    if (!res.ok) {
-      throw new Error(dados?.error || "Não foi possível arquivar o holerite.");
+    if (!motivoArquivo.trim()) {
+      setErro("Informe o motivo do arquivamento.");
+      return;
     }
 
-    setSucesso("Holerite arquivado com sucesso.");
-    setHoleriteParaArquivar(null);
-    setMotivoArquivo("");
-    await carregarDados();
-  } catch (error: any) {
-    setErro(error?.message || "Erro ao arquivar holerite.");
-  } finally {
-    setArquivando(false);
+    try {
+      setErro("");
+      setSucesso("");
+      setArquivando(true);
+
+      const res = await fetch("/api/admin/rh/holerites", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          holeriteId: holeriteParaArquivar.id,
+          motivoArquivo,
+        }),
+      });
+
+      const dados = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        throw new Error(
+          dados?.error || "Não foi possível arquivar o holerite.",
+        );
+      }
+
+      setSucesso("Holerite arquivado com sucesso.");
+      setHoleriteParaArquivar(null);
+      setMotivoArquivo("");
+      await carregarDados();
+    } catch (error: any) {
+      setErro(error?.message || "Erro ao arquivar holerite.");
+    } finally {
+      setArquivando(false);
+    }
   }
-}
+
+  async function marcarHoleriteComoPago() {
+    if (!holeriteParaPagar) return;
+
+    try {
+      setErro("");
+      setSucesso("");
+      setPagando(true);
+
+      const resposta = await fetch("/api/admin/rh/holerites", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          acao: "MARCAR_HOLERITE_PAGO",
+          holeriteId: holeriteParaPagar.id,
+        }),
+      });
+
+      const dados = await resposta.json().catch(() => null);
+
+      if (!resposta.ok) {
+        throw new Error(
+          dados?.error || "Não foi possível marcar o holerite como pago.",
+        );
+      }
+
+      const comissoesPagas = Number(dados?.comissoesPagas || 0);
+
+      const remuneracoesPagas = Number(dados?.remuneracoesPagas || 0);
+
+      setSucesso(
+        [
+          dados?.message || "Holerite marcado como pago com sucesso.",
+
+          comissoesPagas > 0
+            ? `${comissoesPagas} comissão(ões) atualizada(s) para paga(s).`
+            : null,
+
+          remuneracoesPagas > 0
+            ? `${remuneracoesPagas} remuneração(ões) variável(is) atualizada(s) para paga(s).`
+            : null,
+        ]
+          .filter(Boolean)
+          .join(" "),
+      );
+
+      setHoleriteParaPagar(null);
+
+      await carregarDados();
+    } catch (error: any) {
+      setErro(error?.message || "Erro ao registrar o pagamento do holerite.");
+    } finally {
+      setPagando(false);
+    }
+  }
 
   async function gerarHolerite() {
     try {
@@ -270,7 +330,7 @@ async function arquivarHolerite() {
       }
 
       const eventosValidos = eventos.filter(
-        (e) => e.descricao.trim() && numero(e.valor) > 0
+        (e) => e.descricao.trim() && numero(e.valor) > 0,
       );
 
       if (eventosValidos.length === 0) {
@@ -323,7 +383,8 @@ async function arquivarHolerite() {
           Holerites
         </h1>
         <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-          Gere holerites com salário base, vencimentos, descontos e líquido automático.
+          Gere holerites com salário base, vencimentos, descontos e líquido
+          automático.
         </p>
       </div>
 
@@ -450,41 +511,41 @@ async function arquivarHolerite() {
               key={index}
               className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900 md:grid-cols-6"
             >
-             <select
-  value={evento.codigo}
-  onChange={(e) => {
-    const selecionado = eventosPadrao.find(
-      (item) => item.codigo === e.target.value
-    );
+              <select
+                value={evento.codigo}
+                onChange={(e) => {
+                  const selecionado = eventosPadrao.find(
+                    (item) => item.codigo === e.target.value,
+                  );
 
-    if (!selecionado) return;
+                  if (!selecionado) return;
 
-    atualizarEvento(index, "codigo", selecionado.codigo);
-    atualizarEvento(index, "descricao", selecionado.descricao);
+                  atualizarEvento(index, "codigo", selecionado.codigo);
+                  atualizarEvento(index, "descricao", selecionado.descricao);
 
-    if (
-      selecionado.tipo === "VENCIMENTO" ||
-      selecionado.tipo === "DESCONTO"
-    ) {
-      atualizarEvento(index, "tipo", selecionado.tipo);
-    }
-  }}
-  className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white md:col-span-2"
->
-  <option value="">Selecione um evento</option>
+                  if (
+                    selecionado.tipo === "VENCIMENTO" ||
+                    selecionado.tipo === "DESCONTO"
+                  ) {
+                    atualizarEvento(index, "tipo", selecionado.tipo);
+                  }
+                }}
+                className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white md:col-span-2"
+              >
+                <option value="">Selecione um evento</option>
 
-  {eventosPadrao
-    .filter((item) => item.tipo !== "INFORMATIVO")
-    .map((item) => (
-      <option key={item.id} value={item.codigo}>
-        {item.codigo} - {item.descricao}
-      </option>
-    ))}
-</select>
+                {eventosPadrao
+                  .filter((item) => item.tipo !== "INFORMATIVO")
+                  .map((item) => (
+                    <option key={item.id} value={item.codigo}>
+                      {item.codigo} - {item.descricao}
+                    </option>
+                  ))}
+              </select>
 
-<div className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300 md:col-span-1">
-  {evento.descricao || "Descrição do evento"}
-</div>
+              <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300 md:col-span-1">
+                {evento.descricao || "Descrição do evento"}
+              </div>
 
               <input
                 value={evento.referencia}
@@ -501,7 +562,7 @@ async function arquivarHolerite() {
                   atualizarEvento(
                     index,
                     "tipo",
-                    e.target.value as "VENCIMENTO" | "DESCONTO"
+                    e.target.value as "VENCIMENTO" | "DESCONTO",
                   )
                 }
                 className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white"
@@ -513,7 +574,9 @@ async function arquivarHolerite() {
               <div className="flex gap-2">
                 <input
                   value={evento.valor}
-                  onChange={(e) => atualizarEvento(index, "valor", e.target.value)}
+                  onChange={(e) =>
+                    atualizarEvento(index, "valor", e.target.value)
+                  }
                   placeholder="Valor"
                   className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                 />
@@ -534,42 +597,42 @@ async function arquivarHolerite() {
 
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
-  <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">
-    Total vencimentos
-  </p>
-  <p className="mt-1 text-2xl font-black text-slate-900 dark:text-white">
-    {moeda(totalVencimentos)}
-  </p>
-</div>
+            <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">
+              Total vencimentos
+            </p>
+            <p className="mt-1 text-2xl font-black text-slate-900 dark:text-white">
+              {moeda(totalVencimentos)}
+            </p>
+          </div>
 
           <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
-  <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">
-    Total descontos
-  </p>
-  <p className="mt-1 text-2xl font-black text-slate-900 dark:text-white">
-    {moeda(totalDescontos)}
-  </p>
-</div>
+            <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">
+              Total descontos
+            </p>
+            <p className="mt-1 text-2xl font-black text-slate-900 dark:text-white">
+              {moeda(totalDescontos)}
+            </p>
+          </div>
 
           <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
-  <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">
-    Valor líquido
-  </p>
-  <p className="mt-1 text-2xl font-black text-slate-900 dark:text-white">
-    {moeda(valorLiquido)}
-  </p>
-</div>
+            <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">
+              Valor líquido
+            </p>
+            <p className="mt-1 text-2xl font-black text-slate-900 dark:text-white">
+              {moeda(valorLiquido)}
+            </p>
+          </div>
         </div>
 
         <div className="mt-6 flex justify-end">
           <button
-  type="button"
-  onClick={gerarHolerite}
-  disabled={salvando}
-  className="phanyx-rh-primary-action"
->
-  {salvando ? "Gerando..." : "Gerar holerite"}
-</button>
+            type="button"
+            onClick={gerarHolerite}
+            disabled={salvando}
+            className="phanyx-rh-primary-action"
+          >
+            {salvando ? "Gerando..." : "Gerar holerite"}
+          </button>
         </div>
       </div>
 
@@ -596,13 +659,13 @@ async function arquivarHolerite() {
             <tbody>
               {carregando ? (
                 <tr>
-                  <td colSpan={7} className="py-6 text-center text-slate-500">
+                  <td colSpan={8} className="py-6 text-center text-slate-500">
                     Carregando holerites...
                   </td>
                 </tr>
               ) : holerites.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-6 text-center text-slate-500">
+                  <td colSpan={8} className="py-6 text-center text-slate-500">
                     Nenhum holerite gerado ainda.
                   </td>
                 </tr>
@@ -632,110 +695,188 @@ async function arquivarHolerite() {
                       {moeda(numero(holerite.valorLiquido))}
                     </td>
                     <td className="py-3">
-                      <span
-  className="rounded-full border border-slate-300 bg-white px-3 py-1 text-xs font-bold text-slate-700"
->
-  {holerite.status || "GERADO"}
-</span>
+                      <span className="rounded-full border border-slate-300 bg-white px-3 py-1 text-xs font-bold text-slate-700">
+                        {holerite.status || "GERADO"}
+                      </span>
                     </td>
                     <td className="py-3 text-right">
-  <div className="flex justify-end gap-2">
-    <a
-      href={`/api/admin/rh/holerites/${holerite.id}/pdf`}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="rounded-xl border border-emerald-500 px-3 py-1 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-500 hover:text-white"
-    >
-      📄 PDF
-    </a>
+                      <div className="flex justify-end gap-2">
+                        <a
+                          href={`/api/admin/rh/holerites/${holerite.id}/pdf`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="rounded-xl border border-emerald-500 px-3 py-1 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-500 hover:text-white"
+                        >
+                          📄 PDF
+                        </a>
 
-    <button
-      type="button"
-      onClick={() => {
-        setHoleriteParaArquivar(holerite);
-        setMotivoArquivo("");
-      }}
-      className="rounded-xl border border-amber-500 px-3 py-1 text-sm font-semibold text-amber-300 transition hover:bg-amber-500 hover:text-white"
-    >
-      Arquivar
-    </button>
-  </div>
-</td>
+                        {!["PAGO", "ARQUIVADO", "CANCELADO"].includes(
+                          String(holerite.status || "").toUpperCase(),
+                        ) && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setHoleriteParaPagar(holerite);
+                              setErro("");
+                              setSucesso("");
+                            }}
+                            className="rounded-xl border border-emerald-600 px-3 py-1 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-600 hover:text-white dark:text-emerald-300"
+                          >
+                            Marcar como pago
+                          </button>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setHoleriteParaArquivar(holerite);
+                            setMotivoArquivo("");
+                          }}
+                          className="rounded-xl border border-amber-500 px-3 py-1 text-sm font-semibold text-amber-300 transition hover:bg-amber-500 hover:text-white"
+                        >
+                          Arquivar
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))
               )}
             </tbody>
           </table>
         </div>
-            </div>
-
-      {holeriteParaArquivar && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-    <div className="w-full max-w-lg rounded-3xl border border-slate-700 bg-slate-950 p-6 shadow-2xl">
-      <h2 className="text-xl font-bold text-white">
-        Arquivar holerite
-      </h2>
-
-      <p className="mt-3 text-sm text-slate-300">
-        Este holerite não será excluído do sistema. Ele ficará preservado para auditoria, direção e conferências futuras.
-      </p>
-
-      <div className="mt-5 rounded-2xl border border-slate-800 bg-slate-900 p-4 text-sm text-slate-200">
-        <p>
-          <strong>Funcionário:</strong>{" "}
-          {holeriteParaArquivar.funcionario?.nome || "Funcionário"}
-        </p>
-        <p className="mt-2">
-          <strong>Competência:</strong>{" "}
-          {String(holeriteParaArquivar.competenciaMes).padStart(2, "0")}/
-          {holeriteParaArquivar.competenciaAno}
-        </p>
       </div>
 
-      <label className="mt-5 block text-xs font-bold uppercase text-slate-300">
-        Motivo do arquivamento
-      </label>
+      {holeriteParaArquivar && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+          <div className="w-full max-w-lg rounded-3xl border border-slate-700 bg-slate-950 p-6 shadow-2xl">
+            <h2 className="text-xl font-bold text-white">Arquivar holerite</h2>
 
-      <textarea
-        value={motivoArquivo}
-        onChange={(e) => setMotivoArquivo(e.target.value)}
-        rows={4}
-        placeholder="Explique por que este holerite está sendo arquivado."
-        className="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3 text-sm text-white outline-none focus:border-amber-500"
-      />
+            <p className="mt-3 text-sm text-slate-300">
+              Este holerite não será excluído do sistema. Ele ficará preservado
+              para auditoria, direção e conferências futuras.
+            </p>
 
-      {erro && (
-        <div className="mt-3 rounded-xl border border-red-500 bg-red-950/40 px-4 py-3 text-sm font-semibold text-red-200">
-          {erro}
+            <div className="mt-5 rounded-2xl border border-slate-800 bg-slate-900 p-4 text-sm text-slate-200">
+              <p>
+                <strong>Funcionário:</strong>{" "}
+                {holeriteParaArquivar.funcionario?.nome || "Funcionário"}
+              </p>
+              <p className="mt-2">
+                <strong>Competência:</strong>{" "}
+                {String(holeriteParaArquivar.competenciaMes).padStart(2, "0")}/
+                {holeriteParaArquivar.competenciaAno}
+              </p>
+            </div>
+
+            <label className="mt-5 block text-xs font-bold uppercase text-slate-300">
+              Motivo do arquivamento
+            </label>
+
+            <textarea
+              value={motivoArquivo}
+              onChange={(e) => setMotivoArquivo(e.target.value)}
+              rows={4}
+              placeholder="Explique por que este holerite está sendo arquivado."
+              className="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3 text-sm text-white outline-none focus:border-amber-500"
+            />
+
+            {erro && (
+              <div className="mt-3 rounded-xl border border-red-500 bg-red-950/40 px-4 py-3 text-sm font-semibold text-red-200">
+                {erro}
+              </div>
+            )}
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setHoleriteParaArquivar(null);
+                  setMotivoArquivo("");
+                  setErro("");
+                }}
+                disabled={arquivando}
+                className="rounded-2xl border border-slate-600 px-5 py-2 text-sm font-bold text-slate-200 hover:bg-slate-800 disabled:opacity-60"
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="button"
+                onClick={arquivarHolerite}
+                disabled={arquivando}
+                className="rounded-2xl bg-amber-600 px-5 py-2 text-sm font-bold text-white hover:bg-amber-700 disabled:opacity-60"
+              >
+                {arquivando ? "Arquivando..." : "Arquivar holerite"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
-      <div className="mt-6 flex justify-end gap-3">
-        <button
-          type="button"
-          onClick={() => {
-            setHoleriteParaArquivar(null);
-            setMotivoArquivo("");
-            setErro("");
-          }}
-          disabled={arquivando}
-          className="rounded-2xl border border-slate-600 px-5 py-2 text-sm font-bold text-slate-200 hover:bg-slate-800 disabled:opacity-60"
-        >
-          Cancelar
-        </button>
+      {holeriteParaPagar && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+          <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 text-slate-900 shadow-2xl dark:border-slate-700 dark:bg-slate-950 dark:text-white">
+            <h2 className="text-xl font-bold">Confirmar pagamento</h2>
 
-        <button
-          type="button"
-          onClick={arquivarHolerite}
-          disabled={arquivando}
-          className="rounded-2xl bg-amber-600 px-5 py-2 text-sm font-bold text-white hover:bg-amber-700 disabled:opacity-60"
-        >
-          {arquivando ? "Arquivando..." : "Arquivar holerite"}
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+            <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
+              Confirme somente quando o pagamento deste holerite tiver sido
+              realmente realizado.
+            </p>
+
+            <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-800 dark:bg-slate-900">
+              <p>
+                <strong>Funcionário:</strong>{" "}
+                {holeriteParaPagar.funcionario?.nome || "Funcionário"}
+              </p>
+
+              <p className="mt-2">
+                <strong>Competência:</strong>{" "}
+                {String(holeriteParaPagar.competenciaMes).padStart(2, "0")}/
+                {holeriteParaPagar.competenciaAno}
+              </p>
+
+              <p className="mt-2">
+                <strong>Valor líquido:</strong>{" "}
+                {moeda(numero(holeriteParaPagar.valorLiquido))}
+              </p>
+            </div>
+
+            <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
+              Comissões e remunerações variáveis vinculadas a este holerite
+              também serão marcadas como pagas.
+            </div>
+
+            {erro && (
+              <div className="mt-4 rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200">
+                {erro}
+              </div>
+            )}
+
+            <div className="mt-6 flex flex-wrap justify-end gap-3">
+              <button
+                type="button"
+                disabled={pagando}
+                onClick={() => {
+                  setHoleriteParaPagar(null);
+                  setErro("");
+                }}
+                className="rounded-2xl border border-slate-300 px-5 py-2 text-sm font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-60 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800"
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="button"
+                disabled={pagando}
+                onClick={marcarHoleriteComoPago}
+                className="rounded-2xl bg-emerald-600 px-5 py-2 text-sm font-bold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {pagando ? "Registrando..." : "Confirmar pagamento"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

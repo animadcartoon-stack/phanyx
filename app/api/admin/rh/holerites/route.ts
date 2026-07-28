@@ -178,6 +178,266 @@ export async function POST(req: NextRequest) {
     }
 
     /*
+ * =====================================================
+ * PAGAMENTO DO HOLERITE
+ * =====================================================
+ */
+    if (acao === "MARCAR_HOLERITE_PAGO") {
+      if (!usuarioPodeEnviarRemuneracao(user)) {
+        return NextResponse.json(
+          {
+            error:
+              "Você não possui autorização para registrar o pagamento do holerite.",
+          },
+          { status: 403 }
+        );
+      }
+
+      const holeriteId = Number(body.holeriteId);
+
+      if (
+        !Number.isInteger(holeriteId) ||
+        holeriteId <= 0
+      ) {
+        return NextResponse.json(
+          {
+            error: "Informe um holerite válido.",
+          },
+          { status: 400 }
+        );
+      }
+
+      const holerite =
+        await prisma.holeriteRH.findFirst({
+          where: {
+            id: holeriteId,
+            instituicaoId,
+          },
+
+          select: {
+            id: true,
+            funcionarioId: true,
+            competenciaMes: true,
+            competenciaAno: true,
+            valorLiquido: true,
+            status: true,
+            arquivado: true,
+            cancelado: true,
+            pagoEm: true,
+
+            funcionario: {
+              select: {
+                nome: true,
+              },
+            },
+          },
+        });
+
+      if (!holerite) {
+        return NextResponse.json(
+          {
+            error:
+              "Holerite não encontrado nesta instituição.",
+          },
+          { status: 404 }
+        );
+      }
+
+      if (
+        holerite.arquivado ||
+        holerite.cancelado ||
+        ["ARQUIVADO", "CANCELADO"].includes(
+          String(holerite.status || "").toUpperCase()
+        )
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "Não é possível pagar um holerite arquivado ou cancelado.",
+          },
+          { status: 400 }
+        );
+      }
+
+      if (
+        holerite.pagoEm ||
+        String(holerite.status || "").toUpperCase() ===
+        "PAGO"
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "Este holerite já está marcado como pago.",
+          },
+          { status: 409 }
+        );
+      }
+
+      const agora = new Date();
+      const pagoPorId = Number(user.id);
+
+      const resultado = await prisma.$transaction(
+        async (tx) => {
+          const eventos =
+            await tx.holeriteEventoRH.findMany({
+              where: {
+                holeriteId: holerite.id,
+              },
+
+              select: {
+                id: true,
+              },
+            });
+
+          const eventoIds = eventos.map(
+            (evento) => evento.id
+          );
+
+          const atualizacaoHolerite =
+            await tx.holeriteRH.updateMany({
+              where: {
+                id: holerite.id,
+                instituicaoId,
+                pagoEm: null,
+                arquivado: false,
+                cancelado: false,
+
+                status: {
+                  notIn: [
+                    "PAGO",
+                    "ARQUIVADO",
+                    "CANCELADO",
+                  ],
+                },
+              },
+
+              data: {
+                status: "PAGO",
+                pagoEm: agora,
+                pagoPorId,
+              },
+            });
+
+          if (atualizacaoHolerite.count !== 1) {
+            throw new Error(
+              "O holerite já foi pago ou alterado por outro usuário."
+            );
+          }
+
+          let comissoesPagas = 0;
+          let remuneracoesPagas = 0;
+
+          if (eventoIds.length > 0) {
+            const atualizacaoComissoes =
+              await tx.lancamentoComissaoRH.updateMany({
+                where: {
+                  instituicaoId,
+
+                  holeriteEventoId: {
+                    in: eventoIds,
+                  },
+
+                  status:
+                    StatusLancamentoComissaoRH.ENVIADO_HOLERITE,
+                },
+
+                data: {
+                  status:
+                    StatusLancamentoComissaoRH.PAGO,
+
+                  pagoEm: agora,
+                },
+              });
+
+            comissoesPagas =
+              atualizacaoComissoes.count;
+
+            const atualizacaoRemuneracoes =
+              await tx.lancamentoRemuneracaoVariavelRH.updateMany(
+                {
+                  where: {
+                    instituicaoId,
+
+                    holeriteEventoId: {
+                      in: eventoIds,
+                    },
+
+                    status:
+                      StatusLancamentoRemuneracaoVariavelRH.ENVIADO_HOLERITE,
+                  },
+
+                  data: {
+                    status:
+                      StatusLancamentoRemuneracaoVariavelRH.PAGO,
+
+                    pagoEm: agora,
+                  },
+                }
+              );
+
+            remuneracoesPagas =
+              atualizacaoRemuneracoes.count;
+          }
+
+          await tx.historicoRH.create({
+            data: {
+              funcionarioId:
+                holerite.funcionarioId,
+
+              instituicaoId,
+              criadoPorId: pagoPorId,
+
+              tipo: "PAGAMENTO_HOLERITE",
+
+              titulo:
+                "Holerite marcado como pago",
+
+              descricao: `Holerite de ${holerite.funcionario.nome
+                }, competência ${String(
+                  holerite.competenciaMes
+                ).padStart(2, "0")}/${holerite.competenciaAno
+                }, marcado como pago.`,
+
+              dataEvento: agora,
+
+              observacoes: [
+                `Holerite ID: ${holerite.id}`,
+                `Valor líquido: R$ ${Number(
+                  holerite.valorLiquido || 0
+                ).toFixed(2)}`,
+                `Comissões atualizadas: ${comissoesPagas}`,
+                `Remunerações variáveis atualizadas: ${remuneracoesPagas}`,
+              ].join("\n"),
+            },
+          });
+
+          return {
+            comissoesPagas,
+            remuneracoesPagas,
+          };
+        },
+        {
+          maxWait: 10_000,
+          timeout: 30_000,
+        }
+      );
+
+      return NextResponse.json({
+        message:
+          "Holerite marcado como pago com sucesso.",
+
+        holeriteId: holerite.id,
+        pagoEm: agora,
+
+        comissoesPagas:
+          resultado.comissoesPagas,
+
+        remuneracoesPagas:
+          resultado.remuneracoesPagas,
+      });
+    }
+
+    /*
      * =====================================================
      * REMUNERAÇÃO VARIÁVEL → HOLERITE
      * =====================================================
