@@ -1,4 +1,3 @@
-import { StatusComercialPolo } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { atualizarAssinaturaAsaas } from "@/lib/asaas";
 
@@ -25,7 +24,11 @@ type ResultadoRecalculoAssinatura = {
 };
 
 function arredondarDinheiro(valor: number) {
-  return Math.round((valor + Number.EPSILON) * 100) / 100;
+  return (
+    Math.round(
+      (valor + Number.EPSILON) * 100
+    ) / 100
+  );
 }
 
 function numeroSeguro(valor: unknown) {
@@ -38,12 +41,22 @@ function numeroSeguro(valor: unknown) {
   return numero;
 }
 
-function valoresDiferentes(valorAtual: number, novoValor: number) {
-  return Math.abs(valorAtual - novoValor) >= 0.01;
+function valoresDiferentes(
+  valorAtual: number,
+  novoValor: number
+) {
+  return (
+    Math.abs(valorAtual - novoValor) >=
+    0.01
+  );
 }
 
-function statusPermiteSincronizacaoAsaas(status: unknown) {
-  const statusNormalizado = String(status ?? "")
+function statusPermiteSincronizacaoAsaas(
+  status: unknown
+) {
+  const statusNormalizado = String(
+    status ?? ""
+  )
     .trim()
     .toUpperCase();
 
@@ -58,9 +71,14 @@ export async function recalcularAssinaturaPhanyx(
   instituicaoReferenciaId: number,
   opcoes: OpcoesRecalculoAssinatura = {}
 ): Promise<ResultadoRecalculoAssinatura> {
-  const instituicaoId = Number(instituicaoReferenciaId);
+  const instituicaoId = Number(
+    instituicaoReferenciaId
+  );
 
-  if (!Number.isInteger(instituicaoId) || instituicaoId <= 0) {
+  if (
+    !Number.isInteger(instituicaoId) ||
+    instituicaoId <= 0
+  ) {
     throw new Error(
       "Instituição inválida para recalcular a assinatura."
     );
@@ -75,7 +93,6 @@ export async function recalcularAssinaturaPhanyx(
         id: true,
         nome: true,
         ativo: true,
-        isentaPagamento: true,
         redeInstitucionalId: true,
         herdaPlanoContratante: true,
       },
@@ -90,11 +107,12 @@ export async function recalcularAssinaturaPhanyx(
   let instituicaoContratanteId =
     instituicaoReferencia.id;
 
-  let instituicoesDaRedeIds = [
-    instituicaoReferencia.id,
-  ];
+  let instituicoesAtivasDaRedeIds:
+    number[] = [];
 
-  if (instituicaoReferencia.redeInstitucionalId) {
+  if (
+    instituicaoReferencia.redeInstitucionalId
+  ) {
     const rede =
       await prisma.redeInstitucional.findUnique({
         where: {
@@ -102,6 +120,7 @@ export async function recalcularAssinaturaPhanyx(
         },
         select: {
           id: true,
+          ativo: true,
           instituicaoContratanteId: true,
           instituicoes: {
             where: {
@@ -120,23 +139,45 @@ export async function recalcularAssinaturaPhanyx(
       );
     }
 
+    if (!rede.ativo) {
+      throw new Error(
+        "A rede institucional vinculada está inativa."
+      );
+    }
+
     instituicaoContratanteId =
       rede.instituicaoContratanteId;
 
-    instituicoesDaRedeIds = Array.from(
-      new Set([
-        rede.instituicaoContratanteId,
-        ...rede.instituicoes.map(
-          (instituicao) => instituicao.id
-        ),
-      ])
-    );
+    instituicoesAtivasDaRedeIds =
+      Array.from(
+        new Set(
+          rede.instituicoes.map(
+            (instituicao) =>
+              instituicao.id
+          )
+        )
+      );
+  } else {
+    if (
+      instituicaoReferencia
+        .herdaPlanoContratante
+    ) {
+      throw new Error(
+        "A unidade herda o plano de uma contratante, mas não possui uma rede institucional válida."
+      );
+    }
+
+    instituicoesAtivasDaRedeIds =
+      instituicaoReferencia.ativo
+        ? [instituicaoReferencia.id]
+        : [];
   }
 
   const instituicaoContratante =
     await prisma.instituicao.findUnique({
       where: {
-        id: instituicaoContratanteId,
+        id:
+          instituicaoContratanteId,
       },
       select: {
         id: true,
@@ -152,10 +193,36 @@ export async function recalcularAssinaturaPhanyx(
     );
   }
 
+  /*
+   * Garante que a contratante ativa esteja
+   * presente na contagem da rede.
+   */
+  if (
+    instituicaoContratante.ativo &&
+    !instituicoesAtivasDaRedeIds.includes(
+      instituicaoContratante.id
+    )
+  ) {
+    instituicoesAtivasDaRedeIds.push(
+      instituicaoContratante.id
+    );
+  }
+
+  instituicoesAtivasDaRedeIds =
+    Array.from(
+      new Set(
+        instituicoesAtivasDaRedeIds
+      )
+    );
+
+  const unidadesAtivas =
+    instituicoesAtivasDaRedeIds.length;
+
   const assinatura =
     await prisma.assinaturaPhanyx.findUnique({
       where: {
-        instituicaoId: instituicaoContratanteId,
+        instituicaoId:
+          instituicaoContratanteId,
       },
       select: {
         id: true,
@@ -172,38 +239,18 @@ export async function recalcularAssinaturaPhanyx(
       },
     });
 
-  const alunosAtivos = await prisma.aluno.count({
-    where: {
-      instituicaoId: {
-        in: instituicoesDaRedeIds,
-      },
-      ativo: true,
-    },
-  });
-
-  /*
-   * A instituição contratante conta como a primeira unidade.
-   *
-   * As demais unidades só entram na cobrança quando:
-   * - o polo está ativo;
-   * - o status comercial está ativo;
-   * - uma instituição independente já foi criada para ele.
-   */
-  const unidadesProvisionadasAtivas =
-    await prisma.polo.count({
-      where: {
-        instituicaoId: instituicaoContratanteId,
-        ativo: true,
-        statusComercial:
-          StatusComercialPolo.ATIVO,
-        instituicaoGeradaId: {
-          not: null,
-        },
-      },
-    });
-
-  const unidadesAtivas =
-    1 + unidadesProvisionadasAtivas;
+  const alunosAtivos =
+    instituicoesAtivasDaRedeIds.length > 0
+      ? await prisma.aluno.count({
+          where: {
+            instituicaoId: {
+              in:
+                instituicoesAtivasDaRedeIds,
+            },
+            ativo: true,
+          },
+        })
+      : 0;
 
   if (!assinatura) {
     return {
@@ -214,10 +261,11 @@ export async function recalcularAssinaturaPhanyx(
       alunosAtivos,
       unidadesAtivas,
       unidadesIncluidas: 1,
-      unidadesExcedentes: Math.max(
-        0,
-        unidadesAtivas - 1
-      ),
+      unidadesExcedentes:
+        Math.max(
+          0,
+          unidadesAtivas - 1
+        ),
       valorBase: 0,
       valorAlunos: 0,
       valorUnidadesExcedentes: 0,
@@ -235,27 +283,37 @@ export async function recalcularAssinaturaPhanyx(
     assinatura.valorPorAluno
   );
 
-  const valorPorUnidadeExtra = numeroSeguro(
-    assinatura.valorPorPoloExtra
-  );
+  const valorPorUnidadeExtra =
+    numeroSeguro(
+      assinatura.valorPorPoloExtra
+    );
 
-  const unidadesIncluidas = Math.max(
-    1,
-    Number(assinatura.polosInclusosContrato || 1)
-  );
+  const unidadesIncluidas =
+    Math.max(
+      1,
+      Number(
+        assinatura
+          .polosInclusosContrato || 1
+      )
+    );
 
-  const unidadesExcedentes = Math.max(
-    0,
-    unidadesAtivas - unidadesIncluidas
-  );
+  const unidadesExcedentes =
+    Math.max(
+      0,
+      unidadesAtivas -
+        unidadesIncluidas
+    );
 
-  const valorAlunos = arredondarDinheiro(
-    alunosAtivos * valorPorAluno
-  );
+  const valorAlunos =
+    arredondarDinheiro(
+      alunosAtivos *
+        valorPorAluno
+    );
 
   const valorUnidadesExcedentes =
     arredondarDinheiro(
-      unidadesExcedentes * valorPorUnidadeExtra
+      unidadesExcedentes *
+        valorPorUnidadeExtra
     );
 
   const valorMensalCalculado =
@@ -265,9 +323,10 @@ export async function recalcularAssinaturaPhanyx(
         valorUnidadesExcedentes
     );
 
-  const valorMensalAtual = numeroSeguro(
-    assinatura.valorMensalAtual
-  );
+  const valorMensalAtual =
+    numeroSeguro(
+      assinatura.valorMensalAtual
+    );
 
   const precisaAtualizarValor =
     valoresDiferentes(
@@ -283,7 +342,9 @@ export async function recalcularAssinaturaPhanyx(
   const podeSincronizarAsaas =
     sincronizacaoSolicitada &&
     precisaAtualizarValor &&
-    Boolean(assinatura.asaasSubscriptionId) &&
+    Boolean(
+      assinatura.asaasSubscriptionId
+    ) &&
     !instituicaoContratante.isentaPagamento &&
     statusPermiteSincronizacaoAsaas(
       assinatura.status
@@ -295,9 +356,9 @@ export async function recalcularAssinaturaPhanyx(
   ) {
     const descricao = [
       `PHANYX - Plano ${assinatura.plano}`,
-      `${alunosAtivos} aluno(s) ativo(s)`,
-      `${unidadesAtivas} unidade(s) ativa(s)`,
-      `${unidadesIncluidas} unidade(s) incluída(s)`,
+      `${alunosAtivos} aluno(s) ativo(s) na rede`,
+      `${unidadesAtivas} unidade(s) ativa(s) na rede`,
+      `${unidadesIncluidas} unidade(s) incluída(s) no contrato`,
       `${unidadesExcedentes} unidade(s) excedente(s)`,
       opcoes.motivo
         ? `Motivo: ${opcoes.motivo}`
@@ -310,12 +371,16 @@ export async function recalcularAssinaturaPhanyx(
     await atualizarAssinaturaAsaas(
       assinatura.asaasSubscriptionId,
       {
-        value: valorMensalCalculado,
-        description: descricao,
+        value:
+          valorMensalCalculado,
+
+        description:
+          descricao,
+
         updatePendingPayments:
-          opcoes.atualizarCobrancasPendentes ===
+          opcoes
+            .atualizarCobrancasPendentes ===
           true,
-       
       }
     );
 
@@ -327,15 +392,24 @@ export async function recalcularAssinaturaPhanyx(
       id: assinatura.id,
     },
     data: {
-      alunosAtivosReferencia: alunosAtivos,
-      polosReferencia: unidadesAtivas,
-      valorMensalAtual: valorMensalCalculado,
-      ultimoEventoAsaas: sincronizadoAsaas
-  ? "PHANYX_RECALCULO_ASSINATURA"
-  : undefined,
-      ultimoWebhookAsaasEm: sincronizadoAsaas
-        ? new Date()
-        : undefined,
+      alunosAtivosReferencia:
+        alunosAtivos,
+
+      polosReferencia:
+        unidadesAtivas,
+
+      valorMensalAtual:
+        valorMensalCalculado,
+
+      ultimoEventoAsaas:
+        sincronizadoAsaas
+          ? "PHANYX_RECALCULO_ASSINATURA"
+          : undefined,
+
+      ultimoWebhookAsaasEm:
+        sincronizadoAsaas
+          ? new Date()
+          : undefined,
     },
   });
 

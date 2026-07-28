@@ -15,7 +15,11 @@ type UsuarioLogado = {
   email?: string;
   role?: string;
   instituicaoId?: number | null;
+  instituicaoContratanteId?: number | null;
   isMasterAdmin?: boolean;
+  ehInstituicaoContratante?: boolean;
+  permissaoDelegadaPolos?: boolean;
+  podeGerenciarPolos?: boolean;
 };
 
 export default function AdminShell({
@@ -351,6 +355,16 @@ export default function AdminShell({
     roleUsuario === "GERENCIA" ||
     roleUsuario === "SUPER_ADMIN" ||
     usuario?.isMasterAdmin === true;
+
+  const podeGerenciarPolos =
+    usuarioAdmin &&
+    usuario?.podeGerenciarPolos === true;
+
+  const rotaPolosBloqueada =
+    !carregandoUsuario &&
+    Boolean(usuario) &&
+    pathname?.startsWith("/admin/polos") &&
+    !podeGerenciarPolos;
 
   const podeGerenciarRematriculasSemestrais =
     roleUsuario === "ADMIN" ||
@@ -700,6 +714,17 @@ export default function AdminShell({
                         >
                           📊 Visão Geral
                         </Link>
+
+                        {podeGerenciarPolos && (
+                          <Link
+                            href="/admin/polos"
+                            className={getLinkClass(
+                              "/admin/polos"
+                            )}
+                          >
+                            🏢 Polos e unidades
+                          </Link>
+                        )}
 
                         {podeGerenciarConfiguracoesComerciais && (
                           <Link
@@ -1325,6 +1350,15 @@ export default function AdminShell({
                         📊 Visão Geral
                       </Link>
 
+                      {podeGerenciarPolos && (
+                        <Link
+                          href="/admin/polos"
+                          className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+                        >
+                          🏢 Polos e unidades
+                        </Link>
+                      )}
+
                       {podeGerenciarConfiguracoesComerciais && (
                         <Link
                           href="/admin/comercial/configuracoes"
@@ -1713,8 +1747,34 @@ export default function AdminShell({
             </div>
           )}
 
-          {children}
-          <ChatGlobalWidget />
+          {rotaPolosBloqueada ? (
+  <div className="mx-auto max-w-3xl rounded-2xl border border-amber-300 bg-amber-50 p-6 shadow-sm dark:border-amber-800 dark:bg-amber-950/30">
+    <h1 className="text-xl font-bold text-amber-950 dark:text-amber-100">
+      Gestão de polos não habilitada
+    </h1>
+
+    <p className="mt-3 text-sm leading-6 text-amber-900 dark:text-amber-200">
+      Este ID institucional não possui
+      autorização para criar ou gerenciar
+      polos. Essa permissão é controlada pela
+      instituição contratante da rede.
+    </p>
+
+    <button
+      type="button"
+      onClick={() =>
+        router.replace("/admin")
+      }
+      className="mt-5 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+    >
+      Voltar ao painel
+    </button>
+  </div>
+) : (
+  children
+)}
+
+<ChatGlobalWidget />
         </main>
 
         <PhanyxConfirmModal

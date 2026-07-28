@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
-import { Role } from "@prisma/client";
+import {
+  Role,
+  StatusComercialPolo,
+} from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
 import { prisma } from "@/lib/prisma";
@@ -7,6 +10,10 @@ import {
   getUserFromToken,
   isAdminLike,
 } from "@/lib/server-auth";
+import {
+  filtroPoloGerenciavel,
+  obterContextoGestaoPolos,
+} from "@/lib/polos-rede";
 
 function gerarSenhaTemporaria() {
   return randomBytes(9).toString("base64url");
@@ -28,16 +35,23 @@ export async function POST(
 
     if (!isAdminLike(user.role)) {
       return NextResponse.json(
-        { error: "Sem permissão para redefinir este acesso" },
+        {
+          error:
+            "Sem permissão para redefinir este acesso.",
+        },
         { status: 403 }
       );
     }
 
-    const usuarioSolicitanteId = Number(user.id);
+    const usuarioSolicitanteId =
+      Number(user.id);
+
     const poloId = Number(params.id);
 
     if (
-      !Number.isInteger(usuarioSolicitanteId) ||
+      !Number.isInteger(
+        usuarioSolicitanteId
+      ) ||
       usuarioSolicitanteId <= 0
     ) {
       return NextResponse.json(
@@ -46,29 +60,59 @@ export async function POST(
       );
     }
 
-    if (!Number.isInteger(poloId) || poloId <= 0) {
+    if (
+      !Number.isInteger(poloId) ||
+      poloId <= 0
+    ) {
       return NextResponse.json(
         { error: "Polo inválido" },
         { status: 400 }
       );
     }
 
-    const polo = await prisma.polo.findFirst({
-      where: {
-        id: poloId,
-        instituicaoId: user.instituicaoId,
-      },
-      select: {
-        id: true,
-        nome: true,
-        responsavelEmail: true,
-        instituicaoGeradaId: true,
-      },
-    });
+    const contexto = await obterContextoGestaoPolos(
+      user.instituicaoId
+    );
+
+    if (!contexto) {
+      return NextResponse.json(
+        { error: "Instituição não encontrada" },
+        { status: 404 }
+      );
+    }
+
+    if (!contexto.podeGerenciarPolos) {
+      return NextResponse.json(
+        {
+          error:
+            "A gestão de polos não está habilitada para esta unidade.",
+        },
+        { status: 403 }
+      );
+    }
+
+    const polo =
+      await prisma.polo.findFirst({
+        where: filtroPoloGerenciavel(
+          contexto,
+          poloId
+        ),
+        select: {
+          id: true,
+          nome: true,
+          ativo: true,
+          statusComercial: true,
+          responsavelEmail: true,
+          instituicaoGeradaId: true,
+        },
+      });
 
     if (!polo) {
       return NextResponse.json(
-        { error: "Polo não encontrado" },
+        {
+          error:
+            "Polo não encontrado ou fora do escopo de gestão desta unidade.",
+        },
         { status: 404 }
       );
     }
@@ -83,53 +127,85 @@ export async function POST(
       );
     }
 
-    let administrador = null;
-
-    /*
-     * Primeiro tenta localizar o administrador pelo e-mail
-     * registrado como responsável pelo polo.
-     */
-    if (polo.responsavelEmail) {
-      administrador = await prisma.user.findFirst({
-        where: {
-          instituicaoId: polo.instituicaoGeradaId,
-          role: Role.ADMIN,
-          ativo: true,
-          email: {
-            equals: polo.responsavelEmail,
-            mode: "insensitive",
-          },
+    if (
+      !polo.ativo ||
+      polo.statusComercial !==
+        StatusComercialPolo.ATIVO
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Não é possível gerar senha para um polo suspenso ou encerrado.",
         },
-        select: {
-          id: true,
-          nome: true,
-          email: true,
-          instituicaoId: true,
-        },
-      });
+        { status: 409 }
+      );
     }
 
-    /*
-     * Caso o e-mail do polo tenha sido alterado depois da
-     * criação, usa o primeiro administrador ativo da unidade.
-     */
-    if (!administrador) {
-      administrador = await prisma.user.findFirst({
+    const instituicaoGerada =
+      await prisma.instituicao.findUnique({
         where: {
-          instituicaoId: polo.instituicaoGeradaId,
-          role: Role.ADMIN,
-          ativo: true,
-        },
-        orderBy: {
-          createdAt: "asc",
+          id: polo.instituicaoGeradaId,
         },
         select: {
           id: true,
-          nome: true,
-          email: true,
-          instituicaoId: true,
+          ativo: true,
         },
       });
+
+    if (!instituicaoGerada?.ativo) {
+      return NextResponse.json(
+        {
+          error:
+            "A instituição vinculada a este polo está inativa.",
+        },
+        { status: 409 }
+      );
+    }
+
+    let administrador = null;
+
+    if (polo.responsavelEmail) {
+      administrador =
+        await prisma.user.findFirst({
+          where: {
+            instituicaoId:
+              polo.instituicaoGeradaId,
+            role: Role.ADMIN,
+            ativo: true,
+            email: {
+              equals:
+                polo.responsavelEmail,
+              mode: "insensitive",
+            },
+          },
+          select: {
+            id: true,
+            nome: true,
+            email: true,
+            instituicaoId: true,
+          },
+        });
+    }
+
+    if (!administrador) {
+      administrador =
+        await prisma.user.findFirst({
+          where: {
+            instituicaoId:
+              polo.instituicaoGeradaId,
+            role: Role.ADMIN,
+            ativo: true,
+          },
+          orderBy: {
+            createdAt: "asc",
+          },
+          select: {
+            id: true,
+            nome: true,
+            email: true,
+            instituicaoId: true,
+          },
+        });
     }
 
     if (!administrador) {
@@ -142,12 +218,14 @@ export async function POST(
       );
     }
 
-    const senhaTemporaria = gerarSenhaTemporaria();
+    const senhaTemporaria =
+      gerarSenhaTemporaria();
 
-    const senhaCriptografada = await bcrypt.hash(
-      senhaTemporaria,
-      10
-    );
+    const senhaCriptografada =
+      await bcrypt.hash(
+        senhaTemporaria,
+        10
+      );
 
     await prisma.user.update({
       where: {
@@ -161,18 +239,20 @@ export async function POST(
       },
     });
 
-    /*
-     * Não registra a senha no log.
-     * Registra somente quem solicitou e qual usuário foi alterado.
-     */
     console.info(
       "Senha institucional temporária redefinida:",
       {
         poloId: polo.id,
-        instituicaoGeradaId: polo.instituicaoGeradaId,
-        administradorId: administrador.id,
-        redefinidoPorId: usuarioSolicitanteId,
-        redefinidoEm: new Date().toISOString(),
+        instituicaoGeradaId:
+          polo.instituicaoGeradaId,
+        instituicaoContratanteId:
+          contexto.instituicaoContratanteId,
+        administradorId:
+          administrador.id,
+        redefinidoPorId:
+          usuarioSolicitanteId,
+        redefinidoEm:
+          new Date().toISOString(),
       }
     );
 

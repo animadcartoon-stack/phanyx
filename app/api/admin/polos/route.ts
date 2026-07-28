@@ -4,7 +4,16 @@ import {
   TipoUnidadePolo,
 } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { getUserFromToken, isAdminLike } from "@/lib/server-auth";
+import {
+  getUserFromToken,
+  isAdminLike,
+} from "@/lib/server-auth";
+import {
+  filtroPoloGerenciavel,
+  filtroPolosVisiveis,
+  obterContextoGestaoPolos,
+  obterResumoUnidadesDaRede,
+} from "@/lib/polos-rede";
 
 function textoObrigatorio(valor: unknown) {
   return String(valor ?? "").trim();
@@ -27,6 +36,13 @@ function tipoUnidadeValido(
   );
 }
 
+function mensagemSemPermissaoPolos() {
+  return {
+    error:
+      "A gestão de polos não está habilitada para esta unidade. Essa permissão é controlada pela instituição contratante.",
+  };
+}
+
 export async function GET() {
   try {
     const user = await getUserFromToken();
@@ -45,10 +61,26 @@ export async function GET() {
       );
     }
 
+    const contexto = await obterContextoGestaoPolos(
+      user.instituicaoId
+    );
+
+    if (!contexto) {
+      return NextResponse.json(
+        { error: "Instituição não encontrada" },
+        { status: 404 }
+      );
+    }
+
+    if (!contexto.podeGerenciarPolos) {
+      return NextResponse.json(
+        mensagemSemPermissaoPolos(),
+        { status: 403 }
+      );
+    }
+
     const polos = await prisma.polo.findMany({
-      where: {
-        instituicaoId: user.instituicaoId,
-      },
+      where: filtroPolosVisiveis(contexto),
       orderBy: [
         {
           ativo: "desc",
@@ -59,7 +91,72 @@ export async function GET() {
       ],
     });
 
-    return NextResponse.json(polos);
+    const instituicoesGeradasIds = polos
+      .map((polo) => polo.instituicaoGeradaId)
+      .filter(
+        (id): id is number =>
+          typeof id === "number" &&
+          Number.isInteger(id) &&
+          id > 0
+      );
+
+    const instituicoesGeradas =
+      instituicoesGeradasIds.length > 0
+        ? await prisma.instituicao.findMany({
+          where: {
+            id: {
+              in: instituicoesGeradasIds,
+            },
+          },
+          select: {
+            id: true,
+            podeCriarGerenciarPolos: true,
+          },
+        })
+        : [];
+
+    const permissaoPorInstituicaoId =
+      new Map<number, boolean>(
+        instituicoesGeradas.map(
+          (instituicao) => [
+            instituicao.id,
+            instituicao.podeCriarGerenciarPolos,
+          ]
+        )
+      );
+
+    const polosComPermissao = polos.map(
+      (polo) => ({
+        ...polo,
+
+        podeCriarGerenciarPolos:
+          polo.instituicaoGeradaId
+            ? permissaoPorInstituicaoId.get(
+              polo.instituicaoGeradaId
+            ) ?? false
+            : null,
+      })
+    );
+
+    return NextResponse.json({
+      polos: polosComPermissao,
+      gestao: {
+        instituicaoId:
+          contexto.instituicaoId,
+
+        instituicaoContratanteId:
+          contexto.instituicaoContratanteId,
+
+        ehInstituicaoContratante:
+          contexto.ehInstituicaoContratante,
+
+        permissaoDelegada:
+          contexto.permissaoDelegada,
+
+        podeGerenciarPolos:
+          contexto.podeGerenciarPolos,
+      },
+    });
   } catch (error) {
     console.error("Erro ao buscar polos:", error);
 
@@ -90,14 +187,38 @@ export async function POST(req: NextRequest) {
 
     const usuarioId = Number(user.id);
 
-    if (!Number.isInteger(usuarioId) || usuarioId <= 0) {
+    if (
+      !Number.isInteger(usuarioId) ||
+      usuarioId <= 0
+    ) {
       return NextResponse.json(
         { error: "Sessão inválida" },
         { status: 401 }
       );
     }
 
-    const body = (await req.json()) as Record<string, unknown>;
+    const contexto = await obterContextoGestaoPolos(
+      user.instituicaoId
+    );
+
+    if (!contexto) {
+      return NextResponse.json(
+        { error: "Instituição não encontrada" },
+        { status: 404 }
+      );
+    }
+
+    if (!contexto.podeGerenciarPolos) {
+      return NextResponse.json(
+        mensagemSemPermissaoPolos(),
+        { status: 403 }
+      );
+    }
+
+    const body = (await req.json()) as Record<
+      string,
+      unknown
+    >;
 
     const nome = textoObrigatorio(body.nome);
     const codigo = textoOpcional(body.codigo);
@@ -110,16 +231,19 @@ export async function POST(req: NextRequest) {
     const complemento = textoOpcional(body.complemento);
     const bairro = textoOpcional(body.bairro);
     const cidade = textoOpcional(body.cidade);
+
     const estado =
-      textoOpcional(body.estado)?.toUpperCase() ?? null;
+      textoOpcional(body.estado)?.toUpperCase() ??
+      null;
 
     const responsavelNome = textoOpcional(
       body.responsavelNome
     );
 
     const responsavelEmail =
-      textoOpcional(body.responsavelEmail)?.toLowerCase() ??
-      null;
+      textoOpcional(
+        body.responsavelEmail
+      )?.toLowerCase() ?? null;
 
     const responsavelTelefone = textoOpcional(
       body.responsavelTelefone
@@ -142,21 +266,30 @@ export async function POST(req: NextRequest) {
 
     if (nome.length < 2) {
       return NextResponse.json(
-        { error: "Informe um nome válido para o polo" },
+        {
+          error:
+            "Informe um nome válido para o polo",
+        },
         { status: 400 }
       );
     }
 
     if (!cidade) {
       return NextResponse.json(
-        { error: "Cidade do polo é obrigatória" },
+        {
+          error:
+            "Cidade do polo é obrigatória",
+        },
         { status: 400 }
       );
     }
 
     if (!estado) {
       return NextResponse.json(
-        { error: "Estado do polo é obrigatório" },
+        {
+          error:
+            "Estado do polo é obrigatório",
+        },
         { status: 400 }
       );
     }
@@ -173,7 +306,10 @@ export async function POST(req: NextRequest) {
 
     if (!endereco) {
       return NextResponse.json(
-        { error: "Endereço do polo é obrigatório" },
+        {
+          error:
+            "Endereço do polo é obrigatório",
+        },
         { status: 400 }
       );
     }
@@ -191,9 +327,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!tipoUnidadeValido(tipoUnidadeInformado)) {
+    if (
+      !tipoUnidadeValido(
+        tipoUnidadeInformado
+      )
+    ) {
       return NextResponse.json(
-        { error: "Tipo de unidade inválido" },
+        {
+          error: "Tipo de unidade inválido",
+        },
         { status: 400 }
       );
     }
@@ -211,100 +353,66 @@ export async function POST(req: NextRequest) {
         : []),
     ];
 
-    const poloExistente = await prisma.polo.findFirst({
-      where: {
-        instituicaoId: user.instituicaoId,
-        OR: criteriosDuplicidade,
-      },
-      select: {
-        id: true,
-        nome: true,
-        codigo: true,
-      },
-    });
+    /*
+     * A duplicidade é verificada em toda a rede.
+     * Assim, dois polos de filiais diferentes não
+     * recebem o mesmo nome ou código interno.
+     */
+    const escopoDaRede =
+      contexto.redeId !== null
+        ? {
+          instituicao: {
+            is: {
+              redeInstitucionalId:
+                contexto.redeId,
+            },
+          },
+        }
+        : {
+          instituicaoId:
+            contexto.instituicaoContratanteId,
+        };
+
+    const poloExistente =
+      await prisma.polo.findFirst({
+        where: {
+          AND: [
+            escopoDaRede,
+            {
+              OR: criteriosDuplicidade,
+            },
+          ],
+        },
+        select: {
+          id: true,
+          nome: true,
+          codigo: true,
+        },
+      });
 
     if (poloExistente) {
       const campoConflito =
-        codigo && poloExistente.codigo === codigo
+        codigo &&
+          poloExistente.codigo === codigo
           ? "código"
           : "nome";
 
       return NextResponse.json(
         {
-          error: `Já existe um polo com esse ${campoConflito}`,
+          error: `Já existe um polo com esse ${campoConflito} na rede institucional`,
         },
         { status: 409 }
       );
     }
 
-    const instituicao =
-      await prisma.instituicao.findUnique({
-        where: {
-          id: user.instituicaoId,
-        },
-        select: {
-          id: true,
-          isentaPagamento: true,
-        },
-      });
-
-    if (!instituicao) {
-      return NextResponse.json(
-        { error: "Instituição não encontrada" },
-        { status: 404 }
+    /*
+     * A assinatura e os limites sempre são
+     * consultados na instituição contratante.
+     */
+    const resumo =
+      await obterResumoUnidadesDaRede(
+        contexto
       );
-    }
-
-    const assinatura =
-      await prisma.assinaturaPhanyx.findUnique({
-        where: {
-          instituicaoId: user.instituicaoId,
-        },
-        select: {
-          polosInclusosContrato: true,
-        },
-      });
-
-    const unidadesProvisionadasAtivas =
-      await prisma.polo.count({
-        where: {
-          instituicaoId: user.instituicaoId,
-          ativo: true,
-          statusComercial:
-            StatusComercialPolo.ATIVO,
-          instituicaoGeradaId: {
-            not: null,
-          },
-        },
-      });
-
-    const unidadesAtivasCobraveis =
-      1 + unidadesProvisionadasAtivas;
-
-    const limitePolosInclusos =
-      instituicao.isentaPagamento
-        ? null
-        : Math.max(
-          1,
-          Number(
-            assinatura?.polosInclusosContrato ?? 1
-          )
-        );
-
-    const seraUnidadeExcedente =
-      limitePolosInclusos !== null &&
-      unidadesAtivasCobraveis >=
-      limitePolosInclusos;
-
-    const quantidadePolosAtivos =
-      await prisma.polo.count({
-        where: {
-          instituicaoId: user.instituicaoId,
-          ativo: true,
-          statusComercial:
-            StatusComercialPolo.ATIVO,
-        },
-      });
 
     const agora = new Date();
 
@@ -314,7 +422,8 @@ export async function POST(req: NextRequest) {
         codigo,
         cnpj,
         descricao,
-        tipoUnidade: tipoUnidadeInformado,
+        tipoUnidade:
+          tipoUnidadeInformado,
         cep,
         endereco,
         numero,
@@ -332,7 +441,13 @@ export async function POST(req: NextRequest) {
         criadoPorId: usuarioId,
         ativadoEm: agora,
         ativadoPorId: usuarioId,
-        instituicaoId: user.instituicaoId,
+
+        /*
+         * Registra qual ID institucional cadastrou
+         * e administra operacionalmente esse polo.
+         */
+        instituicaoId:
+          contexto.instituicaoId,
       },
     });
 
@@ -340,18 +455,34 @@ export async function POST(req: NextRequest) {
       {
         polo,
         ativadoAutomaticamente: true,
-        limitePolosInclusos,
+
+        instituicaoContratanteId:
+          resumo.instituicaoContratanteId,
+
+        limitePolosInclusos:
+          resumo.limiteUnidadesIncluidas,
+
         quantidadePolosAtivos:
-          quantidadePolosAtivos + 1,
-        seraUnidadeExcedente,
-        aviso: seraUnidadeExcedente
-          ? "O polo foi cadastrado como ativo. Ao criar o acesso institucional, esta unidade ficará acima do limite contratado e poderá gerar cobrança adicional."
-          : null,
+          resumo.unidadesAtivas,
+
+        unidadesExcedentes:
+          resumo.unidadesExcedentes,
+
+        seraUnidadeExcedente:
+          resumo.proximaUnidadeSeraExcedente,
+
+        aviso:
+          resumo.proximaUnidadeSeraExcedente
+            ? "O polo foi cadastrado como ativo. Ao criar o acesso institucional, esta unidade ficará acima do limite contratado e poderá gerar cobrança adicional na assinatura da instituição contratante."
+            : null,
       },
       { status: 201 }
     );
   } catch (error) {
-    console.error("Erro ao criar polo:", error);
+    console.error(
+      "Erro ao criar polo:",
+      error
+    );
 
     return NextResponse.json(
       { error: "Erro ao criar polo" },
@@ -378,27 +509,60 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    const body = (await req.json()) as Record<string, unknown>;
+    const contexto = await obterContextoGestaoPolos(
+      user.instituicaoId
+    );
+
+    if (!contexto) {
+      return NextResponse.json(
+        { error: "Instituição não encontrada" },
+        { status: 404 }
+      );
+    }
+
+    if (!contexto.podeGerenciarPolos) {
+      return NextResponse.json(
+        mensagemSemPermissaoPolos(),
+        { status: 403 }
+      );
+    }
+
+    const body = (await req.json()) as Record<
+      string,
+      unknown
+    >;
 
     const id = Number(body.id);
 
-    if (!Number.isInteger(id) || id <= 0) {
+    if (
+      !Number.isInteger(id) ||
+      id <= 0
+    ) {
       return NextResponse.json(
         { error: "Polo inválido" },
         { status: 400 }
       );
     }
 
-    const poloAtual = await prisma.polo.findFirst({
-      where: {
-        id,
-        instituicaoId: user.instituicaoId,
-      },
-    });
+    /*
+     * A contratante pode gerenciar toda a rede.
+     * A unidade delegada gerencia apenas os polos
+     * cadastrados pelo próprio ID institucional.
+     */
+    const poloAtual =
+      await prisma.polo.findFirst({
+        where: filtroPoloGerenciavel(
+          contexto,
+          id
+        ),
+      });
 
     if (!poloAtual) {
       return NextResponse.json(
-        { error: "Polo não encontrado" },
+        {
+          error:
+            "Polo não encontrado ou não pertencente ao escopo de gestão desta unidade.",
+        },
         { status: 404 }
       );
     }
@@ -474,12 +638,16 @@ export async function PUT(req: NextRequest) {
 
     const estado =
       "estado" in body
-        ? textoOpcional(body.estado)?.toUpperCase() ?? null
+        ? textoOpcional(
+          body.estado
+        )?.toUpperCase() ?? null
         : poloAtual.estado;
 
     const responsavelNome =
       "responsavelNome" in body
-        ? textoOpcional(body.responsavelNome)
+        ? textoOpcional(
+          body.responsavelNome
+        )
         : poloAtual.responsavelNome;
 
     const responsavelEmail =
@@ -491,24 +659,37 @@ export async function PUT(req: NextRequest) {
 
     const responsavelTelefone =
       "responsavelTelefone" in body
-        ? textoOpcional(body.responsavelTelefone)
+        ? textoOpcional(
+          body.responsavelTelefone
+        )
         : poloAtual.responsavelTelefone;
 
     const responsavelCargo =
       "responsavelCargo" in body
-        ? textoOpcional(body.responsavelCargo)
+        ? textoOpcional(
+          body.responsavelCargo
+        )
         : poloAtual.responsavelCargo;
 
-    let tipoUnidade = poloAtual.tipoUnidade;
+    let tipoUnidade =
+      poloAtual.tipoUnidade;
 
     if ("tipoUnidade" in body) {
-      const tipoInformado = textoObrigatorio(
-        body.tipoUnidade
-      ).toUpperCase();
+      const tipoInformado =
+        textoObrigatorio(
+          body.tipoUnidade
+        ).toUpperCase();
 
-      if (!tipoUnidadeValido(tipoInformado)) {
+      if (
+        !tipoUnidadeValido(
+          tipoInformado
+        )
+      ) {
         return NextResponse.json(
-          { error: "Tipo de unidade inválido" },
+          {
+            error:
+              "Tipo de unidade inválido",
+          },
           { status: 400 }
         );
       }
@@ -518,12 +699,18 @@ export async function PUT(req: NextRequest) {
 
     if (!nome) {
       return NextResponse.json(
-        { error: "Nome do polo é obrigatório" },
+        {
+          error:
+            "Nome do polo é obrigatório",
+        },
         { status: 400 }
       );
     }
 
-    if (estado && estado.length !== 2) {
+    if (
+      estado &&
+      estado.length !== 2
+    ) {
       return NextResponse.json(
         {
           error:
@@ -559,65 +746,97 @@ export async function PUT(req: NextRequest) {
         : []),
     ];
 
-    const poloDuplicado = await prisma.polo.findFirst({
-      where: {
-        instituicaoId: user.instituicaoId,
-        id: {
-          not: id,
+    const escopoDaRede =
+      contexto.redeId !== null
+        ? {
+          instituicao: {
+            is: {
+              redeInstitucionalId:
+                contexto.redeId,
+            },
+          },
+        }
+        : {
+          instituicaoId:
+            contexto.instituicaoContratanteId,
+        };
+
+    const poloDuplicado =
+      await prisma.polo.findFirst({
+        where: {
+          AND: [
+            escopoDaRede,
+            {
+              id: {
+                not: id,
+              },
+            },
+            {
+              OR: criteriosDuplicidade,
+            },
+          ],
         },
-        OR: criteriosDuplicidade,
-      },
-      select: {
-        id: true,
-        nome: true,
-        codigo: true,
-      },
-    });
+        select: {
+          id: true,
+          nome: true,
+          codigo: true,
+        },
+      });
 
     if (poloDuplicado) {
       const campoConflito =
-        codigo && poloDuplicado.codigo === codigo
+        codigo &&
+          poloDuplicado.codigo === codigo
           ? "código"
           : "nome";
 
       return NextResponse.json(
         {
-          error: `Já existe outro polo com esse ${campoConflito}`,
+          error: `Já existe outro polo com esse ${campoConflito} na rede institucional`,
         },
         { status: 409 }
       );
     }
 
-    const poloAtualizado = await prisma.polo.update({
-      where: {
-        id: poloAtual.id,
-      },
-      data: {
-        nome,
-        codigo,
-        cnpj,
-        descricao,
-        tipoUnidade,
-        cep,
-        endereco,
-        numero,
-        complemento,
-        bairro,
-        cidade,
-        estado,
-        responsavelNome,
-        responsavelEmail,
-        responsavelTelefone,
-        responsavelCargo,
-      },
-    });
-
-    return NextResponse.json(poloAtualizado);
-  } catch (error) {
-    console.error("Erro ao atualizar polo:", error);
+    const poloAtualizado =
+      await prisma.polo.update({
+        where: {
+          id: poloAtual.id,
+        },
+        data: {
+          nome,
+          codigo,
+          cnpj,
+          descricao,
+          tipoUnidade,
+          cep,
+          endereco,
+          numero,
+          complemento,
+          bairro,
+          cidade,
+          estado,
+          responsavelNome,
+          responsavelEmail,
+          responsavelTelefone,
+          responsavelCargo,
+        },
+      });
 
     return NextResponse.json(
-      { error: "Erro ao atualizar polo" },
+      poloAtualizado
+    );
+  } catch (error) {
+    console.error(
+      "Erro ao atualizar polo:",
+      error
+    );
+
+    return NextResponse.json(
+      {
+        error:
+          "Erro ao atualizar polo",
+      },
       { status: 500 }
     );
   }

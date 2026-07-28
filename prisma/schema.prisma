@@ -9,18 +9,19 @@ datasource db {
 }
 
 model Instituicao {
-  id                     Int      @id @default(autoincrement())
-  nome                   String
-  ativo                  Boolean  @default(true)
-  createdAt              DateTime @default(now())
-  proximoNumeroMatricula Int      @default(1)
-  dominio                String?  @unique
-  slug                   String   @unique
-  updatedAt              DateTime
-  plano                  String   @default("ESSENCIAL")
-  redeInstitucionalId    Int?
-  herdaPlanoContratante  Boolean  @default(false)
-  statusAssinatura       String   @default("ATIVA")
+  id                      Int      @id @default(autoincrement())
+  nome                    String
+  ativo                   Boolean  @default(true)
+  createdAt               DateTime @default(now())
+  proximoNumeroMatricula  Int      @default(1)
+  dominio                 String?  @unique
+  slug                    String   @unique
+  updatedAt               DateTime
+  plano                   String   @default("ESSENCIAL")
+  redeInstitucionalId     Int?
+  herdaPlanoContratante   Boolean  @default(false)
+  statusAssinatura        String   @default("ATIVA")
+  podeCriarGerenciarPolos Boolean  @default(false)
 
   metaAccessToken     String?
   metaConectado       Boolean @default(false)
@@ -272,6 +273,7 @@ model User {
 
   holeritesRHCriados    HoleriteRH[] @relation("HoleriteRHCriadoPor")
   holeritesRHArquivados HoleriteRH[] @relation("HoleriteRHArquivadoPor")
+  holeritesRHPagos      HoleriteRH[] @relation("HoleriteRHPagoPor")
 
   documentosProfessorCriados     DocumentoProfessor[]           @relation("DocumentoProfessorCriadoPor")
   documentosProfessorArquivados  DocumentoProfessor[]           @relation("DocumentoProfessorArquivadoPor")
@@ -2911,8 +2913,10 @@ model HoleriteRH {
   fgtsMes  Decimal? @db.Decimal(10, 2)
   baseIrrf Decimal? @db.Decimal(10, 2)
 
-  status     String  @default("RASCUNHO")
+  status     String    @default("RASCUNHO")
   arquivoUrl String?
+  pagoEm     DateTime?
+  pagoPorId  Int?
 
   arquivado      Boolean   @default(false)
   arquivadoEm    DateTime?
@@ -2935,11 +2939,13 @@ model HoleriteRH {
 
   criadoPor    User? @relation("HoleriteRHCriadoPor", fields: [criadoPorId], references: [id])
   arquivadoPor User? @relation("HoleriteRHArquivadoPor", fields: [arquivadoPorId], references: [id])
+  pagoPor      User? @relation("HoleriteRHPagoPor", fields: [pagoPorId], references: [id], onDelete: SetNull)
 
   @@unique([funcionarioId, competenciaMes, competenciaAno])
   @@index([funcionarioId])
   @@index([instituicaoId])
   @@index([competenciaMes, competenciaAno])
+  @@index([pagoPorId])
 }
 
 model HoleriteEventoRH {

@@ -5,6 +5,11 @@ import {
   getUserFromToken,
   isAdminLike,
 } from "@/lib/server-auth";
+import {
+  filtroPoloGerenciavel,
+  obterContextoGestaoPolos,
+} from "@/lib/polos-rede";
+import { recalcularAssinaturaPhanyx } from "@/lib/recalcular-assinatura-phanyx";
 
 type AcaoStatusPolo =
   | "SUSPENDER"
@@ -76,13 +81,38 @@ export async function POST(
       );
     }
 
-    const body = (await req.json()) as Record<
+    const contexto = await obterContextoGestaoPolos(
+      user.instituicaoId
+    );
+
+    if (!contexto) {
+      return NextResponse.json(
+        { error: "Instituição não encontrada" },
+        { status: 404 }
+      );
+    }
+
+    if (!contexto.podeGerenciarPolos) {
+      return NextResponse.json(
+        {
+          error:
+            "A gestão de polos não está habilitada para esta unidade. Essa permissão é controlada pela instituição contratante.",
+        },
+        { status: 403 }
+      );
+    }
+
+    const body = (await req
+      .json()
+      .catch(() => ({}))) as Record<
       string,
       unknown
     >;
 
     const acao = normalizarAcao(body.acao);
-    const motivo = String(body.motivo ?? "").trim();
+    const motivo = String(
+      body.motivo ?? ""
+    ).trim();
 
     if (!acao) {
       return NextResponse.json(
@@ -108,30 +138,37 @@ export async function POST(
       );
     }
 
-    const polo = await prisma.polo.findFirst({
-      where: {
-        id: poloId,
-        instituicaoId: user.instituicaoId,
-      },
-      select: {
-        id: true,
-        nome: true,
-        codigo: true,
-        ativo: true,
-        statusComercial: true,
-        instituicaoId: true,
-        instituicaoGeradaId: true,
-      },
-    });
+    const polo =
+      await prisma.polo.findFirst({
+        where: filtroPoloGerenciavel(
+          contexto,
+          poloId
+        ),
+        select: {
+          id: true,
+          nome: true,
+          codigo: true,
+          ativo: true,
+          statusComercial: true,
+          instituicaoId: true,
+          instituicaoGeradaId: true,
+        },
+      });
 
     if (!polo) {
       return NextResponse.json(
-        { error: "Polo não encontrado" },
+        {
+          error:
+            "Polo não encontrado ou fora do escopo de gestão desta unidade.",
+        },
         { status: 404 }
       );
     }
 
     const unidadeContratante =
+      contexto.ehInstituicaoContratante &&
+      polo.instituicaoId ===
+        contexto.instituicaoContratanteId &&
       String(polo.codigo || "")
         .trim()
         .toUpperCase() === "SEDE" &&
@@ -246,37 +283,77 @@ export async function POST(
                 StatusComercialPolo.ENCERRADO,
               encerradoEm: agora,
               encerradoPorId: usuarioId,
+              suspensoEm: null,
+              suspensoPorId: null,
             },
           });
         }
 
         if (polo.instituicaoGeradaId) {
-          await tx.instituicao.update({
-            where: {
-              id: polo.instituicaoGeradaId,
-            },
-            data: {
-              ativo: acao === "REATIVAR",
-              updatedAt: agora,
-            },
-          });
-        }
+  await tx.instituicao.update({
+    where: {
+      id: polo.instituicaoGeradaId,
+    },
+    data: {
+      ativo: acao === "REATIVAR",
+
+      podeCriarGerenciarPolos:
+        acao === "ENCERRAR"
+          ? false
+          : undefined,
+
+      updatedAt: agora,
+    },
+  });
+}
 
         return atualizado;
       });
 
-    /*
-     * O motivo não é gravado em texto livre no polo porque
-     * o model atual ainda não possui um campo específico.
-     *
-     * Por enquanto, ele fica registrado no log do servidor,
-     * juntamente com o usuário, a ação e o horário.
-     */
+    let recalculoAssinatura:
+      | Awaited<
+          ReturnType<
+            typeof recalcularAssinaturaPhanyx
+          >
+        >
+      | null = null;
+
+    let avisoCobranca: string | null =
+      null;
+
+    try {
+      recalculoAssinatura =
+        await recalcularAssinaturaPhanyx(
+          contexto.instituicaoContratanteId,
+          {
+            sincronizarAsaas: true,
+            atualizarCobrancasPendentes:
+              false,
+            motivo:
+              acao === "SUSPENDER"
+                ? `Suspensão da unidade ${polo.nome}`
+                : acao === "REATIVAR"
+                  ? `Reativação da unidade ${polo.nome}`
+                  : `Encerramento da unidade ${polo.nome}`,
+          }
+        );
+    } catch (erroRecalculo) {
+      console.error(
+        "O status foi alterado, mas houve erro ao recalcular a assinatura:",
+        erroRecalculo
+      );
+
+      avisoCobranca =
+        "O status do polo foi alterado, mas a assinatura não pôde ser recalculada automaticamente.";
+    }
+
     console.info("Status de polo alterado:", {
       poloId: polo.id,
       poloNome: polo.nome,
-      instituicaoContratanteId:
+      instituicaoCriadoraId:
         polo.instituicaoId,
+      instituicaoContratanteId:
+        contexto.instituicaoContratanteId,
       instituicaoGeradaId:
         polo.instituicaoGeradaId,
       acao,
@@ -305,6 +382,8 @@ export async function POST(
       polo: poloAtualizado,
       instituicaoGeradaId:
         polo.instituicaoGeradaId,
+      cobranca: recalculoAssinatura,
+      aviso: avisoCobranca,
     });
   } catch (error) {
     console.error(

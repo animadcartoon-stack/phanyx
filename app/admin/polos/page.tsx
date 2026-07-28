@@ -36,6 +36,7 @@ type Polo = {
   responsavelTelefone?: string | null;
   responsavelCargo?: string | null;
   instituicaoGeradaId?: number | null;
+  podeCriarGerenciarPolos?: boolean | null;
   ativo: boolean;
   createdAt?: string;
 };
@@ -48,6 +49,15 @@ type CredenciaisAcesso = {
   precisaTrocarSenha: boolean;
   titulo?: string;
   orientacao?: string;
+  podeCriarGerenciarPolos?: boolean;
+};
+
+type ContextoGestaoPolosUI = {
+  instituicaoId: number;
+  instituicaoContratanteId: number;
+  ehInstituicaoContratante: boolean;
+  permissaoDelegada: boolean;
+  podeGerenciarPolos: boolean;
 };
 
 type FeedbackTipo = "sucesso" | "aviso" | "erro" | "";
@@ -203,6 +213,43 @@ function AdminPolosPage() {
 
   const consultaCepEmAndamentoRef =
     useRef<string | null>(null);
+
+  const [
+    contextoGestaoPolos,
+    setContextoGestaoPolos,
+  ] = useState<ContextoGestaoPolosUI | null>(
+    null
+  );
+
+  const [
+    permitirNovoPoloGerenciarPolos,
+    setPermitirNovoPoloGerenciarPolos,
+  ] = useState(false);
+
+  const [
+    poloParaAlterarPermissao,
+    setPoloParaAlterarPermissao,
+  ] = useState<Polo | null>(null);
+
+  const [
+    habilitarGestaoOutrosPolos,
+    setHabilitarGestaoOutrosPolos,
+  ] = useState(false);
+
+  const [
+    motivoPermissaoPolos,
+    setMotivoPermissaoPolos,
+  ] = useState("");
+
+  const [
+    alterandoPermissaoPolos,
+    setAlterandoPermissaoPolos,
+  ] = useState(false);
+
+  const [
+    erroPermissaoPolos,
+    setErroPermissaoPolos,
+  ] = useState("");
 
   const [numero, setNumero] = useState("");
   const [complemento, setComplemento] = useState("");
@@ -475,9 +522,44 @@ function AdminPolosPage() {
         );
       }
 
-      setPolos(Array.isArray(data) ? data : []);
+      const polosRecebidos = Array.isArray(data)
+        ? data
+        : data?.polos;
+
+      setPolos(
+        Array.isArray(polosRecebidos)
+          ? polosRecebidos
+          : []
+      );
+
+      if (data?.gestao) {
+        setContextoGestaoPolos({
+          instituicaoId: Number(
+            data.gestao.instituicaoId
+          ),
+
+          instituicaoContratanteId: Number(
+            data.gestao.instituicaoContratanteId
+          ),
+
+          ehInstituicaoContratante:
+            data.gestao
+              .ehInstituicaoContratante === true,
+
+          permissaoDelegada:
+            data.gestao.permissaoDelegada ===
+            true,
+
+          podeGerenciarPolos:
+            data.gestao.podeGerenciarPolos ===
+            true,
+        });
+      } else {
+        setContextoGestaoPolos(null);
+      }
     } catch (error: unknown) {
       setPolos([]);
+      setContextoGestaoPolos(null);
       setFeedback(
         error instanceof Error
           ? error.message
@@ -640,7 +722,20 @@ function AdminPolosPage() {
         `/api/admin/polos/${poloParaProvisionar.id}/provisionar`,
         {
           method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
           credentials: "include",
+
+          body: JSON.stringify({
+            permitirGerenciarPolos:
+              contextoGestaoPolos
+                ?.ehInstituicaoContratante ===
+              true &&
+              permitirNovoPoloGerenciarPolos,
+          }),
         }
       );
 
@@ -675,6 +770,9 @@ function AdminPolosPage() {
         precisaTrocarSenha:
           data.credenciaisTemporarias.precisaTrocarSenha ===
           true,
+        podeCriarGerenciarPolos:
+          data?.permissaoPolos
+            ?.podeCriarGerenciarPolos === true,
       });
 
       setCredenciaisCopiadas(false);
@@ -883,6 +981,104 @@ function AdminPolosPage() {
     }
   }
 
+  function abrirModalPermissaoPolos(
+    polo: Polo,
+    habilitar: boolean
+  ) {
+    setPoloParaAlterarPermissao(polo);
+
+    setHabilitarGestaoOutrosPolos(
+      habilitar
+    );
+
+    setMotivoPermissaoPolos("");
+    setErroPermissaoPolos("");
+  }
+
+  function fecharModalPermissaoPolos() {
+    if (alterandoPermissaoPolos) return;
+
+    setPoloParaAlterarPermissao(null);
+    setHabilitarGestaoOutrosPolos(false);
+    setMotivoPermissaoPolos("");
+    setErroPermissaoPolos("");
+  }
+
+  async function confirmarPermissaoPolos() {
+    if (!poloParaAlterarPermissao) {
+      return;
+    }
+
+    if (
+      motivoPermissaoPolos.trim().length < 5
+    ) {
+      setErroPermissaoPolos(
+        "Informe um motivo com pelo menos 5 caracteres."
+      );
+      return;
+    }
+
+    try {
+      setAlterandoPermissaoPolos(true);
+      setErroPermissaoPolos("");
+
+      const resposta = await fetch(
+        `/api/admin/polos/${poloParaAlterarPermissao.id}/permissao-gerenciar`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          credentials: "include",
+
+          body: JSON.stringify({
+            habilitar:
+              habilitarGestaoOutrosPolos,
+
+            motivo:
+              motivoPermissaoPolos.trim(),
+          }),
+        }
+      );
+
+      const dados = await resposta
+        .json()
+        .catch(() => ({}));
+
+      if (!resposta.ok) {
+        throw new Error(
+          dados?.error ||
+          "Não foi possível alterar esta autorização."
+        );
+      }
+
+      setPoloParaAlterarPermissao(null);
+      setHabilitarGestaoOutrosPolos(false);
+      setMotivoPermissaoPolos("");
+      setErroPermissaoPolos("");
+
+      await carregarPolos();
+
+      setFeedback(
+        dados?.mensagem ||
+        "Autorização atualizada com sucesso."
+      );
+
+      setFeedbackTipo("sucesso");
+    } catch (error: unknown) {
+      setErroPermissaoPolos(
+        error instanceof Error
+          ? error.message
+          : "Não foi possível alterar esta autorização."
+      );
+    } finally {
+      setAlterandoPermissaoPolos(false);
+    }
+  }
+
   const polosFiltrados = useMemo(() => {
     const termo = normalizarBusca(busca);
 
@@ -918,6 +1114,138 @@ function AdminPolosPage() {
 
   return (
     <div className="phanyx-polos-page max-w-6xl space-y-6">
+
+      {poloParaAlterarPermissao && (
+        <div className="fixed inset-0 z-[1000003] flex items-center justify-center bg-black/70 p-4 backdrop-blur-[2px]">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="titulo-permissao-polos"
+            className="phanyx-polos-card w-full max-w-xl rounded-2xl border p-6 shadow-2xl"
+          >
+            <h2
+              id="titulo-permissao-polos"
+              className="text-xl font-bold"
+            >
+              {habilitarGestaoOutrosPolos
+                ? "Permitir gestão de outros polos"
+                : "Retirar permissão de gestão"}
+            </h2>
+
+            <p className="mt-3 text-sm leading-6">
+              Unidade:{" "}
+              <strong>
+                {poloParaAlterarPermissao.nome}
+              </strong>
+            </p>
+
+            <div className="phanyx-polos-alerta-provisionamento mt-4 rounded-xl border p-4">
+              {habilitarGestaoOutrosPolos ? (
+                <>
+                  <p className="text-sm font-bold">
+                    Esta unidade poderá:
+                  </p>
+
+                  <p className="mt-2 text-sm leading-6">
+                    Cadastrar polos, criar novos
+                    IDs institucionais e gerenciar
+                    as unidades cadastradas por
+                    ela.
+                  </p>
+
+                  <p className="mt-3 text-sm leading-6">
+                    Os limites, alunos ativos e
+                    unidades excedentes continuarão
+                    sendo contabilizados na
+                    assinatura da instituição
+                    contratante.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm font-bold">
+                    A unidade perderá a permissão
+                    para criar e gerenciar outros
+                    polos.
+                  </p>
+
+                  <p className="mt-2 text-sm leading-6">
+                    Os polos e IDs já criados não
+                    serão apagados. A instituição
+                    contratante continuará com
+                    autoridade sobre toda a rede.
+                  </p>
+                </>
+              )}
+            </div>
+
+            <div className="mt-5">
+              <label
+                htmlFor="motivo-permissao-polos"
+                className="mb-2 block text-sm font-semibold"
+              >
+                Motivo da alteração
+              </label>
+
+              <textarea
+                id="motivo-permissao-polos"
+                value={motivoPermissaoPolos}
+                onChange={(e) =>
+                  setMotivoPermissaoPolos(
+                    e.target.value
+                  )
+                }
+                placeholder={
+                  habilitarGestaoOutrosPolos
+                    ? "Ex.: Unidade regional autorizada a expandir a rede."
+                    : "Ex.: Autorização retirada por decisão da instituição contratante."
+                }
+                className={`${inputClass} min-h-[100px] resize-y`}
+                autoFocus
+              />
+
+              <p className="mt-1 text-xs">
+                Informe pelo menos 5 caracteres.
+              </p>
+            </div>
+
+            {erroPermissaoPolos && (
+              <div className="mt-4 rounded-xl border border-red-300 bg-red-50 p-4 text-sm font-semibold text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200">
+                {erroPermissaoPolos}
+              </div>
+            )}
+
+            <div className="mt-6 flex flex-wrap justify-end gap-3">
+              <button
+                type="button"
+                onClick={fecharModalPermissaoPolos}
+                disabled={alterandoPermissaoPolos}
+                className="rounded-xl border border-slate-400 px-4 py-2 text-sm font-semibold disabled:opacity-50"
+              >
+                Voltar
+              </button>
+
+              <button
+                type="button"
+                onClick={
+                  confirmarPermissaoPolos
+                }
+                disabled={alterandoPermissaoPolos}
+                className={`rounded-xl px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60 ${habilitarGestaoOutrosPolos
+                  ? "bg-blue-600 hover:bg-blue-700"
+                  : "bg-red-600 hover:bg-red-700"
+                  }`}
+              >
+                {alterandoPermissaoPolos
+                  ? "Salvando..."
+                  : habilitarGestaoOutrosPolos
+                    ? "Confirmar autorização"
+                    : "Confirmar retirada"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {poloParaAlterarStatus && acaoStatusPolo && (
         <div className="fixed inset-0 z-[1000002] flex items-center justify-center bg-black/70 p-4 backdrop-blur-[2px]">
@@ -1026,10 +1354,10 @@ function AdminPolosPage() {
                 onClick={confirmarAlteracaoStatusPolo}
                 disabled={alterandoStatusPolo}
                 className={`rounded-xl px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60 ${acaoStatusPolo === "SUSPENDER"
-                    ? "bg-amber-600 hover:bg-amber-700"
-                    : acaoStatusPolo === "REATIVAR"
-                      ? "bg-emerald-600 hover:bg-emerald-700"
-                      : "bg-red-600 hover:bg-red-700"
+                  ? "bg-amber-600 hover:bg-amber-700"
+                  : acaoStatusPolo === "REATIVAR"
+                    ? "bg-emerald-600 hover:bg-emerald-700"
+                    : "bg-red-600 hover:bg-red-700"
                   }`}
               >
                 {alterandoStatusPolo
@@ -1117,6 +1445,7 @@ function AdminPolosPage() {
 
                   setErroProvisionamento("");
                   setPoloParaProvisionar(null);
+                  setPermitirNovoPoloGerenciarPolos(false);
 
                   if (polo) {
                     iniciarEdicao(polo);
@@ -1176,12 +1505,65 @@ function AdminPolosPage() {
               </div>
             </div>
 
+            {contextoGestaoPolos
+              ?.ehInstituicaoContratante && (
+                <label className="mt-5 flex cursor-pointer items-start gap-3 rounded-xl border border-slate-300 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900/60">
+                  <input
+                    type="checkbox"
+                    checked={
+                      permitirNovoPoloGerenciarPolos
+                    }
+                    onChange={(e) =>
+                      setPermitirNovoPoloGerenciarPolos(
+                        e.target.checked
+                      )
+                    }
+                    className="mt-1 h-4 w-4 shrink-0 accent-blue-600"
+                  />
+
+                  <div>
+                    <p className="text-sm font-bold text-slate-950 dark:text-slate-100">
+                      Permitir que esta unidade crie e
+                      gerencie outros polos
+                    </p>
+
+                    <p className="mt-1 text-sm leading-6 text-slate-700 dark:text-slate-300">
+                      Quando habilitado, os
+                      administradores desta unidade
+                      poderão cadastrar polos e criar
+                      novos IDs institucionais dentro da
+                      mesma rede. Os limites e a cobrança
+                      continuarão centralizados na
+                      instituição contratante.
+                    </p>
+                  </div>
+                </label>
+              )}
+
+            {contextoGestaoPolos
+              ?.permissaoDelegada &&
+              !contextoGestaoPolos
+                .ehInstituicaoContratante && (
+                <div className="mt-5 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm leading-6 text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+                  Esta unidade possui autorização para
+                  criar polos, mas não pode transferir
+                  essa autorização para as novas
+                  unidades. Somente a instituição
+                  contratante pode conceder essa
+                  permissão.
+                </div>
+              )}
+
             <div className="mt-6 flex flex-wrap justify-end gap-3">
               <button
                 type="button"
                 onClick={() => {
                   setErroProvisionamento("");
                   setPoloParaProvisionar(null);
+
+                  setPermitirNovoPoloGerenciarPolos(
+                    false
+                  );
                 }}
                 disabled={
                   provisionandoId === poloParaProvisionar.id
@@ -1341,6 +1723,24 @@ function AdminPolosPage() {
                   {credenciaisAcesso.senha}
                 </p>
               </div>
+
+              {typeof credenciaisAcesso
+                .podeCriarGerenciarPolos ===
+                "boolean" && (
+                  <div className="phanyx-polos-input rounded-xl border p-3">
+                    <p className="text-xs font-semibold uppercase">
+                      Gestão de outros polos
+                    </p>
+
+                    <p className="mt-1 font-bold">
+                      {credenciaisAcesso
+                        .podeCriarGerenciarPolos
+                        ? "Habilitada pela instituição contratante"
+                        : "Não habilitada"}
+                    </p>
+                  </div>
+                )}
+
             </div>
 
             {credenciaisAcesso.precisaTrocarSenha && (
@@ -2030,6 +2430,9 @@ function AdminPolosPage() {
                               type="button"
                               onClick={() => {
                                 setErroProvisionamento("");
+
+                                setPermitirNovoPoloGerenciarPolos(false);
+
                                 setPoloParaProvisionar(polo);
                               }}
                               disabled={provisionandoId === polo.id}
@@ -2047,6 +2450,20 @@ function AdminPolosPage() {
                                 Instituição independente criada
                               </span>
 
+                              {contextoGestaoPolos
+                                ?.ehInstituicaoContratante && (
+                                  <span
+                                    className={`rounded-full border px-3 py-1 text-xs font-bold ${polo.podeCriarGerenciarPolos
+                                        ? "border-blue-300 bg-blue-100 text-blue-900 dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-200"
+                                        : "border-slate-300 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
+                                      }`}
+                                  >
+                                    {polo.podeCriarGerenciarPolos
+                                      ? "Pode criar outros polos"
+                                      : "Não pode criar outros polos"}
+                                  </span>
+                                )}
+
                               <button
                                 type="button"
                                 onClick={() => {
@@ -2060,6 +2477,44 @@ function AdminPolosPage() {
                                   ? "Gerando nova senha..."
                                   : "Gerar nova senha temporária"}
                               </button>
+
+                              {contextoGestaoPolos
+                                ?.ehInstituicaoContratante &&
+                                polo.statusComercial !==
+                                "ENCERRADO" && (
+                                  <>
+                                    {polo.podeCriarGerenciarPolos ? (
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          abrirModalPermissaoPolos(
+                                            polo,
+                                            false
+                                          )
+                                        }
+                                        className="rounded-lg border border-red-500 px-3 py-1.5 text-sm font-semibold text-red-700 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-950/30"
+                                      >
+                                        Retirar permissão de criar polos
+                                      </button>
+                                    ) : polo.ativo &&
+                                      polo.statusComercial ===
+                                      "ATIVO" ? (
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          abrirModalPermissaoPolos(
+                                            polo,
+                                            true
+                                          )
+                                        }
+                                        className="rounded-lg border border-blue-500 px-3 py-1.5 text-sm font-semibold text-blue-700 hover:bg-blue-50 dark:text-blue-300 dark:hover:bg-blue-950/30"
+                                      >
+                                        Permitir criar outros polos
+                                      </button>
+                                    ) : null}
+                                  </>
+                                )}
+
                             </>
                           )}
 

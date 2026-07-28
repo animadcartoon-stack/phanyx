@@ -1,0 +1,1 @@
+ALTER TABLE "Instituicao" ADD COLUMN "podeCriarGerenciarPolos" BOOLEAN NOT NULL DEFAULT false;
