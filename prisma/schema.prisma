@@ -145,6 +145,7 @@ model Instituicao {
   examesRH                                    ExameMedicoRH[]
   rescisoesRH                                 RescisaoRH[]
   holeritesRH                                 HoleriteRH[]
+  pagamentosHoleriteRH                        PagamentoHoleriteRH[]
   pontosRH                                    PontoFuncionarioRH[]
   autorizacoesCorrecaoPontoRH                 AutorizacaoCorrecaoPontoRH[]
   solicitacoesCorrecaoPontoRH                 SolicitacaoCorrecaoPontoRH[]
@@ -274,6 +275,11 @@ model User {
   holeritesRHCriados    HoleriteRH[] @relation("HoleriteRHCriadoPor")
   holeritesRHArquivados HoleriteRH[] @relation("HoleriteRHArquivadoPor")
   holeritesRHPagos      HoleriteRH[] @relation("HoleriteRHPagoPor")
+
+  pagamentosHoleriteRHRegistrados PagamentoHoleriteRH[] @relation("PagamentoHoleriteRHRegistradoPor")
+  pagamentosHoleriteRHConfirmados PagamentoHoleriteRH[] @relation("PagamentoHoleriteRHConfirmadoPor")
+  pagamentosHoleriteRHContestados PagamentoHoleriteRH[] @relation("PagamentoHoleriteRHContestadoPor")
+  pagamentosHoleriteRHCancelados  PagamentoHoleriteRH[] @relation("PagamentoHoleriteRHCanceladoPor")
 
   documentosProfessorCriados     DocumentoProfessor[]           @relation("DocumentoProfessorCriadoPor")
   documentosProfessorArquivados  DocumentoProfessor[]           @relation("DocumentoProfessorArquivadoPor")
@@ -1436,6 +1442,7 @@ model Funcionario {
   examesRH                                    ExameMedicoRH[]
   rescisoesRH                                 RescisaoRH[]
   holeritesRH                                 HoleriteRH[]
+  pagamentosHoleriteRH                        PagamentoHoleriteRH[]
   pontosRH                                    PontoFuncionarioRH[]
   autorizacoesCorrecaoPontoRH                 AutorizacaoCorrecaoPontoRH[]
   solicitacoesCorrecaoPontoRH                 SolicitacaoCorrecaoPontoRH[]
@@ -2894,6 +2901,24 @@ model RescisaoRH {
   @@index([status])
 }
 
+enum FormaPagamentoHoleriteRH {
+  FOLHA_BANCARIA
+  PIX
+  TRANSFERENCIA
+  CONTA_SALARIO
+  DINHEIRO
+  CHEQUE
+  OUTRO
+}
+
+enum StatusPagamentoHoleriteRH {
+  REGISTRADO
+  CONFIRMADO_FUNCIONARIO
+  CONTESTADO
+  CANCELADO
+  SUBSTITUIDO
+}
+
 model HoleriteRH {
   id            Int  @id @default(autoincrement())
   funcionarioId Int
@@ -2933,9 +2958,10 @@ model HoleriteRH {
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 
-  funcionario Funcionario        @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
-  instituicao Instituicao        @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  funcionario Funcionario           @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
+  instituicao Instituicao           @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   eventos     HoleriteEventoRH[]
+  pagamentos  PagamentoHoleriteRH[]
 
   criadoPor    User? @relation("HoleriteRHCriadoPor", fields: [criadoPorId], references: [id])
   arquivadoPor User? @relation("HoleriteRHArquivadoPor", fields: [arquivadoPorId], references: [id])
@@ -2965,6 +2991,75 @@ model HoleriteEventoRH {
 
   @@index([holeriteId])
   @@index([tipo])
+}
+
+model PagamentoHoleriteRH {
+  id                          Int                       @id @default(autoincrement())
+  instituicaoId               Int
+  funcionarioId               Int
+  holeriteId                  Int
+  registradoPorId             Int?
+  confirmadoPorUserId         Int?
+  contestadoPorUserId         Int?
+  canceladoPorId              Int?
+  substituiPagamentoId        Int?                      @unique
+  status                      StatusPagamentoHoleriteRH @default(REGISTRADO)
+  formaPagamento              FormaPagamentoHoleriteRH
+  valorPago                   Decimal                   @db.Decimal(10, 2)
+  pagoEm                      DateTime
+  identificadorTransacao      String?
+  contaDestinoMascarada       String?
+  bancoOrigem                 String?
+  observacoes                 String?                   @db.Text
+  funcionarioNomeSnapshot     String
+  funcionarioCpfSnapshot      String?
+  competenciaMesSnapshot      Int
+  competenciaAnoSnapshot      Int
+  valorLiquidoSnapshot        Decimal                   @db.Decimal(10, 2)
+  eventosSnapshot             Json
+  comprovanteUrl              String?
+  comprovanteNome             String?
+  comprovanteMime             String?
+  comprovanteTamanho          Int?
+  comprovanteHash             String?
+  reciboNumero                String
+  reciboPdfUrl                String?
+  reciboHash                  String?
+  reciboAssinadoUrl           String?
+  reciboAssinadoHash          String?
+  dadosPagamentoHash          String
+  registradoEm                DateTime                  @default(now())
+  confirmadoPeloFuncionarioEm DateTime?
+  ipConfirmacao               String?
+  userAgentConfirmacao        String?                   @db.Text
+  confirmacaoHash             String?
+  contestadoEm                DateTime?
+  motivoContestacao           String?                   @db.Text
+  canceladoEm                 DateTime?
+  motivoCancelamento          String?                   @db.Text
+  criadoEm                    DateTime                  @default(now())
+  atualizadoEm                DateTime                  @updatedAt
+
+  instituicao       Instituicao          @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  funcionario       Funcionario          @relation(fields: [funcionarioId], references: [id], onDelete: Restrict)
+  holerite          HoleriteRH           @relation(fields: [holeriteId], references: [id], onDelete: Restrict)
+  registradoPor     User?                @relation("PagamentoHoleriteRHRegistradoPor", fields: [registradoPorId], references: [id], onDelete: SetNull)
+  confirmadoPorUser User?                @relation("PagamentoHoleriteRHConfirmadoPor", fields: [confirmadoPorUserId], references: [id], onDelete: SetNull)
+  contestadoPorUser User?                @relation("PagamentoHoleriteRHContestadoPor", fields: [contestadoPorUserId], references: [id], onDelete: SetNull)
+  canceladoPor      User?                @relation("PagamentoHoleriteRHCanceladoPor", fields: [canceladoPorId], references: [id], onDelete: SetNull)
+  substitui         PagamentoHoleriteRH? @relation("PagamentoHoleriteRHSubstituicao", fields: [substituiPagamentoId], references: [id], onDelete: SetNull)
+  substituidoPor    PagamentoHoleriteRH? @relation("PagamentoHoleriteRHSubstituicao")
+
+  @@unique([instituicaoId, reciboNumero])
+  @@index([instituicaoId])
+  @@index([funcionarioId])
+  @@index([holeriteId])
+  @@index([registradoPorId])
+  @@index([confirmadoPorUserId])
+  @@index([contestadoPorUserId])
+  @@index([canceladoPorId])
+  @@index([status])
+  @@index([pagoEm])
 }
 
 model PontoFuncionarioRH {

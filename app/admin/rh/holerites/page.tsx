@@ -50,6 +50,15 @@ type Holerite = {
   }[];
 };
 
+type FormaPagamentoHolerite =
+  | "FOLHA_BANCARIA"
+  | "PIX"
+  | "TRANSFERENCIA"
+  | "CONTA_SALARIO"
+  | "DINHEIRO"
+  | "CHEQUE"
+  | "OUTRO";
+
 const eventoInicial: Evento = {
   codigo: "",
   descricao: "",
@@ -68,6 +77,16 @@ function moeda(valor: number) {
 function numero(valor: unknown) {
   if (valor === null || valor === undefined || valor === "") return 0;
   return Number(String(valor).replace(",", ".")) || 0;
+}
+
+function dataHoraLocalAgora() {
+  const agora = new Date();
+
+  const dataLocal = new Date(
+    agora.getTime() - agora.getTimezoneOffset() * 60_000,
+  );
+
+  return dataLocal.toISOString().slice(0, 16);
 }
 
 export default function Page() {
@@ -95,6 +114,28 @@ export default function Page() {
   );
 
   const [pagando, setPagando] = useState(false);
+
+  const [formaPagamento, setFormaPagamento] =
+    useState<FormaPagamentoHolerite>("PIX");
+
+  const [pagamentoRealizadoEm, setPagamentoRealizadoEm] =
+    useState(dataHoraLocalAgora());
+
+  const [valorPago, setValorPago] = useState("");
+
+  const [identificadorTransacao, setIdentificadorTransacao] = useState("");
+
+  const [bancoOrigem, setBancoOrigem] = useState("");
+
+  const [contaDestinoMascarada, setContaDestinoMascarada] = useState("");
+
+  const [observacoesPagamento, setObservacoesPagamento] = useState("");
+
+  const [comprovantePagamento, setComprovantePagamento] = useState<File | null>(
+    null,
+  );
+
+  const [comprovanteInputKey, setComprovanteInputKey] = useState(0);
 
   const [motivoArquivo, setMotivoArquivo] = useState("");
 
@@ -252,54 +293,145 @@ export default function Page() {
     }
   }
 
-  async function marcarHoleriteComoPago() {
+  function limparFormularioPagamento() {
+    setFormaPagamento("PIX");
+    setPagamentoRealizadoEm(dataHoraLocalAgora());
+    setValorPago("");
+    setIdentificadorTransacao("");
+    setBancoOrigem("");
+    setContaDestinoMascarada("");
+    setObservacoesPagamento("");
+    setComprovantePagamento(null);
+    setComprovanteInputKey((atual) => atual + 1);
+  }
+
+  async function registrarPagamentoHolerite() {
     if (!holeriteParaPagar) return;
+
+    const valorLiquidoHolerite = numero(holeriteParaPagar.valorLiquido);
+
+    const valorInformado = numero(valorPago);
+
+    if (valorInformado <= 0) {
+      setErro("Informe o valor efetivamente pago.");
+      return;
+    }
+
+    if (Math.abs(valorInformado - valorLiquidoHolerite) > 0.009) {
+      setErro(
+        `O valor pago deve ser igual ao líquido do holerite: ${moeda(
+          valorLiquidoHolerite,
+        )}.`,
+      );
+      return;
+    }
+
+    if (!pagamentoRealizadoEm) {
+      setErro("Informe a data e o horário efetivos do pagamento.");
+      return;
+    }
+
+    const exigeTransacao = [
+      "FOLHA_BANCARIA",
+      "PIX",
+      "TRANSFERENCIA",
+      "CONTA_SALARIO",
+      "CHEQUE",
+    ].includes(formaPagamento);
+
+    if (exigeTransacao && !identificadorTransacao.trim()) {
+      setErro("Informe o número, identificador ou referência da transação.");
+      return;
+    }
+
+    if (!comprovantePagamento) {
+      setErro(
+        formaPagamento === "DINHEIRO"
+          ? "Anexe o recibo assinado pelo funcionário."
+          : "Anexe o comprovante financeiro do pagamento.",
+      );
+      return;
+    }
+
+    const tiposPermitidos = [
+      "application/pdf",
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+    ];
+
+    if (!tiposPermitidos.includes(comprovantePagamento.type)) {
+      setErro("O comprovante deve estar em PDF, JPG, PNG ou WEBP.");
+      return;
+    }
+
+    if (comprovantePagamento.size > 4 * 1024 * 1024) {
+      setErro("O comprovante não pode ultrapassar 4 MB.");
+      return;
+    }
 
     try {
       setErro("");
       setSucesso("");
       setPagando(true);
 
+      const formulario = new FormData();
+
+      formulario.append("acao", "REGISTRAR_PAGAMENTO_HOLERITE");
+
+      formulario.append("holeriteId", String(holeriteParaPagar.id));
+
+      formulario.append("formaPagamento", formaPagamento);
+
+      formulario.append("valorPago", String(valorInformado));
+
+      formulario.append("pagoEm", pagamentoRealizadoEm);
+
+      formulario.append(
+        "identificadorTransacao",
+        identificadorTransacao.trim(),
+      );
+
+      formulario.append("bancoOrigem", bancoOrigem.trim());
+
+      formulario.append("contaDestinoMascarada", contaDestinoMascarada.trim());
+
+      formulario.append("observacoes", observacoesPagamento.trim());
+
+      formulario.append("comprovante", comprovantePagamento);
+
       const resposta = await fetch("/api/admin/rh/holerites", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          acao: "MARCAR_HOLERITE_PAGO",
-          holeriteId: holeriteParaPagar.id,
-        }),
+        body: formulario,
       });
 
       const dados = await resposta.json().catch(() => null);
 
       if (!resposta.ok) {
         throw new Error(
-          dados?.error || "Não foi possível marcar o holerite como pago.",
+          dados?.error || "Não foi possível registrar o pagamento.",
         );
       }
 
-      const comissoesPagas = Number(dados?.comissoesPagas || 0);
+      const partesMensagem = [
+        dados?.message || "Pagamento registrado com sucesso.",
 
-      const remuneracoesPagas = Number(dados?.remuneracoesPagas || 0);
+        dados?.reciboNumero ? `Recibo: ${dados.reciboNumero}.` : null,
 
-      setSucesso(
-        [
-          dados?.message || "Holerite marcado como pago com sucesso.",
+        Number(dados?.comissoesPagas || 0) > 0
+          ? `${dados.comissoesPagas} comissão(ões) atualizada(s) para paga(s).`
+          : null,
 
-          comissoesPagas > 0
-            ? `${comissoesPagas} comissão(ões) atualizada(s) para paga(s).`
-            : null,
+        Number(dados?.remuneracoesPagas || 0) > 0
+          ? `${dados.remuneracoesPagas} remuneração(ões) variável(is) atualizada(s) para paga(s).`
+          : null,
+      ]
+        .filter(Boolean)
+        .join(" ");
 
-          remuneracoesPagas > 0
-            ? `${remuneracoesPagas} remuneração(ões) variável(is) atualizada(s) para paga(s).`
-            : null,
-        ]
-          .filter(Boolean)
-          .join(" "),
-      );
-
+      setSucesso(partesMensagem);
       setHoleriteParaPagar(null);
+      limparFormularioPagamento();
 
       await carregarDados();
     } catch (error: any) {
@@ -717,12 +849,30 @@ export default function Page() {
                             type="button"
                             onClick={() => {
                               setHoleriteParaPagar(holerite);
+
+                              setFormaPagamento("PIX");
+                              setPagamentoRealizadoEm(dataHoraLocalAgora());
+
+                              setValorPago(
+                                numero(holerite.valorLiquido)
+                                  .toFixed(2)
+                                  .replace(".", ","),
+                              );
+
+                              setIdentificadorTransacao("");
+                              setBancoOrigem("");
+                              setContaDestinoMascarada("");
+                              setObservacoesPagamento("");
+                              setComprovantePagamento(null);
+
+                              setComprovanteInputKey((atual) => atual + 1);
+
                               setErro("");
                               setSucesso("");
                             }}
                             className="rounded-xl border border-emerald-600 px-3 py-1 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-600 hover:text-white dark:text-emerald-300"
                           >
-                            Marcar como pago
+                            Registrar pagamento
                           </button>
                         )}
 
@@ -814,36 +964,210 @@ export default function Page() {
       )}
 
       {holeriteParaPagar && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 text-slate-900 shadow-2xl dark:border-slate-700 dark:bg-slate-950 dark:text-white">
-            <h2 className="text-xl font-bold">Confirmar pagamento</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/70 p-4">
+          <div className="my-6 w-full max-w-2xl rounded-3xl border border-slate-200 bg-white p-6 text-slate-900 shadow-2xl dark:border-slate-700 dark:bg-slate-950 dark:text-white">
+            <h2 className="text-xl font-bold">Registrar pagamento</h2>
 
-            <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
-              Confirme somente quando o pagamento deste holerite tiver sido
-              realmente realizado.
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+              O holerite somente será marcado como pago depois que os dados
+              financeiros e o comprovante forem registrados.
             </p>
 
-            <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="mt-5 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-800 dark:bg-slate-900 sm:grid-cols-3">
               <p>
-                <strong>Funcionário:</strong>{" "}
-                {holeriteParaPagar.funcionario?.nome || "Funcionário"}
+                <strong>Funcionário:</strong>
+                <span className="mt-1 block">
+                  {holeriteParaPagar.funcionario?.nome || "Funcionário"}
+                </span>
               </p>
 
-              <p className="mt-2">
-                <strong>Competência:</strong>{" "}
-                {String(holeriteParaPagar.competenciaMes).padStart(2, "0")}/
-                {holeriteParaPagar.competenciaAno}
+              <p>
+                <strong>Competência:</strong>
+                <span className="mt-1 block">
+                  {String(holeriteParaPagar.competenciaMes).padStart(2, "0")}/
+                  {holeriteParaPagar.competenciaAno}
+                </span>
               </p>
 
-              <p className="mt-2">
-                <strong>Valor líquido:</strong>{" "}
-                {moeda(numero(holeriteParaPagar.valorLiquido))}
+              <p>
+                <strong>Valor líquido:</strong>
+                <span className="mt-1 block font-bold text-emerald-700 dark:text-emerald-300">
+                  {moeda(numero(holeriteParaPagar.valorLiquido))}
+                </span>
               </p>
             </div>
 
+            <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              <div>
+                <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">
+                  Forma de pagamento
+                </label>
+
+                <select
+                  value={formaPagamento}
+                  onChange={(e) =>
+                    setFormaPagamento(e.target.value as FormaPagamentoHolerite)
+                  }
+                  disabled={pagando}
+                  className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-emerald-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                >
+                  <option value="FOLHA_BANCARIA">Folha bancária</option>
+
+                  <option value="PIX">PIX</option>
+
+                  <option value="TRANSFERENCIA">Transferência bancária</option>
+
+                  <option value="CONTA_SALARIO">Conta-salário</option>
+
+                  <option value="DINHEIRO">Dinheiro</option>
+
+                  <option value="CHEQUE">Cheque</option>
+
+                  <option value="OUTRO">Outro</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">
+                  Data e horário do pagamento
+                </label>
+
+                <input
+                  type="datetime-local"
+                  value={pagamentoRealizadoEm}
+                  onChange={(e) => setPagamentoRealizadoEm(e.target.value)}
+                  disabled={pagando}
+                  className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-emerald-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">
+                  Valor efetivamente pago
+                </label>
+
+                <input
+                  value={valorPago}
+                  onChange={(e) => setValorPago(e.target.value)}
+                  disabled={pagando}
+                  inputMode="decimal"
+                  placeholder="0,00"
+                  className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-emerald-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                />
+
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                  Deve corresponder ao valor líquido do holerite.
+                </p>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">
+                  Referência da transação
+                </label>
+
+                <input
+                  value={identificadorTransacao}
+                  onChange={(e) => setIdentificadorTransacao(e.target.value)}
+                  disabled={pagando}
+                  placeholder={
+                    formaPagamento === "PIX"
+                      ? "Ex.: ID/E2E da transação PIX"
+                      : "Número, código ou referência"
+                  }
+                  className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-emerald-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                />
+
+                {[
+                  "FOLHA_BANCARIA",
+                  "PIX",
+                  "TRANSFERENCIA",
+                  "CONTA_SALARIO",
+                  "CHEQUE",
+                ].includes(formaPagamento) && (
+                  <p className="mt-1 text-xs font-medium text-amber-700 dark:text-amber-300">
+                    Campo obrigatório para esta forma de pagamento.
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">
+                  Banco de origem
+                </label>
+
+                <input
+                  value={bancoOrigem}
+                  onChange={(e) => setBancoOrigem(e.target.value)}
+                  disabled={pagando}
+                  placeholder="Ex.: Banco do Brasil"
+                  className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-emerald-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">
+                  Conta de destino mascarada
+                </label>
+
+                <input
+                  value={contaDestinoMascarada}
+                  onChange={(e) => setContaDestinoMascarada(e.target.value)}
+                  disabled={pagando}
+                  placeholder="Ex.: Agência 1234 • Conta ***5678"
+                  className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-emerald-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                />
+
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                  Não informe a conta completa.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">
+                {formaPagamento === "DINHEIRO"
+                  ? "Recibo assinado"
+                  : "Comprovante do pagamento"}
+              </label>
+
+              <input
+                key={comprovanteInputKey}
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp"
+                disabled={pagando}
+                onChange={(e) =>
+                  setComprovantePagamento(e.target.files?.[0] || null)
+                }
+                className="mt-2 block w-full rounded-2xl border border-dashed border-slate-400 bg-slate-50 px-4 py-4 text-sm text-slate-700 file:mr-4 file:rounded-xl file:border-0 file:bg-slate-200 file:px-4 file:py-2 file:font-bold file:text-slate-800 hover:file:bg-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:file:bg-slate-700 dark:file:text-white"
+              />
+
+              <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                PDF, JPG, PNG ou WEBP, com até 4 MB. O documento será guardado
+                no armazenamento privado do RH.
+              </p>
+            </div>
+
+            <div className="mt-4">
+              <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">
+                Observações
+              </label>
+
+              <textarea
+                value={observacoesPagamento}
+                onChange={(e) => setObservacoesPagamento(e.target.value)}
+                disabled={pagando}
+                rows={3}
+                maxLength={3000}
+                placeholder="Informações adicionais sobre o pagamento."
+                className="mt-2 w-full resize-none rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-emerald-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+              />
+            </div>
+
             <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
-              Comissões e remunerações variáveis vinculadas a este holerite
-              também serão marcadas como pagas.
+              O sistema guardará o comprovante, seu hash SHA-256, os dados
+              financeiros, o responsável pelo registro e uma fotografia dos
+              eventos do holerite. Comissões vinculadas também serão atualizadas
+              para pagas.
             </div>
 
             {erro && (
@@ -858,6 +1182,7 @@ export default function Page() {
                 disabled={pagando}
                 onClick={() => {
                   setHoleriteParaPagar(null);
+                  limparFormularioPagamento();
                   setErro("");
                 }}
                 className="rounded-2xl border border-slate-300 px-5 py-2 text-sm font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-60 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800"
@@ -868,10 +1193,10 @@ export default function Page() {
               <button
                 type="button"
                 disabled={pagando}
-                onClick={marcarHoleriteComoPago}
+                onClick={registrarPagamentoHolerite}
                 className="rounded-2xl bg-emerald-600 px-5 py-2 text-sm font-bold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {pagando ? "Registrando..." : "Confirmar pagamento"}
+                {pagando ? "Enviando comprovante..." : "Registrar pagamento"}
               </button>
             </div>
           </div>
