@@ -320,7 +320,6 @@ model User {
   restricoesRematriculaAplicadas RestricaoRematriculaAluno[]     @relation("RestricaoRematriculaAplicadaPor")
   restricoesRematriculaRemovidas RestricaoRematriculaAluno[]     @relation("RestricaoRematriculaRemovidaPor")
   historicosRestricaoRematricula RestricaoRematriculaHistorico[] @relation("RestricaoRematriculaHistoricoRealizadoPor")
-  lancamentoComissaoRHs          LancamentoComissaoRH[]
 
   @@index([instituicaoId])
   @@index([role])
@@ -4092,8 +4091,6 @@ model LancamentoComissaoRH {
   reprovadoPor          User?                           @relation("LancamentoComissaoRHReprovadoPor", fields: [reprovadoPorId], references: [id])
   enviadoHoleritePor    User?                           @relation("LancamentoComissaoRHEnviadoHoleritePor", fields: [enviadoHoleritePorId], references: [id], onDelete: SetNull)
   estornadoPor          User?                           @relation("LancamentoComissaoRHEstornadoPor", fields: [estornadoPorId], references: [id])
-  User                  User?                           @relation(fields: [userId], references: [id])
-  userId                Int?
 
   @@unique([instituicaoId, chaveCalculo])
   @@index([instituicaoId])
