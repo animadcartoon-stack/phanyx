@@ -131,12 +131,6 @@ export default function Page() {
 
   const [observacoesPagamento, setObservacoesPagamento] = useState("");
 
-  const [comprovantePagamento, setComprovantePagamento] = useState<File | null>(
-    null,
-  );
-
-  const [comprovanteInputKey, setComprovanteInputKey] = useState(0);
-
   const [motivoArquivo, setMotivoArquivo] = useState("");
 
   const [arquivando, setArquivando] = useState(false);
@@ -301,8 +295,6 @@ export default function Page() {
     setBancoOrigem("");
     setContaDestinoMascarada("");
     setObservacoesPagamento("");
-    setComprovantePagamento(null);
-    setComprovanteInputKey((atual) => atual + 1);
   }
 
   async function registrarPagamentoHolerite() {
@@ -319,7 +311,7 @@ export default function Page() {
 
     if (Math.abs(valorInformado - valorLiquidoHolerite) > 0.009) {
       setErro(
-        `O valor pago deve ser igual ao líquido do holerite: ${moeda(
+        `O valor deve ser igual ao líquido do holerite: ${moeda(
           valorLiquidoHolerite,
         )}.`,
       );
@@ -327,7 +319,14 @@ export default function Page() {
     }
 
     if (!pagamentoRealizadoEm) {
-      setErro("Informe a data e o horário efetivos do pagamento.");
+      setErro("Informe a data e o horário do pagamento.");
+      return;
+    }
+
+    const dataPagamento = new Date(pagamentoRealizadoEm);
+
+    if (Number.isNaN(dataPagamento.getTime())) {
+      setErro("Informe uma data de pagamento válida.");
       return;
     }
 
@@ -344,98 +343,60 @@ export default function Page() {
       return;
     }
 
-    if (!comprovantePagamento) {
-      setErro(
-        formaPagamento === "DINHEIRO"
-          ? "Anexe o recibo assinado pelo funcionário."
-          : "Anexe o comprovante financeiro do pagamento.",
-      );
-      return;
-    }
-
-    const tiposPermitidos = [
-      "application/pdf",
-      "image/jpeg",
-      "image/png",
-      "image/webp",
-    ];
-
-    if (!tiposPermitidos.includes(comprovantePagamento.type)) {
-      setErro("O comprovante deve estar em PDF, JPG, PNG ou WEBP.");
-      return;
-    }
-
-    if (comprovantePagamento.size > 4 * 1024 * 1024) {
-      setErro("O comprovante não pode ultrapassar 4 MB.");
-      return;
-    }
-
     try {
       setErro("");
       setSucesso("");
       setPagando(true);
 
-      const formulario = new FormData();
+      const resposta = await fetch(
+        `/api/admin/rh/holerites/${holeriteParaPagar.id}/pagamento`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
 
-      formulario.append("acao", "REGISTRAR_PAGAMENTO_HOLERITE");
+          body: JSON.stringify({
+            formaPagamento,
+            valorPago: valorInformado,
 
-      formulario.append("holeriteId", String(holeriteParaPagar.id));
+            pagoEm: dataPagamento.toISOString(),
 
-      formulario.append("formaPagamento", formaPagamento);
+            identificadorTransacao: identificadorTransacao.trim(),
 
-      formulario.append("valorPago", String(valorInformado));
+            bancoOrigem: bancoOrigem.trim(),
 
-      formulario.append("pagoEm", pagamentoRealizadoEm);
+            contaDestinoMascarada: contaDestinoMascarada.trim(),
 
-      formulario.append(
-        "identificadorTransacao",
-        identificadorTransacao.trim(),
+            observacoes: observacoesPagamento.trim(),
+          }),
+        },
       );
-
-      formulario.append("bancoOrigem", bancoOrigem.trim());
-
-      formulario.append("contaDestinoMascarada", contaDestinoMascarada.trim());
-
-      formulario.append("observacoes", observacoesPagamento.trim());
-
-      formulario.append("comprovante", comprovantePagamento);
-
-      const resposta = await fetch("/api/admin/rh/holerites", {
-        method: "POST",
-        body: formulario,
-      });
 
       const dados = await resposta.json().catch(() => null);
 
       if (!resposta.ok) {
         throw new Error(
-          dados?.error || "Não foi possível registrar o pagamento.",
+          dados?.error || "Não foi possível gerar o recibo de pagamento.",
         );
       }
 
-      const partesMensagem = [
-        dados?.message || "Pagamento registrado com sucesso.",
+      setSucesso(
+        [
+          dados?.message || "Recibo de pagamento gerado.",
 
-        dados?.reciboNumero ? `Recibo: ${dados.reciboNumero}.` : null,
+          dados?.reciboNumero ? `Número: ${dados.reciboNumero}.` : null,
+        ]
+          .filter(Boolean)
+          .join(" "),
+      );
 
-        Number(dados?.comissoesPagas || 0) > 0
-          ? `${dados.comissoesPagas} comissão(ões) atualizada(s) para paga(s).`
-          : null,
-
-        Number(dados?.remuneracoesPagas || 0) > 0
-          ? `${dados.remuneracoesPagas} remuneração(ões) variável(is) atualizada(s) para paga(s).`
-          : null,
-      ]
-        .filter(Boolean)
-        .join(" ");
-
-      setSucesso(partesMensagem);
       setHoleriteParaPagar(null);
       limparFormularioPagamento();
 
       await carregarDados();
     } catch (error: any) {
-      setErro(error?.message || "Erro ao registrar o pagamento do holerite.");
+      setErro(error?.message || "Erro ao gerar o recibo de pagamento.");
     } finally {
       setPagando(false);
     }
@@ -842,7 +803,24 @@ export default function Page() {
                           📄 PDF
                         </a>
 
-                        {!["PAGO", "ARQUIVADO", "CANCELADO"].includes(
+                        {String(holerite.status || "").toUpperCase() ===
+                          "AGUARDANDO_ASSINATURA" && (
+                          <a
+                            href={`/api/admin/rh/holerites/${holerite.id}/recibo-pagamento/pdf`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="rounded-xl border border-blue-600 px-3 py-1 text-sm font-semibold text-blue-700 transition hover:bg-blue-600 hover:text-white dark:text-blue-300"
+                          >
+                            Baixar recibo
+                          </a>
+                        )}
+
+                        {![
+                          "PAGO",
+                          "ARQUIVADO",
+                          "CANCELADO",
+                          "AGUARDANDO_ASSINATURA",
+                        ].includes(
                           String(holerite.status || "").toUpperCase(),
                         ) && (
                           <button
@@ -863,9 +841,6 @@ export default function Page() {
                               setBancoOrigem("");
                               setContaDestinoMascarada("");
                               setObservacoesPagamento("");
-                              setComprovantePagamento(null);
-
-                              setComprovanteInputKey((atual) => atual + 1);
 
                               setErro("");
                               setSucesso("");
@@ -969,8 +944,9 @@ export default function Page() {
             <h2 className="text-xl font-bold">Registrar pagamento</h2>
 
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              O holerite somente será marcado como pago depois que os dados
-              financeiros e o comprovante forem registrados.
+              Informe os dados reais do pagamento. O PHANYX gerará um recibo
+              institucional em duas vias, com espaço para assinatura do RH e do
+              funcionário.
             </p>
 
             <div className="mt-5 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-800 dark:bg-slate-900 sm:grid-cols-3">
@@ -1125,30 +1101,6 @@ export default function Page() {
 
             <div className="mt-4">
               <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">
-                {formaPagamento === "DINHEIRO"
-                  ? "Recibo assinado"
-                  : "Comprovante do pagamento"}
-              </label>
-
-              <input
-                key={comprovanteInputKey}
-                type="file"
-                accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp"
-                disabled={pagando}
-                onChange={(e) =>
-                  setComprovantePagamento(e.target.files?.[0] || null)
-                }
-                className="mt-2 block w-full rounded-2xl border border-dashed border-slate-400 bg-slate-50 px-4 py-4 text-sm text-slate-700 file:mr-4 file:rounded-xl file:border-0 file:bg-slate-200 file:px-4 file:py-2 file:font-bold file:text-slate-800 hover:file:bg-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:file:bg-slate-700 dark:file:text-white"
-              />
-
-              <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-                PDF, JPG, PNG ou WEBP, com até 4 MB. O documento será guardado
-                no armazenamento privado do RH.
-              </p>
-            </div>
-
-            <div className="mt-4">
-              <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">
                 Observações
               </label>
 
@@ -1164,10 +1116,10 @@ export default function Page() {
             </div>
 
             <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
-              O sistema guardará o comprovante, seu hash SHA-256, os dados
-              financeiros, o responsável pelo registro e uma fotografia dos
-              eventos do holerite. Comissões vinculadas também serão atualizadas
-              para pagas.
+              O recibo será gerado em uma folha A4 com duas vias, logo da
+              instituição, dados do pagamento, composição do holerite,
+              assinaturas do RH e do funcionário e linha de corte no centro. O
+              holerite ficará aguardando assinatura.
             </div>
 
             {erro && (
@@ -1196,7 +1148,7 @@ export default function Page() {
                 onClick={registrarPagamentoHolerite}
                 className="rounded-2xl bg-emerald-600 px-5 py-2 text-sm font-bold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {pagando ? "Enviando comprovante..." : "Registrar pagamento"}
+                {pagando ? "Gerando recibo..." : "Gerar recibo de pagamento"}
               </button>
             </div>
           </div>
