@@ -29,6 +29,17 @@ type EventoFolhaPadrao = {
   natureza?: string | null;
 };
 
+type PagamentoResumoHolerite = {
+  id: number;
+  status: string;
+  reciboNumero: string;
+  registradoEm?: string | null;
+  pagoEm?: string | null;
+  assinaturaSolicitadaEm?: string | null;
+  confirmadoPeloFuncionarioEm?: string | null;
+  assinaturaImagemUrl?: string | null;
+};
+
 type Holerite = {
   id: number;
   competenciaMes: number;
@@ -50,6 +61,7 @@ type Holerite = {
     tipo: string;
     valor: string | number;
   }[];
+  pagamentos?: PagamentoResumoHolerite[];
 };
 
 type LinkAssinaturaRH = {
@@ -800,7 +812,34 @@ if (!resposta.ok) {
                   </td>
                 </tr>
               ) : (
-                holerites.map((holerite) => (
+                holerites.map((holerite) => {
+  const pagamentoAtual = holerite.pagamentos?.[0] || null;
+
+  const statusPagamento = String(
+    pagamentoAtual?.status || "",
+  ).toUpperCase();
+
+  const possuiRecibo = Boolean(
+    pagamentoAtual?.id &&
+      pagamentoAtual?.reciboNumero,
+  );
+
+  const reciboAssinado =
+    statusPagamento === "CONFIRMADO_FUNCIONARIO" &&
+    Boolean(
+      pagamentoAtual?.confirmadoPeloFuncionarioEm &&
+        pagamentoAtual?.assinaturaImagemUrl,
+    );
+
+  const podeGerarLink =
+    statusPagamento === "REGISTRADO" &&
+    !pagamentoAtual?.confirmadoPeloFuncionarioEm;
+
+  const linkJaFoiGerado = Boolean(
+    pagamentoAtual?.assinaturaSolicitadaEm,
+  );
+
+  return (
                   <tr
                     key={holerite.id}
                     className="border-b border-slate-100 dark:border-slate-800"
@@ -840,27 +879,34 @@ if (!resposta.ok) {
                           📄 PDF
                         </a>
 
-                        {String(holerite.status || "").toUpperCase() ===
-                          "AGUARDANDO_ASSINATURA" && (
-                            <>
-                              <a
-                                href={`/api/admin/rh/holerites/${holerite.id}/recibo-pagamento/pdf`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="rounded-xl border border-blue-600 px-3 py-1 text-sm font-semibold text-blue-700 transition hover:bg-blue-600 hover:text-white dark:text-blue-300"
-                              >
-                                Baixar recibo
-                              </a>
+                        {possuiRecibo && (
+  <a
+    href={`/api/admin/rh/holerites/${holerite.id}/recibo-pagamento/pdf`}
+    target="_blank"
+    rel="noopener noreferrer"
+    className={
+      reciboAssinado
+        ? "rounded-xl border border-emerald-600 px-3 py-1 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-600 hover:text-white dark:text-emerald-300"
+        : "rounded-xl border border-blue-600 px-3 py-1 text-sm font-semibold text-blue-700 transition hover:bg-blue-600 hover:text-white dark:text-blue-300"
+    }
+  >
+    {reciboAssinado
+      ? "📄 Recibo assinado"
+      : "📄 Ver recibo"}
+  </a>
+)}
 
-                              <button
-                                type="button"
-                                onClick={() => gerarLinkAssinatura(holerite)}
-                                className="rounded-xl border border-violet-600 px-3 py-1 text-sm font-semibold text-violet-700 transition hover:bg-violet-600 hover:text-white dark:text-violet-300"
-                              >
-                                Gerar link de assinatura
-                              </button>
-                            </>
-                          )}
+{podeGerarLink && (
+  <button
+    type="button"
+    onClick={() => gerarLinkAssinatura(holerite)}
+    className="rounded-xl border border-violet-600 px-3 py-1 text-sm font-semibold text-violet-700 transition hover:bg-violet-600 hover:text-white dark:text-violet-300"
+  >
+    {linkJaFoiGerado
+      ? "Gerar novo link"
+      : "Gerar link de assinatura"}
+  </button>
+)}
 
                         {![
                           "PAGO",
@@ -896,7 +942,8 @@ if (!resposta.ok) {
                       </div>
                     </td>
                   </tr>
-                ))
+                                );
+              })
               )}
             </tbody>
           </table>

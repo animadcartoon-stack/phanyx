@@ -213,17 +213,51 @@ export async function GET() {
         arquivado: false,
       },
       include: {
-        funcionario: {
-          select: {
-            id: true,
-            nome: true,
-            cargo: true,
-            codigoFuncionario: true,
-            departamento: { select: { nome: true } },
-          },
+  funcionario: {
+    select: {
+      id: true,
+      nome: true,
+      cargo: true,
+      codigoFuncionario: true,
+
+      departamento: {
+        select: {
+          nome: true,
         },
-        eventos: true,
       },
+    },
+  },
+
+  eventos: true,
+
+  pagamentos: {
+    where: {
+      status: {
+        notIn: [
+          StatusPagamentoHoleriteRH.CANCELADO,
+          StatusPagamentoHoleriteRH.SUBSTITUIDO,
+        ],
+      },
+    },
+
+    orderBy: {
+      registradoEm: "desc",
+    },
+
+    take: 1,
+
+    select: {
+      id: true,
+      status: true,
+      reciboNumero: true,
+      registradoEm: true,
+      pagoEm: true,
+      assinaturaSolicitadaEm: true,
+      confirmadoPeloFuncionarioEm: true,
+      assinaturaImagemUrl: true,
+    },
+  },
+},
       orderBy: [{ competenciaAno: "desc" }, { competenciaMes: "desc" }],
       take: 100,
     });
