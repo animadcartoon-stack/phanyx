@@ -278,10 +278,11 @@ model User {
   holeritesRHArquivados HoleriteRH[] @relation("HoleriteRHArquivadoPor")
   holeritesRHPagos      HoleriteRH[] @relation("HoleriteRHPagoPor")
 
-  pagamentosHoleriteRHRegistrados PagamentoHoleriteRH[] @relation("PagamentoHoleriteRHRegistradoPor")
-  pagamentosHoleriteRHConfirmados PagamentoHoleriteRH[] @relation("PagamentoHoleriteRHConfirmadoPor")
-  pagamentosHoleriteRHContestados PagamentoHoleriteRH[] @relation("PagamentoHoleriteRHContestadoPor")
-  pagamentosHoleriteRHCancelados  PagamentoHoleriteRH[] @relation("PagamentoHoleriteRHCanceladoPor")
+  pagamentosHoleriteRHRegistrados     PagamentoHoleriteRH[] @relation("PagamentoHoleriteRHRegistradoPor")
+  pagamentosHoleriteRHConfirmados     PagamentoHoleriteRH[] @relation("PagamentoHoleriteRHConfirmadoPor")
+  pagamentosHoleriteRHContestados     PagamentoHoleriteRH[] @relation("PagamentoHoleriteRHContestadoPor")
+  pagamentosHoleriteRHCancelados      PagamentoHoleriteRH[] @relation("PagamentoHoleriteRHCanceladoPor")
+  pagamentosHoleriteRHAssinadosPeloRh PagamentoHoleriteRH[] @relation("PagamentoHoleriteRHAssinadoPeloRh")
 
   documentosProfessorCriados     DocumentoProfessor[]           @relation("DocumentoProfessorCriadoPor")
   documentosProfessorArquivados  DocumentoProfessor[]           @relation("DocumentoProfessorArquivadoPor")
@@ -2997,57 +2998,70 @@ model HoleriteEventoRH {
 }
 
 model PagamentoHoleriteRH {
-  id                          Int                       @id @default(autoincrement())
-  instituicaoId               Int
-  funcionarioId               Int
-  holeriteId                  Int
-  registradoPorId             Int?
-  confirmadoPorUserId         Int?
-  contestadoPorUserId         Int?
-  canceladoPorId              Int?
-  substituiPagamentoId        Int?                      @unique
-  status                      StatusPagamentoHoleriteRH @default(REGISTRADO)
-  formaPagamento              FormaPagamentoHoleriteRH
-  valorPago                   Decimal                   @db.Decimal(10, 2)
-  pagoEm                      DateTime
-  identificadorTransacao      String?
-  contaDestinoMascarada       String?
-  bancoOrigem                 String?
-  observacoes                 String?                   @db.Text
-  funcionarioNomeSnapshot     String
-  funcionarioCpfSnapshot      String?
-  competenciaMesSnapshot      Int
-  competenciaAnoSnapshot      Int
-  valorLiquidoSnapshot        Decimal                   @db.Decimal(10, 2)
-  eventosSnapshot             Json
-  comprovanteUrl              String?
-  comprovanteNome             String?
-  comprovanteMime             String?
-  comprovanteTamanho          Int?
-  comprovanteHash             String?
-  reciboNumero                String
-  reciboPdfUrl                String?
-  reciboHash                  String?
-  reciboAssinadoUrl           String?
-  reciboAssinadoHash          String?
-  dadosPagamentoHash          String
-  tokenAssinaturaHash         String?                   @unique
-  tokenAssinaturaExpiraEm     DateTime?
-  assinaturaSolicitadaEm      DateTime?
-  tipoAssinatura              String?
-  assinaturaImagemUrl         String?
-  assinaturaImagemHash        String?
-  registradoEm                DateTime                  @default(now())
+  id                      Int                       @id @default(autoincrement())
+  instituicaoId           Int
+  funcionarioId           Int
+  holeriteId              Int
+  registradoPorId         Int?
+  confirmadoPorUserId     Int?
+  contestadoPorUserId     Int?
+  canceladoPorId          Int?
+  assinadoRhPorId         Int?
+  substituiPagamentoId    Int?                      @unique
+  status                  StatusPagamentoHoleriteRH @default(REGISTRADO)
+  formaPagamento          FormaPagamentoHoleriteRH
+  valorPago               Decimal                   @db.Decimal(10, 2)
+  pagoEm                  DateTime
+  identificadorTransacao  String?
+  contaDestinoMascarada   String?
+  bancoOrigem             String?
+  observacoes             String?                   @db.Text
+  funcionarioNomeSnapshot String
+  funcionarioCpfSnapshot  String?
+  competenciaMesSnapshot  Int
+  competenciaAnoSnapshot  Int
+  valorLiquidoSnapshot    Decimal                   @db.Decimal(10, 2)
+  eventosSnapshot         Json
+  comprovanteUrl          String?
+  comprovanteNome         String?
+  comprovanteMime         String?
+  comprovanteTamanho      Int?
+  comprovanteHash         String?
+  reciboNumero            String
+  reciboPdfUrl            String?
+  reciboHash              String?
+  reciboAssinadoUrl       String?
+  reciboAssinadoHash      String?
+  dadosPagamentoHash      String
+  tokenAssinaturaHash     String?                   @unique
+  tokenAssinaturaExpiraEm DateTime?
+  assinaturaSolicitadaEm  DateTime?
+  tipoAssinatura          String?
+  assinaturaImagemUrl     String?
+  assinaturaImagemHash    String?
+
+  assinadoRhEm                DateTime?
+  tipoAssinaturaRh            String?
+  assinaturaRhImagemUrl       String?
+  assinaturaRhImagemHash      String?
+  assinadoRhNomeSnapshot      String?
+  assinadoRhEmailSnapshot     String?
+  assinadoRhRoleSnapshot      String?
+  ipAssinaturaRh              String?
+  userAgentAssinaturaRh       String?   @db.Text
+  confirmacaoAssinaturaRhHash String?
+
+  registradoEm                DateTime  @default(now())
   confirmadoPeloFuncionarioEm DateTime?
   ipConfirmacao               String?
-  userAgentConfirmacao        String?                   @db.Text
+  userAgentConfirmacao        String?   @db.Text
   confirmacaoHash             String?
   contestadoEm                DateTime?
-  motivoContestacao           String?                   @db.Text
+  motivoContestacao           String?   @db.Text
   canceladoEm                 DateTime?
-  motivoCancelamento          String?                   @db.Text
-  criadoEm                    DateTime                  @default(now())
-  atualizadoEm                DateTime                  @updatedAt
+  motivoCancelamento          String?   @db.Text
+  criadoEm                    DateTime  @default(now())
+  atualizadoEm                DateTime  @updatedAt
 
   instituicao       Instituicao          @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   funcionario       Funcionario          @relation(fields: [funcionarioId], references: [id], onDelete: Restrict)
@@ -3056,6 +3070,7 @@ model PagamentoHoleriteRH {
   confirmadoPorUser User?                @relation("PagamentoHoleriteRHConfirmadoPor", fields: [confirmadoPorUserId], references: [id], onDelete: SetNull)
   contestadoPorUser User?                @relation("PagamentoHoleriteRHContestadoPor", fields: [contestadoPorUserId], references: [id], onDelete: SetNull)
   canceladoPor      User?                @relation("PagamentoHoleriteRHCanceladoPor", fields: [canceladoPorId], references: [id], onDelete: SetNull)
+  assinadoRhPor     User?                @relation("PagamentoHoleriteRHAssinadoPeloRh", fields: [assinadoRhPorId], references: [id], onDelete: SetNull)
   substitui         PagamentoHoleriteRH? @relation("PagamentoHoleriteRHSubstituicao", fields: [substituiPagamentoId], references: [id], onDelete: SetNull)
   substituidoPor    PagamentoHoleriteRH? @relation("PagamentoHoleriteRHSubstituicao")
 
@@ -3072,6 +3087,8 @@ model PagamentoHoleriteRH {
   @@index([status])
   @@index([pagoEm])
   @@index([tokenAssinaturaExpiraEm])
+  @@index([assinadoRhPorId])
+  @@index([assinadoRhEm])
 }
 
 model ContaBancariaFuncionarioRH {

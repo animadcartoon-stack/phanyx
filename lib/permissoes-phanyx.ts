@@ -377,6 +377,12 @@ export const PERMISSOES_PHANYX = [
 
   { chave: "rh.holerites", nome: "RH - Holerites" },
   { chave: "rh.holerites_gerar", nome: "RH - Gerar holerites" },
+  {
+  chave: "rh.holerites_assinar",
+  nome: "RH - Assinar digitalmente recibos de holerites",
+  descricao:
+    "Permite ao funcionário autorizado do RH assinar digitalmente o recibo de pagamento com seu usuário e ID.",
+},
   { chave: "rh.holerites_excluir", nome: "RH - Excluir holerites" },
 
   { chave: "rh.ferias", nome: "RH - Férias" },

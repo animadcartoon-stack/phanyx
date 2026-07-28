@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import PagamentoHoleriteModal from "@/components/rh/PagamentoHoleriteModal";
+import AssinaturaRhHoleriteModal from "@/components/rh/AssinaturaRhHoleriteModal";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 
 type Funcionario = {
@@ -38,6 +39,12 @@ type PagamentoResumoHolerite = {
   assinaturaSolicitadaEm?: string | null;
   confirmadoPeloFuncionarioEm?: string | null;
   assinaturaImagemUrl?: string | null;
+  assinadoRhPorId?: number | null;
+  assinadoRhEm?: string | null;
+  tipoAssinaturaRh?: string | null;
+  assinaturaRhImagemUrl?: string | null;
+  assinadoRhNomeSnapshot?: string | null;
+  assinadoRhEmailSnapshot?: string | null;
 };
 
 type Holerite = {
@@ -80,8 +87,8 @@ type LinkAssinaturaRH = {
 
 type AvisoCpfAssinaturaRH = {
   codigo:
-    | "CPF_FUNCIONARIO_AUSENTE"
-    | "CPF_FUNCIONARIO_INVALIDO";
+  | "CPF_FUNCIONARIO_AUSENTE"
+  | "CPF_FUNCIONARIO_INVALIDO";
 
   funcionarioId: number;
   funcionarioNome: string;
@@ -142,6 +149,11 @@ export default function Page() {
     null,
   );
 
+  const [
+    holeriteParaAssinaturaRh,
+    setHoleriteParaAssinaturaRh,
+  ] = useState<Holerite | null>(null);
+
   const [holeriteParaAssinatura, setHoleriteParaAssinatura] =
     useState<Holerite | null>(null);
 
@@ -155,9 +167,9 @@ export default function Page() {
   const [linkCopiado, setLinkCopiado] = useState(false);
 
   const [
-  avisoCpfAssinatura,
-  setAvisoCpfAssinatura,
-] = useState<AvisoCpfAssinaturaRH | null>(null);
+    avisoCpfAssinatura,
+    setAvisoCpfAssinatura,
+  ] = useState<AvisoCpfAssinaturaRH | null>(null);
 
   const [motivoArquivo, setMotivoArquivo] = useState("");
 
@@ -335,55 +347,55 @@ export default function Page() {
 
       const dados = await resposta.json().catch(() => null);
 
-const codigoErro = String(dados?.codigo || "");
+      const codigoErro = String(dados?.codigo || "");
 
-if (
-  !resposta.ok &&
-  [
-    "CPF_FUNCIONARIO_AUSENTE",
-    "CPF_FUNCIONARIO_INVALIDO",
-  ].includes(codigoErro)
-) {
-  const funcionarioIdErro = Number(
-    dados?.funcionarioId,
-  );
+      if (
+        !resposta.ok &&
+        [
+          "CPF_FUNCIONARIO_AUSENTE",
+          "CPF_FUNCIONARIO_INVALIDO",
+        ].includes(codigoErro)
+      ) {
+        const funcionarioIdErro = Number(
+          dados?.funcionarioId,
+        );
 
-  setAvisoCpfAssinatura({
-    codigo:
-      codigoErro as AvisoCpfAssinaturaRH["codigo"],
+        setAvisoCpfAssinatura({
+          codigo:
+            codigoErro as AvisoCpfAssinaturaRH["codigo"],
 
-    funcionarioId: funcionarioIdErro,
+          funcionarioId: funcionarioIdErro,
 
-    funcionarioNome: String(
-      dados?.funcionarioNome ||
-        holerite.funcionario?.nome ||
-        "Funcionário",
-    ),
+          funcionarioNome: String(
+            dados?.funcionarioNome ||
+            holerite.funcionario?.nome ||
+            "Funcionário",
+          ),
 
-    cadastroCpfUrl: String(
-      dados?.cadastroCpfUrl ||
-        `/admin/funcionarios/${funcionarioIdErro}`,
-    ),
+          cadastroCpfUrl: String(
+            dados?.cadastroCpfUrl ||
+            `/admin/funcionarios/${funcionarioIdErro}`,
+          ),
 
-    mensagem: String(
-      dados?.error ||
-        "Cadastre um CPF válido antes de gerar o link de assinatura.",
-    ),
-  });
+          mensagem: String(
+            dados?.error ||
+            "Cadastre um CPF válido antes de gerar o link de assinatura.",
+          ),
+        });
 
-  setHoleriteParaAssinatura(null);
-  setLinkAssinatura(null);
-  setErroAssinatura("");
+        setHoleriteParaAssinatura(null);
+        setLinkAssinatura(null);
+        setErroAssinatura("");
 
-  return;
-}
+        return;
+      }
 
-if (!resposta.ok) {
-  throw new Error(
-    dados?.error ||
-      "Não foi possível gerar o link de assinatura.",
-  );
-}
+      if (!resposta.ok) {
+        throw new Error(
+          dados?.error ||
+          "Não foi possível gerar o link de assinatura.",
+        );
+      }
 
       setLinkAssinatura({
         pagamentoId: Number(dados.pagamentoId),
@@ -813,137 +825,182 @@ if (!resposta.ok) {
                 </tr>
               ) : (
                 holerites.map((holerite) => {
-  const pagamentoAtual = holerite.pagamentos?.[0] || null;
+                  const pagamentoAtual = holerite.pagamentos?.[0] || null;
 
-  const statusPagamento = String(
-    pagamentoAtual?.status || "",
-  ).toUpperCase();
+                  const statusPagamento = String(
+                    pagamentoAtual?.status || "",
+                  ).toUpperCase();
 
-  const possuiRecibo = Boolean(
-    pagamentoAtual?.id &&
-      pagamentoAtual?.reciboNumero,
-  );
+                  const possuiRecibo = Boolean(
+                    pagamentoAtual?.id &&
+                    pagamentoAtual?.reciboNumero,
+                  );
 
-  const reciboAssinado =
-    statusPagamento === "CONFIRMADO_FUNCIONARIO" &&
-    Boolean(
-      pagamentoAtual?.confirmadoPeloFuncionarioEm &&
-        pagamentoAtual?.assinaturaImagemUrl,
-    );
+                  const reciboAssinado =
+                    statusPagamento === "CONFIRMADO_FUNCIONARIO" &&
+                    Boolean(
+                      pagamentoAtual?.confirmadoPeloFuncionarioEm &&
+                      pagamentoAtual?.assinaturaImagemUrl,
+                    );
 
-  const podeGerarLink =
-    statusPagamento === "REGISTRADO" &&
-    !pagamentoAtual?.confirmadoPeloFuncionarioEm;
+                  const podeGerarLink =
+                    statusPagamento === "REGISTRADO" &&
+                    !pagamentoAtual?.confirmadoPeloFuncionarioEm;
 
-  const linkJaFoiGerado = Boolean(
-    pagamentoAtual?.assinaturaSolicitadaEm,
-  );
+                  const linkJaFoiGerado = Boolean(
+                    pagamentoAtual?.assinaturaSolicitadaEm,
+                  );
 
-  return (
-                  <tr
-                    key={holerite.id}
-                    className="border-b border-slate-100 dark:border-slate-800"
-                  >
-                    <td className="py-3 font-semibold text-slate-900 dark:text-white">
-                      {holerite.funcionario?.nome || "Funcionário"}
-                    </td>
-                    <td className="py-3 text-slate-600 dark:text-slate-300">
-                      {String(holerite.competenciaMes).padStart(2, "0")}/
-                      {holerite.competenciaAno}
-                    </td>
-                    <td className="py-3 text-slate-600 dark:text-slate-300">
-                      {moeda(numero(holerite.salarioBase))}
-                    </td>
-                    <td className="py-3 text-emerald-700 dark:text-emerald-300">
-                      {moeda(numero(holerite.totalVencimentos))}
-                    </td>
-                    <td className="py-3 text-red-700 dark:text-red-300">
-                      {moeda(numero(holerite.totalDescontos))}
-                    </td>
-                    <td className="py-3 font-bold text-blue-700 dark:text-blue-300">
-                      {moeda(numero(holerite.valorLiquido))}
-                    </td>
-                    <td className="py-3">
-                      <span className="rounded-full border border-slate-300 bg-white px-3 py-1 text-xs font-bold text-slate-700">
-                        {holerite.status || "GERADO"}
-                      </span>
-                    </td>
-                    <td className="py-3 text-right">
-                      <div className="flex flex-wrap justify-end gap-2">
-                        <a
-                          href={`/api/admin/rh/holerites/${holerite.id}/pdf`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="rounded-xl border border-emerald-500 px-3 py-1 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-500 hover:text-white"
-                        >
-                          📄 PDF
-                        </a>
+                  const reciboAssinadoPeloRh = Boolean(
+                    pagamentoAtual?.assinadoRhPorId &&
+                    pagamentoAtual?.assinadoRhEm &&
+                    pagamentoAtual?.assinaturaRhImagemUrl,
+                  );
 
-                        {possuiRecibo && (
-  <a
-    href={`/api/admin/rh/holerites/${holerite.id}/recibo-pagamento/pdf`}
-    target="_blank"
-    rel="noopener noreferrer"
-    className={
-      reciboAssinado
-        ? "rounded-xl border border-emerald-600 px-3 py-1 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-600 hover:text-white dark:text-emerald-300"
-        : "rounded-xl border border-blue-600 px-3 py-1 text-sm font-semibold text-blue-700 transition hover:bg-blue-600 hover:text-white dark:text-blue-300"
-    }
-  >
-    {reciboAssinado
-      ? "📄 Recibo assinado"
-      : "📄 Ver recibo"}
-  </a>
-)}
+                  const podeAssinarComoRh =
+                    possuiRecibo &&
+                    !reciboAssinadoPeloRh &&
+                    [
+                      "REGISTRADO",
+                      "CONFIRMADO_FUNCIONARIO",
+                    ].includes(statusPagamento);
 
-{podeGerarLink && (
-  <button
-    type="button"
-    onClick={() => gerarLinkAssinatura(holerite)}
-    className="rounded-xl border border-violet-600 px-3 py-1 text-sm font-semibold text-violet-700 transition hover:bg-violet-600 hover:text-white dark:text-violet-300"
-  >
-    {linkJaFoiGerado
-      ? "Gerar novo link"
-      : "Gerar link de assinatura"}
-  </button>
-)}
+                  return (
+                    <tr
+                      key={holerite.id}
+                      className="border-b border-slate-100 dark:border-slate-800"
+                    >
+                      <td className="py-3 font-semibold text-slate-900 dark:text-white">
+                        {holerite.funcionario?.nome || "Funcionário"}
+                      </td>
+                      <td className="py-3 text-slate-600 dark:text-slate-300">
+                        {String(holerite.competenciaMes).padStart(2, "0")}/
+                        {holerite.competenciaAno}
+                      </td>
+                      <td className="py-3 text-slate-600 dark:text-slate-300">
+                        {moeda(numero(holerite.salarioBase))}
+                      </td>
+                      <td className="py-3 text-emerald-700 dark:text-emerald-300">
+                        {moeda(numero(holerite.totalVencimentos))}
+                      </td>
+                      <td className="py-3 text-red-700 dark:text-red-300">
+                        {moeda(numero(holerite.totalDescontos))}
+                      </td>
+                      <td className="py-3 font-bold text-blue-700 dark:text-blue-300">
+                        {moeda(numero(holerite.valorLiquido))}
+                      </td>
+                      <td className="py-3">
+                        <span className="rounded-full border border-slate-300 bg-white px-3 py-1 text-xs font-bold text-slate-700">
+                          {holerite.status || "GERADO"}
+                        </span>
+                      </td>
+                      <td className="py-3 text-right">
+                        <div className="flex flex-wrap justify-end gap-2">
+                          <a
+                            href={`/api/admin/rh/holerites/${holerite.id}/pdf`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="rounded-xl border border-emerald-500 px-3 py-1 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-500 hover:text-white"
+                          >
+                            📄 PDF
+                          </a>
 
-                        {![
-                          "PAGO",
-                          "ARQUIVADO",
-                          "CANCELADO",
-                          "AGUARDANDO_ASSINATURA",
-                        ].includes(
-                          String(holerite.status || "").toUpperCase(),
-                        ) && (
+                          {possuiRecibo && (
+                            <a
+                              href={`/api/admin/rh/holerites/${holerite.id}/recibo-pagamento/pdf`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={
+                                reciboAssinado
+                                  ? "rounded-xl border border-emerald-600 px-3 py-1 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-600 hover:text-white dark:text-emerald-300"
+                                  : "rounded-xl border border-blue-600 px-3 py-1 text-sm font-semibold text-blue-700 transition hover:bg-blue-600 hover:text-white dark:text-blue-300"
+                              }
+                            >
+                              {reciboAssinado
+                                ? "📄 Recibo assinado"
+                                : "📄 Ver recibo"}
+                            </a>
+                          )}
+
+                          {podeAssinarComoRh && (
                             <button
                               type="button"
                               onClick={() => {
-                                setHoleriteParaPagar(holerite);
+                                setHoleriteParaAssinaturaRh(holerite);
                                 setErro("");
                                 setSucesso("");
                               }}
                               className="rounded-xl border border-emerald-600 px-3 py-1 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-600 hover:text-white dark:text-emerald-300"
                             >
-                              Registrar pagamento
+                              ✍️ Assinar como RH
                             </button>
                           )}
 
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setHoleriteParaArquivar(holerite);
-                            setMotivoArquivo("");
-                          }}
-                          className="rounded-xl border border-amber-500 px-3 py-1 text-sm font-semibold text-amber-300 transition hover:bg-amber-500 hover:text-white"
-                        >
-                          Arquivar
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                                );
-              })
+                          {reciboAssinadoPeloRh && (
+                            <span
+                              title={
+                                pagamentoAtual?.assinadoRhNomeSnapshot
+                                  ? `Assinado por ${pagamentoAtual.assinadoRhNomeSnapshot} em ${dataHoraBR(
+                                    pagamentoAtual.assinadoRhEm,
+                                  )}`
+                                  : `Assinado pelo RH em ${dataHoraBR(
+                                    pagamentoAtual?.assinadoRhEm,
+                                  )}`
+                              }
+                              className="inline-flex items-center rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200"
+                            >
+                              ✓ Assinado pelo RH
+                            </span>
+                          )}
+
+                          {podeGerarLink && (
+                            <button
+                              type="button"
+                              onClick={() => gerarLinkAssinatura(holerite)}
+                              className="rounded-xl border border-violet-600 px-3 py-1 text-sm font-semibold text-violet-700 transition hover:bg-violet-600 hover:text-white dark:text-violet-300"
+                            >
+                              {linkJaFoiGerado
+                                ? "Gerar novo link"
+                                : "Gerar link de assinatura"}
+                            </button>
+                          )}
+
+                          {![
+                            "PAGO",
+                            "ARQUIVADO",
+                            "CANCELADO",
+                            "AGUARDANDO_ASSINATURA",
+                          ].includes(
+                            String(holerite.status || "").toUpperCase(),
+                          ) && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setHoleriteParaPagar(holerite);
+                                  setErro("");
+                                  setSucesso("");
+                                }}
+                                className="rounded-xl border border-emerald-600 px-3 py-1 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-600 hover:text-white dark:text-emerald-300"
+                              >
+                                Registrar pagamento
+                              </button>
+                            )}
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setHoleriteParaArquivar(holerite);
+                              setMotivoArquivo("");
+                            }}
+                            className="rounded-xl border border-amber-500 px-3 py-1 text-sm font-semibold text-amber-300 transition hover:bg-amber-500 hover:text-white"
+                          >
+                            Arquivar
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
@@ -1023,6 +1080,20 @@ if (!resposta.ok) {
           onFechar={() => {
             setHoleriteParaPagar(null);
             setErro("");
+          }}
+          onConcluido={async (mensagem) => {
+            setErro("");
+            setSucesso(mensagem);
+            await carregarDados();
+          }}
+        />
+      )}
+
+      {holeriteParaAssinaturaRh && (
+        <AssinaturaRhHoleriteModal
+          holerite={holeriteParaAssinaturaRh}
+          onFechar={() => {
+            setHoleriteParaAssinaturaRh(null);
           }}
           onConcluido={async (mensagem) => {
             setErro("");
@@ -1169,34 +1240,34 @@ if (!resposta.ok) {
       )}
 
       <PhanyxConfirmModal
-  aberto={Boolean(avisoCpfAssinatura)}
-  titulo={
-    avisoCpfAssinatura?.codigo ===
-    "CPF_FUNCIONARIO_INVALIDO"
-      ? "CPF do funcionário inválido"
-      : "CPF do funcionário não cadastrado"
-  }
-  mensagem={
-    avisoCpfAssinatura
-      ? `${avisoCpfAssinatura.mensagem} O CPF será utilizado para validar a identidade do funcionário no momento da assinatura do recibo.`
-      : ""
-  }
-  textoConfirmar="Cadastrar CPF"
-  textoCancelar="Agora não"
-  onCancelar={() => {
-    setAvisoCpfAssinatura(null);
-  }}
-  onConfirmar={() => {
-    const destino =
-      avisoCpfAssinatura?.cadastroCpfUrl;
+        aberto={Boolean(avisoCpfAssinatura)}
+        titulo={
+          avisoCpfAssinatura?.codigo ===
+            "CPF_FUNCIONARIO_INVALIDO"
+            ? "CPF do funcionário inválido"
+            : "CPF do funcionário não cadastrado"
+        }
+        mensagem={
+          avisoCpfAssinatura
+            ? `${avisoCpfAssinatura.mensagem} O CPF será utilizado para validar a identidade do funcionário no momento da assinatura do recibo.`
+            : ""
+        }
+        textoConfirmar="Cadastrar CPF"
+        textoCancelar="Agora não"
+        onCancelar={() => {
+          setAvisoCpfAssinatura(null);
+        }}
+        onConfirmar={() => {
+          const destino =
+            avisoCpfAssinatura?.cadastroCpfUrl;
 
-    setAvisoCpfAssinatura(null);
+          setAvisoCpfAssinatura(null);
 
-    if (destino) {
-      window.location.href = destino;
-    }
-  }}
-/>
+          if (destino) {
+            window.location.href = destino;
+          }
+        }}
+      />
 
     </div>
   );
