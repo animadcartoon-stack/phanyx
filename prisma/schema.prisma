@@ -4092,7 +4092,7 @@ model LancamentoComissaoRH {
   reprovadoPor          User?                           @relation("LancamentoComissaoRHReprovadoPor", fields: [reprovadoPorId], references: [id])
   enviadoHoleritePor    User?                           @relation("LancamentoComissaoRHEnviadoHoleritePor", fields: [enviadoHoleritePorId], references: [id], onDelete: SetNull)
   estornadoPor          User?                           @relation("LancamentoComissaoRHEstornadoPor", fields: [estornadoPorId], references: [id])
-  user                  User?                           @relation(fields: [userId], references: [id])
+  User                  User?                           @relation(fields: [userId], references: [id])
   userId                Int?
 
   @@unique([instituicaoId, chaveCalculo])
