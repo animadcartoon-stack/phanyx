@@ -78,6 +78,10 @@ export default function AdminShell({
       return "comercial-phanyx";
     }
 
+    if (pathname.startsWith("/admin/polos")) {
+      return "configuracoes";
+    }
+
     if (pathname.startsWith("/admin/comercial")) {
       return "comercial";
     }
@@ -715,17 +719,6 @@ export default function AdminShell({
                           📊 Visão Geral
                         </Link>
 
-                        {podeGerenciarPolos && (
-                          <Link
-                            href="/admin/polos"
-                            className={getLinkClass(
-                              "/admin/polos"
-                            )}
-                          >
-                            🏢 Polos e unidades
-                          </Link>
-                        )}
-
                         {podeGerenciarConfiguracoesComerciais && (
                           <Link
                             href="/admin/comercial/configuracoes"
@@ -1207,6 +1200,15 @@ export default function AdminShell({
                         ⚙️ Instituição
                       </Link>
 
+                      {podeGerenciarPolos && (
+                        <Link
+                          href="/admin/polos"
+                          className={getLinkClass("/admin/polos")}
+                        >
+                          🏢 Polos e unidades
+                        </Link>
+                      )}
+
                       <Link
                         href="/admin/departamentos"
                         className={getLinkClass("/admin/departamentos")}
@@ -1349,15 +1351,6 @@ export default function AdminShell({
                       >
                         📊 Visão Geral
                       </Link>
-
-                      {podeGerenciarPolos && (
-                        <Link
-                          href="/admin/polos"
-                          className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                        >
-                          🏢 Polos e unidades
-                        </Link>
-                      )}
 
                       {podeGerenciarConfiguracoesComerciais && (
                         <Link
@@ -1549,6 +1542,14 @@ export default function AdminShell({
                     <Link href="/admin/configuracoes/instituicao" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
                       ⚙️ Instituição
                     </Link>
+                    {podeGerenciarPolos && (
+                      <Link
+                        href="/admin/polos"
+                        className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                      >
+                        🏢 Polos e unidades
+                      </Link>
+                    )}
                     <Link
                       href="/admin/assinatura"
                       className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
@@ -1748,33 +1749,33 @@ export default function AdminShell({
           )}
 
           {rotaPolosBloqueada ? (
-  <div className="mx-auto max-w-3xl rounded-2xl border border-amber-300 bg-amber-50 p-6 shadow-sm dark:border-amber-800 dark:bg-amber-950/30">
-    <h1 className="text-xl font-bold text-amber-950 dark:text-amber-100">
-      Gestão de polos não habilitada
-    </h1>
+            <div className="mx-auto max-w-3xl rounded-2xl border border-amber-300 bg-amber-50 p-6 shadow-sm dark:border-amber-800 dark:bg-amber-950/30">
+              <h1 className="text-xl font-bold text-amber-950 dark:text-amber-100">
+                Gestão de polos não habilitada
+              </h1>
 
-    <p className="mt-3 text-sm leading-6 text-amber-900 dark:text-amber-200">
-      Este ID institucional não possui
-      autorização para criar ou gerenciar
-      polos. Essa permissão é controlada pela
-      instituição contratante da rede.
-    </p>
+              <p className="mt-3 text-sm leading-6 text-amber-900 dark:text-amber-200">
+                Este ID institucional não possui
+                autorização para criar ou gerenciar
+                polos. Essa permissão é controlada pela
+                instituição contratante da rede.
+              </p>
 
-    <button
-      type="button"
-      onClick={() =>
-        router.replace("/admin")
-      }
-      className="mt-5 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-    >
-      Voltar ao painel
-    </button>
-  </div>
-) : (
-  children
-)}
+              <button
+                type="button"
+                onClick={() =>
+                  router.replace("/admin")
+                }
+                className="mt-5 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+              >
+                Voltar ao painel
+              </button>
+            </div>
+          ) : (
+            children
+          )}
 
-<ChatGlobalWidget />
+          <ChatGlobalWidget />
         </main>
 
         <PhanyxConfirmModal
