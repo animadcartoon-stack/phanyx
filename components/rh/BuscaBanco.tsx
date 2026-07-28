@@ -320,8 +320,8 @@ export default function BuscaBanco({
                                         event.preventDefault();
                                     }}
                                     onClick={() => selecionarBanco(banco)}
-                                    className={`block w-full rounded-xl px-4 py-3 text-left transition ${ativo
-                                            ? "bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-white"
+                                    className={`phanyx-banco-opcao block w-full rounded-xl px-4 py-3 text-left transition ${ativo
+                                            ? "phanyx-banco-opcao-ativa"
                                             : "text-slate-800 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
                                         }`}
                                 >
