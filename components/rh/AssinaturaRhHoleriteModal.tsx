@@ -58,11 +58,6 @@ export default function AssinaturaRhHoleriteModal({
   ] = useState<TipoAssinaturaRh>("DESENHO");
 
   const [
-    assinaturaDigital,
-    setAssinaturaDigital,
-  ] = useState("");
-
-  const [
     assinaturaDesenhada,
     setAssinaturaDesenhada,
   ] = useState(false);
@@ -208,56 +203,6 @@ export default function AssinaturaRhHoleriteModal({
     setErro("");
   }
 
-  function gerarAssinaturaDigitada() {
-    const canvas =
-      document.createElement("canvas");
-
-    canvas.width = 900;
-    canvas.height = 260;
-
-    const contexto =
-      canvas.getContext("2d");
-
-    if (!contexto) {
-      return "";
-    }
-
-    contexto.clearRect(
-      0,
-      0,
-      canvas.width,
-      canvas.height,
-    );
-
-    contexto.fillStyle = "#0f172a";
-    contexto.font =
-      "italic 62px Georgia, serif";
-
-    contexto.fillText(
-      assinaturaDigital.trim(),
-      45,
-      125,
-    );
-
-    contexto.fillStyle = "#475569";
-    contexto.font =
-      "18px Arial, sans-serif";
-
-    contexto.fillText(
-      "Assinatura eletrônica do representante do RH",
-      45,
-      190,
-    );
-
-    contexto.fillText(
-      `Holerite ID: ${holerite.id}`,
-      45,
-      220,
-    );
-
-    return canvas.toDataURL("image/png");
-  }
-
   async function confirmarAssinatura() {
     setErro("");
 
@@ -269,43 +214,30 @@ export default function AssinaturaRhHoleriteModal({
       return;
     }
 
-    let assinaturaBase64 = "";
+   let assinaturaBase64 = "";
 
-    if (tipoAssinatura === "DESENHO") {
-      if (!assinaturaDesenhada) {
-        setErro(
-          "Desenhe sua assinatura no espaço indicado.",
-        );
+if (tipoAssinatura === "DESENHO") {
+  if (!assinaturaDesenhada) {
+    setErro(
+      "Desenhe sua assinatura no espaço indicado.",
+    );
 
-        return;
-      }
+    return;
+  }
 
-      assinaturaBase64 =
-        canvasRef.current?.toDataURL(
-          "image/png",
-        ) || "";
-    } else {
-      if (
-        assinaturaDigital.trim().length < 3
-      ) {
-        setErro(
-          "Digite seu nome completo para gerar a assinatura.",
-        );
+  assinaturaBase64 =
+    canvasRef.current?.toDataURL(
+      "image/png",
+    ) || "";
 
-        return;
-      }
+  if (!assinaturaBase64) {
+    setErro(
+      "Não foi possível gerar a imagem da assinatura.",
+    );
 
-      assinaturaBase64 =
-        gerarAssinaturaDigitada();
-    }
-
-    if (!assinaturaBase64) {
-      setErro(
-        "Não foi possível gerar a imagem da assinatura.",
-      );
-
-      return;
-    }
+    return;
+  }
+}
 
     try {
       setAssinando(true);
@@ -471,39 +403,42 @@ export default function AssinaturaRhHoleriteModal({
               Limpar assinatura
             </button>
           </div>
-        ) : (
-          <div className="mt-5">
-            <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-              Digite seu nome completo
-            </label>
+       ) : (
+  <div className="mt-5 rounded-2xl border border-emerald-300 bg-emerald-50 p-5 text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-100">
+    <div className="flex items-start gap-3">
+      <div className="text-2xl">🔐</div>
 
-            <input
-              value={assinaturaDigital}
-              onChange={(event) => {
-                setAssinaturaDigital(
-                  event.target.value,
-                );
+      <div>
+        <p className="font-bold">
+          Assinatura digital autenticada
+        </p>
 
-                setErro("");
-              }}
-              disabled={assinando}
-              placeholder="Nome do representante do RH"
-              className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-lg text-slate-900 outline-none focus:border-slate-500 dark:border-slate-600 dark:bg-slate-900 dark:text-white"
-            />
+        <p className="mt-2 text-sm leading-6">
+          A assinatura será realizada exclusivamente com o usuário
+          atualmente autenticado no PHANYX. Não é possível informar,
+          alterar ou substituir o nome do assinante neste formulário.
+        </p>
 
-            <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-6 text-center dark:border-slate-700 dark:bg-slate-900">
-              <p className="font-serif text-4xl italic text-slate-900 dark:text-white">
-                {assinaturaDigital ||
-                  "Sua assinatura"}
-              </p>
+        <div className="mt-4 rounded-xl border border-emerald-200 bg-white/70 p-4 text-sm dark:border-emerald-800 dark:bg-slate-900/60">
+          <p>
+            <strong>Identidade:</strong>{" "}
+            obtida da sessão autenticada
+          </p>
 
-              <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-                Assinatura eletrônica do
-                representante do RH
-              </p>
-            </div>
-          </div>
-        )}
+          <p className="mt-2">
+            <strong>Usuário e ID:</strong>{" "}
+            confirmados novamente no banco de dados
+          </p>
+
+          <p className="mt-2">
+            <strong>Auditoria:</strong>{" "}
+            instituição, data, horário, IP, navegador e hash
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
         <label className="mt-5 flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
           <input
@@ -560,8 +495,10 @@ export default function AssinaturaRhHoleriteModal({
             className="rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {assinando
-              ? "Registrando assinatura..."
-              : "Assinar recibo como RH"}
+  ? "Registrando assinatura..."
+  : tipoAssinatura === "DIGITAL"
+    ? "Assinar com meu usuário PHANYX"
+    : "Registrar assinatura desenhada"}
           </button>
         </div>
       </div>
