@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import PagamentoHoleriteModal from "@/components/rh/PagamentoHoleriteModal";
 import AssinaturaRhHoleriteModal from "@/components/rh/AssinaturaRhHoleriteModal";
+import ReciboAssinadoManualModal from "@/components/rh/ReciboAssinadoManualModal";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 
 type Funcionario = {
@@ -30,6 +31,15 @@ type EventoFolhaPadrao = {
   natureza?: string | null;
 };
 
+type DocumentoAssinadoManualResumo = {
+  id: number;
+  arquivoNome: string;
+  arquivoMime: string;
+  criadoEm: string;
+  dataAssinaturaDeclarada?: string | null;
+  enviadoPorNomeSnapshot: string;
+};
+
 type PagamentoResumoHolerite = {
   id: number;
   status: string;
@@ -45,6 +55,12 @@ type PagamentoResumoHolerite = {
   assinaturaRhImagemUrl?: string | null;
   assinadoRhNomeSnapshot?: string | null;
   assinadoRhEmailSnapshot?: string | null;
+  tipoConfirmacaoRecebimento?:
+  | "ASSINATURA_DIGITAL"
+  | "DOCUMENTO_MANUAL"
+  | null;
+
+  documentosAssinadosManualmente?: DocumentoAssinadoManualResumo[];
 };
 
 type Holerite = {
@@ -57,8 +73,15 @@ type Holerite = {
   valorLiquido: string | number;
   status: string;
   funcionario?: {
+    id?: number;
     nome: string;
     cargo?: string | null;
+    userId?: number | null;
+
+    user?: {
+      id: number;
+      ativo: boolean;
+    } | null;
   };
   eventos?: {
     id: number;
@@ -152,6 +175,11 @@ export default function Page() {
   const [
     holeriteParaAssinaturaRh,
     setHoleriteParaAssinaturaRh,
+  ] = useState<Holerite | null>(null);
+
+  const [
+    holeriteParaReciboManual,
+    setHoleriteParaReciboManual,
   ] = useState<Holerite | null>(null);
 
   const [holeriteParaAssinatura, setHoleriteParaAssinatura] =
@@ -836,25 +864,67 @@ export default function Page() {
                     pagamentoAtual?.reciboNumero,
                   );
 
-                  const reciboAssinado =
-                    statusPagamento === "CONFIRMADO_FUNCIONARIO" &&
+                  const funcionarioPossuiLoginAtivo =
+                    holerite.funcionario?.user?.ativo === true;
+
+                  const documentoManualAtual =
+                    pagamentoAtual
+                      ?.documentosAssinadosManualmente?.[0] ||
+                    null;
+
+                  const tipoConfirmacaoRecebimento = String(
+                    pagamentoAtual?.tipoConfirmacaoRecebimento ||
+                    "",
+                  ).toUpperCase();
+
+                  const reciboAssinadoManual =
+                    statusPagamento ===
+                    "CONFIRMADO_FUNCIONARIO" &&
+                    tipoConfirmacaoRecebimento ===
+                    "DOCUMENTO_MANUAL" &&
                     Boolean(
-                      pagamentoAtual?.confirmadoPeloFuncionarioEm &&
-                      pagamentoAtual?.assinaturaImagemUrl,
+                      pagamentoAtual
+                        ?.confirmadoPeloFuncionarioEm &&
+                      documentoManualAtual?.id,
                     );
 
+                  const reciboAssinadoDigital =
+                    statusPagamento ===
+                    "CONFIRMADO_FUNCIONARIO" &&
+                    tipoConfirmacaoRecebimento !==
+                    "DOCUMENTO_MANUAL" &&
+                    Boolean(
+                      pagamentoAtual
+                        ?.confirmadoPeloFuncionarioEm,
+                    );
+
+                  const reciboAssinado =
+                    reciboAssinadoManual ||
+                    reciboAssinadoDigital;
+
                   const podeGerarLink =
+                    possuiRecibo &&
+                    funcionarioPossuiLoginAtivo &&
                     statusPagamento === "REGISTRADO" &&
-                    !pagamentoAtual?.confirmadoPeloFuncionarioEm;
+                    !pagamentoAtual
+                      ?.confirmadoPeloFuncionarioEm;
+
+                  const podeEnviarReciboManual =
+                    possuiRecibo &&
+                    !funcionarioPossuiLoginAtivo &&
+                    statusPagamento === "REGISTRADO" &&
+                    !pagamentoAtual
+                      ?.confirmadoPeloFuncionarioEm &&
+                    !documentoManualAtual;
 
                   const linkJaFoiGerado = Boolean(
-                    pagamentoAtual?.assinaturaSolicitadaEm,
+                    pagamentoAtual
+                      ?.assinaturaSolicitadaEm,
                   );
 
                   const reciboAssinadoPeloRh = Boolean(
                     pagamentoAtual?.assinadoRhPorId &&
-                    pagamentoAtual?.assinadoRhEm &&
-                    pagamentoAtual?.assinaturaRhImagemUrl,
+                    pagamentoAtual?.assinadoRhEm,
                   );
 
                   const podeAssinarComoRh =
@@ -911,174 +981,257 @@ export default function Page() {
                               target="_blank"
                               rel="noopener noreferrer"
                               className={
-                                reciboAssinado
-                                  ? "rounded-xl border border-emerald-600 px-3 py-1 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-600 hover:text-white dark:text-emerald-300"
-                                  : "rounded-xl border border-blue-600 px-3 py-1 text-sm font-semibold text-blue-700 transition hover:bg-blue-600 hover:text-white dark:text-blue-300"
-                              }
+                                reciboAssinadoManual
+                                  ? "📄 Ver recibo original"
+                                  : reciboAssinadoDigital
+                                    ? "📄 Recibo assinado"
+                                    : "📄 Ver recibo"}
+                              
                             >
-                              {reciboAssinado
-                                ? "📄 Recibo assinado"
-                                : "📄 Ver recibo"}
-                            </a>
+                          {reciboAssinado
+                            ? "📄 Recibo assinado"
+                            : "📄 Ver recibo"}
+                        </a>
                           )}
 
-                          {podeAssinarComoRh && (
+                        {podeAssinarComoRh && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setHoleriteParaAssinaturaRh(holerite);
+                              setErro("");
+                              setSucesso("");
+                            }}
+                            className="rounded-xl border border-emerald-600 px-3 py-1 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-600 hover:text-white dark:text-emerald-300"
+                          >
+                            ✍️ Assinar como RH
+                          </button>
+                        )}
+
+                        {reciboAssinadoPeloRh && (
+                          <span
+                            title={
+                              pagamentoAtual?.assinadoRhNomeSnapshot
+                                ? `Assinado por ${pagamentoAtual.assinadoRhNomeSnapshot} em ${dataHoraBR(
+                                  pagamentoAtual.assinadoRhEm,
+                                )}`
+                                : `Assinado pelo RH em ${dataHoraBR(
+                                  pagamentoAtual?.assinadoRhEm,
+                                )}`
+                            }
+                            className="inline-flex items-center rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200"
+                          >
+                            ✓ Assinado pelo RH
+                          </span>
+                        )}
+
+                                                  {podeEnviarReciboManual && (
                             <button
                               type="button"
                               onClick={() => {
-                                setHoleriteParaAssinaturaRh(holerite);
+                                setHoleriteParaReciboManual(
+                                  holerite,
+                                );
+                                setErro("");
+                                setSucesso("");
+                              }}
+                              className="rounded-xl border border-amber-600 px-3 py-1 text-sm font-semibold text-amber-800 transition hover:bg-amber-600 hover:text-white dark:text-amber-300"
+                            >
+                              🖨️ Imprimir e enviar assinado
+                            </button>
+                          )}
+
+                          {reciboAssinadoManual &&
+  documentoManualAtual && (
+    <>
+      <span
+        title={`Documento ${documentoManualAtual.arquivoNome} enviado por ${documentoManualAtual.enviadoPorNomeSnapshot} em ${dataHoraBR(
+          documentoManualAtual.criadoEm,
+        )}`}
+        className="inline-flex items-center rounded-xl border border-amber-300 bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200"
+      >
+        ✓ Assinatura manual recebida
+      </span>
+
+      <a
+        href={`/api/admin/rh/holerites/${holerite.id}/recibo-assinado-manual/${documentoManualAtual.id}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="rounded-xl border border-slate-400 px-3 py-1 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800"
+      >
+        👁️ Ver documento assinado
+      </a>
+
+      <a
+        href={`/api/admin/rh/holerites/${holerite.id}/recibo-assinado-manual/${documentoManualAtual.id}?download=1`}
+        className="rounded-xl border border-emerald-600 px-3 py-1 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-600 hover:text-white dark:text-emerald-300"
+      >
+        ⬇️ Baixar documento assinado
+      </a>
+    </>
+  )}
+
+                        {podeGerarLink && (
+                          <button
+                            type="button"
+                            onClick={() => gerarLinkAssinatura(holerite)}
+                            className="rounded-xl border border-violet-600 px-3 py-1 text-sm font-semibold text-violet-700 transition hover:bg-violet-600 hover:text-white dark:text-violet-300"
+                          >
+                            {linkJaFoiGerado
+                              ? "Gerar novo link"
+                              : "Gerar link de assinatura"}
+                          </button>
+                        )}
+
+                        {![
+                          "PAGO",
+                          "ARQUIVADO",
+                          "CANCELADO",
+                          "AGUARDANDO_ASSINATURA",
+                        ].includes(
+                          String(holerite.status || "").toUpperCase(),
+                        ) && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setHoleriteParaPagar(holerite);
                                 setErro("");
                                 setSucesso("");
                               }}
                               className="rounded-xl border border-emerald-600 px-3 py-1 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-600 hover:text-white dark:text-emerald-300"
                             >
-                              ✍️ Assinar como RH
+                              Registrar pagamento
                             </button>
                           )}
 
-                          {reciboAssinadoPeloRh && (
-                            <span
-                              title={
-                                pagamentoAtual?.assinadoRhNomeSnapshot
-                                  ? `Assinado por ${pagamentoAtual.assinadoRhNomeSnapshot} em ${dataHoraBR(
-                                    pagamentoAtual.assinadoRhEm,
-                                  )}`
-                                  : `Assinado pelo RH em ${dataHoraBR(
-                                    pagamentoAtual?.assinadoRhEm,
-                                  )}`
-                              }
-                              className="inline-flex items-center rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200"
-                            >
-                              ✓ Assinado pelo RH
-                            </span>
-                          )}
-
-                          {podeGerarLink && (
-                            <button
-                              type="button"
-                              onClick={() => gerarLinkAssinatura(holerite)}
-                              className="rounded-xl border border-violet-600 px-3 py-1 text-sm font-semibold text-violet-700 transition hover:bg-violet-600 hover:text-white dark:text-violet-300"
-                            >
-                              {linkJaFoiGerado
-                                ? "Gerar novo link"
-                                : "Gerar link de assinatura"}
-                            </button>
-                          )}
-
-                          {![
-                            "PAGO",
-                            "ARQUIVADO",
-                            "CANCELADO",
-                            "AGUARDANDO_ASSINATURA",
-                          ].includes(
-                            String(holerite.status || "").toUpperCase(),
-                          ) && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setHoleriteParaPagar(holerite);
-                                  setErro("");
-                                  setSucesso("");
-                                }}
-                                className="rounded-xl border border-emerald-600 px-3 py-1 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-600 hover:text-white dark:text-emerald-300"
-                              >
-                                Registrar pagamento
-                              </button>
-                            )}
-
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setHoleriteParaArquivar(holerite);
-                              setMotivoArquivo("");
-                            }}
-                            className="rounded-xl border border-amber-500 px-3 py-1 text-sm font-semibold text-amber-300 transition hover:bg-amber-500 hover:text-white"
-                          >
-                            Arquivar
-                          </button>
-                        </div>
-                      </td>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setHoleriteParaArquivar(holerite);
+                            setMotivoArquivo("");
+                          }}
+                          className="rounded-xl border border-amber-500 px-3 py-1 text-sm font-semibold text-amber-300 transition hover:bg-amber-500 hover:text-white"
+                        >
+                          Arquivar
+                        </button>
+                      </div>
+                    </td>
                     </tr>
-                  );
+            );
                 })
               )}
-            </tbody>
-          </table>
-        </div>
+          </tbody>
+        </table>
       </div>
+    </div>
 
-      {holeriteParaArquivar && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="w-full max-w-lg rounded-3xl border border-slate-700 bg-slate-950 p-6 shadow-2xl">
-            <h2 className="text-xl font-bold text-white">Arquivar holerite</h2>
+      {
+    holeriteParaArquivar && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+        <div className="w-full max-w-lg rounded-3xl border border-slate-700 bg-slate-950 p-6 shadow-2xl">
+          <h2 className="text-xl font-bold text-white">Arquivar holerite</h2>
 
-            <p className="mt-3 text-sm text-slate-300">
-              Este holerite não será excluído do sistema. Ele ficará preservado
-              para auditoria, direção e conferências futuras.
+          <p className="mt-3 text-sm text-slate-300">
+            Este holerite não será excluído do sistema. Ele ficará preservado
+            para auditoria, direção e conferências futuras.
+          </p>
+
+          <div className="mt-5 rounded-2xl border border-slate-800 bg-slate-900 p-4 text-sm text-slate-200">
+            <p>
+              <strong>Funcionário:</strong>{" "}
+              {holeriteParaArquivar.funcionario?.nome || "Funcionário"}
             </p>
+            <p className="mt-2">
+              <strong>Competência:</strong>{" "}
+              {String(holeriteParaArquivar.competenciaMes).padStart(2, "0")}/
+              {holeriteParaArquivar.competenciaAno}
+            </p>
+          </div>
 
-            <div className="mt-5 rounded-2xl border border-slate-800 bg-slate-900 p-4 text-sm text-slate-200">
-              <p>
-                <strong>Funcionário:</strong>{" "}
-                {holeriteParaArquivar.funcionario?.nome || "Funcionário"}
-              </p>
-              <p className="mt-2">
-                <strong>Competência:</strong>{" "}
-                {String(holeriteParaArquivar.competenciaMes).padStart(2, "0")}/
-                {holeriteParaArquivar.competenciaAno}
-              </p>
+          <label className="mt-5 block text-xs font-bold uppercase text-slate-300">
+            Motivo do arquivamento
+          </label>
+
+          <textarea
+            value={motivoArquivo}
+            onChange={(e) => setMotivoArquivo(e.target.value)}
+            rows={4}
+            placeholder="Explique por que este holerite está sendo arquivado."
+            className="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3 text-sm text-white outline-none focus:border-amber-500"
+          />
+
+          {erro && (
+            <div className="mt-3 rounded-xl border border-red-500 bg-red-950/40 px-4 py-3 text-sm font-semibold text-red-200">
+              {erro}
             </div>
+          )}
 
-            <label className="mt-5 block text-xs font-bold uppercase text-slate-300">
-              Motivo do arquivamento
-            </label>
+          <div className="mt-6 flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                setHoleriteParaArquivar(null);
+                setMotivoArquivo("");
+                setErro("");
+              }}
+              disabled={arquivando}
+              className="rounded-2xl border border-slate-600 px-5 py-2 text-sm font-bold text-slate-200 hover:bg-slate-800 disabled:opacity-60"
+            >
+              Cancelar
+            </button>
 
-            <textarea
-              value={motivoArquivo}
-              onChange={(e) => setMotivoArquivo(e.target.value)}
-              rows={4}
-              placeholder="Explique por que este holerite está sendo arquivado."
-              className="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3 text-sm text-white outline-none focus:border-amber-500"
-            />
-
-            {erro && (
-              <div className="mt-3 rounded-xl border border-red-500 bg-red-950/40 px-4 py-3 text-sm font-semibold text-red-200">
-                {erro}
-              </div>
-            )}
-
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  setHoleriteParaArquivar(null);
-                  setMotivoArquivo("");
-                  setErro("");
-                }}
-                disabled={arquivando}
-                className="rounded-2xl border border-slate-600 px-5 py-2 text-sm font-bold text-slate-200 hover:bg-slate-800 disabled:opacity-60"
-              >
-                Cancelar
-              </button>
-
-              <button
-                type="button"
-                onClick={arquivarHolerite}
-                disabled={arquivando}
-                className="rounded-2xl bg-amber-600 px-5 py-2 text-sm font-bold text-white hover:bg-amber-700 disabled:opacity-60"
-              >
-                {arquivando ? "Arquivando..." : "Arquivar holerite"}
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={arquivarHolerite}
+              disabled={arquivando}
+              className="rounded-2xl bg-amber-600 px-5 py-2 text-sm font-bold text-white hover:bg-amber-700 disabled:opacity-60"
+            >
+              {arquivando ? "Arquivando..." : "Arquivar holerite"}
+            </button>
           </div>
         </div>
-      )}
+      </div>
+    )
+  }
 
-      {holeriteParaPagar && (
-        <PagamentoHoleriteModal
-          holerite={holeriteParaPagar}
+  {
+    holeriteParaPagar && (
+      <PagamentoHoleriteModal
+        holerite={holeriteParaPagar}
+        onFechar={() => {
+          setHoleriteParaPagar(null);
+          setErro("");
+        }}
+        onConcluido={async (mensagem) => {
+          setErro("");
+          setSucesso(mensagem);
+          await carregarDados();
+        }}
+      />
+    )
+  }
+
+  {
+    holeriteParaAssinaturaRh && (
+      <AssinaturaRhHoleriteModal
+        holerite={holeriteParaAssinaturaRh}
+        onFechar={() => {
+          setHoleriteParaAssinaturaRh(null);
+        }}
+        onConcluido={async (mensagem) => {
+          setErro("");
+          setSucesso(mensagem);
+          await carregarDados();
+        }}
+      />
+    )
+  }
+
+        {holeriteParaReciboManual && (
+        <ReciboAssinadoManualModal
+          holerite={holeriteParaReciboManual}
           onFechar={() => {
-            setHoleriteParaPagar(null);
+            setHoleriteParaReciboManual(null);
             setErro("");
           }}
           onConcluido={async (mensagem) => {
@@ -1089,186 +1242,174 @@ export default function Page() {
         />
       )}
 
-      {holeriteParaAssinaturaRh && (
-        <AssinaturaRhHoleriteModal
-          holerite={holeriteParaAssinaturaRh}
-          onFechar={() => {
-            setHoleriteParaAssinaturaRh(null);
-          }}
-          onConcluido={async (mensagem) => {
-            setErro("");
-            setSucesso(mensagem);
-            await carregarDados();
-          }}
-        />
-      )}
+  {
+    holeriteParaAssinatura && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+        <div className="w-full max-w-xl rounded-3xl border border-slate-200 bg-white p-6 text-slate-900 shadow-2xl dark:border-slate-700 dark:bg-slate-950 dark:text-white">
+          <h2 className="text-xl font-bold">
+            Assinatura digital do recibo
+          </h2>
 
-      {holeriteParaAssinatura && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="w-full max-w-xl rounded-3xl border border-slate-200 bg-white p-6 text-slate-900 shadow-2xl dark:border-slate-700 dark:bg-slate-950 dark:text-white">
-            <h2 className="text-xl font-bold">
-              Assinatura digital do recibo
-            </h2>
+          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+            Gere um link individual para o funcionário conferir o recibo,
+            confirmar o recebimento e assinar digitalmente.
+          </p>
 
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              Gere um link individual para o funcionário conferir o recibo,
-              confirmar o recebimento e assinar digitalmente.
+          <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-800 dark:bg-slate-900">
+            <p>
+              <strong>Funcionário:</strong>{" "}
+              {holeriteParaAssinatura.funcionario?.nome || "Funcionário"}
             </p>
 
-            <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-800 dark:bg-slate-900">
-              <p>
-                <strong>Funcionário:</strong>{" "}
-                {holeriteParaAssinatura.funcionario?.nome || "Funcionário"}
-              </p>
+            <p className="mt-2">
+              <strong>Competência:</strong>{" "}
+              {String(holeriteParaAssinatura.competenciaMes).padStart(2, "0")}/
+              {holeriteParaAssinatura.competenciaAno}
+            </p>
 
-              <p className="mt-2">
-                <strong>Competência:</strong>{" "}
-                {String(holeriteParaAssinatura.competenciaMes).padStart(2, "0")}/
-                {holeriteParaAssinatura.competenciaAno}
-              </p>
+            <p className="mt-2">
+              <strong>Valor do recibo:</strong>{" "}
+              {moeda(numero(holeriteParaAssinatura.valorLiquido))}
+            </p>
+          </div>
 
-              <p className="mt-2">
-                <strong>Valor do recibo:</strong>{" "}
-                {moeda(numero(holeriteParaAssinatura.valorLiquido))}
-              </p>
+          {gerandoLinkAssinatura && (
+            <div className="mt-5 rounded-2xl border border-violet-200 bg-violet-50 p-5 text-center text-sm font-semibold text-violet-800 dark:border-violet-900 dark:bg-violet-950/40 dark:text-violet-200">
+              Gerando link seguro de assinatura...
             </div>
+          )}
 
-            {gerandoLinkAssinatura && (
-              <div className="mt-5 rounded-2xl border border-violet-200 bg-violet-50 p-5 text-center text-sm font-semibold text-violet-800 dark:border-violet-900 dark:bg-violet-950/40 dark:text-violet-200">
-                Gerando link seguro de assinatura...
-              </div>
-            )}
+          {erroAssinatura && (
+            <div className="mt-5 rounded-2xl border border-red-300 bg-red-50 p-4 text-sm font-semibold text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200">
+              {erroAssinatura}
+            </div>
+          )}
 
-            {erroAssinatura && (
-              <div className="mt-5 rounded-2xl border border-red-300 bg-red-50 p-4 text-sm font-semibold text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200">
-                {erroAssinatura}
+          {linkAssinatura && (
+            <div className="mt-5 space-y-4">
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
+                <p className="font-bold">
+                  Link gerado com sucesso
+                </p>
+
+                <p className="mt-2">
+                  <strong>Recibo:</strong>{" "}
+                  {linkAssinatura.reciboNumero}
+                </p>
+
+                <p className="mt-1">
+                  <strong>Funcionário:</strong>{" "}
+                  {linkAssinatura.funcionario.nome}
+                </p>
+
+                <p className="mt-1">
+                  <strong>E-mail cadastrado:</strong>{" "}
+                  {linkAssinatura.funcionario.email}
+                </p>
+
+                <p className="mt-1">
+                  <strong>Válido até:</strong>{" "}
+                  {dataHoraBR(linkAssinatura.expiraEm)}
+                </p>
               </div>
+
+              <div>
+                <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">
+                  Link individual de assinatura
+                </label>
+
+                <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+                  <input
+                    value={linkAssinatura.urlAssinatura}
+                    readOnly
+                    onFocus={(event) => event.currentTarget.select()}
+                    className="min-w-0 flex-1 rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-800 outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={copiarLinkAssinatura}
+                    className="rounded-2xl bg-violet-600 px-5 py-3 text-sm font-bold text-white hover:bg-violet-700"
+                  >
+                    {linkCopiado ? "Link copiado" : "Copiar link"}
+                  </button>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+                O link é individual e válido por sete dias. Ao gerar um novo
+                link, o anterior deixa de funcionar. Encaminhe-o somente ao
+                funcionário responsável pelo recibo.
+              </div>
+            </div>
+          )}
+
+          <div className="mt-6 flex flex-wrap justify-end gap-3">
+            {erroAssinatura && !gerandoLinkAssinatura && (
+              <button
+                type="button"
+                onClick={() => gerarLinkAssinatura(holeriteParaAssinatura)}
+                className="rounded-2xl bg-violet-600 px-5 py-2 text-sm font-bold text-white hover:bg-violet-700"
+              >
+                Tentar novamente
+              </button>
             )}
 
             {linkAssinatura && (
-              <div className="mt-5 space-y-4">
-                <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
-                  <p className="font-bold">
-                    Link gerado com sucesso
-                  </p>
-
-                  <p className="mt-2">
-                    <strong>Recibo:</strong>{" "}
-                    {linkAssinatura.reciboNumero}
-                  </p>
-
-                  <p className="mt-1">
-                    <strong>Funcionário:</strong>{" "}
-                    {linkAssinatura.funcionario.nome}
-                  </p>
-
-                  <p className="mt-1">
-                    <strong>E-mail cadastrado:</strong>{" "}
-                    {linkAssinatura.funcionario.email}
-                  </p>
-
-                  <p className="mt-1">
-                    <strong>Válido até:</strong>{" "}
-                    {dataHoraBR(linkAssinatura.expiraEm)}
-                  </p>
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">
-                    Link individual de assinatura
-                  </label>
-
-                  <div className="mt-2 flex flex-col gap-2 sm:flex-row">
-                    <input
-                      value={linkAssinatura.urlAssinatura}
-                      readOnly
-                      onFocus={(event) => event.currentTarget.select()}
-                      className="min-w-0 flex-1 rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-800 outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
-                    />
-
-                    <button
-                      type="button"
-                      onClick={copiarLinkAssinatura}
-                      className="rounded-2xl bg-violet-600 px-5 py-3 text-sm font-bold text-white hover:bg-violet-700"
-                    >
-                      {linkCopiado ? "Link copiado" : "Copiar link"}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
-                  O link é individual e válido por sete dias. Ao gerar um novo
-                  link, o anterior deixa de funcionar. Encaminhe-o somente ao
-                  funcionário responsável pelo recibo.
-                </div>
-              </div>
+              <a
+                href={linkAssinatura.urlAssinatura}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-2xl border border-violet-600 px-5 py-2 text-sm font-bold text-violet-700 hover:bg-violet-50 dark:text-violet-300 dark:hover:bg-violet-950/40"
+              >
+                Abrir página de assinatura
+              </a>
             )}
 
-            <div className="mt-6 flex flex-wrap justify-end gap-3">
-              {erroAssinatura && !gerandoLinkAssinatura && (
-                <button
-                  type="button"
-                  onClick={() => gerarLinkAssinatura(holeriteParaAssinatura)}
-                  className="rounded-2xl bg-violet-600 px-5 py-2 text-sm font-bold text-white hover:bg-violet-700"
-                >
-                  Tentar novamente
-                </button>
-              )}
-
-              {linkAssinatura && (
-                <a
-                  href={linkAssinatura.urlAssinatura}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-2xl border border-violet-600 px-5 py-2 text-sm font-bold text-violet-700 hover:bg-violet-50 dark:text-violet-300 dark:hover:bg-violet-950/40"
-                >
-                  Abrir página de assinatura
-                </a>
-              )}
-
-              <button
-                type="button"
-                onClick={fecharModalAssinatura}
-                disabled={gerandoLinkAssinatura}
-                className="rounded-2xl border border-slate-300 px-5 py-2 text-sm font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-60 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800"
-              >
-                Fechar
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={fecharModalAssinatura}
+              disabled={gerandoLinkAssinatura}
+              className="rounded-2xl border border-slate-300 px-5 py-2 text-sm font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-60 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800"
+            >
+              Fechar
+            </button>
           </div>
         </div>
-      )}
+      </div>
+    )
+  }
 
-      <PhanyxConfirmModal
-        aberto={Boolean(avisoCpfAssinatura)}
-        titulo={
-          avisoCpfAssinatura?.codigo ===
-            "CPF_FUNCIONARIO_INVALIDO"
-            ? "CPF do funcionário inválido"
-            : "CPF do funcionário não cadastrado"
-        }
-        mensagem={
-          avisoCpfAssinatura
-            ? `${avisoCpfAssinatura.mensagem} O CPF será utilizado para validar a identidade do funcionário no momento da assinatura do recibo.`
-            : ""
-        }
-        textoConfirmar="Cadastrar CPF"
-        textoCancelar="Agora não"
-        onCancelar={() => {
-          setAvisoCpfAssinatura(null);
-        }}
-        onConfirmar={() => {
-          const destino =
-            avisoCpfAssinatura?.cadastroCpfUrl;
+  <PhanyxConfirmModal
+    aberto={Boolean(avisoCpfAssinatura)}
+    titulo={
+      avisoCpfAssinatura?.codigo ===
+        "CPF_FUNCIONARIO_INVALIDO"
+        ? "CPF do funcionário inválido"
+        : "CPF do funcionário não cadastrado"
+    }
+    mensagem={
+      avisoCpfAssinatura
+        ? `${avisoCpfAssinatura.mensagem} O CPF será utilizado para validar a identidade do funcionário no momento da assinatura do recibo.`
+        : ""
+    }
+    textoConfirmar="Cadastrar CPF"
+    textoCancelar="Agora não"
+    onCancelar={() => {
+      setAvisoCpfAssinatura(null);
+    }}
+    onConfirmar={() => {
+      const destino =
+        avisoCpfAssinatura?.cadastroCpfUrl;
 
-          setAvisoCpfAssinatura(null);
+      setAvisoCpfAssinatura(null);
 
-          if (destino) {
-            window.location.href = destino;
-          }
-        }}
-      />
+      if (destino) {
+        window.location.href = destino;
+      }
+    }}
+  />
 
-    </div>
+    </div >
   );
 }

@@ -214,19 +214,27 @@ export async function GET() {
       },
       include: {
   funcionario: {
-    select: {
-      id: true,
-      nome: true,
-      cargo: true,
-      codigoFuncionario: true,
+  select: {
+    id: true,
+    nome: true,
+    cargo: true,
+    codigoFuncionario: true,
+    userId: true,
 
-      departamento: {
-        select: {
-          nome: true,
-        },
+    user: {
+      select: {
+        id: true,
+        ativo: true,
+      },
+    },
+
+    departamento: {
+      select: {
+        nome: true,
       },
     },
   },
+},
 
   eventos: true,
 
@@ -263,6 +271,29 @@ export async function GET() {
   assinaturaRhImagemUrl: true,
   assinadoRhNomeSnapshot: true,
   assinadoRhEmailSnapshot: true,
+
+  tipoConfirmacaoRecebimento: true,
+
+documentosAssinadosManualmente: {
+  where: {
+    ativo: true,
+  },
+
+  orderBy: {
+    criadoEm: "desc",
+  },
+
+  take: 1,
+
+  select: {
+    id: true,
+    arquivoNome: true,
+    arquivoMime: true,
+    criadoEm: true,
+    dataAssinaturaDeclarada: true,
+    enviadoPorNomeSnapshot: true,
+  },
+},
 },
   },
 },
