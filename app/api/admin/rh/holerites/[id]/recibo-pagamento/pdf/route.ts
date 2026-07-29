@@ -940,51 +940,61 @@ export async function GET(
 
       const assinaturaRhX = margem + 35;
 
-      const centroAssinaturaRh =
-        assinaturaRhX + assinaturaLargura / 2;
+const centroAssinaturaRh =
+  assinaturaRhX + assinaturaLargura / 2;
 
-      if (assinaturaRhConfirmada) {
-        escreverCentro(
-          pagamento.tipoAssinaturaRh === "DIGITAL_AUTENTICADA"
-            ? "ASSINADO DIGITALMENTE PELO RH"
-            : "ASSINADO ELETRONICAMENTE PELO RH",
-          centroAssinaturaRh,
-          assinaturaY + 34,
-          5.2,
-          true,
-        );
+const tituloAssinaturaRhY =
+  pagamento.tipoAssinaturaRh === "DIGITAL_AUTENTICADA"
+    ? assinaturaY + 18
+    : assinaturaY + 34;
 
-        escreverCentro(
-          dataHoraBR(pagamento.assinadoRhEm),
-          centroAssinaturaRh,
-          assinaturaY + 27,
-          4.8,
-        );
+const dataAssinaturaRhY =
+  pagamento.tipoAssinaturaRh === "DIGITAL_AUTENTICADA"
+    ? assinaturaY + 10
+    : assinaturaY + 27;
 
-        if (assinaturaRh) {
-          const escala = Math.min(
-            (assinaturaLargura - 36) / assinaturaRh.width,
-            20 / assinaturaRh.height,
-          );
+if (assinaturaRhConfirmada) {
+  escreverCentro(
+    pagamento.tipoAssinaturaRh === "DIGITAL_AUTENTICADA"
+      ? "ASSINADO DIGITALMENTE PELO RH"
+      : "ASSINADO ELETRONICAMENTE PELO RH",
+    centroAssinaturaRh,
+    tituloAssinaturaRhY,
+    5.2,
+    true,
+  );
 
-          const larguraImagem =
-            assinaturaRh.width * escala;
+  escreverCentro(
+    dataHoraBR(pagamento.assinadoRhEm),
+    centroAssinaturaRh,
+    dataAssinaturaRhY,
+    4.8,
+  );
 
-          const alturaImagem =
-            assinaturaRh.height * escala;
+  if (assinaturaRh) {
+    const escala = Math.min(
+      (assinaturaLargura - 36) / assinaturaRh.width,
+      20 / assinaturaRh.height,
+    );
 
-          pagina.drawImage(assinaturaRh, {
-            x:
-              assinaturaRhX +
-              (assinaturaLargura - larguraImagem) / 2,
+    const larguraImagem =
+      assinaturaRh.width * escala;
 
-            y: assinaturaY + 3,
+    const alturaImagem =
+      assinaturaRh.height * escala;
 
-            width: larguraImagem,
-            height: alturaImagem,
-          });
-        }
-      }
+    pagina.drawImage(assinaturaRh, {
+      x:
+        assinaturaRhX +
+        (assinaturaLargura - larguraImagem) / 2,
+
+      y: assinaturaY + 3,
+
+      width: larguraImagem,
+      height: alturaImagem,
+    });
+  }
+}
 
       if (assinaturaConfirmada) {
         escreverCentro(

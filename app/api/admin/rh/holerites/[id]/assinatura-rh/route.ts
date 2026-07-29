@@ -325,6 +325,21 @@ export async function POST(
         },
       });
 
+    if (!funcionarioAssinante) {
+      return NextResponse.json(
+        {
+          error:
+            "Este acesso institucional não está vinculado a um funcionário. Entre com o login individual do responsável do RH para assinar o recibo.",
+
+          codigo:
+            "ASSINANTE_RH_SEM_FUNCIONARIO_VINCULADO",
+        },
+        {
+          status: 403,
+        },
+      );
+    }
+
     const permissaoIndividual =
       funcionarioAssinante
         ?.permissoes[0];
@@ -623,7 +638,7 @@ export async function POST(
               ?.id || null,
 
           nomeAssinante:
-            usuario.nome,
+            funcionarioAssinante.nome,
 
           emailAssinante:
             usuario.email,
@@ -687,7 +702,7 @@ export async function POST(
                 null,
 
               assinadoRhNomeSnapshot:
-                usuario.nome,
+                funcionarioAssinante.nome,
 
               assinadoRhEmailSnapshot:
                 usuario.email,
@@ -730,7 +745,7 @@ export async function POST(
               "Recibo assinado digitalmente pelo RH",
 
             descricao:
-              `${usuario.nome} assinou digitalmente, como representante do RH, ` +
+              `${funcionarioAssinante.nome} assinou digitalmente, como representante do RH, ` +
               `o recibo ${pagamento.reciboNumero} de ${holerite.funcionario.nome}.`,
 
             dataEvento: agora,
@@ -743,7 +758,7 @@ export async function POST(
               funcionarioAssinante
                 ? `Funcionário assinante ID: ${funcionarioAssinante.id}`
                 : "Assinante administrativo sem cadastro de funcionário vinculado",
-              `Nome do assinante: ${usuario.nome}`,
+              `Nome do funcionário assinante: ${funcionarioAssinante.nome}`,
               `E-mail do assinante: ${usuario.email}`,
               `Perfil: ${String(usuario.role)}`,
               funcionarioAssinante
@@ -795,7 +810,7 @@ export async function POST(
             ?.id || null,
 
         nome:
-          usuario.nome,
+          funcionarioAssinante.nome,
 
         email:
           usuario.email,
