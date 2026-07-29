@@ -21,6 +21,12 @@ type FuncionarioOption = {
   } | null;
 };
 
+type DepartamentoOption = {
+  id: number;
+  nome: string;
+  quantidadeFuncionarios: number;
+};
+
 type VinculoVendedor = {
   id: number;
   inicioVigencia: string;
@@ -28,6 +34,10 @@ type VinculoVendedor = {
   ativo: boolean;
   planoNomeSnapshot?: string | null;
   observacoes?: string | null;
+  origemVinculo?: "INDIVIDUAL" | "DEPARTAMENTO";
+  departamentoOrigemId?: number | null;
+  departamentoNomeSnapshot?: string | null;
+  loteVinculoId?: string | null;
 
   funcionario: {
     id: number;
@@ -186,9 +196,14 @@ export default function RegrasPlanoComissaoPage() {
   const [form, setForm] = useState<RegraForm>(FORM_INICIAL);
 
   const [funcionarios, setFuncionarios] = useState<FuncionarioOption[]>([]);
-const [vinculos, setVinculos] = useState<VinculoVendedor[]>([]);
+  const [departamentos, setDepartamentos] = useState<DepartamentoOption[]>([]);
+  const [vinculos, setVinculos] = useState<VinculoVendedor[]>([]);
 
-const [funcionarioId, setFuncionarioId] = useState("");
+  const [tipoVinculo, setTipoVinculo] = useState<
+    "INDIVIDUAL" | "DEPARTAMENTO"
+  >("INDIVIDUAL");
+  const [funcionarioId, setFuncionarioId] = useState("");
+  const [departamentoId, setDepartamentoId] = useState("");
 const [inicioVigenciaVendedor, setInicioVigenciaVendedor] =
   useState(dataHojeLocal);
 const [fimVigenciaVendedor, setFimVigenciaVendedor] = useState("");
@@ -271,6 +286,12 @@ fetch(
       setFuncionarios(
   Array.isArray(dadosVendedores?.funcionarios)
     ? dadosVendedores.funcionarios
+    : []
+);
+
+setDepartamentos(
+  Array.isArray(dadosVendedores?.departamentos)
+    ? dadosVendedores.departamentos
     : []
 );
 
@@ -429,10 +450,18 @@ setVinculos(
 ) {
   evento.preventDefault();
 
-  if (!funcionarioId) {
+  if (tipoVinculo === "INDIVIDUAL" && !funcionarioId) {
     setToast({
       tipo: "erro",
-      mensagem: "Selecione o funcionário que será vendedor.",
+      mensagem: "Selecione o funcionário participante.",
+    });
+    return;
+  }
+
+  if (tipoVinculo === "DEPARTAMENTO" && !departamentoId) {
+    setToast({
+      tipo: "erro",
+      mensagem: "Selecione o departamento participante.",
     });
     return;
   }
@@ -457,7 +486,15 @@ setVinculos(
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          funcionarioId: Number(funcionarioId),
+          tipoVinculo,
+          funcionarioId:
+            tipoVinculo === "INDIVIDUAL"
+              ? Number(funcionarioId)
+              : null,
+          departamentoId:
+            tipoVinculo === "DEPARTAMENTO"
+              ? Number(departamentoId)
+              : null,
           inicioVigencia: inicioVigenciaVendedor,
           fimVigencia: fimVigenciaVendedor || null,
           observacoes: observacoesVendedor.trim() || null,
@@ -475,6 +512,7 @@ setVinculos(
     }
 
     setFuncionarioId("");
+    setDepartamentoId("");
     setInicioVigenciaVendedor(dataHojeLocal());
     setFimVigenciaVendedor("");
     setObservacoesVendedor("");
@@ -483,7 +521,7 @@ setVinculos(
       tipo: "sucesso",
       mensagem:
         dados?.message ||
-        "Vendedor vinculado ao plano com sucesso.",
+        "Participantes vinculados ao plano com sucesso.",
     });
 
     await carregarDados();
@@ -492,7 +530,7 @@ setVinculos(
       tipo: "erro",
       mensagem:
         error?.message ||
-        "Não foi possível vincular o vendedor.",
+        "Não foi possível vincular os participantes.",
     });
   } finally {
     setVinculandoVendedor(false);
@@ -952,52 +990,139 @@ setVinculos(
 <section className="phanyx-comercial-config-section rounded-3xl border p-6 shadow-sm">
   <div>
     <h2 className="text-xl font-black">
-      👤 Vincular vendedor
+      👥 Vincular participantes
     </h2>
 
     <p className="phanyx-comercial-regra-recomendacao mt-1 text-sm">
-      Selecione um funcionário ativo para que suas matrículas possam
-      participar do cálculo de comissão deste plano.
+      Inclua um funcionário específico ou todos os funcionários ativos de um
+      departamento. Não é necessário que o funcionário possua login no PHANYX.
     </p>
+  </div>
+
+  <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-100">
+    Todos os participantes vinculados a este plano recebem as mesmas regras de
+    comissão cadastradas acima. Para departamentos com percentuais diferentes,
+    crie um plano específico para cada percentual.
   </div>
 
   <form
     onSubmit={vincularVendedor}
     className="mt-6 space-y-5"
   >
-    <div className="grid gap-4 md:grid-cols-2">
-      <div>
-        <label className="mb-2 block text-sm font-bold">
-          Funcionário
-        </label>
+    <div>
+      <label className="mb-2 block text-sm font-bold">
+        Forma de vinculação
+      </label>
 
-        <select
-          value={funcionarioId}
-          onChange={(evento) =>
-            setFuncionarioId(evento.target.value)
-          }
-          className="w-full rounded-2xl border px-4 py-3"
+      <div className="grid gap-3 sm:grid-cols-2">
+        <button
+          type="button"
+          onClick={() => {
+            setTipoVinculo("INDIVIDUAL");
+            setDepartamentoId("");
+          }}
+          className={[
+            "rounded-2xl border px-4 py-4 text-left transition",
+            tipoVinculo === "INDIVIDUAL"
+              ? "border-blue-600 bg-blue-50 text-blue-950 dark:bg-blue-950/30 dark:text-blue-100"
+              : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800",
+          ].join(" ")}
         >
-          <option value="">
-            Selecione o vendedor...
-          </option>
+          <strong className="block text-sm">👤 Funcionário individual</strong>
+          <span className="mt-1 block text-xs opacity-80">
+            Escolha uma pessoa específica para participar do plano.
+          </span>
+        </button>
 
-          {funcionarios.map((funcionario) => (
-            <option
-              key={funcionario.id}
-              value={String(funcionario.id)}
-            >
-              {funcionario.nome}
-              {funcionario.cargo
-                ? ` — ${funcionario.cargo}`
-                : ""}
-              {funcionario.departamento?.nome
-                ? ` — ${funcionario.departamento.nome}`
-                : ""}
-            </option>
-          ))}
-        </select>
+        <button
+          type="button"
+          onClick={() => {
+            setTipoVinculo("DEPARTAMENTO");
+            setFuncionarioId("");
+          }}
+          className={[
+            "rounded-2xl border px-4 py-4 text-left transition",
+            tipoVinculo === "DEPARTAMENTO"
+              ? "border-blue-600 bg-blue-50 text-blue-950 dark:bg-blue-950/30 dark:text-blue-100"
+              : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800",
+          ].join(" ")}
+        >
+          <strong className="block text-sm">🏢 Departamento inteiro</strong>
+          <span className="mt-1 block text-xs opacity-80">
+            Inclua todos os funcionários ativos do departamento de uma vez.
+          </span>
+        </button>
       </div>
+    </div>
+
+    <div className="grid gap-4 md:grid-cols-2">
+      {tipoVinculo === "INDIVIDUAL" ? (
+        <div>
+          <label className="mb-2 block text-sm font-bold">
+            Funcionário
+          </label>
+
+          <select
+            value={funcionarioId}
+            onChange={(evento) =>
+              setFuncionarioId(evento.target.value)
+            }
+            className="w-full rounded-2xl border px-4 py-3"
+          >
+            <option value="">
+              Selecione o participante...
+            </option>
+
+            {funcionarios.map((funcionario) => (
+              <option
+                key={funcionario.id}
+                value={String(funcionario.id)}
+              >
+                {funcionario.nome}
+                {funcionario.cargo
+                  ? ` — ${funcionario.cargo}`
+                  : ""}
+                {funcionario.departamento?.nome
+                  ? ` — ${funcionario.departamento.nome}`
+                  : ""}
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : (
+        <div>
+          <label className="mb-2 block text-sm font-bold">
+            Departamento
+          </label>
+
+          <select
+            value={departamentoId}
+            onChange={(evento) =>
+              setDepartamentoId(evento.target.value)
+            }
+            className="w-full rounded-2xl border px-4 py-3"
+          >
+            <option value="">
+              Selecione o departamento...
+            </option>
+
+            {departamentos.map((departamento) => (
+              <option
+                key={departamento.id}
+                value={String(departamento.id)}
+              >
+                {departamento.nome} — {departamento.quantidadeFuncionarios}{" "}
+                funcionário(s) ativo(s)
+              </option>
+            ))}
+          </select>
+
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+            Funcionários que já possuam outro plano ativo no mesmo período não
+            serão duplicados e aparecerão no resumo do resultado.
+          </p>
+        </div>
+      )}
 
       <div>
         <label className="mb-2 block text-sm font-bold">
@@ -1028,7 +1153,7 @@ setVinculos(
           className="w-full rounded-2xl border px-4 py-3"
         />
 
-        <p className="mt-1 text-xs text-slate-500">
+        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
           Deixe vazio para manter o vínculo sem data final.
         </p>
       </div>
@@ -1043,7 +1168,11 @@ setVinculos(
           onChange={(evento) =>
             setObservacoesVendedor(evento.target.value)
           }
-          placeholder="Ex.: Vendedora da equipe comercial"
+          placeholder={
+            tipoVinculo === "DEPARTAMENTO"
+              ? "Ex.: Equipe comercial vinculada em lote"
+              : "Ex.: Participante com condição individual"
+          }
           className="w-full rounded-2xl border px-4 py-3"
         />
       </div>
@@ -1055,19 +1184,21 @@ setVinculos(
       className="rounded-2xl bg-blue-600 px-6 py-3 text-sm font-black text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
     >
       {vinculandoVendedor
-        ? "Vinculando vendedor..."
-        : "Vincular vendedor ao plano"}
+        ? "Vinculando participantes..."
+        : tipoVinculo === "DEPARTAMENTO"
+          ? "Vincular departamento ao plano"
+          : "Vincular funcionário ao plano"}
     </button>
   </form>
 
   <div className="mt-7 border-t border-slate-200 pt-6 dark:border-slate-700">
     <h3 className="text-lg font-black">
-      Vendedores vinculados
+      Participantes vinculados
     </h3>
 
     {vinculos.length === 0 ? (
       <div className="phanyx-comercial-config-empty mt-4 rounded-2xl border border-dashed p-6 text-center">
-        Nenhum vendedor vinculado a este plano.
+        Nenhum participante vinculado a este plano.
       </div>
     ) : (
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
@@ -1095,11 +1226,23 @@ setVinculos(
                 className={[
                   "rounded-full border px-3 py-1 text-xs font-black",
                   vinculo.ativo
-                    ? "border-emerald-300 bg-emerald-50 text-emerald-700"
-                    : "border-slate-300 bg-slate-100 text-slate-600",
+                    ? "border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-200"
+                    : "border-slate-300 bg-slate-100 text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300",
                 ].join(" ")}
               >
                 {vinculo.ativo ? "Ativo" : "Encerrado"}
+              </span>
+            </div>
+
+            <div className="mt-3 flex flex-wrap gap-2">
+              <span className="rounded-full border border-slate-300 bg-slate-50 px-3 py-1 text-xs font-bold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+                {vinculo.origemVinculo === "DEPARTAMENTO"
+                  ? `🏢 Incluído por departamento: ${
+                      vinculo.departamentoNomeSnapshot ||
+                      vinculo.funcionario.departamento?.nome ||
+                      "Departamento"
+                    }`
+                  : "👤 Vínculo individual"}
               </span>
             </div>
 

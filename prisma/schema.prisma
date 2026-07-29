@@ -4227,18 +4227,22 @@ model RegraComissaoRH {
 }
 
 model FuncionarioPlanoComissaoRH {
-  id                Int       @id @default(autoincrement())
-  instituicaoId     Int
-  funcionarioId     Int
-  planoId           Int
-  criadoPorId       Int?
-  inicioVigencia    DateTime
-  fimVigencia       DateTime?
-  ativo             Boolean   @default(true)
-  planoNomeSnapshot String?
-  observacoes       String?   @db.Text
-  criadoEm          DateTime  @default(now())
-  atualizadoEm      DateTime  @updatedAt
+  id                       Int                          @id @default(autoincrement())
+  instituicaoId            Int
+  funcionarioId            Int
+  planoId                  Int
+  criadoPorId              Int?
+  origemVinculo            OrigemVinculoPlanoComissaoRH @default(INDIVIDUAL)
+  departamentoOrigemId     Int?
+  departamentoNomeSnapshot String?
+  loteVinculoId            String?
+  inicioVigencia           DateTime
+  fimVigencia              DateTime?
+  ativo                    Boolean                      @default(true)
+  planoNomeSnapshot        String?
+  observacoes              String?                      @db.Text
+  criadoEm                 DateTime                     @default(now())
+  atualizadoEm             DateTime                     @updatedAt
 
   instituicao Instituicao     @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   funcionario Funcionario     @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
@@ -4250,6 +4254,10 @@ model FuncionarioPlanoComissaoRH {
   @@index([planoId])
   @@index([ativo])
   @@index([inicioVigencia, fimVigencia])
+  @@index([origemVinculo])
+  @@index([departamentoOrigemId])
+  @@index([loteVinculoId])
+  @@index([instituicaoId, departamentoOrigemId])
 }
 
 model MatriculaParticipanteComercial {
@@ -5012,6 +5020,11 @@ enum OrigemLancamentoComissaoRH {
   MANUAL
   AJUSTE
   ESTORNO
+}
+
+enum OrigemVinculoPlanoComissaoRH {
+  INDIVIDUAL
+  DEPARTAMENTO
 }
 
 enum TipoRemuneracaoVariavelRH {

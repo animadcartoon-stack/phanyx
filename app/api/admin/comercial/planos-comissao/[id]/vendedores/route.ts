@@ -1,3 +1,5 @@
+import { randomUUID } from "crypto";
+import { OrigemVinculoPlanoComissaoRH } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
@@ -14,6 +16,10 @@ type ContextoRota = {
     id: string;
   };
 };
+
+type TipoVinculoSolicitado =
+  | "INDIVIDUAL"
+  | "DEPARTAMENTO";
 
 function dataObrigatoria(valor: unknown) {
   if (!valor) return null;
@@ -66,7 +72,7 @@ function periodosSeSobrepoem(params: {
 }
 
 function podeGerenciarVendedores(
-  user: Awaited<ReturnType<typeof getUserFromToken>>
+  user: Awaited<ReturnType<typeof getUserFromToken>>,
 ) {
   return temAlgumaPermissao(user, [
     "comercial.configuracoes.gerenciar",
@@ -74,9 +80,29 @@ function podeGerenciarVendedores(
   ]);
 }
 
+function normalizarTipoVinculo(
+  body: any,
+): TipoVinculoSolicitado | null {
+  const valor = String(
+    body?.tipoVinculo ||
+      (body?.departamentoId
+        ? "DEPARTAMENTO"
+        : "INDIVIDUAL"),
+  ).toUpperCase();
+
+  if (
+    valor !== "INDIVIDUAL" &&
+    valor !== "DEPARTAMENTO"
+  ) {
+    return null;
+  }
+
+  return valor;
+}
+
 export async function GET(
   _request: Request,
-  { params }: ContextoRota
+  { params }: ContextoRota,
 ) {
   try {
     const user = await getUserFromToken();
@@ -84,7 +110,7 @@ export async function GET(
     if (!user || !user.instituicaoId) {
       return NextResponse.json(
         { error: "Não autorizado." },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -92,9 +118,9 @@ export async function GET(
       return NextResponse.json(
         {
           error:
-            "Você não possui permissão para gerenciar vendedores.",
+            "Você não possui permissão para gerenciar participantes de comissão.",
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -106,7 +132,7 @@ export async function GET(
     ) {
       return NextResponse.json(
         { error: "Plano inválido." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -142,7 +168,7 @@ export async function GET(
           error:
             "Plano de comissão não encontrado.",
         },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -210,6 +236,41 @@ export async function GET(
         }),
       ]);
 
+    const departamentosMap = new Map<
+      number,
+      {
+        id: number;
+        nome: string;
+        quantidadeFuncionarios: number;
+      }
+    >();
+
+    for (const funcionario of funcionarios) {
+      const departamento = funcionario.departamento;
+
+      if (!departamento) continue;
+
+      const existente = departamentosMap.get(
+        departamento.id,
+      );
+
+      if (existente) {
+        existente.quantidadeFuncionarios += 1;
+      } else {
+        departamentosMap.set(departamento.id, {
+          id: departamento.id,
+          nome: departamento.nome,
+          quantidadeFuncionarios: 1,
+        });
+      }
+    }
+
+    const departamentos = Array.from(
+      departamentosMap.values(),
+    ).sort((a, b) =>
+      a.nome.localeCompare(b.nome, "pt-BR"),
+    );
+
     return NextResponse.json({
       plano: {
         id: plano.id,
@@ -224,27 +285,28 @@ export async function GET(
           plano._count.regras > 0,
       },
       funcionarios,
+      departamentos,
       vinculos,
     });
   } catch (error) {
     console.error(
-      "Erro ao carregar vínculos de vendedores:",
-      error
+      "Erro ao carregar vínculos de participantes:",
+      error,
     );
 
     return NextResponse.json(
       {
         error:
-          "Não foi possível carregar os vendedores do plano.",
+          "Não foi possível carregar os participantes do plano.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function POST(
   request: Request,
-  { params }: ContextoRota
+  { params }: ContextoRota,
 ) {
   try {
     const user = await getUserFromToken();
@@ -252,7 +314,7 @@ export async function POST(
     if (!user || !user.instituicaoId) {
       return NextResponse.json(
         { error: "Não autorizado." },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -260,9 +322,9 @@ export async function POST(
       return NextResponse.json(
         {
           error:
-            "Você não possui permissão para vincular vendedores.",
+            "Você não possui permissão para vincular participantes.",
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -275,38 +337,70 @@ export async function POST(
     ) {
       return NextResponse.json(
         { error: "Plano inválido." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const body = await request.json();
 
+    const tipoVinculo =
+      normalizarTipoVinculo(body);
+
     const funcionarioId = Number(
-      body?.funcionarioId
+      body?.funcionarioId,
+    );
+
+    const departamentoId = Number(
+      body?.departamentoId,
     );
 
     const inicioVigencia = dataObrigatoria(
-      body?.inicioVigencia
+      body?.inicioVigencia,
     );
 
     const fimVigencia = dataOpcional(
-      body?.fimVigencia
+      body?.fimVigencia,
     );
 
     const observacoes = textoOuNull(
-      body?.observacoes
+      body?.observacoes,
     );
 
+    if (!tipoVinculo) {
+      return NextResponse.json(
+        {
+          error:
+            "Selecione se o vínculo será individual ou por departamento.",
+        },
+        { status: 400 },
+      );
+    }
+
     if (
-      !Number.isInteger(funcionarioId) ||
-      funcionarioId <= 0
+      tipoVinculo === "INDIVIDUAL" &&
+      (!Number.isInteger(funcionarioId) ||
+        funcionarioId <= 0)
     ) {
       return NextResponse.json(
         {
           error:
             "Selecione um funcionário válido.",
         },
-        { status: 400 }
+        { status: 400 },
+      );
+    }
+
+    if (
+      tipoVinculo === "DEPARTAMENTO" &&
+      (!Number.isInteger(departamentoId) ||
+        departamentoId <= 0)
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Selecione um departamento válido.",
+        },
+        { status: 400 },
       );
     }
 
@@ -316,7 +410,7 @@ export async function POST(
           error:
             "Informe o início da vigência.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -329,7 +423,7 @@ export async function POST(
           error:
             "A data final da vigência é inválida.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -342,7 +436,7 @@ export async function POST(
           error:
             "A data final não pode ser anterior à data inicial.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -376,7 +470,7 @@ export async function POST(
           error:
             "Plano de comissão não encontrado.",
         },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -384,9 +478,9 @@ export async function POST(
       return NextResponse.json(
         {
           error:
-            "Não é possível vincular vendedores a um plano inativo.",
+            "Não é possível vincular participantes a um plano inativo.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -394,9 +488,9 @@ export async function POST(
       return NextResponse.json(
         {
           error:
-            "Cadastre pelo menos uma regra ativa antes de vincular vendedores.",
+            "Cadastre pelo menos uma regra ativa antes de vincular participantes.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -409,7 +503,7 @@ export async function POST(
           error:
             "O vínculo não pode começar antes da vigência do plano.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -423,15 +517,143 @@ export async function POST(
           error:
             "O vínculo não pode ultrapassar o fim da vigência do plano.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    const funcionario =
-      await prisma.funcionario.findFirst({
+    if (tipoVinculo === "INDIVIDUAL") {
+      const funcionario =
+        await prisma.funcionario.findFirst({
+          where: {
+            id: funcionarioId,
+            instituicaoId,
+            ativo: true,
+            statusFuncionario: "ATIVO",
+          },
+          select: {
+            id: true,
+            nome: true,
+            cargo: true,
+            departamento: {
+              select: {
+                id: true,
+                nome: true,
+              },
+            },
+          },
+        });
+
+      if (!funcionario) {
+        return NextResponse.json(
+          {
+            error:
+              "O funcionário não pertence à instituição ou não está ativo.",
+          },
+          { status: 400 },
+        );
+      }
+
+      const vinculosExistentes =
+        await prisma.funcionarioPlanoComissaoRH.findMany({
+          where: {
+            instituicaoId,
+            funcionarioId,
+            ativo: true,
+          },
+          select: {
+            id: true,
+            planoId: true,
+            inicioVigencia: true,
+            fimVigencia: true,
+            planoNomeSnapshot: true,
+            plano: {
+              select: {
+                nome: true,
+              },
+            },
+          },
+        });
+
+      const conflito = vinculosExistentes.find(
+        (vinculo) =>
+          periodosSeSobrepoem({
+            inicioA: inicioVigencia,
+            fimA: fimVigencia,
+            inicioB: vinculo.inicioVigencia,
+            fimB: vinculo.fimVigencia,
+          }),
+      );
+
+      if (conflito) {
+        return NextResponse.json(
+          {
+            error:
+              `O funcionário já possui um plano de comissão ativo nesse período: ${
+                conflito.planoNomeSnapshot ||
+                conflito.plano.nome
+              }. Encerre o vínculo anterior antes de criar outro.`,
+          },
+          { status: 409 },
+        );
+      }
+
+      const vinculo =
+        await prisma.funcionarioPlanoComissaoRH.create({
+          data: {
+            instituicaoId,
+            funcionarioId,
+            planoId,
+            criadoPorId: user.id,
+            origemVinculo:
+              OrigemVinculoPlanoComissaoRH.INDIVIDUAL,
+            departamentoOrigemId: null,
+            departamentoNomeSnapshot: null,
+            loteVinculoId: null,
+            inicioVigencia,
+            fimVigencia,
+            ativo: true,
+            planoNomeSnapshot: plano.nome,
+            observacoes,
+          },
+          include: {
+            funcionario: {
+              select: {
+                id: true,
+                nome: true,
+                cargo: true,
+                departamento: {
+                  select: {
+                    id: true,
+                    nome: true,
+                  },
+                },
+              },
+            },
+            plano: {
+              select: {
+                id: true,
+                nome: true,
+              },
+            },
+          },
+        });
+
+      return NextResponse.json(
+        {
+          message:
+            "Funcionário vinculado ao plano de comissão com sucesso.",
+          tipoVinculo,
+          vinculo,
+        },
+        { status: 201 },
+      );
+    }
+
+    const funcionariosDepartamento =
+      await prisma.funcionario.findMany({
         where: {
-          id: funcionarioId,
           instituicaoId,
+          departamentoId,
           ativo: true,
           statusFuncionario: "ATIVO",
         },
@@ -441,32 +663,58 @@ export async function POST(
           cargo: true,
           departamento: {
             select: {
+              id: true,
               nome: true,
             },
           },
         },
+        orderBy: {
+          nome: "asc",
+        },
       });
 
-    if (!funcionario) {
+    if (funcionariosDepartamento.length === 0) {
       return NextResponse.json(
         {
           error:
-            "O funcionário não pertence à instituição ou não está ativo.",
+            "O departamento selecionado não possui funcionários ativos.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
+
+    const departamento =
+      funcionariosDepartamento[0].departamento;
+
+    if (
+      !departamento ||
+      departamento.id !== departamentoId
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "O departamento não pertence à instituição.",
+        },
+        { status: 400 },
+      );
+    }
+
+    const funcionarioIds =
+      funcionariosDepartamento.map(
+        (funcionario) => funcionario.id,
+      );
 
     const vinculosExistentes =
       await prisma.funcionarioPlanoComissaoRH.findMany({
         where: {
           instituicaoId,
-          funcionarioId,
+          funcionarioId: {
+            in: funcionarioIds,
+          },
           ativo: true,
         },
         select: {
-          id: true,
-          planoId: true,
+          funcionarioId: true,
           inicioVigencia: true,
           fimVigencia: true,
           planoNomeSnapshot: true,
@@ -478,85 +726,131 @@ export async function POST(
         },
       });
 
-    const conflito = vinculosExistentes.find(
-      (vinculo) =>
-        periodosSeSobrepoem({
-          inicioA: inicioVigencia,
-          fimA: fimVigencia,
-          inicioB: vinculo.inicioVigencia,
-          fimB: vinculo.fimVigencia,
+    const conflitos =
+      funcionariosDepartamento
+        .map((funcionario) => {
+          const conflito =
+            vinculosExistentes.find(
+              (vinculo) =>
+                vinculo.funcionarioId ===
+                  funcionario.id &&
+                periodosSeSobrepoem({
+                  inicioA: inicioVigencia,
+                  fimA: fimVigencia,
+                  inicioB:
+                    vinculo.inicioVigencia,
+                  fimB:
+                    vinculo.fimVigencia,
+                }),
+            );
+
+          if (!conflito) return null;
+
+          return {
+            funcionarioId: funcionario.id,
+            funcionarioNome: funcionario.nome,
+            planoConflitante:
+              conflito.planoNomeSnapshot ||
+              conflito.plano.nome,
+          };
         })
+        .filter(
+          (
+            item,
+          ): item is {
+            funcionarioId: number;
+            funcionarioNome: string;
+            planoConflitante: string;
+          } => Boolean(item),
+        );
+
+    const idsComConflito = new Set(
+      conflitos.map(
+        (conflito) => conflito.funcionarioId,
+      ),
     );
 
-    if (conflito) {
+    const funcionariosElegiveis =
+      funcionariosDepartamento.filter(
+        (funcionario) =>
+          !idsComConflito.has(funcionario.id),
+      );
+
+    if (funcionariosElegiveis.length === 0) {
       return NextResponse.json(
         {
           error:
-            `O funcionário já possui um plano de comissão ativo nesse período: ${
-              conflito.planoNomeSnapshot ||
-              conflito.plano.nome
-            }. Encerre o vínculo anterior antes de criar outro.`,
+            "Nenhum funcionário do departamento pôde ser vinculado porque todos já possuem plano ativo no período informado.",
+          tipoVinculo,
+          quantidadeVinculada: 0,
+          quantidadeIgnorada:
+            conflitos.length,
+          conflitos,
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
-    const vinculo =
-      await prisma.funcionarioPlanoComissaoRH.create({
-        data: {
-          instituicaoId,
-          funcionarioId,
-          planoId,
-          criadoPorId: user.id,
-          inicioVigencia,
-          fimVigencia,
-          ativo: true,
-          planoNomeSnapshot: plano.nome,
-          observacoes,
-        },
-        include: {
-          funcionario: {
-            select: {
-              id: true,
-              nome: true,
-              cargo: true,
-              departamento: {
-                select: {
-                  id: true,
-                  nome: true,
-                },
-              },
-            },
-          },
-          plano: {
-            select: {
-              id: true,
-              nome: true,
-            },
-          },
-        },
+    const loteVinculoId = randomUUID();
+
+    const resultado =
+      await prisma.funcionarioPlanoComissaoRH.createMany({
+        data: funcionariosElegiveis.map(
+          (funcionario) => ({
+            instituicaoId,
+            funcionarioId: funcionario.id,
+            planoId,
+            criadoPorId: user.id,
+            origemVinculo:
+              OrigemVinculoPlanoComissaoRH.DEPARTAMENTO,
+            departamentoOrigemId:
+              departamento.id,
+            departamentoNomeSnapshot:
+              departamento.nome,
+            loteVinculoId,
+            inicioVigencia,
+            fimVigencia,
+            ativo: true,
+            planoNomeSnapshot: plano.nome,
+            observacoes,
+          }),
+        ),
       });
+
+    const mensagem =
+      conflitos.length > 0
+        ? `${resultado.count} funcionário(s) do departamento ${departamento.nome} foram vinculados. ${conflitos.length} não foram incluídos porque já possuem outro plano ativo no período.`
+        : `${resultado.count} funcionário(s) do departamento ${departamento.nome} foram vinculados ao plano com sucesso.`;
 
     return NextResponse.json(
       {
-        message:
-          "Vendedor vinculado ao plano de comissão com sucesso.",
-        vinculo,
+        message: mensagem,
+        tipoVinculo,
+        departamento: {
+          id: departamento.id,
+          nome: departamento.nome,
+        },
+        loteVinculoId,
+        quantidadeVinculada:
+          resultado.count,
+        quantidadeIgnorada:
+          conflitos.length,
+        conflitos,
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     console.error(
-      "Erro ao vincular vendedor ao plano:",
-      error
+      "Erro ao vincular participantes ao plano:",
+      error,
     );
 
     return NextResponse.json(
       {
         error:
-          "Não foi possível vincular o vendedor ao plano de comissão.",
+          "Não foi possível vincular os participantes ao plano de comissão.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
