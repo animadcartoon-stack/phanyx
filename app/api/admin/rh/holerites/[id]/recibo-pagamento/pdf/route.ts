@@ -125,20 +125,20 @@ function quebrarTexto(
 async function carregarLogo(
   pdfDoc: PDFDocument,
   logoUrl?: string | null,
+  origem?: string,
 ): Promise<PDFImage | null> {
   if (!logoUrl) return null;
 
-  try {
-    const resposta = await fetch(logoUrl, {
-      cache: "no-store",
-    });
+  const urlResolvida =
+    /^https?:\/\//i.test(logoUrl)
+      ? logoUrl
+      : origem
+        ? new URL(logoUrl, origem).toString()
+        : logoUrl;
 
-    if (!resposta.ok) {
-      return null;
-    }
-
-    const bytes = new Uint8Array(await resposta.arrayBuffer());
-
+  async function incorporarImagem(
+    bytes: Uint8Array,
+  ): Promise<PDFImage | null> {
     const ehPng =
       bytes.length >= 8 &&
       bytes[0] === 0x89 &&
@@ -153,19 +153,83 @@ async function carregarLogo(
       bytes[2] === 0xff;
 
     if (ehPng) {
-      return await pdfDoc.embedPng(bytes);
+      return pdfDoc.embedPng(bytes);
     }
 
     if (ehJpeg) {
-      return await pdfDoc.embedJpg(bytes);
+      return pdfDoc.embedJpg(bytes);
     }
 
     return null;
-  } catch (error) {
-    console.error("Não foi possível carregar a logo no recibo:", error);
-
-    return null;
   }
+
+  try {
+    const resposta = await fetch(urlResolvida, {
+      cache: "no-store",
+    });
+
+    if (resposta.ok) {
+      const bytes = new Uint8Array(
+        await resposta.arrayBuffer(),
+      );
+
+      const imagem = await incorporarImagem(bytes);
+
+      if (imagem) {
+        return imagem;
+      }
+    }
+  } catch (error) {
+    console.error(
+      "Não foi possível carregar a logo por URL pública:",
+      error,
+    );
+  }
+
+  const tokens = [
+    process.env.BLOB_READ_WRITE_TOKEN?.trim(),
+    process.env.RH_PONTO_READ_WRITE_TOKEN?.trim(),
+  ].filter(
+    (token): token is string =>
+      Boolean(token),
+  );
+
+  for (const token of tokens) {
+    try {
+      const resultado = await get(urlResolvida, {
+        access: "private",
+        token,
+        useCache: false,
+      });
+
+      if (
+        resultado?.statusCode === 200 &&
+        resultado.stream
+      ) {
+        const bytes = new Uint8Array(
+          await new Response(
+            resultado.stream,
+          ).arrayBuffer(),
+        );
+
+        const imagem =
+          await incorporarImagem(bytes);
+
+        if (imagem) {
+          return imagem;
+        }
+      }
+    } catch {
+      // Tenta o próximo token configurado.
+    }
+  }
+
+  console.error(
+    "Não foi possível carregar a logo institucional:",
+    urlResolvida,
+  );
+
+  return null;
 }
 
 async function carregarAssinaturaPrivada(
@@ -314,6 +378,13 @@ export async function GET(
                 nome: true,
               },
             },
+            assinadoRhPor: {
+              select: {
+                id: true,
+                nome: true,
+                email: true,
+              },
+            },
           },
         },
       },
@@ -363,9 +434,8 @@ export async function GET(
       .filter(Boolean)
       .join(" - ");
 
-    const competencia = `${String(holerite.competenciaMes).padStart(2, "0")}/${
-      holerite.competenciaAno
-    }`;
+    const competencia = `${String(holerite.competenciaMes).padStart(2, "0")}/${holerite.competenciaAno
+      }`;
 
     const pdfDoc = await PDFDocument.create();
 
@@ -382,16 +452,35 @@ export async function GET(
 
     const fonteBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-    const logo = await carregarLogo(pdfDoc, configuracao?.logoUrl);
+    const logo = await carregarLogo(
+      pdfDoc,
+      configuracao?.logoUrl,
+      _req.nextUrl.origin,
+    );
 
     const assinaturaFuncionario = await carregarAssinaturaPrivada(
       pdfDoc,
       pagamento.assinaturaImagemUrl,
     );
 
+    const assinaturaRh = await carregarAssinaturaPrivada(
+      pdfDoc,
+      pagamento.assinaturaRhImagemUrl,
+    );
+
     const assinaturaConfirmada =
       pagamento.status === StatusPagamentoHoleriteRH.CONFIRMADO_FUNCIONARIO &&
       Boolean(pagamento.confirmadoPeloFuncionarioEm && assinaturaFuncionario);
+
+    const assinaturaRhConfirmada = Boolean(
+      pagamento.assinadoRhPorId &&
+      pagamento.assinadoRhEm,
+    );
+
+    const nomeAssinanteRh =
+      pagamento.assinadoRhNomeSnapshot ||
+      pagamento.assinadoRhPor?.nome ||
+      "Representante autorizado do RH";
 
     const { width, height } = pagina.getSize();
 
@@ -647,8 +736,8 @@ export async function GET(
 
       escrever(
         holerite.funcionario.departamento?.nome ||
-          holerite.funcionario.setor ||
-          "Não informado",
+        holerite.funcionario.setor ||
+        "Não informado",
         coluna2 + 82,
         y,
         8,
@@ -767,8 +856,7 @@ export async function GET(
 
       if (holerite.eventos.length > eventosVisiveis.length) {
         escrever(
-          `Outros ${
-            holerite.eventos.length - eventosVisiveis.length
+          `Outros ${holerite.eventos.length - eventosVisiveis.length
           } evento(s) constam no holerite.`,
           margem + 60,
           y,
@@ -850,6 +938,54 @@ export async function GET(
         0.8,
       );
 
+      const assinaturaRhX = margem + 35;
+
+      const centroAssinaturaRh =
+        assinaturaRhX + assinaturaLargura / 2;
+
+      if (assinaturaRhConfirmada) {
+        escreverCentro(
+          pagamento.tipoAssinaturaRh === "DIGITAL_AUTENTICADA"
+            ? "ASSINADO DIGITALMENTE PELO RH"
+            : "ASSINADO ELETRONICAMENTE PELO RH",
+          centroAssinaturaRh,
+          assinaturaY + 34,
+          5.2,
+          true,
+        );
+
+        escreverCentro(
+          dataHoraBR(pagamento.assinadoRhEm),
+          centroAssinaturaRh,
+          assinaturaY + 27,
+          4.8,
+        );
+
+        if (assinaturaRh) {
+          const escala = Math.min(
+            (assinaturaLargura - 36) / assinaturaRh.width,
+            20 / assinaturaRh.height,
+          );
+
+          const larguraImagem =
+            assinaturaRh.width * escala;
+
+          const alturaImagem =
+            assinaturaRh.height * escala;
+
+          pagina.drawImage(assinaturaRh, {
+            x:
+              assinaturaRhX +
+              (assinaturaLargura - larguraImagem) / 2,
+
+            y: assinaturaY + 3,
+
+            width: larguraImagem,
+            height: alturaImagem,
+          });
+        }
+      }
+
       if (assinaturaConfirmada) {
         escreverCentro(
           "ASSINADO ELETRONICAMENTE",
@@ -875,9 +1011,9 @@ export async function GET(
       }
 
       escreverCentro(
-        pagamento.registradoPor?.nome ||
-          configuracao?.responsavelNome ||
-          "Responsável do RH",
+        assinaturaRhConfirmada
+          ? nomeAssinanteRh
+          : "Assinatura do RH pendente",
         margem + 35 + assinaturaLargura / 2,
         assinaturaY - 12,
         6.5,
@@ -885,7 +1021,9 @@ export async function GET(
       );
 
       escreverCentro(
-        "Assinatura do RH / Empregador",
+        assinaturaRhConfirmada
+          ? `Representante do RH • Usuário ID ${pagamento.assinadoRhPorId}`
+          : "Assinatura do RH / Empregador",
         margem + 35 + assinaturaLargura / 2,
         assinaturaY - 22,
         6,

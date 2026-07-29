@@ -214,30 +214,30 @@ export default function AssinaturaRhHoleriteModal({
       return;
     }
 
-   let assinaturaBase64 = "";
+    let assinaturaBase64 = "";
 
-if (tipoAssinatura === "DESENHO") {
-  if (!assinaturaDesenhada) {
-    setErro(
-      "Desenhe sua assinatura no espaço indicado.",
-    );
+    if (tipoAssinatura === "DESENHO") {
+      if (!assinaturaDesenhada) {
+        setErro(
+          "Desenhe sua assinatura no espaço indicado.",
+        );
 
-    return;
-  }
+        return;
+      }
 
-  assinaturaBase64 =
-    canvasRef.current?.toDataURL(
-      "image/png",
-    ) || "";
+      assinaturaBase64 =
+        canvasRef.current?.toDataURL(
+          "image/png",
+        ) || "";
 
-  if (!assinaturaBase64) {
-    setErro(
-      "Não foi possível gerar a imagem da assinatura.",
-    );
+      if (!assinaturaBase64) {
+        setErro(
+          "Não foi possível gerar a imagem da assinatura.",
+        );
 
-    return;
-  }
-}
+        return;
+      }
+    }
 
     try {
       setAssinando(true);
@@ -267,20 +267,20 @@ if (tipoAssinatura === "DESENHO") {
       if (!resposta.ok) {
         throw new Error(
           dados?.error ||
-            "Não foi possível assinar o recibo pelo RH.",
+          "Não foi possível assinar o recibo pelo RH.",
         );
       }
 
       await onConcluido(
         dados?.message ||
-          "Recibo assinado digitalmente pelo RH com sucesso.",
+        "Recibo assinado digitalmente pelo RH com sucesso.",
       );
 
       onFechar();
     } catch (error: any) {
       setErro(
         error?.message ||
-          "Erro ao assinar digitalmente o recibo pelo RH.",
+        "Erro ao assinar digitalmente o recibo pelo RH.",
       );
     } finally {
       setAssinando(false);
@@ -350,11 +350,10 @@ if (tipoAssinatura === "DESENHO") {
               setTipoAssinatura("DESENHO");
               setErro("");
             }}
-            className={`rounded-xl border px-4 py-3 text-sm font-bold transition ${
-              tipoAssinatura === "DESENHO"
+            className={`rounded-xl border px-4 py-3 text-sm font-bold transition ${tipoAssinatura === "DESENHO"
                 ? "border-emerald-500 bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200"
                 : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-800"
-            }`}
+              }`}
           >
             ✍️ Desenhar assinatura
           </button>
@@ -366,11 +365,10 @@ if (tipoAssinatura === "DESENHO") {
               setTipoAssinatura("DIGITAL");
               setErro("");
             }}
-            className={`rounded-xl border px-4 py-3 text-sm font-bold transition ${
-              tipoAssinatura === "DIGITAL"
+            className={`rounded-xl border px-4 py-3 text-sm font-bold transition ${tipoAssinatura === "DIGITAL"
                 ? "border-slate-500 bg-slate-100 text-slate-900 dark:border-slate-400 dark:bg-slate-800 dark:text-white"
                 : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-800"
-            }`}
+              }`}
           >
             🔐 Assinatura digitada
           </button>
@@ -403,42 +401,42 @@ if (tipoAssinatura === "DESENHO") {
               Limpar assinatura
             </button>
           </div>
-       ) : (
-  <div className="mt-5 rounded-2xl border border-emerald-300 bg-emerald-50 p-5 text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-100">
-    <div className="flex items-start gap-3">
-      <div className="text-2xl">🔐</div>
+        ) : (
+          <div className="mt-5 rounded-2xl border border-emerald-300 bg-emerald-50 p-5 text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-100">
+            <div className="flex items-start gap-3">
+              <div className="text-2xl">🔐</div>
 
-      <div>
-        <p className="font-bold">
-          Assinatura digital autenticada
-        </p>
+              <div>
+                <p className="font-bold">
+                  Assinatura digital autenticada
+                </p>
 
-        <p className="mt-2 text-sm leading-6">
-          A assinatura será realizada exclusivamente com o usuário
-          atualmente autenticado no PHANYX. Não é possível informar,
-          alterar ou substituir o nome do assinante neste formulário.
-        </p>
+                <p className="mt-2 text-sm leading-6">
+                  A assinatura será realizada exclusivamente com o usuário
+                  atualmente autenticado no PHANYX. Não é possível informar,
+                  alterar ou substituir o nome do assinante neste formulário.
+                </p>
 
-        <div className="mt-4 rounded-xl border border-emerald-200 bg-white/70 p-4 text-sm dark:border-emerald-800 dark:bg-slate-900/60">
-          <p>
-            <strong>Identidade:</strong>{" "}
-            obtida da sessão autenticada
-          </p>
+                <div className="mt-4 rounded-xl border border-emerald-200 bg-white/70 p-4 text-sm dark:border-emerald-800 dark:bg-slate-900/60">
+                  <p>
+                    <strong>Identidade:</strong>{" "}
+                    obtida da sessão autenticada
+                  </p>
 
-          <p className="mt-2">
-            <strong>Usuário e ID:</strong>{" "}
-            confirmados novamente no banco de dados
-          </p>
+                  <p className="mt-2">
+                    <strong>Usuário e ID:</strong>{" "}
+                    confirmados novamente no banco de dados
+                  </p>
 
-          <p className="mt-2">
-            <strong>Auditoria:</strong>{" "}
-            instituição, data, horário, IP, navegador e hash
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
+                  <p className="mt-2">
+                    <strong>Auditoria:</strong>{" "}
+                    instituição, data, horário, IP, navegador e hash
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         <label className="mt-5 flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
           <input
@@ -495,10 +493,10 @@ if (tipoAssinatura === "DESENHO") {
             className="rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {assinando
-  ? "Registrando assinatura..."
-  : tipoAssinatura === "DIGITAL"
-    ? "Assinar com meu usuário PHANYX"
-    : "Registrar assinatura desenhada"}
+              ? "Registrando assinatura..."
+              : tipoAssinatura === "DIGITAL"
+                ? "Assinar com meu usuário PHANYX"
+                : "Registrar assinatura desenhada"}
           </button>
         </div>
       </div>
