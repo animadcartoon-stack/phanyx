@@ -2876,7 +2876,7 @@ function renderGrupoDisciplina(
   </div>
 </div>
 
-<div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+<div className="matriculas-multiselect-neutro mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
   <MultiSelectDisciplinas
     titulo="Disciplinas contratadas"
     disciplinas={disciplinasDoSemestreEdicao}

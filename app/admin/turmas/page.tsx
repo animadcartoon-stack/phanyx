@@ -1462,7 +1462,7 @@ async function salvarEdicao(id: number) {
                                         Nenhum horário cadastrado. Adicione pelo menos um horário para permitir lembrete automático ao professor.
                                       </p>
                                     ) : (
-                                      <div className="space-y-2">
+                                      <div className="phanyx-admin-turmas-page space-y-2">
                                         {(horariosPorDisciplina[disciplina.id] || []).map((horario, index) => (
                                           <div
                                             key={`${disciplina.id}-horario-${index}`}
