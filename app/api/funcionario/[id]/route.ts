@@ -5,9 +5,17 @@ import {
   isAdminLike,
 } from "@/lib/server-auth";
 import { TipoRemuneracaoRH } from "@prisma/client";
+import bcrypt from "bcryptjs";
+import crypto from "crypto";
+import { enviarEmailPrimeiroAcesso } from "@/lib/email";
 
 function limparTexto(valor: unknown) {
   return String(valor ?? "").trim();
+}
+
+function gerarSenhaTemporaria() {
+  const sufixo = crypto.randomBytes(4).toString("hex");
+  return `Phx@${sufixo}`;
 }
 
 function numeroDecimalOuNull(valor: unknown) {
@@ -88,8 +96,8 @@ function dataOuNull(valor: unknown) {
 
 type SnapshotRemuneracaoFuncionarioRH = {
   tipoRemuneracao:
-    | TipoRemuneracaoRH
-    | null;
+  | TipoRemuneracaoRH
+  | null;
 
   salarioBase: number | null;
   valorHoraAula: number | null;
@@ -99,16 +107,16 @@ type SnapshotRemuneracaoFuncionarioRH = {
   valorPorDisciplina: number | null;
 
   duracaoHoraAulaMinutos:
-    number | null;
+  number | null;
 
   cargaHorariaSemanal:
-    number | null;
+  number | null;
 
   cargaHorariaMensal:
-    number | null;
+  number | null;
 
   observacoesRemuneracao:
-    string | null;
+  string | null;
 };
 
 function remuneracoesSaoIguais(
@@ -157,13 +165,13 @@ export async function GET(
         },
 
         departamento: true,
-        
+
         historicosRemuneracaoRH: {
-  orderBy: {
-    alteradoEm: "desc",
-  },
-  take: 50,
-},
+          orderBy: {
+            alteradoEm: "desc",
+          },
+          take: 50,
+        },
       },
     });
 
@@ -266,6 +274,19 @@ export async function PUT(
       );
     }
 
+    const possuiAcessoAtual = Boolean(
+      funcionario.userId &&
+      funcionario.user
+    );
+
+    const solicitouCriarAcesso =
+      body.criarAcessoSistema === true ||
+      body.criarAcessoSistema === "true";
+
+    const criarNovoAcesso =
+      !possuiAcessoAtual &&
+      solicitouCriarAcesso;
+
     const nome =
       temCampo("nome")
         ? limparTexto(body.nome)
@@ -274,16 +295,20 @@ export async function PUT(
     const email =
       temCampo("email")
         ? limparTexto(
-            body.email
-          ).toLowerCase()
-        : funcionario.user.email;
+          body.email
+        ).toLowerCase()
+        : limparTexto(
+          funcionario.user?.email
+        ).toLowerCase();
 
     const role =
       temCampo("role")
         ? limparTexto(
-            body.role
-          ).toUpperCase()
-        : funcionario.user.role;
+          body.role
+        ).toUpperCase()
+        : limparTexto(
+          funcionario.user?.role
+        ).toUpperCase();
 
     if (!nome) {
       return NextResponse.json(
@@ -295,38 +320,61 @@ export async function PUT(
       );
     }
 
-    if (!email) {
+    if (
+      (possuiAcessoAtual ||
+        criarNovoAcesso) &&
+      !email
+    ) {
       return NextResponse.json(
         {
           error:
-            "O email do funcionário é obrigatório.",
+            "Informe o email para criar ou atualizar o acesso ao sistema.",
         },
         { status: 400 }
       );
     }
 
-    const usuarioMesmoEmail =
-      await prisma.user.findUnique({
-        where: {
-          email,
-        },
-        select: {
-          id: true,
-        },
-      });
-
     if (
-      usuarioMesmoEmail &&
-      usuarioMesmoEmail.id !==
-        funcionario.userId
+      (possuiAcessoAtual ||
+        criarNovoAcesso) &&
+      !role
     ) {
       return NextResponse.json(
         {
           error:
-            "Este email já está sendo utilizado por outro usuário.",
+            "Selecione o perfil de acesso do funcionário.",
         },
         { status: 400 }
       );
+    }
+
+    if (
+      possuiAcessoAtual ||
+      criarNovoAcesso
+    ) {
+      const usuarioMesmoEmail =
+        await prisma.user.findUnique({
+          where: {
+            email,
+          },
+          select: {
+            id: true,
+          },
+        });
+
+      if (
+        usuarioMesmoEmail &&
+        usuarioMesmoEmail.id !==
+        funcionario.userId
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "Este email já está sendo utilizado por outro usuário.",
+          },
+          { status: 400 }
+        );
+      }
     }
 
     /*
@@ -335,8 +383,8 @@ export async function PUT(
     const departamentoId =
       temCampo("departamentoId")
         ? numeroInteiroOuNull(
-            body.departamentoId
-          )
+          body.departamentoId
+        )
         : funcionario.departamentoId;
 
     if (
@@ -488,7 +536,7 @@ export async function PUT(
 
       const permiteHoraTrabalhada =
         tipo ===
-          TipoRemuneracaoRH.HORA_TRABALHADA ||
+        TipoRemuneracaoRH.HORA_TRABALHADA ||
         tipo === TipoRemuneracaoRH.MISTO;
 
       const permitePorAula =
@@ -501,7 +549,7 @@ export async function PUT(
 
       const permitePorDisciplina =
         tipo ===
-          TipoRemuneracaoRH.POR_DISCIPLINA ||
+        TipoRemuneracaoRH.POR_DISCIPLINA ||
         tipo === TipoRemuneracaoRH.MISTO;
 
       return {
@@ -540,7 +588,7 @@ export async function PUT(
         duracaoHoraAulaMinutos:
           permiteHoraAula
             ? valores
-                .duracaoHoraAulaMinutos || 50
+              .duracaoHoraAulaMinutos || 50
             : null,
 
         cargaHorariaSemanal:
@@ -623,118 +671,118 @@ export async function PUT(
           salarioBase:
             temCampo("salarioBase")
               ? numeroDecimalOuNull(
-                  body.salarioBase
-                )
+                body.salarioBase
+              )
               : numeroDecimalOuNull(
-                  funcionario.salarioBase
-                ),
+                funcionario.salarioBase
+              ),
 
           valorHoraAula:
             temCampo("valorHoraAula")
               ? numeroDecimalOuNull(
-                  body.valorHoraAula
-                )
+                body.valorHoraAula
+              )
               : numeroDecimalOuNull(
-                  funcionario.valorHoraAula
-                ),
+                funcionario.valorHoraAula
+              ),
 
           valorHoraTrabalhada:
             temCampo(
               "valorHoraTrabalhada"
             )
               ? numeroDecimalOuNull(
-                  body.valorHoraTrabalhada
-                )
+                body.valorHoraTrabalhada
+              )
               : numeroDecimalOuNull(
-                  funcionario
-                    .valorHoraTrabalhada
-                ),
+                funcionario
+                  .valorHoraTrabalhada
+              ),
 
           valorPorAula:
             temCampo("valorPorAula")
               ? numeroDecimalOuNull(
-                  body.valorPorAula
-                )
+                body.valorPorAula
+              )
               : numeroDecimalOuNull(
-                  funcionario.valorPorAula
-                ),
+                funcionario.valorPorAula
+              ),
 
           valorPorTurma:
             temCampo("valorPorTurma")
               ? numeroDecimalOuNull(
-                  body.valorPorTurma
-                )
+                body.valorPorTurma
+              )
               : numeroDecimalOuNull(
-                  funcionario.valorPorTurma
-                ),
+                funcionario.valorPorTurma
+              ),
 
           valorPorDisciplina:
             temCampo(
               "valorPorDisciplina"
             )
               ? numeroDecimalOuNull(
-                  body.valorPorDisciplina
-                )
+                body.valorPorDisciplina
+              )
               : numeroDecimalOuNull(
-                  funcionario
-                    .valorPorDisciplina
-                ),
+                funcionario
+                  .valorPorDisciplina
+              ),
 
           duracaoHoraAulaMinutos:
             temCampo(
               "duracaoHoraAulaMinutos"
             )
               ? numeroInteiroOuNull(
-                  body.duracaoHoraAulaMinutos
-                )
+                body.duracaoHoraAulaMinutos
+              )
               : numeroInteiroOuNull(
-                  funcionario
-                    .duracaoHoraAulaMinutos
-                ),
+                funcionario
+                  .duracaoHoraAulaMinutos
+              ),
 
           cargaHorariaSemanal:
             temCampo(
               "cargaHorariaSemanal"
             )
               ? numeroDecimalOuNull(
-                  body.cargaHorariaSemanal
-                )
+                body.cargaHorariaSemanal
+              )
               : numeroDecimalOuNull(
-                  funcionario
-                    .cargaHorariaSemanal
-                ),
+                funcionario
+                  .cargaHorariaSemanal
+              ),
 
           cargaHorariaMensal:
             temCampo(
               "cargaHorariaMensal"
             )
               ? numeroInteiroOuNull(
-                  body.cargaHorariaMensal
-                )
+                body.cargaHorariaMensal
+              )
               : numeroInteiroOuNull(
-                  funcionario
-                    .cargaHorariaMensal
-                ),
+                funcionario
+                  .cargaHorariaMensal
+              ),
 
           observacoesRemuneracao:
             temCampo(
               "observacoesRemuneracao"
             )
               ? limparTexto(
-                  body.observacoesRemuneracao
-                ) || null
+                body.observacoesRemuneracao
+              ) || null
               : limparTexto(
-                  funcionario
-                    .observacoesRemuneracao
-                ) || null,
+                funcionario
+                  .observacoesRemuneracao
+              ) || null,
         }
       );
 
     if (
       tipoRemuneracaoNovo ===
-        TipoRemuneracaoRH.MENSAL &&
+      TipoRemuneracaoRH.MENSAL &&
       dadosRemuneracaoNovos.salarioBase ===
-        null
+      null
     ) {
       return NextResponse.json(
         {
@@ -747,9 +795,9 @@ export async function PUT(
 
     if (
       tipoRemuneracaoNovo ===
-        TipoRemuneracaoRH.HORA_AULA &&
+      TipoRemuneracaoRH.HORA_AULA &&
       dadosRemuneracaoNovos.valorHoraAula ===
-        null
+      null
     ) {
       return NextResponse.json(
         {
@@ -762,7 +810,7 @@ export async function PUT(
 
     if (
       tipoRemuneracaoNovo ===
-        TipoRemuneracaoRH.HORA_TRABALHADA &&
+      TipoRemuneracaoRH.HORA_TRABALHADA &&
       dadosRemuneracaoNovos
         .valorHoraTrabalhada === null
     ) {
@@ -777,9 +825,9 @@ export async function PUT(
 
     if (
       tipoRemuneracaoNovo ===
-        TipoRemuneracaoRH.POR_AULA &&
+      TipoRemuneracaoRH.POR_AULA &&
       dadosRemuneracaoNovos.valorPorAula ===
-        null
+      null
     ) {
       return NextResponse.json(
         {
@@ -792,9 +840,9 @@ export async function PUT(
 
     if (
       tipoRemuneracaoNovo ===
-        TipoRemuneracaoRH.POR_TURMA &&
+      TipoRemuneracaoRH.POR_TURMA &&
       dadosRemuneracaoNovos.valorPorTurma ===
-        null
+      null
     ) {
       return NextResponse.json(
         {
@@ -807,7 +855,7 @@ export async function PUT(
 
     if (
       tipoRemuneracaoNovo ===
-        TipoRemuneracaoRH.POR_DISCIPLINA &&
+      TipoRemuneracaoRH.POR_DISCIPLINA &&
       dadosRemuneracaoNovos
         .valorPorDisciplina === null
     ) {
@@ -822,17 +870,17 @@ export async function PUT(
 
     if (
       tipoRemuneracaoNovo ===
-        TipoRemuneracaoRH.MISTO &&
+      TipoRemuneracaoRH.MISTO &&
       dadosRemuneracaoNovos.salarioBase ===
-        null &&
+      null &&
       dadosRemuneracaoNovos.valorHoraAula ===
-        null &&
+      null &&
       dadosRemuneracaoNovos
         .valorHoraTrabalhada === null &&
       dadosRemuneracaoNovos.valorPorAula ===
-        null &&
+      null &&
       dadosRemuneracaoNovos.valorPorTurma ===
-        null &&
+      null &&
       dadosRemuneracaoNovos
         .valorPorDisciplina === null
     ) {
@@ -910,23 +958,74 @@ export async function PUT(
     const statusFuncionario =
       temCampo("statusFuncionario")
         ? limparTexto(
-            body.statusFuncionario
-          ).toUpperCase() || "ATIVO"
+          body.statusFuncionario
+        ).toUpperCase() || "ATIVO"
         : funcionario.statusFuncionario;
+
+    const senhaTemporaria =
+      criarNovoAcesso
+        ? gerarSenhaTemporaria()
+        : null;
+
+    const senhaHash = senhaTemporaria
+      ? await bcrypt.hash(
+        senhaTemporaria,
+        10
+      )
+      : null;
+
+    const instituicao = criarNovoAcesso
+      ? await prisma.instituicao.findUnique({
+        where: {
+          id: user.instituicaoId,
+        },
+        select: {
+          nome: true,
+        },
+      })
+      : null;
 
     const resultado =
       await prisma.$transaction(
         async (tx) => {
-          await tx.user.update({
-            where: {
-              id: funcionario.userId,
-            },
-            data: {
-              nome,
-              email,
-              role,
-            },
-          });
+          let userIdVinculado =
+            funcionario.userId;
+
+          if (
+            funcionario.userId &&
+            funcionario.user
+          ) {
+            await tx.user.update({
+              where: {
+                id: funcionario.userId,
+              },
+              data: {
+                nome,
+                email,
+                role,
+              },
+            });
+          } else if (
+            criarNovoAcesso &&
+            senhaHash
+          ) {
+            const novoUser =
+              await tx.user.create({
+                data: {
+                  nome,
+                  email,
+                  senha: senhaHash,
+                  role,
+                  instituicaoId:
+                    user.instituicaoId,
+                  precisaTrocarSenha: true,
+                  ativo: true,
+                },
+              });
+
+            userIdVinculado =
+              novoUser.id;
+          }
 
           const funcionarioAtualizado =
             await tx.funcionario.update({
@@ -934,6 +1033,10 @@ export async function PUT(
                 id,
               },
               data: {
+                userId:
+                  criarNovoAcesso
+                    ? userIdVinculado!
+                    : undefined,
                 nome,
 
                 cpf:
@@ -1016,7 +1119,7 @@ export async function PUT(
                     "codigoFuncionario"
                   )
                     ? body.codigoFuncionario ||
-                      null
+                    null
                     : undefined,
 
                 departamentoId:
@@ -1035,7 +1138,7 @@ export async function PUT(
                 ativo:
                   temCampo("statusFuncionario")
                     ? statusFuncionario ===
-                      "ATIVO"
+                    "ATIVO"
                     : undefined,
 
                 dataAdmissao:
@@ -1105,7 +1208,7 @@ export async function PUT(
                     "jornadaTrabalho"
                   )
                     ? body.jornadaTrabalho ||
-                      null
+                    null
                     : undefined,
 
                 codigoPonto:
@@ -1237,12 +1340,53 @@ export async function PUT(
         }
       );
 
+    let avisoEmail: string | null =
+      null;
+
+    if (
+      criarNovoAcesso &&
+      senhaTemporaria
+    ) {
+      try {
+        await enviarEmailPrimeiroAcesso({
+          email,
+          nome,
+          senha: senhaTemporaria,
+          instituicao:
+            instituicao?.nome ||
+            "PHANYX",
+          portal: "admin",
+        });
+      } catch (emailError) {
+        console.error(
+          "ERRO AO ENVIAR ACESSO DO FUNCIONÁRIO:",
+          emailError
+        );
+
+        avisoEmail =
+          "O acesso foi criado, mas houve erro ao enviar as credenciais por email.";
+      }
+    }
+
     return NextResponse.json({
       message:
-        houveAlteracaoRemuneracao
-          ? "Funcionário e alteração remuneratória atualizados com sucesso."
-          : "Funcionário atualizado com sucesso.",
+        criarNovoAcesso
+          ? "Funcionário atualizado e acesso ao sistema criado com sucesso."
+          : houveAlteracaoRemuneracao
+            ? "Funcionário e alteração remuneratória atualizados com sucesso."
+            : "Funcionário atualizado com sucesso.",
+
       funcionario: resultado,
+
+      acessoCriado:
+        criarNovoAcesso,
+
+      senhaTemporaria:
+        criarNovoAcesso
+          ? senhaTemporaria
+          : null,
+
+      avisoEmail,
     });
   } catch (error) {
     console.error(
@@ -1292,6 +1436,19 @@ export async function PATCH(
       return NextResponse.json(
         { error: "Funcionário não encontrado" },
         { status: 404 }
+      );
+    }
+
+    if (
+      !funcionario.userId ||
+      !funcionario.user
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Este funcionário ainda não possui acesso ao sistema.",
+        },
+        { status: 400 }
       );
     }
 
@@ -1359,14 +1516,26 @@ export async function DELETE(
       );
     }
 
-    await prisma.funcionario.delete({
-      where: { id },
-    });
+    const userIdVinculado =
+      funcionario.userId;
 
-    await prisma.user.delete({
-      where: { id: funcionario.userId },
-    });
+    await prisma.$transaction(
+      async (tx) => {
+        await tx.funcionario.delete({
+          where: {
+            id,
+          },
+        });
 
+        if (userIdVinculado) {
+          await tx.user.delete({
+            where: {
+              id: userIdVinculado,
+            },
+          });
+        }
+      }
+    );
     return NextResponse.json({ message: "Funcionário excluído com sucesso" });
   } catch (error) {
     console.error(error);
