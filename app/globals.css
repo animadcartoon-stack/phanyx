@@ -16015,3 +16015,61 @@ html[data-theme="system"] .phanyx-admin-turmas-page textarea::placeholder {
   -webkit-text-fill-color: #b8b8b8 !important;
   opacity: 1 !important;
 }
+
+/* =========================================================
+   ADMIN TURMAS — CORREÇÃO FINAL DO TEMA CLARO
+========================================================= */
+
+html[data-theme="light"] .phanyx-admin-turmas-page label,
+html[data-theme="light"] .phanyx-admin-turmas-page label *,
+html[data-theme="light"] .phanyx-admin-turmas-page .text-white,
+html[data-theme="light"] .phanyx-admin-turmas-page [class*="text-white/"],
+html[data-theme="light"] .phanyx-admin-turmas-page .text-slate-200,
+html[data-theme="light"] .phanyx-admin-turmas-page .text-slate-300,
+html[data-theme="light"] .phanyx-admin-turmas-page .text-slate-400 {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-admin-turmas-page input,
+html[data-theme="light"] .phanyx-admin-turmas-page select,
+html[data-theme="light"] .phanyx-admin-turmas-page textarea {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-admin-turmas-page input::placeholder,
+html[data-theme="light"] .phanyx-admin-turmas-page textarea::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+/* Campos realmente desabilitados: cinza, mas legíveis */
+html[data-theme="light"] .phanyx-admin-turmas-page input:disabled,
+html[data-theme="light"] .phanyx-admin-turmas-page select:disabled,
+html[data-theme="light"] .phanyx-admin-turmas-page textarea:disabled {
+  background-color: #f1f5f9 !important;
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  border-color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-admin-turmas-page input:disabled::placeholder,
+html[data-theme="light"] .phanyx-admin-turmas-page textarea:disabled::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+/* Remove transparência herdada dos contêineres dos campos */
+html[data-theme="light"] .phanyx-admin-turmas-page [class*="opacity-50"],
+html[data-theme="light"] .phanyx-admin-turmas-page [class*="opacity-60"],
+html[data-theme="light"] .phanyx-admin-turmas-page [class*="opacity-70"] {
+  opacity: 1 !important;
+}
