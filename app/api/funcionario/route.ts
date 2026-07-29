@@ -160,15 +160,21 @@ export async function POST(request: Request) {
 
     const body = await request.json();
 
-    const nome = limparTexto(body.nome);
+const criarAcessoSistema =
+  body.criarAcessoSistema === undefined
+    ? true
+    : body.criarAcessoSistema === true ||
+      body.criarAcessoSistema === "true";
 
-    const email = limparTexto(
-      body.email
-    ).toLowerCase();
+const nome = limparTexto(body.nome);
 
-    const role =
-      limparTexto(body.role).toUpperCase() ||
-      "SECRETARIA";
+const email = limparTexto(
+  body.email
+).toLowerCase();
+
+const role =
+  limparTexto(body.role).toUpperCase() ||
+  "SECRETARIA";
 
     if (!nome) {
       return NextResponse.json(
@@ -180,34 +186,37 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!email) {
-      return NextResponse.json(
-        {
-          error:
-            "O email do funcionário é obrigatório.",
-        },
-        { status: 400 }
-      );
-    }
+    if (criarAcessoSistema && !email) {
+  return NextResponse.json(
+    {
+      error:
+        "O email é obrigatório para criar o acesso ao sistema.",
+    },
+    { status: 400 }
+  );
+}
 
-    const userExistente =
-      await prisma.user.findUnique({
-        where: {
-          email,
-        },
-        select: {
-          id: true,
-        },
-      });
+    if (criarAcessoSistema) {
+  const userExistente =
+    await prisma.user.findUnique({
+      where: {
+        email,
+      },
+      select: {
+        id: true,
+      },
+    });
 
-    if (userExistente) {
-      return NextResponse.json(
-        {
-          error: "Email já cadastrado",
-        },
-        { status: 400 }
-      );
-    }
+  if (userExistente) {
+    return NextResponse.json(
+      {
+        error:
+          "Já existe um usuário cadastrado com este email.",
+      },
+      { status: 400 }
+    );
+  }
+}
 
     /*
      * Departamento
@@ -524,38 +533,44 @@ export async function POST(request: Request) {
         body.statusFuncionario
       ).toUpperCase() || "ATIVO";
 
-    const instituicao =
-      await prisma.instituicao.findUnique({
-        where: {
-          id: instituicaoId,
-        },
-        select: {
-          nome: true,
-        },
-      });
+    const instituicao = criarAcessoSistema
+  ? await prisma.instituicao.findUnique({
+      where: {
+        id: instituicaoId,
+      },
+      select: {
+        nome: true,
+      },
+    })
+  : null;
 
-    const senhaTemporaria =
-      gerarSenhaTemporaria();
+const senhaTemporaria =
+  criarAcessoSistema
+    ? gerarSenhaTemporaria()
+    : null;
 
-    const senhaHash = await bcrypt.hash(
+const senhaHash = senhaTemporaria
+  ? await bcrypt.hash(
       senhaTemporaria,
       10
-    );
+    )
+  : null;
 
     const resultado =
       await prisma.$transaction(
         async (tx) => {
-          const novoUser =
-            await tx.user.create({
-              data: {
-                nome,
-                email,
-                senha: senhaHash,
-                role,
-                instituicaoId,
-                precisaTrocarSenha: true,
-              },
-            });
+          const novoUser = criarAcessoSistema
+  ? await tx.user.create({
+      data: {
+        nome,
+        email,
+        senha: senhaHash!,
+        role,
+        instituicaoId,
+        precisaTrocarSenha: true,
+      },
+    })
+  : null;
 
           const funcionario =
             await tx.funcionario.create({
@@ -650,7 +665,7 @@ export async function POST(request: Request) {
 
                 departamentoId,
                 instituicaoId,
-                userId: novoUser.id,
+                userId: novoUser?.id ?? null,
 
                 statusFuncionario,
                 motivoStatus:
@@ -767,33 +782,40 @@ export async function POST(request: Request) {
 
     let avisoEmail: string | null = null;
 
-    try {
-      await enviarEmailPrimeiroAcesso({
-        email,
-        nome,
-        senha: senhaTemporaria,
-        instituicao:
-          instituicao?.nome || "PHANYX",
-        portal: "admin",
-      });
-    } catch (emailError) {
-      console.error(
-        "ERRO AO ENVIAR EMAIL DE ACESSO DO FUNCIONÁRIO:",
-        emailError
-      );
+if (
+  criarAcessoSistema &&
+  senhaTemporaria
+) {
+  try {
+    await enviarEmailPrimeiroAcesso({
+      email,
+      nome,
+      senha: senhaTemporaria,
+      instituicao:
+        instituicao?.nome || "PHANYX",
+      portal: "admin",
+    });
+  } catch (emailError) {
+    console.error(
+      "ERRO AO ENVIAR EMAIL DE ACESSO DO FUNCIONÁRIO:",
+      emailError
+    );
 
-      avisoEmail =
-        "Funcionário criado com sucesso, mas houve erro ao enviar o email de acesso.";
-    }
+    avisoEmail =
+      "Funcionário criado com sucesso, mas houve erro ao enviar o email de acesso.";
+  }
+}
 
     return NextResponse.json(
-      {
-        ...resultado,
-        senhaTemporaria,
-        avisoEmail,
-      },
-      { status: 201 }
-    );
+  {
+    ...resultado,
+    acessoSistema:
+      criarAcessoSistema,
+    senhaTemporaria,
+    avisoEmail,
+  },
+  { status: 201 }
+);
   } catch (error) {
     console.error(
       "ERRO AO CRIAR FUNCIONÁRIO:",

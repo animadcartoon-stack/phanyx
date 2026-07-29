@@ -62,11 +62,12 @@ interface Funcionario {
   conta?: string | null;
   pix?: string | null;
 
-  user: {
+  user?: {
+    id?: number;
     email: string;
     role: string;
     ativo?: boolean;
-  };
+  } | null;
 
   departamento?: {
     id: number;
@@ -133,6 +134,12 @@ function AdminFuncionariosPage() {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("");
+
+  const [
+    criarAcessoSistema,
+    setCriarAcessoSistema,
+  ] = useState(true);
+
   const [cpf, setCpf] = useState("");
   const [rg, setRg] = useState("");
   const [telefone, setTelefone] = useState("");
@@ -338,6 +345,7 @@ function AdminFuncionariosPage() {
   function preencherFormularioParaEdicao(f: Funcionario) {
     setEditandoId(f.id);
     setNome(f.nome || "");
+    setCriarAcessoSistema(Boolean(f.user));
     setEmail(f.user?.email || "");
     setRole(String(f.user?.role || "").toUpperCase());
     setCpf(f.cpf || "");
@@ -425,6 +433,7 @@ function AdminFuncionariosPage() {
   function limparFormulario() {
     setEditandoId(null);
     setNome("");
+    setCriarAcessoSistema(true);
     setEmail("");
     setRole("");
     setCpf("");
@@ -654,13 +663,23 @@ function AdminFuncionariosPage() {
       return;
     }
 
-    if (!email.trim()) {
-      setErro("Informe o email do funcionário.");
+    if (
+      criarAcessoSistema &&
+      !email.trim()
+    ) {
+      setErro(
+        "Informe o email para criar o acesso do funcionário."
+      );
       return;
     }
 
-    if (!role) {
-      setErro("Selecione o perfil de acesso.");
+    if (
+      criarAcessoSistema &&
+      !role
+    ) {
+      setErro(
+        "Selecione o perfil de acesso do funcionário."
+      );
       return;
     }
 
@@ -681,8 +700,13 @@ function AdminFuncionariosPage() {
         credentials: "include",
         body: JSON.stringify({
           nome,
-          email,
-          role,
+          criarAcessoSistema,
+          email: criarAcessoSistema
+            ? email
+            : "",
+          role: criarAcessoSistema
+            ? role
+            : "",
           cpf,
           rg,
           telefone,
@@ -771,6 +795,7 @@ function AdminFuncionariosPage() {
       }
 
       setNome("");
+      setCriarAcessoSistema(true);
       setEmail("");
       setRole("");
       setCpf("");
@@ -810,7 +835,11 @@ function AdminFuncionariosPage() {
         return;
       }
 
-      setSucesso("Funcionário criado com sucesso e email de acesso enviado.");
+      setSucesso(
+        data?.acessoSistema
+          ? "Funcionário criado com sucesso e email de acesso enviado."
+          : "Funcionário cadastrado no RH com sucesso, sem acesso ao sistema."
+      );
     } finally {
       setCarregando(false);
     }
@@ -909,6 +938,74 @@ function AdminFuncionariosPage() {
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {!editandoId && (
+            <div className="md:col-span-2">
+              <div
+                className="
+        rounded-2xl
+        border
+        border-slate-300
+        bg-slate-50
+        p-4
+        dark:border-slate-700
+        dark:bg-slate-800/70
+      "
+              >
+                <label className="flex cursor-pointer items-start gap-3">
+                  <input
+                    type="checkbox"
+                    checked={criarAcessoSistema}
+                    onChange={(e) => {
+                      const ativo = e.target.checked;
+
+                      setCriarAcessoSistema(ativo);
+
+                      if (!ativo) {
+                        setEmail("");
+                        setRole("");
+                      }
+                    }}
+                    className="mt-1 h-5 w-5 rounded border-slate-400"
+                  />
+
+                  <span>
+                    <span className="block font-bold text-slate-900 dark:text-white">
+                      Criar acesso ao sistema para este funcionário
+                    </span>
+
+                    <span className="mt-1 block text-sm leading-6 text-slate-600 dark:text-slate-300">
+                      Quando ativado, o PHANYX criará login, senha temporária e
+                      enviará as credenciais por email. Desative para cadastrar
+                      somente o vínculo trabalhista no RH.
+                    </span>
+                  </span>
+                </label>
+
+                {!criarAcessoSistema && (
+                  <div
+                    className="
+            mt-4
+            rounded-xl
+            border
+            border-slate-300
+            bg-white
+            px-4
+            py-3
+            text-sm
+            text-slate-700
+            dark:border-slate-600
+            dark:bg-slate-900
+            dark:text-slate-200
+          "
+                  >
+                    Este funcionário poderá participar da folha, ponto, férias,
+                    benefícios, holerites, documentos e demais rotinas do RH, mas
+                    não receberá login nem senha.
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
           <input
             placeholder="Nome"
             value={nome}
@@ -916,25 +1013,26 @@ function AdminFuncionariosPage() {
             className="w-full border rounded-lg p-2"
             required
           />
+          {criarAcessoSistema && (
+            <>
+              <input
+                placeholder="Email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full border rounded-lg p-2"
+                required
+              />
 
-          <input
-            placeholder="Email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full border rounded-lg p-2"
-            required
-          />
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">
+                  Perfil de acesso ao sistema
+                </label>
 
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-700">
-              Perfil de acesso ao sistema
-            </label>
-
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="
+                <select
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  className="
 w-full
 rounded-lg
 border
@@ -946,23 +1044,24 @@ dark:border-slate-700
 dark:bg-slate-900
 dark:text-white
 "
-              required
-            >
-              <option value="" className="bg-slate-900 text-white">
-                Selecione o perfil
-              </option>
+                  required
+                >
+                  <option value="" className="bg-slate-900 text-white">
+                    Selecione o perfil
+                  </option>
 
-              <option value="ADMIN" className="bg-slate-900 text-white">
-                Administrador
-              </option>
+                  <option value="ADMIN" className="bg-slate-900 text-white">
+                    Administrador
+                  </option>
 
-              <option value="SECRETARIA" className="bg-slate-900 text-white">
-                Funcionário
-              </option>
+                  <option value="SECRETARIA" className="bg-slate-900 text-white">
+                    Funcionário
+                  </option>
 
-            </select>
-          </div>
-
+                </select>
+              </div>
+            </>
+          )}
           <div className="space-y-1">
             <label className="text-sm font-medium text-slate-700">
               Departamento
@@ -1732,15 +1831,45 @@ dark:bg-slate-900
 
                 <div>
                   <p className="font-medium">{f.nome}</p>
-                  <p className="text-sm text-gray-600">{f.user?.email}</p>
+                  {f.user ? (
+                    <>
+                      <p className="text-sm text-slate-600 dark:text-slate-300">
+                        Email de acesso: {f.user.email}
+                      </p>
 
-                  <p className="text-sm text-gray-600">
-                    Perfil de acesso ao sistema: {traduzirRole(f.user?.role)}
-                  </p>
+                      <p className="text-sm text-slate-600 dark:text-slate-300">
+                        Perfil de acesso: {traduzirRole(f.user.role)}
+                      </p>
 
-                  <p className="text-sm text-gray-600">
-                    Acesso: {f.user?.ativo === false ? "Bloqueado" : "Ativo"}
-                  </p>
+                      <p className="text-sm text-slate-600 dark:text-slate-300">
+                        Acesso:{" "}
+                        {f.user.ativo === false
+                          ? "Bloqueado"
+                          : "Ativo"}
+                      </p>
+                    </>
+                  ) : (
+                    <div
+                      className="
+      mt-2
+      inline-flex
+      rounded-full
+      border
+      border-slate-300
+      bg-slate-100
+      px-3
+      py-1
+      text-xs
+      font-bold
+      text-slate-700
+      dark:border-slate-600
+      dark:bg-slate-800
+      dark:text-slate-200
+    "
+                    >
+                      Sem acesso ao sistema
+                    </div>
+                  )}
 
                   <p className="text-sm text-gray-600">
                     Status: {f.statusFuncionario || "ATIVO"}
@@ -1786,15 +1915,18 @@ dark:bg-slate-900
                   Editar
                 </Link>
 
-                {podeGerenciarPermissoesIndividuais() && (
-                  <Link
-                    href={`/admin/funcionarios/${f.id}/permissoes`}
-                    className="inline-flex items-center rounded-lg border border-blue-300 bg-blue-50 px-3 py-1.5 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-200 dark:hover:bg-blue-900"
-                  >
-                    🔐 Permissões individuais
-                  </Link>
-                )}
+                {f.user &&
+                  podeGerenciarPermissoesIndividuais() && (
+                    <Link
+                      href={`/admin/funcionarios/${f.id}/permissoes`}
+                      className="inline-flex items-center rounded-lg border border-blue-300 bg-blue-50 px-3 py-1.5 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-200 dark:hover:bg-blue-900"
+                    >
+                      🔐 Permissões individuais
+                    </Link>
+                  )}
 
+{f.user && (
+  <>
                 <button
                   type="button"
                   onClick={() => alterarAcessoFuncionario(f.id, "bloquear", f.nome)}
@@ -1810,6 +1942,9 @@ dark:bg-slate-900
                 >
                   Desbloquear acesso
                 </button>
+                </>
+)}
+
               </div>
             </div>
           ))
