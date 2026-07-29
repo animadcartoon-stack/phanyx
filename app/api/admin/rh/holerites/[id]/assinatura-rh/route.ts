@@ -151,11 +151,16 @@ export async function POST(
       .json()
       .catch(() => null);
 
-    const tipoAssinatura = String(
+    const tipoAssinaturaRecebida = String(
       body?.tipoAssinatura || "",
     )
       .trim()
       .toUpperCase();
+
+    const tipoAssinaturaRh =
+      tipoAssinaturaRecebida === "DIGITAL"
+        ? "DIGITAL_AUTENTICADA"
+        : "DESENHO";
 
     const assinaturaBase64 = String(
       body?.assinaturaBase64 || "",
@@ -166,7 +171,7 @@ export async function POST(
 
     if (
       !["DESENHO", "DIGITAL"].includes(
-        tipoAssinatura,
+        tipoAssinaturaRecebida,
       )
     ) {
       return NextResponse.json(
@@ -192,36 +197,45 @@ export async function POST(
       );
     }
 
-    const assinaturaBuffer =
-      extrairAssinaturaPng(
-        assinaturaBase64,
-      );
-
-    if (!assinaturaBuffer) {
-      return NextResponse.json(
-        {
-          error:
-            "A imagem da assinatura é inválida.",
-        },
-        {
-          status: 400,
-        },
-      );
-    }
+    let assinaturaBuffer:
+      | Buffer
+      | null = null;
 
     if (
-      assinaturaBuffer.length >
-      TAMANHO_MAXIMO_ASSINATURA
+      tipoAssinaturaRecebida ===
+      "DESENHO"
     ) {
-      return NextResponse.json(
-        {
-          error:
-            "A assinatura não pode ultrapassar 2 MB.",
-        },
-        {
-          status: 400,
-        },
-      );
+      assinaturaBuffer =
+        extrairAssinaturaPng(
+          assinaturaBase64,
+        );
+
+      if (!assinaturaBuffer) {
+        return NextResponse.json(
+          {
+            error:
+              "A imagem da assinatura desenhada é inválida.",
+          },
+          {
+            status: 400,
+          },
+        );
+      }
+
+      if (
+        assinaturaBuffer.length >
+        TAMANHO_MAXIMO_ASSINATURA
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "A assinatura não pode ultrapassar 2 MB.",
+          },
+          {
+            status: 400,
+          },
+        );
+      }
     }
 
     /*
@@ -503,53 +517,66 @@ export async function POST(
       );
     }
 
-    const storeId =
-      process.env
-        .RH_PONTO_STORE_ID?.trim();
+    let assinaturaRhImagemHash:
+      | string
+      | null = null;
 
-    const tokenBlob =
-      process.env
-        .RH_PONTO_READ_WRITE_TOKEN?.trim();
+    if (
+      tipoAssinaturaRecebida ===
+      "DESENHO"
+    ) {
+      const storeId =
+        process.env
+          .RH_PONTO_STORE_ID?.trim();
 
-    if (!storeId || !tokenBlob) {
-      return NextResponse.json(
-        {
-          error:
-            "O armazenamento privado de documentos do RH não está configurado.",
-        },
-        {
-          status: 500,
-        },
-      );
-    }
+      const tokenBlob =
+        process.env
+          .RH_PONTO_READ_WRITE_TOKEN?.trim();
 
-    const assinaturaRhImagemHash =
-      calcularSha256(
+      if (
+        !storeId ||
+        !tokenBlob ||
+        !assinaturaBuffer
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "O armazenamento privado da assinatura do RH não está configurado.",
+          },
+          {
+            status: 500,
+          },
+        );
+      }
+
+      assinaturaRhImagemHash =
+        calcularSha256(
+          assinaturaBuffer,
+        );
+
+      const caminhoAssinatura = [
+        "rh-ponto",
+        `instituicoes/${instituicaoId}`,
+        `holerites/${holerite.id}`,
+        "assinaturas-rh",
+        `${randomUUID()}.png`,
+      ].join("/");
+
+      const blob = await put(
+        caminhoAssinatura,
         assinaturaBuffer,
+        {
+          access: "private",
+          storeId,
+          token: tokenBlob,
+          contentType: "image/png",
+          addRandomSuffix: false,
+        },
       );
 
-    const caminhoAssinatura = [
-      "rh-ponto",
-      `instituicoes/${instituicaoId}`,
-      `holerites/${holerite.id}`,
-      "assinaturas-rh",
-      `${randomUUID()}.png`,
-    ].join("/");
-
-    const blob = await put(
-      caminhoAssinatura,
-      assinaturaBuffer,
-      {
-        access: "private",
-        storeId,
-        token: tokenBlob,
-        contentType: "image/png",
-        addRandomSuffix: false,
-      },
-    );
-
-    assinaturaRhImagemUrl =
-      blob.url;
+      assinaturaRhImagemUrl =
+        blob.url;
+    }
 
     const agora = new Date();
 
@@ -605,10 +632,11 @@ export async function POST(
             usuario.role,
           ),
 
-          tipoAssinaturaRh:
-            tipoAssinatura,
+          tipoAssinaturaRh,
 
-          assinaturaRhImagemHash,
+          assinaturaRhImagemHash:
+            assinaturaRhImagemHash ||
+            null,
 
           assinadoRhEm:
             agora.toISOString(),
@@ -648,12 +676,15 @@ export async function POST(
               assinadoRhEm:
                 agora,
 
-              tipoAssinaturaRh:
-                tipoAssinatura,
+              tipoAssinaturaRh,
 
-              assinaturaRhImagemUrl,
+              assinaturaRhImagemUrl:
+                assinaturaRhImagemUrl ||
+                null,
 
-              assinaturaRhImagemHash,
+              assinaturaRhImagemHash:
+                assinaturaRhImagemHash ||
+                null,
 
               assinadoRhNomeSnapshot:
                 usuario.nome,
@@ -720,8 +751,11 @@ export async function POST(
                 ?.nome
                 ? `Departamento: ${funcionarioAssinante.departamento.nome}`
                 : null,
-              `Tipo de assinatura: ${tipoAssinatura}`,
-              `Assinatura SHA-256: ${assinaturaRhImagemHash}`,
+              `Tipo de assinatura: ${tipoAssinaturaRh}`,
+
+              assinaturaRhImagemHash
+                ? `Assinatura desenhada SHA-256: ${assinaturaRhImagemHash}`
+                : "Assinatura digital autenticada pelo usuário PHANYX",
               `Confirmação SHA-256: ${confirmacaoAssinaturaRhHash}`,
               `IP: ${ipAssinaturaRh || "Não identificado"}`,
             ]
@@ -775,7 +809,10 @@ export async function POST(
             ?.nome || null,
       },
 
-      assinaturaRhImagemHash,
+      tipoAssinaturaRh,
+
+      assinaturaRhImagemHash:
+        assinaturaRhImagemHash || null,
 
       confirmacaoAssinaturaRhHash,
     });
