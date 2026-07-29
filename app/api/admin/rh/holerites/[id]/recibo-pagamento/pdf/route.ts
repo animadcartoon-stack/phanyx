@@ -477,10 +477,24 @@ export async function GET(
       pagamento.assinadoRhEm,
     );
 
+    const nomeSnapshotRh = limparTextoPdf(
+      pagamento.assinadoRhNomeSnapshot,
+    );
+
+    const nomeUsuarioRh = limparTextoPdf(
+      pagamento.assinadoRhPor?.nome,
+    );
+
+    const assinaturaRhComIdentidadeIndividual = Boolean(
+      nomeSnapshotRh || nomeUsuarioRh,
+    );
+
     const nomeAssinanteRh =
-      pagamento.assinadoRhNomeSnapshot ||
-      pagamento.assinadoRhPor?.nome ||
-      "Representante autorizado do RH";
+      nomeSnapshotRh ||
+      nomeUsuarioRh ||
+      nomeFantasia ||
+      nomeInstituicao ||
+      `Usuário ID ${pagamento.assinadoRhPorId}`;
 
     const { width, height } = pagina.getSize();
 
@@ -940,61 +954,61 @@ export async function GET(
 
       const assinaturaRhX = margem + 35;
 
-const centroAssinaturaRh =
-  assinaturaRhX + assinaturaLargura / 2;
+      const centroAssinaturaRh =
+        assinaturaRhX + assinaturaLargura / 2;
 
-const tituloAssinaturaRhY =
-  pagamento.tipoAssinaturaRh === "DIGITAL_AUTENTICADA"
-    ? assinaturaY + 18
-    : assinaturaY + 34;
+      const tituloAssinaturaRhY =
+        pagamento.tipoAssinaturaRh === "DIGITAL_AUTENTICADA"
+          ? assinaturaY + 18
+          : assinaturaY + 34;
 
-const dataAssinaturaRhY =
-  pagamento.tipoAssinaturaRh === "DIGITAL_AUTENTICADA"
-    ? assinaturaY + 10
-    : assinaturaY + 27;
+      const dataAssinaturaRhY =
+        pagamento.tipoAssinaturaRh === "DIGITAL_AUTENTICADA"
+          ? assinaturaY + 10
+          : assinaturaY + 27;
 
-if (assinaturaRhConfirmada) {
-  escreverCentro(
-    pagamento.tipoAssinaturaRh === "DIGITAL_AUTENTICADA"
-      ? "ASSINADO DIGITALMENTE PELO RH"
-      : "ASSINADO ELETRONICAMENTE PELO RH",
-    centroAssinaturaRh,
-    tituloAssinaturaRhY,
-    5.2,
-    true,
-  );
+      if (assinaturaRhConfirmada) {
+        escreverCentro(
+          pagamento.tipoAssinaturaRh === "DIGITAL_AUTENTICADA"
+            ? "ASSINADO DIGITALMENTE PELO RH"
+            : "ASSINADO ELETRONICAMENTE PELO RH",
+          centroAssinaturaRh,
+          tituloAssinaturaRhY,
+          5.2,
+          true,
+        );
 
-  escreverCentro(
-    dataHoraBR(pagamento.assinadoRhEm),
-    centroAssinaturaRh,
-    dataAssinaturaRhY,
-    4.8,
-  );
+        escreverCentro(
+          dataHoraBR(pagamento.assinadoRhEm),
+          centroAssinaturaRh,
+          dataAssinaturaRhY,
+          4.8,
+        );
 
-  if (assinaturaRh) {
-    const escala = Math.min(
-      (assinaturaLargura - 36) / assinaturaRh.width,
-      20 / assinaturaRh.height,
-    );
+        if (assinaturaRh) {
+          const escala = Math.min(
+            (assinaturaLargura - 36) / assinaturaRh.width,
+            20 / assinaturaRh.height,
+          );
 
-    const larguraImagem =
-      assinaturaRh.width * escala;
+          const larguraImagem =
+            assinaturaRh.width * escala;
 
-    const alturaImagem =
-      assinaturaRh.height * escala;
+          const alturaImagem =
+            assinaturaRh.height * escala;
 
-    pagina.drawImage(assinaturaRh, {
-      x:
-        assinaturaRhX +
-        (assinaturaLargura - larguraImagem) / 2,
+          pagina.drawImage(assinaturaRh, {
+            x:
+              assinaturaRhX +
+              (assinaturaLargura - larguraImagem) / 2,
 
-      y: assinaturaY + 3,
+            y: assinaturaY + 3,
 
-      width: larguraImagem,
-      height: alturaImagem,
-    });
-  }
-}
+            width: larguraImagem,
+            height: alturaImagem,
+          });
+        }
+      }
 
       if (assinaturaConfirmada) {
         escreverCentro(
@@ -1032,7 +1046,9 @@ if (assinaturaRhConfirmada) {
 
       escreverCentro(
         assinaturaRhConfirmada
-          ? `Representante do RH • Usuário ID ${pagamento.assinadoRhPorId}`
+          ? assinaturaRhComIdentidadeIndividual
+            ? `Representante do RH • Usuário ID ${pagamento.assinadoRhPorId}`
+            : `Acesso institucional • Usuário ID ${pagamento.assinadoRhPorId}`
           : "Assinatura do RH / Empregador",
         margem + 35 + assinaturaLargura / 2,
         assinaturaY - 22,
