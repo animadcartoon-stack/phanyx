@@ -39,6 +39,65 @@ function substituirExemplos(texto: string, config: any) {
     statusAluno: "ATIVO",
     statusMatricula: "ATIVA",
 
+    dataMatricula: "03/06/2026",
+dataInicioAluno: "03/06/2026",
+dataConclusao: "-",
+dataConclusaoAluno: "-",
+
+semestreAtual: "1º semestre",
+
+cargaHorariaCurso: "3.200h",
+cargaHorariaMinimaCurso: "20h",
+cargaHorariaMaximaCurso: "550h",
+
+percentualConclusao: "25%",
+
+nomePolo: "Polo Exemplo",
+enderecoPolo: "Endereço do polo",
+telefonePolo: "(00) 00000-0000",
+emailPolo: "polo@exemplo.com",
+cidadePolo: "Cidade",
+estadoPolo: "UF",
+cepPolo: "00000-000",
+
+nomeTitularContrato: "Aluno Exemplo",
+cpfTitularContrato: "000.000.000-00",
+emailTitularContrato: "titular@exemplo.com",
+telefoneTitularContrato: "(00) 00000-0000",
+parentescoTitularContrato: "O próprio aluno",
+tipoTitularContrato: "O próprio aluno",
+
+disciplinas:
+  "- Antigo Testamento A — 96h<br>" +
+  "- Novo Testamento A — 96h<br>" +
+  "- Teologia Bíblica — 64h",
+
+valorContrato: "R$ 2.000,00",
+
+codigoValidacao:
+  "PHANYX-PREVIA-000001",
+
+urlValidacao:
+  "https://www.phanyx.com.br/validar-documento",
+
+numeroDocumento:
+  "CONTRATO-PREVIA-000001",
+
+dataEmissao:
+  new Date().toLocaleDateString(
+    "pt-BR"
+  ),
+
+horaEmissao:
+  new Date().toLocaleTimeString(
+    "pt-BR"
+  ),
+
+dataHoraEmissao:
+  new Date().toLocaleString(
+    "pt-BR"
+  ),
+
     nomeFuncionario: "Funcionário Exemplo",
     funcionarioNome: "Funcionário Exemplo",
     cpfFuncionario: "000.000.000-00",
@@ -73,9 +132,27 @@ function substituirExemplos(texto: string, config: any) {
 
   let final = texto || "";
 
-  for (const [chave, valor] of Object.entries(valores)) {
-    final = final.replaceAll(`{{${chave}}}`, valor || "");
-  }
+  for (
+  const [chave, valor]
+  of Object.entries(valores)
+) {
+  const chaveSegura =
+    chave.replace(
+      /[.*+?^${}()|[\]\\]/g,
+      "\\$&"
+    );
+
+  const padrao =
+    new RegExp(
+      `{{\\s*${chaveSegura}\\s*}}`,
+      "g"
+    );
+
+  final = final.replace(
+    padrao,
+    () => valor || ""
+  );
+}
 
   return final.replaceAll(/{{[^}]+}}/g, "-");
 }
@@ -119,18 +196,25 @@ conteudoHtml = conteudoHtml
       config?.usarPapelTimbrado &&
       config?.estiloPapelTimbrado === "PHANYX_CLASSICO";
 
-      console.log("===== CONTEUDO HTML =====");
-      console.log(conteudoHtml);
-      console.log("===== FIM HTML =====");
+      const margemPagina =
+  usaPhanyxClassico
+    ? "34mm 0 8mm 0"
+    : "0";
+
+const paddingConteudo =
+  usaPhanyxClassico
+    ? "10mm 18mm"
+    : "18mm";
 
     const html = `<!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
+
   <style>
     @page {
       size: A4;
-      margin: 0;
+      margin: ${margemPagina};
     }
 
     * {
@@ -143,20 +227,29 @@ conteudoHtml = conteudoHtml
       padding: 0;
       background: #ffffff;
       color: #000000;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
+
+      -webkit-print-color-adjust:
+        exact;
+
+      print-color-adjust:
+        exact;
     }
 
     body {
-  font-family: Arial, Helvetica, sans-serif;
-}
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+      font-size: 11pt;
+      line-height: normal;
+    }
 
     .pagina-a4 {
       width: 210mm;
-      min-height: 297mm;
       position: relative;
       background: #ffffff;
-      overflow: hidden;
+      overflow: visible;
     }
 
     ${
@@ -169,6 +262,7 @@ conteudoHtml = conteudoHtml
       height: 297mm;
       object-fit: cover;
       z-index: 0;
+      pointer-events: none;
     }
     `
         : ""
@@ -178,13 +272,21 @@ conteudoHtml = conteudoHtml
       usaPhanyxClassico
         ? `
     .cabecalho-phanyx {
+      position: fixed;
+      top: -34mm;
+      left: 0;
+      right: 0;
+
       height: 34mm;
-      background: #111111;
-      color: #ffffff;
+
       display: flex;
       align-items: center;
-      padding: 8mm 18mm;
       gap: 8mm;
+
+      padding: 8mm 18mm;
+
+      background: #111111;
+      color: #ffffff;
     }
 
     .cabecalho-phanyx img {
@@ -195,73 +297,92 @@ conteudoHtml = conteudoHtml
 
     .cabecalho-phanyx h1 {
       margin: 0;
+
       font-size: 16pt;
       font-weight: 700;
       line-height: 1.1;
     }
 
     .cabecalho-phanyx p {
-      margin: 3mm 0 0 0;
+      margin: 3mm 0 0;
+      min-height: 0;
+
       font-size: 9pt;
+      line-height: 1.1;
     }
 
     .rodape-phanyx {
       position: fixed;
       left: 0;
       right: 0;
-      bottom: 0;
+      bottom: -8mm;
+
       height: 8mm;
+
+      padding: 2.5mm 18mm;
+
       background: #111111;
       color: #ffffff;
+
       font-size: 6pt;
-      padding: 2.5mm 18mm;
+      line-height: 1;
     }
     `
         : ""
     }
 
-   .conteudo {
-  position: relative;
-  z-index: 1;
-  padding-left: 18mm;
-  padding-right: 18mm;
-  ${
-    usaPhanyxClassico
-      ? "padding-top: 14mm; padding-bottom: 14mm;"
-      : "padding-top: 18mm; padding-bottom: 18mm;"
-  }
-  ${usaPapelProprio ? "padding-top: 18mm; padding-bottom: 18mm;" : ""}
-}
-
-
-
-.conteudo p + p,
-.conteudo div + div {
-  margin-top: 0;
-}
-
-.conteudo br {
-  line-height: 1;
-}
-
-.conteudo,
-.conteudo * {
-  line-height: inherit;
-}
+    .conteudo {
       position: relative;
       z-index: 1;
-      padding-left: 18mm;
-      padding-right: 18mm;
-      ${
-        usaPhanyxClassico
-          ? "padding-top: 14mm; padding-bottom: 14mm;"
-          : "padding-top: 18mm; padding-bottom: 18mm;"
-      }
-      ${usaPapelProprio ? "padding-top: 18mm; padding-bottom: 18mm;" : ""}
+
+      width: 100%;
+
+      padding:
+        ${paddingConteudo};
+    }
+
+    /*
+     * O Tailwind remove as margens
+     * naturais no editor. Portanto,
+     * o PDF também não deve inventar
+     * margens automáticas.
+     */
+    .conteudo p,
+    .conteudo div,
+    .conteudo h1,
+    .conteudo h2,
+    .conteudo h3,
+    .conteudo h4,
+    .conteudo h5,
+    .conteudo h6 {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+
+    /*
+     * Um parágrafo normal ocupa uma
+     * linha completa. Isso preserva
+     * o Enter natural do editor.
+     */
+    .conteudo p {
+      min-height: 1em;
+    }
+
+    /*
+     * Uma linha vazia não pode virar
+     * apenas 4 pixels.
+     */
+    .conteudo p:empty,
+    .conteudo p:has(
+      > br:only-child
+    ) {
+      min-height: 1em;
+      line-height: 1em;
     }
 
     .conteudo img {
       max-width: 100%;
+      height: auto;
     }
 
     .conteudo table {
@@ -269,30 +390,99 @@ conteudoHtml = conteudoHtml
       border-collapse: collapse;
     }
 
-    .conteudo p {
-  margin-top: 0;
-  margin-bottom: 0;
-}
+    .conteudo ul,
+    .conteudo ol {
+      margin-top: 0;
+      margin-bottom: 0;
+      padding-left: 1.5em;
+    }
 
-.conteudo p:has(> br:only-child) {
-  min-height: 4px;
-  line-height: 4px;
-}
+    /*
+     * Os marcadores criados pelo
+     * editor viram quebras físicas.
+     * Os textos das guias não são
+     * impressos.
+     */
+    .conteudo
+      .phanyx-page-break {
+      display: block !important;
 
+      width: 100%;
+      height: 0 !important;
+
+      margin: 0 !important;
+      padding: 0 !important;
+      border: 0 !important;
+
+      overflow: hidden !important;
+
+      font-size: 0 !important;
+      line-height: 0 !important;
+
+      break-before: page;
+      page-break-before: always;
+    }
+
+    .conteudo
+      .phanyx-page-break
+      > * {
+      display: none !important;
+    }
+
+    /*
+     * Evita folha vazia caso exista
+     * uma quebra no fim do template.
+     */
+    .conteudo
+      > .phanyx-page-break:last-child {
+      display: none !important;
+
+      break-before: auto;
+      page-break-before: auto;
+    }
   </style>
 </head>
+
 <body>
   <section class="pagina-a4">
-    ${usaPapelProprio ? `<img class="papel-proprio" src="${papelUrl}" />` : ""}
+    ${
+      usaPapelProprio
+        ? `
+    <img
+      class="papel-proprio"
+      src="${papelUrl}"
+      alt=""
+    />
+    `
+        : ""
+    }
 
     ${
       usaPhanyxClassico
         ? `
     <header class="cabecalho-phanyx">
-      ${logoUrl ? `<img src="${logoUrl}" />` : ""}
+      ${
+        logoUrl
+          ? `
+      <img
+        src="${logoUrl}"
+        alt=""
+      />
+      `
+          : ""
+      }
+
       <div>
-        <h1>${config?.nomeFantasia || "Instituição"}</h1>
-        <p>Prévia de documento</p>
+        <h1>
+          ${
+            config?.nomeFantasia ||
+            "Instituição"
+          }
+        </h1>
+
+        <p>
+          Prévia de documento
+        </p>
       </div>
     </header>
     `
@@ -307,7 +497,8 @@ conteudoHtml = conteudoHtml
       usaPhanyxClassico
         ? `
     <footer class="rodape-phanyx">
-      ${config?.cnpj || ""} ${config?.telefone || ""}
+      ${config?.cnpj || ""}
+      ${config?.telefone || ""}
     </footer>
     `
         : ""
