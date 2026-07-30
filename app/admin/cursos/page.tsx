@@ -91,6 +91,18 @@ type Curso = {
     poloId: number;
     polo?: Polo | null;
   }[];
+  publicacoesRedeOrigem?: {
+  id: number;
+  poloId?: number | null;
+  polo?: {
+    id: number;
+    nome: string;
+  } | null;
+  instituicaoDestino?: {
+    id: number;
+    nome: string;
+  } | null;
+}[];
 };
 
 type FeedbackTipo = "sucesso" | "erro" | "";
@@ -104,6 +116,17 @@ export default function AdminCursosPage() {
   const [busca, setBusca] = useState("");
   const [filtroStatus, setFiltroStatus] = useState<"ATIVOS" | "EXCLUIDOS" | "TODOS">("ATIVOS");
   const [polosAbertos, setPolosAbertos] = useState(false);
+
+  const [cursoEditandoPolos, setCursoEditandoPolos] =
+  useState<Curso | null>(null);
+
+const [
+  polosEdicaoSelecionados,
+  setPolosEdicaoSelecionados,
+] = useState<number[]>([]);
+
+const [salvandoPolosCurso, setSalvandoPolosCurso] =
+  useState(false);
 
   const [form, setForm] = useState({
     nome: "",
@@ -259,6 +282,32 @@ function estaNoUltimoDia(data?: string | null) {
         : [...atual, id]
     );
   }
+
+  function abrirEdicaoPolos(curso: Curso) {
+  const polosFisicos =
+    curso.cursosPolos?.map(
+      (item) => item.poloId
+    ) ?? [];
+
+  const unidadesPublicadas =
+    curso.publicacoesRedeOrigem
+      ?.map((item) => item.poloId)
+      .filter(
+        (id): id is number =>
+          typeof id === "number"
+      ) ?? [];
+
+  setPolosEdicaoSelecionados(
+    Array.from(
+      new Set([
+        ...polosFisicos,
+        ...unidadesPublicadas,
+      ])
+    )
+  );
+
+  setCursoEditandoPolos(curso);
+}
 
   async function criarCurso(e: React.FormEvent) {
     e.preventDefault();
