@@ -1140,6 +1140,24 @@ if ((!valorDoc || valorDoc <= 0) && doc.matricula?.lancamentosFinanceiros?.lengt
 
     y -= 35;
 
+    function htmlParaTexto(valor: string) {
+  return String(valor || "")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n")
+    .replace(/<\/div>/gi, "\n")
+    .replace(/<li>/gi, "• ")
+    .replace(/<\/li>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
     const linhas = quebrarTextoEmLinhas(
       doc.conteudo || "",
       larguraTexto,
@@ -1252,71 +1270,11 @@ if ((!valorDoc || valorDoc <= 0) && doc.matricula?.lancamentosFinanceiros?.lengt
       yLink -= 9;
     }
 
-   
-
     page.drawImage(qrImage, {
       x: margemX + larguraTexto - 76,
       y: y - 76,
       width: 64,
       height: 64,
-    });
-
-    
-await prisma.documentoGerado.update({
-  where: { id: doc.id },
-  data: { codigoValidacao },
-});
-    const dataHoraEmissao = doc.criadoEm
-      ? new Date(doc.criadoEm).toLocaleString("pt-BR")
-      : new Date().toLocaleString("pt-BR");
-
-    
-    
-    y -= 95;
-
-    // 🔐 BLOCO DE VALIDAÇÃO
-    page.drawRectangle({
-      x: margemX,
-      y: y - 70,
-      width: larguraTexto,
-      height: 70,
-      color: rgb(0.97, 0.98, 0.99),
-      borderWidth: 1,
-      borderColor: rgb(0.82, 0.86, 0.9),
-    });
-
-    page.drawText(`Código: ${codigoValidacao}`, {
-      x: margemX + 10,
-      y: y - 32,
-      size: 9,
-      font: bold,
-      color: rgb(0.08, 0.12, 0.2),
-    });
-
-    page.drawText(`Emitido em: ${dataHoraEmissao}`, {
-      x: margemX + 10,
-      y: y - 46,
-      size: 9,
-      font: usarFonteTexto,
-      color: rgb(0.28, 0.28, 0.32),
-    });
-
-    page.drawText("Conferência interna pelo sistema PHANYX.", {
-      x: margemX + 10,
-      y: y - 60,
-      size: 8,
-      font: usarFonteTexto,
-      color: rgb(0.42, 0.42, 0.46),
-    });
-
-    y -= 90;
-
-    page.drawText(`Consulta: ${linkValidacao}`, {
-      x: margemX,
-      y: y,
-      size: 8,
-      font: usarFonteTexto,
-      color: rgb(0.32, 0.32, 0.38),
     });
 
 const pdfBytes = await pdfDoc.save();
