@@ -89,32 +89,23 @@ export async function GET() {
           },
         },
         publicacaoRedeDestino: {
+  include: {
+    cursoOrigem: {
+      select: {
+        id: true,
+        nome: true,
+        codigo: true,
+
+        publicacoesRedeOrigem: {
           include: {
-            cursoOrigem: {
+            polo: {
               select: {
                 id: true,
                 nome: true,
-                codigo: true,
-              },
-              publicacoesRedeOrigem: {
-                include: {
-                  polo: {
-                    select: {
-                      id: true,
-                      nome: true,
-                    },
-                  },
-                  instituicaoDestino: {
-                    select: {
-                      id: true,
-                      nome: true,
-                    },
-                  },
-                },
               },
             },
 
-            instituicaoOrigem: {
+            instituicaoDestino: {
               select: {
                 id: true,
                 nome: true,
@@ -122,6 +113,17 @@ export async function GET() {
             },
           },
         },
+      },
+    },
+
+    instituicaoOrigem: {
+      select: {
+        id: true,
+        nome: true,
+      },
+    },
+  },
+},
       },
       orderBy: {
         nome: "asc",
