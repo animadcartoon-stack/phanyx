@@ -16,14 +16,58 @@ function formatarMoeda(valor: number) {
   });
 }
 
+function montarEnderecoContrato(
+  dados?: any
+) {
+  const ruaNumero = [
+    dados?.endereco,
+    dados?.numero,
+  ]
+    .filter(Boolean)
+    .join(", ");
+
+  const cidadeEstado = [
+    dados?.cidade,
+    dados?.estado,
+  ]
+    .filter(Boolean)
+    .join(" - ");
+
+  return [
+    ruaNumero,
+    dados?.bairro,
+    cidadeEstado,
+    dados?.cep
+      ? `CEP: ${dados.cep}`
+      : "",
+  ]
+    .filter(Boolean)
+    .join(" • ") || "-";
+}
+
+function escaparRegex(valor: string) {
+  return valor.replace(
+    /[.*+?^${}()|[\]\\]/g,
+    "\\$&"
+  );
+}
+
 function substituirTemplate(
   template: string,
   valores: Record<string, string>
 ) {
-  let texto = template;
+  let texto = String(template || "");
 
   for (const [chave, valor] of Object.entries(valores)) {
-    texto = texto.replaceAll(`{{${chave}}}`, valor);
+    const padrao = new RegExp(
+      `{{\\s*${escaparRegex(chave)}\\s*}}`,
+      "g"
+    );
+
+    texto = texto.replace(
+      padrao,
+      () => String(valor ?? "")
+    );
   }
 
   return texto;
@@ -49,27 +93,62 @@ function calcularIdade(dataNascimento?: Date | string | null) {
 }
 
 function obterTitularContrato(aluno: any) {
-  const idade = calcularIdade(aluno?.dataNascimento);
-  const alunoEhMenor = idade !== null && idade < 18;
+  const idade =
+    calcularIdade(
+      aluno?.dataNascimento
+    );
+
+  const alunoEhMenor =
+    idade !== null &&
+    idade < 18;
 
   if (alunoEhMenor) {
     return {
-      nome: aluno?.nomeResponsavel || aluno?.nome || "-",
-      cpf: aluno?.cpfResponsavel || aluno?.cpf || "-",
-      email: aluno?.emailResponsavel || "-",
-      telefone: aluno?.telefoneResponsavel || "-",
-      parentesco: aluno?.parentescoResponsavel || "-",
-      tipo: "RESPONSAVEL",
+      nome:
+        aluno?.nomeResponsavel ||
+        aluno?.nome ||
+        "-",
+
+      cpf:
+        aluno?.cpfResponsavel ||
+        aluno?.cpf ||
+        "-",
+
+      email:
+        aluno?.emailResponsavel ||
+        "-",
+
+      telefone:
+        aluno?.telefoneResponsavel ||
+        "-",
+
+      parentesco:
+        aluno?.parentescoResponsavel ||
+        "Responsável legal",
+
+      tipo:
+        "Responsável legal",
     };
   }
 
   return {
-    nome: aluno?.nome || "-",
-    cpf: aluno?.cpf || "-",
-    email: aluno?.email || "-",
-    telefone: aluno?.telefone || "-",
-    parentesco: "Aluno maior de idade",
-    tipo: "ALUNO",
+    nome:
+      aluno?.nome || "-",
+
+    cpf:
+      aluno?.cpf || "-",
+
+    email:
+      aluno?.user?.email || "-",
+
+    telefone:
+      aluno?.telefone || "-",
+
+    parentesco:
+      "O próprio aluno",
+
+    tipo:
+      "O próprio aluno",
   };
 }
 
@@ -95,10 +174,18 @@ export async function GET(req: Request) {
         },
         include: {
           aluno: {
-            include: {
-              instituicao: true,
-            },
-          },
+  include: {
+    instituicao: true,
+
+    polo: true,
+
+    user: {
+      select: {
+        email: true,
+      },
+    },
+  },
+},
           curso: true,
           itens: {
   include: {
@@ -137,10 +224,18 @@ export async function GET(req: Request) {
         },
         include: {
           aluno: {
-            include: {
-              instituicao: true,
-            },
-          },
+  include: {
+    instituicao: true,
+
+    polo: true,
+
+    user: {
+      select: {
+        email: true,
+      },
+    },
+  },
+},
           curso: true,
           itens: {
   include: {
@@ -281,29 +376,239 @@ if (!numeroMatriculaOficial) {
 
 const titularContrato = obterTitularContrato(matricula.aluno);
 
-const contratoGerado = substituirTemplate(template, {
-      nomeInstituicao:
-        config?.nomeFantasia || matricula.aluno?.instituicao?.nome || "Instituição",
-      cnpjInstituicao: config?.cnpj || "-",
-      responsavelLegal: config?.responsavelNome || "-",
-      nomeAluno: matricula.aluno?.nome || "-",
-      cpfAluno: matricula.aluno?.cpf || "-",
-      matriculaAluno: numeroMatriculaOficial,
-      numeroMatricula: numeroMatriculaOficial,
-      nomeTitularContrato: titularContrato.nome,
-      cpfTitularContrato: titularContrato.cpf,
-      emailTitularContrato: titularContrato.email,
-      telefoneTitularContrato: titularContrato.telefone,
-      parentescoTitularContrato: titularContrato.parentesco,
-      tipoTitularContrato: titularContrato.tipo,
-      curso: cursoNome,
-      disciplinas: disciplinasTexto,
+const agora =
+  new Date();
+
+const polo =
+  matricula.aluno?.polo || null;
+
+const enderecoInstituicao =
+  montarEnderecoContrato(
+    config
+  );
+
+const enderecoPolo =
+  montarEnderecoContrato(
+    polo
+  );
+
+const cargaHorariaCursoCadastrada =
+  Number(
+    (matricula.curso as any)
+      ?.cargaHoraria || 0
+  );
+
+const cargaHorariaDisciplinas =
+  matricula.itens.reduce(
+    (
+      total: number,
+      item: any
+    ) =>
+      total +
+      Number(
+        item.disciplina
+          ?.cargaHoraria || 0
+      ),
+    0
+  );
+
+const cargaHorariaCurso =
+  cargaHorariaCursoCadastrada ||
+  cargaHorariaDisciplinas;
+
+const numeroDocumento =
+  `CONTRATO-${agora.getFullYear()}-${String(
+    matricula.id
+  ).padStart(6, "0")}`;
+
+const contratoGerado =
+  substituirTemplate(template, {
+    logoInstituicao: "",
+
+    nomeInstituicao:
+      config?.nomeFantasia ||
+      matricula.aluno
+        ?.instituicao?.nome ||
+      "Instituição",
+
+    cnpjInstituicao:
+      config?.cnpj || "-",
+
+    enderecoInstituicao,
+
+    telefoneInstituicao:
+      config?.telefone || "-",
+
+    emailInstituicao:
+      config?.email || "-",
+
+    cidadeInstituicao:
+      config?.cidade || "-",
+
+    estadoInstituicao:
+      config?.estado || "-",
+
+    cepInstituicao:
+      config?.cep || "-",
+
+    responsavelLegal:
+      config?.responsavelNome ||
+      "-",
+
+    nomeAluno:
+      matricula.aluno?.nome ||
+      "-",
+
+    cpfAluno:
+      matricula.aluno?.cpf ||
+      "-",
+
+    matriculaAluno:
+      numeroMatriculaOficial,
+
+    numeroMatricula:
+      numeroMatriculaOficial,
+
+    statusAluno:
+      matricula.aluno
+        ?.statusAluno || "-",
+
+    dataNascimentoAluno:
+      matricula.aluno
+        ?.dataNascimento
+        ? new Date(
+            matricula.aluno
+              .dataNascimento
+          ).toLocaleDateString(
+            "pt-BR"
+          )
+        : "-",
+
+    nomeTitularContrato:
+      titularContrato.nome,
+
+    cpfTitularContrato:
+      titularContrato.cpf,
+
+    emailTitularContrato:
+      titularContrato.email,
+
+    telefoneTitularContrato:
+      titularContrato.telefone,
+
+    parentescoTitularContrato:
+      titularContrato.parentesco,
+
+    tipoTitularContrato:
+      titularContrato.tipo,
+
+    curso:
       cursoNome,
-      disciplinasContratadas: disciplinasTexto,
-      valorContrato: formatarMoeda(valorContrato),
-      cidadeAssinatura: config?.cidadeAssinatura || config?.cidade || "-",
-      dataAtual: formatarDataAtual(),
-    });
+
+    cursoNome,
+
+    disciplinas:
+      disciplinasTexto,
+
+    disciplinasContratadas:
+      disciplinasTexto,
+
+    statusMatricula:
+      matricula.status || "-",
+
+    dataMatricula:
+      matricula.createdAt
+        ? new Date(
+            matricula.createdAt
+          ).toLocaleDateString(
+            "pt-BR"
+          )
+        : "-",
+
+    dataInicioAluno:
+      matricula.createdAt
+        ? new Date(
+            matricula.createdAt
+          ).toLocaleDateString(
+            "pt-BR"
+          )
+        : "-",
+
+    semestreAtual:
+      matricula.semestre !==
+        null &&
+      matricula.semestre !==
+        undefined
+        ? String(
+            matricula.semestre
+          )
+        : "-",
+
+    cargaHorariaCurso:
+      cargaHorariaCurso > 0
+        ? `${cargaHorariaCurso}h`
+        : "-",
+
+    nomePolo:
+      polo?.nome || "-",
+
+    enderecoPolo,
+
+    telefonePolo:
+      polo?.telefone || "-",
+
+    emailPolo:
+      polo?.email || "-",
+
+    cidadePolo:
+      polo?.cidade || "-",
+
+    estadoPolo:
+      polo?.estado || "-",
+
+    cepPolo:
+      polo?.cep || "-",
+
+    valorContrato:
+      formatarMoeda(
+        valorContrato
+      ),
+
+    cidadeAssinatura:
+      config?.cidadeAssinatura ||
+      config?.cidade ||
+      "-",
+
+    dataAtual:
+      agora.toLocaleDateString(
+        "pt-BR"
+      ),
+
+    dataEmissao:
+      agora.toLocaleDateString(
+        "pt-BR"
+      ),
+
+    horaEmissao:
+      agora.toLocaleTimeString(
+        "pt-BR"
+      ),
+
+    dataHoraEmissao:
+      agora.toLocaleString(
+        "pt-BR"
+      ),
+
+    numeroDocumento,
+
+    tituloDocumento:
+      templateContrato?.nome ||
+      "Contrato educacional",
+
+    assinaturaDiretor: "",
+
+    blocoAssinaturaDiretor: "",
+  });
 
     let contratoExistente = matricula.contratos?.[0] || null;
 
@@ -355,6 +660,31 @@ const contratoFinal = contratoGerado;
         nomeFantasia:
           config?.nomeFantasia || matricula.aluno?.instituicao?.nome || "Instituição",
         cnpj: config?.cnpj || "-",
+
+telefone:
+  config?.telefone || "-",
+
+email:
+  config?.email || "-",
+
+endereco:
+  config?.endereco || "-",
+
+numero:
+  config?.numero || "-",
+
+bairro:
+  config?.bairro || "-",
+
+cidade:
+  config?.cidade || "-",
+
+estado:
+  config?.estado || "-",
+
+cep:
+  config?.cep || "-",
+
         responsavelNome: config?.responsavelNome || "-",
         responsavelCargo: config?.responsavelCargo || "-",
         cidadeAssinatura: config?.cidadeAssinatura || config?.cidade || "-",

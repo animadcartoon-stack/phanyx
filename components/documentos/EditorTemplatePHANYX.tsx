@@ -1,6 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Extension } from "@tiptap/core";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -153,6 +157,22 @@ function conteudoParaHtmlSeguro(valor: string) {
 export default function EditorTemplatePHANYX({ value, onChange }: Props) {
   const [fonteAtual, setFonteAtual] = useState("");
   const [tamanhoAtual, setTamanhoAtual] = useState("");
+
+const barraSentinelaRef =
+  useRef<HTMLDivElement | null>(null);
+
+const barraContainerRef =
+  useRef<HTMLDivElement | null>(null);
+
+const [barraFlutuante, setBarraFlutuante] =
+  useState(false);
+
+const [barraMedidas, setBarraMedidas] =
+  useState({
+    left: 0,
+    width: 0,
+  });
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -265,11 +285,113 @@ useEffect(() => {
   };
 }, [editor]);
 
+useEffect(() => {
+  const sentinela =
+    barraSentinelaRef.current;
+
+  const container =
+    barraContainerRef.current;
+
+  if (!sentinela || !container) {
+    return;
+  }
+
+  function atualizarMedidas() {
+    const retangulo =
+      container.getBoundingClientRect();
+
+    setBarraMedidas({
+      left: retangulo.left,
+      width: retangulo.width,
+    });
+  }
+
+  atualizarMedidas();
+
+  const observador =
+    new IntersectionObserver(
+      ([entrada]) => {
+        const deveFlutuar =
+          !entrada.isIntersecting &&
+          entrada.boundingClientRect.top < 0;
+
+        setBarraFlutuante(
+          deveFlutuar
+        );
+
+        if (deveFlutuar) {
+          atualizarMedidas();
+        }
+      },
+      {
+        threshold: [0, 1],
+      }
+    );
+
+  observador.observe(sentinela);
+
+  const observadorTamanho =
+    new ResizeObserver(() => {
+      atualizarMedidas();
+    });
+
+  observadorTamanho.observe(
+    container
+  );
+
+  window.addEventListener(
+    "resize",
+    atualizarMedidas
+  );
+
+  return () => {
+    observador.disconnect();
+    observadorTamanho.disconnect();
+
+    window.removeEventListener(
+      "resize",
+      atualizarMedidas
+    );
+  };
+}, []);
+
   if (!editor) return null;
 
   return (
-  <div className="relative rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
-    <div className="sticky top-0 z-40 border-b border-slate-200 bg-slate-50 p-3 shadow-md dark:border-slate-700 dark:bg-slate-800">
+  <div
+  ref={barraContainerRef}
+  className="relative rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900"
+>
+  <div
+    ref={barraSentinelaRef}
+    className="h-px w-full"
+    aria-hidden="true"
+  />
+
+  {barraFlutuante && (
+    <div
+      aria-hidden="true"
+      className="h-[126px] sm:h-[78px]"
+    />
+  )}
+
+  <div
+    className={`border-b border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800 ${
+      barraFlutuante
+        ? "fixed top-0 z-[100] shadow-2xl"
+        : "relative z-40"
+    }`}
+    style={
+      barraFlutuante
+        ? {
+            left:
+              barraMedidas.left,
+            width:
+              barraMedidas.width,
+          }
+        : undefined
+    }
+  >
       <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-300">
         Ferramentas de edição
       </p>

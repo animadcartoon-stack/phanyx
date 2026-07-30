@@ -67,6 +67,54 @@ function htmlParaTextoContrato(html: string) {
     .replace(/\n+$/g, "");
 }
 
+function substituirTagsFinaisContrato(
+  conteudo: string,
+  valores: Record<string, string>
+) {
+  let resultado =
+    String(conteudo || "");
+
+  for (
+    const [chave, valor]
+    of Object.entries(valores)
+  ) {
+    const padrao =
+      new RegExp(
+        `{{\\s*${chave}\\s*}}`,
+        "g"
+      );
+
+    resultado =
+      resultado.replace(
+        padrao,
+        () => String(valor ?? "")
+      );
+  }
+
+  return resultado;
+}
+
+function listarTagsRestantesContrato(
+  conteudo: string
+) {
+  return Array.from(
+    new Set(
+      Array.from(
+        String(
+          conteudo || ""
+        ).matchAll(
+          /{{\s*([^{}]+?)\s*}}/g
+        )
+      ).map(
+        (resultado) =>
+          String(
+            resultado[1] || ""
+          ).trim()
+      )
+    )
+  );
+}
+
 function normalizarEstilo(estilo?: string) {
   switch (estilo) {
     case "PHANYX_MODERNO":
@@ -600,10 +648,48 @@ const valorContratoFormatado = new Intl.NumberFormat("pt-BR", {
   currency: "BRL",
 }).format(valorContratoNumerico);
 
-const contratoFinalCorrigido = String(data?.contratoFinal || "").replace(
-  /R\$\s*0,00/g,
-  valorContratoFormatado
-);
+const contratoComValorCorrigido =
+  String(
+    data?.contratoFinal || ""
+  ).replace(
+    /R\$\s*0,00/g,
+    valorContratoFormatado
+  );
+
+const contratoFinalCorrigido =
+  substituirTagsFinaisContrato(
+    contratoComValorCorrigido,
+    {
+      codigoValidacao,
+
+      urlValidacao:
+        linkValidacao,
+
+      assinaturaDiretor: "",
+
+      blocoAssinaturaDiretor: "",
+
+      logoInstituicao: "",
+    }
+  );
+
+const tagsRestantesContrato =
+  listarTagsRestantesContrato(
+    contratoFinalCorrigido
+  );
+
+if (
+  tagsRestantesContrato.length > 0
+) {
+  throw new Error(
+    `O contrato ainda possui variáveis não preenchidas: ${tagsRestantesContrato
+      .map(
+        (tag) =>
+          `{{${tag}}}`
+      )
+      .join(", ")}`
+  );
+}
 
 const resultado = await renderizarHtmlTipTapNoPdf({
   html: contratoFinalCorrigido,
