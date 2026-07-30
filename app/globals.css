@@ -15922,3 +15922,511 @@ html[data-theme="system"] .phanyx-banco-opcao-ativa span {
   color: #ffffff !important;
 }
 
+/* =========================================================
+   COMERCIAL — PLANOS DE COMISSÃO
+   CORREÇÃO DEFINITIVA DE CONTRASTE NO TEMA CLARO
+   Deve permanecer no final do globals.css
+========================================================= */
+
+/* Cards clicáveis de escolha */
+html[data-theme="light"]
+  body
+  .phanyx-comercial-config-page
+  button[type="button"].text-left {
+  background: #ffffff !important;
+  background-image: none !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  opacity: 1 !important;
+  box-shadow: none !important;
+}
+
+/* Cards de seleção do plano de comissão */
+
+/* =========================================================
+   COMERCIAL — CARDS DE SELEÇÃO DOS PLANOS DE COMISSÃO
+========================================================= */
+
+/* TEMA CLARO — sem cards azuis */
+html[data-theme="light"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-card-opcao {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="light"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-card-opcao
+  * {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-card-opcao-ativa {
+  background: #e2e8f0 !important;
+  background-color: #e2e8f0 !important;
+  background-image: none !important;
+  border-color: #475569 !important;
+  color: #0f172a !important;
+  opacity: 1 !important;
+  box-shadow:
+    inset 0 0 0 1px #475569,
+    0 3px 8px rgba(15, 23, 42, 0.08) !important;
+}
+
+html[data-theme="light"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-card-opcao-inativa {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-card-opcao-inativa:hover {
+  background: #f8fafc !important;
+  border-color: #64748b !important;
+}
+
+html[data-theme="light"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-card-opcao:disabled:not(
+    .phanyx-comissao-card-opcao-ativa
+  ) {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  opacity: 0.6 !important;
+}
+
+/* Avisos — âmbar claro e texto escuro */
+html[data-theme="light"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-aviso {
+  background: #fffbeb !important;
+  background-color: #fffbeb !important;
+  background-image: none !important;
+  border-color: #f59e0b !important;
+  color: #78350f !important;
+  -webkit-text-fill-color: #78350f !important;
+  opacity: 1 !important;
+}
+
+/* Selos de status ativo */
+html[data-theme="light"]
+  body
+  .phanyx-comercial-config-page
+  span.rounded-full.bg-emerald-50 {
+  background: #dcfce7 !important;
+  border-color: #16a34a !important;
+  color: #166534 !important;
+  -webkit-text-fill-color: #166534 !important;
+  opacity: 1 !important;
+}
+
+/* Selo “Regra geral” — cinza, não azul */
+html[data-theme="light"]
+  body
+  .phanyx-comercial-config-page
+  span.rounded-full.bg-blue-50 {
+  background: #e2e8f0 !important;
+  border-color: #64748b !important;
+  color: #1e293b !important;
+  -webkit-text-fill-color: #1e293b !important;
+  opacity: 1 !important;
+}
+
+/* TEMA ESCURO */
+html[data-theme="dark"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-card-opcao {
+  background: #111827 !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-card-opcao
+  * {
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-card-opcao-ativa {
+  background: #334155 !important;
+  border-color: #94a3b8 !important;
+  box-shadow: inset 0 0 0 1px #94a3b8 !important;
+}
+
+html[data-theme="dark"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-aviso {
+  background: rgba(120, 53, 15, 0.3) !important;
+  border-color: #d97706 !important;
+  color: #fde68a !important;
+  -webkit-text-fill-color: #fde68a !important;
+}
+
+/* TEMA SISTEMA — cinza neutro, sem azul */
+html[data-theme="system"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-card-opcao {
+  background: #303030 !important;
+  border-color: #666666 !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="system"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-card-opcao
+  * {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="system"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-card-opcao-ativa {
+  background: #4a4a4a !important;
+  border-color: #a3a3a3 !important;
+  box-shadow: inset 0 0 0 1px #a3a3a3 !important;
+}
+
+html[data-theme="system"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-aviso {
+  background: #3f3524 !important;
+  border-color: #d69e2e !important;
+  color: #fff3c4 !important;
+  -webkit-text-fill-color: #fff3c4 !important;
+}
+
+/* =========================================================
+   COMERCIAL — CARDS DE SELEÇÃO NO TEMA CLARO
+========================================================= */
+
+html[data-theme="light"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-card-opcao {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="light"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-card-opcao
+  .phanyx-comissao-card-titulo {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-card-opcao
+  .phanyx-comissao-card-descricao {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-card-opcao-inativa {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-card-opcao-inativa:hover {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  border-color: #94a3b8 !important;
+}
+
+html[data-theme="light"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-card-opcao-ativa {
+  background: #e2e8f0 !important;
+  background-color: #e2e8f0 !important;
+  background-image: none !important;
+  border-color: #475569 !important;
+  color: #0f172a !important;
+  opacity: 1 !important;
+  box-shadow: inset 0 0 0 1px #475569 !important;
+}
+
+html[data-theme="light"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-card-opcao-ativa
+  .phanyx-comissao-card-titulo {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-card-opcao-ativa
+  .phanyx-comissao-card-descricao {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+}
+
+/* COMERCIAL — SELEÇÃO NO TEMA CLARO */
+
+html[data-theme="light"]
+  body
+  .phanyx-comercial-config-page
+  button.phanyx-comissao-card-opcao.phanyx-comissao-card-opcao-ativa {
+  background: #e2e8f0 !important;
+  background-color: #e2e8f0 !important;
+  background-image: none !important;
+  border-color: #475569 !important;
+  color: #0f172a !important;
+  opacity: 1 !important;
+  box-shadow: inset 0 0 0 1px #475569 !important;
+}
+
+html[data-theme="light"]
+  body
+  .phanyx-comercial-config-page
+  button.phanyx-comissao-card-opcao.phanyx-comissao-card-opcao-inativa {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  opacity: 1 !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="light"]
+  body
+  .phanyx-comercial-config-page
+  button.phanyx-comissao-card-opcao
+  .phanyx-comissao-card-titulo {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  body
+  .phanyx-comercial-config-page
+  button.phanyx-comissao-card-opcao
+  .phanyx-comissao-card-descricao {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+/* Confirmação de cadastro de aluno menor */
+
+.phanyx-confirmar-menor {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+  cursor: pointer;
+}
+
+.phanyx-confirmar-menor:hover:not(:disabled) {
+  background: #1d4ed8 !important;
+  border-color: #1d4ed8 !important;
+}
+
+.phanyx-confirmar-menor:disabled {
+  background: #e2e8f0 !important;
+  border-color: #cbd5e1 !important;
+  color: #64748b !important;
+  cursor: not-allowed !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] .phanyx-confirmar-menor:disabled,
+html[data-theme="system"] .phanyx-confirmar-menor:disabled {
+  background: #334155 !important;
+  border-color: #475569 !important;
+  color: #94a3b8 !important;
+}
+
+/* =========================================================
+   COMERCIAL — BOTÃO EDITAR REGRA
+========================================================= */
+
+/* Tema claro */
+html[data-theme="light"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-editar-regra {
+  background: #fff7ed !important;
+  background-color: #fff7ed !important;
+  background-image: none !important;
+  border-color: #c2410c !important;
+  color: #9a3412 !important;
+  -webkit-text-fill-color: #9a3412 !important;
+  opacity: 1 !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="light"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-editar-regra:hover {
+  background: #ffedd5 !important;
+  background-color: #ffedd5 !important;
+  border-color: #9a3412 !important;
+  color: #7c2d12 !important;
+  -webkit-text-fill-color: #7c2d12 !important;
+}
+
+/* Tema escuro */
+html[data-theme="dark"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-editar-regra {
+  background: rgba(124, 45, 18, 0.35) !important;
+  border-color: #fb923c !important;
+  color: #fed7aa !important;
+  -webkit-text-fill-color: #fed7aa !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-editar-regra:hover {
+  background: rgba(154, 52, 18, 0.55) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* Tema sistema */
+html[data-theme="system"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-editar-regra {
+  background: #3f2d24 !important;
+  border-color: #fb923c !important;
+  color: #fed7aa !important;
+  -webkit-text-fill-color: #fed7aa !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="system"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-editar-regra:hover {
+  background: #593827 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* =========================================================
+   COMERCIAL — PAINEL DE CONFIGURAÇÃO DA EXCEÇÃO
+========================================================= */
+
+/* Tema claro */
+html[data-theme="light"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-painel-excecao {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  background-image: none !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-painel-excecao label {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-painel-excecao select {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+/* Tema escuro */
+html[data-theme="dark"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-painel-excecao {
+  background: #0f172a !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
+}
+
+/* Tema sistema */
+html[data-theme="system"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-painel-excecao {
+  background: #303030 !important;
+  border-color: #666666 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}

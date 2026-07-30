@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import {
   BaseCalculoComissaoRH,
+  EscopoRegraComissaoRH,
   GatilhoComissaoRH,
+  ModoParticipacaoPlanoComissaoRH,
   TipoRegraComissaoRH,
 } from "@prisma/client";
 
@@ -21,19 +23,27 @@ type ContextoRota = {
 };
 
 const TIPOS_VALIDOS = Object.values(
-  TipoRegraComissaoRH
+  TipoRegraComissaoRH,
 );
 
 const BASES_VALIDAS = Object.values(
-  BaseCalculoComissaoRH
+  BaseCalculoComissaoRH,
 );
 
 const GATILHOS_VALIDOS = Object.values(
-  GatilhoComissaoRH
+  GatilhoComissaoRH,
+);
+
+const ESCOPOS_VALIDOS = Object.values(
+  EscopoRegraComissaoRH,
+);
+
+const MODOS_PARTICIPACAO_VALIDOS = Object.values(
+  ModoParticipacaoPlanoComissaoRH,
 );
 
 function numeroPositivoOuNull(
-  valor: unknown
+  valor: unknown,
 ): number | null {
   if (
     valor === null ||
@@ -52,8 +62,20 @@ function numeroPositivoOuNull(
   return numero;
 }
 
+function inteiroPositivoOuNull(
+  valor: unknown,
+): number | null {
+  const numero = numeroPositivoOuNull(valor);
+
+  if (numero === null || !Number.isInteger(numero)) {
+    return null;
+  }
+
+  return numero;
+}
+
 function inteiroNaoNegativoOuNull(
-  valor: unknown
+  valor: unknown,
 ): number | null {
   if (
     valor === null ||
@@ -65,10 +87,7 @@ function inteiroNaoNegativoOuNull(
 
   const numero = Number(valor);
 
-  if (
-    !Number.isInteger(numero) ||
-    numero < 0
-  ) {
+  if (!Number.isInteger(numero) || numero < 0) {
     return null;
   }
 
@@ -82,16 +101,25 @@ function textoOuNull(valor: unknown) {
 
 function booleanoOuPadrao(
   valor: unknown,
-  padrao: boolean
+  padrao: boolean,
 ) {
   return typeof valor === "boolean"
     ? valor
     : padrao;
 }
 
+function normalizarTexto(valor: unknown) {
+  return String(valor ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
+}
+
 async function buscarPlano(
   planoId: number,
-  instituicaoId: number
+  instituicaoId: number,
 ) {
   return prisma.planoComissaoRH.findFirst({
     where: {
@@ -102,13 +130,14 @@ async function buscarPlano(
       id: true,
       nome: true,
       ativo: true,
+      modoParticipacao: true,
     },
   });
 }
 
 export async function GET(
   _request: Request,
-  { params }: ContextoRota
+  { params }: ContextoRota,
 ) {
   try {
     const user = await getUserFromToken();
@@ -116,14 +145,14 @@ export async function GET(
     if (!user || !user.instituicaoId) {
       return NextResponse.json(
         { error: "Não autorizado." },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     if (
       !temPermissao(
         user,
-        "comercial.configuracoes.gerenciar"
+        "comercial.configuracoes.gerenciar",
       )
     ) {
       return NextResponse.json(
@@ -131,7 +160,7 @@ export async function GET(
           error:
             "Você não possui permissão para visualizar regras de comissão.",
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -143,13 +172,13 @@ export async function GET(
     ) {
       return NextResponse.json(
         { error: "Plano inválido." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const plano = await buscarPlano(
       planoId,
-      user.instituicaoId
+      user.instituicaoId,
     );
 
     if (!plano) {
@@ -158,7 +187,7 @@ export async function GET(
           error:
             "Plano de comissão não encontrado.",
         },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -183,10 +212,25 @@ export async function GET(
               email: true,
             },
           },
+          regraBase: {
+            select: {
+              id: true,
+              nome: true,
+              escopoAplicacao: true,
+            },
+          },
+          _count: {
+            select: {
+              variacoes: true,
+            },
+          },
         },
         orderBy: [
           {
             ordem: "asc",
+          },
+          {
+            regraBaseId: "asc",
           },
           {
             criadoEm: "asc",
@@ -201,7 +245,7 @@ export async function GET(
   } catch (error) {
     console.error(
       "Erro ao listar regras de comissão:",
-      error
+      error,
     );
 
     return NextResponse.json(
@@ -209,14 +253,14 @@ export async function GET(
         error:
           "Não foi possível carregar as regras de comissão.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
-export async function POST(
+export async function PATCH(
   request: Request,
-  { params }: ContextoRota
+  { params }: ContextoRota,
 ) {
   try {
     const user = await getUserFromToken();
@@ -224,22 +268,22 @@ export async function POST(
     if (!user || !user.instituicaoId) {
       return NextResponse.json(
         { error: "Não autorizado." },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     if (
       !temPermissao(
         user,
-        "comercial.configuracoes.gerenciar"
+        "comercial.configuracoes.gerenciar",
       )
     ) {
       return NextResponse.json(
         {
           error:
-            "Você não possui permissão para criar regras de comissão.",
+            "Você não possui permissão para alterar este plano de comissão.",
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -252,13 +296,13 @@ export async function POST(
     ) {
       return NextResponse.json(
         { error: "Plano inválido." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const plano = await buscarPlano(
       planoId,
-      instituicaoId
+      instituicaoId,
     );
 
     if (!plano) {
@@ -267,7 +311,129 @@ export async function POST(
           error:
             "Plano de comissão não encontrado.",
         },
-        { status: 404 }
+        { status: 404 },
+      );
+    }
+
+    const body = await request.json();
+
+    const modoParticipacao = String(
+      body?.modoParticipacao ?? "",
+    ).toUpperCase() as ModoParticipacaoPlanoComissaoRH;
+
+    if (
+      !MODOS_PARTICIPACAO_VALIDOS.includes(
+        modoParticipacao,
+      )
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "O modo de participação do plano é inválido.",
+        },
+        { status: 400 },
+      );
+    }
+
+    const atualizado =
+      await prisma.planoComissaoRH.updateMany({
+        where: {
+          id: planoId,
+          instituicaoId,
+        },
+        data: {
+          modoParticipacao,
+        },
+      });
+
+    if (atualizado.count !== 1) {
+      return NextResponse.json(
+        {
+          error:
+            "O plano foi alterado e não pôde ser atualizado.",
+        },
+        { status: 409 },
+      );
+    }
+
+    return NextResponse.json({
+      message:
+        "Modo de participação do plano atualizado com sucesso.",
+      plano: {
+        ...plano,
+        modoParticipacao,
+      },
+    });
+  } catch (error) {
+    console.error(
+      "Erro ao atualizar modo de participação do plano:",
+      error,
+    );
+
+    return NextResponse.json(
+      {
+        error:
+          "Não foi possível atualizar o modo de participação do plano.",
+      },
+      { status: 500 },
+    );
+  }
+}
+
+export async function POST(
+  request: Request,
+  { params }: ContextoRota,
+) {
+  try {
+    const user = await getUserFromToken();
+
+    if (!user || !user.instituicaoId) {
+      return NextResponse.json(
+        { error: "Não autorizado." },
+        { status: 401 },
+      );
+    }
+
+    if (
+      !temPermissao(
+        user,
+        "comercial.configuracoes.gerenciar",
+      )
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Você não possui permissão para criar regras de comissão.",
+        },
+        { status: 403 },
+      );
+    }
+
+    const instituicaoId = user.instituicaoId;
+    const planoId = Number(params.id);
+
+    if (
+      !Number.isInteger(planoId) ||
+      planoId <= 0
+    ) {
+      return NextResponse.json(
+        { error: "Plano inválido." },
+        { status: 400 },
+      );
+    }
+
+    const plano = await buscarPlano(
+      planoId,
+      instituicaoId,
+    );
+
+    if (!plano) {
+      return NextResponse.json(
+        {
+          error:
+            "Plano de comissão não encontrado.",
+        },
+        { status: 404 },
       );
     }
 
@@ -275,75 +441,98 @@ export async function POST(
 
     const nome = String(body?.nome ?? "").trim();
     const descricao = textoOuNull(
-      body?.descricao
+      body?.descricao,
     );
 
-    const tipo = String(
-      body?.tipo ?? ""
+    const regraBaseId = inteiroPositivoOuNull(
+      body?.regraBaseId,
+    );
+
+    const escopoAplicacao = String(
+      body?.escopoAplicacao ??
+        EscopoRegraComissaoRH.GERAL,
+    ).toUpperCase() as EscopoRegraComissaoRH;
+
+    const tipoInformado = String(
+      body?.tipo ?? "",
     ).toUpperCase() as TipoRegraComissaoRH;
 
-    const baseCalculo = String(
-      body?.baseCalculo ?? ""
+    const baseCalculoInformada = String(
+      body?.baseCalculo ?? "",
     ).toUpperCase() as BaseCalculoComissaoRH;
 
-    const gatilho = String(
-      body?.gatilho ?? ""
+    const gatilhoInformado = String(
+      body?.gatilho ?? "",
     ).toUpperCase() as GatilhoComissaoRH;
 
     const percentual = numeroPositivoOuNull(
-      body?.percentual
+      body?.percentual,
     );
 
     const valorFixo = numeroPositivoOuNull(
-      body?.valorFixo
+      body?.valorFixo,
     );
 
-    const cursoId = numeroPositivoOuNull(
-      body?.cursoId
+    const cursoIdInformado = inteiroPositivoOuNull(
+      body?.cursoId,
     );
 
-    const quantidadeMinima =
+    const quantidadeMinimaInformada =
       inteiroNaoNegativoOuNull(
-        body?.quantidadeMinima
+        body?.quantidadeMinima,
       );
 
-    const quantidadeMaxima =
+    const quantidadeMaximaInformada =
       inteiroNaoNegativoOuNull(
-        body?.quantidadeMaxima
+        body?.quantidadeMaxima,
       );
 
-    const diasCarenciaEstorno =
+    const diasCarenciaEstornoInformado =
       inteiroNaoNegativoOuNull(
-        body?.diasCarenciaEstorno
+        body?.diasCarenciaEstorno,
       );
 
-    const ordem =
+    const ordemInformada =
       inteiroNaoNegativoOuNull(
-        body?.ordem
+        body?.ordem,
       ) ?? 0;
 
-    const usarValorLiquidoRecebido =
+    const usarValorLiquidoRecebidoInformado =
       booleanoOuPadrao(
         body?.usarValorLiquidoRecebido,
-        true
+        true,
       );
 
-    const estornarEmCancelamento =
+    const estornarEmCancelamentoInformado =
       booleanoOuPadrao(
         body?.estornarEmCancelamento,
-        true
+        true,
       );
 
-    const estornarEmInadimplencia =
+    const estornarEmInadimplenciaInformado =
       booleanoOuPadrao(
         body?.estornarEmInadimplencia,
-        false
+        false,
       );
 
     const ativo = booleanoOuPadrao(
       body?.ativo,
-      true
+      true,
     );
+
+    const departamentoAlvoIdInformado =
+      inteiroPositivoOuNull(
+        body?.departamentoAlvoId,
+      );
+
+    const cargoAlvoInformado = textoOuNull(
+      body?.cargoAlvo,
+    );
+
+    const funcionarioAlvoIdInformado =
+      inteiroPositivoOuNull(
+        body?.funcionarioAlvoId,
+      );
 
     if (!nome) {
       return NextResponse.json(
@@ -351,9 +540,133 @@ export async function POST(
           error:
             "Informe o nome da regra de comissão.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
+
+    if (
+      !ESCOPOS_VALIDOS.includes(
+        escopoAplicacao,
+      )
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "O escopo de aplicação da regra é inválido.",
+        },
+        { status: 400 },
+      );
+    }
+
+    if (
+      escopoAplicacao ===
+        EscopoRegraComissaoRH.GERAL &&
+      regraBaseId !== null
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Uma regra geral não pode ser vinculada a outra regra-base.",
+        },
+        { status: 400 },
+      );
+    }
+
+    if (
+      escopoAplicacao !==
+        EscopoRegraComissaoRH.GERAL &&
+      regraBaseId === null
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Selecione a regra geral que receberá esta exceção.",
+        },
+        { status: 400 },
+      );
+    }
+
+    const regraBase = regraBaseId
+      ? await prisma.regraComissaoRH.findFirst({
+          where: {
+            id: regraBaseId,
+            instituicaoId,
+            planoId,
+            regraBaseId: null,
+            escopoAplicacao:
+              EscopoRegraComissaoRH.GERAL,
+          },
+          select: {
+            id: true,
+            nome: true,
+            tipo: true,
+            baseCalculo: true,
+            gatilho: true,
+            cursoId: true,
+            quantidadeMinima: true,
+            quantidadeMaxima: true,
+            usarValorLiquidoRecebido: true,
+            estornarEmCancelamento: true,
+            estornarEmInadimplencia: true,
+            diasCarenciaEstorno: true,
+            ordem: true,
+          },
+        })
+      : null;
+
+    if (regraBaseId && !regraBase) {
+      return NextResponse.json(
+        {
+          error:
+            "A regra geral selecionada não pertence a este plano.",
+        },
+        { status: 400 },
+      );
+    }
+
+    const tipo = regraBase
+      ? regraBase.tipo
+      : tipoInformado;
+
+    const baseCalculo = regraBase
+      ? regraBase.baseCalculo
+      : baseCalculoInformada;
+
+    const gatilho = regraBase
+      ? regraBase.gatilho
+      : gatilhoInformado;
+
+    const cursoId = regraBase
+      ? regraBase.cursoId
+      : cursoIdInformado;
+
+    const quantidadeMinima = regraBase
+      ? regraBase.quantidadeMinima
+      : quantidadeMinimaInformada;
+
+    const quantidadeMaxima = regraBase
+      ? regraBase.quantidadeMaxima
+      : quantidadeMaximaInformada;
+
+    const usarValorLiquidoRecebido = regraBase
+      ? regraBase.usarValorLiquidoRecebido
+      : usarValorLiquidoRecebidoInformado;
+
+    const estornarEmCancelamento = regraBase
+      ? regraBase.estornarEmCancelamento
+      : estornarEmCancelamentoInformado;
+
+    const estornarEmInadimplencia = regraBase
+      ? regraBase.estornarEmInadimplencia
+      : estornarEmInadimplenciaInformado;
+
+    const diasCarenciaEstorno = regraBase
+      ? regraBase.diasCarenciaEstorno
+      : diasCarenciaEstornoInformado;
+
+    const ordem = regraBase
+      ? regraBase.ordem
+      : ordemInformada;
 
     if (!TIPOS_VALIDOS.includes(tipo)) {
       return NextResponse.json(
@@ -361,7 +674,7 @@ export async function POST(
           error:
             "O tipo da regra é inválido.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -371,7 +684,7 @@ export async function POST(
           error:
             "A base de cálculo é inválida.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -381,7 +694,7 @@ export async function POST(
           error:
             "O gatilho da comissão é inválido.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -394,7 +707,7 @@ export async function POST(
           error:
             "Informe um percentual maior que zero e de no máximo 100%.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -407,7 +720,7 @@ export async function POST(
           error:
             "Informe o valor fixo da comissão.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -421,7 +734,7 @@ export async function POST(
           error:
             "A base por quantidade de matrículas deve utilizar comissão por valor fixo.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -435,7 +748,7 @@ export async function POST(
           error:
             "A quantidade máxima não pode ser menor que a quantidade mínima.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -457,9 +770,164 @@ export async function POST(
             error:
               "O curso informado não pertence à instituição ou está inativo.",
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
+    }
+
+    let departamentoAlvoId: number | null = null;
+    let departamentoAlvoNomeSnapshot: string | null = null;
+    let cargoAlvo: string | null = null;
+    let cargoAlvoNormalizado: string | null = null;
+    let funcionarioAlvoId: number | null = null;
+    let funcionarioAlvoNomeSnapshot: string | null = null;
+
+    if (
+      escopoAplicacao ===
+      EscopoRegraComissaoRH.DEPARTAMENTO
+    ) {
+      if (!departamentoAlvoIdInformado) {
+        return NextResponse.json(
+          {
+            error:
+              "Selecione o departamento desta regra.",
+          },
+          { status: 400 },
+        );
+      }
+
+      const funcionarioDepartamento =
+        await prisma.funcionario.findFirst({
+          where: {
+            instituicaoId,
+            departamentoId:
+              departamentoAlvoIdInformado,
+            ativo: true,
+            statusFuncionario: "ATIVO",
+          },
+          select: {
+            departamento: {
+              select: {
+                id: true,
+                nome: true,
+              },
+            },
+          },
+        });
+
+      const departamento =
+        funcionarioDepartamento?.departamento;
+
+      if (!departamento) {
+        return NextResponse.json(
+          {
+            error:
+              "O departamento não pertence à instituição ou não possui funcionários ativos.",
+          },
+          { status: 400 },
+        );
+      }
+
+      departamentoAlvoId = departamento.id;
+      departamentoAlvoNomeSnapshot =
+        departamento.nome;
+    }
+
+    if (
+      escopoAplicacao ===
+      EscopoRegraComissaoRH.CARGO
+    ) {
+      const cargoNormalizado = normalizarTexto(
+        cargoAlvoInformado,
+      );
+
+      if (!cargoNormalizado) {
+        return NextResponse.json(
+          {
+            error:
+              "Informe o cargo ou a função desta regra.",
+          },
+          { status: 400 },
+        );
+      }
+
+      const cargos =
+        await prisma.funcionario.findMany({
+          where: {
+            instituicaoId,
+            ativo: true,
+            statusFuncionario: "ATIVO",
+            cargo: {
+              not: null,
+            },
+          },
+          select: {
+            cargo: true,
+          },
+          distinct: ["cargo"],
+        });
+
+      const cargoEncontrado = cargos.find(
+        (item) =>
+          normalizarTexto(item.cargo) ===
+          cargoNormalizado,
+      )?.cargo;
+
+      if (!cargoEncontrado) {
+        return NextResponse.json(
+          {
+            error:
+              "Nenhum funcionário ativo possui o cargo ou a função informada.",
+          },
+          { status: 400 },
+        );
+      }
+
+      cargoAlvo = cargoEncontrado;
+      cargoAlvoNormalizado = cargoNormalizado;
+    }
+
+    if (
+      escopoAplicacao ===
+      EscopoRegraComissaoRH.FUNCIONARIO
+    ) {
+      if (!funcionarioAlvoIdInformado) {
+        return NextResponse.json(
+          {
+            error:
+              "Selecione o funcionário desta regra.",
+          },
+          { status: 400 },
+        );
+      }
+
+      const funcionarioAlvo =
+        await prisma.funcionario.findFirst({
+          where: {
+            id: funcionarioAlvoIdInformado,
+            instituicaoId,
+            ativo: true,
+            statusFuncionario: "ATIVO",
+          },
+          select: {
+            id: true,
+            nome: true,
+          },
+        });
+
+      if (!funcionarioAlvo) {
+        return NextResponse.json(
+          {
+            error:
+              "O funcionário não pertence à instituição ou está inativo.",
+          },
+          { status: 400 },
+        );
+      }
+
+      funcionarioAlvoId = funcionarioAlvo.id;
+      funcionarioAlvoNomeSnapshot =
+        funcionarioAlvo.nome;
     }
 
     const regraComMesmoNome =
@@ -483,8 +951,52 @@ export async function POST(
           error:
             "Já existe uma regra com esse nome neste plano.",
         },
-        { status: 409 }
+        { status: 409 },
       );
+    }
+
+    if (regraBaseId) {
+      const regraDoMesmoEscopo =
+        await prisma.regraComissaoRH.findFirst({
+          where: {
+            instituicaoId,
+            planoId,
+            regraBaseId,
+            escopoAplicacao,
+            ...(escopoAplicacao ===
+            EscopoRegraComissaoRH.DEPARTAMENTO
+              ? {
+                  departamentoAlvoId,
+                }
+              : {}),
+            ...(escopoAplicacao ===
+            EscopoRegraComissaoRH.CARGO
+              ? {
+                  cargoAlvoNormalizado,
+                }
+              : {}),
+            ...(escopoAplicacao ===
+            EscopoRegraComissaoRH.FUNCIONARIO
+              ? {
+                  funcionarioAlvoId,
+                }
+              : {}),
+          },
+          select: {
+            id: true,
+            nome: true,
+          },
+        });
+
+      if (regraDoMesmoEscopo) {
+        return NextResponse.json(
+          {
+            error:
+              `Já existe a regra “${regraDoMesmoEscopo.nome}” para esse alvo dentro do mesmo grupo de comissão.`,
+          },
+          { status: 409 },
+        );
+      }
     }
 
     const regra =
@@ -492,38 +1004,37 @@ export async function POST(
         data: {
           instituicaoId,
           planoId,
-          cursoId: cursoId
-            ? Number(cursoId)
-            : null,
+          cursoId,
           criadoPorId: user.id,
-
+          regraBaseId,
+          escopoAplicacao,
+          departamentoAlvoId,
+          departamentoAlvoNomeSnapshot,
+          cargoAlvo,
+          cargoAlvoNormalizado,
+          funcionarioAlvoId,
+          funcionarioAlvoNomeSnapshot,
           nome,
           descricao,
-
           tipo,
           baseCalculo,
           gatilho,
-
           percentual:
             tipo ===
             TipoRegraComissaoRH.PERCENTUAL
               ? percentual
               : null,
-
           valorFixo:
             tipo ===
             TipoRegraComissaoRH.VALOR_FIXO
               ? valorFixo
               : null,
-
           quantidadeMinima,
           quantidadeMaxima,
-
           usarValorLiquidoRecebido,
           estornarEmCancelamento,
           estornarEmInadimplencia,
           diasCarenciaEstorno,
-
           ordem,
           ativo,
         },
@@ -541,21 +1052,35 @@ export async function POST(
               email: true,
             },
           },
+          regraBase: {
+            select: {
+              id: true,
+              nome: true,
+              escopoAplicacao: true,
+            },
+          },
+          _count: {
+            select: {
+              variacoes: true,
+            },
+          },
         },
       });
 
     return NextResponse.json(
       {
         message:
-          "Regra de comissão criada com sucesso.",
+          regraBaseId === null
+            ? "Regra geral de comissão criada com sucesso."
+            : "Exceção de comissão criada com sucesso.",
         regra,
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     console.error(
       "Erro ao criar regra de comissão:",
-      error
+      error,
     );
 
     return NextResponse.json(
@@ -563,7 +1088,7 @@ export async function POST(
         error:
           "Não foi possível criar a regra de comissão.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

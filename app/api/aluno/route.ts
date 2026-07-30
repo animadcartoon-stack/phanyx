@@ -23,6 +23,105 @@ function parseDataSegura(valor: unknown) {
   return data;
 }
 
+function calcularIdadeCadastro(
+  dataNascimento: Date,
+  referencia = new Date()
+) {
+  let idade =
+    referencia.getUTCFullYear() -
+    dataNascimento.getUTCFullYear();
+
+  const mesAtual =
+    referencia.getUTCMonth();
+
+  const mesNascimento =
+    dataNascimento.getUTCMonth();
+
+  const diaAtual =
+    referencia.getUTCDate();
+
+  const diaNascimento =
+    dataNascimento.getUTCDate();
+
+  const aniversarioAindaNaoOcorreu =
+    mesAtual < mesNascimento ||
+    (mesAtual === mesNascimento &&
+      diaAtual < diaNascimento);
+
+  if (aniversarioAindaNaoOcorreu) {
+    idade -= 1;
+  }
+
+  return idade;
+}
+
+function camposResponsavelPendentes(
+  body: Record<string, unknown>
+) {
+  const pendentes: string[] = [];
+
+  const nomeResponsavel =
+    limparTexto(body.nomeResponsavel);
+
+  const cpfResponsavel =
+    limparSomenteNumeros(
+      body.cpfResponsavel
+    );
+
+  const telefoneResponsavel =
+    limparSomenteNumeros(
+      body.telefoneResponsavel
+    );
+
+  const emailResponsavel =
+    limparTexto(
+      body.emailResponsavel
+    ).toLowerCase();
+
+  const parentescoResponsavel =
+    limparTexto(
+      body.parentescoResponsavel
+    );
+
+  if (!nomeResponsavel) {
+    pendentes.push(
+      "nome do responsável"
+    );
+  }
+
+  if (cpfResponsavel.length !== 11) {
+    pendentes.push(
+      "CPF do responsável"
+    );
+  }
+
+  if (
+    telefoneResponsavel.length < 10
+  ) {
+    pendentes.push(
+      "telefone do responsável"
+    );
+  }
+
+  if (
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+      emailResponsavel
+    )
+  ) {
+    pendentes.push(
+      "e-mail do responsável"
+    );
+  }
+
+  if (!parentescoResponsavel) {
+    pendentes.push(
+      "parentesco do responsável"
+    );
+  }
+
+  return pendentes;
+}
+
 function gerarSenhaTemporaria() {
   const sufixo = crypto.randomBytes(4).toString("hex");
   return `Phx@${sufixo}`;
@@ -131,55 +230,55 @@ export async function GET(request: Request) {
             },
           },
           matriculas: {
-  orderBy: {
-    createdAt: "desc",
-  },
-  take: 1,
-  select: {
-    id: true,
-    status: true,
-    semestre: true,
-    numeroMatricula: true,
-    modalidade: true,
-    createdAt: true,
-    periodoLetivo: true,
-    
-
-    polo: {
-      select: {
-        id: true,
-        nome: true,
-        codigo: true,
-      },
-    },
-
-    curso: {
-      select: {
-        id: true,
-        nome: true,
-      },
-    },
-
-    itens: {
-      select: {
-        status: true,
-        turma: {
-          select: {
-            id: true,
-            nome: true,
-            professor: {
-              select: {
-                id: true,
-                nome: true,
-              },
+            orderBy: {
+              createdAt: "desc",
             },
-            disciplinas: {
-              take: 1,
-              select: {
-                disciplina: {
-                  select: {
-                    id: true,
-                     nome: true,
+            take: 1,
+            select: {
+              id: true,
+              status: true,
+              semestre: true,
+              numeroMatricula: true,
+              modalidade: true,
+              createdAt: true,
+              periodoLetivo: true,
+
+
+              polo: {
+                select: {
+                  id: true,
+                  nome: true,
+                  codigo: true,
+                },
+              },
+
+              curso: {
+                select: {
+                  id: true,
+                  nome: true,
+                },
+              },
+
+              itens: {
+                select: {
+                  status: true,
+                  turma: {
+                    select: {
+                      id: true,
+                      nome: true,
+                      professor: {
+                        select: {
+                          id: true,
+                          nome: true,
+                        },
+                      },
+                      disciplinas: {
+                        take: 1,
+                        select: {
+                          disciplina: {
+                            select: {
+                              id: true,
+                              nome: true,
                             },
                           },
                         },
@@ -204,46 +303,46 @@ export async function GET(request: Request) {
       return {
         ...alunoSemMatriculas,
         resumoMatricula: matriculaRecente
-  ? {
-      id: matriculaRecente.id,
-      status: matriculaRecente.status,
-      semestre: matriculaRecente.semestre,
-      numeroMatricula: matriculaRecente.numeroMatricula,
-      modalidade: matriculaRecente.modalidade,
-      dataMatricula: matriculaRecente.createdAt,
-      periodoLetivo: matriculaRecente.periodoLetivo,
-      polo: matriculaRecente.polo
-        ? {
-            id: matriculaRecente.polo.id,
-            nome: matriculaRecente.polo.nome,
-            codigo: matriculaRecente.polo.codigo,
-          }
-        : null,
+          ? {
+            id: matriculaRecente.id,
+            status: matriculaRecente.status,
+            semestre: matriculaRecente.semestre,
+            numeroMatricula: matriculaRecente.numeroMatricula,
+            modalidade: matriculaRecente.modalidade,
+            dataMatricula: matriculaRecente.createdAt,
+            periodoLetivo: matriculaRecente.periodoLetivo,
+            polo: matriculaRecente.polo
+              ? {
+                id: matriculaRecente.polo.id,
+                nome: matriculaRecente.polo.nome,
+                codigo: matriculaRecente.polo.codigo,
+              }
+              : null,
 
-              curso: matriculaRecente.curso
+            curso: matriculaRecente.curso
+              ? {
+                id: matriculaRecente.curso.id,
+                nome: matriculaRecente.curso.nome,
+              }
+              : null,
+            turmas: matriculaRecente.itens.map((item) => ({
+              id: item.turma?.id,
+              nome: item.turma?.nome || null,
+              status: item.status,
+              disciplina: item.turma?.disciplinas?.[0]?.disciplina
                 ? {
-                    id: matriculaRecente.curso.id,
-                    nome: matriculaRecente.curso.nome,
-                  }
+                  id: item.turma.disciplinas[0].disciplina.id,
+                  nome: item.turma.disciplinas[0].disciplina.nome,
+                }
                 : null,
-              turmas: matriculaRecente.itens.map((item) => ({
-                id: item.turma?.id,
-                nome: item.turma?.nome || null,
-                status: item.status,
-                disciplina: item.turma?.disciplinas?.[0]?.disciplina
-                  ? {
-                      id: item.turma.disciplinas[0].disciplina.id,
-                      nome: item.turma.disciplinas[0].disciplina.nome,
-                    }
-                  : null,
-                professor: item.turma?.professor
-                  ? {
-                      id: item.turma.professor.id,
-                      nome: item.turma.professor.nome,
-                    }
-                  : null,
-              })),
-            }
+              professor: item.turma?.professor
+                ? {
+                  id: item.turma.professor.id,
+                  nome: item.turma.professor.nome,
+                }
+                : null,
+            })),
+          }
           : null,
       };
     });
@@ -281,8 +380,8 @@ export async function POST(request: Request) {
     }
 
     if (!isAdminLike(user.role)) {
-  return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
-}
+      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+    }
 
     if (!user.instituicaoId) {
       return NextResponse.json(
@@ -293,6 +392,11 @@ export async function POST(request: Request) {
 
     const body = await request.json();
 
+    const dataNascimento =
+      parseDataSegura(
+        body.dataNascimento
+      );
+
     const nome = limparTexto(body.nome);
     const email = limparTexto(body.email).toLowerCase();
     const matriculaInformada = limparTexto(body.matricula);
@@ -301,10 +405,10 @@ export async function POST(request: Request) {
     const telefone = limparTexto(body.telefone);
     const poloId =
       body.poloId !== undefined &&
-      body.poloId !== null &&
-      String(body.poloId).trim() !== ""
-    ? Number(body.poloId)
-    : null;
+        body.poloId !== null &&
+        String(body.poloId).trim() !== ""
+        ? Number(body.poloId)
+        : null;
 
     if (!nome) {
       return NextResponse.json(
@@ -320,6 +424,80 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!dataNascimento) {
+  return NextResponse.json(
+    {
+      error:
+        "A data de nascimento do aluno é obrigatória.",
+    },
+    {
+      status: 400,
+    }
+  );
+}
+
+const idadeCadastro =
+  calcularIdadeCadastro(
+    dataNascimento
+  );
+
+if (
+  idadeCadastro < 0 ||
+  idadeCadastro > 120
+) {
+  return NextResponse.json(
+    {
+      error:
+        "A data de nascimento informada é inválida.",
+    },
+    {
+      status: 400,
+    }
+  );
+}
+
+const alunoMenorCadastro =
+  idadeCadastro < 18;
+
+const pendenciasResponsavel =
+  alunoMenorCadastro
+    ? camposResponsavelPendentes(
+        body
+      )
+    : [];
+
+const responsavelIncompleto =
+  alunoMenorCadastro &&
+  pendenciasResponsavel.length > 0;
+
+if (
+  alunoMenorCadastro &&
+  body.confirmacaoMenorCadastroAceita !==
+    true
+) {
+  return NextResponse.json(
+    {
+      codigo:
+        "CONFIRMACAO_MENOR_CADASTRO_NECESSARIA",
+
+      error:
+        responsavelIncompleto
+          ? `O aluno possui ${idadeCadastro} ano(s) e os dados do responsável estão incompletos.`
+          : `O aluno possui ${idadeCadastro} ano(s) e ainda não atingiu a idade adulta.`,
+
+      idade: idadeCadastro,
+
+      responsavelIncompleto,
+
+      camposResponsavelPendentes:
+        pendenciasResponsavel,
+    },
+    {
+      status: 409,
+    }
+  );
+}
+
     const userExistente = await prisma.user.findUnique({
       where: { email },
     });
@@ -332,21 +510,21 @@ export async function POST(request: Request) {
     }
 
     if (matriculaInformada) {
-  const matriculaExistente = await prisma.aluno.findFirst({
-    where: {
-      instituicaoId: user.instituicaoId,
-      matricula: matriculaInformada,
-    },
-    select: { id: true, nome: true },
-  });
+      const matriculaExistente = await prisma.aluno.findFirst({
+        where: {
+          instituicaoId: user.instituicaoId,
+          matricula: matriculaInformada,
+        },
+        select: { id: true, nome: true },
+      });
 
-  if (matriculaExistente) {
-    return NextResponse.json(
-      { error: "Já existe um aluno com esta matrícula nesta instituição." },
-      { status: 400 }
-    );
-  }
-}
+      if (matriculaExistente) {
+        return NextResponse.json(
+          { error: "Já existe um aluno com esta matrícula nesta instituição." },
+          { status: 400 }
+        );
+      }
+    }
 
     if (cpf) {
       const cpfExistente = await prisma.aluno.findFirst({
@@ -365,22 +543,22 @@ export async function POST(request: Request) {
       }
     }
 
-if (poloId !== null) {
-  const polo = await prisma.polo.findFirst({
-    where: {
-      id: poloId,
-      instituicaoId: user.instituicaoId,
-    },
-    select: { id: true },
-  });
+    if (poloId !== null) {
+      const polo = await prisma.polo.findFirst({
+        where: {
+          id: poloId,
+          instituicaoId: user.instituicaoId,
+        },
+        select: { id: true },
+      });
 
-  if (!polo) {
-    return NextResponse.json(
-      { error: "Polo inválido para esta instituição." },
-      { status: 400 }
-    );
-  }
-}
+      if (!polo) {
+        return NextResponse.json(
+          { error: "Polo inválido para esta instituição." },
+          { status: 400 }
+        );
+      }
+    }
 
     const instituicao = await prisma.instituicao.findUnique({
       where: { id: user.instituicaoId },
@@ -394,44 +572,44 @@ if (poloId !== null) {
 
       let matriculaFinal = matriculaInformada;
 
-if (!matriculaFinal) {
-  const instituicaoAtualizada = await tx.instituicao.update({
-    where: {
-      id: user.instituicaoId!,
-    },
-    data: {
-      proximoNumeroMatricula: {
-        increment: 1,
-      },
-    },
-    select: {
-      proximoNumeroMatricula: true,
-      slug: true,
-    },
-  });
+      if (!matriculaFinal) {
+        const instituicaoAtualizada = await tx.instituicao.update({
+          where: {
+            id: user.instituicaoId!,
+          },
+          data: {
+            proximoNumeroMatricula: {
+              increment: 1,
+            },
+          },
+          select: {
+            proximoNumeroMatricula: true,
+            slug: true,
+          },
+        });
 
-  const numeroGerado = instituicaoAtualizada.proximoNumeroMatricula - 1;
-  const prefixo =
-    instituicaoAtualizada.slug
-      ?.normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^A-Za-z0-9]/g, "")
-      .toUpperCase()
-      .slice(0, 6) || "MAT";
+        const numeroGerado = instituicaoAtualizada.proximoNumeroMatricula - 1;
+        const prefixo =
+          instituicaoAtualizada.slug
+            ?.normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[^A-Za-z0-9]/g, "")
+            .toUpperCase()
+            .slice(0, 6) || "MAT";
 
-  matriculaFinal = `${prefixo}-${String(numeroGerado).padStart(6, "0")}`;
-}
+        matriculaFinal = `${prefixo}-${String(numeroGerado).padStart(6, "0")}`;
+      }
 
       const novoUser = await tx.user.create({
-  data: {
-    nome,
-    email,
-    senha: senhaHash,
-    role: "ALUNO",
-    instituicaoId: user.instituicaoId!,
-    precisaTrocarSenha: true,
-  },
-});
+        data: {
+          nome,
+          email,
+          senha: senhaHash,
+          role: "ALUNO",
+          instituicaoId: user.instituicaoId!,
+          precisaTrocarSenha: true,
+        },
+      });
 
       const alunoCriado = await tx.aluno.create({
         data: {
@@ -443,7 +621,7 @@ if (!matriculaFinal) {
           cpf: cpf || null,
           rg: rg || null,
           telefone: telefone || null,
-          dataNascimento: parseDataSegura(body.dataNascimento),
+          dataNascimento,
           cep: limparTexto(body.cep) || null,
           endereco: limparTexto(body.endereco) || null,
           numero: limparTexto(body.numero) || null,
@@ -468,7 +646,7 @@ if (!matriculaFinal) {
             limparTexto(body.observacoesAcessibilidade) || null,
           userId: novoUser.id,
           instituicaoId: user.instituicaoId!,
-          
+
         },
         include: {
           user: true,

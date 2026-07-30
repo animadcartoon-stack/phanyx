@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { getUserFromToken } from "@/lib/server-auth";
+import { sincronizarPublicacoesAtivasDoCurso } from "@/lib/publicacao-cursos-rede";
 
 // LISTAR DISCIPLINAS
 export async function GET() {
@@ -99,11 +100,19 @@ if (body.professorId) {
       const cursoId = Number(body.cursoId);
 
       const curso = await prisma.curso.findFirst({
-        where: {
-          id: cursoId,
-          instituicaoId: user.instituicaoId,
-        },
-      });
+  where: {
+    id: cursoId,
+    instituicaoId: user.instituicaoId,
+  },
+  select: {
+    id: true,
+    publicacaoRedeDestino: {
+      select: {
+        id: true,
+      },
+    },
+  },
+});
 
       if (!curso) {
         return NextResponse.json(
@@ -112,28 +121,129 @@ if (body.professorId) {
         );
       }
 
+      if (curso.publicacaoRedeDestino) {
+  return NextResponse.json(
+    {
+      error:
+        "Não é permitido criar disciplinas diretamente em um curso recebido da rede.",
+    },
+    { status: 403 }
+  );
+}
+
       cursoIdFinal = curso.id;
     }
 
-    const novaDisciplina = await prisma.disciplina.create({
-      data: {
-  nome: String(body.nome).trim(),
-  cursoId: cursoIdFinal,
-  professorId: professorIdFinal,
-  instituicaoId: user.instituicaoId,
-},
-include: {
-  curso: true,
-  professor: {
-    select: {
-      id: true,
-      nome: true,
+    const usuarioId = Number(user.id);
+const instituicaoId = Number(
+  user.instituicaoId
+);
+
+const resultado =
+  await prisma.$transaction(
+    async (tx) => {
+      const novaDisciplina =
+        await tx.disciplina.create({
+          data: {
+            nome: String(
+              body.nome
+            ).trim(),
+
+            codigo: body.codigo
+              ? String(
+                  body.codigo
+                ).trim()
+              : null,
+
+            descricao: body.descricao
+              ? String(
+                  body.descricao
+                ).trim()
+              : null,
+
+            cargaHoraria:
+              body.cargaHoraria !==
+                null &&
+              body.cargaHoraria !==
+                undefined &&
+              body.cargaHoraria !== ""
+                ? Number(
+                    body.cargaHoraria
+                  )
+                : null,
+
+            semestre:
+              body.semestre !== null &&
+              body.semestre !==
+                undefined &&
+              body.semestre !== ""
+                ? Number(
+                    body.semestre
+                  )
+                : null,
+
+            cursoId:
+              cursoIdFinal,
+
+            professorId:
+              professorIdFinal,
+
+            instituicaoId,
+          },
+
+          include: {
+            curso: true,
+
+            professor: {
+              select: {
+                id: true,
+                nome: true,
+              },
+            },
+          },
+        });
+
+      let unidadesAtualizadas = 0;
+
+      if (cursoIdFinal) {
+        const publicacoes =
+          await sincronizarPublicacoesAtivasDoCurso(
+            {
+              tx,
+
+              cursoOrigemId:
+                cursoIdFinal,
+
+              instituicaoOrigemId:
+                instituicaoId,
+
+              atualizadoPorId:
+                usuarioId,
+            }
+          );
+
+        unidadesAtualizadas =
+          publicacoes.length;
+      }
+
+      return {
+        novaDisciplina,
+        unidadesAtualizadas,
+      };
+    }
+  );
+
+return NextResponse.json(
+  {
+    ...resultado.novaDisciplina,
+
+    resumoSincronizacao: {
+      unidadesAtualizadas:
+        resultado.unidadesAtualizadas,
     },
   },
-},
-    });
-
-    return NextResponse.json(novaDisciplina, { status: 201 });
+  { status: 201 }
+);
   } catch (error) {
     console.error(error);
     return NextResponse.json(

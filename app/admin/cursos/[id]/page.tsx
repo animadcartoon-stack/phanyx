@@ -79,6 +79,23 @@ type Curso = {
   valorMensalidade?: number | null;
   quantidadeParcelas?: number | null;
   ativo?: boolean;
+  publicacaoRedeDestino?: {
+    id: number;
+    status: string;
+    cursoOrigemId: number;
+    instituicaoOrigemId: number;
+
+    cursoOrigem?: {
+      id: number;
+      nome: string;
+      codigo?: string | null;
+    } | null;
+
+    instituicaoOrigem?: {
+      id: number;
+      nome: string;
+    } | null;
+  } | null;
 };
 
 type CursoSemestreDisciplina = {
@@ -301,7 +318,13 @@ export default function CursoDetalhePage() {
 
       await carregarCurso();
       setEditandoCurso(false);
-      mostrarFeedback("sucesso", "Curso atualizado com sucesso!");
+      mostrarFeedback(
+        "sucesso",
+        data?.mensagem ||
+        (cursoRecebidoDaRede
+          ? "Valores locais atualizados com sucesso!"
+          : "Curso atualizado com sucesso!")
+      );
     } catch (error: any) {
       console.error("Erro ao editar curso:", error);
       mostrarFeedback("erro", error?.message || "Erro ao editar curso");
@@ -494,6 +517,14 @@ export default function CursoDetalhePage() {
     return [...semestres].sort((a, b) => a.numero - b.numero);
   }, [semestres]);
 
+  const cursoRecebidoDaRede =
+    Boolean(curso?.publicacaoRedeDestino);
+
+  const classeCampoAcademico =
+    cursoRecebidoDaRede
+      ? "cursor-not-allowed bg-slate-100 text-slate-500 opacity-80 dark:bg-slate-900 dark:text-slate-400"
+      : "";
+
   if (loading) {
     return <p className="text-gray-500">Carregando curso...</p>;
   }
@@ -507,8 +538,8 @@ export default function CursoDetalhePage() {
       {feedback && (
         <div
           className={`rounded-2xl border px-4 py-3 text-sm shadow-sm ${feedbackTipo === "sucesso"
-              ? "border-green-200 bg-green-50 text-green-700"
-              : "border-red-200 bg-red-50 text-red-700"
+            ? "border-green-200 bg-green-50 text-green-700"
+            : "border-red-200 bg-red-50 text-red-700"
             }`}
         >
           {feedback}
@@ -533,18 +564,88 @@ export default function CursoDetalhePage() {
         </Link>
       </div>
 
+      {cursoRecebidoDaRede && (
+        <div className="rounded-2xl border border-blue-300 bg-blue-50 p-5 shadow-sm dark:border-blue-800 dark:bg-blue-950/30">
+          <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="text-lg font-bold text-blue-950 dark:text-blue-100">
+                  Curso recebido da rede
+                </h2>
+
+                <span className="rounded-full border border-blue-300 bg-white px-3 py-1 text-xs font-bold text-blue-800 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-200">
+                  Estrutura sincronizada
+                </span>
+              </div>
+
+              <p className="mt-2 text-sm leading-6 text-blue-900 dark:text-blue-200">
+                Este curso foi publicado por{" "}
+                <strong>
+                  {curso.publicacaoRedeDestino
+                    ?.instituicaoOrigem?.nome ||
+                    "outra instituição da rede"}
+                </strong>
+                .
+              </p>
+
+              <p className="mt-2 text-sm leading-6 text-blue-900 dark:text-blue-200">
+                Nome, código, descrição, modalidade,
+                semestres, disciplinas e cargas
+                acadêmicas são controlados pela
+                instituição de origem.
+              </p>
+
+              <p className="mt-2 text-sm leading-6 text-blue-900 dark:text-blue-200">
+                Esta unidade pode configurar somente
+                matrícula, mensalidade, parcelas e os
+                dados operacionais locais, como
+                turmas, professores, horários, vagas
+                e matrículas.
+              </p>
+            </div>
+
+            <div className="shrink-0 rounded-xl border border-blue-200 bg-white p-3 text-sm text-slate-700 dark:border-blue-800 dark:bg-slate-950 dark:text-slate-300">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Curso de origem
+              </p>
+
+              <p className="mt-1 font-bold">
+                {curso.publicacaoRedeDestino
+                  ?.cursoOrigem?.nome ||
+                  curso.nome}
+              </p>
+
+              <p className="mt-1 text-xs">
+                ID de origem:{" "}
+                {curso.publicacaoRedeDestino
+                  ?.cursoOrigemId}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="bg-white border rounded-xl p-6 shadow-sm">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
             {editandoCurso ? (
               <div className="space-y-4">
+                {cursoRecebidoDaRede && (
+                  <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm leading-6 text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200">
+                    Neste curso recebido da rede, somente os
+                    valores de matrícula, mensalidade e
+                    quantidade de parcelas podem ser
+                    alterados por esta unidade.
+                  </div>
+                )}
                 <input
+                  disabled={cursoRecebidoDaRede}
                   type="text"
                   value={formCurso.nome}
                   onChange={(e) =>
                     setFormCurso({ ...formCurso, nome: e.target.value })
                   }
-                  className="w-full border rounded-lg px-4 py-2 text-2xl font-semibold"
+                  className={`w-full rounded-lg border px-4 py-2 text-2xl font-semibold ${classeCampoAcademico}`}
                   placeholder="Nome do curso"
                 />
 
@@ -554,12 +655,13 @@ export default function CursoDetalhePage() {
                       Código do curso
                     </label>
                     <input
+                      disabled={cursoRecebidoDaRede}
                       type="text"
                       value={formCurso.codigo}
                       onChange={(e) =>
                         setFormCurso({ ...formCurso, codigo: e.target.value })
                       }
-                      className="w-full border rounded-lg px-4 py-2"
+                      className={`w-full rounded-lg border px-4 py-2 ${classeCampoAcademico}`}
                       placeholder="Ex: TEO-001"
                     />
                   </div>
@@ -570,6 +672,7 @@ export default function CursoDetalhePage() {
                     </label>
 
                     <select
+                      disabled={cursoRecebidoDaRede}
                       value={formCurso.modalidadeCertificado}
                       onChange={(e) =>
                         setFormCurso({
@@ -578,7 +681,7 @@ export default function CursoDetalhePage() {
                             e.target.value as ModalidadeCertificado,
                         })
                       }
-                      className="phanyx-curso-modalidade-select w-full rounded-lg border px-4 py-2"
+                      className={`phanyx-curso-modalidade-select w-full rounded-lg border px-4 py-2 ${classeCampoAcademico}`}
                     >
                       {OPCOES_MODALIDADE_CERTIFICADO.map((opcao) => (
                         <option key={opcao.valor} value={opcao.valor}>
@@ -593,6 +696,7 @@ export default function CursoDetalhePage() {
                       Quantidade de semestres do curso
                     </label>
                     <input
+                      disabled={cursoRecebidoDaRede}
                       type="number"
                       value={formCurso.quantidadeSemestres}
                       onChange={(e) =>
@@ -601,7 +705,7 @@ export default function CursoDetalhePage() {
                           quantidadeSemestres: e.target.value,
                         })
                       }
-                      className="w-full border rounded-lg px-4 py-2"
+                      className={`w-full rounded-lg border px-4 py-2 ${classeCampoAcademico}`}
                       placeholder="Ex: 6"
                     />
                   </div>
@@ -662,9 +766,13 @@ export default function CursoDetalhePage() {
                     />
                   </div>
 
-                  <label className="flex items-center gap-2 border rounded-lg px-4 py-2 mt-6">
+                  <label className={`mt-6 flex items-center gap-2 rounded-lg border px-4 py-2 ${cursoRecebidoDaRede
+                    ? "cursor-not-allowed bg-slate-100 text-slate-500 opacity-80 dark:bg-slate-900 dark:text-slate-400"
+                    : ""
+                    }`}>
                     <input
                       type="checkbox"
+                      disabled={cursoRecebidoDaRede}
                       checked={formCurso.ativo}
                       onChange={(e) =>
                         setFormCurso({
@@ -678,11 +786,12 @@ export default function CursoDetalhePage() {
                 </div>
 
                 <textarea
+                  disabled={cursoRecebidoDaRede}
                   value={formCurso.descricao}
                   onChange={(e) =>
                     setFormCurso({ ...formCurso, descricao: e.target.value })
                   }
-                  className="w-full border rounded-lg px-4 py-2"
+                  className={`w-full rounded-lg border px-4 py-2 ${classeCampoAcademico}`}
                   rows={4}
                   placeholder="Descrição do curso"
                 />
@@ -694,7 +803,11 @@ export default function CursoDetalhePage() {
                     disabled={salvandoCurso}
                     className="bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
                   >
-                    {salvandoCurso ? "Salvando..." : "Salvar alterações"}
+                    {salvandoCurso
+                      ? "Salvando..."
+                      : cursoRecebidoDaRede
+                        ? "Salvar valores locais"
+                        : "Salvar alterações"}
                   </button>
 
                   <button
@@ -761,61 +874,79 @@ export default function CursoDetalhePage() {
               onClick={() => setEditandoCurso(true)}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg"
             >
-              Editar curso
+              {cursoRecebidoDaRede
+                ? "Configurar valores locais"
+                : "Editar curso"}
             </button>
           ) : null}
         </div>
       </div>
 
-      <div className="bg-white border rounded-xl p-6 shadow-sm">
-        <h3 className="text-xl font-semibold mb-4">+ Adicionar semestre</h3>
+      {cursoRecebidoDaRede ? (
+        <div className="rounded-xl border border-slate-300 bg-slate-50 p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/60">
+          <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
+            Estrutura acadêmica recebida
+          </h3>
 
-        <form
-          onSubmit={criarSemestre}
-          className="grid grid-cols-1 md:grid-cols-3 gap-4"
-        >
-          <input
-            type="number"
-            placeholder="Número do semestre"
-            className="border rounded-lg px-4 py-2"
-            value={novoSemestre.numero}
-            onChange={(e) =>
-              setNovoSemestre({ ...novoSemestre, numero: e.target.value })
-            }
-            required
-          />
+          <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
+            Os semestres deste curso são publicados
+            e sincronizados pela instituição de
+            origem. Esta unidade pode consultá-los,
+            mas não pode criar novos semestres nem
+            alterar a matriz curricular.
+          </p>
+        </div>
+      ) : (
+        <div className="bg-white border rounded-xl p-6 shadow-sm">
+          <h3 className="text-xl font-semibold mb-4">+ Adicionar semestre</h3>
 
-          <input
-            type="text"
-            placeholder="Título do semestre"
-            className="border rounded-lg px-4 py-2"
-            value={novoSemestre.titulo}
-            onChange={(e) =>
-              setNovoSemestre({ ...novoSemestre, titulo: e.target.value })
-            }
-          />
+          <form
+            onSubmit={criarSemestre}
+            className="grid grid-cols-1 md:grid-cols-3 gap-4"
+          >
+            <input
+              type="number"
+              placeholder="Número do semestre"
+              className="border rounded-lg px-4 py-2"
+              value={novoSemestre.numero}
+              onChange={(e) =>
+                setNovoSemestre({ ...novoSemestre, numero: e.target.value })
+              }
+              required
+            />
 
-          <input
-            type="text"
-            placeholder="Descrição do semestre"
-            className="border rounded-lg px-4 py-2"
-            value={novoSemestre.descricao}
-            onChange={(e) =>
-              setNovoSemestre({ ...novoSemestre, descricao: e.target.value })
-            }
-          />
+            <input
+              type="text"
+              placeholder="Título do semestre"
+              className="border rounded-lg px-4 py-2"
+              value={novoSemestre.titulo}
+              onChange={(e) =>
+                setNovoSemestre({ ...novoSemestre, titulo: e.target.value })
+              }
+            />
 
-          <div className="md:col-span-3">
-            <button
-              type="submit"
-              disabled={criandoSemestre}
-              className="bg-purple-600 text-white px-5 py-2 rounded-lg disabled:opacity-50"
-            >
-              {criandoSemestre ? "Adicionando..." : "Adicionar semestre"}
-            </button>
-          </div>
-        </form>
-      </div>
+            <input
+              type="text"
+              placeholder="Descrição do semestre"
+              className="border rounded-lg px-4 py-2"
+              value={novoSemestre.descricao}
+              onChange={(e) =>
+                setNovoSemestre({ ...novoSemestre, descricao: e.target.value })
+              }
+            />
+
+            <div className="md:col-span-3">
+              <button
+                type="submit"
+                disabled={criandoSemestre}
+                className="bg-purple-600 text-white px-5 py-2 rounded-lg disabled:opacity-50"
+              >
+                {criandoSemestre ? "Adicionando..." : "Adicionar semestre"}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {semestresOrdenados.length === 0 ? (
         <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
@@ -864,8 +995,12 @@ export default function CursoDetalhePage() {
                           </label>
                           <input
                             type="number"
+                            disabled={cursoRecebidoDaRede}
                             placeholder="Ex: 200"
-                            className="border rounded-lg px-3 py-2 text-sm w-full"
+                            className={`w-full rounded-lg border px-3 py-2 text-sm ${cursoRecebidoDaRede
+                              ? "cursor-not-allowed bg-slate-100 opacity-80 dark:bg-slate-900"
+                              : ""
+                              }`}
                             value={(semestre as any).cargaMinima ?? ""}
                             onChange={(e) => {
                               const valor = e.target.value;
@@ -887,8 +1022,12 @@ export default function CursoDetalhePage() {
                           </label>
                           <input
                             type="number"
+                            disabled={cursoRecebidoDaRede}
                             placeholder="Ex: 400"
-                            className="border rounded-lg px-3 py-2 text-sm w-full"
+                            className={`w-full rounded-lg border px-3 py-2 text-sm ${cursoRecebidoDaRede
+                              ? "cursor-not-allowed bg-slate-100 opacity-80 dark:bg-slate-900"
+                              : ""
+                              }`}
                             value={(semestre as any).cargaMaxima ?? ""}
                             onChange={(e) => {
                               const valor = e.target.value;
@@ -944,6 +1083,12 @@ export default function CursoDetalhePage() {
                     <p className="text-gray-500">Nenhuma disciplina cadastrada.</p>
                   ) : (
                     <>
+                      {cursoRecebidoDaRede && (
+                        <div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-200">
+                          Grade recebida da rede — somente leitura.
+                        </div>
+                      )}
+
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                         {disciplinas.map((disciplina) => {
                           const marcada = idsSelecionados.includes(disciplina.id);
@@ -952,10 +1097,21 @@ export default function CursoDetalhePage() {
                             <button
                               key={disciplina.id}
                               type="button"
-                              onClick={() =>
-                                toggleDisciplina(semestre.id, disciplina.id)
-                              }
-                              className={`text-left border rounded-lg p-3 cursor-pointer transition select-none ${marcada
+                              disabled={cursoRecebidoDaRede}
+                              onClick={() => {
+                                if (cursoRecebidoDaRede) {
+                                  return;
+                                }
+
+                                toggleDisciplina(
+                                  semestre.id,
+                                  disciplina.id
+                                );
+                              }}
+                              className={`text-left border rounded-lg p-3 transition select-none ${cursoRecebidoDaRede
+                                  ? "cursor-default opacity-80"
+                                  : "cursor-pointer"
+                                } ${marcada
                                   ? "border-blue-500 bg-blue-50"
                                   : "border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50/40"
                                 }`}
@@ -983,26 +1139,29 @@ export default function CursoDetalhePage() {
                       </div>
 
                       <div className="mt-4">
-                        <button
-                          type="button"
-                          onClick={() => salvarDisciplinas(semestre.id)}
-                          disabled={salvandoSemestreId === semestre.id}
-                          className="bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
-                        >
-                          {salvandoSemestreId === semestre.id
-                            ? "Salvando..."
-                            : `Atualizar disciplinas do semestre ${semestre.numero}`}
-                        </button>
+                        {!cursoRecebidoDaRede && (
+                          <div className="mt-4">
+                            <button
+                              type="button"
+                              onClick={() => salvarDisciplinas(semestre.id)}
+                              disabled={salvandoSemestreId === semestre.id}
+                              className="bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+                            >
+                              {salvandoSemestreId === semestre.id
+                                ? "Salvando..."
+                                : `Atualizar disciplinas do semestre ${semestre.numero}`}
+                            </button>
 
-                        <button
-                          type="button"
-                          onClick={() => salvarCargaSemestre(semestre)}
-                          disabled={salvandoSemestreId === semestre.id}
-                          className="ml-2 bg-green-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
-                        >
-                          {salvandoSemestreId === semestre.id ? "Salvando..." : "Salvar carga"}
-                        </button>
-
+                            <button
+                              type="button"
+                              onClick={() => salvarCargaSemestre(semestre)}
+                              disabled={salvandoSemestreId === semestre.id}
+                              className="ml-2 bg-green-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+                            >
+                              {salvandoSemestreId === semestre.id ? "Salvando..." : "Salvar carga"}
+                            </button>
+                          </div>
+                        )}
 
                       </div>
                     </>

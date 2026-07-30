@@ -32,6 +32,107 @@ function uniqueNumbers(values: number[]) {
   return Array.from(new Set(values.filter((v) => Number.isFinite(v) && v > 0)));
 }
 
+function calcularIdade(
+  dataNascimento: Date,
+  dataReferencia = new Date()
+) {
+  let idade =
+    dataReferencia.getUTCFullYear() -
+    dataNascimento.getUTCFullYear();
+
+  const mesReferencia =
+    dataReferencia.getUTCMonth();
+
+  const mesNascimento =
+    dataNascimento.getUTCMonth();
+
+  const diaReferencia =
+    dataReferencia.getUTCDate();
+
+  const diaNascimento =
+    dataNascimento.getUTCDate();
+
+  const aindaNaoFezAniversario =
+    mesReferencia < mesNascimento ||
+    (mesReferencia === mesNascimento &&
+      diaReferencia < diaNascimento);
+
+  if (aindaNaoFezAniversario) {
+    idade -= 1;
+  }
+
+  return idade;
+}
+
+function verificarDadosResponsavel(
+  aluno: {
+    nomeResponsavel?: string | null;
+    cpfResponsavel?: string | null;
+    telefoneResponsavel?: string | null;
+    emailResponsavel?: string | null;
+    parentescoResponsavel?: string | null;
+  }
+) {
+  const pendentes: string[] = [];
+
+  const nomeResponsavel = String(
+    aluno.nomeResponsavel || ""
+  ).trim();
+
+  const cpfResponsavel = String(
+    aluno.cpfResponsavel || ""
+  ).replace(/\D/g, "");
+
+  const telefoneResponsavel = String(
+    aluno.telefoneResponsavel || ""
+  ).replace(/\D/g, "");
+
+  const emailResponsavel = String(
+    aluno.emailResponsavel || ""
+  )
+    .trim()
+    .toLowerCase();
+
+  const parentescoResponsavel = String(
+    aluno.parentescoResponsavel || ""
+  ).trim();
+
+  if (!nomeResponsavel) {
+    pendentes.push(
+      "nome do responsável"
+    );
+  }
+
+  if (cpfResponsavel.length !== 11) {
+    pendentes.push(
+      "CPF do responsável"
+    );
+  }
+
+  if (telefoneResponsavel.length < 10) {
+    pendentes.push(
+      "telefone do responsável"
+    );
+  }
+
+  if (
+    !emailResponsavel ||
+    !emailResponsavel.includes("@")
+  ) {
+    pendentes.push(
+      "e-mail do responsável"
+    );
+  }
+
+  if (!parentescoResponsavel) {
+    pendentes.push(
+      "parentesco do responsável"
+    );
+  }
+
+  return pendentes;
+}
+
 type VendedorElegivel = {
   id: number;
   nome: string;
@@ -134,8 +235,22 @@ async function buscarVendedorElegivel(
 
 type TipoItemMatricula =
   | "GRADE_PRINCIPAL"
+  | "DEPENDENCIA"
+  | "ADIANTAMENTO"
   | "EXTRA_MESMO_CURSO"
   | "EXTRA_OUTRO_CURSO";
+
+type ItemMatriculaBody = {
+  turmaId?: number | string;
+  disciplinaId?: number | string;
+  tipoItem?: TipoItemMatricula | string;
+};
+
+type ItemMatriculaNormalizado = {
+  turmaId: number;
+  disciplinaId: number;
+  tipoItem: TipoItemMatricula;
+};
 
 type MatriculaBody = {
   id?: number | string;
@@ -150,6 +265,7 @@ type MatriculaBody = {
   turmaId?: number | string;
   turmaIds?: Array<number | string>;
   disciplinaIds?: Array<number | string>;
+  itensMatricula?: ItemMatriculaBody[];
   valorMatricula?: number | string;
   valorPagoMatricula?: number | string;
   valorMensalidade?: number | string;
@@ -161,6 +277,7 @@ type MatriculaBody = {
   genero?: string;
   status?: string;
   realizadaPeloAluno?: boolean;
+  confirmacaoMenorAceita?: boolean;
 };
 
 type TurmaComDisciplina = {
@@ -329,11 +446,15 @@ function montarResumoContratacao(
 ) {
   const linhas = itens.map((item) => {
     const rotuloTipo =
-      item.tipoItem === "GRADE_PRINCIPAL"
-        ? "Grade principal"
+  item.tipoItem === "GRADE_PRINCIPAL"
+    ? "Grade principal"
+    : item.tipoItem === "DEPENDENCIA"
+      ? "Dependência"
+      : item.tipoItem === "ADIANTAMENTO"
+        ? "Adiantamento"
         : item.tipoItem === "EXTRA_MESMO_CURSO"
-        ? "Extra do mesmo curso"
-        : "Extra de outro curso";
+          ? "Extra do mesmo curso"
+          : "Extra de outro curso";
 
     return `- ${item.disciplina.nome} (Turma: ${item.turma.nome}) — ${rotuloTipo}`;
   });
@@ -414,6 +535,507 @@ function removerItensDuplicadosPorTurma(
     vistos.add(chave);
     return true;
   });
+}
+
+const TIPOS_ITEM_MATRICULA_PERMITIDOS =
+  new Set<TipoItemMatricula>([
+    "GRADE_PRINCIPAL",
+    "DEPENDENCIA",
+    "ADIANTAMENTO",
+    "EXTRA_MESMO_CURSO",
+    "EXTRA_OUTRO_CURSO",
+  ]);
+
+function normalizarTipoItemMatricula(
+  valor: unknown
+): TipoItemMatricula | null {
+  const tipo = String(
+    valor || ""
+  )
+    .trim()
+    .toUpperCase() as TipoItemMatricula;
+
+  return TIPOS_ITEM_MATRICULA_PERMITIDOS.has(
+    tipo
+  )
+    ? tipo
+    : null;
+}
+
+async function validarItensMatriculaExplicitos(
+  params: {
+    itens: ItemMatriculaBody[];
+    instituicaoId: number;
+    alunoId: number;
+    matriculaIdIgnorada?: number | null;
+  }
+) {
+  const {
+    itens,
+    instituicaoId,
+    alunoId,
+    matriculaIdIgnorada = null,
+  } = params;
+
+  if (
+    !Array.isArray(itens) ||
+    itens.length === 0
+  ) {
+    throw new Error(
+      "Selecione pelo menos uma disciplina para a matrícula."
+    );
+  }
+
+  const itensNormalizados: ItemMatriculaNormalizado[] =
+    itens.map((item, index) => {
+      const turmaId =
+        toPositiveNumberOrNull(
+          item.turmaId
+        );
+
+      const disciplinaId =
+        toPositiveNumberOrNull(
+          item.disciplinaId
+        );
+
+      const tipoItem =
+        normalizarTipoItemMatricula(
+          item.tipoItem
+        );
+
+      if (
+        !turmaId ||
+        !disciplinaId ||
+        !tipoItem
+      ) {
+        throw new Error(
+          `O item ${index + 1} da matrícula possui turma, disciplina ou tipo inválido.`
+        );
+      }
+
+      return {
+        turmaId,
+        disciplinaId,
+        tipoItem,
+      };
+    });
+
+  const ofertasVistas =
+    new Set<string>();
+
+  const disciplinasVistas =
+    new Set<number>();
+
+  for (const item of itensNormalizados) {
+    const chaveOferta =
+      `${item.turmaId}-${item.disciplinaId}`;
+
+    if (
+      ofertasVistas.has(chaveOferta)
+    ) {
+      throw new Error(
+        "A mesma oferta de disciplina foi selecionada mais de uma vez."
+      );
+    }
+
+    if (
+      disciplinasVistas.has(
+        item.disciplinaId
+      )
+    ) {
+      throw new Error(
+        "A mesma disciplina não pode ser cursada simultaneamente em duas turmas."
+      );
+    }
+
+    ofertasVistas.add(chaveOferta);
+
+    disciplinasVistas.add(
+      item.disciplinaId
+    );
+  }
+
+  const ofertas =
+    await prisma.turmaDisciplina.findMany({
+      where: {
+        instituicaoId,
+
+        OR: itensNormalizados.map(
+          (item) => ({
+            turmaId:
+              item.turmaId,
+
+            disciplinaId:
+              item.disciplinaId,
+          })
+        ),
+      },
+
+      include: {
+        turma: {
+          select: {
+            id: true,
+            nome: true,
+            semestre: true,
+            cursoId: true,
+          },
+        },
+
+        disciplina: {
+          select: {
+            id: true,
+            nome: true,
+            cursoId: true,
+            semestre: true,
+          },
+        },
+      },
+    });
+
+  const ofertasPorChave =
+  new Map<
+    string,
+    (typeof ofertas)[number]
+  >();
+
+for (const oferta of ofertas) {
+  ofertasPorChave.set(
+    `${oferta.turmaId}-${oferta.disciplinaId}`,
+    oferta
+  );
+}
+
+  for (const item of itensNormalizados) {
+    const chave =
+      `${item.turmaId}-${item.disciplinaId}`;
+
+    if (!ofertasPorChave.has(chave)) {
+      throw new Error(
+        `A disciplina ${item.disciplinaId} não está vinculada à turma ${item.turmaId}.`
+      );
+    }
+  }
+
+  const disciplinasAprovadas =
+    await buscarDisciplinasAprovadasDoAluno(
+      alunoId,
+      instituicaoId
+    );
+
+  const itensConcluidos =
+    await prisma.itemMatricula.findMany({
+      where: {
+        instituicaoId,
+
+        disciplinaId: {
+          in: Array.from(
+            disciplinasVistas
+          ),
+        },
+
+        status:
+          "CONCLUIDO" as any,
+
+        matricula: {
+          is: {
+            alunoId,
+          },
+        },
+
+        matriculaId:
+          matriculaIdIgnorada
+            ? {
+                not:
+                  matriculaIdIgnorada,
+              }
+            : undefined,
+      },
+
+      select: {
+        disciplinaId: true,
+      },
+    });
+
+  for (const item of itensConcluidos) {
+    disciplinasAprovadas.add(
+      item.disciplinaId
+    );
+  }
+
+  const disciplinasJaConcluidas =
+    itensNormalizados.filter(
+      (item) =>
+        disciplinasAprovadas.has(
+          item.disciplinaId
+        )
+    );
+
+  if (
+    disciplinasJaConcluidas.length > 0
+  ) {
+    const nomes =
+      disciplinasJaConcluidas.map(
+        (item) => {
+          const oferta =
+            ofertasPorChave.get(
+              `${item.turmaId}-${item.disciplinaId}`
+            );
+
+          return (
+            oferta?.disciplina.nome ||
+            `Disciplina ${item.disciplinaId}`
+          );
+        }
+      );
+
+    throw new Error(
+      `O aluno já concluiu ou foi aprovado nas seguintes disciplinas: ${nomes.join(", ")}.`
+    );
+  }
+
+  const validacaoPreRequisitos =
+    await validarPreRequisitos(
+      alunoId,
+      instituicaoId,
+      Array.from(
+        disciplinasVistas
+      )
+    );
+
+  if (!validacaoPreRequisitos.ok) {
+    throw new Error(
+      validacaoPreRequisitos.error
+    );
+  }
+
+  const turmasComDisciplinas:
+    TurmaComDisciplina[] =
+    itensNormalizados.map((item) => {
+      const oferta =
+        ofertasPorChave.get(
+          `${item.turmaId}-${item.disciplinaId}`
+        )!;
+
+      return {
+        id:
+          oferta.turma.id,
+
+        nome:
+          oferta.turma.nome,
+
+        semestre:
+          oferta.turma.semestre,
+
+        disciplinaId:
+          oferta.disciplina.id,
+
+        disciplina: {
+          id:
+            oferta.disciplina.id,
+
+          nome:
+            oferta.disciplina.nome,
+
+          cursoId:
+            oferta.disciplina.cursoId,
+
+          semestre:
+            oferta.disciplina.semestre,
+        },
+      };
+    });
+
+  return {
+    itens:
+      itensNormalizados,
+
+    turmasComDisciplinas,
+  };
+}
+
+async function sincronizarItensMatricula(params: {
+  matriculaId: number;
+  instituicaoId: number;
+  itens: ItemMatriculaNormalizado[];
+  statusNovos: "A_CURSAR" | "EM_CURSO";
+}) {
+  const {
+    matriculaId,
+    instituicaoId,
+    itens,
+    statusNovos,
+  } = params;
+
+  const existentes =
+    await prisma.itemMatricula.findMany({
+      where: {
+        matriculaId,
+        instituicaoId,
+      },
+
+      select: {
+        id: true,
+        turmaId: true,
+        disciplinaId: true,
+        tipoItem: true,
+        status: true,
+      },
+    });
+
+  const existentesPorChave =
+  new Map<
+    string,
+    (typeof existentes)[number]
+  >();
+
+for (const itemExistente of existentes) {
+  existentesPorChave.set(
+    `${itemExistente.turmaId}-${itemExistente.disciplinaId}`,
+    itemExistente
+  );
+}
+
+  const chavesSelecionadas =
+    new Set(
+      itens.map(
+        (item) =>
+          `${item.turmaId}-${item.disciplinaId}`
+      )
+    );
+
+  const itensParaCriar:
+    ItemMatriculaNormalizado[] = [];
+
+  const itensParaAtualizar: Array<{
+    id: number;
+    tipoItem: TipoItemMatricula;
+    restaurarStatus: boolean;
+  }> = [];
+
+  for (const item of itens) {
+    const chave =
+      `${item.turmaId}-${item.disciplinaId}`;
+
+    const existente =
+      existentesPorChave.get(chave);
+
+    if (!existente) {
+      itensParaCriar.push(item);
+      continue;
+    }
+
+    const tipoFoiAlterado =
+      existente.tipoItem !==
+      item.tipoItem;
+
+    const estavaCancelado =
+      existente.status ===
+      "CANCELADO";
+
+    if (
+      tipoFoiAlterado ||
+      estavaCancelado
+    ) {
+      itensParaAtualizar.push({
+        id: existente.id,
+        tipoItem: item.tipoItem,
+        restaurarStatus:
+          estavaCancelado,
+      });
+    }
+  }
+
+  const itensParaCancelar =
+    existentes
+      .filter((item) => {
+        const chave =
+          `${item.turmaId}-${item.disciplinaId}`;
+
+        const foiRemovido =
+          !chavesSelecionadas.has(
+            chave
+          );
+
+        const podeCancelar =
+          item.status ===
+            "A_CURSAR" ||
+          item.status ===
+            "EM_CURSO";
+
+        return (
+          foiRemovido &&
+          podeCancelar
+        );
+      })
+      .map((item) => item.id);
+
+  await prisma.$transaction(
+    async (tx) => {
+      for (
+        const item of
+        itensParaAtualizar
+      ) {
+        await tx.itemMatricula.update({
+          where: {
+            id: item.id,
+          },
+
+          data: {
+            tipoItem:
+              item.tipoItem as any,
+
+            status:
+              item.restaurarStatus
+                ? (statusNovos as any)
+                : undefined,
+          },
+        });
+      }
+
+      if (
+        itensParaCriar.length > 0
+      ) {
+        await tx.itemMatricula.createMany({
+          data:
+            itensParaCriar.map(
+              (item) => ({
+                matriculaId,
+                instituicaoId,
+                turmaId:
+                  item.turmaId,
+                disciplinaId:
+                  item.disciplinaId,
+                tipoItem:
+                  item.tipoItem as any,
+                status:
+                  statusNovos as any,
+              })
+            ),
+        });
+      }
+
+      if (
+        itensParaCancelar.length > 0
+      ) {
+        await tx.itemMatricula.updateMany({
+          where: {
+            id: {
+              in:
+                itensParaCancelar,
+            },
+
+            matriculaId,
+            instituicaoId,
+          },
+
+          data: {
+            status:
+              "CANCELADO" as any,
+          },
+        });
+      }
+    }
+  );
 }
 
 const includeMatricula = {
@@ -715,12 +1337,29 @@ if (vendedorResponsavelId) {
         : []
     );
 
-    if (!alunoId || turmaIds.length === 0) {
-      return NextResponse.json(
-        { error: "Aluno e disciplinas/turmas são obrigatórios" },
-        { status: 400 }
-      );
-    }
+const itensMatriculaBody =
+  Array.isArray(
+    body.itensMatricula
+  )
+    ? body.itensMatricula
+    : null;
+
+const usaItensExplicitos =
+  itensMatriculaBody !== null;
+
+    if (
+  !alunoId ||
+  (!usaItensExplicitos &&
+    turmaIds.length === 0)
+) {
+  return NextResponse.json(
+    {
+      error:
+        "Aluno e disciplinas/turmas são obrigatórios.",
+    },
+    { status: 400 }
+  );
+}
 
     const aluno = await prisma.aluno.findFirst({
       where: {
@@ -739,42 +1378,230 @@ if (vendedorResponsavelId) {
       );
     }
 
-    const { turmas, turmasComDisciplinas } = await buscarTurmasComDisciplinas({
+    if (!aluno.dataNascimento) {
+  return NextResponse.json(
+    {
+      error:
+        "Informe a data de nascimento do aluno antes de realizar a matrícula.",
+    },
+    {
+      status: 400,
+    }
+  );
+}
+
+const idadeNoMomentoMatricula =
+  calcularIdade(
+    aluno.dataNascimento
+  );
+
+if (
+  idadeNoMomentoMatricula < 0 ||
+  idadeNoMomentoMatricula > 120
+) {
+  return NextResponse.json(
+    {
+      error:
+        "A data de nascimento do aluno é inválida.",
+    },
+    {
+      status: 400,
+    }
+  );
+}
+
+const alunoMenorNoMomentoMatricula =
+  idadeNoMomentoMatricula < 18;
+
+const camposResponsavelPendentes =
+  alunoMenorNoMomentoMatricula
+    ? verificarDadosResponsavel(
+        aluno
+      )
+    : [];
+
+const responsavelIncompletoNoMomentoMatricula =
+  alunoMenorNoMomentoMatricula &&
+  camposResponsavelPendentes.length > 0;
+
+if (
+  alunoMenorNoMomentoMatricula &&
+  body.confirmacaoMenorAceita !==
+    true
+) {
+  const mensagem =
+    responsavelIncompletoNoMomentoMatricula
+      ? `Este aluno possui ${idadeNoMomentoMatricula} ano(s) e os dados do responsável estão incompletos. Campos pendentes: ${camposResponsavelPendentes.join(
+          ", "
+        )}.`
+      : `Este aluno possui ${idadeNoMomentoMatricula} ano(s) e ainda não atingiu a idade adulta.`;
+
+  return NextResponse.json(
+    {
+      codigo:
+        "CONFIRMACAO_MENOR_NECESSARIA",
+
+      error: mensagem,
+
+      idade:
+        idadeNoMomentoMatricula,
+
+      responsavelIncompleto:
+        responsavelIncompletoNoMomentoMatricula,
+
+      camposResponsavelPendentes,
+    },
+    {
+      status: 409,
+    }
+  );
+}
+
+const usuarioConfirmador =
+  alunoMenorNoMomentoMatricula
+    ? await prisma.user.findFirst({
+        where: {
+          id: user.id,
+          instituicaoId:
+            user.instituicaoId,
+        },
+
+        select: {
+          id: true,
+          nome: true,
+
+          funcionario: {
+            select: {
+              id: true,
+              nome: true,
+            },
+          },
+        },
+      })
+    : null;
+
+if (
+  alunoMenorNoMomentoMatricula &&
+  !usuarioConfirmador
+) {
+  return NextResponse.json(
+    {
+      error:
+        "Não foi possível identificar o usuário responsável pela confirmação.",
+    },
+    {
+      status: 401,
+    }
+  );
+}
+
+const nomeConfirmador =
+  usuarioConfirmador?.funcionario
+    ?.nome ||
+  usuarioConfirmador?.nome ||
+  null;
+
+const textoConfirmacaoMenor =
+  alunoMenorNoMomentoMatricula
+    ? responsavelIncompletoNoMomentoMatricula
+      ? `O usuário ${nomeConfirmador || "não identificado"} confirmou a matrícula do aluno menor de idade, com ${idadeNoMomentoMatricula} ano(s), mesmo com dados incompletos do responsável. Campos pendentes: ${camposResponsavelPendentes.join(
+          ", "
+        )}.`
+      : `O usuário ${nomeConfirmador || "não identificado"} confirmou a matrícula do aluno menor de idade, com ${idadeNoMomentoMatricula} ano(s), declarando ciência e responsabilidade pela operação.`
+    : null;
+
+    let turmasComDisciplinas:
+  TurmaComDisciplina[] = [];
+
+let itensExplicitos:
+  ItemMatriculaNormalizado[] |
+  null = null;
+
+if (
+  usaItensExplicitos &&
+  itensMatriculaBody
+) {
+  const resultado =
+    await validarItensMatriculaExplicitos({
+      itens:
+        itensMatriculaBody,
+
+      instituicaoId:
+        user.instituicaoId,
+
+      alunoId,
+    });
+
+  itensExplicitos =
+    resultado.itens;
+
+  turmasComDisciplinas =
+    resultado.turmasComDisciplinas;
+} else {
+  const resultado =
+    await buscarTurmasComDisciplinas({
       turmaIds,
-      instituicaoId: user.instituicaoId,
+
+      instituicaoId:
+        user.instituicaoId,
+
       disciplinaIdsBody,
     });
 
-    if (turmas.length !== turmaIds.length) {
-      return NextResponse.json(
-        { error: "Uma ou mais turmas são inválidas para esta instituição" },
-        { status: 400 }
-      );
-    }
+  if (
+    resultado.turmas.length !==
+    turmaIds.length
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          "Uma ou mais turmas são inválidas para esta instituição.",
+      },
+      { status: 400 }
+    );
+  }
 
-    if (turmasComDisciplinas.length === 0) {
-      return NextResponse.json(
-        { error: "Nenhuma disciplina válida foi encontrada para a turma selecionada." },
-        { status: 400 }
-      );
-    }
+  turmasComDisciplinas =
+    resultado.turmasComDisciplinas;
 
-    const disciplinaIdsSelecionadas = uniqueNumbers(
-      turmasComDisciplinas.map((turma) => turma.disciplinaId)
+  if (
+    turmasComDisciplinas.length ===
+    0
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          "Nenhuma disciplina válida foi encontrada para a turma selecionada.",
+      },
+      { status: 400 }
+    );
+  }
+
+  const disciplinaIdsSelecionadas =
+    uniqueNumbers(
+      turmasComDisciplinas.map(
+        (turma) =>
+          turma.disciplinaId
+      )
     );
 
-    const validacaoPreReq = await validarPreRequisitos(
+  const validacaoPreReq =
+    await validarPreRequisitos(
       alunoId,
       user.instituicaoId,
       disciplinaIdsSelecionadas
     );
 
-    if (!validacaoPreReq.ok) {
-      return NextResponse.json(
-        { error: validacaoPreReq.error },
-        { status: 400 }
-      );
-    }
+  if (!validacaoPreReq.ok) {
+    return NextResponse.json(
+      {
+        error:
+          validacaoPreReq.error,
+      },
+      { status: 400 }
+    );
+  }
+}
 
     const cursoIdsEncontrados: number[] = [];
     for (const turma of turmasComDisciplinas) {
@@ -883,15 +1710,26 @@ if (vendedorResponsavelId) {
       );
     }
 
-    const itensClassificados = removerItensDuplicadosPorTurma(
-  await classificarItensMatricula({
-    instituicaoId: user.instituicaoId,
-    cursoIdFinal,
-    semestreFinal,
-    cursoSemestreId,
-    turmas: turmasComDisciplinas as TurmaComDisciplina[],
-  })
-);
+    const itensClassificados =
+  itensExplicitos
+    ? removerItensDuplicadosPorTurma(
+        itensExplicitos
+      )
+    : removerItensDuplicadosPorTurma(
+        await classificarItensMatricula({
+          instituicaoId:
+            user.instituicaoId,
+
+          cursoIdFinal,
+
+          semestreFinal,
+
+          cursoSemestreId,
+
+          turmas:
+            turmasComDisciplinas,
+        })
+      );
 
     const valorMatricula = Number(
       body.valorMatricula ??
@@ -942,8 +1780,47 @@ if (vendedorResponsavelId) {
   periodoLetivo: periodoLetivoFinal || null,
   modalidade: modalidadeFinal,
 
-        realizadaPeloAluno: Boolean(body.realizadaPeloAluno),
-        confirmadaEm: new Date(),
+        realizadaPeloAluno:
+  Boolean(
+    body.realizadaPeloAluno
+  ),
+
+confirmadaEm: new Date(),
+
+alunoMenorNoMomentoMatricula:
+  alunoMenorNoMomentoMatricula,
+
+idadeNoMomentoMatricula:
+  idadeNoMomentoMatricula,
+
+responsavelIncompletoNoMomentoMatricula:
+  responsavelIncompletoNoMomentoMatricula,
+
+confirmacaoMenorEm:
+  alunoMenorNoMomentoMatricula
+    ? new Date()
+    : null,
+
+confirmacaoMenorPorUserId:
+  alunoMenorNoMomentoMatricula
+    ? usuarioConfirmador?.id ??
+      user.id
+    : null,
+
+confirmacaoMenorPorFuncionarioId:
+  alunoMenorNoMomentoMatricula
+    ? usuarioConfirmador
+        ?.funcionario?.id ??
+      null
+    : null,
+
+confirmacaoMenorPorNomeSnapshot:
+  alunoMenorNoMomentoMatricula
+    ? nomeConfirmador
+    : null,
+
+textoConfirmacaoMenor:
+  textoConfirmacaoMenor,
         semestre: semestreFinal,
         instituicaoId: user.instituicaoId,
         status: statusInicialMatricula as any,
@@ -1368,6 +2245,21 @@ if (vendedorFoiInformado) {
         : []
     );
 
+    const itensMatriculaBody =
+  Array.isArray(
+    body.itensMatricula
+  )
+    ? body.itensMatricula
+    : null;
+
+const usaItensExplicitos =
+  itensMatriculaBody !== null;
+
+const deveSincronizarItens =
+  usaItensExplicitos ||
+  Array.isArray(body.turmaIds) ||
+  body.turmaId !== undefined;
+
     const valorPagoMatricula = toPositiveNumberOrNull(body.valorPagoMatricula);
     const valorMensalidade = toPositiveNumberOrNull(body.valorMensalidade);
     const quantidadeMensalidades = toPositiveNumberOrNull(
@@ -1468,54 +2360,119 @@ if (vendedorFoiInformado) {
       }
     }
 
-    let itensClassificados: Array<{
-      turmaId: number;
-      disciplinaId: number;
-      tipoItem: TipoItemMatricula;
-    }> = [];
+    let itensClassificados:
+  ItemMatriculaNormalizado[] = [];
 
-    if (Array.isArray(body.turmaIds) || body.turmaId !== undefined) {
-      const { turmas, turmasComDisciplinas } = await buscarTurmasComDisciplinas({
-        turmaIds,
-        instituicaoId: user.instituicaoId,
-        disciplinaIdsBody,
-      });
+if (
+  usaItensExplicitos &&
+  itensMatriculaBody
+) {
+  const resultado =
+    await validarItensMatriculaExplicitos({
+      itens:
+        itensMatriculaBody,
 
-      if (turmas.length !== turmaIds.length) {
-        return NextResponse.json(
-          { error: "Uma ou mais turmas são inválidas para esta instituição" },
-          { status: 400 }
-        );
-      }
-
-      const disciplinaIdsSelecionadas = uniqueNumbers(
-        turmasComDisciplinas.map((turma) => turma.disciplinaId)
-      );
-
-      const validacaoPreReq = await validarPreRequisitos(
-        alunoIdFinal,
+      instituicaoId:
         user.instituicaoId,
-        disciplinaIdsSelecionadas
-      );
 
-      if (!validacaoPreReq.ok) {
-        return NextResponse.json(
-          { error: validacaoPreReq.error },
-          { status: 400 }
-        );
-      }
+      alunoId:
+        alunoIdFinal,
 
-      itensClassificados = removerItensDuplicadosPorTurma(
-        await classificarItensMatricula({
-          instituicaoId: user.instituicaoId,
-          cursoIdFinal,
-          semestreFinal,
-          cursoSemestreId:
-            cursoSemestreId ?? matriculaExistente.cursoSemestreId ?? null,
-          turmas: turmasComDisciplinas as TurmaComDisciplina[],
-        })
-      );
-    }
+      matriculaIdIgnorada:
+        id,
+    });
+
+  itensClassificados =
+    resultado.itens;
+} else if (
+  Array.isArray(body.turmaIds) ||
+  body.turmaId !== undefined
+) {
+  const {
+    turmas,
+    turmasComDisciplinas,
+  } =
+    await buscarTurmasComDisciplinas({
+      turmaIds,
+
+      instituicaoId:
+        user.instituicaoId,
+
+      disciplinaIdsBody,
+    });
+
+  if (
+    turmas.length !==
+    turmaIds.length
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          "Uma ou mais turmas são inválidas para esta instituição.",
+      },
+      { status: 400 }
+    );
+  }
+
+  if (
+    turmasComDisciplinas.length ===
+    0
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          "Nenhuma disciplina válida foi encontrada para as turmas selecionadas.",
+      },
+      { status: 400 }
+    );
+  }
+
+  const disciplinaIdsSelecionadas =
+    uniqueNumbers(
+      turmasComDisciplinas.map(
+        (turma) =>
+          turma.disciplinaId
+      )
+    );
+
+  const validacaoPreReq =
+    await validarPreRequisitos(
+      alunoIdFinal,
+      user.instituicaoId,
+      disciplinaIdsSelecionadas
+    );
+
+  if (!validacaoPreReq.ok) {
+    return NextResponse.json(
+      {
+        error:
+          validacaoPreReq.error,
+      },
+      { status: 400 }
+    );
+  }
+
+  itensClassificados =
+    removerItensDuplicadosPorTurma(
+      await classificarItensMatricula({
+        instituicaoId:
+          user.instituicaoId,
+
+        cursoIdFinal,
+
+        semestreFinal,
+
+        cursoSemestreId:
+          cursoSemestreId ??
+          matriculaExistente
+            .cursoSemestreId ??
+          null,
+
+        turmas:
+          turmasComDisciplinas as TurmaComDisciplina[],
+      })
+    );
+}
 
     await prisma.$transaction(
   async (tx) => {
@@ -1640,27 +2597,26 @@ if (vendedorFoiInformado) {
   }
 );
 
-    if (Array.isArray(body.turmaIds) || body.turmaId !== undefined) {
-      await prisma.itemMatricula.deleteMany({
-        where: {
-          matriculaId: id,
-          instituicaoId: user.instituicaoId,
-        },
-      });
+    if (deveSincronizarItens) {
+  const statusNovos:
+    "A_CURSAR" | "EM_CURSO" =
+    matriculaExistente.status ===
+    "A_INICIAR"
+      ? "A_CURSAR"
+      : "EM_CURSO";
 
-      if (itensClassificados.length > 0) {
-        await prisma.itemMatricula.createMany({
-          data: itensClassificados.map((item) => ({
-            matriculaId: id,
-            turmaId: item.turmaId,
-            disciplinaId: item.disciplinaId,
-            tipoItem: item.tipoItem as any,
-            instituicaoId: user.instituicaoId,
-            status: "A_CURSAR" as any,
-          })),
-        });
-      }
-    }
+  await sincronizarItensMatricula({
+    matriculaId: id,
+
+    instituicaoId:
+      user.instituicaoId,
+
+    itens:
+      itensClassificados,
+
+    statusNovos,
+  });
+}
 
     await prisma.contrato.updateMany({
   where: {
@@ -1688,14 +2644,22 @@ const matriculaAtualizadaParaContrato = await prisma.matricula.findFirst({
     },
     curso: true,
     itens: {
-      include: {
-        disciplina: true,
-        turma: true,
-      },
-      orderBy: {
-        id: "asc",
-      },
+  where: {
+    status: {
+      not:
+        "CANCELADO" as any,
     },
+  },
+
+  include: {
+    disciplina: true,
+    turma: true,
+  },
+
+  orderBy: {
+    id: "asc",
+  },
+},
   },
 });
 

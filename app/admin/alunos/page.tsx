@@ -112,6 +112,12 @@ type AlunoComResumo = Aluno & {
   resumoMatricula?: MatriculaResumo | null;
 };
 
+type ConfirmacaoMenorCadastro = {
+  idade: number;
+  responsavelIncompleto: boolean;
+  camposPendentes: string[];
+} | null;
+
 function AdminAlunosPage() {
   const searchParams = useSearchParams();
 
@@ -156,6 +162,19 @@ const [abaPainelAluno, setAbaPainelAluno] = useState<
   const [modalAvisoTipo, setModalAvisoTipo] = useState<"sucesso" | "erro">(
     "erro"
   );
+
+  const [
+  confirmacaoMenorCadastro,
+  setConfirmacaoMenorCadastro,
+] =
+  useState<ConfirmacaoMenorCadastro>(
+    null
+  );
+
+const [
+  cienteMenorCadastro,
+  setCienteMenorCadastro,
+] = useState(false);
 
   const [nome, setNome] = useState("");
   const [nomeSocial, setNomeSocial] = useState("");
@@ -298,6 +317,187 @@ useEffect(() => {
       setBusca(buscaUrl);
     }
   }, [searchParams]);
+
+  function calcularIdadeFormulario(
+  valor: string
+) {
+  const partes = valor
+    .split("-")
+    .map(Number);
+
+  if (
+    partes.length !== 3 ||
+    partes.some(
+      (parte) =>
+        !Number.isFinite(parte)
+    )
+  ) {
+    return null;
+  }
+
+  const [ano, mes, dia] = partes;
+
+  const nascimento =
+    new Date(
+      ano,
+      mes - 1,
+      dia
+    );
+
+  if (
+    nascimento.getFullYear() !==
+      ano ||
+    nascimento.getMonth() !==
+      mes - 1 ||
+    nascimento.getDate() !== dia
+  ) {
+    return null;
+  }
+
+  const hoje = new Date();
+
+  let idade =
+    hoje.getFullYear() - ano;
+
+  const aindaNaoFezAniversario =
+    hoje.getMonth() <
+      mes - 1 ||
+    (hoje.getMonth() ===
+      mes - 1 &&
+      hoje.getDate() < dia);
+
+  if (aindaNaoFezAniversario) {
+    idade -= 1;
+  }
+
+  return idade;
+}
+
+function verificarResponsavelFormulario() {
+  const pendentes: string[] = [];
+
+  const cpfLimpo =
+    cpfResponsavel.replace(
+      /\D/g,
+      ""
+    );
+
+  const telefoneLimpo =
+    telefoneResponsavel.replace(
+      /\D/g,
+      ""
+    );
+
+  if (!nomeResponsavel.trim()) {
+    pendentes.push(
+      "Nome do responsável"
+    );
+  }
+
+  if (cpfLimpo.length !== 11) {
+    pendentes.push(
+      "CPF do responsável"
+    );
+  }
+
+  if (telefoneLimpo.length < 10) {
+    pendentes.push(
+      "Telefone do responsável"
+    );
+  }
+
+  if (
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+      emailResponsavel.trim()
+    )
+  ) {
+    pendentes.push(
+      "E-mail do responsável"
+    );
+  }
+
+  if (
+    !parentescoResponsavel.trim()
+  ) {
+    pendentes.push(
+      "Parentesco do responsável"
+    );
+  }
+
+  return pendentes;
+}
+
+function tocarSomAtencao() {
+  try {
+    const AudioContextClass =
+      window.AudioContext ||
+      (window as any)
+        .webkitAudioContext;
+
+    if (!AudioContextClass) {
+      return;
+    }
+
+    const contexto =
+      new AudioContextClass();
+
+    const oscilador =
+      contexto.createOscillator();
+
+    const ganho =
+      contexto.createGain();
+
+    const agora =
+      contexto.currentTime;
+
+    oscilador.type = "sine";
+
+    oscilador.frequency.setValueAtTime(
+      720,
+      agora
+    );
+
+    oscilador.frequency.setValueAtTime(
+      520,
+      agora + 0.18
+    );
+
+    ganho.gain.setValueAtTime(
+      0.0001,
+      agora
+    );
+
+    ganho.gain.exponentialRampToValueAtTime(
+      0.16,
+      agora + 0.03
+    );
+
+    ganho.gain.exponentialRampToValueAtTime(
+      0.0001,
+      agora + 0.42
+    );
+
+    oscilador.connect(ganho);
+    ganho.connect(
+      contexto.destination
+    );
+
+    oscilador.start(agora);
+    oscilador.stop(
+      agora + 0.45
+    );
+
+    oscilador.addEventListener(
+      "ended",
+      () => {
+        void contexto.close();
+      }
+    );
+  } catch {
+    // O aviso visual continuará funcionando
+    // caso o navegador bloqueie o áudio.
+  }
+}
 
   function mostrarFeedback(tipo: Exclude<FeedbackTipo, "">, mensagem: string) {
     setFeedbackTipo(tipo);
@@ -551,15 +751,47 @@ async function carregarPolos() {
       cache: "no-store",
     });
 
+    const data = await res.json().catch(() => null);
+
     if (!res.ok) {
-      console.error("Erro ao buscar polos");
+      console.error(
+        "Erro ao buscar polos:",
+        data?.error || res.statusText
+      );
+
+      setPolos([]);
       return;
     }
 
-    const data = await res.json();
-    setPolos(Array.isArray(data) ? data : []);
+    const listaPolos = Array.isArray(data)
+      ? data
+      : Array.isArray(data?.polos)
+        ? data.polos
+        : [];
+
+    const polosValidos: Polo[] = listaPolos
+      .map((polo: any) => ({
+        id: Number(polo?.id),
+        nome: String(
+          polo?.nome ?? "Polo"
+        ),
+        codigo:
+          polo?.codigo ?? null,
+      }))
+      .filter(
+        (polo) =>
+          Number.isFinite(polo.id) &&
+          polo.id > 0
+      );
+
+    setPolos(polosValidos);
   } catch (error) {
-    console.error("Erro ao carregar polos:", error);
+    console.error(
+      "Erro ao carregar polos:",
+      error
+    );
+
+    setPolos([]);
   }
 }
 
@@ -631,11 +863,11 @@ async function enviarDocumentosDepoisCriacao(alunoId: number) {
   }
 }
 
-  async function handleCriarAluno(e: React.FormEvent) {
-    e.preventDefault();
-
-    try {
-      setCriando(true);
+  async function executarCriacaoAluno(
+  confirmacaoMenorCadastroAceita: boolean
+) {
+  try {
+    setCriando(true);
 
       const res = await fetch("/api/aluno", {
         method: "POST",
@@ -669,12 +901,39 @@ async function enviarDocumentosDepoisCriacao(alunoId: number) {
           possuiNecessidadeEspecial,
           descricaoNecessidadeEspecial,
           observacoesAcessibilidade,
+          confirmacaoMenorCadastroAceita,
         }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
+        if (
+  data?.codigo ===
+  "CONFIRMACAO_MENOR_CADASTRO_NECESSARIA"
+) {
+  setConfirmacaoMenorCadastro({
+    idade: Number(
+      data.idade || 0
+    ),
+
+    responsavelIncompleto:
+      data.responsavelIncompleto ===
+      true,
+
+    camposPendentes:
+      Array.isArray(
+        data.camposResponsavelPendentes
+      )
+        ? data.camposResponsavelPendentes
+        : [],
+  });
+
+  setCienteMenorCadastro(false);
+  tocarSomAtencao();
+
+  return;
+}
         const mensagem = data?.error || data?.detalhe || "Erro ao criar aluno";
         mostrarFeedback("erro", mensagem);
         abrirModalAviso("erro", "Não foi possível criar", mensagem);
@@ -695,6 +954,12 @@ if (data?.id && novoAlunoDocumentos.length > 0) {
 
 limparFormularioCriacao();
 
+setConfirmacaoMenorCadastro(
+  null
+);
+
+setCienteMenorCadastro(false);
+
 await carregarTudo();
 
 mostrarFeedback("sucesso", "Aluno criado com sucesso.");
@@ -714,6 +979,63 @@ window.scrollTo({ top: 0, behavior: "smooth" });
       setCriando(false);
     }
   }
+
+  async function handleCriarAluno(
+  e: React.FormEvent
+) {
+  e.preventDefault();
+
+  const idade =
+    calcularIdadeFormulario(
+      dataNascimento
+    );
+
+  if (idade === null) {
+    abrirModalAviso(
+      "erro",
+      "Data de nascimento obrigatória",
+      "Informe uma data de nascimento válida para calcular a idade do aluno."
+    );
+
+    return;
+  }
+
+  if (
+    idade < 0 ||
+    idade > 120
+  ) {
+    abrirModalAviso(
+      "erro",
+      "Data de nascimento inválida",
+      "Revise a data de nascimento antes de continuar."
+    );
+
+    return;
+  }
+
+  if (idade >= 18) {
+    await executarCriacaoAluno(
+      false
+    );
+
+    return;
+  }
+
+  const camposPendentes =
+    verificarResponsavelFormulario();
+
+  setConfirmacaoMenorCadastro({
+    idade,
+
+    responsavelIncompleto:
+      camposPendentes.length > 0,
+
+    camposPendentes,
+  });
+
+  setCienteMenorCadastro(false);
+  tocarSomAtencao();
+}
 
   function iniciarEdicao(aluno: AlunoComResumo) {
     setEditandoId(aluno.id);
@@ -3451,6 +3773,158 @@ name="busca-alunos-phanyx"
           </div>
         </div>
       )}
+
+      {confirmacaoMenorCadastro && (
+  <div className="fixed inset-0 z-[130] flex items-center justify-center bg-slate-950/65 p-4 backdrop-blur-sm">
+    <div className="w-full max-w-xl overflow-hidden rounded-3xl border border-amber-300 bg-white shadow-2xl dark:border-amber-700 dark:bg-slate-900">
+      <div className="border-b border-amber-200 bg-amber-50 px-6 py-5 dark:border-amber-800 dark:bg-amber-950/40">
+        <div className="flex items-start gap-4">
+          <div className="flex h-12 w-12 flex-none items-center justify-center rounded-2xl bg-amber-200 text-2xl dark:bg-amber-900">
+            ⚠️
+          </div>
+
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-700 dark:text-amber-300">
+              Atenção
+            </p>
+
+            <h2 className="mt-1 text-xl font-black text-slate-950 dark:text-white">
+              {confirmacaoMenorCadastro
+                .responsavelIncompleto
+                ? "Dados do responsável incompletos"
+                : "Aluno menor de idade"}
+            </h2>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-4 px-6 py-5 text-slate-700 dark:text-slate-200">
+        <p className="text-sm leading-6">
+          Este aluno possui{" "}
+          <strong>
+            {
+              confirmacaoMenorCadastro
+                .idade
+            }{" "}
+            ano(s)
+          </strong>{" "}
+          e ainda não atingiu a idade
+          adulta.
+        </p>
+
+        {confirmacaoMenorCadastro
+          .responsavelIncompleto ? (
+          <>
+            <div className="rounded-2xl border border-red-300 bg-red-50 p-4 text-sm text-red-900 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200">
+              <strong className="block">
+                Os dados do titular/responsável
+                maior de idade não foram
+                preenchidos completamente.
+              </strong>
+
+              <p className="mt-2">
+                Volte e preencha os dados abaixo
+                ou confirme que deseja prosseguir
+                mesmo assim.
+              </p>
+            </div>
+
+            <ul className="space-y-2 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-700 dark:bg-slate-950">
+              {confirmacaoMenorCadastro
+                .camposPendentes.map(
+                  (campo) => (
+                    <li
+                      key={campo}
+                      className="flex items-center gap-2"
+                    >
+                      <span className="font-black text-red-600">
+                        •
+                      </span>
+
+                      {campo}
+                    </li>
+                  )
+                )}
+            </ul>
+          </>
+        ) : (
+          <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+            Tem certeza de que deseja cadastrar
+            este aluno menor de idade?
+          </div>
+        )}
+
+        <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-slate-300 bg-white p-4 dark:border-slate-700 dark:bg-slate-950">
+          <input
+            type="checkbox"
+            checked={
+              cienteMenorCadastro
+            }
+            onChange={(e) =>
+              setCienteMenorCadastro(
+                e.target.checked
+              )
+            }
+            className="mt-1 h-5 w-5 accent-blue-600"
+          />
+
+          <span className="text-sm font-semibold leading-6">
+            Estou ciente de que o aluno é
+            menor de idade e me responsabilizo
+            por prosseguir com este cadastro.
+          </span>
+        </label>
+      </div>
+
+      <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-6 py-5 dark:border-slate-700 dark:bg-slate-950 sm:flex-row sm:justify-end">
+        <button
+          type="button"
+          disabled={criando}
+          onClick={() => {
+            setConfirmacaoMenorCadastro(
+              null
+            );
+
+            setCienteMenorCadastro(
+              false
+            );
+          }}
+          className="rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-100 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+        >
+          {confirmacaoMenorCadastro
+            .responsavelIncompleto
+            ? "Voltar e preencher"
+            : "Voltar"}
+        </button>
+
+        <button
+          type="button"
+          disabled={
+            !cienteMenorCadastro ||
+            criando
+          }
+          onClick={() =>
+            void executarCriacaoAluno(
+              true
+            )
+          }
+          className={`rounded-2xl border px-5 py-3 text-sm font-bold transition ${
+  !cienteMenorCadastro || criando
+    ? "cursor-not-allowed border-slate-300 bg-slate-200 text-slate-500 opacity-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
+    : "cursor-pointer border-blue-600 bg-blue-600 text-white hover:bg-blue-700"
+}`}
+        >
+          {criando
+            ? "Criando aluno..."
+            : confirmacaoMenorCadastro
+                  .responsavelIncompleto
+              ? "Criar aluno mesmo assim"
+              : "Confirmar cadastro"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       {modalAvisoAberto && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/55 p-4">

@@ -119,6 +119,8 @@ model Instituicao {
   disciplinaPreRequisitos        DisciplinaPreRequisito[]
   cursosDisciplinasExtras        CursoDisciplinaExtraPermitida[]
   impersonacoesSuporte           ImpersonacaoSuporte[]
+  publicacoesCursosRedeOrigem    CursoPublicacaoRede[]           @relation("CursoPublicacaoInstituicaoOrigem")
+  publicacoesCursosRedeDestino   CursoPublicacaoRede[]           @relation("CursoPublicacaoInstituicaoDestino")
   certificadoTemplateUrl         String?
   certificadoPreviewUrl          String?
   certificadoTextoPadrao         String?
@@ -329,9 +331,13 @@ model User {
   acessosInstitucionaisCriados   UserInstituicaoAcesso[] @relation("UserInstituicaoAcessoCriadoPor")
   acessosInstitucionaisRevogados UserInstituicaoAcesso[] @relation("UserInstituicaoAcessoRevogadoPor")
 
-  restricoesRematriculaAplicadas RestricaoRematriculaAluno[]     @relation("RestricaoRematriculaAplicadaPor")
-  restricoesRematriculaRemovidas RestricaoRematriculaAluno[]     @relation("RestricaoRematriculaRemovidaPor")
-  historicosRestricaoRematricula RestricaoRematriculaHistorico[] @relation("RestricaoRematriculaHistoricoRealizadoPor")
+  restricoesRematriculaAplicadas   RestricaoRematriculaAluno[]     @relation("RestricaoRematriculaAplicadaPor")
+  restricoesRematriculaRemovidas   RestricaoRematriculaAluno[]     @relation("RestricaoRematriculaRemovidaPor")
+  historicosRestricaoRematricula   RestricaoRematriculaHistorico[] @relation("RestricaoRematriculaHistoricoRealizadoPor")
+  matriculasConfirmacaoMenor       Matricula[]                     @relation("MatriculaConfirmacaoMenorPorUser")
+  publicacoesCursosRedeCriadas     CursoPublicacaoRede[]           @relation("CursoPublicacaoPublicadoPor")
+  publicacoesCursosRedeAtualizadas CursoPublicacaoRede[]           @relation("CursoPublicacaoAtualizadoPor")
+  publicacoesCursosRedeRetiradas   CursoPublicacaoRede[]           @relation("CursoPublicacaoRetiradoPor")
 
   @@index([instituicaoId])
   @@index([role])
@@ -567,6 +573,8 @@ model Curso {
   cursosPolos                 CursoPolo[]
   reunioes                    Reuniao[]
   regrasComissaoRH            RegraComissaoRH[]
+  publicacoesRedeOrigem       CursoPublicacaoRede[]           @relation("CursoPublicacaoOrigem")
+  publicacaoRedeDestino       CursoPublicacaoRede?            @relation("CursoPublicacaoDestino")
 
   @@unique([instituicaoId, nome])
   @@unique([instituicaoId, codigo])
@@ -584,6 +592,7 @@ model CursoSemestre {
   updatedAt                   DateTime                        @updatedAt
   instituicaoId               Int
   cursoId                     Int
+  cursoSemestreOrigemRedeId   Int?
   cargaMaxima                 Int?
   cargaMinima                 Int?
   curso                       Curso                           @relation(fields: [cursoId], references: [id], onDelete: Cascade)
@@ -593,10 +602,14 @@ model CursoSemestre {
   matriculas                  Matricula[]
   periodosMatricula           PeriodoMatricula[]
   rematriculasDestino         RematriculaSemestral[]
+  cursoSemestreOrigemRede     CursoSemestre?                  @relation("CursoSemestrePublicacaoRede", fields: [cursoSemestreOrigemRedeId], references: [id], onDelete: SetNull)
+  semestresPublicadosRede     CursoSemestre[]                 @relation("CursoSemestrePublicacaoRede")
 
   @@unique([cursoId, numero])
+  @@unique([instituicaoId, cursoSemestreOrigemRedeId])
   @@index([instituicaoId])
   @@index([cursoId])
+  @@index([cursoSemestreOrigemRedeId])
 }
 
 model CursoSemestreDisciplina {
@@ -709,6 +722,7 @@ model Disciplina {
   id                        Int                             @id @default(autoincrement())
   nome                      String
   cursoId                   Int?
+  disciplinaOrigemRedeId    Int?
   instituicaoId             Int
   descricao                 String?
   semestre                  Int?
@@ -734,12 +748,16 @@ model Disciplina {
   atividades                Atividade[]
   substituicoesDocentes     SubstituicaoDocente[]
   itensRematriculaSemestral RematriculaSemestralItem[]
+  disciplinaOrigemRede      Disciplina?                     @relation("DisciplinaPublicacaoRede", fields: [disciplinaOrigemRedeId], references: [id], onDelete: SetNull)
+  disciplinasPublicadasRede Disciplina[]                    @relation("DisciplinaPublicacaoRede")
 
   @@unique([instituicaoId, nome])
   @@unique([instituicaoId, codigo])
+  @@unique([instituicaoId, disciplinaOrigemRedeId])
   @@index([instituicaoId])
   @@index([cursoId])
   @@index([professorId])
+  @@index([disciplinaOrigemRedeId])
 }
 
 model Turma {
@@ -838,32 +856,40 @@ model TurmaDisciplinaHorario {
 }
 
 model Matricula {
-  id                              Int             @id @default(autoincrement())
-  numeroMatriculaLegado           String?
-  sistemaOrigem                   String?
-  importadaSistemaAntigo          Boolean         @default(false)
-  alunoId                         Int
-  numeroMatricula                 String?
-  modalidade                      String?
-  createdAt                       DateTime        @default(now())
-  instituicaoId                   Int
-  poloId                          Int?
-  status                          StatusMatricula @default(ATIVA)
-  updatedAt                       DateTime        @updatedAt
-  cursoId                         Int?
-  semestre                        Int?
-  dataPrimeiroVencimento          DateTime?
-  quantidadeParcelas              Int?
-  valorMatricula                  Decimal?        @db.Decimal(10, 2)
-  valorMensalidade                Decimal?        @db.Decimal(10, 2)
-  primeiroVencimento              DateTime?
-  quantidadeMensalidades          Int?
-  vendedorResponsavelId           Int?
-  vendedorResponsavelNomeSnapshot String?
-  origemComercial                 String?
-  campanhaComercial               String?
-  atendidoComercialEm             DateTime?
-  observacaoComercial             String?         @db.Text
+  id                                      Int             @id @default(autoincrement())
+  numeroMatriculaLegado                   String?
+  sistemaOrigem                           String?
+  importadaSistemaAntigo                  Boolean         @default(false)
+  alunoId                                 Int
+  numeroMatricula                         String?
+  modalidade                              String?
+  createdAt                               DateTime        @default(now())
+  instituicaoId                           Int
+  poloId                                  Int?
+  status                                  StatusMatricula @default(ATIVA)
+  updatedAt                               DateTime        @updatedAt
+  cursoId                                 Int?
+  semestre                                Int?
+  dataPrimeiroVencimento                  DateTime?
+  quantidadeParcelas                      Int?
+  valorMatricula                          Decimal?        @db.Decimal(10, 2)
+  valorMensalidade                        Decimal?        @db.Decimal(10, 2)
+  primeiroVencimento                      DateTime?
+  quantidadeMensalidades                  Int?
+  vendedorResponsavelId                   Int?
+  vendedorResponsavelNomeSnapshot         String?
+  origemComercial                         String?
+  campanhaComercial                       String?
+  atendidoComercialEm                     DateTime?
+  observacaoComercial                     String?         @db.Text
+  alunoMenorNoMomentoMatricula            Boolean         @default(false)
+  idadeNoMomentoMatricula                 Int?
+  responsavelIncompletoNoMomentoMatricula Boolean         @default(false)
+  confirmacaoMenorEm                      DateTime?
+  confirmacaoMenorPorUserId               Int?
+  confirmacaoMenorPorFuncionarioId        Int?
+  confirmacaoMenorPorNomeSnapshot         String?
+  textoConfirmacaoMenor                   String?         @db.Text
 
   contratos              Contrato[]
   documentos             DocumentoAluno[]
@@ -889,6 +915,9 @@ model Matricula {
   instituicao         Instituicao           @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   polo                Polo?                 @relation(fields: [poloId], references: [id])
 
+  confirmacaoMenorPorUser        User?        @relation("MatriculaConfirmacaoMenorPorUser", fields: [confirmacaoMenorPorUserId], references: [id], onDelete: SetNull)
+  confirmacaoMenorPorFuncionario Funcionario? @relation("MatriculaConfirmacaoMenorPorFuncionario", fields: [confirmacaoMenorPorFuncionarioId], references: [id], onDelete: SetNull)
+
   @@unique([instituicaoId, numeroMatricula])
   @@index([instituicaoId])
   @@index([alunoId])
@@ -900,6 +929,9 @@ model Matricula {
   @@index([numeroMatricula])
   @@index([numeroMatriculaLegado])
   @@index([vendedorResponsavelId])
+  @@index([confirmacaoMenorPorUserId])
+  @@index([confirmacaoMenorPorFuncionarioId])
+  @@index([alunoMenorNoMomentoMatricula])
 }
 
 model ItemMatricula {
@@ -1460,6 +1492,7 @@ model Funcionario {
   historicosRemuneracaoRH                     HistoricoRemuneracaoRH[]
   participacoesComerciais                     MatriculaParticipanteComercial[]
   matriculasComoVendedor                      Matricula[]                                 @relation("MatriculaVendedorResponsavel")
+  matriculasConfirmacaoMenor                  Matricula[]                                 @relation("MatriculaConfirmacaoMenorPorFuncionario")
   lancamentosComissaoRH                       LancamentoComissaoRH[]
   participacoesProgramasRemuneracaoVariavelRH ParticipanteProgramaRemuneracaoVariavelRH[]
   lancamentosRemuneracaoVariavelRH            LancamentoRemuneracaoVariavelRH[]
@@ -2151,6 +2184,7 @@ model Polo {
   matriculas             Matricula[]
   cobrancas              Cobranca[]
   lancamentosFinanceiros LancamentoFinanceiro[]
+  publicacoesCursosRede  CursoPublicacaoRede[]  @relation("CursoPublicacaoPolo")
 
   @@unique([instituicaoId, nome])
   @@unique([instituicaoId, codigo])
@@ -4163,18 +4197,19 @@ model CacheGeocodificacaoEndereco {
 }
 
 model PlanoComissaoRH {
-  id                       Int       @id @default(autoincrement())
+  id                       Int                             @id @default(autoincrement())
   instituicaoId            Int
   criadoPorId              Int?
   nome                     String
-  descricao                String?   @db.Text
-  ativo                    Boolean   @default(true)
+  descricao                String?                         @db.Text
+  ativo                    Boolean                         @default(true)
   inicioVigencia           DateTime?
   fimVigencia              DateTime?
-  exigePagamentoConfirmado Boolean   @default(true)
-  permiteCompartilhamento  Boolean   @default(false)
-  criadoEm                 DateTime  @default(now())
-  atualizadoEm             DateTime  @updatedAt
+  exigePagamentoConfirmado Boolean                         @default(true)
+  permiteCompartilhamento  Boolean                         @default(false)
+  modoParticipacao         ModoParticipacaoPlanoComissaoRH @default(SOMENTE_PARTICIPANTES_MATRICULA)
+  criadoEm                 DateTime                        @default(now())
+  atualizadoEm             DateTime                        @updatedAt
 
   instituicao  Instituicao                  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   criadoPor    User?                        @relation("PlanoComissaoRHCriadoPor", fields: [criadoPorId], references: [id])
@@ -4188,33 +4223,43 @@ model PlanoComissaoRH {
 }
 
 model RegraComissaoRH {
-  id                       Int                   @id @default(autoincrement())
-  instituicaoId            Int
-  planoId                  Int
-  cursoId                  Int?
-  criadoPorId              Int?
-  nome                     String
-  descricao                String?               @db.Text
-  tipo                     TipoRegraComissaoRH
-  baseCalculo              BaseCalculoComissaoRH
-  gatilho                  GatilhoComissaoRH
-  percentual               Decimal?              @db.Decimal(7, 4)
-  valorFixo                Decimal?              @db.Decimal(12, 2)
-  quantidadeMinima         Int?
-  quantidadeMaxima         Int?
-  usarValorLiquidoRecebido Boolean               @default(true)
-  estornarEmCancelamento   Boolean               @default(true)
-  estornarEmInadimplencia  Boolean               @default(false)
-  diasCarenciaEstorno      Int?
-  ordem                    Int                   @default(0)
-  ativo                    Boolean               @default(true)
-  criadoEm                 DateTime              @default(now())
-  atualizadoEm             DateTime              @updatedAt
+  id                           Int                   @id @default(autoincrement())
+  instituicaoId                Int
+  planoId                      Int
+  cursoId                      Int?
+  criadoPorId                  Int?
+  regraBaseId                  Int?
+  escopoAplicacao              EscopoRegraComissaoRH @default(GERAL)
+  departamentoAlvoId           Int?
+  departamentoAlvoNomeSnapshot String?
+  cargoAlvo                    String?
+  cargoAlvoNormalizado         String?
+  funcionarioAlvoId            Int?
+  funcionarioAlvoNomeSnapshot  String?
+  nome                         String
+  descricao                    String?               @db.Text
+  tipo                         TipoRegraComissaoRH
+  baseCalculo                  BaseCalculoComissaoRH
+  gatilho                      GatilhoComissaoRH
+  percentual                   Decimal?              @db.Decimal(7, 4)
+  valorFixo                    Decimal?              @db.Decimal(12, 2)
+  quantidadeMinima             Int?
+  quantidadeMaxima             Int?
+  usarValorLiquidoRecebido     Boolean               @default(true)
+  estornarEmCancelamento       Boolean               @default(true)
+  estornarEmInadimplencia      Boolean               @default(false)
+  diasCarenciaEstorno          Int?
+  ordem                        Int                   @default(0)
+  ativo                        Boolean               @default(true)
+  criadoEm                     DateTime              @default(now())
+  atualizadoEm                 DateTime              @updatedAt
 
   instituicao Instituicao            @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   plano       PlanoComissaoRH        @relation(fields: [planoId], references: [id], onDelete: Cascade)
   curso       Curso?                 @relation(fields: [cursoId], references: [id], onDelete: SetNull)
   criadoPor   User?                  @relation("RegraComissaoRHCriadoPor", fields: [criadoPorId], references: [id])
+  regraBase   RegraComissaoRH?       @relation("RegraComissaoRHVariacoes", fields: [regraBaseId], references: [id], onDelete: Cascade)
+  variacoes   RegraComissaoRH[]      @relation("RegraComissaoRHVariacoes")
   lancamentos LancamentoComissaoRH[]
 
   @@index([instituicaoId])
@@ -4224,6 +4269,12 @@ model RegraComissaoRH {
   @@index([baseCalculo])
   @@index([gatilho])
   @@index([ativo])
+  @@index([regraBaseId])
+  @@index([escopoAplicacao])
+  @@index([departamentoAlvoId])
+  @@index([cargoAlvoNormalizado])
+  @@index([funcionarioAlvoId])
+  @@index([planoId, regraBaseId, escopoAplicacao])
 }
 
 model FuncionarioPlanoComissaoRH {
@@ -4684,6 +4735,43 @@ model RestricaoRematriculaHistorico {
   @@index([criadoEm])
 }
 
+model CursoPublicacaoRede {
+  id                   Int                       @id @default(autoincrement())
+  cursoOrigemId        Int
+  cursoDestinoId       Int                       @unique
+  instituicaoOrigemId  Int
+  instituicaoDestinoId Int
+  poloId               Int?
+  status               StatusPublicacaoCursoRede @default(ATIVA)
+  publicadoPorId       Int?
+  atualizadoPorId      Int?
+  retiradoPorId        Int?
+  publicadoEm          DateTime                  @default(now())
+  atualizadoEm         DateTime                  @updatedAt
+  sincronizadoEm       DateTime?
+  retiradoEm           DateTime?
+  motivoRetirada       String?                   @db.Text
+
+  cursoOrigem        Curso       @relation("CursoPublicacaoOrigem", fields: [cursoOrigemId], references: [id], onDelete: Restrict)
+  cursoDestino       Curso       @relation("CursoPublicacaoDestino", fields: [cursoDestinoId], references: [id], onDelete: Cascade)
+  instituicaoOrigem  Instituicao @relation("CursoPublicacaoInstituicaoOrigem", fields: [instituicaoOrigemId], references: [id], onDelete: Cascade)
+  instituicaoDestino Instituicao @relation("CursoPublicacaoInstituicaoDestino", fields: [instituicaoDestinoId], references: [id], onDelete: Cascade)
+  polo               Polo?       @relation("CursoPublicacaoPolo", fields: [poloId], references: [id], onDelete: SetNull)
+  publicadoPor       User?       @relation("CursoPublicacaoPublicadoPor", fields: [publicadoPorId], references: [id], onDelete: SetNull)
+  atualizadoPor      User?       @relation("CursoPublicacaoAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
+  retiradoPor        User?       @relation("CursoPublicacaoRetiradoPor", fields: [retiradoPorId], references: [id], onDelete: SetNull)
+
+  @@unique([cursoOrigemId, instituicaoDestinoId])
+  @@index([cursoOrigemId])
+  @@index([cursoDestinoId])
+  @@index([instituicaoOrigemId])
+  @@index([instituicaoDestinoId])
+  @@index([poloId])
+  @@index([status])
+  @@index([publicadoPorId])
+  @@index([retiradoPorId])
+}
+
 enum ModalidadeCertificado {
   GERAL
   BACHARELADO
@@ -4952,6 +5040,8 @@ enum LeadPrioridade {
 
 enum TipoItemMatricula {
   GRADE_PRINCIPAL
+  DEPENDENCIA
+  ADIANTAMENTO
   EXTRA_MESMO_CURSO
   EXTRA_OUTRO_CURSO
 }
@@ -5025,6 +5115,18 @@ enum OrigemLancamentoComissaoRH {
 enum OrigemVinculoPlanoComissaoRH {
   INDIVIDUAL
   DEPARTAMENTO
+}
+
+enum ModoParticipacaoPlanoComissaoRH {
+  SOMENTE_PARTICIPANTES_MATRICULA
+  TODOS_VINCULADOS_PLANO
+}
+
+enum EscopoRegraComissaoRH {
+  GERAL
+  DEPARTAMENTO
+  CARGO
+  FUNCIONARIO
 }
 
 enum TipoRemuneracaoVariavelRH {
@@ -5186,4 +5288,10 @@ enum NivelAcessoInstituicao {
   GESTOR_CENTRAL
   AUDITOR
   LEITURA
+}
+
+enum StatusPublicacaoCursoRede {
+  ATIVA
+  SUSPENSA
+  RETIRADA
 }

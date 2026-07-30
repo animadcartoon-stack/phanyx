@@ -8,6 +8,12 @@ type Polo = {
   id: number;
   nome: string;
   codigo?: string | null;
+  ativo: boolean;
+  statusComercial:
+    | "ATIVO"
+    | "PENDENTE_ATIVACAO"
+    | "SUSPENSO"
+    | "ENCERRADO";
 };
 
 type ModalidadeCertificado =
@@ -189,22 +195,62 @@ function estaNoUltimoDia(data?: string | null) {
   }
 
   async function carregarPolos() {
-    try {
-      const res = await fetch("/api/admin/polos", {
+  try {
+    const res = await fetch(
+      "/api/admin/polos",
+      {
         credentials: "include",
-      });
-
-      if (!res.ok) {
-        throw new Error("Erro ao carregar polos");
       }
+    );
 
-      const data = await res.json();
-      setPolos(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error("Erro ao carregar polos:", error);
-      setPolos([]);
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(
+        data?.error ||
+          "Erro ao carregar polos"
+      );
     }
+
+    const polosRecebidos =
+      Array.isArray(data)
+        ? data
+        : data?.polos;
+
+    const polosAtivos: Polo[] =
+      Array.isArray(polosRecebidos)
+        ? polosRecebidos.filter(
+            (polo: Polo) =>
+              polo.ativo === true &&
+              polo.statusComercial ===
+                "ATIVO"
+          )
+        : [];
+
+    setPolos(polosAtivos);
+
+    const idsAtivos = new Set(
+      polosAtivos.map(
+        (polo) => polo.id
+      )
+    );
+
+    setPolosSelecionados(
+      (selecionados) =>
+        selecionados.filter((id) =>
+          idsAtivos.has(id)
+        )
+    );
+  } catch (error) {
+    console.error(
+      "Erro ao carregar polos:",
+      error
+    );
+
+    setPolos([]);
+    setPolosSelecionados([]);
   }
+}
 
   function alternarPolo(id: number) {
     setPolosSelecionados((atual) =>

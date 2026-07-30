@@ -1,17 +1,18 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { getUserFromToken, isAdminLike } from "@/lib/server-auth";
+import { sincronizarPublicacoesAtivasDoCurso } from "@/lib/publicacao-cursos-rede";
 
 function disciplinaPertenceAInstituicao(
   disciplina: {
     instituicaoId?: number | null;
     curso?: { instituicaoId?: number | null } | null;
     turmaDisciplinas?:
-      | Array<{
-          instituicaoId?: number | null;
-          turma?: { instituicaoId?: number | null } | null;
-        }>
-      | null;
+    | Array<{
+      instituicaoId?: number | null;
+      turma?: { instituicaoId?: number | null } | null;
+    }>
+    | null;
   } | null,
   instituicaoId: number
 ) {
@@ -178,10 +179,10 @@ export async function GET(
         curso: disciplina.curso,
         turma: turma
           ? {
-              id: turma.id,
-              nome: turma.nome,
-              semestre: turma.semestre,
-            }
+            id: turma.id,
+            nome: turma.nome,
+            semestre: turma.semestre,
+          }
           : null,
         aulas,
         provaLiberada: totalAulas === 0 ? true : progressoPercentual === 100,
@@ -199,33 +200,33 @@ export async function GET(
         instituicaoId: user.instituicaoId,
       },
       include: {
-  curso: true,
-  professor: {
-    select: {
-      id: true,
-      nome: true,
-    },
-  },
-  prerequisitosDaDisciplina: {
-  include: {
-    prerequisito: true,
-  },
-},
-  professoresHabilitados: {
-  include: {
-    professor: {
-      select: {
-        id: true,
-        nome: true,
-      },
-    },
-  },
-},
-  turmaDisciplinas: {
-  include: {
-    turma: {
-      include: {
-        _count: {
+        curso: true,
+        professor: {
+          select: {
+            id: true,
+            nome: true,
+          },
+        },
+        prerequisitosDaDisciplina: {
+          include: {
+            prerequisito: true,
+          },
+        },
+        professoresHabilitados: {
+          include: {
+            professor: {
+              select: {
+                id: true,
+                nome: true,
+              },
+            },
+          },
+        },
+        turmaDisciplinas: {
+          include: {
+            turma: {
+              include: {
+                _count: {
                   select: {
                     atividades: true,
                     itensMatricula: true,
@@ -291,7 +292,15 @@ export async function PUT(
         instituicaoId: user.instituicaoId,
       },
       include: {
-        curso: true,
+        curso: {
+          include: {
+            publicacaoRedeDestino: {
+              select: {
+                id: true,
+              },
+            },
+          },
+        },
         turmaDisciplinas: {
           include: {
             turma: {
@@ -313,6 +322,19 @@ export async function PUT(
         { status: 404 }
       );
     }
+
+if (
+  disciplinaExistente.disciplinaOrigemRedeId ||
+  disciplinaExistente.curso?.publicacaoRedeDestino
+) {
+  return NextResponse.json(
+    {
+      error:
+        "Não é permitido editar uma disciplina recebida da rede.",
+    },
+    { status: 403 }
+  );
+}
 
     let cursoIdFinal: number | null | undefined = disciplinaExistente.cursoId;
 
@@ -342,145 +364,249 @@ export async function PUT(
       cursoIdFinal = null;
     }
 
-let professorIdFinal: number | null = disciplinaExistente.professorId ?? null;
+    let professorIdFinal: number | null = disciplinaExistente.professorId ?? null;
 
-if (
-  body.professorId !== undefined &&
-  body.professorId !== null &&
-  body.professorId !== ""
-) {
-  const professor = await prisma.professor.findFirst({
-    where: {
-      id: Number(body.professorId),
-      instituicaoId: user.instituicaoId,
-    },
-  });
-
-  if (!professor) {
-    return NextResponse.json(
-      { error: "Professor inválido para esta instituição" },
-      { status: 400 }
-    );
-  }
-
-  professorIdFinal = professor.id;
-}
-
-if (body.professorId === null || body.professorId === "") {
-  professorIdFinal = null;
-}
-
-    const turmaIds = Array.isArray(body.turmaIds)
-  ? body.turmaIds.map((id: any) => Number(id)).filter((id: number) => Number.isFinite(id))
-  : [];
-
-const professoresHabilitadosIds = Array.isArray(body.professoresHabilitadosIds)
-  ? body.professoresHabilitadosIds
-      .map((id: any) => Number(id))
-      .filter((id: number) => Number.isFinite(id) && id > 0)
-  : [];
-const preRequisitoIds = Array.isArray(body.preRequisitoIds)
-  ? body.preRequisitoIds
-      .map((id: any) => Number(id))
-      .filter((id: number) => Number.isFinite(id) && id > 0 && id !== Number(params.id))
-  : [];
-if (professoresHabilitadosIds.length > 0) {
-  const professoresValidos = await prisma.professor.findMany({
-    where: {
-      id: { in: professoresHabilitadosIds },
-      instituicaoId: user.instituicaoId,
-    },
-    select: { id: true },
-  });
-
-  if (professoresValidos.length !== professoresHabilitadosIds.length) {
-    return NextResponse.json(
-      { error: "Um ou mais professores são inválidos para esta instituição." },
-      { status: 400 }
-    );
-  }
-}
-
-    await prisma.$transaction(async (tx) => {
-      await tx.disciplina.update({
-        where: { id },
-        data: {
-          nome: String(body.nome ?? disciplinaExistente.nome).trim(),
-          codigo: body.codigo ?? null,
-          descricao: body.descricao ?? null,
-          cargaHoraria:
-            body.cargaHoraria !== null &&
-            body.cargaHoraria !== undefined &&
-            body.cargaHoraria !== ""
-              ? Number(body.cargaHoraria)
-              : null,
-          semestre:
-            body.semestre !== null &&
-            body.semestre !== undefined &&
-            body.semestre !== ""
-              ? Number(body.semestre)
-              : null,
-          cursoId: cursoIdFinal,
-          professorId: professorIdFinal,
+    if (
+      body.professorId !== undefined &&
+      body.professorId !== null &&
+      body.professorId !== ""
+    ) {
+      const professor = await prisma.professor.findFirst({
+        where: {
+          id: Number(body.professorId),
+          instituicaoId: user.instituicaoId,
         },
       });
 
-await tx.professorDisciplina.deleteMany({
-  where: {
-    disciplinaId: id,
-    instituicaoId: user.instituicaoId,
-  },
-});
+      if (!professor) {
+        return NextResponse.json(
+          { error: "Professor inválido para esta instituição" },
+          { status: 400 }
+        );
+      }
 
-await tx.disciplinaPreRequisito.deleteMany({
-  where: {
-    disciplinaId: id,
-    instituicaoId: user.instituicaoId,
-  },
-});
+      professorIdFinal = professor.id;
+    }
 
-if (preRequisitoIds.length > 0) {
-  await tx.disciplinaPreRequisito.createMany({
-    data: preRequisitoIds.map((preId: number) => ({
-      disciplinaId: id,
-      prerequisitoId: preId,
-      instituicaoId: user.instituicaoId,
-    })),
-    skipDuplicates: true,
-  });
-}
+    if (body.professorId === null || body.professorId === "") {
+      professorIdFinal = null;
+    }
 
-if (professoresHabilitadosIds.length > 0) {
-  await tx.professorDisciplina.createMany({
-    data: professoresHabilitadosIds.map((professorId: number) => ({
-      professorId,
-      disciplinaId: id,
-      instituicaoId: user.instituicaoId,
-    })),
-    skipDuplicates: true,
-  });
-}
+    const turmaIds = Array.isArray(body.turmaIds)
+      ? body.turmaIds.map((id: any) => Number(id)).filter((id: number) => Number.isFinite(id))
+      : [];
 
-      await tx.turmaDisciplina.deleteMany({
-  where: {
-    disciplinaId: id,
-    instituicaoId: user.instituicaoId,
-  },
-});
+    const professoresHabilitadosIds = Array.isArray(body.professoresHabilitadosIds)
+      ? body.professoresHabilitadosIds
+        .map((id: any) => Number(id))
+        .filter((id: number) => Number.isFinite(id) && id > 0)
+      : [];
+    const preRequisitoIds = Array.isArray(body.preRequisitoIds)
+      ? body.preRequisitoIds
+        .map((id: any) => Number(id))
+        .filter((id: number) => Number.isFinite(id) && id > 0 && id !== Number(params.id))
+      : [];
+    if (professoresHabilitadosIds.length > 0) {
+      const professoresValidos = await prisma.professor.findMany({
+        where: {
+          id: { in: professoresHabilitadosIds },
+          instituicaoId: user.instituicaoId,
+        },
+        select: { id: true },
+      });
 
-if (turmaIds.length > 0) {
-  await tx.turmaDisciplina.createMany({
-    data: turmaIds.map((turmaId: number) => ({
-  turmaId,
-  disciplinaId: id,
-  professorId: professorIdFinal,
-  instituicaoId: user.instituicaoId,
-})),
-    skipDuplicates: true,
-  });
-}
+      if (professoresValidos.length !== professoresHabilitadosIds.length) {
+        return NextResponse.json(
+          { error: "Um ou mais professores são inválidos para esta instituição." },
+          { status: 400 }
+        );
+      }
+    }
 
-    });
+    const cursoIdAnterior =
+      disciplinaExistente.cursoId;
+
+    const resultadoSincronizacao =
+      await prisma.$transaction(
+        async (tx) => {
+          await tx.disciplina.update({
+            where: {
+              id,
+            },
+
+            data: {
+              nome: String(
+                body.nome ??
+                disciplinaExistente.nome
+              ).trim(),
+
+              codigo:
+                body.codigo ?? null,
+
+              descricao:
+                body.descricao ?? null,
+
+              cargaHoraria:
+                body.cargaHoraria !== null &&
+                  body.cargaHoraria !==
+                  undefined &&
+                  body.cargaHoraria !== ""
+                  ? Number(
+                    body.cargaHoraria
+                  )
+                  : null,
+
+              semestre:
+                body.semestre !== null &&
+                  body.semestre !==
+                  undefined &&
+                  body.semestre !== ""
+                  ? Number(
+                    body.semestre
+                  )
+                  : null,
+
+              cursoId:
+                cursoIdFinal,
+
+              professorId:
+                professorIdFinal,
+            },
+          });
+
+          await tx.professorDisciplina.deleteMany({
+            where: {
+              disciplinaId: id,
+              instituicaoId:
+                user.instituicaoId,
+            },
+          });
+
+          await tx.disciplinaPreRequisito.deleteMany({
+            where: {
+              disciplinaId: id,
+              instituicaoId:
+                user.instituicaoId,
+            },
+          });
+
+          if (preRequisitoIds.length > 0) {
+            await tx.disciplinaPreRequisito.createMany(
+              {
+                data: preRequisitoIds.map(
+                  (preId: number) => ({
+                    disciplinaId: id,
+                    prerequisitoId:
+                      preId,
+                    instituicaoId:
+                      user.instituicaoId,
+                  })
+                ),
+
+                skipDuplicates: true,
+              }
+            );
+          }
+
+          if (
+            professoresHabilitadosIds
+              .length > 0
+          ) {
+            await tx.professorDisciplina.createMany(
+              {
+                data:
+                  professoresHabilitadosIds.map(
+                    (
+                      professorId: number
+                    ) => ({
+                      professorId,
+                      disciplinaId: id,
+                      instituicaoId:
+                        user.instituicaoId,
+                    })
+                  ),
+
+                skipDuplicates: true,
+              }
+            );
+          }
+
+          await tx.turmaDisciplina.deleteMany({
+            where: {
+              disciplinaId: id,
+              instituicaoId:
+                user.instituicaoId,
+            },
+          });
+
+          if (turmaIds.length > 0) {
+            await tx.turmaDisciplina.createMany({
+              data: turmaIds.map(
+                (turmaId: number) => ({
+                  turmaId,
+                  disciplinaId: id,
+                  professorId:
+                    professorIdFinal,
+                  instituicaoId:
+                    user.instituicaoId,
+                })
+              ),
+
+              skipDuplicates: true,
+            });
+          }
+
+          const cursoIdsParaSincronizar =
+            Array.from(
+              new Set(
+                [
+                  cursoIdAnterior,
+                  cursoIdFinal,
+                ].filter(
+                  (
+                    cursoId
+                  ): cursoId is number =>
+                    typeof cursoId ===
+                    "number" &&
+                    Number.isInteger(
+                      cursoId
+                    ) &&
+                    cursoId > 0
+                )
+              )
+            );
+
+          let unidadesAtualizadas = 0;
+
+          for (
+            const cursoId of
+            cursoIdsParaSincronizar
+          ) {
+            const publicacoes =
+              await sincronizarPublicacoesAtivasDoCurso(
+                {
+                  tx,
+
+                  cursoOrigemId:
+                    cursoId,
+
+                  instituicaoOrigemId:
+                    user.instituicaoId,
+
+                  atualizadoPorId:
+                    user.id,
+                }
+              );
+
+            unidadesAtualizadas +=
+              publicacoes.length;
+          }
+
+          return {
+            unidadesAtualizadas,
+          };
+        }
+      );
 
     const disciplinaAtualizada = await prisma.disciplina.findFirst({
       where: {
@@ -488,26 +614,34 @@ if (turmaIds.length > 0) {
         instituicaoId: user.instituicaoId,
       },
       include: {
-  curso: true,
-  professoresHabilitados: {
-    include: {
-      professor: {
-        select: {
-          id: true,
-          nome: true,
+        curso: true,
+        professoresHabilitados: {
+          include: {
+            professor: {
+              select: {
+                id: true,
+                nome: true,
+              },
+            },
+          },
         },
-      },
-    },
-  },
-  turmaDisciplinas: {
-  include: {
-    turma: true,
-  },
-},
+        turmaDisciplinas: {
+          include: {
+            turma: true,
+          },
+        },
       },
     });
 
-    return NextResponse.json(disciplinaAtualizada);
+    return NextResponse.json({
+      ...disciplinaAtualizada!,
+
+      resumoSincronizacao: {
+        unidadesAtualizadas:
+          resultadoSincronizacao
+            .unidadesAtualizadas,
+      },
+    });
   } catch (error: any) {
     console.error("ERRO API DISCIPLINA PUT:", error);
     return NextResponse.json(
@@ -544,10 +678,22 @@ export async function DELETE(
         instituicaoId: user.instituicaoId,
       },
       include: {
-        turmaDisciplinas: {
-          select: { id: true },
+  curso: {
+    select: {
+      publicacaoRedeDestino: {
+        select: {
+          id: true,
         },
       },
+    },
+  },
+
+  turmaDisciplinas: {
+    select: {
+      id: true,
+    },
+  },
+},
     });
 
     if (!disciplina) {
@@ -557,22 +703,160 @@ export async function DELETE(
       );
     }
 
-    await prisma.$transaction(async (tx) => {
-      if (disciplina.turmaDisciplinas.length > 0) {
-        await tx.turmaDisciplina.deleteMany({
+    if (
+  disciplina.disciplinaOrigemRedeId !== null ||
+  disciplina.curso?.publicacaoRedeDestino
+) {
+  return NextResponse.json(
+    {
+      error:
+        "Não é permitido excluir uma disciplina recebida da rede.",
+    },
+    { status: 403 }
+  );
+}
+
+    const cursoIdOrigem =
+      disciplina.cursoId;
+
+    const possuiPublicacoesRede =
+      cursoIdOrigem
+        ? (await prisma.cursoPublicacaoRede.count({
           where: {
-            disciplinaId: id,
-            instituicaoId: user.instituicaoId,
+            cursoOrigemId:
+              cursoIdOrigem,
           },
-        });
-      }
+        })) > 0
+        : false;
 
-      await tx.disciplina.delete({
-        where: { id },
-      });
+    const resultadoExclusao =
+      await prisma.$transaction(
+        async (tx) => {
+          if (
+            disciplina.turmaDisciplinas
+              .length > 0
+          ) {
+            await tx.turmaDisciplina.deleteMany({
+              where: {
+                disciplinaId: id,
+                instituicaoId:
+                  user.instituicaoId,
+              },
+            });
+          }
+
+          /*
+           * Cursos publicados não podem perder
+           * definitivamente o registro de origem.
+           * A disciplina é desativada e removida
+           * da grade, preservando o vínculo.
+           */
+          if (
+            possuiPublicacoesRede &&
+            cursoIdOrigem
+          ) {
+            await tx.cursoSemestreDisciplina.deleteMany(
+              {
+                where: {
+                  disciplinaId: id,
+                  instituicaoId:
+                    user.instituicaoId,
+                },
+              }
+            );
+
+            await tx.professorDisciplina.deleteMany({
+              where: {
+                disciplinaId: id,
+                instituicaoId:
+                  user.instituicaoId,
+              },
+            });
+
+            await tx.disciplinaPreRequisito.deleteMany(
+              {
+                where: {
+                  instituicaoId:
+                    user.instituicaoId,
+
+                  OR: [
+                    {
+                      disciplinaId:
+                        id,
+                    },
+                    {
+                      prerequisitoId:
+                        id,
+                    },
+                  ],
+                },
+              }
+            );
+
+            await tx.disciplina.update({
+              where: {
+                id,
+              },
+
+              data: {
+                ativo: false,
+                cursoId: null,
+                professorId: null,
+              },
+            });
+
+            const publicacoes =
+              await sincronizarPublicacoesAtivasDoCurso(
+                {
+                  tx,
+
+                  cursoOrigemId:
+                    cursoIdOrigem,
+
+                  instituicaoOrigemId:
+                    user.instituicaoId,
+
+                  atualizadoPorId:
+                    user.id,
+                }
+              );
+
+            return {
+              arquivada: true,
+              unidadesAtualizadas:
+                publicacoes.length,
+            };
+          }
+
+          await tx.disciplina.delete({
+            where: {
+              id,
+            },
+          });
+
+          return {
+            arquivada: false,
+            unidadesAtualizadas: 0,
+          };
+        }
+      );
+    return NextResponse.json({
+      ok: true,
+
+      arquivada:
+        resultadoExclusao.arquivada,
+
+      mensagem:
+        resultadoExclusao.arquivada
+          ? "A disciplina foi retirada do curso e desativada. O histórico e os vínculos de publicação foram preservados."
+          : "Disciplina excluída com sucesso.",
+
+      resumoSincronizacao: {
+        unidadesAtualizadas:
+          resultadoExclusao
+            .unidadesAtualizadas,
+      },
     });
-
-    return NextResponse.json({ ok: true });
   } catch (error: any) {
     console.error("ERRO API DISCIPLINA DELETE:", error);
 

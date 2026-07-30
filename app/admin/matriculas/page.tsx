@@ -35,6 +35,24 @@ type VendedorOption = {
   } | null;
 };
 
+type TipoItemMatricula =
+  | "GRADE_PRINCIPAL"
+  | "DEPENDENCIA"
+  | "ADIANTAMENTO"
+  | "EXTRA_MESMO_CURSO"
+  | "EXTRA_OUTRO_CURSO";
+
+type OfertaDisciplina = {
+  turmaId: number;
+  turmaNome: string;
+  turmaSemestre?: string | null;
+  professorNome?: string | null;
+  disciplinaId: number;
+  disciplinaNome: string;
+  disciplinaSemestre?: number | null;
+  cursoId?: number | null;
+};
+
 type TurmaOption = {
   id: number;
   nome: string;
@@ -50,8 +68,11 @@ type TurmaOption = {
     codigo?: string | null;
     cargaHoraria?: number | null;
     cursoId?: number | null;
+    semestre?: number | null;
+    professorNome?: string | null;
   }[];
 };
+
 type CursoSemestreDisciplina = {
   id: number;
   disciplinaId: number;
@@ -84,33 +105,49 @@ type MatriculaApi = {
   quantidadeMensalidades?: number | null;
   primeiroVencimento?: string | null;
   vendedorResponsavelId?: number | null;
-vendedorResponsavelNomeSnapshot?: string | null;
+  vendedorResponsavelNomeSnapshot?: string | null;
 
-vendedorResponsavel?: {
-  id: number;
-  nome: string;
-  cargo?: string | null;
-  departamento?: {
+  vendedorResponsavel?: {
     id: number;
     nome: string;
+    cargo?: string | null;
+    departamento?: {
+      id: number;
+      nome: string;
+    } | null;
   } | null;
-} | null;
   aluno?: { id: number; nome: string; nomeSocial?: string | null; genero?: string | null } | null;
   curso?: { id: number; nome: string } | null;
   itens?: Array<{
     id: number;
     status?: string;
+    tipoItem?: TipoItemMatricula;
+
+    disciplina?: {
+      id: number;
+      nome: string;
+      cursoId?: number | null;
+      semestre?: number | null;
+    } | null;
+
     turma?: {
       id: number;
       nome: string;
-      professor?: { id: number; nome: string } | null;
-      disciplina?: { id: number; nome: string } | null;
-      _count?: { aulas: number } | null;
+      professor?: {
+        id: number;
+        nome: string;
+      } | null;
+      disciplina?: {
+        id: number;
+        nome: string;
+      } | null;
+      _count?: {
+        aulas: number;
+      } | null;
     } | null;
   }>;
   createdAt?: string;
 };
-
 
 type MatriculaEdicao = {
   id: number;
@@ -136,18 +173,18 @@ function AdminMatriculasPage() {
   const [busca, setBusca] = useState("");
 
   const [filtroPeriodoMatricula, setFiltroPeriodoMatricula] = useState<
-  "HOJE" | "ONTEM" | "7_DIAS" | "MES" | "TODAS"
->("HOJE");
+    "HOJE" | "ONTEM" | "7_DIAS" | "MES" | "TODAS"
+  >("HOJE");
 
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [removingId, setRemovingId] = useState<number | null>(null);
-  const [matriculaEditando, setMatriculaEditando] =
-    useState<MatriculaEdicao | null>(null);
+  const [matriculaEditando, setMatriculaEditando] = useState<MatriculaEdicao | null>(null);
   const [disciplinasSelecionadas, setDisciplinasSelecionadas] = useState<number[]>([]);
   const [disciplinasExtrasSelecionadas, setDisciplinasExtrasSelecionadas] = useState<number[]>([]);
   const [disciplinasEdicaoSelecionadas, setDisciplinasEdicaoSelecionadas] = useState<number[]>([]);
   const [disciplinasExtrasEdicaoSelecionadas, setDisciplinasExtrasEdicaoSelecionadas] = useState<number[]>([]);
+  const [turmaPorDisciplina, setTurmaPorDisciplina] = useState<Record<number, number>>({});
   const [matriculas, setMatriculas] = useState<MatriculaApi[]>([]);
   const [alunos, setAlunos] = useState<AlunoOption[]>([]);
   const [cursos, setCursos] = useState<CursoOption[]>([]);
@@ -155,13 +192,13 @@ function AdminMatriculasPage() {
   const [semestresCurso, setSemestresCurso] = useState<CursoSemestreOption[]>([]);
 
   const [vendedores, setVendedores] =
-  useState<VendedorOption[]>([]);
+    useState<VendedorOption[]>([]);
 
-const [vendedorResponsavelId, setVendedorResponsavelId] =
-  useState("");
+  const [vendedorResponsavelId, setVendedorResponsavelId] =
+    useState("");
 
-const [podeSelecionarVendedor, setPodeSelecionarVendedor] =
-  useState(false);
+  const [podeSelecionarVendedor, setPodeSelecionarVendedor] =
+    useState(false);
 
   const [matriculaExpandidaId, setMatriculaExpandidaId] = useState<number | null>(null);
   const [alunoId, setAlunoId] = useState<string>("");
@@ -171,7 +208,7 @@ const [podeSelecionarVendedor, setPodeSelecionarVendedor] =
   const [semestresAberto, setSemestresAberto] = useState(false);
 
   const semestresDropdownRef =
-  useRef<HTMLDivElement | null>(null);
+    useRef<HTMLDivElement | null>(null);
 
   const [turmasSelecionadas, setTurmasSelecionadas] = useState<number[]>([]);
   const [valorPagoMatricula, setValorPagoMatricula] = useState<string>("");
@@ -182,14 +219,14 @@ const [podeSelecionarVendedor, setPodeSelecionarVendedor] =
   const [modalidade, setModalidade] = useState<string>("");
 
   const [statusInicialMatricula, setStatusInicialMatricula] =
-  useState<string>("ATIVA");
+    useState<string>("ATIVA");
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
 
   const [toast, setToast] = useState<{
-  tipo: "sucesso" | "erro";
-  mensagem: string;
-} | null>(null);
+    tipo: "sucesso" | "erro";
+    mensagem: string;
+  } | null>(null);
 
   const [confirmModalAberto, setConfirmModalAberto] = useState(false);
   const [confirmTitulo, setConfirmTitulo] = useState("");
@@ -220,112 +257,167 @@ const [podeSelecionarVendedor, setPodeSelecionarVendedor] =
 
       try {
         const resAlunos = await fetch("/api/admin/alunos/busca-simples", {
-  credentials: "include",
-  cache: "no-store",
-});
+          credentials: "include",
+          cache: "no-store",
+        });
 
-const dataAlunos = await resAlunos.json();
+        const dataAlunos = await resAlunos.json();
 
-const listaAlunos: AlunoOption[] = (Array.isArray(dataAlunos) ? dataAlunos : [])
-  .map((a: any) => ({
-    id: Number(a?.id),
-    nome: String(a?.nome ?? "Aluno"),
-  }))
-  .filter((a) => Number.isFinite(a.id) && a.id > 0);
+        const listaAlunos: AlunoOption[] = (Array.isArray(dataAlunos) ? dataAlunos : [])
+          .map((a: any) => ({
+            id: Number(a?.id),
+            nome: String(a?.nome ?? "Aluno"),
+          }))
+          .filter((a) => Number.isFinite(a.id) && a.id > 0);
 
-setAlunos(listaAlunos);
-  
+        setAlunos(listaAlunos);
 
-console.log("📚 Lista de alunos pronta para o select:", listaAlunos);
 
-setAlunos(listaAlunos);
+        console.log("📚 Lista de alunos pronta para o select:", listaAlunos);
+
+        setAlunos(listaAlunos);
       } catch (error) {
         console.error("Erro ao carregar alunos:", error);
         setAlunos([]);
       }
 
       try {
-        const resCursos = await fetch("/api/admin/cursos", {
-          credentials: "include",
-          cache: "no-store",
-        });
+  const resCursos = await fetch(
+  "/api/curso",
+  {
+    credentials: "include",
+    cache: "no-store",
+  }
+);
 
-        const dataCursos = await resCursos.json();
+  const dataCursos =
+    await resCursos
+      .json()
+      .catch(() => null);
 
-        const listaCursos: CursoOption[] = (
-  Array.isArray(dataCursos) ? dataCursos : []
-).map((c: any) => ({
-  id: Number(c.id),
-  nome: String(c.nome ?? "Curso"),
-  cargaHorariaMaximaSemestre:
-    c?.cargaHorariaMaximaSemestre !== undefined &&
-    c?.cargaHorariaMaximaSemestre !== null
-      ? Number(c.cargaHorariaMaximaSemestre)
-      : null,
-}));
-
-        setCursos(listaCursos.filter((c) => Number.isFinite(c.id) && c.id > 0));
-      } catch (error) {
-        console.error("Erro ao carregar cursos:", error);
-        setCursos([]);
-      }
-
-      try {
-  const resVendedores = await fetch(
-    "/api/admin/comercial/vendedores",
-    {
-      credentials: "include",
-      cache: "no-store",
-    }
-  );
-
-  const dataVendedores = await resVendedores
-    .json()
-    .catch(() => null);
-
-  if (resVendedores.status === 403) {
-    setVendedores([]);
-    setPodeSelecionarVendedor(false);
-  } else if (!resVendedores.ok) {
-    throw new Error(
-      dataVendedores?.error ||
-        "Não foi possível carregar os vendedores."
+  if (!resCursos.ok) {
+    console.error(
+      "Erro ao carregar cursos:",
+      dataCursos?.error ||
+        resCursos.statusText
     );
-  } else {
-    const listaVendedores: VendedorOption[] = (
-      Array.isArray(dataVendedores)
-        ? dataVendedores
-        : []
-    )
-      .map((vendedor: any) => ({
-        id: Number(vendedor?.id),
-        nome: String(
-          vendedor?.nome ?? "Vendedor"
-        ),
-        cargo: vendedor?.cargo ?? null,
-        departamento:
-          vendedor?.departamento ?? null,
-        planoComissao:
-          vendedor?.planoComissao ?? null,
-      }))
-      .filter(
-        (vendedor) =>
-          Number.isFinite(vendedor.id) &&
-          vendedor.id > 0
-      );
 
-    setVendedores(listaVendedores);
-    setPodeSelecionarVendedor(true);
+    setCursos([]);
+  } else {
+    const cursosRecebidos =
+      Array.isArray(dataCursos)
+        ? dataCursos
+        : Array.isArray(
+              dataCursos?.cursos
+            )
+          ? dataCursos.cursos
+          : Array.isArray(
+                dataCursos?.data
+              )
+            ? dataCursos.data
+            : [];
+
+    const listaCursos: CursoOption[] =
+      cursosRecebidos
+        .map((curso: any) => ({
+          id: Number(curso?.id),
+
+          nome: String(
+            curso?.nome ??
+              "Curso"
+          ),
+
+          cargaHorariaMaximaSemestre:
+            curso?.cargaHorariaMaximaSemestre !==
+              undefined &&
+            curso?.cargaHorariaMaximaSemestre !==
+              null
+              ? Number(
+                  curso
+                    .cargaHorariaMaximaSemestre
+                )
+              : null,
+        }))
+        .filter(
+          (curso) =>
+            Number.isFinite(
+              curso.id
+            ) &&
+            curso.id > 0
+        );
+
+    console.log(
+      "📚 Cursos disponíveis para matrícula:",
+      listaCursos
+    );
+
+    setCursos(listaCursos);
   }
 } catch (error) {
   console.error(
-    "Erro ao carregar vendedores:",
+    "Erro ao carregar cursos:",
     error
   );
 
-  setVendedores([]);
-  setPodeSelecionarVendedor(false);
+  setCursos([]);
 }
+
+      try {
+        const resVendedores = await fetch(
+          "/api/admin/comercial/vendedores",
+          {
+            credentials: "include",
+            cache: "no-store",
+          }
+        );
+
+        const dataVendedores = await resVendedores
+          .json()
+          .catch(() => null);
+
+        if (resVendedores.status === 403) {
+          setVendedores([]);
+          setPodeSelecionarVendedor(false);
+        } else if (!resVendedores.ok) {
+          throw new Error(
+            dataVendedores?.error ||
+            "Não foi possível carregar os vendedores."
+          );
+        } else {
+          const listaVendedores: VendedorOption[] = (
+            Array.isArray(dataVendedores)
+              ? dataVendedores
+              : []
+          )
+            .map((vendedor: any) => ({
+              id: Number(vendedor?.id),
+              nome: String(
+                vendedor?.nome ?? "Vendedor"
+              ),
+              cargo: vendedor?.cargo ?? null,
+              departamento:
+                vendedor?.departamento ?? null,
+              planoComissao:
+                vendedor?.planoComissao ?? null,
+            }))
+            .filter(
+              (vendedor) =>
+                Number.isFinite(vendedor.id) &&
+                vendedor.id > 0
+            );
+
+          setVendedores(listaVendedores);
+          setPodeSelecionarVendedor(true);
+        }
+      } catch (error) {
+        console.error(
+          "Erro ao carregar vendedores:",
+          error
+        );
+
+        setVendedores([]);
+        setPodeSelecionarVendedor(false);
+      }
 
       try {
         const resTurmas = await fetch("/api/admin/turmas", {
@@ -336,40 +428,67 @@ setAlunos(listaAlunos);
         const dataTurmas = await resTurmas.json();
 
         const listaTurmas: TurmaOption[] = (
-  Array.isArray(dataTurmas) ? dataTurmas : []
-).map((t: any) => {
-  const primeiraDisciplina =
-  Array.isArray(t.disciplinas) && t.disciplinas.length > 0
-    ? t.disciplinas[0]?.disciplina ?? t.disciplinas[0]
-    : t.disciplina;
-  return {
-    id: Number(t.id),
-    nome: String(t.nome ?? "Turma"),
-    semestre: t?.semestre ?? null,
-    disciplinaId: primeiraDisciplina?.id ?? null,
-    disciplinaNome: primeiraDisciplina?.nome ?? null,
-    professorNome: t?.professor?.nome ?? null,
-    cursoId:
-  t?.cursoId ??
-  t?.curso?.id ??
-  primeiraDisciplina?.cursoId ??
-  primeiraDisciplina?.curso?.id ??
-  null,
-cursoNome:
-  t?.curso?.nome ??
-  primeiraDisciplina?.curso?.nome ??
-  null,
-  disciplinas: Array.isArray(t.disciplinas)
-  ? t.disciplinas.map((d: any) => ({
-      id: Number(d?.disciplina?.id ?? d?.id),
-      nome: String(d?.disciplina?.nome ?? d?.nome ?? "Disciplina"),
-      codigo: d?.disciplina?.codigo ?? d?.codigo ?? null,
-      cargaHoraria: d?.disciplina?.cargaHoraria ?? d?.cargaHoraria ?? 0,
-      cursoId: d?.disciplina?.cursoId ?? d?.cursoId ?? null,
-    }))
-  : [],
-  };
-});
+          Array.isArray(dataTurmas) ? dataTurmas : []
+        ).map((t: any) => {
+          const primeiraDisciplina =
+            Array.isArray(t.disciplinas) && t.disciplinas.length > 0
+              ? t.disciplinas[0]?.disciplina ?? t.disciplinas[0]
+              : t.disciplina;
+          return {
+            id: Number(t.id),
+            nome: String(t.nome ?? "Turma"),
+            semestre: t?.semestre ?? null,
+            disciplinaId: primeiraDisciplina?.id ?? null,
+            disciplinaNome: primeiraDisciplina?.nome ?? null,
+            professorNome: t?.professor?.nome ?? null,
+            cursoId:
+              t?.cursoId ??
+              t?.curso?.id ??
+              primeiraDisciplina?.cursoId ??
+              primeiraDisciplina?.curso?.id ??
+              null,
+            cursoNome:
+              t?.curso?.nome ??
+              primeiraDisciplina?.curso?.nome ??
+              null,
+            disciplinas: Array.isArray(t.disciplinas)
+              ? t.disciplinas.map((d: any) => ({
+                id: Number(d?.disciplina?.id ?? d?.id),
+
+                nome: String(
+                  d?.disciplina?.nome ??
+                  d?.nome ??
+                  "Disciplina"
+                ),
+
+                codigo:
+                  d?.disciplina?.codigo ??
+                  d?.codigo ??
+                  null,
+
+                cargaHoraria:
+                  d?.disciplina?.cargaHoraria ??
+                  d?.cargaHoraria ??
+                  0,
+
+                cursoId:
+                  d?.disciplina?.cursoId ??
+                  d?.cursoId ??
+                  null,
+
+                semestre:
+                  d?.disciplina?.semestre ??
+                  d?.semestre ??
+                  null,
+
+                professorNome:
+                  d?.professor?.nome ??
+                  t?.professor?.nome ??
+                  null,
+              }))
+              : [],
+          };
+        });
 
         setTurmas(listaTurmas.filter((t) => Number.isFinite(t.id) && t.id > 0));
       } catch (error) {
@@ -382,196 +501,202 @@ cursoNome:
   }
 
   async function carregarSemestresDoCurso(cursoIdValue: string) {
-  if (!cursoIdValue) {
-    setSemestresCurso([]);
-    return [];
+    if (!cursoIdValue) {
+      setSemestresCurso([]);
+      return [];
+    }
+
+    try {
+      const res = await fetch(
+        `/api/admin/curso-semestres?cursoId=${Number(cursoIdValue)}`,
+        {
+          cache: "no-store",
+        }
+      );
+
+      const data = await res.json();
+      const lista = Array.isArray(data) ? data : [];
+
+      setSemestresCurso(lista);
+      return lista;
+    } catch (err) {
+      console.error("Erro ao carregar semestres:", err);
+      setSemestresCurso([]);
+      return [];
+    }
   }
-
-  try {
-    const res = await fetch(
-      `/api/admin/curso-semestres?cursoId=${Number(cursoIdValue)}`,
-      {
-        cache: "no-store",
-      }
-    );
-
-    const data = await res.json();
-    const lista = Array.isArray(data) ? data : [];
-
-    setSemestresCurso(lista);
-    return lista;
-  } catch (err) {
-    console.error("Erro ao carregar semestres:", err);
-    setSemestresCurso([]);
-    return [];
-  }
-}
 
   useEffect(() => {
-  carregarTudo();
-}, []);
+    carregarTudo();
+  }, []);
 
-useEffect(() => {
-  if (!semestresAberto) return;
+  useEffect(() => {
+    if (!semestresAberto) return;
 
-  function fecharAoClicarFora(evento: PointerEvent) {
-    const alvo = evento.target;
+    function fecharAoClicarFora(evento: PointerEvent) {
+      const alvo = evento.target;
 
-    if (!(alvo instanceof Node)) return;
+      if (!(alvo instanceof Node)) return;
 
-    if (
-      semestresDropdownRef.current &&
-      !semestresDropdownRef.current.contains(alvo)
-    ) {
-      setSemestresAberto(false);
+      if (
+        semestresDropdownRef.current &&
+        !semestresDropdownRef.current.contains(alvo)
+      ) {
+        setSemestresAberto(false);
+      }
     }
-  }
 
-  function fecharComEscape(evento: KeyboardEvent) {
-    if (evento.key === "Escape") {
-      setSemestresAberto(false);
+    function fecharComEscape(evento: KeyboardEvent) {
+      if (evento.key === "Escape") {
+        setSemestresAberto(false);
+      }
     }
-  }
 
-  document.addEventListener(
-    "pointerdown",
-    fecharAoClicarFora
-  );
-
-  document.addEventListener(
-    "keydown",
-    fecharComEscape
-  );
-
-  return () => {
-    document.removeEventListener(
+    document.addEventListener(
       "pointerdown",
       fecharAoClicarFora
     );
 
-    document.removeEventListener(
+    document.addEventListener(
       "keydown",
       fecharComEscape
     );
-  };
-}, [semestresAberto]);
 
-useEffect(() => {
-  console.log("📚 Alunos carregados para matrícula:", alunos);
-}, [alunos]);
-
-  useEffect(() => {
-  setCursoSemestreId("");
-  setCursoSemestreIds([]);
-  setTurmasSelecionadas([]);
-  setDisciplinasSelecionadas([]);
-  setDisciplinasExtrasSelecionadas([]);
-
-  void carregarSemestresDoCurso(cursoId);
-}, [cursoId]);
-
-  useEffect(() => {
-  setTurmasSelecionadas([]);
-  setDisciplinasSelecionadas([]);
-  setDisciplinasExtrasSelecionadas([]);
-}, [cursoSemestreIds]);
-
-useEffect(() => {
-  const buscaUrl = searchParams.get("busca");
-  if (buscaUrl) {
-    setBusca(buscaUrl);
-  }
-}, [searchParams]);
-
-  const semestresSelecionados = useMemo(() => {
-  return semestresCurso.filter((s) => cursoSemestreIds.includes(s.id));
-}, [semestresCurso, cursoSemestreIds]);
-
-const semestreSelecionado = semestresSelecionados[0] ?? null;
-
-  const disciplinasDoSemestreIds = useMemo(() => {
-  return Array.from(
-    new Set(
-      semestresSelecionados.flatMap((s) =>
-        s.disciplinas.map((d) => d.disciplinaId)
-      )
-    )
-  );
-}, [semestresSelecionados]);
-
-const disciplinasDoSemestre = useMemo(() => {
-  const mapa = new Map<
-    number,
-    {
-      id: number;
-      nome: string;
-      cargaHoraria: number;
-    }
-  >();
-
-  for (const semestreItem of semestresSelecionados) {
-    for (const vinculo of semestreItem.disciplinas || []) {
-      const disciplinaId = Number(
-        vinculo.disciplinaId ?? vinculo.disciplina?.id
+    return () => {
+      document.removeEventListener(
+        "pointerdown",
+        fecharAoClicarFora
       );
 
-      if (!Number.isFinite(disciplinaId) || disciplinaId <= 0) {
-        continue;
+      document.removeEventListener(
+        "keydown",
+        fecharComEscape
+      );
+    };
+  }, [semestresAberto]);
+
+  useEffect(() => {
+    console.log("📚 Alunos carregados para matrícula:", alunos);
+  }, [alunos]);
+
+  useEffect(() => {
+    setCursoSemestreId("");
+    setCursoSemestreIds([]);
+    setTurmasSelecionadas([]);
+    setDisciplinasSelecionadas([]);
+    setDisciplinasExtrasSelecionadas([]);
+
+    void carregarSemestresDoCurso(cursoId);
+  }, [cursoId]);
+
+
+  useEffect(() => {
+    const buscaUrl = searchParams.get("busca");
+    if (buscaUrl) {
+      setBusca(buscaUrl);
+    }
+  }, [searchParams]);
+
+  const semestresSelecionados = useMemo(() => {
+    return semestresCurso.filter((s) => cursoSemestreIds.includes(s.id));
+  }, [semestresCurso, cursoSemestreIds]);
+
+  const semestreSelecionado = semestresSelecionados[0] ?? null;
+
+  const disciplinasDoSemestreIds = useMemo(() => {
+    return Array.from(
+      new Set(
+        semestresSelecionados.flatMap((s) =>
+          s.disciplinas.map((d) => d.disciplinaId)
+        )
+      )
+    );
+  }, [semestresSelecionados]);
+
+  useEffect(() => {
+    setTurmasSelecionadas([]);
+
+    setDisciplinasSelecionadas(
+      disciplinasDoSemestreIds
+    );
+
+    setDisciplinasExtrasSelecionadas([]);
+    setTurmaPorDisciplina({});
+  }, [disciplinasDoSemestreIds]);
+
+  const disciplinasDoSemestre = useMemo(() => {
+    const mapa = new Map<
+      number,
+      {
+        id: number;
+        nome: string;
+        cargaHoraria: number;
       }
+    >();
 
-      const disciplinaEncontradaNaTurma = turmas
-        .flatMap((turma) => turma.disciplinas || [])
-        .find((disciplina) => Number(disciplina.id) === disciplinaId);
+    for (const semestreItem of semestresSelecionados) {
+      for (const vinculo of semestreItem.disciplinas || []) {
+        const disciplinaId = Number(
+          vinculo.disciplinaId ?? vinculo.disciplina?.id
+        );
 
-      mapa.set(disciplinaId, {
-        id: disciplinaId,
-        nome:
-          vinculo.disciplina?.nome ||
-          disciplinaEncontradaNaTurma?.nome ||
-          `Disciplina ${disciplinaId}`,
-        cargaHoraria: Number(
-          vinculo.disciplina?.cargaHoraria ??
+        if (!Number.isFinite(disciplinaId) || disciplinaId <= 0) {
+          continue;
+        }
+
+        const disciplinaEncontradaNaTurma = turmas
+          .flatMap((turma) => turma.disciplinas || [])
+          .find((disciplina) => Number(disciplina.id) === disciplinaId);
+
+        mapa.set(disciplinaId, {
+          id: disciplinaId,
+          nome:
+            vinculo.disciplina?.nome ||
+            disciplinaEncontradaNaTurma?.nome ||
+            `Disciplina ${disciplinaId}`,
+          cargaHoraria: Number(
+            vinculo.disciplina?.cargaHoraria ??
             disciplinaEncontradaNaTurma?.cargaHoraria ??
             0
-        ),
-      });
+          ),
+        });
+      }
     }
-  }
 
-  return Array.from(mapa.values()).sort((a, b) =>
-    a.nome.localeCompare(b.nome, "pt-BR")
-  );
-}, [semestresSelecionados, turmas]);
+    return Array.from(mapa.values()).sort((a, b) =>
+      a.nome.localeCompare(b.nome, "pt-BR")
+    );
+  }, [semestresSelecionados, turmas]);
 
   const turmasBaseDoSemestre = useMemo(() => {
-  if (!cursoId || !semestreSelecionado) return [];
+    if (!cursoId || !semestreSelecionado) return [];
 
-  return turmas.filter((turma) => {
-    const bateCurso = Number(turma.cursoId) === Number(cursoId);
+    return turmas.filter((turma) => {
+      const bateCurso = Number(turma.cursoId) === Number(cursoId);
 
-    const idsDisciplinasDaTurma = Array.from(
-      new Set([
-        ...(turma.disciplinas || []).map((disciplina) =>
-          Number(disciplina.id)
-        ),
-        ...(turma.disciplinaId
-          ? [Number(turma.disciplinaId)]
-          : []),
-      ])
-    );
+      const idsDisciplinasDaTurma = Array.from(
+        new Set([
+          ...(turma.disciplinas || []).map((disciplina) =>
+            Number(disciplina.id)
+          ),
+          ...(turma.disciplinaId
+            ? [Number(turma.disciplinaId)]
+            : []),
+        ])
+      );
 
-    const bateDisciplina = idsDisciplinasDaTurma.some((disciplinaId) =>
-      disciplinasDoSemestreIds.includes(disciplinaId)
-    );
+      const bateDisciplina = idsDisciplinasDaTurma.some((disciplinaId) =>
+        disciplinasDoSemestreIds.includes(disciplinaId)
+      );
 
-    return bateCurso && bateDisciplina;
-  });
-}, [
-  turmas,
-  cursoId,
-  semestreSelecionado,
-  disciplinasDoSemestreIds,
-]);
+      return bateCurso && bateDisciplina;
+    });
+  }, [
+    turmas,
+    cursoId,
+    semestreSelecionado,
+    disciplinasDoSemestreIds,
+  ]);
 
   const turmasExtrasMesmoCurso = useMemo(() => {
     if (!cursoId || !semestreSelecionado) return [];
@@ -587,31 +712,31 @@ const disciplinasDoSemestre = useMemo(() => {
   }, [turmas, cursoId, semestreSelecionado, disciplinasDoSemestreIds]);
 
   const disciplinasExtras = useMemo(() => {
-  if (!cursoId || semestresSelecionados.length === 0) {
-    return [];
-  }
-
-  const idsDaGrade = new Set(
-    disciplinasDoSemestreIds.map((id) => Number(id))
-  );
-
-  const mapa = new Map<
-    number,
-    {
-      id: number;
-      nome: string;
-      cargaHoraria: number;
+    if (!cursoId || semestresSelecionados.length === 0) {
+      return [];
     }
-  >();
 
-  turmas
-    .filter((turma) => Number(turma.cursoId) === Number(cursoId))
-    .forEach((turma) => {
-      const disciplinasDaTurma =
-        turma.disciplinas && turma.disciplinas.length > 0
-          ? turma.disciplinas
-          : turma.disciplinaId
-            ? [
+    const idsDaGrade = new Set(
+      disciplinasDoSemestreIds.map((id) => Number(id))
+    );
+
+    const mapa = new Map<
+      number,
+      {
+        id: number;
+        nome: string;
+        cargaHoraria: number;
+      }
+    >();
+
+    turmas
+      .filter((turma) => Number(turma.cursoId) === Number(cursoId))
+      .forEach((turma) => {
+        const disciplinasDaTurma =
+          turma.disciplinas && turma.disciplinas.length > 0
+            ? turma.disciplinas
+            : turma.disciplinaId
+              ? [
                 {
                   id: Number(turma.disciplinaId),
                   nome:
@@ -620,126 +745,390 @@ const disciplinasDoSemestre = useMemo(() => {
                   cargaHoraria: 0,
                 },
               ]
-            : [];
+              : [];
 
-      disciplinasDaTurma.forEach((disciplina) => {
-        const disciplinaId = Number(disciplina.id);
+        disciplinasDaTurma.forEach((disciplina) => {
+          const disciplinaId = Number(disciplina.id);
+
+          if (
+            !Number.isFinite(disciplinaId) ||
+            disciplinaId <= 0 ||
+            idsDaGrade.has(disciplinaId)
+          ) {
+            return;
+          }
+
+          mapa.set(disciplinaId, {
+            id: disciplinaId,
+            nome: disciplina.nome,
+            cargaHoraria: Number(disciplina.cargaHoraria || 0),
+          });
+        });
+      });
+
+    return Array.from(mapa.values()).sort((a, b) =>
+      a.nome.localeCompare(b.nome, "pt-BR")
+    );
+  }, [
+    turmas,
+    cursoId,
+    semestresSelecionados,
+    disciplinasDoSemestreIds,
+  ]);
+
+  const ofertasPorDisciplina = useMemo(() => {
+    const mapa =
+      new Map<number, OfertaDisciplina[]>();
+
+    for (const turma of turmas) {
+      for (const disciplina of turma.disciplinas || []) {
+        const disciplinaId =
+          Number(disciplina.id);
 
         if (
           !Number.isFinite(disciplinaId) ||
-          disciplinaId <= 0 ||
-          idsDaGrade.has(disciplinaId)
+          disciplinaId <= 0
         ) {
-          return;
+          continue;
         }
 
-        mapa.set(disciplinaId, {
-          id: disciplinaId,
-          nome: disciplina.nome,
-          cargaHoraria: Number(disciplina.cargaHoraria || 0),
-        });
-      });
-    });
+        const oferta: OfertaDisciplina = {
+          turmaId: turma.id,
+          turmaNome: turma.nome,
+          turmaSemestre:
+            turma.semestre ?? null,
 
-  return Array.from(mapa.values()).sort((a, b) =>
-    a.nome.localeCompare(b.nome, "pt-BR")
-  );
-}, [
-  turmas,
-  cursoId,
-  semestresSelecionados,
-  disciplinasDoSemestreIds,
-]);
+          professorNome:
+            disciplina.professorNome ??
+            turma.professorNome ??
+            null,
 
-const semestreEditandoSelecionado = useMemo(() => {
-  if (!matriculaEditando) return null;
+          disciplinaId,
 
-  return (
-    semestresCurso.find(
-      (s) => s.id === Number(matriculaEditando.cursoSemestreId)
-    ) ?? null
-  );
-}, [semestresCurso, matriculaEditando]);
+          disciplinaNome:
+            disciplina.nome,
 
-const disciplinasEditandoIds = useMemo(() => {
-  return semestreEditandoSelecionado
-    ? semestreEditandoSelecionado.disciplinas.map((d) => d.disciplinaId)
-    : [];
-}, [semestreEditandoSelecionado]);
+          disciplinaSemestre:
+            disciplina.semestre ?? null,
 
-const turmasBaseEdicao = useMemo(() => {
-  if (!matriculaEditando?.cursoId || !semestreEditandoSelecionado) return [];
+          cursoId:
+            disciplina.cursoId ??
+            turma.cursoId ??
+            null,
+        };
 
-  return turmas.filter((t) => {
-    const bateCurso = Number(t.cursoId) === Number(matriculaEditando.cursoId);
-    const bateDisciplina =
-      t.disciplinaId != null &&
-      disciplinasEditandoIds.includes(Number(t.disciplinaId));
+        const listaAtual =
+          mapa.get(disciplinaId) || [];
 
-    return bateCurso && bateDisciplina;
-  });
-}, [turmas, matriculaEditando, semestreEditandoSelecionado, disciplinasEditandoIds]);
+        listaAtual.push(oferta);
 
-const turmasExtrasEdicao = useMemo(() => {
-  if (!matriculaEditando?.cursoId || !semestreEditandoSelecionado) return [];
+        mapa.set(
+          disciplinaId,
+          listaAtual
+        );
+      }
+    }
 
-  return turmas.filter((t) => {
-    const bateCurso = Number(t.cursoId) === Number(matriculaEditando.cursoId);
-    const naoEstaNaBase =
-      t.disciplinaId == null ||
-      !disciplinasEditandoIds.includes(Number(t.disciplinaId));
+    return mapa;
+  }, [turmas]);
 
-    return bateCurso && naoEstaNaBase;
-  });
-}, [turmas, matriculaEditando, semestreEditandoSelecionado, disciplinasEditandoIds]);
+  const disciplinasIdsSelecionadasParaEnvio =
+    useMemo(() => {
+      return Array.from(
+        new Set([
+          ...disciplinasSelecionadas,
+          ...disciplinasExtrasSelecionadas,
+        ])
+      );
+    }, [
+      disciplinasSelecionadas,
+      disciplinasExtrasSelecionadas,
+    ]);
 
-function dataNoPeriodo(dataIso?: string, periodo?: "HOJE" | "ONTEM" | "7_DIAS" | "MES" | "TODAS") {
-  if (!dataIso) return periodo === "TODAS";
+  const todasDisciplinasDoSemestreMarcadas =
+    disciplinasDoSemestreIds.length > 0 &&
+    disciplinasDoSemestreIds.every((id) =>
+      disciplinasSelecionadas.includes(id)
+    );
 
-  const data = new Date(dataIso);
-  if (Number.isNaN(data.getTime())) return false;
-
-  const agora = new Date();
-
-  const inicioHoje = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate());
-  const inicioAmanha = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() + 1);
-  const inicioOntem = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() - 1);
-  const inicio7Dias = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() - 6);
-  const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1);
-
-  switch (periodo) {
-    case "HOJE":
-      return data >= inicioHoje && data < inicioAmanha;
-    case "ONTEM":
-      return data >= inicioOntem && data < inicioHoje;
-    case "7_DIAS":
-      return data >= inicio7Dias && data < inicioAmanha;
-    case "MES":
-      return data >= inicioMes && data < inicioAmanha;
-    case "TODAS":
-    default:
-      return true;
+  function alternarTodasDisciplinasDoSemestre() {
+    setDisciplinasSelecionadas(
+      todasDisciplinasDoSemestreMarcadas
+        ? []
+        : disciplinasDoSemestreIds
+    );
   }
-}
 
-const matriculasFiltradas = useMemo(() => {
-  const termo = busca.trim().toLowerCase();
+  function obterNomeDisciplina(
+    disciplinaId: number
+  ) {
+    const disciplinaBase =
+      disciplinasDoSemestre.find(
+        (disciplina) =>
+          disciplina.id === disciplinaId
+      );
 
-  return matriculas.filter((m) => {
-    const id = String(m.id || "").toLowerCase();
-    const aluno = String(m.aluno?.nome || "").toLowerCase();
-    const curso = String(m.curso?.nome || "").toLowerCase();
-    const status = String(m.status || "").toLowerCase();
-    const semestre = String(m.semestre ?? "").toLowerCase();
+    if (disciplinaBase) {
+      return disciplinaBase.nome;
+    }
 
-    const vendedor = String(
-  m.vendedorResponsavel?.nome ||
-    m.vendedorResponsavelNomeSnapshot ||
-    ""
-).toLowerCase();
+    const disciplinaExtra =
+      disciplinasExtras.find(
+        (disciplina) =>
+          disciplina.id === disciplinaId
+      );
 
-    const itensTexto = Array.isArray(m.itens)
-      ? m.itens
+    if (disciplinaExtra) {
+      return disciplinaExtra.nome;
+    }
+
+    const oferta =
+      ofertasPorDisciplina.get(
+        disciplinaId
+      )?.[0];
+
+    return (
+      oferta?.disciplinaNome ||
+      `Disciplina ${disciplinaId}`
+    );
+  }
+
+  function classificarTipoItem(
+    disciplinaId: number
+  ): TipoItemMatricula {
+    if (
+      disciplinasDoSemestreIds.includes(
+        disciplinaId
+      )
+    ) {
+      return "GRADE_PRINCIPAL";
+    }
+
+    const oferta =
+      ofertasPorDisciplina.get(
+        disciplinaId
+      )?.[0];
+
+    const mesmoCurso =
+      Number(oferta?.cursoId) ===
+      Number(cursoId);
+
+    const semestreDisciplina =
+      Number(
+        oferta?.disciplinaSemestre || 0
+      );
+
+    const semestrePrincipal =
+      Number(
+        semestreSelecionado?.numero || 0
+      );
+
+    if (
+      mesmoCurso &&
+      semestreDisciplina > 0 &&
+      semestrePrincipal > 0
+    ) {
+      if (
+        semestreDisciplina <
+        semestrePrincipal
+      ) {
+        return "DEPENDENCIA";
+      }
+
+      if (
+        semestreDisciplina >
+        semestrePrincipal
+      ) {
+        return "ADIANTAMENTO";
+      }
+    }
+
+    return mesmoCurso
+      ? "EXTRA_MESMO_CURSO"
+      : "EXTRA_OUTRO_CURSO";
+  }
+
+  function labelTipoItem(
+    tipo: TipoItemMatricula
+  ) {
+    switch (tipo) {
+      case "GRADE_PRINCIPAL":
+        return "Grade do semestre";
+
+      case "DEPENDENCIA":
+        return "Dependência";
+
+      case "ADIANTAMENTO":
+        return "Adiantamento";
+
+      case "EXTRA_MESMO_CURSO":
+        return "Extra do mesmo curso";
+
+      case "EXTRA_OUTRO_CURSO":
+        return "Extra de outro curso";
+    }
+  }
+
+  useEffect(() => {
+    setTurmaPorDisciplina(
+      (anterior) => {
+        const novo:
+          Record<number, number> = {};
+
+        for (
+          const disciplinaId of
+          disciplinasIdsSelecionadasParaEnvio
+        ) {
+          const ofertas =
+            ofertasPorDisciplina.get(
+              disciplinaId
+            ) || [];
+
+          const turmaAtual =
+            anterior[disciplinaId];
+
+          const turmaAtualContinuaValida =
+            ofertas.some(
+              (oferta) =>
+                oferta.turmaId ===
+                turmaAtual
+            );
+
+          if (
+            turmaAtualContinuaValida
+          ) {
+            novo[disciplinaId] =
+              turmaAtual;
+
+            continue;
+          }
+
+          const turmaPrincipalId =
+            turmasSelecionadas[0];
+
+          const ofertaPreferencial =
+            ofertas.find(
+              (oferta) =>
+                oferta.turmaId ===
+                turmaPrincipalId
+            ) || ofertas[0];
+
+          if (ofertaPreferencial) {
+            novo[disciplinaId] =
+              ofertaPreferencial.turmaId;
+          }
+        }
+
+        return novo;
+      }
+    );
+  }, [
+    disciplinasIdsSelecionadasParaEnvio,
+    ofertasPorDisciplina,
+    turmasSelecionadas,
+  ]);
+
+  const todasDisciplinasPossuemOferta =
+    disciplinasIdsSelecionadasParaEnvio.length >
+    0 &&
+    disciplinasIdsSelecionadasParaEnvio.every(
+      (disciplinaId) =>
+        Number(
+          turmaPorDisciplina[
+          disciplinaId
+          ]
+        ) > 0
+    );
+
+  const semestreEditandoSelecionado = useMemo(() => {
+    if (!matriculaEditando) return null;
+
+    return (
+      semestresCurso.find(
+        (s) => s.id === Number(matriculaEditando.cursoSemestreId)
+      ) ?? null
+    );
+  }, [semestresCurso, matriculaEditando]);
+
+  const disciplinasEditandoIds = useMemo(() => {
+    return semestreEditandoSelecionado
+      ? semestreEditandoSelecionado.disciplinas.map((d) => d.disciplinaId)
+      : [];
+  }, [semestreEditandoSelecionado]);
+
+  const turmasBaseEdicao = useMemo(() => {
+    if (!matriculaEditando?.cursoId || !semestreEditandoSelecionado) return [];
+
+    return turmas.filter((t) => {
+      const bateCurso = Number(t.cursoId) === Number(matriculaEditando.cursoId);
+      const bateDisciplina =
+        t.disciplinaId != null &&
+        disciplinasEditandoIds.includes(Number(t.disciplinaId));
+
+      return bateCurso && bateDisciplina;
+    });
+  }, [turmas, matriculaEditando, semestreEditandoSelecionado, disciplinasEditandoIds]);
+
+  const turmasExtrasEdicao = useMemo(() => {
+    if (!matriculaEditando?.cursoId || !semestreEditandoSelecionado) return [];
+
+    return turmas.filter((t) => {
+      const bateCurso = Number(t.cursoId) === Number(matriculaEditando.cursoId);
+      const naoEstaNaBase =
+        t.disciplinaId == null ||
+        !disciplinasEditandoIds.includes(Number(t.disciplinaId));
+
+      return bateCurso && naoEstaNaBase;
+    });
+  }, [turmas, matriculaEditando, semestreEditandoSelecionado, disciplinasEditandoIds]);
+
+  function dataNoPeriodo(dataIso?: string, periodo?: "HOJE" | "ONTEM" | "7_DIAS" | "MES" | "TODAS") {
+    if (!dataIso) return periodo === "TODAS";
+
+    const data = new Date(dataIso);
+    if (Number.isNaN(data.getTime())) return false;
+
+    const agora = new Date();
+
+    const inicioHoje = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate());
+    const inicioAmanha = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() + 1);
+    const inicioOntem = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() - 1);
+    const inicio7Dias = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() - 6);
+    const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1);
+
+    switch (periodo) {
+      case "HOJE":
+        return data >= inicioHoje && data < inicioAmanha;
+      case "ONTEM":
+        return data >= inicioOntem && data < inicioHoje;
+      case "7_DIAS":
+        return data >= inicio7Dias && data < inicioAmanha;
+      case "MES":
+        return data >= inicioMes && data < inicioAmanha;
+      case "TODAS":
+      default:
+        return true;
+    }
+  }
+
+  const matriculasFiltradas = useMemo(() => {
+    const termo = busca.trim().toLowerCase();
+
+    return matriculas.filter((m) => {
+      const id = String(m.id || "").toLowerCase();
+      const aluno = String(m.aluno?.nome || "").toLowerCase();
+      const curso = String(m.curso?.nome || "").toLowerCase();
+      const status = String(m.status || "").toLowerCase();
+      const semestre = String(m.semestre ?? "").toLowerCase();
+
+      const vendedor = String(
+        m.vendedorResponsavel?.nome ||
+        m.vendedorResponsavelNomeSnapshot ||
+        ""
+      ).toLowerCase();
+
+      const itensTexto = Array.isArray(m.itens)
+        ? m.itens
           .map((item) =>
             [
               item?.turma?.nome || "",
@@ -750,88 +1139,87 @@ const matriculasFiltradas = useMemo(() => {
           )
           .join(" ")
           .toLowerCase()
-      : "";
+        : "";
 
-    const bateBusca =
-      !termo ||
-      id.includes(termo) ||
-      aluno.includes(termo) ||
-      curso.includes(termo) ||
-      vendedor.includes(termo) ||
-      status.includes(termo) ||
-      semestre.includes(termo) ||
-      itensTexto.includes(termo);
-      
+      const bateBusca =
+        !termo ||
+        id.includes(termo) ||
+        aluno.includes(termo) ||
+        curso.includes(termo) ||
+        vendedor.includes(termo) ||
+        status.includes(termo) ||
+        semestre.includes(termo) ||
+        itensTexto.includes(termo);
 
-    const batePeriodo = dataNoPeriodo(m.createdAt, filtroPeriodoMatricula);
 
-    return bateBusca && batePeriodo;
-  });
-}, [matriculas, busca, filtroPeriodoMatricula]);
-const cursoSelecionadoObj = useMemo(() => {
-  return cursos.find((c) => c.id === Number(cursoId)) ?? null;
-}, [cursos, cursoId]);
+      const batePeriodo = dataNoPeriodo(m.createdAt, filtroPeriodoMatricula);
 
-const cargaMinimaSemestre = Number(semestreSelecionado?.cargaMinima || 0);
-const limiteCargaHoraria = Number(semestreSelecionado?.cargaMaxima || 0);
-const cargaHorariaTotalSelecionada = useMemo(() => {
-  const ids = [...disciplinasSelecionadas, ...disciplinasExtrasSelecionadas];
+      return bateBusca && batePeriodo;
+    });
+  }, [matriculas, busca, filtroPeriodoMatricula]);
+  const cursoSelecionadoObj = useMemo(() => {
+    return cursos.find((c) => c.id === Number(cursoId)) ?? null;
+  }, [cursos, cursoId]);
 
-  return ids.reduce((total, disciplinaId) => {
-    const disciplinaBase = disciplinasDoSemestre.find(
-      (d) => d.id === disciplinaId
-    );
+  const cargaMinimaSemestre = Number(semestreSelecionado?.cargaMinima || 0);
+  const limiteCargaHoraria = Number(semestreSelecionado?.cargaMaxima || 0);
+  const cargaHorariaTotalSelecionada = useMemo(() => {
+    const ids = [...disciplinasSelecionadas, ...disciplinasExtrasSelecionadas];
 
-    const disciplinaExtra = disciplinasExtras.find(
-      (d) => d.id === disciplinaId
-    );
+    return ids.reduce((total, disciplinaId) => {
+      const disciplinaBase = disciplinasDoSemestre.find(
+        (d) => d.id === disciplinaId
+      );
 
-    return (
-      total +
-      Number(
-        disciplinaBase?.cargaHoraria ??
+      const disciplinaExtra = disciplinasExtras.find(
+        (d) => d.id === disciplinaId
+      );
+
+      return (
+        total +
+        Number(
+          disciplinaBase?.cargaHoraria ??
           disciplinaExtra?.cargaHoraria ??
           0
-      )
-    );
-  }, 0);
-}, [
-  disciplinasSelecionadas,
-  disciplinasExtrasSelecionadas,
-  disciplinasDoSemestre,
-  disciplinasExtras,
-]);
-
-const cargaHorariaAbaixoMinimo =
-  cargaHorariaTotalSelecionada < cargaMinimaSemestre;
-
-const cargaHorariaExcedida =
-  limiteCargaHoraria > 0 &&
-  cargaHorariaTotalSelecionada > limiteCargaHoraria;
-  const podeCriar = useMemo(() => {
-
-    const a = Number(alunoId);
-    const c = Number(cursoId);
-
-
-
-   return (
-  Number.isFinite(a) &&
-  a > 0 &&
-  Number.isFinite(c) &&
-  c > 0 &&
-  cursoSemestreIds.length > 0 &&
-  disciplinasSelecionadas.length > 0 &&
-  turmasSelecionadas.length > 0 &&
-  !cargaHorariaExcedida &&
-  !cargaHorariaAbaixoMinimo
-);
+        )
+      );
+    }, 0);
   }, [
+    disciplinasSelecionadas,
+    disciplinasExtrasSelecionadas,
+    disciplinasDoSemestre,
+    disciplinasExtras,
+  ]);
+
+  const cargaHorariaAbaixoMinimo =
+    cargaHorariaTotalSelecionada < cargaMinimaSemestre;
+
+  const cargaHorariaExcedida =
+    limiteCargaHoraria > 0 &&
+    cargaHorariaTotalSelecionada > limiteCargaHoraria;
+  const podeCriar = useMemo(() => {
+  const a = Number(alunoId);
+  const c = Number(cursoId);
+
+  return (
+    Number.isFinite(a) &&
+    a > 0 &&
+    Number.isFinite(c) &&
+    c > 0 &&
+    cursoSemestreIds.length > 0 &&
+    disciplinasIdsSelecionadasParaEnvio.length > 0 &&
+    turmasSelecionadas.length > 0 &&
+    todasDisciplinasPossuemOferta &&
+    !cargaHorariaExcedida &&
+    !cargaHorariaAbaixoMinimo
+  );
+}, [
   alunoId,
   cursoId,
   cursoSemestreIds,
-  disciplinasSelecionadas,
+  disciplinasIdsSelecionadasParaEnvio,
   turmasSelecionadas,
+  todasDisciplinasPossuemOferta,
   cargaHorariaExcedida,
   cargaHorariaAbaixoMinimo,
 ]);
@@ -844,98 +1232,105 @@ const cargaHorariaExcedida =
     );
   }
 
-function toggleTurmaEdicao(turmaId: number) {
-  if (!matriculaEditando) return;
+  function toggleTurmaEdicao(turmaId: number) {
+    if (!matriculaEditando) return;
 
-  setMatriculaEditando((prev) =>
-    prev
-      ? {
+    setMatriculaEditando((prev) =>
+      prev
+        ? {
           ...prev,
           turmaIds: prev.turmaIds.includes(turmaId)
             ? prev.turmaIds.filter((id) => id !== turmaId)
             : [...prev.turmaIds, turmaId],
         }
-      : prev
-  );
-}
+        : prev
+    );
+  }
 
   async function criarMatricula() {
-  if (!semestreSelecionado) {
-    setErro("Selecione o semestre do curso antes de matricular o aluno.");
-    return;
-  }
+    if (!semestreSelecionado) {
+      setErro("Selecione o semestre do curso antes de matricular o aluno.");
+      return;
+    }
 
-  if (cargaHorariaAbaixoMinimo) {
-    setErro("A carga horária selecionada está abaixo do mínimo permitido para este semestre.");
-    return;
-  }
+    if (cargaHorariaAbaixoMinimo) {
+      setErro("A carga horária selecionada está abaixo do mínimo permitido para este semestre.");
+      return;
+    }
 
-  if (cargaHorariaExcedida) {
-    setErro("A carga horária selecionada ultrapassa o limite permitido para este semestre.");
-    return;
-  }
+    if (cargaHorariaExcedida) {
+      setErro("A carga horária selecionada ultrapassa o limite permitido para este semestre.");
+      return;
+    }
 
-  if (!podeCriar) {
-  setErro("Preencha aluno, curso, semestre, turma e disciplinas antes de matricular.");
-  return;
-}
+    if (!podeCriar) {
+      setErro("Preencha aluno, curso, semestre, turma e disciplinas antes de matricular.");
+      return;
+    }
 
-setCreating(true);
-const disciplinasIdsParaEnviar = [
-  ...disciplinasSelecionadas,
-  ...disciplinasExtrasSelecionadas,
-];
+    setCreating(true);
+    const itensMatricula =
+      disciplinasIdsSelecionadasParaEnvio.map(
+        (disciplinaId) => ({
+          turmaId:
+            turmaPorDisciplina[
+            disciplinaId
+            ],
 
-const turmaIdsParaEnviar = Array.from(
-  new Set(
-    turmas
-      .filter((turma) => {
-        const pertenceAoCurso = Number(turma.cursoId) === Number(cursoId);
-        const temDisciplinaSelecionada = (turma.disciplinas || []).some((d) =>
-          disciplinasIdsParaEnviar.includes(Number(d.id))
-        );
+          disciplinaId,
 
-        return pertenceAoCurso && temDisciplinaSelecionada;
-      })
-      .map((turma) => turma.id)
-  )
-);
+          tipoItem:
+            classificarTipoItem(
+              disciplinaId
+            ),
+        })
+      );
 
-console.log("DEBUG MATRÍCULA", {
-  alunoId,
-  cursoId,
-  cursoSemestreId,
-  disciplinasSelecionadas,
-  turmasBaseDoSemestre,
-  turmaIdsParaEnviar,
-});
+    const possuiDisciplinaSemOferta =
+      itensMatricula.some(
+        (item) =>
+          !Number.isFinite(
+            Number(item.turmaId)
+          ) ||
+          Number(item.turmaId) <= 0
+      );
+
+    if (possuiDisciplinaSemOferta) {
+      setErro(
+        "Selecione a turma/oferta de todas as disciplinas."
+      );
+
+      setCreating(false);
+      return;
+    }
     try {
       const res = await fetch("/api/matricula", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-  alunoId: Number(alunoId),
-  cursoId: Number(cursoId),
-  vendedorResponsavelId:
-  vendedorResponsavelId === ""
-    ? null
-    : Number(vendedorResponsavelId),
-  cursoSemestreId: cursoSemestreIds[0] ?? null,
-  cursoSemestreIds,
-  semestre: semestresSelecionados[0]?.numero ?? null,
-  semestres: semestresSelecionados.map((s) => s.numero),
-  turmaIds: turmaIdsParaEnviar,
-  turmaId: turmaIdsParaEnviar[0] ?? null,
-  disciplinaIds: disciplinasIdsParaEnviar,
-  periodoLetivo,
-  modalidade,
-  status: statusInicialMatricula,
-  valorPagoMatricula: Number(valorPagoMatricula || 0),
-  valorMensalidade: Number(valorMensalidade || 0),
-  quantidadeParcelas: Number(quantidadeParcelas || 0),
-  dataPrimeiroVencimento,
-}),
+          alunoId: Number(alunoId),
+          cursoId: Number(cursoId),
+          vendedorResponsavelId:
+            vendedorResponsavelId === ""
+              ? null
+              : Number(vendedorResponsavelId),
+          cursoSemestreId: cursoSemestreIds[0] ?? null,
+          cursoSemestreIds,
+          semestre: semestresSelecionados[0]?.numero ?? null,
+          semestres: semestresSelecionados.map((s) => s.numero),
+          turmaId:
+            turmasSelecionadas[0] ?? null,
+
+          itensMatricula,
+          periodoLetivo,
+          modalidade,
+          status: statusInicialMatricula,
+          valorPagoMatricula: Number(valorPagoMatricula || 0),
+          valorMensalidade: Number(valorMensalidade || 0),
+          quantidadeParcelas: Number(quantidadeParcelas || 0),
+          dataPrimeiroVencimento,
+        }),
       });
 
       const data = await res.json();
@@ -959,6 +1354,9 @@ console.log("DEBUG MATRÍCULA", {
       setStatusInicialMatricula("ATIVA");
       setPeriodoLetivo("");
       await carregarTudo();
+      setDisciplinasSelecionadas([]);
+      setDisciplinasExtrasSelecionadas([]);
+      setTurmaPorDisciplina({});
     } catch (e: any) {
       setErro(e.message || "Erro ao criar matrícula.");
     } finally {
@@ -1039,437 +1437,437 @@ console.log("DEBUG MATRÍCULA", {
   }
 
   async function gerarDocumentoPhanyxDaMatricula(matriculaId: number) {
-  try {
-    setErro("");
-    setSucesso("");
+    try {
+      setErro("");
+      setSucesso("");
 
-    const resTemplates = await fetch("/api/admin/documentos/templates", {
-      credentials: "include",
-      cache: "no-store",
-    });
+      const resTemplates = await fetch("/api/admin/documentos/templates", {
+        credentials: "include",
+        cache: "no-store",
+      });
 
-    const templates = await resTemplates.json();
+      const templates = await resTemplates.json();
 
-    if (!resTemplates.ok || !Array.isArray(templates)) {
-      setErro("Não foi possível carregar os templates de documentos.");
-      return;
-    }
-
-    const template =
-      templates.find((t: any) => t.ativo && t.tipo === "CONTRATO") ||
-      templates.find((t: any) => t.ativo && t.tipo === "RECIBO") ||
-      templates.find((t: any) => t.ativo);
-
-    if (!template?.id) {
-      setErro("Nenhum template ativo encontrado. Crie um template ativo em Documentos > Templates.");
-      return;
-    }
-
-    const res = await fetch("/api/admin/documentos/gerar", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        templateId: template.id,
-        matriculaId,
-      }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok || !data?.id) {
-      setErro(data?.error || "Erro ao gerar documento.");
-      return;
-    }
-
-    setSucesso("Documento PHANYX gerado com sucesso.");
-    window.open(`/api/admin/documentos/pdf/${data.id}`, "_blank");
-  } catch (error) {
-    console.error("Erro ao gerar documento PHANYX:", error);
-    setErro("Erro ao gerar documento PHANYX.");
-  }
-}
-
-  async function abrirAssinaturaSecretaria(matriculaId: number) {
-  try {
-    let res = await fetch(`/api/admin/contratos?matriculaId=${matriculaId}`, {
-      credentials: "include",
-      cache: "no-store",
-    });
-
-    let data = await res.json();
-
-    if (!res.ok || !data?.id) {
-      const criado = await gerarContratoDaMatricula(matriculaId);
-
-      if (!criado?.id) {
-        setErro("Não foi possível localizar ou criar o contrato.");
+      if (!resTemplates.ok || !Array.isArray(templates)) {
+        setErro("Não foi possível carregar os templates de documentos.");
         return;
       }
 
-      data = criado;
-    }
+      const template =
+        templates.find((t: any) => t.ativo && t.tipo === "CONTRATO") ||
+        templates.find((t: any) => t.ativo && t.tipo === "RECIBO") ||
+        templates.find((t: any) => t.ativo);
 
-    setContratoSecretariaId(Number(data.id));
-    setModalSecretariaAberto(true);
-
-    setTimeout(() => {
-      const canvas = canvasSecretariaRef.current;
-      const ctx = canvas?.getContext("2d");
-
-      if (canvas && ctx) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (!template?.id) {
+        setErro("Nenhum template ativo encontrado. Crie um template ativo em Documentos > Templates.");
+        return;
       }
-    }, 100);
-  } catch (error) {
-    console.error("Erro ao abrir assinatura da secretaria:", error);
-    setErro("Erro ao abrir assinatura da secretaria.");
-  }
-}
 
-function iniciarDesenhoSecretaria(e: React.MouseEvent<HTMLCanvasElement>) {
-  setDesenhandoSecretaria(true);
-  desenharSecretaria(e);
-}
-
-function pararDesenhoSecretaria() {
-  setDesenhandoSecretaria(false);
-  const ctx = canvasSecretariaRef.current?.getContext("2d");
-  ctx?.beginPath();
-}
-
-function desenharSecretaria(e: React.MouseEvent<HTMLCanvasElement>) {
-  if (!desenhandoSecretaria) return;
-
-  const canvas = canvasSecretariaRef.current;
-  const ctx = canvas?.getContext("2d");
-
-  if (!ctx || !canvas) return;
-
-  const rect = canvas.getBoundingClientRect();
-
-  ctx.lineWidth = 2.5;
-  ctx.lineCap = "round";
-  ctx.strokeStyle = "#000";
-
-  ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
-}
-
-function limparAssinaturaSecretaria() {
-  const canvas = canvasSecretariaRef.current;
-  const ctx = canvas?.getContext("2d");
-
-  if (!ctx || !canvas) return;
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
-
-async function salvarAssinaturaSecretaria() {
-  try {
-    if (!contratoSecretariaId) {
-      setErro("Contrato não localizado.");
-      return;
-    }
-
-    const canvas = canvasSecretariaRef.current;
-
-    if (!canvas) {
-      setErro("Campo de assinatura não encontrado.");
-      return;
-    }
-
-    const assinaturaBase64 = canvas.toDataURL("image/png");
-
-    setSalvandoSecretaria(true);
-
-    const res = await fetch("/api/admin/contratos/assinar-secretaria", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({
-        contratoId: contratoSecretariaId,
-        assinaturaBase64,
-      }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data?.error || "Erro ao salvar assinatura da secretaria.");
-    }
-
-    setSucesso("Assinatura da secretaria salva com sucesso.");
-    setModalSecretariaAberto(false);
-    setContratoSecretariaId(null);
-  } catch (error: any) {
-    setErro(error?.message || "Erro ao salvar assinatura da secretaria.");
-  } finally {
-    setSalvandoSecretaria(false);
-  }
-}
-
-async function assinarDigitalmenteSecretaria() {
-  try {
-    if (!contratoSecretariaId) {
-      setErro("Contrato não localizado.");
-      return;
-    }
-
-    setSalvandoSecretaria(true);
-
-    const res = await fetch("/api/admin/contratos/assinar-secretaria", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({
-        contratoId: contratoSecretariaId,
-        tipoAssinatura: "DIGITAL",
-      }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data?.error || "Erro ao assinar digitalmente.");
-    }
-
-    setSucesso("Contrato assinado digitalmente pela secretaria.");
-    setModalSecretariaAberto(false);
-    setContratoSecretariaId(null);
-  } catch (error: any) {
-    setErro(error?.message || "Erro ao assinar digitalmente.");
-  } finally {
-    setSalvandoSecretaria(false);
-  }
-}
-
-  async function abrirEdicao(matricula: MatriculaApi) {
-  const cursoIdAtual = matricula.curso?.id ? String(matricula.curso.id) : "";
-  const semestreAtual = matricula.semestre || "";
-  const turmaIdsAtuais = Array.isArray(matricula.itens)
-    ? matricula.itens
-        .map((item) => item.turma?.id)
-        .filter((id): id is number => Number.isFinite(id))
-    : [];
-
-    const disciplinaIdsAtuais = Array.isArray(matricula.itens)
-  ? Array.from(
-      new Set(
-        matricula.itens
-          .map((item: any) => Number(item?.disciplina?.id))
-          .filter((id) => Number.isFinite(id) && id > 0)
-      )
-    )
-  : [];
-
-  let semestreEncontrado: any = null;
-
-  if (cursoIdAtual) {
-    const semestres = await carregarSemestresDoCurso(cursoIdAtual);
-
-    semestreEncontrado =
-      semestres?.find((s: any) => Number(s.numero) === Number(semestreAtual)) ??
-      null;
-  }
-
-const idsGradeDoSemestre = new Set(
-  Array.isArray(semestreEncontrado?.disciplinas)
-    ? semestreEncontrado.disciplinas.map((d: any) => Number(d.disciplinaId))
-    : []
-);
-
-setDisciplinasEdicaoSelecionadas(
-  disciplinaIdsAtuais.filter((id) => idsGradeDoSemestre.has(id))
-);
-
-setDisciplinasExtrasEdicaoSelecionadas(
-  disciplinaIdsAtuais.filter((id) => !idsGradeDoSemestre.has(id))
-);
-
-  setMatriculaEditando({
-    id: matricula.id,
-    vendedorResponsavelId:
-  matricula.vendedorResponsavel?.id
-    ? String(matricula.vendedorResponsavel.id)
-    : matricula.vendedorResponsavelId
-      ? String(matricula.vendedorResponsavelId)
-      : "",
-
-vendedorResponsavelNome:
-  matricula.vendedorResponsavel?.nome ||
-  matricula.vendedorResponsavelNomeSnapshot ||
-  "",
-    alunoId: matricula.aluno?.id ? String(matricula.aluno.id) : "",
-    periodoLetivo: String(matricula.periodoLetivo ?? ""),
-    modalidade: String(matricula.modalidade ?? ""),
-    cursoId: cursoIdAtual,
-    cursoSemestreId: semestreEncontrado ? String(semestreEncontrado.id) : "",
-    semestre: semestreAtual,
-    turmaIds: turmaIdsAtuais,
-    valorPagoMatricula: String(matricula.valorMatricula ?? ""),
-    valorMensalidade: String(matricula.valorMensalidade ?? ""),
-    quantidadeMensalidades: String(matricula.quantidadeMensalidades ?? ""),
-    primeiroVencimento: matricula.primeiroVencimento
-      ? String(matricula.primeiroVencimento).slice(0, 10)
-      : "",
-    nomeSocial: String(matricula.aluno?.nomeSocial ?? ""),
-    genero: String(matricula.aluno?.genero ?? ""),
-  });
-}
-
-async function salvarEdicao() {
-  if (!matriculaEditando) return;
-
-  const disciplinasIdsEdicaoParaEnviar = Array.from(
-    new Set([
-      ...disciplinasEdicaoSelecionadas,
-      ...disciplinasExtrasEdicaoSelecionadas,
-    ])
-  );
-
-  const turmaIdsEdicaoParaEnviar = Array.from(
-    new Set(
-      matriculaEditando.turmaIds.filter(
-        (id) => Number.isFinite(Number(id)) && Number(id) > 0
-      )
-    )
-  );
-
-  if (disciplinasIdsEdicaoParaEnviar.length === 0) {
-    setConfirmTitulo("Selecione as disciplinas");
-    setConfirmMensagem("Selecione pelo menos uma disciplina antes de salvar.");
-    setConfirmAcao(null);
-    setConfirmModalAberto(true);
-    return;
-  }
-
-  if (turmaIdsEdicaoParaEnviar.length === 0) {
-    setConfirmTitulo("Selecione a turma");
-    setConfirmMensagem(
-      "Selecione pelo menos uma turma vinculada às disciplinas antes de salvar."
-    );
-    setConfirmAcao(null);
-    setConfirmModalAberto(true);
-    return;
-  }
-
-  try {
-    setErro("");
-    setSucesso("");
-
-    const res = await fetch("/api/matricula", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        id: matriculaEditando.id,
-        vendedorResponsavelId:
-  matriculaEditando.vendedorResponsavelId === ""
-    ? null
-    : Number(
-        matriculaEditando.vendedorResponsavelId
-      ),
-        alunoId:
-          matriculaEditando.alunoId === ""
-            ? null
-            : Number(matriculaEditando.alunoId),
-        cursoId:
-          matriculaEditando.cursoId === ""
-            ? null
-            : Number(matriculaEditando.cursoId),
-        cursoSemestreId:
-          matriculaEditando.cursoSemestreId === ""
-            ? null
-            : Number(matriculaEditando.cursoSemestreId),
-        semestre:
-          matriculaEditando.semestre === ""
-            ? null
-            : Number(matriculaEditando.semestre),
-        turmaIds: turmaIdsEdicaoParaEnviar,
-        turmaId: turmaIdsEdicaoParaEnviar[0] ?? null,
-        disciplinaIds: disciplinasIdsEdicaoParaEnviar,
-        valorPagoMatricula:
-          matriculaEditando.valorPagoMatricula === ""
-            ? null
-            : Number(matriculaEditando.valorPagoMatricula),
-        valorMensalidade:
-          matriculaEditando.valorMensalidade === ""
-            ? null
-            : Number(matriculaEditando.valorMensalidade),
-        quantidadeMensalidades:
-          matriculaEditando.quantidadeMensalidades === ""
-            ? null
-            : Number(matriculaEditando.quantidadeMensalidades),
-        primeiroVencimento: matriculaEditando.primeiroVencimento || null,
-        nomeSocial: matriculaEditando.nomeSocial,
-        genero: matriculaEditando.genero,
-        periodoLetivo: matriculaEditando.periodoLetivo,
-modalidade: matriculaEditando.modalidade,
-      }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data?.error || "Erro ao atualizar matrícula");
-    }
-
-    setSucesso("Matrícula atualizada com sucesso.");
-    setMatriculaEditando(null);
-    await carregarTudo();
-  } catch (err: any) {
-    setConfirmTitulo("Matrícula bloqueada");
-    setConfirmMensagem(
-      err?.message || "Não foi possível atualizar a matrícula."
-    );
-    setConfirmAcao(null);
-    setConfirmModalAberto(true);
-  }
-}
-
-  async function excluirMatricula(id: number) {
-    setConfirmTitulo("Excluir matrícula");
-setConfirmMensagem(
-  "Tem certeza que deseja excluir esta matrícula? Esta ação não poderá ser desfeita."
-);
-
-setConfirmAcao(() => async () => {
-
-    setRemovingId(id);
-    try {
-      const res = await fetch("/api/matricula", {
-        method: "DELETE",
+      const res = await fetch("/api/admin/documentos/gerar", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ id }),
+        body: JSON.stringify({
+          templateId: template.id,
+          matriculaId,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data?.id) {
+        setErro(data?.error || "Erro ao gerar documento.");
+        return;
+      }
+
+      setSucesso("Documento PHANYX gerado com sucesso.");
+      window.open(`/api/admin/documentos/pdf/${data.id}`, "_blank");
+    } catch (error) {
+      console.error("Erro ao gerar documento PHANYX:", error);
+      setErro("Erro ao gerar documento PHANYX.");
+    }
+  }
+
+  async function abrirAssinaturaSecretaria(matriculaId: number) {
+    try {
+      let res = await fetch(`/api/admin/contratos?matriculaId=${matriculaId}`, {
+        credentials: "include",
+        cache: "no-store",
+      });
+
+      let data = await res.json();
+
+      if (!res.ok || !data?.id) {
+        const criado = await gerarContratoDaMatricula(matriculaId);
+
+        if (!criado?.id) {
+          setErro("Não foi possível localizar ou criar o contrato.");
+          return;
+        }
+
+        data = criado;
+      }
+
+      setContratoSecretariaId(Number(data.id));
+      setModalSecretariaAberto(true);
+
+      setTimeout(() => {
+        const canvas = canvasSecretariaRef.current;
+        const ctx = canvas?.getContext("2d");
+
+        if (canvas && ctx) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+      }, 100);
+    } catch (error) {
+      console.error("Erro ao abrir assinatura da secretaria:", error);
+      setErro("Erro ao abrir assinatura da secretaria.");
+    }
+  }
+
+  function iniciarDesenhoSecretaria(e: React.MouseEvent<HTMLCanvasElement>) {
+    setDesenhandoSecretaria(true);
+    desenharSecretaria(e);
+  }
+
+  function pararDesenhoSecretaria() {
+    setDesenhandoSecretaria(false);
+    const ctx = canvasSecretariaRef.current?.getContext("2d");
+    ctx?.beginPath();
+  }
+
+  function desenharSecretaria(e: React.MouseEvent<HTMLCanvasElement>) {
+    if (!desenhandoSecretaria) return;
+
+    const canvas = canvasSecretariaRef.current;
+    const ctx = canvas?.getContext("2d");
+
+    if (!ctx || !canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "#000";
+
+    ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+  }
+
+  function limparAssinaturaSecretaria() {
+    const canvas = canvasSecretariaRef.current;
+    const ctx = canvas?.getContext("2d");
+
+    if (!ctx || !canvas) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  async function salvarAssinaturaSecretaria() {
+    try {
+      if (!contratoSecretariaId) {
+        setErro("Contrato não localizado.");
+        return;
+      }
+
+      const canvas = canvasSecretariaRef.current;
+
+      if (!canvas) {
+        setErro("Campo de assinatura não encontrado.");
+        return;
+      }
+
+      const assinaturaBase64 = canvas.toDataURL("image/png");
+
+      setSalvandoSecretaria(true);
+
+      const res = await fetch("/api/admin/contratos/assinar-secretaria", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          contratoId: contratoSecretariaId,
+          assinaturaBase64,
+        }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-  setToast({
-    tipo: "erro",
-    mensagem: data?.error ?? "Erro ao excluir matrícula.",
-  });
+        throw new Error(data?.error || "Erro ao salvar assinatura da secretaria.");
+      }
 
-  return;
-}
-
-      setMatriculas((prev) => prev.filter((m) => m.id !== id));
+      setSucesso("Assinatura da secretaria salva com sucesso.");
+      setModalSecretariaAberto(false);
+      setContratoSecretariaId(null);
+    } catch (error: any) {
+      setErro(error?.message || "Erro ao salvar assinatura da secretaria.");
     } finally {
-      setRemovingId(null);
+      setSalvandoSecretaria(false);
     }
+  }
+
+  async function assinarDigitalmenteSecretaria() {
+    try {
+      if (!contratoSecretariaId) {
+        setErro("Contrato não localizado.");
+        return;
+      }
+
+      setSalvandoSecretaria(true);
+
+      const res = await fetch("/api/admin/contratos/assinar-secretaria", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          contratoId: contratoSecretariaId,
+          tipoAssinatura: "DIGITAL",
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.error || "Erro ao assinar digitalmente.");
+      }
+
+      setSucesso("Contrato assinado digitalmente pela secretaria.");
+      setModalSecretariaAberto(false);
+      setContratoSecretariaId(null);
+    } catch (error: any) {
+      setErro(error?.message || "Erro ao assinar digitalmente.");
+    } finally {
+      setSalvandoSecretaria(false);
+    }
+  }
+
+  async function abrirEdicao(matricula: MatriculaApi) {
+    const cursoIdAtual = matricula.curso?.id ? String(matricula.curso.id) : "";
+    const semestreAtual = matricula.semestre || "";
+    const turmaIdsAtuais = Array.isArray(matricula.itens)
+      ? matricula.itens
+        .map((item) => item.turma?.id)
+        .filter((id): id is number => Number.isFinite(id))
+      : [];
+
+    const disciplinaIdsAtuais = Array.isArray(matricula.itens)
+      ? Array.from(
+        new Set(
+          matricula.itens
+            .map((item: any) => Number(item?.disciplina?.id))
+            .filter((id) => Number.isFinite(id) && id > 0)
+        )
+      )
+      : [];
+
+    let semestreEncontrado: any = null;
+
+    if (cursoIdAtual) {
+      const semestres = await carregarSemestresDoCurso(cursoIdAtual);
+
+      semestreEncontrado =
+        semestres?.find((s: any) => Number(s.numero) === Number(semestreAtual)) ??
+        null;
+    }
+
+    const idsGradeDoSemestre = new Set(
+      Array.isArray(semestreEncontrado?.disciplinas)
+        ? semestreEncontrado.disciplinas.map((d: any) => Number(d.disciplinaId))
+        : []
+    );
+
+    setDisciplinasEdicaoSelecionadas(
+      disciplinaIdsAtuais.filter((id) => idsGradeDoSemestre.has(id))
+    );
+
+    setDisciplinasExtrasEdicaoSelecionadas(
+      disciplinaIdsAtuais.filter((id) => !idsGradeDoSemestre.has(id))
+    );
+
+    setMatriculaEditando({
+      id: matricula.id,
+      vendedorResponsavelId:
+        matricula.vendedorResponsavel?.id
+          ? String(matricula.vendedorResponsavel.id)
+          : matricula.vendedorResponsavelId
+            ? String(matricula.vendedorResponsavelId)
+            : "",
+
+      vendedorResponsavelNome:
+        matricula.vendedorResponsavel?.nome ||
+        matricula.vendedorResponsavelNomeSnapshot ||
+        "",
+      alunoId: matricula.aluno?.id ? String(matricula.aluno.id) : "",
+      periodoLetivo: String(matricula.periodoLetivo ?? ""),
+      modalidade: String(matricula.modalidade ?? ""),
+      cursoId: cursoIdAtual,
+      cursoSemestreId: semestreEncontrado ? String(semestreEncontrado.id) : "",
+      semestre: semestreAtual,
+      turmaIds: turmaIdsAtuais,
+      valorPagoMatricula: String(matricula.valorMatricula ?? ""),
+      valorMensalidade: String(matricula.valorMensalidade ?? ""),
+      quantidadeMensalidades: String(matricula.quantidadeMensalidades ?? ""),
+      primeiroVencimento: matricula.primeiroVencimento
+        ? String(matricula.primeiroVencimento).slice(0, 10)
+        : "",
+      nomeSocial: String(matricula.aluno?.nomeSocial ?? ""),
+      genero: String(matricula.aluno?.genero ?? ""),
+    });
+  }
+
+  async function salvarEdicao() {
+    if (!matriculaEditando) return;
+
+    const disciplinasIdsEdicaoParaEnviar = Array.from(
+      new Set([
+        ...disciplinasEdicaoSelecionadas,
+        ...disciplinasExtrasEdicaoSelecionadas,
+      ])
+    );
+
+    const turmaIdsEdicaoParaEnviar = Array.from(
+      new Set(
+        matriculaEditando.turmaIds.filter(
+          (id) => Number.isFinite(Number(id)) && Number(id) > 0
+        )
+      )
+    );
+
+    if (disciplinasIdsEdicaoParaEnviar.length === 0) {
+      setConfirmTitulo("Selecione as disciplinas");
+      setConfirmMensagem("Selecione pelo menos uma disciplina antes de salvar.");
+      setConfirmAcao(null);
+      setConfirmModalAberto(true);
+      return;
+    }
+
+    if (turmaIdsEdicaoParaEnviar.length === 0) {
+      setConfirmTitulo("Selecione a turma");
+      setConfirmMensagem(
+        "Selecione pelo menos uma turma vinculada às disciplinas antes de salvar."
+      );
+      setConfirmAcao(null);
+      setConfirmModalAberto(true);
+      return;
+    }
+
+    try {
+      setErro("");
+      setSucesso("");
+
+      const res = await fetch("/api/matricula", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          id: matriculaEditando.id,
+          vendedorResponsavelId:
+            matriculaEditando.vendedorResponsavelId === ""
+              ? null
+              : Number(
+                matriculaEditando.vendedorResponsavelId
+              ),
+          alunoId:
+            matriculaEditando.alunoId === ""
+              ? null
+              : Number(matriculaEditando.alunoId),
+          cursoId:
+            matriculaEditando.cursoId === ""
+              ? null
+              : Number(matriculaEditando.cursoId),
+          cursoSemestreId:
+            matriculaEditando.cursoSemestreId === ""
+              ? null
+              : Number(matriculaEditando.cursoSemestreId),
+          semestre:
+            matriculaEditando.semestre === ""
+              ? null
+              : Number(matriculaEditando.semestre),
+          turmaIds: turmaIdsEdicaoParaEnviar,
+          turmaId: turmaIdsEdicaoParaEnviar[0] ?? null,
+          disciplinaIds: disciplinasIdsEdicaoParaEnviar,
+          valorPagoMatricula:
+            matriculaEditando.valorPagoMatricula === ""
+              ? null
+              : Number(matriculaEditando.valorPagoMatricula),
+          valorMensalidade:
+            matriculaEditando.valorMensalidade === ""
+              ? null
+              : Number(matriculaEditando.valorMensalidade),
+          quantidadeMensalidades:
+            matriculaEditando.quantidadeMensalidades === ""
+              ? null
+              : Number(matriculaEditando.quantidadeMensalidades),
+          primeiroVencimento: matriculaEditando.primeiroVencimento || null,
+          nomeSocial: matriculaEditando.nomeSocial,
+          genero: matriculaEditando.genero,
+          periodoLetivo: matriculaEditando.periodoLetivo,
+          modalidade: matriculaEditando.modalidade,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.error || "Erro ao atualizar matrícula");
+      }
+
+      setSucesso("Matrícula atualizada com sucesso.");
+      setMatriculaEditando(null);
+      await carregarTudo();
+    } catch (err: any) {
+      setConfirmTitulo("Matrícula bloqueada");
+      setConfirmMensagem(
+        err?.message || "Não foi possível atualizar a matrícula."
+      );
+      setConfirmAcao(null);
+      setConfirmModalAberto(true);
+    }
+  }
+
+  async function excluirMatricula(id: number) {
+    setConfirmTitulo("Excluir matrícula");
+    setConfirmMensagem(
+      "Tem certeza que deseja excluir esta matrícula? Esta ação não poderá ser desfeita."
+    );
+
+    setConfirmAcao(() => async () => {
+
+      setRemovingId(id);
+      try {
+        const res = await fetch("/api/matricula", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ id }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          setToast({
+            tipo: "erro",
+            mensagem: data?.error ?? "Erro ao excluir matrícula.",
+          });
+
+          return;
+        }
+
+        setMatriculas((prev) => prev.filter((m) => m.id !== id));
+      } finally {
+        setRemovingId(null);
+      }
     });
 
-setConfirmModalAberto(true);
-return;
+    setConfirmModalAberto(true);
+    return;
   }
 
   async function alterarStatusMatricula(id: number, status: string) {
@@ -1515,174 +1913,174 @@ return;
     }
   }
 
-function agruparTurmasPorDisciplina(lista: TurmaOption[]) {
-  const mapa = new Map<
-    string,
-    {
+  function agruparTurmasPorDisciplina(lista: TurmaOption[]) {
+    const mapa = new Map<
+      string,
+      {
+        disciplinaId: number | null;
+        disciplinaNome: string;
+        turmas: TurmaOption[];
+      }
+    >();
+
+    for (const turma of lista) {
+      const chave = String(
+        turma.disciplinaId ?? `sem-disciplina-${turma.id}`
+      );
+
+      if (!mapa.has(chave)) {
+        mapa.set(chave, {
+          disciplinaId: turma.disciplinaId ?? null,
+          disciplinaNome: turma.disciplinaNome ?? turma.nome,
+          turmas: [],
+        });
+      }
+
+      mapa.get(chave)!.turmas.push(turma);
+    }
+
+    return Array.from(mapa.values()).sort((a, b) =>
+      a.disciplinaNome.localeCompare(b.disciplinaNome, "pt-BR")
+    );
+  }
+
+  const disciplinasBaseAgrupadas = useMemo(() => {
+    return agruparTurmasPorDisciplina(turmasBaseDoSemestre);
+  }, [turmasBaseDoSemestre]);
+
+  const disciplinasExtrasAgrupadas = useMemo(() => {
+    return agruparTurmasPorDisciplina(turmasExtrasMesmoCurso);
+  }, [turmasExtrasMesmoCurso]);
+
+  const disciplinasBaseEdicaoAgrupadas = useMemo(() => {
+    return agruparTurmasPorDisciplina(turmasBaseEdicao);
+  }, [turmasBaseEdicao]);
+
+  const disciplinasExtrasEdicaoAgrupadas = useMemo(() => {
+    return agruparTurmasPorDisciplina(turmasExtrasEdicao);
+  }, [turmasExtrasEdicao]);
+
+  const disciplinasDoSemestreEdicao = useMemo(() => {
+    if (!matriculaEditando?.cursoId || !semestreEditandoSelecionado) return [];
+
+    const idsPermitidos = new Set(
+      semestreEditandoSelecionado.disciplinas.map((d) => Number(d.disciplinaId))
+    );
+
+    const mapa = new Map<number, { id: number; nome: string; cargaHoraria?: number | null }>();
+
+    turmas
+      .filter((t) => Number(t.cursoId) === Number(matriculaEditando.cursoId))
+      .forEach((t) => {
+        (t.disciplinas || []).forEach((d) => {
+          if (idsPermitidos.has(Number(d.id))) {
+            mapa.set(Number(d.id), {
+              id: Number(d.id),
+              nome: d.nome,
+              cargaHoraria: d.cargaHoraria ?? 0,
+            });
+          }
+        });
+      });
+
+    return Array.from(mapa.values()).sort((a, b) =>
+      a.nome.localeCompare(b.nome, "pt-BR")
+    );
+  }, [matriculaEditando, semestreEditandoSelecionado, turmas]);
+
+  const disciplinasExtrasEdicaoDisponiveis = useMemo(() => {
+    if (!matriculaEditando?.cursoId || !semestreEditandoSelecionado) return [];
+
+    const idsGrade = new Set(
+      semestreEditandoSelecionado.disciplinas.map((d) => Number(d.disciplinaId))
+    );
+
+    const mapa = new Map<number, { id: number; nome: string; cargaHoraria?: number | null }>();
+
+    turmas
+      .filter((t) => Number(t.cursoId) === Number(matriculaEditando.cursoId))
+      .forEach((t) => {
+        (t.disciplinas || []).forEach((d) => {
+          if (!idsGrade.has(Number(d.id))) {
+            mapa.set(Number(d.id), {
+              id: Number(d.id),
+              nome: d.nome,
+              cargaHoraria: d.cargaHoraria ?? 0,
+            });
+          }
+        });
+      });
+
+    return Array.from(mapa.values()).sort((a, b) =>
+      a.nome.localeCompare(b.nome, "pt-BR")
+    );
+  }, [matriculaEditando, semestreEditandoSelecionado, turmas]);
+
+  function renderGrupoDisciplina(
+    grupo: {
       disciplinaId: number | null;
       disciplinaNome: string;
       turmas: TurmaOption[];
-    }
-  >();
+    },
+    turmaIdsSelecionadas: number[],
+    onToggle: (turmaId: number) => void
+  ) {
+    return (
+      <div
+        key={`${grupo.disciplinaId ?? grupo.disciplinaNome}`}
+        className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900"
+      >
+        <div>
+          <p className="font-semibold text-slate-900 dark:text-slate-100">
+            {grupo.disciplinaNome}
+          </p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Selecione a turma desta disciplina contratada.
+          </p>
+        </div>
 
-  for (const turma of lista) {
-    const chave = String(
-      turma.disciplinaId ?? `sem-disciplina-${turma.id}`
+        <div className="space-y-2">
+          {grupo.turmas.map((t) => (
+            <label
+              key={t.id}
+              className="flex items-start gap-3 border rounded-xl p-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800"
+            >
+              <input
+                type="checkbox"
+                checked={turmaIdsSelecionadas.includes(t.id)}
+                onChange={() => onToggle(t.id)}
+                className="mt-1"
+              />
+
+              <div>
+                <p className="font-medium">
+                  Turma: {t.nome}
+                </p>
+
+                <p className="text-sm text-slate-600 dark:text-slate-300">
+                  {t.professorNome
+                    ? `Prof. ${t.professorNome}`
+                    : "Professor não informado"}
+                  {t.semestre ? ` • Semestre ${t.semestre}` : ""}
+                </p>
+              </div>
+            </label>
+          ))}
+        </div>
+      </div>
     );
-
-    if (!mapa.has(chave)) {
-      mapa.set(chave, {
-        disciplinaId: turma.disciplinaId ?? null,
-        disciplinaNome: turma.disciplinaNome ?? turma.nome,
-        turmas: [],
-      });
-    }
-
-    mapa.get(chave)!.turmas.push(turma);
   }
 
-  return Array.from(mapa.values()).sort((a, b) =>
-    a.disciplinaNome.localeCompare(b.disciplinaNome, "pt-BR")
-  );
-}
-
-const disciplinasBaseAgrupadas = useMemo(() => {
-  return agruparTurmasPorDisciplina(turmasBaseDoSemestre);
-}, [turmasBaseDoSemestre]);
-
-const disciplinasExtrasAgrupadas = useMemo(() => {
-  return agruparTurmasPorDisciplina(turmasExtrasMesmoCurso);
-}, [turmasExtrasMesmoCurso]);
-
-const disciplinasBaseEdicaoAgrupadas = useMemo(() => {
-  return agruparTurmasPorDisciplina(turmasBaseEdicao);
-}, [turmasBaseEdicao]);
-
-const disciplinasExtrasEdicaoAgrupadas = useMemo(() => {
-  return agruparTurmasPorDisciplina(turmasExtrasEdicao);
-}, [turmasExtrasEdicao]);
-
-const disciplinasDoSemestreEdicao = useMemo(() => {
-  if (!matriculaEditando?.cursoId || !semestreEditandoSelecionado) return [];
-
-  const idsPermitidos = new Set(
-    semestreEditandoSelecionado.disciplinas.map((d) => Number(d.disciplinaId))
-  );
-
-  const mapa = new Map<number, { id: number; nome: string; cargaHoraria?: number | null }>();
-
-  turmas
-    .filter((t) => Number(t.cursoId) === Number(matriculaEditando.cursoId))
-    .forEach((t) => {
-      (t.disciplinas || []).forEach((d) => {
-        if (idsPermitidos.has(Number(d.id))) {
-          mapa.set(Number(d.id), {
-            id: Number(d.id),
-            nome: d.nome,
-            cargaHoraria: d.cargaHoraria ?? 0,
-          });
-        }
-      });
-    });
-
-  return Array.from(mapa.values()).sort((a, b) =>
-    a.nome.localeCompare(b.nome, "pt-BR")
-  );
-}, [matriculaEditando, semestreEditandoSelecionado, turmas]);
-
-const disciplinasExtrasEdicaoDisponiveis = useMemo(() => {
-  if (!matriculaEditando?.cursoId || !semestreEditandoSelecionado) return [];
-
-  const idsGrade = new Set(
-    semestreEditandoSelecionado.disciplinas.map((d) => Number(d.disciplinaId))
-  );
-
-  const mapa = new Map<number, { id: number; nome: string; cargaHoraria?: number | null }>();
-
-  turmas
-    .filter((t) => Number(t.cursoId) === Number(matriculaEditando.cursoId))
-    .forEach((t) => {
-      (t.disciplinas || []).forEach((d) => {
-        if (!idsGrade.has(Number(d.id))) {
-          mapa.set(Number(d.id), {
-            id: Number(d.id),
-            nome: d.nome,
-            cargaHoraria: d.cargaHoraria ?? 0,
-          });
-        }
-      });
-    });
-
-  return Array.from(mapa.values()).sort((a, b) =>
-    a.nome.localeCompare(b.nome, "pt-BR")
-  );
-}, [matriculaEditando, semestreEditandoSelecionado, turmas]);
-
-function renderGrupoDisciplina(
-  grupo: {
-    disciplinaId: number | null;
-    disciplinaNome: string;
-    turmas: TurmaOption[];
-  },
-  turmaIdsSelecionadas: number[],
-  onToggle: (turmaId: number) => void
-) {
   return (
-    <div
-      key={`${grupo.disciplinaId ?? grupo.disciplinaNome}`}
-      className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900"
-    >
-      <div>
-        <p className="font-semibold text-slate-900 dark:text-slate-100">
-          {grupo.disciplinaNome}
-        </p>
-        <p className="text-xs text-slate-500 dark:text-slate-400">
-          Selecione a turma desta disciplina contratada.
-        </p>
-      </div>
+    <div className="admin-matriculas-page space-y-6">
 
-      <div className="space-y-2">
-        {grupo.turmas.map((t) => (
-          <label
-            key={t.id}
-            className="flex items-start gap-3 border rounded-xl p-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800"
-          >
-            <input
-              type="checkbox"
-              checked={turmaIdsSelecionadas.includes(t.id)}
-              onChange={() => onToggle(t.id)}
-              className="mt-1"
-            />
-
-            <div>
-              <p className="font-medium">
-                Turma: {t.nome}
-              </p>
-
-              <p className="text-sm text-slate-600 dark:text-slate-300">
-                {t.professorNome
-                  ? `Prof. ${t.professorNome}`
-                  : "Professor não informado"}
-                {t.semestre ? ` • Semestre ${t.semestre}` : ""}
-              </p>
-            </div>
-          </label>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-  return (
-  <div className="admin-matriculas-page space-y-6">
-
-    {toast && (
-      <PhanyxToast
-        tipo={toast.tipo}
-        mensagem={toast.mensagem}
-        onClose={() => setToast(null)}
-      />
-    )}
+      {toast && (
+        <PhanyxToast
+          tipo={toast.tipo}
+          mensagem={toast.mensagem}
+          onClose={() => setToast(null)}
+        />
+      )}
 
       <div>
         <h1 className="text-2xl font-bold">📌 Matrículas</h1>
@@ -1691,28 +2089,28 @@ function renderGrupoDisciplina(
           contratadas.
         </p>
       </div>
-{erro && (
-  <PhanyxConfirmModal
-    aberto={Boolean(erro)}
-    titulo="Não foi possível concluir"
-    mensagem={erro}
-    textoConfirmar="Entendi"
-    textoCancelar=""
-    onConfirmar={() => setErro("")}
-    onCancelar={() => setErro("")}
-  />
-)}
+      {erro && (
+        <PhanyxConfirmModal
+          aberto={Boolean(erro)}
+          titulo="Não foi possível concluir"
+          mensagem={erro}
+          textoConfirmar="Entendi"
+          textoCancelar=""
+          onConfirmar={() => setErro("")}
+          onCancelar={() => setErro("")}
+        />
+      )}
 
-{sucesso && (
-  <PhanyxConfirmModal
-    aberto={true}
-    titulo="Tudo certo"
-    mensagem={sucesso}
-    textoConfirmar="OK"
-    onConfirmar={() => setSucesso("")}
-    onCancelar={() => setSucesso("")}
-  />
-)}
+      {sucesso && (
+        <PhanyxConfirmModal
+          aberto={true}
+          titulo="Tudo certo"
+          mensagem={sucesso}
+          textoConfirmar="OK"
+          onConfirmar={() => setSucesso("")}
+          onCancelar={() => setSucesso("")}
+        />
+      )}
       <div className="matriculas-form-light-fix bg-white border rounded-2xl p-5 shadow-sm">
         <h2 className="text-lg font-semibold">Nova matrícula</h2>
         <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
@@ -1720,74 +2118,74 @@ function renderGrupoDisciplina(
           cursar.
         </p>
 
-<div>
-  <label className="text-sm font-medium text-gray-700">
-    Status inicial da matrícula
-  </label>
-  <select
-    value={statusInicialMatricula}
-    onChange={(e) => setStatusInicialMatricula(e.target.value)}
-    className="mt-1 w-full border rounded-xl px-3 py-2 bg-white"
-  >
-    <option value="ATIVA">Ativa</option>
-    <option value="A_INICIAR">A iniciar</option>
-  </select>
-</div>
+        <div>
+          <label className="text-sm font-medium text-gray-700">
+            Status inicial da matrícula
+          </label>
+          <select
+            value={statusInicialMatricula}
+            onChange={(e) => setStatusInicialMatricula(e.target.value)}
+            className="mt-1 w-full border rounded-xl px-3 py-2 bg-white"
+          >
+            <option value="ATIVA">Ativa</option>
+            <option value="A_INICIAR">A iniciar</option>
+          </select>
+        </div>
 
-{podeSelecionarVendedor && (
-  <div className="matriculas-vendedor-card mt-4 rounded-2xl border p-4">
-    <label className="matriculas-vendedor-titulo block text-sm font-bold">
-      Vendedor responsável
+        {podeSelecionarVendedor && (
+          <div className="matriculas-vendedor-card mt-4 rounded-2xl border p-4">
+            <label className="matriculas-vendedor-titulo block text-sm font-bold">
+              Vendedor responsável
 
-      <span className="matriculas-vendedor-opcional ml-2 font-normal">
-        Opcional
-      </span>
-    </label>
+              <span className="matriculas-vendedor-opcional ml-2 font-normal">
+                Opcional
+              </span>
+            </label>
 
-    <select
-      value={vendedorResponsavelId}
-      onChange={(evento) =>
-        setVendedorResponsavelId(evento.target.value)
-      }
-      className="matriculas-vendedor-select mt-2 w-full rounded-xl border px-3 py-2 outline-none transition focus:border-blue-500"
-    >
-      <option value="">
-        Nenhum vendedor selecionado
-      </option>
+            <select
+              value={vendedorResponsavelId}
+              onChange={(evento) =>
+                setVendedorResponsavelId(evento.target.value)
+              }
+              className="matriculas-vendedor-select mt-2 w-full rounded-xl border px-3 py-2 outline-none transition focus:border-blue-500"
+            >
+              <option value="">
+                Nenhum vendedor selecionado
+              </option>
 
-      {vendedores.map((vendedor) => (
-        <option
-          key={vendedor.id}
-          value={String(vendedor.id)}
-        >
-          {vendedor.nome}
-          {vendedor.cargo
-            ? ` — ${vendedor.cargo}`
-            : ""}
-          {vendedor.departamento?.nome
-            ? ` — ${vendedor.departamento.nome}`
-            : ""}
-          {vendedor.planoComissao?.planoNome
-            ? ` — Plano: ${vendedor.planoComissao.planoNome}`
-            : ""}
-        </option>
-      ))}
-    </select>
+              {vendedores.map((vendedor) => (
+                <option
+                  key={vendedor.id}
+                  value={String(vendedor.id)}
+                >
+                  {vendedor.nome}
+                  {vendedor.cargo
+                    ? ` — ${vendedor.cargo}`
+                    : ""}
+                  {vendedor.departamento?.nome
+                    ? ` — ${vendedor.departamento.nome}`
+                    : ""}
+                  {vendedor.planoComissao?.planoNome
+                    ? ` — Plano: ${vendedor.planoComissao.planoNome}`
+                    : ""}
+                </option>
+              ))}
+            </select>
 
-    {vendedores.length === 0 ? (
-      <p className="matriculas-vendedor-alerta mt-2 text-xs">
-        Nenhum vendedor possui plano de comissão ativo e
-        configurado.
-      </p>
-    ) : (
-      <p className="matriculas-vendedor-ajuda mt-2 text-xs">
-        Quando selecionado, esta matrícula será atribuída ao
-        vendedor e poderá participar do cálculo de comissão
-        conforme o plano vigente.
-      </p>
-    )}
-  </div>
-)}
+            {vendedores.length === 0 ? (
+              <p className="matriculas-vendedor-alerta mt-2 text-xs">
+                Nenhum vendedor possui plano de comissão ativo e
+                configurado.
+              </p>
+            ) : (
+              <p className="matriculas-vendedor-ajuda mt-2 text-xs">
+                Quando selecionado, esta matrícula será atribuída ao
+                vendedor e poderá participar do cálculo de comissão
+                conforme o plano vigente.
+              </p>
+            )}
+          </div>
+        )}
 
         <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-3">
           <div>
@@ -1834,166 +2232,205 @@ function renderGrupoDisciplina(
               Semestre do curso
             </label>
             <div
-  ref={semestresDropdownRef}
-  className="relative mt-1"
->
-  <button
-    type="button"
-    onClick={() => setSemestresAberto((prev) => !prev)}
-    disabled={!cursoId}
-    className="w-full border rounded-xl px-3 py-2 bg-white text-left flex items-center justify-between"
-  >
-    <span className="truncate">
-      {cursoSemestreIds.length === 0
-        ? "Selecione os semestres..."
-        : `${cursoSemestreIds.length} semestre(s) selecionado(s)`}
-    </span>
+              ref={semestresDropdownRef}
+              className="relative mt-1"
+            >
+              <button
+                type="button"
+                onClick={() => setSemestresAberto((prev) => !prev)}
+                disabled={!cursoId}
+                className="w-full border rounded-xl px-3 py-2 bg-white text-left flex items-center justify-between"
+              >
+                <span className="truncate">
+                  {cursoSemestreIds.length === 0
+                    ? "Selecione os semestres..."
+                    : `${cursoSemestreIds.length} semestre(s) selecionado(s)`}
+                </span>
 
-    <span>{semestresAberto ? "▴" : "▾"}</span>
-  </button>
+                <span>{semestresAberto ? "▴" : "▾"}</span>
+              </button>
 
-  {semestresAberto && (
-    <div className="absolute z-20 mt-1 w-full border rounded-xl bg-white p-3 shadow-lg">
-      {semestresCurso.length === 0 ? (
-        <p className="text-sm text-slate-500 dark:text-slate-400">
-          Selecione um curso primeiro...
-        </p>
-      ) : (
-        <div className="space-y-2">
-          {semestresCurso.map((s) => (
-            <label key={s.id} className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={cursoSemestreIds.includes(s.id)}
-                onChange={() => {
-                  setCursoSemestreIds((prev) =>
-                    prev.includes(s.id)
-                      ? prev.filter((id) => id !== s.id)
-                      : [...prev, s.id]
-                  );
-                }}
-              />
-              <span>
-                {s.numero}º semestre{s.titulo ? ` — ${s.titulo}` : ""}
-              </span>
-            </label>
-          ))}
-        </div>
-      )}
-    </div>
-  )}
-</div>
+              {semestresAberto && (
+                <div className="absolute z-20 mt-1 w-full border rounded-xl bg-white p-3 shadow-lg">
+                  {semestresCurso.length === 0 ? (
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                      Selecione um curso primeiro...
+                    </p>
+                  ) : (
+                    <div className="space-y-2">
+                      {semestresCurso.map((s) => (
+                        <label key={s.id} className="flex items-center gap-2 text-sm">
+                          <input
+                            type="checkbox"
+                            checked={cursoSemestreIds.includes(s.id)}
+                            onChange={() => {
+                              setCursoSemestreIds((prev) =>
+                                prev.includes(s.id)
+                                  ? prev.filter((id) => id !== s.id)
+                                  : [...prev, s.id]
+                              );
+                            }}
+                          />
+                          <span>
+                            {s.numero}º semestre{s.titulo ? ` — ${s.titulo}` : ""}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
-<div>
-  <label className="text-sm font-medium text-gray-700">
-    Turma do aluno
-  </label>
-  
-  <div>
-  <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
-    Modalidade
-  </label>
+          <div>
+            <label className="text-sm font-medium text-gray-700">
+              Turma do aluno
+            </label>
 
-  <select
-    value={modalidade}
-    onChange={(e) => setModalidade(e.target.value)}
-    className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-  >
-    <option value="">Selecione a modalidade</option>
-    <option value="PRESENCIAL">Presencial</option>
-    <option value="EAD">EAD</option>
-    <option value="HIBRIDO">Híbrido</option>
-  </select>
-</div>
+            <div>
+              <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+                Modalidade
+              </label>
 
-  <div>
-  <label className="text-sm font-medium text-gray-700">
-    Período / horário letivo
-  </label>
+              <select
+                value={modalidade}
+                onChange={(e) => setModalidade(e.target.value)}
+                className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+              >
+                <option value="">Selecione a modalidade</option>
+                <option value="PRESENCIAL">Presencial</option>
+                <option value="EAD">EAD</option>
+                <option value="HIBRIDO">Híbrido</option>
+              </select>
+            </div>
 
-  <select
-    value={periodoLetivo}
-    onChange={(e) => setPeriodoLetivo(e.target.value)}
-    className="mt-1 w-full border rounded-xl px-3 py-2 bg-white"
-  >
-    <option value="">Selecione o período</option>
-    <option value="MATUTINO">Matutino</option>
-    <option value="VESPERTINO">Vespertino</option>
-    <option value="NOTURNO">Noturno</option>
-    <option value="INTEGRAL">Integral</option>
-    <option value="MATUTINO_VESPERTINO">Matutino/Vespertino</option>
-    <option value="MATUTINO_NOTURNO">Matutino/Noturno</option>
-    <option value="VESPERTINO_NOTURNO">Vespertino/Noturno</option>
-    <option value="EAD_LIVRE">EAD Livre</option>
-    <option value="EAD_MATUTINO">EAD Matutino</option>
-    <option value="EAD_VESPERTINO">EAD Vespertino</option>
-    <option value="EAD_NOTURNO">EAD Noturno</option>
-    <option value="EAD_INTEGRAL">EAD Integral</option>
-  </select>
-</div>
+            <div>
+              <label className="text-sm font-medium text-gray-700">
+                Período / horário letivo
+              </label>
 
-  <select
-    value={turmasSelecionadas[0] ? String(turmasSelecionadas[0]) : ""}
-    onChange={(e) => {
-      const turmaId = Number(e.target.value);
-      setTurmasSelecionadas(
-        Number.isFinite(turmaId) && turmaId > 0 ? [turmaId] : []
-      );
-    }}
-    className="mt-1 w-full border rounded-xl px-3 py-2 bg-white"
-    disabled={!cursoId}
-  >
-    <option value="">Selecione a turma...</option>
+              <select
+                value={periodoLetivo}
+                onChange={(e) => setPeriodoLetivo(e.target.value)}
+                className="mt-1 w-full border rounded-xl px-3 py-2 bg-white"
+              >
+                <option value="">Selecione o período</option>
+                <option value="MATUTINO">Matutino</option>
+                <option value="VESPERTINO">Vespertino</option>
+                <option value="NOTURNO">Noturno</option>
+                <option value="INTEGRAL">Integral</option>
+                <option value="MATUTINO_VESPERTINO">Matutino/Vespertino</option>
+                <option value="MATUTINO_NOTURNO">Matutino/Noturno</option>
+                <option value="VESPERTINO_NOTURNO">Vespertino/Noturno</option>
+                <option value="EAD_LIVRE">EAD Livre</option>
+                <option value="EAD_MATUTINO">EAD Matutino</option>
+                <option value="EAD_VESPERTINO">EAD Vespertino</option>
+                <option value="EAD_NOTURNO">EAD Noturno</option>
+                <option value="EAD_INTEGRAL">EAD Integral</option>
+              </select>
+            </div>
 
-    {turmas.map((t) => (
-  <option key={t.id} value={String(t.id)}>
-    {t.nome}
-    {t.semestre ? ` — ${t.semestre}` : ""}
-    {t.professorNome ? ` — Prof. ${t.professorNome}` : ""}
-  </option>
-))}
-   
-  </select>
-</div>
+            <select
+              value={turmasSelecionadas[0] ? String(turmasSelecionadas[0]) : ""}
+              onChange={(e) => {
+                const turmaId =
+                  Number(e.target.value);
 
-<div>
-  <label className="text-sm font-medium text-gray-700">
-    Valor da mensalidade
-  </label>
-  <input
-    type="number"
-    value={valorMensalidade}
-    onChange={(e) => setValorMensalidade(e.target.value)}
-    className="mt-1 w-full border rounded-xl px-3 py-2"
-    placeholder="0,00"
-  />
-</div>
+                const turmaValida =
+                  Number.isFinite(turmaId) &&
+                  turmaId > 0;
 
-<div>
-  <label className="text-sm font-medium text-gray-700">
-    Quantidade de mensalidades
-  </label>
-  <input
-    type="number"
-    value={quantidadeParcelas}
-    onChange={(e) => setQuantidadeParcelas(e.target.value)}
-    className="mt-1 w-full border rounded-xl px-3 py-2"
-    placeholder="Ex: 12"
-  />
-</div>
+                setTurmasSelecionadas(
+                  turmaValida ? [turmaId] : []
+                );
 
-<div>
-  <label className="text-sm font-medium text-gray-700">
-    Primeiro vencimento
-  </label>
-  <input
-    type="date"
-    value={dataPrimeiroVencimento}
-    onChange={(e) => setDataPrimeiroVencimento(e.target.value)}
-    className="mt-1 w-full border rounded-xl px-3 py-2"
-  />
-</div>
+                if (!turmaValida) return;
+
+                setTurmaPorDisciplina(
+                  (anterior) => {
+                    const novo = {
+                      ...anterior,
+                    };
+
+                    for (
+                      const disciplinaId of
+                      disciplinasSelecionadas
+                    ) {
+                      const turmaPossuiDisciplina =
+                        ofertasPorDisciplina
+                          .get(disciplinaId)
+                          ?.some(
+                            (oferta) =>
+                              oferta.turmaId ===
+                              turmaId
+                          );
+
+                      if (
+                        turmaPossuiDisciplina
+                      ) {
+                        novo[disciplinaId] =
+                          turmaId;
+                      }
+                    }
+
+                    return novo;
+                  }
+                );
+              }}
+              className="mt-1 w-full border rounded-xl px-3 py-2 bg-white"
+              disabled={!cursoId}
+            >
+              <option value="">Selecione a turma...</option>
+
+              {turmasBaseDoSemestre.map((t) => (
+                <option key={t.id} value={String(t.id)}>
+                  {t.nome}
+                  {t.semestre ? ` — ${t.semestre}` : ""}
+                  {t.professorNome ? ` — Prof. ${t.professorNome}` : ""}
+                </option>
+              ))}
+
+            </select>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-700">
+              Valor da mensalidade
+            </label>
+            <input
+              type="number"
+              value={valorMensalidade}
+              onChange={(e) => setValorMensalidade(e.target.value)}
+              className="mt-1 w-full border rounded-xl px-3 py-2"
+              placeholder="0,00"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-700">
+              Quantidade de mensalidades
+            </label>
+            <input
+              type="number"
+              value={quantidadeParcelas}
+              onChange={(e) => setQuantidadeParcelas(e.target.value)}
+              className="mt-1 w-full border rounded-xl px-3 py-2"
+              placeholder="Ex: 12"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-700">
+              Primeiro vencimento
+            </label>
+            <input
+              type="date"
+              value={dataPrimeiroVencimento}
+              onChange={(e) => setDataPrimeiroVencimento(e.target.value)}
+              className="mt-1 w-full border rounded-xl px-3 py-2"
+            />
+          </div>
           <div>
             <label className="text-sm font-medium text-gray-700">
               Valor pago no ato da matrícula
@@ -2028,76 +2465,196 @@ function renderGrupoDisciplina(
           </div>
         ) : null}
 
+        {semestreSelecionado && (
+          <label className="mt-5 flex cursor-pointer items-start gap-3 rounded-2xl border border-slate-300 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+            <input
+              type="checkbox"
+              checked={
+                todasDisciplinasDoSemestreMarcadas
+              }
+              onChange={
+                alternarTodasDisciplinasDoSemestre
+              }
+              className="mt-1"
+            />
+
+            <div>
+              <p className="font-semibold text-slate-900 dark:text-slate-100">
+                Todas as disciplinas deste semestre
+              </p>
+
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                Marca automaticamente as disciplinas da grade. Você pode desmarcar disciplinas específicas para este aluno.
+              </p>
+            </div>
+          </label>
+        )}
+
         <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
-  <div className="matriculas-multiselect-neutro">
-    <MultiSelectDisciplinas
-      titulo="Disciplinas contratadas"
-      disciplinas={disciplinasDoSemestre}
-      selecionadas={disciplinasSelecionadas}
-      setSelecionadas={setDisciplinasSelecionadas}
-    />
-  </div>
+          <div className="matriculas-multiselect-neutro">
+            <MultiSelectDisciplinas
+              titulo="Disciplinas contratadas"
+              disciplinas={disciplinasDoSemestre}
+              selecionadas={disciplinasSelecionadas}
+              setSelecionadas={setDisciplinasSelecionadas}
+            />
+          </div>
 
-  <div className="matriculas-multiselect-neutro">
-    <MultiSelectDisciplinas
-      titulo="Disciplinas extras curriculares"
-      disciplinas={disciplinasExtras}
-      selecionadas={disciplinasExtrasSelecionadas}
-      setSelecionadas={setDisciplinasExtrasSelecionadas}
-    />
-  </div>
-</div>
+          <div className="matriculas-multiselect-neutro">
+            <MultiSelectDisciplinas
+              titulo="Dependências, adiantamentos e outras disciplinas"
+              disciplinas={disciplinasExtras}
+              selecionadas={disciplinasExtrasSelecionadas}
+              setSelecionadas={setDisciplinasExtrasSelecionadas}
+            />
+          </div>
+        </div>
 
-{limiteCargaHoraria > 0 && (
-  <div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
-    <div className="font-semibold">
-      Carga horária selecionada: {cargaHorariaTotalSelecionada}h / {limiteCargaHoraria}h
-    </div>
+        {disciplinasIdsSelecionadasParaEnvio.length >
+          0 && (
+            <div className="mt-5 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+              <div>
+                <h3 className="font-bold text-slate-900 dark:text-slate-100">
+                  Oferta de cada disciplina
+                </h3>
 
-    <div className="mt-2 h-3 w-full overflow-hidden rounded-full bg-blue-100">
-      <div
-        className={`h-full rounded-full ${
-          cargaHorariaExcedida ? "bg-red-500" : "bg-blue-600"
-        }`}
-        style={{
-          width: `${Math.min(
-            100,
-            Math.round((cargaHorariaTotalSelecionada / limiteCargaHoraria) * 100)
-          )}%`,
-        }}
-      />
-    </div>
+                <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                  Escolha a turma em que o aluno cursará cada disciplina. Uma disciplina pode ser feita em uma turma diferente da turma principal.
+                </p>
+              </div>
 
-    {!cargaHorariaExcedida && (
-      <p className="mt-2 text-blue-700">
-        Ainda disponível: {limiteCargaHoraria - cargaHorariaTotalSelecionada}h
-      </p>
-    )}
-  </div>
-)}
-      
+              <div className="mt-4 space-y-3">
+                {disciplinasIdsSelecionadasParaEnvio.map(
+                  (disciplinaId) => {
+                    const ofertas =
+                      ofertasPorDisciplina.get(
+                        disciplinaId
+                      ) || [];
+
+                    const tipoItem =
+                      classificarTipoItem(
+                        disciplinaId
+                      );
+
+                    return (
+                      <div
+                        key={disciplinaId}
+                        className="grid grid-cols-1 gap-3 rounded-xl border border-slate-200 p-3 md:grid-cols-[1fr_280px] dark:border-slate-700"
+                      >
+                        <div>
+                          <p className="font-semibold text-slate-900 dark:text-slate-100">
+                            {obterNomeDisciplina(
+                              disciplinaId
+                            )}
+                          </p>
+
+                          <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
+                            {labelTipoItem(
+                              tipoItem
+                            )}
+                          </p>
+                        </div>
+
+                        <select
+                          value={
+                            turmaPorDisciplina[
+                            disciplinaId
+                            ] || ""
+                          }
+                          onChange={(e) =>
+                            setTurmaPorDisciplina(
+                              (anterior) => ({
+                                ...anterior,
+
+                                [disciplinaId]:
+                                  Number(
+                                    e.target.value
+                                  ),
+                              })
+                            )
+                          }
+                          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                        >
+                          <option value="">
+                            Selecione a turma da disciplina
+                          </option>
+
+                          {ofertas.map(
+                            (oferta) => (
+                              <option
+                                key={`${disciplinaId}-${oferta.turmaId}`}
+                                value={
+                                  oferta.turmaId
+                                }
+                              >
+                                {oferta.turmaNome}
+                                {oferta.turmaSemestre
+                                  ? ` — ${oferta.turmaSemestre}º semestre`
+                                  : ""}
+                                {oferta.professorNome
+                                  ? ` — Prof. ${oferta.professorNome}`
+                                  : ""}
+                              </option>
+                            )
+                          )}
+                        </select>
+                      </div>
+                    );
+                  }
+                )}
+              </div>
+            </div>
+          )}
+
+        {limiteCargaHoraria > 0 && (
+          <div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
+            <div className="font-semibold">
+              Carga horária selecionada: {cargaHorariaTotalSelecionada}h / {limiteCargaHoraria}h
+            </div>
+
+            <div className="mt-2 h-3 w-full overflow-hidden rounded-full bg-blue-100">
+              <div
+                className={`h-full rounded-full ${cargaHorariaExcedida ? "bg-red-500" : "bg-blue-600"
+                  }`}
+                style={{
+                  width: `${Math.min(
+                    100,
+                    Math.round((cargaHorariaTotalSelecionada / limiteCargaHoraria) * 100)
+                  )}%`,
+                }}
+              />
+            </div>
+
+            {!cargaHorariaExcedida && (
+              <p className="mt-2 text-blue-700">
+                Ainda disponível: {limiteCargaHoraria - cargaHorariaTotalSelecionada}h
+              </p>
+            )}
+          </div>
+        )}
+
         <div className="mt-4">
-         {cargaHorariaAbaixoMinimo && (
-  <div className="mb-4 rounded-xl bg-yellow-100 border border-yellow-300 p-4 text-yellow-700 font-medium">
-    ⚠️ A carga horária está abaixo do mínimo exigido.
-  </div>
-)}
+          {cargaHorariaAbaixoMinimo && (
+            <div className="mb-4 rounded-xl bg-yellow-100 border border-yellow-300 p-4 text-yellow-700 font-medium">
+              ⚠️ A carga horária está abaixo do mínimo exigido.
+            </div>
+          )}
 
-{cargaHorariaExcedida && (
-  <div className="mb-4 rounded-xl bg-red-100 border border-red-300 p-4 text-red-700 font-medium">
-    ⚠️ Carga horária excedida para este semestre.
-    <br />
-    Limite: {limiteCargaHoraria}h | Selecionado: {cargaHorariaTotalSelecionada}h
-  </div>
-)}
+          {cargaHorariaExcedida && (
+            <div className="mb-4 rounded-xl bg-red-100 border border-red-300 p-4 text-red-700 font-medium">
+              ⚠️ Carga horária excedida para este semestre.
+              <br />
+              Limite: {limiteCargaHoraria}h | Selecionado: {cargaHorariaTotalSelecionada}h
+            </div>
+          )}
           <button
             onClick={criarMatricula}
             disabled={!podeCriar || creating}
             className={[
               "px-4 py-2 rounded-xl font-semibold transition",
               !podeCriar || creating
-  ? "bg-slate-200 text-slate-500 dark:bg-slate-800 dark:text-slate-400 cursor-not-allowed"
-  : "bg-blue-600 text-white hover:bg-blue-700"
+                ? "bg-slate-200 text-slate-500 dark:bg-slate-800 dark:text-slate-400 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700"
             ].join(" ")}
           >
             {creating ? "Criando..." : "Matricular aluno"}
@@ -2107,49 +2664,49 @@ function renderGrupoDisciplina(
 
       <div className="matriculas-light-fix bg-white border rounded-2xl shadow-sm overflow-hidden">
         <div className="px-5 py-4 border-b flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-  <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-  
-  {/* ESQUERDA */}
-  <h2 className="text-lg font-semibold">Matrículas cadastradas</h2>
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
 
-  {/* MEIO (busca + filtro) */}
-  <div className="flex gap-2 w-full md:w-auto">
-    <input
-      type="text"
-      placeholder="Buscar por aluno, vendedor, curso, turma, disciplina, professor, status ou ID"
-      value={busca}
-      onChange={(e) => setBusca(e.target.value)}
-      className="w-full md:w-[400px] border rounded-xl px-3 py-2"
-    />
+            {/* ESQUERDA */}
+            <h2 className="text-lg font-semibold">Matrículas cadastradas</h2>
 
-    <select
-      value={filtroPeriodoMatricula}
-      onChange={(e) =>
-        setFiltroPeriodoMatricula(
-          e.target.value as "HOJE" | "ONTEM" | "7_DIAS" | "MES" | "TODAS"
-        )
-      }
-      className="w-[180px] border rounded-xl px-3 py-2 bg-white"
-    >
-      <option value="HOJE">Hoje</option>
-      <option value="ONTEM">Ontem</option>
-      <option value="7_DIAS">7 dias</option>
-      <option value="MES">Mês</option>
-      <option value="TODAS">Todas</option>
-    </select>
-  </div>
+            {/* MEIO (busca + filtro) */}
+            <div className="flex gap-2 w-full md:w-auto">
+              <input
+                type="text"
+                placeholder="Buscar por aluno, vendedor, curso, turma, disciplina, professor, status ou ID"
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                className="w-full md:w-[400px] border rounded-xl px-3 py-2"
+              />
 
-  {/* DIREITA */}
-  <button
-    onClick={carregarTudo}
-    className="px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-blue-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800"
-  >
-    Recarregar
-  </button>
+              <select
+                value={filtroPeriodoMatricula}
+                onChange={(e) =>
+                  setFiltroPeriodoMatricula(
+                    e.target.value as "HOJE" | "ONTEM" | "7_DIAS" | "MES" | "TODAS"
+                  )
+                }
+                className="w-[180px] border rounded-xl px-3 py-2 bg-white"
+              >
+                <option value="HOJE">Hoje</option>
+                <option value="ONTEM">Ontem</option>
+                <option value="7_DIAS">7 dias</option>
+                <option value="MES">Mês</option>
+                <option value="TODAS">Todas</option>
+              </select>
+            </div>
 
-</div>
+            {/* DIREITA */}
+            <button
+              onClick={carregarTudo}
+              className="px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-blue-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800"
+            >
+              Recarregar
+            </button>
 
-  <button
+          </div>
+
+          <button
             onClick={carregarTudo}
             className="px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-blue-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800"
           >
@@ -2158,845 +2715,844 @@ function renderGrupoDisciplina(
         </div>
 
         {loading ? (
-  <div className="p-6 text-slate-600 dark:text-slate-300">Carregando...</div>
-) : matriculasFiltradas.length === 0 ? (
-  <div className="p-6 text-slate-600 dark:text-slate-300">Nenhuma matrícula encontrada.</div>
-) : (
-  <div className="overflow-x-auto">
-    <table className="min-w-full text-sm">
-      <thead className="bg-gray-50 border-b">
-        <tr className="text-left">
-          <th className="px-4 py-3 font-semibold text-gray-700">Aluno</th>
-          <th className="px-4 py-3 font-semibold text-gray-700">Curso</th>
-          <th className="px-4 py-3 font-semibold text-gray-700">Semestre</th>
-          <th className="px-4 py-3 font-semibold text-gray-700">Status</th>
-          <th className="px-4 py-3 font-semibold text-gray-700">Vendedor</th>
-          <th className="px-4 py-3 font-semibold text-gray-700">Disciplinas</th>
-          <th className="px-4 py-3 font-semibold text-gray-700">Ações</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        {matriculasFiltradas.map((m) => {
-          const alunoNome = m.aluno?.nome ?? "Aluno";
-          const cursoNome = m.curso?.nome ?? "Curso";
-          const itens = Array.isArray(m.itens) ? m.itens : [];
-          const expandida = matriculaExpandidaId === m.id;
-
-          return (
-            <React.Fragment key={m.id}>
-              <tr
-  key={`linha-${m.id}`}
-  className="border-b align-top bg-white text-slate-900 transition hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
->
-                <td className="px-4 py-3">
-                  <div className="font-medium text-slate-900 dark:text-slate-100">
-  {alunoNome}
-</div>
-
-<div className="text-xs text-slate-500 dark:text-slate-400">
-  ID #{m.id}
-</div>
-                </td>
-
-                <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
-  {cursoNome}
-</td>
-
-                <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
-  {m.semestre ? `${m.semestre}º semestre` : "-"}
-</td>
-
-                <td className="px-4 py-3">
-                  <span
-                    className={`inline-block text-xs px-3 py-1 rounded-full ${
-                      m.status === "ATIVA"
-                        ? "bg-green-100 text-green-700"
-                        : m.status === "A_INICIAR"
-                        ? "bg-blue-100 text-blue-700"
-                        : m.status === "TRANCADA"
-                        ? "bg-yellow-100 text-yellow-700"
-                        : m.status === "SUSPENSA"
-                        ? "bg-orange-100 text-orange-700"
-                        : m.status === "CONCLUIDA"
-                        ? "bg-purple-100 text-purple-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
-                  >
-                    {m.status || "ATIVA"}
-                  </span>
-                </td>
-
-                <td className="px-4 py-3">
-  {m.vendedorResponsavel?.nome ||
-  m.vendedorResponsavelNomeSnapshot ? (
-    <div>
-      <p className="font-semibold text-slate-900 dark:text-slate-100">
-        {m.vendedorResponsavel?.nome ||
-          m.vendedorResponsavelNomeSnapshot}
-      </p>
-
-      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-        {m.vendedorResponsavel?.cargo ||
-          "Vendedor responsável"}
-
-        {m.vendedorResponsavel?.departamento?.nome
-          ? ` • ${m.vendedorResponsavel.departamento.nome}`
-          : ""}
-      </p>
-    </div>
-  ) : (
-    <span className="text-xs text-slate-500 dark:text-slate-400">
-      Não informado
-    </span>
-  )}
-</td>
-
-                <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
-  {itens.length} disciplina(s)
-</td>
-
-                <td className="px-4 py-3">
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      onClick={() =>
-                        setMatriculaExpandidaId(expandida ? null : m.id)
-                      }
-                      className="px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-blue-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800"
-                    >
-                      {expandida ? "Ocultar detalhes" : "Ver detalhes"}
-                    </button>
-
-                    <button
-                      onClick={() => abrirEdicao(m)}
-                      className="px-3 py-2 rounded-xl text-sm font-semibold transition border bg-yellow-500 text-white hover:bg-yellow-600"
-                    >
-                      ✏️ Editar
-                    </button>
-
-                    <button
-                      onClick={() => abrirPdfContratoDaMatricula(m.id)}
-                      className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-green-400 hover:text-green-700"
-                    >
-                      📄 Contrato
-                    </button>
-
-<button
-  onClick={() => gerarDocumentoPhanyxDaMatricula(m.id)}
-  className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-indigo-400 hover:text-indigo-700"
->
-  📄 Documento PHANYX
-</button>
-
-                    <button
-                      onClick={() => assinarContratoDaMatricula(m.id)}
-                      className="px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-blue-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800"
-                    >
-                      ✍️ Assinar
-                    </button>
-
-<button
-  onClick={() => abrirAssinaturaSecretaria(m.id)}
-  className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-purple-400 hover:text-purple-700"
->
-  🖊️ Assinar Secretaria
-</button>
-
-                  </div>
-                </td>
-              </tr>
-
-              {expandida && (
-                <tr
-  key={`detalhes-${m.id}`}
-  className="border-b bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100"
->
-                  <td colSpan={7} className="px-4 py-4">
-                    <div className="space-y-4">
-
-<div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
-  <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-    Responsável comercial
-  </p>
-
-  <p className="mt-2 font-semibold text-slate-900 dark:text-slate-100">
-    {m.vendedorResponsavel?.nome ||
-      m.vendedorResponsavelNomeSnapshot ||
-      "Nenhum vendedor informado"}
-  </p>
-
-  {(m.vendedorResponsavel?.cargo ||
-    m.vendedorResponsavel?.departamento?.nome) && (
-    <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-      {m.vendedorResponsavel?.cargo || "Vendedor"}
-
-      {m.vendedorResponsavel?.departamento?.nome
-        ? ` • ${m.vendedorResponsavel.departamento.nome}`
-        : ""}
-    </p>
-  )}
-</div>
-
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          onClick={() => alterarStatusMatricula(m.id, "A_INICIAR")}
-                          className="px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-blue-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800"
-                        >
-                          A iniciar
-                        </button>
-
-                        <button
-                          onClick={() => alterarStatusMatricula(m.id, "ATIVA")}
-                          className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-green-400"
-                        >
-                          Ativar
-                        </button>
-
-                        <button
-                          onClick={() => alterarStatusMatricula(m.id, "TRANCADA")}
-                          className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-yellow-400"
-                        >
-                          Trancar
-                        </button>
-
-                        <button
-                          onClick={() => alterarStatusMatricula(m.id, "SUSPENSA")}
-                          className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-orange-400"
-                        >
-                          Suspender
-                        </button>
-
-                        <button
-                          onClick={() => alterarStatusMatricula(m.id, "CONCLUIDA")}
-                          className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-purple-400"
-                        >
-                          Concluir
-                        </button>
-
-                        <button
-                          onClick={() => alterarStatusMatricula(m.id, "CANCELADA")}
-                          className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-red-400 hover:text-red-600"
-                        >
-                          Cancelar
-                        </button>
-
-                        <button
-                          onClick={() => excluirMatricula(m.id)}
-                          disabled={removingId === m.id}
-                          className={[
-                            "px-4 py-2 rounded-xl text-sm font-semibold transition border",
-                            removingId === m.id
-                              ? "bg-gray-100 text-slate-500 dark:text-slate-400 cursor-not-allowed"
-                              : "bg-white hover:border-red-400 hover:text-red-600",
-                          ].join(" ")}
-                        >
-                          {removingId === m.id ? "Excluindo..." : "Excluir"}
-                        </button>
-                      </div>
-
-                      <div>
-                        {itens.length === 0 ? (
-                          <p className="text-sm text-slate-500 dark:text-slate-400">
-                            Nenhuma disciplina vinculada.
-                          </p>
-                        ) : (
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {itens.map((item) => {
-                              const turma = item.turma;
-                              const disciplinaNome =
-                              (item as any)?.disciplina?.nome ?? "Disciplina";
-                              const turmaNome = turma?.nome ?? "Turma";
-                              const profNome = turma?.professor?.nome ?? "—";
-                              const qtdAulas = turma?._count?.aulas ?? 0;
-
-                              return (
-                                <div
-                                  key={item.id}
-                                  className="rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
-                                >
-                                  <p className="font-medium text-slate-900 dark:text-slate-100">
-                                    {disciplinaNome}
-                                  </p>
-                                  <p>
-                                    Turma: {turmaNome} • Prof: {profNome} • Aulas: {qtdAulas}
-                                  </p>
-                                  <p className="mt-1">
-                                    Status da disciplina:{" "}
-                                    <span className="font-medium text-slate-900 dark:text-slate-100">
-                                      {labelStatusItem(item.status)}
-                                    </span>
-                                  </p>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </td>
+          <div className="p-6 text-slate-600 dark:text-slate-300">Carregando...</div>
+        ) : matriculasFiltradas.length === 0 ? (
+          <div className="p-6 text-slate-600 dark:text-slate-300">Nenhuma matrícula encontrada.</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead className="bg-gray-50 border-b">
+                <tr className="text-left">
+                  <th className="px-4 py-3 font-semibold text-gray-700">Aluno</th>
+                  <th className="px-4 py-3 font-semibold text-gray-700">Curso</th>
+                  <th className="px-4 py-3 font-semibold text-gray-700">Semestre</th>
+                  <th className="px-4 py-3 font-semibold text-gray-700">Status</th>
+                  <th className="px-4 py-3 font-semibold text-gray-700">Vendedor</th>
+                  <th className="px-4 py-3 font-semibold text-gray-700">Disciplinas</th>
+                  <th className="px-4 py-3 font-semibold text-gray-700">Ações</th>
                 </tr>
-              )}
-            </React.Fragment>
-          );
-        })}
-      </tbody>
-    </table>
-  </div>
-)}
+              </thead>
+
+              <tbody>
+                {matriculasFiltradas.map((m) => {
+                  const alunoNome = m.aluno?.nome ?? "Aluno";
+                  const cursoNome = m.curso?.nome ?? "Curso";
+                  const itens = Array.isArray(m.itens) ? m.itens : [];
+                  const expandida = matriculaExpandidaId === m.id;
+
+                  return (
+                    <React.Fragment key={m.id}>
+                      <tr
+                        key={`linha-${m.id}`}
+                        className="border-b align-top bg-white text-slate-900 transition hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                      >
+                        <td className="px-4 py-3">
+                          <div className="font-medium text-slate-900 dark:text-slate-100">
+                            {alunoNome}
+                          </div>
+
+                          <div className="text-xs text-slate-500 dark:text-slate-400">
+                            ID #{m.id}
+                          </div>
+                        </td>
+
+                        <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
+                          {cursoNome}
+                        </td>
+
+                        <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
+                          {m.semestre ? `${m.semestre}º semestre` : "-"}
+                        </td>
+
+                        <td className="px-4 py-3">
+                          <span
+                            className={`inline-block text-xs px-3 py-1 rounded-full ${m.status === "ATIVA"
+                              ? "bg-green-100 text-green-700"
+                              : m.status === "A_INICIAR"
+                                ? "bg-blue-100 text-blue-700"
+                                : m.status === "TRANCADA"
+                                  ? "bg-yellow-100 text-yellow-700"
+                                  : m.status === "SUSPENSA"
+                                    ? "bg-orange-100 text-orange-700"
+                                    : m.status === "CONCLUIDA"
+                                      ? "bg-purple-100 text-purple-700"
+                                      : "bg-red-100 text-red-700"
+                              }`}
+                          >
+                            {m.status || "ATIVA"}
+                          </span>
+                        </td>
+
+                        <td className="px-4 py-3">
+                          {m.vendedorResponsavel?.nome ||
+                            m.vendedorResponsavelNomeSnapshot ? (
+                            <div>
+                              <p className="font-semibold text-slate-900 dark:text-slate-100">
+                                {m.vendedorResponsavel?.nome ||
+                                  m.vendedorResponsavelNomeSnapshot}
+                              </p>
+
+                              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                {m.vendedorResponsavel?.cargo ||
+                                  "Vendedor responsável"}
+
+                                {m.vendedorResponsavel?.departamento?.nome
+                                  ? ` • ${m.vendedorResponsavel.departamento.nome}`
+                                  : ""}
+                              </p>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-slate-500 dark:text-slate-400">
+                              Não informado
+                            </span>
+                          )}
+                        </td>
+
+                        <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
+                          {itens.length} disciplina(s)
+                        </td>
+
+                        <td className="px-4 py-3">
+                          <div className="flex flex-wrap gap-2">
+                            <button
+                              onClick={() =>
+                                setMatriculaExpandidaId(expandida ? null : m.id)
+                              }
+                              className="px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-blue-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800"
+                            >
+                              {expandida ? "Ocultar detalhes" : "Ver detalhes"}
+                            </button>
+
+                            <button
+                              onClick={() => abrirEdicao(m)}
+                              className="px-3 py-2 rounded-xl text-sm font-semibold transition border bg-yellow-500 text-white hover:bg-yellow-600"
+                            >
+                              ✏️ Editar
+                            </button>
+
+                            <button
+                              onClick={() => abrirPdfContratoDaMatricula(m.id)}
+                              className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-green-400 hover:text-green-700"
+                            >
+                              📄 Contrato
+                            </button>
+
+                            <button
+                              onClick={() => gerarDocumentoPhanyxDaMatricula(m.id)}
+                              className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-indigo-400 hover:text-indigo-700"
+                            >
+                              📄 Documento PHANYX
+                            </button>
+
+                            <button
+                              onClick={() => assinarContratoDaMatricula(m.id)}
+                              className="px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-blue-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800"
+                            >
+                              ✍️ Assinar
+                            </button>
+
+                            <button
+                              onClick={() => abrirAssinaturaSecretaria(m.id)}
+                              className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-purple-400 hover:text-purple-700"
+                            >
+                              🖊️ Assinar Secretaria
+                            </button>
+
+                          </div>
+                        </td>
+                      </tr>
+
+                      {expandida && (
+                        <tr
+                          key={`detalhes-${m.id}`}
+                          className="border-b bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100"
+                        >
+                          <td colSpan={7} className="px-4 py-4">
+                            <div className="space-y-4">
+
+                              <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+                                <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                                  Responsável comercial
+                                </p>
+
+                                <p className="mt-2 font-semibold text-slate-900 dark:text-slate-100">
+                                  {m.vendedorResponsavel?.nome ||
+                                    m.vendedorResponsavelNomeSnapshot ||
+                                    "Nenhum vendedor informado"}
+                                </p>
+
+                                {(m.vendedorResponsavel?.cargo ||
+                                  m.vendedorResponsavel?.departamento?.nome) && (
+                                    <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                                      {m.vendedorResponsavel?.cargo || "Vendedor"}
+
+                                      {m.vendedorResponsavel?.departamento?.nome
+                                        ? ` • ${m.vendedorResponsavel.departamento.nome}`
+                                        : ""}
+                                    </p>
+                                  )}
+                              </div>
+
+                              <div className="flex flex-wrap gap-2">
+                                <button
+                                  onClick={() => alterarStatusMatricula(m.id, "A_INICIAR")}
+                                  className="px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-blue-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800"
+                                >
+                                  A iniciar
+                                </button>
+
+                                <button
+                                  onClick={() => alterarStatusMatricula(m.id, "ATIVA")}
+                                  className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-green-400"
+                                >
+                                  Ativar
+                                </button>
+
+                                <button
+                                  onClick={() => alterarStatusMatricula(m.id, "TRANCADA")}
+                                  className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-yellow-400"
+                                >
+                                  Trancar
+                                </button>
+
+                                <button
+                                  onClick={() => alterarStatusMatricula(m.id, "SUSPENSA")}
+                                  className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-orange-400"
+                                >
+                                  Suspender
+                                </button>
+
+                                <button
+                                  onClick={() => alterarStatusMatricula(m.id, "CONCLUIDA")}
+                                  className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-purple-400"
+                                >
+                                  Concluir
+                                </button>
+
+                                <button
+                                  onClick={() => alterarStatusMatricula(m.id, "CANCELADA")}
+                                  className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-red-400 hover:text-red-600"
+                                >
+                                  Cancelar
+                                </button>
+
+                                <button
+                                  onClick={() => excluirMatricula(m.id)}
+                                  disabled={removingId === m.id}
+                                  className={[
+                                    "px-4 py-2 rounded-xl text-sm font-semibold transition border",
+                                    removingId === m.id
+                                      ? "bg-gray-100 text-slate-500 dark:text-slate-400 cursor-not-allowed"
+                                      : "bg-white hover:border-red-400 hover:text-red-600",
+                                  ].join(" ")}
+                                >
+                                  {removingId === m.id ? "Excluindo..." : "Excluir"}
+                                </button>
+                              </div>
+
+                              <div>
+                                {itens.length === 0 ? (
+                                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                                    Nenhuma disciplina vinculada.
+                                  </p>
+                                ) : (
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    {itens.map((item) => {
+                                      const turma = item.turma;
+                                      const disciplinaNome =
+                                        (item as any)?.disciplina?.nome ?? "Disciplina";
+                                      const turmaNome = turma?.nome ?? "Turma";
+                                      const profNome = turma?.professor?.nome ?? "—";
+                                      const qtdAulas = turma?._count?.aulas ?? 0;
+
+                                      return (
+                                        <div
+                                          key={item.id}
+                                          className="rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+                                        >
+                                          <p className="font-medium text-slate-900 dark:text-slate-100">
+                                            {disciplinaNome}
+                                          </p>
+                                          <p>
+                                            Turma: {turmaNome} • Prof: {profNome} • Aulas: {qtdAulas}
+                                          </p>
+                                          <p className="mt-1">
+                                            Status da disciplina:{" "}
+                                            <span className="font-medium text-slate-900 dark:text-slate-100">
+                                              {labelStatusItem(item.status)}
+                                            </span>
+                                          </p>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {matriculaEditando && (
-  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-    <div className="bg-white p-6 rounded-2xl w-full max-w-5xl shadow-xl max-h-[90vh] overflow-auto relative">
-      <button
-  onClick={() => setMatriculaEditando(null)}
-  className="absolute top-4 right-4 text-slate-500 dark:text-slate-400 hover:text-red-600 text-2xl font-bold"
->
-  ×
-</button>
-      <h2 className="text-lg font-bold mb-4">Editar matrícula</h2>
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-6 rounded-2xl w-full max-w-5xl shadow-xl max-h-[90vh] overflow-auto relative">
+            <button
+              onClick={() => setMatriculaEditando(null)}
+              className="absolute top-4 right-4 text-slate-500 dark:text-slate-400 hover:text-red-600 text-2xl font-bold"
+            >
+              ×
+            </button>
+            <h2 className="text-lg font-bold mb-4">Editar matrícula</h2>
 
-      {matriculaEditando.vendedorResponsavelNome ? (
-  <div className="matriculas-vendedor-card mb-5 rounded-2xl border p-4">
-    <p className="matriculas-vendedor-titulo text-sm font-bold">
-      Vendedor responsável
-    </p>
+            {matriculaEditando.vendedorResponsavelNome ? (
+              <div className="matriculas-vendedor-card mb-5 rounded-2xl border p-4">
+                <p className="matriculas-vendedor-titulo text-sm font-bold">
+                  Vendedor responsável
+                </p>
 
-    <p className="mt-2 font-semibold text-slate-900 dark:text-slate-100">
-      {matriculaEditando.vendedorResponsavelNome}
-    </p>
+                <p className="mt-2 font-semibold text-slate-900 dark:text-slate-100">
+                  {matriculaEditando.vendedorResponsavelNome}
+                </p>
 
-    <p className="matriculas-vendedor-ajuda mt-2 text-xs">
-      O vendedor já está registrado nesta matrícula. Para evitar
-      manipulação de comissão, a troca ou remoção deverá ser feita
-      pela rotina auditada, com motivo obrigatório.
-    </p>
-  </div>
-) : podeSelecionarVendedor ? (
-  <div className="matriculas-vendedor-card mb-5 rounded-2xl border p-4">
-    <label className="matriculas-vendedor-titulo block text-sm font-bold">
-      Vendedor responsável
+                <p className="matriculas-vendedor-ajuda mt-2 text-xs">
+                  O vendedor já está registrado nesta matrícula. Para evitar
+                  manipulação de comissão, a troca ou remoção deverá ser feita
+                  pela rotina auditada, com motivo obrigatório.
+                </p>
+              </div>
+            ) : podeSelecionarVendedor ? (
+              <div className="matriculas-vendedor-card mb-5 rounded-2xl border p-4">
+                <label className="matriculas-vendedor-titulo block text-sm font-bold">
+                  Vendedor responsável
 
-      <span className="matriculas-vendedor-opcional ml-2 font-normal">
-        Opcional
-      </span>
-    </label>
+                  <span className="matriculas-vendedor-opcional ml-2 font-normal">
+                    Opcional
+                  </span>
+                </label>
 
-    <select
-      value={
-        matriculaEditando.vendedorResponsavelId
-      }
-      onChange={(evento) =>
-        setMatriculaEditando((anterior) =>
-          anterior
-            ? {
-                ...anterior,
-                vendedorResponsavelId:
-                  evento.target.value,
-              }
-            : anterior
-        )
-      }
-      className="matriculas-vendedor-select mt-2 w-full rounded-xl border px-3 py-2 outline-none"
-    >
-      <option value="">
-        Nenhum vendedor selecionado
-      </option>
+                <select
+                  value={
+                    matriculaEditando.vendedorResponsavelId
+                  }
+                  onChange={(evento) =>
+                    setMatriculaEditando((anterior) =>
+                      anterior
+                        ? {
+                          ...anterior,
+                          vendedorResponsavelId:
+                            evento.target.value,
+                        }
+                        : anterior
+                    )
+                  }
+                  className="matriculas-vendedor-select mt-2 w-full rounded-xl border px-3 py-2 outline-none"
+                >
+                  <option value="">
+                    Nenhum vendedor selecionado
+                  </option>
 
-      {vendedores.map((vendedor) => (
-        <option
-          key={vendedor.id}
-          value={String(vendedor.id)}
-        >
-          {vendedor.nome}
-          {vendedor.cargo
-            ? ` — ${vendedor.cargo}`
-            : ""}
-          {vendedor.departamento?.nome
-            ? ` — ${vendedor.departamento.nome}`
-            : ""}
-          {vendedor.planoComissao?.planoNome
-            ? ` — Plano: ${vendedor.planoComissao.planoNome}`
-            : ""}
-        </option>
-      ))}
-    </select>
+                  {vendedores.map((vendedor) => (
+                    <option
+                      key={vendedor.id}
+                      value={String(vendedor.id)}
+                    >
+                      {vendedor.nome}
+                      {vendedor.cargo
+                        ? ` — ${vendedor.cargo}`
+                        : ""}
+                      {vendedor.departamento?.nome
+                        ? ` — ${vendedor.departamento.nome}`
+                        : ""}
+                      {vendedor.planoComissao?.planoNome
+                        ? ` — Plano: ${vendedor.planoComissao.planoNome}`
+                        : ""}
+                    </option>
+                  ))}
+                </select>
 
-    <p className="matriculas-vendedor-ajuda mt-2 text-xs">
-      Após salvar, o vendedor ficará registrado e não poderá ser
-      trocado silenciosamente.
-    </p>
-  </div>
-) : null}
+                <p className="matriculas-vendedor-ajuda mt-2 text-xs">
+                  Após salvar, o vendedor ficará registrado e não poderá ser
+                  trocado silenciosamente.
+                </p>
+              </div>
+            ) : null}
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-  <div>
-    <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
-      Aluno
-    </label>
-    <select
-      value={matriculaEditando.alunoId}
-      onChange={(e) =>
-        setMatriculaEditando((prev) =>
-          prev ? { ...prev, alunoId: e.target.value } : prev
-        )
-      }
-      className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-    >
-      <option value="">Selecione...</option>
-      {alunos.map((a) => (
-        <option key={a.id} value={String(a.id)}>
-          {a.nome}
-        </option>
-      ))}
-    </select>
-  </div>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <div>
+                <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+                  Aluno
+                </label>
+                <select
+                  value={matriculaEditando.alunoId}
+                  onChange={(e) =>
+                    setMatriculaEditando((prev) =>
+                      prev ? { ...prev, alunoId: e.target.value } : prev
+                    )
+                  }
+                  className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                >
+                  <option value="">Selecione...</option>
+                  {alunos.map((a) => (
+                    <option key={a.id} value={String(a.id)}>
+                      {a.nome}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-  <div>
-    <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
-      Curso
-    </label>
-    <select
-      value={matriculaEditando.cursoId}
-      onChange={async (e) => {
-        const novoCursoId = e.target.value;
-        await carregarSemestresDoCurso(novoCursoId);
+              <div>
+                <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+                  Curso
+                </label>
+                <select
+                  value={matriculaEditando.cursoId}
+                  onChange={async (e) => {
+                    const novoCursoId = e.target.value;
+                    await carregarSemestresDoCurso(novoCursoId);
 
-        setMatriculaEditando((prev) =>
-          prev
-            ? {
-                ...prev,
-                cursoId: novoCursoId,
-                cursoSemestreId: "",
-                semestre: "",
-                turmaIds: [],
-              }
-            : prev
-        );
-      }}
-      className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-    >
-      <option value="">Selecione...</option>
-      {cursos.map((c) => (
-        <option key={c.id} value={String(c.id)}>
-          {c.nome}
-        </option>
-      ))}
-    </select>
-  </div>
+                    setMatriculaEditando((prev) =>
+                      prev
+                        ? {
+                          ...prev,
+                          cursoId: novoCursoId,
+                          cursoSemestreId: "",
+                          semestre: "",
+                          turmaIds: [],
+                        }
+                        : prev
+                    );
+                  }}
+                  className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                >
+                  <option value="">Selecione...</option>
+                  {cursos.map((c) => (
+                    <option key={c.id} value={String(c.id)}>
+                      {c.nome}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-  <div>
-    <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
-      Semestre do curso
-    </label>
-    <select
-      value={matriculaEditando.cursoSemestreId}
-      onChange={(e) => {
-        const semestreId = e.target.value;
-        const semestreObj = semestresCurso.find(
-          (s) => s.id === Number(semestreId)
-        );
+              <div>
+                <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+                  Semestre do curso
+                </label>
+                <select
+                  value={matriculaEditando.cursoSemestreId}
+                  onChange={(e) => {
+                    const semestreId = e.target.value;
+                    const semestreObj = semestresCurso.find(
+                      (s) => s.id === Number(semestreId)
+                    );
 
-        setMatriculaEditando((prev) =>
-          prev
-            ? {
-                ...prev,
-                cursoSemestreId: semestreId,
-                semestre: semestreObj ? Number(semestreObj.numero) : "",
-                turmaIds: [],
-              }
-            : prev
-        );
-      }}
-      className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-      disabled={!matriculaEditando.cursoId}
-    >
-      <option value="">Selecione...</option>
-      {semestresCurso.map((s) => (
-        <option key={s.id} value={String(s.id)}>
-          {s.numero}º semestre{s.titulo ? ` — ${s.titulo}` : ""}
-        </option>
-      ))}
-    </select>
-  </div>
+                    setMatriculaEditando((prev) =>
+                      prev
+                        ? {
+                          ...prev,
+                          cursoSemestreId: semestreId,
+                          semestre: semestreObj ? Number(semestreObj.numero) : "",
+                          turmaIds: [],
+                        }
+                        : prev
+                    );
+                  }}
+                  className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                  disabled={!matriculaEditando.cursoId}
+                >
+                  <option value="">Selecione...</option>
+                  {semestresCurso.map((s) => (
+                    <option key={s.id} value={String(s.id)}>
+                      {s.numero}º semestre{s.titulo ? ` — ${s.titulo}` : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-  <div>
-    <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
-      Nome social
-    </label>
-    <input
-      type="text"
-      value={matriculaEditando.nomeSocial}
-      onChange={(e) =>
-        setMatriculaEditando((prev) =>
-          prev ? { ...prev, nomeSocial: e.target.value } : prev
-        )
-      }
-      className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-    />
-  </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+                  Nome social
+                </label>
+                <input
+                  type="text"
+                  value={matriculaEditando.nomeSocial}
+                  onChange={(e) =>
+                    setMatriculaEditando((prev) =>
+                      prev ? { ...prev, nomeSocial: e.target.value } : prev
+                    )
+                  }
+                  className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                />
+              </div>
 
-  <div>
-    <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
-      Gênero
-    </label>
-    <select
-      value={matriculaEditando.genero}
-      onChange={(e) =>
-        setMatriculaEditando((prev) =>
-          prev ? { ...prev, genero: e.target.value } : prev
-        )
-      }
-      className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-    >
-      <option value="">Selecione...</option>
-      <option value="FEMININO">Feminino</option>
-      <option value="MASCULINO">Masculino</option>
-      <option value="NAO_BINARIO">Não binário</option>
-      <option value="OUTRO">Outro</option>
-      <option value="PREFIRO_NAO_INFORMAR">Prefiro não informar</option>
-    </select>
-  </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+                  Gênero
+                </label>
+                <select
+                  value={matriculaEditando.genero}
+                  onChange={(e) =>
+                    setMatriculaEditando((prev) =>
+                      prev ? { ...prev, genero: e.target.value } : prev
+                    )
+                  }
+                  className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                >
+                  <option value="">Selecione...</option>
+                  <option value="FEMININO">Feminino</option>
+                  <option value="MASCULINO">Masculino</option>
+                  <option value="NAO_BINARIO">Não binário</option>
+                  <option value="OUTRO">Outro</option>
+                  <option value="PREFIRO_NAO_INFORMAR">Prefiro não informar</option>
+                </select>
+              </div>
 
-  <div>
-    <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
-      Modalidade
-    </label>
-    <select
-      value={matriculaEditando.modalidade}
-      onChange={(e) =>
-        setMatriculaEditando((prev) =>
-          prev ? { ...prev, modalidade: e.target.value } : prev
-        )
-      }
-      className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-    >
-      <option value="">Selecione a modalidade</option>
-      <option value="PRESENCIAL">Presencial</option>
-      <option value="EAD">EAD</option>
-      <option value="HIBRIDO">Híbrido</option>
-    </select>
-  </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+                  Modalidade
+                </label>
+                <select
+                  value={matriculaEditando.modalidade}
+                  onChange={(e) =>
+                    setMatriculaEditando((prev) =>
+                      prev ? { ...prev, modalidade: e.target.value } : prev
+                    )
+                  }
+                  className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                >
+                  <option value="">Selecione a modalidade</option>
+                  <option value="PRESENCIAL">Presencial</option>
+                  <option value="EAD">EAD</option>
+                  <option value="HIBRIDO">Híbrido</option>
+                </select>
+              </div>
 
-  <div>
-    <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
-      Turma do aluno
-    </label>
-    <select
-      value={
-        matriculaEditando.turmaIds[0]
-          ? String(matriculaEditando.turmaIds[0])
-          : ""
-      }
-      onChange={(e) => {
-        const turmaId = Number(e.target.value);
+              <div>
+                <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+                  Turma do aluno
+                </label>
+                <select
+                  value={
+                    matriculaEditando.turmaIds[0]
+                      ? String(matriculaEditando.turmaIds[0])
+                      : ""
+                  }
+                  onChange={(e) => {
+                    const turmaId = Number(e.target.value);
 
-        setMatriculaEditando((prev) =>
-          prev
-            ? {
-                ...prev,
-                turmaIds:
-                  Number.isFinite(turmaId) && turmaId > 0 ? [turmaId] : [],
-              }
-            : prev
-        );
-      }}
-      className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-    >
-      <option value="">Selecione a turma...</option>
-      {turmas
-        .filter((t) => Number(t.cursoId) === Number(matriculaEditando.cursoId))
-        .map((t) => (
-          <option key={t.id} value={String(t.id)}>
-            {t.nome}
-            {t.professorNome ? ` • Prof. ${t.professorNome}` : ""}
-            {t.semestre ? ` • ${t.semestre}º semestre` : ""}
-          </option>
-        ))}
-    </select>
-  </div>
+                    setMatriculaEditando((prev) =>
+                      prev
+                        ? {
+                          ...prev,
+                          turmaIds:
+                            Number.isFinite(turmaId) && turmaId > 0 ? [turmaId] : [],
+                        }
+                        : prev
+                    );
+                  }}
+                  className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                >
+                  <option value="">Selecione a turma...</option>
+                  {turmas
+                    .filter((t) => Number(t.cursoId) === Number(matriculaEditando.cursoId))
+                    .map((t) => (
+                      <option key={t.id} value={String(t.id)}>
+                        {t.nome}
+                        {t.professorNome ? ` • Prof. ${t.professorNome}` : ""}
+                        {t.semestre ? ` • ${t.semestre}º semestre` : ""}
+                      </option>
+                    ))}
+                </select>
+              </div>
 
-  <div>
-    <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
-      Período / horário letivo
-    </label>
-    <select
-      value={matriculaEditando.periodoLetivo}
-      onChange={(e) =>
-        setMatriculaEditando((prev) =>
-          prev ? { ...prev, periodoLetivo: e.target.value } : prev
-        )
-      }
-      className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-    >
-      <option value="">Selecione o período</option>
-      <option value="MATUTINO">Matutino</option>
-      <option value="VESPERTINO">Vespertino</option>
-      <option value="NOTURNO">Noturno</option>
-      <option value="INTEGRAL">Integral</option>
-      <option value="MATUTINO_VESPERTINO">Matutino/Vespertino</option>
-      <option value="MATUTINO_NOTURNO">Matutino/Noturno</option>
-      <option value="VESPERTINO_NOTURNO">Vespertino/Noturno</option>
-      <option value="EAD_LIVRE">EAD Livre</option>
-      <option value="EAD_MATUTINO">EAD Matutino</option>
-      <option value="EAD_VESPERTINO">EAD Vespertino</option>
-      <option value="EAD_NOTURNO">EAD Noturno</option>
-      <option value="EAD_INTEGRAL">EAD Integral</option>
-    </select>
-  </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+                  Período / horário letivo
+                </label>
+                <select
+                  value={matriculaEditando.periodoLetivo}
+                  onChange={(e) =>
+                    setMatriculaEditando((prev) =>
+                      prev ? { ...prev, periodoLetivo: e.target.value } : prev
+                    )
+                  }
+                  className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                >
+                  <option value="">Selecione o período</option>
+                  <option value="MATUTINO">Matutino</option>
+                  <option value="VESPERTINO">Vespertino</option>
+                  <option value="NOTURNO">Noturno</option>
+                  <option value="INTEGRAL">Integral</option>
+                  <option value="MATUTINO_VESPERTINO">Matutino/Vespertino</option>
+                  <option value="MATUTINO_NOTURNO">Matutino/Noturno</option>
+                  <option value="VESPERTINO_NOTURNO">Vespertino/Noturno</option>
+                  <option value="EAD_LIVRE">EAD Livre</option>
+                  <option value="EAD_MATUTINO">EAD Matutino</option>
+                  <option value="EAD_VESPERTINO">EAD Vespertino</option>
+                  <option value="EAD_NOTURNO">EAD Noturno</option>
+                  <option value="EAD_INTEGRAL">EAD Integral</option>
+                </select>
+              </div>
 
-  <div>
-    <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
-      Primeiro vencimento
-    </label>
-    <input
-      type="date"
-      value={matriculaEditando.primeiroVencimento}
-      onChange={(e) =>
-        setMatriculaEditando((prev) =>
-          prev ? { ...prev, primeiroVencimento: e.target.value } : prev
-        )
-      }
-      className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-    />
-  </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+                  Primeiro vencimento
+                </label>
+                <input
+                  type="date"
+                  value={matriculaEditando.primeiroVencimento}
+                  onChange={(e) =>
+                    setMatriculaEditando((prev) =>
+                      prev ? { ...prev, primeiroVencimento: e.target.value } : prev
+                    )
+                  }
+                  className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                />
+              </div>
 
-  <div>
-    <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
-      Valor da mensalidade
-    </label>
-    <input
-      type="number"
-      step="0.01"
-      min="0"
-      value={matriculaEditando.valorMensalidade}
-      onChange={(e) =>
-        setMatriculaEditando((prev) =>
-          prev ? { ...prev, valorMensalidade: e.target.value } : prev
-        )
-      }
-      className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-    />
-  </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+                  Valor da mensalidade
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={matriculaEditando.valorMensalidade}
+                  onChange={(e) =>
+                    setMatriculaEditando((prev) =>
+                      prev ? { ...prev, valorMensalidade: e.target.value } : prev
+                    )
+                  }
+                  className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                />
+              </div>
 
-  <div>
-    <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
-      Quantidade de mensalidades
-    </label>
-    <input
-      type="number"
-      min="1"
-      value={matriculaEditando.quantidadeMensalidades}
-      onChange={(e) =>
-        setMatriculaEditando((prev) =>
-          prev
-            ? { ...prev, quantidadeMensalidades: e.target.value }
-            : prev
-        )
-      }
-      className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-    />
-  </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+                  Quantidade de mensalidades
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  value={matriculaEditando.quantidadeMensalidades}
+                  onChange={(e) =>
+                    setMatriculaEditando((prev) =>
+                      prev
+                        ? { ...prev, quantidadeMensalidades: e.target.value }
+                        : prev
+                    )
+                  }
+                  className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                />
+              </div>
 
-  <div>
-    <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
-      Valor pago no ato da matrícula
-    </label>
-    <input
-      type="number"
-      step="0.01"
-      min="0"
-      value={matriculaEditando.valorPagoMatricula}
-      onChange={(e) =>
-        setMatriculaEditando((prev) =>
-          prev ? { ...prev, valorPagoMatricula: e.target.value } : prev
-        )
-      }
-      className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-    />
-  </div>
-</div>
+              <div>
+                <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+                  Valor pago no ato da matrícula
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={matriculaEditando.valorPagoMatricula}
+                  onChange={(e) =>
+                    setMatriculaEditando((prev) =>
+                      prev ? { ...prev, valorPagoMatricula: e.target.value } : prev
+                    )
+                  }
+                  className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                />
+              </div>
+            </div>
 
-      <div className="mt-5">
-  <label className="text-sm font-medium text-gray-700">
-    Disciplinas contratadas do semestre
-  </label>
+            <div className="mt-5">
+              <label className="text-sm font-medium text-gray-700">
+                Disciplinas contratadas do semestre
+              </label>
 
-  <div className="mt-2 border rounded-2xl p-4 max-h-64 overflow-auto space-y-4">
-    {matriculaEditando.cursoId && matriculaEditando.cursoSemestreId ? (
-      disciplinasBaseEdicaoAgrupadas.length > 0 ? (
-        disciplinasBaseEdicaoAgrupadas.map((grupo) =>
-          renderGrupoDisciplina(
-            grupo,
-            matriculaEditando.turmaIds,
-            toggleTurmaEdicao
-          )
-        )
-      ) : (
-        <p className="text-sm text-slate-500 dark:text-slate-400">
-          Nenhuma disciplina encontrada para este semestre.
-        </p>
-      )
-    ) : (
-      <p className="text-sm text-slate-500 dark:text-slate-400">
-        Selecione primeiro o curso e o semestre do curso.
-      </p>
-    )}
-  </div>
-</div>
+              <div className="mt-2 border rounded-2xl p-4 max-h-64 overflow-auto space-y-4">
+                {matriculaEditando.cursoId && matriculaEditando.cursoSemestreId ? (
+                  disciplinasBaseEdicaoAgrupadas.length > 0 ? (
+                    disciplinasBaseEdicaoAgrupadas.map((grupo) =>
+                      renderGrupoDisciplina(
+                        grupo,
+                        matriculaEditando.turmaIds,
+                        toggleTurmaEdicao
+                      )
+                    )
+                  ) : (
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                      Nenhuma disciplina encontrada para este semestre.
+                    </p>
+                  )
+                ) : (
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                    Selecione primeiro o curso e o semestre do curso.
+                  </p>
+                )}
+              </div>
+            </div>
 
-      <div className="mt-5">
-  <label className="text-sm font-medium text-gray-700">
-    Disciplinas extras contratadas
-  </label>
-  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-    Use esta área para adicionar disciplinas fora da grade padrão daquele semestre.
-  </p>
+            <div className="mt-5">
+              <label className="text-sm font-medium text-gray-700">
+                Disciplinas extras contratadas
+              </label>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                Use esta área para adicionar disciplinas fora da grade padrão daquele semestre.
+              </p>
 
-  <div className="mt-2 border rounded-2xl p-4 max-h-64 overflow-auto space-y-4">
-    {matriculaEditando.cursoId && matriculaEditando.cursoSemestreId ? (
-      disciplinasExtrasEdicaoAgrupadas.length > 0 ? (
-        disciplinasExtrasEdicaoAgrupadas.map((grupo) =>
-          renderGrupoDisciplina(
-            grupo,
-            matriculaEditando.turmaIds,
-            toggleTurmaEdicao
-          )
-        )
-      ) : (
-        <p className="text-sm text-slate-500 dark:text-slate-400">
-          Nenhuma disciplina extra encontrada para este curso.
-        </p>
-      )
-    ) : (
-      <p className="text-sm text-slate-500 dark:text-slate-400">
-        Selecione primeiro o curso e o semestre do curso.
-      </p>
-    )}
-  </div>
-</div>
+              <div className="mt-2 border rounded-2xl p-4 max-h-64 overflow-auto space-y-4">
+                {matriculaEditando.cursoId && matriculaEditando.cursoSemestreId ? (
+                  disciplinasExtrasEdicaoAgrupadas.length > 0 ? (
+                    disciplinasExtrasEdicaoAgrupadas.map((grupo) =>
+                      renderGrupoDisciplina(
+                        grupo,
+                        matriculaEditando.turmaIds,
+                        toggleTurmaEdicao
+                      )
+                    )
+                  ) : (
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                      Nenhuma disciplina extra encontrada para este curso.
+                    </p>
+                  )
+                ) : (
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                    Selecione primeiro o curso e o semestre do curso.
+                  </p>
+                )}
+              </div>
+            </div>
 
-<div className="matriculas-multiselect-neutro mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
-  <MultiSelectDisciplinas
-    titulo="Disciplinas contratadas"
-    disciplinas={disciplinasDoSemestreEdicao}
-    selecionadas={disciplinasEdicaoSelecionadas}
-    setSelecionadas={setDisciplinasEdicaoSelecionadas}
-  />
+            <div className="matriculas-multiselect-neutro mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
+              <MultiSelectDisciplinas
+                titulo="Disciplinas contratadas"
+                disciplinas={disciplinasDoSemestreEdicao}
+                selecionadas={disciplinasEdicaoSelecionadas}
+                setSelecionadas={setDisciplinasEdicaoSelecionadas}
+              />
 
-  <MultiSelectDisciplinas
-    titulo="Disciplinas extras contratadas"
-    disciplinas={disciplinasExtrasEdicaoDisponiveis}
-    selecionadas={disciplinasExtrasEdicaoSelecionadas}
-    setSelecionadas={setDisciplinasExtrasEdicaoSelecionadas}
-  />
-</div>
+              <MultiSelectDisciplinas
+                titulo="Disciplinas extras contratadas"
+                disciplinas={disciplinasExtrasEdicaoDisponiveis}
+                selecionadas={disciplinasExtrasEdicaoSelecionadas}
+                setSelecionadas={setDisciplinasExtrasEdicaoSelecionadas}
+              />
+            </div>
 
-      <div className="flex gap-2 mt-6">
-       <button
-  type="button"
-  onClick={salvarEdicao}
-          className="bg-green-600 text-white px-4 py-2 rounded-xl"
-        >
-          Salvar
-        </button>
+            <div className="flex gap-2 mt-6">
+              <button
+                type="button"
+                onClick={salvarEdicao}
+                className="bg-green-600 text-white px-4 py-2 rounded-xl"
+              >
+                Salvar
+              </button>
 
-        <button
-  type="button"
-  onClick={() => setMatriculaEditando(null)}
-          className="bg-gray-400 text-white px-4 py-2 rounded-xl"
-        >
-          Cancelar
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
-{modalSecretariaAberto && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-    <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl">
-      <div className="mb-4 flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
-            Assinatura do Atendente / Secretaria
-          </h2>
-          <p className="text-sm text-slate-600 dark:text-slate-300">
-            Assine abaixo para registrar a assinatura administrativa no contrato.
-          </p>
+              <button
+                type="button"
+                onClick={() => setMatriculaEditando(null)}
+                className="bg-gray-400 text-white px-4 py-2 rounded-xl"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
         </div>
+      )}
 
-        <button
-          type="button"
-          onClick={() => setModalSecretariaAberto(false)}
-          className="text-2xl font-bold text-slate-500 dark:text-slate-400 hover:text-red-600"
-        >
-          ×
-        </button>
-      </div>
+      {modalSecretariaAberto && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                  Assinatura do Atendente / Secretaria
+                </h2>
+                <p className="text-sm text-slate-600 dark:text-slate-300">
+                  Assine abaixo para registrar a assinatura administrativa no contrato.
+                </p>
+              </div>
 
-      <canvas
-        ref={canvasSecretariaRef}
-        width={700}
-        height={220}
-        className="w-full rounded-xl border bg-white"
-        onMouseDown={iniciarDesenhoSecretaria}
-        onMouseUp={pararDesenhoSecretaria}
-        onMouseMove={desenharSecretaria}
-        onMouseLeave={pararDesenhoSecretaria}
+              <button
+                type="button"
+                onClick={() => setModalSecretariaAberto(false)}
+                className="text-2xl font-bold text-slate-500 dark:text-slate-400 hover:text-red-600"
+              >
+                ×
+              </button>
+            </div>
+
+            <canvas
+              ref={canvasSecretariaRef}
+              width={700}
+              height={220}
+              className="w-full rounded-xl border bg-white"
+              onMouseDown={iniciarDesenhoSecretaria}
+              onMouseUp={pararDesenhoSecretaria}
+              onMouseMove={desenharSecretaria}
+              onMouseLeave={pararDesenhoSecretaria}
+            />
+
+            <div className="mt-4 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={limparAssinaturaSecretaria}
+                disabled={salvandoSecretaria}
+                className="rounded-xl bg-gray-500 px-4 py-2 text-white disabled:opacity-50"
+              >
+                Limpar
+              </button>
+
+              <button
+                type="button"
+                onClick={salvarAssinaturaSecretaria}
+                disabled={salvandoSecretaria}
+                className="rounded-xl bg-purple-600 px-4 py-2 font-semibold text-white disabled:opacity-50"
+              >
+                {salvandoSecretaria ? "Salvando..." : "Salvar assinatura"}
+              </button>
+              <button
+                type="button"
+                onClick={assinarDigitalmenteSecretaria}
+                disabled={salvandoSecretaria}
+                className="rounded-xl bg-blue-600 px-4 py-2 font-semibold text-white disabled:opacity-50"
+              >
+                🔐 Assinar digitalmente
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <PhanyxConfirmModal
+        aberto={confirmModalAberto}
+        titulo={confirmTitulo}
+        mensagem={confirmMensagem}
+        textoConfirmar={confirmAcao ? "Confirmar" : "Entendi"}
+        textoCancelar={confirmAcao ? "Cancelar" : ""}
+        onConfirmar={async () => {
+          setConfirmModalAberto(false);
+
+          if (confirmAcao) {
+            await confirmAcao();
+          }
+
+          setConfirmAcao(null);
+        }}
+        onCancelar={() => {
+          setConfirmModalAberto(false);
+          setConfirmAcao(null);
+        }}
       />
-
-      <div className="mt-4 flex flex-wrap gap-3">
-        <button
-          type="button"
-          onClick={limparAssinaturaSecretaria}
-          disabled={salvandoSecretaria}
-          className="rounded-xl bg-gray-500 px-4 py-2 text-white disabled:opacity-50"
-        >
-          Limpar
-        </button>
-
-        <button
-          type="button"
-          onClick={salvarAssinaturaSecretaria}
-          disabled={salvandoSecretaria}
-          className="rounded-xl bg-purple-600 px-4 py-2 font-semibold text-white disabled:opacity-50"
-        >
-          {salvandoSecretaria ? "Salvando..." : "Salvar assinatura"}
-        </button>
-        <button
-  type="button"
-  onClick={assinarDigitalmenteSecretaria}
-  disabled={salvandoSecretaria}
-  className="rounded-xl bg-blue-600 px-4 py-2 font-semibold text-white disabled:opacity-50"
->
-  🔐 Assinar digitalmente
-</button>
-      </div>
-    </div>
-  </div>
-)}
-
-<PhanyxConfirmModal
-  aberto={confirmModalAberto}
-  titulo={confirmTitulo}
-  mensagem={confirmMensagem}
-  textoConfirmar={confirmAcao ? "Confirmar" : "Entendi"}
-  textoCancelar={confirmAcao ? "Cancelar" : ""}
-  onConfirmar={async () => {
-  setConfirmModalAberto(false);
-
-  if (confirmAcao) {
-    await confirmAcao();
-  }
-
-  setConfirmAcao(null);
-}}
-  onCancelar={() => {
-    setConfirmModalAberto(false);
-    setConfirmAcao(null);
-  }}
-/>
 
     </div>
   );
