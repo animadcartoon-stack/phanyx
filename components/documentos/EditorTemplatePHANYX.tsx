@@ -316,6 +316,29 @@ function conteudoParaHtmlSeguro(valor: string) {
     .join("\n");
 }
 
+function blocoPossuiConteudoVisivel(
+  node: any
+) {
+  const texto =
+    String(
+      node?.textContent || ""
+    ).trim();
+
+  if (texto) {
+    return true;
+  }
+
+  return [
+    "horizontalRule",
+    "image",
+    "table",
+  ].includes(
+    String(
+      node?.type?.name || ""
+    )
+  );
+}
+
 export default function EditorTemplatePHANYX({ value, onChange }: Props) {
   const [fonteAtual, setFonteAtual] = useState("");
   const [tamanhoAtual, setTamanhoAtual] = useState("");
@@ -485,6 +508,52 @@ export default function EditorTemplatePHANYX({ value, onChange }: Props) {
         editor.view.dom.children
       ) as HTMLElement[];
 
+      const blocosDocumento: Array<{
+  node: any;
+  offset: number;
+  index: number;
+}> = [];
+
+editor.state.doc.forEach(
+  (
+    node,
+    offset,
+    index
+  ) => {
+    blocosDocumento.push({
+      node,
+      offset,
+      index,
+    });
+  }
+);
+
+let ultimoBlocoComConteudo =
+  -1;
+
+for (
+  let index =
+    blocosDocumento.length - 1;
+  index >= 0;
+  index -= 1
+) {
+  const bloco =
+    blocosDocumento[index];
+
+  if (
+    bloco.node.type.name !==
+      "pageBreak" &&
+    blocoPossuiConteudoVisivel(
+      bloco.node
+    )
+  ) {
+    ultimoBlocoComConteudo =
+      index;
+
+    break;
+  }
+}
+
     const quebrasAtuais:
       Array<{
         posicaoReal: number;
@@ -503,12 +572,15 @@ export default function EditorTemplatePHANYX({ value, onChange }: Props) {
     let posicaoSemQuebras = 0;
     let paginaAtual = 1;
 
-    editor.state.doc.forEach(
-      (
-        node,
-        offset,
-        index
-      ) => {
+    blocosDocumento.forEach(
+  (
+    {
+      node,
+      offset,
+      index,
+    },
+    indiceBloco
+  ) => {
         if (
           node.type.name ===
           "pageBreak"
@@ -557,12 +629,20 @@ export default function EditorTemplatePHANYX({ value, onChange }: Props) {
             margemInferior;
         }
 
-        if (
-          alturaPaginaAtual > 0 &&
-          alturaPaginaAtual +
-            alturaElemento >
-            alturaUtilPx
-        ) {
+        const blocoVazioNoFinal =
+  indiceBloco >
+    ultimoBlocoComConteudo &&
+  !blocoPossuiConteudoVisivel(
+    node
+  );
+
+if (
+  !blocoVazioNoFinal &&
+  alturaPaginaAtual > 0 &&
+  alturaPaginaAtual +
+    alturaElemento >
+    alturaUtilPx
+) {
           quebrasDesejadas.push({
             posicao:
               posicaoSemQuebras,
@@ -761,74 +841,125 @@ export default function EditorTemplatePHANYX({ value, onChange }: Props) {
 }, [editor]);
 
   useEffect(() => {
-    const sentinela =
-      barraSentinelaRef.current;
+  const sentinela =
+    barraSentinelaRef.current;
 
-    const container =
-      barraContainerRef.current;
+  const container =
+    barraContainerRef.current;
 
-    if (!sentinela || !container) {
+  if (!sentinela || !container) {
+    return;
+  }
+
+  let frame:
+    number | null = null;
+
+  function atualizarBarra() {
+    frame = null;
+
+    const retanguloSentinela =
+      sentinela.getBoundingClientRect();
+
+    const retanguloContainer =
+      container.getBoundingClientRect();
+
+    const topoBarra = 8;
+
+    const deveFlutuar =
+      retanguloSentinela.top <=
+        topoBarra &&
+      retanguloContainer.bottom >
+        100;
+
+    setBarraFlutuante(
+      deveFlutuar
+    );
+
+    if (!deveFlutuar) {
       return;
     }
 
-    function atualizarMedidas() {
-      const retangulo =
-        container.getBoundingClientRect();
+    const esquerda =
+      Math.max(
+        retanguloContainer.left,
+        8
+      );
 
-      setBarraMedidas({
-        left: retangulo.left,
-        width: retangulo.width,
-      });
+    const larguraDisponivel =
+      window.innerWidth -
+      esquerda -
+      8;
+
+    setBarraMedidas({
+      left: esquerda,
+
+      width: Math.min(
+        retanguloContainer.width,
+        larguraDisponivel
+      ),
+    });
+  }
+
+  function agendarAtualizacao() {
+    if (frame !== null) {
+      window.cancelAnimationFrame(
+        frame
+      );
     }
 
-    atualizarMedidas();
-
-    const observador =
-      new IntersectionObserver(
-        ([entrada]) => {
-          const deveFlutuar =
-            !entrada.isIntersecting &&
-            entrada.boundingClientRect.top < 0;
-
-          setBarraFlutuante(
-            deveFlutuar
-          );
-
-          if (deveFlutuar) {
-            atualizarMedidas();
-          }
-        },
-        {
-          threshold: [0, 1],
-        }
+    frame =
+      window.requestAnimationFrame(
+        atualizarBarra
       );
+  }
 
-    observador.observe(sentinela);
+  /*
+   * O terceiro argumento true captura também
+   * a rolagem de contêineres internos do Admin.
+   */
+  document.addEventListener(
+    "scroll",
+    agendarAtualizacao,
+    true
+  );
 
-    const observadorTamanho =
-      new ResizeObserver(() => {
-        atualizarMedidas();
-      });
+  window.addEventListener(
+    "resize",
+    agendarAtualizacao
+  );
 
-    observadorTamanho.observe(
-      container
+  const observadorTamanho =
+    new ResizeObserver(
+      agendarAtualizacao
     );
 
-    window.addEventListener(
+  observadorTamanho.observe(
+    container
+  );
+
+  agendarAtualizacao();
+
+  return () => {
+    document.removeEventListener(
+      "scroll",
+      agendarAtualizacao,
+      true
+    );
+
+    window.removeEventListener(
       "resize",
-      atualizarMedidas
+      agendarAtualizacao
     );
 
-    return () => {
-      observador.disconnect();
-      observadorTamanho.disconnect();
+    observadorTamanho.disconnect();
 
-      window.removeEventListener(
-        "resize",
-        atualizarMedidas
+    if (frame !== null) {
+      window.cancelAnimationFrame(
+        frame
       );
-    };
-  }, []);
+    }
+  };
+}, []);
 
   if (!editor) return null;
 
@@ -852,8 +983,8 @@ export default function EditorTemplatePHANYX({ value, onChange }: Props) {
 
       <div
         className={`border-b border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800 ${barraFlutuante
-          ? "fixed top-0 z-[100] shadow-2xl"
-          : "relative z-40"
+  ? "fixed top-2 z-[999999] shadow-2xl"
+  : "relative z-40"
           }`}
         style={
           barraFlutuante
