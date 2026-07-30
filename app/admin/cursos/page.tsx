@@ -103,6 +103,9 @@ type Curso = {
     nome: string;
   } | null;
 }[];
+publicacaoRedeDestino?: {
+  id: number;
+} | null;
 };
 
 type FeedbackTipo = "sucesso" | "erro" | "";
@@ -307,6 +310,64 @@ function estaNoUltimoDia(data?: string | null) {
   );
 
   setCursoEditandoPolos(curso);
+}
+
+function alternarPoloEdicao(id: number) {
+  setPolosEdicaoSelecionados((atual) =>
+    atual.includes(id)
+      ? atual.filter((poloId) => poloId !== id)
+      : [...atual, id]
+  );
+}
+
+async function salvarPolosDoCurso() {
+  if (!cursoEditandoPolos) return;
+
+  try {
+    setSalvandoPolosCurso(true);
+    setModalErro("");
+
+    const res = await fetch(
+      `/api/admin/cursos/${cursoEditandoPolos.id}/ofertas`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          poloIds: polosEdicaoSelecionados,
+        }),
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(
+        data?.error ||
+          "Erro ao atualizar os polos do curso."
+      );
+    }
+
+    setCursoEditandoPolos(null);
+    setPolosEdicaoSelecionados([]);
+
+    await carregarCursos();
+
+    mostrarFeedback(
+      "sucesso",
+      data?.mensagem ||
+        "Polos do curso atualizados com sucesso."
+    );
+  } catch (error: any) {
+    setModalErro(
+      error?.message ||
+        "Erro ao atualizar os polos do curso."
+    );
+  } finally {
+    setSalvandoPolosCurso(false);
+  }
 }
 
   async function criarCurso(e: React.FormEvent) {
@@ -850,26 +911,39 @@ if (!termoTexto) return cursosPorStatus;
     href={`/admin/cursos/${curso.id}`}
     className="inline-block rounded-lg bg-blue-600 px-4 py-2 text-white"
   >
-    Montar grade curricular
+    {curso.publicacaoRedeDestino
+      ? "Ver estrutura"
+      : "Montar grade curricular"}
   </Link>
 
-  {curso.ativo ? (
+  {!curso.publicacaoRedeDestino && curso.ativo && (
     <button
       type="button"
-      onClick={() => setCursoParaExcluir(curso)}
-      className="rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+      onClick={() => abrirEdicaoPolos(curso)}
+      className="rounded-lg bg-slate-700 px-4 py-2 text-white hover:bg-slate-800"
     >
-      Excluir
-    </button>
-  ) : (
-    <button
-      type="button"
-      onClick={() => restaurarCurso(curso.id)}
-      className="rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700"
-    >
-      Restaurar
+      Editar polos/unidades
     </button>
   )}
+
+  {!curso.publicacaoRedeDestino &&
+    (curso.ativo ? (
+      <button
+        type="button"
+        onClick={() => setCursoParaExcluir(curso)}
+        className="rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+      >
+        Excluir
+      </button>
+    ) : (
+      <button
+        type="button"
+        onClick={() => restaurarCurso(curso.id)}
+        className="rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+      >
+        Restaurar
+      </button>
+    ))}
 </div>
                   </div>
 
@@ -888,6 +962,85 @@ if (!termoTexto) return cursosPorStatus;
           </div>
         )}
       </div>
+
+{cursoEditandoPolos && (
+  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4">
+    <div className="w-full max-w-xl rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-950">
+      <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+        Editar polos e unidades
+      </h3>
+
+      <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+        Curso:{" "}
+        <strong>{cursoEditandoPolos.nome}</strong>
+      </p>
+
+      <div className="mt-5 max-h-72 overflow-auto rounded-xl border border-slate-200 p-3 dark:border-slate-700">
+        {polos.length === 0 ? (
+          <p className="text-sm text-slate-500">
+            Nenhum polo ativo disponível.
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {polos.map((polo) => (
+              <label
+                key={polo.id}
+                className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-900"
+              >
+                <input
+                  type="checkbox"
+                  checked={polosEdicaoSelecionados.includes(
+                    polo.id
+                  )}
+                  onChange={() =>
+                    alternarPoloEdicao(polo.id)
+                  }
+                />
+
+                <span className="text-sm text-slate-800 dark:text-slate-200">
+                  {polo.nome}
+                  {polo.codigo
+                    ? ` — ${polo.codigo}`
+                    : ""}
+                </span>
+              </label>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <p className="mt-3 text-xs leading-5 text-slate-500 dark:text-slate-400">
+        Ao desmarcar uma unidade independente, o curso será retirado e desativado nela, sem apagar o histórico.
+      </p>
+
+      <div className="mt-6 flex justify-end gap-3">
+        <button
+          type="button"
+          onClick={() => {
+            setCursoEditandoPolos(null);
+            setPolosEdicaoSelecionados([]);
+          }}
+          disabled={salvandoPolosCurso}
+          className="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 hover:bg-slate-100 disabled:opacity-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          onClick={salvarPolosDoCurso}
+          disabled={salvandoPolosCurso}
+          className="rounded-xl bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+        >
+          {salvandoPolosCurso
+            ? "Salvando..."
+            : "Salvar polos"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
       {cursoParaExcluir && (
   <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4">
     <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
