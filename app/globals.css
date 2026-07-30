@@ -16729,3 +16729,155 @@ html[data-theme="system"]
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
 }
+
+/* =========================================================
+   CURSOS — MODAL EDITAR POLOS E UNIDADES
+========================================================= */
+
+/* TEMA CLARO */
+html[data-theme="light"] .phanyx-curso-ofertas-modal {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-curso-ofertas-titulo,
+html[data-theme="light"] .phanyx-curso-ofertas-nome {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-curso-ofertas-subtitulo,
+html[data-theme="light"] .phanyx-curso-ofertas-ajuda,
+html[data-theme="light"] .phanyx-curso-ofertas-vazio {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-curso-ofertas-lista {
+  background: #f8fafc !important;
+  border-color: #94a3b8 !important;
+}
+
+html[data-theme="light"] .phanyx-curso-ofertas-item {
+  background: transparent !important;
+}
+
+html[data-theme="light"] .phanyx-curso-ofertas-item:hover {
+  background: #e2e8f0 !important;
+}
+
+html[data-theme="light"] .phanyx-curso-ofertas-item-texto {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-curso-ofertas-cancelar {
+  background: #ffffff !important;
+  border-color: #94a3b8 !important;
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+}
+
+html[data-theme="light"] .phanyx-curso-ofertas-cancelar:hover {
+  background: #f1f5f9 !important;
+}
+
+html[data-theme="light"] .phanyx-curso-ofertas-salvar {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* TEMA ESCURO */
+html[data-theme="dark"] .phanyx-curso-ofertas-modal {
+  background: #171717 !important;
+  border-color: #525252 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-curso-ofertas-titulo,
+html[data-theme="dark"] .phanyx-curso-ofertas-nome,
+html[data-theme="dark"] .phanyx-curso-ofertas-item-texto {
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-curso-ofertas-subtitulo,
+html[data-theme="dark"] .phanyx-curso-ofertas-ajuda,
+html[data-theme="dark"] .phanyx-curso-ofertas-vazio {
+  color: #cbd5e1 !important;
+  -webkit-text-fill-color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .phanyx-curso-ofertas-lista {
+  background: #262626 !important;
+  border-color: #525252 !important;
+}
+
+html[data-theme="dark"] .phanyx-curso-ofertas-item:hover {
+  background: #404040 !important;
+}
+
+html[data-theme="dark"] .phanyx-curso-ofertas-cancelar {
+  background: #262626 !important;
+  border-color: #737373 !important;
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-curso-ofertas-salvar {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* TEMA SISTEMA */
+html[data-theme="system"] .phanyx-curso-ofertas-modal {
+  background: #2f2f2f !important;
+  border-color: #666666 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-curso-ofertas-titulo,
+html[data-theme="system"] .phanyx-curso-ofertas-nome,
+html[data-theme="system"] .phanyx-curso-ofertas-item-texto {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-curso-ofertas-subtitulo,
+html[data-theme="system"] .phanyx-curso-ofertas-ajuda,
+html[data-theme="system"] .phanyx-curso-ofertas-vazio {
+  color: #e5e7eb !important;
+  -webkit-text-fill-color: #e5e7eb !important;
+}
+
+html[data-theme="system"] .phanyx-curso-ofertas-lista {
+  background: #3f3f3f !important;
+  border-color: #737373 !important;
+}
+
+html[data-theme="system"] .phanyx-curso-ofertas-item:hover {
+  background: #525252 !important;
+}
+
+html[data-theme="system"] .phanyx-curso-ofertas-cancelar {
+  background: #3f3f3f !important;
+  border-color: #737373 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-curso-ofertas-salvar {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+.phanyx-curso-ofertas-modal input[type="checkbox"] {
+  accent-color: #2563eb !important;
+}

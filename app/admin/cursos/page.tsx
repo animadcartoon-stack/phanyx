@@ -965,21 +965,21 @@ if (!termoTexto) return cursosPorStatus;
 
 {cursoEditandoPolos && (
   <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4">
-    <div className="w-full max-w-xl rounded-3xl border border-slate-300 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-950">
-      <h3 className="text-xl font-bold !text-slate-950 dark:!text-slate-100">
+    <div className="phanyx-curso-ofertas-modal w-full max-w-xl rounded-3xl border p-6 shadow-2xl">
+      <h3 className="phanyx-curso-ofertas-titulo text-xl font-bold">
         Editar polos e unidades
       </h3>
 
-      <p className="mt-2 text-sm !text-slate-700 dark:!text-slate-300">
+      <p className="phanyx-curso-ofertas-subtitulo mt-2 text-sm">
         Curso:{" "}
-        <strong className="!text-slate-950 dark:!text-white">
+        <strong className="phanyx-curso-ofertas-nome">
           {cursoEditandoPolos.nome}
         </strong>
       </p>
 
-      <div className="mt-5 max-h-72 overflow-auto rounded-xl border border-slate-300 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900">
+      <div className="phanyx-curso-ofertas-lista mt-5 max-h-72 overflow-auto rounded-xl border p-3">
         {polos.length === 0 ? (
-          <p className="text-sm !text-slate-600 dark:!text-slate-300">
+          <p className="phanyx-curso-ofertas-vazio text-sm">
             Nenhum polo ativo disponível.
           </p>
         ) : (
@@ -987,7 +987,7 @@ if (!termoTexto) return cursosPorStatus;
             {polos.map((polo) => (
               <label
                 key={polo.id}
-                className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 hover:bg-slate-200 dark:hover:bg-slate-800"
+                className="phanyx-curso-ofertas-item flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2"
               >
                 <input
                   type="checkbox"
@@ -997,10 +997,10 @@ if (!termoTexto) return cursosPorStatus;
                   onChange={() =>
                     alternarPoloEdicao(polo.id)
                   }
-                  className="h-4 w-4 accent-blue-600"
+                  className="h-4 w-4"
                 />
 
-                <span className="text-sm font-medium !text-slate-900 dark:!text-slate-100">
+                <span className="phanyx-curso-ofertas-item-texto text-sm font-medium">
                   {polo.nome}
                   {polo.codigo
                     ? ` — ${polo.codigo}`
@@ -1012,8 +1012,9 @@ if (!termoTexto) return cursosPorStatus;
         )}
       </div>
 
-      <p className="mt-3 text-xs leading-5 !text-slate-600 dark:!text-slate-400">
-        Ao desmarcar uma unidade independente, o curso será retirado e desativado nela, sem apagar o histórico.
+      <p className="phanyx-curso-ofertas-ajuda mt-3 text-xs leading-5">
+        Ao desmarcar uma unidade independente, o curso será
+        retirado e desativado nela, sem apagar o histórico.
       </p>
 
       <div className="mt-6 flex justify-end gap-3">
@@ -1024,7 +1025,7 @@ if (!termoTexto) return cursosPorStatus;
             setPolosEdicaoSelecionados([]);
           }}
           disabled={salvandoPolosCurso}
-          className="rounded-xl border border-slate-400 bg-white px-4 py-2 font-medium !text-slate-800 hover:bg-slate-100 disabled:opacity-50 dark:border-slate-600 dark:bg-slate-900 dark:!text-slate-100 dark:hover:bg-slate-800"
+          className="phanyx-curso-ofertas-cancelar rounded-xl border px-4 py-2 font-medium disabled:opacity-50"
         >
           Cancelar
         </button>
@@ -1033,7 +1034,7 @@ if (!termoTexto) return cursosPorStatus;
           type="button"
           onClick={salvarPolosDoCurso}
           disabled={salvandoPolosCurso}
-          className="rounded-xl bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+          className="phanyx-curso-ofertas-salvar rounded-xl px-4 py-2 font-semibold disabled:opacity-50"
         >
           {salvandoPolosCurso
             ? "Salvando..."
