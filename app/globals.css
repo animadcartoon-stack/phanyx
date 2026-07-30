@@ -16532,3 +16532,112 @@ html[data-theme="system"]
   color: #ffedd5 !important;
   -webkit-text-fill-color: #ffedd5 !important;
 }
+
+/* =========================================================
+   EDITOR DE DOCUMENTOS — FOLHAS A4
+========================================================= */
+
+.editor-template-phanyx {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 0 !important;
+  padding-left: 18mm;
+  padding-right: 18mm;
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.phanyx-a4-guia-cabecalho,
+.phanyx-page-break__cabecalho {
+  box-sizing: border-box;
+  height: 42mm;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 18mm;
+  border-bottom: 1px dashed #94a3b8;
+  background:
+    linear-gradient(
+      180deg,
+      #f8fafc 0%,
+      #eef2f7 100%
+    );
+  color: #475569;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+.phanyx-a4-guia-rodape,
+.phanyx-page-break__rodape {
+  box-sizing: border-box;
+  height: 28mm;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 18mm;
+  border-top: 1px dashed #94a3b8;
+  background:
+    linear-gradient(
+      180deg,
+      #f8fafc 0%,
+      #eef2f7 100%
+    );
+  color: #475569;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+.phanyx-page-break {
+  box-sizing: border-box;
+  width: calc(100% + 36mm);
+  margin-left: -18mm;
+  margin-right: -18mm;
+  user-select: none;
+  pointer-events: none;
+}
+
+.phanyx-page-break__intervalo {
+  box-sizing: border-box;
+  height: 10mm;
+  background: #020617;
+  box-shadow:
+    inset 0 8px 14px
+      rgb(15 23 42 / 0.35),
+    inset 0 -8px 14px
+      rgb(15 23 42 / 0.35);
+}
+
+.editor-template-phanyx
+  .phanyx-page-break
+  + * {
+  margin-top: 0;
+}
+
+html[data-theme="dark"]
+  .phanyx-a4-guia-cabecalho,
+html[data-theme="dark"]
+  .phanyx-a4-guia-rodape,
+html[data-theme="dark"]
+  .phanyx-page-break__cabecalho,
+html[data-theme="dark"]
+  .phanyx-page-break__rodape,
+html[data-theme="system"]
+  .phanyx-a4-guia-cabecalho,
+html[data-theme="system"]
+  .phanyx-a4-guia-rodape,
+html[data-theme="system"]
+  .phanyx-page-break__cabecalho,
+html[data-theme="system"]
+  .phanyx-page-break__rodape {
+  background: #f1f5f9;
+  color: #334155;
+  border-color: #64748b;
+}
