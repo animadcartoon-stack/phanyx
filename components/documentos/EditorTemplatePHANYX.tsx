@@ -17,6 +17,7 @@ import Underline from "@tiptap/extension-underline";
 import { TextStyle } from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
 import FontFamily from "@tiptap/extension-font-family";
+import { createPortal } from "react-dom";
 
 const FONTES_WINDOWS = [
   "Arial",
@@ -344,6 +345,22 @@ export default function EditorTemplatePHANYX({ value, onChange }: Props) {
   const [tamanhoAtual, setTamanhoAtual] = useState("");
 
   const [
+  formatacaoAtiva,
+  setFormatacaoAtiva,
+] = useState({
+  negrito: false,
+  italico: false,
+  sublinhado: false,
+  esquerda: true,
+  centro: false,
+  direita: false,
+  justificar: false,
+  titulo: false,
+  subtitulo: false,
+  lista: false,
+});
+
+  const [
     totalPaginas,
     setTotalPaginas,
   ] = useState(1);
@@ -357,27 +374,29 @@ export default function EditorTemplatePHANYX({ value, onChange }: Props) {
     )
   );
 
-  const barraSentinelaRef =
-    useRef<HTMLDivElement | null>(null);
+  const barraOriginalRef =
+  useRef<HTMLDivElement | null>(null);
 
-  const barraContainerRef =
-    useRef<HTMLDivElement | null>(null);
+const barraContainerRef =
+  useRef<HTMLDivElement | null>(null);
 
-  const [barraFlutuante, setBarraFlutuante] =
-    useState(false);
+const [portalPronto, setPortalPronto] =
+  useState(false);
 
-  const [barraMedidas, setBarraMedidas] =
-    useState({
-      left: 0,
-      width: 0,
-    });
+const [barraFlutuante, setBarraFlutuante] =
+  useState(false);
+
+const [barraMedidas, setBarraMedidas] =
+  useState({
+    left: 8,
+    width: 640,
+  });
 
   const editor = useEditor({
 
     extensions: [
       StarterKit,
       PageBreakPHANYX,
-      Underline,
       Underline,
       TextStyle,
       FontFamily,
@@ -459,19 +478,145 @@ export default function EditorTemplatePHANYX({ value, onChange }: Props) {
       const node = selection?.anchorNode;
 
       const elemento =
-        node?.nodeType === Node.TEXT_NODE
-          ? node.parentElement
-          : (node as HTMLElement | null);
+  node?.nodeType === Node.TEXT_NODE
+    ? node.parentElement
+    : (node as HTMLElement | null);
 
-      if (elemento) {
-        const computed = window.getComputedStyle(elemento);
+const computed =
+  elemento
+    ? window.getComputedStyle(
+        elemento
+      )
+    : null;
 
-        if (!fonte) fonte = limparFonte(computed.fontFamily);
-        if (!tamanho) tamanho = limparTamanho(computed.fontSize);
+if (computed) {
+  if (!fonte) {
+    fonte =
+      limparFonte(
+        computed.fontFamily
+      );
+  }
+
+  if (!tamanho) {
+    tamanho =
+      limparTamanho(
+        computed.fontSize
+      );
+  }
+}
+
+setFonteAtual(fonte || "");
+setTamanhoAtual(tamanho || "");
+
+const pesoFonte =
+  String(
+    computed?.fontWeight || ""
+  ).toLowerCase();
+
+const pesoFonteNumerico =
+  Number.parseInt(
+    pesoFonte,
+    10
+  );
+
+const negritoVisual =
+  pesoFonte === "bold" ||
+  pesoFonte === "bolder" ||
+  (
+    Number.isFinite(
+      pesoFonteNumerico
+    ) &&
+    pesoFonteNumerico >= 600
+  );
+
+const italicoVisual =
+  String(
+    computed?.fontStyle || ""
+  ).toLowerCase() === "italic";
+
+const sublinhadoVisual =
+  String(
+    computed?.textDecorationLine ||
+      computed?.textDecoration ||
+      ""
+  )
+    .toLowerCase()
+    .includes("underline");
+      const alinhamentoAtivo = (
+  valor: string
+) =>
+  editor.isActive(
+    "paragraph",
+    {
+      textAlign: valor,
+    }
+  ) ||
+  editor.isActive(
+    "heading",
+    {
+      textAlign: valor,
+    }
+  );
+
+const centro =
+  alinhamentoAtivo("center");
+
+const direita =
+  alinhamentoAtivo("right");
+
+const justificar =
+  alinhamentoAtivo("justify");
+
+const esquerda =
+  alinhamentoAtivo("left") ||
+  (
+    !centro &&
+    !direita &&
+    !justificar
+  );
+
+setFormatacaoAtiva({
+  negrito:
+  editor.isActive("bold") ||
+  negritoVisual,
+
+italico:
+  editor.isActive("italic") ||
+  italicoVisual,
+
+sublinhado:
+  editor.isActive("underline") ||
+  sublinhadoVisual,
+
+  esquerda,
+
+  centro,
+
+  direita,
+
+  justificar,
+
+  titulo:
+    editor.isActive(
+      "heading",
+      {
+        level: 1,
       }
+    ),
 
-      setFonteAtual(fonte || "");
-      setTamanhoAtual(tamanho || "");
+  subtitulo:
+    editor.isActive(
+      "heading",
+      {
+        level: 2,
+      }
+    ),
+
+  lista:
+    editor.isActive(
+      "bulletList"
+    ),
+});
     }
 
     editor.on("selectionUpdate", atualizarSelecao);
@@ -488,474 +633,393 @@ export default function EditorTemplatePHANYX({ value, onChange }: Props) {
   }, [editor]);
 
   useEffect(() => {
-  if (!editor) {
-    return;
-  }
+    if (!editor) {
+      return;
+    }
 
-  let frame:
-    number | null = null;
+    let frame:
+      number | null = null;
 
-  const alturaUtilPx =
-    mmParaPx(
-      ALTURA_UTIL_PAGINA_MM
-    );
+    const alturaUtilPx =
+      mmParaPx(
+        ALTURA_UTIL_PAGINA_MM
+      );
 
-  function paginarConteudo() {
-    frame = null;
+    function paginarConteudo() {
+      frame = null;
 
-    const elementos =
-      Array.from(
-        editor.view.dom.children
-      ) as HTMLElement[];
+      const elementos =
+        Array.from(
+          editor.view.dom.children
+        ) as HTMLElement[];
 
       const blocosDocumento: Array<{
-  node: any;
-  offset: number;
-  index: number;
-}> = [];
-
-editor.state.doc.forEach(
-  (
-    node,
-    offset,
-    index
-  ) => {
-    blocosDocumento.push({
-      node,
-      offset,
-      index,
-    });
-  }
-);
-
-let ultimoBlocoComConteudo =
-  -1;
-
-for (
-  let index =
-    blocosDocumento.length - 1;
-  index >= 0;
-  index -= 1
-) {
-  const bloco =
-    blocosDocumento[index];
-
-  if (
-    bloco.node.type.name !==
-      "pageBreak" &&
-    blocoPossuiConteudoVisivel(
-      bloco.node
-    )
-  ) {
-    ultimoBlocoComConteudo =
-      index;
-
-    break;
-  }
-}
-
-    const quebrasAtuais:
-      Array<{
-        posicaoReal: number;
-        posicaoLimpa: number;
-        tamanho: number;
+        node: any;
+        offset: number;
+        index: number;
       }> = [];
 
-    const quebrasDesejadas:
-      Array<{
-        posicao: number;
-        paginaAnterior: number;
-        paginaSeguinte: number;
-      }> = [];
+      editor.state.doc.forEach(
+        (
+          node,
+          offset,
+          index
+        ) => {
+          blocosDocumento.push({
+            node,
+            offset,
+            index,
+          });
+        }
+      );
 
-    let alturaPaginaAtual = 0;
-    let posicaoSemQuebras = 0;
-    let paginaAtual = 1;
+      let ultimoBlocoComConteudo =
+        -1;
 
-    blocosDocumento.forEach(
-  (
-    {
-      node,
-      offset,
-      index,
-    },
-    indiceBloco
-  ) => {
+      for (
+        let index =
+          blocosDocumento.length - 1;
+        index >= 0;
+        index -= 1
+      ) {
+        const bloco =
+          blocosDocumento[index];
+
         if (
-          node.type.name ===
-          "pageBreak"
+          bloco.node.type.name !==
+          "pageBreak" &&
+          blocoPossuiConteudoVisivel(
+            bloco.node
+          )
         ) {
-          quebrasAtuais.push({
-            posicaoReal:
-              offset,
+          ultimoBlocoComConteudo =
+            index;
 
-            posicaoLimpa:
-              posicaoSemQuebras,
-
-            tamanho:
-              node.nodeSize,
-          });
-
-          return;
+          break;
         }
-
-        const elemento =
-          elementos[index];
-
-        let alturaElemento = 0;
-
-        if (elemento) {
-          const retangulo =
-            elemento.getBoundingClientRect();
-
-          const estilos =
-            window.getComputedStyle(
-              elemento
-            );
-
-          const margemSuperior =
-            Number.parseFloat(
-              estilos.marginTop || "0"
-            ) || 0;
-
-          const margemInferior =
-            Number.parseFloat(
-              estilos.marginBottom || "0"
-            ) || 0;
-
-          alturaElemento =
-            retangulo.height +
-            margemSuperior +
-            margemInferior;
-        }
-
-        const blocoVazioNoFinal =
-  indiceBloco >
-    ultimoBlocoComConteudo &&
-  !blocoPossuiConteudoVisivel(
-    node
-  );
-
-if (
-  !blocoVazioNoFinal &&
-  alturaPaginaAtual > 0 &&
-  alturaPaginaAtual +
-    alturaElemento >
-    alturaUtilPx
-) {
-          quebrasDesejadas.push({
-            posicao:
-              posicaoSemQuebras,
-
-            paginaAnterior:
-              paginaAtual,
-
-            paginaSeguinte:
-              paginaAtual + 1,
-          });
-
-          paginaAtual += 1;
-          alturaPaginaAtual = 0;
-        }
-
-        alturaPaginaAtual +=
-          alturaElemento;
-
-        posicaoSemQuebras +=
-          node.nodeSize;
       }
-    );
 
-    setTotalPaginas(
-      Math.max(
-        paginaAtual,
-        1
-      )
-    );
+      const quebrasAtuais:
+        Array<{
+          posicaoReal: number;
+          posicaoLimpa: number;
+          tamanho: number;
+        }> = [];
 
-    setEspacoFinalPx(
-      Math.max(
-        0,
-        alturaUtilPx -
-          alturaPaginaAtual
-      )
-    );
+      const quebrasDesejadas:
+        Array<{
+          posicao: number;
+          paginaAnterior: number;
+          paginaSeguinte: number;
+        }> = [];
 
-    const posicoesAtuais =
-      quebrasAtuais.map(
-        (quebra) =>
-          quebra.posicaoLimpa
-      );
+      let alturaPaginaAtual = 0;
+      let posicaoSemQuebras = 0;
+      let paginaAtual = 1;
 
-    const posicoesDesejadas =
-      quebrasDesejadas.map(
-        (quebra) =>
-          quebra.posicao
-      );
+      blocosDocumento.forEach(
+        (
+          {
+            node,
+            offset,
+            index,
+          },
+          indiceBloco
+        ) => {
+          if (
+            node.type.name ===
+            "pageBreak"
+          ) {
+            quebrasAtuais.push({
+              posicaoReal:
+                offset,
 
-    const paginaçãoJaCorreta =
-      posicoesAtuais.length ===
-        posicoesDesejadas.length &&
-      posicoesAtuais.every(
-        (posicao, index) =>
-          posicao ===
-          posicoesDesejadas[
-            index
-          ]
-      );
+              posicaoLimpa:
+                posicaoSemQuebras,
 
-    if (paginaçãoJaCorreta) {
-      return;
-    }
+              tamanho:
+                node.nodeSize,
+            });
 
-    const tipoQuebra =
-      editor.schema.nodes
-        .pageBreak;
+            return;
+          }
 
-    if (!tipoQuebra) {
-      return;
-    }
+          const elemento =
+            elementos[index];
 
-    let transaction =
-      editor.state.tr;
+          let alturaElemento = 0;
 
-    for (
-      let index =
-        quebrasAtuais.length - 1;
-      index >= 0;
-      index -= 1
-    ) {
-      const quebra =
-        quebrasAtuais[index];
+          if (elemento) {
+            const retangulo =
+              elemento.getBoundingClientRect();
 
-      transaction =
-        transaction.delete(
-          quebra.posicaoReal,
-          quebra.posicaoReal +
-            quebra.tamanho
-        );
-    }
+            const estilos =
+              window.getComputedStyle(
+                elemento
+              );
 
-    for (
-      let index =
-        quebrasDesejadas.length -
-        1;
-      index >= 0;
-      index -= 1
-    ) {
-      const quebra =
-        quebrasDesejadas[index];
+            const margemSuperior =
+              Number.parseFloat(
+                estilos.marginTop || "0"
+              ) || 0;
 
-      transaction =
-        transaction.insert(
-          quebra.posicao,
+            const margemInferior =
+              Number.parseFloat(
+                estilos.marginBottom || "0"
+              ) || 0;
 
-          tipoQuebra.create({
-            paginaAnterior:
-              quebra.paginaAnterior,
+            alturaElemento =
+              retangulo.height +
+              margemSuperior +
+              margemInferior;
+          }
 
-            paginaSeguinte:
-              quebra.paginaSeguinte,
-          })
-        );
-    }
-
-    transaction.setMeta(
-      "addToHistory",
-      false
-    );
-
-    transaction.setMeta(
-      "phanyxPagination",
-      true
-    );
-
-    editor.view.dispatch(
-      transaction
-    );
-  }
-
-  function agendarPaginacao() {
-    if (frame !== null) {
-      window.cancelAnimationFrame(
-        frame
-      );
-    }
-
-    frame =
-      window.requestAnimationFrame(
-        () => {
-          frame =
-            window.requestAnimationFrame(
-              paginarConteudo
+          const blocoVazioNoFinal =
+            indiceBloco >
+            ultimoBlocoComConteudo &&
+            !blocoPossuiConteudoVisivel(
+              node
             );
+
+          if (
+            !blocoVazioNoFinal &&
+            alturaPaginaAtual > 0 &&
+            alturaPaginaAtual +
+            alturaElemento >
+            alturaUtilPx
+          ) {
+            quebrasDesejadas.push({
+              posicao:
+                posicaoSemQuebras,
+
+              paginaAnterior:
+                paginaAtual,
+
+              paginaSeguinte:
+                paginaAtual + 1,
+            });
+
+            paginaAtual += 1;
+            alturaPaginaAtual = 0;
+          }
+
+          alturaPaginaAtual +=
+            alturaElemento;
+
+          posicaoSemQuebras +=
+            node.nodeSize;
         }
       );
-  }
 
-  function aoAlterarEditor({
-    transaction,
-  }: {
-    transaction: any;
-  }) {
-    if (
-      transaction.getMeta(
-        "phanyxPagination"
-      )
-    ) {
-      return;
+      setTotalPaginas(
+        Math.max(
+          paginaAtual,
+          1
+        )
+      );
+
+      setEspacoFinalPx(
+        Math.max(
+          0,
+          alturaUtilPx -
+          alturaPaginaAtual
+        )
+      );
+
+      const posicoesAtuais =
+        quebrasAtuais.map(
+          (quebra) =>
+            quebra.posicaoLimpa
+        );
+
+      const posicoesDesejadas =
+        quebrasDesejadas.map(
+          (quebra) =>
+            quebra.posicao
+        );
+
+      const paginaçãoJaCorreta =
+        posicoesAtuais.length ===
+        posicoesDesejadas.length &&
+        posicoesAtuais.every(
+          (posicao, index) =>
+            posicao ===
+            posicoesDesejadas[
+            index
+            ]
+        );
+
+      if (paginaçãoJaCorreta) {
+        return;
+      }
+
+      const tipoQuebra =
+        editor.schema.nodes
+          .pageBreak;
+
+      if (!tipoQuebra) {
+        return;
+      }
+
+      let transaction =
+        editor.state.tr;
+
+      for (
+        let index =
+          quebrasAtuais.length - 1;
+        index >= 0;
+        index -= 1
+      ) {
+        const quebra =
+          quebrasAtuais[index];
+
+        transaction =
+          transaction.delete(
+            quebra.posicaoReal,
+            quebra.posicaoReal +
+            quebra.tamanho
+          );
+      }
+
+      for (
+        let index =
+          quebrasDesejadas.length -
+          1;
+        index >= 0;
+        index -= 1
+      ) {
+        const quebra =
+          quebrasDesejadas[index];
+
+        transaction =
+          transaction.insert(
+            quebra.posicao,
+
+            tipoQuebra.create({
+              paginaAnterior:
+                quebra.paginaAnterior,
+
+              paginaSeguinte:
+                quebra.paginaSeguinte,
+            })
+          );
+      }
+
+      transaction.setMeta(
+        "addToHistory",
+        false
+      );
+
+      transaction.setMeta(
+        "phanyxPagination",
+        true
+      );
+
+      editor.view.dispatch(
+        transaction
+      );
     }
 
-    agendarPaginacao();
-  }
+    function agendarPaginacao() {
+      if (frame !== null) {
+        window.cancelAnimationFrame(
+          frame
+        );
+      }
 
-  editor.on(
-    "transaction",
-    aoAlterarEditor
-  );
+      frame =
+        window.requestAnimationFrame(
+          () => {
+            frame =
+              window.requestAnimationFrame(
+                paginarConteudo
+              );
+          }
+        );
+    }
 
-  window.addEventListener(
-    "resize",
-    agendarPaginacao
-  );
+    function aoAlterarEditor({
+      transaction,
+    }: {
+      transaction: any;
+    }) {
+      if (
+        transaction.getMeta(
+          "phanyxPagination"
+        )
+      ) {
+        return;
+      }
 
-  agendarPaginacao();
+      agendarPaginacao();
+    }
 
-  return () => {
-    editor.off(
+    editor.on(
       "transaction",
       aoAlterarEditor
     );
 
-    window.removeEventListener(
+    window.addEventListener(
       "resize",
       agendarPaginacao
     );
 
-    if (frame !== null) {
-      window.cancelAnimationFrame(
-        frame
+    agendarPaginacao();
+
+    return () => {
+      editor.off(
+        "transaction",
+        aoAlterarEditor
       );
-    }
+
+      window.removeEventListener(
+        "resize",
+        agendarPaginacao
+      );
+
+      if (frame !== null) {
+        window.cancelAnimationFrame(
+          frame
+        );
+      }
+    };
+  }, [editor]);
+
+  useEffect(() => {
+  setPortalPronto(true);
+
+  return () => {
+    setPortalPronto(false);
   };
-}, [editor]);
+}, []);
 
-  useEffect(() => {
-  const sentinela =
-    barraSentinelaRef.current;
-
-  const container =
-    barraContainerRef.current;
-
-  if (!sentinela || !container) {
-    return;
-  }
-
-  let frame:
-    number | null = null;
-
-  function atualizarBarra() {
-    frame = null;
-
-    const retanguloSentinela =
-      sentinela.getBoundingClientRect();
-
-    const retanguloContainer =
-      container.getBoundingClientRect();
-
-    const topoBarra = 8;
-
-    const deveFlutuar =
-      retanguloSentinela.top <=
-        topoBarra &&
-      retanguloContainer.bottom >
-        100;
-
-    setBarraFlutuante(
-      deveFlutuar
-    );
-
-    if (!deveFlutuar) {
-      return;
-    }
-
-    const esquerda =
-      Math.max(
-        retanguloContainer.left,
-        8
-      );
-
-    const larguraDisponivel =
-      window.innerWidth -
-      esquerda -
-      8;
-
-    setBarraMedidas({
-      left: esquerda,
-
-      width: Math.min(
-        retanguloContainer.width,
-        larguraDisponivel
-      ),
-    });
-  }
-
-  function agendarAtualizacao() {
-    if (frame !== null) {
-      window.cancelAnimationFrame(
-        frame
-      );
-    }
-
-    frame =
-      window.requestAnimationFrame(
-        atualizarBarra
-      );
-  }
-
-  /*
-   * O terceiro argumento true captura também
-   * a rolagem de contêineres internos do Admin.
-   */
-  useEffect(() => {
-  const sentinela =
-    barraSentinelaRef.current;
-
-  const container =
-    barraContainerRef.current;
-
-  if (!sentinela || !container) {
+useEffect(() => {
+  if (!portalPronto) {
     return;
   }
 
   let frame = 0;
-  let ultimaVerificacao = 0;
 
-  function acompanharBarra(
-    tempoAtual: number
-  ) {
-    /*
-     * Verifica aproximadamente a cada
-     * 60 milissegundos, mesmo quando
-     * o Admin usa rolagem interna.
-     */
+  function acompanharBarra() {
+    const barraOriginal =
+      barraOriginalRef.current;
+
+    const container =
+      barraContainerRef.current;
+
     if (
-      tempoAtual -
-        ultimaVerificacao >=
-      60
+      barraOriginal &&
+      container
     ) {
-      ultimaVerificacao =
-        tempoAtual;
+      const retanguloOriginal =
+        barraOriginal.getBoundingClientRect();
 
-      const sentinelaRect =
-        sentinela.getBoundingClientRect();
-
-      const containerRect =
+      const retanguloContainer =
         container.getBoundingClientRect();
 
       const deveFlutuar =
-        sentinelaRect.top < 8 &&
-        containerRect.bottom > 100;
+        retanguloOriginal.bottom <= 8 &&
+        retanguloContainer.bottom > 100;
 
       setBarraFlutuante(
         (valorAtual) =>
@@ -965,50 +1029,44 @@ if (
       );
 
       if (deveFlutuar) {
-        const esquerda =
+        const left =
           Math.max(
-            containerRect.left,
+            retanguloContainer.left,
             8
           );
 
-        const larguraMaxima =
-          window.innerWidth -
-          esquerda -
-          8;
-
-        const novaLargura =
+        const larguraDisponivel =
           Math.max(
             320,
-            Math.min(
-              containerRect.width,
-              larguraMaxima
-            )
+            window.innerWidth -
+              left -
+              8
+          );
+
+        const width =
+          Math.min(
+            retanguloContainer.width,
+            larguraDisponivel
           );
 
         setBarraMedidas(
           (medidasAtuais) => {
-            const mesmaEsquerda =
+            if (
               Math.abs(
                 medidasAtuais.left -
-                  esquerda
-              ) < 1;
-
-            const mesmaLargura =
+                  left
+              ) < 1 &&
               Math.abs(
                 medidasAtuais.width -
-                  novaLargura
-              ) < 1;
-
-            if (
-              mesmaEsquerda &&
-              mesmaLargura
+                  width
+              ) < 1
             ) {
               return medidasAtuais;
             }
 
             return {
-              left: esquerda,
-              width: novaLargura,
+              left,
+              width,
             };
           }
         );
@@ -1031,88 +1089,56 @@ if (
       frame
     );
   };
-}, []);
-
-  window.addEventListener(
-    "resize",
-    agendarAtualizacao
-  );
-
-  const observadorTamanho =
-    new ResizeObserver(
-      agendarAtualizacao
-    );
-
-  observadorTamanho.observe(
-    container
-  );
-
-  agendarAtualizacao();
-
-  return () => {
-    document.removeEventListener(
-      "scroll",
-      agendarAtualizacao,
-      true
-    );
-
-    window.removeEventListener(
-      "resize",
-      agendarAtualizacao
-    );
-
-    observadorTamanho.disconnect();
-
-    if (frame !== null) {
-      window.cancelAnimationFrame(
-        frame
-      );
-    }
-  };
-}, []);
+}, [portalPronto]);
 
   if (!editor) return null;
 
+  function classeBotaoFormatacao(
+  ativo: boolean
+) {
+  return [
+    "rounded-xl",
+    "border",
+    "px-3",
+    "py-2",
+    "text-sm",
+    "transition",
+
+    ativo
+      ? "phanyx-toolbar-ativo font-bold"
+      : "border-slate-300 bg-white text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800",
+  ].join(" ");
+}
+
+  function renderizarFerramentas() {
   return (
-    <div
-      ref={barraContainerRef}
-      className="relative rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900"
-    >
-      <div
-        ref={barraSentinelaRef}
-        className="h-px w-full"
-        aria-hidden="true"
-      />
+    <div className="phanyx-editor-toolbar border-b border-slate-700 bg-slate-800 p-3">
+      <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-300">
+        Ferramentas de edição
+      </p>
 
-      {barraFlutuante && (
+      <div className="flex flex-wrap gap-2">
         <div
-          aria-hidden="true"
-          className="h-[126px] sm:h-[78px]"
-        />
-      )}
-
-      <div
-  className={`border-b border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800 ${
-    barraFlutuante
-      ? "z-[999999] shadow-2xl"
-      : "relative z-40"
-  }`}
-  style={
-    barraFlutuante
-      ? {
-          position: "fixed",
-          top: "8px",
-          left:
-            `${barraMedidas.left}px`,
-          width:
-            `${barraMedidas.width}px`,
-          maxHeight:
-            "calc(100vh - 16px)",
-          overflowY: "auto",
+        className={`border-b border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800 ${barraFlutuante
+            ? "z-[999999] shadow-2xl"
+            : "relative z-40"
+          }`}
+        style={
+          barraFlutuante
+            ? {
+              position: "fixed",
+              top: "8px",
+              left:
+                `${barraMedidas.left}px`,
+              width:
+                `${barraMedidas.width}px`,
+              maxHeight:
+                "calc(100vh - 16px)",
+              overflowY: "auto",
+            }
+            : undefined
         }
-      : undefined
-  }
->
+      >
         <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-300">
           Ferramentas de edição
         </p>
@@ -1197,88 +1223,198 @@ if (
           </select>
 
           <button
-            type="button"
-            onClick={() => editor.chain().focus().toggleBold().run()}
-            className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
-          >
-            🅱️ Negrito
-          </button>
+  type="button"
+  aria-pressed={
+    formatacaoAtiva.negrito
+  }
+  onClick={() =>
+    editor
+      .chain()
+      .focus()
+      .toggleBold()
+      .run()
+  }
+  className={classeBotaoFormatacao(
+    formatacaoAtiva.negrito
+  )}
+>
+  🅱️ Negrito
+</button>
 
           <button
-            type="button"
-            onClick={() => editor.chain().focus().toggleItalic().run()}
-            className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
-          >
-            𝑰 Itálico
-          </button>
+  type="button"
+  aria-pressed={
+    formatacaoAtiva.italico
+  }
+  onClick={() =>
+    editor
+      .chain()
+      .focus()
+      .toggleItalic()
+      .run()
+  }
+  className={classeBotaoFormatacao(
+    formatacaoAtiva.italico
+  )}
+>
+  𝑰 Itálico
+</button>
 
           <button
-            type="button"
-            onClick={() => editor.chain().focus().toggleUnderline().run()}
-            className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
-          >
-            U̲ Sublinhado
-          </button>
+  type="button"
+  aria-pressed={
+    formatacaoAtiva.sublinhado
+  }
+  onClick={() =>
+    editor
+      .chain()
+      .focus()
+      .toggleUnderline()
+      .run()
+  }
+  className={classeBotaoFormatacao(
+    formatacaoAtiva.sublinhado
+  )}
+>
+  U̲ Sublinhado
+</button>
 
           <button
-            type="button"
-            onClick={() => editor.chain().focus().setTextAlign("left").run()}
-            className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
-          >
-            ← Esquerda
-          </button>
+  type="button"
+  aria-pressed={
+    formatacaoAtiva.esquerda
+  }
+  onClick={() =>
+    editor
+      .chain()
+      .focus()
+      .setTextAlign("left")
+      .run()
+  }
+  className={classeBotaoFormatacao(
+    formatacaoAtiva.esquerda
+  )}
+>
+  ← Esquerda
+</button>
 
           <button
-            type="button"
-            onClick={() => editor.chain().focus().setTextAlign("center").run()}
-            className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
-          >
-            ↔ Centro
-          </button>
+  type="button"
+  aria-pressed={
+    formatacaoAtiva.centro
+  }
+  onClick={() =>
+    editor
+      .chain()
+      .focus()
+      .setTextAlign("center")
+      .run()
+  }
+  className={classeBotaoFormatacao(
+    formatacaoAtiva.centro
+  )}
+>
+  ↔ Centro
+</button>
 
           <button
-            type="button"
-            onClick={() => editor.chain().focus().setTextAlign("right").run()}
-            className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
-          >
-            → Direita
-          </button>
+  type="button"
+  aria-pressed={
+    formatacaoAtiva.direita
+  }
+  onClick={() =>
+    editor
+      .chain()
+      .focus()
+      .setTextAlign("right")
+      .run()
+  }
+  className={classeBotaoFormatacao(
+    formatacaoAtiva.direita
+  )}
+>
+  → Direita
+</button>
 
           <button
-            type="button"
-            onClick={() => editor.chain().focus().setTextAlign("justify").run()}
-            className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
-          >
-            ☰ Justificar
-          </button>
+  type="button"
+  aria-pressed={
+    formatacaoAtiva.justificar
+  }
+  onClick={() =>
+    editor
+      .chain()
+      .focus()
+      .setTextAlign("justify")
+      .run()
+  }
+  className={classeBotaoFormatacao(
+    formatacaoAtiva.justificar
+  )}
+>
+  ☰ Justificar
+</button>
 
           <button
-            type="button"
-            onClick={() =>
-              editor.chain().focus().toggleHeading({ level: 1 }).run()
-            }
-            className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
-          >
-            Título
-          </button>
+  type="button"
+  aria-pressed={
+    formatacaoAtiva.titulo
+  }
+  onClick={() =>
+    editor
+      .chain()
+      .focus()
+      .toggleHeading({
+        level: 1,
+      })
+      .run()
+  }
+  className={classeBotaoFormatacao(
+    formatacaoAtiva.titulo
+  )}
+>
+  Título
+</button>
 
           <button
-            type="button"
-            onClick={() =>
-              editor.chain().focus().toggleHeading({ level: 2 }).run()
-            }
-            className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
-          >
-            Subtítulo
-          </button>
+  type="button"
+  aria-pressed={
+    formatacaoAtiva.subtitulo
+  }
+  onClick={() =>
+    editor
+      .chain()
+      .focus()
+      .toggleHeading({
+        level: 2,
+      })
+      .run()
+  }
+  className={classeBotaoFormatacao(
+    formatacaoAtiva.subtitulo
+  )}
+>
+  Subtítulo
+</button>
 
           <button
-            type="button"
-            onClick={() => editor.chain().focus().toggleBulletList().run()}
-            className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
-          >
-            • Lista
-          </button>
+  type="button"
+  aria-pressed={
+    formatacaoAtiva.lista
+  }
+  onClick={() =>
+    editor
+      .chain()
+      .focus()
+      .toggleBulletList()
+      .run()
+  }
+  className={classeBotaoFormatacao(
+    formatacaoAtiva.lista
+  )}
+>
+  • Lista
+</button>
 
           <input
             type="color"
@@ -1290,46 +1426,72 @@ if (
           />
         </div>
       </div>
-
-      <div className="overflow-x-auto bg-slate-100 p-6 dark:bg-slate-950">
-  <div className="mx-auto w-[210mm] shadow-2xl">
-    <div className="phanyx-a4-guia-cabecalho">
-      <span>
-        Área reservada para
-        cabeçalho e logo
-      </span>
-
-      <span>
-        Página 1
-      </span>
-    </div>
-
-    <div className="bg-white text-black">
-      <EditorContent
-        editor={editor}
-      />
-
-      <div
-        aria-hidden="true"
-        style={{
-          height:
-            `${espacoFinalPx}px`,
-        }}
-      />
-    </div>
-
-    <div className="phanyx-a4-guia-rodape">
-      <span>
-        Área reservada para
-        rodapé
-      </span>
-
-      <span>
-        Página {totalPaginas}
-      </span>
-    </div>
-  </div>
-</div>
+      </div>
     </div>
   );
+}
+
+  return (
+  <div
+    ref={barraContainerRef}
+    className="relative rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900"
+  >
+    <div ref={barraOriginalRef}>
+      {renderizarFerramentas()}
+    </div>
+
+    {portalPronto &&
+      barraFlutuante &&
+      createPortal(
+        <div
+          className="phanyx-editor-toolbar-portal overflow-hidden rounded-2xl shadow-2xl"
+          style={{
+            position: "fixed",
+            top: "8px",
+            left: `${barraMedidas.left}px`,
+            width: `${barraMedidas.width}px`,
+            maxHeight: "calc(100vh - 16px)",
+            overflowY: "auto",
+            zIndex: 2147483000,
+          }}
+        >
+          {renderizarFerramentas()}
+        </div>,
+        document.body
+      )}
+
+    <div className="overflow-x-auto bg-slate-100 p-6 dark:bg-slate-950">
+      <div className="mx-auto w-[210mm] shadow-2xl">
+        <div className="phanyx-a4-guia-cabecalho">
+          <span>
+            Área reservada para cabeçalho e logo
+          </span>
+
+          <span>Página 1</span>
+        </div>
+
+        <div className="bg-white text-black">
+          <EditorContent editor={editor} />
+
+          <div
+            aria-hidden="true"
+            style={{
+              height: `${espacoFinalPx}px`,
+            }}
+          />
+        </div>
+
+        <div className="phanyx-a4-guia-rodape">
+          <span>
+            Área reservada para rodapé
+          </span>
+
+          <span>
+            Página {totalPaginas}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+);
 }

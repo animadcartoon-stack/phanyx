@@ -16641,3 +16641,91 @@ html[data-theme="system"]
   color: #334155;
   border-color: #64748b;
 }
+
+/* =========================================================
+   BARRA FLUTUANTE DO EDITOR DE DOCUMENTOS
+========================================================= */
+
+.phanyx-editor-toolbar-portal {
+  color: #ffffff !important;
+}
+
+.phanyx-editor-toolbar-portal .phanyx-editor-toolbar {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #ffffff !important;
+}
+
+.phanyx-editor-toolbar-portal
+  .phanyx-editor-toolbar
+  p {
+  color: #e2e8f0 !important;
+  -webkit-text-fill-color: #e2e8f0 !important;
+}
+
+.phanyx-editor-toolbar-portal
+  .phanyx-editor-toolbar
+  button,
+.phanyx-editor-toolbar-portal
+  .phanyx-editor-toolbar
+  select {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+.phanyx-editor-toolbar-portal
+  .phanyx-editor-toolbar
+  button:hover,
+.phanyx-editor-toolbar-portal
+  .phanyx-editor-toolbar
+  select:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+.phanyx-editor-toolbar-portal
+  .phanyx-editor-toolbar
+  option {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+.phanyx-editor-toolbar-portal
+  .phanyx-editor-toolbar
+  input[type="color"] {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+/* Botão ativo na barra do editor de documentos */
+
+.phanyx-editor-toolbar
+  .phanyx-toolbar-ativo,
+.phanyx-editor-toolbar-portal
+  .phanyx-editor-toolbar
+  .phanyx-toolbar-ativo {
+  background: #2563eb !important;
+  border-color: #1d4ed8 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  box-shadow:
+    0 0 0 2px
+    rgb(147 197 253 / 70%) !important;
+}
+
+.phanyx-editor-toolbar
+  .phanyx-toolbar-ativo:hover,
+.phanyx-editor-toolbar-portal
+  .phanyx-editor-toolbar
+  .phanyx-toolbar-ativo:hover {
+  background: #1d4ed8 !important;
+  border-color: #1e40af !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
