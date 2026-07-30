@@ -4,6 +4,7 @@ import { getUserFromToken } from "@/lib/server-auth";
 import {
   ModalidadeCertificado,
   StatusComercialPolo,
+  StatusPublicacaoCursoRede,
 } from "@prisma/client";
 import {
   filtroPolosVisiveis,
@@ -88,34 +89,35 @@ export async function GET() {
             nome: true,
           },
         },
-        publicacaoRedeDestino: {
+        publicacoesRedeOrigem: {
+  where: {
+    status: StatusPublicacaoCursoRede.ATIVA,
+  },
+  include: {
+    polo: {
+      select: {
+        id: true,
+        nome: true,
+      },
+    },
+    instituicaoDestino: {
+      select: {
+        id: true,
+        nome: true,
+      },
+    },
+  },
+},
+
+publicacaoRedeDestino: {
   include: {
     cursoOrigem: {
       select: {
         id: true,
         nome: true,
         codigo: true,
-
-        publicacoesRedeOrigem: {
-          include: {
-            polo: {
-              select: {
-                id: true,
-                nome: true,
-              },
-            },
-
-            instituicaoDestino: {
-              select: {
-                id: true,
-                nome: true,
-              },
-            },
-          },
-        },
       },
     },
-
     instituicaoOrigem: {
       select: {
         id: true,

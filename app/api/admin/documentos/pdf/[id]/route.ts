@@ -1285,14 +1285,6 @@ await prisma.documentoGerado.update({
       borderColor: rgb(0.82, 0.86, 0.9),
     });
 
-    page.drawText("VALIDAÇÃO DO DOCUMENTO", {
-      x: margemX + 10,
-      y: y - 15,
-      size: 10,
-      font: bold,
-      color: rgb(0.18, 0.28, 0.45),
-    });
-
     page.drawText(`Código: ${codigoValidacao}`, {
       x: margemX + 10,
       y: y - 32,
