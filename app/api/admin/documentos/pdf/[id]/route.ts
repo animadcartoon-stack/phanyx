@@ -1158,12 +1158,16 @@ if ((!valorDoc || valorDoc <= 0) && doc.matricula?.lancamentosFinanceiros?.lengt
     .trim();
 }
 
-    const linhas = quebrarTextoEmLinhas(
-      doc.conteudo || "",
-      larguraTexto,
-      usarFonteTexto,
-      12
-    );
+    const conteudoLimpo = htmlParaTexto(
+  doc.conteudo || ""
+);
+
+const linhas = quebrarTextoEmLinhas(
+  conteudoLimpo,
+  larguraTexto,
+  usarFonteTexto,
+  12
+);
 
     for (const linha of linhas) {
       if (y < 110) {
