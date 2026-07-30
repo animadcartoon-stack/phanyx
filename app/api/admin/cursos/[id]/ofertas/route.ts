@@ -391,6 +391,10 @@ export async function PUT(
             unidadesRetiradas:
               publicacoesRetiradas.length,
           };
+               },
+        {
+          maxWait: 10000,
+          timeout: 30000,
         }
       );
 
