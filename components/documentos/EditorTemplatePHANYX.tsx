@@ -917,11 +917,121 @@ if (
    * O terceiro argumento true captura também
    * a rolagem de contêineres internos do Admin.
    */
-  document.addEventListener(
-    "scroll",
-    agendarAtualizacao,
-    true
-  );
+  useEffect(() => {
+  const sentinela =
+    barraSentinelaRef.current;
+
+  const container =
+    barraContainerRef.current;
+
+  if (!sentinela || !container) {
+    return;
+  }
+
+  let frame = 0;
+  let ultimaVerificacao = 0;
+
+  function acompanharBarra(
+    tempoAtual: number
+  ) {
+    /*
+     * Verifica aproximadamente a cada
+     * 60 milissegundos, mesmo quando
+     * o Admin usa rolagem interna.
+     */
+    if (
+      tempoAtual -
+        ultimaVerificacao >=
+      60
+    ) {
+      ultimaVerificacao =
+        tempoAtual;
+
+      const sentinelaRect =
+        sentinela.getBoundingClientRect();
+
+      const containerRect =
+        container.getBoundingClientRect();
+
+      const deveFlutuar =
+        sentinelaRect.top < 8 &&
+        containerRect.bottom > 100;
+
+      setBarraFlutuante(
+        (valorAtual) =>
+          valorAtual === deveFlutuar
+            ? valorAtual
+            : deveFlutuar
+      );
+
+      if (deveFlutuar) {
+        const esquerda =
+          Math.max(
+            containerRect.left,
+            8
+          );
+
+        const larguraMaxima =
+          window.innerWidth -
+          esquerda -
+          8;
+
+        const novaLargura =
+          Math.max(
+            320,
+            Math.min(
+              containerRect.width,
+              larguraMaxima
+            )
+          );
+
+        setBarraMedidas(
+          (medidasAtuais) => {
+            const mesmaEsquerda =
+              Math.abs(
+                medidasAtuais.left -
+                  esquerda
+              ) < 1;
+
+            const mesmaLargura =
+              Math.abs(
+                medidasAtuais.width -
+                  novaLargura
+              ) < 1;
+
+            if (
+              mesmaEsquerda &&
+              mesmaLargura
+            ) {
+              return medidasAtuais;
+            }
+
+            return {
+              left: esquerda,
+              width: novaLargura,
+            };
+          }
+        );
+      }
+    }
+
+    frame =
+      window.requestAnimationFrame(
+        acompanharBarra
+      );
+  }
+
+  frame =
+    window.requestAnimationFrame(
+      acompanharBarra
+    );
+
+  return () => {
+    window.cancelAnimationFrame(
+      frame
+    );
+  };
+}, []);
 
   window.addEventListener(
     "resize",
@@ -982,21 +1092,27 @@ if (
       )}
 
       <div
-        className={`border-b border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800 ${barraFlutuante
-  ? "fixed top-2 z-[999999] shadow-2xl"
-  : "relative z-40"
-          }`}
-        style={
-          barraFlutuante
-            ? {
-              left:
-                barraMedidas.left,
-              width:
-                barraMedidas.width,
-            }
-            : undefined
+  className={`border-b border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800 ${
+    barraFlutuante
+      ? "z-[999999] shadow-2xl"
+      : "relative z-40"
+  }`}
+  style={
+    barraFlutuante
+      ? {
+          position: "fixed",
+          top: "8px",
+          left:
+            `${barraMedidas.left}px`,
+          width:
+            `${barraMedidas.width}px`,
+          maxHeight:
+            "calc(100vh - 16px)",
+          overflowY: "auto",
         }
-      >
+      : undefined
+  }
+>
         <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-300">
           Ferramentas de edição
         </p>
