@@ -16794,8 +16794,8 @@ html[data-theme="light"] .phanyx-curso-ofertas-salvar {
 
 /* TEMA ESCURO */
 html[data-theme="dark"] .phanyx-curso-ofertas-modal {
-  background: #171717 !important;
-  border-color: #525252 !important;
+  background: #0f172a !important;
+  border-color: #2563eb !important;
   color: #f8fafc !important;
 }
 
@@ -16809,24 +16809,32 @@ html[data-theme="dark"] .phanyx-curso-ofertas-item-texto {
 html[data-theme="dark"] .phanyx-curso-ofertas-subtitulo,
 html[data-theme="dark"] .phanyx-curso-ofertas-ajuda,
 html[data-theme="dark"] .phanyx-curso-ofertas-vazio {
-  color: #cbd5e1 !important;
-  -webkit-text-fill-color: #cbd5e1 !important;
+  color: #bfdbfe !important;
+  -webkit-text-fill-color: #bfdbfe !important;
 }
 
 html[data-theme="dark"] .phanyx-curso-ofertas-lista {
-  background: #262626 !important;
-  border-color: #525252 !important;
+  background: #172554 !important;
+  border-color: #3b82f6 !important;
+}
+
+html[data-theme="dark"] .phanyx-curso-ofertas-item {
+  background: transparent !important;
 }
 
 html[data-theme="dark"] .phanyx-curso-ofertas-item:hover {
-  background: #404040 !important;
+  background: #1e3a8a !important;
 }
 
 html[data-theme="dark"] .phanyx-curso-ofertas-cancelar {
-  background: #262626 !important;
-  border-color: #737373 !important;
-  color: #f8fafc !important;
-  -webkit-text-fill-color: #f8fafc !important;
+  background: #172554 !important;
+  border-color: #60a5fa !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-curso-ofertas-cancelar:hover {
+  background: #1e3a8a !important;
 }
 
 html[data-theme="dark"] .phanyx-curso-ofertas-salvar {
@@ -16835,49 +16843,6 @@ html[data-theme="dark"] .phanyx-curso-ofertas-salvar {
   -webkit-text-fill-color: #ffffff !important;
 }
 
-/* TEMA SISTEMA */
-html[data-theme="system"] .phanyx-curso-ofertas-modal {
-  background: #2f2f2f !important;
-  border-color: #666666 !important;
-  color: #ffffff !important;
-}
-
-html[data-theme="system"] .phanyx-curso-ofertas-titulo,
-html[data-theme="system"] .phanyx-curso-ofertas-nome,
-html[data-theme="system"] .phanyx-curso-ofertas-item-texto {
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
-}
-
-html[data-theme="system"] .phanyx-curso-ofertas-subtitulo,
-html[data-theme="system"] .phanyx-curso-ofertas-ajuda,
-html[data-theme="system"] .phanyx-curso-ofertas-vazio {
-  color: #e5e7eb !important;
-  -webkit-text-fill-color: #e5e7eb !important;
-}
-
-html[data-theme="system"] .phanyx-curso-ofertas-lista {
-  background: #3f3f3f !important;
-  border-color: #737373 !important;
-}
-
-html[data-theme="system"] .phanyx-curso-ofertas-item:hover {
-  background: #525252 !important;
-}
-
-html[data-theme="system"] .phanyx-curso-ofertas-cancelar {
-  background: #3f3f3f !important;
-  border-color: #737373 !important;
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
-}
-
-html[data-theme="system"] .phanyx-curso-ofertas-salvar {
-  background: #2563eb !important;
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
-}
-
-.phanyx-curso-ofertas-modal input[type="checkbox"] {
-  accent-color: #2563eb !important;
+html[data-theme="dark"] .phanyx-curso-ofertas-salvar:hover {
+  background: #1d4ed8 !important;
 }
