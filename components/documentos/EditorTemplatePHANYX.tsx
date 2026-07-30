@@ -268,8 +268,8 @@ useEffect(() => {
   if (!editor) return null;
 
   return (
-  <div className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
-    <div className="border-b border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800">
+  <div className="relative rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
+    <div className="sticky top-0 z-40 border-b border-slate-200 bg-slate-50 p-3 shadow-md dark:border-slate-700 dark:bg-slate-800">
       <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-300">
         Ferramentas de edição
       </p>

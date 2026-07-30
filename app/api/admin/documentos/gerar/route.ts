@@ -16,17 +16,113 @@ function formatarMoeda(valor: number) {
   });
 }
 
+function escaparRegex(valor: string) {
+  return valor.replace(
+    /[.*+?^${}()|[\]\\]/g,
+    "\\$&"
+  );
+}
+
 function substituirTemplate(
   template: string,
   valores: Record<string, string>
 ) {
-  let texto = template;
+  let texto = String(template || "");
 
   for (const [chave, valor] of Object.entries(valores)) {
-    texto = texto.replaceAll(`{{${chave}}}`, valor);
+    const padrao = new RegExp(
+      `{{\\s*${escaparRegex(chave)}\\s*}}`,
+      "g"
+    );
+
+    texto = texto.replace(
+      padrao,
+      () => String(valor ?? "")
+    );
   }
 
   return texto;
+}
+
+function listarTagsNaoResolvidas(
+  conteudo: string
+) {
+  const tags = Array.from(
+    String(conteudo || "").matchAll(
+      /{{\s*([^{}]+?)\s*}}/g
+    )
+  ).map((resultado) =>
+    String(resultado[1] || "").trim()
+  );
+
+  return Array.from(
+    new Set(tags)
+  );
+}
+
+function calcularIdadeAluno(
+  dataNascimento?: Date | string | null
+) {
+  if (!dataNascimento) {
+    return null;
+  }
+
+  const nascimento =
+    new Date(dataNascimento);
+
+  if (
+    Number.isNaN(
+      nascimento.getTime()
+    )
+  ) {
+    return null;
+  }
+
+  const hoje = new Date();
+
+  let idade =
+    hoje.getFullYear() -
+    nascimento.getFullYear();
+
+  const aniversarioAindaNaoOcorreu =
+    hoje.getMonth() <
+      nascimento.getMonth() ||
+    (hoje.getMonth() ===
+      nascimento.getMonth() &&
+      hoje.getDate() <
+        nascimento.getDate());
+
+  if (aniversarioAindaNaoOcorreu) {
+    idade -= 1;
+  }
+
+  return idade;
+}
+
+function gerarCodigoValidacaoDocumento(
+  documentoId: number,
+  criadoEm: Date
+) {
+  const ano =
+    criadoEm.getFullYear();
+
+  const mes = String(
+    criadoEm.getMonth() + 1
+  ).padStart(2, "0");
+
+  const dia = String(
+    criadoEm.getDate()
+  ).padStart(2, "0");
+
+  const hora = String(
+    criadoEm.getHours()
+  ).padStart(2, "0");
+
+  const minuto = String(
+    criadoEm.getMinutes()
+  ).padStart(2, "0");
+
+  return `PHANYX-${ano}${mes}${dia}-${documentoId}-${hora}${minuto}`;
 }
 
 function juntarPartes(partes: Array<string | null | undefined>, separador = " ") {
@@ -131,10 +227,16 @@ export async function POST(req: Request) {
         },
         include: {
   aluno: {
-    include: {
-      polo: true,
+  include: {
+    polo: true,
+
+    user: {
+      select: {
+        email: true,
+      },
     },
   },
+},
   curso: true,
           itens: {
   include: {
@@ -181,8 +283,14 @@ if (!valorContrato || valorContrato <= 0) {
     instituicaoId: user.instituicaoId,
   },
   include: {
-    polo: true,
+  polo: true,
+
+  user: {
+    select: {
+      email: true,
+    },
   },
+},
 });
 
       if (!aluno) {
@@ -193,106 +301,403 @@ if (!valorContrato || valorContrato <= 0) {
       }
     }
 
-    const polo = aluno?.polo || null;
+    const polo =
+  aluno?.polo || null;
 
-const conteudoFinal = substituirTemplate(template.conteudo, {
-  logoInstituicao: "{{logoInstituicao}}",
+const agora =
+  new Date();
 
-  nomeInstituicao: config?.nomeFantasia || "Instituição",
-  cnpjInstituicao: config?.cnpj || "-",
-  enderecoInstituicao: montarEndereco(config),
-  telefoneInstituicao: config?.telefone || "-",
-  emailInstituicao: config?.email || "-",
-  cidadeInstituicao: config?.cidade || "-",
-  estadoInstituicao: config?.estado || "-",
-  cepInstituicao: config?.cep || "-",
-  blocoInstituicao: montarBlocoInstituicao(config),
+const idadeAluno =
+  calcularIdadeAluno(
+    aluno?.dataNascimento
+  );
 
-  nomePolo: polo?.nome || "-",
-  enderecoPolo: montarEndereco(polo),
-  telefonePolo: polo?.telefone || "-",
-  emailPolo: polo?.email || "-",
-  cidadePolo: polo?.cidade || "-",
-  estadoPolo: polo?.estado || "-",
-  cepPolo: polo?.cep || "-",
-  blocoPolo: montarBlocoPolo(polo),
+const alunoMenor =
+  idadeAluno !== null &&
+  idadeAluno < 18;
 
-  responsavelLegal: config?.responsavelNome || "-",
+const nomeTitularContrato =
+  alunoMenor
+    ? aluno?.nomeResponsavel || "-"
+    : aluno?.nome || "-";
 
-  nomeAluno: aluno?.nome || "-",
-  cpfAluno: aluno?.cpf || "-",
-  matriculaAluno: aluno?.matricula || "-",
-  numeroMatricula: aluno?.matricula || "-",
-  statusAluno: aluno?.statusAluno || "-",
+const cpfTitularContrato =
+  alunoMenor
+    ? aluno?.cpfResponsavel || "-"
+    : aluno?.cpf || "-";
 
-  curso: cursoNome,
-  statusMatricula: matricula?.status || "-",
+const emailTitularContrato =
+  alunoMenor
+    ? aluno?.emailResponsavel || "-"
+    : aluno?.user?.email || "-";
 
-  dataInicioAluno: matricula?.createdAt
-    ? new Date(matricula.createdAt).toLocaleDateString("pt-BR")
-    : "-",
-  dataMatricula: matricula?.createdAt
-    ? new Date(matricula.createdAt).toLocaleDateString("pt-BR")
-    : "-",
+const telefoneTitularContrato =
+  alunoMenor
+    ? aluno?.telefoneResponsavel || "-"
+    : aluno?.telefone || "-";
 
-  dataConclusao: (matricula as any)?.dataConclusao
-    ? new Date((matricula as any).dataConclusao).toLocaleDateString("pt-BR")
-    : "-",
-  dataConclusaoAluno: (matricula as any)?.dataConclusao
-    ? new Date((matricula as any).dataConclusao).toLocaleDateString("pt-BR")
-    : "-",
+const parentescoTitularContrato =
+  alunoMenor
+    ? aluno?.parentescoResponsavel ||
+      "Responsável legal"
+    : "O próprio aluno";
 
-  semestreAtual: matricula?.semestre || "-",
+const tipoTitularContrato =
+  alunoMenor
+    ? "Responsável legal"
+    : "O próprio aluno";
 
-  cargaHorariaCurso: (matricula?.curso as any)?.cargaHoraria
-    ? `${(matricula?.curso as any).cargaHoraria}h`
-    : "-",
-  cargaHorariaMinimaCurso: (matricula?.curso as any)?.cargaHorariaMinima
-    ? `${(matricula?.curso as any).cargaHorariaMinima}h`
-    : "-",
-  cargaHorariaMaximaCurso: (matricula?.curso as any)?.cargaHorariaMaxima
-    ? `${(matricula?.curso as any).cargaHorariaMaxima}h`
-    : "-",
+const nomeInstituicao =
+  config?.nomeFantasia ||
+  "Instituição";
 
-  percentualConclusao: (matricula as any)?.percentualConclusao
-    ? `${(matricula as any).percentualConclusao}%`
-    : "-",
+const nomeDiretor =
+  config?.responsavelNome ||
+  "-";
 
-  disciplinas:
-    disciplinasLista.length > 0
-      ? disciplinasLista.map((d) => `- ${d}`).join("\n")
-      : "- Não informado",
+const cargoDiretor =
+  config?.responsavelCargo ||
+  "Responsável legal";
 
-  valorContrato: formatarMoeda(valorContrato),
-  cidadeAssinatura: config?.cidadeAssinatura || config?.cidade || "-",
-  dataAtual: formatarDataAtual(),
-  referenciaFinanceira: "Pagamento institucional",
-  dataEmissao: new Date().toLocaleDateString("pt-BR"),
+const blocoAssinaturaDiretor = [
+  "____________________________________________",
+  nomeDiretor,
+  `${cargoDiretor} • ${nomeInstituicao}`,
+  config?.cnpj
+    ? `CNPJ: ${config.cnpj}`
+    : "",
+]
+  .filter(Boolean)
+  .join("\n");
 
-horaEmissao: new Date().toLocaleTimeString("pt-BR"),
+const documento =
+  await prisma.$transaction(
+    async (tx) => {
+      const documentoInicial =
+        await tx.documentoGerado.create({
+          data: {
+            titulo:
+              tituloPersonalizado ||
+              template.nome,
 
-dataHoraEmissao: new Date().toLocaleString("pt-BR"),
+            tipo:
+              template.tipo,
 
-numeroDocumento: `DOC-${new Date().getFullYear()}-${String(
-  templateId
-).padStart(6, "0")}`,
-  tituloDocumento: tituloPersonalizado || template.nome,
-});
+            contexto:
+              template.contexto,
 
-    const documento = await prisma.documentoGerado.create({
-      data: {
-        titulo: tituloPersonalizado || template.nome,
-        tipo: template.tipo,
-        contexto: template.contexto,
-        conteudo: conteudoFinal,
-        status: "GERADO",
-        exigeAssinatura: template.exigeAssinatura,
-        instituicaoId: user.instituicaoId,
-        alunoId: aluno?.id || null,
-        matriculaId: matricula?.id || null,
-        templateId: template.id,
-      },
-    });
+            conteudo: "",
+
+            status:
+              "GERADO",
+
+            exigeAssinatura:
+              template.exigeAssinatura,
+
+            instituicaoId:
+              user.instituicaoId,
+
+            alunoId:
+              aluno?.id || null,
+
+            matriculaId:
+              matricula?.id || null,
+
+            templateId:
+              template.id,
+          },
+        });
+
+      const codigoValidacao =
+        gerarCodigoValidacaoDocumento(
+          documentoInicial.id,
+          documentoInicial.criadoEm
+        );
+
+      const urlAtual =
+        new URL(req.url);
+
+      const origem =
+        `${urlAtual.protocol}//${urlAtual.host}`;
+
+      const urlValidacao =
+        `${origem}/validar-documento?codigo=${encodeURIComponent(
+          codigoValidacao
+        )}`;
+
+      const numeroDocumento =
+        `DOC-${agora.getFullYear()}-${String(
+          documentoInicial.id
+        ).padStart(6, "0")}`;
+
+      const valoresTemplate: Record<
+        string,
+        string
+      > = {
+        logoInstituicao: "",
+
+        nomeInstituicao,
+
+        cnpjInstituicao:
+          config?.cnpj || "-",
+
+        enderecoInstituicao:
+          montarEndereco(config),
+
+        telefoneInstituicao:
+          config?.telefone || "-",
+
+        emailInstituicao:
+          config?.email || "-",
+
+        cidadeInstituicao:
+          config?.cidade || "-",
+
+        estadoInstituicao:
+          config?.estado || "-",
+
+        cepInstituicao:
+          config?.cep || "-",
+
+        blocoInstituicao:
+          montarBlocoInstituicao(
+            config
+          ),
+
+        nomePolo:
+          polo?.nome || "-",
+
+        enderecoPolo:
+          montarEndereco(polo),
+
+        telefonePolo:
+          polo?.telefone || "-",
+
+        emailPolo:
+          polo?.email || "-",
+
+        cidadePolo:
+          polo?.cidade || "-",
+
+        estadoPolo:
+          polo?.estado || "-",
+
+        cepPolo:
+          polo?.cep || "-",
+
+        blocoPolo:
+          montarBlocoPolo(polo),
+
+        responsavelLegal:
+          nomeDiretor,
+
+        nomeAluno:
+          aluno?.nome || "-",
+
+        cpfAluno:
+          aluno?.cpf || "-",
+
+        matriculaAluno:
+          aluno?.matricula || "-",
+
+        numeroMatricula:
+          aluno?.matricula || "-",
+
+        statusAluno:
+          aluno?.statusAluno || "-",
+
+        curso:
+          cursoNome,
+
+        statusMatricula:
+          matricula?.status || "-",
+
+        dataInicioAluno:
+          matricula?.createdAt
+            ? new Date(
+                matricula.createdAt
+              ).toLocaleDateString(
+                "pt-BR"
+              )
+            : "-",
+
+        dataMatricula:
+          matricula?.createdAt
+            ? new Date(
+                matricula.createdAt
+              ).toLocaleDateString(
+                "pt-BR"
+              )
+            : "-",
+
+        dataConclusao:
+          (matricula as any)
+            ?.dataConclusao
+            ? new Date(
+                (matricula as any)
+                  .dataConclusao
+              ).toLocaleDateString(
+                "pt-BR"
+              )
+            : "-",
+
+        dataConclusaoAluno:
+          (matricula as any)
+            ?.dataConclusao
+            ? new Date(
+                (matricula as any)
+                  .dataConclusao
+              ).toLocaleDateString(
+                "pt-BR"
+              )
+            : "-",
+
+        semestreAtual:
+          matricula?.semestre !==
+            null &&
+          matricula?.semestre !==
+            undefined
+            ? String(
+                matricula.semestre
+              )
+            : "-",
+
+        cargaHorariaCurso:
+          (matricula?.curso as any)
+            ?.cargaHoraria
+            ? `${(matricula?.curso as any).cargaHoraria}h`
+            : "-",
+
+        cargaHorariaMinimaCurso:
+          (matricula?.curso as any)
+            ?.cargaHorariaMinima
+            ? `${(matricula?.curso as any).cargaHorariaMinima}h`
+            : "-",
+
+        cargaHorariaMaximaCurso:
+          (matricula?.curso as any)
+            ?.cargaHorariaMaxima
+            ? `${(matricula?.curso as any).cargaHorariaMaxima}h`
+            : "-",
+
+        percentualConclusao:
+          (matricula as any)
+            ?.percentualConclusao !==
+            null &&
+          (matricula as any)
+            ?.percentualConclusao !==
+            undefined
+            ? `${(matricula as any).percentualConclusao}%`
+            : "-",
+
+        disciplinas:
+          disciplinasLista.length > 0
+            ? disciplinasLista
+                .map(
+                  (disciplina) =>
+                    `- ${disciplina}`
+                )
+                .join("\n")
+            : "- Não informado",
+
+        valorContrato:
+          formatarMoeda(
+            valorContrato
+          ),
+
+        nomeTitularContrato,
+
+        cpfTitularContrato,
+
+        emailTitularContrato,
+
+        telefoneTitularContrato,
+
+        parentescoTitularContrato,
+
+        tipoTitularContrato,
+
+        assinaturaDiretor: "",
+
+        blocoAssinaturaDiretor,
+
+        cidadeAssinatura:
+          config?.cidadeAssinatura ||
+          config?.cidade ||
+          "-",
+
+        dataAtual:
+          agora.toLocaleDateString(
+            "pt-BR"
+          ),
+
+        referenciaFinanceira:
+          "Pagamento institucional",
+
+        dataEmissao:
+          agora.toLocaleDateString(
+            "pt-BR"
+          ),
+
+        horaEmissao:
+          agora.toLocaleTimeString(
+            "pt-BR"
+          ),
+
+        dataHoraEmissao:
+          agora.toLocaleString(
+            "pt-BR"
+          ),
+
+        numeroDocumento,
+
+        codigoValidacao,
+
+        urlValidacao,
+
+        tituloDocumento:
+          tituloPersonalizado ||
+          template.nome,
+      };
+
+      const conteudoFinal =
+        substituirTemplate(
+          template.conteudo,
+          valoresTemplate
+        );
+
+      const tagsNaoResolvidas =
+        listarTagsNaoResolvidas(
+          conteudoFinal
+        );
+
+      if (
+        tagsNaoResolvidas.length > 0
+      ) {
+        throw new Error(
+          `Variáveis sem valor no template: ${tagsNaoResolvidas
+            .map(
+              (tag) =>
+                `{{${tag}}}`
+            )
+            .join(", ")}`
+        );
+      }
+
+      return tx.documentoGerado.update({
+        where: {
+          id: documentoInicial.id,
+        },
+
+        data: {
+          conteudo:
+            conteudoFinal,
+
+          codigoValidacao,
+        },
+      });
+    }
+  );
 
     return NextResponse.json({
       id: documento.id,
@@ -317,11 +722,41 @@ numeroDocumento: `DOC-${new Date().getFullYear()}-${String(
         : null,
       conteudo: documento.conteudo,
     });
-  } catch (error: any) {
-    console.error("Erro ao gerar documento:", error);
+    } catch (error: any) {
+    console.error(
+      "Erro ao gerar documento:",
+      error
+    );
+
+    const mensagem =
+      String(
+        error?.message || ""
+      );
+
+    if (
+      mensagem.startsWith(
+        "Variáveis sem valor no template:"
+      )
+    ) {
+      return NextResponse.json(
+        {
+          error: mensagem,
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
     return NextResponse.json(
-      { error: error?.message || "Erro ao gerar documento" },
-      { status: 500 }
+      {
+        error:
+          mensagem ||
+          "Erro ao gerar documento",
+      },
+      {
+        status: 500,
+      }
     );
   }
 }
