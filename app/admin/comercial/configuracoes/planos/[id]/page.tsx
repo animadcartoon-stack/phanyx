@@ -2057,19 +2057,19 @@ export default function RegrasPlanoComissaoPage() {
                 </div>
 
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <span className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-bold text-blue-800 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-200">
+                  <span className="phanyx-comissao-chip-escopo rounded-full border px-3 py-1 text-xs font-bold">
                     {ROTULOS_ESCOPO[regra.escopoAplicacao]}
                   </span>
 
                   {regra.regraBase && (
-                    <span className="rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-xs font-bold text-violet-800 dark:border-violet-800 dark:bg-violet-950/30 dark:text-violet-200">
+                    <span className="phanyx-comissao-chip-grupo rounded-full border px-3 py-1 text-xs font-bold">
                       Grupo: {regra.regraBase.nome}
                     </span>
                   )}
 
                   {regra.escopoAplicacao === "GERAL" &&
                     Number(regra._count?.variacoes || 0) > 0 && (
-                      <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-bold text-amber-800 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200">
+                      <span className="phanyx-comissao-chip-excecoes rounded-full border px-3 py-1 text-xs font-bold">
                         {regra._count?.variacoes} exceção(ões)
                       </span>
                     )}

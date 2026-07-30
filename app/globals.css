@@ -16430,3 +16430,105 @@ html[data-theme="system"]
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
 }
+
+/* =========================================================
+   COMERCIAL — CHIPS DAS REGRAS DE COMISSÃO
+========================================================= */
+
+/* Tema claro — escopo */
+html[data-theme="light"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-chip-escopo {
+  background: #f8fafc !important;
+  border-color: #64748b !important;
+  color: #1e293b !important;
+  -webkit-text-fill-color: #1e293b !important;
+  opacity: 1 !important;
+}
+
+/* Tema claro — grupo da regra */
+html[data-theme="light"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-chip-grupo {
+  background: #f5f3ff !important;
+  border-color: #7c3aed !important;
+  color: #5b21b6 !important;
+  -webkit-text-fill-color: #5b21b6 !important;
+  opacity: 1 !important;
+}
+
+/* Tema claro — quantidade de exceções */
+html[data-theme="light"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-chip-excecoes {
+  background: #fff7ed !important;
+  border-color: #c2410c !important;
+  color: #9a3412 !important;
+  -webkit-text-fill-color: #9a3412 !important;
+  opacity: 1 !important;
+}
+
+/* Tema escuro */
+html[data-theme="dark"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-chip-escopo {
+  background: #1e293b !important;
+  border-color: #94a3b8 !important;
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
+}
+
+html[data-theme="dark"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-chip-grupo {
+  background: rgba(91, 33, 182, 0.3) !important;
+  border-color: #a78bfa !important;
+  color: #ede9fe !important;
+  -webkit-text-fill-color: #ede9fe !important;
+}
+
+html[data-theme="dark"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-chip-excecoes {
+  background: rgba(154, 52, 18, 0.3) !important;
+  border-color: #fb923c !important;
+  color: #ffedd5 !important;
+  -webkit-text-fill-color: #ffedd5 !important;
+}
+
+/* Tema sistema */
+html[data-theme="system"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-chip-escopo {
+  background: #383838 !important;
+  border-color: #a3a3a3 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-chip-grupo {
+  background: #3b3151 !important;
+  border-color: #a78bfa !important;
+  color: #ede9fe !important;
+  -webkit-text-fill-color: #ede9fe !important;
+}
+
+html[data-theme="system"]
+  body
+  .phanyx-comercial-config-page
+  .phanyx-comissao-chip-excecoes {
+  background: #493126 !important;
+  border-color: #fb923c !important;
+  color: #ffedd5 !important;
+  -webkit-text-fill-color: #ffedd5 !important;
+}
