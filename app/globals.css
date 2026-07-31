@@ -17279,3 +17279,44 @@ html[data-theme="light"]
   opacity: 0.5 !important;
   cursor: not-allowed !important;
 }
+
+/* =========================================================
+   LOGOS INSTITUCIONAIS
+   Comparação real em fundo claro e escuro
+========================================================= */
+
+.phanyx-logos-page
+  .phanyx-logo-preview-light {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+}
+
+.phanyx-logos-page
+  .phanyx-logo-preview-dark {
+  background-color: #020617 !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+  -webkit-text-fill-color: #cbd5e1 !important;
+}
+
+/*
+ * Impede que regras gerais do tema claro
+ * transformem o fundo escuro em branco.
+ */
+html[data-theme="light"]
+  body
+  .phanyx-logos-page
+  .phanyx-logo-preview-dark {
+  background-color: #020617 !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="light"]
+  body
+  .phanyx-logos-page
+  .phanyx-logo-preview-light {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}

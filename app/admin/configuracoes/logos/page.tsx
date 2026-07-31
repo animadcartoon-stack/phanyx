@@ -881,7 +881,7 @@ export default function LogosInstitucionaisPage() {
                         </p>
 
                         <div className="grid gap-3">
-                            <div className="flex min-h-40 items-center justify-center overflow-hidden rounded-2xl border border-slate-300 bg-white p-5 dark:border-slate-700">
+                            <div className="phanyx-logo-preview-light flex min-h-40 items-center justify-center overflow-hidden rounded-2xl border p-5">
                                 {previewArquivo ? (
                                     <img
                                         src={
@@ -897,7 +897,7 @@ export default function LogosInstitucionaisPage() {
                                 )}
                             </div>
 
-                            <div className="flex min-h-40 items-center justify-center overflow-hidden rounded-2xl border border-slate-700 bg-slate-950 p-5">
+                            <div className="phanyx-logo-preview-dark flex min-h-40 items-center justify-center overflow-hidden rounded-2xl border p-5">
                                 {previewArquivo ? (
                                     <img
                                         src={
@@ -985,7 +985,7 @@ export default function LogosInstitucionaisPage() {
                                             }`}
                                     >
                                         <div className="grid grid-cols-2">
-                                            <div className="flex h-32 items-center justify-center bg-white p-4">
+                                            <div className="phanyx-logo-preview-light flex h-32 items-center justify-center p-4">
                                                 <img
                                                     src={
                                                         logo.arquivoUrl
@@ -997,7 +997,7 @@ export default function LogosInstitucionaisPage() {
                                                 />
                                             </div>
 
-                                            <div className="flex h-32 items-center justify-center bg-slate-950 p-4">
+                                            <div className="phanyx-logo-preview-dark flex h-32 items-center justify-center p-4">
                                                 <img
                                                     src={
                                                         logo.arquivoUrl
