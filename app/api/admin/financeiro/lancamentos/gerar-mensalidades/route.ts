@@ -59,13 +59,16 @@ export async function POST(req: NextRequest) {
     const vencimento = montarVencimento(ano, mes, diaVencimento);
 
     const matriculas = await prisma.matricula.findMany({
-      where: {
-        instituicaoId: user.instituicaoId,
-        status: "ATIVA",
-        aluno: {
-          ativo: true,
-        },
-      },
+  where: {
+    instituicaoId: user.instituicaoId,
+    status: "ATIVA",
+
+    realizadaPeloAluno: false,
+
+    aluno: {
+      ativo: true,
+    },
+  },
       include: {
         aluno: true,
         curso: true,

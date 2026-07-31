@@ -98,20 +98,26 @@ await fecharCaixasOnlineIbeAntigos();
       const cobrancasPendentesRaw =
   await prisma.lancamentoFinanceiro.findMany({
     where: {
-      instituicaoId: user.instituicaoId,
+  instituicaoId: user.instituicaoId,
 
-      matriculaId: {
-        not: null,
-      },
+  matriculaId: {
+    not: null,
+  },
 
-      status: {
-        in: [
-          "PENDENTE",
-          "PARCIAL",
-          "ATRASADO",
-        ],
-      },
+  matricula: {
+    is: {
+      realizadaPeloAluno: false,
     },
+  },
+
+  status: {
+    in: [
+      "PENDENTE",
+      "PARCIAL",
+      "ATRASADO",
+    ],
+  },
+},
 
     include: {
       aluno: {
