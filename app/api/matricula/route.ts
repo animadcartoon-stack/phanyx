@@ -7,12 +7,253 @@ import {
 
 import {
   PapelParticipanteComercial,
+  Prisma,
 } from "@prisma/client";
 
 function addMonths(date: Date, months: number) {
-  const d = new Date(date);
-  d.setMonth(d.getMonth() + months);
-  return d;
+  const diaOriginal = date.getDate();
+
+  const primeiroDiaDoMesDestino =
+    new Date(
+      date.getFullYear(),
+      date.getMonth() + months,
+      1,
+      12,
+      0,
+      0,
+      0
+    );
+
+  const ultimoDiaDoMesDestino =
+    new Date(
+      primeiroDiaDoMesDestino.getFullYear(),
+      primeiroDiaDoMesDestino.getMonth() + 1,
+      0
+    ).getDate();
+
+  primeiroDiaDoMesDestino.setDate(
+    Math.min(
+      diaOriginal,
+      ultimoDiaDoMesDestino
+    )
+  );
+
+  return primeiroDiaDoMesDestino;
+}
+
+function campoFoiInformado(
+  objeto: Record<string, unknown>,
+  campo: string
+) {
+  return Object.prototype.hasOwnProperty.call(
+    objeto,
+    campo
+  );
+}
+
+async function sincronizarMensalidadesDaMatricula(params: {
+  tx: Prisma.TransactionClient;
+  instituicaoId: number;
+  matriculaId: number;
+  alunoId: number;
+  cursoNome: string;
+  valorMensalidade: number;
+  quantidadeMensalidades: number;
+  primeiroVencimento: Date;
+}) {
+  const {
+    tx,
+    instituicaoId,
+    matriculaId,
+    alunoId,
+    cursoNome,
+    valorMensalidade,
+    quantidadeMensalidades,
+    primeiroVencimento,
+  } = params;
+
+  const existentes =
+    await tx.lancamentoFinanceiro.findMany({
+      where: {
+        instituicaoId,
+        matriculaId,
+        tipo: "MENSALIDADE",
+        status: {
+          not: "CANCELADO",
+        },
+      },
+
+      select: {
+        id: true,
+        status: true,
+        valorPago: true,
+        descontoValor: true,
+        jurosValor: true,
+        multaValor: true,
+
+        _count: {
+          select: {
+            pagamentos: true,
+          },
+        },
+      },
+
+      orderBy: [
+        {
+          vencimento: "asc",
+        },
+        {
+          id: "asc",
+        },
+      ],
+    });
+
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+
+  const totalPosicoes = Math.max(
+    existentes.length,
+    quantidadeMensalidades
+  );
+
+  for (
+    let indice = 0;
+    indice < totalPosicoes;
+    indice += 1
+  ) {
+    const existente =
+      existentes[indice];
+
+    const dentroDaNovaQuantidade =
+      indice < quantidadeMensalidades;
+
+    const possuiPagamento =
+      Boolean(existente) &&
+      (
+        Number(
+          existente.valorPago || 0
+        ) > 0 ||
+        existente._count.pagamentos > 0 ||
+        existente.status === "PAGO" ||
+        existente.status === "PARCIAL"
+      );
+
+    if (!dentroDaNovaQuantidade) {
+      if (
+        existente &&
+        !possuiPagamento
+      ) {
+        await tx.lancamentoFinanceiro.update({
+          where: {
+            id: existente.id,
+          },
+
+          data: {
+            status: "CANCELADO",
+
+            observacao:
+              "Cancelado automaticamente após alteração da quantidade de mensalidades da matrícula.",
+          },
+        });
+      }
+
+      continue;
+    }
+
+    const vencimento = addMonths(
+      primeiroVencimento,
+      indice
+    );
+
+    const inicioVencimento =
+      new Date(vencimento);
+
+    inicioVencimento.setHours(
+      0,
+      0,
+      0,
+      0
+    );
+
+    const status =
+      inicioVencimento < hoje
+        ? "ATRASADO"
+        : "PENDENTE";
+
+    const descricao =
+      `Mensalidade ${indice + 1}/${quantidadeMensalidades} - ${cursoNome}`;
+
+    if (existente) {
+      if (possuiPagamento) {
+        continue;
+      }
+
+      const descontoValor = Number(
+        existente.descontoValor || 0
+      );
+
+      const jurosValor = Number(
+        existente.jurosValor || 0
+      );
+
+      const multaValor = Number(
+        existente.multaValor || 0
+      );
+
+      const valorFinal = Math.max(
+        0,
+        Number(
+          (
+            valorMensalidade -
+            descontoValor +
+            jurosValor +
+            multaValor
+          ).toFixed(2)
+        )
+      );
+
+      await tx.lancamentoFinanceiro.update({
+        where: {
+          id: existente.id,
+        },
+
+        data: {
+          alunoId,
+          descricao,
+          valorOriginal:
+            valorMensalidade,
+          valorFinal,
+          vencimento,
+          status,
+
+          observacao:
+            "Sincronizado automaticamente após edição da matrícula.",
+        },
+      });
+
+      continue;
+    }
+
+    await tx.lancamentoFinanceiro.create({
+      data: {
+        instituicaoId,
+        alunoId,
+        matriculaId,
+        tipo: "MENSALIDADE",
+        descricao,
+        valorOriginal:
+          valorMensalidade,
+        valorFinal:
+          valorMensalidade,
+        valorPago: 0,
+        vencimento,
+        status,
+
+        observacao:
+          "Gerado automaticamente após edição da matrícula.",
+      },
+    });
+  }
 }
 
 function toPositiveNumberOrNull(value: unknown): number | null {
@@ -24,8 +265,44 @@ function toPositiveNumberOrNull(value: unknown): number | null {
 
 function toDateOrNull(value: unknown): Date | null {
   if (!value) return null;
-  const d = new Date(String(value));
-  return Number.isNaN(d.getTime()) ? null : d;
+
+  const texto =
+    String(value).trim();
+
+  const dataSomente =
+    /^(\d{4})-(\d{2})-(\d{2})$/.exec(
+      texto
+    );
+
+  if (dataSomente) {
+    const ano = Number(dataSomente[1]);
+    const mes = Number(dataSomente[2]);
+    const dia = Number(dataSomente[3]);
+
+    const dataLocal = new Date(
+      ano,
+      mes - 1,
+      dia,
+      12,
+      0,
+      0,
+      0
+    );
+
+    return Number.isNaN(
+      dataLocal.getTime()
+    )
+      ? null
+      : dataLocal;
+  }
+
+  const data = new Date(texto);
+
+  return Number.isNaN(
+    data.getTime()
+  )
+    ? null
+    : data;
 }
 
 function uniqueNumbers(values: number[]) {
@@ -2260,15 +2537,57 @@ const deveSincronizarItens =
   Array.isArray(body.turmaIds) ||
   body.turmaId !== undefined;
 
-    const valorPagoMatricula = toPositiveNumberOrNull(body.valorPagoMatricula);
-    const valorMensalidade = toPositiveNumberOrNull(body.valorMensalidade);
-    const quantidadeMensalidades = toPositiveNumberOrNull(
-      body.quantidadeMensalidades ?? body.quantidadeParcelas
-    );
+    const valorPagoMatriculaFoiInformado =
+      campoFoiInformado(
+        body as Record<string, unknown>,
+        "valorPagoMatricula"
+      );
 
-    const primeiroVencimento =
-      toDateOrNull(body.primeiroVencimento) ??
-      toDateOrNull(body.dataPrimeiroVencimento);
+    const dadosMensalidadeForamInformados =
+      campoFoiInformado(
+        body as Record<string, unknown>,
+        "valorMensalidade"
+      ) ||
+      campoFoiInformado(
+        body as Record<string, unknown>,
+        "quantidadeMensalidades"
+      ) ||
+      campoFoiInformado(
+        body as Record<string, unknown>,
+        "quantidadeParcelas"
+      ) ||
+      campoFoiInformado(
+        body as Record<string, unknown>,
+        "primeiroVencimento"
+      ) ||
+      campoFoiInformado(
+        body as Record<string, unknown>,
+        "dataPrimeiroVencimento"
+      );
+
+    const valorPagoMatriculaRecebido =
+      toPositiveNumberOrNull(
+        body.valorPagoMatricula
+      );
+
+    const valorMensalidadeRecebido =
+      toPositiveNumberOrNull(
+        body.valorMensalidade
+      );
+
+    const quantidadeMensalidadesRecebida =
+      toPositiveNumberOrNull(
+        body.quantidadeMensalidades ??
+        body.quantidadeParcelas
+      );
+
+    const primeiroVencimentoRecebido =
+      toDateOrNull(
+        body.primeiroVencimento
+      ) ??
+      toDateOrNull(
+        body.dataPrimeiroVencimento
+      );
 
     const nomeSocial =
       body.nomeSocial !== undefined ? String(body.nomeSocial || "") : undefined;
@@ -2296,6 +2615,57 @@ const deveSincronizarItens =
       return NextResponse.json(
         { error: "Matrícula não encontrada" },
         { status: 404 }
+      );
+    }
+
+    const valorPagoMatriculaFinal =
+      valorPagoMatriculaFoiInformado
+        ? valorPagoMatriculaRecebido
+        : Number(
+            matriculaExistente.valorMatricula ||
+            0
+          ) || null;
+
+    const valorMensalidadeFinal =
+      dadosMensalidadeForamInformados
+        ? valorMensalidadeRecebido
+        : Number(
+            matriculaExistente.valorMensalidade ||
+            0
+          ) || null;
+
+    const quantidadeMensalidadesFinal =
+      dadosMensalidadeForamInformados
+        ? quantidadeMensalidadesRecebida
+        : Number(
+            matriculaExistente.quantidadeMensalidades ||
+            0
+          ) || null;
+
+    const primeiroVencimentoFinal =
+      dadosMensalidadeForamInformados
+        ? primeiroVencimentoRecebido
+        : matriculaExistente.primeiroVencimento;
+
+    if (
+      dadosMensalidadeForamInformados &&
+      (
+        !valorMensalidadeFinal ||
+        !quantidadeMensalidadesFinal ||
+        !Number.isInteger(
+          quantidadeMensalidadesFinal
+        ) ||
+        !primeiroVencimentoFinal
+      )
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Para gerar as mensalidades, informe um valor maior que zero, uma quantidade inteira maior que zero e o primeiro vencimento.",
+        },
+        {
+          status: 400,
+        }
       );
     }
 
@@ -2343,21 +2713,38 @@ const deveSincronizarItens =
       }
     }
 
+    let cursoNomeFinal =
+      "Curso não informado";
+
     if (cursoIdFinal) {
-      const cursoExiste = await prisma.curso.findFirst({
-        where: {
-          id: cursoIdFinal,
-          instituicaoId: user.instituicaoId,
-        },
-        select: { id: true },
-      });
+      const cursoExiste =
+        await prisma.curso.findFirst({
+          where: {
+            id: cursoIdFinal,
+            instituicaoId:
+              user.instituicaoId,
+          },
+
+          select: {
+            id: true,
+            nome: true,
+          },
+        });
 
       if (!cursoExiste) {
         return NextResponse.json(
-          { error: "Curso inválido para esta instituição" },
-          { status: 400 }
+          {
+            error:
+              "Curso inválido para esta instituição",
+          },
+          {
+            status: 400,
+          }
         );
       }
+
+      cursoNomeFinal =
+        cursoExiste.nome;
     }
 
     let itensClassificados:
@@ -2513,11 +2900,16 @@ if (
 
         semestre: semestreFinal,
         valorMatricula:
-          valorPagoMatricula,
+          valorPagoMatriculaFinal,
 
-        valorMensalidade,
-        quantidadeMensalidades,
-        primeiroVencimento,
+        valorMensalidade:
+          valorMensalidadeFinal,
+
+        quantidadeMensalidades:
+          quantidadeMensalidadesFinal,
+
+        primeiroVencimento:
+          primeiroVencimentoFinal,
 
         vendedorResponsavelId:
           vendedorFoiInformado
@@ -2593,6 +2985,34 @@ if (
                 .departamento?.nome ?? null,
           },
         });
+    }
+
+    if (
+      dadosMensalidadeForamInformados &&
+      valorMensalidadeFinal &&
+      quantidadeMensalidadesFinal &&
+      primeiroVencimentoFinal
+    ) {
+      await sincronizarMensalidadesDaMatricula({
+        tx,
+
+        instituicaoId:
+          user.instituicaoId,
+
+        matriculaId: id,
+        alunoId: alunoIdFinal,
+        cursoNome:
+          cursoNomeFinal,
+
+        valorMensalidade:
+          valorMensalidadeFinal,
+
+        quantidadeMensalidades:
+          quantidadeMensalidadesFinal,
+
+        primeiroVencimento:
+          primeiroVencimentoFinal,
+      });
     }
   }
 );
