@@ -16892,3 +16892,103 @@ html[data-theme="light"]
   color: #e2e8f0 !important;
   -webkit-text-fill-color: #e2e8f0 !important;
 }
+
+/* =========================================================
+   BIBLIOTECA DE LOGOS INSTITUCIONAIS
+   Tema claro neutro e legível
+========================================================= */
+
+html[data-theme="light"] .phanyx-logos-page {
+  color: #0f172a !important;
+  -webkit-text-fill-color: initial !important;
+}
+
+html[data-theme="light"] .phanyx-logos-page h1,
+html[data-theme="light"] .phanyx-logos-page h2,
+html[data-theme="light"] .phanyx-logos-page h3,
+html[data-theme="light"] .phanyx-logos-page label,
+html[data-theme="light"] .phanyx-logos-page strong {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-logos-page p {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-logos-page section,
+html[data-theme="light"] .phanyx-logos-page article {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-logos-principal-card {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-logos-principal-card span {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+}
+
+html[data-theme="light"] .phanyx-logos-page input,
+html[data-theme="light"] .phanyx-logos-page select {
+  background: #ffffff !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-logos-page input::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-logos-page input[type="file"] {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-logos-page button {
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-logos-page
+  .phanyx-logos-secondary {
+  background: #ffffff !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-logos-page
+  .phanyx-logos-secondary:hover {
+  background: #f1f5f9 !important;
+  border-color: #64748b !important;
+}
+
+html[data-theme="light"]
+  .phanyx-logos-page
+  .phanyx-logos-primary {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="light"]
+  .phanyx-logos-page
+  .phanyx-logos-primary:hover {
+  background: #1d4ed8 !important;
+  border-color: #1d4ed8 !important;
+}

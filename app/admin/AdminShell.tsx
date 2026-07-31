@@ -1200,6 +1200,15 @@ export default function AdminShell({
                         ⚙️ Instituição
                       </Link>
 
+                      <Link
+                        href="/admin/configuracoes/logos"
+                        className={getLinkClass(
+                          "/admin/configuracoes/logos"
+                        )}
+                      >
+                        🖼️ Logos institucionais
+                      </Link>
+
                       {podeGerenciarPolos && (
                         <Link
                           href="/admin/polos"
@@ -1541,6 +1550,12 @@ export default function AdminShell({
                   <div className="grid grid-cols-1 gap-2">
                     <Link href="/admin/configuracoes/instituicao" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
                       ⚙️ Instituição
+                    </Link>
+                    <Link
+                      href="/admin/configuracoes/logos"
+                      className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                    >
+                      🖼️ Logos institucionais
                     </Link>
                     {podeGerenciarPolos && (
                       <Link

@@ -697,7 +697,7 @@ export default function LogosInstitucionaisPage() {
   }
 
   return (
-    <div className="space-y-6">
+  <div className="phanyx-logos-page space-y-6">
       {toast && (
         <PhanyxToast
           tipo={toast.tipo}
@@ -816,7 +816,7 @@ export default function LogosInstitucionaisPage() {
               />
             </div>
 
-            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+            <label className="phanyx-logos-principal-card flex cursor-pointer items-start gap-3 rounded-xl border p-4">
               <input
                 type="checkbox"
                 checked={
@@ -855,7 +855,7 @@ export default function LogosInstitucionaisPage() {
                 disabled={
                   salvando
                 }
-                className="rounded-xl border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-800 transition hover:bg-slate-100 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
+                className="phanyx-logos-secondary rounded-xl border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-800 transition hover:bg-slate-100 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
               >
                 Limpar
               </button>
@@ -868,7 +868,7 @@ export default function LogosInstitucionaisPage() {
                 disabled={
                   salvando
                 }
-                className="rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                className="phanyx-logos-secondary rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {salvando
                   ? "Enviando..."
