@@ -17435,3 +17435,48 @@ html[data-theme="dark"]
     -webkit-text-fill-color: #ffffff !important;
   }
 }
+
+/* =========================================================
+   MATRÍCULAS — DETALHES EXPANDIDOS NO TEMA CLARO
+   Sem cards ou fundos azuis
+========================================================= */
+
+html[data-theme="light"]
+  .phanyx-matricula-detalhes-row,
+html[data-theme="light"]
+  .phanyx-matricula-detalhes-cell {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-matricula-responsavel-card {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 6%) !important;
+}
+
+html[data-theme="light"]
+  .phanyx-matricula-disciplina-card {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 5%) !important;
+}
+
+html[data-theme="light"]
+  .phanyx-matricula-responsavel-card p,
+html[data-theme="light"]
+  .phanyx-matricula-disciplina-card p {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-matricula-responsavel-card
+  p:first-child {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+}

@@ -282,85 +282,85 @@ function AdminMatriculasPage() {
       }
 
       try {
-  const resCursos = await fetch(
-  "/api/curso",
-  {
-    credentials: "include",
-    cache: "no-store",
-  }
-);
-
-  const dataCursos =
-    await resCursos
-      .json()
-      .catch(() => null);
-
-  if (!resCursos.ok) {
-    console.error(
-      "Erro ao carregar cursos:",
-      dataCursos?.error ||
-        resCursos.statusText
-    );
-
-    setCursos([]);
-  } else {
-    const cursosRecebidos =
-      Array.isArray(dataCursos)
-        ? dataCursos
-        : Array.isArray(
-              dataCursos?.cursos
-            )
-          ? dataCursos.cursos
-          : Array.isArray(
-                dataCursos?.data
-              )
-            ? dataCursos.data
-            : [];
-
-    const listaCursos: CursoOption[] =
-      cursosRecebidos
-        .map((curso: any) => ({
-          id: Number(curso?.id),
-
-          nome: String(
-            curso?.nome ??
-              "Curso"
-          ),
-
-          cargaHorariaMaximaSemestre:
-            curso?.cargaHorariaMaximaSemestre !==
-              undefined &&
-            curso?.cargaHorariaMaximaSemestre !==
-              null
-              ? Number(
-                  curso
-                    .cargaHorariaMaximaSemestre
-                )
-              : null,
-        }))
-        .filter(
-          (curso) =>
-            Number.isFinite(
-              curso.id
-            ) &&
-            curso.id > 0
+        const resCursos = await fetch(
+          "/api/curso",
+          {
+            credentials: "include",
+            cache: "no-store",
+          }
         );
 
-    console.log(
-      "📚 Cursos disponíveis para matrícula:",
-      listaCursos
-    );
+        const dataCursos =
+          await resCursos
+            .json()
+            .catch(() => null);
 
-    setCursos(listaCursos);
-  }
-} catch (error) {
-  console.error(
-    "Erro ao carregar cursos:",
-    error
-  );
+        if (!resCursos.ok) {
+          console.error(
+            "Erro ao carregar cursos:",
+            dataCursos?.error ||
+            resCursos.statusText
+          );
 
-  setCursos([]);
-}
+          setCursos([]);
+        } else {
+          const cursosRecebidos =
+            Array.isArray(dataCursos)
+              ? dataCursos
+              : Array.isArray(
+                dataCursos?.cursos
+              )
+                ? dataCursos.cursos
+                : Array.isArray(
+                  dataCursos?.data
+                )
+                  ? dataCursos.data
+                  : [];
+
+          const listaCursos: CursoOption[] =
+            cursosRecebidos
+              .map((curso: any) => ({
+                id: Number(curso?.id),
+
+                nome: String(
+                  curso?.nome ??
+                  "Curso"
+                ),
+
+                cargaHorariaMaximaSemestre:
+                  curso?.cargaHorariaMaximaSemestre !==
+                    undefined &&
+                    curso?.cargaHorariaMaximaSemestre !==
+                    null
+                    ? Number(
+                      curso
+                        .cargaHorariaMaximaSemestre
+                    )
+                    : null,
+              }))
+              .filter(
+                (curso) =>
+                  Number.isFinite(
+                    curso.id
+                  ) &&
+                  curso.id > 0
+              );
+
+          console.log(
+            "📚 Cursos disponíveis para matrícula:",
+            listaCursos
+          );
+
+          setCursos(listaCursos);
+        }
+      } catch (error) {
+        console.error(
+          "Erro ao carregar cursos:",
+          error
+        );
+
+        setCursos([]);
+      }
 
       try {
         const resVendedores = await fetch(
@@ -1198,31 +1198,31 @@ function AdminMatriculasPage() {
     limiteCargaHoraria > 0 &&
     cargaHorariaTotalSelecionada > limiteCargaHoraria;
   const podeCriar = useMemo(() => {
-  const a = Number(alunoId);
-  const c = Number(cursoId);
+    const a = Number(alunoId);
+    const c = Number(cursoId);
 
-  return (
-    Number.isFinite(a) &&
-    a > 0 &&
-    Number.isFinite(c) &&
-    c > 0 &&
-    cursoSemestreIds.length > 0 &&
-    disciplinasIdsSelecionadasParaEnvio.length > 0 &&
-    turmasSelecionadas.length > 0 &&
-    todasDisciplinasPossuemOferta &&
-    !cargaHorariaExcedida &&
-    !cargaHorariaAbaixoMinimo
-  );
-}, [
-  alunoId,
-  cursoId,
-  cursoSemestreIds,
-  disciplinasIdsSelecionadasParaEnvio,
-  turmasSelecionadas,
-  todasDisciplinasPossuemOferta,
-  cargaHorariaExcedida,
-  cargaHorariaAbaixoMinimo,
-]);
+    return (
+      Number.isFinite(a) &&
+      a > 0 &&
+      Number.isFinite(c) &&
+      c > 0 &&
+      cursoSemestreIds.length > 0 &&
+      disciplinasIdsSelecionadasParaEnvio.length > 0 &&
+      turmasSelecionadas.length > 0 &&
+      todasDisciplinasPossuemOferta &&
+      !cargaHorariaExcedida &&
+      !cargaHorariaAbaixoMinimo
+    );
+  }, [
+    alunoId,
+    cursoId,
+    cursoSemestreIds,
+    disciplinasIdsSelecionadasParaEnvio,
+    turmasSelecionadas,
+    todasDisciplinasPossuemOferta,
+    cargaHorariaExcedida,
+    cargaHorariaAbaixoMinimo,
+  ]);
 
   function toggleTurma(turmaId: number) {
     setTurmasSelecionadas((prev) =>
@@ -2865,12 +2865,15 @@ function AdminMatriculasPage() {
                       {expandida && (
                         <tr
                           key={`detalhes-${m.id}`}
-                          className="border-b bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100"
+                          className="phanyx-matricula-detalhes-row border-b"
                         >
-                          <td colSpan={7} className="px-4 py-4">
+                          <td
+                            colSpan={7}
+                            className="phanyx-matricula-detalhes-cell px-4 py-4"
+                          >
                             <div className="space-y-4">
 
-                              <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+                              <div className="phanyx-matricula-responsavel-card rounded-2xl border p-4">
                                 <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                                   Responsável comercial
                                 </p>
