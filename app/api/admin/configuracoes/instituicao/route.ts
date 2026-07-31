@@ -16,6 +16,7 @@ function booleano(valor: unknown) {
 function montarDadosPermitidos(body: Record<string, unknown>) {
   return {
     nomeFantasia: texto(body.nomeFantasia),
+    nomeUnidadePrincipal: texto(body.nomeUnidadePrincipal),
     razaoSocial: texto(body.razaoSocial),
     cnpj: texto(body.cnpj),
     telefone: texto(body.telefone),
@@ -110,9 +111,8 @@ export async function POST(req: Request) {
     if (role !== "ADMIN") {
       return NextResponse.json(
         {
-          error: `Seu perfil atual é ${
-            role || "não identificado"
-          }. Somente o administrador da instituição pode alterar estes dados.`,
+          error: `Seu perfil atual é ${role || "não identificado"
+            }. Somente o administrador da instituição pode alterar estes dados.`,
         },
         { status: 403 }
       );

@@ -265,9 +265,18 @@ const assinatura = await carregarImagemPdf(
   },
 });
 
-const polo = aluno?.polo || null;
+const polo =
+  aluno?.polo || null;
 
-const nomePolo = polo?.nome || "Polo São José";
+const nomePolo =
+  polo?.nome?.trim() ||
+  config?.nomeUnidadePrincipal?.trim() ||
+  (config?.cidade?.trim()
+    ? `SEDE - ${config.cidade.trim()}`
+    : "SEDE");
+
+const dadosUnidadeDocumento =
+  polo || config;
 
 const codigoValidacao = `PHANYX-${Date.now()}-${aluno.id}`;
 
@@ -284,22 +293,41 @@ const valoresTemplate = {
   blocoInstituicao: montarBlocoInstituicao(config),
 
   nomePolo,
-enderecoPolo: polo ? montarEnderecoInstituicao(polo) : "-",
-telefonePolo: polo?.telefone || "-",
-emailPolo: polo?.email || "-",
-cidadePolo: polo?.cidade || "-",
-estadoPolo: polo?.estado || "-",
-cepPolo: polo?.cep || "-",
-blocoPolo: polo
-  ? [
-      nomePolo,
-      montarEnderecoInstituicao(polo),
-      polo?.telefone ? `Telefone: ${polo.telefone}` : "",
-      polo?.email ? `E-mail: ${polo.email}` : "",
-    ]
-      .filter(Boolean)
-      .join("\n")
-  : nomePolo,
+
+enderecoPolo:
+  montarEnderecoInstituicao(
+    dadosUnidadeDocumento
+  ) || "-",
+
+telefonePolo:
+  dadosUnidadeDocumento?.telefone || "-",
+
+emailPolo:
+  dadosUnidadeDocumento?.email || "-",
+
+cidadePolo:
+  dadosUnidadeDocumento?.cidade || "-",
+
+estadoPolo:
+  dadosUnidadeDocumento?.estado || "-",
+
+cepPolo:
+  dadosUnidadeDocumento?.cep || "-",
+
+blocoPolo: [
+  nomePolo,
+  montarEnderecoInstituicao(
+    dadosUnidadeDocumento
+  ),
+  dadosUnidadeDocumento?.telefone
+    ? `Telefone: ${dadosUnidadeDocumento.telefone}`
+    : "",
+  dadosUnidadeDocumento?.email
+    ? `E-mail: ${dadosUnidadeDocumento.email}`
+    : "",
+]
+  .filter(Boolean)
+  .join("\n"),
 
   nomeAluno: aluno.nome || "-",
   cpfAluno: aluno.cpf || "-",

@@ -304,6 +304,16 @@ if (!valorContrato || valorContrato <= 0) {
     const polo =
   aluno?.polo || null;
 
+const nomeUnidadeDocumento =
+  polo?.nome?.trim() ||
+  config?.nomeUnidadePrincipal?.trim() ||
+  (config?.cidade?.trim()
+    ? `SEDE - ${config.cidade.trim()}`
+    : "SEDE");
+
+const dadosUnidadeDocumento =
+  polo || config;
+
 const agora =
   new Date();
 
@@ -465,29 +475,43 @@ const documento =
           ),
 
         nomePolo:
-          polo?.nome || "-",
+  nomeUnidadeDocumento,
 
-        enderecoPolo:
-          montarEndereco(polo),
+enderecoPolo:
+  montarEndereco(
+    dadosUnidadeDocumento
+  ),
 
-        telefonePolo:
-          polo?.telefone || "-",
+telefonePolo:
+  dadosUnidadeDocumento?.telefone || "-",
 
-        emailPolo:
-          polo?.email || "-",
+emailPolo:
+  dadosUnidadeDocumento?.email || "-",
 
-        cidadePolo:
-          polo?.cidade || "-",
+cidadePolo:
+  dadosUnidadeDocumento?.cidade || "-",
 
-        estadoPolo:
-          polo?.estado || "-",
+estadoPolo:
+  dadosUnidadeDocumento?.estado || "-",
 
-        cepPolo:
-          polo?.cep || "-",
+cepPolo:
+  dadosUnidadeDocumento?.cep || "-",
 
-        blocoPolo:
-          montarBlocoPolo(polo),
-
+blocoPolo: [
+  nomeUnidadeDocumento,
+  montarEndereco(
+    dadosUnidadeDocumento
+  ),
+  dadosUnidadeDocumento?.telefone
+    ? `Telefone: ${dadosUnidadeDocumento.telefone}`
+    : "",
+  dadosUnidadeDocumento?.email
+    ? `E-mail: ${dadosUnidadeDocumento.email}`
+    : "",
+]
+  .filter(Boolean)
+  .join("\n"),
+  
         responsavelLegal:
           nomeDiretor,
 

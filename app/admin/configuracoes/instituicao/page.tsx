@@ -13,6 +13,7 @@ type LayoutProfissional =
 
 type ConfigInstituicao = {
   nomeFantasia?: string;
+  nomeUnidadePrincipal?: string;
   razaoSocial?: string;
   cnpj?: string;
   telefone?: string;
@@ -120,6 +121,7 @@ export default function ConfigInstituicaoPage() {
 
     return {
       nomeFantasia: dados.nomeFantasia || "",
+      nomeUnidadePrincipal: dados.nomeUnidadePrincipal || "",
       razaoSocial: dados.razaoSocial || "",
       cnpj: dados.cnpj || "",
       telefone: dados.telefone || "",
@@ -208,6 +210,7 @@ export default function ConfigInstituicaoPage() {
 
       const payload = {
         nomeFantasia: form.nomeFantasia || "",
+        nomeUnidadePrincipal: form.nomeUnidadePrincipal || "",
         razaoSocial: form.razaoSocial || "",
         cnpj: form.cnpj || "",
         telefone: form.telefone || "",
@@ -1195,6 +1198,28 @@ export default function ConfigInstituicaoPage() {
                   placeholder="Ex.: IBE"
                 />
               </div>
+
+              <div className="md:col-span-2">
+  <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
+    Nome da unidade principal
+  </label>
+
+  <input
+    value={form.nomeUnidadePrincipal || ""}
+    onChange={(e) =>
+      setForm((prev) => ({
+        ...prev,
+        nomeUnidadePrincipal: e.target.value,
+      }))
+    }
+    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+    placeholder="Ex.: SEDE - São José"
+  />
+
+  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+    Usado na tag {"{{nomePolo}}"} quando o aluno não estiver vinculado a outro polo.
+  </p>
+</div>
 
               <div className="md:col-span-2">
                 <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">

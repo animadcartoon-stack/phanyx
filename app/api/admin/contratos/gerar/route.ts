@@ -382,6 +382,16 @@ const agora =
 const polo =
   matricula.aluno?.polo || null;
 
+const nomeUnidadeDocumento =
+  polo?.nome?.trim() ||
+  config?.nomeUnidadePrincipal?.trim() ||
+  (config?.cidade?.trim()
+    ? `SEDE - ${config.cidade.trim()}`
+    : "SEDE");
+
+const dadosUnidadeDocumento =
+  polo || config;
+
 const enderecoInstituicao =
   montarEnderecoContrato(
     config
@@ -389,7 +399,7 @@ const enderecoInstituicao =
 
 const enderecoPolo =
   montarEnderecoContrato(
-    polo
+    dadosUnidadeDocumento
   );
 
 const cargaHorariaCursoCadastrada =
@@ -550,24 +560,24 @@ const contratoGerado =
         : "-",
 
     nomePolo:
-      polo?.nome || "-",
+  nomeUnidadeDocumento,
 
-    enderecoPolo,
+enderecoPolo,
 
-    telefonePolo:
-      polo?.telefone || "-",
+telefonePolo:
+  dadosUnidadeDocumento?.telefone || "-",
 
-    emailPolo:
-      polo?.email || "-",
+emailPolo:
+  dadosUnidadeDocumento?.email || "-",
 
-    cidadePolo:
-      polo?.cidade || "-",
+cidadePolo:
+  dadosUnidadeDocumento?.cidade || "-",
 
-    estadoPolo:
-      polo?.estado || "-",
+estadoPolo:
+  dadosUnidadeDocumento?.estado || "-",
 
-    cepPolo:
-      polo?.cep || "-",
+cepPolo:
+  dadosUnidadeDocumento?.cep || "-",
 
     valorContrato:
       formatarMoeda(

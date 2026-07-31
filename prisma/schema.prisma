@@ -84,6 +84,7 @@ model Instituicao {
   documentosAlunos               DocumentoAluno[]
   documentosGerados              DocumentoGerado[]
   documentoTemplates             DocumentoTemplate[]
+  logosInstitucionais            InstituicaoLogo[]
   entregas                       EntregaAtividade[]
   Funcionario                    Funcionario[]
   itensMatricula                 ItemMatricula[]
@@ -1672,6 +1673,7 @@ model ConfiguracaoInstituicao {
   id                       Int         @id @default(autoincrement())
   instituicaoId            Int         @unique
   nomeFantasia             String?
+  nomeUnidadePrincipal     String?
   razaoSocial              String?
   cnpj                     String?
   telefone                 String?
@@ -1748,6 +1750,9 @@ model DocumentoTemplate {
   conteudo      String
   camposVisuais Json?
 
+  modoLogo          ModoLogoDocumento @default(AUTOMATICA)
+  logoInstituicaoId Int?
+
   formatoImpressao String @default("A4_INTEIRA")
 
   ativo           Boolean  @default(true)
@@ -1758,11 +1763,13 @@ model DocumentoTemplate {
 
   documentosGerados DocumentoGerado[]
   instituicao       Instituicao       @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  logoInstituicao   InstituicaoLogo?  @relation("DocumentoTemplateLogoSelecionada", fields: [logoInstituicaoId], references: [id], onDelete: SetNull)
   DocumentoRH       DocumentoRH[]
 
   @@index([instituicaoId])
   @@index([tipo])
   @@index([ativo])
+  @@index([logoInstituicaoId])
 }
 
 model DocumentoGerado {
@@ -4772,6 +4779,31 @@ model CursoPublicacaoRede {
   @@index([retiradoPorId])
 }
 
+model InstituicaoLogo {
+  id              Int                 @id @default(autoincrement())
+  instituicaoId   Int
+  nome            String
+  tipo            TipoLogoInstituicao @default(OUTRA)
+  arquivoUrl      String
+  arquivoPath     String?
+  mimeType        String?
+  largura         Int?
+  altura          Int?
+  ativa           Boolean             @default(true)
+  principal       Boolean             @default(false)
+  criadoPorId     Int?
+  atualizadoPorId Int?
+  criadoEm        DateTime            @default(now())
+  atualizadoEm    DateTime            @updatedAt
+  instituicao     Instituicao         @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  templates       DocumentoTemplate[] @relation("DocumentoTemplateLogoSelecionada")
+
+  @@unique([instituicaoId, nome])
+  @@index([instituicaoId, ativa])
+  @@index([instituicaoId, tipo, ativa])
+  @@index([instituicaoId, principal])
+}
+
 enum ModalidadeCertificado {
   GERAL
   BACHARELADO
@@ -5021,6 +5053,23 @@ enum StatusDocumentoGerado {
   GERADO
   ASSINADO
   CANCELADO
+}
+
+enum TipoLogoInstituicao {
+  PRINCIPAL
+  FUNDO_CLARO
+  FUNDO_ESCURO
+  MONOCROMATICA
+  OUTRA
+}
+
+enum ModoLogoDocumento {
+  AUTOMATICA
+  PRINCIPAL
+  FUNDO_CLARO
+  FUNDO_ESCURO
+  PERSONALIZADA
+  SEM_LOGO
 }
 
 enum LeadStatus {
