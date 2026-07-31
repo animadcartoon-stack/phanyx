@@ -364,32 +364,26 @@ const temAssinaturaDiretorVisual = camposAssinaturaDiretor.length > 0;
     let y = pageHeight - 130;
 
     async function desenharLogo(
-      pagina: any,
-      x: number,
-      yLogo: number,
-      width: number,
-      height: number,
-      fundoClaro = false
-    ) {
-      if (!imagemLogo) return;
+  pagina: any,
+  x: number,
+  yLogo: number,
+  width: number,
+  height: number
+) {
+  if (!imagemLogo) {
+    return;
+  }
 
-      if (fundoClaro) {
-        pagina.drawRectangle({
-          x: x - 6,
-          y: yLogo - 6,
-          width: width + 12,
-          height: height + 12,
-          color: rgb(1, 1, 1),
-        });
-      }
-
-      pagina.drawImage(imagemLogo, {
-        x,
-        y: yLogo,
-        width,
-        height,
-      });
+  pagina.drawImage(
+    imagemLogo,
+    {
+      x,
+      y: yLogo,
+      width,
+      height,
     }
+  );
+}
 
     async function desenharCabecalho(pagina: any) {
       if (estilo === "PHANYX_MODERNO") {
@@ -409,7 +403,7 @@ const temAssinaturaDiretorVisual = camposAssinaturaDiretor.length > 0;
           color: rgb(0.09, 0.16, 0.31),
         });
 
-        await desenharLogo(pagina, 58, pageHeight - 68, 48, 48, true);
+        await desenharLogo(pagina, 58, pageHeight - 68, 48, 48);
 
         pagina.drawText(nomeInstituicao, {
           x: 118,
@@ -439,7 +433,7 @@ const temAssinaturaDiretorVisual = camposAssinaturaDiretor.length > 0;
           color: rgb(0.08, 0.08, 0.08),
         });
 
-        await desenharLogo(pagina, 58, pageHeight - 62, 42, 42, true);
+        await desenharLogo(pagina, 58, pageHeight - 62, 42, 42);
 
         pagina.drawText(nomeInstituicao, {
           x: 112,
