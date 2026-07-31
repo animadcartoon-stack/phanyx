@@ -191,15 +191,15 @@ export async function GET(req: Request) {
     const aluno =
       Number.isFinite(alunoId) && alunoId > 0
         ? await prisma.aluno.findFirst({
-            where: {
-              id: alunoId,
-              instituicaoId: user.instituicaoId,
-            },
-            select: {
-              id: true,
-              nome: true,
-            },
-          })
+          where: {
+            id: alunoId,
+            instituicaoId: user.instituicaoId,
+          },
+          select: {
+            id: true,
+            nome: true,
+          },
+        })
         : null;
 
     if (
@@ -242,50 +242,49 @@ export async function GET(req: Request) {
     }
 
     const siglaInstituicao = String(
-  data?.instituicao?.nomeFantasia ||
-    data?.instituicao?.nome ||
-    `INST${user.instituicaoId}`
-)
-  .normalize("NFD")
-  .replace(/[\u0300-\u036f]/g, "")
-  .replace(/[^A-Za-z0-9 ]/g, "")
-  .trim()
-  .split(/\s+/)
-  .map((parte) => parte.slice(0, 1).toUpperCase())
-  .join("")
-  .slice(0, 6) || `INST${user.instituicaoId}`;
+      data?.instituicao?.nomeFantasia ||
+      data?.instituicao?.nome ||
+      `INST${user.instituicaoId}`
+    )
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^A-Za-z0-9 ]/g, "")
+      .trim()
+      .split(/\s+/)
+      .map((parte) => parte.slice(0, 1).toUpperCase())
+      .join("")
+      .slice(0, 6) || `INST${user.instituicaoId}`;
 
-const sufixoSeguro = crypto.randomBytes(4).toString("hex").toUpperCase();
+    const sufixoSeguro = crypto.randomBytes(4).toString("hex").toUpperCase();
 
-const codigoValidacao = await gerarCodigoValidacaoUnico(
-  user.instituicaoId,
-  data?.instituicao?.nome
-);
+    const codigoValidacao = await gerarCodigoValidacaoUnico(
+      user.instituicaoId,
+      data?.instituicao?.nome
+    );
 
-await prisma.documentoGerado.create({
-  data: {
-    codigoValidacao,
-    titulo: data?.titulo || "Contrato educacional",
-    tipo: "CONTRATO",
-    status: "GERADO",
-    conteudo:
-      data?.conteudo ||
-      `Contrato gerado automaticamente para o aluno ${
-        aluno?.nome || "não identificado"
-      }.`,
-    alunoId: aluno?.id ?? null,
-    matriculaId:
-      Number.isFinite(matriculaId) && matriculaId > 0 ? matriculaId : null,
-    instituicaoId: user.instituicaoId,
-    exigeAssinatura: true,
-  },
-});
+    await prisma.documentoGerado.create({
+      data: {
+        codigoValidacao,
+        titulo: data?.titulo || "Contrato educacional",
+        tipo: "CONTRATO",
+        status: "GERADO",
+        conteudo:
+          data?.conteudo ||
+          `Contrato gerado automaticamente para o aluno ${aluno?.nome || "não identificado"
+          }.`,
+        alunoId: aluno?.id ?? null,
+        matriculaId:
+          Number.isFinite(matriculaId) && matriculaId > 0 ? matriculaId : null,
+        instituicaoId: user.instituicaoId,
+        exigeAssinatura: true,
+      },
+    });
 
-const linkValidacao = `${origem}/validar-documento?codigo=${encodeURIComponent(codigoValidacao)}`;
+    const linkValidacao = `${origem}/validar-documento?codigo=${encodeURIComponent(codigoValidacao)}`;
     const qrCodeDataUrl = await QRCode.toDataURL(linkValidacao);
     const estilo = normalizarEstilo(
       data?.instituicao?.estiloPapelTimbrado ||
-        data?.instituicao?.estiloDocumento
+      data?.instituicao?.estiloDocumento
     );
 
     const nomeInstituicao = data?.instituicao?.nomeFantasia || "Instituição";
@@ -314,8 +313,8 @@ const linkValidacao = `${origem}/validar-documento?codigo=${encodeURIComponent(c
 
       try {
         const logoResponse = await fetch(
-  urlImagem.startsWith("http") ? urlImagem : `${origem}${urlImagem}`
-);
+          urlImagem.startsWith("http") ? urlImagem : `${origem}${urlImagem}`
+        );
 
         if (!logoResponse.ok) return null;
 
@@ -338,52 +337,96 @@ const linkValidacao = `${origem}/validar-documento?codigo=${encodeURIComponent(c
     const imagemLogo = await carregarImagem(data?.instituicao?.logoUrl || "");
 
     const assinaturaDiretorUrl =
-  data?.instituicao?.certificadoAssinaturaUrl ||
-  data?.instituicao?.assinaturaDiretorUrl ||
-  "";
+      data?.instituicao?.certificadoAssinaturaUrl ||
+      data?.instituicao?.assinaturaDiretorUrl ||
+      "";
 
     const assinaturaDiretorDinamica = await carregarImagem(assinaturaDiretorUrl);
 
-if (assinaturaDiretorDinamica) {
-  assinaturaDiretorEmbed = assinaturaDiretorDinamica;
-}
+    if (assinaturaDiretorDinamica) {
+      assinaturaDiretorEmbed = assinaturaDiretorDinamica;
+    }
 
-const camposVisuaisContrato = Array.isArray(data?.camposVisuais)
-  ? data.camposVisuais
-  : Array.isArray(data?.template?.camposVisuais)
-  ? data.template.camposVisuais
-  : [];
+    const camposVisuaisContrato = Array.isArray(data?.camposVisuais)
+      ? data.camposVisuais
+      : Array.isArray(data?.template?.camposVisuais)
+        ? data.template.camposVisuais
+        : [];
 
-const camposAssinaturaDiretor = camposVisuaisContrato.filter(
-  (campo: any) => campo?.tipo === "ASSINATURA_DIRETOR"
-);
+    const camposAssinaturaDiretor = camposVisuaisContrato.filter(
+      (campo: any) => campo?.tipo === "ASSINATURA_DIRETOR"
+    );
 
-const temAssinaturaDiretorVisual = camposAssinaturaDiretor.length > 0;
+    const temAssinaturaDiretorVisual = camposAssinaturaDiretor.length > 0;
 
     let page = pdfDoc.addPage([pageWidth, pageHeight]);
     let y = pageHeight - 130;
 
     async function desenharLogo(
-  pagina: any,
-  x: number,
-  yLogo: number,
-  width: number,
-  height: number
-) {
-  if (!imagemLogo) {
-    return;
-  }
+      pagina: any,
+      x: number,
+      yLogo: number,
+      larguraMaxima: number,
+      alturaMaxima: number
+    ) {
+      if (!imagemLogo) {
+        return;
+      }
 
-  pagina.drawImage(
-    imagemLogo,
-    {
-      x,
-      y: yLogo,
-      width,
-      height,
+      const larguraOriginal =
+        Number(imagemLogo.width) || 1;
+
+      const alturaOriginal =
+        Number(imagemLogo.height) || 1;
+
+      const escala = Math.min(
+        larguraMaxima /
+        larguraOriginal,
+
+        alturaMaxima /
+        alturaOriginal
+      );
+
+      const larguraFinal =
+        larguraOriginal *
+        escala;
+
+      const alturaFinal =
+        alturaOriginal *
+        escala;
+
+      /*
+       * Centraliza a logo dentro da área
+       * reservada do cabeçalho.
+       */
+      const xFinal =
+        x +
+        (
+          larguraMaxima -
+          larguraFinal
+        ) /
+        2;
+
+      const yFinal =
+        yLogo +
+        (
+          alturaMaxima -
+          alturaFinal
+        ) /
+        2;
+
+      pagina.drawImage(
+        imagemLogo,
+        {
+          x: xFinal,
+          y: yFinal,
+          width:
+            larguraFinal,
+          height:
+            alturaFinal,
+        }
+      );
     }
-  );
-}
 
     async function desenharCabecalho(pagina: any) {
       if (estilo === "PHANYX_MODERNO") {
@@ -403,10 +446,16 @@ const temAssinaturaDiretorVisual = camposAssinaturaDiretor.length > 0;
           color: rgb(0.09, 0.16, 0.31),
         });
 
-        await desenharLogo(pagina, 58, pageHeight - 68, 48, 48);
+        await desenharLogo(
+          pagina,
+          40,
+          pageHeight - 76,
+          78,
+          54
+        );
 
         pagina.drawText(nomeInstituicao, {
-          x: 118,
+          x: 132,
           y: pageHeight - 42,
           size: 16,
           font: bold,
@@ -414,7 +463,7 @@ const temAssinaturaDiretorVisual = camposAssinaturaDiretor.length > 0;
         });
 
         pagina.drawText("Contrato educacional", {
-          x: 118,
+          x: 132,
           y: pageHeight - 60,
           size: 9,
           font,
@@ -433,10 +482,16 @@ const temAssinaturaDiretorVisual = camposAssinaturaDiretor.length > 0;
           color: rgb(0.08, 0.08, 0.08),
         });
 
-        await desenharLogo(pagina, 58, pageHeight - 62, 42, 42);
+        await desenharLogo(
+          pagina,
+          40,
+          pageHeight - 72,
+          76,
+          48
+        );
 
         pagina.drawText(nomeInstituicao, {
-          x: 112,
+          x: 128,
           y: pageHeight - 38,
           size: 16,
           font: bold,
@@ -444,7 +499,7 @@ const temAssinaturaDiretorVisual = camposAssinaturaDiretor.length > 0;
         });
 
         pagina.drawText("Contrato educacional", {
-          x: 112,
+          x: 128,
           y: pageHeight - 56,
           size: 9,
           font,
@@ -610,105 +665,105 @@ const temAssinaturaDiretorVisual = camposAssinaturaDiretor.length > 0;
       estilo === "PHANYX_MODERNO"
         ? pageHeight - 132
         : estilo === "PHANYX_CLASSICO"
-        ? pageHeight - 126
-        : pageHeight - 118;
+          ? pageHeight - 126
+          : pageHeight - 118;
 
     let valorContratoNumerico =
-  Number(data?.matricula?.valorMatricula || 0) ||
-  Number(data?.matricula?.valorPagoMatricula || 0) ||
-  Number(data?.contrato?.valorMatricula || 0) ||
-  Number(data?.contrato?.valorPagoMatricula || 0) ||
-  Number(data?.valorContrato || 0);
+      Number(data?.matricula?.valorMatricula || 0) ||
+      Number(data?.matricula?.valorPagoMatricula || 0) ||
+      Number(data?.contrato?.valorMatricula || 0) ||
+      Number(data?.contrato?.valorPagoMatricula || 0) ||
+      Number(data?.valorContrato || 0);
 
-if (!valorContratoNumerico && Number.isFinite(matriculaId) && matriculaId > 0) {
-  const matriculaBanco = await prisma.matricula.findFirst({
-    where: {
-      id: matriculaId,
-      instituicaoId: user.instituicaoId,
-    },
-    select: {
-      valorMatricula: true,
-      valorMensalidade: true,
-    },
-  });
+    if (!valorContratoNumerico && Number.isFinite(matriculaId) && matriculaId > 0) {
+      const matriculaBanco = await prisma.matricula.findFirst({
+        where: {
+          id: matriculaId,
+          instituicaoId: user.instituicaoId,
+        },
+        select: {
+          valorMatricula: true,
+          valorMensalidade: true,
+        },
+      });
 
-  valorContratoNumerico =
-    Number(matriculaBanco?.valorMatricula || 0) ||
-    Number(matriculaBanco?.valorMensalidade || 0);
-}
-
-const valorContratoFormatado = new Intl.NumberFormat("pt-BR", {
-  style: "currency",
-  currency: "BRL",
-}).format(valorContratoNumerico);
-
-const contratoComValorCorrigido =
-  String(
-    data?.contratoFinal || ""
-  ).replace(
-    /R\$\s*0,00/g,
-    valorContratoFormatado
-  );
-
-const contratoFinalCorrigido =
-  substituirTagsFinaisContrato(
-    contratoComValorCorrigido,
-    {
-      codigoValidacao,
-
-      urlValidacao:
-        linkValidacao,
-
-      assinaturaDiretor: "",
-
-      blocoAssinaturaDiretor: "",
-
-      logoInstituicao: "",
+      valorContratoNumerico =
+        Number(matriculaBanco?.valorMatricula || 0) ||
+        Number(matriculaBanco?.valorMensalidade || 0);
     }
-  );
 
-const tagsRestantesContrato =
-  listarTagsRestantesContrato(
-    contratoFinalCorrigido
-  );
+    const valorContratoFormatado = new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(valorContratoNumerico);
 
-if (
-  tagsRestantesContrato.length > 0
-) {
-  throw new Error(
-    `O contrato ainda possui variáveis não preenchidas: ${tagsRestantesContrato
-      .map(
-        (tag) =>
-          `{{${tag}}}`
-      )
-      .join(", ")}`
-  );
-}
+    const contratoComValorCorrigido =
+      String(
+        data?.contratoFinal || ""
+      ).replace(
+        /R\$\s*0,00/g,
+        valorContratoFormatado
+      );
 
-const resultado = await renderizarHtmlTipTapNoPdf({
-  html: contratoFinalCorrigido,
-  page,
-  font,
-  bold,
-  x: margemX,
-  yInicial: y,
-  maxWidth: larguraTexto,
-  pageHeight,
-  criarNovaPagina: async () => {
-    const novaPagina = pdfDoc.addPage([pageWidth, pageHeight]);
+    const contratoFinalCorrigido =
+      substituirTagsFinaisContrato(
+        contratoComValorCorrigido,
+        {
+          codigoValidacao,
 
-    await desenharCabecalho(novaPagina);
+          urlValidacao:
+            linkValidacao,
 
-    page = novaPagina;
+          assinaturaDiretor: "",
 
-    return novaPagina;
-  },
-});
+          blocoAssinaturaDiretor: "",
 
-page = resultado.page;
-y = resultado.y;
+          logoInstituicao: "",
+        }
+      );
 
-y -= 20;
+    const tagsRestantesContrato =
+      listarTagsRestantesContrato(
+        contratoFinalCorrigido
+      );
+
+    if (
+      tagsRestantesContrato.length > 0
+    ) {
+      throw new Error(
+        `O contrato ainda possui variáveis não preenchidas: ${tagsRestantesContrato
+          .map(
+            (tag) =>
+              `{{${tag}}}`
+          )
+          .join(", ")}`
+      );
+    }
+
+    const resultado = await renderizarHtmlTipTapNoPdf({
+      html: contratoFinalCorrigido,
+      page,
+      font,
+      bold,
+      x: margemX,
+      yInicial: y,
+      maxWidth: larguraTexto,
+      pageHeight,
+      criarNovaPagina: async () => {
+        const novaPagina = pdfDoc.addPage([pageWidth, pageHeight]);
+
+        await desenharCabecalho(novaPagina);
+
+        page = novaPagina;
+
+        return novaPagina;
+      },
+    });
+
+    page = resultado.page;
+    y = resultado.y;
+
+    y -= 20;
 
     if (y < 190) {
       page = pdfDoc.addPage([pageWidth, pageHeight]);
@@ -727,121 +782,121 @@ y -= 20;
     y -= 34;
     const linhaY = y;
 
-const assinaturaAlunoBase64 = data?.contrato?.assinatura?.imagem;
+    const assinaturaAlunoBase64 = data?.contrato?.assinatura?.imagem;
 
-if (assinaturaAlunoBase64) {
-  try {
-    const base64Limpo = String(assinaturaAlunoBase64).includes(",")
-      ? String(assinaturaAlunoBase64).split(",")[1]
-      : String(assinaturaAlunoBase64);
+    if (assinaturaAlunoBase64) {
+      try {
+        const base64Limpo = String(assinaturaAlunoBase64).includes(",")
+          ? String(assinaturaAlunoBase64).split(",")[1]
+          : String(assinaturaAlunoBase64);
 
-    const assinaturaBytes = Buffer.from(base64Limpo, "base64");
-    const assinaturaImagem = await pdfDoc.embedPng(assinaturaBytes);
+        const assinaturaBytes = Buffer.from(base64Limpo, "base64");
+        const assinaturaImagem = await pdfDoc.embedPng(assinaturaBytes);
 
-    const assinaturaAlunoConfig = {
-  x: 65,
-  y: linhaY + 1,
-  width: 100,
-  height: 30,
-  opacity: 1,
-};
+        const assinaturaAlunoConfig = {
+          x: 65,
+          y: linhaY + 1,
+          width: 100,
+          height: 30,
+          opacity: 1,
+        };
 
-page.drawImage(assinaturaImagem, assinaturaAlunoConfig);
-page.drawImage(assinaturaImagem, {
-  ...assinaturaAlunoConfig,
-  x: assinaturaAlunoConfig.x + 0.4,
-});
-page.drawImage(assinaturaImagem, {
-  ...assinaturaAlunoConfig,
-  y: assinaturaAlunoConfig.y + 0.4,
-});
-  } catch (e) {
-    console.error("Erro ao desenhar assinatura do aluno no PDF:", e);
-  }
-}
-
-const assinaturaSecretariaBase64 =
-  data?.contrato?.assinaturaSecretariaImagem;
-
-  const assinaturaSecretariaNome =
-  data?.contrato?.assinaturaSecretariaNome || null;
-
-const assinaturaSecretariaEm =
-  data?.contrato?.assinaturaSecretariaEm || null;
-
-if (assinaturaSecretariaBase64) {
-  try {
-    const base64Completo = String(assinaturaSecretariaBase64);
-    const base64Limpo = base64Completo.includes(",")
-      ? base64Completo.split(",")[1]
-      : base64Completo;
-
-    const assinaturaBytes = Buffer.from(base64Limpo, "base64");
-
-    let assinaturaImagem;
-
-    if (base64Completo.includes("image/jpeg") || base64Completo.includes("image/jpg")) {
-      assinaturaImagem = await pdfDoc.embedJpg(assinaturaBytes);
-    } else {
-      assinaturaImagem = await pdfDoc.embedPng(assinaturaBytes);
+        page.drawImage(assinaturaImagem, assinaturaAlunoConfig);
+        page.drawImage(assinaturaImagem, {
+          ...assinaturaAlunoConfig,
+          x: assinaturaAlunoConfig.x + 0.4,
+        });
+        page.drawImage(assinaturaImagem, {
+          ...assinaturaAlunoConfig,
+          y: assinaturaAlunoConfig.y + 0.4,
+        });
+      } catch (e) {
+        console.error("Erro ao desenhar assinatura do aluno no PDF:", e);
+      }
     }
 
-    const assinaturaSecretariaConfig = {
-      x: 424,
-      y: linhaY + 1,
-      width: 105,
-      height: 30,
-      opacity: 1,
-    };
+    const assinaturaSecretariaBase64 =
+      data?.contrato?.assinaturaSecretariaImagem;
 
-    page.drawImage(assinaturaImagem, assinaturaSecretariaConfig);
-    page.drawImage(assinaturaImagem, {
-      ...assinaturaSecretariaConfig,
-      x: assinaturaSecretariaConfig.x + 0.4,
-    });
-    page.drawImage(assinaturaImagem, {
-      ...assinaturaSecretariaConfig,
-      y: assinaturaSecretariaConfig.y + 0.4,
-    });
-    page.drawImage(assinaturaImagem, {
-      ...assinaturaSecretariaConfig,
-      x: assinaturaSecretariaConfig.x - 0.4,
-    });
-  } catch (e) {
-    console.error("Erro ao desenhar assinatura da secretaria:", e);
-  }
-}
+    const assinaturaSecretariaNome =
+      data?.contrato?.assinaturaSecretariaNome || null;
 
-if (!assinaturaSecretariaBase64 && assinaturaSecretariaNome) {
-  page.drawText("Assinado digitalmente por:", {
-    x: 428,
-    y: linhaY + 19,
-    size: 7,
-    font,
-    color: rgb(0, 0, 0),
-  });
+    const assinaturaSecretariaEm =
+      data?.contrato?.assinaturaSecretariaEm || null;
 
-  page.drawText(String(assinaturaSecretariaNome).slice(0, 34), {
-    x: 428,
-    y: linhaY + 10,
-    size: 8,
-    font: bold,
-    color: rgb(0, 0, 0),
-  });
+    if (assinaturaSecretariaBase64) {
+      try {
+        const base64Completo = String(assinaturaSecretariaBase64);
+        const base64Limpo = base64Completo.includes(",")
+          ? base64Completo.split(",")[1]
+          : base64Completo;
 
-  if (assinaturaSecretariaEm) {
-    page.drawText(
-      `Em ${new Date(assinaturaSecretariaEm).toLocaleDateString("pt-BR")}`,
-      {
+        const assinaturaBytes = Buffer.from(base64Limpo, "base64");
+
+        let assinaturaImagem;
+
+        if (base64Completo.includes("image/jpeg") || base64Completo.includes("image/jpg")) {
+          assinaturaImagem = await pdfDoc.embedJpg(assinaturaBytes);
+        } else {
+          assinaturaImagem = await pdfDoc.embedPng(assinaturaBytes);
+        }
+
+        const assinaturaSecretariaConfig = {
+          x: 424,
+          y: linhaY + 1,
+          width: 105,
+          height: 30,
+          opacity: 1,
+        };
+
+        page.drawImage(assinaturaImagem, assinaturaSecretariaConfig);
+        page.drawImage(assinaturaImagem, {
+          ...assinaturaSecretariaConfig,
+          x: assinaturaSecretariaConfig.x + 0.4,
+        });
+        page.drawImage(assinaturaImagem, {
+          ...assinaturaSecretariaConfig,
+          y: assinaturaSecretariaConfig.y + 0.4,
+        });
+        page.drawImage(assinaturaImagem, {
+          ...assinaturaSecretariaConfig,
+          x: assinaturaSecretariaConfig.x - 0.4,
+        });
+      } catch (e) {
+        console.error("Erro ao desenhar assinatura da secretaria:", e);
+      }
+    }
+
+    if (!assinaturaSecretariaBase64 && assinaturaSecretariaNome) {
+      page.drawText("Assinado digitalmente por:", {
         x: 428,
-        y: linhaY + 1,
+        y: linhaY + 19,
         size: 7,
         font,
         color: rgb(0, 0, 0),
+      });
+
+      page.drawText(String(assinaturaSecretariaNome).slice(0, 34), {
+        x: 428,
+        y: linhaY + 10,
+        size: 8,
+        font: bold,
+        color: rgb(0, 0, 0),
+      });
+
+      if (assinaturaSecretariaEm) {
+        page.drawText(
+          `Em ${new Date(assinaturaSecretariaEm).toLocaleDateString("pt-BR")}`,
+          {
+            x: 428,
+            y: linhaY + 1,
+            size: 7,
+            font,
+            color: rgb(0, 0, 0),
+          }
+        );
       }
-    );
-  }
-}
+    }
 
     page.drawLine({
       start: { x: 50, y: linhaY },
@@ -857,21 +912,21 @@ if (!assinaturaSecretariaBase64 && assinaturaSecretariaNome) {
       color: rgb(0, 0, 0),
     });
 
- if (false && assinaturaDiretorEmbed && !temAssinaturaDiretorVisual) {
-  const assinaturaDiretorConfig = {
-    x: 248,
-    y: linhaY + 1,
-    width: 125,
-    height: 32,
-    opacity: 1,
-  };
+    if (false && assinaturaDiretorEmbed && !temAssinaturaDiretorVisual) {
+      const assinaturaDiretorConfig = {
+        x: 248,
+        y: linhaY + 1,
+        width: 125,
+        height: 32,
+        opacity: 1,
+      };
 
-  page.drawImage(assinaturaDiretorEmbed, assinaturaDiretorConfig);
-  page.drawImage(assinaturaDiretorEmbed, { ...assinaturaDiretorConfig, x: assinaturaDiretorConfig.x + 0.5 });
-  page.drawImage(assinaturaDiretorEmbed, { ...assinaturaDiretorConfig, y: assinaturaDiretorConfig.y + 0.5 });
-  page.drawImage(assinaturaDiretorEmbed, { ...assinaturaDiretorConfig, x: assinaturaDiretorConfig.x - 0.5 });
-  page.drawImage(assinaturaDiretorEmbed, { ...assinaturaDiretorConfig, y: assinaturaDiretorConfig.y - 0.5 });
-}
+      page.drawImage(assinaturaDiretorEmbed, assinaturaDiretorConfig);
+      page.drawImage(assinaturaDiretorEmbed, { ...assinaturaDiretorConfig, x: assinaturaDiretorConfig.x + 0.5 });
+      page.drawImage(assinaturaDiretorEmbed, { ...assinaturaDiretorConfig, y: assinaturaDiretorConfig.y + 0.5 });
+      page.drawImage(assinaturaDiretorEmbed, { ...assinaturaDiretorConfig, x: assinaturaDiretorConfig.x - 0.5 });
+      page.drawImage(assinaturaDiretorEmbed, { ...assinaturaDiretorConfig, y: assinaturaDiretorConfig.y - 0.5 });
+    }
 
     page.drawLine({
       start: { x: 406, y: linhaY },
@@ -1000,92 +1055,92 @@ if (!assinaturaSecretariaBase64 && assinaturaSecretariaNome) {
       color: rgb(0.35, 0.35, 0.35),
     });
 
- if (assinaturaDiretorEmbed && camposAssinaturaDiretor.length > 0) {
-  const paginaDestino = pdfDoc.getPage(pdfDoc.getPageCount() - 1);
-  const campo = camposAssinaturaDiretor[0];
+    if (assinaturaDiretorEmbed && camposAssinaturaDiretor.length > 0) {
+      const paginaDestino = pdfDoc.getPage(pdfDoc.getPageCount() - 1);
+      const campo = camposAssinaturaDiretor[0];
 
-  // Medidas do preview novo em app/admin/documentos/templates/page.tsx
-  const previewLinhaX = 40;
-  const previewLinhaY = 92;
+      // Medidas do preview novo em app/admin/documentos/templates/page.tsx
+      const previewLinhaX = 40;
+      const previewLinhaY = 92;
 
-  // Linha REAL do diretor no PDF
-  const pdfLinhaX = 228;
-const pdfLinhaY = linhaY + 2;
+      // Linha REAL do diretor no PDF
+      const pdfLinhaX = 228;
+      const pdfLinhaY = linhaY + 2;
 
-const escala = 0.34;
+      const escala = 0.34;
 
-  const larguraCampo = Number(campo.largura || 180);
-  const alturaCampo = Number(campo.altura || 55);
+      const larguraCampo = Number(campo.largura || 180);
+      const alturaCampo = Number(campo.altura || 55);
 
-  const x =
-    pdfLinhaX + (Number(campo.x || 0) - previewLinhaX) * escala;
+      const x =
+        pdfLinhaX + (Number(campo.x || 0) - previewLinhaX) * escala;
 
-  const y =
-    pdfLinhaY +
-    (previewLinhaY - (Number(campo.y || 0) + alturaCampo)) * escala;
+      const y =
+        pdfLinhaY +
+        (previewLinhaY - (Number(campo.y || 0) + alturaCampo)) * escala;
 
-  const largura = larguraCampo * escala;
-  const altura = alturaCampo * escala;
+      const largura = larguraCampo * escala;
+      const altura = alturaCampo * escala;
 
-  paginaDestino.drawImage(assinaturaDiretorEmbed, {
-    x,
-    y,
-    width: largura,
-    height: altura,
-    opacity: 1,
-  });
-}
+      paginaDestino.drawImage(assinaturaDiretorEmbed, {
+        x,
+        y,
+        width: largura,
+        height: altura,
+        opacity: 1,
+      });
+    }
 
     const totalPaginas = pdfDoc.getPageCount();
-const paginaFinal = pdfDoc.getPage(totalPaginas - 1);
-const { width } = paginaFinal.getSize();
+    const paginaFinal = pdfDoc.getPage(totalPaginas - 1);
+    const { width } = paginaFinal.getSize();
 
-const qrImageBytes = await fetch(qrCodeDataUrl).then((res) => res.arrayBuffer());
-const qrImage = await pdfDoc.embedPng(qrImageBytes);
-const qrSize = 80;
+    const qrImageBytes = await fetch(qrCodeDataUrl).then((res) => res.arrayBuffer());
+    const qrImage = await pdfDoc.embedPng(qrImageBytes);
+    const qrSize = 80;
 
-const qrX = width - qrSize - 40;
-const qrY = 100;
+    const qrX = width - qrSize - 40;
+    const qrY = 100;
 
-const textoValidacao = "Documento validável digitalmente";
-const tamanhoTextoValidacao = 9;
-const tamanhoCodigo = 7;
+    const textoValidacao = "Documento validável digitalmente";
+    const tamanhoTextoValidacao = 9;
+    const tamanhoCodigo = 7;
 
-const larguraTextoValidacao =
-  helveticaFont.widthOfTextAtSize(textoValidacao, tamanhoTextoValidacao);
+    const larguraTextoValidacao =
+      helveticaFont.widthOfTextAtSize(textoValidacao, tamanhoTextoValidacao);
 
-const larguraCodigo =
-  helveticaFont.widthOfTextAtSize(codigoValidacao, tamanhoCodigo);
+    const larguraCodigo =
+      helveticaFont.widthOfTextAtSize(codigoValidacao, tamanhoCodigo);
 
-const centroQr = qrX + qrSize / 2;
+    const centroQr = qrX + qrSize / 2;
 
-paginaFinal.drawImage(qrImage, {
-  x: qrX,
-  y: qrY,
-  width: qrSize,
-  height: qrSize,
-});
+    paginaFinal.drawImage(qrImage, {
+      x: qrX,
+      y: qrY,
+      width: qrSize,
+      height: qrSize,
+    });
 
-paginaFinal.drawText(textoValidacao, {
-  x: centroQr - larguraTextoValidacao / 2,
-  y: qrY - 20,
-  size: tamanhoTextoValidacao,
-  font: helveticaFont,
-});
+    paginaFinal.drawText(textoValidacao, {
+      x: centroQr - larguraTextoValidacao / 2,
+      y: qrY - 20,
+      size: tamanhoTextoValidacao,
+      font: helveticaFont,
+    });
 
-paginaFinal.drawText(codigoValidacao, {
-  x: centroQr - larguraCodigo / 2,
-  y: qrY - 35,
-  size: tamanhoCodigo,
-  font: helveticaFont,
-});
+    paginaFinal.drawText(codigoValidacao, {
+      x: centroQr - larguraCodigo / 2,
+      y: qrY - 35,
+      size: tamanhoCodigo,
+      font: helveticaFont,
+    });
 
-for (let i = 0; i < totalPaginas; i++) {
-  const pagina = pdfDoc.getPage(i);
-  desenharRodapeInstitucional(pagina, i + 1, totalPaginas);
-}
+    for (let i = 0; i < totalPaginas; i++) {
+      const pagina = pdfDoc.getPage(i);
+      desenharRodapeInstitucional(pagina, i + 1, totalPaginas);
+    }
 
-               const pdfBytes = await pdfDoc.save();
+    const pdfBytes = await pdfDoc.save();
     const pdfBuffer = Buffer.from(pdfBytes);
 
     return new Response(pdfBuffer, {
