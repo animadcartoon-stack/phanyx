@@ -1075,100 +1075,100 @@ export default function LogosInstitucionaisPage() {
                                             </div>
 
                                             <div className="grid gap-2 sm:grid-cols-2">
-  {!logo.principal && (
-    <button
-      type="button"
-      disabled={
-        atualizando ||
-        !logo.ativa
-      }
-      onClick={() =>
-        atualizarLogo(
-          logo,
-          {
-            principal: true,
-          }
-        )
-      }
-      className="phanyx-logo-action phanyx-logo-action-primary rounded-xl border px-3 py-2 text-xs font-bold transition disabled:cursor-not-allowed disabled:opacity-50"
-    >
-      <span className="phanyx-logo-button-label">
-        Definir principal
-      </span>
-    </button>
-  )}
+                                                {!logo.principal && (
+                                                    <button
+                                                        type="button"
+                                                        disabled={
+                                                            atualizando ||
+                                                            !logo.ativa
+                                                        }
+                                                        onClick={() =>
+                                                            atualizarLogo(
+                                                                logo,
+                                                                {
+                                                                    principal: true,
+                                                                }
+                                                            )
+                                                        }
+                                                        className="phanyx-logo-action phanyx-logo-action-primary rounded-xl border px-3 py-2 text-xs font-bold transition disabled:cursor-not-allowed disabled:opacity-50"
+                                                    >
+                                                        <span className="phanyx-logo-button-label">
+                                                            Definir principal
+                                                        </span>
+                                                    </button>
+                                                )}
 
-  <button
-    type="button"
-    disabled={atualizando}
-    onClick={() =>
-      atualizarLogo(
-        logo,
-        {
-          ativa:
-            !logo.ativa,
-        }
-      )
-    }
-    className="phanyx-logo-action phanyx-logo-action-neutral rounded-xl border px-3 py-2 text-xs font-bold transition disabled:cursor-not-allowed disabled:opacity-50"
-  >
-    <span className="phanyx-logo-button-label">
-      {logo.ativa
-        ? "Desativar"
-        : "Ativar"}
-    </span>
-  </button>
+                                                <button
+                                                    type="button"
+                                                    disabled={atualizando}
+                                                    onClick={() =>
+                                                        atualizarLogo(
+                                                            logo,
+                                                            {
+                                                                ativa:
+                                                                    !logo.ativa,
+                                                            }
+                                                        )
+                                                    }
+                                                    className="phanyx-logo-action phanyx-logo-action-neutral rounded-xl border px-3 py-2 text-xs font-bold transition disabled:cursor-not-allowed disabled:opacity-50"
+                                                >
+                                                    <span className="phanyx-logo-button-label">
+                                                        {logo.ativa
+                                                            ? "Desativar"
+                                                            : "Ativar"}
+                                                    </span>
+                                                </button>
 
-  <button
-    type="button"
-    disabled={atualizando}
-    onClick={() => {
-      const atual =
-        TIPOS_LOGO.findIndex(
-          (item) =>
-            item.value ===
-            logo.tipo
-        );
+                                                <button
+                                                    type="button"
+                                                    disabled={atualizando}
+                                                    onClick={() => {
+                                                        const atual =
+                                                            TIPOS_LOGO.findIndex(
+                                                                (item) =>
+                                                                    item.value ===
+                                                                    logo.tipo
+                                                            );
 
-      const proximo =
-        TIPOS_LOGO[
-          (atual + 1) %
-            TIPOS_LOGO.length
-        ];
+                                                        const proximo =
+                                                            TIPOS_LOGO[
+                                                            (atual + 1) %
+                                                            TIPOS_LOGO.length
+                                                            ];
 
-      atualizarLogo(
-        logo,
-        {
-          tipo:
-            proximo.value,
-        }
-      );
-    }}
-    className="phanyx-logo-action phanyx-logo-action-secondary rounded-xl border px-3 py-2 text-xs font-bold transition disabled:cursor-not-allowed disabled:opacity-50"
-  >
-    <span className="phanyx-logo-button-label">
-      Alterar finalidade
-    </span>
-  </button>
+                                                        atualizarLogo(
+                                                            logo,
+                                                            {
+                                                                tipo:
+                                                                    proximo.value,
+                                                            }
+                                                        );
+                                                    }}
+                                                    className="phanyx-logo-action phanyx-logo-action-secondary rounded-xl border px-3 py-2 text-xs font-bold transition disabled:cursor-not-allowed disabled:opacity-50"
+                                                >
+                                                    <span className="phanyx-logo-button-label">
+                                                        Alterar finalidade
+                                                    </span>
+                                                </button>
 
-  <button
-    type="button"
-    disabled={
-      atualizando ||
-      ocupada
-    }
-    onClick={() =>
-      setLogoExcluir(
-        logo
-      )
-    }
-    className="phanyx-logo-action phanyx-logo-action-danger rounded-xl border px-3 py-2 text-xs font-bold transition disabled:cursor-not-allowed disabled:opacity-50"
-  >
-    <span className="phanyx-logo-button-label">
-      Excluir
-    </span>
-  </button>
-</div>
+                                                <button
+                                                    type="button"
+                                                    disabled={
+                                                        atualizando ||
+                                                        ocupada
+                                                    }
+                                                    onClick={() =>
+                                                        setLogoExcluir(
+                                                            logo
+                                                        )
+                                                    }
+                                                    className="phanyx-logo-action phanyx-logo-action-danger rounded-xl border px-3 py-2 text-xs font-bold transition disabled:cursor-not-allowed disabled:opacity-50"
+                                                >
+                                                    <span className="phanyx-logo-button-label">
+                                                        Excluir
+                                                    </span>
+                                                </button>
+                                            </div>
 
                                             {ocupada && (
                                                 <p className="text-xs font-semibold text-amber-700 dark:text-amber-300">
@@ -1229,12 +1229,12 @@ export default function LogosInstitucionaisPage() {
                                         null
                                     )
                                 }
-                                disabled={
-                                    excluindo
-                                }
-                                className="rounded-xl border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-800 transition hover:bg-slate-100 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                                disabled={excluindo}
+                                className="phanyx-logo-modal-cancel rounded-xl border px-5 py-3 font-semibold transition disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                                Cancelar
+                                <span className="phanyx-logo-modal-cancel-label">
+                                    Cancelar
+                                </span>
                             </button>
 
                             <button

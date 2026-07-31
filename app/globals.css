@@ -17375,3 +17375,63 @@ html[data-theme="dark"] .phanyx-caixa-automatico-label {
 html[data-theme="system"] .phanyx-caixa-automatico-label {
   color: #e5e5e5 !important;
 }
+
+/* =========================================================
+   MODAL DA BIBLIOTECA DE LOGOS — BOTÃO CANCELAR
+========================================================= */
+
+html[data-theme="light"]
+  .phanyx-logo-modal-cancel {
+  background: #ffffff !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-logo-modal-cancel-label {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-logo-modal-cancel:hover:not(:disabled) {
+  background: #f1f5f9 !important;
+  border-color: #64748b !important;
+}
+
+/* Tema escuro */
+
+html[data-theme="dark"]
+  .phanyx-logo-modal-cancel {
+  background: #1e293b !important;
+  border-color: #64748b !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-logo-modal-cancel-label {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* Tema sistema quando o computador estiver em modo escuro */
+
+@media (prefers-color-scheme: dark) {
+  html[data-theme="system"]
+    .phanyx-logo-modal-cancel {
+    background: #1e293b !important;
+    border-color: #64748b !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+  }
+
+  html[data-theme="system"]
+    .phanyx-logo-modal-cancel-label {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+  }
+}

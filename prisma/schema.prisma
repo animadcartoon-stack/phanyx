@@ -184,6 +184,8 @@ model Instituicao {
   crachasEmitidos                             CrachaEmitido[]
   CrachaLoteEmissao                           CrachaLoteEmissao[]
   visitantes                                  Visitante[]
+  leadsGerenciados                            Lead[]                                      @relation("LeadInstituicaoGestora")
+  interacoesLead                              LeadInteracao[]                             @relation("LeadInteracaoInstituicao")
 
   regraLiberacaoCertificado      String                           @default("CURSO_COMPLETO")
   mediaMinimaCertificado         Float                            @default(7)
@@ -307,6 +309,9 @@ model User {
   lancamentosComissaoRHReprovados       LancamentoComissaoRH[]           @relation("LancamentoComissaoRHReprovadoPor")
   lancamentosComissaoRHEnviadosHolerite LancamentoComissaoRH[]           @relation("LancamentoComissaoRHEnviadoHoleritePor")
   lancamentosComissaoRHEstornados       LancamentoComissaoRH[]           @relation("LancamentoComissaoRHEstornadoPor")
+  leadsCriados                          Lead[]                           @relation("LeadCriadoPor")
+  leadsAtualizados                      Lead[]                           @relation("LeadAtualizadoPor")
+  interacoesLeadCriadas                 LeadInteracao[]                  @relation("LeadInteracaoCriadaPor")
 
   programasRemuneracaoVariavelRHCriados                ProgramaRemuneracaoVariavelRH[]             @relation("ProgramaRemuneracaoVariavelRHCriadoPor")
   programasRemuneracaoVariavelRHAprovados              ProgramaRemuneracaoVariavelRH[]             @relation("ProgramaRemuneracaoVariavelRHAprovadoPor")
@@ -1493,6 +1498,7 @@ model Funcionario {
   historicosRemuneracaoRH                     HistoricoRemuneracaoRH[]
   participacoesComerciais                     MatriculaParticipanteComercial[]
   matriculasComoVendedor                      Matricula[]                                 @relation("MatriculaVendedorResponsavel")
+  leadsComoResponsavel                        Lead[]                                      @relation("LeadResponsavelFuncionario")
   matriculasConfirmacaoMenor                  Matricula[]                                 @relation("MatriculaConfirmacaoMenorPorFuncionario")
   lancamentosComissaoRH                       LancamentoComissaoRH[]
   participacoesProgramasRemuneracaoVariavelRH ParticipanteProgramaRemuneracaoVariavelRH[]
@@ -1869,47 +1875,65 @@ model LeadMatriculaIbe {
 }
 
 model Lead {
-  id               Int       @id @default(autoincrement())
-  nome             String
-  email            String
-  telefone         String?
-  instituicaoNome  String?
-  instituicaoId    Int?
-  cargo            String?
-  origem           String    @default("SITE_PHANYX")
-  tipo             String    @default("PHANYX") // PHANYX ou INSTITUICAO
-  interesse        String?
-  observacoes      String?
-  status           String    @default("NOVO") // NOVO, CONTATO, PROPOSTA, FECHADO, PERDIDO
-  prioridade       String    @default("MEDIA") // BAIXA, MEDIA, ALTA
-  valorEstimado    Float?
-  proximoContatoEm DateTime?
-  ultimoContatoEm  DateTime?
-  responsavelNome  String?
+  id                       Int             @id @default(autoincrement())
+  instituicaoId            Int?
+  responsavelFuncionarioId Int?
+  criadoPorId              Int?
+  atualizadoPorId          Int?
+  nome                     String
+  email                    String
+  telefone                 String?
+  instituicaoNome          String?
+  cargo                    String?
+  origem                   String          @default("SITE_PHANYX")
+  tipo                     String          @default("PHANYX")
+  interesse                String?
+  observacoes              String?
+  status                   String          @default("NOVO")
+  prioridade               String          @default("MEDIA")
+  valorEstimado            Float?
+  proximoContatoEm         DateTime?
+  ultimoContatoEm          DateTime?
+  responsavelNomeSnapshot  String?         @map("responsavelNome")
+  createdAt                DateTime        @default(now())
+  updatedAt                DateTime        @updatedAt
+  instituicao              Instituicao?    @relation("LeadInstituicaoGestora", fields: [instituicaoId], references: [id], onDelete: Cascade)
+  responsavelFuncionario   Funcionario?    @relation("LeadResponsavelFuncionario", fields: [responsavelFuncionarioId], references: [id], onDelete: SetNull)
+  criadoPor                User?           @relation("LeadCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+  atualizadoPor            User?           @relation("LeadAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
+  interacoes               LeadInteracao[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  interacoes LeadInteracao[]
-
+  @@index([instituicaoId])
+  @@index([instituicaoId, status])
+  @@index([instituicaoId, tipo])
+  @@index([instituicaoId, responsavelFuncionarioId])
+  @@index([instituicaoId, email])
+  @@index([responsavelFuncionarioId])
+  @@index([criadoPorId])
+  @@index([atualizadoPorId])
   @@index([status])
   @@index([origem])
   @@index([tipo])
-  @@index([instituicaoId])
   @@index([createdAt])
 }
 
 model LeadInteracao {
-  id        Int      @id @default(autoincrement())
-  leadId    Int
-  tipo      String // WHATSAPP, LIGACAO, EMAIL, REUNIAO, OBSERVACAO
-  descricao String
-  usuario   String?
-  createdAt DateTime @default(now())
-
-  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  id                  Int          @id @default(autoincrement())
+  leadId              Int
+  instituicaoId       Int?
+  criadoPorId         Int?
+  tipo                String
+  descricao           String
+  usuarioNomeSnapshot String?      @map("usuario")
+  createdAt           DateTime     @default(now())
+  lead                Lead         @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  instituicao         Instituicao? @relation("LeadInteracaoInstituicao", fields: [instituicaoId], references: [id], onDelete: Cascade)
+  criadoPor           User?        @relation("LeadInteracaoCriadaPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
 
   @@index([leadId])
+  @@index([instituicaoId])
+  @@index([instituicaoId, leadId])
+  @@index([criadoPorId])
   @@index([createdAt])
 }
 
