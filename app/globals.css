@@ -17163,3 +17163,119 @@ html[data-theme="light"]
   button:disabled {
   opacity: 0.55 !important;
 }
+
+/* =========================================================
+   LOGOS INSTITUCIONAIS
+   Correção final de contraste dos botões no tema claro
+========================================================= */
+
+html[data-theme="light"]
+  body
+  .phanyx-logos-page
+  button.phanyx-logos-primary:not(:disabled) {
+  background-color: #2563eb !important;
+  border-color: #1d4ed8 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+  font-weight: 700 !important;
+}
+
+html[data-theme="light"]
+  body
+  .phanyx-logos-page
+  button.phanyx-logos-primary:not(:disabled):hover {
+  background-color: #1d4ed8 !important;
+  border-color: #1e40af !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* Alterar finalidade */
+
+html[data-theme="light"]
+  body
+  .phanyx-logos-page
+  button.phanyx-logo-action.phanyx-logo-action-secondary:not(:disabled) {
+  background-color: #f3e8ff !important;
+  border-color: #7e22ce !important;
+  color: #4c1d95 !important;
+  -webkit-text-fill-color: #4c1d95 !important;
+  opacity: 1 !important;
+  font-weight: 700 !important;
+}
+
+html[data-theme="light"]
+  body
+  .phanyx-logos-page
+  button.phanyx-logo-action.phanyx-logo-action-secondary:not(:disabled):hover {
+  background-color: #e9d5ff !important;
+  border-color: #6b21a8 !important;
+  color: #3b0764 !important;
+  -webkit-text-fill-color: #3b0764 !important;
+}
+
+/* Excluir */
+
+html[data-theme="light"]
+  body
+  .phanyx-logos-page
+  button.phanyx-logo-action.phanyx-logo-action-danger:not(:disabled) {
+  background-color: #fff1f2 !important;
+  border-color: #dc2626 !important;
+  color: #991b1b !important;
+  -webkit-text-fill-color: #991b1b !important;
+  opacity: 1 !important;
+  font-weight: 700 !important;
+}
+
+html[data-theme="light"]
+  body
+  .phanyx-logos-page
+  button.phanyx-logo-action.phanyx-logo-action-danger:not(:disabled):hover {
+  background-color: #ffe4e6 !important;
+  border-color: #b91c1c !important;
+  color: #7f1d1d !important;
+  -webkit-text-fill-color: #7f1d1d !important;
+}
+
+/* Definir principal */
+
+html[data-theme="light"]
+  body
+  .phanyx-logos-page
+  button.phanyx-logo-action.phanyx-logo-action-primary:not(:disabled) {
+  background-color: #eff6ff !important;
+  border-color: #2563eb !important;
+  color: #1e3a8a !important;
+  -webkit-text-fill-color: #1e3a8a !important;
+  opacity: 1 !important;
+  font-weight: 700 !important;
+}
+
+/* Desativar, ativar e recarregar */
+
+html[data-theme="light"]
+  body
+  .phanyx-logos-page
+  button.phanyx-logo-action.phanyx-logo-action-neutral:not(:disabled) {
+  background-color: #ffffff !important;
+  border-color: #64748b !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+  font-weight: 700 !important;
+}
+
+/*
+ * Mantém realmente apagado somente
+ * o botão que estiver desabilitado.
+ */
+
+html[data-theme="light"]
+  body
+  .phanyx-logos-page
+  button:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+}
