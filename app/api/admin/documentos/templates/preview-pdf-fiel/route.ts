@@ -15,6 +15,39 @@ function urlFinal(url?: string | null, baseUrl?: string) {
   return url.startsWith("http") ? url : `${baseUrl}${url}`;
 }
 
+async function imagemParaDataUri(
+  url?: string | null
+) {
+  try {
+    if (!url) {
+      return "";
+    }
+
+    const resposta =
+      await fetch(url);
+
+    if (!resposta.ok) {
+      return "";
+    }
+
+    const tipo =
+      resposta.headers.get(
+        "content-type"
+      ) || "image/png";
+
+    const bytes =
+      Buffer.from(
+        await resposta.arrayBuffer()
+      );
+
+    return `data:${tipo};base64,${bytes.toString(
+      "base64"
+    )}`;
+  } catch {
+    return "";
+  }
+}
+
 function substituirExemplos(texto: string, config: any) {
   const valores: Record<string, string> = {
     nomeInstituicao: config?.nomeFantasia || "Instituição Exemplo",
@@ -40,63 +73,63 @@ function substituirExemplos(texto: string, config: any) {
     statusMatricula: "ATIVA",
 
     dataMatricula: "03/06/2026",
-dataInicioAluno: "03/06/2026",
-dataConclusao: "-",
-dataConclusaoAluno: "-",
+    dataInicioAluno: "03/06/2026",
+    dataConclusao: "-",
+    dataConclusaoAluno: "-",
 
-semestreAtual: "1º semestre",
+    semestreAtual: "1º semestre",
 
-cargaHorariaCurso: "3.200h",
-cargaHorariaMinimaCurso: "20h",
-cargaHorariaMaximaCurso: "550h",
+    cargaHorariaCurso: "3.200h",
+    cargaHorariaMinimaCurso: "20h",
+    cargaHorariaMaximaCurso: "550h",
 
-percentualConclusao: "25%",
+    percentualConclusao: "25%",
 
-nomePolo: "Polo Exemplo",
-enderecoPolo: "Endereço do polo",
-telefonePolo: "(00) 00000-0000",
-emailPolo: "polo@exemplo.com",
-cidadePolo: "Cidade",
-estadoPolo: "UF",
-cepPolo: "00000-000",
+    nomePolo: "Polo Exemplo",
+    enderecoPolo: "Endereço do polo",
+    telefonePolo: "(00) 00000-0000",
+    emailPolo: "polo@exemplo.com",
+    cidadePolo: "Cidade",
+    estadoPolo: "UF",
+    cepPolo: "00000-000",
 
-nomeTitularContrato: "Aluno Exemplo",
-cpfTitularContrato: "000.000.000-00",
-emailTitularContrato: "titular@exemplo.com",
-telefoneTitularContrato: "(00) 00000-0000",
-parentescoTitularContrato: "O próprio aluno",
-tipoTitularContrato: "O próprio aluno",
+    nomeTitularContrato: "Aluno Exemplo",
+    cpfTitularContrato: "000.000.000-00",
+    emailTitularContrato: "titular@exemplo.com",
+    telefoneTitularContrato: "(00) 00000-0000",
+    parentescoTitularContrato: "O próprio aluno",
+    tipoTitularContrato: "O próprio aluno",
 
-disciplinas:
-  "- Antigo Testamento A — 96h<br>" +
-  "- Novo Testamento A — 96h<br>" +
-  "- Teologia Bíblica — 64h",
+    disciplinas:
+      "- Antigo Testamento A — 96h<br>" +
+      "- Novo Testamento A — 96h<br>" +
+      "- Teologia Bíblica — 64h",
 
-valorContrato: "R$ 2.000,00",
+    valorContrato: "R$ 2.000,00",
 
-codigoValidacao:
-  "PHANYX-PREVIA-000001",
+    codigoValidacao:
+      "PHANYX-PREVIA-000001",
 
-urlValidacao:
-  "https://www.phanyx.com.br/validar-documento",
+    urlValidacao:
+      "https://www.phanyx.com.br/validar-documento",
 
-numeroDocumento:
-  "CONTRATO-PREVIA-000001",
+    numeroDocumento:
+      "CONTRATO-PREVIA-000001",
 
-dataEmissao:
-  new Date().toLocaleDateString(
-    "pt-BR"
-  ),
+    dataEmissao:
+      new Date().toLocaleDateString(
+        "pt-BR"
+      ),
 
-horaEmissao:
-  new Date().toLocaleTimeString(
-    "pt-BR"
-  ),
+    horaEmissao:
+      new Date().toLocaleTimeString(
+        "pt-BR"
+      ),
 
-dataHoraEmissao:
-  new Date().toLocaleString(
-    "pt-BR"
-  ),
+    dataHoraEmissao:
+      new Date().toLocaleString(
+        "pt-BR"
+      ),
 
     nomeFuncionario: "Funcionário Exemplo",
     funcionarioNome: "Funcionário Exemplo",
@@ -133,26 +166,26 @@ dataHoraEmissao:
   let final = texto || "";
 
   for (
-  const [chave, valor]
-  of Object.entries(valores)
-) {
-  const chaveSegura =
-    chave.replace(
-      /[.*+?^${}()|[\]\\]/g,
-      "\\$&"
-    );
+    const [chave, valor]
+    of Object.entries(valores)
+  ) {
+    const chaveSegura =
+      chave.replace(
+        /[.*+?^${}()|[\]\\]/g,
+        "\\$&"
+      );
 
-  const padrao =
-    new RegExp(
-      `{{\\s*${chaveSegura}\\s*}}`,
-      "g"
-    );
+    const padrao =
+      new RegExp(
+        `{{\\s*${chaveSegura}\\s*}}`,
+        "g"
+      );
 
-  final = final.replace(
-    padrao,
-    () => valor || ""
-  );
-}
+    final = final.replace(
+      padrao,
+      () => valor || ""
+    );
+  }
 
   return final.replaceAll(/{{[^}]+}}/g, "-");
 }
@@ -176,15 +209,21 @@ export async function POST(req: NextRequest) {
     const baseUrl = new URL(req.url).origin;
 
     let conteudoHtml = substituirExemplos(
-  String(body?.conteudo || ""),
-  config
-);
+      String(body?.conteudo || ""),
+      config
+    );
 
-conteudoHtml = conteudoHtml
-  .replace(/<p([^>]*)>\s*<\/p>/gi, "<p$1><br /></p>")
-  .replace(/<p([^>]*)>\s*&nbsp;\s*<\/p>/gi, "<p$1><br /></p>");
+    conteudoHtml = conteudoHtml
+      .replace(/<p([^>]*)>\s*<\/p>/gi, "<p$1><br /></p>")
+      .replace(/<p([^>]*)>\s*&nbsp;\s*<\/p>/gi, "<p$1><br /></p>");
 
     const logoUrl = urlFinal(config?.logoUrl, baseUrl);
+
+    const logoCabecalho =
+      await imagemParaDataUri(
+        logoUrl
+      );
+
     const papelUrl = urlFinal(config?.papelTimbradoUrl, baseUrl);
 
     const usaPapelProprio =
@@ -204,7 +243,6 @@ conteudoHtml = conteudoHtml
   <style>
     @page {
   size: A4;
-  margin: 0;
 }
 
     * {
@@ -236,14 +274,14 @@ conteudoHtml = conteudoHtml
     }
 
     .pagina-a4 {
-      width: 210mm;
-      position: relative;
-      background: #ffffff;
-      overflow: visible;
-    }
+  width: 100%;
+  min-height: auto;
+  position: relative;
+  background: #ffffff;
+  overflow: visible;
+}
 
-    ${
-      usaPapelProprio
+    ${usaPapelProprio
         ? `
     .papel-proprio {
       position: fixed;
@@ -256,12 +294,7 @@ conteudoHtml = conteudoHtml
     }
     `
         : ""
-    }
-
-    ${
-      usaPhanyxClassico
-        
-    }
+      }
 
     .conteudo {
   position: relative;
@@ -352,13 +385,28 @@ conteudoHtml = conteudoHtml
       page-break-before: always;
     }
 
+    .conteudo
+  .phanyx-page-break
+  > * {
+  display: none !important;
+}
+
+.conteudo
+  > .phanyx-page-break:first-child,
+.conteudo
+  > .phanyx-page-break:last-child {
+  display: none !important;
+
+  break-before: auto !important;
+  page-break-before: auto !important;
+}
+
   </style>
 </head>
 
 <body>
   <section class="pagina-a4">
-    ${
-      usaPapelProprio
+    ${usaPapelProprio
         ? `
     <img
       class="papel-proprio"
@@ -367,7 +415,7 @@ conteudoHtml = conteudoHtml
     />
     `
         : ""
-    }
+      }
 
     <main class="conteudo">
       ${conteudoHtml}
@@ -376,7 +424,7 @@ conteudoHtml = conteudoHtml
 </body>
 </html>`;
 
-const headerTemplate =
+    const headerTemplate =
   usaPhanyxClassico
     ? `
 <div
@@ -395,10 +443,10 @@ const headerTemplate =
   "
 >
   ${
-    logoUrl
+    logoCabecalho
       ? `
   <img
-    src="${logoUrl}"
+    src="${logoCabecalho}"
     style="
       width: 22mm;
       height: 22mm;
@@ -437,7 +485,7 @@ const headerTemplate =
 `
     : `<div></div>`;
 
-const footerTemplate =
+    const footerTemplate =
   usaPhanyxClassico
     ? `
 <div
@@ -483,43 +531,48 @@ const footerTemplate =
       waitUntil: "networkidle0",
     });
 
-await page.evaluate(() => {
-  document
-    .querySelectorAll(
-      '[data-phanyx-page-break="true"]'
-    )
-    .forEach((elemento) => {
-      elemento.remove();
-    });
-});
+    const pdfBuffer =
+  await page.pdf({
+    format: "A4",
 
-   const pdfBuffer = await page.pdf({
-  format: "A4",
-  printBackground: true,
-  preferCSSPageSize: true,
+    printBackground: true,
 
-  displayHeaderFooter:
-    Boolean(
+    /*
+     * Importante: false permite que
+     * as margens abaixo controlem a
+     * área útil da folha.
+     */
+    preferCSSPageSize: false,
+
+    displayHeaderFooter:
+      Boolean(
+        usaPhanyxClassico
+      ),
+
+    headerTemplate,
+    footerTemplate,
+
+    margin:
       usaPhanyxClassico
-    ),
+        ? {
+            /*
+             * Iguais às reservas do
+             * editor: 42 mm e 28 mm.
+             */
+            top: "42mm",
+            right: "18mm",
+            bottom: "28mm",
+            left: "18mm",
+          }
+        : {
+            top: "18mm",
+            right: "18mm",
+            bottom: "18mm",
+            left: "18mm",
+          },
 
-  headerTemplate,
-  footerTemplate,
-
-  margin: usaPhanyxClassico
-    ? {
-        top: "34mm",
-        right: "18mm",
-        bottom: "10mm",
-        left: "18mm",
-      }
-    : {
-        top: "18mm",
-        right: "18mm",
-        bottom: "18mm",
-        left: "18mm",
-      },
-});
+    scale: 1,
+  });
 
     await browser.close();
 
