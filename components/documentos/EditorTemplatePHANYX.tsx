@@ -1211,9 +1211,9 @@ useEffect(() => {
   function renderizarFerramentas() {
   return (
     <div className="phanyx-editor-toolbar border-b border-slate-700 bg-slate-800 p-3">
-      <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-300">
-        Ferramentas de edição
-      </p>
+      <p className="phanyx-editor-toolbar-title mb-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-200">
+  Ferramentas de edição
+</p>
 
       <div className="flex flex-wrap gap-2">
         <div
@@ -1534,9 +1534,19 @@ useEffect(() => {
     ref={barraContainerRef}
     className="relative rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900"
   >
-    <div ref={barraOriginalRef}>
-      {renderizarFerramentas()}
-    </div>
+    <div
+  ref={barraOriginalRef}
+  className={
+    barraFlutuante
+      ? "invisible"
+      : ""
+  }
+  aria-hidden={
+    barraFlutuante
+  }
+>
+  {renderizarFerramentas()}
+</div>
 
     {portalPronto &&
       barraFlutuante &&

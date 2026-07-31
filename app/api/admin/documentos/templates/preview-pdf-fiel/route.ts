@@ -85,20 +85,31 @@ function substituirExemplos(texto: string, config: any) {
 
     percentualConclusao: "25%",
 
-    nomePolo: "Polo Exemplo",
-    enderecoPolo: "Endereço do polo",
-    telefonePolo: "(00) 00000-0000",
-    emailPolo: "polo@exemplo.com",
-    cidadePolo: "Cidade",
-    estadoPolo: "UF",
-    cepPolo: "00000-000",
+    nomePolo: "Não informado",
+enderecoPolo: "Não informado",
+telefonePolo: "Não informado",
+emailPolo: "Não informado",
+cidadePolo: "Não informado",
+estadoPolo: "Não informado",
+cepPolo: "Não informado",
 
-    nomeTitularContrato: "Aluno Exemplo",
-    cpfTitularContrato: "000.000.000-00",
-    emailTitularContrato: "titular@exemplo.com",
-    telefoneTitularContrato: "(00) 00000-0000",
-    parentescoTitularContrato: "O próprio aluno",
-    tipoTitularContrato: "O próprio aluno",
+nomeTitularContrato:
+  "Nome do titular do contrato",
+
+cpfTitularContrato:
+  "CPF do titular",
+
+emailTitularContrato:
+  "E-mail do titular",
+
+telefoneTitularContrato:
+  "Telefone do titular",
+
+parentescoTitularContrato:
+  "Vínculo ou parentesco",
+
+tipoTitularContrato:
+  "Tipo de titular",
 
     disciplinas:
       "- Antigo Testamento A — 96h<br>" +
@@ -530,6 +541,16 @@ export async function POST(req: NextRequest) {
     await page.setContent(html, {
       waitUntil: "networkidle0",
     });
+
+    await page.evaluate(() => {
+  document
+    .querySelectorAll(
+      '[data-phanyx-page-break="true"], .phanyx-page-break'
+    )
+    .forEach((elemento) => {
+      elemento.remove();
+    });
+});
 
     const pdfBuffer =
   await page.pdf({

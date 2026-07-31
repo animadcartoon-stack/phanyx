@@ -16846,3 +16846,49 @@ html[data-theme="dark"] .phanyx-curso-ofertas-salvar {
 html[data-theme="dark"] .phanyx-curso-ofertas-salvar:hover {
   background: #1d4ed8 !important;
 }
+
+/* =========================================================
+   EDITOR DE DOCUMENTOS — ESTADO ATIVO DA BARRA
+========================================================= */
+
+html[data-theme="light"]
+  .phanyx-doc-templates-page
+  #editor-template-phanyx
+  button.phanyx-toolbar-ativo,
+html[data-theme="light"]
+  .phanyx-doc-templates-page
+  .phanyx-editor-toolbar
+  button.phanyx-toolbar-ativo,
+html[data-theme="light"]
+  .phanyx-editor-toolbar-portal
+  button.phanyx-toolbar-ativo {
+  background: #2563eb !important;
+  border-color: #1d4ed8 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+
+  box-shadow:
+    0 0 0 2px
+    rgb(147 197 253 / 70%) !important;
+}
+
+html[data-theme="light"]
+  .phanyx-doc-templates-page
+  #editor-template-phanyx
+  button.phanyx-toolbar-ativo:hover,
+html[data-theme="light"]
+  .phanyx-editor-toolbar-portal
+  button.phanyx-toolbar-ativo:hover {
+  background: #1d4ed8 !important;
+  border-color: #1e40af !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+.phanyx-editor-toolbar-title,
+.phanyx-editor-toolbar-portal
+  .phanyx-editor-toolbar-title {
+  color: #e2e8f0 !important;
+  -webkit-text-fill-color: #e2e8f0 !important;
+}
