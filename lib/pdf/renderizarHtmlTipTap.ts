@@ -18,13 +18,23 @@ type BlocoPdf = {
   fontFamily?: string | null;
   lineHeight?: number | null;
 
-  tipo?: "texto" | "hr" | "table";
+  tipo?:
+  | "texto"
+  | "hr"
+  | "table"
+  | "pageBreak";
   htmlOriginal?: string;
 };
 
-const ESPACO_PARAGRAFO = 0.5;
-const ESPACO_LINHA_VAZIA = 4;
-const ESPACO_TITULO = 2;
+const TAMANHO_PADRAO = 11;
+const MULTIPLICADOR_LINHA_PADRAO = 1.2;
+
+const ESPACO_PARAGRAFO = 0;
+const ESPACO_LINHA_VAZIA =
+  TAMANHO_PADRAO *
+  MULTIPLICADOR_LINHA_PADRAO;
+
+const ESPACO_TITULO = 5;
 
 function decode(texto: string) {
   return String(texto || "")
@@ -161,37 +171,125 @@ function extrairTabelas(html: string): BlocoPdf[] {
   return tabelas;
 }
 
+function substituirQuebrasPaginaPorMarcador(
+  html: string
+) {
+  let resultado =
+    String(html || "");
+
+  const localizarInicio =
+    /<div\b[^>]*data-phanyx-page-break=["']true["'][^>]*>/i;
+
+  while (true) {
+    const abertura =
+      localizarInicio.exec(
+        resultado
+      );
+
+    if (
+      !abertura ||
+      abertura.index === undefined
+    ) {
+      break;
+    }
+
+    const inicio =
+      abertura.index;
+
+    const inicioConteudo =
+      inicio +
+      abertura[0].length;
+
+    const localizarDiv =
+      /<\/?div\b[^>]*>/gi;
+
+    localizarDiv.lastIndex =
+      inicioConteudo;
+
+    let profundidade = 1;
+    let fim =
+      resultado.length;
+
+    let parte:
+      RegExpExecArray | null;
+
+    while (
+      (
+        parte =
+        localizarDiv.exec(
+          resultado
+        )
+      ) !== null
+    ) {
+      if (
+        /^<div\b/i.test(
+          parte[0]
+        )
+      ) {
+        profundidade += 1;
+      } else {
+        profundidade -= 1;
+      }
+
+      if (
+        profundidade === 0
+      ) {
+        fim =
+          localizarDiv.lastIndex;
+
+        break;
+      }
+    }
+
+    resultado =
+      resultado.slice(
+        0,
+        inicio
+      ) +
+      "<div>PHANYX_PAGE_BREAK</div>" +
+      resultado.slice(fim);
+  }
+
+  return resultado;
+}
+
 function extrairBlocosTipTap(html: string): BlocoPdf[] {
-  const entrada = String(html || "")
-    .replace(/\r\n/g, "\n")
-    .replace(/<br\s*\/?>/gi, "\n");
+  const entrada =
+    substituirQuebrasPaginaPorMarcador(
+      String(html || "")
+    )
+      .replace(/\r\n/g, "\n")
+      .replace(
+        /<br\s*\/?>/gi,
+        "\n"
+      );
 
-let entradaComHr = entrada.replace(
-  /<hr\s*\/?>/gi,
-  "<div data-phanyx-hr='1'></div>"
-);
+  let entradaComHr = entrada.replace(
+    /<hr\s*\/?>/gi,
+    "<div data-phanyx-hr='1'></div>"
+  );
 
-const tabelas: Record<string, BlocoPdf> = {};
-let contadorTabela = 0;
+  const tabelas: Record<string, BlocoPdf> = {};
+  let contadorTabela = 0;
 
-entradaComHr = entradaComHr.replace(/<table[\s\S]*?<\/table>/gi, (htmlTabela) => {
-  const marcador = `PHANYX_TABLE_${contadorTabela}`;
+  entradaComHr = entradaComHr.replace(/<table[\s\S]*?<\/table>/gi, (htmlTabela) => {
+    const marcador = `PHANYX_TABLE_${contadorTabela}`;
 
-  tabelas[marcador] = {
-    tokens: [],
-    align: "left",
-    vazio: false,
-    titulo: false,
-    tipo: "table",
-    htmlOriginal: htmlTabela,
-  };
+    tabelas[marcador] = {
+      tokens: [],
+      align: "left",
+      vazio: false,
+      titulo: false,
+      tipo: "table",
+      htmlOriginal: htmlTabela,
+    };
 
-  contadorTabela += 1;
+    contadorTabela += 1;
 
-  return `<div>${marcador}</div>`;
-});
+    return `<div>${marcador}</div>`;
+  });
 
-const blocos: BlocoPdf[] = [];
+  const blocos: BlocoPdf[] = [];
 
   const regex = /<(p|div|h1|h2|li)([^>]*)>([\s\S]*?)<\/\1>/gi;
 
@@ -214,30 +312,62 @@ const blocos: BlocoPdf[] = [];
     const align: Align = /text-align\s*:\s*center/i.test(style)
       ? "center"
       : /text-align\s*:\s*right/i.test(style)
-      ? "right"
-      : "left";
+        ? "right"
+        : "left";
 
     const titulo = tag === "h1" || tag === "h2";
     if (attrs.includes("data-phanyx-hr")) {
-  blocos.push({
-    tokens: [],
-    align: "left",
-    vazio: false,
-    titulo: false,
-    tipo: "hr",
-  });
+      blocos.push({
+        tokens: [],
+        align: "left",
+        vazio: false,
+        titulo: false,
+        tipo: "hr",
+      });
 
-  continue;
-}
-    const partesLinha = bruto.split("\n");
+      continue;
+    }
+    const partesLinhaBrutas =
+      bruto.split("\n");
+
+    const somenteLinhasVazias =
+      partesLinhaBrutas.every(
+        (parte) =>
+          !parte
+            .replace(
+              /<[^>]+>/g,
+              ""
+            )
+            .trim()
+      );
+
+    const partesLinha =
+      somenteLinhasVazias
+        ? [""]
+        : partesLinhaBrutas;
 
     for (const parteLinha of partesLinha) {
       const semTags = parteLinha.replace(/<[^>]+>/g, "").trim();
 
-if (tabelas[semTags]) {
-  blocos.push(tabelas[semTags]);
-  continue;
-}
+      if (
+        semTags ===
+        "PHANYX_PAGE_BREAK"
+      ) {
+        blocos.push({
+          tokens: [],
+          align: "left",
+          vazio: false,
+          titulo: false,
+          tipo: "pageBreak",
+        });
+
+        continue;
+      }
+
+      if (tabelas[semTags]) {
+        blocos.push(tabelas[semTags]);
+        continue;
+      }
 
       if (!semTags) {
         blocos.push({
@@ -260,11 +390,11 @@ if (tabelas[semTags]) {
 
       if (tag === "li") {
         tokens.unshift({
-  texto: "- ",
-  bold: false,
-  fontSize: fontSizeBloco || null,
-  fontFamily: fontFamilyBloco || null,
-});
+          texto: "- ",
+          bold: false,
+          fontSize: fontSizeBloco || null,
+          fontFamily: fontFamilyBloco || null,
+        });
       }
 
       blocos.push({
@@ -365,12 +495,39 @@ function quebrarTokensEmLinhas(
   return linhas;
 }
 
-function calcularAlturaLinha(maiorFonteLinha: number, lineHeight?: number | null) {
-  if (!lineHeight) return maiorFonteLinha * 0.95;
+function calcularAlturaLinha(
+  maiorFonteLinha: number,
+  lineHeight?:
+    number | null
+) {
+  if (
+    !lineHeight ||
+    lineHeight <= 0
+  ) {
+    return (
+      maiorFonteLinha *
+      MULTIPLICADOR_LINHA_PADRAO
+    );
+  }
 
-  if (lineHeight > 4) return lineHeight;
+  /*
+   * Valores maiores que 4 são
+   * tratados como altura absoluta
+   * em pontos.
+   */
+  if (lineHeight > 4) {
+    return lineHeight;
+  }
 
-  return maiorFonteLinha * lineHeight;
+  /*
+   * Valores 1, 1.15, 1.5, 2...
+   * são os espaçamentos escolhidos
+   * na barra do editor.
+   */
+  return (
+    maiorFonteLinha *
+    lineHeight
+  );
 }
 
 async function renderizarTabelaSimplesNoPdf({
@@ -421,8 +578,8 @@ async function renderizarTabelaSimplesNoPdf({
       const align: Align = /text-align\s*:\s*center/i.test(style)
         ? "center"
         : /text-align\s*:\s*right/i.test(style)
-        ? "right"
-        : "left";
+          ? "right"
+          : "left";
 
       const linhasTexto = decode(
         celulaHtml
@@ -530,66 +687,98 @@ export async function renderizarHtmlTipTapNoPdf({
 }: any) {
   let pagina = page;
   let y = yInicial;
+  let paginaTemConteudo =
+    false;
 
   const blocos = extrairBlocosTipTap(html);
 
-for (const bloco of blocos) {
+  for (const bloco of blocos) {
 
-  if (bloco.tipo === "hr") {
-    if (y < 70) {
-      pagina = await criarNovaPagina();
-      y = pageHeight - 135;
+    if (
+      bloco.tipo ===
+      "pageBreak"
+    ) {
+      /*
+       * Evita criar página vazia
+       * quando já estamos no começo
+       * de uma página nova.
+       */
+      if (
+        paginaTemConteudo
+      ) {
+        pagina =
+          await criarNovaPagina();
+
+        y =
+          pageHeight - 135;
+
+        paginaTemConteudo =
+          false;
+      }
+
+      continue;
     }
 
-    pagina.drawLine({
-      start: { x, y },
-      end: { x: x + maxWidth, y },
-      thickness: 1,
-      color: rgb(0, 0, 0),
-    });
+    if (bloco.tipo === "hr") {
+      if (y < 70) {
+        pagina = await criarNovaPagina();
+        y = pageHeight - 135;
+      }
 
-    y -= 8;
-    continue;
-  }
+      pagina.drawLine({
+        start: { x, y },
+        end: { x: x + maxWidth, y },
+        thickness: 1,
+        color: rgb(0, 0, 0),
+      });
 
-  if (bloco.tipo === "table") {
-  const resultadoTabela = await renderizarTabelaSimplesNoPdf({
-    html: bloco.htmlOriginal || "",
-    page: pagina,
-    pdfDoc: null,
-    font,
-    bold,
-    x,
-    y,
-    maxWidth,
-    pageHeight,
-    criarNovaPagina,
-  });
+      y -= 8;
+      paginaTemConteudo = true;
+      continue;
+    }
 
-  pagina = resultadoTabela.page;
-  y = resultadoTabela.y - 2;
+    if (bloco.tipo === "table") {
+      const resultadoTabela = await renderizarTabelaSimplesNoPdf({
+        html: bloco.htmlOriginal || "",
+        page: pagina,
+        pdfDoc: null,
+        font,
+        bold,
+        x,
+        y,
+        maxWidth,
+        pageHeight,
+        criarNovaPagina,
+      });
 
-  continue;
-}
+      pagina = resultadoTabela.page;
+      y = resultadoTabela.y - 2;
+      paginaTemConteudo = true;
 
-  const tamanhoBase =
-    bloco.fontSize || (bloco.titulo ? 8 : 7);
+      continue;
+    }
 
-  if (bloco.vazio) {
-    const alturaVazia = calcularAlturaLinha(
-      tamanhoBase,
-      bloco.lineHeight
-    );
+    const tamanhoBase =
+      bloco.fontSize ||
+      TAMANHO_PADRAO;
 
-    y -= Math.max(
-      alturaVazia,
-      ESPACO_LINHA_VAZIA
-    );
+    if (bloco.vazio) {
+      const alturaVazia = calcularAlturaLinha(
+        tamanhoBase,
+        bloco.lineHeight
+      );
 
-    continue;
-  }
+      y -= Math.max(
+        alturaVazia,
+        ESPACO_LINHA_VAZIA
+      );
 
-  // restante do código...
+      paginaTemConteudo = true;
+
+      continue;
+    }
+
+    // restante do código...
 
     const linhas = quebrarTokensEmLinhas(
       bloco.tokens.map((t) => ({
@@ -645,10 +834,11 @@ for (const bloco of blocos) {
       );
 
       y -= calcularAlturaLinha(maiorFonteLinha, bloco.lineHeight);
+      paginaTemConteudo = true;
     }
 
     y -= bloco.titulo ? ESPACO_TITULO : ESPACO_PARAGRAFO;
   }
-  
+
   return { page: pagina, y };
 }
