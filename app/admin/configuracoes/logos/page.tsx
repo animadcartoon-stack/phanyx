@@ -925,15 +925,11 @@ export default function LogosInstitucionaisPage() {
                         </h2>
 
                         <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                            {logos.length} versão
-                            {logos.length === 1
-                                ? ""
-                                : "ões"}{" "}
-                            cadastrada
-                            {logos.length === 1
-                                ? ""
-                                : "s"}.
-                        </p>
+  {logos.length}{" "}
+  {logos.length === 1
+    ? "versão cadastrada"
+    : "versões cadastradas"}.
+</p>
                     </div>
 
                     <button
