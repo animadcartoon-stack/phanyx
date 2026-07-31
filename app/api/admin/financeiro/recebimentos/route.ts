@@ -57,26 +57,63 @@ async function atualizarAtrasosEInadimplencia(instituicaoId: number) {
   dataLimite.setDate(dataLimite.getDate() - config.diasTolerancia);
 
   await prisma.lancamentoFinanceiro.updateMany({
-    where: {
-      instituicaoId,
-      status: {
-        in: ["PENDENTE", "PARCIAL"] as any,
-      },
-      vencimento: {
-        lt: dataLimite,
-      },
+  where: {
+    instituicaoId,
+
+    status: {
+      in: ["PENDENTE", "PARCIAL"] as any,
     },
-    data: {
-      status: "ATRASADO",
+
+    vencimento: {
+      lt: dataLimite,
     },
-  });
+
+    /*
+     * A cobrança de uma matrícula feita online é controlada
+     * pelo Asaas e pelos webhooks, não pela rotina manual.
+     */
+    OR: [
+      {
+        matriculaId: null,
+      },
+      {
+        matricula: {
+          is: {
+            realizadaPeloAluno: false,
+          },
+        },
+      },
+    ],
+  },
+
+  data: {
+    status: "ATRASADO",
+  },
+});
 
   if (config.bloquearAlunoInadimplente) {
     const lancamentosAtrasados = await prisma.lancamentoFinanceiro.findMany({
-      where: {
-        instituicaoId,
-        status: "ATRASADO",
+  where: {
+    instituicaoId,
+    status: "ATRASADO",
+
+    /*
+     * Não bloquear o aluno por um lançamento online que
+     * deve ser controlado e atualizado pelo Asaas.
+     */
+    OR: [
+      {
+        matriculaId: null,
       },
+      {
+        matricula: {
+          is: {
+            realizadaPeloAluno: false,
+          },
+        },
+      },
+    ],
+  },
       select: {
         alunoId: true,
       },
@@ -335,9 +372,17 @@ if (!podeUsarFinanceiroCompleto(user.plano || "ESSENCIAL")) {
         instituicaoId: user.instituicaoId,
       },
       include: {
-        pagamentos: true,
-        aluno: true,
-      },
+  pagamentos: true,
+
+  aluno: true,
+
+  matricula: {
+    select: {
+      id: true,
+      realizadaPeloAluno: true,
+    },
+  },
+},
     });
 
     if (!lancamento) {
@@ -346,6 +391,20 @@ if (!podeUsarFinanceiroCompleto(user.plano || "ESSENCIAL")) {
         { status: 404 }
       );
     }
+
+    if (
+  lancamento.matriculaId &&
+  lancamento.matricula?.realizadaPeloAluno === true
+) {
+  return NextResponse.json(
+    {
+      error:
+        "Esta cobrança pertence a uma matrícula realizada online. O recebimento deve ser confirmado automaticamente pelo Asaas.",
+      codigo: "BAIXA_MANUAL_NAO_PERMITIDA_COBRANCA_ONLINE",
+    },
+    { status: 409 }
+  );
+}
 
     if (lancamento.status === "CANCELADO") {
       return NextResponse.json(
