@@ -17320,3 +17320,38 @@ html[data-theme="light"]
   background-color: #ffffff !important;
   border-color: #cbd5e1 !important;
 }
+
+/* =========================================================
+   PHANYX FINANCEIRO — CAIXA / ESTADO VAZIO
+========================================================= */
+
+.phanyx-caixa-cobrancas-vazio {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+
+/* Tema claro */
+html[data-theme="light"] .phanyx-caixa-cobrancas-vazio {
+  background: #f8fafc !important;
+  background-image: none !important;
+  border-color: #cbd5e1 !important;
+  color: #475569 !important;
+}
+
+/* Tema escuro */
+html[data-theme="dark"] .phanyx-caixa-cobrancas-vazio {
+  background: #020617 !important;
+  background-image: none !important;
+  border-color: #475569 !important;
+  color: #cbd5e1 !important;
+}
+
+/* Tema sistema */
+html[data-theme="system"] .phanyx-caixa-cobrancas-vazio {
+  background: #262626 !important;
+  background-image: none !important;
+  border-color: #737373 !important;
+  color: #e5e5e5 !important;
+}
