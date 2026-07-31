@@ -16992,3 +16992,174 @@ html[data-theme="light"]
   background: #1d4ed8 !important;
   border-color: #1d4ed8 !important;
 }
+
+/* =========================================================
+   LOGOS INSTITUCIONAIS — TEMA CLARO
+========================================================= */
+
+html[data-theme="light"] .phanyx-logos-page {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-logo-card {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="light"]
+  .phanyx-logo-card-principal {
+  border-color: #475569 !important;
+  box-shadow:
+    0 0 0 2px
+    rgb(148 163 184 / 28%) !important;
+}
+
+html[data-theme="light"]
+  .phanyx-logo-card-title {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-logo-meta {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+/* Badges */
+
+html[data-theme="light"]
+  .phanyx-logo-badge-principal {
+  background: #e2e8f0 !important;
+  border-color: #64748b !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-logo-badge-tipo {
+  background: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+  color: #1e293b !important;
+  -webkit-text-fill-color: #1e293b !important;
+}
+
+html[data-theme="light"]
+  .phanyx-logo-badge-status {
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-logo-badge-status.bg-emerald-50 {
+  background: #dcfce7 !important;
+  border-color: #16a34a !important;
+  color: #14532d !important;
+  -webkit-text-fill-color: #14532d !important;
+}
+
+html[data-theme="light"]
+  .phanyx-logo-badge-status.bg-red-50 {
+  background: #fee2e2 !important;
+  border-color: #dc2626 !important;
+  color: #7f1d1d !important;
+  -webkit-text-fill-color: #7f1d1d !important;
+}
+
+/* Botões */
+
+html[data-theme="light"]
+  .phanyx-logos-page
+  button.phanyx-logo-action {
+  opacity: 1 !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="light"]
+  .phanyx-logos-page
+  button.phanyx-logo-action-neutral {
+  background: #ffffff !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-logos-page
+  button.phanyx-logo-action-neutral:hover {
+  background: #f1f5f9 !important;
+  border-color: #64748b !important;
+}
+
+html[data-theme="light"]
+  .phanyx-logos-page
+  button.phanyx-logo-action-primary {
+  background: #eff6ff !important;
+  border-color: #2563eb !important;
+  color: #1e3a8a !important;
+  -webkit-text-fill-color: #1e3a8a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-logos-page
+  button.phanyx-logo-action-primary:hover {
+  background: #dbeafe !important;
+}
+
+html[data-theme="light"]
+  .phanyx-logos-page
+  button.phanyx-logo-action-secondary {
+  background: #faf5ff !important;
+  border-color: #9333ea !important;
+  color: #581c87 !important;
+  -webkit-text-fill-color: #581c87 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-logos-page
+  button.phanyx-logo-action-secondary:hover {
+  background: #f3e8ff !important;
+}
+
+html[data-theme="light"]
+  .phanyx-logos-page
+  button.phanyx-logo-action-danger {
+  background: #fff1f2 !important;
+  border-color: #dc2626 !important;
+  color: #991b1b !important;
+  -webkit-text-fill-color: #991b1b !important;
+}
+
+html[data-theme="light"]
+  .phanyx-logos-page
+  button.phanyx-logo-action-danger:hover {
+  background: #ffe4e6 !important;
+}
+
+/* Botões superiores */
+
+html[data-theme="light"]
+  .phanyx-logos-page
+  button.phanyx-logos-primary {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="light"]
+  .phanyx-logos-page
+  button.phanyx-logos-secondary {
+  background: #ffffff !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-logos-page
+  button:disabled {
+  opacity: 0.55 !important;
+}
