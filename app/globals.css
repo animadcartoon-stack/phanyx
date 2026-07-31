@@ -17355,3 +17355,23 @@ html[data-theme="system"] .phanyx-caixa-cobrancas-vazio {
   border-color: #737373 !important;
   color: #e5e5e5 !important;
 }
+
+/* FINANCEIRO — TÍTULO CAIXA AUTOMÁTICO */
+
+.phanyx-caixa-automatico-label {
+  color: #334155 !important;
+  font-weight: 900 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-caixa-automatico-label {
+  color: #334155 !important;
+}
+
+html[data-theme="dark"] .phanyx-caixa-automatico-label {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="system"] .phanyx-caixa-automatico-label {
+  color: #e5e5e5 !important;
+}
