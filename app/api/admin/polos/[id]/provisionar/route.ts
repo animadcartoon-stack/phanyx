@@ -192,7 +192,7 @@ export async function POST(
     if (
       !polo.ativo ||
       polo.statusComercial !==
-        StatusComercialPolo.ATIVO
+      StatusComercialPolo.ATIVO
     ) {
       return NextResponse.json(
         {
@@ -345,6 +345,13 @@ export async function POST(
 
     const agora = new Date();
 
+    const nomeUnidadePrincipal =
+      polo.cidade?.trim()
+        ? `SEDE - ${polo.cidade.trim()}`
+        : polo.bairro?.trim()
+          ? `SEDE - ${polo.bairro.trim()}`
+          : `SEDE - ${polo.nome.trim()}`;
+
     const permitirGerenciarPolos =
       contexto.ehInstituicaoContratante &&
       permitirGerenciarPolosSolicitado;
@@ -453,6 +460,7 @@ export async function POST(
               instituicaoId:
                 novaInstituicao.id,
               nomeFantasia: polo.nome,
+              nomeUnidadePrincipal,
               razaoSocial: polo.nome,
               cnpj: polo.cnpj,
               telefone:
@@ -549,10 +557,10 @@ export async function POST(
 
     let recalculoAssinatura:
       | Awaited<
-          ReturnType<
-            typeof recalcularAssinaturaPhanyx
-          >
+        ReturnType<
+          typeof recalcularAssinaturaPhanyx
         >
+      >
       | null = null;
 
     let avisoCobranca: string | null =
