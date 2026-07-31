@@ -484,8 +484,8 @@ export async function GET(req: Request) {
 
         await desenharLogo(
           pagina,
-          40,
-          pageHeight - 72,
+          36,
+          pageHeight - 68,
           76,
           48
         );
