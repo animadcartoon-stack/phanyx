@@ -386,6 +386,9 @@ const [portalPronto, setPortalPronto] =
 const [barraFlutuante, setBarraFlutuante] =
   useState(false);
 
+  const barraFlutuanteRef =
+  useRef(false);
+
 const [barraMedidas, setBarraMedidas] =
   useState({
     left: 8,
@@ -994,102 +997,197 @@ sublinhado:
 }, []);
 
 useEffect(() => {
-  if (!portalPronto) {
+  const container =
+    barraContainerRef.current;
+
+  if (!container) {
     return;
   }
 
-  let frame = 0;
+  let frame:
+    number | null = null;
 
-  function acompanharBarra() {
-    const barraOriginal =
-      barraOriginalRef.current;
+  /*
+   * Dois limites diferentes impedem
+   * a barra de ficar ligando e
+   * desligando no mesmo ponto.
+   */
+  const LIMITE_PARA_MOSTRAR = 180;
+  const LIMITE_PARA_ESCONDER = 60;
 
-    const container =
-      barraContainerRef.current;
+  function atualizarBarra() {
+    frame = null;
+
+    const retangulo =
+      container.getBoundingClientRect();
+
+    const estavaFlutuando =
+      barraFlutuanteRef.current;
+
+    let deveFlutuar =
+      estavaFlutuando;
+
+    /*
+     * A barra começa a flutuar somente
+     * depois que o começo do editor
+     * saiu da tela e ainda existe uma
+     * boa área do editor abaixo.
+     */
+    if (!estavaFlutuando) {
+      deveFlutuar =
+        retangulo.top <= -8 &&
+        retangulo.bottom >
+          LIMITE_PARA_MOSTRAR;
+    }
+
+    /*
+     * Depois de aberta, ela só fecha
+     * quando o editor realmente acabou
+     * ou quando voltamos ao topo.
+     */
+    if (
+      estavaFlutuando &&
+      (
+        retangulo.top > -8 ||
+        retangulo.bottom <=
+          LIMITE_PARA_ESCONDER
+      )
+    ) {
+      deveFlutuar = false;
+    }
 
     if (
-      barraOriginal &&
-      container
+      deveFlutuar !==
+      estavaFlutuando
     ) {
-      const retanguloOriginal =
-        barraOriginal.getBoundingClientRect();
-
-      const retanguloContainer =
-        container.getBoundingClientRect();
-
-      const deveFlutuar =
-        retanguloOriginal.bottom <= 8 &&
-        retanguloContainer.bottom > 100;
+      barraFlutuanteRef.current =
+        deveFlutuar;
 
       setBarraFlutuante(
-        (valorAtual) =>
-          valorAtual === deveFlutuar
-            ? valorAtual
-            : deveFlutuar
+        deveFlutuar
+      );
+    }
+
+    if (!deveFlutuar) {
+      return;
+    }
+
+    const esquerda =
+      Math.max(
+        Math.round(
+          retangulo.left
+        ),
+        8
       );
 
-      if (deveFlutuar) {
-        const left =
-          Math.max(
-            retanguloContainer.left,
-            8
-          );
+    const larguraDisponivel =
+      Math.max(
+        320,
+        window.innerWidth -
+          esquerda -
+          8
+      );
 
-        const larguraDisponivel =
-          Math.max(
-            320,
-            window.innerWidth -
-              left -
-              8
-          );
-
-        const width =
+    const largura =
+      Math.max(
+        320,
+        Math.floor(
           Math.min(
-            retanguloContainer.width,
+            retangulo.width,
             larguraDisponivel
-          );
+          )
+        )
+      );
 
-        setBarraMedidas(
-          (medidasAtuais) => {
-            if (
-              Math.abs(
-                medidasAtuais.left -
-                  left
-              ) < 1 &&
-              Math.abs(
-                medidasAtuais.width -
-                  width
-              ) < 1
-            ) {
-              return medidasAtuais;
-            }
+    setBarraMedidas(
+      (medidasAtuais) => {
+        const mesmaEsquerda =
+          Math.abs(
+            medidasAtuais.left -
+              esquerda
+          ) < 2;
 
-            return {
-              left,
-              width,
-            };
-          }
-        );
+        const mesmaLargura =
+          Math.abs(
+            medidasAtuais.width -
+              largura
+          ) < 2;
+
+        if (
+          mesmaEsquerda &&
+          mesmaLargura
+        ) {
+          return medidasAtuais;
+        }
+
+        return {
+          left: esquerda,
+          width: largura,
+        };
       }
+    );
+  }
+
+  function agendarAtualizacao() {
+    if (frame !== null) {
+      window.cancelAnimationFrame(
+        frame
+      );
     }
 
     frame =
       window.requestAnimationFrame(
-        acompanharBarra
+        atualizarBarra
       );
   }
 
-  frame =
-    window.requestAnimationFrame(
-      acompanharBarra
+  /*
+   * O true captura também a rolagem
+   * interna do painel administrativo.
+   */
+  document.addEventListener(
+    "scroll",
+    agendarAtualizacao,
+    true
+  );
+
+  window.addEventListener(
+    "resize",
+    agendarAtualizacao
+  );
+
+  const observadorTamanho =
+    new ResizeObserver(
+      agendarAtualizacao
     );
 
+  observadorTamanho.observe(
+    container
+  );
+
+  agendarAtualizacao();
+
   return () => {
-    window.cancelAnimationFrame(
-      frame
+    document.removeEventListener(
+      "scroll",
+      agendarAtualizacao,
+      true
     );
+
+    window.removeEventListener(
+      "resize",
+      agendarAtualizacao
+    );
+
+    observadorTamanho.disconnect();
+
+    if (frame !== null) {
+      window.cancelAnimationFrame(
+        frame
+      );
+    }
   };
-}, [portalPronto]);
+}, []);
 
   if (!editor) return null;
 
@@ -1453,6 +1551,7 @@ useEffect(() => {
             maxHeight: "calc(100vh - 16px)",
             overflowY: "auto",
             zIndex: 2147483000,
+            overflowX: "hidden",
           }}
         >
           {renderizarFerramentas()}

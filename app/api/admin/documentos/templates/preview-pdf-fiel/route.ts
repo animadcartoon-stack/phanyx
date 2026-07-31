@@ -196,16 +196,6 @@ conteudoHtml = conteudoHtml
       config?.usarPapelTimbrado &&
       config?.estiloPapelTimbrado === "PHANYX_CLASSICO";
 
-      const margemPagina =
-  usaPhanyxClassico
-    ? "34mm 0 8mm 0"
-    : "0";
-
-const paddingConteudo =
-  usaPhanyxClassico
-    ? "10mm 18mm"
-    : "18mm";
-
     const html = `<!doctype html>
 <html lang="pt-BR">
 <head>
@@ -213,9 +203,9 @@ const paddingConteudo =
 
   <style>
     @page {
-      size: A4;
-      margin: ${margemPagina};
-    }
+  size: A4;
+  margin: 0;
+}
 
     * {
       box-sizing: border-box;
@@ -270,76 +260,15 @@ const paddingConteudo =
 
     ${
       usaPhanyxClassico
-        ? `
-    .cabecalho-phanyx {
-      position: fixed;
-      top: -34mm;
-      left: 0;
-      right: 0;
-
-      height: 34mm;
-
-      display: flex;
-      align-items: center;
-      gap: 8mm;
-
-      padding: 8mm 18mm;
-
-      background: #111111;
-      color: #ffffff;
-    }
-
-    .cabecalho-phanyx img {
-      width: 22mm;
-      height: 22mm;
-      object-fit: contain;
-    }
-
-    .cabecalho-phanyx h1 {
-      margin: 0;
-
-      font-size: 16pt;
-      font-weight: 700;
-      line-height: 1.1;
-    }
-
-    .cabecalho-phanyx p {
-      margin: 3mm 0 0;
-      min-height: 0;
-
-      font-size: 9pt;
-      line-height: 1.1;
-    }
-
-    .rodape-phanyx {
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: -8mm;
-
-      height: 8mm;
-
-      padding: 2.5mm 18mm;
-
-      background: #111111;
-      color: #ffffff;
-
-      font-size: 6pt;
-      line-height: 1;
-    }
-    `
-        : ""
+        
     }
 
     .conteudo {
-      position: relative;
-      z-index: 1;
-
-      width: 100%;
-
-      padding:
-        ${paddingConteudo};
-    }
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 0;
+}
 
     /*
      * O Tailwind remove as margens
@@ -423,23 +352,6 @@ const paddingConteudo =
       page-break-before: always;
     }
 
-    .conteudo
-      .phanyx-page-break
-      > * {
-      display: none !important;
-    }
-
-    /*
-     * Evita folha vazia caso exista
-     * uma quebra no fim do template.
-     */
-    .conteudo
-      > .phanyx-page-break:last-child {
-      display: none !important;
-
-      break-before: auto;
-      page-break-before: auto;
-    }
   </style>
 </head>
 
@@ -457,55 +369,107 @@ const paddingConteudo =
         : ""
     }
 
-    ${
-      usaPhanyxClassico
-        ? `
-    <header class="cabecalho-phanyx">
-      ${
-        logoUrl
-          ? `
-      <img
-        src="${logoUrl}"
-        alt=""
-      />
-      `
-          : ""
-      }
-
-      <div>
-        <h1>
-          ${
-            config?.nomeFantasia ||
-            "Instituição"
-          }
-        </h1>
-
-        <p>
-          Prévia de documento
-        </p>
-      </div>
-    </header>
-    `
-        : ""
-    }
-
     <main class="conteudo">
       ${conteudoHtml}
     </main>
-
-    ${
-      usaPhanyxClassico
-        ? `
-    <footer class="rodape-phanyx">
-      ${config?.cnpj || ""}
-      ${config?.telefone || ""}
-    </footer>
-    `
-        : ""
-    }
   </section>
 </body>
 </html>`;
+
+const headerTemplate =
+  usaPhanyxClassico
+    ? `
+<div
+  style="
+    width: 100%;
+    height: 34mm;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: 8mm;
+    padding: 6mm 18mm;
+    background: #111111;
+    color: #ffffff;
+    font-family: Arial, Helvetica, sans-serif;
+    -webkit-print-color-adjust: exact;
+  "
+>
+  ${
+    logoUrl
+      ? `
+  <img
+    src="${logoUrl}"
+    style="
+      width: 22mm;
+      height: 22mm;
+      object-fit: contain;
+    "
+  />
+  `
+      : ""
+  }
+
+  <div>
+    <div
+      style="
+        font-size: 16pt;
+        font-weight: 700;
+        line-height: 1.1;
+      "
+    >
+      ${
+        config?.nomeFantasia ||
+        "Instituição"
+      }
+    </div>
+
+    <div
+      style="
+        margin-top: 2mm;
+        font-size: 9pt;
+        line-height: 1.1;
+      "
+    >
+      Prévia de documento
+    </div>
+  </div>
+</div>
+`
+    : `<div></div>`;
+
+const footerTemplate =
+  usaPhanyxClassico
+    ? `
+<div
+  style="
+    width: 100%;
+    height: 10mm;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2mm 18mm;
+    background: #111111;
+    color: #ffffff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 6pt;
+    -webkit-print-color-adjust: exact;
+  "
+>
+  <span>
+    ${config?.cnpj || ""}
+    ${config?.telefone || ""}
+  </span>
+
+  <span>
+    Página
+    <span class="pageNumber"></span>
+    de
+    <span class="totalPages"></span>
+  </span>
+</div>
+`
+    : `<div></div>`;
 
     browser = await puppeteer.launch({
       args: chromium.args,
@@ -519,17 +483,43 @@ const paddingConteudo =
       waitUntil: "networkidle0",
     });
 
-    const pdfBuffer = await page.pdf({
-      format: "A4",
-      printBackground: true,
-      preferCSSPageSize: true,
-      margin: {
-        top: "0mm",
-        right: "0mm",
-        bottom: "0mm",
-        left: "0mm",
-      },
+await page.evaluate(() => {
+  document
+    .querySelectorAll(
+      '[data-phanyx-page-break="true"]'
+    )
+    .forEach((elemento) => {
+      elemento.remove();
     });
+});
+
+   const pdfBuffer = await page.pdf({
+  format: "A4",
+  printBackground: true,
+  preferCSSPageSize: true,
+
+  displayHeaderFooter:
+    Boolean(
+      usaPhanyxClassico
+    ),
+
+  headerTemplate,
+  footerTemplate,
+
+  margin: usaPhanyxClassico
+    ? {
+        top: "34mm",
+        right: "18mm",
+        bottom: "10mm",
+        left: "18mm",
+      }
+    : {
+        top: "18mm",
+        right: "18mm",
+        bottom: "18mm",
+        left: "18mm",
+      },
+});
 
     await browser.close();
 
