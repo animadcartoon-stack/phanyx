@@ -231,10 +231,14 @@ function classificarFollowUp(lead: Lead) {
 function textoFollowUp(lead: Lead) {
   const situacao = classificarFollowUp(lead);
 
-  if (situacao === "atrasado") return "Follow-up atrasado";
-  if (situacao === "hoje") return "Follow-up hoje";
-  if (situacao === "sem_followup_critico") return "Sem follow-up há muitos dias";
-  if (situacao === "sem_followup_alerta") return "Precisa definir próximo contato";
+  if (situacao === "atrasado") return "Acompanhamento atrasado";
+  if (situacao === "hoje") return "Acompanhamento hoje";
+  if (situacao === "sem_followup_critico") {
+    return "Sem acompanhamento há muitos dias";
+  }
+  if (situacao === "sem_followup_alerta") {
+    return "Definir próximo contato";
+  }
   return "Em dia";
 }
 
@@ -1071,7 +1075,7 @@ export default function AdminLeadsPage() {
           </div>
 
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">Follow-up hoje</p>
+            <p className="text-sm text-slate-500">Acompanhamento hoje</p>
             <p className="mt-3 text-4xl font-bold text-amber-600">{metricas.followupHoje}</p>
           </div>
 
@@ -1093,7 +1097,7 @@ export default function AdminLeadsPage() {
             Leitura do CRM
           </p>
           <p className="phanyx-leads-info-text mt-1 text-sm leading-6">
-            Este painel acompanha oportunidades comerciais e follow-ups de leads.
+            Este painel acompanha oportunidades comerciais e o acompanhamento dos leads.
             Pagamentos reais via Asaas, matrículas do Bacharel Livre em Teologia e
             compras de recursos como IA aparecem no Painel Master, não no CRM de leads.
           </p>
@@ -1101,160 +1105,161 @@ export default function AdminLeadsPage() {
 
         <div className="mt-6 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
-  <input
-    type="text"
-    value={busca}
-    onChange={(e) => setBusca(e.target.value)}
-    placeholder="Busca inteligente: nome, e-mail, telefone, instituição, interesse, responsável ou observação"
-    className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3.5 outline-none transition focus:border-blue-500 md:col-span-2 xl:col-span-3 2xl:col-span-2"
-  />
+            <input
+              type="text"
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              placeholder="Busca inteligente: nome, e-mail, telefone, instituição, interesse, responsável ou observação"
+              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3.5 outline-none transition focus:border-blue-500 md:col-span-2 xl:col-span-3 2xl:col-span-2"
+            />
 
-  <FiltroSelect
-    ariaLabel="Filtrar leads por origem"
-    value={filtroOrigem}
-    onChange={setFiltroOrigem}
-    options={[
-      {
-        value: "",
-        label: "Todas as origens",
-      },
-      ...origensDisponiveis.map((origem) => ({
-        value: origem,
-        label: origem,
-      })),
-    ]}
-  />
+            <FiltroSelect
+              ariaLabel="Filtrar leads por origem"
+              value={filtroOrigem}
+              onChange={setFiltroOrigem}
+              options={[
+                {
+                  value: "",
+                  label: "Todas as origens",
+                },
+                ...origensDisponiveis.map((origem) => ({
+                  value: origem,
+                  label: origem,
+                })),
+              ]}
+            />
 
-  <FiltroSelect
-    ariaLabel="Filtrar leads por status"
-    value={filtroStatus}
-    onChange={setFiltroStatus}
-    options={[
-      {
-        value: "",
-        label: "Todos os status",
-      },
-      {
-        value: "NOVO",
-        label: "Novo",
-      },
-      {
-        value: "CONTATO",
-        label: "Em contato",
-      },
-      {
-        value: "PROPOSTA",
-        label: "Proposta",
-      },
-      {
-        value: "FECHADO",
-        label: "Fechado",
-      },
-      {
-        value: "PERDIDO",
-        label: "Perdido",
-      },
-    ]}
-  />
+            <FiltroSelect
+              ariaLabel="Filtrar leads por status"
+              value={filtroStatus}
+              onChange={setFiltroStatus}
+              options={[
+                {
+                  value: "",
+                  label: "Todos os status",
+                },
+                {
+                  value: "NOVO",
+                  label: "Novo",
+                },
+                {
+                  value: "CONTATO",
+                  label: "Em contato",
+                },
+                {
+                  value: "PROPOSTA",
+                  label: "Proposta",
+                },
+                {
+                  value: "FECHADO",
+                  label: "Fechado",
+                },
+                {
+                  value: "PERDIDO",
+                  label: "Perdido",
+                },
+              ]}
+            />
 
-  <FiltroSelect
-    ariaLabel="Filtrar leads por responsável"
-    value={filtroResponsavel}
-    onChange={setFiltroResponsavel}
-    options={[
-      {
-        value: "",
-        label: "Todos os responsáveis",
-      },
-      {
-        value: "SEM_RESPONSAVEL",
-        label: "Sem responsável",
-      },
-      ...responsaveisLeads.map((responsavel) => ({
-        value: String(responsavel.id),
-        label: responsavel.nome,
-      })),
-    ]}
-  />
+            <FiltroSelect
+              ariaLabel="Filtrar leads por responsável"
+              value={filtroResponsavel}
+              onChange={setFiltroResponsavel}
+              options={[
+                {
+                  value: "",
+                  label: "Todos os responsáveis",
+                },
+                {
+                  value: "SEM_RESPONSAVEL",
+                  label: "Sem responsável",
+                },
+                ...responsaveisLeads.map((responsavel) => ({
+                  value: String(responsavel.id),
+                  label: responsavel.nome,
+                })),
+              ]}
+            />
 
-  <FiltroSelect
-    ariaLabel="Filtrar leads por prioridade"
-    value={filtroPrioridade}
-    onChange={setFiltroPrioridade}
-    options={[
-      {
-        value: "",
-        label: "Todas as prioridades",
-      },
-      {
-        value: "ALTA",
-        label: "Alta",
-      },
-      {
-        value: "MEDIA",
-        label: "Média",
-      },
-      {
-        value: "BAIXA",
-        label: "Baixa",
-      },
-    ]}
-  />
+            <FiltroSelect
+              ariaLabel="Filtrar leads por prioridade"
+              value={filtroPrioridade}
+              onChange={setFiltroPrioridade}
+              options={[
+                {
+                  value: "",
+                  label: "Todas as prioridades",
+                },
+                {
+                  value: "ALTA",
+                  label: "Alta",
+                },
+                {
+                  value: "MEDIA",
+                  label: "Média",
+                },
+                {
+                  value: "BAIXA",
+                  label: "Baixa",
+                },
+              ]}
+            />
 
-  <FiltroSelect
-    ariaLabel="Filtrar leads por situação do follow-up"
-    value={filtroFollowUp}
-    onChange={setFiltroFollowUp}
-    options={[
-      {
-        value: "",
-        label: "Todo follow-up",
-      },
-      {
-        value: "hoje",
-        label: "Follow-up hoje",
-      },
-      {
-        value: "atrasado",
-        label: "Atrasado",
-      },
-      {
-        value: "sem_followup_alerta",
-        label: "Precisa definir",
-      },
-      {
-        value: "sem_followup_critico",
-        label: "Sem follow-up há dias",
-      },
-      {
-        value: "ok",
-        label: "Em dia",
-      },
-    ]}
-  />
+            <FiltroSelect
+              ariaLabel="Filtrar leads por situação do acompanhamento"
+              value={filtroFollowUp}
+              onChange={setFiltroFollowUp}
+              options={[
+                {
+                  value: "",
+                  label: "Todo acompanhamento",
+                },
+                {
+                  value: "hoje",
+                  label: "Acompanhamento hoje",
+                },
+                {
+                  value: "atrasado",
+                  label: "Acompanhamento atrasado",
+                },
+                {
+                  value: "sem_followup_alerta",
+                  label: "Definir próximo contato",
+                },
+                {
+                  value: "sem_followup_critico",
+                  label: "Sem acompanhamento há dias",
+                },
+                {
+                  value: "ok",
+                  label: "Em dia",
+                },
+              ]}
+            />
 
-  {ehCrmGlobalPhanyx && (
-    <FiltroSelect
-      ariaLabel="Filtrar leads por tipo"
-      value={filtroTipo}
-      onChange={setFiltroTipo}
-      options={[
-        {
-          value: "",
-          label: "Todos os tipos",
-        },
-        {
-          value: "PHANYX",
-          label: "Leads PHANYX",
-        },
-        {
-          value: "INSTITUICAO",
-          label: "Leads das instituições",
-        },
-      ]}
-    />
-  )}
-</div>
+            {ehCrmGlobalPhanyx && (
+              <FiltroSelect
+                ariaLabel="Filtrar leads por tipo"
+                value={filtroTipo}
+                onChange={setFiltroTipo}
+                options={[
+                  {
+                    value: "",
+                    label: "Todos os tipos",
+                  },
+                  {
+                    value: "PHANYX",
+                    label: "Leads PHANYX",
+                  },
+                  {
+                    value: "INSTITUICAO",
+                    label: "Leads das instituições",
+                  },
+                ]}
+              />
+            )}
+
+          </div>
         </div>
 
         {erro ? (
@@ -1309,7 +1314,7 @@ export default function AdminLeadsPage() {
                     </th>
 
                     <th className="w-[15%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
-                      Follow-up
+                      Acompanhamento
                     </th>
 
                     <th className="w-[10%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
