@@ -1178,36 +1178,36 @@ export default function AdminLeadsPage() {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[1050px] border-collapse text-left">
+              <table className="w-full table-fixed border-collapse text-left">
                 <thead className="bg-slate-100">
                   <tr className="border-b border-slate-200">
-                    <th className="w-[230px] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
-                      Lead e contato
-                    </th>
+                   <th className="w-[22%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
+  Lead e contato
+</th>
 
-                    <th className="w-[220px] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
-                      Instituição e interesse
-                    </th>
+<th className="w-[20%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
+  Instituição e interesse
+</th>
 
-                    <th className="w-[150px] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
-                      Responsável
-                    </th>
+<th className="w-[14%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
+  Responsável
+</th>
 
-                    <th className="w-[130px] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
-                      Etapa
-                    </th>
+<th className="w-[11%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
+  Etapa
+</th>
 
-                    <th className="w-[170px] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
-                      Follow-up
-                    </th>
+<th className="w-[15%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
+  Follow-up
+</th>
 
-                    <th className="w-[110px] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
-                      Valor
-                    </th>
+<th className="w-[10%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
+  Valor
+</th>
 
-                    <th className="sticky right-0 z-10 w-[110px] bg-slate-100 px-4 py-4 text-right text-xs font-black uppercase tracking-wide text-slate-600">
-                      Ações
-                    </th>
+<th className="w-[8%] bg-slate-100 px-3 py-4 text-right text-xs font-black uppercase tracking-wide text-slate-600">
+  Ações
+</th>
                   </tr>
                 </thead>
 
@@ -1355,13 +1355,13 @@ export default function AdminLeadsPage() {
       {formatarMoeda(lead.valorEstimado)}
     </p>
 
-    <p className="mt-2 whitespace-nowrap text-xs text-slate-500">
+    <p className="mt-2 text-xs leading-5 text-slate-500">
       Criado em{" "}
       {formatarData(lead.createdAt)}
     </p>
   </td>
 
-  <td className="sticky right-0 bg-white px-4 py-4 text-right align-top group-hover:bg-slate-50">
+  <td className="bg-white px-3 py-4 text-right align-top group-hover:bg-slate-50">
     <button
       type="button"
       onClick={() => abrirEdicao(lead)}
