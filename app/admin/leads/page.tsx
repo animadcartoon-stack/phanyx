@@ -90,7 +90,7 @@ const STATUS_COLUNAS = [
 
 const STATUS_OPTIONS = ["NOVO", "CONTATO", "PROPOSTA", "FECHADO", "PERDIDO"];
 const PRIORIDADE_OPTIONS = ["BAIXA", "MEDIA", "ALTA"];
-const TIPO_OPTIONS = ["PHANYX", "INSTITUICAO"];
+
 const TIPO_INTERACAO_OPTIONS = [
   "WHATSAPP",
   "LIGACAO",
@@ -716,7 +716,6 @@ export default function AdminLeadsPage() {
       const {
         responsavelFuncionarioId,
         instituicaoId,
-        tipo: _tipoInformadoNaTela,
         ...demaisCampos
       } = form;
 
@@ -981,13 +980,19 @@ export default function AdminLeadsPage() {
           </div>
 
           <button
-            disabled={carregandoContexto}
             type="button"
             onClick={abrirNovoLead}
-            className="phanyx-btn-primary min-h-[56px] w-full whitespace-nowrap px-8 text-base sm:w-auto"          >
+            disabled={
+              carregandoContexto ||
+              !usuarioContexto
+            }
+            className="phanyx-btn-primary min-h-[56px] w-full whitespace-nowrap px-8 text-base disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+          >
             {carregandoContexto
               ? "Carregando..."
-              : "Novo lead manual"}
+              : !usuarioContexto
+                ? "Contexto indisponível"
+                : "Novo lead manual"}
           </button>
         </div>
 
@@ -1389,9 +1394,12 @@ export default function AdminLeadsPage() {
                 {ehCrmGlobalPhanyx && (
                   <div>
                     <label className="mb-2 block text-sm font-medium text-slate-700">
-                      ID da instituição
+                      ID da instituição interessada
                     </label>
                     <input
+                      type="number"
+                      min="1"
+                      placeholder="Opcional"
                       value={form.instituicaoId}
                       onChange={(e) =>
                         setForm({ ...form, instituicaoId: e.target.value })
