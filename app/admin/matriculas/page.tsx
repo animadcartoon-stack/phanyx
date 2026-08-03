@@ -250,55 +250,55 @@ function AdminMatriculasPage() {
   const [salvandoSecretaria, setSalvandoSecretaria] = useState(false);
 
   const parametrosConversao = useMemo(
-  () => ({
-    leadId: lerIdPositivoDaUrl(
-      searchParams.get("leadId")
-    ),
-
-    alunoId: lerIdPositivoDaUrl(
-      searchParams.get("alunoId")
-    ),
-
-    vendedorResponsavelId:
-      lerIdPositivoDaUrl(
-        searchParams.get(
-          "vendedorResponsavelId"
-        )
+    () => ({
+      leadId: lerIdPositivoDaUrl(
+        searchParams.get("leadId")
       ),
-  }),
-  [searchParams]
-);
 
-const conversaoDeLeadAtiva =
-  parametrosConversao.leadId !== null;
+      alunoId: lerIdPositivoDaUrl(
+        searchParams.get("alunoId")
+      ),
+
+      vendedorResponsavelId:
+        lerIdPositivoDaUrl(
+          searchParams.get(
+            "vendedorResponsavelId"
+          )
+        ),
+    }),
+    [searchParams]
+  );
+
+  const conversaoDeLeadAtiva =
+    parametrosConversao.leadId !== null;
 
   const alunoDaConversao = useMemo(
-  () =>
-    alunos.find(
-      (aluno) =>
-        aluno.id ===
-        parametrosConversao.alunoId
-    ) || null,
-  [
-    alunos,
-    parametrosConversao.alunoId,
-  ]
-);
+    () =>
+      alunos.find(
+        (aluno) =>
+          aluno.id ===
+          parametrosConversao.alunoId
+      ) || null,
+    [
+      alunos,
+      parametrosConversao.alunoId,
+    ]
+  );
 
-const vendedorDaConversao = useMemo(
-  () =>
-    vendedores.find(
-      (vendedor) =>
-        vendedor.id ===
-        parametrosConversao
-          .vendedorResponsavelId
-    ) || null,
-  [
-    vendedores,
-    parametrosConversao
-      .vendedorResponsavelId,
-  ]
-);
+  const vendedorDaConversao = useMemo(
+    () =>
+      vendedores.find(
+        (vendedor) =>
+          vendedor.id ===
+          parametrosConversao
+            .vendedorResponsavelId
+      ) || null,
+    [
+      vendedores,
+      parametrosConversao
+        .vendedorResponsavelId,
+    ]
+  );
 
   async function carregarTudo() {
     setLoading(true);
@@ -593,85 +593,85 @@ const vendedorDaConversao = useMemo(
   }, []);
 
   useEffect(() => {
-  if (
-    loading ||
-    !conversaoDeLeadAtiva
-  ) {
-    return;
-  }
+    if (
+      loading ||
+      !conversaoDeLeadAtiva
+    ) {
+      return;
+    }
 
-  if (!parametrosConversao.alunoId) {
-    setErro(
-      "A conversão não informou um aluno válido."
-    );
+    if (!parametrosConversao.alunoId) {
+      setErro(
+        "A conversão não informou um aluno válido."
+      );
 
-    return;
-  }
+      return;
+    }
 
-  const alunoExiste =
-    alunos.some(
-      (aluno) =>
-        aluno.id ===
+    const alunoExiste =
+      alunos.some(
+        (aluno) =>
+          aluno.id ===
+          parametrosConversao.alunoId
+      );
+
+    if (!alunoExiste) {
+      setErro(
+        "O aluno criado durante a conversão não foi encontrado nesta instituição."
+      );
+
+      return;
+    }
+
+    setAlunoId(
+      String(
         parametrosConversao.alunoId
+      )
     );
 
-  if (!alunoExiste) {
-    setErro(
-      "O aluno criado durante a conversão não foi encontrado nesta instituição."
+    const vendedorId =
+      parametrosConversao
+        .vendedorResponsavelId;
+
+    if (!vendedorId) {
+      return;
+    }
+
+    if (!podeSelecionarVendedor) {
+      setErro(
+        "Você não possui permissão para vincular o responsável comercial à matrícula."
+      );
+
+      return;
+    }
+
+    const vendedorExiste =
+      vendedores.some(
+        (vendedor) =>
+          vendedor.id === vendedorId
+      );
+
+    if (!vendedorExiste) {
+      setErro(
+        "O responsável comercial do lead não está disponível como vendedor elegível. Verifique se ele está ativo e possui plano de comissão vigente."
+      );
+
+      return;
+    }
+
+    setVendedorResponsavelId(
+      String(vendedorId)
     );
-
-    return;
-  }
-
-  setAlunoId(
-    String(
-      parametrosConversao.alunoId
-    )
-  );
-
-  const vendedorId =
+  }, [
+    loading,
+    conversaoDeLeadAtiva,
+    parametrosConversao.alunoId,
     parametrosConversao
-      .vendedorResponsavelId;
-
-  if (!vendedorId) {
-    return;
-  }
-
-  if (!podeSelecionarVendedor) {
-    setErro(
-      "Você não possui permissão para vincular o responsável comercial à matrícula."
-    );
-
-    return;
-  }
-
-  const vendedorExiste =
-    vendedores.some(
-      (vendedor) =>
-        vendedor.id === vendedorId
-    );
-
-  if (!vendedorExiste) {
-    setErro(
-      "O responsável comercial do lead não está disponível como vendedor elegível. Verifique se ele está ativo e possui plano de comissão vigente."
-    );
-
-    return;
-  }
-
-  setVendedorResponsavelId(
-    String(vendedorId)
-  );
-}, [
-  loading,
-  conversaoDeLeadAtiva,
-  parametrosConversao.alunoId,
-  parametrosConversao
-    .vendedorResponsavelId,
-  alunos,
-  vendedores,
-  podeSelecionarVendedor,
-]);
+      .vendedorResponsavelId,
+    alunos,
+    vendedores,
+    podeSelecionarVendedor,
+  ]);
 
   useEffect(() => {
     if (!semestresAberto) return;
@@ -1452,6 +1452,8 @@ const vendedorDaConversao = useMemo(
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
+          leadId: parametrosConversao.leadId,
+
           alunoId: Number(alunoId),
           cursoId: Number(cursoId),
           vendedorResponsavelId:
@@ -2262,53 +2264,53 @@ const vendedorDaConversao = useMemo(
         </p>
 
         {conversaoDeLeadAtiva && (
-  <div className="mt-4 rounded-2xl border border-emerald-300 bg-emerald-50 p-4 text-sm text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-100">
-    <strong className="block text-base">
-      Matrícula iniciada pelo CRM
-    </strong>
+          <div className="mt-4 rounded-2xl border border-emerald-300 bg-emerald-50 p-4 text-sm text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-100">
+            <strong className="block text-base">
+              Matrícula iniciada pelo CRM
+            </strong>
 
-    <p className="mt-1 leading-6">
-      Esta matrícula está sendo criada a
-      partir do lead{" "}
-      <strong>
-        #{parametrosConversao.leadId}
-      </strong>
-      .
-    </p>
+            <p className="mt-1 leading-6">
+              Esta matrícula está sendo criada a
+              partir do lead{" "}
+              <strong>
+                #{parametrosConversao.leadId}
+              </strong>
+              .
+            </p>
 
-    <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-xs">
-      <span>
-        Aluno:{" "}
-        <strong>
-          {alunoDaConversao?.nome ||
-            "Carregando aluno..."}
-        </strong>
-      </span>
+            <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-xs">
+              <span>
+                Aluno:{" "}
+                <strong>
+                  {alunoDaConversao?.nome ||
+                    "Carregando aluno..."}
+                </strong>
+              </span>
 
-      {parametrosConversao
-        .vendedorResponsavelId ? (
-        <span>
-          Responsável comercial:{" "}
-          <strong>
-            {vendedorDaConversao?.nome ||
-              "Validando responsável..."}
-          </strong>
-        </span>
-      ) : (
-        <span>
-          Sem responsável comercial
-          informado no lead.
-        </span>
-      )}
-    </div>
+              {parametrosConversao
+                .vendedorResponsavelId ? (
+                <span>
+                  Responsável comercial:{" "}
+                  <strong>
+                    {vendedorDaConversao?.nome ||
+                      "Validando responsável..."}
+                  </strong>
+                </span>
+              ) : (
+                <span>
+                  Sem responsável comercial
+                  informado no lead.
+                </span>
+              )}
+            </div>
 
-    <p className="mt-3 text-xs leading-5">
-      Complete curso, semestre, turma,
-      disciplinas e condições financeiras
-      para finalizar a conversão.
-    </p>
-  </div>
-)}
+            <p className="mt-3 text-xs leading-5">
+              Complete curso, semestre, turma,
+              disciplinas e condições financeiras
+              para finalizar a conversão.
+            </p>
+          </div>
+        )}
 
         <div>
           <label className="text-sm font-medium text-gray-700">
@@ -2335,47 +2337,47 @@ const vendedorDaConversao = useMemo(
             </label>
 
             <select
-  value={vendedorResponsavelId}
-  onChange={(evento) =>
-    setVendedorResponsavelId(
-      evento.target.value
-    )
-  }
-  disabled={
-    conversaoDeLeadAtiva &&
-    parametrosConversao.vendedorResponsavelId !== null
-  }
-  className="matriculas-vendedor-select mt-2 w-full rounded-xl border px-3 py-2 outline-none transition focus:border-blue-500 disabled:cursor-not-allowed disabled:opacity-70"
->
-  <option value="">
-    Nenhum vendedor selecionado
-  </option>
+              value={vendedorResponsavelId}
+              onChange={(evento) =>
+                setVendedorResponsavelId(
+                  evento.target.value
+                )
+              }
+              disabled={
+                conversaoDeLeadAtiva &&
+                parametrosConversao.vendedorResponsavelId !== null
+              }
+              className="matriculas-vendedor-select mt-2 w-full rounded-xl border px-3 py-2 outline-none transition focus:border-blue-500 disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              <option value="">
+                Nenhum vendedor selecionado
+              </option>
 
-  {vendedores.map((vendedor) => (
-    <option
-      key={vendedor.id}
-      value={String(vendedor.id)}
-    >
-      {vendedor.nome}
-      {vendedor.cargo
-        ? ` — ${vendedor.cargo}`
-        : ""}
-      {vendedor.departamento?.nome
-        ? ` — ${vendedor.departamento.nome}`
-        : ""}
-      {vendedor.planoComissao?.planoNome
-        ? ` — Plano: ${vendedor.planoComissao.planoNome}`
-        : ""}
-    </option>
-  ))}
-</select>
+              {vendedores.map((vendedor) => (
+                <option
+                  key={vendedor.id}
+                  value={String(vendedor.id)}
+                >
+                  {vendedor.nome}
+                  {vendedor.cargo
+                    ? ` — ${vendedor.cargo}`
+                    : ""}
+                  {vendedor.departamento?.nome
+                    ? ` — ${vendedor.departamento.nome}`
+                    : ""}
+                  {vendedor.planoComissao?.planoNome
+                    ? ` — Plano: ${vendedor.planoComissao.planoNome}`
+                    : ""}
+                </option>
+              ))}
+            </select>
 
-{conversaoDeLeadAtiva &&
-  parametrosConversao.vendedorResponsavelId ? (
-  <p className="mt-2 text-xs font-medium text-emerald-700 dark:text-emerald-300">
-    Responsável comercial preservado automaticamente a partir do lead.
-  </p>
-) : null}
+            {conversaoDeLeadAtiva &&
+              parametrosConversao.vendedorResponsavelId ? (
+              <p className="mt-2 text-xs font-medium text-emerald-700 dark:text-emerald-300">
+                Responsável comercial preservado automaticamente a partir do lead.
+              </p>
+            ) : null}
 
             {vendedores.length === 0 ? (
               <p className="matriculas-vendedor-alerta mt-2 text-xs">
@@ -2394,42 +2396,42 @@ const vendedorDaConversao = useMemo(
 
         <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-3">
           <div>
-  <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
-    Aluno
-  </label>
+            <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+              Aluno
+            </label>
 
-  <select
-    value={alunoId}
-    onChange={(e) =>
-      setAlunoId(e.target.value)
-    }
-    disabled={
-      conversaoDeLeadAtiva &&
-      parametrosConversao.alunoId !== null
-    }
-    className="mt-1 w-full rounded-xl border bg-white px-3 py-2 text-slate-900 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:disabled:bg-slate-800 dark:disabled:text-slate-400"
-  >
-    <option value="">
-      Selecione...
-    </option>
+            <select
+              value={alunoId}
+              onChange={(e) =>
+                setAlunoId(e.target.value)
+              }
+              disabled={
+                conversaoDeLeadAtiva &&
+                parametrosConversao.alunoId !== null
+              }
+              className="mt-1 w-full rounded-xl border bg-white px-3 py-2 text-slate-900 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:disabled:bg-slate-800 dark:disabled:text-slate-400"
+            >
+              <option value="">
+                Selecione...
+              </option>
 
-    {alunos.map((aluno) => (
-      <option
-        key={aluno.id}
-        value={String(aluno.id)}
-      >
-        {aluno.nome}
-      </option>
-    ))}
-  </select>
+              {alunos.map((aluno) => (
+                <option
+                  key={aluno.id}
+                  value={String(aluno.id)}
+                >
+                  {aluno.nome}
+                </option>
+              ))}
+            </select>
 
-  {conversaoDeLeadAtiva &&
-    parametrosConversao.alunoId ? (
-    <p className="mt-1 text-xs font-medium text-emerald-700 dark:text-emerald-300">
-      Aluno definido automaticamente pela conversão do lead.
-    </p>
-  ) : null}
-</div>
+            {conversaoDeLeadAtiva &&
+              parametrosConversao.alunoId ? (
+              <p className="mt-1 text-xs font-medium text-emerald-700 dark:text-emerald-300">
+                Aluno definido automaticamente pela conversão do lead.
+              </p>
+            ) : null}
+          </div>
 
           <div>
             <label className="text-sm font-medium text-gray-700">Curso</label>
