@@ -486,7 +486,7 @@ export default function AdminLeadsPage() {
   const [form, setForm] = useState<LeadForm>(FORM_INICIAL);
   const [salvando, setSalvando] = useState(false);
   const [criandoNovo, setCriandoNovo] = useState(false);
-  
+
   const [interacoes, setInteracoes] = useState<Interacao[]>([]);
   const [novaInteracao, setNovaInteracao] = useState("");
   const [tipoInteracao, setTipoInteracao] = useState("WHATSAPP");
@@ -1152,233 +1152,233 @@ export default function AdminLeadsPage() {
           </div>
         ) : null}
 
-       {carregando ? (
-  <div className="mt-8 rounded-3xl border border-slate-200 bg-white px-6 py-10 text-slate-600 shadow-sm">
-    Carregando leads...
-  </div>
-) : (
-  <div className="mt-8 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-    <div className="flex flex-col gap-3 border-b border-slate-200 px-5 py-5 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <h2 className="text-xl font-black text-slate-900">
-          Listagem de leads
-        </h2>
+        {carregando ? (
+          <div className="mt-8 rounded-3xl border border-slate-200 bg-white px-6 py-10 text-slate-600 shadow-sm">
+            Carregando leads...
+          </div>
+        ) : (
+          <div className="mt-8 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+            <div className="flex flex-col gap-3 border-b border-slate-200 px-5 py-5 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="text-xl font-black text-slate-900">
+                  Listagem de leads
+                </h2>
 
-        <p className="mt-1 text-sm text-slate-500">
-          {leadsFiltrados.length}{" "}
-          {leadsFiltrados.length === 1
-            ? "lead encontrado"
-            : "leads encontrados"}
-        </p>
-      </div>
-
-      <div className="text-xs font-semibold text-slate-500">
-        Clique em Detalhes para editar, registrar interações ou alterar a etapa.
-      </div>
-    </div>
-
-    <div className="overflow-x-auto">
-      <table className="min-w-[1350px] w-full border-collapse text-left">
-        <thead className="bg-slate-100">
-          <tr className="border-b border-slate-200">
-            <th className="px-5 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
-              Lead e contato
-            </th>
-
-            <th className="px-5 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
-              Instituição e interesse
-            </th>
-
-            <th className="px-5 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
-              Responsável
-            </th>
-
-            <th className="px-5 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
-              Status
-            </th>
-
-            <th className="px-5 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
-              Prioridade
-            </th>
-
-            <th className="px-5 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
-              Follow-up
-            </th>
-
-            <th className="px-5 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
-              Valor
-            </th>
-
-            <th className="px-5 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
-              Origem
-            </th>
-
-            <th className="px-5 py-4 text-right text-xs font-black uppercase tracking-wide text-slate-600">
-              Ações
-            </th>
-          </tr>
-        </thead>
-
-        <tbody className="divide-y divide-slate-200">
-          {leadsFiltrados.length === 0 ? (
-            <tr>
-              <td
-                colSpan={9}
-                className="px-6 py-16 text-center"
-              >
-                <p className="text-base font-bold text-slate-700">
-                  Nenhum lead encontrado
+                <p className="mt-1 text-sm text-slate-500">
+                  {leadsFiltrados.length}{" "}
+                  {leadsFiltrados.length === 1
+                    ? "lead encontrado"
+                    : "leads encontrados"}
                 </p>
+              </div>
 
-                <p className="mt-2 text-sm text-slate-500">
-                  Ajuste a busca ou os filtros para visualizar outros resultados.
-                </p>
-              </td>
-            </tr>
-          ) : (
-            leadsFiltrados.map((lead) => {
-              const score = calcularScore(lead);
+              <div className="text-xs font-semibold text-slate-500">
+                Clique em Detalhes para editar, registrar interações ou alterar a etapa.
+              </div>
+            </div>
 
-              return (
-                <tr
-                  key={lead.id}
-                  className="transition hover:bg-slate-50"
-                >
-                  <td className="px-5 py-4 align-top">
-                    <button
-                      type="button"
-                      onClick={() => abrirEdicao(lead)}
-                      className="text-left text-base font-black text-slate-900 transition hover:text-blue-700"
-                    >
-                      {lead.nome}
-                    </button>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[1050px] border-collapse text-left">
+                <thead className="bg-slate-100">
+                  <tr className="border-b border-slate-200">
+                    <th className="w-[230px] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
+                      Lead e contato
+                    </th>
 
-                    <p className="mt-2 break-all text-sm text-slate-600">
-                      {lead.email}
-                    </p>
+                    <th className="w-[220px] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
+                      Instituição e interesse
+                    </th>
 
-                    <p className="mt-1 text-sm text-slate-500">
-                      {lead.telefone || "Telefone não informado"}
-                    </p>
+                    <th className="w-[150px] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
+                      Responsável
+                    </th>
 
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      <span
-                        className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-bold ${classeScore(
-                          score
-                        )}`}
+                    <th className="w-[130px] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
+                      Etapa
+                    </th>
+
+                    <th className="w-[170px] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
+                      Follow-up
+                    </th>
+
+                    <th className="w-[110px] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
+                      Valor
+                    </th>
+
+                    <th className="sticky right-0 z-10 w-[110px] bg-slate-100 px-4 py-4 text-right text-xs font-black uppercase tracking-wide text-slate-600">
+                      Ações
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody className="divide-y divide-slate-200">
+                  {leadsFiltrados.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={7}
+                        className="px-6 py-16 text-center"
                       >
-                        Score {score} · {rotuloScore(score)}
-                      </span>
+                        <p className="text-base font-bold text-slate-700">
+                          Nenhum lead encontrado
+                        </p>
 
-                      <span
-                        className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-bold ${classeTipo(
-                          lead.tipo
-                        )}`}
-                      >
-                        {rotuloTipoLead(lead.tipo)}
-                      </span>
-                    </div>
-                  </td>
+                        <p className="mt-2 text-sm text-slate-500">
+                          Ajuste a busca ou os filtros para visualizar outros resultados.
+                        </p>
+                      </td>
+                    </tr>
+                  ) : (
+                    leadsFiltrados.map((lead) => {
+                      const score = calcularScore(lead);
 
-                  <td className="px-5 py-4 align-top">
-                    <p className="max-w-[220px] font-semibold text-slate-800">
-                      {lead.instituicaoNome ||
-                        "Instituição não informada"}
-                    </p>
+                      return (
+                        <tr
+  key={lead.id}
+  className="group transition hover:bg-slate-50"
+>
+  <td className="px-4 py-4 align-top">
+    <button
+      type="button"
+      onClick={() => abrirEdicao(lead)}
+      className="max-w-[220px] text-left text-base font-black text-slate-900 transition hover:text-blue-700"
+    >
+      {lead.nome}
+    </button>
 
-                    <p className="mt-2 max-w-[240px] text-sm leading-5 text-slate-500">
-                      {lead.interesse ||
-                        "Interesse não informado"}
-                    </p>
-                  </td>
+    <p
+      title={lead.email}
+      className="mt-2 max-w-[220px] truncate text-sm text-slate-600"
+    >
+      {lead.email}
+    </p>
 
-                  <td className="px-5 py-4 align-top">
-                    <p className="font-semibold text-slate-800">
-                      {lead.responsavelNome ||
-                        "Sem responsável"}
-                    </p>
+    <p className="mt-1 text-sm text-slate-500">
+      {lead.telefone || "Telefone não informado"}
+    </p>
 
-                    <p className="mt-2 text-xs text-slate-500">
-                      {lead.cargo ||
-                        "Cargo do interessado não informado"}
-                    </p>
-                  </td>
+    <p
+      title={lead.origem}
+      className="mt-2 max-w-[220px] truncate text-xs font-semibold text-slate-500"
+    >
+      Origem: {lead.origem}
+    </p>
 
-                  <td className="px-5 py-4 align-top">
-                    <span
-                      className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-black ${classeStatus(
-                        lead.status
-                      )}`}
-                    >
-                      {lead.status}
-                    </span>
-                  </td>
+    <div className="mt-3 flex flex-wrap gap-2">
+      <span
+        className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-bold ${classeScore(
+          score
+        )}`}
+      >
+        Score {score} · {rotuloScore(score)}
+      </span>
 
-                  <td className="px-5 py-4 align-top">
-                    <span
-                      className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-black ${classePrioridade(
-                        lead.prioridade
-                      )}`}
-                    >
-                      {lead.prioridade}
-                    </span>
-                  </td>
-
-                  <td className="px-5 py-4 align-top">
-                    <span
-                      className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-black ${classeFollowUp(
-                        lead
-                      )}`}
-                    >
-                      {textoFollowUp(lead)}
-                    </span>
-
-                    <p className="mt-2 whitespace-nowrap text-xs text-slate-500">
-                      Próximo:{" "}
-                      {formatarData(lead.proximoContatoEm)}
-                    </p>
-
-                    <p className="mt-1 whitespace-nowrap text-xs text-slate-500">
-                      Último:{" "}
-                      {formatarData(lead.ultimoContatoEm)}
-                    </p>
-                  </td>
-
-                  <td className="px-5 py-4 align-top">
-                    <p className="whitespace-nowrap font-black text-slate-900">
-                      {formatarMoeda(lead.valorEstimado)}
-                    </p>
-                  </td>
-
-                  <td className="px-5 py-4 align-top">
-                    <p className="max-w-[150px] break-words text-sm font-semibold text-slate-700">
-                      {lead.origem}
-                    </p>
-
-                    <p className="mt-2 whitespace-nowrap text-xs text-slate-500">
-                      Criado em{" "}
-                      {formatarData(lead.createdAt)}
-                    </p>
-                  </td>
-
-                  <td className="px-5 py-4 text-right align-top">
-                    <button
-                      type="button"
-                      onClick={() => abrirEdicao(lead)}
-                      className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-800 transition hover:border-blue-500 hover:text-blue-700"
-                    >
-                      Detalhes
-                    </button>
-                  </td>
-                </tr>
-              );
-            })
-          )}
-        </tbody>
-      </table>
+      <span
+        className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-bold ${classeTipo(
+          lead.tipo
+        )}`}
+      >
+        {rotuloTipoLead(lead.tipo)}
+      </span>
     </div>
-  </div>
-)}
+  </td>
+
+  <td className="px-4 py-4 align-top">
+    <p
+      title={lead.instituicaoNome || ""}
+      className="max-w-[210px] font-semibold text-slate-800"
+    >
+      {lead.instituicaoNome ||
+        "Instituição não informada"}
+    </p>
+
+    <p className="mt-2 max-w-[210px] text-sm leading-5 text-slate-500">
+      {lead.interesse ||
+        "Interesse não informado"}
+    </p>
+
+    <p className="mt-2 max-w-[210px] text-xs text-slate-500">
+      Cargo:{" "}
+      {lead.cargo ||
+        "não informado"}
+    </p>
+  </td>
+
+  <td className="px-4 py-4 align-top">
+    <p className="max-w-[145px] font-semibold text-slate-800">
+      {lead.responsavelNome ||
+        "Sem responsável"}
+    </p>
+  </td>
+
+  <td className="px-4 py-4 align-top">
+    <div className="flex flex-col items-start gap-2">
+      <span
+        className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-black ${classeStatus(
+          lead.status
+        )}`}
+      >
+        {lead.status}
+      </span>
+
+      <span
+        className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-black ${classePrioridade(
+          lead.prioridade
+        )}`}
+      >
+        {lead.prioridade}
+      </span>
+    </div>
+  </td>
+
+  <td className="px-4 py-4 align-top">
+    <span
+      className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-black ${classeFollowUp(
+        lead
+      )}`}
+    >
+      {textoFollowUp(lead)}
+    </span>
+
+    <p className="mt-2 whitespace-nowrap text-xs text-slate-500">
+      Próximo:{" "}
+      {formatarData(lead.proximoContatoEm)}
+    </p>
+
+    <p className="mt-1 whitespace-nowrap text-xs text-slate-500">
+      Último:{" "}
+      {formatarData(lead.ultimoContatoEm)}
+    </p>
+  </td>
+
+  <td className="px-4 py-4 align-top">
+    <p className="whitespace-nowrap font-black text-slate-900">
+      {formatarMoeda(lead.valorEstimado)}
+    </p>
+
+    <p className="mt-2 whitespace-nowrap text-xs text-slate-500">
+      Criado em{" "}
+      {formatarData(lead.createdAt)}
+    </p>
+  </td>
+
+  <td className="sticky right-0 bg-white px-4 py-4 text-right align-top group-hover:bg-slate-50">
+    <button
+      type="button"
+      onClick={() => abrirEdicao(lead)}
+      className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-800 transition hover:border-blue-500 hover:text-blue-700"
+    >
+      Detalhes
+    </button>
+  </td>
+</tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
         {(criandoNovo || leadSelecionado) && (
           <div className="fixed inset-0 z-50 bg-slate-950/45 p-4">
