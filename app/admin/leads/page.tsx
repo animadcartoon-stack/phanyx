@@ -365,16 +365,16 @@ function FiltroSelect({
         aria-haspopup="listbox"
         aria-expanded={aberto}
         onClick={() => setAberto((atual) => !atual)}
-        className="flex min-h-[54px] w-full items-center justify-between gap-3 rounded-2xl border border-slate-300 bg-white px-4 py-3.5 text-left text-slate-900 outline-none transition hover:bg-slate-50 focus:border-slate-500 focus:ring-2 focus:ring-slate-300/40 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-900 dark:focus:border-slate-500 dark:focus:ring-slate-700/50"
+        className="flex min-h-[54px] w-full items-center justify-between gap-3 rounded-2xl border border-slate-300 !bg-white px-4 py-3.5 text-left font-semibold !text-slate-900 outline-none transition hover:!bg-slate-50 focus:border-slate-500 focus:ring-2 focus:ring-slate-300/50 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white dark:hover:!bg-slate-900"
       >
-        <span className="truncate">
+        <span className="truncate font-semibold !text-slate-900 dark:!text-white">
           {opcaoSelecionada?.label}
         </span>
 
         <span
           aria-hidden="true"
           className={[
-            "text-xs text-slate-500 transition-transform dark:text-slate-400",
+            "text-xs !text-slate-600 transition-transform dark:!text-slate-300",
             aberto ? "rotate-180" : "",
           ].join(" ")}
         >
@@ -386,7 +386,7 @@ function FiltroSelect({
         <div
           role="listbox"
           aria-label={ariaLabel}
-          className="absolute left-0 right-0 z-50 mt-2 max-h-72 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-1.5 shadow-2xl dark:border-slate-700 dark:bg-slate-900"
+          className="absolute left-0 right-0 z-50 mt-2 max-h-72 overflow-y-auto rounded-2xl border border-slate-200 !bg-white p-1.5 shadow-2xl dark:border-slate-700 dark:!bg-slate-900"
         >
           {options.map((option) => {
             const selecionada =
@@ -432,6 +432,11 @@ export default function AdminLeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
+
+  const [popupErro, setPopupErro] = useState<string | null>(
+    null
+  );
+
   const [busca, setBusca] = useState("");
   const [filtroOrigem, setFiltroOrigem] = useState("");
   const [filtroTipo, setFiltroTipo] = useState("");
@@ -630,6 +635,12 @@ export default function AdminLeadsPage() {
   }
 
   async function salvarLead() {
+    if (!form.nome.trim() || !form.email.trim()) {
+      setPopupErro(
+        "Preencha o nome e o e-mail do interessado antes de salvar."
+      );
+      return;
+    }
     try {
       setSalvando(true);
       setErro("");
@@ -702,7 +713,9 @@ export default function AdminLeadsPage() {
       await carregarLeads();
       fecharPainel();
     } catch (err: any) {
-      setErro(err?.message || "Não foi possível salvar o lead.");
+      setPopupErro(
+        err?.message || "Não foi possível salvar o lead."
+      );
     } finally {
       setSalvando(false);
     }
@@ -1227,74 +1240,23 @@ export default function AdminLeadsPage() {
 
               <div className="mt-8 grid gap-4 md:grid-cols-2">
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Responsável pelo lead
+                  <label className="mb-2 block text-sm font-semibold text-slate-800 dark:text-slate-200">
+                    Nome
                   </label>
 
-                  <select
-                    value={form.responsavelFuncionarioId}
+                  <input
+                    type="text"
+                    value={form.nome}
                     onChange={(e) =>
                       setForm({
                         ...form,
-                        responsavelFuncionarioId: e.target.value,
+                        nome: e.target.value,
                       })
                     }
-                    disabled={
-                      carregandoResponsaveis ||
-                      responsaveisLeads.length === 0
-                    }
-                    className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:disabled:bg-slate-900"
-                  >
-                    <option value="">
-                      Sem responsável definido
-                    </option>
-
-                    {responsaveisLeads.map((responsavel) => (
-                      <option
-                        key={responsavel.id}
-                        value={responsavel.id}
-                      >
-                        {responsavel.nome}
-                        {responsavel.cargo
-                          ? ` — ${responsavel.cargo}`
-                          : ""}
-                        {responsavel.departamento?.nome
-                          ? ` — ${responsavel.departamento.nome}`
-                          : ""}
-                      </option>
-                    ))}
-                  </select>
-
-                  {carregandoResponsaveis ? (
-                    <p className="mt-2 text-xs text-slate-500">
-                      Carregando funcionários ativos...
-                    </p>
-                  ) : null}
-
-                  {erroResponsaveis ? (
-                    <p className="mt-2 text-xs font-medium text-red-600 dark:text-red-400">
-                      {erroResponsaveis}
-                    </p>
-                  ) : null}
-
-                  {!carregandoResponsaveis &&
-                    !erroResponsaveis &&
-                    responsaveisLeads.length === 0 ? (
-                    <p className="mt-2 text-xs leading-5 text-slate-500">
-                      Nenhum funcionário institucional está disponível para
-                      atribuição. No CRM global da PHANYX, responsáveis antigos
-                      permanecem preservados como histórico.
-                    </p>
-                  ) : null}
-
-                  {!criandoNovo &&
-                    leadSelecionado?.responsavelNome &&
-                    !leadSelecionado.responsavelFuncionarioId ? (
-                    <p className="mt-2 text-xs leading-5 text-amber-700 dark:text-amber-300">
-                      Responsável registrado anteriormente:{" "}
-                      <strong>{leadSelecionado.responsavelNome}</strong>
-                    </p>
-                  ) : null}
+                    placeholder="Nome completo do interessado"
+                    autoComplete="name"
+                    className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
+                  />
                 </div>
 
                 <div>
@@ -1692,11 +1654,54 @@ export default function AdminLeadsPage() {
                     )}
                   </div>
                 )}
+
               </div>
             </div>
           </div>
         )}
       </div>
+
+      {popupErro && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/60 px-4 backdrop-blur-sm">
+          <div
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="titulo-popup-erro-lead"
+            className="w-full max-w-md rounded-3xl border border-red-200 bg-white p-6 shadow-2xl dark:border-red-900/70 dark:bg-slate-900"
+          >
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-100 text-2xl dark:bg-red-950/60">
+              ⚠️
+            </div>
+
+            <p className="mt-5 text-xs font-black uppercase tracking-[0.2em] text-red-600 dark:text-red-400">
+              Atenção
+            </p>
+
+            <h2
+              id="titulo-popup-erro-lead"
+              className="mt-2 text-2xl font-black text-slate-950 dark:text-white"
+            >
+              Não foi possível salvar o lead
+            </h2>
+
+            <p className="mt-3 text-sm leading-6 text-slate-700 dark:text-slate-300">
+              {popupErro}
+            </p>
+
+            <div className="mt-6 flex justify-end">
+              <button
+                type="button"
+                autoFocus
+                onClick={() => setPopupErro(null)}
+                className="rounded-2xl bg-blue-600 px-6 py-3 text-sm font-bold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
+              >
+                Entendi
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {leadParaExcluir && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 px-4 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-3xl border border-slate-700 bg-slate-900 p-6 shadow-2xl">
