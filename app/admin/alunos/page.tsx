@@ -121,6 +121,13 @@ type ConfirmacaoMenorCadastro = {
   camposPendentes: string[];
 } | null;
 
+type AlunoExistenteConversao = {
+  id: number;
+  nome: string;
+  statusAluno: string;
+  campo: string;
+} | null;
+
 type LeadParaConversao = {
   id: number;
   nome: string;
@@ -197,6 +204,11 @@ function AdminAlunosPage() {
   const [modalAvisoTipo, setModalAvisoTipo] = useState<"sucesso" | "erro">(
     "erro"
   );
+
+  const [
+  alunoExistenteConversao,
+  setAlunoExistenteConversao,
+] = useState<AlunoExistenteConversao>(null);
 
   const [
     confirmacaoMenorCadastro,
@@ -991,6 +1003,44 @@ function AdminAlunosPage() {
     }
   }
 
+  function continuarComAlunoExistente() {
+  if (
+    !alunoExistenteConversao ||
+    !leadParaConversao
+  ) {
+    return;
+  }
+
+  const params = new URLSearchParams();
+
+  params.set(
+    "alunoId",
+    String(alunoExistenteConversao.id)
+  );
+
+  params.set(
+    "leadId",
+    String(leadParaConversao.id)
+  );
+
+  if (
+    leadParaConversao.responsavelFuncionarioId
+  ) {
+    params.set(
+      "vendedorResponsavelId",
+      String(
+        leadParaConversao.responsavelFuncionarioId
+      )
+    );
+  }
+
+  setAlunoExistenteConversao(null);
+
+  router.push(
+    `/admin/matriculas?${params.toString()}`
+  );
+}
+
   async function executarCriacaoAluno(
     confirmacaoMenorCadastroAceita: boolean
   ) {
@@ -1069,6 +1119,50 @@ function AdminAlunosPage() {
         return;
       }
 
+      if (
+  data?.codigo === "ALUNO_EXISTENTE" &&
+  Number(data?.aluno?.id) > 0
+) {
+  if (!leadParaConversao) {
+    const mensagem =
+      data?.error ||
+      "Este aluno já está cadastrado.";
+
+    mostrarFeedback(
+      "erro",
+      mensagem
+    );
+
+    abrirModalAviso(
+      "erro",
+      "Aluno já cadastrado",
+      mensagem
+    );
+
+    return;
+  }
+
+  setAlunoExistenteConversao({
+    id: Number(data.aluno.id),
+
+    nome: String(
+      data.aluno.nome ||
+      "Aluno já cadastrado"
+    ),
+
+    statusAluno: String(
+      data.aluno.statusAluno ||
+      "ATIVO"
+    ),
+
+    campo: String(
+      data.campo || ""
+    ),
+  });
+
+  return;
+}
+
       if (data?.id) {
         setAlunos((prev) => [
           data,
@@ -1145,6 +1239,8 @@ window.scrollTo({
 });
 
     } catch (error: any) {
+
+
       const mensagem = error?.message || "Erro ao criar aluno";
       mostrarFeedback("erro", mensagem);
       abrirModalAviso("erro", "Erro ao criar aluno", mensagem);
@@ -4144,6 +4240,101 @@ window.scrollTo({
           </div>
         </div>
       )}
+
+      {alunoExistenteConversao && (
+  <div
+    className="fixed inset-0 z-[115] flex items-center justify-center bg-slate-950/60 p-4"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="titulo-aluno-existente"
+  >
+    <div className="w-full max-w-lg overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900">
+      <div className="p-6">
+        <div className="flex items-start gap-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-xl dark:bg-amber-950/50">
+            👤
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <h2
+              id="titulo-aluno-existente"
+              className="text-xl font-black text-slate-950 dark:text-white"
+            >
+              Aluno já cadastrado
+            </h2>
+
+            <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+              Já existe um cadastro para{" "}
+              <strong className="text-slate-900 dark:text-white">
+                {alunoExistenteConversao.nome}
+              </strong>
+              .
+            </p>
+
+            <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-700 dark:bg-slate-950">
+              <p className="text-slate-700 dark:text-slate-200">
+                Cadastro localizado por:{" "}
+                <strong>
+                  {alunoExistenteConversao.campo === "CPF"
+                    ? "CPF"
+                    : "e-mail"}
+                </strong>
+              </p>
+
+              <p className="mt-1 text-slate-700 dark:text-slate-200">
+                Status atual:{" "}
+                <strong>
+                  {alunoExistenteConversao.statusAluno}
+                </strong>
+              </p>
+            </div>
+
+            {alunoExistenteConversao.statusAluno ===
+            "ATIVO" ? (
+              <p className="mt-4 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                Você pode aproveitar este cadastro e continuar
+                diretamente para a matrícula, mantendo o
+                responsável comercial do lead.
+              </p>
+            ) : (
+              <div className="mt-4 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm leading-6 text-amber-950 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100">
+                Este aluno não está ativo. Reative o cadastro na
+                listagem de alunos antes de iniciar uma nova
+                matrícula.
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-6 py-5 dark:border-slate-700 dark:bg-slate-950 sm:flex-row sm:justify-end">
+        <button
+          type="button"
+          onClick={() =>
+            setAlunoExistenteConversao(null)
+          }
+          className="rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+        >
+          {alunoExistenteConversao.statusAluno ===
+          "ATIVO"
+            ? "Voltar ao cadastro"
+            : "Entendi"}
+        </button>
+
+        {alunoExistenteConversao.statusAluno ===
+          "ATIVO" && (
+          <button
+            type="button"
+            onClick={continuarComAlunoExistente}
+            className="rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-emerald-700"
+          >
+            Usar este aluno e continuar
+          </button>
+        )}
+      </div>
+    </div>
+  </div>
+)}
 
       {modalAvisoAberto && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/55 p-4">

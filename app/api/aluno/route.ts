@@ -499,15 +499,61 @@ if (
 }
 
     const userExistente = await prisma.user.findUnique({
-      where: { email },
-    });
+  where: {
+    email,
+  },
+  select: {
+    id: true,
+    instituicaoId: true,
 
-    if (userExistente) {
-      return NextResponse.json(
-        { error: "Email já cadastrado." },
-        { status: 400 }
-      );
-    }
+    aluno: {
+      select: {
+        id: true,
+        nome: true,
+        statusAluno: true,
+      },
+    },
+  },
+});
+
+if (userExistente) {
+  const alunoExistente =
+    userExistente.aluno;
+
+  const pertenceMesmaInstituicao =
+    userExistente.instituicaoId ===
+    user.instituicaoId;
+
+  if (
+    pertenceMesmaInstituicao &&
+    alunoExistente
+  ) {
+    return NextResponse.json(
+      {
+        codigo: "ALUNO_EXISTENTE",
+        error:
+          "Já existe um aluno com este e-mail nesta instituição.",
+        campo: "EMAIL",
+
+        aluno: {
+          id: alunoExistente.id,
+          nome: alunoExistente.nome,
+          statusAluno:
+            alunoExistente.statusAluno,
+        },
+      },
+      { status: 409 }
+    );
+  }
+
+  return NextResponse.json(
+    {
+      error:
+        "Este e-mail já está cadastrado no PHANYX.",
+    },
+    { status: 400 }
+  );
+}
 
     if (matriculaInformada) {
       const matriculaExistente = await prisma.aluno.findFirst({
@@ -527,20 +573,39 @@ if (
     }
 
     if (cpf) {
-      const cpfExistente = await prisma.aluno.findFirst({
-        where: {
-          instituicaoId: user.instituicaoId,
-          cpf,
-        },
-        select: { id: true, nome: true },
-      });
+      const cpfExistente =
+  await prisma.aluno.findFirst({
+    where: {
+      instituicaoId:
+        user.instituicaoId,
+      cpf,
+    },
 
-      if (cpfExistente) {
-        return NextResponse.json(
-          { error: "Já existe um aluno com este CPF nesta instituição." },
-          { status: 400 }
-        );
-      }
+    select: {
+      id: true,
+      nome: true,
+      statusAluno: true,
+    },
+  });
+
+if (cpfExistente) {
+  return NextResponse.json(
+    {
+      codigo: "ALUNO_EXISTENTE",
+      error:
+        "Já existe um aluno com este CPF nesta instituição.",
+      campo: "CPF",
+
+      aluno: {
+        id: cpfExistente.id,
+        nome: cpfExistente.nome,
+        statusAluno:
+          cpfExistente.statusAluno,
+      },
+    },
+    { status: 409 }
+  );
+}
     }
 
     if (poloId !== null) {
