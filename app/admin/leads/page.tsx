@@ -1181,33 +1181,33 @@ export default function AdminLeadsPage() {
               <table className="w-full table-fixed border-collapse text-left">
                 <thead className="bg-slate-100">
                   <tr className="border-b border-slate-200">
-                   <th className="w-[22%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
-  Lead e contato
-</th>
+                    <th className="w-[20%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
+                      Lead e contato
+                    </th>
 
-<th className="w-[20%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
-  Instituição e interesse
-</th>
+                    <th className="w-[19%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
+                      Instituição e interesse
+                    </th>
 
-<th className="w-[14%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
-  Responsável
-</th>
+                    <th className="w-[14%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
+                      Responsável
+                    </th>
 
-<th className="w-[11%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
-  Etapa
-</th>
+                    <th className="w-[11%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
+                      Etapa
+                    </th>
 
-<th className="w-[15%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
-  Follow-up
-</th>
+                    <th className="w-[15%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
+                      Follow-up
+                    </th>
 
-<th className="w-[10%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
-  Valor
-</th>
+                    <th className="w-[10%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
+                      Valor
+                    </th>
 
-<th className="w-[8%] bg-slate-100 px-3 py-4 text-right text-xs font-black uppercase tracking-wide text-slate-600">
-  Ações
-</th>
+                    <th className="sticky right-0 z-20 w-[11%] bg-slate-100 px-3 py-4 text-center text-xs font-black uppercase tracking-wide text-slate-600">
+                      Ações
+                    </th>
                   </tr>
                 </thead>
 
@@ -1233,144 +1233,144 @@ export default function AdminLeadsPage() {
 
                       return (
                         <tr
-  key={lead.id}
-  className="group transition hover:bg-slate-50"
->
-  <td className="px-4 py-4 align-top">
-    <button
-      type="button"
-      onClick={() => abrirEdicao(lead)}
-      className="max-w-[220px] text-left text-base font-black text-slate-900 transition hover:text-blue-700"
-    >
-      {lead.nome}
-    </button>
+                          key={lead.id}
+                          className="group transition hover:bg-slate-50"
+                        >
+                          <td className="px-4 py-4 align-top">
+                            <button
+                              type="button"
+                              onClick={() => abrirEdicao(lead)}
+                              className="max-w-[220px] text-left text-base font-black text-slate-900 transition hover:text-blue-700"
+                            >
+                              {lead.nome}
+                            </button>
 
-    <p
-      title={lead.email}
-      className="mt-2 max-w-[220px] truncate text-sm text-slate-600"
-    >
-      {lead.email}
-    </p>
+                            <p
+                              title={lead.email}
+                              className="mt-2 max-w-[220px] truncate text-sm text-slate-600"
+                            >
+                              {lead.email}
+                            </p>
 
-    <p className="mt-1 text-sm text-slate-500">
-      {lead.telefone || "Telefone não informado"}
-    </p>
+                            <p className="mt-1 text-sm text-slate-500">
+                              {lead.telefone || "Telefone não informado"}
+                            </p>
 
-    <p
-      title={lead.origem}
-      className="mt-2 max-w-[220px] truncate text-xs font-semibold text-slate-500"
-    >
-      Origem: {lead.origem}
-    </p>
+                            <p
+                              title={lead.origem}
+                              className="mt-2 max-w-[220px] truncate text-xs font-semibold text-slate-500"
+                            >
+                              Origem: {lead.origem}
+                            </p>
 
-    <div className="mt-3 flex flex-wrap gap-2">
-      <span
-        className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-bold ${classeScore(
-          score
-        )}`}
-      >
-        Score {score} · {rotuloScore(score)}
-      </span>
+                            <div className="mt-3 flex flex-wrap gap-2">
+                              <span
+                                className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-bold ${classeScore(
+                                  score
+                                )}`}
+                              >
+                                Score {score} · {rotuloScore(score)}
+                              </span>
 
-      <span
-        className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-bold ${classeTipo(
-          lead.tipo
-        )}`}
-      >
-        {rotuloTipoLead(lead.tipo)}
-      </span>
-    </div>
-  </td>
+                              <span
+                                className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-bold ${classeTipo(
+                                  lead.tipo
+                                )}`}
+                              >
+                                {rotuloTipoLead(lead.tipo)}
+                              </span>
+                            </div>
+                          </td>
 
-  <td className="px-4 py-4 align-top">
-    <p
-      title={lead.instituicaoNome || ""}
-      className="max-w-[210px] font-semibold text-slate-800"
-    >
-      {lead.instituicaoNome ||
-        "Instituição não informada"}
-    </p>
+                          <td className="px-4 py-4 align-top">
+                            <p
+                              title={lead.instituicaoNome || ""}
+                              className="max-w-[210px] font-semibold text-slate-800"
+                            >
+                              {lead.instituicaoNome ||
+                                "Instituição não informada"}
+                            </p>
 
-    <p className="mt-2 max-w-[210px] text-sm leading-5 text-slate-500">
-      {lead.interesse ||
-        "Interesse não informado"}
-    </p>
+                            <p className="mt-2 max-w-[210px] text-sm leading-5 text-slate-500">
+                              {lead.interesse ||
+                                "Interesse não informado"}
+                            </p>
 
-    <p className="mt-2 max-w-[210px] text-xs text-slate-500">
-      Cargo:{" "}
-      {lead.cargo ||
-        "não informado"}
-    </p>
-  </td>
+                            <p className="mt-2 max-w-[210px] text-xs text-slate-500">
+                              Cargo:{" "}
+                              {lead.cargo ||
+                                "não informado"}
+                            </p>
+                          </td>
 
-  <td className="px-4 py-4 align-top">
-    <p className="max-w-[145px] font-semibold text-slate-800">
-      {lead.responsavelNome ||
-        "Sem responsável"}
-    </p>
-  </td>
+                          <td className="px-4 py-4 align-top">
+                            <p className="max-w-[145px] font-semibold text-slate-800">
+                              {lead.responsavelNome ||
+                                "Sem responsável"}
+                            </p>
+                          </td>
 
-  <td className="px-4 py-4 align-top">
-    <div className="flex flex-col items-start gap-2">
-      <span
-        className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-black ${classeStatus(
-          lead.status
-        )}`}
-      >
-        {lead.status}
-      </span>
+                          <td className="px-4 py-4 align-top">
+                            <div className="flex flex-col items-start gap-2">
+                              <span
+                                className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-black ${classeStatus(
+                                  lead.status
+                                )}`}
+                              >
+                                {lead.status}
+                              </span>
 
-      <span
-        className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-black ${classePrioridade(
-          lead.prioridade
-        )}`}
-      >
-        {lead.prioridade}
-      </span>
-    </div>
-  </td>
+                              <span
+                                className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-black ${classePrioridade(
+                                  lead.prioridade
+                                )}`}
+                              >
+                                {lead.prioridade}
+                              </span>
+                            </div>
+                          </td>
 
-  <td className="px-4 py-4 align-top">
-    <span
-      className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-black ${classeFollowUp(
-        lead
-      )}`}
-    >
-      {textoFollowUp(lead)}
-    </span>
+                          <td className="px-4 py-4 align-top">
+                            <span
+                              className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-black ${classeFollowUp(
+                                lead
+                              )}`}
+                            >
+                              {textoFollowUp(lead)}
+                            </span>
 
-    <p className="mt-2 whitespace-nowrap text-xs text-slate-500">
-      Próximo:{" "}
-      {formatarData(lead.proximoContatoEm)}
-    </p>
+                            <p className="mt-2 whitespace-nowrap text-xs text-slate-500">
+                              Próximo:{" "}
+                              {formatarData(lead.proximoContatoEm)}
+                            </p>
 
-    <p className="mt-1 whitespace-nowrap text-xs text-slate-500">
-      Último:{" "}
-      {formatarData(lead.ultimoContatoEm)}
-    </p>
-  </td>
+                            <p className="mt-1 whitespace-nowrap text-xs text-slate-500">
+                              Último:{" "}
+                              {formatarData(lead.ultimoContatoEm)}
+                            </p>
+                          </td>
 
-  <td className="px-4 py-4 align-top">
-    <p className="whitespace-nowrap font-black text-slate-900">
-      {formatarMoeda(lead.valorEstimado)}
-    </p>
+                          <td className="px-4 py-4 align-top">
+                            <p className="whitespace-nowrap font-black text-slate-900">
+                              {formatarMoeda(lead.valorEstimado)}
+                            </p>
 
-    <p className="mt-2 text-xs leading-5 text-slate-500">
-      Criado em{" "}
-      {formatarData(lead.createdAt)}
-    </p>
-  </td>
+                            <p className="mt-2 text-xs leading-5 text-slate-500">
+                              Criado em{" "}
+                              {formatarData(lead.createdAt)}
+                            </p>
+                          </td>
 
-  <td className="bg-white px-3 py-4 text-right align-top group-hover:bg-slate-50">
-    <button
-      type="button"
-      onClick={() => abrirEdicao(lead)}
-      className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-800 transition hover:border-blue-500 hover:text-blue-700"
-    >
-      Detalhes
-    </button>
-  </td>
-</tr>
+                          <td className="sticky right-0 z-10 bg-white px-3 py-4 text-center align-top group-hover:bg-slate-50">
+                            <button
+                              type="button"
+                              onClick={() => abrirEdicao(lead)}
+                              className="inline-flex w-full min-w-[82px] items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-800 transition hover:border-blue-500 hover:text-blue-700"
+                            >
+                              Detalhes
+                            </button>
+                          </td>
+                        </tr>
                       );
                     })
                   )}
