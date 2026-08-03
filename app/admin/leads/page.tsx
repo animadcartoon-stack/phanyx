@@ -365,16 +365,16 @@ function FiltroSelect({
         aria-haspopup="listbox"
         aria-expanded={aberto}
         onClick={() => setAberto((atual) => !atual)}
-        className="flex min-h-[54px] w-full items-center justify-between gap-3 rounded-2xl border border-slate-300 !bg-white px-4 py-3.5 text-left font-semibold !text-slate-900 outline-none transition hover:!bg-slate-50 focus:border-slate-500 focus:ring-2 focus:ring-slate-300/50 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white dark:hover:!bg-slate-900"
+        className="phanyx-leads-filter-trigger flex min-h-[54px] w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3.5 text-left font-semibold outline-none transition"
       >
-        <span className="truncate font-semibold !text-slate-900 dark:!text-white">
+        <span className="phanyx-leads-filter-label truncate font-semibold">
           {opcaoSelecionada?.label}
         </span>
 
         <span
           aria-hidden="true"
           className={[
-            "text-xs !text-slate-600 transition-transform dark:!text-slate-300",
+            "phanyx-leads-filter-arrow text-xs transition-transform",
             aberto ? "rotate-180" : "",
           ].join(" ")}
         >
@@ -386,7 +386,7 @@ function FiltroSelect({
         <div
           role="listbox"
           aria-label={ariaLabel}
-          className="absolute left-0 right-0 z-50 mt-2 max-h-72 overflow-y-auto rounded-2xl border border-slate-200 !bg-white p-1.5 shadow-2xl dark:border-slate-700 dark:!bg-slate-900"
+          className="phanyx-leads-filter-menu absolute left-0 right-0 z-50 mt-2 max-h-72 overflow-y-auto rounded-2xl border p-1.5 shadow-2xl"
         >
           {options.map((option) => {
             const selecionada =
@@ -403,10 +403,8 @@ function FiltroSelect({
                   setAberto(false);
                 }}
                 className={[
-                  "flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition",
-                  selecionada
-                    ? "bg-slate-200 font-bold text-slate-950 dark:bg-slate-700 dark:text-white"
-                    : "text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800",
+                  "phanyx-leads-filter-option flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition",
+                  selecionada ? "is-selected font-bold" : "",
                 ].join(" ")}
               >
                 <span>{option.label}</span>
@@ -414,7 +412,7 @@ function FiltroSelect({
                 {selecionada ? (
                   <span
                     aria-hidden="true"
-                    className="font-black text-slate-700 dark:text-slate-200"
+                    className="phanyx-leads-filter-check font-black"
                   >
                     ✓
                   </span>
@@ -884,7 +882,7 @@ export default function AdminLeadsPage() {
   }, [leads]);
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6 md:p-8">
+    <div className="phanyx-leads-page min-h-screen bg-slate-50 p-6 md:p-8">
       <div className="mx-auto max-w-[1700px]">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div>
@@ -958,11 +956,11 @@ export default function AdminLeadsPage() {
           </div>
         </div>
 
-        <div className="mt-6 rounded-3xl border border-blue-200 bg-blue-50 px-5 py-4 shadow-sm">
-          <p className="font-bold text-sky-300">
+        <div className="phanyx-leads-info-card mt-6 rounded-3xl border px-5 py-4 shadow-sm">
+          <p className="phanyx-leads-info-title font-bold">
             Leitura do CRM
           </p>
-          <p className="mt-1 text-sm leading-6 text-slate-300">
+          <p className="phanyx-leads-info-text mt-1 text-sm leading-6">
             Este painel acompanha oportunidades comerciais e follow-ups de leads.
             Pagamentos reais via Asaas, matrículas do Bacharel Livre em Teologia e
             compras de recursos como IA aparecem no Painel Master, não no CRM de leads.
