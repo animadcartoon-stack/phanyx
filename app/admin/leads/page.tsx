@@ -52,6 +52,15 @@ type ResponsavelLead = {
   possuiAcessoAoSistema: boolean;
 };
 
+type UsuarioContexto = {
+  id?: number;
+  nome?: string | null;
+  email?: string;
+  role?: string;
+  instituicaoId?: number | null;
+  isMasterAdmin?: boolean;
+};
+
 type LeadForm = {
   nome: string;
   email: string;
@@ -431,6 +440,16 @@ export default function AdminLeadsPage() {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
 
+  const [usuarioContexto, setUsuarioContexto] =
+    useState<UsuarioContexto | null>(null);
+
+  const [carregandoContexto, setCarregandoContexto] =
+    useState(true);
+
+  const ehCrmGlobalPhanyx =
+    usuarioContexto?.isMasterAdmin === true &&
+    !usuarioContexto?.instituicaoId;
+
   const [popupErro, setPopupErro] = useState<string | null>(
     null
   );
@@ -461,6 +480,46 @@ export default function AdminLeadsPage() {
   const [novaInteracao, setNovaInteracao] = useState("");
   const [tipoInteracao, setTipoInteracao] = useState("WHATSAPP");
   const [salvandoInteracao, setSalvandoInteracao] = useState(false);
+
+  async function carregarContextoUsuario() {
+    try {
+      setCarregandoContexto(true);
+
+      const res = await fetch("/api/auth/me", {
+        cache: "no-store",
+        credentials: "include",
+      });
+
+      const contentType =
+        res.headers.get("content-type") || "";
+
+      if (!contentType.includes("application/json")) {
+        throw new Error(
+          "Não foi possível identificar o contexto do usuário."
+        );
+      }
+
+      const json = await res.json();
+
+      if (!res.ok || !json?.user) {
+        throw new Error(
+          json?.error ||
+          "Não foi possível identificar o usuário autenticado."
+        );
+      }
+
+      setUsuarioContexto(json.user);
+    } catch (err: any) {
+      setUsuarioContexto(null);
+
+      setErro(
+        err?.message ||
+        "Não foi possível identificar o contexto do CRM."
+      );
+    } finally {
+      setCarregandoContexto(false);
+    }
+  }
 
   async function carregarResponsaveisLeads() {
     try {
@@ -568,6 +627,7 @@ export default function AdminLeadsPage() {
   }
 
   useEffect(() => {
+    carregarContextoUsuario();
     carregarResponsaveisLeads();
   }, []);
 
@@ -585,7 +645,17 @@ export default function AdminLeadsPage() {
     setInteracoes([]);
     setNovaInteracao("");
     setTipoInteracao("WHATSAPP");
-    setForm(FORM_INICIAL);
+    setForm({
+      ...FORM_INICIAL,
+      origem: ehCrmGlobalPhanyx
+        ? "SITE_PHANYX"
+        : "ADMIN_MANUAL",
+      tipo: ehCrmGlobalPhanyx
+        ? "PHANYX"
+        : "INSTITUICAO",
+      instituicaoId: "",
+      responsavelFuncionarioId: "",
+    });
   }
 
   async function abrirEdicao(lead: Lead) {
@@ -645,16 +715,17 @@ export default function AdminLeadsPage() {
 
       const {
         responsavelFuncionarioId,
+        instituicaoId,
+        tipo: _tipoInformadoNaTela,
         ...demaisCampos
       } = form;
 
       const payload = {
         ...demaisCampos,
 
-        instituicaoId:
-          form.instituicaoId === ""
-            ? null
-            : Number(form.instituicaoId),
+        tipo: ehCrmGlobalPhanyx
+          ? "PHANYX"
+          : "INSTITUICAO",
 
         valorEstimado:
           form.valorEstimado === ""
@@ -667,12 +738,16 @@ export default function AdminLeadsPage() {
         ultimoContatoEm:
           form.ultimoContatoEm || null,
 
-        /*
-         * O CRM global da PHANYX não recebe funcionário
-         * institucional. Quando a lista está vazia, o campo
-         * é omitido para preservar responsáveis legados.
-         */
-        ...(responsaveisLeads.length > 0
+        ...(ehCrmGlobalPhanyx
+          ? {
+            instituicaoId:
+              instituicaoId === ""
+                ? null
+                : Number(instituicaoId),
+          }
+          : {}),
+
+        ...(!ehCrmGlobalPhanyx
           ? {
             responsavelFuncionarioId:
               responsavelFuncionarioId === ""
@@ -887,23 +962,32 @@ export default function AdminLeadsPage() {
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.22em] text-blue-700">
-              CRM Comercial
+              {ehCrmGlobalPhanyx
+                ? "CRM Comercial PHANYX"
+                : "Comercial da instituição"}
             </p>
+
             <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 md:text-5xl">
-              Painel de Leads PHANYX
+              {ehCrmGlobalPhanyx
+                ? "Painel de Leads PHANYX"
+                : "Leads e oportunidades"}
             </h1>
+
             <p className="mt-4 max-w-4xl text-lg leading-8 text-slate-600">
-              Gerencie os leads comerciais da PHANYX e, futuramente, os leads internos
-              das instituições que aderirem à plataforma. Organize o funil, mova etapas
-              e acompanhe oportunidades com visão estratégica.
+              {ehCrmGlobalPhanyx
+                ? "Gerencie os interessados na plataforma PHANYX, acompanhe contatos, propostas e oportunidades comerciais."
+                : "Cadastre interessados, distribua leads entre os responsáveis comerciais e acompanhe cada oportunidade até a conversão em matrícula."}
             </p>
           </div>
 
           <button
+            disabled={carregandoContexto}
             type="button"
             onClick={abrirNovoLead}
             className="phanyx-btn-primary min-h-[56px] w-full whitespace-nowrap px-8 text-base sm:w-auto"          >
-            Novo lead manual
+            {carregandoContexto
+              ? "Carregando..."
+              : "Novo lead manual"}
           </button>
         </div>
 
@@ -968,7 +1052,14 @@ export default function AdminLeadsPage() {
         </div>
 
         <div className="mt-6 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
-          <div className="grid gap-4 lg:grid-cols-[1fr_220px_250px_220px]">
+          <div
+            className={[
+              "grid gap-4",
+              ehCrmGlobalPhanyx
+                ? "lg:grid-cols-[1fr_220px_250px_220px]"
+                : "lg:grid-cols-[1fr_220px_220px]",
+            ].join(" ")}
+          >
             <input
               type="text"
               value={busca}
@@ -993,25 +1084,27 @@ export default function AdminLeadsPage() {
               ]}
             />
 
-            <FiltroSelect
-              ariaLabel="Filtrar leads por tipo"
-              value={filtroTipo}
-              onChange={setFiltroTipo}
-              options={[
-                {
-                  value: "",
-                  label: "Todos os tipos",
-                },
-                {
-                  value: "PHANYX",
-                  label: "Leads PHANYX (CRM comercial)",
-                },
-                {
-                  value: "INSTITUICAO",
-                  label: "Leads das instituições",
-                },
-              ]}
-            />
+            {ehCrmGlobalPhanyx && (
+              <FiltroSelect
+                ariaLabel="Filtrar leads por tipo"
+                value={filtroTipo}
+                onChange={setFiltroTipo}
+                options={[
+                  {
+                    value: "",
+                    label: "Todos os tipos",
+                  },
+                  {
+                    value: "PHANYX",
+                    label: "Leads PHANYX (CRM comercial)",
+                  },
+                  {
+                    value: "INSTITUICAO",
+                    label: "Leads das instituições",
+                  },
+                ]}
+              />
+            )}
 
             <FiltroSelect
               ariaLabel="Filtrar leads por situação do follow-up"
@@ -1215,8 +1308,9 @@ export default function AdminLeadsPage() {
 
                   {criandoNovo ? (
                     <p className="mt-2 text-sm text-slate-500">
-                      O cadastro manual inicia por padrão como lead <strong>PHANYX</strong>, mas
-                      você pode alterar para <strong>INSTITUICAO</strong> no formulário.
+                      {ehCrmGlobalPhanyx
+                        ? "Este lead será registrado no CRM comercial global da PHANYX."
+                        : "Este lead será registrado automaticamente no CRM desta instituição."}
                     </p>
                   ) : null}
 
@@ -1292,18 +1386,20 @@ export default function AdminLeadsPage() {
                   />
                 </div>
 
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    ID da instituição
-                  </label>
-                  <input
-                    value={form.instituicaoId}
-                    onChange={(e) =>
-                      setForm({ ...form, instituicaoId: e.target.value })
-                    }
-                    className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
-                  />
-                </div>
+                {ehCrmGlobalPhanyx && (
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                      ID da instituição
+                    </label>
+                    <input
+                      value={form.instituicaoId}
+                      onChange={(e) =>
+                        setForm({ ...form, instituicaoId: e.target.value })
+                      }
+                      className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
+                    />
+                  </div>
+                )}
 
                 <div>
                   <label className="mb-2 block text-sm font-medium text-slate-700">
@@ -1329,22 +1425,18 @@ export default function AdminLeadsPage() {
 
                 <div>
                   <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Tipo
+                    Contexto do lead
                   </label>
-                  <select
-                    value={form.tipo}
-                    onChange={(e) => setForm({ ...form, tipo: e.target.value })}
-                    className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
-                  >
-                    {TIPO_OPTIONS.map((item) => (
-                      <option key={item} value={item}>
-                        {item}
-                      </option>
-                    ))}
-                  </select>
+
+                  <div className="rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
+                    {ehCrmGlobalPhanyx
+                      ? "PHANYX — CRM comercial global"
+                      : "INSTITUIÇÃO — CRM comercial interno"}
+                  </div>
+
                   <p className="mt-2 text-xs leading-5 text-slate-500">
-                    Use <strong>PHANYX</strong> para oportunidades comerciais da plataforma e{" "}
-                    <strong>INSTITUICAO</strong> para leads internos da instituição.
+                    Este contexto é definido automaticamente pelo usuário autenticado e
+                    não pode ser alterado manualmente.
                   </p>
                 </div>
 
