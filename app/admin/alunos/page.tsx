@@ -1085,79 +1085,97 @@ function AdminAlunosPage() {
 
       const data = await res.json();
 
-      if (!res.ok) {
-        if (
-          data?.codigo ===
-          "CONFIRMACAO_MENOR_CADASTRO_NECESSARIA"
-        ) {
-          setConfirmacaoMenorCadastro({
-            idade: Number(
-              data.idade || 0
-            ),
+if (!res.ok) {
+  if (
+    data?.codigo ===
+    "CONFIRMACAO_MENOR_CADASTRO_NECESSARIA"
+  ) {
+    setConfirmacaoMenorCadastro({
+      idade: Number(data.idade || 0),
 
-            responsavelIncompleto:
-              data.responsavelIncompleto ===
-              true,
+      responsavelIncompleto:
+        data.responsavelIncompleto === true,
 
-            camposPendentes:
-              Array.isArray(
-                data.camposResponsavelPendentes
-              )
-                ? data.camposResponsavelPendentes
-                : [],
-          });
+      camposPendentes: Array.isArray(
+        data.camposResponsavelPendentes
+      )
+        ? data.camposResponsavelPendentes
+        : [],
+    });
 
-          setCienteMenorCadastro(false);
-          tocarSomAtencao();
-
-          return;
-        }
-        const mensagem = data?.error || data?.detalhe || "Erro ao criar aluno";
-        mostrarFeedback("erro", mensagem);
-        abrirModalAviso("erro", "Não foi possível criar", mensagem);
-        window.scrollTo({ top: 0, behavior: "smooth" });
-        return;
-      }
-
-      if (
-  data?.codigo === "ALUNO_EXISTENTE" &&
-  Number(data?.aluno?.id) > 0
-) {
-  if (!leadParaConversao) {
-    const mensagem =
-      data?.error ||
-      "Este aluno já está cadastrado.";
-
-    mostrarFeedback(
-      "erro",
-      mensagem
-    );
-
-    abrirModalAviso(
-      "erro",
-      "Aluno já cadastrado",
-      mensagem
-    );
+    setCienteMenorCadastro(false);
+    tocarSomAtencao();
 
     return;
   }
 
-  setAlunoExistenteConversao({
-    id: Number(data.aluno.id),
+  if (
+    data?.codigo === "ALUNO_EXISTENTE" &&
+    Number(data?.aluno?.id) > 0
+  ) {
+    if (!leadParaConversao) {
+      const mensagem =
+        data?.error ||
+        "Este aluno já está cadastrado.";
 
-    nome: String(
-      data.aluno.nome ||
-      "Aluno já cadastrado"
-    ),
+      mostrarFeedback(
+        "erro",
+        mensagem
+      );
 
-    statusAluno: String(
-      data.aluno.statusAluno ||
-      "ATIVO"
-    ),
+      abrirModalAviso(
+        "erro",
+        "Aluno já cadastrado",
+        mensagem
+      );
 
-    campo: String(
-      data.campo || ""
-    ),
+      return;
+    }
+
+    setModalAvisoAberto(false);
+    setFeedback("");
+    setFeedbackTipo("");
+
+    setAlunoExistenteConversao({
+      id: Number(data.aluno.id),
+
+      nome: String(
+        data.aluno.nome ||
+          "Aluno já cadastrado"
+      ),
+
+      statusAluno: String(
+        data.aluno.statusAluno ||
+          "ATIVO"
+      ),
+
+      campo: String(
+        data.campo || ""
+      ),
+    });
+
+    return;
+  }
+
+  const mensagem =
+    data?.error ||
+    data?.detalhe ||
+    "Erro ao criar aluno";
+
+  mostrarFeedback(
+    "erro",
+    mensagem
+  );
+
+  abrirModalAviso(
+    "erro",
+    "Não foi possível criar",
+    mensagem
+  );
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
   });
 
   return;
