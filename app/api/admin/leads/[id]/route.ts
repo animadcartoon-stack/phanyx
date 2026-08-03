@@ -441,23 +441,11 @@ export async function PATCH(
       data.proximoContatoEm = proximoContatoEm.valor;
     }
 
-    if (campoFoiInformado(body, "ultimoContatoEm")) {
-      const ultimoContatoEm = lerDataOpcional(
-        body.ultimoContatoEm
-      );
-
-      if (!ultimoContatoEm.valido) {
-        return NextResponse.json(
-          {
-            error:
-              "A data do último contato é inválida.",
-          },
-          { status: 400 }
-        );
-      }
-
-      data.ultimoContatoEm = ultimoContatoEm.valor;
-    }
+    /*
+ * ultimoContatoEm é controlado exclusivamente pelo sistema.
+ * Ele é atualizado quando uma interação comercial é registrada
+ * e não pode ser alterado manualmente pela edição do lead.
+ */
 
     if (
       campoFoiInformado(
