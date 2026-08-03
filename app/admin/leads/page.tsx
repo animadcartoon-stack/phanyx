@@ -1337,7 +1337,7 @@ export default function AdminLeadsPage() {
 
               <div className="mt-8 grid gap-4 md:grid-cols-2">
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-800 dark:text-slate-200">
+                  <label className="mb-2 block text-sm font-medium text-slate-700">
                     Nome
                   </label>
 
