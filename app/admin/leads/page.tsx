@@ -469,6 +469,9 @@ export default function AdminLeadsPage() {
   const [busca, setBusca] = useState("");
   const [filtroOrigem, setFiltroOrigem] = useState("");
   const [filtroTipo, setFiltroTipo] = useState("");
+  const [filtroStatus, setFiltroStatus] = useState("");
+  const [filtroPrioridade, setFiltroPrioridade] = useState("");
+  const [filtroResponsavel, setFiltroResponsavel] = useState("");
   const [filtroFollowUp, setFiltroFollowUp] = useState("");
   const [leadSelecionado, setLeadSelecionado] = useState<Lead | null>(null);
   const [leadParaExcluir, setLeadParaExcluir] = useState<Lead | null>(null);
@@ -920,15 +923,54 @@ export default function AdminLeadsPage() {
     let base = [...leads];
 
     if (filtroTipo) {
-      base = base.filter((lead) => lead.tipo === filtroTipo);
+      base = base.filter(
+        (lead) => lead.tipo === filtroTipo
+      );
+    }
+
+    if (filtroStatus) {
+      base = base.filter(
+        (lead) => lead.status === filtroStatus
+      );
+    }
+
+    if (filtroPrioridade) {
+      base = base.filter(
+        (lead) => lead.prioridade === filtroPrioridade
+      );
+    }
+
+    if (filtroResponsavel) {
+      if (filtroResponsavel === "SEM_RESPONSAVEL") {
+        base = base.filter(
+          (lead) => !lead.responsavelFuncionarioId
+        );
+      } else {
+        base = base.filter(
+          (lead) =>
+            String(
+              lead.responsavelFuncionarioId || ""
+            ) === filtroResponsavel
+        );
+      }
     }
 
     if (filtroFollowUp) {
-      base = base.filter((lead) => classificarFollowUp(lead) === filtroFollowUp);
+      base = base.filter(
+        (lead) =>
+          classificarFollowUp(lead) === filtroFollowUp
+      );
     }
 
     return ordenarLeads(base);
-  }, [leads, filtroTipo, filtroFollowUp]);
+  }, [
+    leads,
+    filtroTipo,
+    filtroStatus,
+    filtroPrioridade,
+    filtroResponsavel,
+    filtroFollowUp,
+  ]);
 
   const metricas = useMemo(() => {
     return {
@@ -1058,92 +1100,161 @@ export default function AdminLeadsPage() {
         </div>
 
         <div className="mt-6 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
-          <div
-            className={[
-              "grid gap-4",
-              ehCrmGlobalPhanyx
-                ? "lg:grid-cols-[1fr_220px_250px_220px]"
-                : "lg:grid-cols-[1fr_220px_220px]",
-            ].join(" ")}
-          >
-            <input
-              type="text"
-              value={busca}
-              onChange={(e) => setBusca(e.target.value)}
-              placeholder="Buscar por nome, e-mail, telefone, instituição, interesse, responsável ou observação"
-              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3.5 outline-none transition focus:border-blue-500"
-            />
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
+  <input
+    type="text"
+    value={busca}
+    onChange={(e) => setBusca(e.target.value)}
+    placeholder="Busca inteligente: nome, e-mail, telefone, instituição, interesse, responsável ou observação"
+    className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3.5 outline-none transition focus:border-blue-500 md:col-span-2 xl:col-span-3 2xl:col-span-2"
+  />
 
-            <FiltroSelect
-              ariaLabel="Filtrar leads por origem"
-              value={filtroOrigem}
-              onChange={setFiltroOrigem}
-              options={[
-                {
-                  value: "",
-                  label: "Todas as origens",
-                },
-                ...origensDisponiveis.map((origem) => ({
-                  value: origem,
-                  label: origem,
-                })),
-              ]}
-            />
+  <FiltroSelect
+    ariaLabel="Filtrar leads por origem"
+    value={filtroOrigem}
+    onChange={setFiltroOrigem}
+    options={[
+      {
+        value: "",
+        label: "Todas as origens",
+      },
+      ...origensDisponiveis.map((origem) => ({
+        value: origem,
+        label: origem,
+      })),
+    ]}
+  />
 
-            {ehCrmGlobalPhanyx && (
-              <FiltroSelect
-                ariaLabel="Filtrar leads por tipo"
-                value={filtroTipo}
-                onChange={setFiltroTipo}
-                options={[
-                  {
-                    value: "",
-                    label: "Todos os tipos",
-                  },
-                  {
-                    value: "PHANYX",
-                    label: "Leads PHANYX (CRM comercial)",
-                  },
-                  {
-                    value: "INSTITUICAO",
-                    label: "Leads das instituições",
-                  },
-                ]}
-              />
-            )}
+  <FiltroSelect
+    ariaLabel="Filtrar leads por status"
+    value={filtroStatus}
+    onChange={setFiltroStatus}
+    options={[
+      {
+        value: "",
+        label: "Todos os status",
+      },
+      {
+        value: "NOVO",
+        label: "Novo",
+      },
+      {
+        value: "CONTATO",
+        label: "Em contato",
+      },
+      {
+        value: "PROPOSTA",
+        label: "Proposta",
+      },
+      {
+        value: "FECHADO",
+        label: "Fechado",
+      },
+      {
+        value: "PERDIDO",
+        label: "Perdido",
+      },
+    ]}
+  />
 
-            <FiltroSelect
-              ariaLabel="Filtrar leads por situação do follow-up"
-              value={filtroFollowUp}
-              onChange={setFiltroFollowUp}
-              options={[
-                {
-                  value: "",
-                  label: "Todo follow-up",
-                },
-                {
-                  value: "hoje",
-                  label: "Follow-up hoje",
-                },
-                {
-                  value: "atrasado",
-                  label: "Atrasado",
-                },
-                {
-                  value: "sem_followup_alerta",
-                  label: "Precisa definir",
-                },
-                {
-                  value: "sem_followup_critico",
-                  label: "Sem follow-up há dias",
-                },
-                {
-                  value: "ok",
-                  label: "Em dia",
-                },
-              ]}
-            />
-          </div>
+  <FiltroSelect
+    ariaLabel="Filtrar leads por responsável"
+    value={filtroResponsavel}
+    onChange={setFiltroResponsavel}
+    options={[
+      {
+        value: "",
+        label: "Todos os responsáveis",
+      },
+      {
+        value: "SEM_RESPONSAVEL",
+        label: "Sem responsável",
+      },
+      ...responsaveisLeads.map((responsavel) => ({
+        value: String(responsavel.id),
+        label: responsavel.nome,
+      })),
+    ]}
+  />
+
+  <FiltroSelect
+    ariaLabel="Filtrar leads por prioridade"
+    value={filtroPrioridade}
+    onChange={setFiltroPrioridade}
+    options={[
+      {
+        value: "",
+        label: "Todas as prioridades",
+      },
+      {
+        value: "ALTA",
+        label: "Alta",
+      },
+      {
+        value: "MEDIA",
+        label: "Média",
+      },
+      {
+        value: "BAIXA",
+        label: "Baixa",
+      },
+    ]}
+  />
+
+  <FiltroSelect
+    ariaLabel="Filtrar leads por situação do follow-up"
+    value={filtroFollowUp}
+    onChange={setFiltroFollowUp}
+    options={[
+      {
+        value: "",
+        label: "Todo follow-up",
+      },
+      {
+        value: "hoje",
+        label: "Follow-up hoje",
+      },
+      {
+        value: "atrasado",
+        label: "Atrasado",
+      },
+      {
+        value: "sem_followup_alerta",
+        label: "Precisa definir",
+      },
+      {
+        value: "sem_followup_critico",
+        label: "Sem follow-up há dias",
+      },
+      {
+        value: "ok",
+        label: "Em dia",
+      },
+    ]}
+  />
+
+  {ehCrmGlobalPhanyx && (
+    <FiltroSelect
+      ariaLabel="Filtrar leads por tipo"
+      value={filtroTipo}
+      onChange={setFiltroTipo}
+      options={[
+        {
+          value: "",
+          label: "Todos os tipos",
+        },
+        {
+          value: "PHANYX",
+          label: "Leads PHANYX",
+        },
+        {
+          value: "INSTITUICAO",
+          label: "Leads das instituições",
+        },
+      ]}
+    />
+  )}
+</div>
         </div>
 
         {erro ? (
