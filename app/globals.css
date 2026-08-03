@@ -17661,3 +17661,228 @@ html[data-theme="system"] .phanyx-leads-page .phanyx-leads-info-title {
 html[data-theme="system"] .phanyx-leads-page .phanyx-leads-info-text {
   color: #e5e5e5 !important;
 }
+
+/* =========================================================
+   LEADS E OPORTUNIDADES
+   CORREÇÃO FINAL — TEMA ESCURO NEUTRO, SEM AZUL
+   Este bloco deve permanecer no final do globals.css
+========================================================= */
+
+/* Fundo geral da página */
+html[data-theme="dark"] body .phanyx-leads-page {
+  background: #0a0a0a !important;
+  background-image: none !important;
+  color: #f8fafc !important;
+}
+
+/* Cards de métricas, painel de filtros e colunas do funil */
+html[data-theme="dark"] body .phanyx-leads-page .bg-white {
+  background: #1f1f1f !important;
+  background-color: #1f1f1f !important;
+  background-image: none !important;
+  border-color: #444444 !important;
+}
+
+/* Cards internos e cards dos próprios leads */
+html[data-theme="dark"] body .phanyx-leads-page .bg-slate-50 {
+  background: #292929 !important;
+  background-color: #292929 !important;
+  background-image: none !important;
+  border-color: #4a4a4a !important;
+}
+
+/* Bordas neutras */
+html[data-theme="dark"] body .phanyx-leads-page .border-slate-200,
+html[data-theme="dark"] body .phanyx-leads-page .border-slate-300 {
+  border-color: #484848 !important;
+}
+
+/* Campo de busca e campos do formulário */
+html[data-theme="dark"] body .phanyx-leads-page input,
+html[data-theme="dark"] body .phanyx-leads-page select,
+html[data-theme="dark"] body .phanyx-leads-page textarea {
+  background: #262626 !important;
+  background-color: #262626 !important;
+  background-image: none !important;
+  border-color: #525252 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* Placeholder da busca */
+html[data-theme="dark"] body .phanyx-leads-page input::placeholder,
+html[data-theme="dark"] body .phanyx-leads-page textarea::placeholder {
+  color: #a3a3a3 !important;
+  -webkit-text-fill-color: #a3a3a3 !important;
+  opacity: 1 !important;
+}
+
+/* Foco neutro, sem brilho azul */
+html[data-theme="dark"] body .phanyx-leads-page input:focus,
+html[data-theme="dark"] body .phanyx-leads-page select:focus,
+html[data-theme="dark"] body .phanyx-leads-page textarea:focus {
+  border-color: #737373 !important;
+  box-shadow: 0 0 0 3px rgba(115, 115, 115, 0.22) !important;
+  outline: none !important;
+}
+
+/* Botões principais dos filtros */
+html[data-theme="dark"]
+  body
+  .phanyx-leads-page
+  .phanyx-leads-filter-trigger {
+  background: #262626 !important;
+  background-color: #262626 !important;
+  background-image: none !important;
+  border-color: #525252 !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+/* Hover dos filtros */
+html[data-theme="dark"]
+  body
+  .phanyx-leads-page
+  .phanyx-leads-filter-trigger:hover {
+  background: #303030 !important;
+  background-color: #303030 !important;
+  border-color: #686868 !important;
+}
+
+/* Foco dos filtros sem azul */
+html[data-theme="dark"]
+  body
+  .phanyx-leads-page
+  .phanyx-leads-filter-trigger:focus,
+html[data-theme="dark"]
+  body
+  .phanyx-leads-page
+  .phanyx-leads-filter-trigger:focus-visible {
+  background: #303030 !important;
+  border-color: #737373 !important;
+  box-shadow: 0 0 0 3px rgba(115, 115, 115, 0.22) !important;
+  outline: none !important;
+}
+
+/* Texto e seta dos filtros */
+html[data-theme="dark"]
+  body
+  .phanyx-leads-page
+  .phanyx-leads-filter-label,
+html[data-theme="dark"]
+  body
+  .phanyx-leads-page
+  .phanyx-leads-filter-arrow,
+html[data-theme="dark"]
+  body
+  .phanyx-leads-page
+  .phanyx-leads-filter-check {
+  color: #f5f5f5 !important;
+  -webkit-text-fill-color: #f5f5f5 !important;
+}
+
+/* Caixa aberta do dropdown */
+html[data-theme="dark"]
+  body
+  .phanyx-leads-page
+  .phanyx-leads-filter-menu {
+  background: #202020 !important;
+  background-color: #202020 !important;
+  background-image: none !important;
+  border-color: #525252 !important;
+}
+
+/* Opções normais */
+html[data-theme="dark"]
+  body
+  .phanyx-leads-page
+  .phanyx-leads-filter-option {
+  background: transparent !important;
+  background-image: none !important;
+  color: #e5e5e5 !important;
+  -webkit-text-fill-color: #e5e5e5 !important;
+}
+
+/* Opção ao passar o mouse */
+html[data-theme="dark"]
+  body
+  .phanyx-leads-page
+  .phanyx-leads-filter-option:hover {
+  background: #303030 !important;
+  background-color: #303030 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* Opção selecionada */
+html[data-theme="dark"]
+  body
+  .phanyx-leads-page
+  .phanyx-leads-filter-option.is-selected {
+  background: #3b3b3b !important;
+  background-color: #3b3b3b !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* Impede os spans internos de receberem azul */
+html[data-theme="dark"]
+  body
+  .phanyx-leads-page
+  .phanyx-leads-filter-option span {
+  color: inherit !important;
+  -webkit-text-fill-color: inherit !important;
+}
+
+/* Card Leitura do CRM */
+html[data-theme="dark"]
+  body
+  .phanyx-leads-page
+  .phanyx-leads-info-card {
+  background: #1f1f1f !important;
+  background-color: #1f1f1f !important;
+  background-image: none !important;
+  border-color: #484848 !important;
+}
+
+/* Textos do card informativo */
+html[data-theme="dark"]
+  body
+  .phanyx-leads-page
+  .phanyx-leads-info-title {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="dark"]
+  body
+  .phanyx-leads-page
+  .phanyx-leads-info-text {
+  color: #d4d4d4 !important;
+  -webkit-text-fill-color: #d4d4d4 !important;
+}
+
+/* Áreas vazias das colunas */
+html[data-theme="dark"]
+  body
+  .phanyx-leads-page
+  .border-dashed {
+  background: #181818 !important;
+  background-image: none !important;
+  border-color: #525252 !important;
+  color: #a3a3a3 !important;
+}
+
+/* Mantém azuis apenas nos botões de ação */
+html[data-theme="dark"]
+  body
+  .phanyx-leads-page
+  .phanyx-btn-primary,
+html[data-theme="dark"]
+  body
+  .phanyx-leads-page
+  button.bg-blue-600 {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
