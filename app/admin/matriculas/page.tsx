@@ -168,6 +168,17 @@ type MatriculaEdicao = {
   vendedorResponsavelNome: string;
 };
 
+function lerIdPositivoDaUrl(
+  valor: string | null
+) {
+  const id = Number(valor);
+
+  return Number.isInteger(id) &&
+    id > 0
+    ? id
+    : null;
+}
+
 function AdminMatriculasPage() {
   const searchParams = useSearchParams();
   const [busca, setBusca] = useState("");
@@ -237,6 +248,57 @@ function AdminMatriculasPage() {
   const [contratoSecretariaId, setContratoSecretariaId] = useState<number | null>(null);
   const [desenhandoSecretaria, setDesenhandoSecretaria] = useState(false);
   const [salvandoSecretaria, setSalvandoSecretaria] = useState(false);
+
+  const parametrosConversao = useMemo(
+  () => ({
+    leadId: lerIdPositivoDaUrl(
+      searchParams.get("leadId")
+    ),
+
+    alunoId: lerIdPositivoDaUrl(
+      searchParams.get("alunoId")
+    ),
+
+    vendedorResponsavelId:
+      lerIdPositivoDaUrl(
+        searchParams.get(
+          "vendedorResponsavelId"
+        )
+      ),
+  }),
+  [searchParams]
+);
+
+const conversaoDeLeadAtiva =
+  parametrosConversao.leadId !== null;
+
+  const alunoDaConversao = useMemo(
+  () =>
+    alunos.find(
+      (aluno) =>
+        aluno.id ===
+        parametrosConversao.alunoId
+    ) || null,
+  [
+    alunos,
+    parametrosConversao.alunoId,
+  ]
+);
+
+const vendedorDaConversao = useMemo(
+  () =>
+    vendedores.find(
+      (vendedor) =>
+        vendedor.id ===
+        parametrosConversao
+          .vendedorResponsavelId
+    ) || null,
+  [
+    vendedores,
+    parametrosConversao
+      .vendedorResponsavelId,
+  ]
+);
 
   async function carregarTudo() {
     setLoading(true);
@@ -529,6 +591,87 @@ function AdminMatriculasPage() {
   useEffect(() => {
     carregarTudo();
   }, []);
+
+  useEffect(() => {
+  if (
+    loading ||
+    !conversaoDeLeadAtiva
+  ) {
+    return;
+  }
+
+  if (!parametrosConversao.alunoId) {
+    setErro(
+      "A conversão não informou um aluno válido."
+    );
+
+    return;
+  }
+
+  const alunoExiste =
+    alunos.some(
+      (aluno) =>
+        aluno.id ===
+        parametrosConversao.alunoId
+    );
+
+  if (!alunoExiste) {
+    setErro(
+      "O aluno criado durante a conversão não foi encontrado nesta instituição."
+    );
+
+    return;
+  }
+
+  setAlunoId(
+    String(
+      parametrosConversao.alunoId
+    )
+  );
+
+  const vendedorId =
+    parametrosConversao
+      .vendedorResponsavelId;
+
+  if (!vendedorId) {
+    return;
+  }
+
+  if (!podeSelecionarVendedor) {
+    setErro(
+      "Você não possui permissão para vincular o responsável comercial à matrícula."
+    );
+
+    return;
+  }
+
+  const vendedorExiste =
+    vendedores.some(
+      (vendedor) =>
+        vendedor.id === vendedorId
+    );
+
+  if (!vendedorExiste) {
+    setErro(
+      "O responsável comercial do lead não está disponível como vendedor elegível. Verifique se ele está ativo e possui plano de comissão vigente."
+    );
+
+    return;
+  }
+
+  setVendedorResponsavelId(
+    String(vendedorId)
+  );
+}, [
+  loading,
+  conversaoDeLeadAtiva,
+  parametrosConversao.alunoId,
+  parametrosConversao
+    .vendedorResponsavelId,
+  alunos,
+  vendedores,
+  podeSelecionarVendedor,
+]);
 
   useEffect(() => {
     if (!semestresAberto) return;
@@ -2118,6 +2261,55 @@ function AdminMatriculasPage() {
           cursar.
         </p>
 
+        {conversaoDeLeadAtiva && (
+  <div className="mt-4 rounded-2xl border border-emerald-300 bg-emerald-50 p-4 text-sm text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-100">
+    <strong className="block text-base">
+      Matrícula iniciada pelo CRM
+    </strong>
+
+    <p className="mt-1 leading-6">
+      Esta matrícula está sendo criada a
+      partir do lead{" "}
+      <strong>
+        #{parametrosConversao.leadId}
+      </strong>
+      .
+    </p>
+
+    <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-xs">
+      <span>
+        Aluno:{" "}
+        <strong>
+          {alunoDaConversao?.nome ||
+            "Carregando aluno..."}
+        </strong>
+      </span>
+
+      {parametrosConversao
+        .vendedorResponsavelId ? (
+        <span>
+          Responsável comercial:{" "}
+          <strong>
+            {vendedorDaConversao?.nome ||
+              "Validando responsável..."}
+          </strong>
+        </span>
+      ) : (
+        <span>
+          Sem responsável comercial
+          informado no lead.
+        </span>
+      )}
+    </div>
+
+    <p className="mt-3 text-xs leading-5">
+      Complete curso, semestre, turma,
+      disciplinas e condições financeiras
+      para finalizar a conversão.
+    </p>
+  </div>
+)}
+
         <div>
           <label className="text-sm font-medium text-gray-700">
             Status inicial da matrícula
@@ -2143,34 +2335,47 @@ function AdminMatriculasPage() {
             </label>
 
             <select
-              value={vendedorResponsavelId}
-              onChange={(evento) =>
-                setVendedorResponsavelId(evento.target.value)
-              }
-              className="matriculas-vendedor-select mt-2 w-full rounded-xl border px-3 py-2 outline-none transition focus:border-blue-500"
-            >
-              <option value="">
-                Nenhum vendedor selecionado
-              </option>
+  value={vendedorResponsavelId}
+  onChange={(evento) =>
+    setVendedorResponsavelId(
+      evento.target.value
+    )
+  }
+  disabled={
+    conversaoDeLeadAtiva &&
+    parametrosConversao.vendedorResponsavelId !== null
+  }
+  className="matriculas-vendedor-select mt-2 w-full rounded-xl border px-3 py-2 outline-none transition focus:border-blue-500 disabled:cursor-not-allowed disabled:opacity-70"
+>
+  <option value="">
+    Nenhum vendedor selecionado
+  </option>
 
-              {vendedores.map((vendedor) => (
-                <option
-                  key={vendedor.id}
-                  value={String(vendedor.id)}
-                >
-                  {vendedor.nome}
-                  {vendedor.cargo
-                    ? ` — ${vendedor.cargo}`
-                    : ""}
-                  {vendedor.departamento?.nome
-                    ? ` — ${vendedor.departamento.nome}`
-                    : ""}
-                  {vendedor.planoComissao?.planoNome
-                    ? ` — Plano: ${vendedor.planoComissao.planoNome}`
-                    : ""}
-                </option>
-              ))}
-            </select>
+  {vendedores.map((vendedor) => (
+    <option
+      key={vendedor.id}
+      value={String(vendedor.id)}
+    >
+      {vendedor.nome}
+      {vendedor.cargo
+        ? ` — ${vendedor.cargo}`
+        : ""}
+      {vendedor.departamento?.nome
+        ? ` — ${vendedor.departamento.nome}`
+        : ""}
+      {vendedor.planoComissao?.planoNome
+        ? ` — Plano: ${vendedor.planoComissao.planoNome}`
+        : ""}
+    </option>
+  ))}
+</select>
+
+{conversaoDeLeadAtiva &&
+  parametrosConversao.vendedorResponsavelId ? (
+  <p className="mt-2 text-xs font-medium text-emerald-700 dark:text-emerald-300">
+    Responsável comercial preservado automaticamente a partir do lead.
+  </p>
+) : null}
 
             {vendedores.length === 0 ? (
               <p className="matriculas-vendedor-alerta mt-2 text-xs">
@@ -2189,20 +2394,42 @@ function AdminMatriculasPage() {
 
         <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-3">
           <div>
-            <label className="text-sm font-medium text-gray-700">Aluno</label>
-            <select
-              value={alunoId}
-              onChange={(e) => setAlunoId(e.target.value)}
-              className="mt-1 w-full border rounded-xl px-3 py-2 bg-white"
-            >
-              <option value="">Selecione...</option>
-              {alunos.map((a) => (
-                <option key={a.id} value={String(a.id)}>
-                  {a.nome}
-                </option>
-              ))}
-            </select>
-          </div>
+  <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+    Aluno
+  </label>
+
+  <select
+    value={alunoId}
+    onChange={(e) =>
+      setAlunoId(e.target.value)
+    }
+    disabled={
+      conversaoDeLeadAtiva &&
+      parametrosConversao.alunoId !== null
+    }
+    className="mt-1 w-full rounded-xl border bg-white px-3 py-2 text-slate-900 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:disabled:bg-slate-800 dark:disabled:text-slate-400"
+  >
+    <option value="">
+      Selecione...
+    </option>
+
+    {alunos.map((aluno) => (
+      <option
+        key={aluno.id}
+        value={String(aluno.id)}
+      >
+        {aluno.nome}
+      </option>
+    ))}
+  </select>
+
+  {conversaoDeLeadAtiva &&
+    parametrosConversao.alunoId ? (
+    <p className="mt-1 text-xs font-medium text-emerald-700 dark:text-emerald-300">
+      Aluno definido automaticamente pela conversão do lead.
+    </p>
+  ) : null}
+</div>
 
           <div>
             <label className="text-sm font-medium text-gray-700">Curso</label>

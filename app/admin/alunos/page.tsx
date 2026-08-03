@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import {
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 import withAuth from "@/components/auth/withAuth";
 
 type StatusAluno =
@@ -48,9 +51,9 @@ interface Aluno {
   possuiNecessidadeEspecial?: boolean;
   descricaoNecessidadeEspecial?: string | null;
   observacoesAcessibilidade?: string | null;
-    poloId?: number | null;
-    polo?: Polo | null;
-    user: {
+  poloId?: number | null;
+  polo?: Polo | null;
+  user: {
     email: string;
   };
 }
@@ -118,8 +121,29 @@ type ConfirmacaoMenorCadastro = {
   camposPendentes: string[];
 } | null;
 
+type LeadParaConversao = {
+  id: number;
+  nome: string;
+  email: string;
+  telefone?: string | null;
+  interesse?: string | null;
+  instituicaoNome?: string | null;
+  responsavelFuncionarioId?: number | null;
+  responsavelNome?: string | null;
+  status?: string | null;
+};
+
 function AdminAlunosPage() {
+  const router = useRouter();
   const searchParams = useSearchParams();
+
+  const [leadParaConversao, setLeadParaConversao] =
+    useState<LeadParaConversao | null>(null);
+
+  const [
+    carregandoLeadParaConversao,
+    setCarregandoLeadParaConversao,
+  ] = useState(false);
 
   const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [carregandoAlunos, setCarregandoAlunos] = useState(false);
@@ -127,7 +151,7 @@ function AdminAlunosPage() {
   const [totalAlunos, setTotalAlunos] = useState(0);
   const [totalPaginas, setTotalPaginas] = useState(1);
   const limitePorPagina = 20;
-  
+
   const [turmas, setTurmas] = useState<TurmaOption[]>([]);
   const [polos, setPolos] = useState<Polo[]>([]);
   const [busca, setBusca] = useState("");
@@ -145,14 +169,25 @@ function AdminAlunosPage() {
   const [alunoSelecionado, setAlunoSelecionado] =
     useState<AlunoComResumo | null>(null);
 
-const [abaPainelAluno, setAbaPainelAluno] = useState<
-  | "DADOS"
-  | "DOCUMENTOS"
-  | "MATRICULAS"
-  | "DESEMPENHO"
-  | "HISTORICO"
-  | "CERTIFICADOS"
->("DADOS");
+  const leadIdConversao = useMemo(() => {
+    const valor = Number(
+      searchParams.get("leadId")
+    );
+
+    return Number.isInteger(valor) &&
+      valor > 0
+      ? valor
+      : null;
+  }, [searchParams]);
+
+  const [abaPainelAluno, setAbaPainelAluno] = useState<
+    | "DADOS"
+    | "DOCUMENTOS"
+    | "MATRICULAS"
+    | "DESEMPENHO"
+    | "HISTORICO"
+    | "CERTIFICADOS"
+  >("DADOS");
 
   const [mostrarFormulario, setMostrarFormulario] = useState(true);
 
@@ -164,17 +199,17 @@ const [abaPainelAluno, setAbaPainelAluno] = useState<
   );
 
   const [
-  confirmacaoMenorCadastro,
-  setConfirmacaoMenorCadastro,
-] =
-  useState<ConfirmacaoMenorCadastro>(
-    null
-  );
+    confirmacaoMenorCadastro,
+    setConfirmacaoMenorCadastro,
+  ] =
+    useState<ConfirmacaoMenorCadastro>(
+      null
+    );
 
-const [
-  cienteMenorCadastro,
-  setCienteMenorCadastro,
-] = useState(false);
+  const [
+    cienteMenorCadastro,
+    setCienteMenorCadastro,
+  ] = useState(false);
 
   const [nome, setNome] = useState("");
   const [nomeSocial, setNomeSocial] = useState("");
@@ -197,10 +232,10 @@ const [
   const [enviandoFotoPerfil, setEnviandoFotoPerfil] = useState(false);
 
   const [novoAlunoDocumentos, setNovoAlunoDocumentos] = useState<{
-  proprietario: "ALUNO" | "RESPONSAVEL";
-  tipo: string;
-  arquivo: File;
-}[]>([]);
+    proprietario: "ALUNO" | "RESPONSAVEL";
+    tipo: string;
+    arquivo: File;
+  }[]>([]);
 
   const [nomeResponsavel, setNomeResponsavel] = useState("");
   const [cpfResponsavel, setCpfResponsavel] = useState("");
@@ -257,7 +292,7 @@ const [
   const [buscaDisciplina, setBuscaDisciplina] = useState("");
   const [paginaDisciplina, setPaginaDisciplina] = useState(1);
   const [alunoDesempenhoId, setAlunoDesempenhoId] = useState<number | null>(null);
-  
+
   const [documentosAluno, setDocumentosAluno] = useState<DocumentoAlunoAdmin[]>([]);
   const [carregandoDocumentosAluno, setCarregandoDocumentosAluno] = useState(false);
   const [enviandoDocumentoAluno, setEnviandoDocumentoAluno] = useState(false);
@@ -276,23 +311,23 @@ const [
   const [baixandoCertificado, setBaixandoCertificado] = useState(false);
 
   const FORMATOS_FOTO_ALUNO_ACEITOS = ["image/jpeg", "image/jpg", "image/png"];
-const TAMANHO_MAXIMO_FOTO_ALUNO_MB = 2;
-const TAMANHO_MAXIMO_FOTO_ALUNO_BYTES =
-  TAMANHO_MAXIMO_FOTO_ALUNO_MB * 1024 * 1024;
+  const TAMANHO_MAXIMO_FOTO_ALUNO_MB = 2;
+  const TAMANHO_MAXIMO_FOTO_ALUNO_BYTES =
+    TAMANHO_MAXIMO_FOTO_ALUNO_MB * 1024 * 1024;
 
-function validarFotoOficialAluno(file: File) {
-  if (!FORMATOS_FOTO_ALUNO_ACEITOS.includes(file.type)) {
-    throw new Error(
-      "Formato inválido. Envie uma foto em JPG, JPEG ou PNG."
-    );
-  }
+  function validarFotoOficialAluno(file: File) {
+    if (!FORMATOS_FOTO_ALUNO_ACEITOS.includes(file.type)) {
+      throw new Error(
+        "Formato inválido. Envie uma foto em JPG, JPEG ou PNG."
+      );
+    }
 
-  if (file.size > TAMANHO_MAXIMO_FOTO_ALUNO_BYTES) {
-    throw new Error(
-      `Arquivo muito grande. Envie uma foto com no máximo ${TAMANHO_MAXIMO_FOTO_ALUNO_MB} MB.`
-    );
+    if (file.size > TAMANHO_MAXIMO_FOTO_ALUNO_BYTES) {
+      throw new Error(
+        `Arquivo muito grande. Envie uma foto com no máximo ${TAMANHO_MAXIMO_FOTO_ALUNO_MB} MB.`
+      );
+    }
   }
-}
 
   useEffect(() => {
     if (!feedback) return;
@@ -304,12 +339,105 @@ function validarFotoOficialAluno(file: File) {
   }, [feedback]);
 
   useEffect(() => {
-  carregarTudo();
-}, []);
+    if (!leadIdConversao) {
+      setLeadParaConversao(null);
+      return;
+    }
 
-useEffect(() => {
-  carregarAlunos();
-}, [paginaAtual, filtroStatus, busca]);
+    let requisicaoAtiva = true;
+
+    async function carregarLeadParaConversao() {
+      try {
+        setCarregandoLeadParaConversao(true);
+
+        const res = await fetch(
+          `/api/admin/leads/${leadIdConversao}`,
+          {
+            credentials: "include",
+            cache: "no-store",
+          }
+        );
+
+        const data = await res
+          .json()
+          .catch(() => null);
+
+        if (!res.ok) {
+          throw new Error(
+            data?.error ||
+            "Não foi possível carregar o lead."
+          );
+        }
+
+        if (!requisicaoAtiva) return;
+
+        const lead: LeadParaConversao = {
+          id: Number(data.id),
+          nome: String(data.nome || ""),
+          email: String(data.email || ""),
+          telefone: data.telefone || null,
+          interesse: data.interesse || null,
+          instituicaoNome:
+            data.instituicaoNome || null,
+          responsavelFuncionarioId:
+            data.responsavelFuncionarioId ??
+            null,
+          responsavelNome:
+            data.responsavelNome || null,
+          status: data.status || null,
+        };
+
+        setLeadParaConversao(lead);
+
+        setNome(lead.nome);
+        setEmail(lead.email);
+        setTelefone(lead.telefone || "");
+        setMostrarFormulario(true);
+
+        window.setTimeout(() => {
+          document
+            .getElementById(
+              "formulario-novo-aluno"
+            )
+            ?.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+        }, 100);
+      } catch (error: any) {
+        if (!requisicaoAtiva) return;
+
+        setLeadParaConversao(null);
+
+        abrirModalAviso(
+          "erro",
+          "Não foi possível iniciar a conversão",
+          error?.message ||
+          "Não foi possível carregar os dados do lead."
+        );
+      } finally {
+        if (requisicaoAtiva) {
+          setCarregandoLeadParaConversao(
+            false
+          );
+        }
+      }
+    }
+
+    void carregarLeadParaConversao();
+
+    return () => {
+      requisicaoAtiva = false;
+    };
+  }, [leadIdConversao]);
+
+  useEffect(() => {
+    carregarTudo();
+  }, []);
+
+  useEffect(() => {
+    carregarAlunos();
+  }, [paginaAtual, filtroStatus, busca]);
 
   useEffect(() => {
     const buscaUrl = searchParams.get("busca");
@@ -319,185 +447,185 @@ useEffect(() => {
   }, [searchParams]);
 
   function calcularIdadeFormulario(
-  valor: string
-) {
-  const partes = valor
-    .split("-")
-    .map(Number);
-
-  if (
-    partes.length !== 3 ||
-    partes.some(
-      (parte) =>
-        !Number.isFinite(parte)
-    )
+    valor: string
   ) {
-    return null;
-  }
+    const partes = valor
+      .split("-")
+      .map(Number);
 
-  const [ano, mes, dia] = partes;
-
-  const nascimento =
-    new Date(
-      ano,
-      mes - 1,
-      dia
-    );
-
-  if (
-    nascimento.getFullYear() !==
-      ano ||
-    nascimento.getMonth() !==
-      mes - 1 ||
-    nascimento.getDate() !== dia
-  ) {
-    return null;
-  }
-
-  const hoje = new Date();
-
-  let idade =
-    hoje.getFullYear() - ano;
-
-  const aindaNaoFezAniversario =
-    hoje.getMonth() <
-      mes - 1 ||
-    (hoje.getMonth() ===
-      mes - 1 &&
-      hoje.getDate() < dia);
-
-  if (aindaNaoFezAniversario) {
-    idade -= 1;
-  }
-
-  return idade;
-}
-
-function verificarResponsavelFormulario() {
-  const pendentes: string[] = [];
-
-  const cpfLimpo =
-    cpfResponsavel.replace(
-      /\D/g,
-      ""
-    );
-
-  const telefoneLimpo =
-    telefoneResponsavel.replace(
-      /\D/g,
-      ""
-    );
-
-  if (!nomeResponsavel.trim()) {
-    pendentes.push(
-      "Nome do responsável"
-    );
-  }
-
-  if (cpfLimpo.length !== 11) {
-    pendentes.push(
-      "CPF do responsável"
-    );
-  }
-
-  if (telefoneLimpo.length < 10) {
-    pendentes.push(
-      "Telefone do responsável"
-    );
-  }
-
-  if (
-    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
-      emailResponsavel.trim()
-    )
-  ) {
-    pendentes.push(
-      "E-mail do responsável"
-    );
-  }
-
-  if (
-    !parentescoResponsavel.trim()
-  ) {
-    pendentes.push(
-      "Parentesco do responsável"
-    );
-  }
-
-  return pendentes;
-}
-
-function tocarSomAtencao() {
-  try {
-    const AudioContextClass =
-      window.AudioContext ||
-      (window as any)
-        .webkitAudioContext;
-
-    if (!AudioContextClass) {
-      return;
+    if (
+      partes.length !== 3 ||
+      partes.some(
+        (parte) =>
+          !Number.isFinite(parte)
+      )
+    ) {
+      return null;
     }
 
-    const contexto =
-      new AudioContextClass();
+    const [ano, mes, dia] = partes;
 
-    const oscilador =
-      contexto.createOscillator();
+    const nascimento =
+      new Date(
+        ano,
+        mes - 1,
+        dia
+      );
 
-    const ganho =
-      contexto.createGain();
+    if (
+      nascimento.getFullYear() !==
+      ano ||
+      nascimento.getMonth() !==
+      mes - 1 ||
+      nascimento.getDate() !== dia
+    ) {
+      return null;
+    }
 
-    const agora =
-      contexto.currentTime;
+    const hoje = new Date();
 
-    oscilador.type = "sine";
+    let idade =
+      hoje.getFullYear() - ano;
 
-    oscilador.frequency.setValueAtTime(
-      720,
-      agora
-    );
+    const aindaNaoFezAniversario =
+      hoje.getMonth() <
+      mes - 1 ||
+      (hoje.getMonth() ===
+        mes - 1 &&
+        hoje.getDate() < dia);
 
-    oscilador.frequency.setValueAtTime(
-      520,
-      agora + 0.18
-    );
+    if (aindaNaoFezAniversario) {
+      idade -= 1;
+    }
 
-    ganho.gain.setValueAtTime(
-      0.0001,
-      agora
-    );
-
-    ganho.gain.exponentialRampToValueAtTime(
-      0.16,
-      agora + 0.03
-    );
-
-    ganho.gain.exponentialRampToValueAtTime(
-      0.0001,
-      agora + 0.42
-    );
-
-    oscilador.connect(ganho);
-    ganho.connect(
-      contexto.destination
-    );
-
-    oscilador.start(agora);
-    oscilador.stop(
-      agora + 0.45
-    );
-
-    oscilador.addEventListener(
-      "ended",
-      () => {
-        void contexto.close();
-      }
-    );
-  } catch {
-    // O aviso visual continuará funcionando
-    // caso o navegador bloqueie o áudio.
+    return idade;
   }
-}
+
+  function verificarResponsavelFormulario() {
+    const pendentes: string[] = [];
+
+    const cpfLimpo =
+      cpfResponsavel.replace(
+        /\D/g,
+        ""
+      );
+
+    const telefoneLimpo =
+      telefoneResponsavel.replace(
+        /\D/g,
+        ""
+      );
+
+    if (!nomeResponsavel.trim()) {
+      pendentes.push(
+        "Nome do responsável"
+      );
+    }
+
+    if (cpfLimpo.length !== 11) {
+      pendentes.push(
+        "CPF do responsável"
+      );
+    }
+
+    if (telefoneLimpo.length < 10) {
+      pendentes.push(
+        "Telefone do responsável"
+      );
+    }
+
+    if (
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+        emailResponsavel.trim()
+      )
+    ) {
+      pendentes.push(
+        "E-mail do responsável"
+      );
+    }
+
+    if (
+      !parentescoResponsavel.trim()
+    ) {
+      pendentes.push(
+        "Parentesco do responsável"
+      );
+    }
+
+    return pendentes;
+  }
+
+  function tocarSomAtencao() {
+    try {
+      const AudioContextClass =
+        window.AudioContext ||
+        (window as any)
+          .webkitAudioContext;
+
+      if (!AudioContextClass) {
+        return;
+      }
+
+      const contexto =
+        new AudioContextClass();
+
+      const oscilador =
+        contexto.createOscillator();
+
+      const ganho =
+        contexto.createGain();
+
+      const agora =
+        contexto.currentTime;
+
+      oscilador.type = "sine";
+
+      oscilador.frequency.setValueAtTime(
+        720,
+        agora
+      );
+
+      oscilador.frequency.setValueAtTime(
+        520,
+        agora + 0.18
+      );
+
+      ganho.gain.setValueAtTime(
+        0.0001,
+        agora
+      );
+
+      ganho.gain.exponentialRampToValueAtTime(
+        0.16,
+        agora + 0.03
+      );
+
+      ganho.gain.exponentialRampToValueAtTime(
+        0.0001,
+        agora + 0.42
+      );
+
+      oscilador.connect(ganho);
+      ganho.connect(
+        contexto.destination
+      );
+
+      oscilador.start(agora);
+      oscilador.stop(
+        agora + 0.45
+      );
+
+      oscilador.addEventListener(
+        "ended",
+        () => {
+          void contexto.close();
+        }
+      );
+    } catch {
+      // O aviso visual continuará funcionando
+      // caso o navegador bloqueie o áudio.
+    }
+  }
 
   function mostrarFeedback(tipo: Exclude<FeedbackTipo, "">, mensagem: string) {
     setFeedbackTipo(tipo);
@@ -516,171 +644,171 @@ function tocarSomAtencao() {
   }
 
   async function enviarFotoOficialAluno(
-  arquivo: File | null,
-  modo: "CRIACAO" | "EDICAO"
-) {
-  if (!arquivo) return;
+    arquivo: File | null,
+    modo: "CRIACAO" | "EDICAO"
+  ) {
+    if (!arquivo) return;
 
-  const tiposPermitidos = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
-  const tamanhoMaximoBytes = 2 * 1024 * 1024;
+    const tiposPermitidos = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
+    const tamanhoMaximoBytes = 2 * 1024 * 1024;
 
-  if (!tiposPermitidos.includes(arquivo.type)) {
-    abrirModalAviso(
-      "erro",
-      "Formato inválido",
-      "Use uma imagem em JPG, JPEG, PNG ou WEBP para a foto oficial do aluno."
-    );
-    return;
-  }
-
-  if (arquivo.size > tamanhoMaximoBytes) {
-    abrirModalAviso(
-      "erro",
-      "Foto muito grande",
-      "Envie uma foto com no máximo 2 MB. Recomendado: imagem quadrada, no mínimo 600x600 px, com rosto centralizado."
-    );
-    return;
-  }
-
-  try {
-    if (modo === "CRIACAO") {
-      setEnviandoFotoPerfil(true);
-    } else {
-      setEditEnviandoFotoPerfil(true);
-    }
-
-    const formData = new FormData();
-    formData.append("file", arquivo);
-
-    const res = await fetch("/api/upload", {
-      method: "POST",
-      credentials: "include",
-      body: formData,
-    });
-
-    const data = await res.json().catch(() => null);
-
-    if (!res.ok) {
-      throw new Error(data?.error || "Erro ao enviar foto.");
-    }
-
-    const url =
-      data?.url ||
-      data?.fileUrl ||
-      data?.arquivoUrl ||
-      data?.publicUrl;
-
-    if (!url) {
-      throw new Error("Upload realizado, mas a URL da foto não retornou.");
-    }
-
-    if (modo === "CRIACAO") {
-      setFotoPerfil(url);
-    } else {
-      setEditFotoPerfil(url);
-
-      setAlunoSelecionado((atual) =>
-        atual
-          ? {
-              ...atual,
-              fotoPerfil: url,
-            }
-          : atual
-      );
-    }
-
-    mostrarFeedback("sucesso", "Foto oficial do aluno enviada com sucesso.");
-  } catch (error: any) {
-    abrirModalAviso(
-      "erro",
-      "Erro ao enviar foto",
-      error?.message ||
-        "Não foi possível enviar a foto. Verifique o formato e o tamanho do arquivo."
-    );
-  } finally {
-    setEnviandoFotoPerfil(false);
-    setEditEnviandoFotoPerfil(false);
-  }
-}
-
- async function carregarTudo() {
-  await Promise.all([
-    carregarAlunos(),
-    carregarTurmas(),
-    carregarPolos(),
-  ]);
-}
-
-  async function carregarAlunos() {
-  try {
-    setCarregandoAlunos(true);
-
-    const params = new URLSearchParams();
-    params.set("page", String(paginaAtual));
-    params.set("limit", String(limitePorPagina));
-
-    if (busca.trim()) {
-      params.set("busca", busca.trim());
-    }
-
-    if (filtroStatus !== "TODOS") {
-      params.set("status", filtroStatus);
-    }
-
-    const res = await fetch(`/api/aluno?${params.toString()}`, {
-      credentials: "include",
-      cache: "no-store",
-    });
-
-    const data = await res.json().catch(() => null);
-
-    if (!res.ok) {
-      console.error("Erro ao buscar alunos:", data);
-      mostrarFeedback(
+    if (!tiposPermitidos.includes(arquivo.type)) {
+      abrirModalAviso(
         "erro",
-        data?.error || "Não foi possível carregar a lista de alunos."
+        "Formato inválido",
+        "Use uma imagem em JPG, JPEG, PNG ou WEBP para a foto oficial do aluno."
       );
-      setAlunos([]);
-      setTotalAlunos(0);
-      setTotalPaginas(1);
       return;
     }
 
-    const lista = Array.isArray(data?.data)
-  ? data.data.map((aluno: any) => ({
-      ...aluno,
-      resumoMatricula: aluno.resumoMatricula
-        ? {
-            id: aluno.resumoMatricula.id,
-            status: aluno.resumoMatricula.status || null,
+    if (arquivo.size > tamanhoMaximoBytes) {
+      abrirModalAviso(
+        "erro",
+        "Foto muito grande",
+        "Envie uma foto com no máximo 2 MB. Recomendado: imagem quadrada, no mínimo 600x600 px, com rosto centralizado."
+      );
+      return;
+    }
 
-            cursoNome:
-              aluno.resumoMatricula.curso?.nome ||
-              aluno.resumoMatricula.cursoNome ||
-              null,
+    try {
+      if (modo === "CRIACAO") {
+        setEnviandoFotoPerfil(true);
+      } else {
+        setEditEnviandoFotoPerfil(true);
+      }
 
-            semestre: aluno.resumoMatricula.semestre ?? null,
+      const formData = new FormData();
+      formData.append("file", arquivo);
 
-            numeroMatricula:
-              aluno.resumoMatricula.numeroMatricula || null,
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
 
-            dataMatricula:
-              aluno.resumoMatricula.dataMatricula || null,
+      const data = await res.json().catch(() => null);
 
-            periodoLetivo:
-              aluno.resumoMatricula.periodoLetivo || null,
+      if (!res.ok) {
+        throw new Error(data?.error || "Erro ao enviar foto.");
+      }
 
-            modalidade:
-              aluno.resumoMatricula.modalidade || null,
+      const url =
+        data?.url ||
+        data?.fileUrl ||
+        data?.arquivoUrl ||
+        data?.publicUrl;
 
-            previsaoConclusao:
-              aluno.resumoMatricula.previsaoConclusao || null,
+      if (!url) {
+        throw new Error("Upload realizado, mas a URL da foto não retornou.");
+      }
 
-            polo:
-              aluno.resumoMatricula.polo || null,
+      if (modo === "CRIACAO") {
+        setFotoPerfil(url);
+      } else {
+        setEditFotoPerfil(url);
 
-            turmas: Array.isArray(aluno.resumoMatricula.turmas)
-              ? aluno.resumoMatricula.turmas.map((turma: any) => ({
+        setAlunoSelecionado((atual) =>
+          atual
+            ? {
+              ...atual,
+              fotoPerfil: url,
+            }
+            : atual
+        );
+      }
+
+      mostrarFeedback("sucesso", "Foto oficial do aluno enviada com sucesso.");
+    } catch (error: any) {
+      abrirModalAviso(
+        "erro",
+        "Erro ao enviar foto",
+        error?.message ||
+        "Não foi possível enviar a foto. Verifique o formato e o tamanho do arquivo."
+      );
+    } finally {
+      setEnviandoFotoPerfil(false);
+      setEditEnviandoFotoPerfil(false);
+    }
+  }
+
+  async function carregarTudo() {
+    await Promise.all([
+      carregarAlunos(),
+      carregarTurmas(),
+      carregarPolos(),
+    ]);
+  }
+
+  async function carregarAlunos() {
+    try {
+      setCarregandoAlunos(true);
+
+      const params = new URLSearchParams();
+      params.set("page", String(paginaAtual));
+      params.set("limit", String(limitePorPagina));
+
+      if (busca.trim()) {
+        params.set("busca", busca.trim());
+      }
+
+      if (filtroStatus !== "TODOS") {
+        params.set("status", filtroStatus);
+      }
+
+      const res = await fetch(`/api/aluno?${params.toString()}`, {
+        credentials: "include",
+        cache: "no-store",
+      });
+
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        console.error("Erro ao buscar alunos:", data);
+        mostrarFeedback(
+          "erro",
+          data?.error || "Não foi possível carregar a lista de alunos."
+        );
+        setAlunos([]);
+        setTotalAlunos(0);
+        setTotalPaginas(1);
+        return;
+      }
+
+      const lista = Array.isArray(data?.data)
+        ? data.data.map((aluno: any) => ({
+          ...aluno,
+          resumoMatricula: aluno.resumoMatricula
+            ? {
+              id: aluno.resumoMatricula.id,
+              status: aluno.resumoMatricula.status || null,
+
+              cursoNome:
+                aluno.resumoMatricula.curso?.nome ||
+                aluno.resumoMatricula.cursoNome ||
+                null,
+
+              semestre: aluno.resumoMatricula.semestre ?? null,
+
+              numeroMatricula:
+                aluno.resumoMatricula.numeroMatricula || null,
+
+              dataMatricula:
+                aluno.resumoMatricula.dataMatricula || null,
+
+              periodoLetivo:
+                aluno.resumoMatricula.periodoLetivo || null,
+
+              modalidade:
+                aluno.resumoMatricula.modalidade || null,
+
+              previsaoConclusao:
+                aluno.resumoMatricula.previsaoConclusao || null,
+
+              polo:
+                aluno.resumoMatricula.polo || null,
+
+              turmas: Array.isArray(aluno.resumoMatricula.turmas)
+                ? aluno.resumoMatricula.turmas.map((turma: any) => ({
                   turmaId: Number(turma.turmaId || turma.id),
                   turmaNome: String(
                     turma.turmaNome || turma.nome || "Turma"
@@ -695,25 +823,25 @@ function tocarSomAtencao() {
                     null,
                   status: turma.status || null,
                 }))
-              : [],
-          }
-        : null,
-    }))
-  : [];
-      
-    setAlunos(lista);
-    setTotalAlunos(Number(data?.meta?.total || 0));
-    setTotalPaginas(Number(data?.meta?.totalPages || 1));
-  } catch (error) {
-    console.error("Erro ao carregar alunos:", error);
-    mostrarFeedback("erro", "Erro ao carregar alunos.");
-    setAlunos([]);
-    setTotalAlunos(0);
-    setTotalPaginas(1);
-  } finally {
-    setCarregandoAlunos(false);
+                : [],
+            }
+            : null,
+        }))
+        : [];
+
+      setAlunos(lista);
+      setTotalAlunos(Number(data?.meta?.total || 0));
+      setTotalPaginas(Number(data?.meta?.totalPages || 1));
+    } catch (error) {
+      console.error("Erro ao carregar alunos:", error);
+      mostrarFeedback("erro", "Erro ao carregar alunos.");
+      setAlunos([]);
+      setTotalAlunos(0);
+      setTotalPaginas(1);
+    } finally {
+      setCarregandoAlunos(false);
+    }
   }
-}
 
   async function carregarTurmas() {
     try {
@@ -744,56 +872,56 @@ function tocarSomAtencao() {
     }
   }
 
-async function carregarPolos() {
-  try {
-    const res = await fetch("/api/admin/polos", {
-      credentials: "include",
-      cache: "no-store",
-    });
+  async function carregarPolos() {
+    try {
+      const res = await fetch("/api/admin/polos", {
+        credentials: "include",
+        cache: "no-store",
+      });
 
-    const data = await res.json().catch(() => null);
+      const data = await res.json().catch(() => null);
 
-    if (!res.ok) {
+      if (!res.ok) {
+        console.error(
+          "Erro ao buscar polos:",
+          data?.error || res.statusText
+        );
+
+        setPolos([]);
+        return;
+      }
+
+      const listaPolos = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.polos)
+          ? data.polos
+          : [];
+
+      const polosValidos: Polo[] = listaPolos
+        .map((polo: any) => ({
+          id: Number(polo?.id),
+          nome: String(
+            polo?.nome ?? "Polo"
+          ),
+          codigo:
+            polo?.codigo ?? null,
+        }))
+        .filter(
+          (polo) =>
+            Number.isFinite(polo.id) &&
+            polo.id > 0
+        );
+
+      setPolos(polosValidos);
+    } catch (error) {
       console.error(
-        "Erro ao buscar polos:",
-        data?.error || res.statusText
+        "Erro ao carregar polos:",
+        error
       );
 
       setPolos([]);
-      return;
     }
-
-    const listaPolos = Array.isArray(data)
-      ? data
-      : Array.isArray(data?.polos)
-        ? data.polos
-        : [];
-
-    const polosValidos: Polo[] = listaPolos
-      .map((polo: any) => ({
-        id: Number(polo?.id),
-        nome: String(
-          polo?.nome ?? "Polo"
-        ),
-        codigo:
-          polo?.codigo ?? null,
-      }))
-      .filter(
-        (polo) =>
-          Number.isFinite(polo.id) &&
-          polo.id > 0
-      );
-
-    setPolos(polosValidos);
-  } catch (error) {
-    console.error(
-      "Erro ao carregar polos:",
-      error
-    );
-
-    setPolos([]);
   }
-}
 
   function limparFormularioCriacao() {
     setNome("");
@@ -827,47 +955,47 @@ async function carregarPolos() {
   }
 
   function adicionarDocumentoNovoAluno(
-  proprietario: "ALUNO" | "RESPONSAVEL",
-  tipo: string,
-  arquivo: File | null
-) {
-  if (!arquivo) return;
+    proprietario: "ALUNO" | "RESPONSAVEL",
+    tipo: string,
+    arquivo: File | null
+  ) {
+    if (!arquivo) return;
 
-  setNovoAlunoDocumentos((prev) => [
-    ...prev,
-    {
-      proprietario,
-      tipo,
-      arquivo,
-    },
-  ]);
-}
-
-async function enviarDocumentosDepoisCriacao(alunoId: number) {
-  for (const doc of novoAlunoDocumentos) {
-    const formData = new FormData();
-
-    formData.append(
-      "titulo",
-      `${doc.tipo} - ${doc.proprietario === "ALUNO" ? "Aluno" : "Responsável"}`
-    );
-    formData.append("tipo", doc.tipo);
-    formData.append("proprietario", doc.proprietario);
-    formData.append("arquivo", doc.arquivo);
-
-    await fetch(`/api/admin/alunos/${alunoId}/documentos`, {
-      method: "POST",
-      credentials: "include",
-      body: formData,
-    });
+    setNovoAlunoDocumentos((prev) => [
+      ...prev,
+      {
+        proprietario,
+        tipo,
+        arquivo,
+      },
+    ]);
   }
-}
+
+  async function enviarDocumentosDepoisCriacao(alunoId: number) {
+    for (const doc of novoAlunoDocumentos) {
+      const formData = new FormData();
+
+      formData.append(
+        "titulo",
+        `${doc.tipo} - ${doc.proprietario === "ALUNO" ? "Aluno" : "Responsável"}`
+      );
+      formData.append("tipo", doc.tipo);
+      formData.append("proprietario", doc.proprietario);
+      formData.append("arquivo", doc.arquivo);
+
+      await fetch(`/api/admin/alunos/${alunoId}/documentos`, {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+    }
+  }
 
   async function executarCriacaoAluno(
-  confirmacaoMenorCadastroAceita: boolean
-) {
-  try {
-    setCriando(true);
+    confirmacaoMenorCadastroAceita: boolean
+  ) {
+    try {
+      setCriando(true);
 
       const res = await fetch("/api/aluno", {
         method: "POST",
@@ -909,31 +1037,31 @@ async function enviarDocumentosDepoisCriacao(alunoId: number) {
 
       if (!res.ok) {
         if (
-  data?.codigo ===
-  "CONFIRMACAO_MENOR_CADASTRO_NECESSARIA"
-) {
-  setConfirmacaoMenorCadastro({
-    idade: Number(
-      data.idade || 0
-    ),
+          data?.codigo ===
+          "CONFIRMACAO_MENOR_CADASTRO_NECESSARIA"
+        ) {
+          setConfirmacaoMenorCadastro({
+            idade: Number(
+              data.idade || 0
+            ),
 
-    responsavelIncompleto:
-      data.responsavelIncompleto ===
-      true,
+            responsavelIncompleto:
+              data.responsavelIncompleto ===
+              true,
 
-    camposPendentes:
-      Array.isArray(
-        data.camposResponsavelPendentes
-      )
-        ? data.camposResponsavelPendentes
-        : [],
-  });
+            camposPendentes:
+              Array.isArray(
+                data.camposResponsavelPendentes
+              )
+                ? data.camposResponsavelPendentes
+                : [],
+          });
 
-  setCienteMenorCadastro(false);
-  tocarSomAtencao();
+          setCienteMenorCadastro(false);
+          tocarSomAtencao();
 
-  return;
-}
+          return;
+        }
         const mensagem = data?.error || data?.detalhe || "Erro ao criar aluno";
         mostrarFeedback("erro", mensagem);
         abrirModalAviso("erro", "Não foi possível criar", mensagem);
@@ -941,34 +1069,80 @@ async function enviarDocumentosDepoisCriacao(alunoId: number) {
         return;
       }
 
-if (data?.id) {
-  setAlunos((prev) => [
-    data,
-    ...prev.filter((aluno) => aluno.id !== data.id),
-  ]);
-}
+      if (data?.id) {
+        setAlunos((prev) => [
+          data,
+          ...prev.filter((aluno) => aluno.id !== data.id),
+        ]);
+      }
 
-if (data?.id && novoAlunoDocumentos.length > 0) {
-  await enviarDocumentosDepoisCriacao(data.id);
+      if (data?.id && novoAlunoDocumentos.length > 0) {
+        await enviarDocumentosDepoisCriacao(data.id);
+      }
+
+      const alunoCriadoId = Number(data?.id);
+
+setConfirmacaoMenorCadastro(null);
+setCienteMenorCadastro(false);
+
+if (
+  leadParaConversao &&
+  Number.isInteger(alunoCriadoId) &&
+  alunoCriadoId > 0
+) {
+  const paramsMatricula =
+    new URLSearchParams();
+
+  paramsMatricula.set(
+    "alunoId",
+    String(alunoCriadoId)
+  );
+
+  paramsMatricula.set(
+    "leadId",
+    String(leadParaConversao.id)
+  );
+
+  if (
+    leadParaConversao
+      .responsavelFuncionarioId
+  ) {
+    paramsMatricula.set(
+      "vendedorResponsavelId",
+      String(
+        leadParaConversao
+          .responsavelFuncionarioId
+      )
+    );
+  }
+
+  router.push(
+    `/admin/matriculas?${paramsMatricula.toString()}`
+  );
+
+  return;
 }
 
 limparFormularioCriacao();
 
-setConfirmacaoMenorCadastro(
-  null
-);
-
-setCienteMenorCadastro(false);
-
 await carregarTudo();
 
-mostrarFeedback("sucesso", "Aluno criado com sucesso.");
+mostrarFeedback(
+  "sucesso",
+  "Aluno criado com sucesso."
+);
+
 abrirModalAviso(
   "sucesso",
   "Aluno criado",
-  data?.avisoEmail || "O aluno foi criado com sucesso no sistema."
+  data?.avisoEmail ||
+    "O aluno foi criado com sucesso no sistema."
 );
-window.scrollTo({ top: 0, behavior: "smooth" });
+
+window.scrollTo({
+  top: 0,
+  behavior: "smooth",
+});
 
     } catch (error: any) {
       const mensagem = error?.message || "Erro ao criar aluno";
@@ -981,61 +1155,61 @@ window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   async function handleCriarAluno(
-  e: React.FormEvent
-) {
-  e.preventDefault();
-
-  const idade =
-    calcularIdadeFormulario(
-      dataNascimento
-    );
-
-  if (idade === null) {
-    abrirModalAviso(
-      "erro",
-      "Data de nascimento obrigatória",
-      "Informe uma data de nascimento válida para calcular a idade do aluno."
-    );
-
-    return;
-  }
-
-  if (
-    idade < 0 ||
-    idade > 120
+    e: React.FormEvent
   ) {
-    abrirModalAviso(
-      "erro",
-      "Data de nascimento inválida",
-      "Revise a data de nascimento antes de continuar."
-    );
+    e.preventDefault();
 
-    return;
+    const idade =
+      calcularIdadeFormulario(
+        dataNascimento
+      );
+
+    if (idade === null) {
+      abrirModalAviso(
+        "erro",
+        "Data de nascimento obrigatória",
+        "Informe uma data de nascimento válida para calcular a idade do aluno."
+      );
+
+      return;
+    }
+
+    if (
+      idade < 0 ||
+      idade > 120
+    ) {
+      abrirModalAviso(
+        "erro",
+        "Data de nascimento inválida",
+        "Revise a data de nascimento antes de continuar."
+      );
+
+      return;
+    }
+
+    if (idade >= 18) {
+      await executarCriacaoAluno(
+        false
+      );
+
+      return;
+    }
+
+    const camposPendentes =
+      verificarResponsavelFormulario();
+
+    setConfirmacaoMenorCadastro({
+      idade,
+
+      responsavelIncompleto:
+        camposPendentes.length > 0,
+
+      camposPendentes,
+    });
+
+    setCienteMenorCadastro(false);
+    tocarSomAtencao();
   }
-
-  if (idade >= 18) {
-    await executarCriacaoAluno(
-      false
-    );
-
-    return;
-  }
-
-  const camposPendentes =
-    verificarResponsavelFormulario();
-
-  setConfirmacaoMenorCadastro({
-    idade,
-
-    responsavelIncompleto:
-      camposPendentes.length > 0,
-
-    camposPendentes,
-  });
-
-  setCienteMenorCadastro(false);
-  tocarSomAtencao();
-}
 
   function iniciarEdicao(aluno: AlunoComResumo) {
     setEditandoId(aluno.id);
@@ -1067,10 +1241,10 @@ window.scrollTo({ top: 0, behavior: "smooth" });
     setEditParentescoResponsavel(aluno.parentescoResponsavel || "");
     setEditStatusAluno(aluno.statusAluno || "ATIVO");
     setEditPoloId(
-  aluno.poloId !== null && aluno.poloId !== undefined
-    ? String(aluno.poloId)
-    : ""
-);
+      aluno.poloId !== null && aluno.poloId !== undefined
+        ? String(aluno.poloId)
+        : ""
+    );
     setEditPossuiNecessidadeEspecial(!!aluno.possuiNecessidadeEspecial);
     setEditDescricaoNecessidadeEspecial(
       aluno.descricaoNecessidadeEspecial || ""
@@ -1126,70 +1300,70 @@ window.scrollTo({ top: 0, behavior: "smooth" });
       }
 
       const alunoAtualizado: AlunoComResumo = {
-  ...(alunoSelecionado || ({} as AlunoComResumo)),
-  ...data,
-  id,
-  nome: data?.nome ?? editNome,
-  nomeSocial: data?.nomeSocial ?? editNomeSocial,
-  genero: data?.genero ?? editGenero,
-  cpf: data?.cpf ?? editCpf,
-  rg: data?.rg ?? editRg,
-  telefone: data?.telefone ?? editTelefone,
-  dataNascimento: data?.dataNascimento ?? editDataNascimento,
-  cep: data?.cep ?? editCep,
-  endereco: data?.endereco ?? editEndereco,
-  numero: data?.numero ?? editNumero,
-  complemento: data?.complemento ?? editComplemento,
-  bairro: data?.bairro ?? editBairro,
-  cidade: data?.cidade ?? editCidade,
-  estado: data?.estado ?? editEstado,
-  documentoUrl: data?.documentoUrl ?? editDocumentoUrl,
-  fotoPerfil: data?.fotoPerfil ?? editFotoPerfil,
-  nomeResponsavel: data?.nomeResponsavel ?? editNomeResponsavel,
-  cpfResponsavel: data?.cpfResponsavel ?? editCpfResponsavel,
-  telefoneResponsavel: data?.telefoneResponsavel ?? editTelefoneResponsavel,
-  emailResponsavel: data?.emailResponsavel ?? editEmailResponsavel,
-  parentescoResponsavel: data?.parentescoResponsavel ?? editParentescoResponsavel,
-  statusAluno: data?.statusAluno ?? editStatusAluno,
-  poloId: data?.poloId ?? (editPoloId ? Number(editPoloId) : null),
-  possuiNecessidadeEspecial:
-    data?.possuiNecessidadeEspecial ?? editPossuiNecessidadeEspecial,
-  descricaoNecessidadeEspecial:
-    data?.descricaoNecessidadeEspecial ?? editDescricaoNecessidadeEspecial,
-  observacoesAcessibilidade:
-    data?.observacoesAcessibilidade ?? editObservacoesAcessibilidade,
-  user: {
-    ...(alunoSelecionado?.user || { email: "" }),
-    ...(data?.user || {}),
-    email: data?.user?.email ?? editEmail,
-  },
-};
+        ...(alunoSelecionado || ({} as AlunoComResumo)),
+        ...data,
+        id,
+        nome: data?.nome ?? editNome,
+        nomeSocial: data?.nomeSocial ?? editNomeSocial,
+        genero: data?.genero ?? editGenero,
+        cpf: data?.cpf ?? editCpf,
+        rg: data?.rg ?? editRg,
+        telefone: data?.telefone ?? editTelefone,
+        dataNascimento: data?.dataNascimento ?? editDataNascimento,
+        cep: data?.cep ?? editCep,
+        endereco: data?.endereco ?? editEndereco,
+        numero: data?.numero ?? editNumero,
+        complemento: data?.complemento ?? editComplemento,
+        bairro: data?.bairro ?? editBairro,
+        cidade: data?.cidade ?? editCidade,
+        estado: data?.estado ?? editEstado,
+        documentoUrl: data?.documentoUrl ?? editDocumentoUrl,
+        fotoPerfil: data?.fotoPerfil ?? editFotoPerfil,
+        nomeResponsavel: data?.nomeResponsavel ?? editNomeResponsavel,
+        cpfResponsavel: data?.cpfResponsavel ?? editCpfResponsavel,
+        telefoneResponsavel: data?.telefoneResponsavel ?? editTelefoneResponsavel,
+        emailResponsavel: data?.emailResponsavel ?? editEmailResponsavel,
+        parentescoResponsavel: data?.parentescoResponsavel ?? editParentescoResponsavel,
+        statusAluno: data?.statusAluno ?? editStatusAluno,
+        poloId: data?.poloId ?? (editPoloId ? Number(editPoloId) : null),
+        possuiNecessidadeEspecial:
+          data?.possuiNecessidadeEspecial ?? editPossuiNecessidadeEspecial,
+        descricaoNecessidadeEspecial:
+          data?.descricaoNecessidadeEspecial ?? editDescricaoNecessidadeEspecial,
+        observacoesAcessibilidade:
+          data?.observacoesAcessibilidade ?? editObservacoesAcessibilidade,
+        user: {
+          ...(alunoSelecionado?.user || { email: "" }),
+          ...(data?.user || {}),
+          email: data?.user?.email ?? editEmail,
+        },
+      };
 
-setAlunoSelecionado(alunoAtualizado);
+      setAlunoSelecionado(alunoAtualizado);
 
-setAlunos((atuais) =>
-  atuais.map((aluno) =>
-    aluno.id === id
-      ? {
-          ...aluno,
-          ...alunoAtualizado,
-        }
-      : aluno
-  )
-);
+      setAlunos((atuais) =>
+        atuais.map((aluno) =>
+          aluno.id === id
+            ? {
+              ...aluno,
+              ...alunoAtualizado,
+            }
+            : aluno
+        )
+      );
 
-setPainelAlunoAberto(true);
-setAbaPainelAluno("DADOS");
-setEditandoId(null);
+      setPainelAlunoAberto(true);
+      setAbaPainelAluno("DADOS");
+      setEditandoId(null);
 
-await carregarTudo();
+      await carregarTudo();
 
-mostrarFeedback("sucesso", "Aluno atualizado com sucesso.");
-abrirModalAviso(
-  "sucesso",
-  "Aluno atualizado",
-  "As informações do aluno foram atualizadas com sucesso."
-);
+      mostrarFeedback("sucesso", "Aluno atualizado com sucesso.");
+      abrirModalAviso(
+        "sucesso",
+        "Aluno atualizado",
+        "As informações do aluno foram atualizadas com sucesso."
+      );
     } catch (error: any) {
       const mensagem = error?.message || "Erro ao atualizar";
       mostrarFeedback("erro", mensagem);
@@ -1323,55 +1497,55 @@ abrirModalAviso(
     }
   }
 
-async function buscarEnderecoPorCep(valorCep: string) {
-  const cepLimpo = valorCep.replace(/\D/g, "");
+  async function buscarEnderecoPorCep(valorCep: string) {
+    const cepLimpo = valorCep.replace(/\D/g, "");
 
-  if (cepLimpo.length !== 8) return;
+    if (cepLimpo.length !== 8) return;
 
-  try {
-    const res = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
-    const data = await res.json();
+    try {
+      const res = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+      const data = await res.json();
 
-    if (data?.erro) {
-      mostrarFeedback("erro", "CEP não encontrado.");
-      return;
+      if (data?.erro) {
+        mostrarFeedback("erro", "CEP não encontrado.");
+        return;
+      }
+
+      setEndereco(data.logradouro || "");
+      setBairro(data.bairro || "");
+      setCidade(data.localidade || "");
+      setEstado(data.uf || "");
+    } catch {
+      mostrarFeedback("erro", "Não foi possível buscar o endereço pelo CEP.");
     }
-
-    setEndereco(data.logradouro || "");
-    setBairro(data.bairro || "");
-    setCidade(data.localidade || "");
-    setEstado(data.uf || "");
-  } catch {
-    mostrarFeedback("erro", "Não foi possível buscar o endereço pelo CEP.");
   }
-}
 
-async function buscarEnderecoEdicaoPorCep(valorCep: string) {
-  const cepLimpo = valorCep.replace(/\D/g, "");
+  async function buscarEnderecoEdicaoPorCep(valorCep: string) {
+    const cepLimpo = valorCep.replace(/\D/g, "");
 
-  if (cepLimpo.length !== 8) return;
+    if (cepLimpo.length !== 8) return;
 
-  try {
-    const res = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
-    const data = await res.json();
+    try {
+      const res = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+      const data = await res.json();
 
-    if (data?.erro) {
-      mostrarFeedback("erro", "CEP não encontrado.");
-      return;
+      if (data?.erro) {
+        mostrarFeedback("erro", "CEP não encontrado.");
+        return;
+      }
+
+      setEditEndereco(data.logradouro || "");
+      setEditBairro(data.bairro || "");
+      setEditCidade(data.localidade || "");
+      setEditEstado(data.uf || "");
+    } catch {
+      mostrarFeedback("erro", "Não foi possível buscar o endereço pelo CEP.");
     }
-
-    setEditEndereco(data.logradouro || "");
-    setEditBairro(data.bairro || "");
-    setEditCidade(data.localidade || "");
-    setEditEstado(data.uf || "");
-  } catch {
-    mostrarFeedback("erro", "Não foi possível buscar o endereço pelo CEP.");
   }
-}
 
   const alunosComResumo = useMemo<AlunoComResumo[]>(() => {
-  return alunos as AlunoComResumo[];
-}, [alunos]);
+    return alunos as AlunoComResumo[];
+  }, [alunos]);
 
   const alunosFiltrados = useMemo(() => {
     const termoTexto = busca.trim().toLowerCase();
@@ -1466,359 +1640,358 @@ async function buscarEnderecoEdicaoPorCep(valorCep: string) {
   }, [alunosComResumo]);
 
   async function carregarDocumentosArquivadosAluno(alunoId: number) {
-  try {
-    setCarregandoArquivadosAluno(true);
+    try {
+      setCarregandoArquivadosAluno(true);
 
-    const res = await fetch(
-      `/api/admin/alunos/${alunoId}/documentos/arquivados`,
-      {
-        credentials: "include",
-        cache: "no-store",
+      const res = await fetch(
+        `/api/admin/alunos/${alunoId}/documentos/arquivados`,
+        {
+          credentials: "include",
+          cache: "no-store",
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.error || "Erro ao carregar documentos arquivados.");
       }
-    );
 
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data?.error || "Erro ao carregar documentos arquivados.");
+      setDocumentosArquivadosAluno(Array.isArray(data) ? data : []);
+    } catch (error: any) {
+      setDocumentosArquivadosAluno([]);
+      mostrarFeedback(
+        "erro",
+        error?.message || "Erro ao carregar documentos arquivados."
+      );
+    } finally {
+      setCarregandoArquivadosAluno(false);
     }
-
-    setDocumentosArquivadosAluno(Array.isArray(data) ? data : []);
-  } catch (error: any) {
-    setDocumentosArquivadosAluno([]);
-    mostrarFeedback(
-      "erro",
-      error?.message || "Erro ao carregar documentos arquivados."
-    );
-  } finally {
-    setCarregandoArquivadosAluno(false);
   }
-}
 
   async function carregarDocumentosAluno(alunoId: number) {
-  try {
-    setCarregandoDocumentosAluno(true);
+    try {
+      setCarregandoDocumentosAluno(true);
 
-    const res = await fetch(`/api/admin/alunos/${alunoId}/documentos`, {
-      credentials: "include",
-      cache: "no-store",
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data?.error || "Erro ao carregar documentos.");
-    }
-
-    setDocumentosAluno(Array.isArray(data) ? data : []);
-  } catch (error: any) {
-    setDocumentosAluno([]);
-    mostrarFeedback("erro", error?.message || "Erro ao carregar documentos.");
-  } finally {
-    setCarregandoDocumentosAluno(false);
-  }
-}
-
-async function restaurarDocumentoAluno(documentoId: number) {
-  if (!alunoSelecionado) return;
-
-  try {
-    const res = await fetch(
-      `/api/admin/alunos/${alunoSelecionado.id}/documentos/arquivados`,
-      {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch(`/api/admin/alunos/${alunoId}/documentos`, {
         credentials: "include",
-        body: JSON.stringify({
-          documentoId,
-          motivo: "Documento restaurado pelo administrador.",
-        }),
+        cache: "no-store",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.error || "Erro ao carregar documentos.");
       }
-    );
 
-    const data = await res.json();
+      setDocumentosAluno(Array.isArray(data) ? data : []);
+    } catch (error: any) {
+      setDocumentosAluno([]);
+      mostrarFeedback("erro", error?.message || "Erro ao carregar documentos.");
+    } finally {
+      setCarregandoDocumentosAluno(false);
+    }
+  }
 
-    if (!res.ok) {
-      throw new Error(data?.error || "Erro ao restaurar documento.");
+  async function restaurarDocumentoAluno(documentoId: number) {
+    if (!alunoSelecionado) return;
+
+    try {
+      const res = await fetch(
+        `/api/admin/alunos/${alunoSelecionado.id}/documentos/arquivados`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            documentoId,
+            motivo: "Documento restaurado pelo administrador.",
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.error || "Erro ao restaurar documento.");
+      }
+
+      await carregarDocumentosAluno(alunoSelecionado.id);
+      await carregarDocumentosArquivadosAluno(alunoSelecionado.id);
+
+      abrirModalAviso(
+        "sucesso",
+        "Documento restaurado",
+        "O documento voltou para a lista ativa."
+      );
+    } catch (error: any) {
+      abrirModalAviso(
+        "erro",
+        "Erro ao restaurar",
+        error?.message || "Não foi possível restaurar o documento."
+      );
+    }
+  }
+
+  async function arquivarDocumentoAluno(documentoId: number) {
+    if (!alunoSelecionado) return;
+
+    try {
+      const res = await fetch(
+        `/api/admin/alunos/${alunoSelecionado.id}/documentos`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            documentoId,
+            motivo: "Arquivado pelo administrador.",
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.error || "Erro ao arquivar documento.");
+      }
+
+      await carregarDocumentosAluno(alunoSelecionado.id);
+
+      mostrarFeedback("sucesso", "Documento arquivado com sucesso.");
+      abrirModalAviso(
+        "sucesso",
+        "Documento arquivado",
+        "O documento foi arquivado e não aparece mais na lista ativa."
+      );
+    } catch (error: any) {
+      abrirModalAviso(
+        "erro",
+        "Erro ao arquivar",
+        error?.message || "Não foi possível arquivar o documento."
+      );
+    }
+  }
+
+  async function enviarDocumentoAluno() {
+    if (!alunoSelecionado) return;
+
+    if (!documentoArquivo) {
+      abrirModalAviso(
+        "erro",
+        "Arquivo obrigatório",
+        "Selecione um arquivo antes de enviar."
+      );
+      return;
     }
 
-    await carregarDocumentosAluno(alunoSelecionado.id);
-    await carregarDocumentosArquivadosAluno(alunoSelecionado.id);
+    try {
+      setEnviandoDocumentoAluno(true);
 
-    abrirModalAviso(
-      "sucesso",
-      "Documento restaurado",
-      "O documento voltou para a lista ativa."
-    );
-  } catch (error: any) {
-    abrirModalAviso(
-      "erro",
-      "Erro ao restaurar",
-      error?.message || "Não foi possível restaurar o documento."
-    );
-  }
-}
+      const formData = new FormData();
+      formData.append(
+        "titulo",
+        `${documentoTipo} - ${documentoProprietario === "ALUNO" ? "Aluno" : "Responsável"
+        }`
+      );
+      formData.append("tipo", documentoTipo);
+      formData.append("proprietario", documentoProprietario);
+      formData.append("arquivo", documentoArquivo);
 
-async function arquivarDocumentoAluno(documentoId: number) {
-  if (!alunoSelecionado) return;
+      const res = await fetch(
+        `/api/admin/alunos/${alunoSelecionado.id}/documentos`,
+        {
+          method: "POST",
+          credentials: "include",
+          body: formData,
+        }
+      );
 
-  try {
-    const res = await fetch(
-      `/api/admin/alunos/${alunoSelecionado.id}/documentos`,
-      {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          documentoId,
-          motivo: "Arquivado pelo administrador.",
-        }),
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.error || "Erro ao enviar documento.");
       }
-    );
 
-    const data = await res.json();
+      setDocumentoArquivo(null);
+      await carregarDocumentosAluno(alunoSelecionado.id);
 
-    if (!res.ok) {
-      throw new Error(data?.error || "Erro ao arquivar documento.");
+      mostrarFeedback("sucesso", "Documento enviado com sucesso.");
+      abrirModalAviso(
+        "sucesso",
+        "Documento enviado",
+        "O documento foi salvo no cadastro do aluno."
+      );
+    } catch (error: any) {
+      abrirModalAviso(
+        "erro",
+        "Erro ao enviar documento",
+        error?.message || "Não foi possível enviar o documento."
+      );
+    } finally {
+      setEnviandoDocumentoAluno(false);
     }
-
-    await carregarDocumentosAluno(alunoSelecionado.id);
-
-    mostrarFeedback("sucesso", "Documento arquivado com sucesso.");
-    abrirModalAviso(
-      "sucesso",
-      "Documento arquivado",
-      "O documento foi arquivado e não aparece mais na lista ativa."
-    );
-  } catch (error: any) {
-    abrirModalAviso(
-      "erro",
-      "Erro ao arquivar",
-      error?.message || "Não foi possível arquivar o documento."
-    );
   }
-}
-
-async function enviarDocumentoAluno() {
-  if (!alunoSelecionado) return;
-
-  if (!documentoArquivo) {
-    abrirModalAviso(
-      "erro",
-      "Arquivo obrigatório",
-      "Selecione um arquivo antes de enviar."
-    );
-    return;
-  }
-
-  try {
-    setEnviandoDocumentoAluno(true);
-
-    const formData = new FormData();
-    formData.append(
-      "titulo",
-      `${documentoTipo} - ${
-        documentoProprietario === "ALUNO" ? "Aluno" : "Responsável"
-      }`
-    );
-    formData.append("tipo", documentoTipo);
-    formData.append("proprietario", documentoProprietario);
-    formData.append("arquivo", documentoArquivo);
-
-    const res = await fetch(
-      `/api/admin/alunos/${alunoSelecionado.id}/documentos`,
-      {
-        method: "POST",
-        credentials: "include",
-        body: formData,
-      }
-    );
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data?.error || "Erro ao enviar documento.");
-    }
-
-    setDocumentoArquivo(null);
-    await carregarDocumentosAluno(alunoSelecionado.id);
-
-    mostrarFeedback("sucesso", "Documento enviado com sucesso.");
-    abrirModalAviso(
-      "sucesso",
-      "Documento enviado",
-      "O documento foi salvo no cadastro do aluno."
-    );
-  } catch (error: any) {
-    abrirModalAviso(
-      "erro",
-      "Erro ao enviar documento",
-      error?.message || "Não foi possível enviar o documento."
-    );
-  } finally {
-    setEnviandoDocumentoAluno(false);
-  }
-}
 
   async function carregarDesempenhoAluno(
-  alunoId: number,
-  busca = "",
-  page = 1
-) {
-  try {
-    setCarregandoDesempenho(true);
-    setDesempenhoAluno(null);
+    alunoId: number,
+    busca = "",
+    page = 1
+  ) {
+    try {
+      setCarregandoDesempenho(true);
+      setDesempenhoAluno(null);
 
-    const params = new URLSearchParams({
-  busca,
-  page: String(page),
-  limit: "10",
-});
+      const params = new URLSearchParams({
+        busca,
+        page: String(page),
+        limit: "10",
+      });
 
-const res = await fetch(
-  `/api/admin/alunos/${alunoId}/desempenho?${params.toString()}`,
-  {
-    credentials: "include",
-    cache: "no-store",
-  }
-);
+      const res = await fetch(
+        `/api/admin/alunos/${alunoId}/desempenho?${params.toString()}`,
+        {
+          credentials: "include",
+          cache: "no-store",
+        }
+      );
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!res.ok) {
-      throw new Error(data?.error || "Erro ao carregar desempenho.");
+      if (!res.ok) {
+        throw new Error(data?.error || "Erro ao carregar desempenho.");
+      }
+
+      setDesempenhoAluno(data);
+    } catch (error: any) {
+      setDesempenhoAluno(null);
+      mostrarFeedback(
+        "erro",
+        error?.message || "Erro ao carregar desempenho acadêmico."
+      );
+    } finally {
+      setCarregandoDesempenho(false);
     }
-
-    setDesempenhoAluno(data);
-  } catch (error: any) {
-    setDesempenhoAluno(null);
-    mostrarFeedback(
-      "erro",
-      error?.message || "Erro ao carregar desempenho acadêmico."
-    );
-  } finally {
-    setCarregandoDesempenho(false);
   }
-}
 
-function abrirDetalhesAluno(aluno: AlunoComResumo) {
-  setAlunoSelecionado(aluno);
-  setPainelAlunoAberto(true);
-  setAbaPainelAluno("DADOS");
-  setAlunoDesempenhoId(aluno.id);
+  function abrirDetalhesAluno(aluno: AlunoComResumo) {
+    setAlunoSelecionado(aluno);
+    setPainelAlunoAberto(true);
+    setAbaPainelAluno("DADOS");
+    setAlunoDesempenhoId(aluno.id);
 
-  carregarDocumentosAluno(aluno.id);
-  carregarDocumentosArquivadosAluno(aluno.id);
+    carregarDocumentosAluno(aluno.id);
+    carregarDocumentosArquivadosAluno(aluno.id);
 
-  carregarDesempenhoAluno(
-    aluno.id,
-    buscaDisciplina,
-    paginaDisciplina
-  );
-}
+    carregarDesempenhoAluno(
+      aluno.id,
+      buscaDisciplina,
+      paginaDisciplina
+    );
+  }
 
-async function gerarCertificadoAlunoSelecionado() {
-  if (!alunoSelecionado) return;
+  async function gerarCertificadoAlunoSelecionado() {
+    if (!alunoSelecionado) return;
 
-  try {
-    setGerandoCertificado(true);
+    try {
+      setGerandoCertificado(true);
 
-    const res = await fetch("/api/admin/certificados/gerar", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({
-        alunoId: alunoSelecionado.id,
-      }),
-    });
+      const res = await fetch("/api/admin/certificados/gerar", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          alunoId: alunoSelecionado.id,
+        }),
+      });
 
-    const data = await res.json().catch(() => null);
+      const data = await res.json().catch(() => null);
 
-    if (!res.ok || !data?.sucesso) {
+      if (!res.ok || !data?.sucesso) {
+        const mensagem =
+          data?.detalhe ||
+          data?.error ||
+          "Não foi possível gerar o certificado.";
+
+        mostrarFeedback("erro", mensagem);
+        abrirModalAviso("erro", "Erro ao gerar certificado", mensagem);
+        return;
+      }
+
+      mostrarFeedback("sucesso", "Certificado gerado com sucesso.");
+      abrirModalAviso(
+        "sucesso",
+        "Certificado gerado",
+        "O certificado foi gerado e já deve ficar disponível na área do aluno."
+      );
+    } catch (error: any) {
+      console.error("Erro ao gerar certificado do aluno:", error);
+
       const mensagem =
-  data?.detalhe ||
-  data?.error ||
-  "Não foi possível gerar o certificado.";
+        error?.message ||
+        "Erro ao gerar certificado. Verifique se o aluno possui matrícula e disciplina vinculadas.";
 
       mostrarFeedback("erro", mensagem);
       abrirModalAviso("erro", "Erro ao gerar certificado", mensagem);
-      return;
+    } finally {
+      setGerandoCertificado(false);
     }
-
-    mostrarFeedback("sucesso", "Certificado gerado com sucesso.");
-    abrirModalAviso(
-      "sucesso",
-      "Certificado gerado",
-      "O certificado foi gerado e já deve ficar disponível na área do aluno."
-    );
-  } catch (error: any) {
-    console.error("Erro ao gerar certificado do aluno:", error);
-
-const mensagem =
-  error?.message ||
-  "Erro ao gerar certificado. Verifique se o aluno possui matrícula e disciplina vinculadas.";
-
-    mostrarFeedback("erro", mensagem);
-    abrirModalAviso("erro", "Erro ao gerar certificado", mensagem);
-  } finally {
-    setGerandoCertificado(false);
   }
-}
 
-async function baixarCertificadoAlunoSelecionado() {
-  if (!alunoSelecionado) return;
+  async function baixarCertificadoAlunoSelecionado() {
+    if (!alunoSelecionado) return;
 
-  try {
-    setBaixandoCertificado(true);
+    try {
+      setBaixandoCertificado(true);
 
-    const res = await fetch("/api/admin/certificados/gerar", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({
-        alunoId: alunoSelecionado.id,
-        baixar: true,
-      }),
-    });
+      const res = await fetch("/api/admin/certificados/gerar", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          alunoId: alunoSelecionado.id,
+          baixar: true,
+        }),
+      });
 
-    if (!res.ok) {
-      const data = await res.json().catch(() => null);
-      const mensagem =
-        data?.error ||
-        data?.detalhe ||
-        "Não foi possível baixar o certificado.";
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        const mensagem =
+          data?.error ||
+          data?.detalhe ||
+          "Não foi possível baixar o certificado.";
+
+        mostrarFeedback("erro", mensagem);
+        abrirModalAviso("erro", "Erro ao baixar certificado", mensagem);
+        return;
+      }
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `certificado-${alunoSelecionado.nome}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      window.URL.revokeObjectURL(url);
+
+      mostrarFeedback("sucesso", "Certificado baixado com sucesso.");
+    } catch (error: any) {
+      const mensagem = error?.message || "Erro ao baixar certificado.";
 
       mostrarFeedback("erro", mensagem);
       abrirModalAviso("erro", "Erro ao baixar certificado", mensagem);
-      return;
+    } finally {
+      setBaixandoCertificado(false);
     }
-
-    const blob = await res.blob();
-    const url = window.URL.createObjectURL(blob);
-
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `certificado-${alunoSelecionado.nome}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-
-    window.URL.revokeObjectURL(url);
-
-    mostrarFeedback("sucesso", "Certificado baixado com sucesso.");
-  } catch (error: any) {
-    const mensagem = error?.message || "Erro ao baixar certificado.";
-
-    mostrarFeedback("erro", mensagem);
-    abrirModalAviso("erro", "Erro ao baixar certificado", mensagem);
-  } finally {
-    setBaixandoCertificado(false);
   }
-}
 
   const turmaNomeSelecionada = useMemo(() => {
     if (filtroTurmaId === "TODAS") return "Todas as turmas";
@@ -1827,15 +2000,14 @@ async function baixarCertificadoAlunoSelecionado() {
   }, [filtroTurmaId, turmas]);
 
   return (
-  <div className="phanyx-admin-alunos-page">
+    <div className="phanyx-admin-alunos-page">
       <div className="mx-auto max-w-7xl space-y-6 p-4 md:p-6">
         {feedback && (
           <div
-            className={`rounded-2xl border px-4 py-3 text-sm shadow-sm ${
-              feedbackTipo === "sucesso"
-                ? "border-green-200 bg-green-50 text-green-700"
-                : "border-red-200 bg-red-50 text-red-700"
-            }`}
+            className={`rounded-2xl border px-4 py-3 text-sm shadow-sm ${feedbackTipo === "sucesso"
+              ? "border-green-200 bg-green-50 text-green-700"
+              : "border-red-200 bg-red-50 text-red-700"
+              }`}
           >
             {feedback}
           </div>
@@ -1941,61 +2113,102 @@ async function baixarCertificadoAlunoSelecionado() {
               </p>
             </div>
 
-            <form onSubmit={handleCriarAluno} className="space-y-4">
+            <form
+              id="formulario-novo-aluno"
+              onSubmit={handleCriarAluno}
+              className="space-y-4"
+            >
+              {leadParaConversao && (
+                <div className="rounded-2xl border border-emerald-300 bg-emerald-50 p-4 text-sm text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-100">
+                  <strong className="block text-base">
+                    Convertendo lead em aluno
+                  </strong>
 
-<div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-  <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-    <div className="flex h-28 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900">
-      {fotoPerfil ? (
-        <img
-          src={fotoPerfil}
-          alt={nome || "Foto oficial do aluno"}
-          className="h-full w-full object-cover"
-        />
-      ) : (
-        <span className="text-3xl font-black text-slate-400">
-          {nome?.charAt(0)?.toUpperCase() || "A"}
-        </span>
-      )}
-    </div>
+                  <p className="mt-1 leading-6">
+                    Os dados de{" "}
+                    <strong>
+                      {leadParaConversao.nome}
+                    </strong>{" "}
+                    foram preenchidos a partir do CRM.
+                    Complete os dados pessoais obrigatórios
+                    antes de criar o aluno.
+                  </p>
 
-    <div className="flex-1">
-      <h3 className="font-semibold text-slate-900 dark:text-slate-100">
-        Foto oficial do aluno
-      </h3>
+                  <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs">
+                    <span>
+                      Lead #{leadParaConversao.id}
+                    </span>
 
-      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-        Esta é a foto institucional usada em crachás, identificação e documentos
-        oficiais. Não é a foto pessoal que o aluno altera no próprio perfil.
-      </p>
+                    {leadParaConversao.responsavelNome ? (
+                      <span>
+                        Responsável comercial:{" "}
+                        {leadParaConversao.responsavelNome}
+                      </span>
+                    ) : null}
 
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        <label className="cursor-pointer rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-100">
-          {enviandoFotoPerfil ? "Enviando..." : "Enviar foto"}
-          <input
-            type="file"
-            accept="image/png,image/jpeg,image/jpg,image/webp"
-            disabled={enviandoFotoPerfil}
-            onChange={(e) =>
-              enviarFotoOficialAluno(e.target.files?.[0] || null, "CRIACAO")
-            }
-            className="hidden"
-          />
-        </label>
+                    {leadParaConversao.interesse ? (
+                      <span>
+                        Interesse:{" "}
+                        {leadParaConversao.interesse}
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+              )}
 
-        {fotoPerfil && (
-          <button
-            type="button"
-            onClick={() => setFotoPerfil("")}
-            className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
-          >
-            Remover foto
-          </button>
-        )}
-      </div>
-    </div>
-  </div>
-</div>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                  <div className="flex h-28 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900">
+                    {fotoPerfil ? (
+                      <img
+                        src={fotoPerfil}
+                        alt={nome || "Foto oficial do aluno"}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-3xl font-black text-slate-400">
+                        {nome?.charAt(0)?.toUpperCase() || "A"}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+                      Foto oficial do aluno
+                    </h3>
+
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                      Esta é a foto institucional usada em crachás, identificação e documentos
+                      oficiais. Não é a foto pessoal que o aluno altera no próprio perfil.
+                    </p>
+
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <label className="cursor-pointer rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-100">
+                        {enviandoFotoPerfil ? "Enviando..." : "Enviar foto"}
+                        <input
+                          type="file"
+                          accept="image/png,image/jpeg,image/jpg,image/webp"
+                          disabled={enviandoFotoPerfil}
+                          onChange={(e) =>
+                            enviarFotoOficialAluno(e.target.files?.[0] || null, "CRIACAO")
+                          }
+                          className="hidden"
+                        />
+                      </label>
+
+                      {fotoPerfil && (
+                        <button
+                          type="button"
+                          onClick={() => setFotoPerfil("")}
+                          className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+                        >
+                          Remover foto
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <input
@@ -2029,21 +2242,21 @@ async function baixarCertificadoAlunoSelecionado() {
                 </select>
 
                 <input
-  placeholder="Email"
-  type="email"
-  name="email-aluno-phanyx"
-  autoComplete="new-password"
-  value={email}
-  onChange={(e) => setEmail(e.target.value)}
-  className="w-full rounded-xl border p-2.5"
-  required
-/>
+                  placeholder="Email"
+                  type="email"
+                  name="email-aluno-phanyx"
+                  autoComplete="new-password"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full rounded-xl border p-2.5"
+                  required
+                />
 
                 <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3 text-sm text-slate-600">
-  <strong>Número da matrícula</strong>
-  <br />
-  Será gerado automaticamente após a matrícula oficial do aluno.
-</div>
+                  <strong>Número da matrícula</strong>
+                  <br />
+                  Será gerado automaticamente após a matrícula oficial do aluno.
+                </div>
 
                 <input
                   placeholder="CPF"
@@ -2090,41 +2303,41 @@ async function baixarCertificadoAlunoSelecionado() {
                   <option value="FALTANTE">Faltante</option>
                 </select>
 
-<select
-  value={poloId}
-  onChange={(e) => setPoloId(e.target.value)}
-  className="w-full rounded-xl border p-2.5"
->
-  <option value="">Selecione o polo do aluno</option>
-  {polos.map((polo) => (
-    <option key={polo.id} value={polo.id}>
-      {polo.nome}
-    </option>
-  ))}
-</select>
+                <select
+                  value={poloId}
+                  onChange={(e) => setPoloId(e.target.value)}
+                  className="w-full rounded-xl border p-2.5"
+                >
+                  <option value="">Selecione o polo do aluno</option>
+                  {polos.map((polo) => (
+                    <option key={polo.id} value={polo.id}>
+                      {polo.nome}
+                    </option>
+                  ))}
+                </select>
 
                 <input
-  placeholder="CEP"
-  value={cep}
-  onChange={(e) => {
-    const valor = e.target.value;
+                  placeholder="CEP"
+                  value={cep}
+                  onChange={(e) => {
+                    const valor = e.target.value;
 
-    setCep(valor);
+                    setCep(valor);
 
-    if (valor.replace(/\D/g, "").length === 8) {
-      void buscarEnderecoPorCep(valor);
-    }
-  }}
-  onKeyDown={(e) => {
-    if (e.key !== "Enter") return;
+                    if (valor.replace(/\D/g, "").length === 8) {
+                      void buscarEnderecoPorCep(valor);
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key !== "Enter") return;
 
-    e.preventDefault();
-    e.stopPropagation();
+                    e.preventDefault();
+                    e.stopPropagation();
 
-    void buscarEnderecoPorCep(e.currentTarget.value);
-  }}
-  className="w-full rounded-xl border p-2.5"
-/>
+                    void buscarEnderecoPorCep(e.currentTarget.value);
+                  }}
+                  className="w-full rounded-xl border p-2.5"
+                />
 
                 <input
                   placeholder="Endereço"
@@ -2168,42 +2381,42 @@ async function baixarCertificadoAlunoSelecionado() {
                   className="w-full rounded-xl border p-2.5"
                 />
 
-<div className="md:col-span-2 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-  <h3 className="font-semibold text-slate-900 dark:text-slate-100">
-    Documentos do aluno
-  </h3>
+                <div className="md:col-span-2 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+                  <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+                    Documentos do aluno
+                  </h3>
 
-  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-    Opcional. Envie RG, CPF, CNH, Histórico Escolar, Comprovante de Residência ou Título de Eleitor.
-  </p>
+                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    Opcional. Envie RG, CPF, CNH, Histórico Escolar, Comprovante de Residência ou Título de Eleitor.
+                  </p>
 
-  <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
-    {["RG", "CPF", "CNH", "HISTORICO_ESCOLAR", "COMPROVANTE_RESIDENCIA", "TITULO_ELEITOR"].map((tipo) => (
-      <label
-        key={`aluno-${tipo}`}
-        className="rounded-xl border border-slate-300 bg-white p-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
-      >
-        <span className="mb-2 block font-semibold">
-          {tipo.replaceAll("_", " ")}
-        </span>
+                  <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+                    {["RG", "CPF", "CNH", "HISTORICO_ESCOLAR", "COMPROVANTE_RESIDENCIA", "TITULO_ELEITOR"].map((tipo) => (
+                      <label
+                        key={`aluno-${tipo}`}
+                        className="rounded-xl border border-slate-300 bg-white p-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+                      >
+                        <span className="mb-2 block font-semibold">
+                          {tipo.replaceAll("_", " ")}
+                        </span>
 
-        <input
-          type="file"
-          accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
-          onChange={(e) =>
-            adicionarDocumentoNovoAluno(
-              "ALUNO",
-              tipo,
-              e.target.files?.[0] || null
-            )
-          }
-          className="w-full text-xs"
-        />
-      </label>
-    ))}
-  </div>
-</div>
-                
+                        <input
+                          type="file"
+                          accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
+                          onChange={(e) =>
+                            adicionarDocumentoNovoAluno(
+                              "ALUNO",
+                              tipo,
+                              e.target.files?.[0] || null
+                            )
+                          }
+                          className="w-full text-xs"
+                        />
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
               </div>
 
               <div className="border-t pt-4">
@@ -2287,51 +2500,60 @@ async function baixarCertificadoAlunoSelecionado() {
                     className="w-full rounded-xl border p-2.5 md:col-span-2"
                   />
 
-<div className="md:col-span-2 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-  <h3 className="font-semibold text-slate-900 dark:text-slate-100">
-    Documentos do responsável
-  </h3>
+                  <div className="md:col-span-2 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+                    <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+                      Documentos do responsável
+                    </h3>
 
-  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-    Opcional. Envie documentos do titular/responsável pelo aluno.
-  </p>
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                      Opcional. Envie documentos do titular/responsável pelo aluno.
+                    </p>
 
-  <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
-    {["RG", "CPF", "CNH", "COMPROVANTE_RESIDENCIA", "TITULO_ELEITOR"].map((tipo) => (
-      <label
-        key={`responsavel-${tipo}`}
-        className="rounded-xl border border-slate-300 bg-white p-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
-      >
-        <span className="mb-2 block font-semibold">
-          {tipo.replaceAll("_", " ")}
-        </span>
+                    <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+                      {["RG", "CPF", "CNH", "COMPROVANTE_RESIDENCIA", "TITULO_ELEITOR"].map((tipo) => (
+                        <label
+                          key={`responsavel-${tipo}`}
+                          className="rounded-xl border border-slate-300 bg-white p-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+                        >
+                          <span className="mb-2 block font-semibold">
+                            {tipo.replaceAll("_", " ")}
+                          </span>
 
-        <input
-          type="file"
-          accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
-          onChange={(e) =>
-            adicionarDocumentoNovoAluno(
-              "RESPONSAVEL",
-              tipo,
-              e.target.files?.[0] || null
-            )
-          }
-          className="w-full text-xs"
-        />
-      </label>
-    ))}
-  </div>
-</div>
+                          <input
+                            type="file"
+                            accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
+                            onChange={(e) =>
+                              adicionarDocumentoNovoAluno(
+                                "RESPONSAVEL",
+                                tipo,
+                                e.target.files?.[0] || null
+                              )
+                            }
+                            className="w-full text-xs"
+                          />
+                        </label>
+                      ))}
+                    </div>
+                  </div>
 
                 </div>
               </div>
 
               <button
                 type="submit"
-                disabled={criando}
+                disabled={
+                  criando ||
+                  carregandoLeadParaConversao
+                }
                 className="rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
               >
-                {criando ? "Criando..." : "Criar aluno"}
+                {carregandoLeadParaConversao
+                  ? "Carregando lead..."
+                  : criando
+                    ? "Criando aluno..."
+                    : leadParaConversao
+                      ? "Criar aluno e continuar"
+                      : "Criar aluno"}
               </button>
             </form>
           </section>
@@ -2353,22 +2575,22 @@ async function baixarCertificadoAlunoSelecionado() {
                 type="text"
                 placeholder="Buscar por nome, email, matrícula, CPF..."
                 autoComplete="off"
-name="busca-alunos-phanyx"
+                name="busca-alunos-phanyx"
                 value={busca}
                 onChange={(e) => {
-  setBusca(e.target.value);
-  setPaginaAtual(1);
+                  setBusca(e.target.value);
+                  setPaginaAtual(1);
 
-}}
+                }}
                 className="rounded-xl border px-3 py-2.5"
               />
 
               <select
                 value={filtroStatus}
                 onChange={(e) => {
-  setFiltroStatus(e.target.value);
-  setPaginaAtual(1);
-}}
+                  setFiltroStatus(e.target.value);
+                  setPaginaAtual(1);
+                }}
                 className="rounded-xl border px-3 py-2.5"
               >
                 <option value="TODOS">Todos os status</option>
@@ -2410,7 +2632,7 @@ name="busca-alunos-phanyx"
 
             <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
               Exibindo <strong>{alunosFiltrados.length}</strong> de{" "}
-<strong>{totalAlunos}</strong> aluno(s) —
+              <strong>{totalAlunos}</strong> aluno(s) —
               filtro atual: <strong>{turmaNomeSelecionada}</strong>
             </div>
           </div>
@@ -2446,11 +2668,10 @@ name="busca-alunos-phanyx"
                     return (
                       <tr
                         key={a.id}
-                        className={`border-t ${
-                          a.statusAluno === "CANCELADO"
-                            ? "bg-slate-50/70"
-                            : "bg-white"
-                        }`}
+                        className={`border-t ${a.statusAluno === "CANCELADO"
+                          ? "bg-slate-50/70"
+                          : "bg-white"
+                          }`}
                       >
                         <td className="px-4 py-4 align-top">
                           <button
@@ -2566,35 +2787,35 @@ name="busca-alunos-phanyx"
           </div>
         </section>
 
-<section className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
-  <div className="text-sm text-slate-600">
-    Página <strong>{paginaAtual}</strong> de{" "}
-    <strong>{totalPaginas}</strong> — total de{" "}
-    <strong>{totalAlunos}</strong> aluno(s)
-  </div>
+        <section className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
+          <div className="text-sm text-slate-600">
+            Página <strong>{paginaAtual}</strong> de{" "}
+            <strong>{totalPaginas}</strong> — total de{" "}
+            <strong>{totalAlunos}</strong> aluno(s)
+          </div>
 
-  <div className="flex flex-wrap gap-2">
-    <button
-      type="button"
-      disabled={paginaAtual <= 1 || carregandoAlunos}
-      onClick={() => setPaginaAtual((prev) => Math.max(prev - 1, 1))}
-      className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-    >
-      Anterior
-    </button>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              disabled={paginaAtual <= 1 || carregandoAlunos}
+              onClick={() => setPaginaAtual((prev) => Math.max(prev - 1, 1))}
+              className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Anterior
+            </button>
 
-    <button
-      type="button"
-      disabled={paginaAtual >= totalPaginas || carregandoAlunos}
-      onClick={() =>
-        setPaginaAtual((prev) => Math.min(prev + 1, totalPaginas))
-      }
-      className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-    >
-      Próxima
-    </button>
-  </div>
-</section>
+            <button
+              type="button"
+              disabled={paginaAtual >= totalPaginas || carregandoAlunos}
+              onClick={() =>
+                setPaginaAtual((prev) => Math.min(prev + 1, totalPaginas))
+              }
+              className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Próxima
+            </button>
+          </div>
+        </section>
 
       </div>
 
@@ -2638,1136 +2859,1135 @@ name="busca-alunos-phanyx"
             <div className="space-y-6 p-6">
 
               <div className="flex flex-wrap gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-  {[
-  { id: "DADOS", label: "Dados" },
-  { id: "DOCUMENTOS", label: "Documentos" },
-  { id: "MATRICULAS", label: "Matrículas" },
-  { id: "DESEMPENHO", label: "Desempenho" },
-  { id: "HISTORICO", label: "Histórico" },
-  { id: "CERTIFICADOS", label: "Certificados" },
-].map((aba) => (
-    <button
-      key={aba.id}
-      type="button"
-      onClick={() => setAbaPainelAluno(aba.id as any)}
-      className={`rounded-xl px-3 py-2 text-sm font-semibold transition ${
-        abaPainelAluno === aba.id
-          ? "bg-blue-600 text-white"
-          : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-      }`}
-    >
-      {aba.label}
-    </button>
-  ))}
-</div>
+                {[
+                  { id: "DADOS", label: "Dados" },
+                  { id: "DOCUMENTOS", label: "Documentos" },
+                  { id: "MATRICULAS", label: "Matrículas" },
+                  { id: "DESEMPENHO", label: "Desempenho" },
+                  { id: "HISTORICO", label: "Histórico" },
+                  { id: "CERTIFICADOS", label: "Certificados" },
+                ].map((aba) => (
+                  <button
+                    key={aba.id}
+                    type="button"
+                    onClick={() => setAbaPainelAluno(aba.id as any)}
+                    className={`rounded-xl px-3 py-2 text-sm font-semibold transition ${abaPainelAluno === aba.id
+                      ? "bg-blue-600 text-white"
+                      : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                      }`}
+                  >
+                    {aba.label}
+                  </button>
+                ))}
+              </div>
 
-{abaPainelAluno === "DADOS" && (
-  <>
-    {editandoId === alunoSelecionado.id ? (
-                <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                  <h3 className="mb-4 text-lg font-semibold text-slate-900">
-                    Editar aluno
+              {abaPainelAluno === "DADOS" && (
+                <>
+                  {editandoId === alunoSelecionado.id ? (
+                    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                      <h3 className="mb-4 text-lg font-semibold text-slate-900">
+                        Editar aluno
+                      </h3>
+
+                      <div className="mb-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                          <div className="flex h-28 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900">
+                            {editFotoPerfil ? (
+                              <img
+                                src={editFotoPerfil}
+                                alt={editNome || "Foto oficial do aluno"}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <span className="text-3xl font-black text-slate-400">
+                                {editNome?.charAt(0)?.toUpperCase() || "A"}
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-slate-900 dark:text-slate-100">
+                              Foto oficial do aluno
+                            </h4>
+
+                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                              Foto controlada pela instituição e usada no crachá oficial.
+                            </p>
+                            <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-300">
+                              Formatos aceitos: JPG, JPEG ou PNG. Tamanho máximo: 2 MB.
+                              Recomendado: foto quadrada, no mínimo 600x600 px, com rosto centralizado.
+                            </p>
+                            <div className="mt-3 flex flex-wrap items-center gap-2">
+                              <label className="cursor-pointer rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-100">
+                                {editEnviandoFotoPerfil ? "Enviando..." : "Trocar foto"}
+                                <input
+                                  type="file"
+                                  accept="image/png,image/jpeg,image/webp"
+                                  disabled={editEnviandoFotoPerfil}
+                                  onChange={(e) =>
+                                    enviarFotoOficialAluno(e.target.files?.[0] || null, "EDICAO")
+                                  }
+                                  className="hidden"
+                                />
+                              </label>
+
+                              {editFotoPerfil && (
+                                <button
+                                  type="button"
+                                  onClick={() => setEditFotoPerfil("")}
+                                  className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+                                >
+                                  Remover foto
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                        <input
+                          value={editNome}
+                          onChange={(e) => setEditNome(e.target.value)}
+                          className="rounded-xl border p-2.5"
+                          placeholder="Nome"
+                        />
+                        <input
+                          value={editNomeSocial}
+                          onChange={(e) => setEditNomeSocial(e.target.value)}
+                          className="rounded-xl border p-2.5"
+                          placeholder="Nome social"
+                        />
+                        <select
+                          value={editGenero}
+                          onChange={(e) => setEditGenero(e.target.value)}
+                          className="rounded-xl border p-2.5"
+                        >
+                          <option value="">Gênero</option>
+                          <option value="FEMININO">Feminino</option>
+                          <option value="MASCULINO">Masculino</option>
+                          <option value="NAO_BINARIO">Não binário</option>
+                          <option value="OUTRO">Outro</option>
+                          <option value="PREFIRO_NAO_INFORMAR">
+                            Prefiro não informar
+                          </option>
+                        </select>
+                        <input
+                          value={editEmail}
+                          onChange={(e) => setEditEmail(e.target.value)}
+                          className="rounded-xl border p-2.5"
+                          placeholder="Email"
+                          type="email"
+                          name="edit-email-aluno-phanyx"
+                          autoComplete="off"
+                        />
+                        <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3 text-sm text-slate-600">
+                          Matrícula gerada automaticamente pelo sistema.
+                        </div>
+                        <input
+                          value={editCpf}
+                          onChange={(e) => setEditCpf(e.target.value)}
+                          className="rounded-xl border p-2.5"
+                          placeholder="CPF"
+                        />
+                        <input
+                          value={editRg}
+                          onChange={(e) => setEditRg(e.target.value)}
+                          className="rounded-xl border p-2.5"
+                          placeholder="RG"
+                        />
+                        <input
+                          value={editTelefone}
+                          onChange={(e) => setEditTelefone(e.target.value)}
+                          className="rounded-xl border p-2.5"
+                          placeholder="Telefone"
+                        />
+                        <input
+                          type="date"
+                          value={editDataNascimento}
+                          onChange={(e) => setEditDataNascimento(e.target.value)}
+                          className="rounded-xl border p-2.5"
+                        />
+                        <select
+                          value={editStatusAluno}
+                          onChange={(e) =>
+                            setEditStatusAluno(e.target.value as StatusAluno)
+                          }
+                          className="rounded-xl border p-2.5"
+                        >
+                          <option value="ATIVO">Ativo</option>
+                          <option value="TRANCADO">Trancado</option>
+                          <option value="SUSPENSO">Suspenso</option>
+                          <option value="INADIMPLENTE">Inadimplente</option>
+                          <option value="TRANSFERIDO">Transferido</option>
+                          <option value="DESLIGADO">Desligado</option>
+                          <option value="FORMADO">Formado</option>
+                          <option value="CANCELADO">Cancelado</option>
+                          <option value="PAUSA_MEDICA">Pausa médica</option>
+                          <option value="FALTANTE">Faltante</option>
+                        </select>
+
+                        <select
+                          value={editPoloId}
+                          onChange={(e) => setEditPoloId(e.target.value)}
+                          className="rounded-xl border p-2.5"
+                        >
+                          <option value="">Selecione o polo do aluno</option>
+                          {polos.map((polo) => (
+                            <option key={polo.id} value={polo.id}>
+                              {polo.nome}
+                            </option>
+                          ))}
+                        </select>
+
+                        <input
+                          value={editCep}
+                          onChange={(e) => {
+                            const valor = e.target.value;
+
+                            setEditCep(valor);
+
+                            if (valor.replace(/\D/g, "").length === 8) {
+                              void buscarEnderecoEdicaoPorCep(valor);
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key !== "Enter") return;
+
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            void buscarEnderecoEdicaoPorCep(e.currentTarget.value);
+                          }}
+                          className="rounded-xl border p-2.5"
+                          placeholder="CEP"
+                        />
+                        <input
+                          value={editEndereco}
+                          onChange={(e) => setEditEndereco(e.target.value)}
+                          className="rounded-xl border p-2.5"
+                          placeholder="Endereço"
+                        />
+                        <input
+                          value={editNumero}
+                          onChange={(e) => setEditNumero(e.target.value)}
+                          className="rounded-xl border p-2.5"
+                          placeholder="Número"
+                        />
+                        <input
+                          value={editComplemento}
+                          onChange={(e) => setEditComplemento(e.target.value)}
+                          className="rounded-xl border p-2.5"
+                          placeholder="Complemento"
+                        />
+                        <input
+                          value={editBairro}
+                          onChange={(e) => setEditBairro(e.target.value)}
+                          className="rounded-xl border p-2.5"
+                          placeholder="Bairro"
+                        />
+                        <input
+                          value={editCidade}
+                          onChange={(e) => setEditCidade(e.target.value)}
+                          className="rounded-xl border p-2.5"
+                          placeholder="Cidade"
+                        />
+                        <input
+                          value={editEstado}
+                          onChange={(e) => setEditEstado(e.target.value)}
+                          className="rounded-xl border p-2.5"
+                          placeholder="Estado"
+                        />
+                        <input
+                          value={editDocumentoUrl}
+                          onChange={(e) => setEditDocumentoUrl(e.target.value)}
+                          className="rounded-xl border p-2.5 md:col-span-2"
+                          placeholder="URL do documento"
+                        />
+                      </div>
+
+                      <div className="mt-5 border-t pt-4">
+                        <h4 className="mb-3 font-semibold text-slate-900">
+                          Necessidades especiais e acessibilidade
+                        </h4>
+
+                        <div className="space-y-4">
+                          <label className="flex items-center gap-2 text-sm text-slate-700">
+                            <input
+                              type="checkbox"
+                              checked={editPossuiNecessidadeEspecial}
+                              onChange={(e) =>
+                                setEditPossuiNecessidadeEspecial(e.target.checked)
+                              }
+                            />
+                            Possui necessidade especial
+                          </label>
+
+                          <textarea
+                            value={editDescricaoNecessidadeEspecial}
+                            onChange={(e) =>
+                              setEditDescricaoNecessidadeEspecial(e.target.value)
+                            }
+                            className="min-h-[100px] w-full rounded-xl border p-2.5"
+                            placeholder="Descreva a necessidade especial do aluno"
+                          />
+
+                          <textarea
+                            value={editObservacoesAcessibilidade}
+                            onChange={(e) =>
+                              setEditObservacoesAcessibilidade(e.target.value)
+                            }
+                            className="min-h-[100px] w-full rounded-xl border p-2.5"
+                            placeholder="Observações de acessibilidade"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="mt-5 border-t pt-4">
+                        <h4 className="mb-3 font-semibold text-slate-900">
+                          Responsável
+                        </h4>
+
+                        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                          <input
+                            value={editNomeResponsavel}
+                            onChange={(e) => setEditNomeResponsavel(e.target.value)}
+                            className="rounded-xl border p-2.5"
+                            placeholder="Nome do responsável"
+                          />
+                          <input
+                            value={editCpfResponsavel}
+                            onChange={(e) => setEditCpfResponsavel(e.target.value)}
+                            className="rounded-xl border p-2.5"
+                            placeholder="CPF do responsável"
+                          />
+                          <input
+                            value={editTelefoneResponsavel}
+                            onChange={(e) =>
+                              setEditTelefoneResponsavel(e.target.value)
+                            }
+                            className="rounded-xl border p-2.5"
+                            placeholder="Telefone do responsável"
+                          />
+                          <input
+                            value={editEmailResponsavel}
+                            onChange={(e) =>
+                              setEditEmailResponsavel(e.target.value)
+                            }
+                            className="rounded-xl border p-2.5"
+                            placeholder="Email do responsável"
+                          />
+                          <input
+                            value={editParentescoResponsavel}
+                            onChange={(e) =>
+                              setEditParentescoResponsavel(e.target.value)
+                            }
+                            className="rounded-xl border p-2.5 md:col-span-2"
+                            placeholder="Parentesco do responsável"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="mt-6 flex flex-wrap gap-3">
+                        <button
+                          onClick={() => salvarEdicao(alunoSelecionado.id)}
+                          disabled={salvandoId === alunoSelecionado.id}
+                          className="rounded-2xl bg-green-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-700 disabled:opacity-60"
+                        >
+                          {salvandoId === alunoSelecionado.id
+                            ? "Salvando..."
+                            : "Salvar alterações"}
+                        </button>
+
+                        <button
+                          onClick={() => setEditandoId(null)}
+                          className="rounded-2xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                        >
+                          Cancelar edição
+                        </button>
+                      </div>
+                    </section>
+                  ) : (
+                    <>
+                      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                        <div className="flex flex-wrap gap-3">
+
+                          <button
+                            onClick={() =>
+                              window.open(
+                                `/api/admin/contratos/pdf?alunoId=${alunoSelecionado.id}`,
+                                "_blank"
+                              )
+                            }
+                            className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100"
+                          >
+                            📄 Baixar contrato
+                          </button>
+
+                          {alunoSelecionado.statusAluno === "CANCELADO" ? (
+                            <button
+                              onClick={() => reativarAluno(alunoSelecionado.id)}
+                              className="rounded-2xl border border-emerald-200 bg-white px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50"
+                            >
+                              Reativar aluno
+                            </button>
+
+                          ) : (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (!alunoSelecionado) return;
+                                  iniciarEdicao(alunoSelecionado);
+                                  setAbaPainelAluno("DADOS");
+                                  setPainelAlunoAberto(true);
+                                }}
+                                className="rounded-xl border border-blue-300 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-100 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-200 dark:hover:bg-blue-900"
+                              >
+                                ✏️ Editar cadastro
+                              </button>
+                              <button
+                                onClick={() => cancelarAluno(alunoSelecionado.id)}
+                                className="rounded-2xl border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700 transition hover:bg-orange-100"
+                              >
+                                Cancelar aluno
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </section>
+
+                      <section className="grid gap-6 lg:grid-cols-2">
+                        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                          <h3 className="text-lg font-semibold text-slate-900">
+                            Dados principais
+                          </h3>
+                          <div className="mt-4 space-y-2 text-sm text-slate-600">
+                            <p>
+                              <strong>Nome:</strong> {alunoSelecionado.nome || "-"}
+                            </p>
+                            <p>
+                              <strong>Nome social:</strong>{" "}
+                              {alunoSelecionado.nomeSocial || "-"}
+                            </p>
+                            <p>
+                              <strong>Email:</strong>{" "}
+                              {alunoSelecionado.user?.email || "-"}
+                            </p>
+                            <p>
+                              <strong>Gênero:</strong>{" "}
+                              {alunoSelecionado.genero || "-"}
+                            </p>
+                            <p>
+                              <strong>Data de nascimento:</strong>{" "}
+                              {formatarData(alunoSelecionado.dataNascimento)}
+                            </p>
+                            <p>
+                              <strong>Matrícula:</strong>{" "}
+                              {alunoSelecionado.matricula || "-"}
+                            </p>
+                            <p>
+                              <strong>CPF:</strong> {alunoSelecionado.cpf || "-"}
+                            </p>
+                            <p>
+                              <strong>RG:</strong> {alunoSelecionado.rg || "-"}
+                            </p>
+                            <p>
+                              <strong>Telefone:</strong>{" "}
+                              {alunoSelecionado.telefone || "-"}
+                            </p>
+
+                            <p>
+                              <strong>Polo:</strong>{" "}
+                              {alunoSelecionado.polo?.nome || "-"}
+                            </p>
+
+                          </div>
+                        </div>
+
+                        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                          <h3 className="text-lg font-semibold text-slate-900">
+                            Endereço
+                          </h3>
+                          <div className="mt-4 space-y-2 text-sm text-slate-600">
+                            <p>
+                              <strong>CEP:</strong> {alunoSelecionado.cep || "-"}
+                            </p>
+                            <p>
+                              <strong>Endereço:</strong>{" "}
+                              {alunoSelecionado.endereco || "-"}
+                            </p>
+                            <p>
+                              <strong>Número:</strong>{" "}
+                              {alunoSelecionado.numero || "-"}
+                            </p>
+                            <p>
+                              <strong>Complemento:</strong>{" "}
+                              {alunoSelecionado.complemento || "-"}
+                            </p>
+                            <p>
+                              <strong>Bairro:</strong>{" "}
+                              {alunoSelecionado.bairro || "-"}
+                            </p>
+                            <p>
+                              <strong>Cidade:</strong>{" "}
+                              {alunoSelecionado.cidade || "-"}
+                            </p>
+                            <p>
+                              <strong>Estado:</strong>{" "}
+                              {alunoSelecionado.estado || "-"}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                          <h3 className="text-lg font-semibold text-slate-900">
+                            Responsável
+                          </h3>
+                          <div className="mt-4 space-y-2 text-sm text-slate-600">
+                            <p>
+                              <strong>Nome:</strong>{" "}
+                              {alunoSelecionado.nomeResponsavel || "-"}
+                            </p>
+                            <p>
+                              <strong>CPF:</strong>{" "}
+                              {alunoSelecionado.cpfResponsavel || "-"}
+                            </p>
+                            <p>
+                              <strong>Telefone:</strong>{" "}
+                              {alunoSelecionado.telefoneResponsavel || "-"}
+                            </p>
+                            <p>
+                              <strong>Email:</strong>{" "}
+                              {alunoSelecionado.emailResponsavel || "-"}
+                            </p>
+                            <p>
+                              <strong>Parentesco:</strong>{" "}
+                              {alunoSelecionado.parentescoResponsavel || "-"}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                          <h3 className="text-lg font-semibold text-slate-900">
+                            Acessibilidade
+                          </h3>
+                          <div className="mt-4 space-y-2 text-sm text-slate-600">
+                            <p>
+                              <strong>Possui necessidade especial:</strong>{" "}
+                              {alunoSelecionado.possuiNecessidadeEspecial
+                                ? "Sim"
+                                : "Não"}
+                            </p>
+                            <p>
+                              <strong>Descrição:</strong>{" "}
+                              {alunoSelecionado.descricaoNecessidadeEspecial || "-"}
+                            </p>
+                            <p>
+                              <strong>Observações:</strong>{" "}
+                              {alunoSelecionado.observacoesAcessibilidade || "-"}
+                            </p>
+                          </div>
+                        </div>
+
+                      </section>
+
+                    </>
+                  )}
+                </>
+              )}
+
+              {abaPainelAluno === "DOCUMENTOS" && (
+                <div className="space-y-6">
+                  <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                      Documentos do aluno
+                    </h3>
+
+                    <div className="mt-4 space-y-2">
+                      {documentosAluno.filter((doc) => doc.proprietario !== "RESPONSAVEL").length === 0 ? (
+                        <p className="rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                          Nenhum documento do aluno enviado.
+                        </p>
+                      ) : (
+                        documentosAluno
+                          .filter((doc) => doc.proprietario !== "RESPONSAVEL")
+                          .map((doc) => (
+                            <div
+                              key={doc.id}
+                              className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm dark:border-slate-700 dark:bg-slate-950 md:flex-row md:items-center md:justify-between"
+                            >
+                              <div>
+                                <p className="font-semibold text-slate-900 dark:text-slate-100">
+                                  {doc.titulo}
+                                </p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">
+                                  {doc.arquivoNome || "Arquivo"}
+                                </p>
+                              </div>
+
+                              <div className="flex flex-wrap gap-2">
+                                {doc.arquivoUrl && (
+                                  <a
+                                    href={doc.arquivoUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="rounded-xl bg-blue-600 px-3 py-2 text-center text-xs font-semibold text-white transition hover:bg-blue-700"
+                                  >
+                                    Abrir
+                                  </a>
+                                )}
+
+                                <button
+                                  type="button"
+                                  onClick={() => arquivarDocumentoAluno(doc.id)}
+                                  className="rounded-xl border border-orange-200 bg-orange-50 px-3 py-2 text-center text-xs font-semibold text-orange-700 transition hover:bg-orange-100"
+                                >
+                                  Arquivar
+                                </button>
+                              </div>
+
+                            </div>
+                          ))
+                      )}
+                    </div>
+                  </section>
+
+                  <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                      Documentos do responsável
+                    </h3>
+
+                    <div className="mt-4 space-y-2">
+                      {documentosAluno.filter((doc) => doc.proprietario === "RESPONSAVEL").length === 0 ? (
+                        <p className="rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                          Nenhum documento do responsável enviado.
+                        </p>
+                      ) : (
+                        documentosAluno
+                          .filter((doc) => doc.proprietario === "RESPONSAVEL")
+                          .map((doc) => (
+                            <div
+                              key={doc.id}
+                              className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm dark:border-slate-700 dark:bg-slate-950 md:flex-row md:items-center md:justify-between"
+                            >
+                              <div>
+                                <p className="font-semibold text-slate-900 dark:text-slate-100">
+                                  {doc.titulo}
+                                </p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">
+                                  {doc.arquivoNome || "Arquivo"}
+                                </p>
+                              </div>
+
+                              <div className="flex flex-wrap gap-2">
+                                {doc.arquivoUrl && (
+                                  <a
+                                    href={doc.arquivoUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="rounded-xl bg-blue-600 px-3 py-2 text-center text-xs font-semibold text-white transition hover:bg-blue-700"
+                                  >
+                                    Abrir
+                                  </a>
+                                )}
+
+                                <button
+                                  type="button"
+                                  onClick={() => arquivarDocumentoAluno(doc.id)}
+                                  className="rounded-xl border border-orange-200 bg-orange-50 px-3 py-2 text-center text-xs font-semibold text-orange-700 transition hover:bg-orange-100"
+                                >
+                                  Arquivar
+                                </button>
+                              </div>
+
+                            </div>
+                          ))
+                      )}
+                    </div>
+                  </section>
+
+                  <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                      Enviar novo documento
+                    </h3>
+
+                    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                      <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                        Documentos arquivados
+                      </h3>
+
+                      <div className="mt-4 space-y-2">
+                        {carregandoArquivadosAluno ? (
+                          <p className="text-sm text-slate-500 dark:text-slate-400">
+                            Carregando documentos arquivados...
+                          </p>
+                        ) : documentosArquivadosAluno.length === 0 ? (
+                          <p className="rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                            Nenhum documento arquivado.
+                          </p>
+                        ) : (
+                          documentosArquivadosAluno.map((doc) => (
+                            <div
+                              key={doc.id}
+                              className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm dark:border-slate-700 dark:bg-slate-950 md:flex-row md:items-center md:justify-between"
+                            >
+                              <div>
+                                <p className="font-semibold text-slate-900 dark:text-slate-100">
+                                  {doc.titulo}
+                                </p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">
+                                  {doc.proprietario === "RESPONSAVEL" ? "Responsável" : "Aluno"} •{" "}
+                                  Arquivado em {doc.arquivadoEm ? formatarData(doc.arquivadoEm) : "-"}
+                                </p>
+                              </div>
+
+                              <button
+                                type="button"
+                                onClick={() => restaurarDocumentoAluno(doc.id)}
+                                className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-center text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100"
+                              >
+                                Restaurar
+                              </button>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </section>
+
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                      Envie documentos opcionais em PDF, PNG, JPG ou JPEG.
+                    </p>
+
+                    <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
+                      <select
+                        value={documentoProprietario}
+                        onChange={(e) =>
+                          setDocumentoProprietario(e.target.value as "ALUNO" | "RESPONSAVEL")
+                        }
+                        className="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                      >
+                        <option value="ALUNO">Aluno</option>
+                        <option value="RESPONSAVEL">Responsável</option>
+                      </select>
+
+                      <select
+                        value={documentoTipo}
+                        onChange={(e) => setDocumentoTipo(e.target.value)}
+                        className="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                      >
+                        <option value="RG">RG</option>
+                        <option value="CPF">CPF</option>
+                        <option value="CNH">CNH</option>
+                        <option value="HISTORICO_ESCOLAR">Histórico Escolar</option>
+                        <option value="COMPROVANTE_RESIDENCIA">
+                          Comprovante de Residência
+                        </option>
+                        <option value="TITULO_ELEITOR">Título de Eleitor</option>
+                        <option value="OUTRO">Outro</option>
+                      </select>
+
+                      <input
+                        type="file"
+                        accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
+                        onChange={(e) => setDocumentoArquivo(e.target.files?.[0] || null)}
+                        className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-blue-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                      />
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={enviarDocumentoAluno}
+                      disabled={enviandoDocumentoAluno}
+                      className="mt-4 rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
+                    >
+                      {enviandoDocumentoAluno ? "Enviando..." : "Enviar documento"}
+                    </button>
+                  </section>
+                </div>
+              )}
+
+              {abaPainelAluno === "MATRICULAS" && (
+                <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                    Matrícula e vínculo acadêmico
                   </h3>
 
-<div className="mb-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-  <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-    <div className="flex h-28 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900">
-      {editFotoPerfil ? (
-        <img
-          src={editFotoPerfil}
-          alt={editNome || "Foto oficial do aluno"}
-          className="h-full w-full object-cover"
-        />
-      ) : (
-        <span className="text-3xl font-black text-slate-400">
-          {editNome?.charAt(0)?.toUpperCase() || "A"}
-        </span>
-      )}
-    </div>
+                  {alunoSelecionado.resumoMatricula ? (
+                    <div className="mt-4 space-y-4 text-sm text-slate-600 dark:text-slate-300">
+                      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                        <p><strong>Curso:</strong> {alunoSelecionado.resumoMatricula.cursoNome || "-"}</p>
+                        <p><strong>Status:</strong> {alunoSelecionado.resumoMatricula.status || "-"}</p>
+                        <p><strong>Semestre:</strong> {alunoSelecionado.resumoMatricula.semestre || "-"}</p>
+                        <p>
+                          <strong>Número da matrícula:</strong>{" "}
+                          {alunoSelecionado.resumoMatricula?.numeroMatricula ||
+                            alunoSelecionado.matricula ||
+                            "-"}
+                        </p>
 
-    <div className="flex-1">
-      <h4 className="font-semibold text-slate-900 dark:text-slate-100">
-        Foto oficial do aluno
-      </h4>
+                        <p>
+                          <strong>Data da matrícula:</strong>{" "}
+                          {formatarData(alunoSelecionado.resumoMatricula?.dataMatricula)}
+                        </p>
 
-      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-        Foto controlada pela instituição e usada no crachá oficial.
-      </p>
-<p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-300">
-  Formatos aceitos: JPG, JPEG ou PNG. Tamanho máximo: 2 MB.
-  Recomendado: foto quadrada, no mínimo 600x600 px, com rosto centralizado.
-</p>
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        <label className="cursor-pointer rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-100">
-          {editEnviandoFotoPerfil ? "Enviando..." : "Trocar foto"}
-          <input
-            type="file"
-            accept="image/png,image/jpeg,image/webp"
-            disabled={editEnviandoFotoPerfil}
-            onChange={(e) =>
-              enviarFotoOficialAluno(e.target.files?.[0] || null, "EDICAO")
-            }
-            className="hidden"
-          />
-        </label>
+                        <p>
+                          <strong>Polo:</strong>{" "}
+                          {alunoSelecionado.resumoMatricula?.polo?.nome ||
+                            alunoSelecionado.polo?.nome ||
+                            "-"}
+                        </p>
 
-        {editFotoPerfil && (
-          <button
-            type="button"
-            onClick={() => setEditFotoPerfil("")}
-            className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
-          >
-            Remover foto
-          </button>
-        )}
-      </div>
-    </div>
-  </div>
-</div>
+                        <p>
+                          <strong>Modalidade:</strong>{" "}
+                          {alunoSelecionado.resumoMatricula?.modalidade || "-"}
+                        </p>
 
-                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                    <input
-                      value={editNome}
-                      onChange={(e) => setEditNome(e.target.value)}
-                      className="rounded-xl border p-2.5"
-                      placeholder="Nome"
-                    />
-                    <input
-                      value={editNomeSocial}
-                      onChange={(e) => setEditNomeSocial(e.target.value)}
-                      className="rounded-xl border p-2.5"
-                      placeholder="Nome social"
-                    />
-                    <select
-                      value={editGenero}
-                      onChange={(e) => setEditGenero(e.target.value)}
-                      className="rounded-xl border p-2.5"
-                    >
-                      <option value="">Gênero</option>
-                      <option value="FEMININO">Feminino</option>
-                      <option value="MASCULINO">Masculino</option>
-                      <option value="NAO_BINARIO">Não binário</option>
-                      <option value="OUTRO">Outro</option>
-                      <option value="PREFIRO_NAO_INFORMAR">
-                        Prefiro não informar
-                      </option>
-                    </select>
-                    <input
-  value={editEmail}
-  onChange={(e) => setEditEmail(e.target.value)}
-  className="rounded-xl border p-2.5"
-  placeholder="Email"
-  type="email"
-  name="edit-email-aluno-phanyx"
-  autoComplete="off"
-/>
-                    <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3 text-sm text-slate-600">
-  Matrícula gerada automaticamente pelo sistema.
-</div>
-                    <input
-                      value={editCpf}
-                      onChange={(e) => setEditCpf(e.target.value)}
-                      className="rounded-xl border p-2.5"
-                      placeholder="CPF"
-                    />
-                    <input
-                      value={editRg}
-                      onChange={(e) => setEditRg(e.target.value)}
-                      className="rounded-xl border p-2.5"
-                      placeholder="RG"
-                    />
-                    <input
-                      value={editTelefone}
-                      onChange={(e) => setEditTelefone(e.target.value)}
-                      className="rounded-xl border p-2.5"
-                      placeholder="Telefone"
-                    />
-                    <input
-                      type="date"
-                      value={editDataNascimento}
-                      onChange={(e) => setEditDataNascimento(e.target.value)}
-                      className="rounded-xl border p-2.5"
-                    />
-                    <select
-                      value={editStatusAluno}
-                      onChange={(e) =>
-                        setEditStatusAluno(e.target.value as StatusAluno)
-                      }
-                      className="rounded-xl border p-2.5"
-                    >
-                      <option value="ATIVO">Ativo</option>
-                      <option value="TRANCADO">Trancado</option>
-                      <option value="SUSPENSO">Suspenso</option>
-                      <option value="INADIMPLENTE">Inadimplente</option>
-                      <option value="TRANSFERIDO">Transferido</option>
-                      <option value="DESLIGADO">Desligado</option>
-                      <option value="FORMADO">Formado</option>
-                      <option value="CANCELADO">Cancelado</option>
-                      <option value="PAUSA_MEDICA">Pausa médica</option>
-                      <option value="FALTANTE">Faltante</option>
-                    </select>
+                        <p>
+                          <strong>Horário letivo / Período:</strong>{" "}
+                          {alunoSelecionado.resumoMatricula?.periodoLetivo || "-"}
+                        </p>
 
-<select
-  value={editPoloId}
-  onChange={(e) => setEditPoloId(e.target.value)}
-  className="rounded-xl border p-2.5"
->
-  <option value="">Selecione o polo do aluno</option>
-  {polos.map((polo) => (
-    <option key={polo.id} value={polo.id}>
-      {polo.nome}
-    </option>
-  ))}
-</select>
+                        <p>
+                          <strong>Previsão de conclusão:</strong>{" "}
+                          {formatarData(alunoSelecionado.resumoMatricula?.previsaoConclusao)}
+                        </p>
+                      </div>
 
-                    <input
-  value={editCep}
-  onChange={(e) => {
-    const valor = e.target.value;
+                      <div className="border-t border-slate-200 pt-4 dark:border-slate-700">
+                        <button
+                          type="button"
+                          onClick={() => setMatriculaExpandida((prev) => !prev)}
+                          className="flex w-full items-center justify-between rounded-xl border border-slate-700 px-4 py-3 text-left font-semibold text-slate-900 dark:text-slate-100"
+                        >
+                          <span>
+                            Turmas e disciplinas (
+                            {alunoSelecionado.resumoMatricula.turmas?.length || 0})
+                          </span>
 
-    setEditCep(valor);
+                          <span>{matriculaExpandida ? "⌃" : "⌄"}</span>
+                        </button>
 
-    if (valor.replace(/\D/g, "").length === 8) {
-      void buscarEnderecoEdicaoPorCep(valor);
-    }
-  }}
-  onKeyDown={(e) => {
-    if (e.key !== "Enter") return;
+                        {matriculaExpandida && (
+                          <div className="mt-4">
+                            <input
+                              type="text"
+                              placeholder="Buscar turma, disciplina, professor ou status..."
+                              value={buscaMatricula}
+                              onChange={(e) => setBuscaMatricula(e.target.value)}
+                              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                            />
 
-    e.preventDefault();
-    e.stopPropagation();
+                            <div className="mt-3 space-y-2">
+                              {alunoSelecionado.resumoMatricula.turmas
+                                .filter((turma) => {
+                                  const termo = buscaMatricula
+                                    .normalize("NFD")
+                                    .replace(/[\u0300-\u036f]/g, "")
+                                    .toLowerCase()
+                                    .trim();
 
-    void buscarEnderecoEdicaoPorCep(e.currentTarget.value);
-  }}
-  className="rounded-xl border p-2.5"
-  placeholder="CEP"
-/>
-                    <input
-                      value={editEndereco}
-                      onChange={(e) => setEditEndereco(e.target.value)}
-                      className="rounded-xl border p-2.5"
-                      placeholder="Endereço"
-                    />
-                    <input
-                      value={editNumero}
-                      onChange={(e) => setEditNumero(e.target.value)}
-                      className="rounded-xl border p-2.5"
-                      placeholder="Número"
-                    />
-                    <input
-                      value={editComplemento}
-                      onChange={(e) => setEditComplemento(e.target.value)}
-                      className="rounded-xl border p-2.5"
-                      placeholder="Complemento"
-                    />
-                    <input
-                      value={editBairro}
-                      onChange={(e) => setEditBairro(e.target.value)}
-                      className="rounded-xl border p-2.5"
-                      placeholder="Bairro"
-                    />
-                    <input
-                      value={editCidade}
-                      onChange={(e) => setEditCidade(e.target.value)}
-                      className="rounded-xl border p-2.5"
-                      placeholder="Cidade"
-                    />
-                    <input
-                      value={editEstado}
-                      onChange={(e) => setEditEstado(e.target.value)}
-                      className="rounded-xl border p-2.5"
-                      placeholder="Estado"
-                    />
-                    <input
-                      value={editDocumentoUrl}
-                      onChange={(e) => setEditDocumentoUrl(e.target.value)}
-                      className="rounded-xl border p-2.5 md:col-span-2"
-                      placeholder="URL do documento"
-                    />
-                  </div>
+                                  if (!termo) return true;
 
-                  <div className="mt-5 border-t pt-4">
-                    <h4 className="mb-3 font-semibold text-slate-900">
-                      Necessidades especiais e acessibilidade
-                    </h4>
+                                  const texto = [
+                                    turma.turmaNome,
+                                    turma.disciplinaNome,
+                                    turma.professorNome,
+                                    turma.status,
+                                  ]
+                                    .join(" ")
+                                    .normalize("NFD")
+                                    .replace(/[\u0300-\u036f]/g, "")
+                                    .toLowerCase();
 
-                    <div className="space-y-4">
-                      <label className="flex items-center gap-2 text-sm text-slate-700">
-                        <input
-                          type="checkbox"
-                          checked={editPossuiNecessidadeEspecial}
-                          onChange={(e) =>
-                            setEditPossuiNecessidadeEspecial(e.target.checked)
-                          }
-                        />
-                        Possui necessidade especial
-                      </label>
+                                  return texto.includes(termo);
+                                })
+                                .map((turma) => (
+                                  <div
+                                    key={turma.turmaId}
+                                    className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-950"
+                                  >
+                                    <p className="font-semibold text-slate-900 dark:text-slate-100">
+                                      {turma.turmaNome}
+                                    </p>
 
-                      <textarea
-                        value={editDescricaoNecessidadeEspecial}
-                        onChange={(e) =>
-                          setEditDescricaoNecessidadeEspecial(e.target.value)
-                        }
-                        className="min-h-[100px] w-full rounded-xl border p-2.5"
-                        placeholder="Descreva a necessidade especial do aluno"
-                      />
+                                    <p className="text-sm text-slate-600 dark:text-slate-300">
+                                      Disciplina: {turma.disciplinaNome || "-"}
+                                    </p>
 
-                      <textarea
-                        value={editObservacoesAcessibilidade}
-                        onChange={(e) =>
-                          setEditObservacoesAcessibilidade(e.target.value)
-                        }
-                        className="min-h-[100px] w-full rounded-xl border p-2.5"
-                        placeholder="Observações de acessibilidade"
-                      />
+                                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                                      Professor: {turma.professorNome || "-"}
+                                    </p>
+
+                                    <p className="text-xs text-slate-400">
+                                      Status da disciplina: {turma.status || "-"}
+                                    </p>
+                                  </div>
+                                ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="mt-5 border-t pt-4">
-                    <h4 className="mb-3 font-semibold text-slate-900">
-                      Responsável
-                    </h4>
-
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                      <input
-                        value={editNomeResponsavel}
-                        onChange={(e) => setEditNomeResponsavel(e.target.value)}
-                        className="rounded-xl border p-2.5"
-                        placeholder="Nome do responsável"
-                      />
-                      <input
-                        value={editCpfResponsavel}
-                        onChange={(e) => setEditCpfResponsavel(e.target.value)}
-                        className="rounded-xl border p-2.5"
-                        placeholder="CPF do responsável"
-                      />
-                      <input
-                        value={editTelefoneResponsavel}
-                        onChange={(e) =>
-                          setEditTelefoneResponsavel(e.target.value)
-                        }
-                        className="rounded-xl border p-2.5"
-                        placeholder="Telefone do responsável"
-                      />
-                      <input
-                        value={editEmailResponsavel}
-                        onChange={(e) =>
-                          setEditEmailResponsavel(e.target.value)
-                        }
-                        className="rounded-xl border p-2.5"
-                        placeholder="Email do responsável"
-                      />
-                      <input
-                        value={editParentescoResponsavel}
-                        onChange={(e) =>
-                          setEditParentescoResponsavel(e.target.value)
-                        }
-                        className="rounded-xl border p-2.5 md:col-span-2"
-                        placeholder="Parentesco do responsável"
-                      />
+                  ) : (
+                    <div className="mt-4 rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                      Este aluno ainda não possui matrícula vinculada.
                     </div>
-                  </div>
-
-                  <div className="mt-6 flex flex-wrap gap-3">
-                    <button
-                      onClick={() => salvarEdicao(alunoSelecionado.id)}
-                      disabled={salvandoId === alunoSelecionado.id}
-                      className="rounded-2xl bg-green-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-700 disabled:opacity-60"
-                    >
-                      {salvandoId === alunoSelecionado.id
-                        ? "Salvando..."
-                        : "Salvar alterações"}
-                    </button>
-
-                    <button
-                      onClick={() => setEditandoId(null)}
-                      className="rounded-2xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-                    >
-                      Cancelar edição
-                    </button>
-                  </div>
+                  )}
                 </section>
-              ) : (
-                <>
-                  <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                    <div className="flex flex-wrap gap-3">
-                      
-                      <button
-                        onClick={() =>
-                          window.open(
-                            `/api/admin/contratos/pdf?alunoId=${alunoSelecionado.id}`,
-                            "_blank"
-                          )
-                        }
-                        className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100"
-                      >
-                        📄 Baixar contrato
-                      </button>
-
-                      {alunoSelecionado.statusAluno === "CANCELADO" ? (
-                        <button
-                          onClick={() => reativarAluno(alunoSelecionado.id)}
-                          className="rounded-2xl border border-emerald-200 bg-white px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50"
-                        >
-                          Reativar aluno
-                        </button>
-                        
-                      ) : (
-                        <>
-                        <button
-  type="button"
-  onClick={() => {
-    if (!alunoSelecionado) return;
-    iniciarEdicao(alunoSelecionado);
-    setAbaPainelAluno("DADOS");
-    setPainelAlunoAberto(true);
-  }}
-  className="rounded-xl border border-blue-300 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-100 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-200 dark:hover:bg-blue-900"
->
-  ✏️ Editar cadastro
-</button>
-                        <button
-                          onClick={() => cancelarAluno(alunoSelecionado.id)}
-                          className="rounded-2xl border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700 transition hover:bg-orange-100"
-                        >
-                          Cancelar aluno
-                        </button>
-                          </>
-                      )}
-                    </div>
-                  </section>
-
-                  <section className="grid gap-6 lg:grid-cols-2">
-                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                      <h3 className="text-lg font-semibold text-slate-900">
-                        Dados principais
-                      </h3>
-                      <div className="mt-4 space-y-2 text-sm text-slate-600">
-                        <p>
-                          <strong>Nome:</strong> {alunoSelecionado.nome || "-"}
-                        </p>
-                        <p>
-                          <strong>Nome social:</strong>{" "}
-                          {alunoSelecionado.nomeSocial || "-"}
-                        </p>
-                        <p>
-                          <strong>Email:</strong>{" "}
-                          {alunoSelecionado.user?.email || "-"}
-                        </p>
-                        <p>
-                          <strong>Gênero:</strong>{" "}
-                          {alunoSelecionado.genero || "-"}
-                        </p>
-                        <p>
-                          <strong>Data de nascimento:</strong>{" "}
-                          {formatarData(alunoSelecionado.dataNascimento)}
-                        </p>
-                        <p>
-                          <strong>Matrícula:</strong>{" "}
-                          {alunoSelecionado.matricula || "-"}
-                        </p>
-                        <p>
-                          <strong>CPF:</strong> {alunoSelecionado.cpf || "-"}
-                        </p>
-                        <p>
-                          <strong>RG:</strong> {alunoSelecionado.rg || "-"}
-                        </p>
-                        <p>
-                          <strong>Telefone:</strong>{" "}
-                          {alunoSelecionado.telefone || "-"}
-                        </p>
-
-<p>
-  <strong>Polo:</strong>{" "}
-  {alunoSelecionado.polo?.nome || "-"}
-</p>
-
-                      </div>
-                    </div>
-
-                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                      <h3 className="text-lg font-semibold text-slate-900">
-                        Endereço
-                      </h3>
-                      <div className="mt-4 space-y-2 text-sm text-slate-600">
-                        <p>
-                          <strong>CEP:</strong> {alunoSelecionado.cep || "-"}
-                        </p>
-                        <p>
-                          <strong>Endereço:</strong>{" "}
-                          {alunoSelecionado.endereco || "-"}
-                        </p>
-                        <p>
-                          <strong>Número:</strong>{" "}
-                          {alunoSelecionado.numero || "-"}
-                        </p>
-                        <p>
-                          <strong>Complemento:</strong>{" "}
-                          {alunoSelecionado.complemento || "-"}
-                        </p>
-                        <p>
-                          <strong>Bairro:</strong>{" "}
-                          {alunoSelecionado.bairro || "-"}
-                        </p>
-                        <p>
-                          <strong>Cidade:</strong>{" "}
-                          {alunoSelecionado.cidade || "-"}
-                        </p>
-                        <p>
-                          <strong>Estado:</strong>{" "}
-                          {alunoSelecionado.estado || "-"}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                      <h3 className="text-lg font-semibold text-slate-900">
-                        Responsável
-                      </h3>
-                      <div className="mt-4 space-y-2 text-sm text-slate-600">
-                        <p>
-                          <strong>Nome:</strong>{" "}
-                          {alunoSelecionado.nomeResponsavel || "-"}
-                        </p>
-                        <p>
-                          <strong>CPF:</strong>{" "}
-                          {alunoSelecionado.cpfResponsavel || "-"}
-                        </p>
-                        <p>
-                          <strong>Telefone:</strong>{" "}
-                          {alunoSelecionado.telefoneResponsavel || "-"}
-                        </p>
-                        <p>
-                          <strong>Email:</strong>{" "}
-                          {alunoSelecionado.emailResponsavel || "-"}
-                        </p>
-                        <p>
-                          <strong>Parentesco:</strong>{" "}
-                          {alunoSelecionado.parentescoResponsavel || "-"}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                      <h3 className="text-lg font-semibold text-slate-900">
-                        Acessibilidade
-                      </h3>
-                      <div className="mt-4 space-y-2 text-sm text-slate-600">
-                        <p>
-                          <strong>Possui necessidade especial:</strong>{" "}
-                          {alunoSelecionado.possuiNecessidadeEspecial
-                            ? "Sim"
-                            : "Não"}
-                        </p>
-                        <p>
-                          <strong>Descrição:</strong>{" "}
-                          {alunoSelecionado.descricaoNecessidadeEspecial || "-"}
-                        </p>
-                        <p>
-                          <strong>Observações:</strong>{" "}
-                          {alunoSelecionado.observacoesAcessibilidade || "-"}
-                        </p>
-                      </div>
-                    </div>
-
-                  </section>
-
-                              </>
               )}
-  </>
-)}
 
-{abaPainelAluno === "DOCUMENTOS" && (
-  <div className="space-y-6">
-    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-      <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-        Documentos do aluno
-      </h3>
+              {abaPainelAluno === "DESEMPENHO" && (
+                <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                    Desempenho acadêmico
+                  </h3>
 
-      <div className="mt-4 space-y-2">
-        {documentosAluno.filter((doc) => doc.proprietario !== "RESPONSAVEL").length === 0 ? (
-          <p className="rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
-            Nenhum documento do aluno enviado.
-          </p>
-        ) : (
-          documentosAluno
-            .filter((doc) => doc.proprietario !== "RESPONSAVEL")
-            .map((doc) => (
-              <div
-                key={doc.id}
-                className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm dark:border-slate-700 dark:bg-slate-950 md:flex-row md:items-center md:justify-between"
-              >
-                <div>
-                  <p className="font-semibold text-slate-900 dark:text-slate-100">
-                    {doc.titulo}
+                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    Médias, avaliações, notas e feedbacks do aluno.
                   </p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    {doc.arquivoNome || "Arquivo"}
-                  </p>
-                </div>
 
-                <div className="flex flex-wrap gap-2">
-  {doc.arquivoUrl && (
-    <a
-      href={doc.arquivoUrl}
-      target="_blank"
-      rel="noreferrer"
-      className="rounded-xl bg-blue-600 px-3 py-2 text-center text-xs font-semibold text-white transition hover:bg-blue-700"
-    >
-      Abrir
-    </a>
-  )}
+                  <div className="mt-4">
+                    <input
+                      type="text"
+                      placeholder="Buscar disciplina..."
+                      value={buscaDisciplina}
+                      onChange={(e) => {
+                        const valor = e.target.value;
+                        setBuscaDisciplina(valor);
+                        setPaginaDisciplina(1);
 
-  <button
-    type="button"
-    onClick={() => arquivarDocumentoAluno(doc.id)}
-    className="rounded-xl border border-orange-200 bg-orange-50 px-3 py-2 text-center text-xs font-semibold text-orange-700 transition hover:bg-orange-100"
-  >
-    Arquivar
-  </button>
-</div>
-                
-              </div>
-            ))
-        )}
-      </div>
-    </section>
+                        if (alunoSelecionado?.id) {
+                          carregarDesempenhoAluno(alunoSelecionado.id, valor, 1);
+                        }
+                      }}
+                      className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                    />
+                  </div>
 
-    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-      <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-        Documentos do responsável
-      </h3>
+                  {carregandoDesempenho ? (
+                    <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
+                      Carregando desempenho...
+                    </p>
+                  ) : desempenhoAluno ? (
+                    <div className="mt-5 space-y-4">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
+                            Média Geral
+                          </p>
+                          <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-slate-100">
+                            {desempenhoAluno.mediaGeral ?? "-"}
+                          </p>
+                        </div>
 
-      <div className="mt-4 space-y-2">
-        {documentosAluno.filter((doc) => doc.proprietario === "RESPONSAVEL").length === 0 ? (
-          <p className="rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
-            Nenhum documento do responsável enviado.
-          </p>
-        ) : (
-          documentosAluno
-            .filter((doc) => doc.proprietario === "RESPONSAVEL")
-            .map((doc) => (
-              <div
-                key={doc.id}
-                className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm dark:border-slate-700 dark:bg-slate-950 md:flex-row md:items-center md:justify-between"
-              >
-                <div>
-                  <p className="font-semibold text-slate-900 dark:text-slate-100">
-                    {doc.titulo}
-                  </p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    {doc.arquivoNome || "Arquivo"}
-                  </p>
-                </div>
+                        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
+                            Disciplinas
+                          </p>
+                          <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-slate-100">
+                            {desempenhoAluno.totalDisciplinas ?? 0}
+                          </p>
+                        </div>
+                      </div>
 
-                <div className="flex flex-wrap gap-2">
-  {doc.arquivoUrl && (
-    <a
-      href={doc.arquivoUrl}
-      target="_blank"
-      rel="noreferrer"
-      className="rounded-xl bg-blue-600 px-3 py-2 text-center text-xs font-semibold text-white transition hover:bg-blue-700"
-    >
-      Abrir
-    </a>
-  )}
+                      {desempenhoAluno.disciplinas?.length ? (
+                        desempenhoAluno.disciplinas.map((disciplina: any) => (
+                          <div
+                            key={disciplina.disciplinaId}
+                            className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950"
+                          >
+                            <div className="flex items-center justify-between gap-3">
+                              <p className="font-semibold text-slate-900 dark:text-slate-100">
+                                {disciplina.disciplinaNome}
+                              </p>
 
-  <button
-    type="button"
-    onClick={() => arquivarDocumentoAluno(doc.id)}
-    className="rounded-xl border border-orange-200 bg-orange-50 px-3 py-2 text-center text-xs font-semibold text-orange-700 transition hover:bg-orange-100"
-  >
-    Arquivar
-  </button>
-</div>
-     
-              </div>
-            ))
-        )}
-      </div>
-    </section>
+                              <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+                                Média: {disciplina.media ?? "-"}
+                              </span>
+                            </div>
 
-    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-      <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-        Enviar novo documento
-      </h3>
+                            <div className="mt-3 space-y-2">
+                              {disciplina.avaliacoes?.length ? (
+                                disciplina.avaliacoes.map((avaliacao: any, idx: number) => (
+                                  <div
+                                    key={idx}
+                                    className="rounded-lg border border-slate-200 bg-white p-3 text-sm dark:border-slate-700 dark:bg-slate-900"
+                                  >
+                                    <p className="font-medium text-slate-900 dark:text-slate-100">
+                                      {avaliacao.titulo}
+                                    </p>
 
-<section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-  <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-    Documentos arquivados
-  </h3>
+                                    <p className="text-slate-600 dark:text-slate-300">
+                                      Nota: {avaliacao.nota} / {avaliacao.notaMaxima}
+                                    </p>
 
-  <div className="mt-4 space-y-2">
-    {carregandoArquivadosAluno ? (
-      <p className="text-sm text-slate-500 dark:text-slate-400">
-        Carregando documentos arquivados...
-      </p>
-    ) : documentosArquivadosAluno.length === 0 ? (
-      <p className="rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
-        Nenhum documento arquivado.
-      </p>
-    ) : (
-      documentosArquivadosAluno.map((doc) => (
-        <div
-          key={doc.id}
-          className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm dark:border-slate-700 dark:bg-slate-950 md:flex-row md:items-center md:justify-between"
-        >
-          <div>
-            <p className="font-semibold text-slate-900 dark:text-slate-100">
-              {doc.titulo}
-            </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              {doc.proprietario === "RESPONSAVEL" ? "Responsável" : "Aluno"} •{" "}
-              Arquivado em {doc.arquivadoEm ? formatarData(doc.arquivadoEm) : "-"}
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => restaurarDocumentoAluno(doc.id)}
-            className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-center text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100"
-          >
-            Restaurar
-          </button>
-        </div>
-      ))
-    )}
-  </div>
-</section>
-
-      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-        Envie documentos opcionais em PDF, PNG, JPG ou JPEG.
-      </p>
-
-      <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
-        <select
-          value={documentoProprietario}
-          onChange={(e) =>
-            setDocumentoProprietario(e.target.value as "ALUNO" | "RESPONSAVEL")
-          }
-          className="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
-        >
-          <option value="ALUNO">Aluno</option>
-          <option value="RESPONSAVEL">Responsável</option>
-        </select>
-
-        <select
-          value={documentoTipo}
-          onChange={(e) => setDocumentoTipo(e.target.value)}
-          className="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
-        >
-          <option value="RG">RG</option>
-          <option value="CPF">CPF</option>
-          <option value="CNH">CNH</option>
-          <option value="HISTORICO_ESCOLAR">Histórico Escolar</option>
-          <option value="COMPROVANTE_RESIDENCIA">
-            Comprovante de Residência
-          </option>
-          <option value="TITULO_ELEITOR">Título de Eleitor</option>
-          <option value="OUTRO">Outro</option>
-        </select>
-
-        <input
-          type="file"
-          accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
-          onChange={(e) => setDocumentoArquivo(e.target.files?.[0] || null)}
-          className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-blue-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
-        />
-      </div>
-
-      <button
-        type="button"
-        onClick={enviarDocumentoAluno}
-        disabled={enviandoDocumentoAluno}
-        className="mt-4 rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
-      >
-        {enviandoDocumentoAluno ? "Enviando..." : "Enviar documento"}
-      </button>
-    </section>
-  </div>
-)}
-
-{abaPainelAluno === "MATRICULAS" && (
-  <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-      Matrícula e vínculo acadêmico
-    </h3>
-
-    {alunoSelecionado.resumoMatricula ? (
-      <div className="mt-4 space-y-4 text-sm text-slate-600 dark:text-slate-300">
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          <p><strong>Curso:</strong> {alunoSelecionado.resumoMatricula.cursoNome || "-"}</p>
-          <p><strong>Status:</strong> {alunoSelecionado.resumoMatricula.status || "-"}</p>
-          <p><strong>Semestre:</strong> {alunoSelecionado.resumoMatricula.semestre || "-"}</p>
-          <p>
-  <strong>Número da matrícula:</strong>{" "}
-  {alunoSelecionado.resumoMatricula?.numeroMatricula ||
-    alunoSelecionado.matricula ||
-    "-"}
-</p>
-
-<p>
-  <strong>Data da matrícula:</strong>{" "}
-  {formatarData(alunoSelecionado.resumoMatricula?.dataMatricula)}
-</p>
-
-<p>
-  <strong>Polo:</strong>{" "}
-  {alunoSelecionado.resumoMatricula?.polo?.nome ||
-    alunoSelecionado.polo?.nome ||
-    "-"}
-</p>
-
-<p>
-  <strong>Modalidade:</strong>{" "}
-  {alunoSelecionado.resumoMatricula?.modalidade || "-"}
-</p>
-
-<p>
-  <strong>Horário letivo / Período:</strong>{" "}
-  {alunoSelecionado.resumoMatricula?.periodoLetivo || "-"}
-</p>
-
-<p>
-  <strong>Previsão de conclusão:</strong>{" "}
-  {formatarData(alunoSelecionado.resumoMatricula?.previsaoConclusao)}
-</p>
-        </div>
-
-        <div className="border-t border-slate-200 pt-4 dark:border-slate-700">
-  <button
-    type="button"
-    onClick={() => setMatriculaExpandida((prev) => !prev)}
-    className="flex w-full items-center justify-between rounded-xl border border-slate-700 px-4 py-3 text-left font-semibold text-slate-900 dark:text-slate-100"
-  >
-    <span>
-      Turmas e disciplinas (
-      {alunoSelecionado.resumoMatricula.turmas?.length || 0})
-    </span>
-
-    <span>{matriculaExpandida ? "⌃" : "⌄"}</span>
-  </button>
-
-  {matriculaExpandida && (
-    <div className="mt-4">
-      <input
-        type="text"
-        placeholder="Buscar turma, disciplina, professor ou status..."
-        value={buscaMatricula}
-        onChange={(e) => setBuscaMatricula(e.target.value)}
-        className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
-      />
-
-      <div className="mt-3 space-y-2">
-        {alunoSelecionado.resumoMatricula.turmas
-          .filter((turma) => {
-            const termo = buscaMatricula
-              .normalize("NFD")
-              .replace(/[\u0300-\u036f]/g, "")
-              .toLowerCase()
-              .trim();
-
-            if (!termo) return true;
-
-            const texto = [
-              turma.turmaNome,
-              turma.disciplinaNome,
-              turma.professorNome,
-              turma.status,
-            ]
-              .join(" ")
-              .normalize("NFD")
-              .replace(/[\u0300-\u036f]/g, "")
-              .toLowerCase();
-
-            return texto.includes(termo);
-          })
-          .map((turma) => (
-            <div
-              key={turma.turmaId}
-              className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-950"
-            >
-              <p className="font-semibold text-slate-900 dark:text-slate-100">
-                {turma.turmaNome}
-              </p>
-
-              <p className="text-sm text-slate-600 dark:text-slate-300">
-                Disciplina: {turma.disciplinaNome || "-"}
-              </p>
-
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                Professor: {turma.professorNome || "-"}
-              </p>
-
-              <p className="text-xs text-slate-400">
-                Status da disciplina: {turma.status || "-"}
-              </p>
-            </div>
-          ))}
-      </div>
-    </div>
-  )}
-</div>
-      </div>
-    ) : (
-      <div className="mt-4 rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
-        Este aluno ainda não possui matrícula vinculada.
-      </div>
-    )}
-  </section>
-)}
-
-{abaPainelAluno === "DESEMPENHO" && (
-  <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-      Desempenho acadêmico
-    </h3>
-
-    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-      Médias, avaliações, notas e feedbacks do aluno.
-    </p>
-
-    <div className="mt-4">
-      <input
-        type="text"
-        placeholder="Buscar disciplina..."
-        value={buscaDisciplina}
-        onChange={(e) => {
-          const valor = e.target.value;
-          setBuscaDisciplina(valor);
-          setPaginaDisciplina(1);
-
-          if (alunoSelecionado?.id) {
-            carregarDesempenhoAluno(alunoSelecionado.id, valor, 1);
-          }
-        }}
-        className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
-      />
-    </div>
-
-    {carregandoDesempenho ? (
-      <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
-        Carregando desempenho...
-      </p>
-    ) : desempenhoAluno ? (
-      <div className="mt-5 space-y-4">
-        <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Média Geral
-            </p>
-            <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-slate-100">
-              {desempenhoAluno.mediaGeral ?? "-"}
-            </p>
-          </div>
-
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Disciplinas
-            </p>
-            <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-slate-100">
-              {desempenhoAluno.totalDisciplinas ?? 0}
-            </p>
-          </div>
-        </div>
-
-        {desempenhoAluno.disciplinas?.length ? (
-          desempenhoAluno.disciplinas.map((disciplina: any) => (
-            <div
-              key={disciplina.disciplinaId}
-              className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <p className="font-semibold text-slate-900 dark:text-slate-100">
-                  {disciplina.disciplinaNome}
-                </p>
-
-                <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
-                  Média: {disciplina.media ?? "-"}
-                </span>
-              </div>
-
-              <div className="mt-3 space-y-2">
-                {disciplina.avaliacoes?.length ? (
-                  disciplina.avaliacoes.map((avaliacao: any, idx: number) => (
-                    <div
-                      key={idx}
-                      className="rounded-lg border border-slate-200 bg-white p-3 text-sm dark:border-slate-700 dark:bg-slate-900"
-                    >
-                      <p className="font-medium text-slate-900 dark:text-slate-100">
-                        {avaliacao.titulo}
-                      </p>
-
-                      <p className="text-slate-600 dark:text-slate-300">
-                        Nota: {avaliacao.nota} / {avaliacao.notaMaxima}
-                      </p>
-
-                      {avaliacao.feedback && (
-                        <p className="mt-1 text-slate-500 dark:text-slate-400">
-                          Feedback: {avaliacao.feedback}
+                                    {avaliacao.feedback && (
+                                      <p className="mt-1 text-slate-500 dark:text-slate-400">
+                                        Feedback: {avaliacao.feedback}
+                                      </p>
+                                    )}
+                                  </div>
+                                ))
+                              ) : (
+                                <p className="text-sm text-slate-500 dark:text-slate-400">
+                                  Nenhuma avaliação registrada nesta disciplina.
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                          Nenhuma disciplina encontrada.
                         </p>
                       )}
                     </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-slate-500 dark:text-slate-400">
-                    Nenhuma avaliação registrada nesta disciplina.
+                  ) : (
+                    <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
+                      Nenhum dado acadêmico encontrado.
+                    </p>
+                  )}
+                </section>
+              )}
+
+              {abaPainelAluno === "HISTORICO" && (
+                <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                    Histórico acadêmico
+                  </h3>
+
+                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    Resumo acadêmico do aluno gerado a partir das disciplinas, avaliações e médias registradas no PHANYX.
                   </p>
-                )}
-              </div>
-            </div>
-          ))
-        ) : (
-          <p className="rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
-            Nenhuma disciplina encontrada.
-          </p>
-        )}
-      </div>
-    ) : (
-      <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
-        Nenhum dado acadêmico encontrado.
-      </p>
-    )}
-  </section>
-)}
 
-{abaPainelAluno === "HISTORICO" && (
-  <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-      Histórico acadêmico
-    </h3>
+                  {carregandoDesempenho ? (
+                    <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
+                      Carregando histórico acadêmico...
+                    </p>
+                  ) : !desempenhoAluno?.disciplinas?.length ? (
+                    <div className="mt-4 rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                      Ainda não há disciplinas avaliadas para compor o histórico acadêmico.
+                    </div>
+                  ) : (
+                    <div className="mt-5 space-y-3">
+                      {desempenhoAluno.disciplinas.map((disciplina: any) => (
+                        <div
+                          key={disciplina.disciplinaId}
+                          className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950"
+                        >
+                          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                            <div>
+                              <p className="font-semibold text-slate-900 dark:text-slate-100">
+                                {disciplina.disciplinaNome}
+                              </p>
+                              <p className="text-xs text-slate-500 dark:text-slate-400">
+                                Disciplina cursada/avaliada no PHANYX
+                              </p>
+                            </div>
 
-    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-      Resumo acadêmico do aluno gerado a partir das disciplinas, avaliações e médias registradas no PHANYX.
-    </p>
+                            <span className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+                              Média: {disciplina.media ?? "-"}
+                            </span>
+                          </div>
 
-    {carregandoDesempenho ? (
-      <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
-        Carregando histórico acadêmico...
-      </p>
-    ) : !desempenhoAluno?.disciplinas?.length ? (
-      <div className="mt-4 rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
-        Ainda não há disciplinas avaliadas para compor o histórico acadêmico.
-      </div>
-    ) : (
-      <div className="mt-5 space-y-3">
-        {desempenhoAluno.disciplinas.map((disciplina: any) => (
-          <div
-            key={disciplina.disciplinaId}
-            className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950"
-          >
-            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-              <div>
-                <p className="font-semibold text-slate-900 dark:text-slate-100">
-                  {disciplina.disciplinaNome}
-                </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Disciplina cursada/avaliada no PHANYX
-                </p>
-              </div>
+                          <div className="mt-3 grid grid-cols-1 gap-2 text-sm text-slate-600 dark:text-slate-300 md:grid-cols-3">
+                            <p>
+                              <strong>Situação:</strong>{" "}
+                              {Number(disciplina.media || 0) >= 7 ? "Aprovado" : "Em andamento"}
+                            </p>
+                            <p>
+                              <strong>Frequência:</strong> -
+                            </p>
+                            <p>
+                              <strong>Carga horária:</strong> -
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </section>
+              )}
 
-              <span className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
-                Média: {disciplina.media ?? "-"}
-              </span>
-            </div>
+              {abaPainelAluno === "CERTIFICADOS" && (
+                <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                    Certificados do aluno
+                  </h3>
 
-            <div className="mt-3 grid grid-cols-1 gap-2 text-sm text-slate-600 dark:text-slate-300 md:grid-cols-3">
-              <p>
-                <strong>Situação:</strong>{" "}
-                {Number(disciplina.media || 0) >= 7 ? "Aprovado" : "Em andamento"}
-              </p>
-              <p>
-                <strong>Frequência:</strong> -
-              </p>
-              <p>
-                <strong>Carga horária:</strong> -
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-    )}
-  </section>
-)}
+                  <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">
+                    Gere ou baixe certificados vinculados a este aluno. A emissão manual deve
+                    ser usada pela secretaria/diretoria somente quando houver autorização da
+                    instituição.
+                  </p>
 
-{abaPainelAluno === "CERTIFICADOS" && (
-  <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-      Certificados do aluno
-    </h3>
+                  <div className="mt-5 rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-100">
+                    <p className="font-semibold">
+                      Regra PHANYX
+                    </p>
 
-    <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">
-      Gere ou baixe certificados vinculados a este aluno. A emissão manual deve
-      ser usada pela secretaria/diretoria somente quando houver autorização da
-      instituição.
-    </p>
+                    <p className="mt-1 leading-6">
+                      A liberação automática para o aluno deverá respeitar a configuração da
+                      instituição: por disciplina concluída, por semestre concluído ou somente
+                      após conclusão do curso. Esta área é para emissão manual administrativa.
+                    </p>
+                  </div>
 
-    <div className="mt-5 rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-100">
-      <p className="font-semibold">
-        Regra PHANYX
-      </p>
+                  <div className="mt-5 grid gap-4 md:grid-cols-2">
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                        Aluno
+                      </p>
 
-      <p className="mt-1 leading-6">
-        A liberação automática para o aluno deverá respeitar a configuração da
-        instituição: por disciplina concluída, por semestre concluído ou somente
-        após conclusão do curso. Esta área é para emissão manual administrativa.
-      </p>
-    </div>
+                      <p className="mt-2 font-bold text-slate-900 dark:text-slate-100">
+                        {alunoSelecionado.nome}
+                      </p>
 
-    <div className="mt-5 grid gap-4 md:grid-cols-2">
-      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-          Aluno
-        </p>
+                      <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                        {alunoSelecionado.user?.email || "Sem email"}
+                      </p>
+                    </div>
 
-        <p className="mt-2 font-bold text-slate-900 dark:text-slate-100">
-          {alunoSelecionado.nome}
-        </p>
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                        Matrícula / curso
+                      </p>
 
-        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-          {alunoSelecionado.user?.email || "Sem email"}
-        </p>
-      </div>
+                      <p className="mt-2 font-bold text-slate-900 dark:text-slate-100">
+                        {alunoSelecionado.resumoMatricula?.cursoNome || "Sem matrícula"}
+                      </p>
 
-      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-          Matrícula / curso
-        </p>
+                      <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                        {alunoSelecionado.resumoMatricula?.numeroMatricula ||
+                          alunoSelecionado.matricula ||
+                          "Matrícula não informada"}
+                      </p>
+                    </div>
+                  </div>
 
-        <p className="mt-2 font-bold text-slate-900 dark:text-slate-100">
-          {alunoSelecionado.resumoMatricula?.cursoNome || "Sem matrícula"}
-        </p>
+                  <div className="mt-5 flex flex-wrap gap-3">
+                    <button
+                      type="button"
+                      disabled={gerandoCertificado}
+                      onClick={gerarCertificadoAlunoSelecionado}
+                      className="rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {gerandoCertificado ? "Gerando..." : "Gerar certificado"}
+                    </button>
 
-        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-          {alunoSelecionado.resumoMatricula?.numeroMatricula ||
-            alunoSelecionado.matricula ||
-            "Matrícula não informada"}
-        </p>
-      </div>
-    </div>
+                    <button
+                      type="button"
+                      disabled={baixandoCertificado}
+                      onClick={baixarCertificadoAlunoSelecionado}
+                      className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {baixandoCertificado ? "Baixando..." : "Baixar certificado"}
+                    </button>
+                  </div>
 
-    <div className="mt-5 flex flex-wrap gap-3">
-      <button
-        type="button"
-        disabled={gerandoCertificado}
-        onClick={gerarCertificadoAlunoSelecionado}
-        className="rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {gerandoCertificado ? "Gerando..." : "Gerar certificado"}
-      </button>
-
-      <button
-        type="button"
-        disabled={baixandoCertificado}
-        onClick={baixarCertificadoAlunoSelecionado}
-        className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {baixandoCertificado ? "Baixando..." : "Baixar certificado"}
-      </button>
-    </div>
-
-  </section>
-)}
+                </section>
+              )}
 
             </div>
           </div>
@@ -3775,167 +3995,165 @@ name="busca-alunos-phanyx"
       )}
 
       {confirmacaoMenorCadastro && (
-  <div className="fixed inset-0 z-[130] flex items-center justify-center bg-slate-950/65 p-4 backdrop-blur-sm">
-    <div className="w-full max-w-xl overflow-hidden rounded-3xl border border-amber-300 bg-white shadow-2xl dark:border-amber-700 dark:bg-slate-900">
-      <div className="border-b border-amber-200 bg-amber-50 px-6 py-5 dark:border-amber-800 dark:bg-amber-950/40">
-        <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 flex-none items-center justify-center rounded-2xl bg-amber-200 text-2xl dark:bg-amber-900">
-            ⚠️
-          </div>
+        <div className="fixed inset-0 z-[130] flex items-center justify-center bg-slate-950/65 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-xl overflow-hidden rounded-3xl border border-amber-300 bg-white shadow-2xl dark:border-amber-700 dark:bg-slate-900">
+            <div className="border-b border-amber-200 bg-amber-50 px-6 py-5 dark:border-amber-800 dark:bg-amber-950/40">
+              <div className="flex items-start gap-4">
+                <div className="flex h-12 w-12 flex-none items-center justify-center rounded-2xl bg-amber-200 text-2xl dark:bg-amber-900">
+                  ⚠️
+                </div>
 
-          <div>
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-700 dark:text-amber-300">
-              Atenção
-            </p>
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-700 dark:text-amber-300">
+                    Atenção
+                  </p>
 
-            <h2 className="mt-1 text-xl font-black text-slate-950 dark:text-white">
-              {confirmacaoMenorCadastro
-                .responsavelIncompleto
-                ? "Dados do responsável incompletos"
-                : "Aluno menor de idade"}
-            </h2>
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-4 px-6 py-5 text-slate-700 dark:text-slate-200">
-        <p className="text-sm leading-6">
-          Este aluno possui{" "}
-          <strong>
-            {
-              confirmacaoMenorCadastro
-                .idade
-            }{" "}
-            ano(s)
-          </strong>{" "}
-          e ainda não atingiu a idade
-          adulta.
-        </p>
-
-        {confirmacaoMenorCadastro
-          .responsavelIncompleto ? (
-          <>
-            <div className="rounded-2xl border border-red-300 bg-red-50 p-4 text-sm text-red-900 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200">
-              <strong className="block">
-                Os dados do titular/responsável
-                maior de idade não foram
-                preenchidos completamente.
-              </strong>
-
-              <p className="mt-2">
-                Volte e preencha os dados abaixo
-                ou confirme que deseja prosseguir
-                mesmo assim.
-              </p>
+                  <h2 className="mt-1 text-xl font-black text-slate-950 dark:text-white">
+                    {confirmacaoMenorCadastro
+                      .responsavelIncompleto
+                      ? "Dados do responsável incompletos"
+                      : "Aluno menor de idade"}
+                  </h2>
+                </div>
+              </div>
             </div>
 
-            <ul className="space-y-2 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-700 dark:bg-slate-950">
+            <div className="space-y-4 px-6 py-5 text-slate-700 dark:text-slate-200">
+              <p className="text-sm leading-6">
+                Este aluno possui{" "}
+                <strong>
+                  {
+                    confirmacaoMenorCadastro
+                      .idade
+                  }{" "}
+                  ano(s)
+                </strong>{" "}
+                e ainda não atingiu a idade
+                adulta.
+              </p>
+
               {confirmacaoMenorCadastro
-                .camposPendentes.map(
-                  (campo) => (
-                    <li
-                      key={campo}
-                      className="flex items-center gap-2"
-                    >
-                      <span className="font-black text-red-600">
-                        •
-                      </span>
+                .responsavelIncompleto ? (
+                <>
+                  <div className="rounded-2xl border border-red-300 bg-red-50 p-4 text-sm text-red-900 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200">
+                    <strong className="block">
+                      Os dados do titular/responsável
+                      maior de idade não foram
+                      preenchidos completamente.
+                    </strong>
 
-                      {campo}
-                    </li>
-                  )
-                )}
-            </ul>
-          </>
-        ) : (
-          <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
-            Tem certeza de que deseja cadastrar
-            este aluno menor de idade?
-          </div>
-        )}
+                    <p className="mt-2">
+                      Volte e preencha os dados abaixo
+                      ou confirme que deseja prosseguir
+                      mesmo assim.
+                    </p>
+                  </div>
 
-        <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-slate-300 bg-white p-4 dark:border-slate-700 dark:bg-slate-950">
-          <input
-            type="checkbox"
-            checked={
-              cienteMenorCadastro
-            }
-            onChange={(e) =>
-              setCienteMenorCadastro(
-                e.target.checked
-              )
-            }
-            className="mt-1 h-5 w-5 accent-blue-600"
-          />
+                  <ul className="space-y-2 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-700 dark:bg-slate-950">
+                    {confirmacaoMenorCadastro
+                      .camposPendentes.map(
+                        (campo) => (
+                          <li
+                            key={campo}
+                            className="flex items-center gap-2"
+                          >
+                            <span className="font-black text-red-600">
+                              •
+                            </span>
 
-          <span className="text-sm font-semibold leading-6">
-            Estou ciente de que o aluno é
-            menor de idade e me responsabilizo
-            por prosseguir com este cadastro.
-          </span>
-        </label>
-      </div>
+                            {campo}
+                          </li>
+                        )
+                      )}
+                  </ul>
+                </>
+              ) : (
+                <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+                  Tem certeza de que deseja cadastrar
+                  este aluno menor de idade?
+                </div>
+              )}
 
-      <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-6 py-5 dark:border-slate-700 dark:bg-slate-950 sm:flex-row sm:justify-end">
-        <button
-          type="button"
-          disabled={criando}
-          onClick={() => {
-            setConfirmacaoMenorCadastro(
-              null
-            );
+              <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-slate-300 bg-white p-4 dark:border-slate-700 dark:bg-slate-950">
+                <input
+                  type="checkbox"
+                  checked={
+                    cienteMenorCadastro
+                  }
+                  onChange={(e) =>
+                    setCienteMenorCadastro(
+                      e.target.checked
+                    )
+                  }
+                  className="mt-1 h-5 w-5 accent-blue-600"
+                />
 
-            setCienteMenorCadastro(
-              false
-            );
-          }}
-          className="rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-100 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-        >
-          {confirmacaoMenorCadastro
-            .responsavelIncompleto
-            ? "Voltar e preencher"
-            : "Voltar"}
-        </button>
+                <span className="text-sm font-semibold leading-6">
+                  Estou ciente de que o aluno é
+                  menor de idade e me responsabilizo
+                  por prosseguir com este cadastro.
+                </span>
+              </label>
+            </div>
 
-        <button
-          type="button"
-          disabled={
-            !cienteMenorCadastro ||
-            criando
-          }
-          onClick={() =>
-            void executarCriacaoAluno(
-              true
-            )
-          }
-          className={`rounded-2xl border px-5 py-3 text-sm font-bold transition ${
-  !cienteMenorCadastro || criando
-    ? "cursor-not-allowed border-slate-300 bg-slate-200 text-slate-500 opacity-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
-    : "cursor-pointer border-blue-600 bg-blue-600 text-white hover:bg-blue-700"
-}`}
-        >
-          {criando
-            ? "Criando aluno..."
-            : confirmacaoMenorCadastro
+            <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-6 py-5 dark:border-slate-700 dark:bg-slate-950 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                disabled={criando}
+                onClick={() => {
+                  setConfirmacaoMenorCadastro(
+                    null
+                  );
+
+                  setCienteMenorCadastro(
+                    false
+                  );
+                }}
+                className="rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-100 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+              >
+                {confirmacaoMenorCadastro
                   .responsavelIncompleto
-              ? "Criar aluno mesmo assim"
-              : "Confirmar cadastro"}
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+                  ? "Voltar e preencher"
+                  : "Voltar"}
+              </button>
+
+              <button
+                type="button"
+                disabled={
+                  !cienteMenorCadastro ||
+                  criando
+                }
+                onClick={() =>
+                  void executarCriacaoAluno(
+                    true
+                  )
+                }
+                className={`rounded-2xl border px-5 py-3 text-sm font-bold transition ${!cienteMenorCadastro || criando
+                  ? "cursor-not-allowed border-slate-300 bg-slate-200 text-slate-500 opacity-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
+                  : "cursor-pointer border-blue-600 bg-blue-600 text-white hover:bg-blue-700"
+                  }`}
+              >
+                {criando
+                  ? "Criando aluno..."
+                  : confirmacaoMenorCadastro
+                    .responsavelIncompleto
+                    ? "Criar aluno mesmo assim"
+                    : "Confirmar cadastro"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {modalAvisoAberto && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/55 p-4">
           <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl">
             <div className="flex items-start gap-4">
               <div
-                className={`flex h-12 w-12 items-center justify-center rounded-2xl text-xl ${
-                  modalAvisoTipo === "sucesso"
-                    ? "bg-emerald-100"
-                    : "bg-red-100"
-                }`}
+                className={`flex h-12 w-12 items-center justify-center rounded-2xl text-xl ${modalAvisoTipo === "sucesso"
+                  ? "bg-emerald-100"
+                  : "bg-red-100"
+                  }`}
               >
                 {modalAvisoTipo === "sucesso" ? "✅" : "⚠️"}
               </div>
@@ -3955,11 +4173,10 @@ name="busca-alunos-phanyx"
               <button
                 type="button"
                 onClick={() => setModalAvisoAberto(false)}
-                className={`rounded-2xl px-4 py-2 text-sm font-semibold text-white transition ${
-                  modalAvisoTipo === "sucesso"
-                    ? "bg-emerald-600 hover:bg-emerald-700"
-                    : "bg-blue-600 hover:bg-blue-700"
-                }`}
+                className={`rounded-2xl px-4 py-2 text-sm font-semibold text-white transition ${modalAvisoTipo === "sucesso"
+                  ? "bg-emerald-600 hover:bg-emerald-700"
+                  : "bg-blue-600 hover:bg-blue-700"
+                  }`}
               >
                 Fechar
               </button>
@@ -3967,7 +4184,7 @@ name="busca-alunos-phanyx"
           </div>
         </div>
       )}
-        </div>
+    </div>
   );
 }
 
