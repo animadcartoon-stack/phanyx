@@ -9,6 +9,7 @@ datasource db {
 }
 
 model Instituicao {
+  
   id                      Int      @id @default(autoincrement())
   nome                    String
   ativo                   Boolean  @default(true)
@@ -185,6 +186,7 @@ model Instituicao {
   CrachaLoteEmissao                           CrachaLoteEmissao[]
   visitantes                                  Visitante[]
   leadsGerenciados                            Lead[]                                      @relation("LeadInstituicaoGestora")
+  leadsComoInteressada                        Lead[]                                      @relation("LeadInstituicaoInteressada")
   interacoesLead                              LeadInteracao[]                             @relation("LeadInteracaoInstituicao")
 
   regraLiberacaoCertificado      String                           @default("CURSO_COMPLETO")
@@ -1876,7 +1878,8 @@ model LeadMatriculaIbe {
 
 model Lead {
   id                       Int             @id @default(autoincrement())
-  instituicaoId            Int?
+  instituicaoGestoraId     Int?
+  instituicaoInteressadaId Int?            @map("instituicaoId")
   responsavelFuncionarioId Int?
   criadoPorId              Int?
   atualizadoPorId          Int?
@@ -1897,17 +1900,19 @@ model Lead {
   responsavelNomeSnapshot  String?         @map("responsavelNome")
   createdAt                DateTime        @default(now())
   updatedAt                DateTime        @updatedAt
-  instituicao              Instituicao?    @relation("LeadInstituicaoGestora", fields: [instituicaoId], references: [id], onDelete: Cascade)
+  instituicaoGestora       Instituicao?    @relation("LeadInstituicaoGestora", fields: [instituicaoGestoraId], references: [id], onDelete: Cascade)
+  instituicaoInteressada   Instituicao?    @relation("LeadInstituicaoInteressada", fields: [instituicaoInteressadaId], references: [id], onDelete: SetNull)
   responsavelFuncionario   Funcionario?    @relation("LeadResponsavelFuncionario", fields: [responsavelFuncionarioId], references: [id], onDelete: SetNull)
   criadoPor                User?           @relation("LeadCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
   atualizadoPor            User?           @relation("LeadAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
   interacoes               LeadInteracao[]
 
-  @@index([instituicaoId])
-  @@index([instituicaoId, status])
-  @@index([instituicaoId, tipo])
-  @@index([instituicaoId, responsavelFuncionarioId])
-  @@index([instituicaoId, email])
+  @@index([instituicaoGestoraId])
+  @@index([instituicaoInteressadaId])
+  @@index([instituicaoGestoraId, status])
+  @@index([instituicaoGestoraId, tipo])
+  @@index([instituicaoGestoraId, responsavelFuncionarioId])
+  @@index([instituicaoGestoraId, email])
   @@index([responsavelFuncionarioId])
   @@index([criadoPorId])
   @@index([atualizadoPorId])
@@ -1918,21 +1923,21 @@ model Lead {
 }
 
 model LeadInteracao {
-  id                  Int          @id @default(autoincrement())
-  leadId              Int
-  instituicaoId       Int?
-  criadoPorId         Int?
-  tipo                String
-  descricao           String
-  usuarioNomeSnapshot String?      @map("usuario")
-  createdAt           DateTime     @default(now())
-  lead                Lead         @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  instituicao         Instituicao? @relation("LeadInteracaoInstituicao", fields: [instituicaoId], references: [id], onDelete: Cascade)
-  criadoPor           User?        @relation("LeadInteracaoCriadaPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+  id                   Int          @id @default(autoincrement())
+  leadId               Int
+  instituicaoGestoraId Int?
+  criadoPorId          Int?
+  tipo                 String
+  descricao            String
+  usuarioNomeSnapshot  String?      @map("usuario")
+  createdAt            DateTime     @default(now())
+  lead                 Lead         @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  instituicaoGestora   Instituicao? @relation("LeadInteracaoInstituicao", fields: [instituicaoGestoraId], references: [id], onDelete: Cascade)
+  criadoPor            User?        @relation("LeadInteracaoCriadaPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
 
   @@index([leadId])
-  @@index([instituicaoId])
-  @@index([instituicaoId, leadId])
+  @@index([instituicaoGestoraId])
+  @@index([instituicaoGestoraId, leadId])
   @@index([criadoPorId])
   @@index([createdAt])
 }

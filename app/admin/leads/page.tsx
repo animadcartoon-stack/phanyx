@@ -1,6 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 type Lead = {
   id: number;
@@ -22,6 +27,8 @@ type Lead = {
   responsavelNome?: string | null;
   createdAt: string;
   updatedAt: string;
+  instituicaoGestoraId?: number | null;
+  responsavelFuncionarioId?: number | null;
 };
 
 type Interacao = {
@@ -31,6 +38,18 @@ type Interacao = {
   descricao: string;
   usuario?: string | null;
   createdAt: string;
+};
+
+type ResponsavelLead = {
+  id: number;
+  nome: string;
+  cargo?: string | null;
+  setor?: string | null;
+  departamento?: {
+    id: number;
+    nome: string;
+  } | null;
+  possuiAcessoAoSistema: boolean;
 };
 
 type LeadForm = {
@@ -49,7 +68,7 @@ type LeadForm = {
   valorEstimado: string;
   proximoContatoEm: string;
   ultimoContatoEm: string;
-  responsavelNome: string;
+  responsavelFuncionarioId: string;
 };
 
 const STATUS_COLUNAS = [
@@ -87,7 +106,7 @@ const FORM_INICIAL: LeadForm = {
   valorEstimado: "",
   proximoContatoEm: "",
   ultimoContatoEm: "",
-  responsavelNome: "",
+  responsavelFuncionarioId: "",
 };
 
 function formatarData(data?: string | null) {
@@ -269,6 +288,146 @@ function ordenarLeads(leads: Lead[]) {
   });
 }
 
+type OpcaoFiltro = {
+  value: string;
+  label: string;
+};
+
+type FiltroSelectProps = {
+  value: string;
+  ariaLabel: string;
+  options: OpcaoFiltro[];
+  onChange: (value: string) => void;
+};
+
+function FiltroSelect({
+  value,
+  ariaLabel,
+  options,
+  onChange,
+}: FiltroSelectProps) {
+  const [aberto, setAberto] = useState(false);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  const opcaoSelecionada =
+    options.find((option) => option.value === value) ||
+    options[0];
+
+  useEffect(() => {
+    function fecharAoClicarFora(event: MouseEvent) {
+      const alvo = event.target as Node;
+
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(alvo)
+      ) {
+        setAberto(false);
+      }
+    }
+
+    function fecharComEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setAberto(false);
+      }
+    }
+
+    document.addEventListener(
+      "mousedown",
+      fecharAoClicarFora
+    );
+
+    document.addEventListener(
+      "keydown",
+      fecharComEscape
+    );
+
+    return () => {
+      document.removeEventListener(
+        "mousedown",
+        fecharAoClicarFora
+      );
+
+      document.removeEventListener(
+        "keydown",
+        fecharComEscape
+      );
+    };
+  }, []);
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative w-full"
+    >
+      <button
+        type="button"
+        aria-label={ariaLabel}
+        aria-haspopup="listbox"
+        aria-expanded={aberto}
+        onClick={() => setAberto((atual) => !atual)}
+        className="flex min-h-[54px] w-full items-center justify-between gap-3 rounded-2xl border border-slate-300 bg-white px-4 py-3.5 text-left text-slate-900 outline-none transition hover:bg-slate-50 focus:border-slate-500 focus:ring-2 focus:ring-slate-300/40 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-900 dark:focus:border-slate-500 dark:focus:ring-slate-700/50"
+      >
+        <span className="truncate">
+          {opcaoSelecionada?.label}
+        </span>
+
+        <span
+          aria-hidden="true"
+          className={[
+            "text-xs text-slate-500 transition-transform dark:text-slate-400",
+            aberto ? "rotate-180" : "",
+          ].join(" ")}
+        >
+          ▼
+        </span>
+      </button>
+
+      {aberto && (
+        <div
+          role="listbox"
+          aria-label={ariaLabel}
+          className="absolute left-0 right-0 z-50 mt-2 max-h-72 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-1.5 shadow-2xl dark:border-slate-700 dark:bg-slate-900"
+        >
+          {options.map((option) => {
+            const selecionada =
+              option.value === value;
+
+            return (
+              <button
+                key={`${ariaLabel}-${option.value}`}
+                type="button"
+                role="option"
+                aria-selected={selecionada}
+                onClick={() => {
+                  onChange(option.value);
+                  setAberto(false);
+                }}
+                className={[
+                  "flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition",
+                  selecionada
+                    ? "bg-slate-200 font-bold text-slate-950 dark:bg-slate-700 dark:text-white"
+                    : "text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800",
+                ].join(" ")}
+              >
+                <span>{option.label}</span>
+
+                {selecionada ? (
+                  <span
+                    aria-hidden="true"
+                    className="font-black text-slate-700 dark:text-slate-200"
+                  >
+                    ✓
+                  </span>
+                ) : null}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AdminLeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [carregando, setCarregando] = useState(true);
@@ -280,6 +439,16 @@ export default function AdminLeadsPage() {
   const [leadSelecionado, setLeadSelecionado] = useState<Lead | null>(null);
   const [leadParaExcluir, setLeadParaExcluir] = useState<Lead | null>(null);
 
+  const [responsaveisLeads, setResponsaveisLeads] = useState<
+    ResponsavelLead[]
+  >([]);
+
+  const [carregandoResponsaveis, setCarregandoResponsaveis] =
+    useState(false);
+
+  const [erroResponsaveis, setErroResponsaveis] =
+    useState("");
+
   const [form, setForm] = useState<LeadForm>(FORM_INICIAL);
   const [salvando, setSalvando] = useState(false);
   const [criandoNovo, setCriandoNovo] = useState(false);
@@ -289,6 +458,58 @@ export default function AdminLeadsPage() {
   const [novaInteracao, setNovaInteracao] = useState("");
   const [tipoInteracao, setTipoInteracao] = useState("WHATSAPP");
   const [salvandoInteracao, setSalvandoInteracao] = useState(false);
+
+  async function carregarResponsaveisLeads() {
+    try {
+      setCarregandoResponsaveis(true);
+      setErroResponsaveis("");
+
+      const res = await fetch(
+        "/api/admin/comercial/responsaveis-leads",
+        {
+          cache: "no-store",
+        }
+      );
+
+      const contentType =
+        res.headers.get("content-type") || "";
+
+      if (!contentType.includes("application/json")) {
+        const texto = await res.text();
+
+        console.error(
+          "Resposta não-JSON em responsáveis por leads:",
+          texto
+        );
+
+        throw new Error(
+          "A API de responsáveis não retornou JSON."
+        );
+      }
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        throw new Error(
+          json?.error ||
+          "Não foi possível carregar os responsáveis."
+        );
+      }
+
+      setResponsaveisLeads(
+        Array.isArray(json) ? json : []
+      );
+    } catch (err: any) {
+      setErroResponsaveis(
+        err?.message ||
+        "Não foi possível carregar os responsáveis."
+      );
+
+      setResponsaveisLeads([]);
+    } finally {
+      setCarregandoResponsaveis(false);
+    }
+  }
 
   async function carregarLeads() {
     try {
@@ -344,7 +565,7 @@ export default function AdminLeadsPage() {
   }
 
   useEffect(() => {
-    carregarLeads();
+    carregarResponsaveisLeads();
   }, []);
 
   useEffect(() => {
@@ -389,7 +610,11 @@ export default function AdminLeadsPage() {
           : "",
       proximoContatoEm: paraDatetimeLocal(lead.proximoContatoEm),
       ultimoContatoEm: paraDatetimeLocal(lead.ultimoContatoEm),
-      responsavelNome: lead.responsavelNome || "",
+      responsavelFuncionarioId:
+        lead.responsavelFuncionarioId !== null &&
+          lead.responsavelFuncionarioId !== undefined
+          ? String(lead.responsavelFuncionarioId)
+          : "",
     });
 
     await carregarInteracoes(lead.id);
@@ -409,14 +634,43 @@ export default function AdminLeadsPage() {
       setSalvando(true);
       setErro("");
 
+      const {
+        responsavelFuncionarioId,
+        ...demaisCampos
+      } = form;
+
       const payload = {
-        ...form,
+        ...demaisCampos,
+
         instituicaoId:
-          form.instituicaoId === "" ? null : Number(form.instituicaoId),
+          form.instituicaoId === ""
+            ? null
+            : Number(form.instituicaoId),
+
         valorEstimado:
-          form.valorEstimado === "" ? null : Number(form.valorEstimado),
-        proximoContatoEm: form.proximoContatoEm || null,
-        ultimoContatoEm: form.ultimoContatoEm || null,
+          form.valorEstimado === ""
+            ? null
+            : Number(form.valorEstimado),
+
+        proximoContatoEm:
+          form.proximoContatoEm || null,
+
+        ultimoContatoEm:
+          form.ultimoContatoEm || null,
+
+        /*
+         * O CRM global da PHANYX não recebe funcionário
+         * institucional. Quando a lista está vazia, o campo
+         * é omitido para preservar responsáveis legados.
+         */
+        ...(responsaveisLeads.length > 0
+          ? {
+            responsavelFuncionarioId:
+              responsavelFuncionarioId === ""
+                ? null
+                : Number(responsavelFuncionarioId),
+          }
+          : {}),
       };
 
       const res = await fetch(
@@ -455,43 +709,43 @@ export default function AdminLeadsPage() {
   }
 
   function excluirLead() {
-  if (!leadSelecionado) return;
-  setLeadParaExcluir(leadSelecionado);
-}
-
-async function confirmarExclusaoLead() {
-  if (!leadParaExcluir) return;
-
-  try {
-    setSalvando(true);
-    setErro("");
-
-    const res = await fetch(`/api/admin/leads/${leadParaExcluir.id}`, {
-      method: "DELETE",
-    });
-
-    const contentType = res.headers.get("content-type") || "";
-    if (!contentType.includes("application/json")) {
-      const texto = await res.text();
-      console.error("Resposta não-JSON ao excluir lead:", texto);
-      throw new Error("A API não retornou JSON ao excluir o lead.");
-    }
-
-    const json = await res.json();
-
-    if (!res.ok) {
-      throw new Error(json?.error || "Não foi possível excluir o lead.");
-    }
-
-    await carregarLeads();
-    setLeadParaExcluir(null);
-    fecharPainel();
-  } catch (err: any) {
-    setErro(err?.message || "Não foi possível excluir o lead.");
-  } finally {
-    setSalvando(false);
+    if (!leadSelecionado) return;
+    setLeadParaExcluir(leadSelecionado);
   }
-}
+
+  async function confirmarExclusaoLead() {
+    if (!leadParaExcluir) return;
+
+    try {
+      setSalvando(true);
+      setErro("");
+
+      const res = await fetch(`/api/admin/leads/${leadParaExcluir.id}`, {
+        method: "DELETE",
+      });
+
+      const contentType = res.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        const texto = await res.text();
+        console.error("Resposta não-JSON ao excluir lead:", texto);
+        throw new Error("A API não retornou JSON ao excluir o lead.");
+      }
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        throw new Error(json?.error || "Não foi possível excluir o lead.");
+      }
+
+      await carregarLeads();
+      setLeadParaExcluir(null);
+      fecharPainel();
+    } catch (err: any) {
+      setErro(err?.message || "Não foi possível excluir o lead.");
+    } finally {
+      setSalvando(false);
+    }
+  }
 
   async function moverStatus(id: number, status: string) {
     try {
@@ -637,7 +891,7 @@ async function confirmarExclusaoLead() {
           <button
             type="button"
             onClick={abrirNovoLead}
-className="phanyx-btn-primary min-h-[56px] w-full whitespace-nowrap px-8 text-base sm:w-auto"          >
+            className="phanyx-btn-primary min-h-[56px] w-full whitespace-nowrap px-8 text-base sm:w-auto"          >
             Novo lead manual
           </button>
         </div>
@@ -693,13 +947,13 @@ className="phanyx-btn-primary min-h-[56px] w-full whitespace-nowrap px-8 text-ba
 
         <div className="mt-6 rounded-3xl border border-blue-200 bg-blue-50 px-5 py-4 shadow-sm">
           <p className="font-bold text-sky-300">
-  Leitura do CRM
-</p>
+            Leitura do CRM
+          </p>
           <p className="mt-1 text-sm leading-6 text-slate-300">
-  Este painel acompanha oportunidades comerciais e follow-ups de leads.
-  Pagamentos reais via Asaas, matrículas do Bacharel Livre em Teologia e
-  compras de recursos como IA aparecem no Painel Master, não no CRM de leads.
-</p>
+            Este painel acompanha oportunidades comerciais e follow-ups de leads.
+            Pagamentos reais via Asaas, matrículas do Bacharel Livre em Teologia e
+            compras de recursos como IA aparecem no Painel Master, não no CRM de leads.
+          </p>
         </div>
 
         <div className="mt-6 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -708,45 +962,77 @@ className="phanyx-btn-primary min-h-[56px] w-full whitespace-nowrap px-8 text-ba
               type="text"
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
-              placeholder="Buscar por nome, email, telefone, instituição ou observação"
+              placeholder="Buscar por nome, e-mail, telefone, instituição, responsável ou observação"
               className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3.5 outline-none transition focus:border-blue-500"
             />
 
-            <select
+            <FiltroSelect
+              ariaLabel="Filtrar leads por origem"
               value={filtroOrigem}
-              onChange={(e) => setFiltroOrigem(e.target.value)}
-              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3.5 outline-none transition focus:border-blue-500"
-            >
-              <option value="">Todas as origens</option>
-              {origensDisponiveis.map((origem) => (
-                <option key={origem} value={origem}>
-                  {origem}
-                </option>
-              ))}
-            </select>
+              onChange={setFiltroOrigem}
+              options={[
+                {
+                  value: "",
+                  label: "Todas as origens",
+                },
+                ...origensDisponiveis.map((origem) => ({
+                  value: origem,
+                  label: origem,
+                })),
+              ]}
+            />
 
-            <select
+            <FiltroSelect
+              ariaLabel="Filtrar leads por tipo"
               value={filtroTipo}
-              onChange={(e) => setFiltroTipo(e.target.value)}
-              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3.5 outline-none transition focus:border-blue-500"
-            >
-              <option value="PHANYX">Leads PHANYX (CRM comercial)</option>
-              <option value="INSTITUICAO">Leads das instituições (premium)</option>
-              <option value="">Todos os tipos</option>
-            </select>
+              onChange={setFiltroTipo}
+              options={[
+                {
+                  value: "",
+                  label: "Todos os tipos",
+                },
+                {
+                  value: "PHANYX",
+                  label: "Leads PHANYX (CRM comercial)",
+                },
+                {
+                  value: "INSTITUICAO",
+                  label: "Leads das instituições",
+                },
+              ]}
+            />
 
-            <select
+            <FiltroSelect
+              ariaLabel="Filtrar leads por situação do follow-up"
               value={filtroFollowUp}
-              onChange={(e) => setFiltroFollowUp(e.target.value)}
-              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3.5 outline-none transition focus:border-blue-500"
-            >
-              <option value="">Todo follow-up</option>
-              <option value="hoje">Follow-up hoje</option>
-              <option value="atrasado">Atrasado</option>
-              <option value="sem_followup_alerta">Precisa definir</option>
-              <option value="sem_followup_critico">Sem follow-up há dias</option>
-              <option value="ok">Em dia</option>
-            </select>
+              onChange={setFiltroFollowUp}
+              options={[
+                {
+                  value: "",
+                  label: "Todo follow-up",
+                },
+                {
+                  value: "hoje",
+                  label: "Follow-up hoje",
+                },
+                {
+                  value: "atrasado",
+                  label: "Atrasado",
+                },
+                {
+                  value: "sem_followup_alerta",
+                  label: "Precisa definir",
+                },
+                {
+                  value: "sem_followup_critico",
+                  label: "Sem follow-up há dias",
+                },
+                {
+                  value: "ok",
+                  label: "Em dia",
+                },
+              ]}
+            />
           </div>
         </div>
 
@@ -772,19 +1058,18 @@ className="phanyx-btn-primary min-h-[56px] w-full whitespace-nowrap px-8 text-ba
                   key={coluna.key}
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={() => handleDrop(coluna.key)}
-                  className={`rounded-[28px] border p-4 shadow-sm transition ${
-                    draggingLeadId
-                      ? "border-blue-300 bg-blue-50/30"
-                      : "border-slate-200 bg-white"
-                  }`}
+                  className={`rounded-[28px] border p-4 shadow-sm transition ${draggingLeadId
+                    ? "border-blue-300 bg-blue-50/30"
+                    : "border-slate-200 bg-white"
+                    }`}
                 >
                   <div className="mb-4 flex items-center justify-between gap-3">
                     <h2 className="text-2xl font-bold text-slate-900">
                       {coluna.titulo}
                     </h2>
                     <span className="phanyx-pill-count">
-  {leadsDaColuna.length}
-</span>
+                      {leadsDaColuna.length}
+                    </span>
                   </div>
 
                   <div className="space-y-4">
@@ -871,6 +1156,10 @@ className="phanyx-btn-primary min-h-[56px] w-full whitespace-nowrap px-8 text-ba
                             <p>📞 {lead.telefone || "Não informado"}</p>
                             <p>💼 {lead.cargo || "Cargo não informado"}</p>
                             <p>
+                              👤 Responsável:{" "}
+                              {lead.responsavelNome || "Não definido"}
+                            </p>
+                            <p>
                               🏢{" "}
                               {lead.tipo === "PHANYX"
                                 ? "Lead comercial da PHANYX"
@@ -939,13 +1228,73 @@ className="phanyx-btn-primary min-h-[56px] w-full whitespace-nowrap px-8 text-ba
               <div className="mt-8 grid gap-4 md:grid-cols-2">
                 <div>
                   <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Nome
+                    Responsável pelo lead
                   </label>
-                  <input
-                    value={form.nome}
-                    onChange={(e) => setForm({ ...form, nome: e.target.value })}
-                    className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
-                  />
+
+                  <select
+                    value={form.responsavelFuncionarioId}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        responsavelFuncionarioId: e.target.value,
+                      })
+                    }
+                    disabled={
+                      carregandoResponsaveis ||
+                      responsaveisLeads.length === 0
+                    }
+                    className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:disabled:bg-slate-900"
+                  >
+                    <option value="">
+                      Sem responsável definido
+                    </option>
+
+                    {responsaveisLeads.map((responsavel) => (
+                      <option
+                        key={responsavel.id}
+                        value={responsavel.id}
+                      >
+                        {responsavel.nome}
+                        {responsavel.cargo
+                          ? ` — ${responsavel.cargo}`
+                          : ""}
+                        {responsavel.departamento?.nome
+                          ? ` — ${responsavel.departamento.nome}`
+                          : ""}
+                      </option>
+                    ))}
+                  </select>
+
+                  {carregandoResponsaveis ? (
+                    <p className="mt-2 text-xs text-slate-500">
+                      Carregando funcionários ativos...
+                    </p>
+                  ) : null}
+
+                  {erroResponsaveis ? (
+                    <p className="mt-2 text-xs font-medium text-red-600 dark:text-red-400">
+                      {erroResponsaveis}
+                    </p>
+                  ) : null}
+
+                  {!carregandoResponsaveis &&
+                    !erroResponsaveis &&
+                    responsaveisLeads.length === 0 ? (
+                    <p className="mt-2 text-xs leading-5 text-slate-500">
+                      Nenhum funcionário institucional está disponível para
+                      atribuição. No CRM global da PHANYX, responsáveis antigos
+                      permanecem preservados como histórico.
+                    </p>
+                  ) : null}
+
+                  {!criandoNovo &&
+                    leadSelecionado?.responsavelNome &&
+                    !leadSelecionado.responsavelFuncionarioId ? (
+                    <p className="mt-2 text-xs leading-5 text-amber-700 dark:text-amber-300">
+                      Responsável registrado anteriormente:{" "}
+                      <strong>{leadSelecionado.responsavelNome}</strong>
+                    </p>
+                  ) : null}
                 </div>
 
                 <div>
@@ -1054,15 +1403,71 @@ className="phanyx-btn-primary min-h-[56px] w-full whitespace-nowrap px-8 text-ba
 
                 <div>
                   <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Responsável
+                    Responsável pelo lead
                   </label>
-                  <input
-                    value={form.responsavelNome}
+
+                  <select
+                    value={form.responsavelFuncionarioId}
                     onChange={(e) =>
-                      setForm({ ...form, responsavelNome: e.target.value })
+                      setForm({
+                        ...form,
+                        responsavelFuncionarioId: e.target.value,
+                      })
                     }
-                    className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
-                  />
+                    disabled={
+                      carregandoResponsaveis ||
+                      responsaveisLeads.length === 0
+                    }
+                    className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:disabled:bg-slate-900"
+                  >
+                    <option value="">Sem responsável definido</option>
+
+                    {responsaveisLeads.map((responsavel) => (
+                      <option
+                        key={responsavel.id}
+                        value={responsavel.id}
+                      >
+                        {responsavel.nome}
+                        {responsavel.cargo
+                          ? ` — ${responsavel.cargo}`
+                          : ""}
+                        {responsavel.departamento?.nome
+                          ? ` — ${responsavel.departamento.nome}`
+                          : ""}
+                      </option>
+                    ))}
+                  </select>
+
+                  {carregandoResponsaveis ? (
+                    <p className="mt-2 text-xs text-slate-500">
+                      Carregando funcionários ativos...
+                    </p>
+                  ) : null}
+
+                  {erroResponsaveis ? (
+                    <p className="mt-2 text-xs font-medium text-red-600 dark:text-red-400">
+                      {erroResponsaveis}
+                    </p>
+                  ) : null}
+
+                  {!carregandoResponsaveis &&
+                    !erroResponsaveis &&
+                    responsaveisLeads.length === 0 ? (
+                    <p className="mt-2 text-xs leading-5 text-slate-500">
+                      Nenhum funcionário institucional está disponível para
+                      atribuição. No CRM global da PHANYX, responsáveis antigos
+                      permanecem preservados como histórico.
+                    </p>
+                  ) : null}
+
+                  {!criandoNovo &&
+                    leadSelecionado?.responsavelNome &&
+                    !leadSelecionado.responsavelFuncionarioId ? (
+                    <p className="mt-2 text-xs leading-5 text-amber-700 dark:text-amber-300">
+                      Responsável registrado anteriormente:{" "}
+                      <strong>{leadSelecionado.responsavelNome}</strong>
+                    </p>
+                  ) : null}
                 </div>
 
                 <div>
@@ -1293,44 +1698,44 @@ className="phanyx-btn-primary min-h-[56px] w-full whitespace-nowrap px-8 text-ba
         )}
       </div>
       {leadParaExcluir && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 px-4 backdrop-blur-sm">
-    <div className="w-full max-w-md rounded-3xl border border-slate-700 bg-slate-900 p-6 shadow-2xl">
-      <p className="text-sm font-bold uppercase tracking-[0.22em] text-red-300">
-        Confirmar exclusão
-      </p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-3xl border border-slate-700 bg-slate-900 p-6 shadow-2xl">
+            <p className="text-sm font-bold uppercase tracking-[0.22em] text-red-300">
+              Confirmar exclusão
+            </p>
 
-      <h2 className="mt-2 text-2xl font-black text-white">
-        Excluir lead?
-      </h2>
+            <h2 className="mt-2 text-2xl font-black text-white">
+              Excluir lead?
+            </h2>
 
-      <p className="mt-3 text-sm leading-6 text-slate-300">
-        Você está prestes a excluir o lead{" "}
-        <strong className="text-white">{leadParaExcluir.nome}</strong>.
-        Essa ação remove o registro do CRM comercial.
-      </p>
+            <p className="mt-3 text-sm leading-6 text-slate-300">
+              Você está prestes a excluir o lead{" "}
+              <strong className="text-white">{leadParaExcluir.nome}</strong>.
+              Essa ação remove o registro do CRM comercial.
+            </p>
 
-      <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-        <button
-          type="button"
-          onClick={() => setLeadParaExcluir(null)}
-          disabled={salvando}
-          className="rounded-2xl border border-slate-700 bg-slate-950 px-5 py-3 text-sm font-bold text-slate-200 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          Cancelar
-        </button>
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => setLeadParaExcluir(null)}
+                disabled={salvando}
+                className="rounded-2xl border border-slate-700 bg-slate-950 px-5 py-3 text-sm font-bold text-slate-200 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Cancelar
+              </button>
 
-        <button
-          type="button"
-          onClick={confirmarExclusaoLead}
-          disabled={salvando}
-          className="rounded-2xl bg-red-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {salvando ? "Excluindo..." : "Sim, excluir"}
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+              <button
+                type="button"
+                onClick={confirmarExclusaoLead}
+                disabled={salvando}
+                className="rounded-2xl bg-red-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {salvando ? "Excluindo..." : "Sim, excluir"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

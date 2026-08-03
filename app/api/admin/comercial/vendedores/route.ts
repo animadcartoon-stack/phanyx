@@ -173,7 +173,6 @@ return NextResponse.json(
   })
 );
 
-    return NextResponse.json(vendedores);
   } catch (error) {
     console.error(
       "Erro ao carregar vendedores disponíveis:",

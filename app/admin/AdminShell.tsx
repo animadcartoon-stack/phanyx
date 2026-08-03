@@ -75,7 +75,7 @@ export default function AdminShell({
 
   const descobrirMenuInicial = () => {
     if (pathname.startsWith("/admin/leads")) {
-      return "comercial-phanyx";
+      return "comercial";
     }
 
     if (pathname.startsWith("/admin/polos")) {
@@ -451,6 +451,14 @@ export default function AdminShell({
     "comercial.configuracoes.gerenciar"
   );
 
+  const podeVerLeadsComerciais = podeAcessar(
+    "comercial.leads.ver",
+    "comercial.leads.criar",
+    "comercial.leads.editar",
+    "comercial.leads.atribuir",
+    "comercial.leads.converter"
+  );
+
   const podeGerenciarConfiguracoesComerciais =
     podeAcessar(
       "comercial.configuracoes.gerenciar"
@@ -502,6 +510,16 @@ export default function AdminShell({
       usuario?.isMasterAdmin === true ||
       usuario?.role === "SUPER_ADMIN"
     );
+
+  useEffect(() => {
+    if (!pathname?.startsWith("/admin/leads")) return;
+
+    setMenuAberto(
+      podeVerComercialPhanyx
+        ? "comercial-phanyx"
+        : "comercial"
+    );
+  }, [pathname, podeVerComercialPhanyx]);
 
   const podeVerPainelMaster =
     !carregandoUsuario && Boolean(usuario?.isMasterAdmin);
@@ -676,7 +694,9 @@ export default function AdminShell({
                       <span className={sectionTitleClass}>
                         💼 Comercial PHANYX
                       </span>
-                      <span>{menuAberto === "comercial" ? "▾" : "▸"}</span>
+                      <span>
+                        {menuAberto === "comercial-phanyx" ? "▾" : "▸"}
+                      </span>
                     </button>
 
                     {menuAberto === "comercial-phanyx" && (
@@ -719,6 +739,14 @@ export default function AdminShell({
                           📊 Visão Geral
                         </Link>
 
+                        {podeVerLeadsComerciais && (
+                          <Link
+                            href="/admin/leads"
+                            className={getLinkClass("/admin/leads")}
+                          >
+                            🎯 Leads e oportunidades
+                          </Link>
+                        )}
                         {podeGerenciarConfiguracoesComerciais && (
                           <Link
                             href="/admin/comercial/configuracoes"
@@ -1360,6 +1388,15 @@ export default function AdminShell({
                       >
                         📊 Visão Geral
                       </Link>
+
+                      {podeVerLeadsComerciais && (
+                        <Link
+                          href="/admin/leads"
+                          className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+                        >
+                          🎯 Leads e oportunidades
+                        </Link>
+                      )}
 
                       {podeGerenciarConfiguracoesComerciais && (
                         <Link
