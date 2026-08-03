@@ -5,17 +5,19 @@ const STATUS_MODULO = {
   DISPONIVEL: {
     texto: "Disponível",
     classes:
-      "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200",
+      "!border-emerald-700 !bg-emerald-100 !text-emerald-950 dark:!border-emerald-700 dark:!bg-emerald-950/50 dark:!text-emerald-100",
   },
+
   INTEGRADO: {
     texto: "Integração ativa",
     classes:
-      "border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200",
+      "!border-amber-700 !bg-amber-100 !text-amber-950 dark:!border-amber-700 dark:!bg-amber-950/50 dark:!text-amber-100",
   },
+
   EM_IMPLANTACAO: {
     texto: "Em implantação",
     classes:
-      "border-slate-300 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300",
+      "!border-slate-400 !bg-slate-200 !text-slate-950 dark:!border-slate-700 dark:!bg-slate-900 dark:!text-slate-200",
   },
 } as const;
 
@@ -36,7 +38,9 @@ const MODULOS_COMERCIAIS: ModuloComercial[] = [
     titulo: "Leads e oportunidades",
     descricao:
       "Cadastre interessados, acompanhe contatos, etapas do funil e responsáveis.",
-    status: "EM_IMPLANTACAO",
+    status: "DISPONIVEL",
+    href: "/admin/leads",
+    acao: "Abrir leads e oportunidades",
   },
   {
     icone: "🧑‍💼",
@@ -200,7 +204,7 @@ export default function ComercialPage() {
                   {modulo.href && modulo.acao && (
                     <Link
                       href={modulo.href}
-                      className="inline-flex min-h-8 items-center rounded-lg px-2 text-xs font-black text-blue-700 transition hover:bg-blue-50 hover:text-blue-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:text-blue-300 dark:hover:bg-blue-950/50 dark:hover:text-blue-100 dark:focus-visible:ring-offset-slate-950"
+                      className="inline-flex min-h-8 items-center rounded-lg px-2 text-xs font-black !text-blue-800 transition hover:!bg-blue-100 hover:!text-blue-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 dark:!text-blue-300 dark:hover:!bg-blue-950/50 dark:hover:!text-blue-100 dark:focus-visible:ring-offset-slate-950"
                     >
                       {modulo.acao}
                       <span className="ml-1" aria-hidden="true">
