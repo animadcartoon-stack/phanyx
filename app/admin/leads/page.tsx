@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { useRouter } from "next/navigation";
 
 type Lead = {
   id: number;
@@ -452,6 +453,8 @@ function FiltroSelect({
 }
 
 export default function AdminLeadsPage() {
+  const router = useRouter();
+
   const [leads, setLeads] = useState<Lead[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
@@ -807,6 +810,22 @@ export default function AdminLeadsPage() {
     } finally {
       setSalvando(false);
     }
+  }
+
+  function iniciarConversaoEmMatricula() {
+    if (!leadSelecionado) return;
+
+    if (leadSelecionado.tipo !== "INSTITUICAO") {
+      setPopupErro(
+        "Somente leads institucionais podem ser convertidos em aluno e matrícula."
+      );
+
+      return;
+    }
+
+    router.push(
+      `/admin/alunos?leadId=${leadSelecionado.id}`
+    );
   }
 
   function excluirLead() {
@@ -1921,6 +1940,19 @@ export default function AdminLeadsPage() {
                 >
                   {salvando ? "Salvando..." : "Salvar lead"}
                 </button>
+
+                {!criandoNovo &&
+                  leadSelecionado &&
+                  leadSelecionado.tipo === "INSTITUICAO" && (
+                    <button
+                      type="button"
+                      onClick={iniciarConversaoEmMatricula}
+                      disabled={salvando}
+                      className="rounded-2xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-70"
+                    >
+                      Converter em aluno e matrícula
+                    </button>
+                  )}
 
                 {!criandoNovo && leadSelecionado && (
                   <button
