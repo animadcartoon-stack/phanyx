@@ -5,19 +5,19 @@ const STATUS_MODULO = {
   DISPONIVEL: {
     texto: "Disponível",
     classes:
-      "!border-emerald-700 !bg-emerald-100 !text-emerald-950 dark:!border-emerald-700 dark:!bg-emerald-950/50 dark:!text-emerald-100",
+      "border-emerald-700 bg-emerald-100 [--phanyx-status-text:#064e3b] dark:border-emerald-700 dark:bg-emerald-950/50 dark:[--phanyx-status-text:#d1fae5]",
   },
 
   INTEGRADO: {
     texto: "Integração ativa",
     classes:
-      "!border-amber-700 !bg-amber-100 !text-amber-950 dark:!border-amber-700 dark:!bg-amber-950/50 dark:!text-amber-100",
+      "border-amber-700 bg-amber-100 [--phanyx-status-text:#78350f] dark:border-amber-700 dark:bg-amber-950/50 dark:[--phanyx-status-text:#fef3c7]",
   },
 
   EM_IMPLANTACAO: {
     texto: "Em implantação",
     classes:
-      "!border-slate-400 !bg-slate-200 !text-slate-950 dark:!border-slate-700 dark:!bg-slate-900 dark:!text-slate-200",
+      "border-slate-500 bg-slate-200 [--phanyx-status-text:#0f172a] dark:border-slate-700 dark:bg-slate-900 dark:[--phanyx-status-text:#e2e8f0]",
   },
 } as const;
 
@@ -196,7 +196,13 @@ export default function ComercialPage() {
 
                 <div className="mt-auto flex flex-wrap items-center gap-3 pt-4">
                   <span
-                    className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${status.classes}`}
+                    className={`inline-flex rounded-full border px-3 py-1 text-xs font-black ${status.classes}`}
+                    style={{
+                      color: "var(--phanyx-status-text)",
+                      WebkitTextFillColor:
+                        "var(--phanyx-status-text)",
+                      opacity: 1,
+                    }}
                   >
                     {status.texto}
                   </span>
@@ -204,10 +210,20 @@ export default function ComercialPage() {
                   {modulo.href && modulo.acao && (
                     <Link
                       href={modulo.href}
-                      className="inline-flex min-h-8 items-center rounded-lg px-2 text-xs font-black !text-blue-800 transition hover:!bg-blue-100 hover:!text-blue-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 dark:!text-blue-300 dark:hover:!bg-blue-950/50 dark:hover:!text-blue-100 dark:focus-visible:ring-offset-slate-950"
+                      className="inline-flex min-h-9 items-center rounded-xl border border-blue-300 bg-blue-50 px-3 text-sm font-black [--phanyx-action-text:#1e3a8a] transition hover:border-blue-400 hover:bg-blue-100 hover:[--phanyx-action-text:#172554] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 dark:border-blue-800 dark:bg-blue-950/40 dark:[--phanyx-action-text:#bfdbfe] dark:hover:bg-blue-950/70 dark:hover:[--phanyx-action-text:#dbeafe] dark:focus-visible:ring-offset-slate-950"
+                      style={{
+                        color: "var(--phanyx-action-text)",
+                        WebkitTextFillColor:
+                          "var(--phanyx-action-text)",
+                        opacity: 1,
+                      }}
                     >
                       {modulo.acao}
-                      <span className="ml-1" aria-hidden="true">
+
+                      <span
+                        className="ml-1"
+                        aria-hidden="true"
+                      >
                         →
                       </span>
                     </Link>
