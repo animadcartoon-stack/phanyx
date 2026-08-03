@@ -17664,92 +17664,127 @@ html[data-theme="system"] .phanyx-leads-page .phanyx-leads-info-text {
 
 /* =========================================================
    LEADS E OPORTUNIDADES
-   CORREÇÃO FINAL — TEMA ESCURO NEUTRO, SEM AZUL
-   Este bloco deve permanecer no final do globals.css
+   TEMA ESCURO AZUL-MARINHO PHANYX
+   Claro e sistema permanecem neutros
 ========================================================= */
 
 /* Fundo geral da página */
 html[data-theme="dark"] body .phanyx-leads-page {
-  background: #0a0a0a !important;
+  background: #1e293b !important;
+  background-color: #1e293b !important;
   background-image: none !important;
   color: #f8fafc !important;
 }
 
-/* Cards de métricas, painel de filtros e colunas do funil */
-html[data-theme="dark"] body .phanyx-leads-page .bg-white {
-  background: #1f1f1f !important;
-  background-color: #1f1f1f !important;
+/* Cards de métricas, filtros e colunas */
+html[data-theme="dark"]
+  body
+  .phanyx-leads-page
+  .bg-white {
+  background: #111827 !important;
+  background-color: #111827 !important;
   background-image: none !important;
-  border-color: #444444 !important;
+  border-color: #334155 !important;
 }
 
-/* Cards internos e cards dos próprios leads */
-html[data-theme="dark"] body .phanyx-leads-page .bg-slate-50 {
-  background: #292929 !important;
-  background-color: #292929 !important;
+/* Cards internos e cards dos leads */
+html[data-theme="dark"]
+  body
+  .phanyx-leads-page
+  .bg-slate-50 {
+  background: #0f172a !important;
+  background-color: #0f172a !important;
   background-image: none !important;
-  border-color: #4a4a4a !important;
+  border-color: #334155 !important;
 }
 
-/* Bordas neutras */
-html[data-theme="dark"] body .phanyx-leads-page .border-slate-200,
-html[data-theme="dark"] body .phanyx-leads-page .border-slate-300 {
-  border-color: #484848 !important;
+/* Bordas azuis/slate */
+html[data-theme="dark"]
+  body
+  .phanyx-leads-page
+  .border-slate-200,
+html[data-theme="dark"]
+  body
+  .phanyx-leads-page
+  .border-slate-300 {
+  border-color: #334155 !important;
 }
 
-/* Campo de busca e campos do formulário */
-html[data-theme="dark"] body .phanyx-leads-page input,
-html[data-theme="dark"] body .phanyx-leads-page select,
-html[data-theme="dark"] body .phanyx-leads-page textarea {
-  background: #262626 !important;
-  background-color: #262626 !important;
+/* Busca e campos do formulário */
+html[data-theme="dark"]
+  body
+  .phanyx-leads-page
+  input,
+html[data-theme="dark"]
+  body
+  .phanyx-leads-page
+  select,
+html[data-theme="dark"]
+  body
+  .phanyx-leads-page
+  textarea {
+  background: #0f172a !important;
+  background-color: #0f172a !important;
   background-image: none !important;
-  border-color: #525252 !important;
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
 }
 
-/* Placeholder da busca */
-html[data-theme="dark"] body .phanyx-leads-page input::placeholder,
-html[data-theme="dark"] body .phanyx-leads-page textarea::placeholder {
-  color: #a3a3a3 !important;
-  -webkit-text-fill-color: #a3a3a3 !important;
+/* Placeholder */
+html[data-theme="dark"]
+  body
+  .phanyx-leads-page
+  input::placeholder,
+html[data-theme="dark"]
+  body
+  .phanyx-leads-page
+  textarea::placeholder {
+  color: #94a3b8 !important;
+  -webkit-text-fill-color: #94a3b8 !important;
   opacity: 1 !important;
 }
 
-/* Foco neutro, sem brilho azul */
-html[data-theme="dark"] body .phanyx-leads-page input:focus,
-html[data-theme="dark"] body .phanyx-leads-page select:focus,
-html[data-theme="dark"] body .phanyx-leads-page textarea:focus {
-  border-color: #737373 !important;
-  box-shadow: 0 0 0 3px rgba(115, 115, 115, 0.22) !important;
+/* Foco azul discreto */
+html[data-theme="dark"]
+  body
+  .phanyx-leads-page
+  input:focus,
+html[data-theme="dark"]
+  body
+  .phanyx-leads-page
+  select:focus,
+html[data-theme="dark"]
+  body
+  .phanyx-leads-page
+  textarea:focus {
+  border-color: #60a5fa !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.22) !important;
   outline: none !important;
 }
 
-/* Botões principais dos filtros */
+/* Botões fechados dos filtros */
 html[data-theme="dark"]
   body
   .phanyx-leads-page
   .phanyx-leads-filter-trigger {
-  background: #262626 !important;
-  background-color: #262626 !important;
+  background: #0f172a !important;
+  background-color: #0f172a !important;
   background-image: none !important;
-  border-color: #525252 !important;
-  color: #ffffff !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
   box-shadow: none !important;
 }
 
-/* Hover dos filtros */
 html[data-theme="dark"]
   body
   .phanyx-leads-page
   .phanyx-leads-filter-trigger:hover {
-  background: #303030 !important;
-  background-color: #303030 !important;
-  border-color: #686868 !important;
+  background: #172033 !important;
+  background-color: #172033 !important;
+  border-color: #475569 !important;
 }
 
-/* Foco dos filtros sem azul */
 html[data-theme="dark"]
   body
   .phanyx-leads-page
@@ -17758,13 +17793,13 @@ html[data-theme="dark"]
   body
   .phanyx-leads-page
   .phanyx-leads-filter-trigger:focus-visible {
-  background: #303030 !important;
-  border-color: #737373 !important;
-  box-shadow: 0 0 0 3px rgba(115, 115, 115, 0.22) !important;
+  background: #172033 !important;
+  border-color: #60a5fa !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.22) !important;
   outline: none !important;
 }
 
-/* Texto e seta dos filtros */
+/* Texto, seta e check */
 html[data-theme="dark"]
   body
   .phanyx-leads-page
@@ -17777,39 +17812,37 @@ html[data-theme="dark"]
   body
   .phanyx-leads-page
   .phanyx-leads-filter-check {
-  color: #f5f5f5 !important;
-  -webkit-text-fill-color: #f5f5f5 !important;
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
 }
 
-/* Caixa aberta do dropdown */
+/* Menu aberto */
 html[data-theme="dark"]
   body
   .phanyx-leads-page
   .phanyx-leads-filter-menu {
-  background: #202020 !important;
-  background-color: #202020 !important;
+  background: #111827 !important;
+  background-color: #111827 !important;
   background-image: none !important;
-  border-color: #525252 !important;
+  border-color: #334155 !important;
 }
 
-/* Opções normais */
+/* Opções */
 html[data-theme="dark"]
   body
   .phanyx-leads-page
   .phanyx-leads-filter-option {
   background: transparent !important;
-  background-image: none !important;
-  color: #e5e5e5 !important;
-  -webkit-text-fill-color: #e5e5e5 !important;
+  color: #e2e8f0 !important;
+  -webkit-text-fill-color: #e2e8f0 !important;
 }
 
-/* Opção ao passar o mouse */
 html[data-theme="dark"]
   body
   .phanyx-leads-page
   .phanyx-leads-filter-option:hover {
-  background: #303030 !important;
-  background-color: #303030 !important;
+  background: #1e293b !important;
+  background-color: #1e293b !important;
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
 }
@@ -17819,14 +17852,13 @@ html[data-theme="dark"]
   body
   .phanyx-leads-page
   .phanyx-leads-filter-option.is-selected {
-  background: #3b3b3b !important;
-  background-color: #3b3b3b !important;
+  background: #27364d !important;
+  background-color: #27364d !important;
   background-image: none !important;
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
 }
 
-/* Impede os spans internos de receberem azul */
 html[data-theme="dark"]
   body
   .phanyx-leads-page
@@ -17840,13 +17872,12 @@ html[data-theme="dark"]
   body
   .phanyx-leads-page
   .phanyx-leads-info-card {
-  background: #1f1f1f !important;
-  background-color: #1f1f1f !important;
+  background: #111827 !important;
+  background-color: #111827 !important;
   background-image: none !important;
-  border-color: #484848 !important;
+  border-color: #334155 !important;
 }
 
-/* Textos do card informativo */
 html[data-theme="dark"]
   body
   .phanyx-leads-page
@@ -17859,8 +17890,8 @@ html[data-theme="dark"]
   body
   .phanyx-leads-page
   .phanyx-leads-info-text {
-  color: #d4d4d4 !important;
-  -webkit-text-fill-color: #d4d4d4 !important;
+  color: #cbd5e1 !important;
+  -webkit-text-fill-color: #cbd5e1 !important;
 }
 
 /* Áreas vazias das colunas */
@@ -17868,21 +17899,9 @@ html[data-theme="dark"]
   body
   .phanyx-leads-page
   .border-dashed {
-  background: #181818 !important;
+  background: #0b1120 !important;
+  background-color: #0b1120 !important;
   background-image: none !important;
-  border-color: #525252 !important;
-  color: #a3a3a3 !important;
-}
-
-/* Mantém azuis apenas nos botões de ação */
-html[data-theme="dark"]
-  body
-  .phanyx-leads-page
-  .phanyx-btn-primary,
-html[data-theme="dark"]
-  body
-  .phanyx-leads-page
-  button.bg-blue-600 {
-  background: #2563eb !important;
-  color: #ffffff !important;
+  border-color: #475569 !important;
+  color: #94a3b8 !important;
 }
