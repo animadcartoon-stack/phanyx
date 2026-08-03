@@ -4315,7 +4315,7 @@ window.scrollTo({
                 responsável comercial do lead.
               </p>
             ) : (
-              <div className="mt-4 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm leading-6 text-amber-950 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100">
+              <div className="mt-4 rounded-2xl border border-slate-300 bg-white p-4 text-sm font-semibold leading-6 text-slate-900 shadow-sm dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100">
                 Este aluno não está ativo. Reative o cadastro na
                 listagem de alunos antes de iniciar uma nova
                 matrícula.
