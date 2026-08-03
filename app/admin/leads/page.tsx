@@ -734,6 +734,7 @@ export default function AdminLeadsPage() {
       const {
         responsavelFuncionarioId,
         instituicaoId,
+        ultimoContatoEm: _ultimoContatoControladoPeloSistema,
         ...demaisCampos
       } = form;
 
@@ -751,9 +752,6 @@ export default function AdminLeadsPage() {
 
         proximoContatoEm:
           form.proximoContatoEm || null,
-
-        ultimoContatoEm:
-          form.ultimoContatoEm || null,
 
         ...(ehCrmGlobalPhanyx
           ? {
@@ -1794,16 +1792,18 @@ export default function AdminLeadsPage() {
 
                 <div className="md:col-span-2">
                   <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Último contato
+                    Último contato registrado
                   </label>
-                  <input
-                    type="datetime-local"
-                    value={form.ultimoContatoEm}
-                    onChange={(e) =>
-                      setForm({ ...form, ultimoContatoEm: e.target.value })
-                    }
-                    className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
-                  />
+
+                  <div className="rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
+                    {form.ultimoContatoEm
+                      ? formatarDataHora(form.ultimoContatoEm)
+                      : "Nenhum contato registrado"}
+                  </div>
+
+                  <p className="mt-2 text-xs leading-5 text-slate-500">
+                    Atualizado automaticamente quando uma interação comercial é registrada.
+                  </p>
                 </div>
 
                 <div className="md:col-span-2">
