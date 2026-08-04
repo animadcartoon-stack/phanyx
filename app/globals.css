@@ -18001,3 +18001,99 @@ html[data-theme="dark"]
   -webkit-text-fill-color: inherit !important;
   opacity: 1 !important;
 }
+
+/* =========================================================
+   DOCUMENTOS GERADOS — BOTÕES DE EXCLUSÃO
+   ========================================================= */
+
+.phanyx-doc-danger-action {
+  display: inline-flex;
+  min-height: 46px;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #dc2626 !important;
+  border-radius: 0.75rem;
+  background-color: #fff1f2 !important;
+  padding: 0.5rem 0.75rem;
+  color: #b91c1c !important;
+  font-size: 0.875rem;
+  font-weight: 800;
+  line-height: 1.25rem;
+  opacity: 1 !important;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.phanyx-doc-danger-action:hover:not(:disabled) {
+  border-color: #b91c1c !important;
+  background-color: #fee2e2 !important;
+  color: #991b1b !important;
+  box-shadow: 0 5px 14px rgb(185 28 28 / 18%);
+  transform: translateY(-1px);
+}
+
+.phanyx-doc-danger-action:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.phanyx-doc-danger-action:focus-visible {
+  outline: 3px solid rgb(239 68 68 / 30%);
+  outline-offset: 2px;
+}
+
+/* Tema escuro */
+.dark .phanyx-doc-danger-action,
+[data-theme="dark"] .phanyx-doc-danger-action {
+  border-color: #f87171 !important;
+  background-color: #3f1116 !important;
+  color: #fecaca !important;
+}
+
+.dark .phanyx-doc-danger-action:hover:not(:disabled),
+[data-theme="dark"]
+  .phanyx-doc-danger-action:hover:not(:disabled) {
+  border-color: #fca5a5 !important;
+  background-color: #5f1820 !important;
+  color: #ffffff !important;
+  box-shadow: 0 5px 16px rgb(0 0 0 / 30%);
+}
+
+/* Tema sistema quando o computador estiver no modo escuro */
+@media (prefers-color-scheme: dark) {
+  html:not(.light):not([data-theme="light"])
+    .phanyx-doc-danger-action {
+    border-color: #f87171 !important;
+    background-color: #3f1116 !important;
+    color: #fecaca !important;
+  }
+
+  html:not(.light):not([data-theme="light"])
+    .phanyx-doc-danger-action:hover:not(:disabled) {
+    border-color: #fca5a5 !important;
+    background-color: #5f1820 !important;
+    color: #ffffff !important;
+  }
+}
+
+/* Estado realmente desabilitado */
+.phanyx-doc-danger-action:disabled {
+  cursor: not-allowed;
+  border-color: #cbd5e1 !important;
+  background-color: #f1f5f9 !important;
+  color: #64748b !important;
+  box-shadow: none !important;
+  opacity: 0.72 !important;
+  transform: none !important;
+}
+
+.dark .phanyx-doc-danger-action:disabled,
+[data-theme="dark"] .phanyx-doc-danger-action:disabled {
+  border-color: #475569 !important;
+  background-color: #1e293b !important;
+  color: #94a3b8 !important;
+}

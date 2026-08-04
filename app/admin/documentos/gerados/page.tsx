@@ -14,6 +14,7 @@ type DocumentoGerado = {
   exigeAssinatura: boolean;
   criadoEm?: string;
   atualizadoEm?: string;
+  assinadoEm?: string | null;
   conteudo?: string;
   aluno?: {
     id: number;
@@ -91,6 +92,16 @@ function statusClass(status?: string) {
   }
 }
 
+function podeExcluirDocumento(
+  documento: DocumentoGerado
+) {
+  return (
+    documento.status !==
+    "ASSINADO" &&
+    !documento.assinadoEm
+  );
+}
+
 function AdminDocumentosGeradosPage() {
   const [documentos, setDocumentos] = useState<DocumentoGerado[]>([]);
   const [loading, setLoading] = useState(true);
@@ -120,6 +131,17 @@ function AdminDocumentosGeradosPage() {
     setExcluindo,
   ] = useState(false);
 
+  const [
+    documentosSelecionados,
+    setDocumentosSelecionados,
+  ] =
+    useState<number[]>([]);
+
+  const [
+    confirmarExcluirSelecionados,
+    setConfirmarExcluirSelecionados,
+  ] = useState(false);
+
   async function carregarDocumentos() {
     try {
       setLoading(true);
@@ -142,7 +164,30 @@ function AdminDocumentosGeradosPage() {
         throw new Error(data?.error || "Erro ao carregar documentos");
       }
 
-      setDocumentos(Array.isArray(data) ? data : []);
+      const listaDocumentos:
+        DocumentoGerado[] =
+        Array.isArray(data)
+          ? data
+          : [];
+
+      setDocumentos(
+        listaDocumentos
+      );
+
+      setDocumentosSelecionados(
+        (selecionadosAtuais) =>
+          selecionadosAtuais.filter(
+            (idSelecionado) =>
+              listaDocumentos.some(
+                (documento) =>
+                  documento.id ===
+                  idSelecionado &&
+                  podeExcluirDocumento(
+                    documento
+                  )
+              )
+          )
+      );
     } catch (error: any) {
       console.error(error);
       setDocumentos([]);
@@ -408,6 +453,85 @@ function AdminDocumentosGeradosPage() {
     }
   }
 
+  async function excluirDocumentosSelecionados() {
+    try {
+      if (
+        documentosSelecionados.length ===
+        0
+      ) {
+        setErro(
+          "Selecione pelo menos um documento."
+        );
+
+        return;
+      }
+
+      setExcluindo(true);
+      setErro("");
+      setMensagem("");
+
+      const res = await fetch(
+        "/api/admin/documentos/gerados",
+        {
+          method: "DELETE",
+
+          credentials: "include",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            modo:
+              "SELECIONADOS",
+
+            documentoIds:
+              documentosSelecionados,
+          }),
+        }
+      );
+
+      const data =
+        await res.json();
+
+      if (!res.ok) {
+        throw new Error(
+          data?.error ||
+          "Não foi possível excluir os documentos selecionados."
+        );
+      }
+
+      setConfirmarExcluirSelecionados(
+        false
+      );
+
+      setDocumentosSelecionados(
+        []
+      );
+
+      setDocumentoSelecionado(
+        null
+      );
+
+      setMensagem(
+        data?.mensagem ||
+        "Documentos selecionados excluídos com sucesso."
+      );
+
+      await carregarDocumentos();
+    } catch (error: any) {
+      console.error(error);
+
+      setErro(
+        error?.message ||
+        "Não foi possível excluir os documentos selecionados."
+      );
+    } finally {
+      setExcluindo(false);
+    }
+  }
+
   const documentosFiltrados = useMemo(() => {
     const termo = busca.trim().toLowerCase();
 
@@ -423,6 +547,76 @@ function AdminDocumentosGeradosPage() {
       );
     });
   }, [documentos, busca]);
+
+  const idsSelecionaveisVisiveis =
+    useMemo(
+      () =>
+        documentosFiltrados
+          .filter(
+            podeExcluirDocumento
+          )
+          .map(
+            (documento) =>
+              documento.id
+          ),
+      [
+        documentosFiltrados,
+      ]
+    );
+
+  const todosVisiveisSelecionados =
+    idsSelecionaveisVisiveis.length >
+    0 &&
+    idsSelecionaveisVisiveis.every(
+      (id) =>
+        documentosSelecionados.includes(
+          id
+        )
+    );
+
+  function alternarDocumentoSelecionado(
+    documentoId: number
+  ) {
+    setDocumentosSelecionados(
+      (selecionadosAtuais) =>
+        selecionadosAtuais.includes(
+          documentoId
+        )
+          ? selecionadosAtuais.filter(
+            (id) =>
+              id !==
+              documentoId
+          )
+          : [
+            ...selecionadosAtuais,
+            documentoId,
+          ]
+    );
+  }
+
+  function alternarTodosVisiveis() {
+    setDocumentosSelecionados(
+      (selecionadosAtuais) => {
+        if (
+          todosVisiveisSelecionados
+        ) {
+          return selecionadosAtuais.filter(
+            (id) =>
+              !idsSelecionaveisVisiveis.includes(
+                id
+              )
+          );
+        }
+
+        return Array.from(
+          new Set([
+            ...selecionadosAtuais,
+            ...idsSelecionaveisVisiveis,
+          ])
+        );
+      }
+    );
+  }
 
   return (
     <div className="phanyx-docs-page space-y-6">
@@ -501,21 +695,63 @@ function AdminDocumentosGeradosPage() {
                       excluindo ||
                       documentos.length === 0
                     }
-                    className={[
-                      "rounded-xl border px-3 py-2 text-sm font-semibold transition",
-                      "border-red-300 bg-white text-red-700",
-                      "hover:border-red-500 hover:bg-red-50",
-                      "dark:border-red-800 dark:bg-slate-950 dark:text-red-300",
-                      "dark:hover:bg-red-950/30",
-                      excluindo ||
-                        documentos.length === 0
-                        ? "cursor-not-allowed opacity-50"
-                        : "",
-                    ].join(" ")}
+                    className="phanyx-doc-danger-action"
                   >
                     Excluir não assinados
                   </button>
 
+                </div>
+                <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900 md:flex-row md:items-center md:justify-between">
+                  <div className="flex flex-wrap items-center gap-4">
+                    <label className="flex cursor-pointer items-center gap-2 text-sm font-semibold text-slate-800 dark:text-slate-100">
+                      <input
+                        type="checkbox"
+                        checked={
+                          todosVisiveisSelecionados
+                        }
+                        onChange={
+                          alternarTodosVisiveis
+                        }
+                        disabled={
+                          idsSelecionaveisVisiveis.length ===
+                          0
+                        }
+                        className="h-5 w-5 cursor-pointer accent-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+                      />
+
+                      Selecionar todos exibidos
+                    </label>
+
+                    <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">
+                      {
+                        documentosSelecionados.length
+                      }{" "}
+                      selecionado(s)
+                    </span>
+                  </div>
+
+                  <div className="w-full md:w-[230px]">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setConfirmarExcluirSelecionados(
+                          true
+                        )
+                      }
+                      disabled={
+                        excluindo ||
+                        documentosSelecionados.length ===
+                        0
+                      }
+                      className="phanyx-doc-danger-action"
+                    >
+                      Excluir selecionados
+                      {documentosSelecionados.length >
+                        0
+                        ? ` (${documentosSelecionados.length})`
+                        : ""}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -533,6 +769,34 @@ function AdminDocumentosGeradosPage() {
                     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_240px]">
                       <div className="min-w-0 space-y-3">
                         <div className="flex flex-wrap items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={
+                              documentosSelecionados.includes(
+                                doc.id
+                              )
+                            }
+                            onChange={() =>
+                              alternarDocumentoSelecionado(
+                                doc.id
+                              )
+                            }
+                            disabled={
+                              !podeExcluirDocumento(
+                                doc
+                              )
+                            }
+                            title={
+                              podeExcluirDocumento(
+                                doc
+                              )
+                                ? "Selecionar documento"
+                                : "Documentos assinados não podem ser excluídos."
+                            }
+                            aria-label={`Selecionar ${doc.titulo}`}
+                            className="h-5 w-5 cursor-pointer accent-red-600 disabled:cursor-not-allowed disabled:opacity-40"
+                          />
+
                           <h3 className="phanyx-doc-section-title text-base font-semibold">
                             {doc.titulo}
                           </h3>
@@ -646,13 +910,7 @@ function AdminDocumentosGeradosPage() {
                               ? "Documentos assinados não podem ser excluídos."
                               : "Excluir documento"
                           }
-                          className={[
-                            "rounded-xl border px-3 py-2 text-sm font-semibold transition",
-                            doc.status ===
-                              "ASSINADO"
-                              ? "cursor-not-allowed border-slate-200 text-slate-400 opacity-60 dark:border-slate-700"
-                              : "border-red-300 text-red-700 hover:border-red-500 hover:bg-red-50 dark:border-red-800 dark:text-red-300 dark:hover:bg-red-950/30",
-                          ].join(" ")}
+                          className="phanyx-doc-danger-action"
                         >
                           Excluir
                         </button>
@@ -837,6 +1095,35 @@ function AdminDocumentosGeradosPage() {
           }}
         />
       )}
+
+      {confirmarExcluirSelecionados && (
+        <PhanyxConfirmModal
+          aberto={true}
+          titulo="Excluir documentos selecionados"
+          mensagem={`Você selecionou ${documentosSelecionados.length} documento(s). Tem certeza que deseja excluí-los? Documentos assinados serão preservados.`}
+          textoConfirmar={
+            excluindo
+              ? "Excluindo..."
+              : `Excluir ${documentosSelecionados.length} documento(s)`
+          }
+          textoCancelar="Cancelar"
+          onConfirmar={() => {
+            if (excluindo) {
+              return;
+            }
+
+            excluirDocumentosSelecionados();
+          }}
+          onCancelar={() => {
+            if (!excluindo) {
+              setConfirmarExcluirSelecionados(
+                false
+              );
+            }
+          }}
+        />
+      )}
+
     </div>
   );
 }

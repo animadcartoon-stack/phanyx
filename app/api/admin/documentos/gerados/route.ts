@@ -206,6 +206,146 @@ export async function DELETE(
     }
 
     /*
+ * Excluir somente os documentos
+ * escolhidos pelo usuário.
+ */
+if (
+  modo === "SELECIONADOS"
+) {
+  const idsRecebidos =
+    Array.isArray(
+      body?.documentoIds
+    )
+      ? body.documentoIds
+      : [];
+
+  const documentoIds =
+    Array.from(
+      new Set(
+        idsRecebidos
+          .map(
+            (valor: unknown) =>
+              Number(valor)
+          )
+          .filter(
+            (valor: number) =>
+              Number.isInteger(
+                valor
+              ) &&
+              valor > 0
+          )
+      )
+    ).slice(0, 100);
+
+  if (
+    documentoIds.length === 0
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          "Selecione pelo menos um documento.",
+      },
+      {
+        status: 400,
+      }
+    );
+  }
+
+  const documentosEncontrados =
+    await prisma
+      .documentoGerado
+      .findMany({
+        where: {
+          instituicaoId:
+            user.instituicaoId,
+
+          id: {
+            in:
+              documentoIds,
+          },
+        },
+
+        select: {
+          id: true,
+          status: true,
+          assinadoEm: true,
+        },
+      });
+
+  const idsPermitidos =
+    documentosEncontrados
+      .filter(
+        (documento) =>
+          documento.status !==
+            "ASSINADO" &&
+          !documento.assinadoEm
+      )
+      .map(
+        (documento) =>
+          documento.id
+      );
+
+  const quantidadeBloqueada =
+    documentosEncontrados.length -
+    idsPermitidos.length;
+
+  if (
+    idsPermitidos.length === 0
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          "Os documentos selecionados estão assinados ou não podem ser excluídos.",
+      },
+      {
+        status: 409,
+      }
+    );
+  }
+
+  const resultado =
+    await prisma
+      .documentoGerado
+      .deleteMany({
+        where: {
+          instituicaoId:
+            user.instituicaoId,
+
+          id: {
+            in:
+              idsPermitidos,
+          },
+
+          status: {
+            not:
+              "ASSINADO",
+          },
+
+          assinadoEm: null,
+        },
+      });
+
+  const mensagemBloqueados =
+    quantidadeBloqueada > 0
+      ? ` ${quantidadeBloqueada} documento(s) assinado(s) foram preservados.`
+      : "";
+
+  return NextResponse.json({
+    ok: true,
+
+    quantidadeExcluida:
+      resultado.count,
+
+    quantidadeBloqueada,
+
+    mensagem:
+      resultado.count === 1
+        ? `1 documento selecionado foi excluído.${mensagemBloqueados}`
+        : `${resultado.count} documentos selecionados foram excluídos.${mensagemBloqueados}`,
+  });
+}
+
+    /*
      * Excluir em lote todos os
      * documentos ainda não assinados.
      */
