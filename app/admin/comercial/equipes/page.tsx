@@ -955,8 +955,8 @@ export default function EquipesComerciaisPage() {
 
                       <span
                         className={`rounded-full border px-3 py-1 text-xs font-black ${equipe.ativo
-                            ? "border-emerald-600 bg-emerald-100 text-emerald-950 dark:border-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-100"
-                            : "border-slate-400 bg-slate-200 text-slate-950 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                          ? "border-emerald-600 bg-emerald-100 text-emerald-950 dark:border-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-100"
+                          : "border-slate-400 bg-slate-200 text-slate-950 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
                           }`}
                       >
                         {equipe.ativo
@@ -1107,8 +1107,8 @@ export default function EquipesComerciaisPage() {
 
       {modalAberto && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/60 p-4">
-          <div className="max-h-[94vh] w-full max-w-3xl overflow-y-auto rounded-3xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900">
-            <div className="flex items-start justify-between gap-4 border-b border-slate-200 p-6 dark:border-slate-700">
+          <div className="phanyx-equipes-modal max-h-[94vh] w-full max-w-3xl overflow-y-auto rounded-3xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900">
+            <div className="phanyx-equipes-modal-cabecalho flex items-start justify-between gap-4 border-b border-slate-200 p-6 dark:border-slate-700">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.2em] text-blue-700 dark:text-blue-300">
                   Comercial
@@ -1125,13 +1125,13 @@ export default function EquipesComerciaisPage() {
                 type="button"
                 onClick={fecharModal}
                 disabled={salvando}
-                className="rounded-2xl border border-slate-300 px-4 py-2 text-sm font-bold text-slate-800 dark:border-slate-700 dark:text-white"
+                className="phanyx-equipes-modal-fechar rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
               >
                 Fechar
               </button>
             </div>
 
-            <div className="space-y-6 p-6">
+            <div className="phanyx-equipes-modal-corpo space-y-6 p-6">
               <div>
                 <label className="mb-2 block text-sm font-black text-slate-800 dark:text-slate-100">
                   Nome da equipe
@@ -1237,7 +1237,7 @@ export default function EquipesComerciaisPage() {
                 </p>
               </div>
 
-              <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-700 dark:bg-slate-950">
+              <div className="phanyx-equipes-modal-membros rounded-3xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-700 dark:bg-slate-950">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <h3 className="font-black text-slate-900 dark:text-white">
@@ -1250,7 +1250,7 @@ export default function EquipesComerciaisPage() {
                     </p>
                   </div>
 
-                  <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-black text-blue-950 dark:bg-blue-950/60 dark:text-blue-100">
+                  <span className="phanyx-equipes-modal-contador rounded-full border border-slate-300 bg-white px-3 py-1 text-xs font-black text-slate-700 dark:border-blue-800 dark:bg-blue-950/60 dark:text-blue-100">
                     {
                       form.membroIds
                         .length
@@ -1271,7 +1271,7 @@ export default function EquipesComerciaisPage() {
                     )
                   }
                   placeholder="Buscar funcionário, cargo ou departamento"
-                  className="mt-4 min-h-11 w-full rounded-2xl border border-slate-300 bg-white px-4 text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                  className="phanyx-equipes-modal-busca mt-4 min-h-11 w-full rounded-2xl border border-slate-300 bg-white px-4 text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                 />
 
                 <div className="mt-4 max-h-72 space-y-2 overflow-y-auto pr-1">
@@ -1305,8 +1305,8 @@ export default function EquipesComerciaisPage() {
                             key={
                               funcionario.id
                             }
-                            className={`flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition ${marcado
-                                ? "border-blue-500 bg-blue-50 dark:border-blue-700 dark:bg-blue-950/40"
+                            className={`phanyx-equipes-modal-membro flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition ${marcado
+                                ? "phanyx-equipes-modal-membro-selecionado border-emerald-500 bg-emerald-50 dark:border-blue-700 dark:bg-blue-950/40"
                                 : "border-slate-200 bg-white hover:border-slate-400 dark:border-slate-700 dark:bg-slate-900"
                               }`}
                           >
@@ -1393,12 +1393,12 @@ export default function EquipesComerciaisPage() {
               )}
             </div>
 
-            <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 p-6 dark:border-slate-700 dark:bg-slate-950 sm:flex-row sm:justify-end">
+            <div className="phanyx-equipes-modal-rodape flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 p-6 dark:border-slate-700 dark:bg-slate-950 sm:flex-row sm:justify-end">
               <button
                 type="button"
                 onClick={fecharModal}
                 disabled={salvando}
-                className="rounded-2xl border border-slate-300 bg-white px-6 py-3 text-sm font-black text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                className="phanyx-equipes-modal-cancelar rounded-2xl border border-slate-300 bg-white px-6 py-3 text-sm font-black text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
               >
                 Cancelar
               </button>

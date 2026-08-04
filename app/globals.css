@@ -18299,3 +18299,193 @@ html:not(.dark)
   opacity: 1 !important;
   font-weight: 500 !important;
 }
+
+/* =========================================================
+   PHANYX — Modal de equipes comerciais no tema claro
+   ========================================================= */
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-modal {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-modal-cabecalho {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-modal-cabecalho h2 {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-modal-cabecalho p {
+  color: #1d4ed8 !important;
+  -webkit-text-fill-color: #1d4ed8 !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-modal-fechar,
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-modal-cancelar {
+  background: #ffffff !important;
+  border-color: #94a3b8 !important;
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-modal-fechar:hover,
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-modal-cancelar:hover {
+  background: #f1f5f9 !important;
+  border-color: #64748b !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-modal-corpo {
+  background: #ffffff !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-modal-corpo label {
+  color: #1e293b !important;
+  -webkit-text-fill-color: #1e293b !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-modal-corpo input,
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-modal-corpo textarea,
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-modal-corpo select {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-modal-corpo input::placeholder,
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-modal-corpo textarea::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-modal-corpo
+  .text-slate-500,
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-modal-corpo
+  .text-slate-600 {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-modal-membros {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-modal-membros h3 {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-modal-contador {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-modal-busca {
+  background: #ffffff !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-modal-membro {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-modal-membro:hover {
+  background: #f8fafc !important;
+  border-color: #94a3b8 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-modal-membro-selecionado {
+  background: #ecfdf5 !important;
+  border-color: #10b981 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-modal-membro span {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-modal-membro
+  .text-slate-600 {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-modal-rodape {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
