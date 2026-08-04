@@ -336,7 +336,7 @@ export async function POST(
 
     const formatoImpressao =
       body?.formatoImpressao ===
-      "DUAS_VIAS_A4"
+        "DUAS_VIAS_A4"
         ? "DUAS_VIAS_A4"
         : "A4_INTEIRA";
 
@@ -400,7 +400,6 @@ export async function POST(
 
           papelTimbradoUrl:
             papelTimbradoDataUri ||
-            papelTimbradoUrl ||
             null,
 
           usarPapelTimbrado:

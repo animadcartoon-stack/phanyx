@@ -477,7 +477,6 @@ export async function GET(
 
           papelTimbradoUrl:
             papelTimbradoDataUri ||
-            papelTimbradoUrl ||
             null,
 
           usarPapelTimbrado:
@@ -532,184 +531,39 @@ export async function GET(
     );
 
     if (
-  formatoImpressao ===
-  "DUAS_VIAS_A4"
-) {
-  const ajusteDuasVias =
-    await page.evaluate(
-      async () => {
-        const areas =
-          Array.from(
-            document.querySelectorAll<HTMLElement>(
-              ".phanyx-via-conteudo-area"
-            )
-          );
+      formatoImpressao ===
+      "DUAS_VIAS_A4"
+    ) {
+      const houveEstouro =
+        await page.evaluate(
+          () => {
+            const areas =
+              Array.from(
+                document.querySelectorAll<HTMLElement>(
+                  ".phanyx-via-conteudo-area"
+                )
+              );
 
-        if (
-          areas.length === 0
-        ) {
-          return {
-            cabe: true,
-            menorZoomNecessario: 1,
-          };
-        }
-
-        const zoomsNecessarios:
-          number[] = [];
-
-        for (
-          const area of areas
-        ) {
-          const conteudo =
-            area.querySelector<HTMLElement>(
-              ".phanyx-conteudo-compacto"
-            );
-
-          if (!conteudo) {
-            continue;
-          }
-
-          /*
-           * Primeiro mede o conteúdo
-           * em tamanho natural.
-           */
-          conteudo.style.zoom =
-            "1";
-
-          conteudo.style.width =
-            "100%";
-
-          void conteudo.offsetHeight;
-
-          const alturaDisponivel =
-            Math.max(
-              area.clientHeight - 8,
-              1
-            );
-
-          const alturaNatural =
-            Math.max(
-              conteudo.scrollHeight,
-              1
-            );
-
-          /*
-           * Calcula automaticamente
-           * a redução necessária para
-           * caber na metade da folha.
-           */
-          const zoomNecessario =
-            Math.min(
-              0.82,
-              (
-                alturaDisponivel /
-                alturaNatural
-              ) * 0.96
-            );
-
-          zoomsNecessarios.push(
-            zoomNecessario
-          );
-
-          /*
-           * Não deixa o documento
-           * ilegível. O limite mínimo
-           * aplicado é de 50%.
-           */
-          const zoomAplicado =
-            Math.max(
-              0.5,
-              zoomNecessario
-            );
-
-          conteudo.style.zoom =
-            String(
-              zoomAplicado
-            );
-
-          /*
-           * Compensa a largura reduzida
-           * pelo zoom para aproveitar
-           * toda a área horizontal.
-           */
-          conteudo.style.width =
-            `${100 / zoomAplicado}%`;
-        }
-
-        /*
-         * Aguarda o navegador recalcular
-         * o layout depois da nova escala.
-         */
-        await new Promise<void>(
-          (resolve) => {
-            requestAnimationFrame(
-              () => {
-                requestAnimationFrame(
-                  () => resolve()
-                );
-              }
+            return areas.some(
+              (area) =>
+                area.scrollHeight >
+                area.clientHeight + 4
             );
           }
         );
 
-        const houveCorte =
-          areas.some(
-            (area) => {
-              const conteudo =
-                area.querySelector<HTMLElement>(
-                  ".phanyx-conteudo-compacto"
-                );
-
-              if (!conteudo) {
-                return false;
-              }
-
-              const areaRect =
-                area.getBoundingClientRect();
-
-              const conteudoRect =
-                conteudo.getBoundingClientRect();
-
-              return (
-                conteudoRect.bottom >
-                areaRect.bottom + 4
-              );
-            }
-          );
-
-        const menorZoomNecessario =
-          zoomsNecessarios.length >
-          0
-            ? Math.min(
-                ...zoomsNecessarios
-              )
-            : 1;
-
-        return {
-          cabe:
-            !houveCorte &&
-            menorZoomNecessario >=
-              0.5,
-
-          menorZoomNecessario,
-        };
+      if (houveEstouro) {
+        return NextResponse.json(
+          {
+            error:
+              "O conteúdo ultrapassa a área de uma via. Ajuste o conteúdo no editor do template.",
+          },
+          {
+            status: 400,
+          }
+        );
       }
-    );
-
-  if (
-    !ajusteDuasVias.cabe
-  ) {
-    return NextResponse.json(
-      {
-        error:
-          "O conteúdo é extenso demais para duas vias legíveis na mesma folha A4. Selecione uma via ou reduza o conteúdo do template.",
-      },
-      {
-        status: 400,
-      }
-    );
-  }
-}
+    }
 
     const pdfBytes =
       await page.pdf(

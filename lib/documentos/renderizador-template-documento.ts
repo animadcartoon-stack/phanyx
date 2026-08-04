@@ -43,15 +43,15 @@ export type OpcoesRenderizacaoDocumento = {
   conteudo: string;
 
   formatoImpressao:
-    FormatoImpressaoDocumento;
+  FormatoImpressaoDocumento;
 
   instituicao:
-    DadosInstituicaoDocumento;
+  DadosInstituicaoDocumento;
 
   tituloDocumento?: string | null;
 
   validacao?:
-    DadosValidacaoDocumento | null;
+  DadosValidacaoDocumento | null;
 
   modoPrevia?: boolean;
 
@@ -84,7 +84,7 @@ export type ResultadoRenderizacaoDocumento = {
   possuiQuebrasDePagina: boolean;
 
   formatoImpressao:
-    FormatoImpressaoDocumento;
+  FormatoImpressaoDocumento;
 };
 
 export const ALTURA_A4_MM = 297;
@@ -205,8 +205,8 @@ function criarImagemAssinatura({
     >
       <img
         src="${escaparHtml(
-          assinaturaUrl
-        )}"
+    assinaturaUrl
+  )}"
         alt="Assinatura do diretor"
       />
     </span>
@@ -220,7 +220,7 @@ function criarBlocoAssinatura({
 }: {
   assinaturaUrl: string;
   instituicao:
-    DadosInstituicaoDocumento;
+  DadosInstituicaoDocumento;
   modoPrevia: boolean;
 }) {
   const imagem =
@@ -241,36 +241,35 @@ function criarBlocoAssinatura({
 
       <strong>
         ${escaparHtml(
-          instituicao.responsavelNome ||
-            "Responsável legal"
-        )}
+    instituicao.responsavelNome ||
+    "Responsável legal"
+  )}
       </strong>
 
       <span>
         ${escaparHtml(
-          instituicao.responsavelCargo ||
-            "Representante legal"
-        )}
+    instituicao.responsavelCargo ||
+    "Representante legal"
+  )}
       </span>
 
       <span>
         ${escaparHtml(
-          instituicao.nome
-        )}
+    instituicao.nome
+  )}
       </span>
 
-      ${
-        instituicao.cnpj
-          ? `
+      ${instituicao.cnpj
+      ? `
             <span>
               CNPJ:
               ${escaparHtml(
-                instituicao.cnpj
-              )}
+        instituicao.cnpj
+      )}
             </span>
           `
-          : ""
-      }
+      : ""
+    }
     </span>
   `;
 }
@@ -282,14 +281,14 @@ export function aplicarAssinaturasDocumento({
 }: {
   conteudo: string;
   instituicao:
-    DadosInstituicaoDocumento;
+  DadosInstituicaoDocumento;
   modoPrevia?: boolean;
 }) {
   const assinaturaUrl =
     String(
       instituicao
         .assinaturaDiretorUrl ||
-        ""
+      ""
     ).trim();
 
   const imagem =
@@ -330,7 +329,7 @@ function montarValidacao({
   compacta,
 }: {
   validacao?:
-    DadosValidacaoDocumento | null;
+  DadosValidacaoDocumento | null;
   mostrarValidacao: boolean;
   compacta: boolean;
 }) {
@@ -343,11 +342,10 @@ function montarValidacao({
 
   return `
     <section
-      class="phanyx-validacao ${
-        compacta
-          ? "phanyx-validacao-compacta"
-          : ""
-      }"
+      class="phanyx-validacao ${compacta
+      ? "phanyx-validacao-compacta"
+      : ""
+    }"
     >
       <div
         class="phanyx-validacao-texto"
@@ -359,15 +357,15 @@ function montarValidacao({
         <span>
           Código:
           ${escaparHtml(
-            validacao.codigo
-          )}
+      validacao.codigo
+    )}
         </span>
 
         <span>
           Emitido em:
           ${escaparHtml(
-            validacao.emitidoEm
-          )}
+      validacao.emitidoEm
+    )}
         </span>
 
         <span>
@@ -375,20 +373,19 @@ function montarValidacao({
         </span>
       </div>
 
-      ${
-        validacao.qrCodeDataUri
-          ? `
+      ${validacao.qrCodeDataUri
+      ? `
             <img
               class="phanyx-validacao-qr"
               src="${escaparHtml(
-                validacao
-                  .qrCodeDataUri
-              )}"
+        validacao
+          .qrCodeDataUri
+      )}"
               alt="QR Code de validação"
             />
           `
-          : ""
-      }
+      : ""
+    }
     </section>
   `;
 }
@@ -405,41 +402,39 @@ function montarCabecalhoInterno(
       <div
         class="phanyx-via-identidade"
       >
-        ${
-          instituicao.logoUrl
-            ? `
+        ${instituicao.logoUrl
+      ? `
               <img
                 class="phanyx-via-logo"
                 src="${escaparHtml(
-                  instituicao.logoUrl
-                )}"
+        instituicao.logoUrl
+      )}"
                 alt="Logo da instituição"
               />
             `
-            : ""
-        }
+      : ""
+    }
 
         <div
           class="phanyx-via-instituicao"
         >
           <strong>
             ${escaparHtml(
-              instituicao.nome
-            )}
+      instituicao.nome
+    )}
           </strong>
 
-          ${
-            instituicao.cnpj
-              ? `
+          ${instituicao.cnpj
+      ? `
                 <span>
                   CNPJ:
                   ${escaparHtml(
-                    instituicao.cnpj
-                  )}
+        instituicao.cnpj
+      )}
                 </span>
               `
-              : ""
-          }
+      : ""
+    }
         </div>
       </div>
 
@@ -470,9 +465,9 @@ function montarPapelTimbrado(
     <img
       class="${classe}"
       src="${escaparHtml(
-        instituicao
-          .papelTimbradoUrl
-      )}"
+    instituicao
+      .papelTimbradoUrl
+  )}"
       alt=""
     />
   `;
@@ -487,9 +482,9 @@ function montarViaCompacta({
 }: {
   conteudo: string;
   instituicao:
-    DadosInstituicaoDocumento;
+  DadosInstituicaoDocumento;
   validacao?:
-    DadosValidacaoDocumento | null;
+  DadosValidacaoDocumento | null;
   mostrarValidacao: boolean;
   rotuloVia: string;
 }) {
@@ -498,14 +493,14 @@ function montarViaCompacta({
       class="phanyx-via"
     >
       ${montarPapelTimbrado(
-        instituicao,
-        "phanyx-papel-via"
-      )}
+    instituicao,
+    "phanyx-papel-via"
+  )}
 
       ${montarCabecalhoInterno(
-        instituicao,
-        rotuloVia
-      )}
+    instituicao,
+    rotuloVia
+  )}
 
       <div
         class="phanyx-via-conteudo-area"
@@ -518,10 +513,10 @@ function montarViaCompacta({
       </div>
 
       ${montarValidacao({
-        validacao,
-        mostrarValidacao,
-        compacta: true,
-      })}
+    validacao,
+    mostrarValidacao,
+    compacta: true,
+  })}
     </section>
   `;
 }
@@ -535,7 +530,7 @@ function montarHeaderTemplate(
       .usarPapelTimbrado &&
     instituicao
       .estiloPapelTimbrado ===
-      "PAPEL_PROPRIO"
+    "PAPEL_PROPRIO"
   ) {
     return "<div></div>";
   }
@@ -584,13 +579,12 @@ function montarHeaderTemplate(
           exact;
       "
     >
-      ${
-        instituicao.logoDataUri
-          ? `
+      ${instituicao.logoDataUri
+      ? `
             <img
               src="${escaparHtml(
-                instituicao.logoDataUri
-              )}"
+        instituicao.logoDataUri
+      )}"
               style="
                 width: 22mm;
                 height: 22mm;
@@ -598,8 +592,8 @@ function montarHeaderTemplate(
               "
             />
           `
-          : ""
-      }
+      : ""
+    }
 
       <div>
         <div
@@ -610,13 +604,12 @@ function montarHeaderTemplate(
           "
         >
           ${escaparHtml(
-            instituicao.nome
-          )}
+      instituicao.nome
+    )}
         </div>
 
-        ${
-          instituicao.cnpj
-            ? `
+        ${instituicao.cnpj
+      ? `
               <div
                 style="
                   margin-top: 2mm;
@@ -626,12 +619,12 @@ function montarHeaderTemplate(
               >
                 CNPJ:
                 ${escaparHtml(
-                  instituicao.cnpj
-                )}
+        instituicao.cnpj
+      )}
               </div>
             `
-            : ""
-        }
+      : ""
+    }
       </div>
     </div>
   `;
@@ -646,7 +639,7 @@ function montarFooterTemplate(
       .usarPapelTimbrado &&
     instituicao
       .estiloPapelTimbrado ===
-      "PAPEL_PROPRIO"
+    "PAPEL_PROPRIO"
   ) {
     return "<div></div>";
   }
@@ -693,15 +686,15 @@ function montarFooterTemplate(
     >
       <span>
         ${escaparHtml(
-          [
-            instituicao.telefone,
-            instituicao.email,
-            instituicao.cidade,
-            instituicao.estado,
-          ]
-            .filter(Boolean)
-            .join(" • ")
-        )}
+    [
+      instituicao.telefone,
+      instituicao.email,
+      instituicao.cidade,
+      instituicao.estado,
+    ]
+      .filter(Boolean)
+      .join(" • ")
+  )}
       </span>
 
       <span>
@@ -843,23 +836,25 @@ function cssCompartilhado() {
     }
 
     .phanyx-assinatura-imagem {
-      display: block;
-      width: 58mm;
-      min-height: 16mm;
-      margin: 3mm auto 0;
-      text-align: center;
-      break-inside: avoid;
-      page-break-inside: avoid;
-    }
+  display: inline-block;
+  width: 58mm;
+  min-height: 16mm;
+  margin: 3mm 0 0;
+  vertical-align: top;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
 
     .phanyx-assinatura-imagem img {
-      width: 48mm;
-      height: 16mm;
-      object-fit: contain;
-      filter:
-        grayscale(1)
-        contrast(1.35);
-    }
+  display: block;
+  width: 48mm;
+  height: 16mm;
+  object-fit: contain;
+  object-position: left center;
+  filter:
+    grayscale(1)
+    contrast(1.35);
+}
 
     .phanyx-assinatura-placeholder {
       display: flex;
@@ -875,17 +870,18 @@ function cssCompartilhado() {
     }
 
     .phanyx-bloco-assinatura {
-      display: flex;
-      width: 78mm;
-      margin: 5mm auto 0;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      font-size: 9pt;
-      line-height: 1.25;
-      break-inside: avoid;
-      page-break-inside: avoid;
-    }
+  display: inline-flex;
+  width: 78mm;
+  margin: 5mm 0 0;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  vertical-align: top;
+  font-size: 9pt;
+  line-height: 1.25;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
 
     .phanyx-bloco-assinatura
       .phanyx-assinatura-imagem {
@@ -1049,10 +1045,10 @@ function cssCompartilhado() {
     }
 
     .phanyx-conteudo-compacto {
-      width: 138.89%;
-      zoom: 0.72;
-      transform-origin: top left;
-    }
+  width: 100%;
+  zoom: 1;
+  transform: none;
+}
 
     .phanyx-conteudo-compacto
       .phanyx-page-break {
@@ -1125,7 +1121,7 @@ export function montarRenderizacaoDocumento(
 
   const mostrarValidacao =
     opcoes.mostrarValidacao !==
-      false;
+    false;
 
   let conteudo =
     sanitizarHtmlDocumento(
@@ -1178,26 +1174,26 @@ export function montarRenderizacaoDocumento(
           data-phanyx-duas-vias="true"
         >
           ${montarViaCompacta({
-            conteudo,
-            instituicao:
-              opcoes.instituicao,
-            validacao:
-              opcoes.validacao,
-            mostrarValidacao,
-            rotuloVia:
-              "VIA DO INTERESSADO",
-          })}
+        conteudo,
+        instituicao:
+          opcoes.instituicao,
+        validacao:
+          opcoes.validacao,
+        mostrarValidacao,
+        rotuloVia:
+          "VIA DO INTERESSADO",
+      })}
 
           ${montarViaCompacta({
-            conteudo,
-            instituicao:
-              opcoes.instituicao,
-            validacao:
-              opcoes.validacao,
-            mostrarValidacao,
-            rotuloVia:
-              "VIA DA INSTITUIÇÃO",
-          })}
+        conteudo,
+        instituicao:
+          opcoes.instituicao,
+        validacao:
+          opcoes.validacao,
+        mostrarValidacao,
+        rotuloVia:
+          "VIA DA INSTITUIÇÃO",
+      })}
 
           <div
             class="phanyx-linha-corte"
@@ -1217,11 +1213,11 @@ export function montarRenderizacaoDocumento(
           ${conteudo}
 
           ${montarValidacao({
-            validacao:
-              opcoes.validacao,
-            mostrarValidacao,
-            compacta: false,
-          })}
+        validacao:
+          opcoes.validacao,
+        mostrarValidacao,
+        compacta: false,
+      })}
         </main>
       `;
 
@@ -1259,7 +1255,7 @@ export function montarRenderizacaoDocumento(
     ) &&
     opcoes.instituicao
       .estiloPapelTimbrado ===
-      "PAPEL_PROPRIO";
+    "PAPEL_PROPRIO";
 
   return {
     html,
@@ -1286,30 +1282,30 @@ export function montarRenderizacaoDocumento(
 
       headerTemplate:
         duasVias ||
-        papelProprio
+          papelProprio
           ? "<div></div>"
           : headerTemplate,
 
       footerTemplate:
         duasVias ||
-        papelProprio
+          papelProprio
           ? "<div></div>"
           : footerTemplate,
 
       margin:
         duasVias
           ? {
-              top: "0",
-              right: "0",
-              bottom: "0",
-              left: "0",
-            }
+            top: "0",
+            right: "0",
+            bottom: "0",
+            left: "0",
+          }
           : {
-              top: `${ALTURA_CABECALHO_MM}mm`,
-              right: `${MARGEM_LATERAL_MM}mm`,
-              bottom: `${ALTURA_RODAPE_MM}mm`,
-              left: `${MARGEM_LATERAL_MM}mm`,
-            },
+            top: `${ALTURA_CABECALHO_MM}mm`,
+            right: `${MARGEM_LATERAL_MM}mm`,
+            bottom: `${ALTURA_RODAPE_MM}mm`,
+            left: `${MARGEM_LATERAL_MM}mm`,
+          },
 
       scale: 1,
     },
