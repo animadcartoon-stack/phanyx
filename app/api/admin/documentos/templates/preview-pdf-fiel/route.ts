@@ -3,6 +3,10 @@ import chromium from "@sparticuz/chromium-min";
 import puppeteer from "puppeteer-core";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
+import QRCode from "qrcode";
+import {
+  montarRenderizacaoDocumento,
+} from "@/lib/documentos/renderizador-template-documento";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -86,30 +90,30 @@ function substituirExemplos(texto: string, config: any) {
     percentualConclusao: "25%",
 
     nomePolo: "Não informado",
-enderecoPolo: "Não informado",
-telefonePolo: "Não informado",
-emailPolo: "Não informado",
-cidadePolo: "Não informado",
-estadoPolo: "Não informado",
-cepPolo: "Não informado",
+    enderecoPolo: "Não informado",
+    telefonePolo: "Não informado",
+    emailPolo: "Não informado",
+    cidadePolo: "Não informado",
+    estadoPolo: "Não informado",
+    cepPolo: "Não informado",
 
-nomeTitularContrato:
-  "Nome do titular do contrato",
+    nomeTitularContrato:
+      "Nome do titular do contrato",
 
-cpfTitularContrato:
-  "CPF do titular",
+    cpfTitularContrato:
+      "CPF do titular",
 
-emailTitularContrato:
-  "E-mail do titular",
+    emailTitularContrato:
+      "E-mail do titular",
 
-telefoneTitularContrato:
-  "Telefone do titular",
+    telefoneTitularContrato:
+      "Telefone do titular",
 
-parentescoTitularContrato:
-  "Vínculo ou parentesco",
+    parentescoTitularContrato:
+      "Vínculo ou parentesco",
 
-tipoTitularContrato:
-  "Tipo de titular",
+    tipoTitularContrato:
+      "Tipo de titular",
 
     disciplinas:
       "- Antigo Testamento A — 96h<br>" +
@@ -198,423 +202,348 @@ tipoTitularContrato:
     );
   }
 
-  return final.replaceAll(/{{[^}]+}}/g, "-");
+  final = final
+    .replace(
+      /{{\s*assinaturaDiretor\s*}}/gi,
+      "__PHANYX_ASSINATURA_DIRETOR__"
+    )
+    .replace(
+      /{{\s*blocoAssinaturaDiretor\s*}}/gi,
+      "__PHANYX_BLOCO_ASSINATURA_DIRETOR__"
+    );
+
+  return final.replace(
+    /{{[^}]+}}/g,
+    "-"
+  );
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(
+  req: NextRequest
+) {
   let browser: any = null;
 
   try {
-    const user = await getUserFromToken();
+    const user =
+      await getUserFromToken();
 
-    if (!user || user.role !== "ADMIN") {
-      return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    if (
+      !user ||
+      user.role !== "ADMIN"
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Não autorizado",
+        },
+        {
+          status: 401,
+        }
+      );
     }
 
-    const body = await req.json();
+    const body =
+      await req.json();
 
-    const config = await prisma.configuracaoInstituicao.findUnique({
-      where: { instituicaoId: user.instituicaoId },
-    });
+    const config =
+      await prisma
+        .configuracaoInstituicao
+        .findUnique({
+          where: {
+            instituicaoId:
+              user.instituicaoId,
+          },
+        });
 
-    const baseUrl = new URL(req.url).origin;
+    const configDocumento =
+      config as any;
 
-    let conteudoHtml = substituirExemplos(
-      String(body?.conteudo || ""),
-      config
-    );
+    const baseUrl =
+      new URL(req.url).origin;
 
-    conteudoHtml = conteudoHtml
-      .replace(/<p([^>]*)>\s*<\/p>/gi, "<p$1><br /></p>")
-      .replace(/<p([^>]*)>\s*&nbsp;\s*<\/p>/gi, "<p$1><br /></p>");
-
-    const logoUrl = urlFinal(config?.logoUrl, baseUrl);
-
-    const logoCabecalho =
-      await imagemParaDataUri(
-        logoUrl
+    let conteudoHtml =
+      substituirExemplos(
+        String(
+          body?.conteudo || ""
+        ),
+        config
       );
 
-    const papelUrl = urlFinal(config?.papelTimbradoUrl, baseUrl);
+    conteudoHtml =
+      conteudoHtml
+        .replace(
+          /<p([^>]*)>\s*<\/p>/gi,
+          "<p$1><br /></p>"
+        )
+        .replace(
+          /<p([^>]*)>\s*&nbsp;\s*<\/p>/gi,
+          "<p$1><br /></p>"
+        );
 
-    const usaPapelProprio =
-      config?.usarPapelTimbrado &&
-      config?.estiloPapelTimbrado === "PAPEL_PROPRIO" &&
-      papelUrl;
+    const logoUrl =
+      urlFinal(
+        config?.logoUrl,
+        baseUrl
+      );
 
-    const usaPhanyxClassico =
-      config?.usarPapelTimbrado &&
-      config?.estiloPapelTimbrado === "PHANYX_CLASSICO";
+    const assinaturaUrl =
+      urlFinal(
+        configDocumento
+          ?.certificadoAssinaturaUrl,
+        baseUrl
+      );
 
-    const html = `<!doctype html>
-<html lang="pt-BR">
-<head>
-  <meta charset="utf-8" />
+    const papelTimbradoUrl =
+      urlFinal(
+        config?.papelTimbradoUrl,
+        baseUrl
+      );
 
-  <style>
-    @page {
-  size: A4;
-}
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      background: #ffffff;
-      color: #000000;
-
-      -webkit-print-color-adjust:
-        exact;
-
-      print-color-adjust:
-        exact;
-    }
-
-    body {
-      font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-
-      font-size: 11pt;
-      line-height: normal;
-    }
-
-    .pagina-a4 {
-  width: 100%;
-  min-height: auto;
-  position: relative;
-  background: #ffffff;
-  overflow: visible;
-}
-
-    ${usaPapelProprio
-        ? `
-    .papel-proprio {
-      position: fixed;
-      inset: 0;
-      width: 210mm;
-      height: 297mm;
-      object-fit: cover;
-      z-index: 0;
-      pointer-events: none;
-    }
-    `
-        : ""
-      }
-
-    .conteudo {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  padding: 0;
-}
-
-    /*
-     * O Tailwind remove as margens
-     * naturais no editor. Portanto,
-     * o PDF também não deve inventar
-     * margens automáticas.
-     */
-    .conteudo p,
-    .conteudo div,
-    .conteudo h1,
-    .conteudo h2,
-    .conteudo h3,
-    .conteudo h4,
-    .conteudo h5,
-    .conteudo h6 {
-      margin-top: 0;
-      margin-bottom: 0;
-    }
-
-    /*
-     * Um parágrafo normal ocupa uma
-     * linha completa. Isso preserva
-     * o Enter natural do editor.
-     */
-    .conteudo p {
-      min-height: 1em;
-    }
-
-    /*
-     * Uma linha vazia não pode virar
-     * apenas 4 pixels.
-     */
-    .conteudo p:empty,
-    .conteudo p:has(
-      > br:only-child
-    ) {
-      min-height: 1em;
-      line-height: 1em;
-    }
-
-    .conteudo img {
-      max-width: 100%;
-      height: auto;
-    }
-
-    .conteudo table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .conteudo ul,
-    .conteudo ol {
-      margin-top: 0;
-      margin-bottom: 0;
-      padding-left: 1.5em;
-    }
-
-    /*
-     * Os marcadores criados pelo
-     * editor viram quebras físicas.
-     * Os textos das guias não são
-     * impressos.
-     */
-    .conteudo
-      .phanyx-page-break {
-      display: block !important;
-
-      width: 100%;
-      height: 0 !important;
-
-      margin: 0 !important;
-      padding: 0 !important;
-      border: 0 !important;
-
-      overflow: hidden !important;
-
-      font-size: 0 !important;
-      line-height: 0 !important;
-
-      break-before: page;
-      page-break-before: always;
-    }
-
-    .conteudo
-  .phanyx-page-break
-  > * {
-  display: none !important;
-}
-
-.conteudo
-  > .phanyx-page-break:first-child,
-.conteudo
-  > .phanyx-page-break:last-child {
-  display: none !important;
-
-  break-before: auto !important;
-  page-break-before: auto !important;
-}
-
-  </style>
-</head>
-
-<body>
-  <section class="pagina-a4">
-    ${usaPapelProprio
-        ? `
-    <img
-      class="papel-proprio"
-      src="${papelUrl}"
-      alt=""
-    />
-    `
-        : ""
-      }
-
-    <main class="conteudo">
-      ${conteudoHtml}
-    </main>
-  </section>
-</body>
-</html>`;
-
-    const headerTemplate =
-  usaPhanyxClassico
-    ? `
-<div
-  style="
-    width: 100%;
-    height: 34mm;
-    box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    gap: 8mm;
-    padding: 6mm 18mm;
-    background: #111111;
-    color: #ffffff;
-    font-family: Arial, Helvetica, sans-serif;
-    -webkit-print-color-adjust: exact;
-  "
->
-  ${
-    logoCabecalho
-      ? `
-  <img
-    src="${logoCabecalho}"
-    style="
-      width: 22mm;
-      height: 22mm;
-      object-fit: contain;
-    "
-  />
-  `
-      : ""
-  }
-
-  <div>
-    <div
-      style="
-        font-size: 16pt;
-        font-weight: 700;
-        line-height: 1.1;
-      "
-    >
-      ${
-        config?.nomeFantasia ||
-        "Instituição"
-      }
-    </div>
-
-    <div
-      style="
-        margin-top: 2mm;
-        font-size: 9pt;
-        line-height: 1.1;
-      "
-    >
-      Prévia de documento
-    </div>
-  </div>
-</div>
-`
-    : `<div></div>`;
-
-    const footerTemplate =
-  usaPhanyxClassico
-    ? `
-<div
-  style="
-    width: 100%;
-    height: 10mm;
-    box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 2mm 18mm;
-    background: #111111;
-    color: #ffffff;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 6pt;
-    -webkit-print-color-adjust: exact;
-  "
->
-  <span>
-    ${config?.cnpj || ""}
-    ${config?.telefone || ""}
-  </span>
-
-  <span>
-    Página
-    <span class="pageNumber"></span>
-    de
-    <span class="totalPages"></span>
-  </span>
-</div>
-`
-    : `<div></div>`;
-
-    browser = await puppeteer.launch({
-      args: chromium.args,
-      executablePath: await chromium.executablePath(CHROMIUM_PACK),
-      headless: true,
-    });
-
-    const page = await browser.newPage();
-
-    await page.setContent(html, {
-      waitUntil: "networkidle0",
-    });
-
-    await page.evaluate(() => {
-  document
-    .querySelectorAll(
-      '[data-phanyx-page-break="true"], .phanyx-page-break'
-    )
-    .forEach((elemento) => {
-      elemento.remove();
-    });
-});
-
-    const pdfBuffer =
-  await page.pdf({
-    format: "A4",
-
-    printBackground: true,
-
-    /*
-     * Importante: false permite que
-     * as margens abaixo controlem a
-     * área útil da folha.
-     */
-    preferCSSPageSize: false,
-
-    displayHeaderFooter:
-      Boolean(
-        usaPhanyxClassico
+    const [
+      logoDataUri,
+      assinaturaDataUri,
+      papelTimbradoDataUri,
+    ] = await Promise.all([
+      imagemParaDataUri(
+        logoUrl
       ),
 
-    headerTemplate,
-    footerTemplate,
+      imagemParaDataUri(
+        assinaturaUrl
+      ),
 
-    margin:
-      usaPhanyxClassico
-        ? {
-            /*
-             * Iguais às reservas do
-             * editor: 42 mm e 28 mm.
-             */
-            top: "42mm",
-            right: "18mm",
-            bottom: "28mm",
-            left: "18mm",
-          }
-        : {
-            top: "18mm",
-            right: "18mm",
-            bottom: "18mm",
-            left: "18mm",
-          },
+      imagemParaDataUri(
+        papelTimbradoUrl
+      ),
+    ]);
 
-    scale: 1,
-  });
+    const codigoPrevia =
+      "PHANYX-PREVIA-000001";
 
-    await browser.close();
+    const linkPrevia =
+      `${baseUrl}/validar-documento?codigo=${encodeURIComponent(
+        codigoPrevia
+      )}`;
 
-    return new NextResponse(Buffer.from(pdfBuffer), {
-      status: 200,
-      headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": "inline; filename=previa-fiel.pdf",
-        "Cache-Control": "no-store",
-      },
-    });
+    const qrCodeDataUri =
+      await QRCode.toDataURL(
+        linkPrevia,
+        {
+          margin: 1,
+          width: 260,
+        }
+      );
+
+    const formatoImpressao =
+      body?.formatoImpressao ===
+      "DUAS_VIAS_A4"
+        ? "DUAS_VIAS_A4"
+        : "A4_INTEIRA";
+
+    const renderizacao =
+      montarRenderizacaoDocumento({
+        conteudo:
+          conteudoHtml,
+
+        formatoImpressao,
+
+        modoPrevia: true,
+
+        mostrarValidacao: true,
+
+        instituicao: {
+          nome:
+            config?.nomeFantasia ||
+            "Instituição",
+
+          cnpj:
+            config?.cnpj || null,
+
+          telefone:
+            config?.telefone ||
+            null,
+
+          email:
+            config?.email || null,
+
+          cidade:
+            config?.cidade || null,
+
+          estado:
+            config?.estado || null,
+
+          responsavelNome:
+            configDocumento
+              ?.responsavelNome ||
+            "Responsável legal",
+
+          responsavelCargo:
+            configDocumento
+              ?.responsavelCargo ||
+            configDocumento
+              ?.cargoResponsavel ||
+            "Representante legal",
+
+          logoUrl:
+            logoDataUri ||
+            logoUrl ||
+            null,
+
+          logoDataUri:
+            logoDataUri ||
+            null,
+
+          assinaturaDiretorUrl:
+            assinaturaDataUri ||
+            assinaturaUrl ||
+            null,
+
+          papelTimbradoUrl:
+            papelTimbradoDataUri ||
+            papelTimbradoUrl ||
+            null,
+
+          usarPapelTimbrado:
+            Boolean(
+              config
+                ?.usarPapelTimbrado
+            ),
+
+          estiloPapelTimbrado:
+            config
+              ?.estiloPapelTimbrado ||
+            null,
+        },
+
+        validacao: {
+          codigo:
+            codigoPrevia,
+
+          emitidoEm:
+            new Date()
+              .toLocaleString(
+                "pt-BR"
+              ),
+
+          qrCodeDataUri,
+        },
+      });
+
+    browser =
+      await puppeteer.launch({
+        args:
+          chromium.args,
+
+        executablePath:
+          await chromium
+            .executablePath(
+              CHROMIUM_PACK
+            ),
+
+        headless: true,
+      });
+
+    const page =
+      await browser.newPage();
+
+    await page.setContent(
+      renderizacao.html,
+      {
+        waitUntil:
+          "domcontentloaded",
+      }
+    );
+
+    await page.emulateMediaType(
+      "print"
+    );
+
+    await page.evaluate(
+      async () => {
+        const imagens =
+          Array.from(
+            document.images
+          );
+
+        await Promise.all(
+          imagens.map(
+            (imagem) => {
+              if (
+                imagem.complete
+              ) {
+                return Promise.resolve();
+              }
+
+              return new Promise<void>(
+                (resolve) => {
+                  imagem.addEventListener(
+                    "load",
+                    () => resolve(),
+                    {
+                      once: true,
+                    }
+                  );
+
+                  imagem.addEventListener(
+                    "error",
+                    () => resolve(),
+                    {
+                      once: true,
+                    }
+                  );
+                }
+              );
+            }
+          )
+        );
+
+        await document.fonts.ready;
+      }
+    );
+
+    const pdfBuffer =
+      await page.pdf(
+        renderizacao.pdfOptions
+      );
+
+    return new NextResponse(
+      Buffer.from(pdfBuffer),
+      {
+        status: 200,
+
+        headers: {
+          "Content-Type":
+            "application/pdf",
+
+          "Content-Disposition":
+            'inline; filename="previa-fiel.pdf"',
+
+          "Cache-Control":
+            "no-store",
+        },
+      }
+    );
   } catch (error: any) {
-    if (browser) {
-      await browser.close().catch(() => null);
-    }
-
-    console.error("Erro ao gerar PDF fiel:", error);
+    console.error(
+      "Erro ao gerar PDF fiel:",
+      error
+    );
 
     return NextResponse.json(
-      { error: error?.message || "Erro ao gerar PDF fiel" },
-      { status: 500 }
+      {
+        error:
+          error?.message ||
+          "Erro ao gerar PDF fiel",
+      },
+      {
+        status: 500,
+      }
     );
+  } finally {
+    if (browser) {
+      await browser
+        .close()
+        .catch(() => null);
+    }
   }
 }
