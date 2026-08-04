@@ -1903,10 +1903,18 @@ export default function AdminLeadsPage() {
 
                   {leadSelecionado
                     ?.matriculaConvertida && (
-                      <p className="mt-2 text-xs font-semibold leading-5 text-emerald-700 dark:text-emerald-300">
+                      <div
+                        className="mt-2 rounded-xl border !border-emerald-700 !bg-emerald-50 px-3 py-2 text-sm font-bold leading-5 [--lead-convertido-text:#064e3b] dark:!border-emerald-700 dark:!bg-emerald-950/40 dark:[--lead-convertido-text:#d1fae5]"
+                        style={{
+                          color: "var(--lead-convertido-text)",
+                          WebkitTextFillColor:
+                            "var(--lead-convertido-text)",
+                          opacity: 1,
+                        }}
+                      >
                         Este lead originou uma matrícula e deve
                         permanecer com status FECHADO.
-                      </p>
+                      </div>
                     )}
                 </div>
 
@@ -2091,82 +2099,82 @@ export default function AdminLeadsPage() {
                 </button>
 
                 {!criandoNovo &&
-  leadSelecionado &&
-  leadSelecionado.tipo ===
-    "INSTITUICAO" &&
-  !leadSelecionado
-    .matriculaConvertida && (
-    <button
-      type="button"
-      onClick={
-        iniciarConversaoEmMatricula
-      }
-      disabled={salvando}
-      className="rounded-2xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-70"
-    >
-      Converter em aluno e matrícula
-    </button>
-  )}
+                  leadSelecionado &&
+                  leadSelecionado.tipo ===
+                  "INSTITUICAO" &&
+                  !leadSelecionado
+                    .matriculaConvertida && (
+                    <button
+                      type="button"
+                      onClick={
+                        iniciarConversaoEmMatricula
+                      }
+                      disabled={salvando}
+                      className="rounded-2xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-70"
+                    >
+                      Converter em aluno e matrícula
+                    </button>
+                  )}
 
-{!criandoNovo &&
-  leadSelecionado
-    ?.matriculaConvertida && (
-    <button
-      type="button"
-      onClick={
-        abrirMatriculaConvertida
-      }
-      className="rounded-2xl bg-emerald-700 px-6 py-3 text-sm font-bold text-white transition hover:bg-emerald-600"
-    >
-      Ver matrícula
-      {leadSelecionado
-        .matriculaConvertida
-        .numeroMatricula
-        ? ` — ${leadSelecionado.matriculaConvertida.numeroMatricula}`
-        : ` #${leadSelecionado.matriculaConvertida.id}`}
-    </button>
-  )}
+                {!criandoNovo &&
+                  leadSelecionado
+                    ?.matriculaConvertida && (
+                    <button
+                      type="button"
+                      onClick={
+                        abrirMatriculaConvertida
+                      }
+                      className="rounded-2xl bg-emerald-700 px-6 py-3 text-sm font-bold text-white transition hover:bg-emerald-600"
+                    >
+                      Ver matrícula
+                      {leadSelecionado
+                        .matriculaConvertida
+                        .numeroMatricula
+                        ? ` — ${leadSelecionado.matriculaConvertida.numeroMatricula}`
+                        : ` #${leadSelecionado.matriculaConvertida.id}`}
+                    </button>
+                  )}
 
-{!criandoNovo &&
-  leadSelecionado &&
-  !leadSelecionado
-    .matriculaConvertida && (
-    <button
-      type="button"
-      onClick={excluirLead}
-      disabled={salvando}
-      className="rounded-2xl bg-red-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-red-500 disabled:opacity-70"
-    >
-      Excluir
-    </button>
-  )}
+                {!criandoNovo &&
+                  leadSelecionado &&
+                  !leadSelecionado
+                    .matriculaConvertida && (
+                    <button
+                      type="button"
+                      onClick={excluirLead}
+                      disabled={salvando}
+                      className="rounded-2xl bg-red-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-red-500 disabled:opacity-70"
+                    >
+                      Excluir
+                    </button>
+                  )}
 
-{!criandoNovo &&
-  leadSelecionado &&
-  !leadSelecionado
-    .matriculaConvertida && (
-    <div className="ml-auto flex flex-wrap gap-2">
-      {STATUS_OPTIONS.filter(
-        (status) =>
-          status !==
-          form.status
-      ).map((status) => (
-        <button
-          key={status}
-          type="button"
-          onClick={() =>
-            moverStatus(
-              leadSelecionado.id,
-              status
-            )
-          }
-          className="rounded-2xl border border-slate-300 px-4 py-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
-        >
-          Mover para {status}
-        </button>
-      ))}
-    </div>
-  )}
+                {!criandoNovo &&
+                  leadSelecionado &&
+                  !leadSelecionado
+                    .matriculaConvertida && (
+                    <div className="ml-auto flex flex-wrap gap-2">
+                      {STATUS_OPTIONS.filter(
+                        (status) =>
+                          status !==
+                          form.status
+                      ).map((status) => (
+                        <button
+                          key={status}
+                          type="button"
+                          onClick={() =>
+                            moverStatus(
+                              leadSelecionado.id,
+                              status
+                            )
+                          }
+                          className="rounded-2xl border border-slate-300 px-4 py-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                        >
+                          Mover para {status}
+                        </button>
+                      ))}
+                    </div>
+                  )}
 
               </div>
             </div>

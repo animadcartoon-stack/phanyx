@@ -893,16 +893,11 @@ export async function POST(req: Request) {
       config?.responsavelCargo ||
       "Responsável legal";
 
-    const blocoAssinaturaDiretor = [
-      "____________________________________________",
-      nomeDiretor,
-      `${cargoDiretor} • ${nomeInstituicao}`,
-      config?.cnpj
-        ? `CNPJ: ${config.cnpj}`
-        : "",
-    ]
-      .filter(Boolean)
-      .join("\n");
+    const marcadorAssinaturaDiretor =
+      "__PHANYX_ASSINATURA_DIRETOR__";
+
+    const marcadorBlocoAssinaturaDiretor =
+      "__PHANYX_BLOCO_ASSINATURA_DIRETOR__";
 
     const numeroMatriculaDocumento =
       matricula?.numeroMatricula ||
@@ -1206,9 +1201,11 @@ export async function POST(req: Request) {
 
             tipoTitularContrato,
 
-            assinaturaDiretor: "",
+            assinaturaDiretor:
+              marcadorAssinaturaDiretor,
 
-            blocoAssinaturaDiretor,
+            blocoAssinaturaDiretor:
+              marcadorBlocoAssinaturaDiretor,
 
             cidadeAssinatura:
               config?.cidadeAssinatura ||

@@ -345,20 +345,20 @@ export default function EditorTemplatePHANYX({ value, onChange }: Props) {
   const [tamanhoAtual, setTamanhoAtual] = useState("");
 
   const [
-  formatacaoAtiva,
-  setFormatacaoAtiva,
-] = useState({
-  negrito: false,
-  italico: false,
-  sublinhado: false,
-  esquerda: true,
-  centro: false,
-  direita: false,
-  justificar: false,
-  titulo: false,
-  subtitulo: false,
-  lista: false,
-});
+    formatacaoAtiva,
+    setFormatacaoAtiva,
+  ] = useState({
+    negrito: false,
+    italico: false,
+    sublinhado: false,
+    esquerda: true,
+    centro: false,
+    direita: false,
+    justificar: false,
+    titulo: false,
+    subtitulo: false,
+    lista: false,
+  });
 
   const [
     totalPaginas,
@@ -375,25 +375,25 @@ export default function EditorTemplatePHANYX({ value, onChange }: Props) {
   );
 
   const barraOriginalRef =
-  useRef<HTMLDivElement | null>(null);
+    useRef<HTMLDivElement | null>(null);
 
-const barraContainerRef =
-  useRef<HTMLDivElement | null>(null);
+  const barraContainerRef =
+    useRef<HTMLDivElement | null>(null);
 
-const [portalPronto, setPortalPronto] =
-  useState(false);
+  const [portalPronto, setPortalPronto] =
+    useState(false);
 
-const [barraFlutuante, setBarraFlutuante] =
-  useState(false);
+  const [barraFlutuante, setBarraFlutuante] =
+    useState(false);
 
   const barraFlutuanteRef =
-  useRef(false);
+    useRef(false);
 
-const [barraMedidas, setBarraMedidas] =
-  useState({
-    left: 8,
-    width: 640,
-  });
+  const [barraMedidas, setBarraMedidas] =
+    useState({
+      left: 8,
+      width: 640,
+    });
 
   const editor = useEditor({
 
@@ -481,145 +481,145 @@ const [barraMedidas, setBarraMedidas] =
       const node = selection?.anchorNode;
 
       const elemento =
-  node?.nodeType === Node.TEXT_NODE
-    ? node.parentElement
-    : (node as HTMLElement | null);
+        node?.nodeType === Node.TEXT_NODE
+          ? node.parentElement
+          : (node as HTMLElement | null);
 
-const computed =
-  elemento
-    ? window.getComputedStyle(
+      const computed =
         elemento
-      )
-    : null;
+          ? window.getComputedStyle(
+            elemento
+          )
+          : null;
 
-if (computed) {
-  if (!fonte) {
-    fonte =
-      limparFonte(
-        computed.fontFamily
-      );
-  }
+      if (computed) {
+        if (!fonte) {
+          fonte =
+            limparFonte(
+              computed.fontFamily
+            );
+        }
 
-  if (!tamanho) {
-    tamanho =
-      limparTamanho(
-        computed.fontSize
-      );
-  }
-}
+        if (!tamanho) {
+          tamanho =
+            limparTamanho(
+              computed.fontSize
+            );
+        }
+      }
 
-setFonteAtual(fonte || "");
-setTamanhoAtual(tamanho || "");
+      setFonteAtual(fonte || "");
+      setTamanhoAtual(tamanho || "");
 
-const pesoFonte =
-  String(
-    computed?.fontWeight || ""
-  ).toLowerCase();
+      const pesoFonte =
+        String(
+          computed?.fontWeight || ""
+        ).toLowerCase();
 
-const pesoFonteNumerico =
-  Number.parseInt(
-    pesoFonte,
-    10
-  );
+      const pesoFonteNumerico =
+        Number.parseInt(
+          pesoFonte,
+          10
+        );
 
-const negritoVisual =
-  pesoFonte === "bold" ||
-  pesoFonte === "bolder" ||
-  (
-    Number.isFinite(
-      pesoFonteNumerico
-    ) &&
-    pesoFonteNumerico >= 600
-  );
+      const negritoVisual =
+        pesoFonte === "bold" ||
+        pesoFonte === "bolder" ||
+        (
+          Number.isFinite(
+            pesoFonteNumerico
+          ) &&
+          pesoFonteNumerico >= 600
+        );
 
-const italicoVisual =
-  String(
-    computed?.fontStyle || ""
-  ).toLowerCase() === "italic";
+      const italicoVisual =
+        String(
+          computed?.fontStyle || ""
+        ).toLowerCase() === "italic";
 
-const sublinhadoVisual =
-  String(
-    computed?.textDecorationLine ||
-      computed?.textDecoration ||
-      ""
-  )
-    .toLowerCase()
-    .includes("underline");
+      const sublinhadoVisual =
+        String(
+          computed?.textDecorationLine ||
+          computed?.textDecoration ||
+          ""
+        )
+          .toLowerCase()
+          .includes("underline");
       const alinhamentoAtivo = (
-  valor: string
-) =>
-  editor.isActive(
-    "paragraph",
-    {
-      textAlign: valor,
-    }
-  ) ||
-  editor.isActive(
-    "heading",
-    {
-      textAlign: valor,
-    }
-  );
+        valor: string
+      ) =>
+        editor.isActive(
+          "paragraph",
+          {
+            textAlign: valor,
+          }
+        ) ||
+        editor.isActive(
+          "heading",
+          {
+            textAlign: valor,
+          }
+        );
 
-const centro =
-  alinhamentoAtivo("center");
+      const centro =
+        alinhamentoAtivo("center");
 
-const direita =
-  alinhamentoAtivo("right");
+      const direita =
+        alinhamentoAtivo("right");
 
-const justificar =
-  alinhamentoAtivo("justify");
+      const justificar =
+        alinhamentoAtivo("justify");
 
-const esquerda =
-  alinhamentoAtivo("left") ||
-  (
-    !centro &&
-    !direita &&
-    !justificar
-  );
+      const esquerda =
+        alinhamentoAtivo("left") ||
+        (
+          !centro &&
+          !direita &&
+          !justificar
+        );
 
-setFormatacaoAtiva({
-  negrito:
-  editor.isActive("bold") ||
-  negritoVisual,
+      setFormatacaoAtiva({
+        negrito:
+          editor.isActive("bold") ||
+          negritoVisual,
 
-italico:
-  editor.isActive("italic") ||
-  italicoVisual,
+        italico:
+          editor.isActive("italic") ||
+          italicoVisual,
 
-sublinhado:
-  editor.isActive("underline") ||
-  sublinhadoVisual,
+        sublinhado:
+          editor.isActive("underline") ||
+          sublinhadoVisual,
 
-  esquerda,
+        esquerda,
 
-  centro,
+        centro,
 
-  direita,
+        direita,
 
-  justificar,
+        justificar,
 
-  titulo:
-    editor.isActive(
-      "heading",
-      {
-        level: 1,
-      }
-    ),
+        titulo:
+          editor.isActive(
+            "heading",
+            {
+              level: 1,
+            }
+          ),
 
-  subtitulo:
-    editor.isActive(
-      "heading",
-      {
-        level: 2,
-      }
-    ),
+        subtitulo:
+          editor.isActive(
+            "heading",
+            {
+              level: 2,
+            }
+          ),
 
-  lista:
-    editor.isActive(
-      "bulletList"
-    ),
-});
+        lista:
+          editor.isActive(
+            "bulletList"
+          ),
+      });
     }
 
     editor.on("selectionUpdate", atualizarSelecao);
@@ -989,618 +989,618 @@ sublinhado:
   }, [editor]);
 
   useEffect(() => {
-  setPortalPronto(true);
+    setPortalPronto(true);
 
-  return () => {
-    setPortalPronto(false);
-  };
-}, []);
+    return () => {
+      setPortalPronto(false);
+    };
+  }, []);
 
-useEffect(() => {
-  const container =
-    barraContainerRef.current;
+  useEffect(() => {
+    const container =
+      barraContainerRef.current;
 
-  if (!container) {
-    return;
-  }
-
-  let frame:
-    number | null = null;
-
-  /*
-   * Dois limites diferentes impedem
-   * a barra de ficar ligando e
-   * desligando no mesmo ponto.
-   */
-  const LIMITE_PARA_MOSTRAR = 180;
-  const LIMITE_PARA_ESCONDER = 60;
-
-  function atualizarBarra() {
-    frame = null;
-
-    const retangulo =
-      container.getBoundingClientRect();
-
-    const estavaFlutuando =
-      barraFlutuanteRef.current;
-
-    let deveFlutuar =
-      estavaFlutuando;
-
-    /*
-     * A barra começa a flutuar somente
-     * depois que o começo do editor
-     * saiu da tela e ainda existe uma
-     * boa área do editor abaixo.
-     */
-    if (!estavaFlutuando) {
-      deveFlutuar =
-        retangulo.top <= -8 &&
-        retangulo.bottom >
-          LIMITE_PARA_MOSTRAR;
-    }
-
-    /*
-     * Depois de aberta, ela só fecha
-     * quando o editor realmente acabou
-     * ou quando voltamos ao topo.
-     */
-    if (
-      estavaFlutuando &&
-      (
-        retangulo.top > -8 ||
-        retangulo.bottom <=
-          LIMITE_PARA_ESCONDER
-      )
-    ) {
-      deveFlutuar = false;
-    }
-
-    if (
-      deveFlutuar !==
-      estavaFlutuando
-    ) {
-      barraFlutuanteRef.current =
-        deveFlutuar;
-
-      setBarraFlutuante(
-        deveFlutuar
-      );
-    }
-
-    if (!deveFlutuar) {
+    if (!container) {
       return;
     }
 
-    const esquerda =
-      Math.max(
-        Math.round(
-          retangulo.left
-        ),
-        8
-      );
+    let frame:
+      number | null = null;
 
-    const larguraDisponivel =
-      Math.max(
-        320,
-        window.innerWidth -
+    /*
+     * Dois limites diferentes impedem
+     * a barra de ficar ligando e
+     * desligando no mesmo ponto.
+     */
+    const LIMITE_PARA_MOSTRAR = 180;
+    const LIMITE_PARA_ESCONDER = 60;
+
+    function atualizarBarra() {
+      frame = null;
+
+      const retangulo =
+        container.getBoundingClientRect();
+
+      const estavaFlutuando =
+        barraFlutuanteRef.current;
+
+      let deveFlutuar =
+        estavaFlutuando;
+
+      /*
+       * A barra começa a flutuar somente
+       * depois que o começo do editor
+       * saiu da tela e ainda existe uma
+       * boa área do editor abaixo.
+       */
+      if (!estavaFlutuando) {
+        deveFlutuar =
+          retangulo.top <= -8 &&
+          retangulo.bottom >
+          LIMITE_PARA_MOSTRAR;
+      }
+
+      /*
+       * Depois de aberta, ela só fecha
+       * quando o editor realmente acabou
+       * ou quando voltamos ao topo.
+       */
+      if (
+        estavaFlutuando &&
+        (
+          retangulo.top > -8 ||
+          retangulo.bottom <=
+          LIMITE_PARA_ESCONDER
+        )
+      ) {
+        deveFlutuar = false;
+      }
+
+      if (
+        deveFlutuar !==
+        estavaFlutuando
+      ) {
+        barraFlutuanteRef.current =
+          deveFlutuar;
+
+        setBarraFlutuante(
+          deveFlutuar
+        );
+      }
+
+      if (!deveFlutuar) {
+        return;
+      }
+
+      const esquerda =
+        Math.max(
+          Math.round(
+            retangulo.left
+          ),
+          8
+        );
+
+      const larguraDisponivel =
+        Math.max(
+          320,
+          window.innerWidth -
           esquerda -
           8
-      );
+        );
 
-    const largura =
-      Math.max(
-        320,
-        Math.floor(
-          Math.min(
-            retangulo.width,
-            larguraDisponivel
+      const largura =
+        Math.max(
+          320,
+          Math.floor(
+            Math.min(
+              retangulo.width,
+              larguraDisponivel
+            )
           )
-        )
-      );
+        );
 
-    setBarraMedidas(
-      (medidasAtuais) => {
-        const mesmaEsquerda =
-          Math.abs(
-            medidasAtuais.left -
+      setBarraMedidas(
+        (medidasAtuais) => {
+          const mesmaEsquerda =
+            Math.abs(
+              medidasAtuais.left -
               esquerda
-          ) < 2;
+            ) < 2;
 
-        const mesmaLargura =
-          Math.abs(
-            medidasAtuais.width -
+          const mesmaLargura =
+            Math.abs(
+              medidasAtuais.width -
               largura
-          ) < 2;
+            ) < 2;
 
-        if (
-          mesmaEsquerda &&
-          mesmaLargura
-        ) {
-          return medidasAtuais;
+          if (
+            mesmaEsquerda &&
+            mesmaLargura
+          ) {
+            return medidasAtuais;
+          }
+
+          return {
+            left: esquerda,
+            width: largura,
+          };
         }
-
-        return {
-          left: esquerda,
-          width: largura,
-        };
-      }
-    );
-  }
-
-  function agendarAtualizacao() {
-    if (frame !== null) {
-      window.cancelAnimationFrame(
-        frame
       );
     }
 
-    frame =
-      window.requestAnimationFrame(
-        atualizarBarra
-      );
-  }
+    function agendarAtualizacao() {
+      if (frame !== null) {
+        window.cancelAnimationFrame(
+          frame
+        );
+      }
 
-  /*
-   * O true captura também a rolagem
-   * interna do painel administrativo.
-   */
-  document.addEventListener(
-    "scroll",
-    agendarAtualizacao,
-    true
-  );
+      frame =
+        window.requestAnimationFrame(
+          atualizarBarra
+        );
+    }
 
-  window.addEventListener(
-    "resize",
-    agendarAtualizacao
-  );
-
-  const observadorTamanho =
-    new ResizeObserver(
-      agendarAtualizacao
-    );
-
-  observadorTamanho.observe(
-    container
-  );
-
-  agendarAtualizacao();
-
-  return () => {
-    document.removeEventListener(
+    /*
+     * O true captura também a rolagem
+     * interna do painel administrativo.
+     */
+    document.addEventListener(
       "scroll",
       agendarAtualizacao,
       true
     );
 
-    window.removeEventListener(
+    window.addEventListener(
       "resize",
       agendarAtualizacao
     );
 
-    observadorTamanho.disconnect();
-
-    if (frame !== null) {
-      window.cancelAnimationFrame(
-        frame
+    const observadorTamanho =
+      new ResizeObserver(
+        agendarAtualizacao
       );
-    }
-  };
-}, []);
+
+    observadorTamanho.observe(
+      container
+    );
+
+    agendarAtualizacao();
+
+    return () => {
+      document.removeEventListener(
+        "scroll",
+        agendarAtualizacao,
+        true
+      );
+
+      window.removeEventListener(
+        "resize",
+        agendarAtualizacao
+      );
+
+      observadorTamanho.disconnect();
+
+      if (frame !== null) {
+        window.cancelAnimationFrame(
+          frame
+        );
+      }
+    };
+  }, []);
 
   if (!editor) return null;
 
   function classeBotaoFormatacao(
-  ativo: boolean
-) {
-  return [
-    "rounded-xl",
-    "border",
-    "px-3",
-    "py-2",
-    "text-sm",
-    "transition",
+    ativo: boolean
+  ) {
+    return [
+      "rounded-xl",
+      "border",
+      "px-3",
+      "py-2",
+      "text-sm",
+      "transition",
 
-    ativo
-      ? "phanyx-toolbar-ativo font-bold"
-      : "border-slate-300 bg-white text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800",
-  ].join(" ");
-}
+      ativo
+        ? "phanyx-toolbar-ativo font-bold"
+        : "border-slate-300 bg-white text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800",
+    ].join(" ");
+  }
 
   function renderizarFerramentas() {
-  return (
-    <div className="phanyx-editor-toolbar border-b border-slate-700 bg-slate-800 p-3">
-      <p className="phanyx-editor-toolbar-title mb-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-200">
-  Ferramentas de edição
-</p>
-
-      <div className="flex flex-wrap gap-2">
-        <div
-        className={`border-b border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800 ${barraFlutuante
-            ? "z-[999999] shadow-2xl"
-            : "relative z-40"
-          }`}
-        style={
-          barraFlutuante
-            ? {
-              position: "fixed",
-              top: "8px",
-              left:
-                `${barraMedidas.left}px`,
-              width:
-                `${barraMedidas.width}px`,
-              maxHeight:
-                "calc(100vh - 16px)",
-              overflowY: "auto",
-            }
-            : undefined
-        }
-      >
-        <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-300">
+    return (
+      <div className="phanyx-editor-toolbar border-b border-slate-700 bg-slate-800 p-3">
+        <p className="phanyx-editor-toolbar-title mb-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-200">
           Ferramentas de edição
         </p>
 
         <div className="flex flex-wrap gap-2">
-          <select
-            value={fonteAtual}
-            onChange={(e) => {
-              const fonte = e.target.value;
-              if (!fonte) return;
-
-              editor.chain().focus().setFontFamily(fonte).run();
-              setFonteAtual(fonte);
-              onChange(editor.getHTML());
-            }}
-            className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-950 outline-none hover:bg-slate-100 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800 [&>option]:bg-white [&>option]:text-slate-950 dark:[&>option]:bg-slate-950 dark:[&>option]:text-white"
-          >
-            <option value="">
-              Fonte
-            </option>
-            {FONTES_WINDOWS.map((fonte) => (
-              <option key={fonte} value={fonte}>
-                {fonte}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={tamanhoAtual}
-            onChange={(e) => {
-              const tamanho = e.target.value;
-              if (!tamanho) return;
-
-              editor
-                .chain()
-                .focus()
-                .setMark("textStyle", {
-                  fontSize: `${tamanho}pt`,
-                })
-                .run();
-
-              setTamanhoAtual(tamanho);
-              onChange(editor.getHTML());
-            }}
-            className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-950 outline-none hover:bg-slate-100 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800 [&>option]:bg-white [&>option]:text-slate-950 dark:[&>option]:bg-slate-950 dark:[&>option]:text-white"
-          >
-            <option value="">
-              Tamanho
-            </option>
-            {TAMANHOS_FONTE.map((tamanho) => (
-              <option key={tamanho} value={tamanho}>
-                {tamanho} pt
-              </option>
-            ))}
-          </select>
-
-          <select
-            defaultValue=""
-            onChange={(e) => {
-              const lineHeight = e.target.value;
-              if (!lineHeight) return;
-
-              editor
-                .chain()
-                .focus()
-                .updateAttributes("paragraph", { lineHeight })
-                .updateAttributes("heading", { lineHeight })
-                .run();
-
-              onChange(editor.getHTML());
-            }}
-            className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-950 outline-none hover:bg-slate-100 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800 [&>option]:bg-white [&>option]:text-slate-950 dark:[&>option]:bg-slate-950 dark:[&>option]:text-white"
-          >
-            <option value="">
-              Espaçamento
-            </option>
-            {ESPACAMENTOS_LINHA.map((item) => (
-              <option key={item.value} value={item.value}>
-                {item.label}
-              </option>
-            ))}
-          </select>
-
-          <button
-  type="button"
-  aria-pressed={
-    formatacaoAtiva.negrito
-  }
-  onClick={() =>
-    editor
-      .chain()
-      .focus()
-      .toggleBold()
-      .run()
-  }
-  className={classeBotaoFormatacao(
-    formatacaoAtiva.negrito
-  )}
->
-  🅱️ Negrito
-</button>
-
-          <button
-  type="button"
-  aria-pressed={
-    formatacaoAtiva.italico
-  }
-  onClick={() =>
-    editor
-      .chain()
-      .focus()
-      .toggleItalic()
-      .run()
-  }
-  className={classeBotaoFormatacao(
-    formatacaoAtiva.italico
-  )}
->
-  𝑰 Itálico
-</button>
-
-          <button
-  type="button"
-  aria-pressed={
-    formatacaoAtiva.sublinhado
-  }
-  onClick={() =>
-    editor
-      .chain()
-      .focus()
-      .toggleUnderline()
-      .run()
-  }
-  className={classeBotaoFormatacao(
-    formatacaoAtiva.sublinhado
-  )}
->
-  U̲ Sublinhado
-</button>
-
-          <button
-  type="button"
-  aria-pressed={
-    formatacaoAtiva.esquerda
-  }
-  onClick={() =>
-    editor
-      .chain()
-      .focus()
-      .setTextAlign("left")
-      .run()
-  }
-  className={classeBotaoFormatacao(
-    formatacaoAtiva.esquerda
-  )}
->
-  ← Esquerda
-</button>
-
-          <button
-  type="button"
-  aria-pressed={
-    formatacaoAtiva.centro
-  }
-  onClick={() =>
-    editor
-      .chain()
-      .focus()
-      .setTextAlign("center")
-      .run()
-  }
-  className={classeBotaoFormatacao(
-    formatacaoAtiva.centro
-  )}
->
-  ↔ Centro
-</button>
-
-          <button
-  type="button"
-  aria-pressed={
-    formatacaoAtiva.direita
-  }
-  onClick={() =>
-    editor
-      .chain()
-      .focus()
-      .setTextAlign("right")
-      .run()
-  }
-  className={classeBotaoFormatacao(
-    formatacaoAtiva.direita
-  )}
->
-  → Direita
-</button>
-
-          <button
-  type="button"
-  aria-pressed={
-    formatacaoAtiva.justificar
-  }
-  onClick={() =>
-    editor
-      .chain()
-      .focus()
-      .setTextAlign("justify")
-      .run()
-  }
-  className={classeBotaoFormatacao(
-    formatacaoAtiva.justificar
-  )}
->
-  ☰ Justificar
-</button>
-
-          <button
-  type="button"
-  aria-pressed={
-    formatacaoAtiva.titulo
-  }
-  onClick={() =>
-    editor
-      .chain()
-      .focus()
-      .toggleHeading({
-        level: 1,
-      })
-      .run()
-  }
-  className={classeBotaoFormatacao(
-    formatacaoAtiva.titulo
-  )}
->
-  Título
-</button>
-
-          <button
-  type="button"
-  aria-pressed={
-    formatacaoAtiva.subtitulo
-  }
-  onClick={() =>
-    editor
-      .chain()
-      .focus()
-      .toggleHeading({
-        level: 2,
-      })
-      .run()
-  }
-  className={classeBotaoFormatacao(
-    formatacaoAtiva.subtitulo
-  )}
->
-  Subtítulo
-</button>
-
-          <button
-  type="button"
-  aria-pressed={
-    formatacaoAtiva.lista
-  }
-  onClick={() =>
-    editor
-      .chain()
-      .focus()
-      .toggleBulletList()
-      .run()
-  }
-  className={classeBotaoFormatacao(
-    formatacaoAtiva.lista
-  )}
->
-  • Lista
-</button>
-
-          <input
-            type="color"
-            onChange={(e) =>
-              editor.chain().focus().setColor(e.target.value).run()
+          <div
+            className={`border-b border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800 ${barraFlutuante
+              ? "z-[999999] shadow-2xl"
+              : "relative z-40"
+              }`}
+            style={
+              barraFlutuante
+                ? {
+                  position: "fixed",
+                  top: "8px",
+                  left:
+                    `${barraMedidas.left}px`,
+                  width:
+                    `${barraMedidas.width}px`,
+                  maxHeight:
+                    "calc(100vh - 16px)",
+                  overflowY: "auto",
+                }
+                : undefined
             }
-            className="h-10 w-12 rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
-            title="Cor do texto"
-          />
+          >
+            <p className="mb-2 text-xs font-black uppercase tracking-[0.18em] text-slate-900 dark:text-white">
+              Ferramentas de edição
+            </p>
+
+            <div className="flex flex-wrap gap-2">
+              <select
+                value={fonteAtual}
+                onChange={(e) => {
+                  const fonte = e.target.value;
+                  if (!fonte) return;
+
+                  editor.chain().focus().setFontFamily(fonte).run();
+                  setFonteAtual(fonte);
+                  onChange(editor.getHTML());
+                }}
+                className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-950 outline-none hover:bg-slate-100 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800 [&>option]:bg-white [&>option]:text-slate-950 dark:[&>option]:bg-slate-950 dark:[&>option]:text-white"
+              >
+                <option value="">
+                  Fonte
+                </option>
+                {FONTES_WINDOWS.map((fonte) => (
+                  <option key={fonte} value={fonte}>
+                    {fonte}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={tamanhoAtual}
+                onChange={(e) => {
+                  const tamanho = e.target.value;
+                  if (!tamanho) return;
+
+                  editor
+                    .chain()
+                    .focus()
+                    .setMark("textStyle", {
+                      fontSize: `${tamanho}pt`,
+                    })
+                    .run();
+
+                  setTamanhoAtual(tamanho);
+                  onChange(editor.getHTML());
+                }}
+                className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-950 outline-none hover:bg-slate-100 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800 [&>option]:bg-white [&>option]:text-slate-950 dark:[&>option]:bg-slate-950 dark:[&>option]:text-white"
+              >
+                <option value="">
+                  Tamanho
+                </option>
+                {TAMANHOS_FONTE.map((tamanho) => (
+                  <option key={tamanho} value={tamanho}>
+                    {tamanho} pt
+                  </option>
+                ))}
+              </select>
+
+              <select
+                defaultValue=""
+                onChange={(e) => {
+                  const lineHeight = e.target.value;
+                  if (!lineHeight) return;
+
+                  editor
+                    .chain()
+                    .focus()
+                    .updateAttributes("paragraph", { lineHeight })
+                    .updateAttributes("heading", { lineHeight })
+                    .run();
+
+                  onChange(editor.getHTML());
+                }}
+                className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-950 outline-none hover:bg-slate-100 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800 [&>option]:bg-white [&>option]:text-slate-950 dark:[&>option]:bg-slate-950 dark:[&>option]:text-white"
+              >
+                <option value="">
+                  Espaçamento
+                </option>
+                {ESPACAMENTOS_LINHA.map((item) => (
+                  <option key={item.value} value={item.value}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                type="button"
+                aria-pressed={
+                  formatacaoAtiva.negrito
+                }
+                onClick={() =>
+                  editor
+                    .chain()
+                    .focus()
+                    .toggleBold()
+                    .run()
+                }
+                className={classeBotaoFormatacao(
+                  formatacaoAtiva.negrito
+                )}
+              >
+                🅱️ Negrito
+              </button>
+
+              <button
+                type="button"
+                aria-pressed={
+                  formatacaoAtiva.italico
+                }
+                onClick={() =>
+                  editor
+                    .chain()
+                    .focus()
+                    .toggleItalic()
+                    .run()
+                }
+                className={classeBotaoFormatacao(
+                  formatacaoAtiva.italico
+                )}
+              >
+                𝑰 Itálico
+              </button>
+
+              <button
+                type="button"
+                aria-pressed={
+                  formatacaoAtiva.sublinhado
+                }
+                onClick={() =>
+                  editor
+                    .chain()
+                    .focus()
+                    .toggleUnderline()
+                    .run()
+                }
+                className={classeBotaoFormatacao(
+                  formatacaoAtiva.sublinhado
+                )}
+              >
+                U̲ Sublinhado
+              </button>
+
+              <button
+                type="button"
+                aria-pressed={
+                  formatacaoAtiva.esquerda
+                }
+                onClick={() =>
+                  editor
+                    .chain()
+                    .focus()
+                    .setTextAlign("left")
+                    .run()
+                }
+                className={classeBotaoFormatacao(
+                  formatacaoAtiva.esquerda
+                )}
+              >
+                ← Esquerda
+              </button>
+
+              <button
+                type="button"
+                aria-pressed={
+                  formatacaoAtiva.centro
+                }
+                onClick={() =>
+                  editor
+                    .chain()
+                    .focus()
+                    .setTextAlign("center")
+                    .run()
+                }
+                className={classeBotaoFormatacao(
+                  formatacaoAtiva.centro
+                )}
+              >
+                ↔ Centro
+              </button>
+
+              <button
+                type="button"
+                aria-pressed={
+                  formatacaoAtiva.direita
+                }
+                onClick={() =>
+                  editor
+                    .chain()
+                    .focus()
+                    .setTextAlign("right")
+                    .run()
+                }
+                className={classeBotaoFormatacao(
+                  formatacaoAtiva.direita
+                )}
+              >
+                → Direita
+              </button>
+
+              <button
+                type="button"
+                aria-pressed={
+                  formatacaoAtiva.justificar
+                }
+                onClick={() =>
+                  editor
+                    .chain()
+                    .focus()
+                    .setTextAlign("justify")
+                    .run()
+                }
+                className={classeBotaoFormatacao(
+                  formatacaoAtiva.justificar
+                )}
+              >
+                ☰ Justificar
+              </button>
+
+              <button
+                type="button"
+                aria-pressed={
+                  formatacaoAtiva.titulo
+                }
+                onClick={() =>
+                  editor
+                    .chain()
+                    .focus()
+                    .toggleHeading({
+                      level: 1,
+                    })
+                    .run()
+                }
+                className={classeBotaoFormatacao(
+                  formatacaoAtiva.titulo
+                )}
+              >
+                Título
+              </button>
+
+              <button
+                type="button"
+                aria-pressed={
+                  formatacaoAtiva.subtitulo
+                }
+                onClick={() =>
+                  editor
+                    .chain()
+                    .focus()
+                    .toggleHeading({
+                      level: 2,
+                    })
+                    .run()
+                }
+                className={classeBotaoFormatacao(
+                  formatacaoAtiva.subtitulo
+                )}
+              >
+                Subtítulo
+              </button>
+
+              <button
+                type="button"
+                aria-pressed={
+                  formatacaoAtiva.lista
+                }
+                onClick={() =>
+                  editor
+                    .chain()
+                    .focus()
+                    .toggleBulletList()
+                    .run()
+                }
+                className={classeBotaoFormatacao(
+                  formatacaoAtiva.lista
+                )}
+              >
+                • Lista
+              </button>
+
+              <input
+                type="color"
+                onChange={(e) =>
+                  editor.chain().focus().setColor(e.target.value).run()
+                }
+                className="h-10 w-12 rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
+                title="Cor do texto"
+              />
+            </div>
+          </div>
         </div>
       </div>
+    );
+  }
+
+  return (
+    <div
+      ref={barraContainerRef}
+      className="relative rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900"
+    >
+      <div
+        ref={barraOriginalRef}
+        className={
+          barraFlutuante
+            ? "invisible"
+            : ""
+        }
+        aria-hidden={
+          barraFlutuante
+        }
+      >
+        {renderizarFerramentas()}
+      </div>
+
+      {portalPronto &&
+        barraFlutuante &&
+        createPortal(
+          <div
+            className="phanyx-editor-toolbar-portal overflow-hidden rounded-2xl shadow-2xl"
+            style={{
+              position: "fixed",
+              top: "8px",
+              left: `${barraMedidas.left}px`,
+              width: `${barraMedidas.width}px`,
+              maxHeight: "calc(100vh - 16px)",
+              overflowY: "auto",
+              zIndex: 2147483000,
+              overflowX: "hidden",
+            }}
+          >
+            {renderizarFerramentas()}
+          </div>,
+          document.body
+        )}
+
+      <div className="overflow-x-auto bg-slate-100 p-6 dark:bg-slate-950">
+        <div className="mx-auto w-[210mm] shadow-2xl">
+          <div className="phanyx-a4-guia-cabecalho">
+            <span>
+              Área reservada para cabeçalho e logo
+            </span>
+
+            <span>Página 1</span>
+          </div>
+
+          <div className="bg-white text-black">
+            <EditorContent editor={editor} />
+
+            <div
+              aria-hidden="true"
+              style={{
+                height: `${espacoFinalPx}px`,
+              }}
+            />
+          </div>
+
+          <div className="phanyx-a4-guia-rodape">
+            <span>
+              Área reservada para rodapé
+            </span>
+
+            <span>
+              Página {totalPaginas}
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   );
-}
-
-  return (
-  <div
-    ref={barraContainerRef}
-    className="relative rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900"
-  >
-    <div
-  ref={barraOriginalRef}
-  className={
-    barraFlutuante
-      ? "invisible"
-      : ""
-  }
-  aria-hidden={
-    barraFlutuante
-  }
->
-  {renderizarFerramentas()}
-</div>
-
-    {portalPronto &&
-      barraFlutuante &&
-      createPortal(
-        <div
-          className="phanyx-editor-toolbar-portal overflow-hidden rounded-2xl shadow-2xl"
-          style={{
-            position: "fixed",
-            top: "8px",
-            left: `${barraMedidas.left}px`,
-            width: `${barraMedidas.width}px`,
-            maxHeight: "calc(100vh - 16px)",
-            overflowY: "auto",
-            zIndex: 2147483000,
-            overflowX: "hidden",
-          }}
-        >
-          {renderizarFerramentas()}
-        </div>,
-        document.body
-      )}
-
-    <div className="overflow-x-auto bg-slate-100 p-6 dark:bg-slate-950">
-      <div className="mx-auto w-[210mm] shadow-2xl">
-        <div className="phanyx-a4-guia-cabecalho">
-          <span>
-            Área reservada para cabeçalho e logo
-          </span>
-
-          <span>Página 1</span>
-        </div>
-
-        <div className="bg-white text-black">
-          <EditorContent editor={editor} />
-
-          <div
-            aria-hidden="true"
-            style={{
-              height: `${espacoFinalPx}px`,
-            }}
-          />
-        </div>
-
-        <div className="phanyx-a4-guia-rodape">
-          <span>
-            Área reservada para rodapé
-          </span>
-
-          <span>
-            Página {totalPaginas}
-          </span>
-        </div>
-      </div>
-    </div>
-  </div>
-);
 }
