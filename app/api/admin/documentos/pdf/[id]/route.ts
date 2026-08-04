@@ -532,95 +532,184 @@ export async function GET(
     );
 
     if (
-      formatoImpressao ===
-      "DUAS_VIAS_A4"
-    ) {
-      await page.evaluate(
-  () =>
-    new Promise<void>(
-      (resolve) => {
-        requestAnimationFrame(
-          () => {
-            requestAnimationFrame(
-              () => resolve()
-            );
-          }
-        );
-      }
-    )
-);
+  formatoImpressao ===
+  "DUAS_VIAS_A4"
+) {
+  const ajusteDuasVias =
+    await page.evaluate(
+      async () => {
+        const areas =
+          Array.from(
+            document.querySelectorAll<HTMLElement>(
+              ".phanyx-via-conteudo-area"
+            )
+          );
 
-const houveEstouro =
-  await page.evaluate(
-    () => {
-      const areas =
-        Array.from(
-          document.querySelectorAll<HTMLElement>(
-            ".phanyx-via-conteudo-area"
-          )
-        );
+        if (
+          areas.length === 0
+        ) {
+          return {
+            cabe: true,
+            menorZoomNecessario: 1,
+          };
+        }
 
-      return areas.some(
-        (area) => {
+        const zoomsNecessarios:
+          number[] = [];
+
+        for (
+          const area of areas
+        ) {
           const conteudo =
             area.querySelector<HTMLElement>(
               ".phanyx-conteudo-compacto"
             );
 
           if (!conteudo) {
-            return false;
+            continue;
           }
 
-          const estilo =
-            window.getComputedStyle(
-              conteudo
-            );
+          /*
+           * Primeiro mede o conteúdo
+           * em tamanho natural.
+           */
+          conteudo.style.zoom =
+            "1";
 
-          const zoomTexto =
-            estilo.getPropertyValue(
-              "zoom"
-            );
+          conteudo.style.width =
+            "100%";
 
-          const zoomCalculado =
-            Number.parseFloat(
-              zoomTexto || "1"
-            );
-
-          const zoom =
-            Number.isFinite(
-              zoomCalculado
-            )
-              ? zoomCalculado
-              : 1;
-
-          const alturaVisual =
-            conteudo.scrollHeight *
-            zoom;
+          void conteudo.offsetHeight;
 
           const alturaDisponivel =
-            area.clientHeight;
+            Math.max(
+              area.clientHeight - 8,
+              1
+            );
 
-          return (
-            alturaVisual >
-            alturaDisponivel + 8
+          const alturaNatural =
+            Math.max(
+              conteudo.scrollHeight,
+              1
+            );
+
+          /*
+           * Calcula automaticamente
+           * a redução necessária para
+           * caber na metade da folha.
+           */
+          const zoomNecessario =
+            Math.min(
+              0.82,
+              (
+                alturaDisponivel /
+                alturaNatural
+              ) * 0.96
+            );
+
+          zoomsNecessarios.push(
+            zoomNecessario
           );
-        }
-      );
-    }
-  );
 
-      if (houveEstouro) {
-        return NextResponse.json(
-          {
-            error:
-              "O conteúdo não cabe em duas vias na mesma folha A4. Escolha uma via ou reduza o conteúdo do template.",
-          },
-          {
-            status: 400,
+          /*
+           * Não deixa o documento
+           * ilegível. O limite mínimo
+           * aplicado é de 50%.
+           */
+          const zoomAplicado =
+            Math.max(
+              0.5,
+              zoomNecessario
+            );
+
+          conteudo.style.zoom =
+            String(
+              zoomAplicado
+            );
+
+          /*
+           * Compensa a largura reduzida
+           * pelo zoom para aproveitar
+           * toda a área horizontal.
+           */
+          conteudo.style.width =
+            `${100 / zoomAplicado}%`;
+        }
+
+        /*
+         * Aguarda o navegador recalcular
+         * o layout depois da nova escala.
+         */
+        await new Promise<void>(
+          (resolve) => {
+            requestAnimationFrame(
+              () => {
+                requestAnimationFrame(
+                  () => resolve()
+                );
+              }
+            );
           }
         );
+
+        const houveCorte =
+          areas.some(
+            (area) => {
+              const conteudo =
+                area.querySelector<HTMLElement>(
+                  ".phanyx-conteudo-compacto"
+                );
+
+              if (!conteudo) {
+                return false;
+              }
+
+              const areaRect =
+                area.getBoundingClientRect();
+
+              const conteudoRect =
+                conteudo.getBoundingClientRect();
+
+              return (
+                conteudoRect.bottom >
+                areaRect.bottom + 4
+              );
+            }
+          );
+
+        const menorZoomNecessario =
+          zoomsNecessarios.length >
+          0
+            ? Math.min(
+                ...zoomsNecessarios
+              )
+            : 1;
+
+        return {
+          cabe:
+            !houveCorte &&
+            menorZoomNecessario >=
+              0.5,
+
+          menorZoomNecessario,
+        };
       }
-    }
+    );
+
+  if (
+    !ajusteDuasVias.cabe
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          "O conteúdo é extenso demais para duas vias legíveis na mesma folha A4. Selecione uma via ou reduza o conteúdo do template.",
+      },
+      {
+        status: 400,
+      }
+    );
+  }
+}
 
     const pdfBytes =
       await page.pdf(
