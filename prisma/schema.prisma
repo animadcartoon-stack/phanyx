@@ -886,6 +886,7 @@ model Matricula {
   quantidadeMensalidades                  Int?
   vendedorResponsavelId                   Int?
   vendedorResponsavelNomeSnapshot         String?
+  leadOrigemId                            Int?            @unique
   origemComercial                         String?
   campanhaComercial                       String?
   atendidoComercialEm                     DateTime?
@@ -904,11 +905,11 @@ model Matricula {
   documentosGerados      DocumentoGerado[]
   itens                  ItemMatricula[]
   lancamentosFinanceiros LancamentoFinanceiro[]
-  vendedorResponsavel    Funcionario?           @relation("MatriculaVendedorResponsavel", fields: [vendedorResponsavelId], references: [id], onDelete: SetNull)
-
+  vendedorResponsavel    Funcionario?                       @relation("MatriculaVendedorResponsavel", fields: [vendedorResponsavelId], references: [id], onDelete: SetNull)
+  leadOrigem              Lead?                             @relation("LeadMatriculaConvertida", fields: [leadOrigemId], references: [id], onDelete: SetNull)
   participantesComerciais MatriculaParticipanteComercial[]
   lancamentosComissaoRH   LancamentoComissaoRH[]
-  rematriculasComoOrigem  RematriculaSemestral[]           @relation("RematriculaMatriculaOrigem")
+  rematriculasComoOrigem  RematriculaSemestral[]            @relation("RematriculaMatriculaOrigem")
 
   rematriculaGeradora RematriculaSemestral? @relation("RematriculaMatriculaGerada")
   cursoSemestreId     Int?
@@ -1906,6 +1907,7 @@ model Lead {
   criadoPor                User?           @relation("LeadCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
   atualizadoPor            User?           @relation("LeadAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
   interacoes               LeadInteracao[]
+  matriculaConvertida      Matricula?      @relation("LeadMatriculaConvertida")
 
   @@index([instituicaoGestoraId])
   @@index([instituicaoInteressadaId])
