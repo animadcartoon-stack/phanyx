@@ -530,41 +530,6 @@ export async function GET(
       page
     );
 
-    if (
-      formatoImpressao ===
-      "DUAS_VIAS_A4"
-    ) {
-      const houveEstouro =
-        await page.evaluate(
-          () => {
-            const areas =
-              Array.from(
-                document.querySelectorAll<HTMLElement>(
-                  ".phanyx-via-conteudo-area"
-                )
-              );
-
-            return areas.some(
-              (area) =>
-                area.scrollHeight >
-                area.clientHeight + 4
-            );
-          }
-        );
-
-      if (houveEstouro) {
-        return NextResponse.json(
-          {
-            error:
-              "O conteúdo ultrapassa a área de uma via. Ajuste o conteúdo no editor do template.",
-          },
-          {
-            status: 400,
-          }
-        );
-      }
-    }
-
     const pdfBytes =
       await page.pdf(
         renderizacao.pdfOptions

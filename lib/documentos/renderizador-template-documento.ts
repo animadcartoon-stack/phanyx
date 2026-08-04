@@ -711,13 +711,16 @@ function montarFooterTemplate(
   `;
 }
 
-function cssCompartilhado() {
-  return `
-    @page {
-      size: A4;
-      margin: 0;
-    }
+function cssCompartilhado(
+  formatoImpressao:
+    FormatoImpressaoDocumento
+) {
+  const duasVias =
+    formatoImpressao ===
+    "DUAS_VIAS_A4";
 
+  return `
+    
     * {
       box-sizing: border-box;
     }
@@ -741,8 +744,12 @@ function cssCompartilhado() {
     }
 
     body {
-      width: 210mm;
-    }
+  width: ${
+    duasVias
+      ? "210mm"
+      : "auto"
+  };
+}
 
     .phanyx-papel-a4 {
       position: fixed;
@@ -1238,7 +1245,9 @@ export function montarRenderizacaoDocumento(
         />
 
         <style>
-          ${cssCompartilhado()}
+          ${cssCompartilhado(
+  formatoImpressao
+)}
         </style>
       </head>
 

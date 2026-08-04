@@ -1306,8 +1306,8 @@ export default function EquipesComerciaisPage() {
                               funcionario.id
                             }
                             className={`phanyx-equipes-modal-membro flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition ${marcado
-                                ? "phanyx-equipes-modal-membro-selecionado border-emerald-500 bg-emerald-50 dark:border-blue-700 dark:bg-blue-950/40"
-                                : "border-slate-200 bg-white hover:border-slate-400 dark:border-slate-700 dark:bg-slate-900"
+                              ? "phanyx-equipes-modal-membro-selecionado border-emerald-500 bg-emerald-50 dark:border-blue-700 dark:bg-blue-950/40"
+                              : "border-slate-200 bg-white hover:border-slate-400 dark:border-slate-700 dark:bg-slate-900"
                               }`}
                           >
                             <input
@@ -1343,7 +1343,7 @@ export default function EquipesComerciaisPage() {
                               </span>
 
                               {ehLider && (
-                                <span className="mt-2 inline-flex rounded-full bg-amber-200 px-2.5 py-1 text-[11px] font-black text-amber-950 dark:bg-amber-900 dark:text-amber-100">
+                                <span className="rounded-full bg-amber-700 px-3 py-1 text-xs font-semibold text-white shadow-sm">
                                   Líder
                                 </span>
                               )}
