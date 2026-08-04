@@ -951,21 +951,19 @@ function cssCompartilhado() {
     }
 
     .phanyx-via {
-      position: relative;
-      display: grid;
-      width: 210mm;
-      height: 148.5mm;
-      padding:
-        5mm
-        10mm;
-      grid-template-rows:
-        17mm
-        minmax(0, 1fr)
-        20mm;
-      gap: 2.5mm;
-      overflow: hidden;
-      background: #ffffff;
-    }
+  position: relative;
+  display: grid;
+  width: 210mm;
+  height: 148.5mm;
+  padding: 0;
+  grid-template-rows:
+    17mm
+    111.5mm
+    20mm;
+  gap: 0;
+  overflow: hidden;
+  background: #ffffff;
+}
 
     .phanyx-papel-via {
       position: absolute;
@@ -987,17 +985,15 @@ function cssCompartilhado() {
     }
 
     .phanyx-via-cabecalho {
-      display: flex;
-      align-items: center;
-      justify-content:
-        space-between;
-      gap: 4mm;
-      min-width: 0;
-      padding-bottom: 2mm;
-      border-bottom:
-        0.3mm solid #cbd5e1;
-    }
-
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4mm;
+  min-width: 0;
+  height: 17mm;
+  padding: 0 18mm;
+  border-bottom: 0.3mm solid #cbd5e1;
+}
     .phanyx-via-identidade {
       display: flex;
       min-width: 0;
@@ -1040,9 +1036,13 @@ function cssCompartilhado() {
     }
 
     .phanyx-via-conteudo-area {
-      min-height: 0;
-      overflow: hidden;
-    }
+  box-sizing: border-box;
+  width: 100%;
+  height: 111.5mm;
+  min-height: 0;
+  padding: 0 18mm;
+  overflow: hidden;
+}
 
     .phanyx-conteudo-compacto {
   width: 100%;
@@ -1058,9 +1058,13 @@ function cssCompartilhado() {
     }
 
     .phanyx-validacao-compacta {
-      margin-top: 0;
-      padding: 2mm;
-    }
+  box-sizing: border-box;
+  width: calc(100% - 36mm);
+  height: 18mm;
+  margin: 1mm 18mm;
+  padding: 2mm;
+  align-self: center;
+}
 
     .phanyx-validacao-compacta
       .phanyx-validacao-texto {
