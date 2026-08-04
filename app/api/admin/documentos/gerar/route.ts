@@ -1202,10 +1202,10 @@ export async function POST(req: Request) {
             tipoTitularContrato,
 
             assinaturaDiretor:
-              "__PHANYX_ASSINATURA_DIRETOR__",
+              marcadorAssinaturaDiretor,
 
             blocoAssinaturaDiretor:
-              "__PHANYX_BLOCO_ASSINATURA_DIRETOR__",
+              marcadorBlocoAssinaturaDiretor,
 
             cidadeAssinatura:
               config?.cidadeAssinatura ||

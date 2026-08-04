@@ -76,7 +76,20 @@ type CampoVisualContrato = {
 };
 
 type ConfiguracaoInstituicao = {
-  certificadoAssinaturaUrl?: string | null;
+  certificadoAssinaturaUrl?:
+    string | null;
+
+  responsavelNome?:
+    string | null;
+
+  responsavelCargo?:
+    string | null;
+
+  nomeFantasia?:
+    string | null;
+
+  cnpj?:
+    string | null;
 };
 
 const TIPOS_DOCUMENTO: Array<{
@@ -3411,13 +3424,40 @@ function AdminDocumentosTemplatesPage() {
 
                       <div className="mt-3">
                         <EditorTemplatePHANYX
-                          key={`${editingId ?? "novo"}-${formatoImpressao}`}
-                          value={conteudo}
-                          onChange={setConteudo}
-                          formatoImpressao={
-                            formatoImpressao
-                          }
-                        />
+  key={[
+    editingId ?? "novo",
+    formatoImpressao,
+    configInstituicao
+      ?.certificadoAssinaturaUrl ||
+      "sem-assinatura",
+  ].join("-")}
+  value={conteudo}
+  onChange={setConteudo}
+  formatoImpressao={
+    formatoImpressao
+  }
+  assinaturaDiretorUrl={
+    configInstituicao
+      ?.certificadoAssinaturaUrl
+  }
+  responsavelNome={
+    configInstituicao
+      ?.responsavelNome
+  }
+  responsavelCargo={
+    configInstituicao
+      ?.responsavelCargo
+  }
+  nomeInstituicao={
+    configInstituicao
+      ?.nomeFantasia
+  }
+  cnpjInstituicao={
+    configInstituicao
+      ?.cnpj
+  }
+/>
+                        
                       </div>
                     </details>
 
@@ -3517,13 +3557,40 @@ Documento emitido em {{dataAtual}} por {{nomeInstituicao}}.
                 >
                   {!usaModoGuiado && (
                     <EditorTemplatePHANYX
-                      key={`${editingId ?? "novo"}-${formatoImpressao}`}
-                      value={conteudo}
-                      onChange={setConteudo}
-                      formatoImpressao={
-                        formatoImpressao
-                      }
-                    />
+  key={[
+    editingId ?? "novo",
+    formatoImpressao,
+    configInstituicao
+      ?.certificadoAssinaturaUrl ||
+      "sem-assinatura",
+  ].join("-")}
+  value={conteudo}
+  onChange={setConteudo}
+  formatoImpressao={
+    formatoImpressao
+  }
+  assinaturaDiretorUrl={
+    configInstituicao
+      ?.certificadoAssinaturaUrl
+  }
+  responsavelNome={
+    configInstituicao
+      ?.responsavelNome
+  }
+  responsavelCargo={
+    configInstituicao
+      ?.responsavelCargo
+  }
+  nomeInstituicao={
+    configInstituicao
+      ?.nomeFantasia
+  }
+  cnpjInstituicao={
+    configInstituicao
+      ?.cnpj
+  }
+/>
+                    
                   )}
                 </div>
               </div>

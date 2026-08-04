@@ -132,13 +132,39 @@ export const PERMISSOES_PHANYX = [
       "Permite consultar os funcionários vinculados às atividades comerciais.",
   },
   {
-    chave: "comercial.vendedores.gerenciar",
-    nome: "Comercial - Gerenciar vendedores",
-    descricao:
-      "Permite definir funcionários responsáveis por vendas, matrículas e metas.",
-  },
+  chave: "comercial.vendedores.gerenciar",
+  nome: "Comercial - Gerenciar vendedores",
+  descricao:
+    "Permite definir funcionários responsáveis por vendas, matrículas e metas.",
+},
 
-  // METAS
+// EQUIPES COMERCIAIS
+{
+  chave: "comercial.equipes.ver",
+  nome: "Comercial - Ver equipes comerciais",
+  descricao:
+    "Permite consultar equipes comerciais, líderes e membros vinculados.",
+},
+{
+  chave: "comercial.equipes.criar",
+  nome: "Comercial - Criar equipes comerciais",
+  descricao:
+    "Permite cadastrar novas equipes comerciais e selecionar seus membros.",
+},
+{
+  chave: "comercial.equipes.editar",
+  nome: "Comercial - Editar equipes comerciais",
+  descricao:
+    "Permite alterar nome, descrição, liderança, membros e situação das equipes.",
+},
+{
+  chave: "comercial.equipes.excluir",
+  nome: "Comercial - Desativar equipes comerciais",
+  descricao:
+    "Permite desativar equipes comerciais, preservando seu histórico e suas metas.",
+},
+
+// METAS
   {
     chave: "comercial.metas.ver",
     nome: "Comercial - Ver metas",

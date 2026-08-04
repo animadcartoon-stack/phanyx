@@ -18,6 +18,15 @@ import { TextStyle } from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
 import FontFamily from "@tiptap/extension-font-family";
 import { createPortal } from "react-dom";
+import {
+  Plugin,
+  PluginKey,
+} from "@tiptap/pm/state";
+
+import {
+  Decoration,
+  DecorationSet,
+} from "@tiptap/pm/view";
 
 const FONTES_WINDOWS = [
   "Arial",
@@ -123,6 +132,390 @@ const LineHeight = Extension.create({
     ];
   },
 });
+
+type DadosAssinaturaPreview = {
+  assinaturaUrl?: string | null;
+  responsavelNome?: string | null;
+  responsavelCargo?: string | null;
+  nomeInstituicao?: string | null;
+  cnpjInstituicao?: string | null;
+};
+
+type TipoAssinaturaPreview =
+  | "IMAGEM"
+  | "BLOCO";
+
+function aplicarEstilos(
+  elemento: HTMLElement,
+  estilos: Partial<CSSStyleDeclaration>
+) {
+  Object.assign(
+    elemento.style,
+    estilos
+  );
+}
+
+function criarImagemAssinaturaPreview(
+  assinaturaUrl?: string | null
+) {
+  const caixa =
+    document.createElement("span");
+
+  aplicarEstilos(caixa, {
+    display: "flex",
+    width: "48mm",
+    height: "16mm",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    overflow: "hidden",
+    backgroundColor: "#ffffff",
+  });
+
+  const placeholder =
+    document.createElement("span");
+
+  placeholder.textContent =
+    "Imagem da assinatura do diretor";
+
+  aplicarEstilos(placeholder, {
+    display: assinaturaUrl
+      ? "none"
+      : "flex",
+    width: "48mm",
+    height: "16mm",
+    alignItems: "center",
+    justifyContent: "center",
+    border: "1px dashed #64748b",
+    color: "#475569",
+    fontSize: "8pt",
+    lineHeight: "1.2",
+    textAlign: "center",
+    backgroundColor: "#f8fafc",
+  });
+
+  caixa.appendChild(
+    placeholder
+  );
+
+  if (assinaturaUrl) {
+    const imagem =
+      document.createElement("img");
+
+    imagem.src =
+      assinaturaUrl;
+
+    imagem.alt =
+      "Assinatura do diretor";
+
+    aplicarEstilos(imagem, {
+      display: "block",
+      width: "48mm",
+      height: "16mm",
+      objectFit: "contain",
+      objectPosition:
+        "left center",
+    });
+
+    imagem.addEventListener(
+      "error",
+      () => {
+        imagem.style.display =
+          "none";
+
+        placeholder.style.display =
+          "flex";
+      }
+    );
+
+    caixa.appendChild(
+      imagem
+    );
+  }
+
+  return caixa;
+}
+
+function criarElementoAssinaturaPreview(
+  tipo: TipoAssinaturaPreview,
+  dados: DadosAssinaturaPreview
+) {
+  const container =
+    document.createElement("span");
+
+  container.contentEditable =
+    "false";
+
+  container.setAttribute(
+    "data-phanyx-assinatura-preview",
+    tipo
+  );
+
+  aplicarEstilos(container, {
+    verticalAlign: "top",
+    breakInside: "avoid",
+    pageBreakInside: "avoid",
+    pointerEvents: "none",
+    userSelect: "none",
+    backgroundColor: "#ffffff",
+    color: "#0f172a",
+  });
+
+  const imagem =
+    criarImagemAssinaturaPreview(
+      dados.assinaturaUrl
+    );
+
+  if (tipo === "IMAGEM") {
+    aplicarEstilos(container, {
+      display: "inline-flex",
+      width: "58mm",
+      minHeight: "19mm",
+      marginTop: "3mm",
+      alignItems: "flex-start",
+      justifyContent:
+        "flex-start",
+    });
+
+    container.appendChild(
+      imagem
+    );
+
+    return container;
+  }
+
+  aplicarEstilos(container, {
+    display: "inline-flex",
+    width: "78mm",
+    minHeight: "36mm",
+    marginTop: "5mm",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent:
+      "flex-start",
+    fontSize: "9pt",
+    lineHeight: "1.25",
+    textAlign: "center",
+  });
+
+  const linha =
+    document.createElement("span");
+
+  aplicarEstilos(linha, {
+    display: "block",
+    width: "72mm",
+    marginTop: "-1mm",
+    marginBottom: "1.5mm",
+    borderTop:
+      "1px solid #111827",
+  });
+
+  const nome =
+    document.createElement("strong");
+
+  nome.textContent =
+    dados.responsavelNome ||
+    "Responsável legal";
+
+  const cargo =
+    document.createElement("span");
+
+  cargo.textContent =
+    dados.responsavelCargo ||
+    "Representante legal";
+
+  const instituicao =
+    document.createElement("span");
+
+  instituicao.textContent =
+    dados.nomeInstituicao ||
+    "Instituição";
+
+  container.appendChild(
+    imagem
+  );
+
+  container.appendChild(
+    linha
+  );
+
+  container.appendChild(
+    nome
+  );
+
+  container.appendChild(
+    cargo
+  );
+
+  container.appendChild(
+    instituicao
+  );
+
+  if (dados.cnpjInstituicao) {
+    const cnpj =
+      document.createElement(
+        "span"
+      );
+
+    cnpj.textContent =
+      `CNPJ: ${dados.cnpjInstituicao}`;
+
+    container.appendChild(
+      cnpj
+    );
+  }
+
+  return container;
+}
+
+const AssinaturaPreviewPHANYX =
+  Extension.create<DadosAssinaturaPreview>({
+    name:
+      "assinaturaPreviewPHANYX",
+
+    addOptions() {
+      return {
+        assinaturaUrl: null,
+        responsavelNome: null,
+        responsavelCargo: null,
+        nomeInstituicao: null,
+        cnpjInstituicao: null,
+      };
+    },
+
+    addProseMirrorPlugins() {
+      const dados =
+        this.options;
+
+      return [
+        new Plugin({
+          key: new PluginKey(
+            "assinaturaPreviewPHANYX"
+          ),
+
+          props: {
+            decorations(state) {
+              const decoracoes:
+                Decoration[] = [];
+
+              const padroes: Array<{
+                regex: RegExp;
+                tipo:
+                TipoAssinaturaPreview;
+              }> = [
+                  {
+                    regex:
+                      /{{\s*assinaturaDiretor\s*}}/gi,
+
+                    tipo:
+                      "IMAGEM",
+                  },
+
+                  {
+                    regex:
+                      /{{\s*blocoAssinaturaDiretor\s*}}/gi,
+
+                    tipo:
+                      "BLOCO",
+                  },
+                ];
+
+              state.doc.descendants(
+                (
+                  node,
+                  posicao
+                ) => {
+                  if (
+                    !node.isText ||
+                    !node.text
+                  ) {
+                    return;
+                  }
+
+                  for (
+                    const padrao
+                    of padroes
+                  ) {
+                    padrao.regex.lastIndex =
+                      0;
+
+                    let resultado:
+                      RegExpExecArray |
+                      null = null;
+
+                    while (
+                      (
+                        resultado =
+                        padrao.regex.exec(
+                          node.text
+                        )
+                      ) !== null
+                    ) {
+                      const inicio =
+                        posicao +
+                        resultado.index;
+
+                      const fim =
+                        inicio +
+                        resultado[0]
+                          .length;
+
+                      /*
+                       * Esconde visualmente
+                       * o texto da tag, mas
+                       * mantém o texto real
+                       * salvo pelo editor.
+                       */
+                      decoracoes.push(
+                        Decoration.inline(
+                          inicio,
+                          fim,
+                          {
+                            style: [
+                              "font-size:0!important",
+                              "line-height:0!important",
+                              "letter-spacing:0!important",
+                              "color:transparent!important",
+                            ].join(";"),
+                          }
+                        )
+                      );
+
+                      /*
+                       * Coloca a representação
+                       * visual com o tamanho
+                       * real da assinatura.
+                       */
+                      decoracoes.push(
+                        Decoration.widget(
+                          inicio,
+                          () =>
+                            criarElementoAssinaturaPreview(
+                              padrao.tipo,
+                              dados
+                            ),
+                          {
+                            side: -1,
+
+                            key:
+                              `${padrao.tipo}-${inicio}`,
+                          }
+                        )
+                      );
+                    }
+                  }
+                }
+              );
+
+              return DecorationSet.create(
+                state.doc,
+                decoracoes
+              );
+            },
+          },
+        }),
+      ];
+    },
+  });
 
 const ALTURA_A4_INTEIRA_MM = 297;
 const ALTURA_DUAS_VIAS_MM = 148.5;
@@ -288,8 +681,28 @@ type FormatoImpressaoDocumento =
 
 type Props = {
   value: string;
-  onChange: (html: string) => void;
-  formatoImpressao?: FormatoImpressaoDocumento;
+
+  onChange: (
+    html: string
+  ) => void;
+
+  formatoImpressao?:
+  FormatoImpressaoDocumento;
+
+  assinaturaDiretorUrl?:
+  string | null;
+
+  responsavelNome?:
+  string | null;
+
+  responsavelCargo?:
+  string | null;
+
+  nomeInstituicao?:
+  string | null;
+
+  cnpjInstituicao?:
+  string | null;
 };
 
 function conteudoParaHtmlSeguro(valor: string) {
@@ -348,7 +761,24 @@ function blocoPossuiConteudoVisivel(
 export default function EditorTemplatePHANYX({
   value,
   onChange,
-  formatoImpressao = "A4_INTEIRA",
+
+  formatoImpressao =
+  "A4_INTEIRA",
+
+  assinaturaDiretorUrl =
+  null,
+
+  responsavelNome =
+  null,
+
+  responsavelCargo =
+  null,
+
+  nomeInstituicao =
+  null,
+
+  cnpjInstituicao =
+  null,
 }: Props) {
   const duasVias =
     formatoImpressao ===
@@ -431,7 +861,22 @@ export default function EditorTemplatePHANYX({
 
     extensions: [
       StarterKit,
+
       PageBreakPHANYX,
+
+      AssinaturaPreviewPHANYX.configure({
+        assinaturaUrl:
+          assinaturaDiretorUrl,
+
+        responsavelNome,
+
+        responsavelCargo,
+
+        nomeInstituicao,
+
+        cnpjInstituicao,
+      }),
+
       Underline,
       TextStyle,
       FontFamily,
@@ -464,7 +909,13 @@ export default function EditorTemplatePHANYX({
     onUpdate({ editor }) {
       onChange(editor.getHTML());
     },
-  });
+  }, [
+    assinaturaDiretorUrl,
+    responsavelNome,
+    responsavelCargo,
+    nomeInstituicao,
+    cnpjInstituicao,
+  ]);
 
   useEffect(() => {
     if (!editor) return;
