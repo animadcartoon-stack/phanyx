@@ -86,11 +86,11 @@ function calcularIdadeAluno(
 
   const aniversarioAindaNaoOcorreu =
     hoje.getMonth() <
-      nascimento.getMonth() ||
+    nascimento.getMonth() ||
     (hoje.getMonth() ===
       nascimento.getMonth() &&
       hoje.getDate() <
-        nascimento.getDate());
+      nascimento.getDate());
 
   if (aniversarioAindaNaoOcorreu) {
     idade -= 1;
@@ -185,6 +185,28 @@ export async function POST(req: Request) {
       ? String(body.titulo).trim()
       : null;
 
+    const valorInformado =
+      body?.valor !== null &&
+        body?.valor !== undefined &&
+        body?.valor !== ""
+        ? Number(body.valor)
+        : null;
+
+    if (
+      valorInformado !== null &&
+      (!Number.isFinite(valorInformado) ||
+        valorInformado < 0)
+    ) {
+      return NextResponse.json(
+        {
+          error: "O valor informado é inválido.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
     if (!Number.isFinite(templateId) || templateId <= 0) {
       return NextResponse.json(
         { error: "Template inválido" },
@@ -207,6 +229,28 @@ export async function POST(req: Request) {
       );
     }
 
+    const tipoTemplateNormalizado = String(
+      template.tipo || ""
+    )
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+
+    const ehContrato =
+      tipoTemplateNormalizado.includes("contrato");
+
+    if (ehContrato && !matriculaId) {
+      return NextResponse.json(
+        {
+          error:
+            "Selecione a matrícula correspondente antes de gerar um contrato.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
     const config = await prisma.configuracaoInstituicao.findUnique({
       where: {
         instituicaoId: user.instituicaoId,
@@ -217,7 +261,8 @@ export async function POST(req: Request) {
     let matricula = null as any;
     let cursoNome = "Curso não informado";
     let disciplinasLista: string[] = [];
-    let valorContrato = 0;
+    let valorContrato =
+      valorInformado ?? 0;
 
     if (matriculaId && Number.isFinite(matriculaId) && matriculaId > 0) {
       matricula = await prisma.matricula.findFirst({
@@ -226,24 +271,24 @@ export async function POST(req: Request) {
           instituicaoId: user.instituicaoId,
         },
         include: {
-  aluno: {
-  include: {
-    polo: true,
+          aluno: {
+            include: {
+              polo: true,
 
-    user: {
-      select: {
-        email: true,
-      },
-    },
-  },
-},
-  curso: true,
+              user: {
+                select: {
+                  email: true,
+                },
+              },
+            },
+          },
+          curso: true,
           itens: {
-  include: {
-    disciplina: true,
-    turma: true,
-  },
-},
+            include: {
+              disciplina: true,
+              turma: true,
+            },
+          },
           lancamentosFinanceiros: true,
         },
       });
@@ -261,37 +306,40 @@ export async function POST(req: Request) {
         matricula.curso?.nome?.trim() || "Curso não informado";
 
       disciplinasLista = Array.from(
-  new Set(
-    matricula.itens
-      .map((item) => item.disciplina?.nome?.trim())
-      .filter(Boolean) as string[]
-  )
-);
+        new Set(
+          matricula.itens
+            .map((item) => item.disciplina?.nome?.trim())
+            .filter(Boolean) as string[]
+        )
+      );
 
-      valorContrato = matricula.lancamentosFinanceiros.reduce(
-  (acc, item) => acc + Number(item.valorFinal ?? item.valorOriginal ?? 0),
-  0
-);
+      if (valorInformado === null) {
+        valorContrato = matricula.lancamentosFinanceiros.reduce(
+          (acc, item) => acc + Number(item.valorFinal ?? item.valorOriginal ?? 0),
+          0
+        );
 
-if (!valorContrato || valorContrato <= 0) {
-  valorContrato = Number(matricula.valorMatricula || 0);
-}
+        if (!valorContrato || valorContrato <= 0) {
+          valorContrato = Number(matricula.valorMatricula || 0);
+        }
+      }
+
     } else if (alunoId && Number.isFinite(alunoId) && alunoId > 0) {
       aluno = await prisma.aluno.findFirst({
-  where: {
-    id: alunoId,
-    instituicaoId: user.instituicaoId,
-  },
-  include: {
-  polo: true,
+        where: {
+          id: alunoId,
+          instituicaoId: user.instituicaoId,
+        },
+        include: {
+          polo: true,
 
-  user: {
-    select: {
-      email: true,
-    },
-  },
-},
-});
+          user: {
+            select: {
+              email: true,
+            },
+          },
+        },
+      });
 
       if (!aluno) {
         return NextResponse.json(
@@ -302,426 +350,436 @@ if (!valorContrato || valorContrato <= 0) {
     }
 
     const polo =
-  aluno?.polo || null;
-
-const nomeUnidadeDocumento =
-  polo?.nome?.trim() ||
-  config?.nomeUnidadePrincipal?.trim() ||
-  (config?.cidade?.trim()
-    ? `SEDE - ${config.cidade.trim()}`
-    : "SEDE");
-
-const dadosUnidadeDocumento =
-  polo || config;
-
-const agora =
-  new Date();
-
-const idadeAluno =
-  calcularIdadeAluno(
-    aluno?.dataNascimento
-  );
-
-const alunoMenor =
-  idadeAluno !== null &&
-  idadeAluno < 18;
-
-const nomeTitularContrato =
-  alunoMenor
-    ? aluno?.nomeResponsavel || "-"
-    : aluno?.nome || "-";
-
-const cpfTitularContrato =
-  alunoMenor
-    ? aluno?.cpfResponsavel || "-"
-    : aluno?.cpf || "-";
-
-const emailTitularContrato =
-  alunoMenor
-    ? aluno?.emailResponsavel || "-"
-    : aluno?.user?.email || "-";
-
-const telefoneTitularContrato =
-  alunoMenor
-    ? aluno?.telefoneResponsavel || "-"
-    : aluno?.telefone || "-";
-
-const parentescoTitularContrato =
-  alunoMenor
-    ? aluno?.parentescoResponsavel ||
-      "Responsável legal"
-    : "O próprio aluno";
-
-const tipoTitularContrato =
-  alunoMenor
-    ? "Responsável legal"
-    : "O próprio aluno";
-
-const nomeInstituicao =
-  config?.nomeFantasia ||
-  "Instituição";
-
-const nomeDiretor =
-  config?.responsavelNome ||
-  "-";
-
-const cargoDiretor =
-  config?.responsavelCargo ||
-  "Responsável legal";
-
-const blocoAssinaturaDiretor = [
-  "____________________________________________",
-  nomeDiretor,
-  `${cargoDiretor} • ${nomeInstituicao}`,
-  config?.cnpj
-    ? `CNPJ: ${config.cnpj}`
-    : "",
-]
-  .filter(Boolean)
-  .join("\n");
-
-const documento =
-  await prisma.$transaction(
-    async (tx) => {
-      const documentoInicial =
-        await tx.documentoGerado.create({
-          data: {
-            titulo:
-              tituloPersonalizado ||
-              template.nome,
-
-            tipo:
-              template.tipo,
-
-            contexto:
-              template.contexto,
-
-            conteudo: "",
-
-            status:
-              "GERADO",
-
-            exigeAssinatura:
-              template.exigeAssinatura,
+      aluno?.polo || null;
+
+    const nomeUnidadeDocumento =
+      polo?.nome?.trim() ||
+      config?.nomeUnidadePrincipal?.trim() ||
+      (config?.cidade?.trim()
+        ? `SEDE - ${config.cidade.trim()}`
+        : "SEDE");
+
+    const dadosUnidadeDocumento =
+      polo || config;
+
+    const agora =
+      new Date();
+
+    const idadeAluno =
+      calcularIdadeAluno(
+        aluno?.dataNascimento
+      );
+
+    const alunoMenor =
+      idadeAluno !== null &&
+      idadeAluno < 18;
+
+    const nomeTitularContrato =
+      alunoMenor
+        ? aluno?.nomeResponsavel || "-"
+        : aluno?.nome || "-";
+
+    const cpfTitularContrato =
+      alunoMenor
+        ? aluno?.cpfResponsavel || "-"
+        : aluno?.cpf || "-";
+
+    const emailTitularContrato =
+      alunoMenor
+        ? aluno?.emailResponsavel || "-"
+        : aluno?.user?.email || "-";
+
+    const telefoneTitularContrato =
+      alunoMenor
+        ? aluno?.telefoneResponsavel || "-"
+        : aluno?.telefone || "-";
+
+    const parentescoTitularContrato =
+      alunoMenor
+        ? aluno?.parentescoResponsavel ||
+        "Responsável legal"
+        : "O próprio aluno";
+
+    const tipoTitularContrato =
+      alunoMenor
+        ? "Responsável legal"
+        : "O próprio aluno";
+
+    const nomeInstituicao =
+      config?.nomeFantasia ||
+      "Instituição";
+
+    const nomeDiretor =
+      config?.responsavelNome ||
+      "-";
+
+    const cargoDiretor =
+      config?.responsavelCargo ||
+      "Responsável legal";
+
+    const blocoAssinaturaDiretor = [
+      "____________________________________________",
+      nomeDiretor,
+      `${cargoDiretor} • ${nomeInstituicao}`,
+      config?.cnpj
+        ? `CNPJ: ${config.cnpj}`
+        : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    const documento =
+      await prisma.$transaction(
+        async (tx) => {
+          const documentoInicial =
+            await tx.documentoGerado.create({
+              data: {
+                titulo:
+                  tituloPersonalizado
+                    ? `${template.nome} — ${tituloPersonalizado}`
+                    : template.nome,
+
+                tipo:
+                  template.tipo,
+
+                contexto:
+                  template.contexto,
+
+                conteudo: "",
+
+                status:
+                  "GERADO",
+
+                exigeAssinatura:
+                  template.exigeAssinatura,
 
-            instituicaoId:
-              user.instituicaoId,
+                instituicaoId:
+                  user.instituicaoId,
 
-            alunoId:
-              aluno?.id || null,
+                alunoId:
+                  aluno?.id || null,
 
-            matriculaId:
-              matricula?.id || null,
-
-            templateId:
-              template.id,
-          },
-        });
-
-      const codigoValidacao =
-        gerarCodigoValidacaoDocumento(
-          documentoInicial.id,
-          documentoInicial.criadoEm
-        );
-
-      const urlAtual =
-        new URL(req.url);
+                matriculaId:
+                  matricula?.id || null,
 
-      const origem =
-        `${urlAtual.protocol}//${urlAtual.host}`;
+                templateId:
+                  template.id,
+              },
+            });
 
-      const urlValidacao =
-        `${origem}/validar-documento?codigo=${encodeURIComponent(
-          codigoValidacao
-        )}`;
+          const codigoValidacao =
+            gerarCodigoValidacaoDocumento(
+              documentoInicial.id,
+              documentoInicial.criadoEm
+            );
 
-      const numeroDocumento =
-        `DOC-${agora.getFullYear()}-${String(
-          documentoInicial.id
-        ).padStart(6, "0")}`;
+          const urlAtual =
+            new URL(req.url);
 
-      const valoresTemplate: Record<
-        string,
-        string
-      > = {
-        logoInstituicao: "",
+          const origem =
+            `${urlAtual.protocol}//${urlAtual.host}`;
 
-        nomeInstituicao,
-
-        cnpjInstituicao:
-          config?.cnpj || "-",
-
-        enderecoInstituicao:
-          montarEndereco(config),
-
-        telefoneInstituicao:
-          config?.telefone || "-",
-
-        emailInstituicao:
-          config?.email || "-",
-
-        cidadeInstituicao:
-          config?.cidade || "-",
-
-        estadoInstituicao:
-          config?.estado || "-",
-
-        cepInstituicao:
-          config?.cep || "-",
-
-        blocoInstituicao:
-          montarBlocoInstituicao(
-            config
-          ),
-
-        nomePolo:
-  nomeUnidadeDocumento,
-
-enderecoPolo:
-  montarEndereco(
-    dadosUnidadeDocumento
-  ),
-
-telefonePolo:
-  dadosUnidadeDocumento?.telefone || "-",
-
-emailPolo:
-  dadosUnidadeDocumento?.email || "-",
-
-cidadePolo:
-  dadosUnidadeDocumento?.cidade || "-",
-
-estadoPolo:
-  dadosUnidadeDocumento?.estado || "-",
-
-cepPolo:
-  dadosUnidadeDocumento?.cep || "-",
-
-blocoPolo: [
-  nomeUnidadeDocumento,
-  montarEndereco(
-    dadosUnidadeDocumento
-  ),
-  dadosUnidadeDocumento?.telefone
-    ? `Telefone: ${dadosUnidadeDocumento.telefone}`
-    : "",
-  dadosUnidadeDocumento?.email
-    ? `E-mail: ${dadosUnidadeDocumento.email}`
-    : "",
-]
-  .filter(Boolean)
-  .join("\n"),
-  
-        responsavelLegal:
-          nomeDiretor,
-
-        nomeAluno:
-          aluno?.nome || "-",
-
-        cpfAluno:
-          aluno?.cpf || "-",
-
-        matriculaAluno:
-          aluno?.matricula || "-",
-
-        numeroMatricula:
-          aluno?.matricula || "-",
-
-        statusAluno:
-          aluno?.statusAluno || "-",
-
-        curso:
-          cursoNome,
-
-        statusMatricula:
-          matricula?.status || "-",
-
-        dataInicioAluno:
-          matricula?.createdAt
-            ? new Date(
-                matricula.createdAt
-              ).toLocaleDateString(
-                "pt-BR"
-              )
-            : "-",
-
-        dataMatricula:
-          matricula?.createdAt
-            ? new Date(
-                matricula.createdAt
-              ).toLocaleDateString(
-                "pt-BR"
-              )
-            : "-",
-
-        dataConclusao:
-          (matricula as any)
-            ?.dataConclusao
-            ? new Date(
-                (matricula as any)
-                  .dataConclusao
-              ).toLocaleDateString(
-                "pt-BR"
-              )
-            : "-",
-
-        dataConclusaoAluno:
-          (matricula as any)
-            ?.dataConclusao
-            ? new Date(
-                (matricula as any)
-                  .dataConclusao
-              ).toLocaleDateString(
-                "pt-BR"
-              )
-            : "-",
-
-        semestreAtual:
-          matricula?.semestre !==
-            null &&
-          matricula?.semestre !==
-            undefined
-            ? String(
-                matricula.semestre
-              )
-            : "-",
-
-        cargaHorariaCurso:
-          (matricula?.curso as any)
-            ?.cargaHoraria
-            ? `${(matricula?.curso as any).cargaHoraria}h`
-            : "-",
-
-        cargaHorariaMinimaCurso:
-          (matricula?.curso as any)
-            ?.cargaHorariaMinima
-            ? `${(matricula?.curso as any).cargaHorariaMinima}h`
-            : "-",
-
-        cargaHorariaMaximaCurso:
-          (matricula?.curso as any)
-            ?.cargaHorariaMaxima
-            ? `${(matricula?.curso as any).cargaHorariaMaxima}h`
-            : "-",
-
-        percentualConclusao:
-          (matricula as any)
-            ?.percentualConclusao !==
-            null &&
-          (matricula as any)
-            ?.percentualConclusao !==
-            undefined
-            ? `${(matricula as any).percentualConclusao}%`
-            : "-",
-
-        disciplinas:
-          disciplinasLista.length > 0
-            ? disciplinasLista
-                .map(
-                  (disciplina) =>
-                    `- ${disciplina}`
+          const urlValidacao =
+            `${origem}/validar-documento?codigo=${encodeURIComponent(
+              codigoValidacao
+            )}`;
+
+          const numeroDocumento =
+            `DOC-${agora.getFullYear()}-${String(
+              documentoInicial.id
+            ).padStart(6, "0")}`;
+
+          const valoresTemplate: Record<
+            string,
+            string
+          > = {
+            logoInstituicao: "",
+
+            nomeInstituicao,
+
+            cnpjInstituicao:
+              config?.cnpj || "-",
+
+            enderecoInstituicao:
+              montarEndereco(config),
+
+            telefoneInstituicao:
+              config?.telefone || "-",
+
+            emailInstituicao:
+              config?.email || "-",
+
+            cidadeInstituicao:
+              config?.cidade || "-",
+
+            estadoInstituicao:
+              config?.estado || "-",
+
+            cepInstituicao:
+              config?.cep || "-",
+
+            blocoInstituicao:
+              montarBlocoInstituicao(
+                config
+              ),
+
+            nomePolo:
+              nomeUnidadeDocumento,
+
+            enderecoPolo:
+              montarEndereco(
+                dadosUnidadeDocumento
+              ),
+
+            telefonePolo:
+              dadosUnidadeDocumento?.telefone || "-",
+
+            emailPolo:
+              dadosUnidadeDocumento?.email || "-",
+
+            cidadePolo:
+              dadosUnidadeDocumento?.cidade || "-",
+
+            estadoPolo:
+              dadosUnidadeDocumento?.estado || "-",
+
+            cepPolo:
+              dadosUnidadeDocumento?.cep || "-",
+
+            blocoPolo: [
+              nomeUnidadeDocumento,
+              montarEndereco(
+                dadosUnidadeDocumento
+              ),
+              dadosUnidadeDocumento?.telefone
+                ? `Telefone: ${dadosUnidadeDocumento.telefone}`
+                : "",
+              dadosUnidadeDocumento?.email
+                ? `E-mail: ${dadosUnidadeDocumento.email}`
+                : "",
+            ]
+              .filter(Boolean)
+              .join("\n"),
+
+            responsavelLegal:
+              nomeDiretor,
+
+            nomeAluno:
+              aluno?.nome || "-",
+
+            cpfAluno:
+              aluno?.cpf || "-",
+
+            matriculaAluno:
+              aluno?.matricula || "-",
+
+            numeroMatricula:
+              aluno?.matricula || "-",
+
+            statusAluno:
+              aluno?.statusAluno || "-",
+
+            curso:
+              cursoNome,
+
+            statusMatricula:
+              matricula?.status || "-",
+
+            dataInicioAluno:
+              matricula?.createdAt
+                ? new Date(
+                  matricula.createdAt
+                ).toLocaleDateString(
+                  "pt-BR"
                 )
-                .join("\n")
-            : "- Não informado",
+                : "-",
 
-        valorContrato:
-          formatarMoeda(
-            valorContrato
-          ),
+            dataMatricula:
+              matricula?.createdAt
+                ? new Date(
+                  matricula.createdAt
+                ).toLocaleDateString(
+                  "pt-BR"
+                )
+                : "-",
 
-        nomeTitularContrato,
+            dataConclusao:
+              (matricula as any)
+                ?.dataConclusao
+                ? new Date(
+                  (matricula as any)
+                    .dataConclusao
+                ).toLocaleDateString(
+                  "pt-BR"
+                )
+                : "-",
 
-        cpfTitularContrato,
+            dataConclusaoAluno:
+              (matricula as any)
+                ?.dataConclusao
+                ? new Date(
+                  (matricula as any)
+                    .dataConclusao
+                ).toLocaleDateString(
+                  "pt-BR"
+                )
+                : "-",
 
-        emailTitularContrato,
+            semestreAtual:
+              matricula?.semestre !==
+                null &&
+                matricula?.semestre !==
+                undefined
+                ? String(
+                  matricula.semestre
+                )
+                : "-",
 
-        telefoneTitularContrato,
+            cargaHorariaCurso:
+              (matricula?.curso as any)
+                ?.cargaHoraria
+                ? `${(matricula?.curso as any).cargaHoraria}h`
+                : "-",
 
-        parentescoTitularContrato,
+            cargaHorariaMinimaCurso:
+              (matricula?.curso as any)
+                ?.cargaHorariaMinima
+                ? `${(matricula?.curso as any).cargaHorariaMinima}h`
+                : "-",
 
-        tipoTitularContrato,
+            cargaHorariaMaximaCurso:
+              (matricula?.curso as any)
+                ?.cargaHorariaMaxima
+                ? `${(matricula?.curso as any).cargaHorariaMaxima}h`
+                : "-",
 
-        assinaturaDiretor: "",
+            percentualConclusao:
+              (matricula as any)
+                ?.percentualConclusao !==
+                null &&
+                (matricula as any)
+                  ?.percentualConclusao !==
+                undefined
+                ? `${(matricula as any).percentualConclusao}%`
+                : "-",
 
-        blocoAssinaturaDiretor,
+            disciplinas:
+              disciplinasLista.length > 0
+                ? disciplinasLista
+                  .map(
+                    (disciplina) =>
+                      `- ${disciplina}`
+                  )
+                  .join("\n")
+                : "- Não informado",
 
-        cidadeAssinatura:
-          config?.cidadeAssinatura ||
-          config?.cidade ||
-          "-",
+            valorContrato:
+              formatarMoeda(
+                valorContrato
+              ),
+            valor:
+              formatarMoeda(valorContrato),
 
-        dataAtual:
-          agora.toLocaleDateString(
-            "pt-BR"
-          ),
+            valorRecebido:
+              formatarMoeda(valorContrato),
 
-        referenciaFinanceira:
-          "Pagamento institucional",
+            valorDocumento:
+              formatarMoeda(valorContrato),
 
-        dataEmissao:
-          agora.toLocaleDateString(
-            "pt-BR"
-          ),
+            nomeTitularContrato,
 
-        horaEmissao:
-          agora.toLocaleTimeString(
-            "pt-BR"
-          ),
+            cpfTitularContrato,
 
-        dataHoraEmissao:
-          agora.toLocaleString(
-            "pt-BR"
-          ),
+            emailTitularContrato,
 
-        numeroDocumento,
+            telefoneTitularContrato,
 
-        codigoValidacao,
+            parentescoTitularContrato,
 
-        urlValidacao,
+            tipoTitularContrato,
 
-        tituloDocumento:
-          tituloPersonalizado ||
-          template.nome,
-      };
+            assinaturaDiretor: "",
 
-      const conteudoFinal =
-        substituirTemplate(
-          template.conteudo,
-          valoresTemplate
-        );
+            blocoAssinaturaDiretor,
 
-      const tagsNaoResolvidas =
-        listarTagsNaoResolvidas(
-          conteudoFinal
-        );
+            cidadeAssinatura:
+              config?.cidadeAssinatura ||
+              config?.cidade ||
+              "-",
 
-      if (
-        tagsNaoResolvidas.length > 0
-      ) {
-        throw new Error(
-          `Variáveis sem valor no template: ${tagsNaoResolvidas
-            .map(
-              (tag) =>
-                `{{${tag}}}`
-            )
-            .join(", ")}`
-        );
-      }
+            dataAtual:
+              agora.toLocaleDateString(
+                "pt-BR"
+              ),
 
-      return tx.documentoGerado.update({
-        where: {
-          id: documentoInicial.id,
-        },
+            referenciaFinanceira:
+              "Pagamento institucional",
 
-        data: {
-          conteudo:
-            conteudoFinal,
+            dataEmissao:
+              agora.toLocaleDateString(
+                "pt-BR"
+              ),
 
-          codigoValidacao,
-        },
-      });
-    }
-  );
+            horaEmissao:
+              agora.toLocaleTimeString(
+                "pt-BR"
+              ),
+
+            dataHoraEmissao:
+              agora.toLocaleString(
+                "pt-BR"
+              ),
+
+            numeroDocumento,
+
+            codigoValidacao,
+
+            urlValidacao,
+
+            tituloDocumento:
+              tituloPersonalizado
+                ? `${template.nome} — ${tituloPersonalizado}`
+                : template.nome,
+          };
+
+          const conteudoFinal =
+            substituirTemplate(
+              template.conteudo,
+              valoresTemplate
+            );
+
+          const tagsNaoResolvidas =
+            listarTagsNaoResolvidas(
+              conteudoFinal
+            );
+
+          if (
+            tagsNaoResolvidas.length > 0
+          ) {
+            throw new Error(
+              `Variáveis sem valor no template: ${tagsNaoResolvidas
+                .map(
+                  (tag) =>
+                    `{{${tag}}}`
+                )
+                .join(", ")}`
+            );
+          }
+
+          return tx.documentoGerado.update({
+            where: {
+              id: documentoInicial.id,
+            },
+
+            data: {
+              conteudo:
+                conteudoFinal,
+
+              codigoValidacao,
+            },
+          });
+        }
+      );
 
     return NextResponse.json({
       id: documento.id,
@@ -732,21 +790,21 @@ blocoPolo: [
       exigeAssinatura: documento.exigeAssinatura,
       aluno: aluno
         ? {
-            id: aluno.id,
-            nome: aluno.nome,
-            matricula: aluno.matricula,
-          }
+          id: aluno.id,
+          nome: aluno.nome,
+          matricula: aluno.matricula,
+        }
         : null,
       matricula: matricula
         ? {
-            id: matricula.id,
-            status: matricula.status,
-            semestre: matricula.semestre,
-          }
+          id: matricula.id,
+          status: matricula.status,
+          semestre: matricula.semestre,
+        }
         : null,
       conteudo: documento.conteudo,
     });
-    } catch (error: any) {
+  } catch (error: any) {
     console.error(
       "Erro ao gerar documento:",
       error

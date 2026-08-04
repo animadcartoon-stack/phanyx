@@ -92,6 +92,30 @@ export default function GerarDocumentoPage() {
         return;
       }
 
+      const templateSelecionado =
+        templates.find(
+          (item) =>
+            item.id === Number(templateId)
+        );
+
+      const tipoSelecionado = String(
+        templateSelecionado?.tipo || ""
+      )
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+
+      if (
+        tipoSelecionado.includes("contrato") &&
+        !matriculaId
+      ) {
+        setErro(
+          "Selecione a matrícula do aluno para gerar o contrato."
+        );
+
+        return;
+      }
+
       const res = await fetch("/api/admin/documentos/gerar", {
         method: "POST",
         credentials: "include",
@@ -122,6 +146,26 @@ export default function GerarDocumentoPage() {
       setLoading(false);
     }
   }
+
+  const templateSelecionado =
+    templates.find(
+      (item) =>
+        item.id === Number(templateId)
+    );
+
+  const tipoSelecionado = String(
+    templateSelecionado?.tipo || ""
+  )
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+  const ehContratoSelecionado =
+    tipoSelecionado.includes("contrato");
+
+  const ehFinanceiroSelecionado =
+    tipoSelecionado.includes("recibo") ||
+    tipoSelecionado.includes("comprovante");
 
   return (
     <div className="phanyx-docs-page space-y-6">
@@ -187,7 +231,10 @@ export default function GerarDocumentoPage() {
 
         <div>
           <label className="phanyx-doc-label mb-2 block text-sm">
-            Matrícula (opcional)
+            Matrícula
+            {tipoSelecionado.includes("contrato")
+              ? " (obrigatória para contrato)"
+              : " (opcional)"}
           </label>
 
           <select

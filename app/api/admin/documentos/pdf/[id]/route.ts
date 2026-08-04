@@ -144,13 +144,13 @@ export async function GET(
     const doc = await prisma.documentoGerado.findUnique({
       where: { id },
       include: {
-  aluno: true,
-  matricula: {
-    include: {
-      lancamentosFinanceiros: true,
-    },
-  },
-  instituicao: {
+        aluno: true,
+        matricula: {
+          include: {
+            lancamentosFinanceiros: true,
+          },
+        },
+        instituicao: {
           include: {
             configuracaoInstituicao: true,
           },
@@ -200,44 +200,50 @@ export async function GET(
       ? new Date(doc.criadoEm).toLocaleDateString("pt-BR")
       : "-";
 
+    const tipoDocumentoNormalizado = normalizarTexto(doc.tipo || "");
+
+    const ehDocumentoFinanceiro =
+      tipoDocumentoNormalizado.includes("recibo") ||
+      tipoDocumentoNormalizado.includes("comprovante");
+
     const pdfDoc = await PDFDocument.create();
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const bold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
     const serif = await pdfDoc.embedFont(StandardFonts.TimesRoman);
     const serifBold = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
 
-// 🔐 Código de validação
-const codigoValidacao =
-  doc.codigoValidacao || gerarCodigoValidacao(doc.id, doc.criadoEm);
+    // 🔐 Código de validação
+    const codigoValidacao =
+      doc.codigoValidacao || gerarCodigoValidacao(doc.id, doc.criadoEm);
 
-// salva se ainda não existir
-if (!doc.codigoValidacao) {
-  await prisma.documentoGerado.update({
-    where: { id: doc.id },
-    data: { codigoValidacao },
-  });
-}
+    // salva se ainda não existir
+    if (!doc.codigoValidacao) {
+      await prisma.documentoGerado.update({
+        where: { id: doc.id },
+        data: { codigoValidacao },
+      });
+    }
 
-// 🔗 Link público
-const urlBase = new URL(req.url);
-const linkValidacao = `${urlBase.protocol}//${urlBase.host}/validar-documento?codigo=${encodeURIComponent(
-  codigoValidacao
-)}`;
+    // 🔗 Link público
+    const urlBase = new URL(req.url);
+    const linkValidacao = `${urlBase.protocol}//${urlBase.host}/validar-documento?codigo=${encodeURIComponent(
+      codigoValidacao
+    )}`;
 
 
-// 📱 QR Code
-const qrImage = await gerarQrCodeImagem(pdfDoc, linkValidacao);
+    // 📱 QR Code
+    const qrImage = await gerarQrCodeImagem(pdfDoc, linkValidacao);
     const usarFonteTexto =
       layoutSelecionado === "PHANYX_ACADEMICO" ||
-      layoutSelecionado === "PHANYX_CLASSICO" ||
-      estiloDocumentoLegado === "classico"
+        layoutSelecionado === "PHANYX_CLASSICO" ||
+        estiloDocumentoLegado === "classico"
         ? serif
         : font;
 
     const fontTitulo =
       layoutSelecionado === "PHANYX_ACADEMICO" ||
-      layoutSelecionado === "PHANYX_CLASSICO" ||
-      estiloDocumentoLegado === "classico"
+        layoutSelecionado === "PHANYX_CLASSICO" ||
+        estiloDocumentoLegado === "classico"
         ? serifBold
         : bold;
 
@@ -317,58 +323,58 @@ const qrImage = await gerarQrCodeImagem(pdfDoc, linkValidacao);
     }
 
     function desenharModeloPhanyxModerno(pagina: any) {
-  // Faixa superior principal
-  pagina.drawRectangle({
-    x: 0,
-    y: pageHeight - 82,
-    width: pageWidth,
-    height: 82,
-    color: rgb(0.07, 0.2, 0.4),
-  });
+      // Faixa superior principal
+      pagina.drawRectangle({
+        x: 0,
+        y: pageHeight - 82,
+        width: pageWidth,
+        height: 82,
+        color: rgb(0.07, 0.2, 0.4),
+      });
 
-  // Barra lateral discreta
-  pagina.drawRectangle({
-    x: 0,
-    y: 0,
-    width: 26,
-    height: pageHeight,
-    color: rgb(0.05, 0.12, 0.24),
-  });
+      // Barra lateral discreta
+      pagina.drawRectangle({
+        x: 0,
+        y: 0,
+        width: 26,
+        height: pageHeight,
+        color: rgb(0.05, 0.12, 0.24),
+      });
 
-  // Faixas inferiores elegantes
-  pagina.drawRectangle({
-    x: pageWidth - 230,
-    y: 0,
-    width: 230,
-    height: 16,
-    color: rgb(0.07, 0.2, 0.4),
-  });
+      // Faixas inferiores elegantes
+      pagina.drawRectangle({
+        x: pageWidth - 230,
+        y: 0,
+        width: 230,
+        height: 16,
+        color: rgb(0.07, 0.2, 0.4),
+      });
 
-  pagina.drawRectangle({
-    x: pageWidth - 165,
-    y: 0,
-    width: 120,
-    height: 8,
-    color: rgb(0.18, 0.43, 0.72),
-  });
+      pagina.drawRectangle({
+        x: pageWidth - 165,
+        y: 0,
+        width: 120,
+        height: 8,
+        color: rgb(0.18, 0.43, 0.72),
+      });
 
-  // Linha separadora abaixo do cabeçalho
-  pagina.drawLine({
-    start: { x: margemX, y: pageHeight - 98 },
-    end: { x: pageWidth - margemX, y: pageHeight - 98 },
-    thickness: 0.8,
-    color: rgb(0.84, 0.84, 0.86),
-  });
+      // Linha separadora abaixo do cabeçalho
+      pagina.drawLine({
+        start: { x: margemX, y: pageHeight - 98 },
+        end: { x: pageWidth - margemX, y: pageHeight - 98 },
+        thickness: 0.8,
+        color: rgb(0.84, 0.84, 0.86),
+      });
 
-  // Rodapé institucional discreto
-  pagina.drawText(`${cnpj} • ${telefone} • ${email}`, {
-    x: margemX,
-    y: 24,
-    size: 8,
-    font,
-    color: rgb(0.42, 0.42, 0.44),
-  });
-}
+      // Rodapé institucional discreto
+      pagina.drawText(`${cnpj} • ${telefone} • ${email}`, {
+        x: margemX,
+        y: 24,
+        size: 8,
+        font,
+        color: rgb(0.42, 0.42, 0.44),
+      });
+    }
 
     function desenharModeloPhanyxAcademico(pagina: any) {
       if (imagemLogo) {
@@ -610,7 +616,7 @@ const qrImage = await gerarQrCodeImagem(pdfDoc, linkValidacao);
     }
 
     async function desenharCabecalho(pagina: any) {
-            if (layoutSelecionado === "PHANYX_MODERNO") {
+      if (layoutSelecionado === "PHANYX_MODERNO") {
         await tentarDesenharLogo(pagina, margemX, pageHeight - 64, 36, 36);
 
         pagina.drawText(nomeInstituicao, {
@@ -983,8 +989,8 @@ const qrImage = await gerarQrCodeImagem(pdfDoc, linkValidacao);
       return estiloDocumentoLegado === "classico"
         ? pageHeight - 215
         : estiloDocumentoLegado === "institucional"
-        ? pageHeight - 185
-        : pageHeight - 175;
+          ? pageHeight - 185
+          : pageHeight - 175;
     }
 
     let page = novaPaginaComLayout();
@@ -993,6 +999,7 @@ const qrImage = await gerarQrCodeImagem(pdfDoc, linkValidacao);
     await desenharCabecalho(page);
     y = obterYInicial();
 
+    if (ehDocumentoFinanceiro) {
     page.drawText(`Aluno: ${doc.aluno?.nome || "-"}`, {
       x: margemX,
       y,
@@ -1028,21 +1035,21 @@ const qrImage = await gerarQrCodeImagem(pdfDoc, linkValidacao);
       color: rgb(0, 0, 0),
     });
 
-        y -= 34;
+    y -= 34;
 
     let valorDoc = extrairValorMonetarioDoConteudo(doc.conteudo || "");
 
-if (!valorDoc || valorDoc <= 0) {
-  valorDoc = Number(doc.matricula?.valorMatricula || 0);
-}
+    if (!valorDoc || valorDoc <= 0) {
+      valorDoc = Number(doc.matricula?.valorMatricula || 0);
+    }
 
-if ((!valorDoc || valorDoc <= 0) && doc.matricula?.lancamentosFinanceiros?.length) {
-  valorDoc = doc.matricula.lancamentosFinanceiros.reduce(
-    (total, item) =>
-      total + Number(item.valorPago ?? item.valorFinal ?? item.valorOriginal ?? 0),
-    0
-  );
-}
+    if ((!valorDoc || valorDoc <= 0) && doc.matricula?.lancamentosFinanceiros?.length) {
+      valorDoc = doc.matricula.lancamentosFinanceiros.reduce(
+        (total, item) =>
+          total + Number(item.valorPago ?? item.valorFinal ?? item.valorOriginal ?? 0),
+        0
+      );
+    }
 
     const textoValor = `R$ ${valorDoc.toFixed(2)}`;
     const larguraValor = bold.widthOfTextAtSize(textoValor, 26);
@@ -1131,43 +1138,44 @@ if ((!valorDoc || valorDoc <= 0) && doc.matricula?.lancamentosFinanceiros?.lengt
     });
 
     page.drawText("PAGO", {
-  x: margemX + 8,
-  y: y - 15,
-  size: 10,
-  font: bold,
-  color: rgb(0.1, 0.5, 0.2),
-});
+      x: margemX + 8,
+      y: y - 15,
+      size: 10,
+      font: bold,
+      color: rgb(0.1, 0.5, 0.2),
+    });
 
     y -= 35;
-
-    function htmlParaTexto(valor: string) {
-  return String(valor || "")
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<\/p>/gi, "\n")
-    .replace(/<\/div>/gi, "\n")
-    .replace(/<li>/gi, "• ")
-    .replace(/<\/li>/gi, "\n")
-    .replace(/<[^>]+>/g, "")
-    .replace(/&nbsp;/gi, " ")
-    .replace(/&amp;/gi, "&")
-    .replace(/&lt;/gi, "<")
-    .replace(/&gt;/gi, ">")
-    .replace(/&quot;/gi, '"')
-    .replace(/&#39;/gi, "'")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
 }
 
-    const conteudoLimpo = htmlParaTexto(
-  doc.conteudo || ""
-);
+    function htmlParaTexto(valor: string) {
+      return String(valor || "")
+        .replace(/<br\s*\/?>/gi, "\n")
+        .replace(/<\/p>/gi, "\n")
+        .replace(/<\/div>/gi, "\n")
+        .replace(/<li>/gi, "• ")
+        .replace(/<\/li>/gi, "\n")
+        .replace(/<[^>]+>/g, "")
+        .replace(/&nbsp;/gi, " ")
+        .replace(/&amp;/gi, "&")
+        .replace(/&lt;/gi, "<")
+        .replace(/&gt;/gi, ">")
+        .replace(/&quot;/gi, '"')
+        .replace(/&#39;/gi, "'")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim();
+    }
 
-const linhas = quebrarTextoEmLinhas(
-  conteudoLimpo,
-  larguraTexto,
-  usarFonteTexto,
-  12
-);
+    const conteudoLimpo = htmlParaTexto(
+      doc.conteudo || ""
+    );
+
+    const linhas = quebrarTextoEmLinhas(
+      conteudoLimpo,
+      larguraTexto,
+      usarFonteTexto,
+      12
+    );
 
     for (const linha of linhas) {
       if (y < 110) {
@@ -1188,6 +1196,7 @@ const linhas = quebrarTextoEmLinhas(
     }
 
     // ✍️ ASSINATURA
+    if (ehDocumentoFinanceiro) {
     page.drawLine({
       start: { x: margemX, y: y - 40 },
       end: { x: margemX + 200, y: y - 40 },
@@ -1202,9 +1211,18 @@ const linhas = quebrarTextoEmLinhas(
       font: usarFonteTexto,
       color: rgb(0.4, 0.4, 0.4),
     });
-        
+
 
     y -= 95;
+}
+
+if (y < 170) {
+  page = novaPaginaComLayout();
+
+  await desenharCabecalho(page);
+
+  y = obterYInicial();
+}
 
     page.drawRectangle({
       x: margemX,
@@ -1233,10 +1251,9 @@ const linhas = quebrarTextoEmLinhas(
     });
 
     page.drawText(
-      `Emitido em: ${
-        doc.criadoEm
-          ? new Date(doc.criadoEm).toLocaleString("pt-BR")
-          : new Date().toLocaleString("pt-BR")
+      `Emitido em: ${doc.criadoEm
+        ? new Date(doc.criadoEm).toLocaleString("pt-BR")
+        : new Date().toLocaleString("pt-BR")
       }`,
       {
         x: margemX + 10,
@@ -1281,14 +1298,15 @@ const linhas = quebrarTextoEmLinhas(
       height: 64,
     });
 
-const pdfBytes = await pdfDoc.save();
+    const pdfBytes = await pdfDoc.save();
 
-return new Response(Buffer.from(pdfBytes), {
-  headers: {
-    "Content-Type": "application/pdf",
-    "Content-Disposition": "inline; filename=documento.pdf",
-  },
-});
+    return new Response(Buffer.from(pdfBytes), {
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": "inline; filename=documento.pdf",
+      },
+    });
+
   } catch (error: any) {
     console.error("Erro ao gerar PDF:", error);
     return NextResponse.json(
