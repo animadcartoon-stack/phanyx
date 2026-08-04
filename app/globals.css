@@ -18489,3 +18489,132 @@ html:not(.dark)
   background: #f8fafc !important;
   border-color: #cbd5e1 !important;
 }
+
+/* =========================================================
+   PHANYX — Cards das equipes comerciais no tema claro
+   ========================================================= */
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-modal-lider-badge {
+  background: #b45309 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipe-card {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipe-card-titulo {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipe-card-descricao {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipe-card-iniciais {
+  background: #e2e8f0 !important;
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipe-card-lider {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipe-card-lider-label {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipe-card-lider-nome {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipe-card-lider-detalhes {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipe-card-membros-titulo {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipe-card-contador {
+  background: #e2e8f0 !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipe-card-membro {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipe-card-editar {
+  background: #ffffff !important;
+  border-color: #64748b !important;
+  color: #1e293b !important;
+  -webkit-text-fill-color: #1e293b !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipe-card-editar:hover {
+  background: #f1f5f9 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipe-card-desativar {
+  background: #fff1f2 !important;
+  border-color: #e11d48 !important;
+  color: #9f1239 !important;
+  -webkit-text-fill-color: #9f1239 !important;
+}

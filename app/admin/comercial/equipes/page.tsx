@@ -944,12 +944,12 @@ export default function EquipesComerciaisPage() {
             (equipe) => (
               <article
                 key={equipe.id}
-                className="flex min-h-[300px] flex-col rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-700 dark:bg-slate-900"
+                className="phanyx-equipe-card flex min-h-[300px] flex-col rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-700 dark:bg-slate-900"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="text-xl font-black text-slate-950 dark:text-white">
+                      <h2 className="phanyx-equipe-card-titulo text-xl font-black text-slate-950 dark:text-white">
                         {equipe.nome}
                       </h2>
 
@@ -965,25 +965,25 @@ export default function EquipesComerciaisPage() {
                       </span>
                     </div>
 
-                    <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                    <p className="phanyx-equipe-card-descricao mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
                       {equipe.descricao ||
                         "Sem descrição cadastrada."}
                     </p>
                   </div>
 
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-100 text-sm font-black text-blue-950 dark:bg-blue-950/60 dark:text-blue-100">
+                  <div className="phanyx-equipe-card-iniciais flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-slate-200 text-sm font-black text-slate-700 dark:bg-blue-950/60 dark:text-blue-100">
                     {iniciais(
                       equipe.nome
                     )}
                   </div>
                 </div>
 
-                <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-                  <p className="phanyx-equipes-metrica-label text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                <div className="phanyx-equipe-card-lider mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+                  <p className="phanyx-equipe-card-lider-label text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                     Líder da equipe
                   </p>
 
-                  <p className="mt-2 font-black text-slate-900 dark:text-white">
+                  <p className="phanyx-equipe-card-lider-nome mt-2 font-black text-slate-900 dark:text-white">
                     {equipe
                       .responsavelFuncionario
                       ?.nome ||
@@ -992,7 +992,7 @@ export default function EquipesComerciaisPage() {
 
                   {equipe
                     .responsavelFuncionario && (
-                      <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+                      <p className="phanyx-equipe-card-lider-detalhes mt-1 text-xs text-slate-600 dark:text-slate-400">
                         {equipe
                           .responsavelFuncionario
                           .cargo ||
@@ -1007,11 +1007,11 @@ export default function EquipesComerciaisPage() {
 
                 <div className="mt-5">
                   <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm font-black text-slate-900 dark:text-white">
+                    <p className="phanyx-equipe-card-membros-titulo text-sm font-black text-slate-900 dark:text-white">
                       Membros
                     </p>
 
-                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-800 dark:bg-slate-800 dark:text-slate-100">
+                    <span className="phanyx-equipe-card-contador rounded-full border border-slate-300 bg-slate-100 px-3 py-1 text-xs font-black text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
                       {equipe._count
                         ?.membros ??
                         equipe.membros
@@ -1034,7 +1034,7 @@ export default function EquipesComerciaisPage() {
                               key={
                                 membro.id
                               }
-                              className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                              className="phanyx-equipe-card-membro rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
                             >
                               {
                                 membro
@@ -1065,7 +1065,7 @@ export default function EquipesComerciaisPage() {
                         equipe
                       )
                     }
-                    className="rounded-2xl border border-blue-600 bg-blue-50 px-5 py-2.5 text-sm font-black text-blue-950 transition hover:bg-blue-100 dark:border-blue-700 dark:bg-blue-950/50 dark:text-blue-100"
+                    className="phanyx-equipe-card-editar rounded-2xl border border-slate-400 bg-white px-5 py-2.5 text-sm font-black text-slate-800 transition hover:bg-slate-100 dark:border-blue-700 dark:bg-blue-950/50 dark:text-blue-100"
                   >
                     Editar equipe
                   </button>
@@ -1078,7 +1078,7 @@ export default function EquipesComerciaisPage() {
                           equipe
                         )
                       }
-                      className="rounded-2xl border border-red-600 bg-red-50 px-5 py-2.5 text-sm font-black text-red-900 transition hover:bg-red-100 dark:border-red-800 dark:bg-red-950/40 dark:text-red-100"
+                      className="phanyx-equipe-card-desativar rounded-2xl border border-red-600 bg-red-50 px-5 py-2.5 text-sm font-black text-red-900 transition hover:bg-red-100 dark:border-red-800 dark:bg-red-950/40 dark:text-red-100"
                     >
                       Desativar
                     </button>
@@ -1343,7 +1343,7 @@ export default function EquipesComerciaisPage() {
                               </span>
 
                               {ehLider && (
-                                <span className="rounded-full bg-amber-700 px-3 py-1 text-xs font-semibold text-white shadow-sm">
+                                <span className="phanyx-equipes-modal-lider-badge rounded-full bg-amber-700 px-3 py-1 text-xs font-semibold text-white shadow-sm">
                                   Líder
                                 </span>
                               )}
