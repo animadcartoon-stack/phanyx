@@ -701,9 +701,9 @@ function AdminDocumentosGeradosPage() {
                   </button>
 
                 </div>
-                <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900 md:flex-row md:items-center md:justify-between">
+                <div className="phanyx-doc-selection-bar flex flex-col gap-3 rounded-xl p-3 md:flex-row md:items-center md:justify-between">
                   <div className="flex flex-wrap items-center gap-4">
-                    <label className="flex cursor-pointer items-center gap-2 text-sm font-semibold text-slate-800 dark:text-slate-100">
+                    <label className="phanyx-doc-selection-label flex cursor-pointer items-center gap-2 text-sm font-semibold">
                       <input
                         type="checkbox"
                         checked={
@@ -722,7 +722,7 @@ function AdminDocumentosGeradosPage() {
                       Selecionar todos exibidos
                     </label>
 
-                    <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">
+                    <span className="phanyx-doc-selection-count text-sm font-semibold">
                       {
                         documentosSelecionados.length
                       }{" "}
@@ -769,33 +769,24 @@ function AdminDocumentosGeradosPage() {
                     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_240px]">
                       <div className="min-w-0 space-y-3">
                         <div className="flex flex-wrap items-center gap-2">
-                          <input
-                            type="checkbox"
-                            checked={
-                              documentosSelecionados.includes(
-                                doc.id
-                              )
-                            }
-                            onChange={() =>
-                              alternarDocumentoSelecionado(
-                                doc.id
-                              )
-                            }
-                            disabled={
-                              !podeExcluirDocumento(
-                                doc
-                              )
-                            }
-                            title={
-                              podeExcluirDocumento(
-                                doc
-                              )
-                                ? "Selecionar documento"
-                                : "Documentos assinados não podem ser excluídos."
-                            }
-                            aria-label={`Selecionar ${doc.titulo}`}
-                            className="h-5 w-5 cursor-pointer accent-red-600 disabled:cursor-not-allowed disabled:opacity-40"
-                          />
+                          {podeExcluirDocumento(doc) ? (
+                            <input
+                              type="checkbox"
+                              checked={
+                                documentosSelecionados.includes(
+                                  doc.id
+                                )
+                              }
+                              onChange={() =>
+                                alternarDocumentoSelecionado(
+                                  doc.id
+                                )
+                              }
+                              title="Selecionar documento"
+                              aria-label={`Selecionar ${doc.titulo}`}
+                              className="h-5 w-5 cursor-pointer accent-red-600"
+                            />
+                          ) : null}
 
                           <h3 className="phanyx-doc-section-title text-base font-semibold">
                             {doc.titulo}
@@ -892,28 +883,19 @@ function AdminDocumentosGeradosPage() {
                           WhatsApp
                         </button>
 
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setDocumentoParaExcluir(
-                              doc
-                            )
-                          }
-                          disabled={
-                            excluindo ||
-                            doc.status ===
-                            "ASSINADO"
-                          }
-                          title={
-                            doc.status ===
-                              "ASSINADO"
-                              ? "Documentos assinados não podem ser excluídos."
-                              : "Excluir documento"
-                          }
-                          className="phanyx-doc-danger-action"
-                        >
-                          Excluir
-                        </button>
+                        {podeExcluirDocumento(doc) ? (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setDocumentoParaExcluir(doc)
+                            }
+                            disabled={excluindo}
+                            title="Excluir documento"
+                            className="phanyx-doc-danger-action"
+                          >
+                            Excluir
+                          </button>
+                        ) : null}
 
                       </div>
                     </div>

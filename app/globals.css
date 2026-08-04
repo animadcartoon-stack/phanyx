@@ -18097,3 +18097,58 @@ html[data-theme="dark"]
   background-color: #1e293b !important;
   color: #94a3b8 !important;
 }
+
+/* =========================================================
+   DOCUMENTOS GERADOS — BARRA DE SELEÇÃO
+   ========================================================= */
+
+.phanyx-doc-selection-bar {
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  box-shadow: 0 1px 3px rgb(15 23 42 / 8%);
+}
+
+.phanyx-doc-selection-label {
+  color: #0f172a !important;
+}
+
+.phanyx-doc-selection-count {
+  color: #475569 !important;
+}
+
+.dark .phanyx-doc-selection-bar,
+[data-theme="dark"] .phanyx-doc-selection-bar {
+  border-color: #475569 !important;
+  background: #0f172a !important;
+  color: #ffffff !important;
+}
+
+.dark .phanyx-doc-selection-label,
+[data-theme="dark"] .phanyx-doc-selection-label {
+  color: #ffffff !important;
+}
+
+.dark .phanyx-doc-selection-count,
+[data-theme="dark"] .phanyx-doc-selection-count {
+  color: #cbd5e1 !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not(.light):not([data-theme="light"])
+    .phanyx-doc-selection-bar {
+    border-color: #475569 !important;
+    background: #0f172a !important;
+    color: #ffffff !important;
+  }
+
+  html:not(.light):not([data-theme="light"])
+    .phanyx-doc-selection-label {
+    color: #ffffff !important;
+  }
+
+  html:not(.light):not([data-theme="light"])
+    .phanyx-doc-selection-count {
+    color: #cbd5e1 !important;
+  }
+}

@@ -535,41 +535,79 @@ export async function GET(
       formatoImpressao ===
       "DUAS_VIAS_A4"
     ) {
-      const houveEstouro =
-        await page.evaluate(
+      await page.evaluate(
+  () =>
+    new Promise<void>(
+      (resolve) => {
+        requestAnimationFrame(
           () => {
-            const areas =
-              Array.from(
-                document.querySelectorAll<HTMLElement>(
-                  ".phanyx-via-conteudo-area"
-                )
-              );
-
-            return areas.some(
-              (area) => {
-                const conteudo =
-                  area.querySelector<HTMLElement>(
-                    ".phanyx-conteudo-compacto"
-                  );
-
-                if (!conteudo) {
-                  return false;
-                }
-
-                const areaRect =
-                  area.getBoundingClientRect();
-
-                const conteudoRect =
-                  conteudo.getBoundingClientRect();
-
-                return (
-                  conteudoRect.bottom >
-                  areaRect.bottom + 3
-                );
-              }
+            requestAnimationFrame(
+              () => resolve()
             );
           }
         );
+      }
+    )
+);
+
+const houveEstouro =
+  await page.evaluate(
+    () => {
+      const areas =
+        Array.from(
+          document.querySelectorAll<HTMLElement>(
+            ".phanyx-via-conteudo-area"
+          )
+        );
+
+      return areas.some(
+        (area) => {
+          const conteudo =
+            area.querySelector<HTMLElement>(
+              ".phanyx-conteudo-compacto"
+            );
+
+          if (!conteudo) {
+            return false;
+          }
+
+          const estilo =
+            window.getComputedStyle(
+              conteudo
+            );
+
+          const zoomTexto =
+            estilo.getPropertyValue(
+              "zoom"
+            );
+
+          const zoomCalculado =
+            Number.parseFloat(
+              zoomTexto || "1"
+            );
+
+          const zoom =
+            Number.isFinite(
+              zoomCalculado
+            )
+              ? zoomCalculado
+              : 1;
+
+          const alturaVisual =
+            conteudo.scrollHeight *
+            zoom;
+
+          const alturaDisponivel =
+            area.clientHeight;
+
+          return (
+            alturaVisual >
+            alturaDisponivel + 8
+          );
+        }
+      );
+    }
+  );
 
       if (houveEstouro) {
         return NextResponse.json(
