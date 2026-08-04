@@ -27,11 +27,21 @@ const INCLUDE_LEAD = {
       statusFuncionario: true,
     },
   },
+
   instituicaoInteressada: {
     select: {
       id: true,
       nome: true,
       ativo: true,
+    },
+  },
+
+  matriculaConvertida: {
+    select: {
+      id: true,
+      alunoId: true,
+      numeroMatricula: true,
+      status: true,
     },
   },
 } satisfies Prisma.LeadInclude;
@@ -41,7 +51,7 @@ function ehMasterReal(user: UsuarioLogado) {
     user.isMasterAdmin === true &&
     user.impersonacao === false &&
     user.email.trim().toLowerCase() ===
-      "academicophanyx@gmail.com"
+    "academicophanyx@gmail.com"
   );
 }
 
@@ -315,15 +325,24 @@ export async function PATCH(
       );
     }
 
-    const leadExistente = await prisma.lead.findFirst({
-      where: {
-        id,
-        ...escopo,
-      },
-      select: {
-        id: true,
-      },
-    });
+    const leadExistente =
+      await prisma.lead.findFirst({
+        where: {
+          id,
+          ...escopo,
+        },
+
+        select: {
+          id: true,
+          status: true,
+
+          matriculaConvertida: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      });
 
     if (!leadExistente) {
       return NextResponse.json(
@@ -336,6 +355,33 @@ export async function PATCH(
       string,
       unknown
     >;
+
+    if (
+      leadExistente.matriculaConvertida &&
+      campoFoiInformado(body, "status")
+    ) {
+      const statusSolicitado =
+        normalizarStatus(body.status);
+
+      if (statusSolicitado !== "FECHADO") {
+        return NextResponse.json(
+          {
+            codigo:
+              "LEAD_JA_CONVERTIDO",
+
+            error:
+              "Este lead já foi convertido em matrícula e deve permanecer fechado.",
+
+            matriculaId:
+              leadExistente
+                .matriculaConvertida.id,
+          },
+          {
+            status: 409,
+          }
+        );
+      }
+    }
 
     const data: Prisma.LeadUncheckedUpdateManyInput = {
       atualizadoPorId: user.id,
@@ -642,6 +688,57 @@ export async function DELETE(
       return NextResponse.json(
         { error: "ID inválido." },
         { status: 400 }
+      );
+    }
+
+    const leadExistente =
+      await prisma.lead.findFirst({
+        where: {
+          id,
+          ...obterEscopoLead(user),
+        },
+
+        select: {
+          id: true,
+
+          matriculaConvertida: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      });
+
+    if (!leadExistente) {
+      return NextResponse.json(
+        {
+          error:
+            "Lead não encontrado.",
+        },
+        {
+          status: 404,
+        }
+      );
+    }
+
+    if (
+      leadExistente.matriculaConvertida
+    ) {
+      return NextResponse.json(
+        {
+          codigo:
+            "LEAD_JA_CONVERTIDO",
+
+          error:
+            "Este lead não pode ser excluído porque já originou uma matrícula.",
+
+          matriculaId:
+            leadExistente
+              .matriculaConvertida.id,
+        },
+        {
+          status: 409,
+        }
       );
     }
 

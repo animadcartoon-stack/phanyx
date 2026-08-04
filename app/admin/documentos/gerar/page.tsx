@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import PhanyxToast from "@/components/ui/PhanyxToast";
+import { useSearchParams } from "next/navigation";
 
 type Template = {
   id: number;
@@ -29,6 +30,7 @@ function extrairLista<T>(data: any, chave: string): T[] {
 }
 
 export default function GerarDocumentoPage() {
+  const searchParams = useSearchParams();
   const [templates, setTemplates] = useState<Template[]>([]);
   const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [matriculas, setMatriculas] = useState<Matricula[]>([]);
@@ -47,6 +49,20 @@ export default function GerarDocumentoPage() {
   useEffect(() => {
     carregarDados();
   }, []);
+
+  useEffect(() => {
+    const matriculaIdUrl =
+      searchParams.get("matriculaId");
+
+    const id = Number(matriculaIdUrl);
+
+    if (
+      Number.isInteger(id) &&
+      id > 0
+    ) {
+      setMatriculaId(String(id));
+    }
+  }, [searchParams]);
 
   async function carregarDados() {
     try {
@@ -105,16 +121,49 @@ export default function GerarDocumentoPage() {
         .replace(/[\u0300-\u036f]/g, "")
         .toLowerCase();
 
-      if (
-        tipoSelecionado.includes("contrato") &&
-        !matriculaId
-      ) {
-        setErro(
-          "Selecione a matrícula do aluno para gerar o contrato."
-        );
+      if (tipoSelecionado.includes("contrato")) {
+  if (!matriculaId) {
+    setErro(
+      "Selecione a matrícula do aluno para gerar o contrato."
+    );
 
-        return;
-      }
+    return;
+  }
+
+  const matriculaNumero =
+    Number(matriculaId);
+
+  if (
+    !Number.isInteger(matriculaNumero) ||
+    matriculaNumero <= 0
+  ) {
+    setErro(
+      "A matrícula selecionada é inválida."
+    );
+
+    return;
+  }
+
+  window.open(
+    `/api/admin/contratos/pdf?matriculaId=${matriculaNumero}`,
+    "_blank",
+    "noopener,noreferrer"
+  );
+
+  setResultado({
+    titulo:
+      templateSelecionado?.nome ||
+      "Contrato educacional",
+
+    status:
+      "ABERTO",
+
+    conteudo:
+      "O contrato oficial foi aberto pelo módulo de Contratos do PHANYX.",
+  });
+
+  return;
+}
 
       const res = await fetch("/api/admin/documentos/gerar", {
         method: "POST",

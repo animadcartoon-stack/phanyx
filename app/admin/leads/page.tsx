@@ -30,6 +30,12 @@ type Lead = {
   updatedAt: string;
   instituicaoGestoraId?: number | null;
   responsavelFuncionarioId?: number | null;
+  matriculaConvertida?: {
+    id: number;
+    alunoId: number;
+    numeroMatricula?: string | null;
+    status?: string | null;
+  } | null;
 };
 
 type Interacao = {
@@ -679,39 +685,152 @@ export default function AdminLeadsPage() {
     });
   }
 
-  async function abrirEdicao(lead: Lead) {
-    setCriandoNovo(false);
-    setLeadSelecionado(lead);
-    setForm({
-      nome: lead.nome || "",
-      email: lead.email || "",
-      telefone: lead.telefone || "",
-      instituicaoNome: lead.instituicaoNome || "",
-      instituicaoId:
-        lead.instituicaoId !== null && lead.instituicaoId !== undefined
-          ? String(lead.instituicaoId)
-          : "",
-      cargo: lead.cargo || "",
-      origem: lead.origem || "SITE_PHANYX",
-      tipo: lead.tipo || "PHANYX",
-      interesse: lead.interesse || "",
-      observacoes: lead.observacoes || "",
-      status: lead.status || "NOVO",
-      prioridade: lead.prioridade || "MEDIA",
-      valorEstimado:
-        lead.valorEstimado !== null && lead.valorEstimado !== undefined
-          ? String(lead.valorEstimado)
-          : "",
-      proximoContatoEm: paraDatetimeLocal(lead.proximoContatoEm),
-      ultimoContatoEm: paraDatetimeLocal(lead.ultimoContatoEm),
-      responsavelFuncionarioId:
-        lead.responsavelFuncionarioId !== null &&
-          lead.responsavelFuncionarioId !== undefined
-          ? String(lead.responsavelFuncionarioId)
-          : "",
-    });
+  async function abrirEdicao(
+    lead: Lead
+  ) {
+    try {
+      setErro("");
 
-    await carregarInteracoes(lead.id);
+      const res = await fetch(
+        `/api/admin/leads/${lead.id}`,
+        {
+          cache: "no-store",
+          credentials: "include",
+        }
+      );
+
+      const contentType =
+        res.headers.get(
+          "content-type"
+        ) || "";
+
+      if (
+        !contentType.includes(
+          "application/json"
+        )
+      ) {
+        throw new Error(
+          "A API não retornou os detalhes do lead corretamente."
+        );
+      }
+
+      const json =
+        await res.json();
+
+      if (!res.ok) {
+        throw new Error(
+          json?.error ||
+          "Não foi possível carregar os detalhes do lead."
+        );
+      }
+
+      const leadDetalhado =
+        json as Lead;
+
+      setCriandoNovo(false);
+
+      setLeadSelecionado(
+        leadDetalhado
+      );
+
+      setForm({
+        nome:
+          leadDetalhado.nome ||
+          "",
+
+        email:
+          leadDetalhado.email ||
+          "",
+
+        telefone:
+          leadDetalhado.telefone ||
+          "",
+
+        instituicaoNome:
+          leadDetalhado.instituicaoNome ||
+          "",
+
+        instituicaoId:
+          leadDetalhado.instituicaoId !==
+            null &&
+            leadDetalhado.instituicaoId !==
+            undefined
+            ? String(
+              leadDetalhado.instituicaoId
+            )
+            : "",
+
+        cargo:
+          leadDetalhado.cargo ||
+          "",
+
+        origem:
+          leadDetalhado.origem ||
+          "SITE_PHANYX",
+
+        tipo:
+          leadDetalhado.tipo ||
+          "PHANYX",
+
+        interesse:
+          leadDetalhado.interesse ||
+          "",
+
+        observacoes:
+          leadDetalhado.observacoes ||
+          "",
+
+        status:
+          leadDetalhado.status ||
+          "NOVO",
+
+        prioridade:
+          leadDetalhado.prioridade ||
+          "MEDIA",
+
+        valorEstimado:
+          leadDetalhado.valorEstimado !==
+            null &&
+            leadDetalhado.valorEstimado !==
+            undefined
+            ? String(
+              leadDetalhado.valorEstimado
+            )
+            : "",
+
+        proximoContatoEm:
+          paraDatetimeLocal(
+            leadDetalhado.proximoContatoEm
+          ),
+
+        ultimoContatoEm:
+          paraDatetimeLocal(
+            leadDetalhado.ultimoContatoEm
+          ),
+
+        responsavelFuncionarioId:
+          leadDetalhado
+            .responsavelFuncionarioId !==
+            null &&
+            leadDetalhado
+              .responsavelFuncionarioId !==
+            undefined
+            ? String(
+              leadDetalhado
+                .responsavelFuncionarioId
+            )
+            : "",
+      });
+
+      await carregarInteracoes(
+        leadDetalhado.id
+      );
+    } catch (err: any) {
+      setPopupErro(
+        err?.message ||
+        "Não foi possível abrir o lead."
+      );
+    }
   }
 
   function fecharPainel() {
@@ -825,6 +944,24 @@ export default function AdminLeadsPage() {
 
     router.push(
       `/admin/alunos?leadId=${leadSelecionado.id}`
+    );
+  }
+
+  function abrirMatriculaConvertida() {
+    const matricula =
+      leadSelecionado
+        ?.matriculaConvertida;
+
+    if (!matricula?.id) {
+      setPopupErro(
+        "Não foi possível identificar a matrícula vinculada a este lead."
+      );
+
+      return;
+    }
+
+    router.push(
+      `/admin/matriculas?matriculaId=${matricula.id}`
     );
   }
 
@@ -1750,8 +1887,12 @@ export default function AdminLeadsPage() {
                   </label>
                   <select
                     value={form.status}
+                    disabled={Boolean(
+                      leadSelecionado
+                        ?.matriculaConvertida
+                    )}
                     onChange={(e) => setForm({ ...form, status: e.target.value })}
-                    className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
+                    className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 outline-none focus:border-blue-500 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:font-bold disabled:text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:disabled:bg-slate-800 dark:disabled:text-slate-200"
                   >
                     {STATUS_OPTIONS.map((item) => (
                       <option key={item} value={item}>
@@ -1759,6 +1900,14 @@ export default function AdminLeadsPage() {
                       </option>
                     ))}
                   </select>
+
+                  {leadSelecionado
+                    ?.matriculaConvertida && (
+                      <p className="mt-2 text-xs font-semibold leading-5 text-emerald-700 dark:text-emerald-300">
+                        Este lead originou uma matrícula e deve
+                        permanecer com status FECHADO.
+                      </p>
+                    )}
                 </div>
 
                 <div>
@@ -1942,45 +2091,82 @@ export default function AdminLeadsPage() {
                 </button>
 
                 {!criandoNovo &&
-                  leadSelecionado &&
-                  leadSelecionado.tipo === "INSTITUICAO" && (
-                    <button
-                      type="button"
-                      onClick={iniciarConversaoEmMatricula}
-                      disabled={salvando}
-                      className="rounded-2xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-70"
-                    >
-                      Converter em aluno e matrícula
-                    </button>
-                  )}
+  leadSelecionado &&
+  leadSelecionado.tipo ===
+    "INSTITUICAO" &&
+  !leadSelecionado
+    .matriculaConvertida && (
+    <button
+      type="button"
+      onClick={
+        iniciarConversaoEmMatricula
+      }
+      disabled={salvando}
+      className="rounded-2xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-70"
+    >
+      Converter em aluno e matrícula
+    </button>
+  )}
 
-                {!criandoNovo && leadSelecionado && (
-                  <button
-                    type="button"
-                    onClick={excluirLead}
-                    disabled={salvando}
-                    className="rounded-2xl bg-red-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-red-500 disabled:opacity-70"
-                  >
-                    Excluir
-                  </button>
-                )}
+{!criandoNovo &&
+  leadSelecionado
+    ?.matriculaConvertida && (
+    <button
+      type="button"
+      onClick={
+        abrirMatriculaConvertida
+      }
+      className="rounded-2xl bg-emerald-700 px-6 py-3 text-sm font-bold text-white transition hover:bg-emerald-600"
+    >
+      Ver matrícula
+      {leadSelecionado
+        .matriculaConvertida
+        .numeroMatricula
+        ? ` — ${leadSelecionado.matriculaConvertida.numeroMatricula}`
+        : ` #${leadSelecionado.matriculaConvertida.id}`}
+    </button>
+  )}
 
-                {!criandoNovo && leadSelecionado && (
-                  <div className="ml-auto flex flex-wrap gap-2">
-                    {STATUS_OPTIONS.filter((status) => status !== form.status).map(
-                      (status) => (
-                        <button
-                          key={status}
-                          type="button"
-                          onClick={() => moverStatus(leadSelecionado.id, status)}
-                          className="rounded-2xl border border-slate-300 px-4 py-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
-                        >
-                          Mover para {status}
-                        </button>
-                      )
-                    )}
-                  </div>
-                )}
+{!criandoNovo &&
+  leadSelecionado &&
+  !leadSelecionado
+    .matriculaConvertida && (
+    <button
+      type="button"
+      onClick={excluirLead}
+      disabled={salvando}
+      className="rounded-2xl bg-red-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-red-500 disabled:opacity-70"
+    >
+      Excluir
+    </button>
+  )}
+
+{!criandoNovo &&
+  leadSelecionado &&
+  !leadSelecionado
+    .matriculaConvertida && (
+    <div className="ml-auto flex flex-wrap gap-2">
+      {STATUS_OPTIONS.filter(
+        (status) =>
+          status !==
+          form.status
+      ).map((status) => (
+        <button
+          key={status}
+          type="button"
+          onClick={() =>
+            moverStatus(
+              leadSelecionado.id,
+              status
+            )
+          }
+          className="rounded-2xl border border-slate-300 px-4 py-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+        >
+          Mover para {status}
+        </button>
+      ))}
+    </div>
+  )}
 
               </div>
             </div>
