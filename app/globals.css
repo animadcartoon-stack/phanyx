@@ -18152,3 +18152,82 @@ html[data-theme="dark"]
     color: #cbd5e1 !important;
   }
 }
+
+/* =========================================================
+   PHANYX — Equipes comerciais
+   Contraste específico para tema claro
+   ========================================================= */
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-cabecalho {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-kicker {
+  color: #1d4ed8 !important;
+  -webkit-text-fill-color: #1d4ed8 !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-titulo {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+  font-weight: 900 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-descricao {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-metrica {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-metrica-label {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+  font-weight: 800 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-metrica-valor {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+  font-weight: 900 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-carregamento {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+  opacity: 1 !important;
+  background: #ffffff !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  input::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}

@@ -37,8 +37,8 @@ type EquipeComercial = {
   atualizadoEm: string;
 
   responsavelFuncionario?:
-    | FuncionarioComercial
-    | null;
+  | FuncionarioComercial
+  | null;
 
   membros: MembroEquipe[];
 
@@ -95,9 +95,8 @@ function iniciais(nome: string) {
       .toUpperCase();
   }
 
-  return `${partes[0][0]}${
-    partes[partes.length - 1][0]
-  }`.toUpperCase();
+  return `${partes[0][0]}${partes[partes.length - 1][0]
+    }`.toUpperCase();
 }
 
 export default function EquipesComerciaisPage() {
@@ -179,7 +178,7 @@ export default function EquipesComerciaisPage() {
       if (!res.ok) {
         throw new Error(
           data?.error ||
-            "Não foi possível carregar as equipes comerciais."
+          "Não foi possível carregar as equipes comerciais."
         );
       }
 
@@ -193,7 +192,7 @@ export default function EquipesComerciaisPage() {
 
       setErro(
         error?.message ||
-          "Erro ao carregar equipes comerciais."
+        "Erro ao carregar equipes comerciais."
       );
     } finally {
       setCarregando(false);
@@ -219,7 +218,7 @@ export default function EquipesComerciaisPage() {
       if (!res.ok) {
         throw new Error(
           data?.error ||
-            "Não foi possível carregar os funcionários comerciais."
+          "Não foi possível carregar os funcionários comerciais."
         );
       }
 
@@ -227,8 +226,8 @@ export default function EquipesComerciaisPage() {
         Array.isArray(data)
           ? data
           : Array.isArray(
-                data?.funcionarios
-              )
+            data?.funcionarios
+          )
             ? data.funcionarios
             : [];
 
@@ -244,7 +243,7 @@ export default function EquipesComerciaisPage() {
 
               nome: String(
                 funcionario.nome ||
-                  "Funcionário"
+                "Funcionário"
               ),
 
               cargo:
@@ -281,7 +280,7 @@ export default function EquipesComerciaisPage() {
 
       setErro(
         error?.message ||
-          "Erro ao carregar funcionários comerciais."
+        "Erro ao carregar funcionários comerciais."
       );
     } finally {
       setCarregandoFuncionarios(false);
@@ -319,7 +318,7 @@ export default function EquipesComerciaisPage() {
         (equipe) => {
           const bateStatus =
             filtroStatus ===
-              "TODAS" ||
+            "TODAS" ||
             (filtroStatus ===
               "ATIVAS" &&
               equipe.ativo) ||
@@ -427,9 +426,9 @@ export default function EquipesComerciaisPage() {
             Number(
               equipe._count
                 ?.membros ??
-                equipe.membros
-                  .length ??
-                0
+              equipe.membros
+                .length ??
+              0
             ),
           0
         );
@@ -482,17 +481,17 @@ export default function EquipesComerciaisPage() {
         equipe
           .responsavelFuncionarioId
           ? String(
-              equipe
-                .responsavelFuncionarioId
-            )
+            equipe
+              .responsavelFuncionarioId
+          )
           : equipe
-                .responsavelFuncionario
-                ?.id
+            .responsavelFuncionario
+            ?.id
             ? String(
-                equipe
-                  .responsavelFuncionario
-                  .id
-              )
+              equipe
+                .responsavelFuncionario
+                .id
+            )
             : "",
 
       membroIds:
@@ -506,9 +505,9 @@ export default function EquipesComerciaisPage() {
             (membro) =>
               Number(
                 membro.funcionarioId ||
-                  membro
-                    .funcionario
-                    ?.id
+                membro
+                  .funcionario
+                  ?.id
               )
           )
           .filter(
@@ -555,13 +554,13 @@ export default function EquipesComerciaisPage() {
 
       membroIds:
         responsavelId &&
-        !atual.membroIds.includes(
-          responsavelId
-        )
+          !atual.membroIds.includes(
+            responsavelId
+          )
           ? [
-              ...atual.membroIds,
-              responsavelId,
-            ]
+            ...atual.membroIds,
+            responsavelId,
+          ]
           : atual.membroIds,
     }));
   }
@@ -572,8 +571,8 @@ export default function EquipesComerciaisPage() {
     const responsavelId =
       form.responsavelFuncionarioId
         ? Number(
-            form.responsavelFuncionarioId
-          )
+          form.responsavelFuncionarioId
+        )
         : null;
 
     if (
@@ -591,14 +590,14 @@ export default function EquipesComerciaisPage() {
           funcionarioId
         )
           ? atual.membroIds.filter(
-              (id) =>
-                id !==
-                funcionarioId
-            )
+            (id) =>
+              id !==
+              funcionarioId
+          )
           : [
-              ...atual.membroIds,
-              funcionarioId,
-            ],
+            ...atual.membroIds,
+            funcionarioId,
+          ],
     }));
   }
 
@@ -652,8 +651,8 @@ export default function EquipesComerciaisPage() {
               responsavelFuncionarioId:
                 form.responsavelFuncionarioId
                   ? Number(
-                      form.responsavelFuncionarioId
-                    )
+                    form.responsavelFuncionarioId
+                  )
                   : null,
 
               membroIds:
@@ -673,7 +672,7 @@ export default function EquipesComerciaisPage() {
       if (!res.ok) {
         throw new Error(
           data?.error ||
-            "Não foi possível salvar a equipe comercial."
+          "Não foi possível salvar a equipe comercial."
         );
       }
 
@@ -681,16 +680,16 @@ export default function EquipesComerciaisPage() {
 
       setSucesso(
         data?.mensagem ||
-          (editandoId
-            ? "Equipe atualizada com sucesso."
-            : "Equipe criada com sucesso.")
+        (editandoId
+          ? "Equipe atualizada com sucesso."
+          : "Equipe criada com sucesso.")
       );
 
       await carregarEquipes();
     } catch (error: any) {
       setErro(
         error?.message ||
-          "Erro ao salvar equipe comercial."
+        "Erro ao salvar equipe comercial."
       );
     } finally {
       setSalvando(false);
@@ -725,7 +724,7 @@ export default function EquipesComerciaisPage() {
       if (!res.ok) {
         throw new Error(
           data?.error ||
-            "Não foi possível desativar a equipe."
+          "Não foi possível desativar a equipe."
         );
       }
 
@@ -735,14 +734,14 @@ export default function EquipesComerciaisPage() {
 
       setSucesso(
         data?.mensagem ||
-          "Equipe desativada com sucesso."
+        "Equipe desativada com sucesso."
       );
 
       await carregarEquipes();
     } catch (error: any) {
       setErro(
         error?.message ||
-          "Erro ao desativar equipe."
+        "Erro ao desativar equipe."
       );
     } finally {
       setSalvando(false);
@@ -782,20 +781,20 @@ export default function EquipesComerciaisPage() {
       if (!res.ok) {
         throw new Error(
           data?.error ||
-            "Não foi possível reativar a equipe."
+          "Não foi possível reativar a equipe."
         );
       }
 
       setSucesso(
         data?.mensagem ||
-          "Equipe reativada com sucesso."
+        "Equipe reativada com sucesso."
       );
 
       await carregarEquipes();
     } catch (error: any) {
       setErro(
         error?.message ||
-          "Erro ao reativar equipe."
+        "Erro ao reativar equipe."
       );
     } finally {
       setSalvando(false);
@@ -803,19 +802,19 @@ export default function EquipesComerciaisPage() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-7xl space-y-6 p-4 md:p-6 lg:p-8">
-      <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+    <main className="phanyx-equipes-comerciais-page mx-auto w-full max-w-7xl space-y-6 p-4 md:p-6 lg:p-8">
+      <header className="phanyx-equipes-cabecalho rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.22em] text-blue-700 dark:text-blue-300">
+            <p className="phanyx-equipes-kicker text-xs font-black uppercase tracking-[0.22em] text-blue-700 dark:text-blue-300">
               Comercial
             </p>
 
-            <h1 className="mt-2 text-3xl font-black text-slate-950 dark:text-white">
+            <h1 className="phanyx-equipes-titulo mt-2 text-3xl font-black text-slate-950 dark:text-white">
               Equipes comerciais
             </h1>
 
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
+            <p className="phanyx-equipes-descricao mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
               Organize vendedores em equipes,
               defina lideranças e prepare a
               estrutura para metas coletivas e
@@ -871,13 +870,13 @@ export default function EquipesComerciaisPage() {
         ].map((item) => (
           <article
             key={item.titulo}
-            className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900"
+            className="phanyx-equipes-metrica rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900"
           >
-            <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            <p className="phanyx-equipes-metrica-label text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
               {item.titulo}
             </p>
 
-            <p className="mt-3 text-3xl font-black text-slate-950 dark:text-white">
+            <p className="phanyx-equipes-metrica-valor mt-3 text-3xl font-black text-slate-950 dark:text-white">
               {item.valor}
             </p>
           </article>
@@ -924,7 +923,7 @@ export default function EquipesComerciaisPage() {
       </section>
 
       {carregando ? (
-        <div className="rounded-3xl border border-slate-200 bg-white p-10 text-center font-semibold text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
+        <div className="phanyx-equipes-carregamento rounded-3xl border border-slate-200 bg-white p-10 text-center font-semibold text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
           Carregando equipes comerciais...
         </div>
       ) : equipesFiltradas.length ===
@@ -955,11 +954,10 @@ export default function EquipesComerciaisPage() {
                       </h2>
 
                       <span
-                        className={`rounded-full border px-3 py-1 text-xs font-black ${
-                          equipe.ativo
+                        className={`rounded-full border px-3 py-1 text-xs font-black ${equipe.ativo
                             ? "border-emerald-600 bg-emerald-100 text-emerald-950 dark:border-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-100"
                             : "border-slate-400 bg-slate-200 text-slate-950 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
-                        }`}
+                          }`}
                       >
                         {equipe.ativo
                           ? "Ativa"
@@ -981,7 +979,7 @@ export default function EquipesComerciaisPage() {
                 </div>
 
                 <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-                  <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                  <p className="phanyx-equipes-metrica-label text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                     Líder da equipe
                   </p>
 
@@ -994,17 +992,17 @@ export default function EquipesComerciaisPage() {
 
                   {equipe
                     .responsavelFuncionario && (
-                    <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
-                      {equipe
-                        .responsavelFuncionario
-                        .cargo ||
-                        "Cargo não informado"}
-                      {" · "}
-                      {nomeDepartamento(
-                        equipe.responsavelFuncionario
-                      )}
-                    </p>
-                  )}
+                      <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+                        {equipe
+                          .responsavelFuncionario
+                          .cargo ||
+                          "Cargo não informado"}
+                        {" · "}
+                        {nomeDepartamento(
+                          equipe.responsavelFuncionario
+                        )}
+                      </p>
+                    )}
                 </div>
 
                 <div className="mt-5">
@@ -1023,7 +1021,7 @@ export default function EquipesComerciaisPage() {
 
                   <div className="mt-3 flex flex-wrap gap-2">
                     {equipe.membros.length ===
-                    0 ? (
+                      0 ? (
                       <span className="text-sm text-slate-500 dark:text-slate-400">
                         Nenhum membro ativo.
                       </span>
@@ -1050,12 +1048,12 @@ export default function EquipesComerciaisPage() {
 
                     {equipe.membros
                       .length > 5 && (
-                      <span className="rounded-full border border-slate-300 bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
-                        +
-                        {equipe.membros
-                          .length - 5}
-                      </span>
-                    )}
+                        <span className="rounded-full border border-slate-300 bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+                          +
+                          {equipe.membros
+                            .length - 5}
+                        </span>
+                      )}
                   </div>
                 </div>
 
@@ -1307,11 +1305,10 @@ export default function EquipesComerciaisPage() {
                             key={
                               funcionario.id
                             }
-                            className={`flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition ${
-                              marcado
+                            className={`flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition ${marcado
                                 ? "border-blue-500 bg-blue-50 dark:border-blue-700 dark:bg-blue-950/40"
                                 : "border-slate-200 bg-white hover:border-slate-400 dark:border-slate-700 dark:bg-slate-900"
-                            }`}
+                              }`}
                           >
                             <input
                               type="checkbox"
