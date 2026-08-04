@@ -210,11 +210,10 @@ export default function ComercialPage() {
                   {modulo.href && modulo.acao && (
                     <Link
                       href={modulo.href}
-                      className="inline-flex min-h-9 items-center rounded-xl border border-blue-300 bg-blue-50 px-3 text-sm font-black [--phanyx-action-text:#1e3a8a] transition hover:border-blue-400 hover:bg-blue-100 hover:[--phanyx-action-text:#172554] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 dark:border-blue-800 dark:bg-blue-950/40 dark:[--phanyx-action-text:#bfdbfe] dark:hover:bg-blue-950/70 dark:hover:[--phanyx-action-text:#dbeafe] dark:focus-visible:ring-offset-slate-950"
+                      className="inline-flex min-h-9 items-center rounded-xl border !border-slate-950 !bg-slate-950 px-3 text-sm font-black !text-white shadow-sm transition hover:!border-slate-800 hover:!bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 dark:!border-blue-500 dark:!bg-blue-700 dark:hover:!bg-blue-600 dark:focus-visible:ring-offset-slate-950"
                       style={{
-                        color: "var(--phanyx-action-text)",
-                        WebkitTextFillColor:
-                          "var(--phanyx-action-text)",
+                        color: "#ffffff",
+                        WebkitTextFillColor: "#ffffff",
                         opacity: 1,
                       }}
                     >
@@ -223,6 +222,10 @@ export default function ComercialPage() {
                       <span
                         className="ml-1"
                         aria-hidden="true"
+                        style={{
+                          color: "#ffffff",
+                          WebkitTextFillColor: "#ffffff",
+                        }}
                       >
                         →
                       </span>
