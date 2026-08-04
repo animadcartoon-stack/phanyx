@@ -768,26 +768,35 @@ function cssCompartilhado(
       overflow-wrap: anywhere;
     }
 
-    .phanyx-conteudo p,
-    .phanyx-conteudo div,
-    .phanyx-conteudo h1,
-    .phanyx-conteudo h2,
-    .phanyx-conteudo h3,
-    .phanyx-conteudo h4,
-    .phanyx-conteudo h5,
-    .phanyx-conteudo h6 {
-      margin-top: 0;
-      margin-bottom: 0;
-    }
+    .phanyx-conteudo div {
+  margin: 0;
+}
 
-    .phanyx-conteudo p {
-      min-height: 1em;
-    }
+.phanyx-conteudo h1,
+.phanyx-conteudo h2,
+.phanyx-conteudo h3,
+.phanyx-conteudo h4,
+.phanyx-conteudo h5,
+.phanyx-conteudo h6 {
+  margin-top: 0;
+  margin-bottom: 4mm;
+}
 
-    .phanyx-conteudo p:empty {
-      min-height: 1em;
-      line-height: 1em;
-    }
+.phanyx-conteudo p {
+  min-height: 1em;
+  margin-top: 0;
+  margin-bottom: 3mm;
+}
+
+.phanyx-conteudo p:last-child {
+  margin-bottom: 0;
+}
+
+.phanyx-conteudo p:empty {
+  min-height: 1em;
+  margin-bottom: 3mm;
+  line-height: 1em;
+}
 
     .phanyx-conteudo img {
       max-width: 100%;
