@@ -124,14 +124,14 @@ const LineHeight = Extension.create({
   },
 });
 
-const ALTURA_A4_MM = 297;
-const ALTURA_CABECALHO_MM = 42;
-const ALTURA_RODAPE_MM = 28;
+const ALTURA_A4_INTEIRA_MM = 297;
+const ALTURA_DUAS_VIAS_MM = 148.5;
 
-const ALTURA_UTIL_PAGINA_MM =
-  ALTURA_A4_MM -
-  ALTURA_CABECALHO_MM -
-  ALTURA_RODAPE_MM;
+const ALTURA_CABECALHO_A4_MM = 42;
+const ALTURA_RODAPE_A4_MM = 28;
+
+const ALTURA_CABECALHO_DUAS_VIAS_MM = 17;
+const ALTURA_RODAPE_DUAS_VIAS_MM = 20;
 
 function mmParaPx(valor: number) {
   return (
@@ -282,9 +282,14 @@ const PageBreakPHANYX =
     },
   });
 
+type FormatoImpressaoDocumento =
+  | "A4_INTEIRA"
+  | "DUAS_VIAS_A4";
+
 type Props = {
   value: string;
   onChange: (html: string) => void;
+  formatoImpressao?: FormatoImpressaoDocumento;
 };
 
 function conteudoParaHtmlSeguro(valor: string) {
@@ -340,7 +345,34 @@ function blocoPossuiConteudoVisivel(
   );
 }
 
-export default function EditorTemplatePHANYX({ value, onChange }: Props) {
+export default function EditorTemplatePHANYX({
+  value,
+  onChange,
+  formatoImpressao = "A4_INTEIRA",
+}: Props) {
+  const duasVias =
+    formatoImpressao ===
+    "DUAS_VIAS_A4";
+
+  const alturaPaginaMm =
+    duasVias
+      ? ALTURA_DUAS_VIAS_MM
+      : ALTURA_A4_INTEIRA_MM;
+
+  const alturaCabecalhoMm =
+    duasVias
+      ? ALTURA_CABECALHO_DUAS_VIAS_MM
+      : ALTURA_CABECALHO_A4_MM;
+
+  const alturaRodapeMm =
+    duasVias
+      ? ALTURA_RODAPE_DUAS_VIAS_MM
+      : ALTURA_RODAPE_A4_MM;
+
+  const alturaUtilPaginaMm =
+    alturaPaginaMm -
+    alturaCabecalhoMm -
+    alturaRodapeMm;
   const [fonteAtual, setFonteAtual] = useState("");
   const [tamanhoAtual, setTamanhoAtual] = useState("");
 
@@ -370,7 +402,7 @@ export default function EditorTemplatePHANYX({ value, onChange }: Props) {
     setEspacoFinalPx,
   ] = useState(
     mmParaPx(
-      ALTURA_UTIL_PAGINA_MM
+      alturaUtilPaginaMm
     )
   );
 
@@ -645,7 +677,7 @@ export default function EditorTemplatePHANYX({ value, onChange }: Props) {
 
     const alturaUtilPx =
       mmParaPx(
-        ALTURA_UTIL_PAGINA_MM
+        alturaUtilPaginaMm
       );
 
     function paginarConteudo() {
@@ -986,7 +1018,10 @@ export default function EditorTemplatePHANYX({ value, onChange }: Props) {
         );
       }
     };
-  }, [editor]);
+  }, [
+    editor,
+    alturaUtilPaginaMm,
+  ]);
 
   useEffect(() => {
     setPortalPronto(true);
@@ -1566,15 +1601,31 @@ export default function EditorTemplatePHANYX({ value, onChange }: Props) {
 
       <div className="overflow-x-auto bg-slate-100 p-6 dark:bg-slate-950">
         <div className="mx-auto w-[210mm] shadow-2xl">
-          <div className="phanyx-a4-guia-cabecalho">
+          <div
+            className="phanyx-a4-guia-cabecalho"
+            style={{
+              height:
+                `${alturaCabecalhoMm}mm`,
+            }}
+          >
             <span>
               Área reservada para cabeçalho e logo
             </span>
 
-            <span>Página 1</span>
+            <span>
+              {duasVias
+                ? "MODELO DE UMA VIA"
+                : "PÁGINA 1"}
+            </span>
           </div>
 
-          <div className="bg-white text-black">
+          <div
+            className="bg-white text-black"
+            style={{
+              minHeight:
+                `${alturaUtilPaginaMm}mm`,
+            }}
+          >
             <EditorContent editor={editor} />
 
             <div
@@ -1585,13 +1636,21 @@ export default function EditorTemplatePHANYX({ value, onChange }: Props) {
             />
           </div>
 
-          <div className="phanyx-a4-guia-rodape">
+          <div
+            className="phanyx-a4-guia-rodape"
+            style={{
+              height:
+                `${alturaRodapeMm}mm`,
+            }}
+          >
             <span>
               Área reservada para rodapé
             </span>
 
             <span>
-              Página {totalPaginas}
+              {duasVias
+                ? "SERÁ DUPLICADA NO PDF"
+                : `Página ${totalPaginas}`}
             </span>
           </div>
         </div>
