@@ -883,7 +883,7 @@ export default function EquipesComerciaisPage() {
         ))}
       </section>
 
-      <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+      <section className="phanyx-equipes-filtros rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
         <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_220px]">
           <input
             type="search"
@@ -894,7 +894,7 @@ export default function EquipesComerciaisPage() {
               )
             }
             placeholder="Buscar por equipe, líder ou membro"
-            className="min-h-12 w-full rounded-2xl border border-slate-300 bg-white px-4 text-slate-950 outline-none transition placeholder:text-slate-500 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+            className="phanyx-equipes-busca min-h-12 w-full rounded-2xl border border-slate-300 bg-white px-4 text-slate-950 outline-none transition placeholder:text-slate-500 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
           />
 
           <select
@@ -928,12 +928,12 @@ export default function EquipesComerciaisPage() {
         </div>
       ) : equipesFiltradas.length ===
         0 ? (
-        <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-12 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900">
-          <p className="text-lg font-black text-slate-900 dark:text-white">
+        <div className="phanyx-equipes-vazio rounded-3xl border border-dashed border-slate-300 bg-white p-12 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900">
+          <p className="phanyx-equipes-vazio-titulo text-lg font-black text-slate-900 dark:text-white">
             Nenhuma equipe encontrada
           </p>
 
-          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+          <p className="phanyx-equipes-vazio-descricao mt-2 text-sm text-slate-600 dark:text-slate-300">
             Cadastre uma equipe ou ajuste os
             filtros da listagem.
           </p>
