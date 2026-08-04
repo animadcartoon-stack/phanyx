@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import withAuth from "@/lib/withAuth";
 import PhanyxToast from "@/components/ui/PhanyxToast";
+import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 
 type DocumentoGerado = {
   id: number;
@@ -15,10 +16,10 @@ type DocumentoGerado = {
   atualizadoEm?: string;
   conteudo?: string;
   aluno?: {
-  id: number;
-  nome: string;
-  matricula?: string | null;
-  cpf?: string | null;
+    id: number;
+    nome: string;
+    matricula?: string | null;
+    cpf?: string | null;
   } | null;
   matricula?: {
     id: number;
@@ -101,6 +102,24 @@ function AdminDocumentosGeradosPage() {
     useState<DocumentoGerado | null>(null);
   const [loadingDetalhe, setLoadingDetalhe] = useState(false);
 
+  const [
+    documentoParaExcluir,
+    setDocumentoParaExcluir,
+  ] =
+    useState<DocumentoGerado | null>(
+      null
+    );
+
+  const [
+    confirmarExcluirTodos,
+    setConfirmarExcluirTodos,
+  ] = useState(false);
+
+  const [
+    excluindo,
+    setExcluindo,
+  ] = useState(false);
+
   async function carregarDocumentos() {
     try {
       setLoading(true);
@@ -181,9 +200,9 @@ function AdminDocumentosGeradosPage() {
             <div><strong>Contexto:</strong> ${doc.contexto || "-"}</div>
           </div>
           <div class="conteudo">${(doc.conteudo || "-")
-            .replaceAll("&", "&amp;")
-            .replaceAll("<", "&lt;")
-            .replaceAll(">", "&gt;")}</div>
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")}</div>
         </body>
       </html>
     `;
@@ -205,23 +224,23 @@ function AdminDocumentosGeradosPage() {
   }
 
   async function enviarPorEmail(doc: DocumentoGerado) {
-  const assunto = encodeURIComponent(doc.titulo);
-  const corpo = encodeURIComponent(montarTextoCompartilhamento(doc));
-  const link = `mailto:?subject=${assunto}&body=${corpo}`;
+    const assunto = encodeURIComponent(doc.titulo);
+    const corpo = encodeURIComponent(montarTextoCompartilhamento(doc));
+    const link = `mailto:?subject=${assunto}&body=${corpo}`;
 
-  try {
-    await navigator.clipboard.writeText(montarTextoCompartilhamento(doc));
-    setMensagem(
-      "O conteúdo do documento foi copiado. Se o email não abrir automaticamente, cole o texto no seu email."
-    );
-  } catch {
-    setMensagem(
-      "Tentando abrir o email. Se não abrir, verifique se há um aplicativo de email configurado no computador."
-    );
+    try {
+      await navigator.clipboard.writeText(montarTextoCompartilhamento(doc));
+      setMensagem(
+        "O conteúdo do documento foi copiado. Se o email não abrir automaticamente, cole o texto no seu email."
+      );
+    } catch {
+      setMensagem(
+        "Tentando abrir o email. Se não abrir, verifique se há um aplicativo de email configurado no computador."
+      );
+    }
+
+    window.location.href = link;
   }
-
-  window.location.href = link;
-}
 
   function enviarPorWhatsApp(doc: DocumentoGerado) {
     const texto = encodeURIComponent(montarTextoCompartilhamento(doc));
@@ -257,6 +276,138 @@ function AdminDocumentosGeradosPage() {
     carregarDocumentos();
   }, [filtroTipo]);
 
+  async function excluirDocumento(
+    documento: DocumentoGerado
+  ) {
+    try {
+      setExcluindo(true);
+      setErro("");
+      setMensagem("");
+
+      const res = await fetch(
+        "/api/admin/documentos/gerados",
+        {
+          method: "DELETE",
+
+          credentials: "include",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            modo:
+              "INDIVIDUAL",
+
+            documentoId:
+              documento.id,
+          }),
+        }
+      );
+
+      const data =
+        await res.json();
+
+      if (!res.ok) {
+        throw new Error(
+          data?.error ||
+          "Não foi possível excluir o documento."
+        );
+      }
+
+      if (
+        documentoSelecionado?.id ===
+        documento.id
+      ) {
+        setDocumentoSelecionado(
+          null
+        );
+      }
+
+      setDocumentoParaExcluir(
+        null
+      );
+
+      setMensagem(
+        data?.mensagem ||
+        "Documento excluído com sucesso."
+      );
+
+      await carregarDocumentos();
+    } catch (error: any) {
+      console.error(error);
+
+      setErro(
+        error?.message ||
+        "Não foi possível excluir o documento."
+      );
+    } finally {
+      setExcluindo(false);
+    }
+  }
+
+  async function excluirTodosNaoAssinados() {
+    try {
+      setExcluindo(true);
+      setErro("");
+      setMensagem("");
+
+      const res = await fetch(
+        "/api/admin/documentos/gerados",
+        {
+          method: "DELETE",
+
+          credentials: "include",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            modo:
+              "TODOS_NAO_ASSINADOS",
+          }),
+        }
+      );
+
+      const data =
+        await res.json();
+
+      if (!res.ok) {
+        throw new Error(
+          data?.error ||
+          "Não foi possível excluir os documentos."
+        );
+      }
+
+      setConfirmarExcluirTodos(
+        false
+      );
+
+      setDocumentoSelecionado(
+        null
+      );
+
+      setMensagem(
+        data?.mensagem ||
+        "Documentos excluídos com sucesso."
+      );
+
+      await carregarDocumentos();
+    } catch (error: any) {
+      console.error(error);
+
+      setErro(
+        error?.message ||
+        "Não foi possível excluir os documentos."
+      );
+    } finally {
+      setExcluindo(false);
+    }
+  }
+
   const documentosFiltrados = useMemo(() => {
     const termo = busca.trim().toLowerCase();
 
@@ -276,13 +427,13 @@ function AdminDocumentosGeradosPage() {
   return (
     <div className="phanyx-docs-page space-y-6">
       {erro && (
-  <PhanyxToast
-    tipo="erro"
-    titulo="Não foi possível imprimir"
-    mensagem={erro}
-    onClose={() => setErro("")}
-  />
-)}
+        <PhanyxToast
+          tipo="erro"
+          titulo="Não foi possível concluir"
+          mensagem={erro}
+          onClose={() => setErro("")}
+        />
+      )}
       <div>
         <h1 className="phanyx-doc-title text-2xl font-bold">📚 Documentos gerados</h1>
         <p className="phanyx-doc-muted mt-1">
@@ -308,7 +459,7 @@ function AdminDocumentosGeradosPage() {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_190px_120px]">
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_190px_120px_190px]">
                   <input
                     value={busca}
                     onChange={(e) => setBusca(e.target.value)}
@@ -338,6 +489,33 @@ function AdminDocumentosGeradosPage() {
                   >
                     Recarregar
                   </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setConfirmarExcluirTodos(
+                        true
+                      )
+                    }
+                    disabled={
+                      excluindo ||
+                      documentos.length === 0
+                    }
+                    className={[
+                      "rounded-xl border px-3 py-2 text-sm font-semibold transition",
+                      "border-red-300 bg-white text-red-700",
+                      "hover:border-red-500 hover:bg-red-50",
+                      "dark:border-red-800 dark:bg-slate-950 dark:text-red-300",
+                      "dark:hover:bg-red-950/30",
+                      excluindo ||
+                        documentos.length === 0
+                        ? "cursor-not-allowed opacity-50"
+                        : "",
+                    ].join(" ")}
+                  >
+                    Excluir não assinados
+                  </button>
+
                 </div>
               </div>
             </div>
@@ -415,42 +593,71 @@ function AdminDocumentosGeradosPage() {
                       </div>
 
                       <div className="grid grid-cols-2 gap-2 self-start lg:w-[240px]">
-  <button
-    onClick={() => abrirDocumento(doc.id)}
-    className="phanyx-doc-secondary-action"
-  >
-    Abrir
-  </button>
+                        <button
+                          onClick={() => abrirDocumento(doc.id)}
+                          className="phanyx-doc-secondary-action"
+                        >
+                          Abrir
+                        </button>
 
-<button
-  onClick={() => window.open(`/api/admin/documentos/pdf/${doc.id}`, "_blank")}
-  className="phanyx-doc-secondary-action"
->
-  PDF
-</button>
+                        <button
+                          onClick={() => window.open(`/api/admin/documentos/pdf/${doc.id}`, "_blank")}
+                          className="phanyx-doc-secondary-action"
+                        >
+                          PDF
+                        </button>
 
-  <button
-    onClick={() => imprimirDocumento(doc)}
-    className="phanyx-doc-secondary-action"
-  >
-    Imprimir
-  </button>
+                        <button
+                          onClick={() => imprimirDocumento(doc)}
+                          className="phanyx-doc-secondary-action"
+                        >
+                          Imprimir
+                        </button>
 
-  <button
-    onClick={() => enviarPorEmail(doc)}
-    className="phanyx-doc-secondary-action"
-  >
-    Email
-  </button>
+                        <button
+                          onClick={() => enviarPorEmail(doc)}
+                          className="phanyx-doc-secondary-action"
+                        >
+                          Email
+                        </button>
 
-  <button
-    onClick={() => enviarPorWhatsApp(doc)}
-    className="phanyx-doc-secondary-action"
-  >
-    WhatsApp
-  </button>
+                        <button
+                          onClick={() => enviarPorWhatsApp(doc)}
+                          className="phanyx-doc-secondary-action"
+                        >
+                          WhatsApp
+                        </button>
 
-</div>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setDocumentoParaExcluir(
+                              doc
+                            )
+                          }
+                          disabled={
+                            excluindo ||
+                            doc.status ===
+                            "ASSINADO"
+                          }
+                          title={
+                            doc.status ===
+                              "ASSINADO"
+                              ? "Documentos assinados não podem ser excluídos."
+                              : "Excluir documento"
+                          }
+                          className={[
+                            "rounded-xl border px-3 py-2 text-sm font-semibold transition",
+                            doc.status ===
+                              "ASSINADO"
+                              ? "cursor-not-allowed border-slate-200 text-slate-400 opacity-60 dark:border-slate-700"
+                              : "border-red-300 text-red-700 hover:border-red-500 hover:bg-red-50 dark:border-red-800 dark:text-red-300 dark:hover:bg-red-950/30",
+                          ].join(" ")}
+                        >
+                          Excluir
+                        </button>
+
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -487,8 +694,8 @@ function AdminDocumentosGeradosPage() {
 
                   <div className="flex flex-wrap gap-2">
                     <span className="phanyx-doc-badge">
-  {labelTipo(documentoSelecionado.tipo)}
-</span>
+                      {labelTipo(documentoSelecionado.tipo)}
+                    </span>
 
                     <span
                       className={`rounded-full px-3 py-1 text-xs ${statusClass(documentoSelecionado.status)}`}
@@ -513,12 +720,12 @@ function AdminDocumentosGeradosPage() {
                     Email
                   </button>
 
-<button
-  onClick={() => window.open(`/api/admin/documentos/pdf/${documentoSelecionado.id}`, "_blank")}
-  className="rounded-xl border px-3 py-2 text-sm hover:border-red-400 hover:text-red-700"
->
-  PDF
-</button>
+                  <button
+                    onClick={() => window.open(`/api/admin/documentos/pdf/${documentoSelecionado.id}`, "_blank")}
+                    className="rounded-xl border px-3 py-2 text-sm hover:border-red-400 hover:text-red-700"
+                  >
+                    PDF
+                  </button>
 
                   <button
                     onClick={() => enviarPorWhatsApp(documentoSelecionado)}
@@ -573,6 +780,63 @@ function AdminDocumentosGeradosPage() {
           </div>
         </div>
       </div>
+      {documentoParaExcluir && (
+        <PhanyxConfirmModal
+          aberto={true}
+          titulo="Excluir documento"
+          mensagem={`Tem certeza que deseja excluir “${documentoParaExcluir.titulo}”? Esta ação não poderá ser desfeita.`}
+          textoConfirmar={
+            excluindo
+              ? "Excluindo..."
+              : "Sim, excluir"
+          }
+          textoCancelar="Cancelar"
+          onConfirmar={() => {
+            if (excluindo) {
+              return;
+            }
+
+            excluirDocumento(
+              documentoParaExcluir
+            );
+          }}
+          onCancelar={() => {
+            if (!excluindo) {
+              setDocumentoParaExcluir(
+                null
+              );
+            }
+          }}
+        />
+      )}
+
+      {confirmarExcluirTodos && (
+        <PhanyxConfirmModal
+          aberto={true}
+          titulo="Excluir documentos não assinados"
+          mensagem="Esta ação excluirá todos os documentos gerados, rascunhos e cancelados que ainda não foram assinados nesta instituição. Documentos assinados serão preservados. Deseja continuar?"
+          textoConfirmar={
+            excluindo
+              ? "Excluindo..."
+              : "Sim, excluir todos"
+          }
+          textoCancelar="Cancelar"
+          onConfirmar={() => {
+            if (excluindo) {
+              return;
+            }
+
+            excluirTodosNaoAssinados();
+          }}
+          onCancelar={() => {
+            if (!excluindo) {
+              setConfirmarExcluirTodos(
+                false
+              );
+            }
+          }}
+        />
+      )}
     </div>
   );
 }
