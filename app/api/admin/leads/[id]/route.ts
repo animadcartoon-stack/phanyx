@@ -6,6 +6,9 @@ import {
   type UsuarioLogado,
 } from "@/lib/server-auth";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const STATUS_VALIDOS = [
   "NOVO",
   "CONTATO",
@@ -203,6 +206,9 @@ function serializarLead(lead: any) {
   return {
     ...lead,
 
+    matriculaConvertida:
+      lead.matriculaConvertida ?? null,
+
     responsavelNome:
       lead.responsavelFuncionario?.nome ||
       lead.responsavelNomeSnapshot ||
@@ -291,7 +297,17 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(serializarLead(lead));
+    return NextResponse.json(
+      serializarLead(lead),
+      {
+        headers: {
+          "Cache-Control":
+            "no-store, no-cache, must-revalidate, proxy-revalidate",
+          Pragma: "no-cache",
+          Expires: "0",
+        },
+      }
+    );
   } catch (error) {
     console.error("Erro ao buscar lead:", error);
 
