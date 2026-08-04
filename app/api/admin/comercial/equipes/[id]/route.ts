@@ -211,36 +211,13 @@ function obterContextoUsuario(user: any) {
   };
 }
 
-async function possuiAlgumaPermissao(
-  user: any,
-  chaves: string[]
-) {
-  for (const chave of chaves) {
-    const possui =
-      await usuarioPossuiPermissao(
-        user,
-        chave
-      );
-
-    if (possui) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
 async function validarPermissaoVisualizacao(
   user: any
 ) {
   const permitido =
-    await possuiAlgumaPermissao(
+    await usuarioPossuiPermissao(
       user,
-      [
-        "comercial.vendedores.ver",
-        "comercial.vendedores.gerenciar",
-        "comercial.metas.ver",
-      ]
+      "comercial.equipes.ver"
     );
 
   if (!permitido) {
@@ -252,19 +229,37 @@ async function validarPermissaoVisualizacao(
   }
 }
 
-async function validarPermissaoGerenciamento(
+async function validarPermissaoEdicao(
   user: any
 ) {
   const permitido =
     await usuarioPossuiPermissao(
       user,
-      "comercial.vendedores.gerenciar"
+      "comercial.equipes.editar"
     );
 
   if (!permitido) {
     throw new ErroHttp(
       403,
-      "Você não possui permissão para gerenciar equipes comerciais.",
+      "Você não possui permissão para editar equipes comerciais.",
+      "SEM_PERMISSAO"
+    );
+  }
+}
+
+async function validarPermissaoExclusao(
+  user: any
+) {
+  const permitido =
+    await usuarioPossuiPermissao(
+      user,
+      "comercial.equipes.excluir"
+    );
+
+  if (!permitido) {
+    throw new ErroHttp(
+      403,
+      "Você não possui permissão para desativar equipes comerciais.",
       "SEM_PERMISSAO"
     );
   }
@@ -426,9 +421,9 @@ export async function PATCH(
       );
     }
 
-    await validarPermissaoGerenciamento(
-      user
-    );
+    await validarPermissaoEdicao(
+  user
+);
 
     const {
       usuarioId,
@@ -855,9 +850,9 @@ export async function DELETE(
       );
     }
 
-    await validarPermissaoGerenciamento(
-      user
-    );
+    await validarPermissaoExclusao(
+  user
+);
 
     const {
       usuarioId,
