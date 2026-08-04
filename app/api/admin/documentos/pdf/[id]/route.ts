@@ -98,6 +98,26 @@ function quebrarTextoEmLinhas(
   return linhas;
 }
 
+function converterHtmlEmTextoCompacto(
+  valor: string
+) {
+  return String(valor || "")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n")
+    .replace(/<\/div>/gi, "\n")
+    .replace(/<li>/gi, "• ")
+    .replace(/<\/li>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 function extrairValorMonetarioDoConteudo(texto: string) {
   const conteudo = String(texto || "");
 
@@ -205,6 +225,10 @@ export async function GET(
     const ehDocumentoFinanceiro =
       tipoDocumentoNormalizado.includes("recibo") ||
       tipoDocumentoNormalizado.includes("comprovante");
+
+    const duasViasNaMesmaFolha =
+      doc.formatoImpressao === "DUAS_VIAS_A4" ||
+      doc.quantidadeVias === 2;
 
     const pdfDoc = await PDFDocument.create();
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
@@ -993,6 +1017,425 @@ export async function GET(
           : pageHeight - 175;
     }
 
+if (duasViasNaMesmaFolha) {
+  const paginaDuasVias =
+    pdfDoc.addPage([
+      pageWidth,
+      pageHeight,
+    ]);
+
+  const alturaVia =
+    pageHeight / 2;
+
+  const margemVia = 32;
+
+  const larguraVia =
+    pageWidth -
+    margemVia * 2;
+
+  const tamanhoTextoVia = 9.5;
+
+  const alturaLinhaVia = 13;
+
+  const conteudoCompacto =
+    converterHtmlEmTextoCompacto(
+      doc.conteudo || ""
+    );
+
+  const linhasConteudo =
+    quebrarTextoEmLinhas(
+      conteudoCompacto,
+      larguraVia,
+      usarFonteTexto,
+      tamanhoTextoVia
+    );
+
+  const linhasTitulo =
+    quebrarTextoEmLinhas(
+      doc.titulo || "Documento",
+      larguraVia,
+      bold,
+      13
+    ).slice(0, 2);
+
+  const quantidadeMaximaLinhas =
+    linhasTitulo.length > 1
+      ? 17
+      : 18;
+
+  if (
+    linhasConteudo.length >
+    quantidadeMaximaLinhas
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          "O conteúdo deste documento não cabe em duas vias na mesma folha A4. Selecione uma via ou reduza o conteúdo do modelo.",
+      },
+      {
+        status: 400,
+      }
+    );
+  }
+
+  function desenharViaCompacta(
+    baseY: number,
+    rotuloVia: string
+  ) {
+    const topoVia =
+      baseY + alturaVia;
+
+    if (imagemLogo) {
+      paginaDuasVias.drawImage(
+        imagemLogo,
+        {
+          x: margemVia,
+          y: topoVia - 44,
+          width: 30,
+          height: 30,
+        }
+      );
+    }
+
+    const xCabecalho =
+      imagemLogo
+        ? margemVia + 40
+        : margemVia;
+
+    const larguraNomeInstituicao =
+      pageWidth -
+      margemVia -
+      xCabecalho -
+      135;
+
+    const nomeInstituicaoLinha =
+      quebrarTextoEmLinhas(
+        nomeInstituicao,
+        larguraNomeInstituicao,
+        bold,
+        10
+      )[0] || nomeInstituicao;
+
+    paginaDuasVias.drawText(
+      nomeInstituicaoLinha,
+      {
+        x: xCabecalho,
+        y: topoVia - 24,
+        size: 10,
+        font: bold,
+        color: rgb(
+          0.08,
+          0.12,
+          0.2
+        ),
+      }
+    );
+
+    paginaDuasVias.drawText(
+      `CNPJ: ${cnpj}`,
+      {
+        x: xCabecalho,
+        y: topoVia - 37,
+        size: 7.5,
+        font,
+        color: rgb(
+          0.35,
+          0.35,
+          0.38
+        ),
+      }
+    );
+
+    const larguraRotulo =
+      bold.widthOfTextAtSize(
+        rotuloVia,
+        8
+      );
+
+    paginaDuasVias.drawText(
+      rotuloVia,
+      {
+        x:
+          pageWidth -
+          margemVia -
+          larguraRotulo,
+        y: topoVia - 25,
+        size: 8,
+        font: bold,
+        color: rgb(
+          0.18,
+          0.28,
+          0.45
+        ),
+      }
+    );
+
+    let yTitulo =
+      topoVia - 58;
+
+    for (
+      const linhaTitulo
+      of linhasTitulo
+    ) {
+      paginaDuasVias.drawText(
+        linhaTitulo,
+        {
+          x: margemVia,
+          y: yTitulo,
+          size: 13,
+          font: bold,
+          color: rgb(
+            0.08,
+            0.12,
+            0.2
+          ),
+        }
+      );
+
+      yTitulo -= 15;
+    }
+
+    const ySeparador =
+      yTitulo - 1;
+
+    paginaDuasVias.drawLine({
+      start: {
+        x: margemVia,
+        y: ySeparador,
+      },
+      end: {
+        x:
+          pageWidth -
+          margemVia,
+        y: ySeparador,
+      },
+      thickness: 0.7,
+      color: rgb(
+        0.82,
+        0.84,
+        0.87
+      ),
+    });
+
+    let yConteudo =
+      ySeparador - 16;
+
+    for (
+      const linha
+      of linhasConteudo
+    ) {
+      paginaDuasVias.drawText(
+        linha || " ",
+        {
+          x: margemVia,
+          y: yConteudo,
+          size: tamanhoTextoVia,
+          font: usarFonteTexto,
+          color: rgb(0, 0, 0),
+        }
+      );
+
+      yConteudo -=
+        alturaLinhaVia;
+    }
+
+    const alturaValidacao = 50;
+
+    const yValidacao =
+      baseY + 17;
+
+    paginaDuasVias.drawRectangle({
+      x: margemVia,
+      y: yValidacao,
+      width: larguraVia,
+      height: alturaValidacao,
+      color: rgb(
+        0.97,
+        0.98,
+        0.99
+      ),
+      borderWidth: 0.7,
+      borderColor: rgb(
+        0.82,
+        0.86,
+        0.9
+      ),
+    });
+
+    paginaDuasVias.drawText(
+      "VALIDAÇÃO DO DOCUMENTO",
+      {
+        x: margemVia + 8,
+        y:
+          yValidacao +
+          alturaValidacao -
+          13,
+        size: 7.5,
+        font: bold,
+        color: rgb(
+          0.18,
+          0.28,
+          0.45
+        ),
+      }
+    );
+
+    paginaDuasVias.drawText(
+      `Código: ${codigoValidacao}`,
+      {
+        x: margemVia + 8,
+        y:
+          yValidacao +
+          alturaValidacao -
+          26,
+        size: 7.5,
+        font: bold,
+        color: rgb(
+          0.08,
+          0.12,
+          0.2
+        ),
+      }
+    );
+
+    paginaDuasVias.drawText(
+      `Emitido em: ${
+        doc.criadoEm
+          ? new Date(
+              doc.criadoEm
+            ).toLocaleString(
+              "pt-BR"
+            )
+          : new Date().toLocaleString(
+              "pt-BR"
+            )
+      }`,
+      {
+        x: margemVia + 8,
+        y:
+          yValidacao +
+          alturaValidacao -
+          38,
+        size: 7,
+        font: usarFonteTexto,
+        color: rgb(
+          0.35,
+          0.35,
+          0.38
+        ),
+      }
+    );
+
+    paginaDuasVias.drawImage(
+      qrImage,
+      {
+        x:
+          pageWidth -
+          margemVia -
+          42,
+        y: yValidacao + 5,
+        width: 40,
+        height: 40,
+      }
+    );
+  }
+
+  desenharViaCompacta(
+    alturaVia,
+    "VIA DO INTERESSADO"
+  );
+
+  desenharViaCompacta(
+    0,
+    "VIA DA INSTITUIÇÃO"
+  );
+
+  const yCorte =
+    alturaVia;
+
+  for (
+    let x = 18;
+    x < pageWidth - 18;
+    x += 14
+  ) {
+    paginaDuasVias.drawLine({
+      start: {
+        x,
+        y: yCorte,
+      },
+      end: {
+        x: Math.min(
+          x + 8,
+          pageWidth - 18
+        ),
+        y: yCorte,
+      },
+      thickness: 0.6,
+      color: rgb(
+        0.55,
+        0.55,
+        0.58
+      ),
+    });
+  }
+
+  const textoCorte =
+    "LINHA DE CORTE";
+
+  const larguraTextoCorte =
+    font.widthOfTextAtSize(
+      textoCorte,
+      6
+    );
+
+  paginaDuasVias.drawRectangle({
+    x:
+      pageWidth / 2 -
+      larguraTextoCorte / 2 -
+      5,
+    y: yCorte - 5,
+    width:
+      larguraTextoCorte + 10,
+    height: 10,
+    color: rgb(1, 1, 1),
+  });
+
+  paginaDuasVias.drawText(
+    textoCorte,
+    {
+      x:
+        pageWidth / 2 -
+        larguraTextoCorte / 2,
+      y: yCorte - 2,
+      size: 6,
+      font,
+      color: rgb(
+        0.45,
+        0.45,
+        0.48
+      ),
+    }
+  );
+
+  const pdfBytesDuasVias =
+    await pdfDoc.save();
+
+  return new Response(
+    Buffer.from(
+      pdfBytesDuasVias
+    ),
+    {
+      headers: {
+        "Content-Type":
+          "application/pdf",
+
+        "Content-Disposition":
+          `inline; filename=documento-${doc.id}-duas-vias.pdf`,
+      },
+    }
+  );
+}
+
     let page = novaPaginaComLayout();
     let y = pageHeight - 50;
 
@@ -1000,153 +1443,153 @@ export async function GET(
     y = obterYInicial();
 
     if (ehDocumentoFinanceiro) {
-    page.drawText(`Aluno: ${doc.aluno?.nome || "-"}`, {
-      x: margemX,
-      y,
-      size: 11,
-      font: usarFonteTexto,
-      color: rgb(0, 0, 0),
-    });
-    y -= 16;
+      page.drawText(`Aluno: ${doc.aluno?.nome || "-"}`, {
+        x: margemX,
+        y,
+        size: 11,
+        font: usarFonteTexto,
+        color: rgb(0, 0, 0),
+      });
+      y -= 16;
 
-    page.drawText(`Matrícula: ${doc.aluno?.matricula || "-"}`, {
-      x: margemX,
-      y,
-      size: 11,
-      font: usarFonteTexto,
-      color: rgb(0, 0, 0),
-    });
-    y -= 16;
+      page.drawText(`Matrícula: ${doc.aluno?.matricula || "-"}`, {
+        x: margemX,
+        y,
+        size: 11,
+        font: usarFonteTexto,
+        color: rgb(0, 0, 0),
+      });
+      y -= 16;
 
-    page.drawText(`CPF: ${doc.aluno?.cpf || "-"}`, {
-      x: margemX,
-      y,
-      size: 11,
-      font: usarFonteTexto,
-      color: rgb(0, 0, 0),
-    });
-    y -= 16;
+      page.drawText(`CPF: ${doc.aluno?.cpf || "-"}`, {
+        x: margemX,
+        y,
+        size: 11,
+        font: usarFonteTexto,
+        color: rgb(0, 0, 0),
+      });
+      y -= 16;
 
-    page.drawText(`Data: ${dataFormatada}`, {
-      x: margemX,
-      y,
-      size: 11,
-      font: usarFonteTexto,
-      color: rgb(0, 0, 0),
-    });
+      page.drawText(`Data: ${dataFormatada}`, {
+        x: margemX,
+        y,
+        size: 11,
+        font: usarFonteTexto,
+        color: rgb(0, 0, 0),
+      });
 
-    y -= 34;
+      y -= 34;
 
-    let valorDoc = extrairValorMonetarioDoConteudo(doc.conteudo || "");
+      let valorDoc = extrairValorMonetarioDoConteudo(doc.conteudo || "");
 
-    if (!valorDoc || valorDoc <= 0) {
-      valorDoc = Number(doc.matricula?.valorMatricula || 0);
+      if (!valorDoc || valorDoc <= 0) {
+        valorDoc = Number(doc.matricula?.valorMatricula || 0);
+      }
+
+      if ((!valorDoc || valorDoc <= 0) && doc.matricula?.lancamentosFinanceiros?.length) {
+        valorDoc = doc.matricula.lancamentosFinanceiros.reduce(
+          (total, item) =>
+            total + Number(item.valorPago ?? item.valorFinal ?? item.valorOriginal ?? 0),
+          0
+        );
+      }
+
+      const textoValor = `R$ ${valorDoc.toFixed(2)}`;
+      const larguraValor = bold.widthOfTextAtSize(textoValor, 26);
+
+      // 💰 BLOCO PREMIUM DE VALOR
+      page.drawRectangle({
+        x: margemX,
+        y: y - 80,
+        width: larguraTexto,
+        height: 80,
+        color: rgb(0.94, 0.96, 0.99),
+        borderWidth: 1,
+        borderColor: rgb(0.8, 0.85, 0.9),
+      });
+
+      page.drawText("VALOR RECEBIDO", {
+        x: margemX + 12,
+        y: y - 25,
+        size: 10,
+        font: bold,
+        color: rgb(0.3, 0.4, 0.6),
+      });
+
+      page.drawText(textoValor, {
+        x: margemX + (larguraTexto - larguraValor) / 2,
+        y: y - 55,
+        size: 26,
+        font: bold,
+        color: rgb(0.05, 0.15, 0.3),
+      });
+
+      y -= 100;
+
+      // 👤 BLOCO DO ALUNO
+      page.drawRectangle({
+        x: margemX,
+        y: y - 90,
+        width: larguraTexto,
+        height: 90,
+        color: rgb(0.98, 0.98, 0.98),
+        borderWidth: 1,
+        borderColor: rgb(0.9, 0.9, 0.9),
+      });
+
+      page.drawText("DADOS DO ALUNO", {
+        x: margemX + 10,
+        y: y - 15,
+        size: 10,
+        font: bold,
+        color: rgb(0.2, 0.2, 0.2),
+      });
+
+      page.drawText(`Nome: ${doc.aluno?.nome || "-"}`, {
+        x: margemX + 10,
+        y: y - 30,
+        size: 10,
+        font: usarFonteTexto,
+        color: rgb(0, 0, 0),
+      });
+
+      page.drawText(`CPF: ${doc.aluno?.cpf || "-"}`, {
+        x: margemX + 10,
+        y: y - 45,
+        size: 10,
+        font: usarFonteTexto,
+        color: rgb(0, 0, 0),
+      });
+
+      page.drawText(`Matrícula: ${doc.aluno?.matricula || "-"}`, {
+        x: margemX + 10,
+        y: y - 60,
+        size: 10,
+        font: usarFonteTexto,
+        color: rgb(0, 0, 0),
+      });
+
+      y -= 110;
+
+      // ✅ STATUS
+      page.drawRectangle({
+        x: margemX,
+        y: y - 20,
+        width: 120,
+        height: 18,
+        color: rgb(0.85, 0.95, 0.88),
+      });
+
+      page.drawText("PAGO", {
+        x: margemX + 8,
+        y: y - 15,
+        size: 10,
+        font: bold,
+        color: rgb(0.1, 0.5, 0.2),
+      });
+
+      y -= 35;
     }
-
-    if ((!valorDoc || valorDoc <= 0) && doc.matricula?.lancamentosFinanceiros?.length) {
-      valorDoc = doc.matricula.lancamentosFinanceiros.reduce(
-        (total, item) =>
-          total + Number(item.valorPago ?? item.valorFinal ?? item.valorOriginal ?? 0),
-        0
-      );
-    }
-
-    const textoValor = `R$ ${valorDoc.toFixed(2)}`;
-    const larguraValor = bold.widthOfTextAtSize(textoValor, 26);
-
-    // 💰 BLOCO PREMIUM DE VALOR
-    page.drawRectangle({
-      x: margemX,
-      y: y - 80,
-      width: larguraTexto,
-      height: 80,
-      color: rgb(0.94, 0.96, 0.99),
-      borderWidth: 1,
-      borderColor: rgb(0.8, 0.85, 0.9),
-    });
-
-    page.drawText("VALOR RECEBIDO", {
-      x: margemX + 12,
-      y: y - 25,
-      size: 10,
-      font: bold,
-      color: rgb(0.3, 0.4, 0.6),
-    });
-
-    page.drawText(textoValor, {
-      x: margemX + (larguraTexto - larguraValor) / 2,
-      y: y - 55,
-      size: 26,
-      font: bold,
-      color: rgb(0.05, 0.15, 0.3),
-    });
-
-    y -= 100;
-
-    // 👤 BLOCO DO ALUNO
-    page.drawRectangle({
-      x: margemX,
-      y: y - 90,
-      width: larguraTexto,
-      height: 90,
-      color: rgb(0.98, 0.98, 0.98),
-      borderWidth: 1,
-      borderColor: rgb(0.9, 0.9, 0.9),
-    });
-
-    page.drawText("DADOS DO ALUNO", {
-      x: margemX + 10,
-      y: y - 15,
-      size: 10,
-      font: bold,
-      color: rgb(0.2, 0.2, 0.2),
-    });
-
-    page.drawText(`Nome: ${doc.aluno?.nome || "-"}`, {
-      x: margemX + 10,
-      y: y - 30,
-      size: 10,
-      font: usarFonteTexto,
-      color: rgb(0, 0, 0),
-    });
-
-    page.drawText(`CPF: ${doc.aluno?.cpf || "-"}`, {
-      x: margemX + 10,
-      y: y - 45,
-      size: 10,
-      font: usarFonteTexto,
-      color: rgb(0, 0, 0),
-    });
-
-    page.drawText(`Matrícula: ${doc.aluno?.matricula || "-"}`, {
-      x: margemX + 10,
-      y: y - 60,
-      size: 10,
-      font: usarFonteTexto,
-      color: rgb(0, 0, 0),
-    });
-
-    y -= 110;
-
-    // ✅ STATUS
-    page.drawRectangle({
-      x: margemX,
-      y: y - 20,
-      width: 120,
-      height: 18,
-      color: rgb(0.85, 0.95, 0.88),
-    });
-
-    page.drawText("PAGO", {
-      x: margemX + 8,
-      y: y - 15,
-      size: 10,
-      font: bold,
-      color: rgb(0.1, 0.5, 0.2),
-    });
-
-    y -= 35;
-}
 
     function htmlParaTexto(valor: string) {
       return String(valor || "")
@@ -1197,32 +1640,32 @@ export async function GET(
 
     // ✍️ ASSINATURA
     if (ehDocumentoFinanceiro) {
-    page.drawLine({
-      start: { x: margemX, y: y - 40 },
-      end: { x: margemX + 200, y: y - 40 },
-      thickness: 1,
-      color: rgb(0.2, 0.2, 0.2),
-    });
+      page.drawLine({
+        start: { x: margemX, y: y - 40 },
+        end: { x: margemX + 200, y: y - 40 },
+        thickness: 1,
+        color: rgb(0.2, 0.2, 0.2),
+      });
 
-    page.drawText("Responsável financeiro", {
-      x: margemX,
-      y: y - 55,
-      size: 9,
-      font: usarFonteTexto,
-      color: rgb(0.4, 0.4, 0.4),
-    });
+      page.drawText("Responsável financeiro", {
+        x: margemX,
+        y: y - 55,
+        size: 9,
+        font: usarFonteTexto,
+        color: rgb(0.4, 0.4, 0.4),
+      });
 
 
-    y -= 95;
-}
+      y -= 95;
+    }
 
-if (y < 170) {
-  page = novaPaginaComLayout();
+    if (y < 170) {
+      page = novaPaginaComLayout();
 
-  await desenharCabecalho(page);
+      await desenharCabecalho(page);
 
-  y = obterYInicial();
-}
+      y = obterYInicial();
+    }
 
     page.drawRectangle({
       x: margemX,

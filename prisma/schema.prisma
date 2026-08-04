@@ -9,7 +9,6 @@ datasource db {
 }
 
 model Instituicao {
-  
   id                      Int      @id @default(autoincrement())
   nome                    String
   ativo                   Boolean  @default(true)
@@ -900,16 +899,16 @@ model Matricula {
   confirmacaoMenorPorNomeSnapshot         String?
   textoConfirmacaoMenor                   String?         @db.Text
 
-  contratos              Contrato[]
-  documentos             DocumentoAluno[]
-  documentosGerados      DocumentoGerado[]
-  itens                  ItemMatricula[]
-  lancamentosFinanceiros LancamentoFinanceiro[]
-  vendedorResponsavel    Funcionario?                       @relation("MatriculaVendedorResponsavel", fields: [vendedorResponsavelId], references: [id], onDelete: SetNull)
-  leadOrigem              Lead?                             @relation("LeadMatriculaConvertida", fields: [leadOrigemId], references: [id], onDelete: SetNull)
+  contratos               Contrato[]
+  documentos              DocumentoAluno[]
+  documentosGerados       DocumentoGerado[]
+  itens                   ItemMatricula[]
+  lancamentosFinanceiros  LancamentoFinanceiro[]
+  vendedorResponsavel     Funcionario?                     @relation("MatriculaVendedorResponsavel", fields: [vendedorResponsavelId], references: [id], onDelete: SetNull)
+  leadOrigem              Lead?                            @relation("LeadMatriculaConvertida", fields: [leadOrigemId], references: [id], onDelete: SetNull)
   participantesComerciais MatriculaParticipanteComercial[]
   lancamentosComissaoRH   LancamentoComissaoRH[]
-  rematriculasComoOrigem  RematriculaSemestral[]            @relation("RematriculaMatriculaOrigem")
+  rematriculasComoOrigem  RematriculaSemestral[]           @relation("RematriculaMatriculaOrigem")
 
   rematriculaGeradora RematriculaSemestral? @relation("RematriculaMatriculaGerada")
   cursoSemestreId     Int?
@@ -1798,6 +1797,9 @@ model DocumentoGerado {
   templateId                  Int?
   cursoId                     Int?
   codigoValidacao             String?                       @unique
+  dadosPreenchimento          Json?
+  formatoImpressao            String                        @default("A4_INTEIRA")
+  quantidadeVias              Int                           @default(1)
   aluno                       Aluno?                        @relation(fields: [alunoId], references: [id])
   Curso                       Curso?                        @relation(fields: [cursoId], references: [id])
   instituicao                 Instituicao                   @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)

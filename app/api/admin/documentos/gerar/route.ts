@@ -168,6 +168,354 @@ function montarBlocoPolo(polo?: any) {
     .join("\n");
 }
 
+function extrairTagsTemplate(
+  conteudo?: string | null
+) {
+  const tags = Array.from(
+    String(conteudo || "").matchAll(
+      /{{\s*([^{}]+?)\s*}}/g
+    )
+  ).map((resultado) =>
+    String(resultado[1] || "").trim()
+  );
+
+  return Array.from(new Set(tags));
+}
+
+function converterMoedaParaNumero(
+  valor: unknown
+) {
+  if (
+    typeof valor === "number"
+  ) {
+    return Number.isFinite(valor)
+      ? valor
+      : null;
+  }
+
+  const texto = String(
+    valor ?? ""
+  )
+    .trim()
+    .replace(/^R\$\s*/i, "")
+    .replace(/\s/g, "");
+
+  if (!texto) {
+    return null;
+  }
+
+  let normalizado = texto;
+
+  if (
+    normalizado.includes(".") &&
+    normalizado.includes(",")
+  ) {
+    normalizado = normalizado
+      .replace(/\./g, "")
+      .replace(",", ".");
+  } else if (
+    normalizado.includes(",")
+  ) {
+    normalizado =
+      normalizado.replace(",", ".");
+  }
+
+  const numero = Number(normalizado);
+
+  return Number.isFinite(numero)
+    ? numero
+    : null;
+}
+
+function formatarDataInformada(
+  valor: unknown
+) {
+  const texto =
+    String(valor ?? "").trim();
+
+  if (!texto) {
+    return "";
+  }
+
+  const data = new Date(
+    `${texto.slice(0, 10)}T12:00:00`
+  );
+
+  if (
+    Number.isNaN(data.getTime())
+  ) {
+    return texto;
+  }
+
+  return data.toLocaleDateString(
+    "pt-BR"
+  );
+}
+
+const UNIDADES_EXTENSO = [
+  "",
+  "um",
+  "dois",
+  "três",
+  "quatro",
+  "cinco",
+  "seis",
+  "sete",
+  "oito",
+  "nove",
+];
+
+const ESPECIAIS_EXTENSO = [
+  "dez",
+  "onze",
+  "doze",
+  "treze",
+  "quatorze",
+  "quinze",
+  "dezesseis",
+  "dezessete",
+  "dezoito",
+  "dezenove",
+];
+
+const DEZENAS_EXTENSO = [
+  "",
+  "",
+  "vinte",
+  "trinta",
+  "quarenta",
+  "cinquenta",
+  "sessenta",
+  "setenta",
+  "oitenta",
+  "noventa",
+];
+
+const CENTENAS_EXTENSO = [
+  "",
+  "cento",
+  "duzentos",
+  "trezentos",
+  "quatrocentos",
+  "quinhentos",
+  "seiscentos",
+  "setecentos",
+  "oitocentos",
+  "novecentos",
+];
+
+function numeroAte999PorExtenso(
+  numero: number
+): string {
+  const valor =
+    Math.trunc(numero);
+
+  if (valor === 0) {
+    return "";
+  }
+
+  if (valor === 100) {
+    return "cem";
+  }
+
+  const centenas =
+    Math.floor(valor / 100);
+
+  const restoCentenas =
+    valor % 100;
+
+  const partes: string[] = [];
+
+  if (centenas > 0) {
+    partes.push(
+      CENTENAS_EXTENSO[
+      centenas
+      ]
+    );
+  }
+
+  if (restoCentenas > 0) {
+    if (partes.length > 0) {
+      partes.push("e");
+    }
+
+    if (
+      restoCentenas >= 10 &&
+      restoCentenas <= 19
+    ) {
+      partes.push(
+        ESPECIAIS_EXTENSO[
+        restoCentenas - 10
+        ]
+      );
+    } else {
+      const dezenas =
+        Math.floor(
+          restoCentenas / 10
+        );
+
+      const unidades =
+        restoCentenas % 10;
+
+      if (dezenas > 0) {
+        partes.push(
+          DEZENAS_EXTENSO[
+          dezenas
+          ]
+        );
+      }
+
+      if (unidades > 0) {
+        if (dezenas > 0) {
+          partes.push("e");
+        }
+
+        partes.push(
+          UNIDADES_EXTENSO[
+          unidades
+          ]
+        );
+      }
+    }
+  }
+
+  return partes.join(" ");
+}
+
+function numeroInteiroPorExtenso(
+  numero: number
+): string {
+  let restante =
+    Math.max(
+      0,
+      Math.trunc(numero)
+    );
+
+  if (restante === 0) {
+    return "zero";
+  }
+
+  const partes: string[] = [];
+
+  const escalas = [
+    {
+      valor: 1_000_000_000,
+      singular: "bilhão",
+      plural: "bilhões",
+    },
+    {
+      valor: 1_000_000,
+      singular: "milhão",
+      plural: "milhões",
+    },
+    {
+      valor: 1_000,
+      singular: "mil",
+      plural: "mil",
+    },
+  ];
+
+  for (
+    const escala of escalas
+  ) {
+    const quantidade =
+      Math.floor(
+        restante /
+        escala.valor
+      );
+
+    if (quantidade <= 0) {
+      continue;
+    }
+
+    if (
+      escala.valor === 1_000 &&
+      quantidade === 1
+    ) {
+      partes.push("mil");
+    } else {
+      partes.push(
+        `${numeroAte999PorExtenso(
+          quantidade
+        )} ${quantidade === 1
+          ? escala.singular
+          : escala.plural
+        }`
+      );
+    }
+
+    restante %=
+      escala.valor;
+  }
+
+  if (restante > 0) {
+    const usarConjuncao =
+      partes.length > 0 &&
+      restante < 100;
+
+    if (usarConjuncao) {
+      partes.push("e");
+    }
+
+    partes.push(
+      numeroAte999PorExtenso(
+        restante
+      )
+    );
+  }
+
+  return partes.join(" ");
+}
+
+function valorMonetarioPorExtenso(
+  valor: number
+) {
+  const negativo =
+    valor < 0;
+
+  const absoluto =
+    Math.abs(valor);
+
+  let reais =
+    Math.floor(absoluto);
+
+  let centavos =
+    Math.round(
+      (absoluto - reais) *
+      100
+    );
+
+  if (centavos === 100) {
+    reais += 1;
+    centavos = 0;
+  }
+
+  const partes: string[] = [];
+
+  partes.push(
+    `${reais === 1
+      ? "um real"
+      : `${numeroInteiroPorExtenso(
+        reais
+      )} reais`
+    }`
+  );
+
+  if (centavos > 0) {
+    partes.push(
+      centavos === 1
+        ? "um centavo"
+        : `${numeroInteiroPorExtenso(
+          centavos
+        )} centavos`
+    );
+  }
+
+  return `${negativo ? "menos " : ""}${partes.join(
+    " e "
+  )}`;
+}
+
 export async function POST(req: Request) {
   try {
     const user = await getUserFromToken();
@@ -185,12 +533,46 @@ export async function POST(req: Request) {
       ? String(body.titulo).trim()
       : null;
 
+    const dadosPreenchimentoRecebidos =
+      body?.dadosPreenchimento &&
+        typeof body.dadosPreenchimento ===
+        "object" &&
+        !Array.isArray(
+          body.dadosPreenchimento
+        )
+        ? body.dadosPreenchimento
+        : {};
+
+    const formatoImpressao =
+      body?.formatoImpressao ===
+        "DUAS_VIAS_A4"
+        ? "DUAS_VIAS_A4"
+        : "A4_INTEIRA";
+
+    const quantidadeVias =
+      formatoImpressao ===
+        "DUAS_VIAS_A4"
+        ? 2
+        : 1;
+
+    const valorEnviadoSeparadamente =
+      converterMoedaParaNumero(
+        body?.valor
+      );
+
+    const valorDosCampos =
+      converterMoedaParaNumero(
+        dadosPreenchimentoRecebidos
+          ?.valorDocumento ??
+        dadosPreenchimentoRecebidos
+          ?.valorRecebido ??
+        dadosPreenchimentoRecebidos
+          ?.valor
+      );
+
     const valorInformado =
-      body?.valor !== null &&
-        body?.valor !== undefined &&
-        body?.valor !== ""
-        ? Number(body.valor)
-        : null;
+      valorEnviadoSeparadamente ??
+      valorDosCampos;
 
     if (
       valorInformado !== null &&
@@ -227,6 +609,100 @@ export async function POST(req: Request) {
         { error: "Template não encontrado" },
         { status: 404 }
       );
+    }
+
+    const tagsDoTemplate =
+      new Set(
+        extrairTagsTemplate(
+          template.conteudo
+        )
+      );
+
+    const dadosPreenchimento:
+      Record<string, string> = {};
+
+    for (
+      const [chave, valor]
+      of Object.entries(
+        dadosPreenchimentoRecebidos
+      )
+    ) {
+      /*
+       * Só aceita campos que realmente
+       * existem como tags no template.
+       */
+      if (
+        !tagsDoTemplate.has(chave)
+      ) {
+        continue;
+      }
+
+      dadosPreenchimento[chave] =
+        String(valor ?? "")
+          .trim()
+          .slice(0, 20000);
+    }
+
+    if (
+      valorInformado !== null
+    ) {
+      const valorFormatado =
+        formatarMoeda(
+          valorInformado
+        );
+
+      if (
+        tagsDoTemplate.has(
+          "valorDocumento"
+        )
+      ) {
+        dadosPreenchimento
+          .valorDocumento =
+          valorFormatado;
+      }
+
+      if (
+        tagsDoTemplate.has(
+          "valorRecebido"
+        )
+      ) {
+        dadosPreenchimento
+          .valorRecebido =
+          valorFormatado;
+      }
+
+      if (
+        tagsDoTemplate.has(
+          "valor"
+        )
+      ) {
+        dadosPreenchimento.valor =
+          valorFormatado;
+      }
+
+      if (
+        tagsDoTemplate.has(
+          "valorPorExtenso"
+        )
+      ) {
+        dadosPreenchimento
+          .valorPorExtenso =
+          valorMonetarioPorExtenso(
+            valorInformado
+          );
+      }
+    }
+
+    if (
+      dadosPreenchimento
+        .dataPagamento
+    ) {
+      dadosPreenchimento
+        .dataPagamento =
+        formatarDataInformada(
+          dadosPreenchimento
+            .dataPagamento
+        );
     }
 
     const tipoTemplateNormalizado = String(
@@ -428,6 +904,11 @@ export async function POST(req: Request) {
       .filter(Boolean)
       .join("\n");
 
+    const numeroMatriculaDocumento =
+      matricula?.numeroMatricula ||
+      aluno?.matricula ||
+      "-";
+
     const documento =
       await prisma.$transaction(
         async (tx) => {
@@ -464,6 +945,12 @@ export async function POST(req: Request) {
 
                 templateId:
                   template.id,
+
+                dadosPreenchimento,
+
+                formatoImpressao,
+
+                quantidadeVias,
               },
             });
 
@@ -493,6 +980,8 @@ export async function POST(req: Request) {
             string,
             string
           > = {
+            ...dadosPreenchimento,
+
             logoInstituicao: "",
 
             nomeInstituicao,
@@ -571,10 +1060,10 @@ export async function POST(req: Request) {
               aluno?.cpf || "-",
 
             matriculaAluno:
-              aluno?.matricula || "-",
+              numeroMatriculaDocumento,
 
             numeroMatricula:
-              aluno?.matricula || "-",
+              numeroMatriculaDocumento,
 
             statusAluno:
               aluno?.statusAluno || "-",
@@ -677,14 +1166,33 @@ export async function POST(req: Request) {
               formatarMoeda(
                 valorContrato
               ),
+
             valor:
-              formatarMoeda(valorContrato),
+              dadosPreenchimento.valor ||
+              formatarMoeda(
+                valorContrato
+              ),
 
             valorRecebido:
-              formatarMoeda(valorContrato),
+              dadosPreenchimento
+                .valorRecebido ||
+              formatarMoeda(
+                valorContrato
+              ),
 
             valorDocumento:
-              formatarMoeda(valorContrato),
+              dadosPreenchimento
+                .valorDocumento ||
+              formatarMoeda(
+                valorContrato
+              ),
+
+            valorPorExtenso:
+              dadosPreenchimento
+                .valorPorExtenso ||
+              valorMonetarioPorExtenso(
+                valorContrato
+              ),
 
             nomeTitularContrato,
 
@@ -788,6 +1296,16 @@ export async function POST(req: Request) {
       contexto: documento.contexto,
       status: documento.status,
       exigeAssinatura: documento.exigeAssinatura,
+
+      dadosPreenchimento:
+        documento.dadosPreenchimento,
+
+      formatoImpressao:
+        documento.formatoImpressao,
+
+      quantidadeVias:
+        documento.quantidadeVias,
+
       aluno: aluno
         ? {
           id: aluno.id,

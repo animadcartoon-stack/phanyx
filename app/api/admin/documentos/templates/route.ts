@@ -2,27 +2,386 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
-export async function GET() {
-  try {
-    const user = await getUserFromToken();
+const TAGS_AUTOMATICAS_DOCUMENTO = new Set([
+  "logoInstituicao",
+  "nomeInstituicao",
+  "cnpjInstituicao",
+  "enderecoInstituicao",
+  "telefoneInstituicao",
+  "emailInstituicao",
+  "cidadeInstituicao",
+  "estadoInstituicao",
+  "cepInstituicao",
+  "blocoInstituicao",
 
-    if (!user || user.role !== "ADMIN") {
-      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+  "nomePolo",
+  "enderecoPolo",
+  "telefonePolo",
+  "emailPolo",
+  "cidadePolo",
+  "estadoPolo",
+  "cepPolo",
+  "blocoPolo",
+
+  "responsavelLegal",
+
+  "nomeAluno",
+  "cpfAluno",
+  "matriculaAluno",
+  "numeroMatricula",
+  "statusAluno",
+
+  "curso",
+  "cursoNome",
+  "statusMatricula",
+  "dataMatricula",
+  "dataInicioAluno",
+  "dataConclusao",
+  "dataConclusaoAluno",
+  "semestreAtual",
+  "cargaHorariaCurso",
+  "cargaHorariaMinimaCurso",
+  "cargaHorariaMaximaCurso",
+  "percentualConclusao",
+  "disciplinas",
+  "disciplinasContratadas",
+
+  "nomeTitularContrato",
+  "cpfTitularContrato",
+  "emailTitularContrato",
+  "telefoneTitularContrato",
+  "parentescoTitularContrato",
+  "tipoTitularContrato",
+
+  "assinaturaDiretor",
+  "blocoAssinaturaDiretor",
+
+  "cidadeAssinatura",
+  "dataAtual",
+  "dataEmissao",
+  "horaEmissao",
+  "dataHoraEmissao",
+
+  "numeroDocumento",
+  "codigoValidacao",
+  "urlValidacao",
+  "tituloDocumento",
+  "valorPorExtenso",
+]);
+
+const DEFINICOES_CAMPOS_MANUAIS: Record<
+  string,
+  {
+    label: string;
+    tipo:
+      | "texto"
+      | "textarea"
+      | "moeda"
+      | "data"
+      | "select";
+    placeholder?: string;
+    opcoes?: string[];
+  }
+> = {
+  descricaoDocumento: {
+    label: "Descrição ou corpo do documento",
+    tipo: "textarea",
+    placeholder:
+      "Descreva o serviço, pagamento, finalidade ou conteúdo específico desta emissão.",
+  },
+
+  finalidadeDocumento: {
+    label: "Finalidade do documento",
+    tipo: "textarea",
+    placeholder:
+      "Informe para qual finalidade este documento está sendo emitido.",
+  },
+
+  destinatarioDocumento: {
+    label: "Destinatário",
+    tipo: "texto",
+    placeholder:
+      "Ex.: À empresa, órgão, pessoa ou setor responsável",
+  },
+
+  assuntoDocumento: {
+    label: "Assunto",
+    tipo: "texto",
+    placeholder:
+      "Ex.: Prestação de serviços audiovisuais",
+  },
+
+  observacoesDocumento: {
+    label: "Observações",
+    tipo: "textarea",
+    placeholder:
+      "Informações complementares desta emissão.",
+  },
+
+  periodoReferencia: {
+    label: "Período de referência",
+    tipo: "texto",
+    placeholder:
+      "Ex.: Agosto de 2026",
+  },
+
+  competencia: {
+    label: "Competência",
+    tipo: "texto",
+    placeholder:
+      "Ex.: Agosto de 2026",
+  },
+
+  valorDocumento: {
+    label: "Valor",
+    tipo: "moeda",
+    placeholder:
+      "Ex.: 150,00",
+  },
+
+  valorRecebido: {
+    label: "Valor recebido",
+    tipo: "moeda",
+    placeholder:
+      "Ex.: 150,00",
+  },
+
+  valor: {
+    label: "Valor",
+    tipo: "moeda",
+    placeholder:
+      "Ex.: 150,00",
+  },
+
+  nomePagador: {
+    label: "Nome do pagador",
+    tipo: "texto",
+    placeholder:
+      "Nome completo ou razão social",
+  },
+
+  documentoPagador: {
+    label: "CPF ou CNPJ do pagador",
+    tipo: "texto",
+    placeholder:
+      "Informe o CPF ou CNPJ",
+  },
+
+  formaPagamento: {
+    label: "Forma de pagamento",
+    tipo: "select",
+    opcoes: [
+      "PIX",
+      "Dinheiro",
+      "Cartão de crédito",
+      "Cartão de débito",
+      "Transferência bancária",
+      "Boleto",
+      "Cheque",
+      "Outro",
+    ],
+  },
+
+  dataPagamento: {
+    label: "Data do pagamento",
+    tipo: "data",
+  },
+
+  referenciaPagamento: {
+    label: "Referência do pagamento",
+    tipo: "texto",
+    placeholder:
+      "Ex.: código PIX, E2E, número do recibo ou identificação interna",
+  },
+
+  nomePrestador: {
+    label: "Nome do prestador",
+    tipo: "texto",
+    placeholder:
+      "Nome da pessoa ou empresa que realizou o serviço",
+  },
+
+  documentoPrestador: {
+    label: "CPF ou CNPJ do prestador",
+    tipo: "texto",
+    placeholder:
+      "Informe o CPF ou CNPJ",
+  },
+
+  descricaoServico: {
+    label: "Descrição do serviço",
+    tipo: "textarea",
+    placeholder:
+      "Descreva o serviço realizado.",
+  },
+};
+
+function extrairTagsDoConteudo(
+  conteudo?: string | null
+) {
+  const encontradas = Array.from(
+    String(conteudo || "").matchAll(
+      /{{\s*([^{}]+?)\s*}}/g
+    )
+  ).map((resultado) =>
+    String(resultado[1] || "").trim()
+  );
+
+  return Array.from(
+    new Set(encontradas)
+  );
+}
+
+function montarCamposManuais(
+  tags: string[]
+) {
+  return tags
+    .filter(
+      (tag) =>
+        !TAGS_AUTOMATICAS_DOCUMENTO.has(tag)
+    )
+    .map((tag) => {
+      const definicao =
+        DEFINICOES_CAMPOS_MANUAIS[tag];
+
+      return {
+        tag,
+
+        label:
+          definicao?.label ||
+          tag
+            .replace(/([a-z])([A-Z])/g, "$1 $2")
+            .replace(/^./, (letra) =>
+              letra.toUpperCase()
+            ),
+
+        tipo:
+          definicao?.tipo ||
+          "texto",
+
+        placeholder:
+          definicao?.placeholder ||
+          `Informe ${tag}`,
+
+        opcoes:
+          definicao?.opcoes ||
+          [],
+      };
+    });
+}
+
+export async function GET(
+  req: Request
+) {
+  try {
+    const user =
+      await getUserFromToken();
+
+    if (
+      !user ||
+      user.role !== "ADMIN"
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Sem permissão",
+        },
+        {
+          status: 403,
+        }
+      );
     }
 
-    const templates = await prisma.documentoTemplate.findMany({
-      where: {
-        instituicaoId: user.instituicaoId,
-      },
-      orderBy: [{ ativo: "desc" }, { tipo: "asc" }, { nome: "asc" }],
-    });
+    const { searchParams } =
+      new URL(req.url);
 
-    return NextResponse.json(templates);
-  } catch (error: any) {
-    console.error("Erro ao listar templates:", error);
+    const somenteAtivos =
+      searchParams.get(
+        "somenteAtivos"
+      ) === "1";
+
+    const templates =
+      await prisma.documentoTemplate.findMany({
+        where: {
+          instituicaoId:
+            user.instituicaoId,
+
+          ...(somenteAtivos
+            ? {
+                ativo: true,
+              }
+            : {}),
+        },
+
+        orderBy: [
+          {
+            ativo: "desc",
+          },
+          {
+            tipo: "asc",
+          },
+          {
+            nome: "asc",
+          },
+        ],
+      });
+
+    const templatesComCampos =
+      templates.map((template) => {
+        const tags =
+          extrairTagsDoConteudo(
+            template.conteudo
+          );
+
+        const tagsAutomaticas =
+          tags.filter((tag) =>
+            TAGS_AUTOMATICAS_DOCUMENTO.has(
+              tag
+            )
+          );
+
+        const camposManuais =
+          montarCamposManuais(tags);
+
+        return {
+          ...template,
+
+          tags,
+
+          tagsAutomaticas,
+
+          tagsManuais:
+            camposManuais.map(
+              (campo) =>
+                campo.tag
+            ),
+
+          camposManuais,
+
+          formatoImpressao:
+            template.formatoImpressao ||
+            "A4_INTEIRA",
+        };
+      });
+
     return NextResponse.json(
-      { error: error?.message || "Erro ao listar templates" },
-      { status: 500 }
+      templatesComCampos
+    );
+  } catch (error: any) {
+    console.error(
+      "Erro ao listar templates:",
+      error
+    );
+
+    return NextResponse.json(
+      {
+        error:
+          error?.message ||
+          "Erro ao listar templates",
+      },
+      {
+        status: 500,
+      }
     );
   }
 }
