@@ -17905,3 +17905,99 @@ html[data-theme="dark"]
   border-color: #475569 !important;
   color: #94a3b8 !important;
 }
+
+/* =========================================================
+   PHANYX — Barra flutuante de seleção do editor de certificados
+   Protegida contra as regras globais dos temas
+   ========================================================= */
+
+.phanyx-config-certificado-page
+  .phanyx-certificado-selecao-toolbar {
+  background: linear-gradient(
+    135deg,
+    #0f172a 0%,
+    #172554 100%
+  ) !important;
+
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+
+  box-shadow:
+    0 18px 45px rgba(15, 23, 42, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Título principal */
+.phanyx-config-certificado-page
+  .phanyx-certificado-selecao-toolbar
+  p {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* Texto explicativo */
+.phanyx-config-certificado-page
+  .phanyx-certificado-selecao-toolbar
+  .text-slate-300 {
+  color: #cbd5e1 !important;
+  -webkit-text-fill-color: #cbd5e1 !important;
+}
+
+/* Contador de selecionados */
+.phanyx-config-certificado-page
+  .phanyx-certificado-selecao-toolbar
+  > div
+  > span {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* Todos os botões ativos */
+.phanyx-config-certificado-page
+  .phanyx-certificado-selecao-toolbar
+  button:not(:disabled) {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+  font-weight: 800 !important;
+}
+
+/* Recupera o fundo do botão Ferramentas no tema claro */
+.phanyx-config-certificado-page
+  .phanyx-certificado-selecao-toolbar
+  button.bg-slate-700 {
+  background-color: #334155 !important;
+  border-color: #475569 !important;
+}
+
+.phanyx-config-certificado-page
+  .phanyx-certificado-selecao-toolbar
+  button.bg-slate-700:hover {
+  background-color: #475569 !important;
+}
+
+/* Botões indisponíveis continuam identificáveis, mas legíveis */
+.phanyx-config-certificado-page
+  .phanyx-certificado-selecao-toolbar
+  button:disabled {
+  background-color: #334155 !important;
+  border-color: #475569 !important;
+
+  color: #cbd5e1 !important;
+  -webkit-text-fill-color: #cbd5e1 !important;
+
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+}
+
+/* Mantém ícones e textos internos dos botões legíveis */
+.phanyx-config-certificado-page
+  .phanyx-certificado-selecao-toolbar
+  button
+  span {
+  color: inherit !important;
+  -webkit-text-fill-color: inherit !important;
+  opacity: 1 !important;
+}

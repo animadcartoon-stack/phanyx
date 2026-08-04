@@ -8073,7 +8073,7 @@ export default function ConfiguracaoCertificadoPage() {
                 e.stopPropagation();
                 trazerPainelFlutuanteParaFrente("barraSelecao");
               }}
-              className="fixed w-[min(920px,calc(100vw-32px))] rounded-2xl border border-blue-500/40 bg-slate-950/95 p-3 text-white shadow-2xl backdrop-blur"
+              className="phanyx-certificado-selecao-toolbar fixed w-[min(920px,calc(100vw-32px))] rounded-2xl border p-3 shadow-2xl backdrop-blur"
               style={{
                 left: `${barraSelecaoPosicao.x}px`,
                 top: `${barraSelecaoPosicao.y}px`,
