@@ -1422,15 +1422,15 @@ export default function EquipesComerciaisPage() {
 
       {equipeParaDesativar && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/60 p-4">
-          <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900">
-            <div className="p-6">
-              <h2 className="text-xl font-black text-slate-950 dark:text-white">
+          <div className="phanyx-equipes-desativar-modal w-full max-w-lg rounded-3xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900">
+            <div className="phanyx-equipes-desativar-corpo p-6">
+              <h2 className="phanyx-equipes-desativar-titulo text-xl font-black text-slate-950 dark:text-white">
                 Desativar equipe comercial
               </h2>
 
-              <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
+              <p className="phanyx-equipes-desativar-texto mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
                 A equipe{" "}
-                <strong className="text-slate-950 dark:text-white">
+                <strong className="phanyx-equipes-desativar-nome text-slate-950 dark:text-white">
                   {
                     equipeParaDesativar.nome
                   }
@@ -1441,7 +1441,7 @@ export default function EquipesComerciaisPage() {
               </p>
             </div>
 
-            <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 p-6 dark:border-slate-700 dark:bg-slate-950 sm:flex-row sm:justify-end">
+            <div className="phanyx-equipes-desativar-rodape flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 p-6 dark:border-slate-700 dark:bg-slate-950 sm:flex-row sm:justify-end">
               <button
                 type="button"
                 onClick={() =>
@@ -1450,7 +1450,7 @@ export default function EquipesComerciaisPage() {
                   )
                 }
                 disabled={salvando}
-                className="rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-black text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                className="phanyx-equipes-desativar-cancelar rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-black text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
               >
                 Manter equipe
               </button>
@@ -1461,7 +1461,7 @@ export default function EquipesComerciaisPage() {
                   confirmarDesativacao
                 }
                 disabled={salvando}
-                className="rounded-2xl bg-red-700 px-5 py-3 text-sm font-black text-white transition hover:bg-red-800 disabled:opacity-60"
+                className="phanyx-equipes-desativar-confirmar rounded-2xl bg-red-700 px-5 py-3 text-sm font-black text-white transition hover:bg-red-800 disabled:opacity-60"
               >
                 {salvando
                   ? "Desativando..."

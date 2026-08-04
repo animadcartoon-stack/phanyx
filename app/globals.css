@@ -18618,3 +18618,86 @@ html:not(.dark)
   color: #9f1239 !important;
   -webkit-text-fill-color: #9f1239 !important;
 }
+
+/* =========================================================
+   PHANYX — Modal de desativação de equipe no tema claro
+   ========================================================= */
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-desativar-modal {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-desativar-corpo {
+  background: #ffffff !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-desativar-titulo {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+  font-weight: 900 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-desativar-texto {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-desativar-nome {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+  font-weight: 900 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-desativar-rodape {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-desativar-cancelar {
+  background: #ffffff !important;
+  border-color: #94a3b8 !important;
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-desativar-cancelar:hover {
+  background: #f1f5f9 !important;
+  border-color: #64748b !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-desativar-confirmar {
+  background: #be123c !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-equipes-comerciais-page
+  .phanyx-equipes-desativar-confirmar:hover {
+  background: #9f1239 !important;
+}
