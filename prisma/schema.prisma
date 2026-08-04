@@ -197,6 +197,9 @@ model Instituicao {
   FuncionarioPlanoComissaoRH     FuncionarioPlanoComissaoRH[]
   MatriculaParticipanteComercial MatriculaParticipanteComercial[]
   LancamentoComissaoRH           LancamentoComissaoRH[]
+  equipesComerciais              EquipeComercial[]
+  membrosEquipesComerciais       EquipeComercialMembro[]
+  metasComerciais                MetaComercial[]
   rematriculasSemestrais         RematriculaSemestral[]
   itensRematriculaSemestral      RematriculaSemestralItem[]
 
@@ -313,6 +316,12 @@ model User {
   leadsCriados                          Lead[]                           @relation("LeadCriadoPor")
   leadsAtualizados                      Lead[]                           @relation("LeadAtualizadoPor")
   interacoesLeadCriadas                 LeadInteracao[]                  @relation("LeadInteracaoCriadaPor")
+  equipesComerciaisCriadas              EquipeComercial[]                @relation("EquipeComercialCriadaPor")
+  equipesComerciaisAtualizadas          EquipeComercial[]                @relation("EquipeComercialAtualizadaPor")
+  membrosEquipesComerciaisCriados       EquipeComercialMembro[]          @relation("EquipeComercialMembroCriadoPor")
+  membrosEquipesComerciaisAtualizados   EquipeComercialMembro[]          @relation("EquipeComercialMembroAtualizadoPor")
+  metasComerciaisCriadas                MetaComercial[]                  @relation("MetaComercialCriadaPor")
+  metasComerciaisAtualizadas            MetaComercial[]                  @relation("MetaComercialAtualizadaPor")
 
   programasRemuneracaoVariavelRHCriados                ProgramaRemuneracaoVariavelRH[]             @relation("ProgramaRemuneracaoVariavelRHCriadoPor")
   programasRemuneracaoVariavelRHAprovados              ProgramaRemuneracaoVariavelRH[]             @relation("ProgramaRemuneracaoVariavelRHAprovadoPor")
@@ -580,6 +589,7 @@ model Curso {
   cursosPolos                 CursoPolo[]
   reunioes                    Reuniao[]
   regrasComissaoRH            RegraComissaoRH[]
+  metasComerciais             MetaComercial[]
   publicacoesRedeOrigem       CursoPublicacaoRede[]           @relation("CursoPublicacaoOrigem")
   publicacaoRedeDestino       CursoPublicacaoRede?            @relation("CursoPublicacaoDestino")
 
@@ -1501,6 +1511,9 @@ model Funcionario {
   participacoesComerciais                     MatriculaParticipanteComercial[]
   matriculasComoVendedor                      Matricula[]                                 @relation("MatriculaVendedorResponsavel")
   leadsComoResponsavel                        Lead[]                                      @relation("LeadResponsavelFuncionario")
+  equipesComerciaisResponsavel                EquipeComercial[]                           @relation("EquipeComercialResponsavel")
+  membrosEquipesComerciais                    EquipeComercialMembro[]
+  metasComerciais                             MetaComercial[]
   matriculasConfirmacaoMenor                  Matricula[]                                 @relation("MatriculaConfirmacaoMenorPorFuncionario")
   lancamentosComissaoRH                       LancamentoComissaoRH[]
   participacoesProgramasRemuneracaoVariavelRH ParticipanteProgramaRemuneracaoVariavelRH[]
@@ -2224,6 +2237,7 @@ model Polo {
   matriculas             Matricula[]
   cobrancas              Cobranca[]
   lancamentosFinanceiros LancamentoFinanceiro[]
+  metasComerciais        MetaComercial[]
   publicacoesCursosRede  CursoPublicacaoRede[]  @relation("CursoPublicacaoPolo")
 
   @@unique([instituicaoId, nome])
@@ -4378,6 +4392,108 @@ model MatriculaParticipanteComercial {
   @@index([papel])
 }
 
+model EquipeComercial {
+  id                       Int      @id @default(autoincrement())
+  instituicaoId            Int
+  nome                     String
+  descricao                String?  @db.Text
+  responsavelFuncionarioId Int?
+  criadoPorId              Int?
+  atualizadoPorId          Int?
+  ativo                    Boolean  @default(true)
+  criadoEm                 DateTime @default(now())
+  atualizadoEm             DateTime @updatedAt
+
+  instituicao            Instituicao             @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  responsavelFuncionario Funcionario?            @relation("EquipeComercialResponsavel", fields: [responsavelFuncionarioId], references: [id], onDelete: SetNull)
+  criadoPor              User?                   @relation("EquipeComercialCriadaPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+  atualizadoPor          User?                   @relation("EquipeComercialAtualizadaPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
+  membros                EquipeComercialMembro[]
+  metas                  MetaComercial[]
+
+  @@unique([instituicaoId, nome])
+  @@index([instituicaoId])
+  @@index([responsavelFuncionarioId])
+  @@index([criadoPorId])
+  @@index([atualizadoPorId])
+  @@index([ativo])
+}
+
+model EquipeComercialMembro {
+  id              Int                        @id @default(autoincrement())
+  instituicaoId   Int
+  equipeId        Int
+  funcionarioId   Int
+  criadoPorId     Int?
+  atualizadoPorId Int?
+  papel           PapelMembroEquipeComercial @default(MEMBRO)
+  inicioVigencia  DateTime                   @default(now())
+  fimVigencia     DateTime?
+  ativo           Boolean                    @default(true)
+  criadoEm        DateTime                   @default(now())
+  atualizadoEm    DateTime                   @updatedAt
+
+  instituicao   Instituicao     @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  equipe        EquipeComercial @relation(fields: [equipeId], references: [id], onDelete: Cascade)
+  funcionario   Funcionario     @relation(fields: [funcionarioId], references: [id], onDelete: Restrict)
+  criadoPor     User?           @relation("EquipeComercialMembroCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+  atualizadoPor User?           @relation("EquipeComercialMembroAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
+
+  @@unique([equipeId, funcionarioId])
+  @@index([instituicaoId])
+  @@index([equipeId])
+  @@index([funcionarioId])
+  @@index([papel])
+  @@index([ativo])
+  @@index([inicioVigencia, fimVigencia])
+  @@index([criadoPorId])
+  @@index([atualizadoPorId])
+}
+
+model MetaComercial {
+  id              Int                        @id @default(autoincrement())
+  instituicaoId   Int
+  equipeId        Int?
+  funcionarioId   Int?
+  cursoId         Int?
+  poloId          Int?
+  criadoPorId     Int?
+  atualizadoPorId Int?
+  nome            String
+  descricao       String?                    @db.Text
+  escopo          EscopoMetaComercial
+  indicador       IndicadorMetaComercial
+  periodicidade   PeriodicidadeMetaComercial
+  status          StatusMetaComercial        @default(RASCUNHO)
+  valorAlvo       Decimal                    @db.Decimal(14, 2)
+  dataInicio      DateTime
+  dataFim         DateTime
+  observacoes     String?                    @db.Text
+  criadoEm        DateTime                   @default(now())
+  atualizadoEm    DateTime                   @updatedAt
+
+  instituicao   Instituicao      @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  equipe        EquipeComercial? @relation(fields: [equipeId], references: [id], onDelete: SetNull)
+  funcionario   Funcionario?     @relation(fields: [funcionarioId], references: [id], onDelete: SetNull)
+  curso         Curso?           @relation(fields: [cursoId], references: [id], onDelete: SetNull)
+  polo          Polo?            @relation(fields: [poloId], references: [id], onDelete: SetNull)
+  criadoPor     User?            @relation("MetaComercialCriadaPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+  atualizadoPor User?            @relation("MetaComercialAtualizadaPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
+
+  @@index([instituicaoId])
+  @@index([instituicaoId, status])
+  @@index([instituicaoId, indicador])
+  @@index([equipeId])
+  @@index([funcionarioId])
+  @@index([cursoId])
+  @@index([poloId])
+  @@index([escopo])
+  @@index([periodicidade])
+  @@index([dataInicio, dataFim])
+  @@index([criadoPorId])
+  @@index([atualizadoPorId])
+}
+
 model LancamentoComissaoRH {
   id                      Int                        @id @default(autoincrement())
   instituicaoId           Int
@@ -5175,6 +5291,39 @@ enum GatilhoComissaoRH {
 enum PapelParticipanteComercial {
   RESPONSAVEL
   PARTICIPANTE
+}
+
+enum PapelMembroEquipeComercial {
+  LIDER
+  MEMBRO
+}
+
+enum EscopoMetaComercial {
+  INSTITUICAO
+  EQUIPE
+  FUNCIONARIO
+}
+
+enum IndicadorMetaComercial {
+  QUANTIDADE_MATRICULAS
+  VALOR_VENDIDO
+  VALOR_RECEBIDO
+  LEADS_CONVERTIDOS
+}
+
+enum PeriodicidadeMetaComercial {
+  MENSAL
+  TRIMESTRAL
+  SEMESTRAL
+  ANUAL
+  PERSONALIZADA
+}
+
+enum StatusMetaComercial {
+  RASCUNHO
+  ATIVA
+  ENCERRADA
+  CANCELADA
 }
 
 enum StatusLancamentoComissaoRH {

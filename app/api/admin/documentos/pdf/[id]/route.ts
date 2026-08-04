@@ -119,7 +119,7 @@ async function abrirNavegador() {
 
   if (
     process.env.NODE_ENV !==
-      "production" &&
+    "production" &&
     chromeLocal
   ) {
     return puppeteer.launch({
@@ -403,9 +403,9 @@ export async function GET(
     const formatoImpressao =
       doc.formatoImpressao ===
         "DUAS_VIAS_A4" ||
-      doc.quantidadeVias === 2 ||
-      doc.template
-        ?.formatoImpressao ===
+        doc.quantidadeVias === 2 ||
+        doc.template
+          ?.formatoImpressao ===
         "DUAS_VIAS_A4"
         ? "DUAS_VIAS_A4"
         : "A4_INTEIRA";
@@ -546,9 +546,27 @@ export async function GET(
               );
 
             return areas.some(
-              (area) =>
-                area.scrollHeight >
-                area.clientHeight + 3
+              (area) => {
+                const conteudo =
+                  area.querySelector<HTMLElement>(
+                    ".phanyx-conteudo-compacto"
+                  );
+
+                if (!conteudo) {
+                  return false;
+                }
+
+                const areaRect =
+                  area.getBoundingClientRect();
+
+                const conteudoRect =
+                  conteudo.getBoundingClientRect();
+
+                return (
+                  conteudoRect.bottom >
+                  areaRect.bottom + 3
+                );
+              }
             );
           }
         );
@@ -573,7 +591,7 @@ export async function GET(
 
     const sufixo =
       formatoImpressao ===
-      "DUAS_VIAS_A4"
+        "DUAS_VIAS_A4"
         ? "-duas-vias"
         : "";
 

@@ -1237,10 +1237,6 @@ export default function EditorTemplatePHANYX({ value, onChange }: Props) {
                 : undefined
             }
           >
-            <p className="mb-2 text-xs font-black uppercase tracking-[0.18em] text-slate-900 dark:text-white">
-              Ferramentas de edição
-            </p>
-
             <div className="flex flex-wrap gap-2">
               <select
                 value={fonteAtual}
