@@ -459,6 +459,14 @@ export default function AdminShell({
     "comercial.leads.converter"
   );
 
+  const podeVerEquipesComerciais = podeAcessar(
+    "comercial.vendedores.ver",
+    "comercial.vendedores.gerenciar",
+    "comercial.metas.ver",
+    "comercial.metas.criar",
+    "comercial.metas.editar"
+  );
+
   const podeGerenciarConfiguracoesComerciais =
     podeAcessar(
       "comercial.configuracoes.gerenciar"
@@ -747,6 +755,18 @@ export default function AdminShell({
                             🎯 Leads e oportunidades
                           </Link>
                         )}
+
+                        {podeVerEquipesComerciais && (
+                          <Link
+                            href="/admin/comercial/equipes"
+                            className={getLinkClass(
+                              "/admin/comercial/equipes"
+                            )}
+                          >
+                            👥 Equipes comerciais
+                          </Link>
+                        )}
+
                         {podeGerenciarConfiguracoesComerciais && (
                           <Link
                             href="/admin/comercial/configuracoes"
@@ -757,6 +777,7 @@ export default function AdminShell({
                             ⚙️ Planos de comissão
                           </Link>
                         )}
+
                       </div>
                     )}
                   </div>
@@ -1395,6 +1416,15 @@ export default function AdminShell({
                           className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                         >
                           🎯 Leads e oportunidades
+                        </Link>
+                      )}
+
+                      {podeVerEquipesComerciais && (
+                        <Link
+                          href="/admin/comercial/equipes"
+                          className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+                        >
+                          👥 Equipes comerciais
                         </Link>
                       )}
 
