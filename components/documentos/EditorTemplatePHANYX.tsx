@@ -1211,13 +1211,9 @@ export default function EditorTemplatePHANYX({ value, onChange }: Props) {
   function renderizarFerramentas() {
     return (
       <div className="phanyx-editor-toolbar border-b border-slate-700 bg-slate-800 p-3">
-        <p className="phanyx-editor-toolbar-title mb-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-200">
-          Ferramentas de edição
-        </p>
-
         <div className="flex flex-wrap gap-2">
           <div
-            className={`border-b border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800 ${barraFlutuante
+            className={`w-full border-b border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800 ${barraFlutuante
               ? "z-[999999] shadow-2xl"
               : "relative z-40"
               }`}
@@ -1237,6 +1233,9 @@ export default function EditorTemplatePHANYX({ value, onChange }: Props) {
                 : undefined
             }
           >
+            <div className="mb-2 text-xs font-black uppercase tracking-[0.18em] text-slate-950 dark:text-white">
+              Ferramentas de edição
+            </div>
             <div className="flex flex-wrap gap-2">
               <select
                 value={fonteAtual}
