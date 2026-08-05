@@ -432,6 +432,10 @@ export default function AdminShell({
     "comercial.leads.converter",
     "comercial.vendedores.ver",
     "comercial.vendedores.gerenciar",
+    "comercial.equipes.ver",
+    "comercial.equipes.criar",
+    "comercial.equipes.editar",
+    "comercial.equipes.excluir",
     "comercial.metas.ver",
     "comercial.metas.criar",
     "comercial.metas.editar",
@@ -460,11 +464,11 @@ export default function AdminShell({
   );
 
   const podeVerEquipesComerciais = podeAcessar(
-    "comercial.vendedores.ver",
-    "comercial.vendedores.gerenciar",
-    "comercial.metas.ver",
-    "comercial.metas.criar",
-    "comercial.metas.editar"
+    "comercial.equipes.ver"
+  );
+
+  const podeVerMetasComerciais = podeAcessar(
+    "comercial.metas.ver"
   );
 
   const podeGerenciarConfiguracoesComerciais =
@@ -764,6 +768,17 @@ export default function AdminShell({
                             )}
                           >
                             👥 Equipes comerciais
+                          </Link>
+                        )}
+
+                        {podeVerMetasComerciais && (
+                          <Link
+                            href="/admin/comercial/metas"
+                            className={getLinkClass(
+                              "/admin/comercial/metas"
+                            )}
+                          >
+                            📈 Metas comerciais
                           </Link>
                         )}
 
@@ -1425,6 +1440,15 @@ export default function AdminShell({
                           className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                         >
                           👥 Equipes comerciais
+                        </Link>
+                      )}
+
+                      {podeVerMetasComerciais && (
+                        <Link
+                          href="/admin/comercial/metas"
+                          className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+                        >
+                          📈 Metas comerciais
                         </Link>
                       )}
 

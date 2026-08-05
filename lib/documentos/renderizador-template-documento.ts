@@ -768,33 +768,29 @@ function cssCompartilhado(
       overflow-wrap: anywhere;
     }
 
-    .phanyx-conteudo div {
-  margin: 0;
-}
-
+    .phanyx-conteudo div,
 .phanyx-conteudo h1,
 .phanyx-conteudo h2,
 .phanyx-conteudo h3,
 .phanyx-conteudo h4,
 .phanyx-conteudo h5,
-.phanyx-conteudo h6 {
+.phanyx-conteudo h6,
+.phanyx-conteudo p {
   margin-top: 0;
-  margin-bottom: 4mm;
+  margin-bottom: 0;
 }
 
 .phanyx-conteudo p {
   min-height: 1em;
-  margin-top: 0;
-  margin-bottom: 3mm;
-}
-
-.phanyx-conteudo p:last-child {
-  margin-bottom: 0;
 }
 
 .phanyx-conteudo p:empty {
   min-height: 1em;
-  margin-bottom: 3mm;
+  line-height: 1em;
+}
+
+.phanyx-conteudo p > br:only-child {
+  display: block;
   line-height: 1em;
 }
 
@@ -919,6 +915,38 @@ function cssCompartilhado(
       span {
       display: block;
     }
+
+    /*
+ * Assinatura compacta apenas para
+ * documentos com duas vias na mesma A4.
+ */
+.phanyx-conteudo-compacto
+  .phanyx-bloco-assinatura {
+  width: 64mm;
+  margin-top: 2mm;
+  font-size: 7pt;
+  line-height: 1.15;
+}
+
+.phanyx-conteudo-compacto
+  .phanyx-assinatura-imagem {
+  width: 42mm;
+  min-height: 12mm;
+  margin-top: 0;
+}
+
+.phanyx-conteudo-compacto
+  .phanyx-assinatura-imagem img {
+  width: 42mm;
+  height: 12mm;
+}
+
+.phanyx-conteudo-compacto
+  .phanyx-linha-assinatura {
+  width: 60mm;
+  margin-top: -0.5mm;
+  margin-bottom: 1mm;
+}
 
     .phanyx-validacao {
       display: flex;

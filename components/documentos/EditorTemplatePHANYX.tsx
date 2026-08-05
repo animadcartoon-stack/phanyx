@@ -235,10 +235,78 @@ function criarImagemAssinaturaPreview(
   return caixa;
 }
 
-function criarElementoAssinaturaPreview(
+function criarBotaoRemoverAssinatura(
   tipo: TipoAssinaturaPreview,
-  dados: DadosAssinaturaPreview
+  aoRemover: () => void
 ) {
+  const botao =
+    document.createElement(
+      "button"
+    );
+
+  botao.type = "button";
+  botao.textContent = "×";
+
+  botao.title =
+    tipo === "IMAGEM"
+      ? "Remover assinatura digital"
+      : "Remover bloco de assinatura";
+
+  botao.setAttribute(
+    "aria-label",
+    botao.title
+  );
+
+  aplicarEstilos(botao, {
+    position: "absolute",
+    top: "-10px",
+    right: "-10px",
+    zIndex: "20",
+    display: "flex",
+    width: "24px",
+    height: "24px",
+    padding: "0",
+    alignItems: "center",
+    justifyContent: "center",
+    border: "1px solid #fecaca",
+    borderRadius: "9999px",
+    backgroundColor: "#dc2626",
+    color: "#ffffff",
+    fontSize: "17px",
+    fontWeight: "700",
+    lineHeight: "1",
+    cursor: "pointer",
+    pointerEvents: "auto",
+    boxShadow:
+      "0 2px 8px rgba(15, 23, 42, 0.25)",
+  });
+
+  botao.addEventListener(
+    "mousedown",
+    (evento) => {
+      evento.preventDefault();
+      evento.stopPropagation();
+    }
+  );
+
+  botao.addEventListener(
+    "click",
+    (evento) => {
+      evento.preventDefault();
+      evento.stopPropagation();
+
+      aoRemover();
+    }
+  );
+
+  return botao;
+
+} function criarElementoAssinaturaPreview(
+  tipo: TipoAssinaturaPreview,
+  dados: DadosAssinaturaPreview,
+  aoRemover: () => void
+) {
+
   const container =
     document.createElement("span");
 
@@ -250,14 +318,24 @@ function criarElementoAssinaturaPreview(
     tipo
   );
 
+  container.title =
+    tipo === "IMAGEM"
+      ? "{{assinaturaDiretor}} — assinatura digital"
+      : "{{blocoAssinaturaDiretor}} — bloco completo";
+
   aplicarEstilos(container, {
+    position: "relative",
     verticalAlign: "top",
     breakInside: "avoid",
     pageBreakInside: "avoid",
-    pointerEvents: "none",
+    pointerEvents: "auto",
     userSelect: "none",
     backgroundColor: "#ffffff",
     color: "#0f172a",
+    outline:
+      "1px dashed #94a3b8",
+    outlineOffset: "2px",
+    borderRadius: "4px",
   });
 
   const imagem =
@@ -278,6 +356,13 @@ function criarElementoAssinaturaPreview(
 
     container.appendChild(
       imagem
+    );
+
+    container.appendChild(
+      criarBotaoRemoverAssinatura(
+        tipo,
+        aoRemover
+      )
     );
 
     return container;
@@ -363,6 +448,13 @@ function criarElementoAssinaturaPreview(
       cnpj
     );
   }
+
+  container.appendChild(
+    criarBotaoRemoverAssinatura(
+      tipo,
+      aoRemover
+    )
+  );
 
   return container;
 }
@@ -450,14 +542,16 @@ const AssinaturaPreviewPHANYX =
                         )
                       ) !== null
                     ) {
+                      const textoTag =
+                        resultado[0];
+
                       const inicio =
                         posicao +
                         resultado.index;
 
                       const fim =
                         inicio +
-                        resultado[0]
-                          .length;
+                        textoTag.length;
 
                       /*
                        * Esconde visualmente
@@ -488,11 +582,87 @@ const AssinaturaPreviewPHANYX =
                       decoracoes.push(
                         Decoration.widget(
                           inicio,
-                          () =>
+
+                          (view) =>
                             criarElementoAssinaturaPreview(
                               padrao.tipo,
-                              dados
+                              dados,
+
+                              () => {
+                                const documentoAtual =
+                                  view.state.doc;
+
+                                const inicioSeguro =
+                                  Math.min(
+                                    inicio,
+                                    documentoAtual
+                                      .content.size
+                                  );
+
+                                const fimSeguro =
+                                  Math.min(
+                                    fim,
+                                    documentoAtual
+                                      .content.size
+                                  );
+
+                                const posicaoResolvida =
+                                  documentoAtual.resolve(
+                                    inicioSeguro
+                                  );
+
+                                const paragrafoPossuiSomenteTag =
+                                  posicaoResolvida
+                                    .parent.type.name ===
+                                  "paragraph" &&
+                                  posicaoResolvida
+                                    .parent.textContent
+                                    .trim() ===
+                                  textoTag.trim();
+
+                                let apagarDe =
+                                  inicioSeguro;
+
+                                let apagarAte =
+                                  fimSeguro;
+
+                                /*
+                                 * Quando a tag está sozinha
+                                 * em um parágrafo, remove
+                                 * também o parágrafo para não
+                                 * deixar uma linha vazia.
+                                 */
+                                if (
+                                  paragrafoPossuiSomenteTag &&
+                                  posicaoResolvida.depth ===
+                                  1 &&
+                                  documentoAtual.childCount >
+                                  1
+                                ) {
+                                  apagarDe =
+                                    posicaoResolvida.before(
+                                      posicaoResolvida.depth
+                                    );
+
+                                  apagarAte =
+                                    posicaoResolvida.after(
+                                      posicaoResolvida.depth
+                                    );
+                                }
+
+                                view.dispatch(
+                                  view.state.tr
+                                    .delete(
+                                      apagarDe,
+                                      apagarAte
+                                    )
+                                    .scrollIntoView()
+                                );
+
+                                view.focus();
+                              }
                             ),
+
                           {
                             side: -1,
 

@@ -61,6 +61,11 @@ type FiltroStatus =
   | "INATIVAS"
   | "TODAS";
 
+type UsuarioControleAcesso = {
+  role?: string | null;
+  isMasterAdmin?: boolean;
+};
+
 const FORM_INICIAL: FormEquipe = {
   nome: "",
   descricao: "",
@@ -117,6 +122,19 @@ export default function EquipesComerciaisPage() {
   const [salvando, setSalvando] =
     useState(false);
 
+  const [
+    carregandoPermissoes,
+    setCarregandoPermissoes,
+  ] = useState(true);
+
+  const [permissoes, setPermissoes] =
+    useState<string[]>([]);
+
+  const [usuarioAtual, setUsuarioAtual] =
+    useState<UsuarioControleAcesso | null>(
+      null
+    );
+
   const [erro, setErro] =
     useState("");
 
@@ -157,6 +175,133 @@ export default function EquipesComerciaisPage() {
     useState<FormEquipe>(
       FORM_INICIAL
     );
+
+  const roleUsuario = String(
+    usuarioAtual?.role || ""
+  ).toUpperCase();
+
+  const usuarioAdmin =
+    roleUsuario === "ADMIN" ||
+    roleUsuario === "GERENCIA" ||
+    roleUsuario === "SUPER_ADMIN" ||
+    usuarioAtual?.isMasterAdmin === true;
+
+  function possuiPermissao(
+    chave: string
+  ) {
+    return (
+      usuarioAdmin ||
+      permissoes.includes("*") ||
+      permissoes.includes(chave)
+    );
+  }
+
+  const podeCriarEquipe =
+    possuiPermissao(
+      "comercial.equipes.criar"
+    );
+
+  const podeEditarEquipe =
+    possuiPermissao(
+      "comercial.equipes.editar"
+    );
+
+  const podeExcluirEquipe =
+    possuiPermissao(
+      "comercial.equipes.excluir"
+    );
+
+  async function carregarControleAcesso() {
+    let usuarioRecebido:
+      | UsuarioControleAcesso
+      | null = null;
+
+    let permissoesRecebidas:
+      string[] = [];
+
+    try {
+      const [
+        respostaUsuario,
+        respostaPermissoes,
+      ] = await Promise.all([
+        fetch("/api/auth/me", {
+          cache: "no-store",
+          credentials: "include",
+        }),
+
+        fetch(
+          "/api/admin/permissoes/me",
+          {
+            cache: "no-store",
+            credentials: "include",
+          }
+        ),
+      ]);
+
+      if (respostaUsuario.ok) {
+        const dadosUsuario =
+          await respostaUsuario
+            .json()
+            .catch(() => null);
+
+        usuarioRecebido =
+          dadosUsuario?.user || null;
+      }
+
+      if (respostaPermissoes.ok) {
+        const dadosPermissoes =
+          await respostaPermissoes
+            .json()
+            .catch(() => null);
+
+        permissoesRecebidas =
+          Array.isArray(
+            dadosPermissoes?.permissoes
+          )
+            ? dadosPermissoes.permissoes
+            : [];
+      }
+
+      setUsuarioAtual(
+        usuarioRecebido
+      );
+
+      setPermissoes(
+        permissoesRecebidas
+      );
+
+      const role = String(
+        usuarioRecebido?.role || ""
+      ).toUpperCase();
+
+      const ehAdmin =
+        role === "ADMIN" ||
+        role === "GERENCIA" ||
+        role === "SUPER_ADMIN" ||
+        usuarioRecebido
+          ?.isMasterAdmin === true;
+
+      const possuiAcessoFormulario =
+        ehAdmin ||
+        permissoesRecebidas.includes(
+          "*"
+        ) ||
+        permissoesRecebidas.includes(
+          "comercial.equipes.criar"
+        ) ||
+        permissoesRecebidas.includes(
+          "comercial.equipes.editar"
+        );
+
+      return {
+        possuiAcessoFormulario,
+      };
+    } finally {
+      setCarregandoPermissoes(
+        false
+      );
+    }
+  }
 
   async function carregarEquipes() {
     try {
@@ -288,10 +433,23 @@ export default function EquipesComerciaisPage() {
   }
 
   useEffect(() => {
-    void Promise.all([
-      carregarEquipes(),
-      carregarFuncionarios(),
-    ]);
+    void (async () => {
+      const controle =
+        await carregarControleAcesso();
+
+      await carregarEquipes();
+
+      if (
+        controle
+          .possuiAcessoFormulario
+      ) {
+        await carregarFuncionarios();
+      } else {
+        setCarregandoFuncionarios(
+          false
+        );
+      }
+    })();
   }, []);
 
   useEffect(() => {
@@ -822,13 +980,16 @@ export default function EquipesComerciaisPage() {
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={abrirNovaEquipe}
-            className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-blue-700 px-6 text-sm font-black text-white shadow-sm transition hover:bg-blue-800"
-          >
-            + Nova equipe
-          </button>
+          {!carregandoPermissoes &&
+            podeCriarEquipe && (
+              <button
+                type="button"
+                onClick={abrirNovaEquipe}
+                className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-blue-700 px-6 text-sm font-black text-white shadow-sm transition hover:bg-blue-800"
+              >
+                + Nova equipe
+              </button>
+            )}
         </div>
       </header>
 
@@ -1057,48 +1218,54 @@ export default function EquipesComerciaisPage() {
                   </div>
                 </div>
 
-                <div className="mt-auto flex flex-wrap gap-3 pt-6">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      abrirEdicao(
-                        equipe
-                      )
-                    }
-                    className="phanyx-equipe-card-editar rounded-2xl border border-slate-400 bg-white px-5 py-2.5 text-sm font-black text-slate-800 transition hover:bg-slate-100 dark:border-blue-700 dark:bg-blue-950/50 dark:text-blue-100"
-                  >
-                    Editar equipe
-                  </button>
+                {!carregandoPermissoes &&
+  (podeEditarEquipe ||
+    podeExcluirEquipe) && (
+    <div className="mt-auto flex flex-wrap gap-3 pt-6">
+      {podeEditarEquipe && (
+        <button
+          type="button"
+          onClick={() =>
+            abrirEdicao(
+              equipe
+            )
+          }
+          className="phanyx-equipe-card-editar rounded-2xl border border-slate-400 bg-white px-5 py-2.5 text-sm font-black text-slate-800 transition hover:bg-slate-100 dark:border-blue-700 dark:bg-blue-950/50 dark:text-blue-100"
+        >
+          Editar equipe
+        </button>
+      )}
 
-                  {equipe.ativo ? (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setEquipeParaDesativar(
-                          equipe
-                        )
-                      }
-                      className="phanyx-equipe-card-desativar rounded-2xl border border-red-600 bg-red-50 px-5 py-2.5 text-sm font-black text-red-900 transition hover:bg-red-100 dark:border-red-800 dark:bg-red-950/40 dark:text-red-100"
-                    >
-                      Desativar
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        reativarEquipe(
-                          equipe
-                        )
-                      }
-                      disabled={
-                        salvando
-                      }
-                      className="rounded-2xl bg-emerald-700 px-5 py-2.5 text-sm font-black text-white transition hover:bg-emerald-800 disabled:opacity-60"
-                    >
-                      Reativar
-                    </button>
-                  )}
-                </div>
+      {equipe.ativo
+        ? podeExcluirEquipe && (
+            <button
+              type="button"
+              onClick={() =>
+                setEquipeParaDesativar(
+                  equipe
+                )
+              }
+              className="phanyx-equipe-card-desativar rounded-2xl border border-red-600 bg-red-50 px-5 py-2.5 text-sm font-black text-red-900 transition hover:bg-red-100 dark:border-red-800 dark:bg-red-950/40 dark:text-red-100"
+            >
+              Desativar
+            </button>
+          )
+        : podeEditarEquipe && (
+            <button
+              type="button"
+              onClick={() =>
+                reativarEquipe(
+                  equipe
+                )
+              }
+              disabled={salvando}
+              className="rounded-2xl bg-emerald-700 px-5 py-2.5 text-sm font-black text-white transition hover:bg-emerald-800 disabled:opacity-60"
+            >
+              Reativar
+            </button>
+          )}
+    </div>
+  )}
               </article>
             )
           )}

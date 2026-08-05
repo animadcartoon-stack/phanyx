@@ -184,7 +184,7 @@ As partes declaram estar de pleno acordo com os termos estabelecidos.
 
 {{cidadeAssinatura}}, {{dataAtual}}.
 
-{{assinaturaDiretor}}
+
 
 {{blocoAssinaturaDiretor}}
 `;
@@ -200,7 +200,7 @@ Emitido em {{dataAtual}}.
 
 {{cidadeAssinatura}}
 
-{{assinaturaDiretor}}
+
 
 {{blocoAssinaturaDiretor}}
 `;
@@ -216,7 +216,7 @@ Emitido por {{nomeInstituicao}} em {{dataAtual}}.
 
 {{cidadeAssinatura}}
 
-{{assinaturaDiretor}}
+
 
 {{blocoAssinaturaDiretor}}
 `;
@@ -231,7 +231,7 @@ Documento emitido para fins de comprovação financeira.
 {{nomeInstituicao}}
 {{dataAtual}}
 
-{{assinaturaDiretor}}
+
 
 {{blocoAssinaturaDiretor}}
 `;
@@ -247,7 +247,7 @@ Emitido em {{dataAtual}}.
 
 {{cidadeAssinatura}}
 
-{{assinaturaDiretor}}
+
 
 {{blocoAssinaturaDiretor}}
 `;
@@ -261,7 +261,7 @@ Documento emitido para comprovação de comparecimento.
 
 {{cidadeAssinatura}}
 
-{{assinaturaDiretor}}
+
 
 {{blocoAssinaturaDiretor}}
 `;
@@ -291,7 +291,7 @@ EMPREGADO(A):
 {{nomeFuncionario}}
 CPF: {{cpfFuncionario}}
 
-{{assinaturaDiretor}}
+
 
 {{blocoAssinaturaDiretor}}
 `;
@@ -319,7 +319,7 @@ EMPREGADO(A):
 {{nomeFuncionario}}
 CPF: {{cpfFuncionario}}
 
-{{assinaturaDiretor}}
+
 
 {{blocoAssinaturaDiretor}}
 `;
@@ -339,7 +339,7 @@ O colaborador declara ciência de que seus dados pessoais poderão ser tratados 
 ____________________________________
 {{nomeFuncionario}}
 
-{{assinaturaDiretor}}
+
 
 {{blocoAssinaturaDiretor}}
 `;
@@ -362,7 +362,7 @@ ____________________________________
 ____________________________________
 {{responsavelLegal}}
 
-{{assinaturaDiretor}}
+
 
 {{blocoAssinaturaDiretor}}
 `;
@@ -383,7 +383,7 @@ Digite aqui o conteúdo do documento RH personalizado.
 ____________________________________
 {{nomeFuncionario}}
 
-{{assinaturaDiretor}}
+
 
 {{blocoAssinaturaDiretor}}
 `;
@@ -412,7 +412,7 @@ ____________________________________
 ____________________________________
 {{responsavelLegal}}
 
-{{assinaturaDiretor}}
+
 
 {{blocoAssinaturaDiretor}}
 `;
@@ -440,7 +440,7 @@ ____________________________________
 ____________________________________
 {{responsavelLegal}}
 
-{{assinaturaDiretor}}
+
 
 {{blocoAssinaturaDiretor}}
 `;
@@ -467,7 +467,7 @@ ____________________________________
 ____________________________________
 {{responsavelLegal}}
 
-{{assinaturaDiretor}}
+
 
 {{blocoAssinaturaDiretor}}
 `;
@@ -500,7 +500,7 @@ ____________________________________
 ____________________________________
 {{responsavelLegal}}
 
-{{assinaturaDiretor}}
+
 
 {{blocoAssinaturaDiretor}}
 `;
@@ -565,7 +565,7 @@ COLABORADOR(A):
 {{nomeFuncionario}}
 CPF: {{cpfFuncionario}}
 
-{{assinaturaDiretor}}
+
 
 {{blocoAssinaturaDiretor}}
 `;
@@ -596,7 +596,7 @@ Declaro ter recebido os valores acima referentes ao período de férias informad
 ____________________________________
 {{nomeFuncionario}}
 
-{{assinaturaDiretor}}
+
 
 {{blocoAssinaturaDiretor}}
 `;
@@ -631,7 +631,7 @@ EMPREGADOR:
 ____________________________________
 {{responsavelLegal}}
 
-{{assinaturaDiretor}}
+
 
 {{blocoAssinaturaDiretor}}
 `;
@@ -669,7 +669,7 @@ EMPREGADOR:
 ____________________________________
 {{responsavelLegal}}
 
-{{assinaturaDiretor}}
+
 
 {{blocoAssinaturaDiretor}}
 `;
@@ -707,7 +707,7 @@ CRM: {{crmMedico}}
 ____________________________________
 {{nomeFuncionario}}
 
-{{assinaturaDiretor}}
+
 
 {{blocoAssinaturaDiretor}}
 `;
@@ -742,7 +742,7 @@ ____________________________________
 ____________________________________
 {{responsavelLegal}}
 
-{{assinaturaDiretor}}
+
 
 {{blocoAssinaturaDiretor}}
 `;
@@ -789,7 +789,7 @@ Este histórico acadêmico foi emitido eletronicamente pelo PHANYX com base nos 
 
 [ASSINATURA INSTITUCIONAL]
 
-{{assinaturaDiretor}}
+
 
 {{blocoAssinaturaDiretor}}
 
@@ -812,7 +812,7 @@ Conteúdo personalizado.
 
 Emitido em {{dataAtual}} por {{nomeInstituicao}}.
 
-{{assinaturaDiretor}}
+
 
 {{blocoAssinaturaDiretor}}
 `;

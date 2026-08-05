@@ -18701,3 +18701,674 @@ html:not(.dark)
   .phanyx-equipes-desativar-confirmar:hover {
   background: #9f1239 !important;
 }
+
+/* =========================================================
+   COMERCIAL — METAS COMERCIAIS
+   TEMA CLARO — CORREÇÃO POR CAMADA
+========================================================= */
+
+@layer base {
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page {
+    color: #0f172a !important;
+  }
+
+  /* Superfícies principais */
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    .phanyx-metas-cabecalho,
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    .phanyx-metas-metrica,
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    .phanyx-metas-filtros,
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    .phanyx-meta-card,
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    > div.rounded-3xl,
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    > .fixed
+    > div {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+  }
+
+  /* Subcards internos das metas */
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    .phanyx-meta-card
+    div.rounded-2xl {
+    background: #f8fafc !important;
+    background-color: #f8fafc !important;
+    background-image: none !important;
+    border-color: #e2e8f0 !important;
+    color: #0f172a !important;
+  }
+
+  /* Cabeçalho e rodapé dos modais */
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    > .fixed
+    > div
+    > .sticky {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    border-color: #e2e8f0 !important;
+  }
+
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    > .fixed
+    > div
+    > .sticky.bottom-0 {
+    background: #f8fafc !important;
+    background-color: #f8fafc !important;
+  }
+
+  /* Títulos e rótulos */
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    :is(h1, h2, h3, label, strong) {
+    color: #0f172a !important;
+    -webkit-text-fill-color: #0f172a !important;
+    opacity: 1 !important;
+  }
+
+  /* Textos auxiliares */
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    p {
+    color: #475569 !important;
+    -webkit-text-fill-color: #475569 !important;
+    opacity: 1 !important;
+  }
+
+  /* Palavra COMERCIAL no cabeçalho */
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    .phanyx-metas-cabecalho
+    .text-blue-700 {
+    color: #1d4ed8 !important;
+    -webkit-text-fill-color: #1d4ed8 !important;
+  }
+
+  /* Números das métricas */
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    .phanyx-metas-metrica
+    p:last-child {
+    color: #0f172a !important;
+    -webkit-text-fill-color: #0f172a !important;
+  }
+
+  /* Título do estado vazio */
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    > div.rounded-3xl
+    p:first-child {
+    color: #0f172a !important;
+    -webkit-text-fill-color: #0f172a !important;
+  }
+
+  /* Campos e filtros */
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    :is(input, select, textarea) {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    border-color: #94a3b8 !important;
+    color: #0f172a !important;
+    -webkit-text-fill-color: #0f172a !important;
+    color-scheme: light !important;
+    opacity: 1 !important;
+  }
+
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    option {
+    background: #ffffff !important;
+    color: #0f172a !important;
+  }
+
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    :is(input, textarea)::placeholder {
+    color: #64748b !important;
+    -webkit-text-fill-color: #64748b !important;
+    opacity: 1 !important;
+  }
+
+  /* Botões principais continuam coloridos */
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    button[class*="!bg-blue-700"],
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    button[class*="!bg-blue-700"]
+    *,
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    button[class*="!bg-emerald-700"],
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    button[class*="!bg-emerald-700"]
+    *,
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    button[class*="!bg-red-700"],
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    button[class*="!bg-red-700"]
+    * {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    opacity: 1 !important;
+  }
+}
+
+/* =========================================================
+   COMERCIAL — METAS COMERCIAIS
+   MODAIS NO TEMA CLARO
+========================================================= */
+
+@layer base {
+  /* Painel principal e modal de confirmação */
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    .fixed
+    > div.max-w-4xl,
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    .fixed
+    > div.max-w-lg {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+  }
+
+  /* Cabeçalho do formulário */
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    .fixed
+    > div.max-w-4xl
+    > .sticky.top-0 {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    border-color: #e2e8f0 !important;
+  }
+
+  /* Rodapé do formulário */
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    .fixed
+    > div.max-w-4xl
+    > .sticky.bottom-0 {
+    background: #f8fafc !important;
+    background-color: #f8fafc !important;
+    background-image: none !important;
+    border-color: #e2e8f0 !important;
+  }
+
+  /* Título, labels e textos fortes */
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    .fixed
+    :is(h2, h3, label, strong) {
+    color: #0f172a !important;
+    -webkit-text-fill-color: #0f172a !important;
+    opacity: 1 !important;
+  }
+
+  /* Textos auxiliares */
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    .fixed
+    :is(p, span) {
+    color: #475569 !important;
+    -webkit-text-fill-color: #475569 !important;
+    opacity: 1 !important;
+  }
+
+  /* Palavra COMERCIAL e CONFIRMAÇÃO */
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    .fixed
+    .text-blue-700 {
+    color: #1d4ed8 !important;
+    -webkit-text-fill-color: #1d4ed8 !important;
+  }
+
+  /* Inputs, selects e textareas */
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    .fixed
+    :is(input:not([type="radio"]), select, textarea) {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    border-color: #94a3b8 !important;
+    color: #0f172a !important;
+    -webkit-text-fill-color: #0f172a !important;
+    color-scheme: light !important;
+    opacity: 1 !important;
+  }
+
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    .fixed
+    :is(input, textarea)::placeholder {
+    color: #64748b !important;
+    -webkit-text-fill-color: #64748b !important;
+    opacity: 1 !important;
+  }
+
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    .fixed
+    option {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    -webkit-text-fill-color: #0f172a !important;
+  }
+
+  /* Radio buttons */
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    .fixed
+    input[type="radio"] {
+    accent-color: #2563eb !important;
+  }
+
+  /* Cards das opções de situação inicial */
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    .fixed
+    label.cursor-pointer.rounded-2xl {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    border-color: #cbd5e1 !important;
+  }
+
+  /* Rascunho selecionado */
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    .fixed
+    label.cursor-pointer.border-amber-500 {
+    background: #fffbeb !important;
+    background-color: #fffbeb !important;
+    border-color: #d97706 !important;
+  }
+
+  /* Ativa selecionada */
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    .fixed
+    label.cursor-pointer.border-emerald-500 {
+    background: #ecfdf5 !important;
+    background-color: #ecfdf5 !important;
+    border-color: #059669 !important;
+  }
+
+  /* Botões secundários: Fechar, Cancelar e Voltar */
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    .fixed
+    button[class*="bg-white"] {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    border-color: #94a3b8 !important;
+    color: #0f172a !important;
+    -webkit-text-fill-color: #0f172a !important;
+    opacity: 1 !important;
+  }
+
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    .fixed
+    button[class*="bg-white"]:hover {
+    background: #f1f5f9 !important;
+    background-color: #f1f5f9 !important;
+  }
+
+  /* Botões principais continuam coloridos */
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    .fixed
+    button[class*="bg-blue-700"],
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    .fixed
+    button[class*="bg-emerald"],
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    .fixed
+    button[class*="bg-amber"],
+  html[data-theme="light"]
+    body
+    .phanyx-metas-comerciais-page
+    .fixed
+    button[class*="bg-red"] {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    opacity: 1 !important;
+  }
+}
+
+/* =========================================================
+   COMERCIAL — METAS COMERCIAIS
+   TEMA SISTEMA — CINZA NEUTRO, SEM CARDS AZUIS
+========================================================= */
+
+@layer base {
+  /* Página */
+  html[data-theme="system"]
+    body
+    .phanyx-metas-comerciais-page {
+    color: #f8fafc !important;
+  }
+
+  /* Cabeçalho principal */
+  html[data-theme="system"]
+    body
+    .phanyx-metas-comerciais-page
+    .phanyx-metas-cabecalho {
+    background: #303030 !important;
+    background-color: #303030 !important;
+    background-image: none !important;
+    border-color: #5a5a5a !important;
+    color: #ffffff !important;
+  }
+
+  /* Métricas */
+  html[data-theme="system"]
+    body
+    .phanyx-metas-comerciais-page
+    .phanyx-metas-metrica {
+    background: #303030 !important;
+    background-color: #303030 !important;
+    background-image: none !important;
+    border-color: #565656 !important;
+    color: #ffffff !important;
+  }
+
+  /* Área dos filtros */
+  html[data-theme="system"]
+    body
+    .phanyx-metas-comerciais-page
+    .phanyx-metas-filtros {
+    background: #303030 !important;
+    background-color: #303030 !important;
+    background-image: none !important;
+    border-color: #565656 !important;
+    color: #ffffff !important;
+  }
+
+  /* Cards das metas */
+  html[data-theme="system"]
+    body
+    .phanyx-metas-comerciais-page
+    .phanyx-meta-card {
+    background: #303030 !important;
+    background-color: #303030 !important;
+    background-image: none !important;
+    border-color: #565656 !important;
+    color: #ffffff !important;
+  }
+
+  /* Carregamento e estado vazio */
+  html[data-theme="system"]
+    body
+    .phanyx-metas-comerciais-page
+    > div.rounded-3xl {
+    background: #292929 !important;
+    background-color: #292929 !important;
+    background-image: none !important;
+    border-color: #565656 !important;
+    color: #ffffff !important;
+  }
+
+  /* Subcards internos */
+  html[data-theme="system"]
+    body
+    .phanyx-metas-comerciais-page
+    .phanyx-meta-card
+    div.rounded-2xl {
+    background: #242424 !important;
+    background-color: #242424 !important;
+    background-image: none !important;
+    border-color: #525252 !important;
+    color: #ffffff !important;
+  }
+
+  /* Títulos e textos */
+  html[data-theme="system"]
+    body
+    .phanyx-metas-comerciais-page
+    :is(h1, h2, h3, label, strong) {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    opacity: 1 !important;
+  }
+
+  html[data-theme="system"]
+    body
+    .phanyx-metas-comerciais-page
+    p {
+    color: #d4d4d4 !important;
+    -webkit-text-fill-color: #d4d4d4 !important;
+    opacity: 1 !important;
+  }
+
+  html[data-theme="system"]
+    body
+    .phanyx-metas-comerciais-page
+    .text-blue-700 {
+    color: #93c5fd !important;
+    -webkit-text-fill-color: #93c5fd !important;
+  }
+
+  /* Campos de busca e filtros */
+  html[data-theme="system"]
+    body
+    .phanyx-metas-comerciais-page
+    :is(input, select, textarea) {
+    background: #1f1f1f !important;
+    background-color: #1f1f1f !important;
+    background-image: none !important;
+    border-color: #666666 !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    color-scheme: dark !important;
+    opacity: 1 !important;
+  }
+
+  html[data-theme="system"]
+    body
+    .phanyx-metas-comerciais-page
+    option {
+    background: #1f1f1f !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+  }
+
+  html[data-theme="system"]
+    body
+    .phanyx-metas-comerciais-page
+    :is(input, textarea)::placeholder {
+    color: #b3b3b3 !important;
+    -webkit-text-fill-color: #b3b3b3 !important;
+    opacity: 1 !important;
+  }
+
+  /* Modal principal */
+  html[data-theme="system"]
+    body
+    .phanyx-metas-comerciais-page
+    .fixed
+    > div.max-w-4xl,
+  html[data-theme="system"]
+    body
+    .phanyx-metas-comerciais-page
+    .fixed
+    > div.max-w-lg {
+    background: #303030 !important;
+    background-color: #303030 !important;
+    background-image: none !important;
+    border-color: #5a5a5a !important;
+    color: #ffffff !important;
+  }
+
+  /* Cabeçalho do modal */
+  html[data-theme="system"]
+    body
+    .phanyx-metas-comerciais-page
+    .fixed
+    > div.max-w-4xl
+    > .sticky.top-0 {
+    background: #303030 !important;
+    background-color: #303030 !important;
+    background-image: none !important;
+    border-color: #565656 !important;
+  }
+
+  /* Rodapé do modal */
+  html[data-theme="system"]
+    body
+    .phanyx-metas-comerciais-page
+    .fixed
+    > div.max-w-4xl
+    > .sticky.bottom-0 {
+    background: #262626 !important;
+    background-color: #262626 !important;
+    background-image: none !important;
+    border-color: #565656 !important;
+  }
+
+  /* Opções de situação inicial */
+  html[data-theme="system"]
+    body
+    .phanyx-metas-comerciais-page
+    .fixed
+    label.cursor-pointer.rounded-2xl {
+    background: #242424 !important;
+    background-color: #242424 !important;
+    background-image: none !important;
+    border-color: #5a5a5a !important;
+    color: #ffffff !important;
+  }
+
+  /* Rascunho selecionado */
+  html[data-theme="system"]
+    body
+    .phanyx-metas-comerciais-page
+    .fixed
+    label.cursor-pointer.border-amber-500 {
+    background: #3a3126 !important;
+    background-color: #3a3126 !important;
+    border-color: #d97706 !important;
+  }
+
+  /* Ativa selecionada */
+  html[data-theme="system"]
+    body
+    .phanyx-metas-comerciais-page
+    .fixed
+    label.cursor-pointer.border-emerald-500 {
+    background: #20352c !important;
+    background-color: #20352c !important;
+    border-color: #10b981 !important;
+  }
+
+  /* Botões secundários */
+  html[data-theme="system"]
+    body
+    .phanyx-metas-comerciais-page
+    .fixed
+    button[class*="bg-white"] {
+    background: #303030 !important;
+    background-color: #303030 !important;
+    border-color: #666666 !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+  }
+
+  html[data-theme="system"]
+    body
+    .phanyx-metas-comerciais-page
+    .fixed
+    button[class*="bg-white"]:hover {
+    background: #3a3a3a !important;
+    background-color: #3a3a3a !important;
+  }
+
+  /* Azul somente nos botões de ação */
+  html[data-theme="system"]
+    body
+    .phanyx-metas-comerciais-page
+    button[class*="bg-blue-700"],
+  html[data-theme="system"]
+    body
+    .phanyx-metas-comerciais-page
+    button[class*="bg-blue-700"]
+    * {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    opacity: 1 !important;
+  }
+}
