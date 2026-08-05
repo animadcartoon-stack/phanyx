@@ -19372,3 +19372,62 @@ html:not(.dark)
     opacity: 1 !important;
   }
 }
+
+/* =========================================================
+   METAS COMERCIAIS — CONTRASTE DAS AÇÕES NO TEMA CLARO
+========================================================= */
+
+@layer utilities {
+  /* Badge Rascunho */
+  html[data-theme="light"]
+    .phanyx-metas-comerciais-page
+    span[class*="!bg-amber-"] {
+    background: #b45309 !important;
+    background-color: #b45309 !important;
+    border-color: #92400e !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    box-shadow: 0 1px 3px rgb(15 23 42 / 0.25) !important;
+    opacity: 1 !important;
+  }
+
+  /* Botão Ativar */
+  html[data-theme="light"]
+    .phanyx-metas-comerciais-page
+    button[class*="!bg-emerald-"] {
+    background: #047857 !important;
+    background-color: #047857 !important;
+    border-color: #065f46 !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    box-shadow: 0 1px 3px rgb(15 23 42 / 0.25) !important;
+    opacity: 1 !important;
+  }
+
+  html[data-theme="light"]
+    .phanyx-metas-comerciais-page
+    button[class*="!bg-emerald-"]:hover {
+    background: #065f46 !important;
+    background-color: #065f46 !important;
+  }
+
+  /* Botão Cancelar */
+  html[data-theme="light"]
+    .phanyx-metas-comerciais-page
+    button[class*="!bg-red-50"] {
+    background: #b91c1c !important;
+    background-color: #b91c1c !important;
+    border-color: #991b1b !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    box-shadow: 0 1px 3px rgb(15 23 42 / 0.25) !important;
+    opacity: 1 !important;
+  }
+
+  html[data-theme="light"]
+    .phanyx-metas-comerciais-page
+    button[class*="!bg-red-50"]:hover {
+    background: #991b1b !important;
+    background-color: #991b1b !important;
+  }
+}
