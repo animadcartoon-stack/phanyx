@@ -656,12 +656,12 @@ function validarTransicaoStatus(
         .RASCUNHO
   ) {
     const statusPermitidos:
-  StatusMetaComercial[] = [
-    StatusMetaComercial
-      .ENCERRADA,
-    StatusMetaComercial
-      .CANCELADA,
-  ];
+      StatusMetaComercial[] = [
+        StatusMetaComercial
+          .ATIVA,
+        StatusMetaComercial
+          .CANCELADA,
+      ];
 
     if (
       !statusPermitidos.includes(
@@ -684,12 +684,12 @@ function validarTransicaoStatus(
         .ATIVA
   ) {
     const statusPermitidos:
-  StatusMetaComercial[] = [
-    StatusMetaComercial
-      .ATIVA,
-    StatusMetaComercial
-      .CANCELADA,
-  ];
+      StatusMetaComercial[] = [
+        StatusMetaComercial
+          .ENCERRADA,
+        StatusMetaComercial
+          .CANCELADA,
+      ];
 
     if (
       !statusPermitidos.includes(
