@@ -77,19 +77,19 @@ type CampoVisualContrato = {
 
 type ConfiguracaoInstituicao = {
   certificadoAssinaturaUrl?:
-    string | null;
+  string | null;
 
   responsavelNome?:
-    string | null;
+  string | null;
 
   responsavelCargo?:
-    string | null;
+  string | null;
 
   nomeFantasia?:
-    string | null;
+  string | null;
 
   cnpj?:
-    string | null;
+  string | null;
 };
 
 const TIPOS_DOCUMENTO: Array<{
@@ -1264,8 +1264,13 @@ function AdminDocumentosTemplatesPage() {
         credentials: "include",
         body: JSON.stringify({
           tipo,
-          conteudo: conteudoAtual,
+
+          conteudo:
+            conteudoAtual,
+
           formatoImpressao,
+
+          camposVisuais,
         }),
       });
 
@@ -3424,40 +3429,40 @@ function AdminDocumentosTemplatesPage() {
 
                       <div className="mt-3">
                         <EditorTemplatePHANYX
-  key={[
-    editingId ?? "novo",
-    formatoImpressao,
-    configInstituicao
-      ?.certificadoAssinaturaUrl ||
-      "sem-assinatura",
-  ].join("-")}
-  value={conteudo}
-  onChange={setConteudo}
-  formatoImpressao={
-    formatoImpressao
-  }
-  assinaturaDiretorUrl={
-    configInstituicao
-      ?.certificadoAssinaturaUrl
-  }
-  responsavelNome={
-    configInstituicao
-      ?.responsavelNome
-  }
-  responsavelCargo={
-    configInstituicao
-      ?.responsavelCargo
-  }
-  nomeInstituicao={
-    configInstituicao
-      ?.nomeFantasia
-  }
-  cnpjInstituicao={
-    configInstituicao
-      ?.cnpj
-  }
-/>
-                        
+                          key={[
+                            editingId ?? "novo",
+                            formatoImpressao,
+                            configInstituicao
+                              ?.certificadoAssinaturaUrl ||
+                            "sem-assinatura",
+                          ].join("-")}
+                          value={conteudo}
+                          onChange={setConteudo}
+                          formatoImpressao={
+                            formatoImpressao
+                          }
+                          assinaturaDiretorUrl={
+                            configInstituicao
+                              ?.certificadoAssinaturaUrl
+                          }
+                          responsavelNome={
+                            configInstituicao
+                              ?.responsavelNome
+                          }
+                          responsavelCargo={
+                            configInstituicao
+                              ?.responsavelCargo
+                          }
+                          nomeInstituicao={
+                            configInstituicao
+                              ?.nomeFantasia
+                          }
+                          cnpjInstituicao={
+                            configInstituicao
+                              ?.cnpj
+                          }
+                        />
+
                       </div>
                     </details>
 
@@ -3557,40 +3562,40 @@ Documento emitido em {{dataAtual}} por {{nomeInstituicao}}.
                 >
                   {!usaModoGuiado && (
                     <EditorTemplatePHANYX
-  key={[
-    editingId ?? "novo",
-    formatoImpressao,
-    configInstituicao
-      ?.certificadoAssinaturaUrl ||
-      "sem-assinatura",
-  ].join("-")}
-  value={conteudo}
-  onChange={setConteudo}
-  formatoImpressao={
-    formatoImpressao
-  }
-  assinaturaDiretorUrl={
-    configInstituicao
-      ?.certificadoAssinaturaUrl
-  }
-  responsavelNome={
-    configInstituicao
-      ?.responsavelNome
-  }
-  responsavelCargo={
-    configInstituicao
-      ?.responsavelCargo
-  }
-  nomeInstituicao={
-    configInstituicao
-      ?.nomeFantasia
-  }
-  cnpjInstituicao={
-    configInstituicao
-      ?.cnpj
-  }
-/>
-                    
+                      key={[
+                        editingId ?? "novo",
+                        formatoImpressao,
+                        configInstituicao
+                          ?.certificadoAssinaturaUrl ||
+                        "sem-assinatura",
+                      ].join("-")}
+                      value={conteudo}
+                      onChange={setConteudo}
+                      formatoImpressao={
+                        formatoImpressao
+                      }
+                      assinaturaDiretorUrl={
+                        configInstituicao
+                          ?.certificadoAssinaturaUrl
+                      }
+                      responsavelNome={
+                        configInstituicao
+                          ?.responsavelNome
+                      }
+                      responsavelCargo={
+                        configInstituicao
+                          ?.responsavelCargo
+                      }
+                      nomeInstituicao={
+                        configInstituicao
+                          ?.nomeFantasia
+                      }
+                      cnpjInstituicao={
+                        configInstituicao
+                          ?.cnpj
+                      }
+                    />
+
                   )}
                 </div>
               </div>

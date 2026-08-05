@@ -429,12 +429,46 @@ export async function GET(
       );
     }
 
+    const dadosPreenchimentoDocumento =
+      doc.dadosPreenchimento &&
+        typeof doc.dadosPreenchimento ===
+        "object" &&
+        !Array.isArray(
+          doc.dadosPreenchimento
+        )
+        ? (
+          doc.dadosPreenchimento as
+          Record<
+            string,
+            unknown
+          >
+        )
+        : {};
+
+    const camposVisuaisDocumento =
+      Array.isArray(
+        dadosPreenchimentoDocumento
+          .__phanyxCamposVisuais
+      )
+        ? dadosPreenchimentoDocumento
+          .__phanyxCamposVisuais
+        : Array.isArray(
+          doc.template
+            ?.camposVisuais
+        )
+          ? doc.template
+            ?.camposVisuais
+          : [];
+
     const renderizacao =
       montarRenderizacaoDocumento({
         conteudo:
           conteudoDocumento,
 
         formatoImpressao,
+
+        camposVisuais:
+          camposVisuaisDocumento as any,
 
         modoPrevia: false,
 

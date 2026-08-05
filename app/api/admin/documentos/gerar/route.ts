@@ -941,7 +941,16 @@ export async function POST(req: Request) {
                 templateId:
                   template.id,
 
-                dadosPreenchimento,
+                dadosPreenchimento: {
+                  ...dadosPreenchimento,
+
+                  __phanyxCamposVisuais:
+                    Array.isArray(
+                      template.camposVisuais
+                    )
+                      ? template.camposVisuais
+                      : [],
+                } as any,
 
                 formatoImpressao,
 

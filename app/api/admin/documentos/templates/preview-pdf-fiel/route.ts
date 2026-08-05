@@ -245,6 +245,13 @@ export async function POST(
     const body =
       await req.json();
 
+    const camposVisuais =
+      Array.isArray(
+        body?.camposVisuais
+      )
+        ? body.camposVisuais
+        : [];
+
     const config =
       await prisma
         .configuracaoInstituicao
@@ -346,6 +353,8 @@ export async function POST(
           conteudoHtml,
 
         formatoImpressao,
+
+        camposVisuais,
 
         modoPrevia: true,
 

@@ -56,6 +56,9 @@ export type OpcoesRenderizacaoDocumento = {
   modoPrevia?: boolean;
 
   mostrarValidacao?: boolean;
+
+  camposVisuais?:
+  CampoVisualDocumento[] | null;
 };
 
 export type ResultadoRenderizacaoDocumento = {
@@ -96,6 +99,131 @@ export const ALTURA_CABECALHO_MM = 42;
 export const ALTURA_RODAPE_MM = 28;
 
 export const MARGEM_LATERAL_MM = 18;
+
+const LARGURA_AREA_ASSINATURA_PX =
+  480;
+
+const ALTURA_AREA_ASSINATURA_PX =
+  150;
+
+const LARGURA_BLOCO_ASSINATURA_MM =
+  78;
+
+const ALTURA_BLOCO_ASSINATURA_MM =
+  36;
+
+function limitarNumero(
+  valor: unknown,
+  minimo: number,
+  maximo: number,
+  padrao: number
+) {
+  const numero =
+    Number(valor);
+
+  if (
+    !Number.isFinite(numero)
+  ) {
+    return padrao;
+  }
+
+  return Math.min(
+    Math.max(
+      numero,
+      minimo
+    ),
+    maximo
+  );
+}
+
+function obterCampoVisualAssinatura(
+  camposVisuais?:
+    CampoVisualDocumento[] | null
+) {
+  if (
+    !Array.isArray(
+      camposVisuais
+    )
+  ) {
+    return null;
+  }
+
+  const campo =
+    camposVisuais.find(
+      (item) =>
+        item?.tipo ===
+        "ASSINATURA_DIRETOR"
+    );
+
+  if (!campo) {
+    return null;
+  }
+
+  const x =
+    limitarNumero(
+      campo.x,
+      0,
+      LARGURA_AREA_ASSINATURA_PX,
+      70
+    );
+
+  const y =
+    limitarNumero(
+      campo.y,
+      0,
+      ALTURA_AREA_ASSINATURA_PX,
+      18
+    );
+
+  const larguraMaxima =
+    Math.max(
+      1,
+      LARGURA_AREA_ASSINATURA_PX -
+      x
+    );
+
+  const alturaMaxima =
+    Math.max(
+      1,
+      ALTURA_AREA_ASSINATURA_PX -
+      y
+    );
+
+  return {
+    ...campo,
+
+    x,
+
+    y,
+
+    largura:
+      limitarNumero(
+        campo.largura,
+        1,
+        larguraMaxima,
+        180
+      ),
+
+    altura:
+      limitarNumero(
+        campo.altura,
+        1,
+        alturaMaxima,
+        55
+      ),
+  };
+}
+
+function percentual(
+  valor: number,
+  total: number
+) {
+  return (
+    valor /
+    total *
+    100
+  );
+}
 
 function escaparHtml(
   valor: unknown
@@ -181,10 +309,25 @@ function normalizarParagrafosVazios(
 function criarImagemAssinatura({
   assinaturaUrl,
   modoPrevia,
+  campoVisual,
+  dentroDoBloco = false,
 }: {
   assinaturaUrl: string;
+
   modoPrevia: boolean;
+
+  campoVisual?:
+    CampoVisualDocumento | null;
+
+  dentroDoBloco?: boolean;
 }) {
+  const campo =
+    campoVisual
+      ? obterCampoVisualAssinatura(
+          [campoVisual]
+        )
+      : null;
+
   if (!assinaturaUrl) {
     if (!modoPrevia) {
       return "";
@@ -199,14 +342,101 @@ function criarImagemAssinatura({
     `;
   }
 
+  if (
+    dentroDoBloco &&
+    campo
+  ) {
+    const esquerda =
+      percentual(
+        campo.x,
+        LARGURA_AREA_ASSINATURA_PX
+      );
+
+    const topo =
+      percentual(
+        campo.y,
+        ALTURA_AREA_ASSINATURA_PX
+      );
+
+    const largura =
+      percentual(
+        campo.largura,
+        LARGURA_AREA_ASSINATURA_PX
+      );
+
+    const altura =
+      percentual(
+        campo.altura,
+        ALTURA_AREA_ASSINATURA_PX
+      );
+
+    return `
+      <span
+        class="
+          phanyx-assinatura-imagem
+          phanyx-assinatura-imagem-posicionada
+        "
+        style="
+          left: ${esquerda}%;
+          top: ${topo}%;
+          width: ${largura}%;
+          height: ${altura}%;
+        "
+      >
+        <img
+          src="${escaparHtml(
+            assinaturaUrl
+          )}"
+          alt="Assinatura do diretor"
+        />
+      </span>
+    `;
+  }
+
+  if (campo) {
+    const larguraMm =
+      LARGURA_BLOCO_ASSINATURA_MM *
+      campo.largura /
+      LARGURA_AREA_ASSINATURA_PX;
+
+    const alturaMm =
+      ALTURA_BLOCO_ASSINATURA_MM *
+      campo.altura /
+      ALTURA_AREA_ASSINATURA_PX;
+
+    return `
+      <span
+        class="
+          phanyx-assinatura-imagem
+          phanyx-assinatura-somente-configurada
+        "
+        style="
+          width: ${larguraMm}mm;
+          min-height: ${alturaMm}mm;
+        "
+      >
+        <img
+          src="${escaparHtml(
+            assinaturaUrl
+          )}"
+          alt="Assinatura do diretor"
+          style="
+            width: ${larguraMm}mm;
+            height: ${alturaMm}mm;
+          "
+        />
+      </span>
+    `;
+  }
+
   return `
     <span
       class="phanyx-assinatura-imagem"
     >
       <img
         src="${escaparHtml(
-    assinaturaUrl
-  )}"
+          assinaturaUrl
+        )}"
         alt="Assinatura do diretor"
       />
     </span>
@@ -217,21 +447,43 @@ function criarBlocoAssinatura({
   assinaturaUrl,
   instituicao,
   modoPrevia,
+  campoVisual,
 }: {
   assinaturaUrl: string;
+
   instituicao:
-  DadosInstituicaoDocumento;
+    DadosInstituicaoDocumento;
+
   modoPrevia: boolean;
+
+  campoVisual?:
+    CampoVisualDocumento | null;
 }) {
+  const possuiCampoVisual =
+    Boolean(campoVisual);
+
   const imagem =
     criarImagemAssinatura({
       assinaturaUrl,
+
       modoPrevia,
+
+      campoVisual,
+
+      dentroDoBloco:
+        possuiCampoVisual,
     });
 
   return `
     <span
-      class="phanyx-bloco-assinatura"
+      class="
+        phanyx-bloco-assinatura
+        ${
+          possuiCampoVisual
+            ? "phanyx-bloco-assinatura-visual"
+            : ""
+        }
+      "
     >
       ${imagem}
 
@@ -239,37 +491,44 @@ function criarBlocoAssinatura({
         class="phanyx-linha-assinatura"
       ></span>
 
-      <strong>
-        ${escaparHtml(
-    instituicao.responsavelNome ||
-    "Responsável legal"
-  )}
-      </strong>
+      <span
+        class="phanyx-identificacao-assinatura"
+      >
+        <strong>
+          ${escaparHtml(
+            instituicao
+              .responsavelNome ||
+            "Responsável legal"
+          )}
+        </strong>
 
-      <span>
-        ${escaparHtml(
-    instituicao.responsavelCargo ||
-    "Representante legal"
-  )}
+        <span>
+          ${escaparHtml(
+            instituicao
+              .responsavelCargo ||
+            "Representante legal"
+          )}
+        </span>
+
+        <span>
+          ${escaparHtml(
+            instituicao.nome
+          )}
+        </span>
+
+        ${
+          instituicao.cnpj
+            ? `
+              <span>
+                CNPJ:
+                ${escaparHtml(
+                  instituicao.cnpj
+                )}
+              </span>
+            `
+            : ""
+        }
       </span>
-
-      <span>
-        ${escaparHtml(
-    instituicao.nome
-  )}
-      </span>
-
-      ${instituicao.cnpj
-      ? `
-            <span>
-              CNPJ:
-              ${escaparHtml(
-        instituicao.cnpj
-      )}
-            </span>
-          `
-      : ""
-    }
     </span>
   `;
 }
@@ -278,11 +537,17 @@ export function aplicarAssinaturasDocumento({
   conteudo,
   instituicao,
   modoPrevia = false,
+  camposVisuais,
 }: {
   conteudo: string;
+
   instituicao:
-  DadosInstituicaoDocumento;
+    DadosInstituicaoDocumento;
+
   modoPrevia?: boolean;
+
+  camposVisuais?:
+    CampoVisualDocumento[] | null;
 }) {
   const assinaturaUrl =
     String(
@@ -291,17 +556,29 @@ export function aplicarAssinaturasDocumento({
       ""
     ).trim();
 
+  const campoVisual =
+    obterCampoVisualAssinatura(
+      camposVisuais
+    );
+
   const imagem =
     criarImagemAssinatura({
       assinaturaUrl,
+
       modoPrevia,
+
+      campoVisual,
     });
 
   const bloco =
     criarBlocoAssinatura({
       assinaturaUrl,
+
       instituicao,
+
       modoPrevia,
+
+      campoVisual,
     });
 
   return String(conteudo || "")
@@ -744,11 +1021,10 @@ function cssCompartilhado(
     }
 
     body {
-  width: ${
-    duasVias
+  width: ${duasVias
       ? "210mm"
       : "auto"
-  };
+    };
 }
 
     .phanyx-papel-a4 {
@@ -916,6 +1192,64 @@ function cssCompartilhado(
       display: block;
     }
 
+    .phanyx-identificacao-assinatura {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.phanyx-bloco-assinatura-visual {
+  position: relative;
+  display: inline-block;
+  width: 78mm;
+  height: 36mm;
+  min-height: 36mm;
+  margin-top: 5mm;
+  overflow: visible;
+  text-align: center;
+}
+
+.phanyx-bloco-assinatura-visual
+  .phanyx-assinatura-imagem-posicionada {
+  position: absolute;
+  z-index: 2;
+  display: block;
+  min-height: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+.phanyx-bloco-assinatura-visual
+  .phanyx-assinatura-imagem-posicionada
+  img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+
+.phanyx-bloco-assinatura-visual
+  .phanyx-linha-assinatura {
+  position: absolute;
+  top: 61.3333%;
+  left: 8.3333%;
+  right: 8.3333%;
+  width: auto;
+  margin: 0;
+}
+
+.phanyx-bloco-assinatura-visual
+  .phanyx-identificacao-assinatura {
+  position: absolute;
+  top: 66.6667%;
+  left: 8.3333%;
+  right: 8.3333%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
     /*
  * Assinatura compacta apenas para
  * documentos com duas vias na mesma A4.
@@ -946,6 +1280,37 @@ function cssCompartilhado(
   width: 60mm;
   margin-top: -0.5mm;
   margin-bottom: 1mm;
+}
+
+.phanyx-conteudo-compacto
+  .phanyx-bloco-assinatura-visual {
+  width: 64mm;
+  height: 29.54mm;
+  min-height: 29.54mm;
+}
+
+.phanyx-conteudo-compacto
+  .phanyx-bloco-assinatura-visual
+  .phanyx-assinatura-imagem-posicionada {
+  min-height: 0;
+  margin: 0;
+}
+
+.phanyx-conteudo-compacto
+  .phanyx-bloco-assinatura-visual
+  .phanyx-assinatura-imagem-posicionada
+  img {
+  width: 100%;
+  height: 100%;
+}
+
+.phanyx-conteudo-compacto
+  .phanyx-bloco-assinatura-visual
+  .phanyx-linha-assinatura {
+  left: 8.3333%;
+  right: 8.3333%;
+  width: auto;
+  margin: 0;
 }
 
     .phanyx-validacao {
@@ -1182,12 +1547,17 @@ export function montarRenderizacaoDocumento(
     );
 
   conteudo =
-    aplicarAssinaturasDocumento({
-      conteudo,
-      instituicao:
-        opcoes.instituicao,
-      modoPrevia,
-    });
+  aplicarAssinaturasDocumento({
+    conteudo,
+
+    instituicao:
+      opcoes.instituicao,
+
+    modoPrevia,
+
+    camposVisuais:
+      opcoes.camposVisuais,
+  });
 
   const possuiQuebrasDePagina =
     /data-phanyx-page-break\s*=\s*["']true["']/i.test(
@@ -1283,8 +1653,8 @@ export function montarRenderizacaoDocumento(
 
         <style>
           ${cssCompartilhado(
-  formatoImpressao
-)}
+    formatoImpressao
+  )}
         </style>
       </head>
 
