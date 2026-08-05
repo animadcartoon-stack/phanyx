@@ -1156,9 +1156,9 @@ export default function MetasComerciaisPage() {
                         <button
                           type="button"
                           onClick={() => abrirConfirmacao("CANCELAR", meta)}
-                          className="rounded-2xl border-2 border-red-700 !bg-white px-4 py-2.5 text-sm font-black !text-red-700 shadow-sm transition hover:!bg-red-50 hover:!text-red-800 dark:border-red-700 dark:!bg-red-950/40 dark:!text-red-100"
+                          className="rounded-2xl border border-amber-700 !bg-amber-600 px-4 py-2.5 text-sm font-black !text-white shadow-sm transition hover:!bg-amber-700 dark:border-amber-600 dark:!bg-amber-700 dark:hover:!bg-amber-600"
                         >
-                          Cancelar
+                          Cancelar meta
                         </button>
                       )}
 
