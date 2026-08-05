@@ -262,24 +262,6 @@ export async function GET(req: Request) {
       data?.instituicao?.nome
     );
 
-    await prisma.documentoGerado.create({
-      data: {
-        codigoValidacao,
-        titulo: data?.titulo || "Contrato educacional",
-        tipo: "CONTRATO",
-        status: "GERADO",
-        conteudo:
-          data?.conteudo ||
-          `Contrato gerado automaticamente para o aluno ${aluno?.nome || "não identificado"
-          }.`,
-        alunoId: aluno?.id ?? null,
-        matriculaId:
-          Number.isFinite(matriculaId) && matriculaId > 0 ? matriculaId : null,
-        instituicaoId: user.instituicaoId,
-        exigeAssinatura: true,
-      },
-    });
-
     const linkValidacao = `${origem}/validar-documento?codigo=${encodeURIComponent(codigoValidacao)}`;
     const qrCodeDataUrl = await QRCode.toDataURL(linkValidacao);
     const estilo = normalizarEstilo(

@@ -197,6 +197,26 @@ function AdminDocumentosGeradosPage() {
     }
   }
 
+  function montarUrlPdfDocumento(
+    documento: DocumentoGerado
+  ) {
+    if (
+      documento.tipo ===
+      "CONTRATO" &&
+      documento.matricula?.id
+    ) {
+      return (
+        "/api/admin/contratos/pdf" +
+        `?matriculaId=${documento.matricula.id}`
+      );
+    }
+
+    return (
+      "/api/admin/documentos/pdf/" +
+      documento.id
+    );
+  }
+
   function montarTextoCompartilhamento(doc: DocumentoGerado) {
     return [
       `Documento: ${doc.titulo}`,
@@ -856,7 +876,14 @@ function AdminDocumentosGeradosPage() {
                         </button>
 
                         <button
-                          onClick={() => window.open(`/api/admin/documentos/pdf/${doc.id}`, "_blank")}
+                          onClick={() =>
+                            window.open(
+                              montarUrlPdfDocumento(
+                                doc
+                              ),
+                              "_blank"
+                            )
+                          }
                           className="phanyx-doc-secondary-action"
                         >
                           PDF
@@ -961,7 +988,14 @@ function AdminDocumentosGeradosPage() {
                   </button>
 
                   <button
-                    onClick={() => window.open(`/api/admin/documentos/pdf/${documentoSelecionado.id}`, "_blank")}
+                    onClick={() =>
+                      window.open(
+                        montarUrlPdfDocumento(
+                          documentoSelecionado
+                        ),
+                        "_blank"
+                      )
+                    }
                     className="rounded-xl border px-3 py-2 text-sm hover:border-red-400 hover:text-red-700"
                   >
                     PDF
