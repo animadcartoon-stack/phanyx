@@ -43,30 +43,32 @@ const MODULOS_COMERCIAIS: ModuloComercial[] = [
     acao: "Abrir leads e oportunidades",
   },
   {
-  icone: "🧑‍💼",
-  titulo: "Vendedores",
-  descricao:
-    "Gerencie os funcionários autorizados a atuar em vendas e matrículas.",
-  status: "INTEGRADO",
-  href: "/admin/funcionarios",
-  acao: "Abrir funcionários",
-},
-{
-  icone: "👥",
-  titulo: "Equipes comerciais",
-  descricao:
-    "Organize vendedores em equipes, defina lideranças e gerencie seus membros.",
-  status: "DISPONIVEL",
-  href: "/admin/comercial/equipes",
-  acao: "Abrir equipes comerciais",
-},
-{
-  icone: "📈",
-  titulo: "Metas comerciais",
-  descricao:
-    "Defina metas por vendedor, equipe, curso, polo e período.",
-  status: "EM_IMPLANTACAO",
-},
+    icone: "🧑‍💼",
+    titulo: "Vendedores",
+    descricao:
+      "Gerencie os funcionários autorizados a atuar em vendas e matrículas.",
+    status: "INTEGRADO",
+    href: "/admin/funcionarios",
+    acao: "Abrir funcionários",
+  },
+  {
+    icone: "👥",
+    titulo: "Equipes comerciais",
+    descricao:
+      "Organize vendedores em equipes, defina lideranças e gerencie seus membros.",
+    status: "DISPONIVEL",
+    href: "/admin/comercial/equipes",
+    acao: "Abrir equipes comerciais",
+  },
+  {
+    icone: "📈",
+    titulo: "Metas comerciais",
+    descricao:
+      "Defina metas por vendedor, equipe, curso, polo e período.",
+    status: "DISPONIVEL",
+    href: "/admin/comercial/metas",
+    acao: "Abrir metas comerciais",
+  },
   {
     icone: "📝",
     titulo: "Vendas e matrículas",
