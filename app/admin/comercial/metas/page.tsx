@@ -358,18 +358,18 @@ function descricaoResponsavel(meta: MetaComercial) {
 
 function classeStatus(status: StatusMeta) {
   if (status === "ATIVA") {
-    return "border-emerald-600 !bg-emerald-100 !text-emerald-950 dark:border-emerald-700 dark:!bg-emerald-950/50 dark:!text-emerald-100";
+    return "border-emerald-700 !bg-emerald-700 !text-white shadow-sm dark:border-emerald-700 dark:!bg-emerald-950/50 dark:!text-emerald-100";
   }
 
   if (status === "RASCUNHO") {
-    return "border-amber-600 !bg-amber-100 !text-amber-950 dark:border-amber-700 dark:!bg-amber-950/50 dark:!text-amber-100";
+    return "border-amber-700 !bg-amber-600 !text-white shadow-sm dark:border-amber-700 dark:!bg-amber-950/50 dark:!text-amber-100";
   }
 
   if (status === "ENCERRADA") {
-    return "border-slate-500 !bg-slate-200 !text-slate-950 dark:border-slate-600 dark:!bg-slate-800 dark:!text-slate-100";
+    return "border-slate-700 !bg-slate-700 !text-white shadow-sm dark:border-slate-600 dark:!bg-slate-800 dark:!text-slate-100";
   }
 
-  return "border-red-600 !bg-red-100 !text-red-950 dark:border-red-800 dark:!bg-red-950/50 dark:!text-red-100";
+  return "border-red-700 !bg-red-700 !text-white shadow-sm dark:border-red-800 dark:!bg-red-950/50 dark:!text-red-100";
 }
 
 export default function MetasComerciaisPage() {
@@ -754,9 +754,9 @@ export default function MetasComerciaisPage() {
       setForm(criarFormInicial());
       setSucesso(
         dados?.mensagem ||
-          (editandoId
-            ? "Meta comercial atualizada com sucesso."
-            : "Meta comercial criada com sucesso.")
+        (editandoId
+          ? "Meta comercial atualizada com sucesso."
+          : "Meta comercial criada com sucesso.")
       );
 
       await carregarMetas();
@@ -807,13 +807,13 @@ export default function MetasComerciaisPage() {
           headers: exclusao
             ? undefined
             : {
-                "Content-Type": "application/json",
-              },
+              "Content-Type": "application/json",
+            },
           body: exclusao
             ? undefined
             : JSON.stringify({
-                status: statusDestino,
-              }),
+              status: statusDestino,
+            }),
         }
       );
 
@@ -1136,7 +1136,7 @@ export default function MetasComerciaisPage() {
                         <button
                           type="button"
                           onClick={() => abrirConfirmacao("ATIVAR", meta)}
-                          className="rounded-2xl border border-emerald-700 !bg-emerald-50 px-4 py-2.5 text-sm font-black !text-emerald-900 transition hover:!bg-emerald-100 dark:border-emerald-700 dark:!bg-emerald-950/40 dark:!text-emerald-100"
+                          className="rounded-2xl border border-emerald-700 !bg-emerald-700 px-4 py-2.5 text-sm font-black !text-white shadow-sm transition hover:!bg-emerald-800 dark:border-emerald-700 dark:!bg-emerald-950/40 dark:!text-emerald-100"
                         >
                           Ativar
                         </button>
@@ -1156,7 +1156,7 @@ export default function MetasComerciaisPage() {
                         <button
                           type="button"
                           onClick={() => abrirConfirmacao("CANCELAR", meta)}
-                          className="rounded-2xl border border-red-600 !bg-red-50 px-4 py-2.5 text-sm font-black !text-red-900 transition hover:!bg-red-100 dark:border-red-800 dark:!bg-red-950/40 dark:!text-red-100"
+                          className="rounded-2xl border border-red-700 !bg-red-700 px-4 py-2.5 text-sm font-black !text-white shadow-sm transition hover:!bg-red-800 dark:border-red-800 dark:!bg-red-950/40 dark:!text-red-100"
                         >
                           Cancelar
                         </button>
@@ -1470,11 +1470,10 @@ export default function MetasComerciaisPage() {
                     </label>
                     <div className="grid gap-3 sm:grid-cols-2">
                       <label
-                        className={`cursor-pointer rounded-2xl border p-4 transition ${
-                          form.status === "RASCUNHO"
-                            ? "border-amber-500 !bg-amber-50 dark:border-amber-700 dark:!bg-amber-950/30"
+                        className={`cursor-pointer rounded-2xl border p-4 transition ${form.status === "RASCUNHO"
+                            ? "border-amber-600 !bg-amber-100 ring-1 ring-amber-300 dark:border-amber-700 dark:!bg-amber-950/30"
                             : "border-slate-200 !bg-white dark:border-slate-700 dark:!bg-slate-950"
-                        }`}
+                          }`}
                       >
                         <input
                           type="radio"
@@ -1498,11 +1497,10 @@ export default function MetasComerciaisPage() {
                       </label>
 
                       <label
-                        className={`cursor-pointer rounded-2xl border p-4 transition ${
-                          form.status === "ATIVA"
-                            ? "border-emerald-500 !bg-emerald-50 dark:border-emerald-700 dark:!bg-emerald-950/30"
+                        className={`cursor-pointer rounded-2xl border p-4 transition ${form.status === "ATIVA"
+                            ? "border-emerald-600 !bg-emerald-100 ring-1 ring-emerald-300 dark:border-emerald-700 dark:!bg-emerald-950/30"
                             : "border-slate-200 !bg-white dark:border-slate-700 dark:!bg-slate-950"
-                        }`}
+                          }`}
                       >
                         <input
                           type="radio"
