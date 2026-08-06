@@ -360,7 +360,7 @@ export default function AdminReunioesPage() {
                 setPublicoTipo(e.target.value);
                 limparCamposPublico();
               }}
-              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none dark:border-slate-600 dark:bg-slate-950 dark:text-white"
+              className="phanyx-reuniao-publico-select w-full rounded-xl border px-4 py-3 outline-none"
             >
               <option value="TODA_EQUIPE">Toda equipe administrativa</option>
               <option value="SETOR">Setor</option>
