@@ -1260,14 +1260,57 @@ p-6
                   <div><p className="text-slate-400">CPF</p><p>{funcionario.cpf || "-"}</p></div>
                   <div><p className="text-slate-400">RG</p><p>{funcionario.rg || "-"}</p></div>
                   <div><p className="text-slate-400">Telefone</p><p>{funcionario.telefone || "-"}</p></div>
-                  <div><p className="text-slate-400">Cargo</p><p>{funcionario.cargo || "-"}</p></div>
-                  <div><p className="text-slate-400">Departamento</p><p>{funcionario.departamento?.nome || "-"}</p></div>
-                  <div><p className="text-slate-400">Código</p><p>{funcionario.codigoFuncionario || "-"}</p></div>
+                  <div>
+                    <p className="text-slate-400">
+                      Cargo
+                    </p>
+
+                    <p>
+                      {funcionario.cargo || "-"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-slate-400">
+                      Departamento
+                    </p>
+
+                    <p>
+                      {funcionario.departamento?.nome || "-"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-slate-400">
+                      Polo de lotação
+                    </p>
+
+                    <p
+                      className={
+                        funcionario.polo
+                          ? "font-semibold text-slate-900 dark:text-white"
+                          : "font-semibold text-amber-700 dark:text-amber-300"
+                      }
+                    >
+                      {funcionario.polo?.nome ||
+                        "Lotação ainda não definida"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-slate-400">
+                      Código
+                    </p>
+
+                    <p>
+                      {funcionario.codigoFuncionario || "-"}
+                    </p>
+                  </div>
                   <div><p className="text-slate-400">Status</p><p>{funcionario.statusFuncionario || "-"}</p></div>
                   <div className="md:col-span-3">
-  {funcionario.user ? (
-    <div
-      className="
+                    {funcionario.user ? (
+                      <div
+                        className="
         flex
         flex-col
         gap-3
@@ -1282,35 +1325,35 @@ p-6
         md:items-center
         md:justify-between
       "
-    >
-      <div>
-        <p className="font-bold text-slate-900 dark:text-white">
-          Acesso ao sistema
-        </p>
+                      >
+                        <div>
+                          <p className="font-bold text-slate-900 dark:text-white">
+                            Acesso ao sistema
+                          </p>
 
-        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-          Email: {funcionario.user.email}
-        </p>
+                          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                            Email: {funcionario.user.email}
+                          </p>
 
-        <p className="text-sm text-slate-600 dark:text-slate-300">
-          Perfil:{" "}
-          {funcionario.user.role ===
-          "ADMIN"
-            ? "Administrador"
-            : "Funcionário"}
-        </p>
+                          <p className="text-sm text-slate-600 dark:text-slate-300">
+                            Perfil:{" "}
+                            {funcionario.user.role ===
+                              "ADMIN"
+                              ? "Administrador"
+                              : "Funcionário"}
+                          </p>
 
-        <p className="text-sm text-slate-600 dark:text-slate-300">
-          Situação:{" "}
-          {funcionario.user.ativo ===
-          false
-            ? "Bloqueado"
-            : "Ativo"}
-        </p>
-      </div>
+                          <p className="text-sm text-slate-600 dark:text-slate-300">
+                            Situação:{" "}
+                            {funcionario.user.ativo ===
+                              false
+                              ? "Bloqueado"
+                              : "Ativo"}
+                          </p>
+                        </div>
 
-      <span
-        className="
+                        <span
+                          className="
           inline-flex
           w-fit
           rounded-full
@@ -1326,13 +1369,13 @@ p-6
           dark:bg-emerald-950/40
           dark:text-emerald-200
         "
-      >
-        Possui acesso
-      </span>
-    </div>
-  ) : (
-    <div
-      className="
+                        >
+                          Possui acesso
+                        </span>
+                      </div>
+                    ) : (
+                      <div
+                        className="
         flex
         flex-col
         gap-4
@@ -1347,26 +1390,26 @@ p-6
         md:items-center
         md:justify-between
       "
-    >
-      <div>
-        <p className="font-bold text-slate-900 dark:text-white">
-          Sem acesso ao sistema
-        </p>
+                      >
+                        <div>
+                          <p className="font-bold text-slate-900 dark:text-white">
+                            Sem acesso ao sistema
+                          </p>
 
-        <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">
-          Este funcionário está cadastrado
-          somente no RH. Nenhum login ou
-          senha foi criado.
-        </p>
-      </div>
+                          <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                            Este funcionário está cadastrado
+                            somente no RH. Nenhum login ou
+                            senha foi criado.
+                          </p>
+                        </div>
 
-      <button
-        type="button"
-        onClick={() => {
-          setCriarAcessoSistema(true);
-          setEditandoGeral(true);
-        }}
-        className="
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCriarAcessoSistema(true);
+                            setEditandoGeral(true);
+                          }}
+                          className="
           rounded-xl
           bg-blue-600
           px-4
@@ -1377,12 +1420,12 @@ p-6
           transition
           hover:bg-blue-500
         "
-      >
-        Criar acesso ao sistema
-      </button>
-    </div>
-  )}
-</div>
+                        >
+                          Criar acesso ao sistema
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <div className="mt-5 grid gap-4 md:grid-cols-3">
@@ -1445,9 +1488,9 @@ p-6
                     </div>
                   </div>
 
-{!funcionario.user && (
-  <div
-    className="
+                  {!funcionario.user && (
+                    <div
+                      className="
       md:col-span-3
       rounded-2xl
       border
@@ -1457,37 +1500,37 @@ p-6
       dark:border-slate-700
       dark:bg-slate-950
     "
-  >
-    <label className="flex cursor-pointer items-start gap-3">
-      <input
-        type="checkbox"
-        checked={
-          criarAcessoSistema
-        }
-        onChange={(e) => {
-          setCriarAcessoSistema(
-            e.target.checked
-          );
-        }}
-        className="mt-1 h-5 w-5 rounded border-slate-400"
-      />
+                    >
+                      <label className="flex cursor-pointer items-start gap-3">
+                        <input
+                          type="checkbox"
+                          checked={
+                            criarAcessoSistema
+                          }
+                          onChange={(e) => {
+                            setCriarAcessoSistema(
+                              e.target.checked
+                            );
+                          }}
+                          className="mt-1 h-5 w-5 rounded border-slate-400"
+                        />
 
-      <span>
-        <span className="block font-bold text-slate-900 dark:text-white">
-          Criar acesso ao sistema
-        </span>
+                        <span>
+                          <span className="block font-bold text-slate-900 dark:text-white">
+                            Criar acesso ao sistema
+                          </span>
 
-        <span className="mt-1 block text-sm leading-6 text-slate-600 dark:text-slate-300">
-          O PHANYX criará um usuário,
-          uma senha temporária e enviará
-          as credenciais por email. O
-          funcionário deverá trocar a
-          senha no primeiro acesso.
-        </span>
-      </span>
-    </label>
-  </div>
-)}
+                          <span className="mt-1 block text-sm leading-6 text-slate-600 dark:text-slate-300">
+                            O PHANYX criará um usuário,
+                            uma senha temporária e enviará
+                            as credenciais por email. O
+                            funcionário deverá trocar a
+                            senha no primeiro acesso.
+                          </span>
+                        </span>
+                      </label>
+                    </div>
+                  )}
 
                   <label className="space-y-1">
                     <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Nome</span>
@@ -1582,26 +1625,26 @@ text-slate-900 dark:text-white
                   </label>
 
                   {(funcionario.user ||
-  criarAcessoSistema) && (
-  <>
-    <label className="space-y-1">
-      <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-        Email de acesso
-      </span>
+                    criarAcessoSistema) && (
+                      <>
+                        <label className="space-y-1">
+                          <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                            Email de acesso
+                          </span>
 
-      <input
-        type="email"
-        value={formGeral.email}
-        onChange={(e) =>
-          setFormGeral((p) => ({
-            ...p,
-            email:
-              e.target.value,
-          }))
-        }
-        placeholder="funcionario@email.com"
-        required
-        className="
+                          <input
+                            type="email"
+                            value={formGeral.email}
+                            onChange={(e) =>
+                              setFormGeral((p) => ({
+                                ...p,
+                                email:
+                                  e.target.value,
+                              }))
+                            }
+                            placeholder="funcionario@email.com"
+                            required
+                            className="
           w-full
           rounded-xl
           border
@@ -1615,25 +1658,25 @@ text-slate-900 dark:text-white
           dark:bg-slate-950
           dark:text-white
         "
-      />
-    </label>
+                          />
+                        </label>
 
-    <label className="space-y-1">
-      <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-        Perfil de acesso
-      </span>
+                        <label className="space-y-1">
+                          <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                            Perfil de acesso
+                          </span>
 
-      <select
-        value={formGeral.role}
-        onChange={(e) =>
-          setFormGeral((p) => ({
-            ...p,
-            role:
-              e.target.value,
-          }))
-        }
-        required
-        className="
+                          <select
+                            value={formGeral.role}
+                            onChange={(e) =>
+                              setFormGeral((p) => ({
+                                ...p,
+                                role:
+                                  e.target.value,
+                              }))
+                            }
+                            required
+                            className="
           w-full
           rounded-xl
           border
@@ -1647,18 +1690,18 @@ text-slate-900 dark:text-white
           dark:bg-slate-950
           dark:text-white
         "
-      >
-        <option value="SECRETARIA">
-          Funcionário
-        </option>
+                          >
+                            <option value="SECRETARIA">
+                              Funcionário
+                            </option>
 
-        <option value="ADMIN">
-          Administrador
-        </option>
-      </select>
-    </label>
-  </>
-)}
+                            <option value="ADMIN">
+                              Administrador
+                            </option>
+                          </select>
+                        </label>
+                      </>
+                    )}
 
                   <label className="space-y-1">
                     <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Status</span>
