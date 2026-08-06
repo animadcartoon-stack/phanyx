@@ -379,16 +379,16 @@ function criarImagemAssinatura({
   modoPrevia: boolean;
 
   campoVisual?:
-  CampoVisualDocumento | null;
+    | CampoVisualDocumento
+    | null;
 
   dentroDoBloco?: boolean;
 }) {
-  const campo =
-    campoVisual
-      ? obterCampoVisualAssinatura(
-        [campoVisual]
-      )
-      : null;
+  const campo = campoVisual
+    ? obterCampoVisualAssinatura([
+        campoVisual,
+      ])
+    : null;
 
   if (!assinaturaUrl) {
     if (!modoPrevia) {
@@ -404,66 +404,37 @@ function criarImagemAssinatura({
     `;
   }
 
+  /*
+   * Assinatura inserida dentro do bloco
+   * completo:
+   *
+   * respeita exatamente posição, largura
+   * e altura salvas no editor visual.
+   */
   if (
     dentroDoBloco &&
     campo
   ) {
-    const esquerda =
-      percentual(
-        campo.x,
-        LARGURA_AREA_ASSINATURA_PX
-      );
+    const esquerda = percentual(
+      campo.x,
+      LARGURA_AREA_ASSINATURA_PX
+    );
 
-    const topoOriginal =
-      percentual(
-        campo.y,
-        ALTURA_AREA_ASSINATURA_PX
-      );
+    const topo = percentual(
+      campo.y,
+      ALTURA_AREA_ASSINATURA_PX
+    );
 
-    const largura =
-      percentual(
-        campo.largura,
-        LARGURA_AREA_ASSINATURA_PX
-      );
+    const largura = percentual(
+      campo.largura,
+      LARGURA_AREA_ASSINATURA_PX
+    );
 
-    const alturaOriginal =
-      percentual(
-        campo.altura,
-        ALTURA_AREA_ASSINATURA_PX
-      );
+    const altura = percentual(
+      campo.altura,
+      ALTURA_AREA_ASSINATURA_PX
+    );
 
-    /*
-     * A parte inferior do bloco pertence à
-     * linha e à identificação institucional.
-     *
-     * Mesmo que a assinatura seja arrastada
-     * para baixo no editor, a imagem não pode
-     * esconder nome, cargo, instituição ou
-     * CNPJ.
-     */
-    const topo =
-      Math.min(
-        Math.max(
-          topoOriginal,
-          0
-        ),
-        40
-      );
-
-    const alturaDisponivel =
-      Math.max(
-        8,
-        55 - topo
-      );
-
-    const altura =
-      Math.min(
-        Math.max(
-          alturaOriginal,
-          8
-        ),
-        alturaDisponivel
-      );
     return `
       <span
         class="
@@ -479,14 +450,18 @@ function criarImagemAssinatura({
       >
         <img
           src="${escaparHtml(
-      assinaturaUrl
-    )}"
+            assinaturaUrl
+          )}"
           alt="Assinatura do diretor"
         />
       </span>
     `;
   }
 
+  /*
+   * Quando é usada somente a imagem da
+   * assinatura, sem o bloco institucional.
+   */
   if (campo) {
     const larguraMm =
       LARGURA_BLOCO_ASSINATURA_MM *
@@ -511,8 +486,8 @@ function criarImagemAssinatura({
       >
         <img
           src="${escaparHtml(
-      assinaturaUrl
-    )}"
+            assinaturaUrl
+          )}"
           alt="Assinatura do diretor"
           style="
             width: ${larguraMm}mm;
@@ -529,8 +504,8 @@ function criarImagemAssinatura({
     >
       <img
         src="${escaparHtml(
-    assinaturaUrl
-  )}"
+          assinaturaUrl
+        )}"
         alt="Assinatura do diretor"
       />
     </span>
