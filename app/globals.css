@@ -19890,3 +19890,152 @@ html[data-theme="sistema"]
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
 }
+
+/* =========================================================
+   PHANYX — REUNIÕES — INDIVIDUAL NO TEMA ESCURO
+   Tema Escuro: azul
+   Tema Sistema: continua cinza
+   Manter no FINAL do globals.css
+   ========================================================= */
+
+/* Card principal da seleção individual */
+
+html[data-theme="dark"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-individual-card,
+html.dark:not([data-theme="system"]):not([data-theme="sistema"])
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-individual-card {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-reuniao-individual-card
+  label,
+html.dark:not([data-theme="system"]):not([data-theme="sistema"])
+  .phanyx-reuniao-individual-card
+  label {
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
+}
+
+/* Busca de participantes */
+
+html[data-theme="dark"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-busca-participante,
+html.dark:not([data-theme="system"]):not([data-theme="sistema"])
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-busca-participante {
+  background: #020617 !important;
+  border-color: #475569 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-reuniao-busca-participante::placeholder,
+html.dark:not([data-theme="system"]):not([data-theme="sistema"])
+  .phanyx-reuniao-busca-participante::placeholder {
+  color: #94a3b8 !important;
+  -webkit-text-fill-color: #94a3b8 !important;
+  opacity: 1 !important;
+}
+
+/* Lista */
+
+html[data-theme="dark"]
+  .phanyx-reuniao-lista-participantes,
+html.dark:not([data-theme="system"]):not([data-theme="sistema"])
+  .phanyx-reuniao-lista-participantes {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+/* Cada participante */
+
+html[data-theme="dark"]
+  .phanyx-reuniao-participante-item,
+html.dark:not([data-theme="system"]):not([data-theme="sistema"])
+  .phanyx-reuniao-participante-item {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-reuniao-participante-item
+  span,
+html[data-theme="dark"]
+  .phanyx-reuniao-participante-item
+  strong,
+html.dark:not([data-theme="system"]):not([data-theme="sistema"])
+  .phanyx-reuniao-participante-item
+  span,
+html.dark:not([data-theme="system"]):not([data-theme="sistema"])
+  .phanyx-reuniao-participante-item
+  strong {
+  color: inherit !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-reuniao-participante-item:hover,
+html.dark:not([data-theme="system"]):not([data-theme="sistema"])
+  .phanyx-reuniao-participante-item:hover {
+  background: #1e293b !important;
+}
+
+/* Nome, matrícula, email e setor */
+
+html[data-theme="dark"]
+  .phanyx-reuniao-participante-detalhes,
+html.dark:not([data-theme="system"]):not([data-theme="sistema"])
+  .phanyx-reuniao-participante-detalhes {
+  color: #93c5fd !important;
+  -webkit-text-fill-color: #93c5fd !important;
+}
+
+/* Participante selecionado: azul */
+
+html[data-theme="dark"]
+  .phanyx-reuniao-participante-item.is-selected,
+html.dark:not([data-theme="system"]):not([data-theme="sistema"])
+  .phanyx-reuniao-participante-item.is-selected {
+  background: #1d4ed8 !important;
+  border-color: #3b82f6 !important;
+  border-left: 4px solid #93c5fd !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-reuniao-participante-item.is-selected
+  .phanyx-reuniao-participante-detalhes,
+html.dark:not([data-theme="system"]):not([data-theme="sistema"])
+  .phanyx-reuniao-participante-item.is-selected
+  .phanyx-reuniao-participante-detalhes {
+  color: #dbeafe !important;
+  -webkit-text-fill-color: #dbeafe !important;
+}
+
+/* Card dos participantes selecionados */
+
+html[data-theme="dark"]
+  .phanyx-reuniao-selecionados-card,
+html.dark:not([data-theme="system"]):not([data-theme="sistema"])
+  .phanyx-reuniao-selecionados-card {
+  background: #172554 !important;
+  border-color: #1d4ed8 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-reuniao-selecionados-titulo,
+html.dark:not([data-theme="system"]):not([data-theme="sistema"])
+  .phanyx-reuniao-selecionados-titulo {
+  color: #dbeafe !important;
+  -webkit-text-fill-color: #dbeafe !important;
+}
