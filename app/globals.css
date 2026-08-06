@@ -19783,3 +19783,46 @@ html[data-theme="sistema"]
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
 }
+
+/* =========================================================
+   PHANYX — REUNIÕES — SELECT PÚBLICO NO TEMA ESCURO
+   ========================================================= */
+
+html.dark
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-publico-select,
+html[data-theme="dark"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-publico-select {
+  background: #0f172a !important;
+  border-color: #475569 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  color-scheme: dark !important;
+}
+
+html.dark
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-publico-select
+  option,
+html[data-theme="dark"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-publico-select
+  option {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html.dark
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-publico-select
+  option:checked,
+html[data-theme="dark"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-publico-select
+  option:checked {
+  background: #1e40af !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
