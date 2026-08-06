@@ -379,15 +379,15 @@ function criarImagemAssinatura({
   modoPrevia: boolean;
 
   campoVisual?:
-    CampoVisualDocumento | null;
+  CampoVisualDocumento | null;
 
   dentroDoBloco?: boolean;
 }) {
   const campo =
     campoVisual
       ? obterCampoVisualAssinatura(
-          [campoVisual]
-        )
+        [campoVisual]
+      )
       : null;
 
   if (!assinaturaUrl) {
@@ -414,7 +414,7 @@ function criarImagemAssinatura({
         LARGURA_AREA_ASSINATURA_PX
       );
 
-    const topo =
+    const topoOriginal =
       percentual(
         campo.y,
         ALTURA_AREA_ASSINATURA_PX
@@ -426,12 +426,44 @@ function criarImagemAssinatura({
         LARGURA_AREA_ASSINATURA_PX
       );
 
-    const altura =
+    const alturaOriginal =
       percentual(
         campo.altura,
         ALTURA_AREA_ASSINATURA_PX
       );
 
+    /*
+     * A parte inferior do bloco pertence à
+     * linha e à identificação institucional.
+     *
+     * Mesmo que a assinatura seja arrastada
+     * para baixo no editor, a imagem não pode
+     * esconder nome, cargo, instituição ou
+     * CNPJ.
+     */
+    const topo =
+      Math.min(
+        Math.max(
+          topoOriginal,
+          0
+        ),
+        40
+      );
+
+    const alturaDisponivel =
+      Math.max(
+        8,
+        55 - topo
+      );
+
+    const altura =
+      Math.min(
+        Math.max(
+          alturaOriginal,
+          8
+        ),
+        alturaDisponivel
+      );
     return `
       <span
         class="
@@ -447,8 +479,8 @@ function criarImagemAssinatura({
       >
         <img
           src="${escaparHtml(
-            assinaturaUrl
-          )}"
+      assinaturaUrl
+    )}"
           alt="Assinatura do diretor"
         />
       </span>
@@ -479,8 +511,8 @@ function criarImagemAssinatura({
       >
         <img
           src="${escaparHtml(
-            assinaturaUrl
-          )}"
+      assinaturaUrl
+    )}"
           alt="Assinatura do diretor"
           style="
             width: ${larguraMm}mm;
@@ -497,8 +529,8 @@ function criarImagemAssinatura({
     >
       <img
         src="${escaparHtml(
-          assinaturaUrl
-        )}"
+    assinaturaUrl
+  )}"
         alt="Assinatura do diretor"
       />
     </span>
@@ -514,12 +546,12 @@ function criarBlocoAssinatura({
   assinaturaUrl: string;
 
   instituicao:
-    DadosInstituicaoDocumento;
+  DadosInstituicaoDocumento;
 
   modoPrevia: boolean;
 
   campoVisual?:
-    CampoVisualDocumento | null;
+  CampoVisualDocumento | null;
 }) {
   const possuiCampoVisual =
     Boolean(campoVisual);
@@ -540,11 +572,10 @@ function criarBlocoAssinatura({
     <span
       class="
         phanyx-bloco-assinatura
-        ${
-          possuiCampoVisual
-            ? "phanyx-bloco-assinatura-visual"
-            : ""
-        }
+        ${possuiCampoVisual
+      ? "phanyx-bloco-assinatura-visual"
+      : ""
+    }
       "
     >
       ${imagem}
@@ -558,38 +589,37 @@ function criarBlocoAssinatura({
       >
         <strong>
           ${escaparHtml(
-            instituicao
-              .responsavelNome ||
-            "Responsável legal"
-          )}
+      instituicao
+        .responsavelNome ||
+      "Responsável legal"
+    )}
         </strong>
 
         <span>
           ${escaparHtml(
-            instituicao
-              .responsavelCargo ||
-            "Representante legal"
-          )}
+      instituicao
+        .responsavelCargo ||
+      "Representante legal"
+    )}
         </span>
 
         <span>
           ${escaparHtml(
-            instituicao.nome
-          )}
+      instituicao.nome
+    )}
         </span>
 
-        ${
-          instituicao.cnpj
-            ? `
+        ${instituicao.cnpj
+      ? `
               <span>
                 CNPJ:
                 ${escaparHtml(
-                  instituicao.cnpj
-                )}
+        instituicao.cnpj
+      )}
               </span>
             `
-            : ""
-        }
+      : ""
+    }
       </span>
     </span>
   `;
@@ -604,12 +634,12 @@ export function aplicarAssinaturasDocumento({
   conteudo: string;
 
   instituicao:
-    DadosInstituicaoDocumento;
+  DadosInstituicaoDocumento;
 
   modoPrevia?: boolean;
 
   camposVisuais?:
-    CampoVisualDocumento[] | null;
+  CampoVisualDocumento[] | null;
 }) {
   const assinaturaUrl =
     String(
@@ -1360,8 +1390,63 @@ function cssCompartilhado(
 .phanyx-conteudo-compacto
   .phanyx-bloco-assinatura-visual {
   width: 64mm;
-  height: 29.54mm;
-  min-height: 29.54mm;
+  height: 36mm;
+  min-height: 36mm;
+  margin-top: 1mm;
+  margin-bottom: 1mm;
+  overflow: visible;
+}
+
+.phanyx-conteudo-compacto
+  .phanyx-bloco-assinatura-visual
+  .phanyx-linha-assinatura {
+  top: 58%;
+  left: 5%;
+  right: 5%;
+  width: auto;
+  margin: 0;
+}
+
+.phanyx-conteudo-compacto
+  .phanyx-bloco-assinatura-visual
+  .phanyx-identificacao-assinatura {
+  position: absolute;
+  top: 63%;
+  left: 3%;
+  right: 3%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #111827;
+  font-size: 6pt;
+  line-height: 1.05;
+  white-space: normal;
+  overflow: visible;
+}
+
+.phanyx-conteudo-compacto
+  .phanyx-bloco-assinatura-visual
+  .phanyx-identificacao-assinatura
+  strong,
+.phanyx-conteudo-compacto
+  .phanyx-bloco-assinatura-visual
+  .phanyx-identificacao-assinatura
+  span {
+  display: block;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.phanyx-conteudo-compacto
+  .phanyx-bloco-assinatura-visual
+  .phanyx-identificacao-assinatura
+  strong {
+  font-size: 6.3pt;
+  font-weight: 700;
 }
 
 .phanyx-conteudo-compacto
@@ -1622,17 +1707,17 @@ export function montarRenderizacaoDocumento(
     );
 
   conteudo =
-  aplicarAssinaturasDocumento({
-    conteudo,
+    aplicarAssinaturasDocumento({
+      conteudo,
 
-    instituicao:
-      opcoes.instituicao,
+      instituicao:
+        opcoes.instituicao,
 
-    modoPrevia,
+      modoPrevia,
 
-    camposVisuais:
-      opcoes.camposVisuais,
-  });
+      camposVisuais:
+        opcoes.camposVisuais,
+    });
 
   const possuiQuebrasDePagina =
     /data-phanyx-page-break\s*=\s*["']true["']/i.test(

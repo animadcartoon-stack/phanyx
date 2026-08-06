@@ -2258,21 +2258,71 @@ export default function EditorTemplatePHANYX({
           </div>
 
           <div
-            className="phanyx-a4-guia-rodape"
+            className={[
+              "phanyx-a4-guia-rodape",
+              duasVias
+                ? "pointer-events-none select-none"
+                : "",
+            ].join(" ")}
             style={{
               height:
                 `${alturaRodapeMm}mm`,
-            }}
-          >
-            <span>
-              Área reservada para rodapé
-            </span>
 
-            <span>
-              {duasVias
-                ? "SERÁ DUPLICADA NO PDF"
-                : `Página ${totalPaginas}`}
-            </span>
+              ...(duasVias
+                ? {
+                  background: "#fff7ed",
+                  color: "#9a3412",
+                  borderTop:
+                    "2px solid #f97316",
+                }
+                : {}),
+            }}
+            contentEditable={false}
+            aria-label={
+              duasVias
+                ? "Área bloqueada e reservada para validação do documento"
+                : "Área reservada para rodapé"
+            }
+          >
+            {duasVias ? (
+              <>
+                <div className="flex min-w-0 items-center gap-3">
+                  <span
+                    className="text-lg"
+                    aria-hidden="true"
+                  >
+                    🔒
+                  </span>
+
+                  <div className="min-w-0">
+                    <strong className="block text-[11px] font-black uppercase tracking-[0.08em]">
+                      Área reservada para validação
+                      do documento
+                    </strong>
+
+                    <span className="mt-1 block text-[9px] font-semibold normal-case tracking-normal">
+                      Código, data de emissão e QR
+                      Code. Não é permitido inserir
+                      conteúdo nesta área.
+                    </span>
+                  </div>
+                </div>
+
+                <span className="shrink-0 text-[9px] font-black uppercase tracking-[0.08em]">
+                  Será duplicada no PDF
+                </span>
+              </>
+            ) : (
+              <>
+                <span>
+                  Área reservada para rodapé
+                </span>
+
+                <span>
+                  Página {totalPaginas}
+                </span>
+              </>
+            )}
           </div>
         </div>
       </div>
