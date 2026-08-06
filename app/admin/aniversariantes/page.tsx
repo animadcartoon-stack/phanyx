@@ -105,7 +105,7 @@ export default function AdminAniversariantesPage() {
   const [busca, setBusca] = useState("");
 
   const [instituicao, setInstituicao] =
-  useState<InstituicaoAniversariantes | null>(null);
+    useState<InstituicaoAniversariantes | null>(null);
 
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState("");
@@ -115,24 +115,24 @@ export default function AdminAniversariantesPage() {
   const [departamentos, setDepartamentos] = useState<Departamento[]>([]);
   const [selecionados, setSelecionados] = useState<string[]>([]);
 
-    const [modalMensagemAberto, setModalMensagemAberto] = useState(false);
-    const [modalWhatsappAberto, setModalWhatsappAberto] = useState(false);
-    const [enviandoMensagem, setEnviandoMensagem] = useState(false);
-    const [sucesso, setSucesso] = useState("");
+  const [modalMensagemAberto, setModalMensagemAberto] = useState(false);
+  const [modalWhatsappAberto, setModalWhatsappAberto] = useState(false);
+  const [enviandoMensagem, setEnviandoMensagem] = useState(false);
+  const [sucesso, setSucesso] = useState("");
 
-    const TITULO_ANIVERSARIO_PADRAO =
-  "Feliz aniversário, {{primeiroNome}}!";
+  const TITULO_ANIVERSARIO_PADRAO =
+    "Feliz aniversário, {{primeiroNome}}!";
 
-const MENSAGEM_ANIVERSARIO_PADRAO =
-  "Olá, {{primeiroNome}}! Hoje é uma data especial: {{dataAniversario}}.\n\nA equipe da instituição deseja a você um feliz aniversário, com muita saúde, alegria e bênçãos.\n\nReceba nosso carinho neste dia tão importante!";
+  const MENSAGEM_ANIVERSARIO_PADRAO =
+    "Olá, {{primeiroNome}}! Hoje é uma data especial: {{dataAniversario}}.\n\nA equipe da instituição deseja a você um feliz aniversário, com muita saúde, alegria e bênçãos.\n\nReceba nosso carinho neste dia tão importante!";
 
-const [tituloMensagem, setTituloMensagem] = useState(
-  TITULO_ANIVERSARIO_PADRAO
-);
+  const [tituloMensagem, setTituloMensagem] = useState(
+    TITULO_ANIVERSARIO_PADRAO
+  );
 
-const [textoMensagem, setTextoMensagem] = useState(
-  MENSAGEM_ANIVERSARIO_PADRAO
-);
+  const [textoMensagem, setTextoMensagem] = useState(
+    MENSAGEM_ANIVERSARIO_PADRAO
+  );
 
   const selecionadosSet = useMemo(
     () => new Set(selecionados),
@@ -140,90 +140,90 @@ const [textoMensagem, setTextoMensagem] = useState(
   );
 
   const aniversariantesSelecionados = useMemo(() => {
-  return aniversariantes.filter((item) => selecionadosSet.has(item.chave));
-}, [aniversariantes, selecionadosSet]);
+    return aniversariantes.filter((item) => selecionadosSet.has(item.chave));
+  }, [aniversariantes, selecionadosSet]);
 
-function primeiroNome(nome: string) {
-  return String(nome || "").trim().split(" ")[0] || "";
-}
-
-function aplicarTags(texto: string, item: Aniversariante) {
-  return String(texto || "")
-    .replaceAll("{{nome}}", item.nome || "")
-    .replaceAll("{{primeiroNome}}", primeiroNome(item.nome))
-    .replaceAll("{{instituicao}}", instituicao?.nome || "instituição")
-    .replaceAll("{{dataAniversario}}", item.dataAniversario || "")
-    .replaceAll("{{dia}}", String(item.dia || ""))
-    .replaceAll("{{mes}}", String(item.mes || ""))
-    .replaceAll("{{tipoPessoa}}", nomeTipo(item.tipo))
-    .replaceAll("{{departamento}}", item.departamento || "")
-    .replaceAll("{{contexto}}", item.contexto || "")
-    .replaceAll("{{status}}", item.status || "");
-}
-
-function textoWhatsapp(item: Aniversariante) {
-  return aplicarTags(textoMensagem, item);
-}
-
-function linkWhatsapp(item: Aniversariante) {
-  const numero = String(item.whatsapp || "").replace(/\D/g, "");
-  const mensagem = encodeURIComponent(textoWhatsapp(item));
-
-  if (!numero) return "";
-
-  const numeroFinal = numero.startsWith("55") ? numero : `55${numero}`;
-
-  return `https://wa.me/${numeroFinal}?text=${mensagem}`;
-}
-
-async function enviarMensagemChat() {
-  try {
-    setErro("");
-    setSucesso("");
-
-    if (aniversariantesSelecionados.length === 0) {
-      setErro("Selecione pelo menos um aniversariante.");
-      return;
-    }
-
-    setEnviandoMensagem(true);
-
-    const destinatarios = aniversariantesSelecionados.map((item) => ({
-      chave: item.chave,
-      id: item.id,
-      tipo: item.tipo,
-      userId: item.userId,
-      nome: item.nome,
-      titulo: aplicarTags(tituloMensagem, item),
-      mensagem: aplicarTags(textoMensagem, item),
-    }));
-
-    const resposta = await fetch("/api/admin/aniversariantes/enviar-chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({
-        destinatarios,
-      }),
-    });
-
-    const json = await resposta.json();
-
-    if (!resposta.ok) {
-      throw new Error(json.error || "Erro ao enviar mensagem.");
-    }
-
-    setSucesso(`Mensagem enviada para ${json.total} aniversariante(s).`);
-    setModalMensagemAberto(false);
-  } catch (error: any) {
-    console.error(error);
-    setErro(error.message || "Erro ao enviar mensagem.");
-  } finally {
-    setEnviandoMensagem(false);
+  function primeiroNome(nome: string) {
+    return String(nome || "").trim().split(" ")[0] || "";
   }
-}
+
+  function aplicarTags(texto: string, item: Aniversariante) {
+    return String(texto || "")
+      .replaceAll("{{nome}}", item.nome || "")
+      .replaceAll("{{primeiroNome}}", primeiroNome(item.nome))
+      .replaceAll("{{instituicao}}", instituicao?.nome || "instituição")
+      .replaceAll("{{dataAniversario}}", item.dataAniversario || "")
+      .replaceAll("{{dia}}", String(item.dia || ""))
+      .replaceAll("{{mes}}", String(item.mes || ""))
+      .replaceAll("{{tipoPessoa}}", nomeTipo(item.tipo))
+      .replaceAll("{{departamento}}", item.departamento || "")
+      .replaceAll("{{contexto}}", item.contexto || "")
+      .replaceAll("{{status}}", item.status || "");
+  }
+
+  function textoWhatsapp(item: Aniversariante) {
+    return aplicarTags(textoMensagem, item);
+  }
+
+  function linkWhatsapp(item: Aniversariante) {
+    const numero = String(item.whatsapp || "").replace(/\D/g, "");
+    const mensagem = encodeURIComponent(textoWhatsapp(item));
+
+    if (!numero) return "";
+
+    const numeroFinal = numero.startsWith("55") ? numero : `55${numero}`;
+
+    return `https://wa.me/${numeroFinal}?text=${mensagem}`;
+  }
+
+  async function enviarMensagemChat() {
+    try {
+      setErro("");
+      setSucesso("");
+
+      if (aniversariantesSelecionados.length === 0) {
+        setErro("Selecione pelo menos um aniversariante.");
+        return;
+      }
+
+      setEnviandoMensagem(true);
+
+      const destinatarios = aniversariantesSelecionados.map((item) => ({
+        chave: item.chave,
+        id: item.id,
+        tipo: item.tipo,
+        userId: item.userId,
+        nome: item.nome,
+        titulo: aplicarTags(tituloMensagem, item),
+        mensagem: aplicarTags(textoMensagem, item),
+      }));
+
+      const resposta = await fetch("/api/admin/aniversariantes/enviar-chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          destinatarios,
+        }),
+      });
+
+      const json = await resposta.json();
+
+      if (!resposta.ok) {
+        throw new Error(json.error || "Erro ao enviar mensagem.");
+      }
+
+      setSucesso(`Mensagem enviada para ${json.total} aniversariante(s).`);
+      setModalMensagemAberto(false);
+    } catch (error: any) {
+      console.error(error);
+      setErro(error.message || "Erro ao enviar mensagem.");
+    } finally {
+      setEnviandoMensagem(false);
+    }
+  }
 
   async function carregarAniversariantes() {
     try {
@@ -268,73 +268,73 @@ async function enviarMensagemChat() {
   }
 
   function montarParamsRelatorio() {
-  const params = new URLSearchParams();
+    const params = new URLSearchParams();
 
-  params.set("mes", mes);
-  params.set("tipo", tipo);
-  params.set("status", status);
-  params.set("whatsapp", whatsapp);
+    params.set("mes", mes);
+    params.set("tipo", tipo);
+    params.set("status", status);
+    params.set("whatsapp", whatsapp);
 
-  if (departamentoId !== "TODOS") {
-    params.set("departamentoId", departamentoId);
-  }
-
-  if (busca.trim()) {
-    params.set("busca", busca.trim());
-  }
-
-  return params;
-}
-
-async function baixarRelatorio(formato: "pdf" | "excel") {
-  try {
-    setErro("");
-
-    const params = montarParamsRelatorio();
-
-    const endpoint =
-      formato === "pdf"
-        ? `/api/admin/aniversariantes/exportar-pdf?${params}`
-        : `/api/admin/aniversariantes/exportar-excel?${params}`;
-
-    const resposta = await fetch(endpoint, {
-      credentials: "include",
-    });
-
-    if (!resposta.ok) {
-      let mensagem =
-        formato === "pdf"
-          ? "Erro ao gerar PDF."
-          : "Erro ao gerar Excel.";
-
-      try {
-        const json = await resposta.json();
-        mensagem = json.error || mensagem;
-      } catch {}
-
-      throw new Error(mensagem);
+    if (departamentoId !== "TODOS") {
+      params.set("departamentoId", departamentoId);
     }
 
-    const blob = await resposta.blob();
-    const url = window.URL.createObjectURL(blob);
+    if (busca.trim()) {
+      params.set("busca", busca.trim());
+    }
 
-    const link = document.createElement("a");
-    link.href = url;
-    link.download =
-      formato === "pdf"
-        ? `aniversariantes-mes-${mes}.pdf`
-        : `aniversariantes-mes-${mes}.xls`;
-
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-
-    window.URL.revokeObjectURL(url);
-  } catch (error: any) {
-    console.error(error);
-    setErro(error.message || "Erro ao baixar relatório.");
+    return params;
   }
-}
+
+  async function baixarRelatorio(formato: "pdf" | "excel") {
+    try {
+      setErro("");
+
+      const params = montarParamsRelatorio();
+
+      const endpoint =
+        formato === "pdf"
+          ? `/api/admin/aniversariantes/exportar-pdf?${params}`
+          : `/api/admin/aniversariantes/exportar-excel?${params}`;
+
+      const resposta = await fetch(endpoint, {
+        credentials: "include",
+      });
+
+      if (!resposta.ok) {
+        let mensagem =
+          formato === "pdf"
+            ? "Erro ao gerar PDF."
+            : "Erro ao gerar Excel.";
+
+        try {
+          const json = await resposta.json();
+          mensagem = json.error || mensagem;
+        } catch { }
+
+        throw new Error(mensagem);
+      }
+
+      const blob = await resposta.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download =
+        formato === "pdf"
+          ? `aniversariantes-mes-${mes}.pdf`
+          : `aniversariantes-mes-${mes}.xls`;
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      window.URL.revokeObjectURL(url);
+    } catch (error: any) {
+      console.error(error);
+      setErro(error.message || "Erro ao baixar relatório.");
+    }
+  }
 
   useEffect(() => {
     carregarAniversariantes();
@@ -508,11 +508,11 @@ async function baixarRelatorio(formato: "pdf" | "excel") {
           </section>
         )}
 
-{sucesso && (
-  <section className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-800 dark:border-emerald-900/70 dark:bg-emerald-950/40 dark:text-emerald-100">
-    {sucesso}
-  </section>
-)}
+        {sucesso && (
+          <section className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-800 dark:border-emerald-900/70 dark:bg-emerald-950/40 dark:text-emerald-100">
+            {sucesso}
+          </section>
+        )}
 
         <section className="phanyx-aniversariantes-card overflow-hidden rounded-3xl border shadow-sm">
           <div className="flex flex-col gap-3 border-b border-slate-200 p-5 dark:border-slate-800 md:flex-row md:items-center md:justify-between">
@@ -529,38 +529,38 @@ async function baixarRelatorio(formato: "pdf" | "excel") {
 
             <div className="flex flex-wrap gap-2">
               <button
-  type="button"
-  onClick={() => baixarRelatorio("pdf")}
-  disabled={carregando}
-  className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-pdf"
->
-  📄 Baixar PDF
-</button>
+                type="button"
+                onClick={() => baixarRelatorio("pdf")}
+                disabled={carregando}
+                className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-pdf"
+              >
+                📄 Baixar PDF
+              </button>
 
-<button
-  type="button"
-  onClick={() => baixarRelatorio("excel")}
-  disabled={carregando}
-  className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-excel"
->
-  📊 Baixar Excel
-</button>
+              <button
+                type="button"
+                onClick={() => baixarRelatorio("excel")}
+                disabled={carregando}
+                className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-excel"
+              >
+                📊 Baixar Excel
+              </button>
 
-<button
-  type="button"
-  onClick={() => setModalMensagemAberto(true)}
-  className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-mensagem"
->
-  Enviar mensagem
-</button>
+              <button
+                type="button"
+                onClick={() => setModalMensagemAberto(true)}
+                className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-mensagem"
+              >
+                Enviar mensagem
+              </button>
 
-<button
-  type="button"
-  onClick={() => setModalWhatsappAberto(true)}
-  className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-whatsapp"
->
-  Gerar links WhatsApp
-</button>
+              <button
+                type="button"
+                onClick={() => setModalWhatsappAberto(true)}
+                className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-whatsapp"
+              >
+                Gerar links WhatsApp
+              </button>
             </div>
           </div>
 
@@ -673,7 +673,7 @@ async function baixarRelatorio(formato: "pdf" | "excel") {
                       </td>
 
                       <td className="px-4 py-4 align-middle">
-                        <span className="font-semibold text-slate-900 dark:text-slate-100">
+                        <span className="phanyx-aniversariante-data">
                           {item.dataAniversario}
                         </span>
                       </td>
@@ -720,199 +720,199 @@ async function baixarRelatorio(formato: "pdf" | "excel") {
         </section>
       </div>
       {modalMensagemAberto && (
-  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 px-4">
-    <div className="phanyx-aniversariantes-modal w-full max-w-2xl rounded-3xl border p-6 shadow-2xl">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h2>Enviar mensagem</h2>
-          <p>
-            A mensagem será enviada no login individual dos aniversariantes
-            selecionados.
-          </p>
-        </div>
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 px-4">
+          <div className="phanyx-aniversariantes-modal w-full max-w-2xl rounded-3xl border p-6 shadow-2xl">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2>Enviar mensagem</h2>
+                <p>
+                  A mensagem será enviada no login individual dos aniversariantes
+                  selecionados.
+                </p>
+              </div>
 
-        <button
-          type="button"
-          onClick={() => setModalMensagemAberto(false)}
-          className="phanyx-aniversariantes-modal-fechar"
-        >
-          ×
-        </button>
-      </div>
-
-      <div className="mt-5 space-y-4">
-        <label className="block">
-          <span>Título</span>
-          <input
-            value={tituloMensagem}
-            onChange={(e) => setTituloMensagem(e.target.value)}
-            className="phanyx-aniversariantes-campo mt-1 w-full rounded-xl px-3 py-2 text-sm outline-none"
-          />
-        </label>
-
-        <label className="block">
-          <span>Mensagem</span>
-          <textarea
-            value={textoMensagem}
-            onChange={(e) => setTextoMensagem(e.target.value)}
-            rows={6}
-            className="phanyx-aniversariantes-campo mt-1 w-full rounded-xl px-3 py-2 text-sm outline-none"
-          />
-        </label>
-
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
-          <strong>Tags disponíveis:</strong>{" "}
-          {"{{nome}}, {{primeiroNome}}, {{instituicao}}, {{dataAniversario}}, {{dia}}, {{mes}}, {{tipoPessoa}}, {{departamento}}, {{contexto}}, {{status}}"}
-        </div>
-
-<button
-  type="button"
-  onClick={() => {
-    setTituloMensagem(TITULO_ANIVERSARIO_PADRAO);
-    setTextoMensagem(MENSAGEM_ANIVERSARIO_PADRAO);
-  }}
-  className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-secundario"
->
-  Restaurar mensagem padrão
-</button>
-
-        <div className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-950">
-          <p className="text-sm font-bold">
-            Selecionados: {aniversariantesSelecionados.length}
-          </p>
-
-          {aniversariantesSelecionados[0] && (
-            <div className="mt-2 text-sm">
-              <p className="font-semibold">Prévia:</p>
-              <p className="mt-1">
-                {aplicarTags(textoMensagem, aniversariantesSelecionados[0])}
-              </p>
+              <button
+                type="button"
+                onClick={() => setModalMensagemAberto(false)}
+                className="phanyx-aniversariantes-modal-fechar"
+              >
+                ×
+              </button>
             </div>
-          )}
-        </div>
-      </div>
 
-      <div className="mt-6 flex flex-wrap justify-end gap-2">
-        <button
-          type="button"
-          onClick={() => setModalMensagemAberto(false)}
-          className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-secundario"
-        >
-          Cancelar
-        </button>
+            <div className="mt-5 space-y-4">
+              <label className="block">
+                <span>Título</span>
+                <input
+                  value={tituloMensagem}
+                  onChange={(e) => setTituloMensagem(e.target.value)}
+                  className="phanyx-aniversariantes-campo mt-1 w-full rounded-xl px-3 py-2 text-sm outline-none"
+                />
+              </label>
 
-        <button
-          type="button"
-          onClick={enviarMensagemChat}
-          disabled={enviandoMensagem}
-          className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-mensagem"
-        >
-          {enviandoMensagem ? "Enviando..." : "Enviar agora"}
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+              <label className="block">
+                <span>Mensagem</span>
+                <textarea
+                  value={textoMensagem}
+                  onChange={(e) => setTextoMensagem(e.target.value)}
+                  rows={6}
+                  className="phanyx-aniversariantes-campo mt-1 w-full rounded-xl px-3 py-2 text-sm outline-none"
+                />
+              </label>
 
-{modalWhatsappAberto && (
-  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 px-4">
-    <div className="phanyx-aniversariantes-modal w-full max-w-3xl rounded-3xl border p-6 shadow-2xl">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h2>Gerar links WhatsApp</h2>
-          <p>
-  O PHANYX gera links personalizados de WhatsApp com a mensagem já preenchida.
-  Nesta etapa, o envio ainda precisa ser confirmado manualmente no WhatsApp.
-</p>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+                <strong>Tags disponíveis:</strong>{" "}
+                {"{{nome}}, {{primeiroNome}}, {{instituicao}}, {{dataAniversario}}, {{dia}}, {{mes}}, {{tipoPessoa}}, {{departamento}}, {{contexto}}, {{status}}"}
+              </div>
 
-<div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-900 dark:border-amber-900/70 dark:bg-amber-950/40 dark:text-amber-100">
-  <p>
-    Número institucional cadastrado:{" "}
-    {instituicao?.telefone || "não informado"}
-  </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setTituloMensagem(TITULO_ANIVERSARIO_PADRAO);
+                  setTextoMensagem(MENSAGEM_ANIVERSARIO_PADRAO);
+                }}
+                className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-secundario"
+              >
+                Restaurar mensagem padrão
+              </button>
 
-  <p className="mt-2 font-medium">
-    Atenção: estes links serão enviados pelo WhatsApp que estiver conectado
-    neste computador ou celular. Para sair pelo número institucional, o
-    WhatsApp Web precisa estar conectado ao número da instituição.
-  </p>
+              <div className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-950">
+                <p className="text-sm font-bold">
+                  Selecionados: {aniversariantesSelecionados.length}
+                </p>
 
-  <p className="mt-2 font-medium">
-    O envio automático em massa será liberado futuramente por integração
-    oficial de WhatsApp da própria instituição.
-  </p>
-</div>
-          
-        </div>
+                {aniversariantesSelecionados[0] && (
+                  <div className="mt-2 text-sm">
+                    <p className="font-semibold">Prévia:</p>
+                    <p className="mt-1">
+                      {aplicarTags(textoMensagem, aniversariantesSelecionados[0])}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
 
-        <button
-          type="button"
-          onClick={() => setModalWhatsappAberto(false)}
-          className="phanyx-aniversariantes-modal-fechar"
-        >
-          ×
-        </button>
-      </div>
+            <div className="mt-6 flex flex-wrap justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setModalMensagemAberto(false)}
+                className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-secundario"
+              >
+                Cancelar
+              </button>
 
-      <div className="mt-5 max-h-[420px] space-y-3 overflow-y-auto pr-1">
-        {aniversariantesSelecionados.length === 0 && (
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-800 dark:border-amber-900/70 dark:bg-amber-950/40 dark:text-amber-100">
-            Selecione pelo menos um aniversariante.
+              <button
+                type="button"
+                onClick={enviarMensagemChat}
+                disabled={enviandoMensagem}
+                className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-mensagem"
+              >
+                {enviandoMensagem ? "Enviando..." : "Enviar agora"}
+              </button>
+            </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {aniversariantesSelecionados.map((item) => {
-          const url = linkWhatsapp(item);
+      {modalWhatsappAberto && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 px-4">
+          <div className="phanyx-aniversariantes-modal w-full max-w-3xl rounded-3xl border p-6 shadow-2xl">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2>Gerar links WhatsApp</h2>
+                <p>
+                  O PHANYX gera links personalizados de WhatsApp com a mensagem já preenchida.
+                  Nesta etapa, o envio ainda precisa ser confirmado manualmente no WhatsApp.
+                </p>
 
-          return (
-            <div
-              key={item.chave}
-              className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-950"
-            >
-              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                <div>
-                  <p className="font-bold">{item.nome}</p>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">
-                    {item.telefone || "Sem telefone cadastrado"}
+                <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-900 dark:border-amber-900/70 dark:bg-amber-950/40 dark:text-amber-100">
+                  <p>
+                    Número institucional cadastrado:{" "}
+                    {instituicao?.telefone || "não informado"}
+                  </p>
+
+                  <p className="mt-2 font-medium">
+                    Atenção: estes links serão enviados pelo WhatsApp que estiver conectado
+                    neste computador ou celular. Para sair pelo número institucional, o
+                    WhatsApp Web precisa estar conectado ao número da instituição.
+                  </p>
+
+                  <p className="mt-2 font-medium">
+                    O envio automático em massa será liberado futuramente por integração
+                    oficial de WhatsApp da própria instituição.
                   </p>
                 </div>
 
-                {url ? (
-                  <a
-                    href={url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-whatsapp"
-                  >
-                    Abrir WhatsApp
-                  </a>
-                ) : (
-                  <span className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-bold text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-100">
-                    Sem número válido
-                  </span>
-                )}
               </div>
 
-              <p className="mt-3 text-sm">
-                {textoWhatsapp(item)}
-              </p>
+              <button
+                type="button"
+                onClick={() => setModalWhatsappAberto(false)}
+                className="phanyx-aniversariantes-modal-fechar"
+              >
+                ×
+              </button>
             </div>
-          );
-        })}
-      </div>
 
-      <div className="mt-6 flex justify-end">
-        <button
-          type="button"
-          onClick={() => setModalWhatsappAberto(false)}
-          className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-secundario"
-        >
-          Fechar
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+            <div className="mt-5 max-h-[420px] space-y-3 overflow-y-auto pr-1">
+              {aniversariantesSelecionados.length === 0 && (
+                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-800 dark:border-amber-900/70 dark:bg-amber-950/40 dark:text-amber-100">
+                  Selecione pelo menos um aniversariante.
+                </div>
+              )}
+
+              {aniversariantesSelecionados.map((item) => {
+                const url = linkWhatsapp(item);
+
+                return (
+                  <div
+                    key={item.chave}
+                    className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-950"
+                  >
+                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                      <div>
+                        <p className="font-bold">{item.nome}</p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                          {item.telefone || "Sem telefone cadastrado"}
+                        </p>
+                      </div>
+
+                      {url ? (
+                        <a
+                          href={url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-whatsapp"
+                        >
+                          Abrir WhatsApp
+                        </a>
+                      ) : (
+                        <span className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-bold text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-100">
+                          Sem número válido
+                        </span>
+                      )}
+                    </div>
+
+                    <p className="mt-3 text-sm">
+                      {textoWhatsapp(item)}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="mt-6 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setModalWhatsappAberto(false)}
+                className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-secundario"
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

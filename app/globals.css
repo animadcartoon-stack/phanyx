@@ -19431,3 +19431,32 @@ html:not(.dark)
     background-color: #991b1b !important;
   }
 }
+
+/* =========================================
+   PHANYX - ANIVERSARIANTES / DATA LEGÍVEL
+========================================= */
+
+.phanyx-aniversariante-data {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  font-weight: 800 !important;
+  opacity: 1 !important;
+}
+
+/* Tema claro */
+html[data-theme="light"] .phanyx-aniversariante-data {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+/* Tema escuro */
+html[data-theme="dark"] .phanyx-aniversariante-data {
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
+}
+
+/* Tema sistema */
+html[data-theme="system"] .phanyx-aniversariante-data {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
