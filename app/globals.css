@@ -19802,3 +19802,91 @@ html[data-theme="dark"]
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
 }
+
+/* =========================================================
+   PHANYX — REUNIÕES — SISTEMA SEMPRE CINZA
+   Deve permanecer no FINAL do globals.css
+   ========================================================= */
+
+html[data-theme="system"].dark
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-publico-select,
+html.dark[data-theme="system"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-publico-select,
+html[data-theme="system"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-publico-select,
+html[data-theme="sistema"].dark
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-publico-select,
+html.dark[data-theme="sistema"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-publico-select,
+html[data-theme="sistema"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-publico-select {
+  background: #3f3f46 !important;
+  border-color: #71717a !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  color-scheme: dark !important;
+}
+
+html[data-theme="system"].dark
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-publico-select
+  option,
+html.dark[data-theme="system"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-publico-select
+  option,
+html[data-theme="system"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-publico-select
+  option,
+html[data-theme="sistema"].dark
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-publico-select
+  option,
+html.dark[data-theme="sistema"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-publico-select
+  option,
+html[data-theme="sistema"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-publico-select
+  option {
+  background: #3f3f46 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="system"].dark
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-publico-select
+  option:checked,
+html.dark[data-theme="system"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-publico-select
+  option:checked,
+html[data-theme="system"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-publico-select
+  option:checked,
+html[data-theme="sistema"].dark
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-publico-select
+  option:checked,
+html.dark[data-theme="sistema"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-publico-select
+  option:checked,
+html[data-theme="sistema"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-publico-select
+  option:checked {
+  background: #52525b !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
