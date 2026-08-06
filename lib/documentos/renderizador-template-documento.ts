@@ -296,23 +296,73 @@ function normalizarParagrafosVazios(
   valor: string
 ) {
   return String(valor || "").replace(
-    /<p([^>]*)>\s*(?:&nbsp;|<br\b[^>]*\/?>)?\s*<\/p>/gi,
+    /<p([^>]*)>([\s\S]*?)<\/p>/gi,
 
     (
-      _paragrafoCompleto: string,
-      atributos: string
+      paragrafoCompleto: string,
+      atributos: string,
+      conteudoInterno: string
     ) => {
+      /*
+       * Não considera vazios parágrafos
+       * que contenham imagens ou outros
+       * elementos visuais reais.
+       */
+      const possuiElementoVisual =
+        /<(?:img|svg|video|audio|table|hr)\b/i.test(
+          conteudoInterno
+        );
+
+      if (possuiElementoVisual) {
+        return paragrafoCompleto;
+      }
+
+      /*
+       * Remove apenas elementos que
+       * representam uma linha vazia:
+       * BR, espaços, NBSP e caracteres
+       * invisíveis do editor.
+       */
+      const textoReal =
+        String(conteudoInterno || "")
+          .replace(
+            /<br\b[^>]*\/?>/gi,
+            ""
+          )
+          .replace(
+            /<[^>]+>/g,
+            ""
+          )
+          .replace(
+            /&nbsp;|&#160;|&#x0*a0;|&#8203;|&#x200b;|&ZeroWidthSpace;/gi,
+            ""
+          )
+          .replace(
+            /[\s\u00a0\u200b\ufeff]/g,
+            ""
+          );
+
+      if (textoReal.length > 0) {
+        return paragrafoCompleto;
+      }
+
       const atributosLimpos =
         String(atributos || "").replace(
-          /\sdata-phanyx-paragrafo-vazio\s*=\s*["'][^"']*["']/gi,
+          /\sdata-phanyx-linha-vazia\s*=\s*(?:"[^"]*"|'[^']*')/gi,
           ""
         );
 
+      /*
+       * Cada parágrafo vazio vira um
+       * elemento próprio. Duas linhas
+       * vazias geram dois elementos,
+       * três linhas geram três, etc.
+       */
       return (
-        `<p${atributosLimpos}` +
-        ` data-phanyx-paragrafo-vazio="true">` +
-        `<br />` +
-        `</p>`
+        `<div${atributosLimpos}` +
+        ` data-phanyx-linha-vazia="true">` +
+        `&nbsp;` +
+        `</div>`
       );
     }
   );
@@ -1062,35 +1112,26 @@ function cssCompartilhado(
 .phanyx-conteudo h3,
 .phanyx-conteudo h4,
 .phanyx-conteudo h5,
-.phanyx-conteudo h6 {
+.phanyx-conteudo h6,
+.phanyx-conteudo p {
   margin-top: 0;
   margin-bottom: 0;
 }
 
 .phanyx-conteudo p {
-  min-height: 1.2em;
-  margin-top: 0;
-  margin-bottom: 0;
-  line-height: 1.2;
+  min-height: 1lh;
 }
 
 .phanyx-conteudo
-  p[data-phanyx-paragrafo-vazio="true"] {
+  [data-phanyx-linha-vazia="true"] {
   display: block;
-  height: 1.2em;
-  min-height: 1.2em;
+  width: 100%;
+  height: 1lh;
+  min-height: 1lh;
   margin: 0;
   padding: 0;
-  line-height: 1.2em;
-}
-
-.phanyx-conteudo
-  p[data-phanyx-paragrafo-vazio="true"]
-  > br:only-child {
-  display: block;
-  height: 1.2em;
-  min-height: 1.2em;
-  line-height: 1.2em;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .phanyx-conteudo p:empty {

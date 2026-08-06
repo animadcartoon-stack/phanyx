@@ -19462,30 +19462,6 @@ html[data-theme="system"] .phanyx-aniversariante-data {
 }
 
 /* =========================================================
-   PHANYX — PARÁGRAFOS DO EDITOR DE DOCUMENTOS
-   Mantém no editor a mesma altura usada no PDF
-========================================================= */
-
-.editor-template-phanyx p {
-  min-height: 1.2em;
-  margin-top: 0;
-  margin-bottom: 0;
-  line-height: 1.2;
-}
-
-.editor-template-phanyx p:empty {
-  min-height: 1.2em;
-  line-height: 1.2em;
-}
-
-.editor-template-phanyx p > br:only-child {
-  display: block;
-  height: 1.2em;
-  min-height: 1.2em;
-  line-height: 1.2em;
-}
-
-/* =========================================================
    PHANYX — REUNIÕES — INDIVIDUAL / PARTICIPANTES
    ========================================================= */
 
