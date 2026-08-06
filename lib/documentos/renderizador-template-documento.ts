@@ -1120,6 +1120,12 @@ function cssCompartilhado(
 
 .phanyx-conteudo p {
   min-height: 1lh;
+
+  /*
+   * Preserva os espaços digitados no
+   * início do parágrafo no editor.
+   */
+  white-space: pre-wrap;
 }
 
 .phanyx-conteudo
