@@ -716,24 +716,61 @@ function AdminProfessoresPage() {
   }
 
   async function carregarPolos() {
+  try {
     const res = await fetch("/api/admin/polos", {
       credentials: "include",
+      cache: "no-store",
     });
 
+    const data = await res.json().catch(() => null);
+
     if (!res.ok) {
-      console.error("Erro ao buscar polos");
+      console.error(
+        "Erro ao buscar polos:",
+        data?.error || res.statusText
+      );
+
       setPolos([]);
       return;
     }
 
-    const data = await res.json();
+    /*
+     * A API atual retorna:
+     * {
+     *   polos: [...],
+     *   gestao: {...}
+     * }
+     *
+     * Mantemos também compatibilidade caso alguma versão
+     * antiga da API retorne o array diretamente.
+     */
+    const polosRecebidos = Array.isArray(data)
+      ? data
+      : Array.isArray(data?.polos)
+        ? data.polos
+        : [];
 
-    if (Array.isArray(data)) {
-      setPolos(data);
-    } else {
-      setPolos([]);
-    }
+    const listaPolos: Polo[] = polosRecebidos
+      .map((polo: any) => ({
+        id: Number(polo?.id),
+        nome: String(polo?.nome || "").trim(),
+        codigo: polo?.codigo
+          ? String(polo.codigo)
+          : null,
+      }))
+      .filter(
+        (polo: Polo) =>
+          Number.isInteger(polo.id) &&
+          polo.id > 0 &&
+          polo.nome.length > 0
+      );
+
+    setPolos(listaPolos);
+  } catch (error) {
+    console.error("Erro ao carregar polos:", error);
+    setPolos([]);
   }
+}
 
   async function carregarDepartamentos() {
     try {
