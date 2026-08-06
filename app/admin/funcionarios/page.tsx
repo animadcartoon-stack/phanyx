@@ -12,6 +12,15 @@ interface Departamento {
   nome: string;
 }
 
+interface Polo {
+  id: number;
+  nome: string;
+  codigo?: string | null;
+  tipoUnidade?: string | null;
+  ativo?: boolean;
+  statusComercial?: string | null;
+}
+
 type TipoRemuneracaoFuncionario =
   | ""
   | "MENSAL"
@@ -66,6 +75,16 @@ interface Funcionario {
     id?: number;
     email: string;
     role: string;
+    ativo?: boolean;
+  } | null;
+
+  poloId?: number | null;
+
+  polo?: {
+    id: number;
+    nome: string;
+    codigo?: string | null;
+    tipoUnidade?: string | null;
     ativo?: boolean;
   } | null;
 
@@ -128,6 +147,7 @@ function traduzirRole(role?: string) {
 function AdminFuncionariosPage() {
   const [funcionarios, setFuncionarios] = useState<Funcionario[]>([]);
   const [departamentos, setDepartamentos] = useState<Departamento[]>([]);
+  const [polos, setPolos] = useState<Polo[]>([]);
   const [busca, setBusca] = useState("");
   const [permissoesUsuario, setPermissoesUsuario] = useState<string[]>([]);
 
@@ -213,6 +233,7 @@ function AdminFuncionariosPage() {
   ]);
 
   const [departamentoId, setDepartamentoId] = useState("");
+  const [poloId, setPoloId] = useState("");
   const [editandoId, setEditandoId] = useState<number | null>(null);
   const [carregando, setCarregando] = useState(false);
 
@@ -242,6 +263,71 @@ function AdminFuncionariosPage() {
     });
     const data = await res.json();
     setDepartamentos(Array.isArray(data) ? data : []);
+  }
+
+  async function carregarPolos() {
+    try {
+      const res = await fetch("/api/admin/polos", {
+        credentials: "include",
+        cache: "no-store",
+      });
+
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        console.error(
+          "Erro ao carregar polos:",
+          data?.error || res.statusText
+        );
+
+        setPolos([]);
+        return;
+      }
+
+      /*
+       * A API atual retorna:
+       * {
+       *   polos: [...],
+       *   gestao: {...}
+       * }
+       */
+      const polosRecebidos = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.polos)
+          ? data.polos
+          : [];
+
+      const polosValidos: Polo[] = polosRecebidos
+        .map((polo: any) => ({
+          id: Number(polo?.id),
+          nome: String(polo?.nome || "").trim(),
+          codigo: polo?.codigo
+            ? String(polo.codigo)
+            : null,
+          tipoUnidade: polo?.tipoUnidade
+            ? String(polo.tipoUnidade)
+            : null,
+          ativo: polo?.ativo === true,
+          statusComercial: polo?.statusComercial
+            ? String(polo.statusComercial)
+            : null,
+        }))
+        .filter(
+          (polo: Polo) =>
+            Number.isInteger(polo.id) &&
+            polo.id > 0 &&
+            polo.nome.length > 0
+        );
+
+      setPolos(polosValidos);
+    } catch (error) {
+      console.error(
+        "Erro ao carregar polos:",
+        error
+      );
+
+      setPolos([]);
+    }
   }
 
   async function carregarPermissoesUsuario() {
@@ -355,6 +441,11 @@ function AdminFuncionariosPage() {
     setCodigoFuncionario(f.codigoFuncionario || "");
     setFotoPerfil(f.fotoPerfil || "");
     setDepartamentoId(f.departamento?.id ? String(f.departamento.id) : "");
+    setPoloId(
+      f.polo?.id
+        ? String(f.polo.id)
+        : ""
+    );
     setDataAdmissao(dataParaInput(f.dataAdmissao));
     setSalarioBase(f.salarioBase ? String(f.salarioBase).replace(".", ",") : "");
     setTipoRemuneracao(
@@ -443,6 +534,7 @@ function AdminFuncionariosPage() {
     setCodigoFuncionario("");
     setFotoPerfil("");
     setDepartamentoId("");
+    setPoloId("");
     setDataAdmissao("");
     setSalarioBase("");
     setTipoRemuneracao("");
@@ -663,6 +755,13 @@ function AdminFuncionariosPage() {
       return;
     }
 
+    if (!poloId) {
+      setErro(
+        "Selecione o polo de lotação do funcionário."
+      );
+      return;
+    }
+
     if (
       criarAcessoSistema &&
       !email.trim()
@@ -713,7 +812,11 @@ function AdminFuncionariosPage() {
           cargo,
           codigoFuncionario,
           fotoPerfil,
-          departamentoId: departamentoId || null,
+          departamentoId:
+            departamentoId || null,
+
+          poloId: Number(poloId),
+
           statusFuncionario,
           motivoStatus,
           dataAdmissao,
@@ -805,6 +908,7 @@ function AdminFuncionariosPage() {
       setCodigoFuncionario("");
       setFotoPerfil("");
       setDepartamentoId("");
+      setPoloId("");
       setDataAdmissao("");
       setSalarioBase("");
       setTipoRemuneracao("");
@@ -848,6 +952,7 @@ function AdminFuncionariosPage() {
   useEffect(() => {
     carregarFuncionarios();
     carregarDepartamentos();
+    carregarPolos();
     carregarPermissoesUsuario();
   }, []);
 
@@ -874,6 +979,12 @@ function AdminFuncionariosPage() {
         .toLowerCase()
         .trim();
 
+      const polo = String(
+        funcionario.polo?.nome || ""
+      )
+        .toLowerCase()
+        .trim();
+
       const cpfNumerico = cpf.replace(/\D/g, "");
       const rgNumerico = rg.replace(/\D/g, "");
       const telefoneNumerico = telefone.replace(/\D/g, "");
@@ -889,6 +1000,7 @@ function AdminFuncionariosPage() {
         cargo.includes(termoTexto) ||
         codigoFuncionario.includes(termoTexto) ||
         departamento.includes(termoTexto) ||
+        polo.includes(termoTexto) ||
         (termoNumerico !== "" &&
           (cpfNumerico.includes(termoNumerico) ||
             rgNumerico.includes(termoNumerico) ||
@@ -1102,10 +1214,102 @@ dark:text-white
             </select>
           </div>
 
+          {/* POLO DE LOTAÇÃO */}
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+              Polo de lotação
+              {!editandoId && (
+                <span className="ml-1 text-red-600">
+                  *
+                </span>
+              )}
+            </label>
+
+            <select
+              value={poloId}
+              onChange={(e) =>
+                setPoloId(e.target.value)
+              }
+              disabled={Boolean(editandoId)}
+              required={!editandoId}
+              className="
+      w-full
+      rounded-lg
+      border
+      border-slate-300
+      bg-white
+      p-2
+      text-slate-900
+      disabled:cursor-not-allowed
+      disabled:bg-slate-100
+      disabled:text-slate-600
+      dark:border-slate-700
+      dark:bg-slate-900
+      dark:text-white
+      dark:disabled:bg-slate-800
+      dark:disabled:text-slate-300
+    "
+            >
+              <option value="">
+                Selecione o polo de lotação
+              </option>
+
+              {polos.map((polo) => {
+                const disponivel =
+                  polo.ativo === true &&
+                  polo.statusComercial === "ATIVO";
+
+                return (
+                  <option
+                    key={polo.id}
+                    value={polo.id}
+                    disabled={
+                      !disponivel &&
+                      Number(poloId) !== polo.id
+                    }
+                  >
+                    {polo.nome}
+                    {polo.codigo
+                      ? ` — ${polo.codigo}`
+                      : ""}
+                    {!disponivel
+                      ? " — Inativo"
+                      : ""}
+                  </option>
+                );
+              })}
+            </select>
+
+            {editandoId ? (
+              <p className="text-xs leading-5 text-slate-600 dark:text-slate-300">
+                A lotação não pode ser alterada por
+                esta edição comum. Para definir ou
+                transferir o polo, abra a ficha do
+                funcionário.
+              </p>
+            ) : (
+              <p className="text-xs leading-5 text-slate-600 dark:text-slate-300">
+                Selecione a unidade em que o
+                funcionário será inicialmente lotado.
+              </p>
+            )}
+
+            {editandoId && (
+              <Link
+                href={`/admin/funcionarios/${editandoId}`}
+                className="inline-flex text-xs font-bold text-blue-700 hover:underline dark:text-blue-300"
+              >
+                Abrir ficha e gerenciar lotação
+              </Link>
+            )}
+          </div>
+
           <input
             placeholder="CPF"
             value={cpf}
-            onChange={(e) => setCpf(formatarCpf(e.target.value))}
+            onChange={(e) =>
+              setCpf(formatarCpf(e.target.value))
+            }
             className="w-full border rounded-lg p-2"
             inputMode="numeric"
           />
@@ -1791,7 +1995,7 @@ dark:text-red-300
 
           <input
             type="text"
-            placeholder="Buscar por nome, email, CPF, telefone, cargo, código ou departamento"
+            placeholder="Buscar por nome, email, CPF, telefone, cargo, código, departamento ou polo"
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             className="w-full md:w-[500px] border rounded-lg p-2"
@@ -1904,6 +2108,20 @@ dark:bg-slate-900
                   <p className="text-sm text-gray-600">
                     Departamento: {f.departamento?.nome || "-"}
                   </p>
+
+                  <p className="text-sm text-gray-600 dark:text-slate-300">
+                    Polo de lotação:{" "}
+                    <span className="font-semibold">
+                      {f.polo?.nome || "Não definido"}
+                    </span>
+                  </p>
+
+                  {!f.polo && (
+                    <p className="text-sm font-semibold text-amber-700 dark:text-amber-300">
+                      Este funcionário antigo ainda precisa
+                      ter sua lotação definida.
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -1925,25 +2143,25 @@ dark:bg-slate-900
                     </Link>
                   )}
 
-{f.user && (
-  <>
-                <button
-                  type="button"
-                  onClick={() => alterarAcessoFuncionario(f.id, "bloquear", f.nome)}
-                  className="rounded-lg border border-yellow-500 px-3 py-1.5 text-sm font-medium text-yellow-700 transition hover:bg-yellow-50 dark:border-yellow-700 dark:text-yellow-300 dark:hover:bg-yellow-950"
-                >
-                  Bloquear acesso
-                </button>
+                {f.user && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => alterarAcessoFuncionario(f.id, "bloquear", f.nome)}
+                      className="rounded-lg border border-yellow-500 px-3 py-1.5 text-sm font-medium text-yellow-700 transition hover:bg-yellow-50 dark:border-yellow-700 dark:text-yellow-300 dark:hover:bg-yellow-950"
+                    >
+                      Bloquear acesso
+                    </button>
 
-                <button
-                  type="button"
-                  onClick={() => alterarAcessoFuncionario(f.id, "desbloquear", f.nome)}
-                  className="rounded-lg border border-green-600 px-3 py-1.5 text-sm font-medium text-green-700 transition hover:bg-green-50 dark:border-green-700 dark:text-green-300 dark:hover:bg-green-950"
-                >
-                  Desbloquear acesso
-                </button>
-                </>
-)}
+                    <button
+                      type="button"
+                      onClick={() => alterarAcessoFuncionario(f.id, "desbloquear", f.nome)}
+                      className="rounded-lg border border-green-600 px-3 py-1.5 text-sm font-medium text-green-700 transition hover:bg-green-50 dark:border-green-700 dark:text-green-300 dark:hover:bg-green-950"
+                    >
+                      Desbloquear acesso
+                    </button>
+                  </>
+                )}
 
               </div>
             </div>

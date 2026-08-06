@@ -1,4 +1,7 @@
-import { Prisma } from "@prisma/client";
+import {
+  Prisma,
+  StatusComercialPolo,
+} from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 export type ContextoGestaoPolos = {
@@ -263,4 +266,53 @@ export async function obterResumoUnidadesDaRede(
     unidadesExcedentes,
     proximaUnidadeSeraExcedente,
   };
+}
+export async function obterPoloAtivoVisivelParaInstituicao(
+  instituicaoId: number,
+  poloId: number
+) {
+  if (
+    !Number.isInteger(instituicaoId) ||
+    instituicaoId <= 0 ||
+    !Number.isInteger(poloId) ||
+    poloId <= 0
+  ) {
+    return null;
+  }
+
+  const contexto =
+    await obterContextoGestaoPolos(
+      instituicaoId
+    );
+
+  if (
+    !contexto ||
+    !contexto.instituicaoAtiva
+  ) {
+    return null;
+  }
+
+  return prisma.polo.findFirst({
+    where: {
+      AND: [
+        filtroPolosVisiveis(contexto),
+        {
+          id: poloId,
+          ativo: true,
+          statusComercial:
+            StatusComercialPolo.ATIVO,
+        },
+      ],
+    },
+    select: {
+      id: true,
+      nome: true,
+      codigo: true,
+      tipoUnidade: true,
+      instituicaoId: true,
+      instituicaoGeradaId: true,
+      ativo: true,
+      statusComercial: true,
+    },
+  });
 }

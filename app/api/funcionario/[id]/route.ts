@@ -166,6 +166,64 @@ export async function GET(
 
         departamento: true,
 
+        polo: {
+          select: {
+            id: true,
+            nome: true,
+            codigo: true,
+            tipoUnidade: true,
+            instituicaoId: true,
+            instituicaoGeradaId: true,
+            ativo: true,
+          },
+        },
+
+        historicosLotacaoRH: {
+          orderBy: [
+            {
+              vigenciaEm: "desc",
+            },
+            {
+              criadoEm: "desc",
+            },
+          ],
+          take: 100,
+          include: {
+            poloAnterior: {
+              select: {
+                id: true,
+                nome: true,
+              },
+            },
+            poloNovo: {
+              select: {
+                id: true,
+                nome: true,
+              },
+            },
+            departamentoAnterior: {
+              select: {
+                id: true,
+                nome: true,
+              },
+            },
+            departamentoNovo: {
+              select: {
+                id: true,
+                nome: true,
+              },
+            },
+            realizadoPor: {
+              select: {
+                id: true,
+                nome: true,
+                email: true,
+                role: true,
+              },
+            },
+          },
+        },
+
         historicosRemuneracaoRH: {
           orderBy: {
             alteradoEm: "desc",
@@ -1334,6 +1392,7 @@ export async function PUT(
             include: {
               user: true,
               departamento: true,
+              polo: true,
               professor: true,
             },
           });

@@ -1,10 +1,16 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { getUserFromToken, isAdminLike } from "@/lib/server-auth";
-import { TipoRemuneracaoRH } from "@prisma/client";
+import {
+  TipoMovimentacaoLotacaoRH,
+  TipoRemuneracaoRH,
+} from "@prisma/client";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { enviarEmailPrimeiroAcesso } from "@/lib/email";
+import {
+  obterPoloAtivoVisivelParaInstituicao,
+} from "@/lib/polos-rede";
 
 async function gerarCodigoFuncionario(instituicaoId: number) {
   const ultimoFuncionario = await prisma.funcionario.findFirst({
@@ -110,6 +116,17 @@ export async function GET() {
       include: {
         user: true,
         departamento: true,
+        polo: {
+          select: {
+            id: true,
+            nome: true,
+            codigo: true,
+            tipoUnidade: true,
+            instituicaoId: true,
+            instituicaoGeradaId: true,
+            ativo: true,
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",
@@ -160,21 +177,50 @@ export async function POST(request: Request) {
 
     const body = await request.json();
 
-const criarAcessoSistema =
-  body.criarAcessoSistema === undefined
-    ? true
-    : body.criarAcessoSistema === true ||
-      body.criarAcessoSistema === "true";
+    const poloId =
+      numeroInteiroOuNull(body.poloId);
 
-const nome = limparTexto(body.nome);
+    if (!poloId) {
+      return NextResponse.json(
+        {
+          error:
+            "Selecione o polo de lotação do funcionário.",
+        },
+        { status: 400 }
+      );
+    }
 
-const email = limparTexto(
-  body.email
-).toLowerCase();
+    const poloSelecionado =
+      await obterPoloAtivoVisivelParaInstituicao(
+        instituicaoId,
+        poloId
+      );
 
-const role =
-  limparTexto(body.role).toUpperCase() ||
-  "SECRETARIA";
+    if (!poloSelecionado) {
+      return NextResponse.json(
+        {
+          error:
+            "O polo informado não existe, está inativo ou não pertence ao escopo desta instituição.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const criarAcessoSistema =
+      body.criarAcessoSistema === undefined
+        ? true
+        : body.criarAcessoSistema === true ||
+        body.criarAcessoSistema === "true";
+
+    const nome = limparTexto(body.nome);
+
+    const email = limparTexto(
+      body.email
+    ).toLowerCase();
+
+    const role =
+      limparTexto(body.role).toUpperCase() ||
+      "SECRETARIA";
 
     if (!nome) {
       return NextResponse.json(
@@ -187,36 +233,36 @@ const role =
     }
 
     if (criarAcessoSistema && !email) {
-  return NextResponse.json(
-    {
-      error:
-        "O email é obrigatório para criar o acesso ao sistema.",
-    },
-    { status: 400 }
-  );
-}
+      return NextResponse.json(
+        {
+          error:
+            "O email é obrigatório para criar o acesso ao sistema.",
+        },
+        { status: 400 }
+      );
+    }
 
     if (criarAcessoSistema) {
-  const userExistente =
-    await prisma.user.findUnique({
-      where: {
-        email,
-      },
-      select: {
-        id: true,
-      },
-    });
+      const userExistente =
+        await prisma.user.findUnique({
+          where: {
+            email,
+          },
+          select: {
+            id: true,
+          },
+        });
 
-  if (userExistente) {
-    return NextResponse.json(
-      {
-        error:
-          "Já existe um usuário cadastrado com este email.",
-      },
-      { status: 400 }
-    );
-  }
-}
+      if (userExistente) {
+        return NextResponse.json(
+          {
+            error:
+              "Já existe um usuário cadastrado com este email.",
+          },
+          { status: 400 }
+        );
+      }
+    }
 
     /*
      * Departamento
@@ -241,8 +287,15 @@ const role =
       );
     }
 
+    let departamentoSelecionado:
+      | {
+        id: number;
+        nome: string;
+      }
+      | null = null;
+
     if (departamentoId) {
-      const departamento =
+      departamentoSelecionado =
         await prisma.departamento.findFirst({
           where: {
             id: departamentoId,
@@ -250,10 +303,11 @@ const role =
           },
           select: {
             id: true,
+            nome: true,
           },
         });
 
-      if (!departamento) {
+      if (!departamentoSelecionado) {
         return NextResponse.json(
           {
             error:
@@ -336,7 +390,7 @@ const role =
     const salarioBase =
       tipoRemuneracao ===
         TipoRemuneracaoRH.MENSAL ||
-      tipoRemuneracao ===
+        tipoRemuneracao ===
         TipoRemuneracaoRH.MISTO
         ? salarioBaseInformado
         : null;
@@ -344,61 +398,61 @@ const role =
     const valorHoraAula =
       tipoRemuneracao ===
         TipoRemuneracaoRH.HORA_AULA ||
-      tipoRemuneracao ===
+        tipoRemuneracao ===
         TipoRemuneracaoRH.MISTO
         ? numeroDecimalOuNull(
-            body.valorHoraAula
-          )
+          body.valorHoraAula
+        )
         : null;
 
     const valorHoraTrabalhada =
       tipoRemuneracao ===
         TipoRemuneracaoRH.HORA_TRABALHADA ||
-      tipoRemuneracao ===
+        tipoRemuneracao ===
         TipoRemuneracaoRH.MISTO
         ? numeroDecimalOuNull(
-            body.valorHoraTrabalhada
-          )
+          body.valorHoraTrabalhada
+        )
         : null;
 
     const valorPorAula =
       tipoRemuneracao ===
         TipoRemuneracaoRH.POR_AULA ||
-      tipoRemuneracao ===
+        tipoRemuneracao ===
         TipoRemuneracaoRH.MISTO
         ? numeroDecimalOuNull(
-            body.valorPorAula
-          )
+          body.valorPorAula
+        )
         : null;
 
     const valorPorTurma =
       tipoRemuneracao ===
         TipoRemuneracaoRH.POR_TURMA ||
-      tipoRemuneracao ===
+        tipoRemuneracao ===
         TipoRemuneracaoRH.MISTO
         ? numeroDecimalOuNull(
-            body.valorPorTurma
-          )
+          body.valorPorTurma
+        )
         : null;
 
     const valorPorDisciplina =
       tipoRemuneracao ===
         TipoRemuneracaoRH.POR_DISCIPLINA ||
-      tipoRemuneracao ===
+        tipoRemuneracao ===
         TipoRemuneracaoRH.MISTO
         ? numeroDecimalOuNull(
-            body.valorPorDisciplina
-          )
+          body.valorPorDisciplina
+        )
         : null;
 
     const duracaoHoraAulaMinutos =
       tipoRemuneracao ===
         TipoRemuneracaoRH.HORA_AULA ||
-      tipoRemuneracao ===
+        tipoRemuneracao ===
         TipoRemuneracaoRH.MISTO
         ? numeroInteiroOuNull(
-            body.duracaoHoraAulaMinutos
-          ) || 50
+          body.duracaoHoraAulaMinutos
+        ) || 50
         : null;
 
     const cargaHorariaSemanal =
@@ -413,7 +467,7 @@ const role =
 
     if (
       tipoRemuneracao ===
-        TipoRemuneracaoRH.MENSAL &&
+      TipoRemuneracaoRH.MENSAL &&
       salarioBase === null
     ) {
       return NextResponse.json(
@@ -427,7 +481,7 @@ const role =
 
     if (
       tipoRemuneracao ===
-        TipoRemuneracaoRH.HORA_AULA &&
+      TipoRemuneracaoRH.HORA_AULA &&
       valorHoraAula === null
     ) {
       return NextResponse.json(
@@ -441,7 +495,7 @@ const role =
 
     if (
       tipoRemuneracao ===
-        TipoRemuneracaoRH.HORA_TRABALHADA &&
+      TipoRemuneracaoRH.HORA_TRABALHADA &&
       valorHoraTrabalhada === null
     ) {
       return NextResponse.json(
@@ -455,7 +509,7 @@ const role =
 
     if (
       tipoRemuneracao ===
-        TipoRemuneracaoRH.POR_AULA &&
+      TipoRemuneracaoRH.POR_AULA &&
       valorPorAula === null
     ) {
       return NextResponse.json(
@@ -469,7 +523,7 @@ const role =
 
     if (
       tipoRemuneracao ===
-        TipoRemuneracaoRH.POR_TURMA &&
+      TipoRemuneracaoRH.POR_TURMA &&
       valorPorTurma === null
     ) {
       return NextResponse.json(
@@ -483,7 +537,7 @@ const role =
 
     if (
       tipoRemuneracao ===
-        TipoRemuneracaoRH.POR_DISCIPLINA &&
+      TipoRemuneracaoRH.POR_DISCIPLINA &&
       valorPorDisciplina === null
     ) {
       return NextResponse.json(
@@ -497,7 +551,7 @@ const role =
 
     if (
       tipoRemuneracao ===
-        TipoRemuneracaoRH.MISTO &&
+      TipoRemuneracaoRH.MISTO &&
       salarioBase === null &&
       valorHoraAula === null &&
       valorHoraTrabalhada === null &&
@@ -534,43 +588,43 @@ const role =
       ).toUpperCase() || "ATIVO";
 
     const instituicao = criarAcessoSistema
-  ? await prisma.instituicao.findUnique({
-      where: {
-        id: instituicaoId,
-      },
-      select: {
-        nome: true,
-      },
-    })
-  : null;
+      ? await prisma.instituicao.findUnique({
+        where: {
+          id: instituicaoId,
+        },
+        select: {
+          nome: true,
+        },
+      })
+      : null;
 
-const senhaTemporaria =
-  criarAcessoSistema
-    ? gerarSenhaTemporaria()
-    : null;
+    const senhaTemporaria =
+      criarAcessoSistema
+        ? gerarSenhaTemporaria()
+        : null;
 
-const senhaHash = senhaTemporaria
-  ? await bcrypt.hash(
-      senhaTemporaria,
-      10
-    )
-  : null;
+    const senhaHash = senhaTemporaria
+      ? await bcrypt.hash(
+        senhaTemporaria,
+        10
+      )
+      : null;
 
     const resultado =
       await prisma.$transaction(
         async (tx) => {
           const novoUser = criarAcessoSistema
-  ? await tx.user.create({
-      data: {
-        nome,
-        email,
-        senha: senhaHash!,
-        role,
-        instituicaoId,
-        precisaTrocarSenha: true,
-      },
-    })
-  : null;
+            ? await tx.user.create({
+              data: {
+                nome,
+                email,
+                senha: senhaHash!,
+                role,
+                instituicaoId,
+                precisaTrocarSenha: true,
+              },
+            })
+            : null;
 
           const funcionario =
             await tx.funcionario.create({
@@ -667,6 +721,8 @@ const senhaHash = senhaTemporaria
                 instituicaoId,
                 userId: novoUser?.id ?? null,
 
+                poloId,
+
                 statusFuncionario,
                 motivoStatus:
                   body.motivoStatus || null,
@@ -677,6 +733,7 @@ const senhaHash = senhaTemporaria
               include: {
                 user: true,
                 departamento: true,
+                polo: true,
               },
             });
 
@@ -700,6 +757,64 @@ const senhaHash = senhaTemporaria
               usuarioResponsavel?.email
             ) ||
             `Usuário ${user.id}`;
+
+          await tx.funcionarioLotacaoRH.create({
+            data: {
+              funcionarioId: funcionario.id,
+              instituicaoId,
+
+              tipo:
+                TipoMovimentacaoLotacaoRH
+                  .LOTACAO_INICIAL,
+
+              poloAnteriorId: null,
+              poloNovoId: poloSelecionado.id,
+
+              departamentoAnteriorId: null,
+              departamentoNovoId:
+                departamentoSelecionado?.id ??
+                null,
+
+              cargoAnteriorSnapshot: null,
+              cargoNovoSnapshot:
+                limparTexto(body.cargo) || null,
+
+              setorAnteriorSnapshot: null,
+              setorNovoSnapshot:
+                limparTexto(body.setor) || null,
+
+              poloAnteriorNomeSnapshot: null,
+              poloNovoNomeSnapshot:
+                poloSelecionado.nome,
+
+              departamentoAnteriorNomeSnapshot:
+                null,
+
+              departamentoNovoNomeSnapshot:
+                departamentoSelecionado?.nome ??
+                null,
+
+              vigenciaEm:
+                dataAdmissao || new Date(),
+
+              motivo:
+                "Lotação inicial registrada no cadastro do funcionário.",
+
+              observacoes: null,
+
+              realizadoPorId: user.id,
+
+              realizadoPorNomeSnapshot:
+                nomeResponsavel,
+
+              realizadoPorRoleSnapshot:
+                limparTexto(
+                  usuarioResponsavel?.role
+                ) ||
+                limparTexto(user.role) ||
+                null,
+            },
+          });
 
           const dadosRemuneracaoInicial = {
             tipoRemuneracao,
@@ -782,40 +897,40 @@ const senhaHash = senhaTemporaria
 
     let avisoEmail: string | null = null;
 
-if (
-  criarAcessoSistema &&
-  senhaTemporaria
-) {
-  try {
-    await enviarEmailPrimeiroAcesso({
-      email,
-      nome,
-      senha: senhaTemporaria,
-      instituicao:
-        instituicao?.nome || "PHANYX",
-      portal: "admin",
-    });
-  } catch (emailError) {
-    console.error(
-      "ERRO AO ENVIAR EMAIL DE ACESSO DO FUNCIONÁRIO:",
-      emailError
-    );
+    if (
+      criarAcessoSistema &&
+      senhaTemporaria
+    ) {
+      try {
+        await enviarEmailPrimeiroAcesso({
+          email,
+          nome,
+          senha: senhaTemporaria,
+          instituicao:
+            instituicao?.nome || "PHANYX",
+          portal: "admin",
+        });
+      } catch (emailError) {
+        console.error(
+          "ERRO AO ENVIAR EMAIL DE ACESSO DO FUNCIONÁRIO:",
+          emailError
+        );
 
-    avisoEmail =
-      "Funcionário criado com sucesso, mas houve erro ao enviar o email de acesso.";
-  }
-}
+        avisoEmail =
+          "Funcionário criado com sucesso, mas houve erro ao enviar o email de acesso.";
+      }
+    }
 
     return NextResponse.json(
-  {
-    ...resultado,
-    acessoSistema:
-      criarAcessoSistema,
-    senhaTemporaria,
-    avisoEmail,
-  },
-  { status: 201 }
-);
+      {
+        ...resultado,
+        acessoSistema:
+          criarAcessoSistema,
+        senhaTemporaria,
+        avisoEmail,
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error(
       "ERRO AO CRIAR FUNCIONÁRIO:",

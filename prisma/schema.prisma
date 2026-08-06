@@ -157,6 +157,7 @@ model Instituicao {
   itensCorrecaoPontoRH                        SolicitacaoCorrecaoPontoItemRH[]
   avisosWhatsappCorrecaoPontoRH               AvisoWhatsappCorrecaoPontoRH[]
   historicosRH                                HistoricoRH[]
+  historicosLotacaoFuncionariosRH             FuncionarioLotacaoRH[]
   ocorrenciasRH                               OcorrenciaRH[]
   escalasRH                                   EscalaTrabalhoRH[]
   bancoHorasRH                                BancoHorasRH[]
@@ -270,10 +271,11 @@ model User {
   anexosAtividadeCriados  AtividadeAnexo[]      @relation("AtividadeAnexoCriadoPor")
   crachaModelosCriados    CrachaModelo[]        @relation("CrachaModeloCriadoPor")
 
-  feriasRHCriadas         FeriasRH[]               @relation("FeriasRHCriadoPor")
-  feriasRHArquivadas      FeriasRH[]               @relation("FeriasRHArquivadaPor")
-  feriasRHRestauradas     FeriasRH[]               @relation("FeriasRHRestauradoPor")
-  alteracoesRemuneracaoRH HistoricoRemuneracaoRH[] @relation("HistoricoRemuneracaoRHAlteradoPor")
+  feriasRHCriadas                  FeriasRH[]               @relation("FeriasRHCriadoPor")
+  feriasRHArquivadas               FeriasRH[]               @relation("FeriasRHArquivadaPor")
+  feriasRHRestauradas              FeriasRH[]               @relation("FeriasRHRestauradoPor")
+  alteracoesRemuneracaoRH          HistoricoRemuneracaoRH[] @relation("HistoricoRemuneracaoRHAlteradoPor")
+  movimentacoesLotacaoRHRealizadas FuncionarioLotacaoRH[]   @relation("FuncionarioLotacaoRealizadoPor")
 
   examesRHCriados     ExameMedicoRH[] @relation("ExameMedicoRHCriadoPor")
   examesRHArquivados  ExameMedicoRH[] @relation("ExameMedicoRHArquivadoPor")
@@ -1483,10 +1485,14 @@ model Funcionario {
   user                      User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
   departamentoId            Int?
   departamento              Departamento? @relation(fields: [departamentoId], references: [id])
+  poloId                    Int?
+  polo                      Polo?         @relation("FuncionarioPoloAtual", fields: [poloId], references: [id], onDelete: SetNull)
   instituicao               Instituicao   @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   recebeMensagemAniversario Boolean       @default(true)
   recebeWhatsappAniversario Boolean       @default(true)
   professor                 Professor?    @relation("ProfessorFuncionarioRH")
+
+  historicosLotacaoRH FuncionarioLotacaoRH[]
 
   permissoes                                  FuncionarioPermissao[]
   historicosRH                                HistoricoRH[]
@@ -1521,20 +1527,26 @@ model Funcionario {
 
   @@index([instituicaoId])
   @@index([departamentoId])
+  @@index([poloId])
+  @@index([instituicaoId, poloId])
   @@index([nome])
   @@index([cpf])
 }
 
 model Departamento {
-  id                             Int                             @id @default(autoincrement())
-  nome                           String
-  slug                           String?
-  ativo                          Boolean                         @default(true)
-  createdAt                      DateTime                        @default(now())
-  updatedAt                      DateTime                        @updatedAt
-  instituicaoId                  Int
-  instituicao                    Instituicao                     @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  funcionarios                   Funcionario[]
+  id            Int           @id @default(autoincrement())
+  nome          String
+  slug          String?
+  ativo         Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  instituicaoId Int
+  instituicao   Instituicao   @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  funcionarios  Funcionario[]
+
+  lotacoesFuncionariosComoAnterior FuncionarioLotacaoRH[] @relation("FuncionarioLotacaoDepartamentoAnterior")
+  lotacoesFuncionariosComoNovo     FuncionarioLotacaoRH[] @relation("FuncionarioLotacaoDepartamentoNovo")
+
   permissoes                     DepartamentoPermissao[]
   professores                    Professor[]
   programasRemuneracaoVariavelRH ProgramaRemuneracaoVariavelRH[]
@@ -2223,14 +2235,19 @@ model Polo {
   instituicaoId       Int
   instituicaoGeradaId Int?                @unique
 
-  instituicao            Instituicao            @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  criadoPor              User?                  @relation("PoloCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
-  ativadoPor             User?                  @relation("PoloAtivadoPor", fields: [ativadoPorId], references: [id], onDelete: SetNull)
-  suspensoPor            User?                  @relation("PoloSuspensoPor", fields: [suspensoPorId], references: [id], onDelete: SetNull)
-  encerradoPor           User?                  @relation("PoloEncerradoPor", fields: [encerradoPorId], references: [id], onDelete: SetNull)
-  instituicaoGerada      Instituicao?           @relation("PoloInstituicaoGerada", fields: [instituicaoGeradaId], references: [id], onDelete: SetNull)
-  usuariosAcesso         UserPolo[]
-  professores            Professor[]
+  instituicao       Instituicao  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  criadoPor         User?        @relation("PoloCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+  ativadoPor        User?        @relation("PoloAtivadoPor", fields: [ativadoPorId], references: [id], onDelete: SetNull)
+  suspensoPor       User?        @relation("PoloSuspensoPor", fields: [suspensoPorId], references: [id], onDelete: SetNull)
+  encerradoPor      User?        @relation("PoloEncerradoPor", fields: [encerradoPorId], references: [id], onDelete: SetNull)
+  instituicaoGerada Instituicao? @relation("PoloInstituicaoGerada", fields: [instituicaoGeradaId], references: [id], onDelete: SetNull)
+  usuariosAcesso    UserPolo[]
+  professores       Professor[]
+
+  funcionariosLotados              Funcionario[]          @relation("FuncionarioPoloAtual")
+  lotacoesFuncionariosComoAnterior FuncionarioLotacaoRH[] @relation("FuncionarioLotacaoPoloAnterior")
+  lotacoesFuncionariosComoNovo     FuncionarioLotacaoRH[] @relation("FuncionarioLotacaoPoloNovo")
+
   turmas                 Turma[]
   alunos                 Aluno[]
   cursosPolos            CursoPolo[]
@@ -4717,6 +4734,51 @@ model LancamentoRemuneracaoVariavelRH {
   @@index([enviadoHoleritePorId])
 }
 
+model FuncionarioLotacaoRH {
+  id                               Int                       @id @default(autoincrement())
+  funcionarioId                    Int
+  instituicaoId                    Int
+  tipo                             TipoMovimentacaoLotacaoRH @default(LOTACAO_INICIAL)
+  poloAnteriorId                   Int?
+  poloNovoId                       Int
+  departamentoAnteriorId           Int?
+  departamentoNovoId               Int?
+  cargoAnteriorSnapshot            String?
+  cargoNovoSnapshot                String?
+  setorAnteriorSnapshot            String?
+  setorNovoSnapshot                String?
+  poloAnteriorNomeSnapshot         String?
+  poloNovoNomeSnapshot             String
+  departamentoAnteriorNomeSnapshot String?
+  departamentoNovoNomeSnapshot     String?
+  vigenciaEm                       DateTime
+  motivo                           String?                   @db.Text
+  observacoes                      String?                   @db.Text
+  realizadoPorId                   Int?
+  realizadoPorNomeSnapshot         String
+  realizadoPorRoleSnapshot         String?
+  criadoEm                         DateTime                  @default(now())
+  atualizadoEm                     DateTime                  @updatedAt
+
+  funcionario          Funcionario   @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
+  instituicao          Instituicao   @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  poloAnterior         Polo?         @relation("FuncionarioLotacaoPoloAnterior", fields: [poloAnteriorId], references: [id], onDelete: SetNull)
+  poloNovo             Polo          @relation("FuncionarioLotacaoPoloNovo", fields: [poloNovoId], references: [id], onDelete: Restrict)
+  departamentoAnterior Departamento? @relation("FuncionarioLotacaoDepartamentoAnterior", fields: [departamentoAnteriorId], references: [id], onDelete: SetNull)
+  departamentoNovo     Departamento? @relation("FuncionarioLotacaoDepartamentoNovo", fields: [departamentoNovoId], references: [id], onDelete: SetNull)
+  realizadoPor         User?         @relation("FuncionarioLotacaoRealizadoPor", fields: [realizadoPorId], references: [id], onDelete: SetNull)
+
+  @@index([funcionarioId])
+  @@index([instituicaoId])
+  @@index([poloAnteriorId])
+  @@index([poloNovoId])
+  @@index([departamentoAnteriorId])
+  @@index([departamentoNovoId])
+  @@index([realizadoPorId])
+  @@index([vigenciaEm])
+  @@index([funcionarioId, vigenciaEm])
+}
+
 model RematriculaSemestral {
   id Int @id @default(autoincrement())
 
@@ -5416,6 +5478,12 @@ enum TipoRemuneracaoRH {
 enum FinalidadeContaBancariaRH {
   SALARIO
   COMISSAO_REMUNERACAO_VARIAVEL
+}
+
+enum TipoMovimentacaoLotacaoRH {
+  LOTACAO_INICIAL
+  TRANSFERENCIA
+  CORRECAO
 }
 
 enum TipoContaBancariaRH {
