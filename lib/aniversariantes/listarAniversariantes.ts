@@ -90,6 +90,111 @@ function statusCombina(statusAtual: string, filtro: string) {
   return atual.includes(procurado);
 }
 
+function prioridadeTipoAniversariante(
+  tipo: TipoPessoaAniversariante
+) {
+  if (tipo === "PROFESSOR") return 3;
+  if (tipo === "FUNCIONARIO") return 2;
+  return 1;
+}
+
+function mesclarCadastrosDaMesmaPessoa(
+  principal: AniversarianteItem,
+  secundario: AniversarianteItem
+): AniversarianteItem {
+  const telefone =
+    principal.telefone ||
+    secundario.telefone ||
+    null;
+
+  const whatsapp = somenteNumeros(telefone);
+
+  return {
+    ...principal,
+
+    telefone,
+    whatsapp,
+    temWhatsapp: whatsapp.length >= 10,
+
+    fotoPerfil:
+      principal.fotoPerfil ||
+      secundario.fotoPerfil ||
+      null,
+
+    departamentoId:
+      principal.departamentoId ??
+      secundario.departamentoId ??
+      null,
+
+    departamento:
+      principal.departamento ||
+      secundario.departamento ||
+      null,
+
+    poloId:
+      principal.poloId ??
+      secundario.poloId ??
+      null,
+
+    polo:
+      principal.polo ||
+      secundario.polo ||
+      null,
+  };
+}
+
+function removerDuplicadosPorUsuario(
+  lista: AniversarianteItem[]
+) {
+  const pessoasUnicas = new Map<string, AniversarianteItem>();
+
+  for (const item of lista) {
+    const possuiUserIdValido =
+      typeof item.userId === "number" &&
+      Number.isInteger(item.userId) &&
+      item.userId > 0;
+
+    /*
+     * Quando existe usuário, ele identifica a pessoa.
+     * Funcionários sem usuário continuam sendo identificados
+     * pela própria chave e não são agrupados entre si.
+     */
+    const chavePessoa = possuiUserIdValido
+      ? `USUARIO-${item.userId}`
+      : item.chave;
+
+    const existente = pessoasUnicas.get(chavePessoa);
+
+    if (!existente) {
+      pessoasUnicas.set(chavePessoa, item);
+      continue;
+    }
+
+    const prioridadeExistente =
+      prioridadeTipoAniversariante(existente.tipo);
+
+    const prioridadeNovo =
+      prioridadeTipoAniversariante(item.tipo);
+
+    const principal =
+      prioridadeNovo > prioridadeExistente
+        ? item
+        : existente;
+
+    const secundario =
+      prioridadeNovo > prioridadeExistente
+        ? existente
+        : item;
+
+    pessoasUnicas.set(
+      chavePessoa,
+      mesclarCadastrosDaMesmaPessoa(principal, secundario)
+    );
+  }
+
+  return Array.from(pessoasUnicas.values());
+}
+
 export function obterFiltrosAniversariantes(
   req: Request
 ): FiltrosAniversariantes {
@@ -403,11 +508,11 @@ export async function listarAniversariantes({
     }
   );
 
-  let aniversariantes = [
-    ...listaAlunos,
-    ...listaProfessores,
-    ...listaFuncionarios,
-  ];
+  let aniversariantes = removerDuplicadosPorUsuario([
+  ...listaAlunos,
+  ...listaProfessores,
+  ...listaFuncionarios,
+]);
 
   aniversariantes = aniversariantes.filter((item) => item.mes === filtros.mes);
 

@@ -14,6 +14,38 @@ type Destinatario = {
   mensagem: string;
 };
 
+function prioridadeDestinatario(tipo: Destinatario["tipo"]) {
+  if (tipo === "PROFESSOR") return 3;
+  if (tipo === "FUNCIONARIO") return 2;
+  return 1;
+}
+
+function removerDestinatariosDuplicados(
+  destinatarios: Destinatario[]
+) {
+  const usuariosUnicos = new Map<number, Destinatario>();
+
+  for (const item of destinatarios) {
+    const userId = Number(item.userId);
+
+    if (!Number.isInteger(userId) || userId <= 0) {
+      continue;
+    }
+
+    const existente = usuariosUnicos.get(userId);
+
+    if (
+      !existente ||
+      prioridadeDestinatario(item.tipo) >
+        prioridadeDestinatario(existente.tipo)
+    ) {
+      usuariosUnicos.set(userId, item);
+    }
+  }
+
+  return Array.from(usuariosUnicos.values());
+}
+
 export async function POST(req: NextRequest) {
   try {
     const user = await getUserFromToken();
@@ -105,21 +137,35 @@ export async function POST(req: NextRequest) {
       autorizados.add(`FUNCIONARIO-${item.id}-${item.userId}`);
     });
 
-    const notificacoes = destinatarios
-      .filter((item) =>
-        autorizados.has(`${item.tipo}-${Number(item.id)}-${Number(item.userId)}`)
-      )
-      .map((item) => ({
-        usuarioId: Number(item.userId),
-        instituicaoId: user.instituicaoId,
-        tipo: "ANIVERSARIO",
-        categoria: "COMUNICACAO",
-        titulo: String(item.titulo || "Feliz aniversário!").slice(0, 180),
-        descricao: String(item.mensagem || "").slice(0, 2000),
-        link: null,
-        quantidade: 1,
-        chaveAgrupada: `ANIVERSARIO-${item.tipo}-${item.id}-${new Date().getFullYear()}`,
-      }));
+    const destinatariosAutorizados = destinatarios.filter((item) =>
+  autorizados.has(
+    `${item.tipo}-${Number(item.id)}-${Number(item.userId)}`
+  )
+);
+
+const destinatariosUnicos =
+  removerDestinatariosDuplicados(destinatariosAutorizados);
+
+const anoAtual = new Date().getFullYear();
+
+const notificacoes = destinatariosUnicos.map((item) => ({
+  usuarioId: Number(item.userId),
+  instituicaoId: user.instituicaoId,
+  tipo: "ANIVERSARIO",
+  categoria: "COMUNICACAO",
+  titulo: String(
+    item.titulo || "Feliz aniversário!"
+  ).slice(0, 180),
+  descricao: String(item.mensagem || "").slice(0, 2000),
+  link: null,
+  quantidade: 1,
+
+  /*
+   * A chave agora representa a pessoa e o ano,
+   * independentemente de ela ser professor ou funcionário.
+   */
+  chaveAgrupada: `ANIVERSARIO-${item.userId}-${anoAtual}`,
+}));
 
     if (notificacoes.length === 0) {
       return NextResponse.json(
