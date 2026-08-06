@@ -295,15 +295,27 @@ export function sanitizarHtmlDocumento(
 function normalizarParagrafosVazios(
   valor: string
 ) {
-  return String(valor || "")
-    .replace(
-      /<p([^>]*)>\s*<\/p>/gi,
-      "<p$1><br /></p>"
-    )
-    .replace(
-      /<p([^>]*)>\s*&nbsp;\s*<\/p>/gi,
-      "<p$1><br /></p>"
-    );
+  return String(valor || "").replace(
+    /<p([^>]*)>\s*(?:&nbsp;|<br\b[^>]*\/?>)?\s*<\/p>/gi,
+
+    (
+      _paragrafoCompleto: string,
+      atributos: string
+    ) => {
+      const atributosLimpos =
+        String(atributos || "").replace(
+          /\sdata-phanyx-paragrafo-vazio\s*=\s*["'][^"']*["']/gi,
+          ""
+        );
+
+      return (
+        `<p${atributosLimpos}` +
+        ` data-phanyx-paragrafo-vazio="true">` +
+        `<br />` +
+        `</p>`
+      );
+    }
+  );
 }
 
 function criarImagemAssinatura({
@@ -1050,24 +1062,40 @@ function cssCompartilhado(
 .phanyx-conteudo h3,
 .phanyx-conteudo h4,
 .phanyx-conteudo h5,
-.phanyx-conteudo h6,
-.phanyx-conteudo p {
+.phanyx-conteudo h6 {
   margin-top: 0;
   margin-bottom: 0;
 }
 
 .phanyx-conteudo p {
-  min-height: 1em;
+  min-height: 1.2em;
+  margin-top: 0;
+  margin-bottom: 0;
+  line-height: 1.2;
+}
+
+.phanyx-conteudo
+  p[data-phanyx-paragrafo-vazio="true"] {
+  display: block;
+  height: 1.2em;
+  min-height: 1.2em;
+  margin: 0;
+  padding: 0;
+  line-height: 1.2em;
+}
+
+.phanyx-conteudo
+  p[data-phanyx-paragrafo-vazio="true"]
+  > br:only-child {
+  display: block;
+  height: 1.2em;
+  min-height: 1.2em;
+  line-height: 1.2em;
 }
 
 .phanyx-conteudo p:empty {
-  min-height: 1em;
-  line-height: 1em;
-}
-
-.phanyx-conteudo p > br:only-child {
-  display: block;
-  line-height: 1em;
+  min-height: 1.2em;
+  line-height: 1.2em;
 }
 
     .phanyx-conteudo img {
