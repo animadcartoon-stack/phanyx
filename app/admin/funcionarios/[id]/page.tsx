@@ -42,6 +42,15 @@ type RegistroPonto = {
   horasAtraso?: string | number | null;
 };
 
+type PoloLotacao = {
+  id: number;
+  nome: string;
+  codigo?: string | null;
+  tipoUnidade?: string | null;
+  ativo?: boolean;
+  statusComercial?: string | null;
+};
+
 function moeda(v: any) {
   const n = Number(v || 0);
   return n.toLocaleString("pt-BR", {
@@ -245,6 +254,39 @@ function FuncionarioFichaPage() {
 
   const [funcionario, setFuncionario] = useState<any>(null);
 
+  const [polos, setPolos] =
+    useState<PoloLotacao[]>([]);
+
+  const [
+    modalLotacaoAberto,
+    setModalLotacaoAberto,
+  ] = useState(false);
+
+  const [
+    poloNovoId,
+    setPoloNovoId,
+  ] = useState("");
+
+  const [
+    vigenciaLotacao,
+    setVigenciaLotacao,
+  ] = useState("");
+
+  const [
+    motivoLotacao,
+    setMotivoLotacao,
+  ] = useState("");
+
+  const [
+    observacoesLotacao,
+    setObservacoesLotacao,
+  ] = useState("");
+
+  const [
+    salvandoLotacao,
+    setSalvandoLotacao,
+  ] = useState(false);
+
   const [documentosFuncionario, setDocumentosFuncionario] = useState<any[]>([]);
   const [enviandoDocumento, setEnviandoDocumento] = useState(false);
 
@@ -422,6 +464,83 @@ function FuncionarioFichaPage() {
     { codigo: "746", nome: "Modal" },
     { codigo: "735", nome: "Neon" },
   ];
+
+  async function carregarPolos() {
+    try {
+      const res = await fetch(
+        "/api/admin/polos",
+        {
+          credentials: "include",
+          cache: "no-store",
+        }
+      );
+
+      const data =
+        await res.json().catch(() => null);
+
+      if (!res.ok) {
+        console.error(
+          "Erro ao carregar polos:",
+          data?.error || res.statusText
+        );
+
+        setPolos([]);
+        return;
+      }
+
+      const polosRecebidos =
+        Array.isArray(data)
+          ? data
+          : Array.isArray(data?.polos)
+            ? data.polos
+            : [];
+
+      const polosValidos: PoloLotacao[] =
+        polosRecebidos
+          .map((polo: any) => ({
+            id: Number(polo?.id),
+
+            nome: String(
+              polo?.nome || ""
+            ).trim(),
+
+            codigo:
+              polo?.codigo
+                ? String(polo.codigo)
+                : null,
+
+            tipoUnidade:
+              polo?.tipoUnidade
+                ? String(polo.tipoUnidade)
+                : null,
+
+            ativo:
+              polo?.ativo === true,
+
+            statusComercial:
+              polo?.statusComercial
+                ? String(
+                  polo.statusComercial
+                )
+                : null,
+          }))
+          .filter(
+            (polo: PoloLotacao) =>
+              Number.isInteger(polo.id) &&
+              polo.id > 0 &&
+              polo.nome.length > 0
+          );
+
+      setPolos(polosValidos);
+    } catch (error) {
+      console.error(
+        "Erro ao carregar polos:",
+        error
+      );
+
+      setPolos([]);
+    }
+  }
 
   async function carregarFuncionario() {
     try {
@@ -747,10 +866,127 @@ function FuncionarioFichaPage() {
     }
   }
 
+  function abrirModalLotacao() {
+    setPoloNovoId("");
+    setVigenciaLotacao(
+      obterDataHoraLocalAtual()
+    );
+    setMotivoLotacao("");
+    setObservacoesLotacao("");
+    setErro("");
+    setModalLotacaoAberto(true);
+  }
+
+  function fecharModalLotacao() {
+    if (salvandoLotacao) {
+      return;
+    }
+
+    setModalLotacaoAberto(false);
+    setPoloNovoId("");
+    setVigenciaLotacao("");
+    setMotivoLotacao("");
+    setObservacoesLotacao("");
+  }
+
+  async function salvarLotacaoFuncionario(
+    e: React.FormEvent
+  ) {
+    e.preventDefault();
+
+    if (!poloNovoId) {
+      setErro(
+        "Selecione o novo polo de lotação."
+      );
+      return;
+    }
+
+    if (!vigenciaLotacao) {
+      setErro(
+        "Informe a data de vigência da lotação."
+      );
+      return;
+    }
+
+    const possuiLotacaoAtual =
+      Boolean(funcionario?.poloId) ||
+      Boolean(funcionario?.polo?.id);
+
+    if (
+      possuiLotacaoAtual &&
+      !motivoLotacao.trim()
+    ) {
+      setErro(
+        "Informe o motivo da transferência."
+      );
+      return;
+    }
+
+    try {
+      setSalvandoLotacao(true);
+      setErro("");
+      setSucesso("");
+
+      const res = await fetch(
+        `/api/admin/funcionarios/${funcionarioId}/transferir-polo`,
+        {
+          method: "POST",
+
+          credentials: "include",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            poloId: Number(poloNovoId),
+
+            vigenciaEm:
+              vigenciaLotacao,
+
+            motivo:
+              motivoLotacao.trim(),
+
+            observacoes:
+              observacoesLotacao.trim(),
+          }),
+        }
+      );
+
+      const data =
+        await res.json().catch(() => null);
+
+      if (!res.ok) {
+        throw new Error(
+          data?.error ||
+          "Não foi possível atualizar a lotação."
+        );
+      }
+
+      setSucesso(
+        data?.message ||
+        "Lotação atualizada com sucesso."
+      );
+
+      fecharModalLotacao();
+
+      await carregarFuncionario();
+    } catch (error: any) {
+      setErro(
+        error?.message ||
+        "Erro ao atualizar a lotação."
+      );
+    } finally {
+      setSalvandoLotacao(false);
+    }
+  }
+
   useEffect(() => {
     if (!funcionarioId) return;
 
     carregarFuncionario();
+    carregarPolos();
     carregarBeneficios();
     carregarBancoHorasFuncionario();
     carregarDocumentosFuncionario();
@@ -1730,6 +1966,443 @@ text-slate-900 dark:text-white
                 </div>
               )}
             </form>
+          )}
+
+          {funcionario && (
+            <section
+              className="
+      mt-6
+      rounded-3xl
+      border
+      border-slate-200
+      bg-white
+      p-5
+      shadow-sm
+      dark:border-slate-700
+      dark:bg-slate-900
+    "
+            >
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                    📍 Lotação do funcionário
+                  </h2>
+
+                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                    Unidade em que o funcionário
+                    está atualmente lotado.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={abrirModalLotacao}
+                  className="
+          inline-flex
+          items-center
+          justify-center
+          rounded-xl
+          bg-blue-600
+          px-4
+          py-2
+          text-sm
+          font-bold
+          text-white
+          transition
+          hover:bg-blue-500
+        "
+                >
+                  {funcionario.polo
+                    ? "Transferir de polo"
+                    : "Definir lotação"}
+                </button>
+              </div>
+
+              <div
+                className="
+        mt-5
+        rounded-2xl
+        border
+        border-slate-200
+        bg-slate-50
+        p-4
+        dark:border-slate-700
+        dark:bg-slate-950
+      "
+              >
+                <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                  Polo atual
+                </p>
+
+                <p
+                  className={
+                    funcionario.polo
+                      ? "mt-1 text-lg font-bold text-slate-900 dark:text-white"
+                      : "mt-1 text-lg font-bold text-amber-700 dark:text-amber-300"
+                  }
+                >
+                  {funcionario.polo?.nome ||
+                    "Lotação ainda não definida"}
+                </p>
+
+                {funcionario.polo?.codigo && (
+                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                    Código:{" "}
+                    {funcionario.polo.codigo}
+                  </p>
+                )}
+
+                {funcionario.professor && (
+                  <p className="mt-3 text-sm font-semibold text-blue-700 dark:text-blue-300">
+                    Este funcionário também possui
+                    cadastro de professor. A lotação
+                    será sincronizada nos dois
+                    cadastros.
+                  </p>
+                )}
+              </div>
+
+              <div className="mt-6">
+                <h3 className="font-bold text-slate-900 dark:text-white">
+                  Histórico de lotações
+                </h3>
+
+                {!Array.isArray(
+                  funcionario.historicosLotacaoRH
+                ) ||
+                  funcionario.historicosLotacaoRH
+                    .length === 0 ? (
+                  <div
+                    className="
+            mt-3
+            rounded-2xl
+            border
+            border-dashed
+            border-slate-300
+            p-4
+            text-sm
+            text-slate-600
+            dark:border-slate-700
+            dark:text-slate-300
+          "
+                  >
+                    Nenhuma movimentação de lotação
+                    foi registrada ainda.
+                  </div>
+                ) : (
+                  <div className="mt-3 space-y-3">
+                    {funcionario
+                      .historicosLotacaoRH
+                      .map((historico: any) => (
+                        <div
+                          key={historico.id}
+                          className="
+                  rounded-2xl
+                  border
+                  border-slate-200
+                  p-4
+                  dark:border-slate-700
+                "
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <span
+                              className="
+                      rounded-full
+                      border
+                      border-blue-200
+                      bg-blue-50
+                      px-3
+                      py-1
+                      text-xs
+                      font-bold
+                      text-blue-700
+                      dark:border-blue-800
+                      dark:bg-blue-950/40
+                      dark:text-blue-200
+                    "
+                            >
+                              {historico.tipo ===
+                                "TRANSFERENCIA"
+                                ? "Transferência"
+                                : historico.tipo ===
+                                  "CORRECAO"
+                                  ? "Correção"
+                                  : "Lotação inicial"}
+                            </span>
+
+                            <span className="text-xs text-slate-500 dark:text-slate-400">
+                              Vigência:{" "}
+                              {formatarDataHora(
+                                historico.vigenciaEm
+                              )}
+                            </span>
+                          </div>
+
+                          <p className="mt-3 font-semibold text-slate-900 dark:text-white">
+                            {historico
+                              .poloAnteriorNomeSnapshot ||
+                              "Sem polo anterior"}
+                            {" → "}
+                            {historico
+                              .poloNovoNomeSnapshot ||
+                              historico.poloNovo?.nome ||
+                              "-"}
+                          </p>
+
+                          {historico.motivo && (
+                            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                              <strong>Motivo:</strong>{" "}
+                              {historico.motivo}
+                            </p>
+                          )}
+
+                          <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                            Registrado por:{" "}
+                            {historico
+                              .realizadoPorNomeSnapshot ||
+                              historico.realizadoPor
+                                ?.nome ||
+                              "-"}
+                          </p>
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
+
+          {modalLotacaoAberto && (
+            <div
+              className="
+      fixed
+      inset-0
+      z-[1000]
+      flex
+      items-center
+      justify-center
+      bg-black/60
+      p-4
+      backdrop-blur-sm
+    "
+            >
+              <form
+                onSubmit={
+                  salvarLotacaoFuncionario
+                }
+                className="
+        max-h-[90vh]
+        w-full
+        max-w-xl
+        overflow-y-auto
+        rounded-3xl
+        border
+        border-slate-200
+        bg-white
+        p-6
+        shadow-2xl
+        dark:border-slate-700
+        dark:bg-slate-900
+      "
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                      {funcionario?.polo
+                        ? "Transferir funcionário"
+                        : "Definir lotação"}
+                    </h2>
+
+                    <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                      Funcionário:{" "}
+                      <strong>
+                        {funcionario?.nome}
+                      </strong>
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={fecharModalLotacao}
+                    disabled={salvandoLotacao}
+                    className="
+            rounded-lg
+            px-3
+            py-1
+            text-xl
+            font-bold
+            text-slate-500
+            hover:bg-slate-100
+            dark:text-slate-300
+            dark:hover:bg-slate-800
+          "
+                    aria-label="Fechar"
+                  >
+                    ×
+                  </button>
+                </div>
+
+                {funcionario?.polo && (
+                  <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+                    <p className="text-xs font-bold uppercase text-slate-500">
+                      Lotação atual
+                    </p>
+
+                    <p className="mt-1 font-bold text-slate-900 dark:text-white">
+                      {funcionario.polo.nome}
+                    </p>
+                  </div>
+                )}
+
+                <div className="mt-5 space-y-1">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-200">
+                    Novo polo
+                    <span className="ml-1 text-red-600">
+                      *
+                    </span>
+                  </label>
+
+                  <select
+                    value={poloNovoId}
+                    onChange={(e) =>
+                      setPoloNovoId(
+                        e.target.value
+                      )
+                    }
+                    className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                    required
+                  >
+                    <option value="">
+                      Selecione o polo
+                    </option>
+
+                    {polos.map((polo) => {
+                      const disponivel =
+                        polo.ativo === true &&
+                        polo.statusComercial ===
+                        "ATIVO";
+
+                      const poloAtual =
+                        Number(
+                          funcionario?.poloId ||
+                          funcionario?.polo?.id
+                        ) === polo.id;
+
+                      return (
+                        <option
+                          key={polo.id}
+                          value={polo.id}
+                          disabled={
+                            !disponivel ||
+                            poloAtual
+                          }
+                        >
+                          {polo.nome}
+                          {polo.codigo
+                            ? ` — ${polo.codigo}`
+                            : ""}
+                          {poloAtual
+                            ? " — Lotação atual"
+                            : !disponivel
+                              ? " — Inativo"
+                              : ""}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+
+                <div className="mt-4 space-y-1">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-200">
+                    Data de vigência
+                    <span className="ml-1 text-red-600">
+                      *
+                    </span>
+                  </label>
+
+                  <input
+                    type="datetime-local"
+                    value={vigenciaLotacao}
+                    onChange={(e) =>
+                      setVigenciaLotacao(
+                        e.target.value
+                      )
+                    }
+                    className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                    required
+                  />
+                </div>
+
+                <div className="mt-4 space-y-1">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-200">
+                    Motivo da transferência
+                    {funcionario?.polo && (
+                      <span className="ml-1 text-red-600">
+                        *
+                      </span>
+                    )}
+                  </label>
+
+                  <textarea
+                    value={motivoLotacao}
+                    onChange={(e) =>
+                      setMotivoLotacao(
+                        e.target.value
+                      )
+                    }
+                    className="min-h-[100px] w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                    placeholder={
+                      funcionario?.polo
+                        ? "Informe o motivo da transferência."
+                        : "Opcional para a definição inicial."
+                    }
+                    required={
+                      Boolean(funcionario?.polo)
+                    }
+                  />
+                </div>
+
+                <div className="mt-4 space-y-1">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-200">
+                    Observações
+                  </label>
+
+                  <textarea
+                    value={observacoesLotacao}
+                    onChange={(e) =>
+                      setObservacoesLotacao(
+                        e.target.value
+                      )
+                    }
+                    className="min-h-[80px] w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                    placeholder="Informações adicionais, quando houver."
+                  />
+                </div>
+
+                <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                  <button
+                    type="button"
+                    onClick={fecharModalLotacao}
+                    disabled={salvandoLotacao}
+                    className="rounded-xl border border-slate-300 px-5 py-3 font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-60 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                  >
+                    Cancelar
+                  </button>
+
+                  <button
+                    type="submit"
+                    disabled={salvandoLotacao}
+                    className="rounded-xl bg-blue-600 px-5 py-3 font-bold text-white hover:bg-blue-500 disabled:opacity-60"
+                  >
+                    {salvandoLotacao
+                      ? "Salvando..."
+                      : funcionario?.polo
+                        ? "Confirmar transferência"
+                        : "Definir lotação"}
+                  </button>
+                </div>
+              </form>
+            </div>
           )}
 
           <p className="mt-2 text-sm text-slate-400">
