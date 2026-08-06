@@ -19484,3 +19484,231 @@ html[data-theme="system"] .phanyx-aniversariante-data {
   min-height: 1.2em;
   line-height: 1.2em;
 }
+
+/* =========================================================
+   PHANYX — REUNIÕES — INDIVIDUAL / PARTICIPANTES
+   ========================================================= */
+
+/* TEMA CLARO */
+
+.phanyx-reuniao-individual-card {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.phanyx-reuniao-individual-card label {
+  color: #334155 !important;
+}
+
+.phanyx-reuniao-busca-participante {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+.phanyx-reuniao-busca-participante::placeholder {
+  color: #94a3b8 !important;
+  -webkit-text-fill-color: #94a3b8 !important;
+  opacity: 1 !important;
+}
+
+.phanyx-reuniao-lista-participantes {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+.phanyx-reuniao-participante-item {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+.phanyx-reuniao-participante-item:hover {
+  background: #f1f5f9 !important;
+}
+
+.phanyx-reuniao-participante-item.is-selected {
+  background: #e2e8f0 !important;
+  border-left: 4px solid #475569 !important;
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+}
+
+.phanyx-reuniao-participante-item span,
+.phanyx-reuniao-participante-item strong {
+  color: inherit !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+.phanyx-reuniao-participante-detalhes {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+}
+
+.phanyx-reuniao-participante-item.is-selected
+  .phanyx-reuniao-participante-detalhes {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+}
+
+.phanyx-reuniao-selecionados-card {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+
+.phanyx-reuniao-selecionados-titulo {
+  color: #334155 !important;
+}
+
+/* Reforço explícito para o tema Claro */
+
+html[data-theme="light"]
+  .phanyx-reuniao-individual-card {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-reuniao-lista-participantes {
+  background: #ffffff !important;
+}
+
+html[data-theme="light"]
+  .phanyx-reuniao-participante-item {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+/* TEMA SISTEMA — CINZA NEUTRO, SEM FUNDO AZUL */
+
+html[data-theme="system"]
+  .phanyx-admin-reunioes-page
+  .rounded-3xl,
+html[data-theme="sistema"]
+  .phanyx-admin-reunioes-page
+  .rounded-3xl {
+  background: #262626 !important;
+  border-color: #525252 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-admin-reunioes-page
+  input,
+html[data-theme="system"]
+  .phanyx-admin-reunioes-page
+  select,
+html[data-theme="system"]
+  .phanyx-admin-reunioes-page
+  textarea,
+html[data-theme="sistema"]
+  .phanyx-admin-reunioes-page
+  input,
+html[data-theme="sistema"]
+  .phanyx-admin-reunioes-page
+  select,
+html[data-theme="sistema"]
+  .phanyx-admin-reunioes-page
+  textarea {
+  background: #3f3f46 !important;
+  border-color: #71717a !important;
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
+}
+
+html[data-theme="system"]
+  .phanyx-admin-reunioes-page
+  input::placeholder,
+html[data-theme="system"]
+  .phanyx-admin-reunioes-page
+  textarea::placeholder,
+html[data-theme="sistema"]
+  .phanyx-admin-reunioes-page
+  input::placeholder,
+html[data-theme="sistema"]
+  .phanyx-admin-reunioes-page
+  textarea::placeholder {
+  color: #d4d4d8 !important;
+  -webkit-text-fill-color: #d4d4d8 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-reuniao-individual-card,
+html[data-theme="sistema"]
+  .phanyx-reuniao-individual-card {
+  background: #333333 !important;
+  border-color: #525252 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"]
+  .phanyx-reuniao-busca-participante,
+html[data-theme="sistema"]
+  .phanyx-reuniao-busca-participante {
+  background: #3f3f46 !important;
+  border-color: #71717a !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-reuniao-lista-participantes,
+html[data-theme="sistema"]
+  .phanyx-reuniao-lista-participantes {
+  background: #27272a !important;
+  border-color: #52525b !important;
+}
+
+html[data-theme="system"]
+  .phanyx-reuniao-participante-item,
+html[data-theme="sistema"]
+  .phanyx-reuniao-participante-item {
+  background: #2f2f32 !important;
+  border-color: #52525b !important;
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
+}
+
+html[data-theme="system"]
+  .phanyx-reuniao-participante-item:hover,
+html[data-theme="sistema"]
+  .phanyx-reuniao-participante-item:hover {
+  background: #3f3f46 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-reuniao-participante-item.is-selected,
+html[data-theme="sistema"]
+  .phanyx-reuniao-participante-item.is-selected {
+  background: #52525b !important;
+  border-left-color: #d4d4d8 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-reuniao-participante-detalhes,
+html[data-theme="sistema"]
+  .phanyx-reuniao-participante-detalhes {
+  color: #d4d4d8 !important;
+  -webkit-text-fill-color: #d4d4d8 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-reuniao-selecionados-card,
+html[data-theme="sistema"]
+  .phanyx-reuniao-selecionados-card {
+  background: #3f3f46 !important;
+  border-color: #71717a !important;
+}
+
+html[data-theme="system"]
+  .phanyx-reuniao-selecionados-titulo,
+html[data-theme="sistema"]
+  .phanyx-reuniao-selecionados-titulo {
+  color: #f8fafc !important;
+}

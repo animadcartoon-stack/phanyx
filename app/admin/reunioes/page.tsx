@@ -435,19 +435,21 @@ export default function AdminReunioesPage() {
           )}
 
           {publicoTipo === "INDIVIDUAL" && (
-            <div className="md:col-span-2 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+            <div className="phanyx-reuniao-individual-card md:col-span-2 rounded-2xl border p-4">
               <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Buscar participantes
               </label>
 
               <input
                 value={buscaPessoa}
-                onChange={(e) => setBuscaPessoa(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none dark:border-slate-600 dark:bg-slate-900 dark:text-white"
+                onChange={(e) =>
+                  setBuscaPessoa(e.target.value)
+                }
+                className="phanyx-reuniao-busca-participante w-full rounded-xl border px-4 py-3 outline-none"
                 placeholder="Digite nome, matrícula, email ou setor"
               />
 
-              <div className="mt-3 max-h-72 overflow-y-auto rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
+              <div className="phanyx-reuniao-lista-participantes mt-3 max-h-72 overflow-y-auto rounded-xl border">
                 {pessoasFiltradas.length === 0 ? (
                   <p className="p-4 text-sm text-slate-500 dark:text-slate-300">
                     Nenhuma pessoa encontrada.
@@ -461,18 +463,27 @@ export default function AdminReunioesPage() {
                         key={`${pessoa.role}-${pessoa.id}-${pessoa.userId}`}
                         type="button"
                         onClick={() => alternarPessoa(pessoa)}
-                        className={`flex w-full items-center justify-between gap-3 border-b border-slate-100 px-4 py-3 text-left text-sm transition last:border-b-0 dark:border-slate-800 ${
-                          selecionado
-                            ? "bg-blue-600 text-white"
-                            : "text-slate-800 hover:bg-blue-50 dark:text-white dark:hover:bg-slate-800"
-                        }`}
+                        className={`
+  phanyx-reuniao-participante-item
+  flex
+  w-full
+  items-center
+  justify-between
+  gap-3
+  border-b
+  px-4
+  py-3
+  text-left
+  text-sm
+  transition
+  last:border-b-0
+  ${selecionado ? "is-selected" : ""}
+`}
                       >
                         <span>
                           <span className="block font-semibold">{pessoa.nome}</span>
                           <span
-                            className={`block text-xs ${
-                              selecionado ? "text-blue-100" : "text-blue-500"
-                            }`}
+                            className="phanyx-reuniao-participante-detalhes block text-xs"
                           >
                             {pessoa.role}
                             {pessoa.matricula ? ` • ${pessoa.matricula}` : ""}
@@ -491,8 +502,8 @@ export default function AdminReunioesPage() {
               </div>
 
               {participantesSelecionados.length > 0 && (
-                <div className="mt-3 rounded-xl border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-950">
-                  <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-blue-700 dark:text-blue-200">
+                <div className="phanyx-reuniao-selecionados-card mt-3 rounded-xl border p-3">
+                  <p className="phanyx-reuniao-selecionados-titulo mb-2 text-xs font-bold uppercase tracking-[0.18em]">
                     Participantes selecionados
                   </p>
 
@@ -502,7 +513,7 @@ export default function AdminReunioesPage() {
                         key={`sel-${pessoa.role}-${pessoa.id}-${pessoa.userId}`}
                         type="button"
                         onClick={() => alternarPessoa(pessoa)}
-                        className="rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white"
+                        className="rounded-full bg-slate-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-slate-700"
                       >
                         {pessoa.nome} ✕
                       </button>
