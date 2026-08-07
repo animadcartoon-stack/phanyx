@@ -507,97 +507,97 @@ function criarBlocoAssinatura({
   assinaturaUrl: string;
 
   instituicao:
-  DadosInstituicaoDocumento;
+    DadosInstituicaoDocumento;
 
   modoPrevia: boolean;
 
   campoVisual?:
-  CampoVisualDocumento | null;
+    CampoVisualDocumento | null;
 }) {
-  const possuiCampoVisual =
-    Boolean(campoVisual);
+  /*
+   * IMPORTANTE:
+   *
+   * O bloco completo da assinatura deve
+   * reproduzir exatamente a representação
+   * mostrada no EditorTemplatePHANYX:
+   *
+   * imagem
+   * linha
+   * nome
+   * cargo
+   * instituição
+   * CNPJ
+   *
+   * O campo visual NÃO controla o tamanho
+   * da imagem dentro do bloco completo.
+   *
+   * O campo visual continua disponível para
+   * {{assinaturaDiretor}}, quando utilizada
+   * somente a imagem da assinatura.
+   */
+  void campoVisual;
 
   const imagem =
     criarImagemAssinatura({
       assinaturaUrl,
-
       modoPrevia,
 
-      campoVisual,
+      /*
+       * Força a assinatura do BLOCO a utilizar
+       * o tamanho padrão, igual ao editor.
+       */
+      campoVisual: null,
 
-      dentroDoBloco:
-        possuiCampoVisual,
+      dentroDoBloco: false,
     });
 
-    const areaAssinatura =
-  possuiCampoVisual
-    ? `
-      <span
-        class="phanyx-area-assinatura-visual"
-      >
-        ${imagem}
-
-        <span
-          class="phanyx-linha-assinatura"
-        ></span>
-      </span>
-    `
-    : `
+  return `
+    <span
+      class="phanyx-bloco-assinatura"
+    >
       ${imagem}
 
       <span
         class="phanyx-linha-assinatura"
       ></span>
-    `;
-
-  return `
-    <span
-      class="
-        phanyx-bloco-assinatura
-        ${possuiCampoVisual
-      ? "phanyx-bloco-assinatura-visual"
-      : ""
-    }
-      "
-    >
-      ${areaAssinatura}
 
       <span
         class="phanyx-identificacao-assinatura"
       >
         <strong>
           ${escaparHtml(
-      instituicao
-        .responsavelNome ||
-      "Responsável legal"
-    )}
+            instituicao
+              .responsavelNome ||
+            "Responsável legal"
+          )}
         </strong>
 
         <span>
           ${escaparHtml(
-      instituicao
-        .responsavelCargo ||
-      "Representante legal"
-    )}
+            instituicao
+              .responsavelCargo ||
+            "Representante legal"
+          )}
         </span>
 
         <span>
           ${escaparHtml(
-      instituicao.nome
-    )}
+            instituicao.nome
+          )}
         </span>
 
-        ${instituicao.cnpj
-      ? `
+        ${
+          instituicao.cnpj
+            ? `
               <span>
                 CNPJ:
                 ${escaparHtml(
-        instituicao.cnpj
-      )}
+                  instituicao.cnpj
+                )}
               </span>
             `
-      : ""
-    }
+            : ""
+        }
       </span>
     </span>
   `;
