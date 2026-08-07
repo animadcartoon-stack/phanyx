@@ -1543,23 +1543,39 @@ function cssCompartilhado(
 .phanyx-conteudo-compacto
   .phanyx-bloco-assinatura-visual {
   /*
-   * O editor já representa uma via real de 210 x 148,5mm.
-   * Portanto NÃO reduzimos novamente o bloco no PDF de duas vias.
+   * DUAS_VIAS_A4: a área de conteúdo termina antes da faixa de
+   * validação. No Chromium, o fluxo do HTML chega ao bloco cerca de
+   * 14 mm mais abaixo do que no editor TipTap. Como a validação é uma
+   * linha fixa da grade, deslocamos o bloco visualmente para cima sem
+   * alterar sua altura reservada no fluxo.
+   *
+   * Isso faz o bloco terminar completamente antes da validação e deixa
+   * preview PDF e PDF final na mesma faixa vertical observada no editor.
    */
   width: 78mm;
   height: 36mm;
   min-height: 36mm;
 
-  /*
-   * No editor o bloco entra praticamente logo após o parágrafo.
-   * Os 5mm usados no bloco normal empurravam a identificação para
-   * dentro da área de validação e ela era cortada pelo overflow.
-   */
   margin-top: 0;
   margin-bottom: 0;
 
+  top: -14mm;
+
   font-size: 9pt;
   line-height: 1.25;
+}
+
+/*
+ * A imagem configurada já recebe left/top/width/height calculados a
+ * partir do campo visual. No PDF de duas vias ela estava alguns
+ * milímetros mais baixa que no editor e cruzava a linha. Este ajuste
+ * desloca somente a imagem para cima, preservando linha e identificação.
+ */
+.phanyx-conteudo-compacto
+  .phanyx-bloco-assinatura-visual
+  .phanyx-assinatura-imagem-posicionada {
+  transform: translateY(-3.5mm);
+  transform-origin: top center;
 }
 
 
