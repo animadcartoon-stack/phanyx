@@ -1371,16 +1371,14 @@ function cssCompartilhado(
   display: inline-block;
 
   /*
-   * Mesma proporção da área visual:
-   * 480px × 150px = proporção 3.2
-   *
-   * 78mm ÷ 3.2 = 24.375mm
+   * Mantém a proporção do bloco normal
+   * de 78mm × 36mm ao reduzi-lo para
+   * 64mm no documento de duas vias.
    */
-  width: 78mm;
-  height: 24.375mm;
-  min-height: 24.375mm;
+  width: 64mm;
+  height: 29.54mm;
+  min-height: 29.54mm;
 
-  margin-top: 5mm;
   margin-bottom: 0;
 
   overflow: visible;
@@ -1448,61 +1446,6 @@ function cssCompartilhado(
 /*
  * Identificação abaixo da mesma linha.
  */
-.phanyx-conteudo-compacto
-  .phanyx-bloco-assinatura-visual
-  .phanyx-identificacao-assinatura {
-  position: absolute;
-
-  top: 66.6667%;
-
-  left: 8.3333%;
-  right: 8.3333%;
-
-  display: flex;
-
-  flex-direction: column;
-
-  align-items: center;
-
-  color: #111827;
-
-  font-size: 6pt;
-
-  line-height: 1;
-
-  text-align: center;
-
-  white-space: normal;
-
-  overflow: visible;
-}
-
-.phanyx-conteudo-compacto
-  .phanyx-bloco-assinatura-visual
-  .phanyx-identificacao-assinatura
-  strong,
-.phanyx-conteudo-compacto
-  .phanyx-bloco-assinatura-visual
-  .phanyx-identificacao-assinatura
-  span {
-  display: block;
-
-  max-width: 100%;
-
-  margin: 0;
-  padding: 0;
-
-  text-align: center;
-
-  overflow: visible;
-}
-
-.phanyx-conteudo-compacto
-  .phanyx-bloco-assinatura-visual
-  .phanyx-identificacao-assinatura
-  strong {
-  font-weight: 700;
-}
 
     .phanyx-validacao {
       display: flex;
