@@ -529,6 +529,27 @@ function criarBlocoAssinatura({
         possuiCampoVisual,
     });
 
+    const areaAssinatura =
+  possuiCampoVisual
+    ? `
+      <span
+        class="phanyx-area-assinatura-visual"
+      >
+        ${imagem}
+
+        <span
+          class="phanyx-linha-assinatura"
+        ></span>
+      </span>
+    `
+    : `
+      ${imagem}
+
+      <span
+        class="phanyx-linha-assinatura"
+      ></span>
+    `;
+
   return `
     <span
       class="
@@ -539,11 +560,7 @@ function criarBlocoAssinatura({
     }
       "
     >
-      ${imagem}
-
-      <span
-        class="phanyx-linha-assinatura"
-      ></span>
+      ${areaAssinatura}
 
       <span
         class="phanyx-identificacao-assinatura"
@@ -1266,57 +1283,6 @@ function cssCompartilhado(
   align-items: center;
 }
 
-.phanyx-bloco-assinatura-visual {
-  position: relative;
-  display: inline-block;
-  width: 78mm;
-  height: 36mm;
-  min-height: 36mm;
-  margin-top: 5mm;
-  overflow: visible;
-  text-align: center;
-}
-
-.phanyx-bloco-assinatura-visual
-  .phanyx-assinatura-imagem-posicionada {
-  position: absolute;
-  z-index: 2;
-  display: block;
-  min-height: 0;
-  margin: 0;
-  overflow: hidden;
-}
-
-.phanyx-bloco-assinatura-visual
-  .phanyx-assinatura-imagem-posicionada
-  img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: center;
-}
-
-.phanyx-bloco-assinatura-visual
-  .phanyx-linha-assinatura {
-  position: absolute;
-  top: 61.3333%;
-  left: 8.3333%;
-  right: 8.3333%;
-  width: auto;
-  margin: 0;
-}
-
-.phanyx-bloco-assinatura-visual
-  .phanyx-identificacao-assinatura {
-  position: absolute;
-  top: 66.6667%;
-  left: 8.3333%;
-  right: 8.3333%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
 
     /*
  * Assinatura compacta apenas para
@@ -1350,48 +1316,54 @@ function cssCompartilhado(
   margin-bottom: 1mm;
 }
 
-/*
- * BLOCO VISUAL DA ASSINATURA
- *
- * IMPORTANTE:
- * Mesmo em documentos de duas vias,
- * este bloco conserva exatamente a mesma
- * geometria usada pelo editor visual:
- *
- * 480px x 150px no editor
- *      ↓
- * 78mm x 36mm no PDF
- *
- * Assim x, y, largura e altura salvos pelo
- * usuário representam a mesma posição.
- */
-.phanyx-conteudo-compacto
-  .phanyx-bloco-assinatura-visual {
+/* =========================================================
+   BLOCO VISUAL DA ASSINATURA
+   ========================================================= */
+
+.phanyx-bloco-assinatura-visual {
   position: relative;
   display: inline-block;
 
   /*
-   * Mantém a proporção do bloco normal
-   * de 78mm × 36mm ao reduzi-lo para
-   * 64mm no documento de duas vias.
+   * O bloco completo continua com espaço
+   * suficiente para assinatura +
+   * identificação institucional.
    */
-  width: 64mm;
-  height: 29.54mm;
-  min-height: 29.54mm;
+  width: 78mm;
+  height: 36mm;
+  min-height: 36mm;
 
-  margin-bottom: 0;
+  margin-top: 5mm;
 
   overflow: visible;
   text-align: center;
 }
 
+
 /*
- * A imagem já recebe left, top, width e height
- * por style inline, calculados a partir do
- * campo visual salvo.
+ * Esta é a representação EXATA da área
+ * 480px × 150px existente no editor.
+ *
+ * 78 / 3.2 = 24.375mm
  */
-.phanyx-conteudo-compacto
-  .phanyx-bloco-assinatura-visual
+.phanyx-bloco-assinatura-visual
+  .phanyx-area-assinatura-visual {
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 78mm;
+  height: 24.375mm;
+}
+
+
+/*
+ * A caixa da imagem recebe left/top/width/height
+ * inline, calculados dos valores salvos
+ * no editor.
+ */
+.phanyx-bloco-assinatura-visual
   .phanyx-assinatura-imagem-posicionada {
   position: absolute;
 
@@ -1406,8 +1378,7 @@ function cssCompartilhado(
   overflow: hidden;
 }
 
-.phanyx-conteudo-compacto
-  .phanyx-bloco-assinatura-visual
+.phanyx-bloco-assinatura-visual
   .phanyx-assinatura-imagem-posicionada
   img {
   display: block;
@@ -1419,14 +1390,17 @@ function cssCompartilhado(
   object-position: center;
 }
 
+
 /*
- * A linha do editor está em 92px dentro
- * de uma área de 150px:
+ * Linha do editor:
  *
- * 92 / 150 = 61.3333%
+ * 92px / 150px = 61.3333%
+ *
+ * Agora esse percentual é calculado
+ * sobre a ÁREA VISUAL correta,
+ * e não sobre o bloco inteiro.
  */
-.phanyx-conteudo-compacto
-  .phanyx-bloco-assinatura-visual
+.phanyx-bloco-assinatura-visual
   .phanyx-linha-assinatura {
   position: absolute;
 
@@ -1441,6 +1415,76 @@ function cssCompartilhado(
 
   border-top:
     0.3mm solid #111827;
+}
+
+
+/*
+ * No editor a identificação começa
+ * aproximadamente em 100px.
+ *
+ * 100 / 150 × 24.375mm = 16.25mm
+ */
+.phanyx-bloco-assinatura-visual
+  .phanyx-identificacao-assinatura {
+  position: absolute;
+
+  top: 16.25mm;
+
+  left: 8.3333%;
+  right: 8.3333%;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  color: #111827;
+
+  text-align: center;
+
+  overflow: visible;
+}
+
+/*
+ * Ajuste específico do bloco visual
+ * para documentos com duas vias.
+ */
+.phanyx-conteudo-compacto
+  .phanyx-bloco-assinatura-visual {
+  width: 64mm;
+  height: 29.54mm;
+  min-height: 29.54mm;
+
+  margin-top: 2mm;
+  margin-bottom: 0;
+}
+
+
+/*
+ * A área 480 × 150 do editor,
+ * reduzida proporcionalmente
+ * para o bloco compacto de 64mm.
+ */
+.phanyx-conteudo-compacto
+  .phanyx-bloco-assinatura-visual
+  .phanyx-area-assinatura-visual {
+  width: 64mm;
+  height: 20mm;
+}
+
+
+/*
+ * Identificação abaixo da linha
+ * no bloco compacto.
+ */
+.phanyx-conteudo-compacto
+  .phanyx-bloco-assinatura-visual
+  .phanyx-identificacao-assinatura {
+  top: 13.3333mm;
+
+  font-size: 7pt;
+  line-height: 1.15;
 }
 
 /*
