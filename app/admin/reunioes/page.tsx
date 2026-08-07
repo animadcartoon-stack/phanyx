@@ -97,6 +97,16 @@ export default function AdminReunioesPage() {
   const [mensagem, setMensagem] = useState("");
   const [erro, setErro] = useState("");
 
+  const [
+    reuniaoParaExcluir,
+    setReuniaoParaExcluir,
+  ] = useState<Reuniao | null>(null);
+
+  const [
+    excluindoId,
+    setExcluindoId,
+  ] = useState<number | null>(null);
+
   const pessoasIndividuais = useMemo(() => {
     const mapa = new Map<string, PessoaOpcao>();
 
@@ -270,6 +280,59 @@ export default function AdminReunioesPage() {
       setErro(error?.message || "Erro ao criar reunião.");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function excluirReuniao() {
+    if (!reuniaoParaExcluir) {
+      return;
+    }
+
+    try {
+      setExcluindoId(
+        reuniaoParaExcluir.id
+      );
+
+      setErro("");
+      setMensagem("");
+
+      const res = await fetch(
+        `/api/reunioes?id=${reuniaoParaExcluir.id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      const data =
+        await res.json();
+
+      if (!res.ok) {
+        throw new Error(
+          data?.error ||
+          "Erro ao excluir reunião."
+        );
+      }
+
+      setReunioes((atuais) =>
+        atuais.filter(
+          (item) =>
+            item.id !==
+            reuniaoParaExcluir.id
+        )
+      );
+
+      setMensagem(
+        "Reunião excluída com sucesso."
+      );
+
+      setReuniaoParaExcluir(null);
+    } catch (error: any) {
+      setErro(
+        error?.message ||
+        "Erro ao excluir reunião."
+      );
+    } finally {
+      setExcluindoId(null);
     }
   }
 
@@ -583,14 +646,48 @@ export default function AdminReunioesPage() {
                     </p>
                   </div>
 
-                  <a
-                    href={reuniao.link}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="rounded-xl bg-slate-900 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-blue-600"
-                  >
-                    Abrir reunião
-                  </a>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <a
+                      href={reuniao.link}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="rounded-xl bg-slate-900 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-blue-600"
+                    >
+                      Abrir reunião
+                    </a>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setReuniaoParaExcluir(
+                          reuniao
+                        )
+                      }
+                      disabled={
+                        excluindoId === reuniao.id
+                      }
+                      className="
+      rounded-xl
+      border
+      border-red-300
+      bg-red-50
+      px-4
+      py-2
+      text-sm
+      font-semibold
+      text-red-700
+      hover:bg-red-100
+      disabled:cursor-not-allowed
+      disabled:opacity-50
+      dark:border-red-800
+      dark:bg-red-950/40
+      dark:text-red-200
+      dark:hover:bg-red-950/70
+    "
+                    >
+                      Excluir
+                    </button>
+                  </div>
                 </div>
 
                 {reuniao.descricao && (
@@ -603,6 +700,111 @@ export default function AdminReunioesPage() {
           </div>
         )}
       </div>
+
+      {reuniaoParaExcluir && (
+        <div
+          className="
+      fixed
+      inset-0
+      z-[100]
+      flex
+      items-center
+      justify-center
+      bg-black/60
+      p-4
+    "
+        >
+          <div
+            className="
+        w-full
+        max-w-md
+        rounded-2xl
+        border
+        border-slate-200
+        bg-white
+        p-6
+        shadow-2xl
+        dark:border-slate-700
+        dark:bg-slate-900
+      "
+          >
+            <div className="mb-4">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                Excluir reunião
+              </h3>
+
+              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                Tem certeza que deseja excluir
+                a reunião{" "}
+                <strong className="text-slate-900 dark:text-white">
+                  {reuniaoParaExcluir.titulo}
+                </strong>
+                ?
+              </p>
+
+              <p className="mt-2 text-sm text-red-600 dark:text-red-300">
+                A reunião e os participantes
+                vinculados a ela serão removidos.
+              </p>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() =>
+                  setReuniaoParaExcluir(null)
+                }
+                disabled={
+                  excluindoId !== null
+                }
+                className="
+            rounded-xl
+            border
+            border-slate-300
+            bg-white
+            px-4
+            py-2
+            text-sm
+            font-semibold
+            text-slate-700
+            hover:bg-slate-100
+            disabled:opacity-50
+            dark:border-slate-600
+            dark:bg-slate-800
+            dark:text-white
+          "
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="button"
+                onClick={excluirReuniao}
+                disabled={
+                  excluindoId !== null
+                }
+                className="
+            rounded-xl
+            bg-red-600
+            px-4
+            py-2
+            text-sm
+            font-semibold
+            text-white
+            hover:bg-red-700
+            disabled:cursor-not-allowed
+            disabled:opacity-50
+          "
+              >
+                {excluindoId !== null
+                  ? "Excluindo..."
+                  : "Excluir reunião"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

@@ -476,3 +476,100 @@ if (notificacoes.length > 0) {
     );
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const user = await getUserFromToken();
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "Não autorizado." },
+        { status: 401 }
+      );
+    }
+
+    const id = Number(
+      req.nextUrl.searchParams.get("id")
+    );
+
+    if (
+      !Number.isInteger(id) ||
+      id <= 0
+    ) {
+      return NextResponse.json(
+        { error: "Reunião inválida." },
+        { status: 400 }
+      );
+    }
+
+    const reuniao =
+      await prisma.reuniao.findFirst({
+        where: {
+          id,
+          instituicaoId:
+            user.instituicaoId,
+        },
+        select: {
+          id: true,
+          criadoPorId: true,
+          titulo: true,
+        },
+      });
+
+    if (!reuniao) {
+      return NextResponse.json(
+        {
+          error:
+            "Reunião não encontrada.",
+        },
+        { status: 404 }
+      );
+    }
+
+    /*
+     * ADMIN pode excluir reuniões
+     * da própria instituição.
+     *
+     * Demais perfis somente podem
+     * excluir reuniões que criaram.
+     */
+    if (
+      user.role !== "ADMIN" &&
+      reuniao.criadoPorId !== user.id
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Você não tem permissão para excluir esta reunião.",
+        },
+        { status: 403 }
+      );
+    }
+
+    await prisma.reuniao.delete({
+      where: {
+        id: reuniao.id,
+      },
+    });
+
+    return NextResponse.json({
+      sucesso: true,
+      mensagem:
+        "Reunião excluída com sucesso.",
+    });
+  } catch (error: any) {
+    console.error(
+      "Erro ao excluir reunião:",
+      error
+    );
+
+    return NextResponse.json(
+      {
+        error:
+          error?.message ||
+          "Erro ao excluir reunião.",
+      },
+      { status: 500 }
+    );
+  }
+}
