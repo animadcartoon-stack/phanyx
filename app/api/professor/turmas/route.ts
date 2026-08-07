@@ -64,22 +64,34 @@ const filtrosSubstituicao = substituicoes.map((s) => ({
 }));
 
     const turmas = await prisma.turma.findMany({
-      where: {
-  instituicaoId: user.instituicaoId,
+  where: {
+    instituicaoId: user.instituicaoId,
 
-  OR: [
-    {
-      disciplinas: {
-        some: {
-          disciplina: {
+    OR: [
+      {
+        disciplinas: {
+          some: {
             OR: [
+              // ✅ REGRA PRINCIPAL:
+              // professor vinculado à disciplina dentro desta turma
               {
                 professorId: professor.id,
               },
+
+              // Compatibilidade com vínculo antigo direto na disciplina
               {
-                professoresHabilitados: {
-                  some: {
-                    professorId: professor.id,
+                disciplina: {
+                  professorId: professor.id,
+                },
+              },
+
+              // Compatibilidade com professor habilitado
+              {
+                disciplina: {
+                  professoresHabilitados: {
+                    some: {
+                      professorId: professor.id,
+                    },
                   },
                 },
               },
@@ -87,75 +99,118 @@ const filtrosSubstituicao = substituicoes.map((s) => ({
           },
         },
       },
-    },
 
-    ...filtrosSubstituicao,
-  ],
-},
-      include: {
-        disciplinas: {
-  where: {
-    OR: [
-      {
-        disciplina: {
-          OR: [
-            { professorId: professor.id },
-            {
+      // Professor substituto
+      ...filtrosSubstituicao,
+    ],
+  },
+
+  include: {
+    disciplinas: {
+      where: {
+        OR: [
+          // ✅ REGRA PRINCIPAL
+          {
+            professorId: professor.id,
+          },
+
+          // Compatibilidade com vínculo antigo
+          {
+            disciplina: {
+              professorId: professor.id,
+            },
+          },
+
+          // Compatibilidade com habilitação
+          {
+            disciplina: {
               professoresHabilitados: {
                 some: {
                   professorId: professor.id,
                 },
               },
             },
+          },
+
+          // Substituições docentes
+          ...substituicoes.map((s) => ({
+            turmaId: s.turmaId,
+            disciplinaId: s.disciplinaId,
+          })),
+        ],
+      },
+
+      include: {
+        horarios: {
+          where: {
+            ativo: true,
+          },
+          orderBy: [
+            {
+              diaSemana: "asc",
+            },
+            {
+              horaInicio: "asc",
+            },
           ],
         },
-      },
-      ...substituicoes.map((s) => ({
-        turmaId: s.turmaId,
-        disciplinaId: s.disciplinaId,
-      })),
-    ],
-  },
+
+        disciplina: {
           include: {
-  horarios: {
-    where: {
-      ativo: true,
-    },
-    orderBy: [
-      { diaSemana: "asc" },
-      { horaInicio: "asc" },
-    ],
-  },
-  disciplina: {
-    include: {
-      curso: true,
-    },
-  },
-},
+            curso: true,
+
+            // ✅ necessário porque é usado no filtro abaixo
+            professoresHabilitados: {
+              select: {
+                professorId: true,
+              },
+            },
+          },
         },
-        itensMatricula: true,
       },
-      orderBy: { id: "desc" },
-    });
+    },
+
+    itensMatricula: true,
+  },
+
+  orderBy: {
+    id: "desc",
+  },
+});
 
     return NextResponse.json(
       turmas.flatMap((t) =>
         t.disciplinas
   .filter((item) => {
-    const professorDaDisciplina =
-      item.disciplina?.professorId === professor.id;
+  // ✅ vínculo correto:
+  // professor desta disciplina nesta turma
+  const professorDaTurmaDisciplina =
+    item.professorId === professor.id;
 
-    const habilitado =
-      item.disciplina?.professoresHabilitados?.some(
-        (p) => p.professorId === professor.id
-      );
+  // Compatibilidade com estrutura antiga
+  const professorDaDisciplina =
+    item.disciplina?.professorId === professor.id;
 
-    const substituicao = substituicoes.some(
-      (s) => s.turmaId === t.id && s.disciplinaId === item.disciplinaId
+  const habilitado =
+    item.disciplina?.professoresHabilitados?.some(
+      (p) => p.professorId === professor.id
+    ) ?? false;
+
+  // Substituição docente temporária
+  const substituicao =
+    substituicoes.some(
+      (s) =>
+        s.turmaId === t.id &&
+        s.disciplinaId === item.disciplinaId
     );
 
-    return professorDaDisciplina || habilitado || substituicao;
-  })
+  return (
+    professorDaTurmaDisciplina ||
+    professorDaDisciplina ||
+    habilitado ||
+    substituicao
+  );
+})
   .map((item) => ({
     id: t.id,
     turmaDisciplinaId: item.id,
