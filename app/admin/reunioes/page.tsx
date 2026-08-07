@@ -232,7 +232,9 @@ export default function AdminReunioesPage() {
         titulo,
         descricao,
         link,
-        dataHora,
+        dataHora: dataHora
+          ? new Date(dataHora).toISOString()
+          : "",
         publicoTipo,
         setor: publicoTipo === "SETOR" ? setor : null,
         turmaId: publicoTipo === "TURMA" ? Number(turmaId) : null,
