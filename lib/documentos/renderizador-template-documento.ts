@@ -498,6 +498,35 @@ function criarImagemAssinatura({
   `;
 }
 
+function criarImagemAssinaturaBloco({
+  assinaturaUrl,
+  modoPrevia,
+}: {
+  assinaturaUrl: string;
+  modoPrevia: boolean;
+}) {
+  if (!assinaturaUrl) {
+    if (!modoPrevia) {
+      return "";
+    }
+
+    return `
+      <span class="phanyx-assinatura-imagem-bloco phanyx-assinatura-placeholder-bloco">
+        Assinatura do diretor
+      </span>
+    `;
+  }
+
+  return `
+    <span class="phanyx-assinatura-imagem-bloco">
+      <img
+        src="${escaparHtml(assinaturaUrl)}"
+        alt="Assinatura do diretor"
+      />
+    </span>
+  `;
+}
+
 function criarBlocoAssinatura({
   assinaturaUrl,
   instituicao,
@@ -505,97 +534,55 @@ function criarBlocoAssinatura({
   campoVisual,
 }: {
   assinaturaUrl: string;
-
-  instituicao:
-    DadosInstituicaoDocumento;
-
+  instituicao: DadosInstituicaoDocumento;
   modoPrevia: boolean;
-
-  campoVisual?:
-    CampoVisualDocumento | null;
+  campoVisual?: CampoVisualDocumento | null;
 }) {
   /*
-   * O bloco completo usa a MESMA geometria
-   * da área visual de 480 x 150 px do editor.
+   * O bloco institucional é um componente FIXO do template.
+   * Ele deve reproduzir exatamente a representação exibida no
+   * EditorTemplatePHANYX: assinatura 48x16mm, linha 72mm e
+   * identificação institucional em 9pt.
    *
-   * Assim, x, y, largura e altura salvos em
-   * camposVisuais controlam também a imagem
-   * dentro de {{blocoAssinaturaDiretor}}.
+   * O campo visual (x/y/largura/altura) pertence SOMENTE à tag
+   * {{assinaturaDiretor}}, que representa apenas a imagem.
+   * Ele não redimensiona {{blocoAssinaturaDiretor}}.
    */
-  const campoNormalizado =
-    campoVisual
-      ? obterCampoVisualAssinatura([
-          campoVisual,
-        ])
-      : null;
+  void campoVisual;
 
-  const campoDoBloco:
-    CampoVisualDocumento =
-    campoNormalizado || {
-      id: "assinatura-diretor-padrao",
-      tipo: "ASSINATURA_DIRETOR",
-      x: 70,
-      y: 18,
-      largura: 180,
-      altura: 55,
-      pagina: 1,
-    };
-
-  const imagem =
-    criarImagemAssinatura({
-      assinaturaUrl,
-      modoPrevia,
-      campoVisual: campoDoBloco,
-      dentroDoBloco: true,
-    });
+  const imagem = criarImagemAssinaturaBloco({
+    assinaturaUrl,
+    modoPrevia,
+  });
 
   return `
-    <span
-      class="phanyx-bloco-assinatura-visual"
-    >
-      <span
-        class="phanyx-area-assinatura-visual"
-      >
-        ${imagem}
+    <span class="phanyx-bloco-assinatura">
+      ${imagem}
 
-        <span
-          class="phanyx-linha-assinatura"
-        ></span>
-      </span>
+      <span class="phanyx-linha-assinatura"></span>
 
-      <span
-        class="phanyx-identificacao-assinatura"
-      >
+      <span class="phanyx-identificacao-assinatura">
         <strong>
           ${escaparHtml(
-            instituicao
-              .responsavelNome ||
-            "Responsável legal"
+            instituicao.responsavelNome || "Responsável legal"
           )}
         </strong>
 
         <span>
           ${escaparHtml(
-            instituicao
-              .responsavelCargo ||
-            "Representante legal"
+            instituicao.responsavelCargo || "Representante legal"
           )}
         </span>
 
         <span>
-          ${escaparHtml(
-            instituicao.nome
-          )}
+          ${escaparHtml(instituicao.nome)}
         </span>
 
         ${
           instituicao.cnpj
             ? `
               <span>
-                CNPJ:
-                ${escaparHtml(
-                  instituicao.cnpj
-                )}
+                CNPJ: ${escaparHtml(instituicao.cnpj)}
               </span>
             `
             : ""
@@ -1245,22 +1232,58 @@ function cssCompartilhado(
     }
 
     .phanyx-bloco-assinatura {
-  display: inline-flex;
-  width: 78mm;
-  margin: 5mm 0 0;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  vertical-align: top;
-  font-size: 9pt;
-  line-height: 1.25;
-  break-inside: avoid;
-  page-break-inside: avoid;
-}
+      display: inline-flex;
+      width: 78mm;
+      min-height: 36mm;
+      margin: 5mm 0 0;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      text-align: center;
+      vertical-align: top;
+      font-size: 9pt;
+      line-height: 1.25;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
 
-    .phanyx-bloco-assinatura
-      .phanyx-assinatura-imagem {
-      margin-top: 0;
+    .phanyx-assinatura-imagem-bloco {
+      display: flex;
+      width: 48mm;
+      height: 16mm;
+      min-height: 16mm;
+      margin: 0;
+      padding: 0;
+      align-items: center;
+      justify-content: flex-start;
+      overflow: hidden;
+      background: #ffffff;
+      vertical-align: top;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .phanyx-assinatura-imagem-bloco img {
+      display: block;
+      width: 48mm;
+      height: 16mm;
+      max-width: none;
+      object-fit: contain;
+      object-position: left center;
+      filter:
+        grayscale(1)
+        contrast(2)
+        brightness(0.75)
+        saturate(0);
+    }
+
+    .phanyx-assinatura-placeholder-bloco {
+      border: 0.3mm dashed #64748b;
+      color: #64748b;
+      font-size: 8pt;
+      line-height: 1.2;
+      text-align: center;
+      justify-content: center;
     }
 
     .phanyx-linha-assinatura {
@@ -1268,55 +1291,54 @@ function cssCompartilhado(
       width: 72mm;
       margin-top: -1mm;
       margin-bottom: 1.5mm;
-      border-top:
-        0.3mm solid #111827;
+      border-top: 0.3mm solid #111827;
     }
 
-    .phanyx-bloco-assinatura
-      strong,
-    .phanyx-bloco-assinatura
-      span {
+    .phanyx-bloco-assinatura strong,
+    .phanyx-bloco-assinatura span {
       display: block;
     }
 
     .phanyx-identificacao-assinatura {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
     /*
- * Assinatura compacta apenas para
- * documentos com duas vias na mesma A4.
- */
-.phanyx-conteudo-compacto
-  .phanyx-bloco-assinatura {
-  width: 64mm;
-  margin-top: 2mm;
-  font-size: 7pt;
-  line-height: 1.15;
-}
+     * WYSIWYG: em DUAS_VIAS_A4 o editor já representa uma via
+     * real de 210 x 148,5mm. Portanto o bloco institucional NÃO
+     * pode ser reduzido novamente no PDF.
+     */
+    .phanyx-conteudo-compacto
+      .phanyx-bloco-assinatura {
+      width: 78mm;
+      min-height: 36mm;
+      margin-top: 5mm;
+      font-size: 9pt;
+      line-height: 1.25;
+    }
 
-.phanyx-conteudo-compacto
-  .phanyx-assinatura-imagem {
-  width: 42mm;
-  min-height: 12mm;
-  margin-top: 0;
-}
+    .phanyx-conteudo-compacto
+      .phanyx-assinatura-imagem-bloco {
+      width: 48mm;
+      height: 16mm;
+      min-height: 16mm;
+      margin: 0;
+    }
 
-.phanyx-conteudo-compacto
-  .phanyx-assinatura-imagem img {
-  width: 42mm;
-  height: 12mm;
-}
+    .phanyx-conteudo-compacto
+      .phanyx-assinatura-imagem-bloco img {
+      width: 48mm;
+      height: 16mm;
+    }
 
-.phanyx-conteudo-compacto
-  .phanyx-linha-assinatura {
-  width: 60mm;
-  margin-top: -0.5mm;
-  margin-bottom: 1mm;
-}
+    .phanyx-conteudo-compacto
+      .phanyx-linha-assinatura {
+      width: 72mm;
+      margin-top: -1mm;
+      margin-bottom: 1.5mm;
+    }
 
 /* =========================================================
    BLOCO VISUAL DA ASSINATURA
@@ -1339,11 +1361,6 @@ function cssCompartilhado(
 
   overflow: visible;
   text-align: center;
-  vertical-align: top;
-  font-size: 9pt;
-  line-height: 1.25;
-  break-inside: avoid;
-  page-break-inside: avoid;
 }
 
 
@@ -1454,41 +1471,44 @@ function cssCompartilhado(
 }
 
 /*
- * IMPORTANTE:
- *
- * Em DUAS_VIAS_A4 o editor já representa uma via
- * de 210 x 148,5 mm. Portanto o PDF NÃO pode
- * encolher o bloco de assinatura novamente.
- *
- * Mantemos exatamente as mesmas medidas do editor.
+ * Ajuste específico do bloco visual
+ * para documentos com duas vias.
  */
 .phanyx-conteudo-compacto
   .phanyx-bloco-assinatura-visual {
-  width: 78mm;
-  height: 36mm;
-  min-height: 36mm;
+  width: 64mm;
+  height: 29.54mm;
+  min-height: 29.54mm;
 
-  margin-top: 5mm;
+  margin-top: 2mm;
   margin-bottom: 0;
-
-  font-size: 9pt;
-  line-height: 1.25;
 }
 
+
+/*
+ * A área 480 × 150 do editor,
+ * reduzida proporcionalmente
+ * para o bloco compacto de 64mm.
+ */
 .phanyx-conteudo-compacto
   .phanyx-bloco-assinatura-visual
   .phanyx-area-assinatura-visual {
-  width: 78mm;
-  height: 24.375mm;
+  width: 64mm;
+  height: 20mm;
 }
 
+
+/*
+ * Identificação abaixo da linha
+ * no bloco compacto.
+ */
 .phanyx-conteudo-compacto
   .phanyx-bloco-assinatura-visual
   .phanyx-identificacao-assinatura {
-  top: 16.25mm;
+  top: 13.3333mm;
 
-  font-size: 9pt;
-  line-height: 1.25;
+  font-size: 7pt;
+  line-height: 1.15;
 }
 
 /*
