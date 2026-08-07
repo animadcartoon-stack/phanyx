@@ -401,25 +401,27 @@ function criarImagemAssinatura({
     dentroDoBloco &&
     campo
   ) {
-    const esquerda = percentual(
-      campo.x,
-      LARGURA_AREA_ASSINATURA_PX
-    );
+    /*
+     * O editor de posicionamento usa uma área de 480 x 150 px,
+     * mas a linha-guia ocupa x=40..440 (400 px) e y=92 px.
+     * O bloco final usa uma linha real de 72 mm centralizada
+     * dentro de 78 mm (x=3..75 mm).
+     *
+     * Portanto projetamos o campo sobre A LINHA, e não sobre
+     * toda a largura do bloco. Isso faz a assinatura configurada
+     * no quadro azul cair exatamente sobre a mesma linha no PDF.
+     */
+    const escalaX = 72 / 400;
+    const esquerdaMm =
+      3 + (campo.x - 40) * escalaX;
+    const larguraMm =
+      Math.max(0.2, campo.largura * escalaX);
 
-    const topo = percentual(
-      campo.y,
-      ALTURA_AREA_ASSINATURA_PX
-    );
-
-    const largura = percentual(
-      campo.largura,
-      LARGURA_AREA_ASSINATURA_PX
-    );
-
-    const altura = percentual(
-      campo.altura,
-      ALTURA_AREA_ASSINATURA_PX
-    );
+    const escalaY = 15 / 92;
+    const topoMm =
+      Math.max(0, campo.y) * escalaY;
+    const alturaMm =
+      Math.max(0.2, campo.altura * escalaY);
 
     return `
       <span
@@ -428,10 +430,10 @@ function criarImagemAssinatura({
           phanyx-assinatura-imagem-posicionada
         "
         style="
-          left: ${esquerda}%;
-          top: ${topo}%;
-          width: ${largura}%;
-          height: ${altura}%;
+          left: ${esquerdaMm}mm;
+          top: ${topoMm}mm;
+          width: ${larguraMm}mm;
+          height: ${alturaMm}mm;
         "
       >
         <img
@@ -1432,6 +1434,7 @@ function cssCompartilhado(
 
   width: 100%;
   height: 100%;
+  max-width: none;
 
   object-fit: contain;
   object-position: center;
@@ -1451,12 +1454,12 @@ function cssCompartilhado(
   .phanyx-linha-assinatura {
   position: absolute;
 
-  top: 61.3333%;
+  top: 15mm;
 
-  left: 8.3333%;
-  right: 8.3333%;
+  left: 3mm;
+  right: auto;
 
-  width: auto;
+  width: 72mm;
 
   margin: 0;
 
@@ -1475,7 +1478,7 @@ function cssCompartilhado(
   .phanyx-identificacao-assinatura {
   position: absolute;
 
-  top: 16.25mm;
+  top: 16.5mm;
 
   left: 8.3333%;
   right: 8.3333%;
@@ -1540,7 +1543,7 @@ function cssCompartilhado(
 .phanyx-conteudo-compacto
   .phanyx-bloco-assinatura-visual
   .phanyx-identificacao-assinatura {
-  top: 16.25mm;
+  top: 16.5mm;
 
   font-size: 9pt;
   line-height: 1.25;

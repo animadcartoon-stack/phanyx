@@ -3461,6 +3461,9 @@ function AdminDocumentosTemplatesPage() {
                             configInstituicao
                               ?.cnpj
                           }
+                          camposVisuais={
+                            camposVisuais
+                          }
                         />
 
                       </div>
@@ -3593,6 +3596,9 @@ Documento emitido em {{dataAtual}} por {{nomeInstituicao}}.
                       cnpjInstituicao={
                         configInstituicao
                           ?.cnpj
+                      }
+                      camposVisuais={
+                        camposVisuais
                       }
                     />
 

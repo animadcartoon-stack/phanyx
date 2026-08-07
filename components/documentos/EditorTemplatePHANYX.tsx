@@ -133,12 +133,23 @@ const LineHeight = Extension.create({
   },
 });
 
+type CampoVisualAssinaturaPreview = {
+  id: string;
+  tipo: "ASSINATURA_DIRETOR";
+  x: number;
+  y: number;
+  largura: number;
+  altura: number;
+  pagina: number;
+};
+
 type DadosAssinaturaPreview = {
   assinaturaUrl?: string | null;
   responsavelNome?: string | null;
   responsavelCargo?: string | null;
   nomeInstituicao?: string | null;
   cnpjInstituicao?: string | null;
+  campoVisual?: CampoVisualAssinaturaPreview | null;
 };
 
 type TipoAssinaturaPreview =
@@ -306,7 +317,6 @@ function criarBotaoRemoverAssinatura(
   dados: DadosAssinaturaPreview,
   aoRemover: () => void
 ) {
-
   const container =
     document.createElement("span");
 
@@ -338,12 +348,12 @@ function criarBotaoRemoverAssinatura(
     borderRadius: "4px",
   });
 
-  const imagem =
-    criarImagemAssinaturaPreview(
-      dados.assinaturaUrl
-    );
-
   if (tipo === "IMAGEM") {
+    const imagem =
+      criarImagemAssinaturaPreview(
+        dados.assinaturaUrl
+      );
+
     aplicarEstilos(container, {
       display: "inline-flex",
       width: "58mm",
@@ -354,10 +364,7 @@ function criarBotaoRemoverAssinatura(
         "flex-start",
     });
 
-    container.appendChild(
-      imagem
-    );
-
+    container.appendChild(imagem);
     container.appendChild(
       criarBotaoRemoverAssinatura(
         tipo,
@@ -368,87 +375,200 @@ function criarBotaoRemoverAssinatura(
     return container;
   }
 
+  /*
+   * BLOCO COMPLETO — mesma geometria do PDF.
+   *
+   * A área de configuração possui 480 x 150 px.
+   * A linha-guia dessa área começa em x=40 px, tem
+   * 400 px e cruza y=92 px.
+   *
+   * No bloco impresso, a linha tem 72 mm e fica
+   * centralizada dentro de 78 mm. Assim, x/y/largura/
+   * altura configurados pelo usuário são projetados
+   * sobre a MESMA linha que aparece no bloco final.
+   */
   aplicarEstilos(container, {
-    display: "inline-flex",
+    display: "inline-block",
     width: "78mm",
+    height: "36mm",
     minHeight: "36mm",
     marginTop: "5mm",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent:
-      "flex-start",
     fontSize: "9pt",
     lineHeight: "1.25",
     textAlign: "center",
+    overflow: "visible",
   });
+
+  const areaVisual =
+    document.createElement("span");
+
+  aplicarEstilos(areaVisual, {
+    position: "absolute",
+    top: "0",
+    left: "0",
+    width: "78mm",
+    height: "24.375mm",
+  });
+
+  const campo =
+    dados.campoVisual || {
+      id: "assinatura-diretor-padrao",
+      tipo: "ASSINATURA_DIRETOR" as const,
+      x: 70,
+      y: 18,
+      largura: 180,
+      altura: 55,
+      pagina: 1,
+    };
+
+  /* 40..440 px da linha-guia => 3..75 mm da linha final. */
+  const escalaX = 72 / 400;
+  const esquerdaMm =
+    3 + (Number(campo.x) - 40) * escalaX;
+  const larguraMm =
+    Math.max(0.2, Number(campo.largura) * escalaX);
+
+  /* y=92 px da guia => y=15 mm da linha final. */
+  const escalaY = 15 / 92;
+  const topoMm =
+    Math.max(0, Number(campo.y)) * escalaY;
+  const alturaMm =
+    Math.max(0.2, Number(campo.altura) * escalaY);
+
+  const caixaImagem =
+    document.createElement("span");
+
+  aplicarEstilos(caixaImagem, {
+    position: "absolute",
+    zIndex: "2",
+    display: "block",
+    left: `${esquerdaMm}mm`,
+    top: `${topoMm}mm`,
+    width: `${larguraMm}mm`,
+    height: `${alturaMm}mm`,
+    minHeight: "0",
+    margin: "0",
+    overflow: "hidden",
+  });
+
+  const placeholder =
+    document.createElement("span");
+  placeholder.textContent =
+    "Assinatura do diretor";
+
+  aplicarEstilos(placeholder, {
+    display: dados.assinaturaUrl
+      ? "none"
+      : "flex",
+    width: "100%",
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    border: "1px dashed #64748b",
+    color: "#475569",
+    fontSize: "7pt",
+    lineHeight: "1.1",
+    textAlign: "center",
+    backgroundColor: "#f8fafc",
+  });
+
+  caixaImagem.appendChild(placeholder);
+
+  if (dados.assinaturaUrl) {
+    const imagem =
+      document.createElement("img");
+
+    imagem.src = dados.assinaturaUrl;
+    imagem.alt = "Assinatura do diretor";
+
+    aplicarEstilos(imagem, {
+      display: "block",
+      width: "100%",
+      height: "100%",
+      objectFit: "contain",
+      objectPosition: "center",
+    });
+
+    imagem.addEventListener(
+      "error",
+      () => {
+        imagem.style.display = "none";
+        placeholder.style.display = "flex";
+      }
+    );
+
+    caixaImagem.appendChild(imagem);
+  }
 
   const linha =
     document.createElement("span");
 
   aplicarEstilos(linha, {
-    display: "block",
+    position: "absolute",
+    top: "15mm",
+    left: "3mm",
     width: "72mm",
-    marginTop: "-1mm",
-    marginBottom: "1.5mm",
+    height: "0",
+    margin: "0",
     borderTop:
       "1px solid #111827",
   });
 
+  areaVisual.appendChild(caixaImagem);
+  areaVisual.appendChild(linha);
+  container.appendChild(areaVisual);
+
+  const identificacao =
+    document.createElement("span");
+
+  aplicarEstilos(identificacao, {
+    position: "absolute",
+    top: "16.5mm",
+    left: "3mm",
+    width: "72mm",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    margin: "0",
+    padding: "0",
+    color: "#111827",
+    fontSize: "9pt",
+    lineHeight: "1.25",
+    textAlign: "center",
+    overflow: "visible",
+  });
+
   const nome =
     document.createElement("strong");
-
   nome.textContent =
     dados.responsavelNome ||
     "Responsável legal";
 
   const cargo =
     document.createElement("span");
-
   cargo.textContent =
     dados.responsavelCargo ||
     "Representante legal";
 
   const instituicao =
     document.createElement("span");
-
   instituicao.textContent =
     dados.nomeInstituicao ||
     "Instituição";
 
-  container.appendChild(
-    imagem
-  );
-
-  container.appendChild(
-    linha
-  );
-
-  container.appendChild(
-    nome
-  );
-
-  container.appendChild(
-    cargo
-  );
-
-  container.appendChild(
-    instituicao
-  );
+  identificacao.appendChild(nome);
+  identificacao.appendChild(cargo);
+  identificacao.appendChild(instituicao);
 
   if (dados.cnpjInstituicao) {
     const cnpj =
-      document.createElement(
-        "span"
-      );
-
+      document.createElement("span");
     cnpj.textContent =
       `CNPJ: ${dados.cnpjInstituicao}`;
-
-    container.appendChild(
-      cnpj
-    );
+    identificacao.appendChild(cnpj);
   }
 
+  container.appendChild(identificacao);
   container.appendChild(
     criarBotaoRemoverAssinatura(
       tipo,
@@ -471,6 +591,7 @@ const AssinaturaPreviewPHANYX =
         responsavelCargo: null,
         nomeInstituicao: null,
         cnpjInstituicao: null,
+        campoVisual: null,
       };
     },
 
@@ -873,6 +994,9 @@ type Props = {
 
   cnpjInstituicao?:
   string | null;
+
+  camposVisuais?:
+    CampoVisualAssinaturaPreview[] | null;
 };
 
 function conteudoParaHtmlSeguro(valor: string) {
@@ -949,6 +1073,9 @@ export default function EditorTemplatePHANYX({
 
   cnpjInstituicao =
   null,
+
+  camposVisuais =
+  [],
 }: Props) {
   const duasVias =
     formatoImpressao ===
@@ -973,6 +1100,26 @@ export default function EditorTemplatePHANYX({
     alturaPaginaMm -
     alturaCabecalhoMm -
     alturaRodapeMm;
+
+  const campoVisualAssinatura =
+    Array.isArray(camposVisuais)
+      ? camposVisuais.find(
+          (campo) =>
+            campo?.tipo ===
+            "ASSINATURA_DIRETOR"
+        ) || null
+      : null;
+
+  const chaveCampoVisualAssinatura =
+    campoVisualAssinatura
+      ? [
+          campoVisualAssinatura.x,
+          campoVisualAssinatura.y,
+          campoVisualAssinatura.largura,
+          campoVisualAssinatura.altura,
+        ].join("|")
+      : "sem-campo-visual";
+
   const [fonteAtual, setFonteAtual] = useState("");
   const [tamanhoAtual, setTamanhoAtual] = useState("");
 
@@ -1045,6 +1192,9 @@ export default function EditorTemplatePHANYX({
         nomeInstituicao,
 
         cnpjInstituicao,
+
+        campoVisual:
+          campoVisualAssinatura,
       }),
 
       Underline,
@@ -1085,6 +1235,46 @@ export default function EditorTemplatePHANYX({
     responsavelCargo,
     nomeInstituicao,
     cnpjInstituicao,
+  ]);
+
+  /*
+   * Atualiza somente a decoração visual da assinatura quando o
+   * usuário arrasta/redimensiona o campo, sem recriar o TipTap a
+   * cada mousemove.
+   */
+  useEffect(() => {
+    if (!editor) return;
+
+    const extensao =
+      editor.extensionManager.extensions.find(
+        (item) =>
+          item.name ===
+          "assinaturaPreviewPHANYX"
+      );
+
+    if (!extensao) return;
+
+    (
+      extensao.options as
+        DadosAssinaturaPreview
+    ).campoVisual =
+      campoVisualAssinatura;
+
+    const tr =
+      editor.state.tr.setMeta(
+        "phanyxAtualizarAssinaturaPreview",
+        chaveCampoVisualAssinatura
+      );
+
+    tr.setMeta(
+      "addToHistory",
+      false
+    );
+
+    editor.view.dispatch(tr);
+  }, [
+    editor,
+    chaveCampoVisualAssinatura,
   ]);
 
   useEffect(() => {
@@ -2248,17 +2438,10 @@ export default function EditorTemplatePHANYX({
 
               ...(duasVias
                 ? {
-                  height:
-                    `${alturaUtilPaginaMm}mm`,
-
-                  maxHeight:
-                    `${alturaUtilPaginaMm}mm`,
-
-                  overflow: "hidden",
-
-                  boxSizing:
-                    "border-box" as const,
-                }
+                    height:
+                      `${alturaUtilPaginaMm}mm`,
+                    overflow: "hidden",
+                  }
                 : {}),
             }}
           >
