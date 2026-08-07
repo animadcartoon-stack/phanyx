@@ -539,27 +539,45 @@ function criarBlocoAssinatura({
   campoVisual?: CampoVisualDocumento | null;
 }) {
   /*
-   * O bloco institucional é um componente FIXO do template.
-   * Ele deve reproduzir exatamente a representação exibida no
-   * EditorTemplatePHANYX: assinatura 48x16mm, linha 72mm e
-   * identificação institucional em 9pt.
+   * O bloco institucional continua tendo a geometria fixa do
+   * EditorTemplatePHANYX (78mm x 36mm), mas a IMAGEM da assinatura
+   * usa exatamente x/y/largura/altura salvos em camposVisuais.
    *
-   * O campo visual (x/y/largura/altura) pertence SOMENTE à tag
-   * {{assinaturaDiretor}}, que representa apenas a imagem.
-   * Ele não redimensiona {{blocoAssinaturaDiretor}}.
+   * A área de edição da assinatura mede 480px x 150px. Ela é
+   * projetada proporcionalmente sobre 78mm x 24,375mm no bloco.
+   * Assim o que for montado em "Área real da assinatura do diretor"
+   * é o que aparece sobre a linha no PDF.
    */
-  void campoVisual;
+  const campoNormalizado = campoVisual
+    ? obterCampoVisualAssinatura([campoVisual])
+    : null;
 
-  const imagem = criarImagemAssinaturaBloco({
+  const campoDoBloco: CampoVisualDocumento =
+    campoNormalizado || {
+      id: "assinatura-diretor-padrao",
+      tipo: "ASSINATURA_DIRETOR",
+      x: 70,
+      y: 18,
+      largura: 180,
+      altura: 55,
+      pagina: 1,
+    };
+
+  const imagem = criarImagemAssinatura({
     assinaturaUrl,
     modoPrevia,
+    campoVisual: campoDoBloco,
+    dentroDoBloco: true,
   });
 
   return `
-    <span class="phanyx-bloco-assinatura">
-      ${imagem}
-
-      <span class="phanyx-linha-assinatura"></span>
+    <span
+      class="phanyx-bloco-assinatura phanyx-bloco-assinatura-visual"
+    >
+      <span class="phanyx-area-assinatura-visual">
+        ${imagem}
+        <span class="phanyx-linha-assinatura"></span>
+      </span>
 
       <span class="phanyx-identificacao-assinatura">
         <strong>
@@ -1361,6 +1379,11 @@ function cssCompartilhado(
 
   overflow: visible;
   text-align: center;
+  vertical-align: top;
+  font-size: 9pt;
+  line-height: 1.25;
+  break-inside: avoid;
+  page-break-inside: avoid;
 }
 
 
@@ -1476,12 +1499,24 @@ function cssCompartilhado(
  */
 .phanyx-conteudo-compacto
   .phanyx-bloco-assinatura-visual {
-  width: 64mm;
-  height: 29.54mm;
-  min-height: 29.54mm;
+  /*
+   * O editor já representa uma via real de 210 x 148,5mm.
+   * Portanto NÃO reduzimos novamente o bloco no PDF de duas vias.
+   */
+  width: 78mm;
+  height: 36mm;
+  min-height: 36mm;
 
-  margin-top: 2mm;
+  /*
+   * No editor o bloco entra praticamente logo após o parágrafo.
+   * Os 5mm usados no bloco normal empurravam a identificação para
+   * dentro da área de validação e ela era cortada pelo overflow.
+   */
+  margin-top: 0;
   margin-bottom: 0;
+
+  font-size: 9pt;
+  line-height: 1.25;
 }
 
 
@@ -1493,8 +1528,8 @@ function cssCompartilhado(
 .phanyx-conteudo-compacto
   .phanyx-bloco-assinatura-visual
   .phanyx-area-assinatura-visual {
-  width: 64mm;
-  height: 20mm;
+  width: 78mm;
+  height: 24.375mm;
 }
 
 
@@ -1505,10 +1540,10 @@ function cssCompartilhado(
 .phanyx-conteudo-compacto
   .phanyx-bloco-assinatura-visual
   .phanyx-identificacao-assinatura {
-  top: 13.3333mm;
+  top: 16.25mm;
 
-  font-size: 7pt;
-  line-height: 1.15;
+  font-size: 9pt;
+  line-height: 1.25;
 }
 
 /*
