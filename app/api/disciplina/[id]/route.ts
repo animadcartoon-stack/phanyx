@@ -323,18 +323,18 @@ export async function PUT(
       );
     }
 
-if (
-  disciplinaExistente.disciplinaOrigemRedeId ||
-  disciplinaExistente.curso?.publicacaoRedeDestino
-) {
-  return NextResponse.json(
-    {
-      error:
-        "Não é permitido editar uma disciplina recebida da rede.",
-    },
-    { status: 403 }
-  );
-}
+    if (
+      disciplinaExistente.disciplinaOrigemRedeId ||
+      disciplinaExistente.curso?.publicacaoRedeDestino
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Não é permitido editar uma disciplina recebida da rede.",
+        },
+        { status: 403 }
+      );
+    }
 
     let cursoIdFinal: number | null | undefined = disciplinaExistente.cursoId;
 
@@ -426,445 +426,441 @@ if (
     const cursoIdAnterior =
       disciplinaExistente.cursoId;
 
+    const nomeFinal =
+      String(
+        body.nome ??
+        disciplinaExistente.nome
+      ).trim();
+
+    const codigoFinal =
+      body.codigo ?? null;
+
+    const descricaoFinal =
+      body.descricao ?? null;
+
+    const cargaHorariaFinal =
+      body.cargaHoraria !== null &&
+        body.cargaHoraria !== undefined &&
+        body.cargaHoraria !== ""
+        ? Number(body.cargaHoraria)
+        : null;
+
+    const semestreFinal =
+      body.semestre !== null &&
+        body.semestre !== undefined &&
+        body.semestre !== ""
+        ? Number(body.semestre)
+        : null;
+
+    /*
+     * Só precisa sincronizar a rede quando
+     * alguma informação acadêmica publicada
+     * para as unidades realmente mudou.
+     *
+     * Professor, professores habilitados,
+     * pré-requisitos e turmas são vínculos
+     * locais e não precisam republicar o curso.
+     */
+    const deveSincronizarRede =
+      nomeFinal !== disciplinaExistente.nome ||
+      codigoFinal !== disciplinaExistente.codigo ||
+      descricaoFinal !== disciplinaExistente.descricao ||
+      cargaHorariaFinal !== disciplinaExistente.cargaHoraria ||
+      semestreFinal !== disciplinaExistente.semestre ||
+      cursoIdFinal !== disciplinaExistente.cursoId;
+
     const resultadoSincronizacao =
-      await prisma.$transaction(
-        async (tx) => {
-          await tx.disciplina.update({
-            where: {
-              id,
-            },
+  await prisma.$transaction(
+    async (tx) => {
+      await tx.disciplina.update({
+        where: {
+          id,
+        },
+        data: {
+          nome: nomeFinal,
+          codigo: codigoFinal,
+          descricao: descricaoFinal,
+          cargaHoraria: cargaHorariaFinal,
+          semestre: semestreFinal,
+          cursoId: cursoIdFinal,
+          professorId: professorIdFinal,
+        },
+      });
 
-            data: {
-              nome: String(
-                body.nome ??
-                disciplinaExistente.nome
-              ).trim(),
+      await tx.professorDisciplina.deleteMany({
+        where: {
+          disciplinaId: id,
+          instituicaoId: user.instituicaoId,
+        },
+      });
 
-              codigo:
-                body.codigo ?? null,
+      await tx.disciplinaPreRequisito.deleteMany({
+        where: {
+          disciplinaId: id,
+          instituicaoId: user.instituicaoId,
+        },
+      });
 
-              descricao:
-                body.descricao ?? null,
+      if (preRequisitoIds.length > 0) {
+        await tx.disciplinaPreRequisito.createMany({
+          data: preRequisitoIds.map((preId: number) => ({
+            disciplinaId: id,
+            prerequisitoId: preId,
+            instituicaoId: user.instituicaoId,
+          })),
+          skipDuplicates: true,
+        });
+      }
 
-              cargaHoraria:
-                body.cargaHoraria !== null &&
-                  body.cargaHoraria !==
-                  undefined &&
-                  body.cargaHoraria !== ""
-                  ? Number(
-                    body.cargaHoraria
-                  )
-                  : null,
-
-              semestre:
-                body.semestre !== null &&
-                  body.semestre !==
-                  undefined &&
-                  body.semestre !== ""
-                  ? Number(
-                    body.semestre
-                  )
-                  : null,
-
-              cursoId:
-                cursoIdFinal,
-
-              professorId:
-                professorIdFinal,
-            },
-          });
-
-          await tx.professorDisciplina.deleteMany({
-            where: {
+      if (professoresHabilitadosIds.length > 0) {
+        await tx.professorDisciplina.createMany({
+          data: professoresHabilitadosIds.map(
+            (professorId: number) => ({
+              professorId,
               disciplinaId: id,
-              instituicaoId:
-                user.instituicaoId,
-            },
-          });
+              instituicaoId: user.instituicaoId,
+            })
+          ),
+          skipDuplicates: true,
+        });
+      }
 
-          await tx.disciplinaPreRequisito.deleteMany({
-            where: {
-              disciplinaId: id,
-              instituicaoId:
-                user.instituicaoId,
-            },
-          });
+      await tx.turmaDisciplina.deleteMany({
+        where: {
+          disciplinaId: id,
+          instituicaoId: user.instituicaoId,
+        },
+      });
 
-          if (preRequisitoIds.length > 0) {
-            await tx.disciplinaPreRequisito.createMany(
-              {
-                data: preRequisitoIds.map(
-                  (preId: number) => ({
-                    disciplinaId: id,
-                    prerequisitoId:
-                      preId,
-                    instituicaoId:
-                      user.instituicaoId,
-                  })
-                ),
+      if (turmaIds.length > 0) {
+        await tx.turmaDisciplina.createMany({
+          data: turmaIds.map((turmaId: number) => ({
+            turmaId,
+            disciplinaId: id,
+            professorId: professorIdFinal,
+            instituicaoId: user.instituicaoId,
+          })),
+          skipDuplicates: true,
+        });
+      }
 
-                skipDuplicates: true,
-              }
-            );
-          }
+      let unidadesAtualizadas = 0;
 
-          if (
-            professoresHabilitadosIds
-              .length > 0
-          ) {
-            await tx.professorDisciplina.createMany(
-              {
-                data:
-                  professoresHabilitadosIds.map(
-                    (
-                      professorId: number
-                    ) => ({
-                      professorId,
-                      disciplinaId: id,
-                      instituicaoId:
-                        user.instituicaoId,
-                    })
-                  ),
+      if (deveSincronizarRede) {
+        const cursoIdsParaSincronizar = Array.from(
+          new Set(
+            [cursoIdAnterior, cursoIdFinal].filter(
+              (cursoId): cursoId is number =>
+                typeof cursoId === "number" &&
+                Number.isInteger(cursoId) &&
+                cursoId > 0
+            )
+          )
+        );
 
-                skipDuplicates: true,
-              }
-            );
-          }
-
-          await tx.turmaDisciplina.deleteMany({
-            where: {
-              disciplinaId: id,
-              instituicaoId:
-                user.instituicaoId,
-            },
-          });
-
-          if (turmaIds.length > 0) {
-            await tx.turmaDisciplina.createMany({
-              data: turmaIds.map(
-                (turmaId: number) => ({
-                  turmaId,
-                  disciplinaId: id,
-                  professorId:
-                    professorIdFinal,
-                  instituicaoId:
-                    user.instituicaoId,
-                })
-              ),
-
-              skipDuplicates: true,
+        for (const cursoId of cursoIdsParaSincronizar) {
+          const publicacoes =
+            await sincronizarPublicacoesAtivasDoCurso({
+              tx,
+              cursoOrigemId: cursoId,
+              instituicaoOrigemId: user.instituicaoId,
+              atualizadoPorId: user.id,
             });
-          }
 
-          const cursoIdsParaSincronizar =
-            Array.from(
-              new Set(
-                [
-                  cursoIdAnterior,
-                  cursoIdFinal,
-                ].filter(
-                  (
-                    cursoId
-                  ): cursoId is number =>
-                    typeof cursoId ===
-                    "number" &&
-                    Number.isInteger(
-                      cursoId
-                    ) &&
-                    cursoId > 0
-                )
-              )
-            );
-
-          let unidadesAtualizadas = 0;
-
-          for (
-            const cursoId of
-            cursoIdsParaSincronizar
-          ) {
-            const publicacoes =
-              await sincronizarPublicacoesAtivasDoCurso(
-                {
-                  tx,
-
-                  cursoOrigemId:
-                    cursoId,
-
-                  instituicaoOrigemId:
-                    user.instituicaoId,
-
-                  atualizadoPorId:
-                    user.id,
-                }
-              );
-
-            unidadesAtualizadas +=
-              publicacoes.length;
-          }
-
-          return {
-            unidadesAtualizadas,
-          };
+          unidadesAtualizadas += publicacoes.length;
         }
-      );
+      }
 
-    const disciplinaAtualizada = await prisma.disciplina.findFirst({
-      where: {
-        id,
-        instituicaoId: user.instituicaoId,
-      },
-      include: {
-        curso: true,
-        professoresHabilitados: {
-          include: {
-            professor: {
-              select: {
-                id: true,
-                nome: true,
-              },
+      return {
+        unidadesAtualizadas,
+      };
+    },
+    {
+      maxWait: 10000,
+      timeout: 60000,
+    }
+  );
+
+const disciplinaAtualizada =
+  await prisma.disciplina.findFirst({
+    where: {
+      id,
+      instituicaoId: user.instituicaoId,
+    },
+    include: {
+      curso: true,
+
+      professoresHabilitados: {
+        include: {
+          professor: {
+            select: {
+              id: true,
+              nome: true,
             },
           },
         },
-        turmaDisciplinas: {
-          include: {
-            turma: true,
-          },
+      },
+
+      prerequisitosDaDisciplina: {
+        include: {
+          prerequisito: true,
         },
       },
-    });
 
-    return NextResponse.json({
-      ...disciplinaAtualizada!,
-
-      resumoSincronizacao: {
-        unidadesAtualizadas:
-          resultadoSincronizacao
-            .unidadesAtualizadas,
+      turmaDisciplinas: {
+        include: {
+          turma: true,
+        },
       },
-    });
+    },
+  });
+
+if (!disciplinaAtualizada) {
+  return NextResponse.json(
+    {
+      error:
+        "A disciplina foi atualizada, mas não pôde ser carregada novamente.",
+    },
+    { status: 404 }
+  );
+}
+
+return NextResponse.json({
+  ...disciplinaAtualizada,
+
+  resumoSincronizacao: {
+    unidadesAtualizadas:
+      resultadoSincronizacao.unidadesAtualizadas,
+  },
+});
   } catch (error: any) {
     console.error("ERRO API DISCIPLINA PUT:", error);
+
     return NextResponse.json(
-      { error: error.message || "Erro ao atualizar disciplina" },
+      {
+        error:
+          error?.message ||
+          "Erro ao atualizar disciplina",
+      },
       { status: 500 }
     );
   }
 }
 
 export async function DELETE(
-  _req: Request,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const user = await getUserFromToken();
+    _req: Request,
+    { params }: { params: { id: string } }
+  ) {
+    try {
+      const user = await getUserFromToken();
 
-    if (!user) {
-      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
-    }
+      if (!user) {
+        return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+      }
 
-    if (user.role !== "ADMIN") {
-      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
-    }
+      if (user.role !== "ADMIN") {
+        return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+      }
 
-    const id = Number(params.id);
+      const id = Number(params.id);
 
-    if (!Number.isFinite(id) || id <= 0) {
-      return NextResponse.json({ error: "ID inválido" }, { status: 400 });
-    }
+      if (!Number.isFinite(id) || id <= 0) {
+        return NextResponse.json({ error: "ID inválido" }, { status: 400 });
+      }
 
-    const disciplina = await prisma.disciplina.findFirst({
-      where: {
-        id,
-        instituicaoId: user.instituicaoId,
-      },
-      include: {
-  curso: {
-    select: {
-      publicacaoRedeDestino: {
-        select: {
-          id: true,
+      const disciplina = await prisma.disciplina.findFirst({
+        where: {
+          id,
+          instituicaoId: user.instituicaoId,
         },
-      },
-    },
-  },
-
-  turmaDisciplinas: {
-    select: {
-      id: true,
-    },
-  },
-},
-    });
-
-    if (!disciplina) {
-      return NextResponse.json(
-        { error: "Disciplina não encontrada" },
-        { status: 404 }
-      );
-    }
-
-    if (
-  disciplina.disciplinaOrigemRedeId !== null ||
-  disciplina.curso?.publicacaoRedeDestino
-) {
-  return NextResponse.json(
-    {
-      error:
-        "Não é permitido excluir uma disciplina recebida da rede.",
-    },
-    { status: 403 }
-  );
-}
-
-    const cursoIdOrigem =
-      disciplina.cursoId;
-
-    const possuiPublicacoesRede =
-      cursoIdOrigem
-        ? (await prisma.cursoPublicacaoRede.count({
-          where: {
-            cursoOrigemId:
-              cursoIdOrigem,
-          },
-        })) > 0
-        : false;
-
-    const resultadoExclusao =
-      await prisma.$transaction(
-        async (tx) => {
-          if (
-            disciplina.turmaDisciplinas
-              .length > 0
-          ) {
-            await tx.turmaDisciplina.deleteMany({
-              where: {
-                disciplinaId: id,
-                instituicaoId:
-                  user.instituicaoId,
+        include: {
+          curso: {
+            select: {
+              publicacaoRedeDestino: {
+                select: {
+                  id: true,
+                },
               },
-            });
-          }
+            },
+          },
 
-          /*
-           * Cursos publicados não podem perder
-           * definitivamente o registro de origem.
-           * A disciplina é desativada e removida
-           * da grade, preservando o vínculo.
-           */
-          if (
-            possuiPublicacoesRede &&
-            cursoIdOrigem
-          ) {
-            await tx.cursoSemestreDisciplina.deleteMany(
-              {
+          turmaDisciplinas: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      });
+
+      if (!disciplina) {
+        return NextResponse.json(
+          { error: "Disciplina não encontrada" },
+          { status: 404 }
+        );
+      }
+
+      if (
+        disciplina.disciplinaOrigemRedeId !== null ||
+        disciplina.curso?.publicacaoRedeDestino
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "Não é permitido excluir uma disciplina recebida da rede.",
+          },
+          { status: 403 }
+        );
+      }
+
+      const cursoIdOrigem =
+        disciplina.cursoId;
+
+      const possuiPublicacoesRede =
+        cursoIdOrigem
+          ? (await prisma.cursoPublicacaoRede.count({
+            where: {
+              cursoOrigemId:
+                cursoIdOrigem,
+            },
+          })) > 0
+          : false;
+
+      const resultadoExclusao =
+        await prisma.$transaction(
+          async (tx) => {
+            if (
+              disciplina.turmaDisciplinas
+                .length > 0
+            ) {
+              await tx.turmaDisciplina.deleteMany({
                 where: {
                   disciplinaId: id,
                   instituicaoId:
                     user.instituicaoId,
                 },
-              }
-            );
+              });
+            }
 
-            await tx.professorDisciplina.deleteMany({
-              where: {
-                disciplinaId: id,
-                instituicaoId:
-                  user.instituicaoId,
-              },
-            });
-
-            await tx.disciplinaPreRequisito.deleteMany(
-              {
-                where: {
-                  instituicaoId:
-                    user.instituicaoId,
-
-                  OR: [
-                    {
-                      disciplinaId:
-                        id,
-                    },
-                    {
-                      prerequisitoId:
-                        id,
-                    },
-                  ],
-                },
-              }
-            );
-
-            await tx.disciplina.update({
-              where: {
-                id,
-              },
-
-              data: {
-                ativo: false,
-                cursoId: null,
-                professorId: null,
-              },
-            });
-
-            const publicacoes =
-              await sincronizarPublicacoesAtivasDoCurso(
+            /*
+             * Cursos publicados não podem perder
+             * definitivamente o registro de origem.
+             * A disciplina é desativada e removida
+             * da grade, preservando o vínculo.
+             */
+            if (
+              possuiPublicacoesRede &&
+              cursoIdOrigem
+            ) {
+              await tx.cursoSemestreDisciplina.deleteMany(
                 {
-                  tx,
-
-                  cursoOrigemId:
-                    cursoIdOrigem,
-
-                  instituicaoOrigemId:
-                    user.instituicaoId,
-
-                  atualizadoPorId:
-                    user.id,
+                  where: {
+                    disciplinaId: id,
+                    instituicaoId:
+                      user.instituicaoId,
+                  },
                 }
               );
 
+              await tx.professorDisciplina.deleteMany({
+                where: {
+                  disciplinaId: id,
+                  instituicaoId:
+                    user.instituicaoId,
+                },
+              });
+
+              await tx.disciplinaPreRequisito.deleteMany(
+                {
+                  where: {
+                    instituicaoId:
+                      user.instituicaoId,
+
+                    OR: [
+                      {
+                        disciplinaId:
+                          id,
+                      },
+                      {
+                        prerequisitoId:
+                          id,
+                      },
+                    ],
+                  },
+                }
+              );
+
+              await tx.disciplina.update({
+                where: {
+                  id,
+                },
+
+                data: {
+                  ativo: false,
+                  cursoId: null,
+                  professorId: null,
+                },
+              });
+
+              const publicacoes =
+                await sincronizarPublicacoesAtivasDoCurso(
+                  {
+                    tx,
+
+                    cursoOrigemId:
+                      cursoIdOrigem,
+
+                    instituicaoOrigemId:
+                      user.instituicaoId,
+
+                    atualizadoPorId:
+                      user.id,
+                  }
+                );
+
+              return {
+                arquivada: true,
+                unidadesAtualizadas:
+                  publicacoes.length,
+              };
+            }
+
+            await tx.disciplina.delete({
+              where: {
+                id,
+              },
+            });
+
             return {
-              arquivada: true,
-              unidadesAtualizadas:
-                publicacoes.length,
+              arquivada: false,
+              unidadesAtualizadas: 0,
             };
           }
+        );
+      return NextResponse.json({
+        ok: true,
 
-          await tx.disciplina.delete({
-            where: {
-              id,
-            },
-          });
+        arquivada:
+          resultadoExclusao.arquivada,
 
-          return {
-            arquivada: false,
-            unidadesAtualizadas: 0,
-          };
-        }
+        mensagem:
+          resultadoExclusao.arquivada
+            ? "A disciplina foi retirada do curso e desativada. O histórico e os vínculos de publicação foram preservados."
+            : "Disciplina excluída com sucesso.",
+
+        resumoSincronizacao: {
+          unidadesAtualizadas:
+            resultadoExclusao
+              .unidadesAtualizadas,
+        },
+      });
+    } catch (error: any) {
+      console.error("ERRO API DISCIPLINA DELETE:", error);
+
+      return NextResponse.json(
+        {
+          error: error?.message || "Erro ao excluir disciplina",
+        },
+        { status: 500 }
       );
-    return NextResponse.json({
-      ok: true,
-
-      arquivada:
-        resultadoExclusao.arquivada,
-
-      mensagem:
-        resultadoExclusao.arquivada
-          ? "A disciplina foi retirada do curso e desativada. O histórico e os vínculos de publicação foram preservados."
-          : "Disciplina excluída com sucesso.",
-
-      resumoSincronizacao: {
-        unidadesAtualizadas:
-          resultadoExclusao
-            .unidadesAtualizadas,
-      },
-    });
-  } catch (error: any) {
-    console.error("ERRO API DISCIPLINA DELETE:", error);
-
-    return NextResponse.json(
-      {
-        error: error?.message || "Erro ao excluir disciplina",
-      },
-      { status: 500 }
-    );
+    }
   }
-}

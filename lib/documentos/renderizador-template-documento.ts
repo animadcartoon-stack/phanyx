@@ -1574,7 +1574,7 @@ function cssCompartilhado(
 .phanyx-conteudo-compacto
   .phanyx-bloco-assinatura-visual
   .phanyx-assinatura-imagem-posicionada {
-  transform: translateY(-3.5mm);
+  transform: translateY(-6.5mm);
   transform-origin: top center;
 }
 

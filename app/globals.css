@@ -18748,17 +18748,35 @@ html:not(.dark)
   }
 
   /* Subcards internos das metas */
-  html[data-theme="light"]
-    body
-    .phanyx-metas-comerciais-page
-    .phanyx-meta-card
-    div.rounded-2xl {
-    background: #f8fafc !important;
-    background-color: #f8fafc !important;
-    background-image: none !important;
-    border-color: #e2e8f0 !important;
-    color: #0f172a !important;
-  }
+html[data-theme="light"]
+  body
+  .phanyx-metas-comerciais-page
+  .phanyx-meta-card
+  div.rounded-2xl,
+html[data-theme="light"]
+  body
+  .phanyx-metas-comerciais-page
+  .phanyx-meta-card
+  div.rounded-xl {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  background-image: none !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+/* METAS COMERCIAIS — ACOMPANHAMENTO / TEMA CLARO */
+html[data-theme="light"]
+  body
+  .phanyx-metas-comerciais-page
+  .phanyx-meta-card
+  div.rounded-2xl
+  > div.mt-4
+  span {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+  opacity: 1 !important;
+}
 
   /* Cabeçalho e rodapé dos modais */
   html[data-theme="light"]
