@@ -1384,9 +1384,15 @@ function cssCompartilhado(
   position: relative;
   display: inline-block;
 
+  /*
+   * Mesma proporção da área visual:
+   * 480px × 150px = proporção 3.2
+   *
+   * 78mm ÷ 3.2 = 24.375mm
+   */
   width: 78mm;
-  height: 36mm;
-  min-height: 36mm;
+  height: 24.375mm;
+  min-height: 24.375mm;
 
   margin-top: 5mm;
   margin-bottom: 0;
@@ -1474,9 +1480,9 @@ function cssCompartilhado(
 
   color: #111827;
 
-  font-size: 7pt;
+  font-size: 6pt;
 
-  line-height: 1.05;
+  line-height: 1;
 
   text-align: center;
 
