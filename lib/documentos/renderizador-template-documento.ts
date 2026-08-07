@@ -141,9 +141,7 @@ function obterCampoVisualAssinatura(
     CampoVisualDocumento[] | null
 ) {
   if (
-    !Array.isArray(
-      camposVisuais
-    )
+    !Array.isArray(camposVisuais)
   ) {
     return null;
   }
@@ -159,58 +157,46 @@ function obterCampoVisualAssinatura(
     return null;
   }
 
-  const x =
-    limitarNumero(
-      campo.x,
-      0,
-      LARGURA_AREA_ASSINATURA_PX,
-      70
-    );
-
-  const y =
-    limitarNumero(
-      campo.y,
-      0,
-      ALTURA_AREA_ASSINATURA_PX,
-      18
-    );
-
-  const larguraMaxima =
-    Math.max(
-      1,
-      LARGURA_AREA_ASSINATURA_PX -
-      x
-    );
-
-  const alturaMaxima =
-    Math.max(
-      1,
-      ALTURA_AREA_ASSINATURA_PX -
-      y
-    );
+  /*
+   * IMPORTANTE:
+   *
+   * O editor visual já salva x, y,
+   * largura e altura na área real
+   * de 480 x 150 px.
+   *
+   * O PDF não deve redimensionar,
+   * limitar ou reposicionar esses
+   * valores depois que foram salvos.
+   */
+  const x = Number(campo.x);
+  const y = Number(campo.y);
+  const largura =
+    Number(campo.largura);
+  const altura =
+    Number(campo.altura);
 
   return {
     ...campo,
 
-    x,
+    x:
+      Number.isFinite(x)
+        ? Math.max(0, x)
+        : 70,
 
-    y,
+    y:
+      Number.isFinite(y)
+        ? Math.max(0, y)
+        : 18,
 
     largura:
-      limitarNumero(
-        campo.largura,
-        1,
-        larguraMaxima,
-        180
-      ),
+      Number.isFinite(largura)
+        ? Math.max(1, largura)
+        : 180,
 
     altura:
-      limitarNumero(
-        campo.altura,
-        1,
-        alturaMaxima,
-        55
-      ),
+      Number.isFinite(altura)
+        ? Math.max(1, altura)
+        : 55,
   };
 }
 
