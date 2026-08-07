@@ -82,6 +82,15 @@ type MetaComercial = {
   periodicidade: PeriodicidadeMeta;
   status: StatusMeta;
   valorAlvo: number;
+  valorRealizado?: number;
+  valorRestante?: number;
+  percentualAtingido?: number;
+  atingida?: boolean;
+  unidadeMeta?: "QUANTIDADE" | "VALOR";
+  matriculasConsideradas?: number;
+  pagamentosConsiderados?: number;
+  membrosEquipeConsiderados?: number;
+  apuradoEm?: string | null;
   dataInicio: string;
   dataFim: string;
   equipeId?: number | null;
@@ -328,6 +337,46 @@ function valorMetaFormatado(meta: MetaComercial) {
   }
 
   return formatarNumero(meta.valorAlvo);
+}
+
+function valorApuracaoFormatado(
+  meta: MetaComercial,
+  valor: number | undefined
+) {
+  const numero = Number(valor ?? 0);
+
+  if (
+    meta.indicador === "VALOR_VENDIDO" ||
+    meta.indicador === "VALOR_RECEBIDO"
+  ) {
+    return formatarMoeda(numero);
+  }
+
+  return formatarNumero(numero);
+}
+
+function formatarPercentual(
+  valor: number | undefined
+) {
+  return new Intl.NumberFormat("pt-BR", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(Number(valor ?? 0));
+}
+
+function larguraBarraProgresso(
+  valor: number | undefined
+) {
+  const percentual = Number(valor ?? 0);
+
+  if (!Number.isFinite(percentual)) {
+    return 0;
+  }
+
+  return Math.min(
+    Math.max(percentual, 0),
+    100
+  );
 }
 
 function normalizarValorAlvo(valor: string) {
@@ -1064,6 +1113,112 @@ export default function MetasComerciaisPage() {
                   </div>
                 </div>
 
+                                <div className="mt-5 rounded-2xl border border-slate-200 !bg-slate-50 p-4 dark:border-slate-700 dark:!bg-slate-950">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-wide !text-slate-500 dark:!text-slate-400">
+                        Acompanhamento da meta
+                      </p>
+
+                      <p className="mt-1 text-xs !text-slate-500 dark:!text-slate-400">
+                        Resultado calculado automaticamente pelos dados do PHANYX.
+                      </p>
+                    </div>
+
+                    {meta.atingida && (
+                      <span className="rounded-full border border-emerald-700 !bg-emerald-700 px-3 py-1 text-xs font-black !text-white">
+                        Meta atingida
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                    <div className="rounded-xl border border-slate-200 !bg-white p-3 dark:border-slate-700 dark:!bg-slate-900">
+                      <p className="text-[11px] font-bold uppercase tracking-wide !text-slate-500 dark:!text-slate-400">
+                        Realizado
+                      </p>
+
+                      <p className="mt-1 text-lg font-black !text-slate-950 dark:!text-white">
+                        {valorApuracaoFormatado(
+                          meta,
+                          meta.valorRealizado
+                        )}
+                      </p>
+                    </div>
+
+                    <div className="rounded-xl border border-slate-200 !bg-white p-3 dark:border-slate-700 dark:!bg-slate-900">
+                      <p className="text-[11px] font-bold uppercase tracking-wide !text-slate-500 dark:!text-slate-400">
+                        Restante
+                      </p>
+
+                      <p className="mt-1 text-lg font-black !text-slate-950 dark:!text-white">
+                        {valorApuracaoFormatado(
+                          meta,
+                          meta.valorRestante
+                        )}
+                      </p>
+                    </div>
+
+                    <div className="rounded-xl border border-slate-200 !bg-white p-3 dark:border-slate-700 dark:!bg-slate-900">
+                      <p className="text-[11px] font-bold uppercase tracking-wide !text-slate-500 dark:!text-slate-400">
+                        Progresso
+                      </p>
+
+                      <p className="mt-1 text-lg font-black !text-slate-950 dark:!text-white">
+                        {formatarPercentual(
+                          meta.percentualAtingido
+                        )}
+                        %
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4">
+                    <div className="mb-2 flex items-center justify-between gap-3 text-xs font-bold">
+                      <span className="!text-slate-600 dark:!text-slate-300">
+                        Progresso da meta
+                      </span>
+
+                      <span className="!text-slate-900 dark:!text-white">
+                        {formatarPercentual(
+                          meta.percentualAtingido
+                        )}
+                        %
+                      </span>
+                    </div>
+
+                    <div className="h-3 w-full overflow-hidden rounded-full !bg-slate-200 dark:!bg-slate-700">
+                      <div
+                        className={`h-full rounded-full transition-all duration-500 ${
+                          meta.atingida
+                            ? "!bg-emerald-600"
+                            : "!bg-blue-600"
+                        }`}
+                        style={{
+                          width: `${larguraBarraProgresso(
+                            meta.percentualAtingido
+                          )}%`,
+                        }}
+                      />
+                    </div>
+
+                    {meta.atingida && (
+                      <p className="mt-2 text-xs font-black !text-emerald-700 dark:!text-emerald-300">
+                        ✓ Meta alcançada
+                        {Number(
+                          meta.percentualAtingido ?? 0
+                        ) > 100
+                          ? ` — ${formatarPercentual(
+                              Number(
+                                meta.percentualAtingido ?? 0
+                              ) - 100
+                            )}% acima do objetivo`
+                          : ""}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
                 <div className="mt-5 grid gap-3 sm:grid-cols-2">
                   <div className="rounded-2xl border border-slate-200 !bg-slate-50 p-4 dark:border-slate-700 dark:!bg-slate-950">
                     <p className="text-xs font-bold uppercase tracking-wide !text-slate-500 dark:!text-slate-400">
@@ -1471,8 +1626,8 @@ export default function MetasComerciaisPage() {
                     <div className="grid gap-3 sm:grid-cols-2">
                       <label
                         className={`cursor-pointer rounded-2xl border p-4 transition ${form.status === "RASCUNHO"
-                            ? "border-amber-600 !bg-amber-100 ring-1 ring-amber-300 dark:border-amber-700 dark:!bg-amber-950/30"
-                            : "border-slate-200 !bg-white dark:border-slate-700 dark:!bg-slate-950"
+                          ? "border-amber-600 !bg-amber-100 ring-1 ring-amber-300 dark:border-amber-700 dark:!bg-amber-950/30"
+                          : "border-slate-200 !bg-white dark:border-slate-700 dark:!bg-slate-950"
                           }`}
                       >
                         <input
@@ -1498,8 +1653,8 @@ export default function MetasComerciaisPage() {
 
                       <label
                         className={`cursor-pointer rounded-2xl border p-4 transition ${form.status === "ATIVA"
-                            ? "border-emerald-600 !bg-emerald-100 ring-1 ring-emerald-300 dark:border-emerald-700 dark:!bg-emerald-950/30"
-                            : "border-slate-200 !bg-white dark:border-slate-700 dark:!bg-slate-950"
+                          ? "border-emerald-600 !bg-emerald-100 ring-1 ring-emerald-300 dark:border-emerald-700 dark:!bg-emerald-950/30"
+                          : "border-slate-200 !bg-white dark:border-slate-700 dark:!bg-slate-950"
                           }`}
                       >
                         <input

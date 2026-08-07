@@ -582,26 +582,26 @@ function criarBlocoAssinatura({
       </span>
 
       <span class="phanyx-identificacao-assinatura">
-        <strong>
+        <strong class="phanyx-assinatura-texto phanyx-assinatura-nome">
           ${escaparHtml(
             instituicao.responsavelNome || "Responsável legal"
           )}
         </strong>
 
-        <span>
+        <span class="phanyx-assinatura-texto phanyx-assinatura-cargo">
           ${escaparHtml(
             instituicao.responsavelCargo || "Representante legal"
           )}
         </span>
 
-        <span>
+        <span class="phanyx-assinatura-texto phanyx-assinatura-instituicao">
           ${escaparHtml(instituicao.nome)}
         </span>
 
         ${
           instituicao.cnpj
             ? `
-              <span>
+              <span class="phanyx-assinatura-texto phanyx-assinatura-cnpj">
                 CNPJ: ${escaparHtml(instituicao.cnpj)}
               </span>
             `
@@ -1477,23 +1477,63 @@ function cssCompartilhado(
 .phanyx-bloco-assinatura-visual
   .phanyx-identificacao-assinatura {
   position: absolute;
-
-  top: 16.5mm;
-
-  left: 8.3333%;
-  right: 8.3333%;
-
-  display: flex;
-
-  flex-direction: column;
-
-  align-items: center;
-
+  z-index: 3;
+  top: 0;
+  left: 0;
+  width: 78mm;
+  height: 31mm;
+  display: block !important;
+  margin: 0;
+  padding: 0;
   color: #111827;
-
   text-align: center;
-
   overflow: visible;
+  pointer-events: none;
+}
+
+/*
+ * As quatro linhas são posicionadas individualmente.
+ * Assim o Chromium não pode transformar a identificação em
+ * um flex alto que invade a área de validação.
+ */
+.phanyx-bloco-assinatura-visual
+  .phanyx-assinatura-texto {
+  position: absolute;
+  z-index: 3;
+  left: 3mm;
+  width: 72mm;
+  height: 3.2mm;
+  margin: 0 !important;
+  padding: 0 !important;
+  white-space: nowrap;
+  overflow: visible;
+  color: #111827;
+  font-size: 8.5pt;
+  font-weight: 400;
+  line-height: 3.2mm;
+  text-align: center;
+}
+
+.phanyx-bloco-assinatura-visual
+  .phanyx-assinatura-nome {
+  top: 16.0mm;
+  font-size: 8.8pt;
+  font-weight: 700;
+}
+
+.phanyx-bloco-assinatura-visual
+  .phanyx-assinatura-cargo {
+  top: 19.2mm;
+}
+
+.phanyx-bloco-assinatura-visual
+  .phanyx-assinatura-instituicao {
+  top: 22.4mm;
+}
+
+.phanyx-bloco-assinatura-visual
+  .phanyx-assinatura-cnpj {
+  top: 25.6mm;
 }
 
 /*
@@ -1543,10 +1583,11 @@ function cssCompartilhado(
 .phanyx-conteudo-compacto
   .phanyx-bloco-assinatura-visual
   .phanyx-identificacao-assinatura {
-  top: 16.5mm;
-
-  font-size: 9pt;
-  line-height: 1.25;
+  top: 0;
+  left: 0;
+  width: 78mm;
+  height: 31mm;
+  display: block !important;
 }
 
 /*

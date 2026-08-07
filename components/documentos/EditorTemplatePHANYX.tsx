@@ -523,19 +523,18 @@ function criarBotaoRemoverAssinatura(
 
   aplicarEstilos(identificacao, {
     position: "absolute",
-    top: "16.5mm",
-    left: "3mm",
-    width: "72mm",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
+    zIndex: "3",
+    top: "0",
+    left: "0",
+    width: "78mm",
+    height: "31mm",
+    display: "block",
     margin: "0",
     padding: "0",
     color: "#111827",
-    fontSize: "9pt",
-    lineHeight: "1.25",
     textAlign: "center",
     overflow: "visible",
+    pointerEvents: "none",
   });
 
   const nome =
@@ -556,6 +555,34 @@ function criarBotaoRemoverAssinatura(
     dados.nomeInstituicao ||
     "Instituição";
 
+  const estilizarLinhaIdentificacao = (
+    elemento: HTMLElement,
+    top: string,
+    negrito = false
+  ) => {
+    aplicarEstilos(elemento, {
+      position: "absolute",
+      zIndex: "3",
+      top,
+      left: "3mm",
+      width: "72mm",
+      height: "3.2mm",
+      margin: "0",
+      padding: "0",
+      whiteSpace: "nowrap",
+      overflow: "visible",
+      color: "#111827",
+      fontSize: negrito ? "8.8pt" : "8.5pt",
+      fontWeight: negrito ? "700" : "400",
+      lineHeight: "3.2mm",
+      textAlign: "center",
+    });
+  };
+
+  estilizarLinhaIdentificacao(nome, "16.0mm", true);
+  estilizarLinhaIdentificacao(cargo, "19.2mm");
+  estilizarLinhaIdentificacao(instituicao, "22.4mm");
+
   identificacao.appendChild(nome);
   identificacao.appendChild(cargo);
   identificacao.appendChild(instituicao);
@@ -565,6 +592,7 @@ function criarBotaoRemoverAssinatura(
       document.createElement("span");
     cnpj.textContent =
       `CNPJ: ${dados.cnpjInstituicao}`;
+    estilizarLinhaIdentificacao(cnpj, "25.6mm");
     identificacao.appendChild(cnpj);
   }
 

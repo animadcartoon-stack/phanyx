@@ -78,7 +78,7 @@ export default function SubstituicoesDocentesPage() {
 
   const [modalAberto, setModalAberto] = useState(false);
   const [substituicaoVisualizada, setSubstituicaoVisualizada] =
-  useState<SubstituicaoDocente | null>(null);
+    useState<SubstituicaoDocente | null>(null);
   const [feedback, setFeedback] = useState("");
   const [feedbackTipo, setFeedbackTipo] = useState<FeedbackTipo>("");
 
@@ -140,7 +140,7 @@ export default function SubstituicoesDocentesPage() {
     carregarDados();
   }, []);
 
-    const vinculosDoTitular = useMemo(() => {
+  const vinculosDoTitular = useMemo(() => {
     if (!professorTitularId) return [];
 
     return vinculosTitular.filter(
@@ -199,7 +199,7 @@ export default function SubstituicoesDocentesPage() {
     };
   }, [substituicoes]);
 
-    function limparFormulario() {
+  function limparFormulario() {
     setProfessorTitularId("");
     setProfessorSubstitutoId("");
     setVinculoSelecionadoId("");
@@ -273,43 +273,42 @@ export default function SubstituicoesDocentesPage() {
   }
 
   async function alterarStatusSubstituicao(
-  id: number,
-  acao: "ENCERRAR" | "SUSPENDER" | "REATIVAR" | "CANCELAR"
-) {
-  try {
-    setSalvando(true);
+    id: number,
+    acao: "ENCERRAR" | "SUSPENDER" | "REATIVAR" | "CANCELAR"
+  ) {
+    try {
+      setSalvando(true);
 
-    const res = await fetch("/api/admin/substituicoes-docentes", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ id, acao }),
-    });
+      const res = await fetch("/api/admin/substituicoes-docentes", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ id, acao }),
+      });
 
-    const json = await res.json();
+      const json = await res.json();
 
-    if (!res.ok) {
-      throw new Error(json?.error || "Erro ao atualizar substituição.");
+      if (!res.ok) {
+        throw new Error(json?.error || "Erro ao atualizar substituição.");
+      }
+
+      await carregarDados();
+      mostrarFeedback("sucesso", "Substituição atualizada com sucesso.");
+    } catch (e: any) {
+      mostrarFeedback("erro", e?.message || "Erro ao atualizar substituição.");
+    } finally {
+      setSalvando(false);
     }
-
-    await carregarDados();
-    mostrarFeedback("sucesso", "Substituição atualizada com sucesso.");
-  } catch (e: any) {
-    mostrarFeedback("erro", e?.message || "Erro ao atualizar substituição.");
-  } finally {
-    setSalvando(false);
   }
-}
 
   return (
     <main className="phanyx-substituicoes-page space-y-6 text-slate-900 dark:text-slate-100">
       {feedback && (
         <div
-          className={`rounded-2xl border px-4 py-3 text-sm font-semibold shadow-sm ${
-            feedbackTipo === "sucesso"
-              ? "border-green-200 bg-green-50 text-green-700 dark:border-green-900 dark:bg-green-950/40 dark:text-green-300"
-              : "border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300"
-          }`}
+          className={`rounded-2xl border px-4 py-3 text-sm font-semibold shadow-sm ${feedbackTipo === "sucesso"
+            ? "border-green-200 bg-green-50 text-green-700 dark:border-green-900 dark:bg-green-950/40 dark:text-green-300"
+            : "border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300"
+            }`}
         >
           {feedback}
         </div>
@@ -447,73 +446,73 @@ export default function SubstituicoesDocentesPage() {
                         {formatarData(item.dataFim)}
                       </td>
                       <td className="px-4 py-3">
-  <div className="flex flex-wrap gap-2">
-    <button
-      type="button"
-      onClick={() => setSubstituicaoVisualizada(item)}
-      className="rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-    >
-      Visualizar
-    </button>
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setSubstituicaoVisualizada(item)}
+                            className="rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                          >
+                            Visualizar
+                          </button>
 
-    {item.status === "ATIVA" && (
-      <>
-        <button
-          type="button"
-          onClick={() => alterarStatusSubstituicao(item.id, "SUSPENDER")}
-          disabled={salvando}
-          className="rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-800 transition hover:bg-amber-100 disabled:opacity-60"
-        >
-          Suspender
-        </button>
+                          {item.status === "ATIVA" && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => alterarStatusSubstituicao(item.id, "SUSPENDER")}
+                                disabled={salvando}
+                                className="rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-800 transition hover:bg-amber-100 disabled:opacity-60"
+                              >
+                                Suspender
+                              </button>
 
-        <button
-          type="button"
-          onClick={() => alterarStatusSubstituicao(item.id, "ENCERRAR")}
-          disabled={salvando}
-          className="rounded-xl border border-green-300 bg-green-50 px-3 py-2 text-xs font-bold text-green-800 transition hover:bg-green-100 disabled:opacity-60"
-        >
-          Encerrar
-        </button>
-      </>
-    )}
+                              <button
+                                type="button"
+                                onClick={() => alterarStatusSubstituicao(item.id, "ENCERRAR")}
+                                disabled={salvando}
+                                className="rounded-xl border border-green-300 bg-green-50 px-3 py-2 text-xs font-bold text-green-800 transition hover:bg-green-100 disabled:opacity-60"
+                              >
+                                Encerrar
+                              </button>
+                            </>
+                          )}
 
-    {item.status === "SUSPENSA" && (
-      <>
-        <button
-          type="button"
-          onClick={() => alterarStatusSubstituicao(item.id, "REATIVAR")}
-          disabled={salvando}
-          className="rounded-xl border border-blue-300 bg-blue-50 px-3 py-2 text-xs font-bold text-blue-800 transition hover:bg-blue-100 disabled:opacity-60"
-        >
-          Reativar
-        </button>
+                          {item.status === "SUSPENSA" && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => alterarStatusSubstituicao(item.id, "REATIVAR")}
+                                disabled={salvando}
+                                className="rounded-xl border border-blue-300 bg-blue-50 px-3 py-2 text-xs font-bold text-blue-800 transition hover:bg-blue-100 disabled:opacity-60"
+                              >
+                                Reativar
+                              </button>
 
-        <button
-          type="button"
-          onClick={() => alterarStatusSubstituicao(item.id, "ENCERRAR")}
-          disabled={salvando}
-          className="rounded-xl border border-green-300 bg-green-50 px-3 py-2 text-xs font-bold text-green-800 transition hover:bg-green-100 disabled:opacity-60"
-        >
-          Encerrar
-        </button>
-      </>
-    )}
+                              <button
+                                type="button"
+                                onClick={() => alterarStatusSubstituicao(item.id, "ENCERRAR")}
+                                disabled={salvando}
+                                className="rounded-xl border border-green-300 bg-green-50 px-3 py-2 text-xs font-bold text-green-800 transition hover:bg-green-100 disabled:opacity-60"
+                              >
+                                Encerrar
+                              </button>
+                            </>
+                          )}
 
-    {(item.status === "AGENDADA" ||
-      item.status === "ATIVA" ||
-      item.status === "SUSPENSA") && (
-      <button
-        type="button"
-        onClick={() => alterarStatusSubstituicao(item.id, "CANCELAR")}
-        disabled={salvando}
-        className="rounded-xl border border-red-300 bg-red-50 px-3 py-2 text-xs font-bold text-red-700 transition hover:bg-red-100 disabled:opacity-60"
-      >
-        Cancelar
-      </button>
-    )}
-  </div>
-</td>
+                          {(item.status === "AGENDADA" ||
+                            item.status === "ATIVA" ||
+                            item.status === "SUSPENSA") && (
+                              <button
+                                type="button"
+                                onClick={() => alterarStatusSubstituicao(item.id, "CANCELAR")}
+                                disabled={salvando}
+                                className="rounded-xl border border-red-300 bg-red-50 px-3 py-2 text-xs font-bold text-red-700 transition hover:bg-red-100 disabled:opacity-60"
+                              >
+                                Cancelar
+                              </button>
+                            )}
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -575,7 +574,7 @@ export default function SubstituicoesDocentesPage() {
               <button
                 type="button"
                 onClick={() => setModalAberto(false)}
-                className="rounded-full bg-slate-100 px-3 py-1 text-sm font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                className="phanyx-substituicoes-fechar rounded-full px-3 py-1 text-sm font-bold transition"
               >
                 Fechar
               </button>
@@ -593,54 +592,60 @@ export default function SubstituicoesDocentesPage() {
               </select>
 
               <select
-  required
-  value={vinculoSelecionadoId}
-  onChange={(e) => setVinculoSelecionadoId(e.target.value)}
-  className="rounded-2xl border p-3 dark:border-slate-700 dark:bg-slate-900 md:col-span-2"
->
-  <option value="">
-    Selecione uma turma e disciplina do professor titular
-  </option>
+                required
+                value={vinculoSelecionadoId}
+                onChange={(e) => setVinculoSelecionadoId(e.target.value)}
+                className="rounded-2xl border p-3 dark:border-slate-700 dark:bg-slate-900 md:col-span-2"
+              >
+                <option value="">
+                  Selecione uma turma e disciplina do professor titular
+                </option>
 
-  {vinculosDoTitular.map((v) => (
-    <option key={v.id} value={v.id}>
-      {v.turmaNome} • {v.disciplinaNome}
-    </option>
-  ))}
-</select>
+                {vinculosDoTitular.map((v) => (
+                  <option key={v.id} value={v.id}>
+                    {v.turmaNome} • {v.disciplinaNome}
+                  </option>
+                ))}
+              </select>
 
-{vinculoSelecionado && (
-  <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950/30 md:col-span-2">
-    <div className="grid gap-3 md:grid-cols-3">
-      <div>
-        <p className="text-xs font-bold uppercase text-slate-500">
-          Curso
-        </p>
-        <p className="font-semibold">
-          {vinculoSelecionado.cursoNome}
-        </p>
-      </div>
+              {vinculoSelecionado && (
+                <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950/30 md:col-span-2">
+                  <div className="grid gap-3 md:grid-cols-3">
+                    <div>
+                      <p className="text-xs font-bold uppercase text-slate-500">
+                        Curso
+                      </p>
+                      <p className="font-semibold">
+                        {vinculoSelecionado.cursoNome}
+                      </p>
+                    </div>
 
-      <div>
-        <p className="text-xs font-bold uppercase text-slate-500">
-          Turma
-        </p>
-        <p className="font-semibold">
-          {vinculoSelecionado.turmaNome}
-        </p>
-      </div>
+                    <div>
+                      <p className="text-xs font-bold uppercase text-slate-500">
+                        Turma
+                      </p>
+                      <p className="font-semibold">
+                        {vinculoSelecionado.turmaNome}
+                      </p>
+                    </div>
 
-      <div>
-        <p className="text-xs font-bold uppercase text-slate-500">
-          Disciplina
-        </p>
-        <p className="font-semibold">
-          {vinculoSelecionado.disciplinaNome}
-        </p>
-      </div>
-    </div>
-  </div>
-)}
+                    <div>
+                      <p className="text-xs font-bold uppercase text-slate-500">
+                        Disciplina
+                      </p>
+                      <p className="font-semibold">
+                        {vinculoSelecionado.disciplinaNome}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="md:col-span-2 mt-1">
+                <h3 className="text-sm font-black text-slate-900 dark:text-white">
+                  Período
+                </h3>
+              </div>
 
               <input required type="date" value={dataInicio} onChange={(e) => setDataInicio(e.target.value)} className="rounded-2xl border p-3 dark:border-slate-700 dark:bg-slate-900" />
 
@@ -665,118 +670,118 @@ export default function SubstituicoesDocentesPage() {
       )}
 
       {substituicaoVisualizada && (
-  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/70 p-4">
-    <div className="w-full max-w-4xl rounded-3xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-slate-800 dark:bg-slate-950 sm:p-6">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-blue-700 dark:text-blue-300">
-            Registro oficial
-          </p>
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/70 p-4">
+          <div className="w-full max-w-4xl rounded-3xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-slate-800 dark:bg-slate-950 sm:p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-blue-700 dark:text-blue-300">
+                  Registro oficial
+                </p>
 
-          <h2 className="mt-1 text-xl font-black text-slate-900 dark:text-white">
-            Substituição Docente
-          </h2>
+                <h2 className="mt-1 text-xl font-black text-slate-900 dark:text-white">
+                  Substituição Docente
+                </h2>
 
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            Detalhes da substituição cadastrada no PHANYX.
-          </p>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  Detalhes da substituição cadastrada no PHANYX.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setSubstituicaoVisualizada(null)}
+                className="phanyx-substituicoes-fechar rounded-full px-3 py-1 text-sm font-bold transition"
+              >
+                Fechar
+              </button>
+            </div>
+
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
+                <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
+                  Status
+                </p>
+                <p className="mt-1 text-lg font-black text-slate-900 dark:text-white">
+                  {substituicaoVisualizada.status}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
+                <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
+                  Período
+                </p>
+                <p className="mt-1 text-lg font-black text-slate-900 dark:text-white">
+                  {formatarData(substituicaoVisualizada.dataInicio)} até{" "}
+                  {formatarData(substituicaoVisualizada.dataFim)}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
+                <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
+                  Professor titular
+                </p>
+                <p className="mt-1 text-base font-black text-slate-900 dark:text-white">
+                  {substituicaoVisualizada.professorTitular?.nome || "-"}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
+                <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
+                  Professor substituto
+                </p>
+                <p className="mt-1 text-base font-black text-slate-900 dark:text-white">
+                  {substituicaoVisualizada.professorSubstituto?.nome || "-"}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
+                <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
+                  Curso
+                </p>
+                <p className="mt-1 text-base font-black text-slate-900 dark:text-white">
+                  {substituicaoVisualizada.curso?.nome || "-"}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
+                <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
+                  Turma
+                </p>
+                <p className="mt-1 text-base font-black text-slate-900 dark:text-white">
+                  {substituicaoVisualizada.turma?.nome || "-"}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900 md:col-span-2">
+                <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
+                  Disciplina
+                </p>
+                <p className="mt-1 text-base font-black text-slate-900 dark:text-white">
+                  {substituicaoVisualizada.disciplina?.nome || "-"}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900 md:col-span-2">
+                <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
+                  Motivo
+                </p>
+                <p className="mt-1 text-sm leading-6 text-slate-700 dark:text-slate-200">
+                  {substituicaoVisualizada.motivo || "-"}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900 md:col-span-2">
+                <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
+                  Observações
+                </p>
+                <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-slate-700 dark:text-slate-200">
+                  {substituicaoVisualizada.observacoes || "-"}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
-
-        <button
-          type="button"
-          onClick={() => setSubstituicaoVisualizada(null)}
-          className="rounded-full bg-slate-100 px-3 py-1 text-sm font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-200"
-        >
-          Fechar
-        </button>
-      </div>
-
-      <div className="mt-6 grid gap-4 md:grid-cols-2">
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
-          <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
-            Status
-          </p>
-          <p className="mt-1 text-lg font-black text-slate-900 dark:text-white">
-            {substituicaoVisualizada.status}
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
-          <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
-            Período
-          </p>
-          <p className="mt-1 text-lg font-black text-slate-900 dark:text-white">
-            {formatarData(substituicaoVisualizada.dataInicio)} até{" "}
-            {formatarData(substituicaoVisualizada.dataFim)}
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
-          <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
-            Professor titular
-          </p>
-          <p className="mt-1 text-base font-black text-slate-900 dark:text-white">
-            {substituicaoVisualizada.professorTitular?.nome || "-"}
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
-          <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
-            Professor substituto
-          </p>
-          <p className="mt-1 text-base font-black text-slate-900 dark:text-white">
-            {substituicaoVisualizada.professorSubstituto?.nome || "-"}
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
-          <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
-            Curso
-          </p>
-          <p className="mt-1 text-base font-black text-slate-900 dark:text-white">
-            {substituicaoVisualizada.curso?.nome || "-"}
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
-          <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
-            Turma
-          </p>
-          <p className="mt-1 text-base font-black text-slate-900 dark:text-white">
-            {substituicaoVisualizada.turma?.nome || "-"}
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900 md:col-span-2">
-          <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
-            Disciplina
-          </p>
-          <p className="mt-1 text-base font-black text-slate-900 dark:text-white">
-            {substituicaoVisualizada.disciplina?.nome || "-"}
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900 md:col-span-2">
-          <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
-            Motivo
-          </p>
-          <p className="mt-1 text-sm leading-6 text-slate-700 dark:text-slate-200">
-            {substituicaoVisualizada.motivo || "-"}
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900 md:col-span-2">
-          <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
-            Observações
-          </p>
-          <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-slate-700 dark:text-slate-200">
-            {substituicaoVisualizada.observacoes || "-"}
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
+      )}
 
     </main>
   );

@@ -20189,3 +20189,52 @@ html[data-theme="system"]
 
   opacity: 1 !important;
 }
+
+/* =========================================
+   SUBSTITUIÇÕES DOCENTES - BOTÃO FECHAR
+========================================= */
+
+html[data-theme="light"]
+  .phanyx-substituicoes-page
+  .phanyx-substituicoes-fechar {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-substituicoes-page
+  .phanyx-substituicoes-fechar:hover {
+  background: #e2e8f0 !important;
+  color: #020617 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-substituicoes-page
+  .phanyx-substituicoes-fechar {
+  background: #1e293b !important;
+  color: #f8fafc !important;
+  border: 1px solid #334155 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-substituicoes-page
+  .phanyx-substituicoes-fechar:hover {
+  background: #334155 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-substituicoes-page
+  .phanyx-substituicoes-fechar {
+  background: #3f3f46 !important;
+  color: #ffffff !important;
+  border: 1px solid #52525b !important;
+}
+
+html[data-theme="system"]
+  .phanyx-substituicoes-page
+  .phanyx-substituicoes-fechar:hover {
+  background: #52525b !important;
+  color: #ffffff !important;
+}

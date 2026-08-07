@@ -14,6 +14,7 @@ import {
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 import { usuarioPossuiPermissao } from "@/lib/server-permissions";
+import { apurarMetaComercial } from "@/lib/comercial/apurar-meta-comercial";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -928,12 +929,91 @@ export async function GET(
       }),
     ]);
 
+    const metasComApuracao =
+  await Promise.all(
+    metas.map(
+      async (meta) => {
+        const apuracao =
+          await apurarMetaComercial({
+            id: meta.id,
+
+            instituicaoId:
+              meta.instituicaoId,
+
+            equipeId:
+              meta.equipeId,
+
+            funcionarioId:
+              meta.funcionarioId,
+
+            cursoId:
+              meta.cursoId,
+
+            poloId:
+              meta.poloId,
+
+            escopo:
+              meta.escopo,
+
+            indicador:
+              meta.indicador,
+
+            valorAlvo:
+              meta.valorAlvo,
+
+            dataInicio:
+              meta.dataInicio,
+
+            dataFim:
+              meta.dataFim,
+          });
+
+        return {
+          ...serializarMeta(
+            meta
+          ),
+
+          valorRealizado:
+            apuracao
+              .valorRealizado,
+
+          valorRestante:
+            apuracao
+              .valorRestante,
+
+          percentualAtingido:
+            apuracao
+              .percentualAtingido,
+
+          atingida:
+            apuracao.atingida,
+
+          unidadeMeta:
+            apuracao.unidade,
+
+          matriculasConsideradas:
+            apuracao
+              .matriculasConsideradas,
+
+          pagamentosConsiderados:
+            apuracao
+              .pagamentosConsiderados,
+
+          membrosEquipeConsiderados:
+            apuracao
+              .membrosEquipeConsiderados,
+
+          apuradoEm:
+            apuracao.apuradoEm,
+        };
+      }
+    )
+  );
+
     return NextResponse.json(
       {
         metas:
-          metas.map(
-            serializarMeta
-          ),
+  metasComApuracao,
 
         total:
           metas.length,
