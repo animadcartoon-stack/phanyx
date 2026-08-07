@@ -20127,3 +20127,65 @@ html[data-theme="system"]
   .phanyx-reuniao-card-marcada p.text-blue-500 {
   color: #d4d4d4 !important;
 }
+
+/* =========================================================
+   PHANYX - MODAL DE EXCLUSÃO DE REUNIÃO
+   Botão Cancelar
+   ========================================================= */
+
+/* TEMA CLARO */
+html[data-theme="light"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-modal-cancelar {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border-color: #94a3b8 !important;
+
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-modal-cancelar:hover {
+  background: #f1f5f9 !important;
+  background-color: #f1f5f9 !important;
+
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+}
+
+
+/* TEMA ESCURO */
+html[data-theme="dark"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-modal-cancelar,
+html.dark
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-modal-cancelar {
+  background: #1e293b !important;
+  background-color: #1e293b !important;
+  border-color: #64748b !important;
+
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+
+  opacity: 1 !important;
+}
+
+
+/* TEMA SISTEMA */
+html[data-theme="system"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-modal-cancelar {
+  background: #3a3a3a !important;
+  background-color: #3a3a3a !important;
+  border-color: #737373 !important;
+
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+
+  opacity: 1 !important;
+}
