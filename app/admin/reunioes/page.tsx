@@ -561,7 +561,7 @@ export default function AdminReunioesPage() {
             {reunioes.map((reuniao) => (
               <div
                 key={reuniao.id}
-                className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950"
+                className="phanyx-reuniao-card-marcada rounded-2xl border p-4"
               >
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                   <div>

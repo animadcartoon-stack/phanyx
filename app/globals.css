@@ -20039,3 +20039,91 @@ html.dark:not([data-theme="system"]):not([data-theme="sistema"])
   color: #dbeafe !important;
   -webkit-text-fill-color: #dbeafe !important;
 }
+
+/* =========================================================
+   PHANYX - REUNIÕES MARCADAS
+   Card individual de reunião
+   ========================================================= */
+
+/* TEMA CLARO */
+html[data-theme="light"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-card-marcada {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-card-marcada h3 {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-card-marcada p {
+  color: #475569 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-card-marcada p.text-blue-500 {
+  color: #2563eb !important;
+}
+
+
+/* TEMA ESCURO */
+html[data-theme="dark"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-card-marcada {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-card-marcada h3 {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-card-marcada p {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-card-marcada p.text-blue-500 {
+  color: #93c5fd !important;
+}
+
+
+/* TEMA SISTEMA */
+html[data-theme="system"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-card-marcada {
+  background: #2f2f2f !important;
+  border-color: #525252 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-card-marcada h3 {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-card-marcada p {
+  color: #e5e5e5 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-admin-reunioes-page
+  .phanyx-reuniao-card-marcada p.text-blue-500 {
+  color: #d4d4d4 !important;
+}
