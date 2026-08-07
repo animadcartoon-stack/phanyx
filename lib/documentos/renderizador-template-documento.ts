@@ -1220,8 +1220,10 @@ function cssCompartilhado(
   object-fit: contain;
   object-position: left center;
   filter:
-    grayscale(1)
-    contrast(1.35);
+  grayscale(1)
+  contrast(2)
+  brightness(0.75)
+  saturate(0);
 }
 
     .phanyx-assinatura-placeholder {
@@ -1362,40 +1364,124 @@ function cssCompartilhado(
   margin-bottom: 1mm;
 }
 
+/*
+ * BLOCO VISUAL DA ASSINATURA
+ *
+ * IMPORTANTE:
+ * Mesmo em documentos de duas vias,
+ * este bloco conserva exatamente a mesma
+ * geometria usada pelo editor visual:
+ *
+ * 480px x 150px no editor
+ *      ↓
+ * 78mm x 36mm no PDF
+ *
+ * Assim x, y, largura e altura salvos pelo
+ * usuário representam a mesma posição.
+ */
 .phanyx-conteudo-compacto
   .phanyx-bloco-assinatura-visual {
-  width: 64mm;
+  position: relative;
+  display: inline-block;
+
+  width: 78mm;
   height: 36mm;
   min-height: 36mm;
-  margin-top: 1mm;
-  margin-bottom: 1mm;
+
+  margin-top: 5mm;
+  margin-bottom: 0;
+
   overflow: visible;
+  text-align: center;
+}
+
+/*
+ * A imagem já recebe left, top, width e height
+ * por style inline, calculados a partir do
+ * campo visual salvo.
+ */
+.phanyx-conteudo-compacto
+  .phanyx-bloco-assinatura-visual
+  .phanyx-assinatura-imagem-posicionada {
+  position: absolute;
+
+  z-index: 2;
+
+  display: block;
+
+  min-height: 0;
+
+  margin: 0;
+
+  overflow: hidden;
 }
 
 .phanyx-conteudo-compacto
   .phanyx-bloco-assinatura-visual
-  .phanyx-linha-assinatura {
-  top: 58%;
-  left: 5%;
-  right: 5%;
-  width: auto;
-  margin: 0;
+  .phanyx-assinatura-imagem-posicionada
+  img {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+  object-position: center;
 }
 
+/*
+ * A linha do editor está em 92px dentro
+ * de uma área de 150px:
+ *
+ * 92 / 150 = 61.3333%
+ */
+.phanyx-conteudo-compacto
+  .phanyx-bloco-assinatura-visual
+  .phanyx-linha-assinatura {
+  position: absolute;
+
+  top: 61.3333%;
+
+  left: 8.3333%;
+  right: 8.3333%;
+
+  width: auto;
+
+  margin: 0;
+
+  border-top:
+    0.3mm solid #111827;
+}
+
+/*
+ * Identificação abaixo da mesma linha.
+ */
 .phanyx-conteudo-compacto
   .phanyx-bloco-assinatura-visual
   .phanyx-identificacao-assinatura {
   position: absolute;
-  top: 63%;
-  left: 3%;
-  right: 3%;
+
+  top: 66.6667%;
+
+  left: 8.3333%;
+  right: 8.3333%;
+
   display: flex;
+
   flex-direction: column;
+
   align-items: center;
+
   color: #111827;
-  font-size: 6pt;
+
+  font-size: 7pt;
+
   line-height: 1.05;
+
+  text-align: center;
+
   white-space: normal;
+
   overflow: visible;
 }
 
@@ -1408,44 +1494,22 @@ function cssCompartilhado(
   .phanyx-identificacao-assinatura
   span {
   display: block;
+
   max-width: 100%;
+
   margin: 0;
   padding: 0;
-  overflow: visible;
+
   text-align: center;
-  overflow-wrap: anywhere;
+
+  overflow: visible;
 }
 
 .phanyx-conteudo-compacto
   .phanyx-bloco-assinatura-visual
   .phanyx-identificacao-assinatura
   strong {
-  font-size: 6.3pt;
   font-weight: 700;
-}
-
-.phanyx-conteudo-compacto
-  .phanyx-bloco-assinatura-visual
-  .phanyx-assinatura-imagem-posicionada {
-  min-height: 0;
-  margin: 0;
-}
-
-.phanyx-conteudo-compacto
-  .phanyx-bloco-assinatura-visual
-  .phanyx-assinatura-imagem-posicionada
-  img {
-  width: 100%;
-  height: 100%;
-}
-
-.phanyx-conteudo-compacto
-  .phanyx-bloco-assinatura-visual
-  .phanyx-linha-assinatura {
-  left: 8.3333%;
-  right: 8.3333%;
-  width: auto;
-  margin: 0;
 }
 
     .phanyx-validacao {
