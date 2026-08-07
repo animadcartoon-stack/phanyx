@@ -2245,6 +2245,21 @@ export default function EditorTemplatePHANYX({
             style={{
               minHeight:
                 `${alturaUtilPaginaMm}mm`,
+
+              ...(duasVias
+                ? {
+                  height:
+                    `${alturaUtilPaginaMm}mm`,
+
+                  maxHeight:
+                    `${alturaUtilPaginaMm}mm`,
+
+                  overflow: "hidden",
+
+                  boxSizing:
+                    "border-box" as const,
+                }
+                : {}),
             }}
           >
             <EditorContent editor={editor} />
