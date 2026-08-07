@@ -761,21 +761,25 @@ export default function AdminReunioesPage() {
                   excluindoId !== null
                 }
                 className="
-            rounded-xl
-            border
-            border-slate-300
-            bg-white
-            px-4
-            py-2
-            text-sm
-            font-semibold
-            text-slate-700
-            hover:bg-slate-100
-            disabled:opacity-50
-            dark:border-slate-600
-            dark:bg-slate-800
-            dark:text-white
-          "
+  rounded-xl
+  border
+  border-slate-400
+  bg-white
+  px-4
+  py-2
+  text-sm
+  font-bold
+  text-slate-900
+  shadow-sm
+  hover:bg-slate-100
+  hover:text-black
+  disabled:cursor-not-allowed
+  disabled:opacity-50
+  dark:border-slate-600
+  dark:bg-slate-800
+  dark:text-white
+  dark:hover:bg-slate-700
+"
               >
                 Cancelar
               </button>
