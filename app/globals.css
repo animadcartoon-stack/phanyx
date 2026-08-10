@@ -20256,3 +20256,38 @@ html[data-theme="system"]
   background: #52525b !important;
   color: #ffffff !important;
 }
+
+/* =========================================================
+   METAS COMERCIAIS — PARTICIPANTES DA META / TEMA CLARO
+========================================================= */
+
+html[data-theme="light"]
+  body
+  .phanyx-metas-comerciais-page
+  .phanyx-meta-participantes-box {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  background-image: none !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  body
+  .phanyx-metas-comerciais-page
+  .phanyx-meta-participantes-box
+  > div:first-child
+  p:first-child {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  body
+  .phanyx-metas-comerciais-page
+  .phanyx-meta-participantes-box
+  > div:first-child
+  p:last-child {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+}
