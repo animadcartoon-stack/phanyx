@@ -428,76 +428,45 @@ async function buscarVendedorElegivel(
   instituicaoId: number,
   funcionarioId: number
 ): Promise<VendedorElegivel | null> {
-  const agora = new Date();
+  /*
+   * Cargo é a fonte oficial para determinar
+   * quem pode ser vendedor responsável.
+   *
+   * Plano de comissão NÃO é requisito.
+   */
+  const cargosVendedor =
+    await prisma.cargo.findMany({
+      where: {
+        instituicaoId,
+        ativo: true,
+        nomeNormalizado:
+          "vendedor",
+      },
+
+      select: {
+        id: true,
+      },
+    });
+
+  const cargoIds =
+    cargosVendedor.map(
+      (cargo) => cargo.id
+    );
+
+  if (cargoIds.length === 0) {
+    return null;
+  }
 
   return prisma.funcionario.findFirst({
     where: {
       id: funcionarioId,
       instituicaoId,
       ativo: true,
-      statusFuncionario: "ATIVO",
+      statusFuncionario:
+        "ATIVO",
 
-      planosComissaoRH: {
-        some: {
-          instituicaoId,
-          ativo: true,
-
-          inicioVigencia: {
-            lte: agora,
-          },
-
-          OR: [
-            {
-              fimVigencia: null,
-            },
-            {
-              fimVigencia: {
-                gte: agora,
-              },
-            },
-          ],
-
-          plano: {
-            is: {
-              instituicaoId,
-              ativo: true,
-
-              regras: {
-                some: {
-                  instituicaoId,
-                  ativo: true,
-                },
-              },
-
-              AND: [
-                {
-                  OR: [
-                    {
-                      inicioVigencia: null,
-                    },
-                    {
-                      inicioVigencia: {
-                        lte: agora,
-                      },
-                    },
-                  ],
-                },
-                {
-                  OR: [
-                    {
-                      fimVigencia: null,
-                    },
-                    {
-                      fimVigencia: {
-                        gte: agora,
-                      },
-                    },
-                  ],
-                },
-              ],
-            },
-          },
-        },
+      cargoId: {
+        in: cargoIds,
       },
     },
 
@@ -1729,7 +1698,7 @@ export async function POST(request: Request) {
         return NextResponse.json(
           {
             error:
-              "O vendedor não está ativo, não pertence à instituição ou não possui um plano de comissão vigente e configurado.",
+              "O vendedor não está ativo, não pertence à instituição ou não possui o cargo ativo de Vendedor.",
           },
           { status: 400 }
         );
@@ -2693,255 +2662,253 @@ Assinatura da instituição: ________________________________
             },
           });
 
-         if (valorMatricula > 0) {
-  let statusLancamentoMatricula:
-    | "PENDENTE"
-    | "PARCIAL"
-    | "PAGO" =
-    "PENDENTE";
+          if (valorMatricula > 0) {
+            let statusLancamentoMatricula:
+              | "PENDENTE"
+              | "PARCIAL"
+              | "PAGO" =
+              "PENDENTE";
 
-  let pagoEm:
-    Date | null =
-    null;
+            let pagoEm:
+              Date | null =
+              null;
 
-  if (
-    valorPagoMatricula >
-    valorMatricula
-  ) {
-    throw new Error(
-      "O valor pago no ato não pode ser maior que o valor da matrícula."
-    );
-  }
+            if (
+              valorPagoMatricula >
+              valorMatricula
+            ) {
+              throw new Error(
+                "O valor pago no ato não pode ser maior que o valor da matrícula."
+              );
+            }
 
-  if (
-    valorPagoMatricula >=
-    valorMatricula
-  ) {
-    statusLancamentoMatricula =
-      "PAGO";
+            if (
+              valorPagoMatricula >=
+              valorMatricula
+            ) {
+              statusLancamentoMatricula =
+                "PAGO";
 
-    pagoEm =
-      agoraConversao;
-  } else if (
-    valorPagoMatricula > 0
-  ) {
-    statusLancamentoMatricula =
-      "PARCIAL";
+              pagoEm =
+                agoraConversao;
+            } else if (
+              valorPagoMatricula > 0
+            ) {
+              statusLancamentoMatricula =
+                "PARCIAL";
 
-    pagoEm =
-      agoraConversao;
-  }
+              pagoEm =
+                agoraConversao;
+            }
 
-  const lancamentoMatriculaCriado =
-    await tx
-      .lancamentoFinanceiro
-      .create({
-        data: {
-          tipo:
-            "MATRICULA",
+            const lancamentoMatriculaCriado =
+              await tx
+                .lancamentoFinanceiro
+                .create({
+                  data: {
+                    tipo:
+                      "MATRICULA",
 
-          descricao:
-            `Taxa de matrícula - ${
-              curso?.nome ||
-              "Curso"
-            }`,
+                    descricao:
+                      `Taxa de matrícula - ${curso?.nome ||
+                      "Curso"
+                      }`,
 
-          valorOriginal:
-            valorMatricula,
+                    valorOriginal:
+                      valorMatricula,
 
-          valorFinal:
-            valorMatricula,
+                    valorFinal:
+                      valorMatricula,
 
-          valorPago:
-            valorPagoMatricula >
-            0
-              ? valorPagoMatricula
-              : 0,
+                    valorPago:
+                      valorPagoMatricula >
+                        0
+                        ? valorPagoMatricula
+                        : 0,
 
-          pagoEm,
+                    pagoEm,
 
-          status:
-            statusLancamentoMatricula,
+                    status:
+                      statusLancamentoMatricula,
 
-          observacao:
-            "Gerado automaticamente no ato da matrícula",
+                    observacao:
+                      "Gerado automaticamente no ato da matrícula",
 
-          alunoId,
+                    alunoId,
 
-          matriculaId:
-            matriculaCriada.id,
+                    matriculaId:
+                      matriculaCriada.id,
 
-          instituicaoId:
-            user.instituicaoId,
+                    instituicaoId:
+                      user.instituicaoId,
 
-          poloId:
-            poloIdFinal,
-        },
-      });
+                    poloId:
+                      poloIdFinal,
+                  },
+                });
 
-  if (
-    valorPagoMatricula > 0
-  ) {
-    if (
-      !caixaAbertoPagamentoNoAto
-    ) {
-      throw new Error(
-        "Caixa manual não encontrado para registrar o pagamento no ato."
-      );
-    }
+            if (
+              valorPagoMatricula > 0
+            ) {
+              if (
+                !caixaAbertoPagamentoNoAto
+              ) {
+                throw new Error(
+                  "Caixa manual não encontrado para registrar o pagamento no ato."
+                );
+              }
 
-    const pagamentoCriado =
-      await tx.pagamento.create({
-        data: {
-          valorPago:
-            valorPagoMatricula,
+              const pagamentoCriado =
+                await tx.pagamento.create({
+                  data: {
+                    valorPago:
+                      valorPagoMatricula,
 
-          pagoEm:
-            agoraConversao,
+                    pagoEm:
+                      agoraConversao,
 
-          formaPagamento:
-            formaPagamentoMatricula as any,
+                    formaPagamento:
+                      formaPagamentoMatricula as any,
 
-          observacao:
-            "Pagamento registrado no ato da matrícula.",
+                    observacao:
+                      "Pagamento registrado no ato da matrícula.",
 
-          instituicaoId:
-            user.instituicaoId,
+                    instituicaoId:
+                      user.instituicaoId,
 
-          alunoId,
+                    alunoId,
 
-          lancamentoId:
-            lancamentoMatriculaCriado.id,
-        },
-      });
+                    lancamentoId:
+                      lancamentoMatriculaCriado.id,
+                  },
+                });
 
-    await tx.movimentoCaixa.create({
-      data: {
-        instituicaoId:
-          user.instituicaoId,
+              await tx.movimentoCaixa.create({
+                data: {
+                  instituicaoId:
+                    user.instituicaoId,
 
-        caixaId:
-          caixaAbertoPagamentoNoAto.id,
+                  caixaId:
+                    caixaAbertoPagamentoNoAto.id,
 
-        tipo:
-          "ENTRADA",
+                  tipo:
+                    "ENTRADA",
 
-        descricao:
-          `Recebimento MATRICULA — ${
-            aluno.nome ||
-            "Aluno não identificado"
-          }`,
+                  descricao:
+                    `Recebimento MATRICULA — ${aluno.nome ||
+                    "Aluno não identificado"
+                    }`,
 
-        valor:
-          valorPagoMatricula,
+                  valor:
+                    valorPagoMatricula,
 
-        formaPagamento:
-          formaPagamentoMatricula as any,
+                  formaPagamento:
+                    formaPagamentoMatricula as any,
 
-        alunoId,
+                  alunoId,
 
-        lancamentoId:
-          lancamentoMatriculaCriado.id,
-      },
-    });
+                  lancamentoId:
+                    lancamentoMatriculaCriado.id,
+                },
+              });
 
-    await tx.caixa.update({
-      where: {
-        id:
-          caixaAbertoPagamentoNoAto.id,
-      },
+              await tx.caixa.update({
+                where: {
+                  id:
+                    caixaAbertoPagamentoNoAto.id,
+                },
 
-      data: {
-        saldoSistema: {
-          increment:
-            valorPagoMatricula,
-        },
-      },
-    });
+                data: {
+                  saldoSistema: {
+                    increment:
+                      valorPagoMatricula,
+                  },
+                },
+              });
 
-    await tx.historicoCobranca.create({
-      data: {
-        instituicaoId:
-          user.instituicaoId,
+              await tx.historicoCobranca.create({
+                data: {
+                  instituicaoId:
+                    user.instituicaoId,
 
-        alunoId,
+                  alunoId,
 
-        alunoNome:
-          aluno.nome || null,
+                  alunoNome:
+                    aluno.nome || null,
 
-        lancamentoFinanceiroId:
-          lancamentoMatriculaCriado.id,
+                  lancamentoFinanceiroId:
+                    lancamentoMatriculaCriado.id,
 
-        responsavelId:
-          Number(user.id) || null,
+                  responsavelId:
+                    Number(user.id) || null,
 
-        responsavelNome:
-          (user as any)?.nome ||
-          user.email ||
-          "Usuário",
+                  responsavelNome:
+                    (user as any)?.nome ||
+                    user.email ||
+                    "Usuário",
 
-        canal:
-          "SISTEMA",
+                  canal:
+                    "SISTEMA",
 
-        acao:
-          statusLancamentoMatricula ===
-          "PAGO"
-            ? "PAGAMENTO_REGISTRADO"
-            : "PAGAMENTO_PARCIAL",
+                  acao:
+                    statusLancamentoMatricula ===
+                      "PAGO"
+                      ? "PAGAMENTO_REGISTRADO"
+                      : "PAGAMENTO_PARCIAL",
 
-        observacao:
-          `Pagamento no ato da matrícula via ${formaPagamentoMatricula}.`,
+                  observacao:
+                    `Pagamento no ato da matrícula via ${formaPagamentoMatricula}.`,
 
-        metadata: {
-          origem:
-            "MATRICULA",
+                  metadata: {
+                    origem:
+                      "MATRICULA",
 
-          formaPagamento:
-            formaPagamentoMatricula,
+                    formaPagamento:
+                      formaPagamentoMatricula,
 
-          valorPago:
-            valorPagoMatricula,
+                    valorPago:
+                      valorPagoMatricula,
 
-          valorMatricula,
+                    valorMatricula,
 
-          statusFinal:
-            statusLancamentoMatricula,
-        },
-      },
-    });
+                    statusFinal:
+                      statusLancamentoMatricula,
+                  },
+                },
+              });
 
-    if (
-      statusLancamentoMatricula ===
-      "PAGO"
-    ) {
-      await processarComissaoAutomatica({
-        tx,
+              if (
+                statusLancamentoMatricula ===
+                "PAGO"
+              ) {
+                await processarComissaoAutomatica({
+                  tx,
 
-        instituicaoId:
-          user.instituicaoId,
+                  instituicaoId:
+                    user.instituicaoId,
 
-        matriculaId:
-          matriculaCriada.id,
+                  matriculaId:
+                    matriculaCriada.id,
 
-        pagamentoId:
-          pagamentoCriado.id,
+                  pagamentoId:
+                    pagamentoCriado.id,
 
-        valorRecebido:
-          valorPagoMatricula,
+                  valorRecebido:
+                    valorPagoMatricula,
 
-        eventoEm:
-          pagamentoCriado.pagoEm,
+                  eventoEm:
+                    pagamentoCriado.pagoEm,
 
-        criadoPorId:
-          Number(user.id) || null,
+                  criadoPorId:
+                    Number(user.id) || null,
 
-        gatilho:
-          GatilhoComissaoRH
-            .PAGAMENTO_MATRICULA_CONFIRMADO,
-      });
-    }
-  }
-}
+                  gatilho:
+                    GatilhoComissaoRH
+                      .PAGAMENTO_MATRICULA_CONFIRMADO,
+                });
+              }
+            }
+          }
 
           if (
             valorMensalidade > 0 &&
@@ -3366,7 +3333,7 @@ export async function PUT(request: Request) {
           return NextResponse.json(
             {
               error:
-                "O vendedor não está ativo, não pertence à instituição ou não possui plano de comissão vigente.",
+                "O vendedor não está ativo, não pertence à instituição ou não possui o cargo ativo de Vendedor.",
             },
             { status: 400 }
           );
