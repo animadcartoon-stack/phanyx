@@ -12,6 +12,14 @@ interface Departamento {
   nome: string;
 }
 
+interface CargoOption {
+  id: number;
+  nome: string;
+  ativo: boolean;
+  departamentoId: number;
+  quantidadeFuncionarios?: number;
+}
+
 interface Polo {
   id: number;
   nome: string;
@@ -39,6 +47,7 @@ interface Funcionario {
   rg?: string | null;
   telefone?: string | null;
   cargo?: string | null;
+  cargoId?: number | null;
   setor?: string | null;
   codigoFuncionario?: string | null;
   fotoPerfil?: string | null;
@@ -164,6 +173,17 @@ function AdminFuncionariosPage() {
   const [rg, setRg] = useState("");
   const [telefone, setTelefone] = useState("");
   const [cargo, setCargo] = useState("");
+  const [cargoId, setCargoId] = useState("");
+
+  const [
+    cargosDepartamento,
+    setCargosDepartamento,
+  ] = useState<CargoOption[]>([]);
+
+  const [
+    carregandoCargos,
+    setCarregandoCargos,
+  ] = useState(false);
   const [codigoFuncionario, setCodigoFuncionario] = useState("");
   const [fotoPerfil, setFotoPerfil] = useState("");
   const [enviandoFotoPerfil, setEnviandoFotoPerfil] = useState(false);
@@ -263,6 +283,185 @@ function AdminFuncionariosPage() {
     });
     const data = await res.json();
     setDepartamentos(Array.isArray(data) ? data : []);
+  }
+
+  async function carregarCargosDoDepartamento(
+    departamentoIdValue: string,
+    cargoIdAtual = "",
+    cargoNomeAtual = ""
+  ) {
+    if (!departamentoIdValue) {
+      setCargosDepartamento([]);
+      setCargoId("");
+      setCargo("");
+      return;
+    }
+
+    try {
+      setCarregandoCargos(true);
+
+      const res = await fetch(
+        `/api/departamento/${departamentoIdValue}/cargos`,
+        {
+          credentials: "include",
+          cache: "no-store",
+        }
+      );
+
+      const data = await res
+        .json()
+        .catch(() => null);
+
+      if (!res.ok) {
+        throw new Error(
+          data?.error ||
+          "Não foi possível carregar os cargos."
+        );
+      }
+
+      const recebidos = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.cargos)
+          ? data.cargos
+          : [];
+
+      const lista: CargoOption[] =
+        recebidos
+          .map((item: any) => ({
+            id: Number(item?.id),
+            nome: String(
+              item?.nome || ""
+            ).trim(),
+            ativo:
+              item?.ativo !== false,
+            departamentoId: Number(
+              item?.departamentoId ||
+              departamentoIdValue
+            ),
+            quantidadeFuncionarios:
+              Number(
+                item
+                  ?.quantidadeFuncionarios ??
+                item?._count
+                  ?.funcionarios ??
+                0
+              ),
+          }))
+          .filter(
+            (item: CargoOption) =>
+              Number.isInteger(item.id) &&
+              item.id > 0 &&
+              item.nome &&
+              (
+                item.ativo ||
+                String(item.id) ===
+                cargoIdAtual
+              )
+          );
+
+      setCargosDepartamento(lista);
+
+      if (cargoIdAtual) {
+        const cargoEncontrado =
+          lista.find(
+            (item) =>
+              String(item.id) ===
+              String(cargoIdAtual)
+          );
+
+        if (cargoEncontrado) {
+          setCargoId(
+            String(cargoEncontrado.id)
+          );
+          setCargo(
+            cargoEncontrado.nome
+          );
+          return;
+        }
+      }
+
+      if (cargoNomeAtual.trim()) {
+        const nomeNormalizado =
+          cargoNomeAtual
+            .trim()
+            .toLocaleLowerCase(
+              "pt-BR"
+            );
+
+        const cargoPorNome =
+          lista.find(
+            (item) =>
+              item.nome
+                .trim()
+                .toLocaleLowerCase(
+                  "pt-BR"
+                ) ===
+              nomeNormalizado
+          );
+
+        if (cargoPorNome) {
+          setCargoId(
+            String(cargoPorNome.id)
+          );
+          setCargo(
+            cargoPorNome.nome
+          );
+          return;
+        }
+      }
+
+      setCargoId("");
+      setCargo(
+        cargoNomeAtual.trim()
+      );
+    } catch (error) {
+      console.error(
+        "Erro ao carregar cargos:",
+        error
+      );
+
+      setCargosDepartamento([]);
+      setCargoId("");
+    } finally {
+      setCarregandoCargos(false);
+    }
+  }
+
+  async function alterarDepartamentoFuncionario(
+    novoDepartamentoId: string
+  ) {
+    setDepartamentoId(
+      novoDepartamentoId
+    );
+
+    setCargoId("");
+    setCargo("");
+    setCargosDepartamento([]);
+
+    if (!novoDepartamentoId) {
+      return;
+    }
+
+    await carregarCargosDoDepartamento(
+      novoDepartamentoId
+    );
+  }
+
+  function alterarCargoFuncionario(
+    novoCargoId: string
+  ) {
+    setCargoId(novoCargoId);
+
+    const cargoSelecionado =
+      cargosDepartamento.find(
+        (item) =>
+          String(item.id) ===
+          novoCargoId
+      );
+
+    setCargo(
+      cargoSelecionado?.nome || ""
+    );
   }
 
   async function carregarPolos() {
@@ -438,14 +637,33 @@ function AdminFuncionariosPage() {
     setRg(f.rg || "");
     setTelefone(f.telefone || "");
     setCargo(f.cargo || "");
-    setCodigoFuncionario(f.codigoFuncionario || "");
-    setFotoPerfil(f.fotoPerfil || "");
-    setDepartamentoId(f.departamento?.id ? String(f.departamento.id) : "");
-    setPoloId(
-      f.polo?.id
-        ? String(f.polo.id)
+
+    setCargoId(
+      f.cargoId
+        ? String(f.cargoId)
         : ""
     );
+    const departamentoAtualId =
+      f.departamento?.id
+        ? String(f.departamento.id)
+        : "";
+
+    setDepartamentoId(
+      departamentoAtualId
+    );
+
+    if (departamentoAtualId) {
+      void carregarCargosDoDepartamento(
+        departamentoAtualId,
+        f.cargoId
+          ? String(f.cargoId)
+          : "",
+        f.cargo || ""
+      );
+    } else {
+      setCargosDepartamento([]);
+      setCargoId("");
+    }
     setDataAdmissao(dataParaInput(f.dataAdmissao));
     setSalarioBase(f.salarioBase ? String(f.salarioBase).replace(".", ",") : "");
     setTipoRemuneracao(
@@ -531,6 +749,8 @@ function AdminFuncionariosPage() {
     setRg("");
     setTelefone("");
     setCargo("");
+    setCargoId("");
+    setCargosDepartamento([]);
     setCodigoFuncionario("");
     setFotoPerfil("");
     setDepartamentoId("");
@@ -660,6 +880,10 @@ function AdminFuncionariosPage() {
           rg,
           telefone,
           cargo,
+          cargoId:
+            cargoId
+              ? Number(cargoId)
+              : null,
           codigoFuncionario,
           fotoPerfil,
           departamentoId: departamentoId || null,
@@ -810,6 +1034,10 @@ function AdminFuncionariosPage() {
           rg,
           telefone,
           cargo,
+          cargoId:
+            cargoId
+              ? Number(cargoId)
+              : null,
           codigoFuncionario,
           fotoPerfil,
           departamentoId:
@@ -905,6 +1133,8 @@ function AdminFuncionariosPage() {
       setRg("");
       setTelefone("");
       setCargo("");
+      setCargoId("");
+      setCargosDepartamento([]);
       setCodigoFuncionario("");
       setFotoPerfil("");
       setDepartamentoId("");
@@ -1181,7 +1411,11 @@ dark:text-white
 
             <select
               value={departamentoId}
-              onChange={(e) => setDepartamentoId(e.target.value)}
+              onChange={(e) => {
+                void alterarDepartamentoFuncionario(
+                  e.target.value
+                );
+              }}
               className="
 w-full
 rounded-lg
@@ -1212,6 +1446,78 @@ dark:text-white
                 </option>
               ))}
             </select>
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+              Cargo
+            </label>
+
+            <select
+              value={cargoId}
+              onChange={(e) =>
+                alterarCargoFuncionario(
+                  e.target.value
+                )
+              }
+              disabled={
+                !departamentoId ||
+                carregandoCargos
+              }
+              className="
+      w-full
+      rounded-lg
+      border
+      border-slate-300
+      bg-white
+      p-2
+      text-slate-900
+      disabled:cursor-not-allowed
+      disabled:bg-slate-100
+      disabled:text-slate-500
+      dark:border-slate-700
+      dark:bg-slate-900
+      dark:text-white
+      dark:disabled:bg-slate-800
+      dark:disabled:text-slate-400
+    "
+            >
+              <option value="">
+                {carregandoCargos
+                  ? "Carregando cargos..."
+                  : !departamentoId
+                    ? "Selecione primeiro o departamento"
+                    : cargosDepartamento.length === 0
+                      ? "Nenhum cargo ativo cadastrado"
+                      : "Selecione o cargo"}
+              </option>
+
+              {cargosDepartamento.map(
+                (item) => (
+                  <option
+                    key={item.id}
+                    value={item.id}
+                  >
+                    {item.nome}
+                    {!item.ativo
+                      ? " — Inativo"
+                      : ""}
+                  </option>
+                )
+              )}
+            </select>
+
+            {departamentoId &&
+              !carregandoCargos &&
+              cargosDepartamento.length ===
+              0 && (
+                <p className="text-xs leading-5 text-amber-700 dark:text-amber-300">
+                  Este departamento ainda não
+                  possui cargos ativos
+                  cadastrados. Cadastre os
+                  cargos em Departamentos.
+                </p>
+              )}
           </div>
 
           {/* POLO DE LOTAÇÃO */}
@@ -1327,13 +1633,6 @@ dark:text-white
             onChange={(e) => setTelefone(formatarTelefone(e.target.value))}
             className="w-full border rounded-lg p-2"
             inputMode="numeric"
-          />
-
-          <input
-            placeholder="Cargo"
-            value={cargo}
-            onChange={(e) => setCargo(e.target.value)}
-            className="w-full border rounded-lg p-2"
           />
 
           <input
