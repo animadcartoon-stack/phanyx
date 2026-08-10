@@ -20350,3 +20350,24 @@ html[data-theme="system"]
   border-color: #565656 !important;
   color: #ffffff !important;
 }
+
+/* =========================================================
+   METAS COMERCIAIS — CONTADOR DE PARTICIPANTES / TEMA CLARO
+========================================================= */
+
+html[data-theme="light"]
+  body
+  .phanyx-metas-comerciais-page
+  .phanyx-meta-participantes-box
+  > div:first-child
+  > span {
+  background: #e2e8f0 !important;
+  background-color: #e2e8f0 !important;
+  background-image: none !important;
+  border-color: #94a3b8 !important;
+
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+
+  opacity: 1 !important;
+}
