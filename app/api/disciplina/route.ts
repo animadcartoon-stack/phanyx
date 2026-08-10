@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { getUserFromToken } from "@/lib/server-auth";
 import { sincronizarPublicacoesAtivasDoCurso } from "@/lib/publicacao-cursos-rede";
-import { Prisma } from "@prisma/client";
+
 
 // LISTAR DISCIPLINAS
 export async function GET() {
