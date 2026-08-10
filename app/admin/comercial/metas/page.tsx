@@ -1373,7 +1373,7 @@ export default function MetasComerciaisPage() {
                         Acompanhamento da meta
                       </p>
 
-                      <p className="mt-1 text-xs !text-slate-500 dark:!text-slate-400">
+                      <p className="phanyx-meta-participante-detalhe mt-1 text-xs">
                         Resultado calculado automaticamente pelos dados do PHANYX.
                       </p>
                     </div>
@@ -1386,7 +1386,7 @@ export default function MetasComerciaisPage() {
                   </div>
 
                   <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                    <div className="rounded-xl border border-slate-200 !bg-white p-3 dark:border-slate-700 dark:!bg-slate-900">
+                    <div className="phanyx-meta-apuracao-card rounded-xl border p-3">
                       <p className="text-[11px] font-bold uppercase tracking-wide !text-slate-500 dark:!text-slate-400">
                         Realizado
                       </p>
@@ -1399,7 +1399,7 @@ export default function MetasComerciaisPage() {
                       </p>
                     </div>
 
-                    <div className="rounded-xl border border-slate-200 !bg-white p-3 dark:border-slate-700 dark:!bg-slate-900">
+                    <div className="phanyx-meta-apuracao-card rounded-xl border p-3">
                       <p className="text-[11px] font-bold uppercase tracking-wide !text-slate-500 dark:!text-slate-400">
                         Restante
                       </p>
@@ -1412,7 +1412,7 @@ export default function MetasComerciaisPage() {
                       </p>
                     </div>
 
-                    <div className="rounded-xl border border-slate-200 !bg-white p-3 dark:border-slate-700 dark:!bg-slate-900">
+                    <div className="phanyx-meta-apuracao-card rounded-xl border p-3">
                       <p className="text-[11px] font-bold uppercase tracking-wide !text-slate-500 dark:!text-slate-400">
                         Progresso
                       </p>
@@ -1725,299 +1725,297 @@ export default function MetasComerciaisPage() {
                     </div>
 
                     {form.equipeId && (
-  <div className="phanyx-meta-participantes-box md:col-span-2 rounded-2xl border border-slate-200 !bg-slate-50 p-5">
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <p className="text-sm font-black !text-slate-900 dark:!text-white">
-          Participantes desta meta
-        </p>
+                      <div className="phanyx-meta-participantes-box md:col-span-2 rounded-2xl border p-5">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                          <div>
+                            <p className="phanyx-meta-participantes-titulo text-sm font-black">
+                              Participantes desta meta
+                            </p>
 
-        <p className="mt-1 text-xs !text-slate-600 dark:!text-slate-400">
-          Os membros da equipe são sugeridos automaticamente, mas você pode incluir outros funcionários da instituição somente nesta meta.
-        </p>
-      </div>
+                            <p className="phanyx-meta-participantes-descricao mt-1 text-xs">
+                              Os membros da equipe são sugeridos automaticamente, mas você pode incluir outros funcionários da instituição somente nesta meta.
+                            </p>
+                          </div>
 
-      <div className="shrink-0 rounded-full border border-slate-300 !bg-slate-200 px-3 py-1 text-xs font-black !text-slate-950">
-        {form.participanteIds.length}{" "}
-        selecionado(s)
-      </div>
-    </div>
+                          <div className="phanyx-meta-participantes-contador shrink-0 rounded-full border px-3 py-1 text-xs font-black">
+                            {form.participanteIds.length}{" "}
+                            selecionado(s)
+                          </div>
+                        </div>
 
-    <div className="mt-4 flex flex-wrap gap-2">
-      <button
-        type="button"
-        onClick={() => {
-          const idsEquipe =
-            membrosEquipeSelecionada.map(
-              (membro) =>
-                membro.funcionarioId
-            );
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const idsEquipe =
+                                membrosEquipeSelecionada.map(
+                                  (membro) =>
+                                    membro.funcionarioId
+                                );
 
-          setForm((atual) => ({
-            ...atual,
+                              setForm((atual) => ({
+                                ...atual,
 
-            participanteIds:
-              Array.from(
-                new Set<number>([
-                  ...atual.participanteIds,
-                  ...idsEquipe,
-                ])
-              ),
-          }));
-        }}
-        className="rounded-xl border border-slate-300 !bg-white px-3 py-2 text-xs font-black !text-slate-700 transition hover:!bg-slate-100"
-      >
-        Selecionar membros da equipe
-      </button>
+                                participanteIds:
+                                  Array.from(
+                                    new Set<number>([
+                                      ...atual.participanteIds,
+                                      ...idsEquipe,
+                                    ])
+                                  ),
+                              }));
+                            }}
+                            className="rounded-xl border border-slate-300 !bg-white px-3 py-2 text-xs font-black !text-slate-700 transition hover:!bg-slate-100"
+                          >
+                            Selecionar membros da equipe
+                          </button>
 
-      <button
-        type="button"
-        onClick={() =>
-          setForm(
-            (atual) => ({
-              ...atual,
-              participanteIds: [],
-            })
-          )
-        }
-        className="rounded-xl border border-slate-300 !bg-white px-3 py-2 text-xs font-black !text-slate-700 transition hover:!bg-slate-100"
-      >
-        Limpar seleção
-      </button>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setForm(
+                                (atual) => ({
+                                  ...atual,
+                                  participanteIds: [],
+                                })
+                              )
+                            }
+                            className="rounded-xl border border-slate-300 !bg-white px-3 py-2 text-xs font-black !text-slate-700 transition hover:!bg-slate-100"
+                          >
+                            Limpar seleção
+                          </button>
 
-      <button
-        type="button"
-        onClick={() =>
-          setMostrarOutrosFuncionarios(
-            (atual) => !atual
-          )
-        }
-        className="rounded-xl border border-blue-700 !bg-blue-700 px-3 py-2 text-xs font-black !text-white transition hover:!bg-blue-800"
-      >
-        {mostrarOutrosFuncionarios
-          ? "Fechar funcionários"
-          : "+ Adicionar outros funcionários"}
-      </button>
-    </div>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setMostrarOutrosFuncionarios(
+                                (atual) => !atual
+                              )
+                            }
+                            className="rounded-xl border border-blue-700 !bg-blue-700 px-3 py-2 text-xs font-black !text-white transition hover:!bg-blue-800"
+                          >
+                            {mostrarOutrosFuncionarios
+                              ? "Fechar funcionários"
+                              : "+ Adicionar outros funcionários"}
+                          </button>
+                        </div>
 
-    <div className="mt-5">
-      <p className="text-xs font-black uppercase tracking-wide !text-slate-500">
-        Membros da equipe
-      </p>
+                        <div className="mt-5">
+                          <p className="text-xs font-black uppercase tracking-wide !text-slate-500">
+                            Membros da equipe
+                          </p>
 
-      {membrosEquipeSelecionada.length >
-      0 ? (
-        <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          {membrosEquipeSelecionada.map(
-            (membro) => {
-              const selecionado =
-                form.participanteIds.includes(
-                  membro.funcionarioId
-                );
+                          {membrosEquipeSelecionada.length >
+                            0 ? (
+                            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                              {membrosEquipeSelecionada.map(
+                                (membro) => {
+                                  const selecionado =
+                                    form.participanteIds.includes(
+                                      membro.funcionarioId
+                                    );
 
-              return (
-                <label
-                  key={membro.id}
-                  className={`flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition ${
-                    selecionado
-                      ? "border-emerald-500 !bg-white ring-1 ring-emerald-200"
-                      : "border-slate-200 !bg-white hover:border-slate-400"
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={selecionado}
-                    onChange={() =>
-                      alternarParticipante(
-                        membro.funcionarioId
-                      )
-                    }
-                    className="mt-1 h-4 w-4 shrink-0 accent-emerald-600"
-                  />
+                                  return (
+                                    <label
+                                      key={membro.id}
+                                      className={`phanyx-meta-participante-card flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition ${selecionado
+                                        ? "phanyx-meta-participante-card-selecionado"
+                                        : "phanyx-meta-participante-card-normal"
+                                        }`}
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={selecionado}
+                                        onChange={() =>
+                                          alternarParticipante(
+                                            membro.funcionarioId
+                                          )
+                                        }
+                                        className="mt-1 h-4 w-4 shrink-0 accent-emerald-600"
+                                      />
 
-                  <div className="min-w-0">
-                    <p className="font-black !text-slate-900">
-                      {
-                        membro
-                          .funcionario
-                          .nome
-                      }
-                    </p>
+                                      <div className="min-w-0">
+                                        <p className="phanyx-meta-participante-nome font-black">
+                                          {
+                                            membro
+                                              .funcionario
+                                              .nome
+                                          }
+                                        </p>
 
-                    <p className="mt-1 text-xs !text-slate-500">
-                      {membro
-                        .funcionario
-                        .cargo ||
-                        "Cargo não informado"}
+                                        <p className="phanyx-meta-participante-detalhe mt-1 text-xs">
+                                          {membro
+                                            .funcionario
+                                            .cargo ||
+                                            "Cargo não informado"}
 
-                      {membro
-                        .funcionario
-                        .departamento
-                        ?.nome
-                        ? ` — ${membro.funcionario.departamento.nome}`
-                        : ""}
-                    </p>
+                                          {membro
+                                            .funcionario
+                                            .departamento
+                                            ?.nome
+                                            ? ` — ${membro.funcionario.departamento.nome}`
+                                            : ""}
+                                        </p>
 
-                    <p className="mt-1 text-[11px] font-bold !text-emerald-700">
-                      Membro da equipe
-                    </p>
-                  </div>
-                </label>
-              );
-            }
-          )}
-        </div>
-      ) : (
-        <div className="mt-3 rounded-xl border border-slate-300 !bg-white px-4 py-3 text-sm font-semibold !text-slate-600">
-          Esta equipe não possui membros ativos. Você ainda pode adicionar outros funcionários à meta.
-        </div>
-      )}
-    </div>
+                                        <p className="phanyx-meta-participante-status mt-1 text-[11px] font-bold">
+                                          Membro da equipe
+                                        </p>
+                                      </div>
+                                    </label>
+                                  );
+                                }
+                              )}
+                            </div>
+                          ) : (
+                            <div className="mt-3 rounded-xl border border-slate-300 !bg-white px-4 py-3 text-sm font-semibold !text-slate-600">
+                              Esta equipe não possui membros ativos. Você ainda pode adicionar outros funcionários à meta.
+                            </div>
+                          )}
+                        </div>
 
-    {participantesAdicionaisSelecionados.length >
-      0 && (
-      <div className="mt-5">
-        <p className="text-xs font-black uppercase tracking-wide !text-slate-500">
-          Participantes adicionais
-        </p>
+                        {participantesAdicionaisSelecionados.length >
+                          0 && (
+                            <div className="mt-5">
+                              <p className="text-xs font-black uppercase tracking-wide !text-slate-500">
+                                Participantes adicionais
+                              </p>
 
-        <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          {participantesAdicionaisSelecionados.map(
-            (funcionario) => (
-              <label
-                key={
-                  funcionario.id
-                }
-                className="flex cursor-pointer items-start gap-3 rounded-2xl border border-violet-300 !bg-white p-4 ring-1 ring-violet-100"
-              >
-                <input
-                  type="checkbox"
-                  checked={true}
-                  onChange={() =>
-                    alternarParticipante(
-                      funcionario.id
-                    )
-                  }
-                  className="mt-1 h-4 w-4 shrink-0 accent-violet-600"
-                />
+                              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                                {participantesAdicionaisSelecionados.map(
+                                  (funcionario) => (
+                                    <label
+                                      key={
+                                        funcionario.id
+                                      }
+                                      className="flex cursor-pointer items-start gap-3 rounded-2xl border border-violet-300 !bg-white p-4 ring-1 ring-violet-100"
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={true}
+                                        onChange={() =>
+                                          alternarParticipante(
+                                            funcionario.id
+                                          )
+                                        }
+                                        className="mt-1 h-4 w-4 shrink-0 accent-violet-600"
+                                      />
 
-                <div className="min-w-0">
-                  <p className="font-black !text-slate-900">
-                    {funcionario.nome}
-                  </p>
+                                      <div className="min-w-0">
+                                        <p className="font-black !text-slate-900">
+                                          {funcionario.nome}
+                                        </p>
 
-                  <p className="mt-1 text-xs !text-slate-500">
-                    {funcionario.cargo ||
-                      "Cargo não informado"}
+                                        <p className="mt-1 text-xs !text-slate-500">
+                                          {funcionario.cargo ||
+                                            "Cargo não informado"}
 
-                    {funcionario
-                      .departamento
-                      ?.nome
-                      ? ` — ${funcionario.departamento.nome}`
-                      : ""}
-                  </p>
+                                          {funcionario
+                                            .departamento
+                                            ?.nome
+                                            ? ` — ${funcionario.departamento.nome}`
+                                            : ""}
+                                        </p>
 
-                  <p className="mt-1 text-[11px] font-bold !text-violet-700">
-                    Participante adicional
-                  </p>
-                </div>
-              </label>
-            )
-          )}
-        </div>
-      </div>
-    )}
+                                        <p className="mt-1 text-[11px] font-bold !text-violet-700">
+                                          Participante adicional
+                                        </p>
+                                      </div>
+                                    </label>
+                                  )
+                                )}
+                              </div>
+                            </div>
+                          )}
 
-    {mostrarOutrosFuncionarios && (
-      <div className="mt-5 rounded-2xl border border-slate-300 !bg-white p-4">
-        <div>
-          <p className="font-black !text-slate-900">
-            Adicionar outros funcionários
-          </p>
+                        {mostrarOutrosFuncionarios && (
+                          <div className="mt-5 rounded-2xl border border-slate-300 !bg-white p-4">
+                            <div>
+                              <p className="font-black !text-slate-900">
+                                Adicionar outros funcionários
+                              </p>
 
-          <p className="mt-1 text-xs !text-slate-500">
-            Selecionar um funcionário aqui não o adiciona à equipe comercial. Ele participará somente desta meta.
-          </p>
-        </div>
+                              <p className="mt-1 text-xs !text-slate-500">
+                                Selecionar um funcionário aqui não o adiciona à equipe comercial. Ele participará somente desta meta.
+                              </p>
+                            </div>
 
-        <input
-          type="search"
-          value={buscaParticipante}
-          onChange={(event) =>
-            setBuscaParticipante(
-              event.target.value
-            )
-          }
-          placeholder="Buscar por nome, cargo ou departamento"
-          className="mt-4 min-h-11 w-full rounded-xl border border-slate-300 !bg-white px-4 text-sm font-semibold !text-slate-950 outline-none focus:border-blue-600"
-        />
+                            <input
+                              type="search"
+                              value={buscaParticipante}
+                              onChange={(event) =>
+                                setBuscaParticipante(
+                                  event.target.value
+                                )
+                              }
+                              placeholder="Buscar por nome, cargo ou departamento"
+                              className="mt-4 min-h-11 w-full rounded-xl border border-slate-300 !bg-white px-4 text-sm font-semibold !text-slate-950 outline-none focus:border-blue-600"
+                            />
 
-        {outrosFuncionariosDisponiveis.length >
-        0 ? (
-          <div className="mt-4 max-h-72 space-y-2 overflow-y-auto pr-1">
-            {outrosFuncionariosDisponiveis.map(
-              (funcionario) => {
-                const selecionado =
-                  form.participanteIds.includes(
-                    funcionario.id
-                  );
+                            {outrosFuncionariosDisponiveis.length >
+                              0 ? (
+                              <div className="mt-4 max-h-72 space-y-2 overflow-y-auto pr-1">
+                                {outrosFuncionariosDisponiveis.map(
+                                  (funcionario) => {
+                                    const selecionado =
+                                      form.participanteIds.includes(
+                                        funcionario.id
+                                      );
 
-                return (
-                  <label
-                    key={
-                      funcionario.id
-                    }
-                    className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition ${
-                      selecionado
-                        ? "border-violet-400 !bg-violet-50"
-                        : "border-slate-200 !bg-white hover:border-slate-400"
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={
-                        selecionado
-                      }
-                      onChange={() =>
-                        alternarParticipante(
-                          funcionario.id
-                        )
-                      }
-                      className="mt-1 h-4 w-4 shrink-0 accent-violet-600"
-                    />
+                                    return (
+                                      <label
+                                        key={
+                                          funcionario.id
+                                        }
+                                        className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition ${selecionado
+                                          ? "border-violet-400 !bg-violet-50"
+                                          : "border-slate-200 !bg-white hover:border-slate-400"
+                                          }`}
+                                      >
+                                        <input
+                                          type="checkbox"
+                                          checked={
+                                            selecionado
+                                          }
+                                          onChange={() =>
+                                            alternarParticipante(
+                                              funcionario.id
+                                            )
+                                          }
+                                          className="mt-1 h-4 w-4 shrink-0 accent-violet-600"
+                                        />
 
-                    <div className="min-w-0">
-                      <p className="font-black !text-slate-900">
-                        {
-                          funcionario.nome
-                        }
-                      </p>
+                                        <div className="min-w-0">
+                                          <p className="font-black !text-slate-900">
+                                            {
+                                              funcionario.nome
+                                            }
+                                          </p>
 
-                      <p className="mt-1 text-xs !text-slate-500">
-                        {funcionario.cargo ||
-                          "Cargo não informado"}
+                                          <p className="mt-1 text-xs !text-slate-500">
+                                            {funcionario.cargo ||
+                                              "Cargo não informado"}
 
-                        {funcionario
-                          .departamento
-                          ?.nome
-                          ? ` — ${funcionario.departamento.nome}`
-                          : ""}
-                      </p>
-                    </div>
-                  </label>
-                );
-              }
-            )}
-          </div>
-        ) : (
-          <div className="mt-4 rounded-xl border border-slate-200 !bg-slate-50 px-4 py-3 text-sm font-semibold !text-slate-600">
-            Nenhum outro funcionário encontrado.
-          </div>
-        )}
-      </div>
-    )}
-  </div>
-)}
+                                            {funcionario
+                                              .departamento
+                                              ?.nome
+                                              ? ` — ${funcionario.departamento.nome}`
+                                              : ""}
+                                          </p>
+                                        </div>
+                                      </label>
+                                    );
+                                  }
+                                )}
+                              </div>
+                            ) : (
+                              <div className="mt-4 rounded-xl border border-slate-200 !bg-slate-50 px-4 py-3 text-sm font-semibold !text-slate-600">
+                                Nenhum outro funcionário encontrado.
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </>
                 )}
 

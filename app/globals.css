@@ -20461,3 +20461,608 @@ html[data-theme="system"]
   color: #d4d4d4 !important;
   -webkit-text-fill-color: #d4d4d4 !important;
 }
+
+/* =========================================================
+   DEPARTAMENTOS > CARGOS
+   Controle explícito pelos temas PHANYX.
+   Não depender de dark: do Tailwind nesta área.
+   ========================================================= */
+
+/* ---------- TEMA CLARO ---------- */
+
+html[data-theme="light"] .phanyx-departamentos-cargos-box {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-departamentos-cargos-title {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-departamentos-cargos-text {
+  color: #475569 !important;
+}
+
+html[data-theme="light"] .phanyx-departamentos-cargos-toggle {
+  color: #6d28d9 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-departamentos-cargos-toggle:hover {
+  color: #4c1d95 !important;
+}
+
+
+/* ---------- TEMA SISTEMA ---------- */
+
+html[data-theme="system"] .phanyx-departamentos-cargos-box {
+  background: #303030 !important;
+  border-color: #525252 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-departamentos-cargos-title {
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-departamentos-cargos-text {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="system"] .phanyx-departamentos-cargos-toggle {
+  color: #c4b5fd !important;
+  opacity: 1 !important;
+}
+
+
+/* ---------- TEMA ESCURO ---------- */
+
+html[data-theme="dark"] .phanyx-departamentos-cargos-box {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-departamentos-cargos-title {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-departamentos-cargos-text {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .phanyx-departamentos-cargos-toggle {
+  color: #c4b5fd !important;
+  opacity: 1 !important;
+}
+
+/* =========================================================
+   PHANYX — CORREÇÃO DE CARDS POR TEMA
+   Departamentos > Cargos
+   Comercial > Metas > Participantes
+   ========================================================= */
+
+
+/* =========================================================
+   1. DEPARTAMENTOS > CARGOS
+   ========================================================= */
+
+/* CLARO — nunca azul-marinho */
+html[data-theme="light"] body .phanyx-departamentos-cargos-box {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] body
+  .phanyx-departamentos-cargos-box
+  .phanyx-departamentos-cargos-title {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] body
+  .phanyx-departamentos-cargos-box
+  .phanyx-departamentos-cargos-text {
+  color: #475569 !important;
+}
+
+
+/* SISTEMA — cinza neutro */
+html[data-theme="system"] body .phanyx-departamentos-cargos-box {
+  background: #303030 !important;
+  background-color: #303030 !important;
+  border-color: #525252 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] body
+  .phanyx-departamentos-cargos-box
+  .phanyx-departamentos-cargos-title {
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] body
+  .phanyx-departamentos-cargos-box
+  .phanyx-departamentos-cargos-text {
+  color: #cbd5e1 !important;
+}
+
+
+/* ESCURO — azul-marinho permitido */
+html[data-theme="dark"] body .phanyx-departamentos-cargos-box {
+  background: #0f172a !important;
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] body
+  .phanyx-departamentos-cargos-box
+  .phanyx-departamentos-cargos-title {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] body
+  .phanyx-departamentos-cargos-box
+  .phanyx-departamentos-cargos-text {
+  color: #cbd5e1 !important;
+}
+
+
+/* Botão Cargos / Fechar cargos */
+html[data-theme="light"] body .phanyx-departamentos-cargos-toggle {
+  color: #6d28d9 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] body .phanyx-departamentos-cargos-toggle:hover {
+  color: #4c1d95 !important;
+}
+
+html[data-theme="dark"] body .phanyx-departamentos-cargos-toggle,
+html[data-theme="system"] body .phanyx-departamentos-cargos-toggle {
+  color: #c4b5fd !important;
+  opacity: 1 !important;
+}
+
+
+/* =========================================================
+   2. METAS COMERCIAIS > PARTICIPANTES
+   ========================================================= */
+
+/* CLARO — branco/neutro */
+html[data-theme="light"] body .phanyx-meta-participantes-box {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+
+/* ESCURO — NÃO pode ficar branco */
+html[data-theme="dark"] body .phanyx-meta-participantes-box {
+  background: #0f172a !important;
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+
+/* SISTEMA — NÃO pode ficar branco */
+html[data-theme="system"] body .phanyx-meta-participantes-box {
+  background: #303030 !important;
+  background-color: #303030 !important;
+  border-color: #525252 !important;
+  color: #f8fafc !important;
+}
+
+
+/* Títulos e textos do card de participantes */
+html[data-theme="dark"] body
+  .phanyx-meta-participantes-box > div:first-child p:first-child,
+html[data-theme="system"] body
+  .phanyx-meta-participantes-box > div:first-child p:first-child {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] body
+  .phanyx-meta-participantes-box > div:first-child p:nth-child(2),
+html[data-theme="system"] body
+  .phanyx-meta-participantes-box > div:first-child p:nth-child(2) {
+  color: #cbd5e1 !important;
+}
+
+/* =========================================================
+   DEPARTAMENTOS > CARGOS > TEXTOS INTERNOS
+   ========================================================= */
+
+/* ---------- CLARO ---------- */
+
+html[data-theme="light"] .phanyx-cargo-nome {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-cargo-vinculos {
+  color: #475569 !important;
+}
+
+html[data-theme="light"] .phanyx-cargo-status-ativo {
+  background: #dcfce7 !important;
+  color: #047857 !important;
+}
+
+html[data-theme="light"] .phanyx-cargo-status-inativo {
+  background: #e2e8f0 !important;
+  color: #475569 !important;
+}
+
+html[data-theme="light"] .phanyx-cargo-editar {
+  color: #2563eb !important;
+}
+
+html[data-theme="light"] .phanyx-cargo-desativar {
+  color: #b45309 !important;
+}
+
+html[data-theme="light"] .phanyx-cargo-reativar {
+  color: #047857 !important;
+}
+
+
+/* ---------- ESCURO ---------- */
+
+html[data-theme="dark"] .phanyx-cargo-nome {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-cargo-vinculos {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .phanyx-cargo-status-ativo {
+  background: #064e3b !important;
+  color: #a7f3d0 !important;
+}
+
+html[data-theme="dark"] .phanyx-cargo-status-inativo {
+  background: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .phanyx-cargo-editar {
+  color: #93c5fd !important;
+}
+
+html[data-theme="dark"] .phanyx-cargo-desativar {
+  color: #fcd34d !important;
+}
+
+html[data-theme="dark"] .phanyx-cargo-reativar {
+  color: #6ee7b7 !important;
+}
+
+
+/* ---------- SISTEMA ---------- */
+
+html[data-theme="system"] .phanyx-cargo-nome {
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-cargo-vinculos {
+  color: #d1d5db !important;
+}
+
+html[data-theme="system"] .phanyx-cargo-status-ativo {
+  background: #065f46 !important;
+  color: #d1fae5 !important;
+}
+
+html[data-theme="system"] .phanyx-cargo-status-inativo {
+  background: #525252 !important;
+  color: #e5e7eb !important;
+}
+
+html[data-theme="system"] .phanyx-cargo-editar {
+  color: #93c5fd !important;
+}
+
+html[data-theme="system"] .phanyx-cargo-desativar {
+  color: #fcd34d !important;
+}
+
+html[data-theme="system"] .phanyx-cargo-reativar {
+  color: #6ee7b7 !important;
+}
+
+/* =========================================================
+   METAS COMERCIAIS > PARTICIPANTES
+   Temas controlados pelo PHANYX
+   ========================================================= */
+
+
+/* ========================
+   TEMA CLARO
+   ======================== */
+
+html[data-theme="light"] .phanyx-meta-participantes-box {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-meta-participantes-titulo {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-meta-participantes-descricao {
+  color: #475569 !important;
+}
+
+html[data-theme="light"] .phanyx-meta-participantes-contador {
+  background: #e2e8f0 !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-meta-participante-card {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-meta-participante-card-normal {
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .phanyx-meta-participante-card-selecionado {
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 1px #a7f3d0 !important;
+}
+
+html[data-theme="light"] .phanyx-meta-participante-nome {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-meta-participante-detalhe {
+  color: #475569 !important;
+}
+
+
+/* ========================
+   TEMA ESCURO
+   ======================== */
+
+html[data-theme="dark"] .phanyx-meta-participantes-box {
+  background: #111827 !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-meta-participantes-titulo {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-meta-participantes-descricao {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .phanyx-meta-participantes-contador {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-meta-participante-card {
+  background: #0f172a !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-meta-participante-card-normal {
+  border-color: #334155 !important;
+}
+
+html[data-theme="dark"] .phanyx-meta-participante-card-selecionado {
+  background: #12352b !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 1px #065f46 !important;
+}
+
+html[data-theme="dark"] .phanyx-meta-participante-nome {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-meta-participante-detalhe {
+  color: #cbd5e1 !important;
+}
+
+
+/* ========================
+   TEMA SISTEMA
+   ======================== */
+
+html[data-theme="system"] .phanyx-meta-participantes-box {
+  background: #303030 !important;
+  border-color: #525252 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-meta-participantes-titulo {
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-meta-participantes-descricao {
+  color: #d1d5db !important;
+}
+
+html[data-theme="system"] .phanyx-meta-participantes-contador {
+  background: #404040 !important;
+  border-color: #606060 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-meta-participante-card {
+  background: #262626 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-meta-participante-card-normal {
+  border-color: #525252 !important;
+}
+
+html[data-theme="system"] .phanyx-meta-participante-card-selecionado {
+  background: #183c31 !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 1px #065f46 !important;
+}
+
+html[data-theme="system"] .phanyx-meta-participante-nome {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-meta-participante-detalhe {
+  color: #d1d5db !important;
+}
+
+/* =========================================================
+   METAS COMERCIAIS > PARTICIPANTES
+   CORREÇÃO DEFINITIVA — TEMA ESCURO
+   ========================================================= */
+
+/* Card principal dos participantes */
+html[data-theme="dark"] .phanyx-meta-participantes-box,
+html.dark:not([data-theme="system"]):not([data-theme="sistema"])
+  .phanyx-meta-participantes-box {
+  background: #0f172a !important;
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+
+/* Título */
+html[data-theme="dark"] .phanyx-meta-participantes-titulo,
+html.dark:not([data-theme="system"]):not([data-theme="sistema"])
+  .phanyx-meta-participantes-titulo {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+
+/* Descrição */
+html[data-theme="dark"] .phanyx-meta-participantes-descricao,
+html.dark:not([data-theme="system"]):not([data-theme="sistema"])
+  .phanyx-meta-participantes-descricao {
+  color: #cbd5e1 !important;
+  -webkit-text-fill-color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+
+/* Contador de selecionados */
+html[data-theme="dark"] .phanyx-meta-participantes-contador,
+html.dark:not([data-theme="system"]):not([data-theme="sistema"])
+  .phanyx-meta-participantes-contador {
+  background: #1e293b !important;
+  background-color: #1e293b !important;
+  border-color: #475569 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+
+/* Todos os cards individuais */
+html[data-theme="dark"] .phanyx-meta-participante-card,
+html.dark:not([data-theme="system"]):not([data-theme="sistema"])
+  .phanyx-meta-participante-card {
+  background: #172033 !important;
+  background-color: #172033 !important;
+  color: #f8fafc !important;
+}
+
+
+/* Card selecionado */
+html[data-theme="dark"] .phanyx-meta-participante-card-selecionado,
+html.dark:not([data-theme="system"]):not([data-theme="sistema"])
+  .phanyx-meta-participante-card-selecionado {
+  background: #123c30 !important;
+  background-color: #123c30 !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 1px #047857 !important;
+}
+
+
+/* Nome do funcionário — esse é o que está quase preto no print */
+html[data-theme="dark"] .phanyx-meta-participante-nome,
+html.dark:not([data-theme="system"]):not([data-theme="sistema"])
+  .phanyx-meta-participante-nome {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+
+/* Cargo + departamento */
+html[data-theme="dark"] .phanyx-meta-participante-detalhe,
+html.dark:not([data-theme="system"]):not([data-theme="sistema"])
+  .phanyx-meta-participante-detalhe {
+  color: #cbd5e1 !important;
+  -webkit-text-fill-color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+
+/* Garantia extra contra regras globais que escurecem textos */
+html[data-theme="dark"] .phanyx-meta-participante-card p,
+html[data-theme="dark"] .phanyx-meta-participante-card span,
+html.dark:not([data-theme="system"]):not([data-theme="sistema"])
+  .phanyx-meta-participante-card p,
+html.dark:not([data-theme="system"]):not([data-theme="sistema"])
+  .phanyx-meta-participante-card span {
+  opacity: 1 !important;
+}
+
+
+/* Nome sempre branco */
+html[data-theme="dark"]
+  .phanyx-meta-participante-card
+  .phanyx-meta-participante-nome,
+html.dark:not([data-theme="system"]):not([data-theme="sistema"])
+  .phanyx-meta-participante-card
+  .phanyx-meta-participante-nome {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+
+/* Detalhes sempre claros */
+html[data-theme="dark"]
+  .phanyx-meta-participante-card
+  .phanyx-meta-participante-detalhe,
+html.dark:not([data-theme="system"]):not([data-theme="sistema"])
+  .phanyx-meta-participante-card
+  .phanyx-meta-participante-detalhe {
+  color: #cbd5e1 !important;
+  -webkit-text-fill-color: #cbd5e1 !important;
+}
+
+/* =========================================================
+   METAS COMERCIAIS — MEMBROS — CONTRASTE
+   ========================================================= */
+
+html[data-theme="dark"] .phanyx-meta-membro-nome,
+html.dark:not([data-theme="system"]):not([data-theme="sistema"])
+  .phanyx-meta-membro-nome {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] .phanyx-meta-membro-detalhe,
+html.dark:not([data-theme="system"]):not([data-theme="sistema"])
+  .phanyx-meta-membro-detalhe {
+  color: #d1fae5 !important;
+  -webkit-text-fill-color: #d1fae5 !important;
+  opacity: 1 !important;
+}
