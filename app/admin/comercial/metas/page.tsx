@@ -35,6 +35,38 @@ type DepartamentoOption = {
   nome: string;
 };
 
+type EquipeMembroOption = {
+  id: number;
+  funcionarioId: number;
+  papel?: string | null;
+  inicioVigencia?: string | null;
+  fimVigencia?: string | null;
+
+  funcionario: {
+    id: number;
+    nome: string;
+    cargo?: string | null;
+    departamento?: DepartamentoOption | null;
+  };
+};
+
+type MetaParticipante = {
+  id: number;
+  funcionarioId: number;
+  inicioVigencia: string;
+  fimVigencia?: string | null;
+  ativo: boolean;
+
+  funcionario?: {
+    id: number;
+    nome: string;
+    cargo?: string | null;
+    ativo?: boolean;
+    statusFuncionario?: string | null;
+    departamento?: DepartamentoOption | null;
+  } | null;
+};
+
 type EquipeOption = {
   id: number;
   nome: string;
@@ -42,6 +74,9 @@ type EquipeOption = {
     id: number;
     nome: string;
   } | null;
+
+  membros?: EquipeMembroOption[];
+
   _count?: {
     membros?: number;
   };
@@ -128,6 +163,7 @@ type MetaComercial = {
   } | null;
   criadoPor?: UsuarioOption | null;
   atualizadoPor?: UsuarioOption | null;
+  participantes?: MetaParticipante[];
 };
 
 type CatalogosMetas = {
@@ -149,6 +185,7 @@ type FormMeta = {
   dataInicio: string;
   dataFim: string;
   equipeId: string;
+  participanteIds: number[];
   funcionarioId: string;
   cursoId: string;
   poloId: string;
@@ -279,6 +316,7 @@ function criarFormInicial(): FormMeta {
     dataInicio: periodo.inicio,
     dataFim: periodo.fim,
     equipeId: "",
+    participanteIds: [],
     funcionarioId: "",
     cursoId: "",
     poloId: "",
@@ -634,6 +672,24 @@ export default function MetasComerciaisPage() {
     };
   }, [metas]);
 
+  const equipeSelecionada =
+    useMemo(
+      () =>
+        catalogos.equipes.find(
+          (equipe) =>
+            String(equipe.id) ===
+            form.equipeId
+        ) ?? null,
+      [
+        catalogos.equipes,
+        form.equipeId,
+      ]
+    );
+
+  const membrosEquipeSelecionada =
+    equipeSelecionada?.membros ??
+    [];
+
   function abrirNovaMeta() {
     setEditandoId(null);
     setForm(criarFormInicial());
@@ -660,8 +716,32 @@ export default function MetasComerciaisPage() {
       valorAlvo: String(meta.valorAlvo ?? ""),
       dataInicio: dataApiParaInput(meta.dataInicio),
       dataFim: dataApiParaInput(meta.dataFim),
-      equipeId: meta.equipeId ? String(meta.equipeId) : "",
-      funcionarioId: meta.funcionarioId ? String(meta.funcionarioId) : "",
+      equipeId:
+        meta.equipeId
+          ? String(meta.equipeId)
+          : "",
+
+      participanteIds:
+        meta.escopo === "EQUIPE"
+          ? Array.from(
+            new Set<number>(
+              (meta.participantes ?? [])
+                .filter(
+                  (participante) =>
+                    participante.ativo
+                )
+                .map(
+                  (participante) =>
+                    participante.funcionarioId
+                )
+            )
+          )
+          : [],
+
+      funcionarioId:
+        meta.funcionarioId
+          ? String(meta.funcionarioId)
+          : "",
       cursoId: meta.cursoId ? String(meta.cursoId) : "",
       poloId: meta.poloId ? String(meta.poloId) : "",
     });
@@ -680,14 +760,79 @@ export default function MetasComerciaisPage() {
     setForm(criarFormInicial());
   }
 
-  function alterarEscopo(escopo: EscopoMeta) {
+  function alterarEscopo(
+    escopo: EscopoMeta
+  ) {
     setForm((atual) => ({
       ...atual,
+
       escopo,
-      equipeId: escopo === "EQUIPE" ? atual.equipeId : "",
+
+      equipeId:
+        escopo === "EQUIPE"
+          ? atual.equipeId
+          : "",
+
+      participanteIds:
+        escopo === "EQUIPE"
+          ? atual.participanteIds
+          : [],
+
       funcionarioId:
-        escopo === "FUNCIONARIO" ? atual.funcionarioId : "",
+        escopo === "FUNCIONARIO"
+          ? atual.funcionarioId
+          : "",
     }));
+  }
+
+  function alterarEquipe(
+    equipeId: string
+  ) {
+    const equipe =
+      catalogos.equipes.find(
+        (item) =>
+          String(item.id) ===
+          equipeId
+      );
+
+    const participanteIds =
+      equipe?.membros?.map(
+        (membro) =>
+          membro.funcionarioId
+      ) ?? [];
+
+    setForm((atual) => ({
+      ...atual,
+      equipeId,
+      participanteIds,
+    }));
+  }
+
+  function alternarParticipante(
+    funcionarioId: number
+  ) {
+    setForm((atual) => {
+      const selecionado =
+        atual.participanteIds.includes(
+          funcionarioId
+        );
+
+      return {
+        ...atual,
+
+        participanteIds:
+          selecionado
+            ? atual.participanteIds.filter(
+              (id) =>
+                id !==
+                funcionarioId
+            )
+            : [
+              ...atual.participanteIds,
+              funcionarioId,
+            ],
+      };
+    });
   }
 
   function alterarPeriodicidade(periodicidade: PeriodicidadeMeta) {
@@ -745,6 +890,17 @@ export default function MetasComerciaisPage() {
       return;
     }
 
+    if (
+      form.escopo === "EQUIPE" &&
+      form.participanteIds.length ===
+      0
+    ) {
+      setErro(
+        "Selecione pelo menos um participante para a meta da equipe."
+      );
+      return;
+    }
+
     if (form.escopo === "FUNCIONARIO" && !form.funcionarioId) {
       setErro("Selecione o funcionário responsável pela meta.");
       return;
@@ -781,6 +937,10 @@ export default function MetasComerciaisPage() {
             form.escopo === "EQUIPE" && form.equipeId
               ? Number(form.equipeId)
               : null,
+          participanteIds:
+            form.escopo === "EQUIPE"
+              ? form.participanteIds
+              : [],
           funcionarioId:
             form.escopo === "FUNCIONARIO" && form.funcionarioId
               ? Number(form.funcionarioId)
@@ -1113,7 +1273,7 @@ export default function MetasComerciaisPage() {
                   </div>
                 </div>
 
-                                <div className="mt-5 rounded-2xl border border-slate-200 !bg-slate-50 p-4 dark:border-slate-700 dark:!bg-slate-950">
+                <div className="mt-5 rounded-2xl border border-slate-200 !bg-slate-50 p-4 dark:border-slate-700 dark:!bg-slate-950">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <p className="text-xs font-black uppercase tracking-wide !text-slate-500 dark:!text-slate-400">
@@ -1189,11 +1349,10 @@ export default function MetasComerciaisPage() {
 
                     <div className="h-3 w-full overflow-hidden rounded-full !bg-slate-200 dark:!bg-slate-700">
                       <div
-                        className={`h-full rounded-full transition-all duration-500 ${
-                          meta.atingida
-                            ? "!bg-emerald-600"
-                            : "!bg-blue-600"
-                        }`}
+                        className={`h-full rounded-full transition-all duration-500 ${meta.atingida
+                          ? "!bg-emerald-600"
+                          : "!bg-blue-600"
+                          }`}
                         style={{
                           width: `${larguraBarraProgresso(
                             meta.percentualAtingido
@@ -1209,10 +1368,10 @@ export default function MetasComerciaisPage() {
                           meta.percentualAtingido ?? 0
                         ) > 100
                           ? ` — ${formatarPercentual(
-                              Number(
-                                meta.percentualAtingido ?? 0
-                              ) - 100
-                            )}% acima do objetivo`
+                            Number(
+                              meta.percentualAtingido ?? 0
+                            ) - 100
+                          )}% acima do objetivo`
                           : ""}
                       </p>
                     )}
@@ -1435,32 +1594,194 @@ export default function MetasComerciaisPage() {
                   </select>
                 </div>
 
-                {form.escopo === "EQUIPE" && (
-                  <div className="md:col-span-2">
-                    <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
-                      Equipe responsável
-                    </label>
-                    <select
-                      value={form.equipeId}
-                      onChange={(event) =>
-                        setForm((atual) => ({
-                          ...atual,
-                          equipeId: event.target.value,
-                        }))
-                      }
-                      className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 font-semibold !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
-                    >
-                      <option value="">Selecione a equipe</option>
-                      {catalogos.equipes.map((equipe) => (
-                        <option key={equipe.id} value={equipe.id}>
-                          {equipe.nome}
-                          {typeof equipe._count?.membros === "number"
-                            ? ` — ${equipe._count.membros} membro(s)`
-                            : ""}
+                                {form.escopo === "EQUIPE" && (
+                  <>
+                    <div className="md:col-span-2">
+                      <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
+                        Equipe responsável
+                      </label>
+
+                      <select
+                        value={form.equipeId}
+                        onChange={(event) =>
+                          alterarEquipe(
+                            event.target.value
+                          )
+                        }
+                        className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 font-semibold !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
+                      >
+                        <option value="">
+                          Selecione a equipe
                         </option>
-                      ))}
-                    </select>
-                  </div>
+
+                        {catalogos.equipes.map(
+                          (equipe) => (
+                            <option
+                              key={equipe.id}
+                              value={equipe.id}
+                            >
+                              {equipe.nome}
+                              {typeof equipe
+                                ._count
+                                ?.membros ===
+                              "number"
+                                ? ` — ${equipe._count.membros} membro(s)`
+                                : ""}
+                            </option>
+                          )
+                        )}
+                      </select>
+                    </div>
+
+                    {form.equipeId && (
+                      <div className="md:col-span-2 rounded-2xl border border-slate-200 !bg-slate-50 p-5 dark:border-slate-700 dark:!bg-slate-950">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                          <div>
+                            <p className="text-sm font-black !text-slate-900 dark:!text-white">
+                              Participantes desta meta
+                            </p>
+
+                            <p className="mt-1 text-xs !text-slate-600 dark:!text-slate-400">
+                              Escolha quais membros da equipe terão seus resultados considerados nesta meta.
+                            </p>
+                          </div>
+
+                          <span className="shrink-0 rounded-full border border-slate-300 !bg-white px-3 py-1 text-xs font-black !text-slate-700 dark:border-slate-600 dark:!bg-slate-900 dark:!text-slate-200">
+                            {
+                              form
+                                .participanteIds
+                                .length
+                            }{" "}
+                            selecionado(s)
+                          </span>
+                        </div>
+
+                        {membrosEquipeSelecionada.length >
+                        0 ? (
+                          <>
+                            <div className="mt-4 flex flex-wrap gap-2">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setForm(
+                                    (
+                                      atual
+                                    ) => ({
+                                      ...atual,
+
+                                      participanteIds:
+                                        membrosEquipeSelecionada.map(
+                                          (
+                                            membro
+                                          ) =>
+                                            membro.funcionarioId
+                                        ),
+                                    })
+                                  )
+                                }
+                                className="rounded-xl border border-slate-300 !bg-white px-3 py-2 text-xs font-black !text-slate-700 transition hover:!bg-slate-100 dark:border-slate-600 dark:!bg-slate-900 dark:!text-slate-100 dark:hover:!bg-slate-800"
+                              >
+                                Selecionar todos
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setForm(
+                                    (
+                                      atual
+                                    ) => ({
+                                      ...atual,
+                                      participanteIds:
+                                        [],
+                                    })
+                                  )
+                                }
+                                className="rounded-xl border border-slate-300 !bg-white px-3 py-2 text-xs font-black !text-slate-700 transition hover:!bg-slate-100 dark:border-slate-600 dark:!bg-slate-900 dark:!text-slate-100 dark:hover:!bg-slate-800"
+                              >
+                                Limpar seleção
+                              </button>
+                            </div>
+
+                            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                              {membrosEquipeSelecionada.map(
+                                (
+                                  membro
+                                ) => {
+                                  const selecionado =
+                                    form.participanteIds.includes(
+                                      membro.funcionarioId
+                                    );
+
+                                  return (
+                                    <label
+                                      key={
+                                        membro.id
+                                      }
+                                      className={`flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition ${
+                                        selecionado
+                                          ? "border-emerald-500 !bg-white ring-1 ring-emerald-200 dark:border-emerald-600 dark:!bg-slate-900 dark:ring-emerald-900"
+                                          : "border-slate-200 !bg-white hover:border-slate-400 dark:border-slate-700 dark:!bg-slate-900"
+                                      }`}
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={
+                                          selecionado
+                                        }
+                                        onChange={() =>
+                                          alternarParticipante(
+                                            membro.funcionarioId
+                                          )
+                                        }
+                                        className="mt-1 h-4 w-4 shrink-0 accent-emerald-600"
+                                      />
+
+                                      <div className="min-w-0">
+                                        <p className="font-black !text-slate-900 dark:!text-white">
+                                          {
+                                            membro
+                                              .funcionario
+                                              .nome
+                                          }
+                                        </p>
+
+                                        {(membro
+                                          .funcionario
+                                          .cargo ||
+                                          membro
+                                            .funcionario
+                                            .departamento
+                                            ?.nome) && (
+                                          <p className="mt-1 text-xs !text-slate-500 dark:!text-slate-400">
+                                            {membro
+                                              .funcionario
+                                              .cargo ||
+                                              "Cargo não informado"}
+
+                                            {membro
+                                              .funcionario
+                                              .departamento
+                                              ?.nome
+                                              ? ` — ${membro.funcionario.departamento.nome}`
+                                              : ""}
+                                          </p>
+                                        )}
+                                      </div>
+                                    </label>
+                                  );
+                                }
+                              )}
+                            </div>
+                          </>
+                        ) : (
+                          <div className="mt-4 rounded-xl border border-amber-300 !bg-amber-50 px-4 py-3 text-sm font-bold !text-amber-900 dark:border-amber-800 dark:!bg-amber-950/30 dark:!text-amber-100">
+                            Esta equipe não possui membros ativos disponíveis para a meta.
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </>
                 )}
 
                 {form.escopo === "FUNCIONARIO" && (

@@ -109,6 +109,42 @@ const INCLUDE_META = {
       nome: true,
     },
   },
+
+  participantes: {
+    select: {
+      id: true,
+      funcionarioId: true,
+      inicioVigencia: true,
+      fimVigencia: true,
+      ativo: true,
+
+      funcionario: {
+        select: {
+          id: true,
+          nome: true,
+          cargo: true,
+          ativo: true,
+          statusFuncionario: true,
+
+          departamento: {
+            select: {
+              id: true,
+              nome: true,
+            },
+          },
+        },
+      },
+    },
+
+    orderBy: [
+      {
+        ativo: "desc",
+      },
+      {
+        inicioVigencia: "desc",
+      },
+    ],
+  },
 } satisfies Prisma.MetaComercialInclude;
 
 function parseId(
@@ -187,6 +223,44 @@ function idOpcional(
   return id;
 }
 
+function lerParticipanteIds(
+  valor: unknown
+): number[] | undefined {
+  if (valor === undefined) {
+    return undefined;
+  }
+
+  if (!Array.isArray(valor)) {
+    throw new ErroHttp(
+      400,
+      "A lista de participantes da meta é inválida.",
+      "PARTICIPANTES_INVALIDOS"
+    );
+  }
+
+  const ids = valor.map(
+    (item) => Number(item)
+  );
+
+  if (
+    ids.some(
+      (id) =>
+        !Number.isInteger(id) ||
+        id <= 0
+    )
+  ) {
+    throw new ErroHttp(
+      400,
+      "A lista de participantes possui funcionário inválido.",
+      "PARTICIPANTE_INVALIDO"
+    );
+  }
+
+  return Array.from(
+    new Set(ids)
+  );
+}
+
 function lerEnumObrigatorio<
   T extends string,
 >(
@@ -241,10 +315,9 @@ function lerData(
     )
   ) {
     data = new Date(
-      `${texto}T${
-        finalDoDia
-          ? "23:59:59.999"
-          : "00:00:00.000"
+      `${texto}T${finalDoDia
+        ? "23:59:59.999"
+        : "00:00:00.000"
       }Z`
     );
   } else {
@@ -286,8 +359,8 @@ function converterNumero(
   const normalizado =
     texto.includes(",")
       ? texto
-          .replace(/\./g, "")
-          .replace(",", ".")
+        .replace(/\./g, "")
+        .replace(",", ".")
       : texto;
 
   return Number(normalizado);
@@ -313,11 +386,11 @@ function lerValorAlvo(
 
   const indicadorQuantidade =
     indicador ===
-      IndicadorMetaComercial
-        .QUANTIDADE_MATRICULAS ||
+    IndicadorMetaComercial
+      .QUANTIDADE_MATRICULAS ||
     indicador ===
-      IndicadorMetaComercial
-        .LEADS_CONVERTIDOS;
+    IndicadorMetaComercial
+      .LEADS_CONVERTIDOS;
 
   if (
     indicadorQuantidade &&
@@ -451,8 +524,8 @@ async function validarReferencias({
 }) {
   if (
     escopo ===
-      EscopoMetaComercial
-        .INSTITUICAO &&
+    EscopoMetaComercial
+      .INSTITUICAO &&
     (
       equipeId !== null ||
       funcionarioId !== null
@@ -467,8 +540,8 @@ async function validarReferencias({
 
   if (
     escopo ===
-      EscopoMetaComercial
-        .EQUIPE &&
+    EscopoMetaComercial
+      .EQUIPE &&
     !equipeId
   ) {
     throw new ErroHttp(
@@ -480,8 +553,8 @@ async function validarReferencias({
 
   if (
     escopo ===
-      EscopoMetaComercial
-        .EQUIPE &&
+    EscopoMetaComercial
+      .EQUIPE &&
     funcionarioId !== null
   ) {
     throw new ErroHttp(
@@ -493,8 +566,8 @@ async function validarReferencias({
 
   if (
     escopo ===
-      EscopoMetaComercial
-        .FUNCIONARIO &&
+    EscopoMetaComercial
+      .FUNCIONARIO &&
     !funcionarioId
   ) {
     throw new ErroHttp(
@@ -506,8 +579,8 @@ async function validarReferencias({
 
   if (
     escopo ===
-      EscopoMetaComercial
-        .FUNCIONARIO &&
+    EscopoMetaComercial
+      .FUNCIONARIO &&
     equipeId !== null
   ) {
     throw new ErroHttp(
@@ -616,6 +689,330 @@ async function validarReferencias({
   }
 }
 
+async function resolverParticipantesEquipe({
+  instituicaoId,
+  equipeId,
+  participanteIds,
+  dataInicio,
+  dataFim,
+}: {
+  instituicaoId: number;
+  equipeId: number | null;
+  participanteIds: number[] | undefined;
+  dataInicio: Date;
+  dataFim: Date;
+}) {
+  if (!equipeId) {
+    throw new ErroHttp(
+      400,
+      "Selecione a equipe responsável pela meta.",
+      "EQUIPE_OBRIGATORIA"
+    );
+  }
+
+  if (
+    participanteIds !== undefined &&
+    participanteIds.length === 0
+  ) {
+    throw new ErroHttp(
+      400,
+      "Selecione pelo menos um participante para a meta da equipe.",
+      "PARTICIPANTE_OBRIGATORIO"
+    );
+  }
+
+  const membros =
+    await prisma.equipeComercialMembro.findMany({
+      where: {
+        instituicaoId,
+        equipeId,
+        ativo: true,
+
+        inicioVigencia: {
+          lte: dataFim,
+        },
+
+        OR: [
+          {
+            fimVigencia: null,
+          },
+          {
+            fimVigencia: {
+              gte: dataInicio,
+            },
+          },
+        ],
+
+        funcionario: {
+          ativo: true,
+          statusFuncionario:
+            "ATIVO",
+        },
+
+        ...(participanteIds !== undefined
+          ? {
+            funcionarioId: {
+              in: participanteIds,
+            },
+          }
+          : {}),
+      },
+
+      select: {
+        funcionarioId: true,
+      },
+    });
+
+  const idsDisponiveis: number[] =
+    Array.from(
+      new Set<number>(
+        membros.map(
+          (membro) =>
+            Number(
+              membro.funcionarioId
+            )
+        )
+      )
+    );
+
+  if (
+    participanteIds !== undefined &&
+    idsDisponiveis.length !==
+    participanteIds.length
+  ) {
+    throw new ErroHttp(
+      400,
+      "Um ou mais participantes selecionados não pertencem à equipe ou não estão ativos.",
+      "PARTICIPANTE_FORA_DA_EQUIPE"
+    );
+  }
+
+  if (
+    idsDisponiveis.length === 0
+  ) {
+    throw new ErroHttp(
+      400,
+      "A equipe selecionada não possui participantes ativos disponíveis para esta meta.",
+      "EQUIPE_SEM_PARTICIPANTES"
+    );
+  }
+
+  return idsDisponiveis;
+}
+
+async function sincronizarParticipantesMeta({
+  tx,
+  instituicaoId,
+  metaId,
+  usuarioId,
+  escopoFinal,
+  statusAtual,
+  statusFinal,
+  dataInicioFinal,
+  participanteIdsDesejados,
+}: {
+  tx: Prisma.TransactionClient;
+  instituicaoId: number;
+  metaId: number;
+  usuarioId: number;
+  escopoFinal: EscopoMetaComercial;
+  statusAtual: StatusMetaComercial;
+  statusFinal: StatusMetaComercial;
+  dataInicioFinal: Date;
+  participanteIdsDesejados:
+  | number[]
+  | undefined;
+}) {
+  const agora = new Date();
+
+  const participantesAtivos =
+    await tx.metaComercialParticipante.findMany({
+      where: {
+        instituicaoId,
+        metaId,
+        ativo: true,
+      },
+
+      select: {
+        id: true,
+        funcionarioId: true,
+        inicioVigencia: true,
+      },
+    });
+
+  const idsAtivos =
+    new Set(
+      participantesAtivos.map(
+        (participante) =>
+          participante.funcionarioId
+      )
+    );
+
+  const idsDesejados =
+    new Set(
+      participanteIdsDesejados ??
+      []
+    );
+
+  const metaTerminada =
+    statusFinal ===
+    StatusMetaComercial.ENCERRADA ||
+    statusFinal ===
+    StatusMetaComercial.CANCELADA;
+
+  const saiuDoEscopoEquipe =
+    escopoFinal !==
+    EscopoMetaComercial.EQUIPE;
+
+  const participantesParaEncerrar =
+    participantesAtivos.filter(
+      (participante) =>
+        metaTerminada ||
+        saiuDoEscopoEquipe ||
+        (
+          participanteIdsDesejados !==
+          undefined &&
+          !idsDesejados.has(
+            participante.funcionarioId
+          )
+        )
+    );
+
+  for (
+    const participante of
+    participantesParaEncerrar
+  ) {
+    if (
+      statusAtual ===
+      StatusMetaComercial.RASCUNHO &&
+      statusFinal ===
+      StatusMetaComercial.RASCUNHO
+    ) {
+      await tx.metaComercialParticipante.deleteMany({
+        where: {
+          id:
+            participante.id,
+          instituicaoId,
+          metaId,
+          ativo: true,
+        },
+      });
+
+      continue;
+    }
+
+    const fimVigencia =
+      agora.getTime() <
+        participante
+          .inicioVigencia
+          .getTime()
+        ? participante
+          .inicioVigencia
+        : agora;
+
+    await tx.metaComercialParticipante.updateMany({
+      where: {
+        id:
+          participante.id,
+        instituicaoId,
+        metaId,
+        ativo: true,
+      },
+
+      data: {
+        ativo: false,
+        fimVigencia,
+        atualizadoPorId:
+          usuarioId,
+      },
+    });
+  }
+
+  if (
+    escopoFinal ===
+    EscopoMetaComercial.EQUIPE &&
+    statusAtual ===
+    StatusMetaComercial.RASCUNHO &&
+    statusFinal ===
+    StatusMetaComercial.RASCUNHO
+  ) {
+    await tx.metaComercialParticipante.updateMany({
+      where: {
+        instituicaoId,
+        metaId,
+        ativo: true,
+      },
+
+      data: {
+        inicioVigencia:
+          dataInicioFinal,
+
+        atualizadoPorId:
+          usuarioId,
+      },
+    });
+  }
+
+  if (
+    metaTerminada ||
+    saiuDoEscopoEquipe ||
+    participanteIdsDesejados ===
+    undefined
+  ) {
+    return;
+  }
+
+  const idsParaAdicionar =
+    participanteIdsDesejados.filter(
+      (funcionarioId) =>
+        !idsAtivos.has(
+          funcionarioId
+        )
+    );
+
+  if (
+    idsParaAdicionar.length === 0
+  ) {
+    return;
+  }
+
+  const inicioNovaParticipacao =
+    statusAtual ===
+      StatusMetaComercial.RASCUNHO
+      ? dataInicioFinal
+      : new Date(
+        Math.max(
+          agora.getTime(),
+          dataInicioFinal.getTime()
+        )
+      );
+
+  await tx.metaComercialParticipante.createMany({
+    data:
+      idsParaAdicionar.map(
+        (funcionarioId) => ({
+          instituicaoId,
+          metaId,
+          funcionarioId,
+
+          criadoPorId:
+            usuarioId,
+
+          atualizadoPorId:
+            usuarioId,
+
+          inicioVigencia:
+            inicioNovaParticipacao,
+
+          fimVigencia:
+            null,
+
+          ativo: true,
+        })
+      ),
+  });
+}
+
 function validarTransicaoStatus(
   statusAtual: StatusMetaComercial,
   statusFinal: StatusMetaComercial
@@ -628,8 +1025,8 @@ function validarTransicaoStatus(
 
   if (
     statusAtual ===
-      StatusMetaComercial
-        .ENCERRADA
+    StatusMetaComercial
+      .ENCERRADA
   ) {
     throw new ErroHttp(
       409,
@@ -640,8 +1037,8 @@ function validarTransicaoStatus(
 
   if (
     statusAtual ===
-      StatusMetaComercial
-        .CANCELADA
+    StatusMetaComercial
+      .CANCELADA
   ) {
     throw new ErroHttp(
       409,
@@ -652,8 +1049,8 @@ function validarTransicaoStatus(
 
   if (
     statusAtual ===
-      StatusMetaComercial
-        .RASCUNHO
+    StatusMetaComercial
+      .RASCUNHO
   ) {
     const statusPermitidos:
       StatusMetaComercial[] = [
@@ -680,8 +1077,8 @@ function validarTransicaoStatus(
 
   if (
     statusAtual ===
-      StatusMetaComercial
-        .ATIVA
+    StatusMetaComercial
+      .ATIVA
   ) {
     const statusPermitidos:
       StatusMetaComercial[] = [
@@ -736,7 +1133,7 @@ function respostaErro(
 
   if (
     error instanceof
-      Prisma.PrismaClientKnownRequestError &&
+    Prisma.PrismaClientKnownRequestError &&
     error.code === "P2002"
   ) {
     return NextResponse.json(
@@ -937,9 +1334,9 @@ export async function PATCH(
         .catch(
           () => ({})
         )) as Record<
-        string,
-        unknown
-      >;
+          string,
+          unknown
+        >;
 
     const camposEditaveis = [
       "nome",
@@ -956,6 +1353,7 @@ export async function PATCH(
       "funcionarioId",
       "cursoId",
       "poloId",
+      "participanteIds",
     ];
 
     const possuiAlteracao =
@@ -977,8 +1375,8 @@ export async function PATCH(
 
     if (
       metaExistente.status ===
-        StatusMetaComercial
-          .ENCERRADA
+      StatusMetaComercial
+        .ENCERRADA
     ) {
       throw new ErroHttp(
         409,
@@ -989,8 +1387,8 @@ export async function PATCH(
 
     if (
       metaExistente.status ===
-        StatusMetaComercial
-          .CANCELADA
+      StatusMetaComercial
+        .CANCELADA
     ) {
       throw new ErroHttp(
         409,
@@ -1005,9 +1403,9 @@ export async function PATCH(
         "nome"
       )
         ? limparTexto(
-            body.nome,
-            140
-          )
+          body.nome,
+          140
+        )
         : metaExistente.nome;
 
     if (
@@ -1026,9 +1424,9 @@ export async function PATCH(
         "descricao"
       )
         ? textoLongoOuNull(
-            body.descricao,
-            2000
-          )
+          body.descricao,
+          2000
+        )
         : metaExistente.descricao;
 
     const observacoesFinal =
@@ -1037,9 +1435,9 @@ export async function PATCH(
         "observacoes"
       )
         ? textoLongoOuNull(
-            body.observacoes,
-            4000
-          )
+          body.observacoes,
+          4000
+        )
         : metaExistente.observacoes;
 
     const escopoFinal =
@@ -1048,11 +1446,11 @@ export async function PATCH(
         "escopo"
       )
         ? lerEnumObrigatorio(
-            body.escopo,
-            ESCOPOS_META,
-            "Selecione um escopo válido para a meta.",
-            "ESCOPO_INVALIDO"
-          )
+          body.escopo,
+          ESCOPOS_META,
+          "Selecione um escopo válido para a meta.",
+          "ESCOPO_INVALIDO"
+        )
         : metaExistente.escopo;
 
     const indicadorFinal =
@@ -1061,11 +1459,11 @@ export async function PATCH(
         "indicador"
       )
         ? lerEnumObrigatorio(
-            body.indicador,
-            INDICADORES_META,
-            "Selecione um indicador válido para a meta.",
-            "INDICADOR_INVALIDO"
-          )
+          body.indicador,
+          INDICADORES_META,
+          "Selecione um indicador válido para a meta.",
+          "INDICADOR_INVALIDO"
+        )
         : metaExistente.indicador;
 
     const periodicidadeFinal =
@@ -1074,13 +1472,13 @@ export async function PATCH(
         "periodicidade"
       )
         ? lerEnumObrigatorio(
-            body.periodicidade,
-            PERIODICIDADES_META,
-            "Selecione uma periodicidade válida para a meta.",
-            "PERIODICIDADE_INVALIDA"
-          )
+          body.periodicidade,
+          PERIODICIDADES_META,
+          "Selecione uma periodicidade válida para a meta.",
+          "PERIODICIDADE_INVALIDA"
+        )
         : metaExistente
-            .periodicidade;
+          .periodicidade;
 
     const statusFinal =
       campoFoiInformado(
@@ -1088,11 +1486,11 @@ export async function PATCH(
         "status"
       )
         ? lerEnumObrigatorio(
-            body.status,
-            STATUS_META,
-            "O status informado é inválido.",
-            "STATUS_INVALIDO"
-          )
+          body.status,
+          STATUS_META,
+          "O status informado é inválido.",
+          "STATUS_INVALIDO"
+        )
         : metaExistente.status;
 
     validarTransicaoStatus(
@@ -1106,11 +1504,11 @@ export async function PATCH(
         "dataInicio"
       )
         ? lerData(
-            body.dataInicio,
-            "a data inicial"
-          )
+          body.dataInicio,
+          "a data inicial"
+        )
         : metaExistente
-            .dataInicio;
+          .dataInicio;
 
     const dataFimFinal =
       campoFoiInformado(
@@ -1118,12 +1516,12 @@ export async function PATCH(
         "dataFim"
       )
         ? lerData(
-            body.dataFim,
-            "a data final",
-            true
-          )
+          body.dataFim,
+          "a data final",
+          true
+        )
         : metaExistente
-            .dataFim;
+          .dataFim;
 
     if (
       dataFimFinal.getTime() <
@@ -1141,22 +1539,22 @@ export async function PATCH(
         body,
         "valorAlvo"
       ) ||
-      indicadorFinal !==
+        indicadorFinal !==
         metaExistente.indicador
         ? lerValorAlvo(
-            campoFoiInformado(
-              body,
-              "valorAlvo"
-            )
-              ? body.valorAlvo
-              : Number(
-                  metaExistente
-                    .valorAlvo
-                ),
-            indicadorFinal
+          campoFoiInformado(
+            body,
+            "valorAlvo"
           )
+            ? body.valorAlvo
+            : Number(
+              metaExistente
+                .valorAlvo
+            ),
+          indicadorFinal
+        )
         : metaExistente
-            .valorAlvo;
+          .valorAlvo;
 
     let equipeIdFinal =
       campoFoiInformado(
@@ -1164,11 +1562,11 @@ export async function PATCH(
         "equipeId"
       )
         ? idOpcional(
-            body.equipeId,
-            "A equipe"
-          )
+          body.equipeId,
+          "A equipe"
+        )
         : metaExistente
-            .equipeId;
+          .equipeId;
 
     let funcionarioIdFinal =
       campoFoiInformado(
@@ -1176,11 +1574,11 @@ export async function PATCH(
         "funcionarioId"
       )
         ? idOpcional(
-            body.funcionarioId,
-            "O funcionário"
-          )
+          body.funcionarioId,
+          "O funcionário"
+        )
         : metaExistente
-            .funcionarioId;
+          .funcionarioId;
 
     const cursoIdFinal =
       campoFoiInformado(
@@ -1188,11 +1586,11 @@ export async function PATCH(
         "cursoId"
       )
         ? idOpcional(
-            body.cursoId,
-            "O curso"
-          )
+          body.cursoId,
+          "O curso"
+        )
         : metaExistente
-            .cursoId;
+          .cursoId;
 
     const poloIdFinal =
       campoFoiInformado(
@@ -1200,16 +1598,21 @@ export async function PATCH(
         "poloId"
       )
         ? idOpcional(
-            body.poloId,
-            "O polo"
-          )
+          body.poloId,
+          "O polo"
+        )
         : metaExistente
-            .poloId;
+          .poloId;
+
+    const participanteIdsInformados =
+      lerParticipanteIds(
+        body.participanteIds
+      );
 
     if (
       escopoFinal ===
-        EscopoMetaComercial
-          .INSTITUICAO
+      EscopoMetaComercial
+        .INSTITUICAO
     ) {
       equipeIdFinal = null;
       funcionarioIdFinal = null;
@@ -1217,16 +1620,16 @@ export async function PATCH(
 
     if (
       escopoFinal ===
-        EscopoMetaComercial
-          .EQUIPE
+      EscopoMetaComercial
+        .EQUIPE
     ) {
       funcionarioIdFinal = null;
     }
 
     if (
       escopoFinal ===
-        EscopoMetaComercial
-          .FUNCIONARIO
+      EscopoMetaComercial
+        .FUNCIONARIO
     ) {
       equipeIdFinal = null;
     }
@@ -1243,6 +1646,69 @@ export async function PATCH(
       poloId:
         poloIdFinal,
     });
+
+        if (
+      escopoFinal !==
+        EscopoMetaComercial.EQUIPE &&
+      participanteIdsInformados !==
+        undefined &&
+      participanteIdsInformados.length >
+        0
+    ) {
+      throw new ErroHttp(
+        400,
+        "Participantes da equipe somente podem ser selecionados em metas com escopo de equipe comercial.",
+        "PARTICIPANTES_INCOMPATIVEIS"
+      );
+    }
+
+    const equipeFoiAlterada =
+      equipeIdFinal !==
+      metaExistente.equipeId;
+
+    const entrouNoEscopoEquipe =
+      metaExistente.escopo !==
+        EscopoMetaComercial.EQUIPE &&
+      escopoFinal ===
+        EscopoMetaComercial.EQUIPE;
+
+    let participanteIdsDesejados:
+      | number[]
+      | undefined;
+
+    if (
+      escopoFinal ===
+      EscopoMetaComercial.EQUIPE
+    ) {
+      if (
+        participanteIdsInformados !==
+          undefined ||
+        equipeFoiAlterada ||
+        entrouNoEscopoEquipe
+      ) {
+        participanteIdsDesejados =
+          await resolverParticipantesEquipe({
+            instituicaoId,
+            equipeId:
+              equipeIdFinal,
+
+            participanteIds:
+              participanteIdsInformados,
+
+            dataInicio:
+              dataInicioFinal,
+
+            dataFim:
+              dataFimFinal,
+          });
+      }
+    } else if (
+      metaExistente.escopo ===
+        EscopoMetaComercial.EQUIPE
+    ) {
+      participanteIdsDesejados =
+        [];
+    }
 
     const metaDuplicada =
       await prisma.metaComercial
@@ -1305,113 +1771,136 @@ export async function PATCH(
       );
     }
 
-    const resultado =
-      await prisma.metaComercial
-        .updateMany({
-          where: {
-            id,
+        const metaAtualizada =
+      await prisma.$transaction(
+        async (tx) => {
+          const resultado =
+            await tx.metaComercial.updateMany({
+              where: {
+                id,
+                instituicaoId,
+              },
+
+              data: {
+                nome:
+                  nomeFinal,
+
+                descricao:
+                  descricaoFinal,
+
+                observacoes:
+                  observacoesFinal,
+
+                escopo:
+                  escopoFinal,
+
+                indicador:
+                  indicadorFinal,
+
+                periodicidade:
+                  periodicidadeFinal,
+
+                status:
+                  statusFinal,
+
+                valorAlvo:
+                  valorAlvoFinal,
+
+                dataInicio:
+                  dataInicioFinal,
+
+                dataFim:
+                  dataFimFinal,
+
+                equipeId:
+                  equipeIdFinal,
+
+                funcionarioId:
+                  funcionarioIdFinal,
+
+                cursoId:
+                  cursoIdFinal,
+
+                poloId:
+                  poloIdFinal,
+
+                atualizadoPorId:
+                  usuarioId,
+              },
+            });
+
+          if (
+            resultado.count !== 1
+          ) {
+            throw new ErroHttp(
+              404,
+              "Meta comercial não encontrada.",
+              "META_NAO_ENCONTRADA"
+            );
+          }
+
+          await sincronizarParticipantesMeta({
+            tx,
             instituicaoId,
-          },
+            metaId: id,
+            usuarioId,
 
-          data: {
-            nome:
-              nomeFinal,
+            escopoFinal,
 
-            descricao:
-              descricaoFinal,
+            statusAtual:
+              metaExistente.status,
 
-            observacoes:
-              observacoesFinal,
+            statusFinal,
 
-            escopo:
-              escopoFinal,
+            dataInicioFinal,
 
-            indicador:
-              indicadorFinal,
+            participanteIdsDesejados,
+          });
 
-            periodicidade:
-              periodicidadeFinal,
+          const metaCompleta =
+            await tx.metaComercial.findFirst({
+              where: {
+                id,
+                instituicaoId,
+              },
 
-            status:
-              statusFinal,
+              include:
+                INCLUDE_META,
+            });
 
-            valorAlvo:
-              valorAlvoFinal,
+          if (!metaCompleta) {
+            throw new ErroHttp(
+              500,
+              "A meta foi atualizada, mas não pôde ser carregada.",
+              "META_NAO_CARREGADA"
+            );
+          }
 
-            dataInicio:
-              dataInicioFinal,
-
-            dataFim:
-              dataFimFinal,
-
-            equipeId:
-              equipeIdFinal,
-
-            funcionarioId:
-              funcionarioIdFinal,
-
-            cursoId:
-              cursoIdFinal,
-
-            poloId:
-              poloIdFinal,
-
-            atualizadoPorId:
-              usuarioId,
-          },
-        });
-
-    if (
-      resultado.count !== 1
-    ) {
-      throw new ErroHttp(
-        404,
-        "Meta comercial não encontrada.",
-        "META_NAO_ENCONTRADA"
+          return metaCompleta;
+        }
       );
-    }
-
-    const metaAtualizada =
-      await prisma.metaComercial
-        .findFirst({
-          where: {
-            id,
-            instituicaoId,
-          },
-
-          include:
-            INCLUDE_META,
-        });
-
-    if (!metaAtualizada) {
-      throw new ErroHttp(
-        500,
-        "A meta foi atualizada, mas não pôde ser carregada.",
-        "META_NAO_CARREGADA"
-      );
-    }
 
     const mensagem =
       statusFinal ===
         StatusMetaComercial
           .ENCERRADA &&
-      metaExistente.status !==
+        metaExistente.status !==
         StatusMetaComercial
           .ENCERRADA
         ? "Meta comercial encerrada com sucesso."
         : statusFinal ===
-              StatusMetaComercial
-                .CANCELADA &&
-            metaExistente.status !==
-              StatusMetaComercial
-                .CANCELADA
+          StatusMetaComercial
+            .CANCELADA &&
+          metaExistente.status !==
+          StatusMetaComercial
+            .CANCELADA
           ? "Meta comercial cancelada com sucesso."
           : statusFinal ===
-                StatusMetaComercial
-                  .ATIVA &&
-              metaExistente.status !==
-                StatusMetaComercial
-                  .ATIVA
+            StatusMetaComercial
+              .ATIVA &&
+            metaExistente.status !==
+            StatusMetaComercial
+              .ATIVA
             ? "Meta comercial ativada com sucesso."
             : "Meta comercial atualizada com sucesso.";
 
@@ -1498,8 +1987,8 @@ export async function DELETE(
 
     if (
       metaExistente.status !==
-        StatusMetaComercial
-          .RASCUNHO
+      StatusMetaComercial
+        .RASCUNHO
     ) {
       throw new ErroHttp(
         409,

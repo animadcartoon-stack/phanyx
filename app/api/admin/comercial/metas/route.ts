@@ -110,6 +110,34 @@ const INCLUDE_META = {
       nome: true,
     },
   },
+
+  participantes: {
+    select: {
+      id: true,
+      funcionarioId: true,
+      inicioVigencia: true,
+      fimVigencia: true,
+      ativo: true,
+
+      funcionario: {
+        select: {
+          id: true,
+          nome: true,
+          cargo: true,
+          ativo: true,
+          statusFuncionario: true,
+
+          departamento: {
+            select: {
+              id: true,
+              nome: true,
+            },
+          },
+        },
+      },
+    },
+  },
+
 } satisfies Prisma.MetaComercialInclude;
 
 function limparTexto(
@@ -159,6 +187,44 @@ function idOpcional(
   }
 
   return id;
+}
+
+function lerParticipanteIds(
+  valor: unknown
+): number[] | undefined {
+  if (valor === undefined) {
+    return undefined;
+  }
+
+  if (!Array.isArray(valor)) {
+    throw new ErroHttp(
+      400,
+      "A lista de participantes da meta é inválida.",
+      "PARTICIPANTES_INVALIDOS"
+    );
+  }
+
+  const ids = valor.map(
+    (item) => Number(item)
+  );
+
+  if (
+    ids.some(
+      (id) =>
+        !Number.isInteger(id) ||
+        id <= 0
+    )
+  ) {
+    throw new ErroHttp(
+      400,
+      "A lista de participantes possui funcionário inválido.",
+      "PARTICIPANTE_INVALIDO"
+    );
+  }
+
+  return Array.from(
+    new Set(ids)
+  );
 }
 
 function lerEnumObrigatorio<
@@ -248,10 +314,9 @@ function lerData(
     )
   ) {
     data = new Date(
-      `${texto}T${
-        finalDoDia
-          ? "23:59:59.999"
-          : "00:00:00.000"
+      `${texto}T${finalDoDia
+        ? "23:59:59.999"
+        : "00:00:00.000"
       }Z`
     );
   } else {
@@ -293,8 +358,8 @@ function converterNumero(
   const normalizado =
     texto.includes(",")
       ? texto
-          .replace(/\./g, "")
-          .replace(",", ".")
+        .replace(/\./g, "")
+        .replace(",", ".")
       : texto;
 
   return Number(normalizado);
@@ -320,11 +385,11 @@ function lerValorAlvo(
 
   const indicadorQuantidade =
     indicador ===
-      IndicadorMetaComercial
-        .QUANTIDADE_MATRICULAS ||
+    IndicadorMetaComercial
+      .QUANTIDADE_MATRICULAS ||
     indicador ===
-      IndicadorMetaComercial
-        .LEADS_CONVERTIDOS;
+    IndicadorMetaComercial
+      .LEADS_CONVERTIDOS;
 
   if (
     indicadorQuantidade &&
@@ -440,8 +505,8 @@ async function validarReferencias({
 }) {
   if (
     escopo ===
-      EscopoMetaComercial
-        .INSTITUICAO &&
+    EscopoMetaComercial
+      .INSTITUICAO &&
     (
       equipeId !== null ||
       funcionarioId !== null
@@ -456,8 +521,8 @@ async function validarReferencias({
 
   if (
     escopo ===
-      EscopoMetaComercial
-        .EQUIPE &&
+    EscopoMetaComercial
+      .EQUIPE &&
     !equipeId
   ) {
     throw new ErroHttp(
@@ -469,8 +534,8 @@ async function validarReferencias({
 
   if (
     escopo ===
-      EscopoMetaComercial
-        .EQUIPE &&
+    EscopoMetaComercial
+      .EQUIPE &&
     funcionarioId !== null
   ) {
     throw new ErroHttp(
@@ -482,8 +547,8 @@ async function validarReferencias({
 
   if (
     escopo ===
-      EscopoMetaComercial
-        .FUNCIONARIO &&
+    EscopoMetaComercial
+      .FUNCIONARIO &&
     !funcionarioId
   ) {
     throw new ErroHttp(
@@ -495,8 +560,8 @@ async function validarReferencias({
 
   if (
     escopo ===
-      EscopoMetaComercial
-        .FUNCIONARIO &&
+    EscopoMetaComercial
+      .FUNCIONARIO &&
     equipeId !== null
   ) {
     throw new ErroHttp(
@@ -600,6 +665,146 @@ async function validarReferencias({
       );
     }
   }
+}
+
+async function prepararParticipantesMeta({
+  instituicaoId,
+  escopo,
+  equipeId,
+  participanteIds,
+  dataInicio,
+  dataFim,
+}: {
+  instituicaoId: number;
+  escopo: EscopoMetaComercial;
+  equipeId: number | null;
+  participanteIds: number[] | undefined;
+  dataInicio: Date;
+  dataFim: Date;
+}) {
+  if (
+    escopo !==
+    EscopoMetaComercial.EQUIPE
+  ) {
+    if (
+      participanteIds &&
+      participanteIds.length > 0
+    ) {
+      throw new ErroHttp(
+        400,
+        "Participantes individuais da meta somente podem ser informados quando o escopo for uma equipe comercial.",
+        "PARTICIPANTES_INCOMPATIVEIS"
+      );
+    }
+
+    return [];
+  }
+
+  if (!equipeId) {
+    throw new ErroHttp(
+      400,
+      "Selecione a equipe responsável pela meta.",
+      "EQUIPE_OBRIGATORIA"
+    );
+  }
+
+  if (
+    participanteIds !== undefined &&
+    participanteIds.length === 0
+  ) {
+    throw new ErroHttp(
+      400,
+      "Selecione pelo menos um participante para a meta da equipe.",
+      "PARTICIPANTE_OBRIGATORIO"
+    );
+  }
+
+  const membros =
+    await prisma.equipeComercialMembro.findMany({
+      where: {
+        instituicaoId,
+        equipeId,
+        ativo: true,
+
+        inicioVigencia: {
+          lte: dataFim,
+        },
+
+        OR: [
+          {
+            fimVigencia: null,
+          },
+          {
+            fimVigencia: {
+              gte: dataInicio,
+            },
+          },
+        ],
+
+        funcionario: {
+          ativo: true,
+          statusFuncionario: "ATIVO",
+        },
+
+        ...(participanteIds !== undefined
+          ? {
+            funcionarioId: {
+              in: participanteIds,
+            },
+          }
+          : {}),
+      },
+
+      select: {
+        funcionarioId: true,
+        inicioVigencia: true,
+
+        funcionario: {
+          select: {
+            id: true,
+            nome: true,
+          },
+        },
+      },
+    });
+
+  if (membros.length === 0) {
+    throw new ErroHttp(
+      400,
+      "A equipe selecionada não possui participantes ativos disponíveis para esta meta.",
+      "EQUIPE_SEM_PARTICIPANTES"
+    );
+  }
+
+  if (
+    participanteIds !== undefined &&
+    membros.length !==
+    participanteIds.length
+  ) {
+    throw new ErroHttp(
+      400,
+      "Um ou mais participantes selecionados não pertencem à equipe ou não estão ativos.",
+      "PARTICIPANTE_FORA_DA_EQUIPE"
+    );
+  }
+
+  return membros.map(
+    (membro) => ({
+      funcionarioId:
+        membro.funcionarioId,
+
+      inicioVigencia:
+        membro.inicioVigencia.getTime() >
+          dataInicio.getTime()
+          ? membro.inicioVigencia
+          : dataInicio,
+
+      fimVigencia:
+        null as Date | null,
+
+      ativo: true,
+    })
+  );
 }
 
 function serializarMeta(
@@ -727,94 +932,94 @@ export async function GET(
 
           ...(status
             ? {
-                status,
-              }
+              status,
+            }
             : {}),
 
           ...(indicador
             ? {
-                indicador,
-              }
+              indicador,
+            }
             : {}),
 
           ...(escopo
             ? {
-                escopo,
-              }
+              escopo,
+            }
             : {}),
 
           ...(busca
             ? {
-                OR: [
-                  {
-                    nome: {
-                      contains: busca,
-                      mode:
-                        "insensitive",
-                    },
+              OR: [
+                {
+                  nome: {
+                    contains: busca,
+                    mode:
+                      "insensitive",
                   },
+                },
 
-                  {
-                    descricao: {
-                      contains: busca,
-                      mode:
-                        "insensitive",
-                    },
+                {
+                  descricao: {
+                    contains: busca,
+                    mode:
+                      "insensitive",
                   },
+                },
 
-                  {
-                    equipe: {
-                      is: {
-                        nome: {
-                          contains:
-                            busca,
-                          mode:
-                            "insensitive",
-                        },
+                {
+                  equipe: {
+                    is: {
+                      nome: {
+                        contains:
+                          busca,
+                        mode:
+                          "insensitive",
                       },
                     },
                   },
+                },
 
-                  {
-                    funcionario: {
-                      is: {
-                        nome: {
-                          contains:
-                            busca,
-                          mode:
-                            "insensitive",
-                        },
+                {
+                  funcionario: {
+                    is: {
+                      nome: {
+                        contains:
+                          busca,
+                        mode:
+                          "insensitive",
                       },
                     },
                   },
+                },
 
-                  {
-                    curso: {
-                      is: {
-                        nome: {
-                          contains:
-                            busca,
-                          mode:
-                            "insensitive",
-                        },
+                {
+                  curso: {
+                    is: {
+                      nome: {
+                        contains:
+                          busca,
+                        mode:
+                          "insensitive",
                       },
                     },
                   },
+                },
 
-                  {
-                    polo: {
-                      is: {
-                        nome: {
-                          contains:
-                            busca,
-                          mode:
-                            "insensitive",
-                        },
+                {
+                  polo: {
+                    is: {
+                      nome: {
+                        contains:
+                          busca,
+                        mode:
+                          "insensitive",
                       },
                     },
                   },
-                ],
-              }
+                },
+              ],
+            }
             : {}),
         },
 
@@ -847,6 +1052,41 @@ export async function GET(
             select: {
               id: true,
               nome: true,
+            },
+          },
+
+          membros: {
+            where: {
+              ativo: true,
+
+              funcionario: {
+                ativo: true,
+                statusFuncionario:
+                  "ATIVO",
+              },
+            },
+
+            select: {
+              id: true,
+              funcionarioId: true,
+              papel: true,
+              inicioVigencia: true,
+              fimVigencia: true,
+
+              funcionario: {
+                select: {
+                  id: true,
+                  nome: true,
+                  cargo: true,
+
+                  departamento: {
+                    select: {
+                      id: true,
+                      nome: true,
+                    },
+                  },
+                },
+              },
             },
           },
 
@@ -930,90 +1170,90 @@ export async function GET(
     ]);
 
     const metasComApuracao =
-  await Promise.all(
-    metas.map(
-      async (meta) => {
-        const apuracao =
-          await apurarMetaComercial({
-            id: meta.id,
+      await Promise.all(
+        metas.map(
+          async (meta) => {
+            const apuracao =
+              await apurarMetaComercial({
+                id: meta.id,
 
-            instituicaoId:
-              meta.instituicaoId,
+                instituicaoId:
+                  meta.instituicaoId,
 
-            equipeId:
-              meta.equipeId,
+                equipeId:
+                  meta.equipeId,
 
-            funcionarioId:
-              meta.funcionarioId,
+                funcionarioId:
+                  meta.funcionarioId,
 
-            cursoId:
-              meta.cursoId,
+                cursoId:
+                  meta.cursoId,
 
-            poloId:
-              meta.poloId,
+                poloId:
+                  meta.poloId,
 
-            escopo:
-              meta.escopo,
+                escopo:
+                  meta.escopo,
 
-            indicador:
-              meta.indicador,
+                indicador:
+                  meta.indicador,
 
-            valorAlvo:
-              meta.valorAlvo,
+                valorAlvo:
+                  meta.valorAlvo,
 
-            dataInicio:
-              meta.dataInicio,
+                dataInicio:
+                  meta.dataInicio,
 
-            dataFim:
-              meta.dataFim,
-          });
+                dataFim:
+                  meta.dataFim,
+              });
 
-        return {
-          ...serializarMeta(
-            meta
-          ),
+            return {
+              ...serializarMeta(
+                meta
+              ),
 
-          valorRealizado:
-            apuracao
-              .valorRealizado,
+              valorRealizado:
+                apuracao
+                  .valorRealizado,
 
-          valorRestante:
-            apuracao
-              .valorRestante,
+              valorRestante:
+                apuracao
+                  .valorRestante,
 
-          percentualAtingido:
-            apuracao
-              .percentualAtingido,
+              percentualAtingido:
+                apuracao
+                  .percentualAtingido,
 
-          atingida:
-            apuracao.atingida,
+              atingida:
+                apuracao.atingida,
 
-          unidadeMeta:
-            apuracao.unidade,
+              unidadeMeta:
+                apuracao.unidade,
 
-          matriculasConsideradas:
-            apuracao
-              .matriculasConsideradas,
+              matriculasConsideradas:
+                apuracao
+                  .matriculasConsideradas,
 
-          pagamentosConsiderados:
-            apuracao
-              .pagamentosConsiderados,
+              pagamentosConsiderados:
+                apuracao
+                  .pagamentosConsiderados,
 
-          membrosEquipeConsiderados:
-            apuracao
-              .membrosEquipeConsiderados,
+              membrosEquipeConsiderados:
+                apuracao
+                  .membrosEquipeConsiderados,
 
-          apuradoEm:
-            apuracao.apuradoEm,
-        };
-      }
-    )
-  );
+              apuradoEm:
+                apuracao.apuradoEm,
+            };
+          }
+        )
+      );
 
     return NextResponse.json(
       {
         metas:
-  metasComApuracao,
+          metasComApuracao,
 
         total:
           metas.length,
@@ -1085,9 +1325,9 @@ export async function POST(
         .catch(
           () => ({})
         )) as Record<
-        string,
-        unknown
-      >;
+          string,
+          unknown
+        >;
 
     const nome = limparTexto(
       body.nome,
@@ -1143,24 +1383,24 @@ export async function POST(
     const status =
       body.status ===
         undefined ||
-      body.status === null ||
-      body.status === ""
+        body.status === null ||
+        body.status === ""
         ? StatusMetaComercial
-            .RASCUNHO
+          .RASCUNHO
         : lerEnumObrigatorio(
-            body.status,
-            STATUS_META,
-            "O status informado é inválido.",
-            "STATUS_INVALIDO"
-          );
+          body.status,
+          STATUS_META,
+          "O status informado é inválido.",
+          "STATUS_INVALIDO"
+        );
 
     if (
       status !==
-        StatusMetaComercial
-          .RASCUNHO &&
+      StatusMetaComercial
+        .RASCUNHO &&
       status !==
-        StatusMetaComercial
-          .ATIVA
+      StatusMetaComercial
+        .ATIVA
     ) {
       throw new ErroHttp(
         400,
@@ -1223,6 +1463,11 @@ export async function POST(
         "O polo"
       );
 
+    const participanteIds =
+      lerParticipanteIds(
+        body.participanteIds
+      );
+
     await validarReferencias({
       instituicaoId,
       escopo,
@@ -1231,6 +1476,16 @@ export async function POST(
       cursoId,
       poloId,
     });
+
+    const participantesMeta =
+      await prepararParticipantesMeta({
+        instituicaoId,
+        escopo,
+        equipeId,
+        participanteIds,
+        dataInicio,
+        dataFim,
+      });
 
     const metaDuplicada =
       await prisma.metaComercial.findFirst({
@@ -1273,39 +1528,103 @@ export async function POST(
       );
     }
 
-    const meta =
-      await prisma.metaComercial.create({
-        data: {
-          instituicaoId,
+        const meta =
+      await prisma.$transaction(
+        async (tx) => {
+          const metaCriada =
+            await tx.metaComercial.create({
+              data: {
+                instituicaoId,
 
-          nome,
-          descricao,
-          observacoes,
+                nome,
+                descricao,
+                observacoes,
 
-          escopo,
-          indicador,
-          periodicidade,
-          status,
-          valorAlvo,
+                escopo,
+                indicador,
+                periodicidade,
+                status,
+                valorAlvo,
 
-          dataInicio,
-          dataFim,
+                dataInicio,
+                dataFim,
 
-          equipeId,
-          funcionarioId,
-          cursoId,
-          poloId,
+                equipeId,
+                funcionarioId,
+                cursoId,
+                poloId,
 
-          criadoPorId:
-            usuarioId,
+                criadoPorId:
+                  usuarioId,
 
-          atualizadoPorId:
-            usuarioId,
-        },
+                atualizadoPorId:
+                  usuarioId,
+              },
+            });
 
-        include:
-          INCLUDE_META,
-      });
+          if (
+            escopo ===
+              EscopoMetaComercial.EQUIPE &&
+            participantesMeta.length > 0
+          ) {
+            await tx.metaComercialParticipante.createMany({
+              data:
+                participantesMeta.map(
+                  (participante) => ({
+                    instituicaoId,
+
+                    metaId:
+                      metaCriada.id,
+
+                    funcionarioId:
+                      participante
+                        .funcionarioId,
+
+                    criadoPorId:
+                      usuarioId,
+
+                    atualizadoPorId:
+                      usuarioId,
+
+                    inicioVigencia:
+                      participante
+                        .inicioVigencia,
+
+                    fimVigencia:
+                      participante
+                        .fimVigencia,
+
+                    ativo:
+                      participante.ativo,
+                  })
+                ),
+            });
+          }
+
+          const metaCompleta =
+            await tx.metaComercial.findFirst({
+              where: {
+                id:
+                  metaCriada.id,
+
+                instituicaoId,
+              },
+
+              include:
+                INCLUDE_META,
+            });
+
+          if (!metaCompleta) {
+            throw new ErroHttp(
+              500,
+              "A meta foi criada, mas não pôde ser carregada.",
+              "META_NAO_CARREGADA"
+            );
+          }
+
+          return metaCompleta;
+        }
+      );
 
     return NextResponse.json(
       {

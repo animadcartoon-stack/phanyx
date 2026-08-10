@@ -17,9 +17,9 @@ export type MetaComercialParaApuracao = {
   escopo: EscopoMetaComercial;
   indicador: IndicadorMetaComercial;
   valorAlvo:
-    | Prisma.Decimal
-    | number
-    | string;
+  | Prisma.Decimal
+  | number
+  | string;
   dataInicio: Date;
   dataFim: Date;
 };
@@ -31,15 +31,15 @@ export type ResultadoApuracaoMetaComercial = {
   percentualAtingido: number;
   atingida: boolean;
   unidade:
-    | "QUANTIDADE"
-    | "VALOR";
+  | "QUANTIDADE"
+  | "VALOR";
   matriculasConsideradas: number;
   pagamentosConsiderados: number;
   membrosEquipeConsiderados: number;
   apuradoEm: string;
 };
 
-type MembroEquipeApuracao = {
+type ParticipanteMetaApuracao = {
   funcionarioId: number;
   inicioVigencia: Date;
   fimVigencia: Date | null;
@@ -53,21 +53,21 @@ type MatriculaApuracao = {
   poloId: number | null;
   status: StatusMatricula;
   vendedorResponsavelId:
-    | number
-    | null;
+  | number
+  | null;
   leadOrigemId: number | null;
   valorMatricula:
-    | Prisma.Decimal
-    | null;
+  | Prisma.Decimal
+  | null;
   valorMensalidade:
-    | Prisma.Decimal
-    | null;
+  | Prisma.Decimal
+  | null;
   quantidadeParcelas:
-    | number
-    | null;
+  | number
+  | null;
   quantidadeMensalidades:
-    | number
-    | null;
+  | number
+  | null;
 };
 
 const STATUS_MATRICULAS_VALIDAS:
@@ -106,7 +106,7 @@ function arredondar(
     Math.round(
       (valor +
         Number.EPSILON) *
-        fator
+      fator
     ) / fator
   );
 }
@@ -123,21 +123,25 @@ function dataComercialMatricula(
   );
 }
 
-function membroValidoNaData(
-  membro: MembroEquipeApuracao,
+function participanteValidoNaData(
+  participante: ParticipanteMetaApuracao,
   data: Date
 ) {
   if (
     data.getTime() <
-    membro.inicioVigencia.getTime()
+    participante
+      .inicioVigencia
+      .getTime()
   ) {
     return false;
   }
 
   if (
-    membro.fimVigencia &&
+    participante.fimVigencia &&
     data.getTime() >
-      membro.fimVigencia.getTime()
+    participante
+      .fimVigencia
+      .getTime()
   ) {
     return false;
   }
@@ -145,26 +149,25 @@ function membroValidoNaData(
   return true;
 }
 
-async function carregarMembrosEquipe(
+async function carregarParticipantesMeta(
   meta: MetaComercialParaApuracao
 ) {
   if (
     meta.escopo !==
-      EscopoMetaComercial.EQUIPE ||
-    !meta.equipeId
+    EscopoMetaComercial.EQUIPE
   ) {
-    return [] as MembroEquipeApuracao[];
+    return [] as ParticipanteMetaApuracao[];
   }
 
   return prisma
-    .equipeComercialMembro
+    .metaComercialParticipante
     .findMany({
       where: {
         instituicaoId:
           meta.instituicaoId,
 
-        equipeId:
-          meta.equipeId,
+        metaId:
+          meta.id,
 
         inicioVigencia: {
           lte: meta.dataFim,
@@ -189,18 +192,29 @@ async function carregarMembrosEquipe(
         inicioVigencia: true,
         fimVigencia: true,
       },
+
+      orderBy: [
+        {
+          funcionarioId:
+            "asc",
+        },
+        {
+          inicioVigencia:
+            "asc",
+        },
+      ],
     });
 }
 
 function pertenceAoEscopo({
   meta,
   matricula,
-  membrosEquipe,
+  participantesMeta,
 }: {
   meta: MetaComercialParaApuracao;
   matricula: MatriculaApuracao;
-  membrosEquipe:
-    MembroEquipeApuracao[];
+  participantesMeta:
+  ParticipanteMetaApuracao[];
 }) {
   if (
     meta.escopo ===
@@ -217,7 +231,7 @@ function pertenceAoEscopo({
       !!meta.funcionarioId &&
       matricula
         .vendedorResponsavelId ===
-        meta.funcionarioId
+      meta.funcionarioId
     );
   }
 
@@ -237,13 +251,13 @@ function pertenceAoEscopo({
         matricula
       );
 
-    return membrosEquipe.some(
-      (membro) =>
-        membro.funcionarioId ===
-          matricula
-            .vendedorResponsavelId &&
-        membroValidoNaData(
-          membro,
+    return participantesMeta.some(
+      (participante) =>
+        participante.funcionarioId ===
+        matricula
+          .vendedorResponsavelId &&
+        participanteValidoNaData(
+          participante,
           dataVenda
         )
     );
@@ -262,7 +276,7 @@ function correspondeSegmentacao({
   if (
     meta.cursoId &&
     matricula.cursoId !==
-      meta.cursoId
+    meta.cursoId
   ) {
     return false;
   }
@@ -270,7 +284,7 @@ function correspondeSegmentacao({
   if (
     meta.poloId &&
     matricula.poloId !==
-      meta.poloId
+    meta.poloId
   ) {
     return false;
   }
@@ -295,117 +309,122 @@ function valorVendidoMatricula(
     Number(
       matricula
         .quantidadeMensalidades ??
-        matricula
-          .quantidadeParcelas ??
-        0
+      matricula
+        .quantidadeParcelas ??
+      0
     );
 
   const quantidadeValida =
     Number.isFinite(
       quantidade
     ) &&
-    quantidade > 0
+      quantidade > 0
       ? quantidade
       : 0;
 
   return arredondar(
     valorMatricula +
-      valorMensalidade *
-        quantidadeValida
+    valorMensalidade *
+    quantidadeValida
   );
 }
 
 async function buscarMatriculasPeriodo({
   meta,
-  membrosEquipe,
+  participantesMeta,
 }: {
   meta: MetaComercialParaApuracao;
-  membrosEquipe:
-    MembroEquipeApuracao[];
+  participantesMeta:
+  ParticipanteMetaApuracao[];
 }) {
-  const idsMembrosEquipe =
-    membrosEquipe.map(
-      (membro) =>
-        membro.funcionarioId
+  const idsParticipantesMeta =
+    Array.from(
+      new Set<number>(
+        participantesMeta.map(
+          (participante) =>
+            participante
+              .funcionarioId
+        )
+      )
     );
 
   if (
     meta.escopo ===
-      EscopoMetaComercial.EQUIPE &&
-    idsMembrosEquipe.length ===
-      0
+    EscopoMetaComercial.EQUIPE &&
+    idsParticipantesMeta.length ===
+    0
   ) {
     return [] as MatriculaApuracao[];
   }
 
   const where: Prisma.MatriculaWhereInput =
-    {
-      instituicaoId:
-        meta.instituicaoId,
+  {
+    instituicaoId:
+      meta.instituicaoId,
 
-      status: {
-        in:
-          STATUS_MATRICULAS_VALIDAS,
-      },
+    status: {
+      in:
+        STATUS_MATRICULAS_VALIDAS,
+    },
 
-      ...(meta.cursoId
-        ? {
-            cursoId:
-              meta.cursoId,
-          }
-        : {}),
+    ...(meta.cursoId
+      ? {
+        cursoId:
+          meta.cursoId,
+      }
+      : {}),
 
-      ...(meta.poloId
-        ? {
-            poloId:
-              meta.poloId,
-          }
-        : {}),
+    ...(meta.poloId
+      ? {
+        poloId:
+          meta.poloId,
+      }
+      : {}),
 
-      ...(meta.escopo ===
-        EscopoMetaComercial
-          .FUNCIONARIO &&
+    ...(meta.escopo ===
+      EscopoMetaComercial
+        .FUNCIONARIO &&
       meta.funcionarioId
-        ? {
-            vendedorResponsavelId:
-              meta.funcionarioId,
-          }
-        : {}),
+      ? {
+        vendedorResponsavelId:
+          meta.funcionarioId,
+      }
+      : {}),
 
-      ...(meta.escopo ===
-        EscopoMetaComercial
-          .EQUIPE
-        ? {
-            vendedorResponsavelId:
-              {
-                in:
-                  idsMembrosEquipe,
-              },
-          }
-        : {}),
-
-      OR: [
+    ...(meta.escopo ===
+      EscopoMetaComercial
+        .EQUIPE
+      ? {
+        vendedorResponsavelId:
         {
-          confirmadaEm: {
-            gte:
-              meta.dataInicio,
-            lte:
-              meta.dataFim,
-          },
+          in:
+            idsParticipantesMeta,
         },
-        {
-          confirmadaEm:
-            null,
+      }
+      : {}),
 
-          createdAt: {
-            gte:
-              meta.dataInicio,
-            lte:
-              meta.dataFim,
-          },
+    OR: [
+      {
+        confirmadaEm: {
+          gte:
+            meta.dataInicio,
+          lte:
+            meta.dataFim,
         },
-      ],
-    };
+      },
+      {
+        confirmadaEm:
+          null,
+
+        createdAt: {
+          gte:
+            meta.dataInicio,
+          lte:
+            meta.dataFim,
+        },
+      },
+    ],
+  };
 
   const matriculas =
     await prisma.matricula
@@ -436,18 +455,18 @@ async function buscarMatriculasPeriodo({
       pertenceAoEscopo({
         meta,
         matricula,
-        membrosEquipe,
+        participantesMeta,
       })
   );
 }
 
 async function apurarValorRecebido({
   meta,
-  membrosEquipe,
+  participantesMeta,
 }: {
   meta: MetaComercialParaApuracao;
-  membrosEquipe:
-    MembroEquipeApuracao[];
+  participantesMeta:
+  ParticipanteMetaApuracao[];
 }) {
   const pagamentos =
     await prisma.pagamento
@@ -515,8 +534,8 @@ async function apurarValorRecebido({
     const matricula =
       pagamento.lancamento
         .matricula as
-        | MatriculaApuracao
-        | null;
+      | MatriculaApuracao
+      | null;
 
     if (!matricula) {
       continue;
@@ -543,7 +562,7 @@ async function apurarValorRecebido({
       !pertenceAoEscopo({
         meta,
         matricula,
-        membrosEquipe,
+        participantesMeta,
       })
     ) {
       continue;
@@ -600,7 +619,7 @@ function montarResultado({
     arredondar(
       Math.max(
         valorAlvo -
-          valorRealizadoFinal,
+        valorRealizadoFinal,
         0
       )
     );
@@ -608,18 +627,18 @@ function montarResultado({
   const percentualAtingido =
     valorAlvo > 0
       ? arredondar(
-          (
-            valorRealizadoFinal /
-            valorAlvo
-          ) * 100
-        )
+        (
+          valorRealizadoFinal /
+          valorAlvo
+        ) * 100
+      )
       : 0;
 
   const unidade =
     meta.indicador ===
       IndicadorMetaComercial
         .VALOR_VENDIDO ||
-    meta.indicador ===
+      meta.indicador ===
       IndicadorMetaComercial
         .VALOR_RECEBIDO
       ? "VALOR"
@@ -656,10 +675,18 @@ function montarResultado({
 export async function apurarMetaComercial(
   meta: MetaComercialParaApuracao
 ): Promise<ResultadoApuracaoMetaComercial> {
-  const membrosEquipe =
-    await carregarMembrosEquipe(
+  const participantesMeta =
+    await carregarParticipantesMeta(
       meta
     );
+
+  const participantesUnicos =
+    new Set<number>(
+      participantesMeta.map(
+        (participante) =>
+          participante.funcionarioId
+      )
+    ).size;
 
   if (
     meta.indicador ===
@@ -669,7 +696,7 @@ export async function apurarMetaComercial(
     const resultado =
       await apurarValorRecebido({
         meta,
-        membrosEquipe,
+        participantesMeta,
       });
 
     return montarResultado({
@@ -688,14 +715,14 @@ export async function apurarMetaComercial(
           .pagamentosConsiderados,
 
       membrosEquipeConsiderados:
-        membrosEquipe.length,
+        participantesUnicos,
     });
   }
 
   const matriculas =
     await buscarMatriculasPeriodo({
       meta,
-      membrosEquipe,
+      participantesMeta,
     });
 
   let valorRealizado = 0;
@@ -754,6 +781,6 @@ export async function apurarMetaComercial(
       0,
 
     membrosEquipeConsiderados:
-      membrosEquipe.length,
+      participantesUnicos,
   });
 }

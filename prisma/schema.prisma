@@ -201,6 +201,7 @@ model Instituicao {
   equipesComerciais              EquipeComercial[]
   membrosEquipesComerciais       EquipeComercialMembro[]
   metasComerciais                MetaComercial[]
+  participantesMetasComerciais   MetaComercialParticipante[]
   rematriculasSemestrais         RematriculaSemestral[]
   itensRematriculaSemestral      RematriculaSemestralItem[]
 
@@ -306,25 +307,26 @@ model User {
   certificadoModelosCriados    CertificadoModelo[] @relation("CertificadoModeloCriadoPor")
   certificadoModelosPublicados CertificadoModelo[] @relation("CertificadoModeloPublicadoPor")
 
-  planosComissaoRHCriados               PlanoComissaoRH[]                @relation("PlanoComissaoRHCriadoPor")
-  regrasComissaoRHCriadas               RegraComissaoRH[]                @relation("RegraComissaoRHCriadoPor")
-  funcionariosPlanosComissaoRHCriados   FuncionarioPlanoComissaoRH[]     @relation("FuncionarioPlanoComissaoRHCriadoPor")
-  participantesComerciaisCriados        MatriculaParticipanteComercial[] @relation("MatriculaParticipanteComercialCriadoPor")
-  lancamentosComissaoRHCriados          LancamentoComissaoRH[]           @relation("LancamentoComissaoRHCriadoPor")
-  lancamentosComissaoRHAprovados        LancamentoComissaoRH[]           @relation("LancamentoComissaoRHAprovadoPor")
-  lancamentosComissaoRHReprovados       LancamentoComissaoRH[]           @relation("LancamentoComissaoRHReprovadoPor")
-  lancamentosComissaoRHEnviadosHolerite LancamentoComissaoRH[]           @relation("LancamentoComissaoRHEnviadoHoleritePor")
-  lancamentosComissaoRHEstornados       LancamentoComissaoRH[]           @relation("LancamentoComissaoRHEstornadoPor")
-  leadsCriados                          Lead[]                           @relation("LeadCriadoPor")
-  leadsAtualizados                      Lead[]                           @relation("LeadAtualizadoPor")
-  interacoesLeadCriadas                 LeadInteracao[]                  @relation("LeadInteracaoCriadaPor")
-  equipesComerciaisCriadas              EquipeComercial[]                @relation("EquipeComercialCriadaPor")
-  equipesComerciaisAtualizadas          EquipeComercial[]                @relation("EquipeComercialAtualizadaPor")
-  membrosEquipesComerciaisCriados       EquipeComercialMembro[]          @relation("EquipeComercialMembroCriadoPor")
-  membrosEquipesComerciaisAtualizados   EquipeComercialMembro[]          @relation("EquipeComercialMembroAtualizadoPor")
-  metasComerciaisCriadas                MetaComercial[]                  @relation("MetaComercialCriadaPor")
-  metasComerciaisAtualizadas            MetaComercial[]                  @relation("MetaComercialAtualizadaPor")
-
+  planosComissaoRHCriados                              PlanoComissaoRH[]                           @relation("PlanoComissaoRHCriadoPor")
+  regrasComissaoRHCriadas                              RegraComissaoRH[]                           @relation("RegraComissaoRHCriadoPor")
+  funcionariosPlanosComissaoRHCriados                  FuncionarioPlanoComissaoRH[]                @relation("FuncionarioPlanoComissaoRHCriadoPor")
+  participantesComerciaisCriados                       MatriculaParticipanteComercial[]            @relation("MatriculaParticipanteComercialCriadoPor")
+  lancamentosComissaoRHCriados                         LancamentoComissaoRH[]                      @relation("LancamentoComissaoRHCriadoPor")
+  lancamentosComissaoRHAprovados                       LancamentoComissaoRH[]                      @relation("LancamentoComissaoRHAprovadoPor")
+  lancamentosComissaoRHReprovados                      LancamentoComissaoRH[]                      @relation("LancamentoComissaoRHReprovadoPor")
+  lancamentosComissaoRHEnviadosHolerite                LancamentoComissaoRH[]                      @relation("LancamentoComissaoRHEnviadoHoleritePor")
+  lancamentosComissaoRHEstornados                      LancamentoComissaoRH[]                      @relation("LancamentoComissaoRHEstornadoPor")
+  leadsCriados                                         Lead[]                                      @relation("LeadCriadoPor")
+  leadsAtualizados                                     Lead[]                                      @relation("LeadAtualizadoPor")
+  interacoesLeadCriadas                                LeadInteracao[]                             @relation("LeadInteracaoCriadaPor")
+  equipesComerciaisCriadas                             EquipeComercial[]                           @relation("EquipeComercialCriadaPor")
+  equipesComerciaisAtualizadas                         EquipeComercial[]                           @relation("EquipeComercialAtualizadaPor")
+  membrosEquipesComerciaisCriados                      EquipeComercialMembro[]                     @relation("EquipeComercialMembroCriadoPor")
+  membrosEquipesComerciaisAtualizados                  EquipeComercialMembro[]                     @relation("EquipeComercialMembroAtualizadoPor")
+  metasComerciaisCriadas                               MetaComercial[]                             @relation("MetaComercialCriadaPor")
+  metasComerciaisAtualizadas                           MetaComercial[]                             @relation("MetaComercialAtualizadaPor")
+  participantesMetasComerciaisCriados                  MetaComercialParticipante[]                 @relation("MetaComercialParticipanteCriadoPor")
+  participantesMetasComerciaisAtualizados              MetaComercialParticipante[]                 @relation("MetaComercialParticipanteAtualizadoPor")
   programasRemuneracaoVariavelRHCriados                ProgramaRemuneracaoVariavelRH[]             @relation("ProgramaRemuneracaoVariavelRHCriadoPor")
   programasRemuneracaoVariavelRHAprovados              ProgramaRemuneracaoVariavelRH[]             @relation("ProgramaRemuneracaoVariavelRHAprovadoPor")
   participantesProgramasRemuneracaoVariavelRHIncluidos ParticipanteProgramaRemuneracaoVariavelRH[] @relation("ParticipanteProgramaRemuneracaoVariavelRHIncluidoPor")
@@ -1520,6 +1522,7 @@ model Funcionario {
   equipesComerciaisResponsavel                EquipeComercial[]                           @relation("EquipeComercialResponsavel")
   membrosEquipesComerciais                    EquipeComercialMembro[]
   metasComerciais                             MetaComercial[]
+  participacoesMetasComerciais                MetaComercialParticipante[]
   matriculasConfirmacaoMenor                  Matricula[]                                 @relation("MatriculaConfirmacaoMenorPorFuncionario")
   lancamentosComissaoRH                       LancamentoComissaoRH[]
   participacoesProgramasRemuneracaoVariavelRH ParticipanteProgramaRemuneracaoVariavelRH[]
@@ -4497,6 +4500,8 @@ model MetaComercial {
   criadoPor     User?            @relation("MetaComercialCriadaPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
   atualizadoPor User?            @relation("MetaComercialAtualizadaPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
 
+  participantes MetaComercialParticipante[]
+
   @@index([instituicaoId])
   @@index([instituicaoId, status])
   @@index([instituicaoId, indicador])
@@ -4507,6 +4512,35 @@ model MetaComercial {
   @@index([escopo])
   @@index([periodicidade])
   @@index([dataInicio, dataFim])
+  @@index([criadoPorId])
+  @@index([atualizadoPorId])
+}
+
+model MetaComercialParticipante {
+  id              Int       @id @default(autoincrement())
+  instituicaoId   Int
+  metaId          Int
+  funcionarioId   Int
+  criadoPorId     Int?
+  atualizadoPorId Int?
+  inicioVigencia  DateTime
+  fimVigencia     DateTime?
+  ativo           Boolean   @default(true)
+  criadoEm        DateTime  @default(now())
+  atualizadoEm    DateTime  @updatedAt
+
+  instituicao   Instituicao   @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  meta          MetaComercial @relation(fields: [metaId], references: [id], onDelete: Cascade)
+  funcionario   Funcionario   @relation(fields: [funcionarioId], references: [id], onDelete: Restrict)
+  criadoPor     User?         @relation("MetaComercialParticipanteCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+  atualizadoPor User?         @relation("MetaComercialParticipanteAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
+
+  @@index([instituicaoId])
+  @@index([metaId])
+  @@index([funcionarioId])
+  @@index([metaId, funcionarioId])
+  @@index([ativo])
+  @@index([inicioVigencia, fimVigencia])
   @@index([criadoPorId])
   @@index([atualizadoPorId])
 }
