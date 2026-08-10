@@ -692,7 +692,7 @@ async function prepararParticipantesMeta({
     ) {
       throw new ErroHttp(
         400,
-        "Participantes individuais da meta somente podem ser informados quando o escopo for uma equipe comercial.",
+        "Participantes da meta somente podem ser informados quando o escopo for uma equipe comercial.",
         "PARTICIPANTES_INCOMPATIVEIS"
       );
     }
@@ -708,9 +708,70 @@ async function prepararParticipantesMeta({
     );
   }
 
+  let idsDesejados: number[];
+
+  /*
+   * Compatibilidade com a tela atual:
+   * se participanteIds ainda não vier no request,
+   * usamos automaticamente os membros ativos da equipe.
+   *
+   * Quando a tela passar a enviar participanteIds,
+   * poderão ser funcionários de qualquer departamento/equipe,
+   * desde que sejam ativos nesta instituição.
+   */
+  if (participanteIds === undefined) {
+    const membrosEquipe =
+      await prisma.equipeComercialMembro.findMany({
+        where: {
+          instituicaoId,
+          equipeId,
+          ativo: true,
+
+          inicioVigencia: {
+            lte: dataFim,
+          },
+
+          OR: [
+            {
+              fimVigencia: null,
+            },
+            {
+              fimVigencia: {
+                gte: dataInicio,
+              },
+            },
+          ],
+
+          funcionario: {
+            ativo: true,
+            statusFuncionario:
+              "ATIVO",
+          },
+        },
+
+        select: {
+          funcionarioId: true,
+        },
+      });
+
+    idsDesejados =
+      Array.from(
+        new Set<number>(
+          membrosEquipe.map(
+            (membro) =>
+              Number(
+                membro.funcionarioId
+              )
+          )
+        )
+      );
+  } else {
+    idsDesejados =
+      participanteIds;
+  }
+
   if (
-    participanteIds !== undefined &&
-    participanteIds.length === 0
+    idsDesejados.length === 0
   ) {
     throw new ErroHttp(
       400,
@@ -719,92 +780,65 @@ async function prepararParticipantesMeta({
     );
   }
 
-  const membros =
-    await prisma.equipeComercialMembro.findMany({
+  const funcionariosValidos =
+    await prisma.funcionario.findMany({
       where: {
         instituicaoId,
-        equipeId,
+
+        id: {
+          in: idsDesejados,
+        },
+
         ativo: true,
 
-        inicioVigencia: {
-          lte: dataFim,
-        },
-
-        OR: [
-          {
-            fimVigencia: null,
-          },
-          {
-            fimVigencia: {
-              gte: dataInicio,
-            },
-          },
-        ],
-
-        funcionario: {
-          ativo: true,
-          statusFuncionario: "ATIVO",
-        },
-
-        ...(participanteIds !== undefined
-          ? {
-            funcionarioId: {
-              in: participanteIds,
-            },
-          }
-          : {}),
+        statusFuncionario:
+          "ATIVO",
       },
 
       select: {
-        funcionarioId: true,
-        inicioVigencia: true,
-
-        funcionario: {
-          select: {
-            id: true,
-            nome: true,
-          },
-        },
+        id: true,
       },
     });
 
-  if (membros.length === 0) {
-    throw new ErroHttp(
-      400,
-      "A equipe selecionada não possui participantes ativos disponíveis para esta meta.",
-      "EQUIPE_SEM_PARTICIPANTES"
-    );
-  }
-
   if (
-    participanteIds !== undefined &&
-    membros.length !==
-    participanteIds.length
+    funcionariosValidos.length !==
+    idsDesejados.length
   ) {
     throw new ErroHttp(
       400,
-      "Um ou mais participantes selecionados não pertencem à equipe ou não estão ativos.",
-      "PARTICIPANTE_FORA_DA_EQUIPE"
+      "Um ou mais participantes selecionados não existem, estão inativos ou não pertencem a esta instituição.",
+      "PARTICIPANTE_INVALIDO"
     );
   }
 
-  return membros.map(
-    (membro) => ({
-      funcionarioId:
-        membro.funcionarioId,
+  const idsValidos =
+    new Set<number>(
+      funcionariosValidos.map(
+        (funcionario) =>
+          Number(funcionario.id)
+      )
+    );
 
-      inicioVigencia:
-        membro.inicioVigencia.getTime() >
-          dataInicio.getTime()
-          ? membro.inicioVigencia
-          : dataInicio,
+  return idsDesejados
+    .filter(
+      (funcionarioId) =>
+        idsValidos.has(
+          funcionarioId
+        )
+    )
+    .map(
+      (funcionarioId) => ({
+        funcionarioId,
 
-      fimVigencia:
-        null as Date | null,
+        inicioVigencia:
+          dataInicio,
 
-      ativo: true,
-    })
-  );
+        fimVigencia:
+          null as Date | null,
+
+        ativo: true,
+      })
+    );
 }
 
 function serializarMeta(

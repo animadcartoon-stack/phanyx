@@ -484,6 +484,16 @@ export default function MetasComerciaisPage() {
   const [editandoId, setEditandoId] = useState<number | null>(null);
   const [form, setForm] = useState<FormMeta>(() => criarFormInicial());
 
+  const [
+    mostrarOutrosFuncionarios,
+    setMostrarOutrosFuncionarios,
+  ] = useState(false);
+
+  const [
+    buscaParticipante,
+    setBuscaParticipante,
+  ] = useState("");
+
   const [confirmacao, setConfirmacao] =
     useState<ConfirmacaoMeta | null>(null);
 
@@ -690,10 +700,89 @@ export default function MetasComerciaisPage() {
     equipeSelecionada?.membros ??
     [];
 
+  const idsMembrosEquipeSelecionada =
+    useMemo(
+      () =>
+        new Set<number>(
+          (
+            equipeSelecionada?.membros ??
+            []
+          ).map(
+            (membro) =>
+              membro.funcionarioId
+          )
+        ),
+      [equipeSelecionada]
+    );
+
+  const participantesAdicionaisSelecionados =
+    useMemo(
+      () =>
+        catalogos.funcionarios.filter(
+          (funcionario) =>
+            form.participanteIds.includes(
+              funcionario.id
+            ) &&
+            !idsMembrosEquipeSelecionada.has(
+              funcionario.id
+            )
+        ),
+      [
+        catalogos.funcionarios,
+        form.participanteIds,
+        idsMembrosEquipeSelecionada,
+      ]
+    );
+
+  const outrosFuncionariosDisponiveis =
+    useMemo(() => {
+      const termo =
+        buscaParticipante
+          .trim()
+          .toLowerCase();
+
+      return catalogos.funcionarios.filter(
+        (funcionario) => {
+          if (
+            idsMembrosEquipeSelecionada.has(
+              funcionario.id
+            )
+          ) {
+            return false;
+          }
+
+          if (!termo) {
+            return true;
+          }
+
+          const texto = [
+            funcionario.nome,
+            funcionario.cargo,
+            funcionario
+              .departamento
+              ?.nome,
+          ]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase();
+
+          return texto.includes(
+            termo
+          );
+        }
+      );
+    }, [
+      catalogos.funcionarios,
+      buscaParticipante,
+      idsMembrosEquipeSelecionada,
+    ]);
+
   function abrirNovaMeta() {
     setEditandoId(null);
     setForm(criarFormInicial());
     setErro("");
+    setBuscaParticipante("");
+    setMostrarOutrosFuncionarios(false);
     setModalAberto(true);
   }
 
@@ -747,6 +836,8 @@ export default function MetasComerciaisPage() {
     });
 
     setErro("");
+    setBuscaParticipante("");
+    setMostrarOutrosFuncionarios(false);
     setModalAberto(true);
   }
 
@@ -757,6 +848,8 @@ export default function MetasComerciaisPage() {
 
     setModalAberto(false);
     setEditandoId(null);
+    setBuscaParticipante("");
+    setMostrarOutrosFuncionarios(false);
     setForm(criarFormInicial());
   }
 
@@ -1595,480 +1688,641 @@ export default function MetasComerciaisPage() {
                 </div>
 
                 {form.escopo === "EQUIPE" && (
-  <>
-    <div className="md:col-span-2">
-      <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
-        Equipe responsável
-      </label>
+                  <>
+                    <div className="md:col-span-2">
+                      <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
+                        Equipe responsável
+                      </label>
 
-      <select
-        value={form.equipeId}
-        onChange={(event) =>
-          alterarEquipe(
-            event.target.value
-          )
-        }
-        className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 font-semibold !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
-      >
-        <option value="">
-          Selecione a equipe
-        </option>
-
-        {catalogos.equipes.map(
-          (equipe) => (
-            <option
-              key={equipe.id}
-              value={equipe.id}
-            >
-              {equipe.nome}
-              {typeof equipe._count?.membros ===
-              "number"
-                ? ` — ${equipe._count.membros} membro(s)`
-                : ""}
-            </option>
-          )
-        )}
-      </select>
-    </div>
-
-    {form.equipeId && (
-      <div className="phanyx-meta-participantes-box md:col-span-2 rounded-2xl border border-slate-200 !bg-slate-50 p-5">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm font-black !text-slate-900 dark:!text-white">
-              Participantes desta meta
-            </p>
-
-            <p className="mt-1 text-xs !text-slate-600 dark:!text-slate-400">
-              Escolha quais membros da equipe terão seus resultados considerados nesta meta.
-            </p>
-          </div>
-
-          <div className="shrink-0 rounded-full border border-slate-300 !bg-slate-200 px-3 py-1 text-xs font-black !text-slate-950">
-            {form.participanteIds.length}{" "}
-            selecionado(s)
-          </div>
-        </div>
-
-        {membrosEquipeSelecionada.length >
-        0 ? (
-          <>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() =>
-                  setForm(
-                    (atual) => ({
-                      ...atual,
-
-                      participanteIds:
-                        membrosEquipeSelecionada.map(
-                          (membro) =>
-                            membro.funcionarioId
-                        ),
-                    })
-                  )
-                }
-                className="rounded-xl border border-slate-300 !bg-white px-3 py-2 text-xs font-black !text-slate-700 transition hover:!bg-slate-100 dark:border-slate-600 dark:!bg-slate-900 dark:!text-slate-100 dark:hover:!bg-slate-800"
-              >
-                Selecionar todos
-              </button>
-
-              <button
-                type="button"
-                onClick={() =>
-                  setForm(
-                    (atual) => ({
-                      ...atual,
-                      participanteIds: [],
-                    })
-                  )
-                }
-                className="rounded-xl border border-slate-300 !bg-white px-3 py-2 text-xs font-black !text-slate-700 transition hover:!bg-slate-100 dark:border-slate-600 dark:!bg-slate-900 dark:!text-slate-100 dark:hover:!bg-slate-800"
-              >
-                Limpar seleção
-              </button>
-            </div>
-
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              {membrosEquipeSelecionada.map(
-                (membro) => {
-                  const selecionado =
-                    form.participanteIds.includes(
-                      membro.funcionarioId
-                    );
-
-                  return (
-                    <label
-                      key={membro.id}
-                      className={`flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition ${
-                        selecionado
-                          ? "border-emerald-500 !bg-white ring-1 ring-emerald-200 dark:border-emerald-600 dark:!bg-slate-900 dark:ring-emerald-900"
-                          : "border-slate-200 !bg-white hover:border-slate-400 dark:border-slate-700 dark:!bg-slate-900"
-                      }`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={
-                          selecionado
-                        }
-                        onChange={() =>
-                          alternarParticipante(
-                            membro.funcionarioId
+                      <select
+                        value={form.equipeId}
+                        onChange={(event) =>
+                          alterarEquipe(
+                            event.target.value
                           )
                         }
-                        className="mt-1 h-4 w-4 shrink-0 accent-emerald-600"
-                      />
+                        className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 font-semibold !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
+                      >
+                        <option value="">
+                          Selecione a equipe
+                        </option>
 
-                      <div className="min-w-0">
-                        <p className="font-black !text-slate-900 dark:!text-white">
-                          {
-                            membro
-                              .funcionario
-                              .nome
-                          }
-                        </p>
-
-                        {(membro
-                          .funcionario
-                          .cargo ||
-                          membro
-                            .funcionario
-                            .departamento
-                            ?.nome) && (
-                          <p className="mt-1 text-xs !text-slate-500 dark:!text-slate-400">
-                            {membro
-                              .funcionario
-                              .cargo ||
-                              "Cargo não informado"}
-
-                            {membro
-                              .funcionario
-                              .departamento
-                              ?.nome
-                              ? ` — ${membro.funcionario.departamento.nome}`
-                              : ""}
-                          </p>
+                        {catalogos.equipes.map(
+                          (equipe) => (
+                            <option
+                              key={equipe.id}
+                              value={equipe.id}
+                            >
+                              {equipe.nome}
+                              {typeof equipe._count?.membros ===
+                                "number"
+                                ? ` — ${equipe._count.membros} membro(s)`
+                                : ""}
+                            </option>
+                          )
                         )}
-                      </div>
-                    </label>
-                  );
+                      </select>
+                    </div>
+
+                    {form.equipeId && (
+  <div className="phanyx-meta-participantes-box md:col-span-2 rounded-2xl border border-slate-200 !bg-slate-50 p-5">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p className="text-sm font-black !text-slate-900 dark:!text-white">
+          Participantes desta meta
+        </p>
+
+        <p className="mt-1 text-xs !text-slate-600 dark:!text-slate-400">
+          Os membros da equipe são sugeridos automaticamente, mas você pode incluir outros funcionários da instituição somente nesta meta.
+        </p>
+      </div>
+
+      <div className="shrink-0 rounded-full border border-slate-300 !bg-slate-200 px-3 py-1 text-xs font-black !text-slate-950">
+        {form.participanteIds.length}{" "}
+        selecionado(s)
+      </div>
+    </div>
+
+    <div className="mt-4 flex flex-wrap gap-2">
+      <button
+        type="button"
+        onClick={() => {
+          const idsEquipe =
+            membrosEquipeSelecionada.map(
+              (membro) =>
+                membro.funcionarioId
+            );
+
+          setForm((atual) => ({
+            ...atual,
+
+            participanteIds:
+              Array.from(
+                new Set<number>([
+                  ...atual.participanteIds,
+                  ...idsEquipe,
+                ])
+              ),
+          }));
+        }}
+        className="rounded-xl border border-slate-300 !bg-white px-3 py-2 text-xs font-black !text-slate-700 transition hover:!bg-slate-100"
+      >
+        Selecionar membros da equipe
+      </button>
+
+      <button
+        type="button"
+        onClick={() =>
+          setForm(
+            (atual) => ({
+              ...atual,
+              participanteIds: [],
+            })
+          )
+        }
+        className="rounded-xl border border-slate-300 !bg-white px-3 py-2 text-xs font-black !text-slate-700 transition hover:!bg-slate-100"
+      >
+        Limpar seleção
+      </button>
+
+      <button
+        type="button"
+        onClick={() =>
+          setMostrarOutrosFuncionarios(
+            (atual) => !atual
+          )
+        }
+        className="rounded-xl border border-blue-700 !bg-blue-700 px-3 py-2 text-xs font-black !text-white transition hover:!bg-blue-800"
+      >
+        {mostrarOutrosFuncionarios
+          ? "Fechar funcionários"
+          : "+ Adicionar outros funcionários"}
+      </button>
+    </div>
+
+    <div className="mt-5">
+      <p className="text-xs font-black uppercase tracking-wide !text-slate-500">
+        Membros da equipe
+      </p>
+
+      {membrosEquipeSelecionada.length >
+      0 ? (
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          {membrosEquipeSelecionada.map(
+            (membro) => {
+              const selecionado =
+                form.participanteIds.includes(
+                  membro.funcionarioId
+                );
+
+              return (
+                <label
+                  key={membro.id}
+                  className={`flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition ${
+                    selecionado
+                      ? "border-emerald-500 !bg-white ring-1 ring-emerald-200"
+                      : "border-slate-200 !bg-white hover:border-slate-400"
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selecionado}
+                    onChange={() =>
+                      alternarParticipante(
+                        membro.funcionarioId
+                      )
+                    }
+                    className="mt-1 h-4 w-4 shrink-0 accent-emerald-600"
+                  />
+
+                  <div className="min-w-0">
+                    <p className="font-black !text-slate-900">
+                      {
+                        membro
+                          .funcionario
+                          .nome
+                      }
+                    </p>
+
+                    <p className="mt-1 text-xs !text-slate-500">
+                      {membro
+                        .funcionario
+                        .cargo ||
+                        "Cargo não informado"}
+
+                      {membro
+                        .funcionario
+                        .departamento
+                        ?.nome
+                        ? ` — ${membro.funcionario.departamento.nome}`
+                        : ""}
+                    </p>
+
+                    <p className="mt-1 text-[11px] font-bold !text-emerald-700">
+                      Membro da equipe
+                    </p>
+                  </div>
+                </label>
+              );
+            }
+          )}
+        </div>
+      ) : (
+        <div className="mt-3 rounded-xl border border-slate-300 !bg-white px-4 py-3 text-sm font-semibold !text-slate-600">
+          Esta equipe não possui membros ativos. Você ainda pode adicionar outros funcionários à meta.
+        </div>
+      )}
+    </div>
+
+    {participantesAdicionaisSelecionados.length >
+      0 && (
+      <div className="mt-5">
+        <p className="text-xs font-black uppercase tracking-wide !text-slate-500">
+          Participantes adicionais
+        </p>
+
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          {participantesAdicionaisSelecionados.map(
+            (funcionario) => (
+              <label
+                key={
+                  funcionario.id
                 }
-              )}
-            </div>
-          </>
+                className="flex cursor-pointer items-start gap-3 rounded-2xl border border-violet-300 !bg-white p-4 ring-1 ring-violet-100"
+              >
+                <input
+                  type="checkbox"
+                  checked={true}
+                  onChange={() =>
+                    alternarParticipante(
+                      funcionario.id
+                    )
+                  }
+                  className="mt-1 h-4 w-4 shrink-0 accent-violet-600"
+                />
+
+                <div className="min-w-0">
+                  <p className="font-black !text-slate-900">
+                    {funcionario.nome}
+                  </p>
+
+                  <p className="mt-1 text-xs !text-slate-500">
+                    {funcionario.cargo ||
+                      "Cargo não informado"}
+
+                    {funcionario
+                      .departamento
+                      ?.nome
+                      ? ` — ${funcionario.departamento.nome}`
+                      : ""}
+                  </p>
+
+                  <p className="mt-1 text-[11px] font-bold !text-violet-700">
+                    Participante adicional
+                  </p>
+                </div>
+              </label>
+            )
+          )}
+        </div>
+      </div>
+    )}
+
+    {mostrarOutrosFuncionarios && (
+      <div className="mt-5 rounded-2xl border border-slate-300 !bg-white p-4">
+        <div>
+          <p className="font-black !text-slate-900">
+            Adicionar outros funcionários
+          </p>
+
+          <p className="mt-1 text-xs !text-slate-500">
+            Selecionar um funcionário aqui não o adiciona à equipe comercial. Ele participará somente desta meta.
+          </p>
+        </div>
+
+        <input
+          type="search"
+          value={buscaParticipante}
+          onChange={(event) =>
+            setBuscaParticipante(
+              event.target.value
+            )
+          }
+          placeholder="Buscar por nome, cargo ou departamento"
+          className="mt-4 min-h-11 w-full rounded-xl border border-slate-300 !bg-white px-4 text-sm font-semibold !text-slate-950 outline-none focus:border-blue-600"
+        />
+
+        {outrosFuncionariosDisponiveis.length >
+        0 ? (
+          <div className="mt-4 max-h-72 space-y-2 overflow-y-auto pr-1">
+            {outrosFuncionariosDisponiveis.map(
+              (funcionario) => {
+                const selecionado =
+                  form.participanteIds.includes(
+                    funcionario.id
+                  );
+
+                return (
+                  <label
+                    key={
+                      funcionario.id
+                    }
+                    className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition ${
+                      selecionado
+                        ? "border-violet-400 !bg-violet-50"
+                        : "border-slate-200 !bg-white hover:border-slate-400"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={
+                        selecionado
+                      }
+                      onChange={() =>
+                        alternarParticipante(
+                          funcionario.id
+                        )
+                      }
+                      className="mt-1 h-4 w-4 shrink-0 accent-violet-600"
+                    />
+
+                    <div className="min-w-0">
+                      <p className="font-black !text-slate-900">
+                        {
+                          funcionario.nome
+                        }
+                      </p>
+
+                      <p className="mt-1 text-xs !text-slate-500">
+                        {funcionario.cargo ||
+                          "Cargo não informado"}
+
+                        {funcionario
+                          .departamento
+                          ?.nome
+                          ? ` — ${funcionario.departamento.nome}`
+                          : ""}
+                      </p>
+                    </div>
+                  </label>
+                );
+              }
+            )}
+          </div>
         ) : (
-          <div className="mt-4 rounded-xl border border-amber-300 !bg-amber-50 px-4 py-3 text-sm font-bold !text-amber-900 dark:border-amber-800 dark:!bg-amber-950/30 dark:!text-amber-100">
-            Esta equipe não possui membros ativos disponíveis para a meta.
+          <div className="mt-4 rounded-xl border border-slate-200 !bg-slate-50 px-4 py-3 text-sm font-semibold !text-slate-600">
+            Nenhum outro funcionário encontrado.
           </div>
         )}
       </div>
     )}
-  </>
+  </div>
 )}
+                  </>
+                )}
 
-                    {form.escopo === "FUNCIONARIO" && (
-                      <div className="md:col-span-2">
-                        <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
-                          Funcionário responsável
-                        </label>
-                        <select
-                          value={form.funcionarioId}
-                          onChange={(event) =>
+                {form.escopo === "FUNCIONARIO" && (
+                  <div className="md:col-span-2">
+                    <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
+                      Funcionário responsável
+                    </label>
+                    <select
+                      value={form.funcionarioId}
+                      onChange={(event) =>
+                        setForm((atual) => ({
+                          ...atual,
+                          funcionarioId: event.target.value,
+                        }))
+                      }
+                      className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 font-semibold !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
+                    >
+                      <option value="">Selecione o funcionário</option>
+                      {catalogos.funcionarios.map((funcionario) => (
+                        <option key={funcionario.id} value={funcionario.id}>
+                          {funcionario.nome}
+                          {funcionario.cargo ? ` — ${funcionario.cargo}` : ""}
+                          {funcionario.departamento?.nome
+                            ? ` — ${funcionario.departamento.nome}`
+                            : ""}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                <div>
+                  <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
+                    Periodicidade
+                  </label>
+                  <select
+                    value={form.periodicidade}
+                    onChange={(event) =>
+                      alterarPeriodicidade(
+                        event.target.value as PeriodicidadeMeta
+                      )
+                    }
+                    className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 font-semibold !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
+                  >
+                    <option value="MENSAL">Mensal</option>
+                    <option value="TRIMESTRAL">Trimestral</option>
+                    <option value="SEMESTRAL">Semestral</option>
+                    <option value="ANUAL">Anual</option>
+                    <option value="PERSONALIZADA">Personalizada</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
+                    Valor-alvo
+                  </label>
+                  <input
+                    value={form.valorAlvo}
+                    onChange={(event) =>
+                      setForm((atual) => ({
+                        ...atual,
+                        valorAlvo: event.target.value,
+                      }))
+                    }
+                    inputMode={indicadorEhValor ? "decimal" : "numeric"}
+                    placeholder={indicadorEhValor ? "Ex.: 25.000,00" : "Ex.: 100"}
+                    className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
+                  />
+                  <p className="mt-2 text-xs !text-slate-500 dark:!text-slate-400">
+                    {indicadorEhValor
+                      ? "Informe o valor em reais."
+                      : "Informe uma quantidade inteira."}
+                  </p>
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
+                    Data inicial
+                  </label>
+                  <input
+                    type="date"
+                    value={form.dataInicio}
+                    onChange={(event) =>
+                      setForm((atual) => ({
+                        ...atual,
+                        dataInicio: event.target.value,
+                      }))
+                    }
+                    className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
+                    Data final
+                  </label>
+                  <input
+                    type="date"
+                    value={form.dataFim}
+                    onChange={(event) =>
+                      setForm((atual) => ({
+                        ...atual,
+                        dataFim: event.target.value,
+                      }))
+                    }
+                    className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
+                    Curso
+                  </label>
+                  <select
+                    value={form.cursoId}
+                    onChange={(event) =>
+                      setForm((atual) => ({
+                        ...atual,
+                        cursoId: event.target.value,
+                      }))
+                    }
+                    className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 font-semibold !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
+                  >
+                    <option value="">Todos os cursos</option>
+                    {catalogos.cursos.map((curso) => (
+                      <option key={curso.id} value={curso.id}>
+                        {curso.nome}
+                        {curso.codigo ? ` — ${curso.codigo}` : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
+                    Polo
+                  </label>
+                  <select
+                    value={form.poloId}
+                    onChange={(event) =>
+                      setForm((atual) => ({
+                        ...atual,
+                        poloId: event.target.value,
+                      }))
+                    }
+                    className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 font-semibold !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
+                  >
+                    <option value="">Todos os polos</option>
+                    {catalogos.polos.map((polo) => (
+                      <option key={polo.id} value={polo.id}>
+                        {polo.nome}
+                        {polo.codigo ? ` — ${polo.codigo}` : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {!editandoId && (
+                  <div className="md:col-span-2">
+                    <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
+                      Situação inicial
+                    </label>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <label
+                        className={`cursor-pointer rounded-2xl border p-4 transition ${form.status === "RASCUNHO"
+                          ? "border-amber-600 !bg-amber-100 ring-1 ring-amber-300 dark:border-amber-700 dark:!bg-amber-950/30"
+                          : "border-slate-200 !bg-white dark:border-slate-700 dark:!bg-slate-950"
+                          }`}
+                      >
+                        <input
+                          type="radio"
+                          name="statusInicialMeta"
+                          value="RASCUNHO"
+                          checked={form.status === "RASCUNHO"}
+                          onChange={() =>
                             setForm((atual) => ({
                               ...atual,
-                              funcionarioId: event.target.value,
+                              status: "RASCUNHO",
                             }))
                           }
-                          className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 font-semibold !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
-                        >
-                          <option value="">Selecione o funcionário</option>
-                          {catalogos.funcionarios.map((funcionario) => (
-                            <option key={funcionario.id} value={funcionario.id}>
-                              {funcionario.nome}
-                              {funcionario.cargo ? ` — ${funcionario.cargo}` : ""}
-                              {funcionario.departamento?.nome
-                                ? ` — ${funcionario.departamento.nome}`
-                                : ""}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
-
-                    <div>
-                      <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
-                        Periodicidade
+                          className="mr-3"
+                        />
+                        <strong className="!text-slate-900 dark:!text-white">
+                          Salvar como rascunho
+                        </strong>
+                        <span className="mt-1 block pl-7 text-xs !text-slate-500 dark:!text-slate-400">
+                          Permite revisar a meta antes de ativá-la.
+                        </span>
                       </label>
-                      <select
-                        value={form.periodicidade}
-                        onChange={(event) =>
-                          alterarPeriodicidade(
-                            event.target.value as PeriodicidadeMeta
-                          )
-                        }
-                        className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 font-semibold !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
+
+                      <label
+                        className={`cursor-pointer rounded-2xl border p-4 transition ${form.status === "ATIVA"
+                          ? "border-emerald-600 !bg-emerald-100 ring-1 ring-emerald-300 dark:border-emerald-700 dark:!bg-emerald-950/30"
+                          : "border-slate-200 !bg-white dark:border-slate-700 dark:!bg-slate-950"
+                          }`}
                       >
-                        <option value="MENSAL">Mensal</option>
-                        <option value="TRIMESTRAL">Trimestral</option>
-                        <option value="SEMESTRAL">Semestral</option>
-                        <option value="ANUAL">Anual</option>
-                        <option value="PERSONALIZADA">Personalizada</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
-                        Valor-alvo
+                        <input
+                          type="radio"
+                          name="statusInicialMeta"
+                          value="ATIVA"
+                          checked={form.status === "ATIVA"}
+                          onChange={() =>
+                            setForm((atual) => ({
+                              ...atual,
+                              status: "ATIVA",
+                            }))
+                          }
+                          className="mr-3"
+                        />
+                        <strong className="!text-slate-900 dark:!text-white">
+                          Criar como ativa
+                        </strong>
+                        <span className="mt-1 block pl-7 text-xs !text-slate-500 dark:!text-slate-400">
+                          A meta já começa valendo para o período definido.
+                        </span>
                       </label>
-                      <input
-                        value={form.valorAlvo}
-                        onChange={(event) =>
-                          setForm((atual) => ({
-                            ...atual,
-                            valorAlvo: event.target.value,
-                          }))
-                        }
-                        inputMode={indicadorEhValor ? "decimal" : "numeric"}
-                        placeholder={indicadorEhValor ? "Ex.: 25.000,00" : "Ex.: 100"}
-                        className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
-                      />
-                      <p className="mt-2 text-xs !text-slate-500 dark:!text-slate-400">
-                        {indicadorEhValor
-                          ? "Informe o valor em reais."
-                          : "Informe uma quantidade inteira."}
-                      </p>
-                    </div>
-
-                    <div>
-                      <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
-                        Data inicial
-                      </label>
-                      <input
-                        type="date"
-                        value={form.dataInicio}
-                        onChange={(event) =>
-                          setForm((atual) => ({
-                            ...atual,
-                            dataInicio: event.target.value,
-                          }))
-                        }
-                        className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
-                        Data final
-                      </label>
-                      <input
-                        type="date"
-                        value={form.dataFim}
-                        onChange={(event) =>
-                          setForm((atual) => ({
-                            ...atual,
-                            dataFim: event.target.value,
-                          }))
-                        }
-                        className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
-                        Curso
-                      </label>
-                      <select
-                        value={form.cursoId}
-                        onChange={(event) =>
-                          setForm((atual) => ({
-                            ...atual,
-                            cursoId: event.target.value,
-                          }))
-                        }
-                        className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 font-semibold !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
-                      >
-                        <option value="">Todos os cursos</option>
-                        {catalogos.cursos.map((curso) => (
-                          <option key={curso.id} value={curso.id}>
-                            {curso.nome}
-                            {curso.codigo ? ` — ${curso.codigo}` : ""}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
-                        Polo
-                      </label>
-                      <select
-                        value={form.poloId}
-                        onChange={(event) =>
-                          setForm((atual) => ({
-                            ...atual,
-                            poloId: event.target.value,
-                          }))
-                        }
-                        className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 font-semibold !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
-                      >
-                        <option value="">Todos os polos</option>
-                        {catalogos.polos.map((polo) => (
-                          <option key={polo.id} value={polo.id}>
-                            {polo.nome}
-                            {polo.codigo ? ` — ${polo.codigo}` : ""}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {!editandoId && (
-                      <div className="md:col-span-2">
-                        <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
-                          Situação inicial
-                        </label>
-                        <div className="grid gap-3 sm:grid-cols-2">
-                          <label
-                            className={`cursor-pointer rounded-2xl border p-4 transition ${form.status === "RASCUNHO"
-                              ? "border-amber-600 !bg-amber-100 ring-1 ring-amber-300 dark:border-amber-700 dark:!bg-amber-950/30"
-                              : "border-slate-200 !bg-white dark:border-slate-700 dark:!bg-slate-950"
-                              }`}
-                          >
-                            <input
-                              type="radio"
-                              name="statusInicialMeta"
-                              value="RASCUNHO"
-                              checked={form.status === "RASCUNHO"}
-                              onChange={() =>
-                                setForm((atual) => ({
-                                  ...atual,
-                                  status: "RASCUNHO",
-                                }))
-                              }
-                              className="mr-3"
-                            />
-                            <strong className="!text-slate-900 dark:!text-white">
-                              Salvar como rascunho
-                            </strong>
-                            <span className="mt-1 block pl-7 text-xs !text-slate-500 dark:!text-slate-400">
-                              Permite revisar a meta antes de ativá-la.
-                            </span>
-                          </label>
-
-                          <label
-                            className={`cursor-pointer rounded-2xl border p-4 transition ${form.status === "ATIVA"
-                              ? "border-emerald-600 !bg-emerald-100 ring-1 ring-emerald-300 dark:border-emerald-700 dark:!bg-emerald-950/30"
-                              : "border-slate-200 !bg-white dark:border-slate-700 dark:!bg-slate-950"
-                              }`}
-                          >
-                            <input
-                              type="radio"
-                              name="statusInicialMeta"
-                              value="ATIVA"
-                              checked={form.status === "ATIVA"}
-                              onChange={() =>
-                                setForm((atual) => ({
-                                  ...atual,
-                                  status: "ATIVA",
-                                }))
-                              }
-                              className="mr-3"
-                            />
-                            <strong className="!text-slate-900 dark:!text-white">
-                              Criar como ativa
-                            </strong>
-                            <span className="mt-1 block pl-7 text-xs !text-slate-500 dark:!text-slate-400">
-                              A meta já começa valendo para o período definido.
-                            </span>
-                          </label>
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="md:col-span-2">
-                      <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
-                        Observações internas
-                      </label>
-                      <textarea
-                        value={form.observacoes}
-                        onChange={(event) =>
-                          setForm((atual) => ({
-                            ...atual,
-                            observacoes: event.target.value,
-                          }))
-                        }
-                        rows={4}
-                        placeholder="Registre critérios, orientações ou informações internas sobre a meta."
-                        className="w-full rounded-2xl border border-slate-300 !bg-white px-4 py-3 !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
-                      />
                     </div>
                   </div>
-              </div>
+                )}
 
-              <div className="sticky bottom-0 flex flex-col-reverse gap-3 border-t border-slate-200 !bg-slate-50 p-6 sm:flex-row sm:justify-end dark:border-slate-700 dark:!bg-slate-950">
-                <button
-                  type="button"
-                  onClick={fecharModal}
-                  disabled={salvando}
-                  className="min-h-11 rounded-2xl border border-slate-300 !bg-white px-5 text-sm font-black !text-slate-800 transition hover:!bg-slate-100 disabled:opacity-60 dark:border-slate-700 dark:!bg-slate-900 dark:!text-white"
-                >
-                  Cancelar
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => void salvarMeta()}
-                  disabled={salvando}
-                  className="min-h-11 rounded-2xl border !border-blue-700 !bg-blue-700 px-6 text-sm font-black !text-white transition hover:!bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {salvando
-                    ? "Salvando..."
-                    : editandoId
-                      ? "Salvar alterações"
-                      : "Criar meta"}
-                </button>
-              </div>
-            </div>
-          </div>
-      )}
-
-          {confirmacao && configuracaoConfirmacao && (
-            <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/70 p-4">
-              <div className="w-full max-w-lg rounded-3xl border border-slate-200 !bg-white p-6 shadow-2xl dark:border-slate-700 dark:!bg-slate-900">
-                <p className="text-xs font-black uppercase tracking-[0.2em] text-blue-700 dark:text-blue-300">
-                  Confirmação
-                </p>
-
-                <h2 className="mt-2 text-2xl font-black !text-slate-950 dark:!text-white">
-                  {configuracaoConfirmacao.titulo}
-                </h2>
-
-                <p className="mt-3 text-sm leading-6 !text-slate-600 dark:!text-slate-300">
-                  {configuracaoConfirmacao.mensagem}
-                </p>
-
-                <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-                  <button
-                    type="button"
-                    onClick={() => setConfirmacao(null)}
-                    disabled={salvando}
-                    className="min-h-11 rounded-2xl border border-slate-300 !bg-white px-5 text-sm font-black !text-slate-800 transition hover:!bg-slate-100 disabled:opacity-60 dark:border-slate-700 dark:!bg-slate-900 dark:!text-white"
-                  >
-                    Voltar
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => void confirmarAcao()}
-                    disabled={salvando}
-                    className={`min-h-11 rounded-2xl border px-5 text-sm font-black transition disabled:cursor-not-allowed disabled:opacity-60 ${configuracaoConfirmacao.classeBotao}`}
-                  >
-                    {salvando ? "Processando..." : configuracaoConfirmacao.acao}
-                  </button>
+                <div className="md:col-span-2">
+                  <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
+                    Observações internas
+                  </label>
+                  <textarea
+                    value={form.observacoes}
+                    onChange={(event) =>
+                      setForm((atual) => ({
+                        ...atual,
+                        observacoes: event.target.value,
+                      }))
+                    }
+                    rows={4}
+                    placeholder="Registre critérios, orientações ou informações internas sobre a meta."
+                    className="w-full rounded-2xl border border-slate-300 !bg-white px-4 py-3 !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
+                  />
                 </div>
               </div>
             </div>
-          )}
-        </main>
-      );
+
+            <div className="sticky bottom-0 flex flex-col-reverse gap-3 border-t border-slate-200 !bg-slate-50 p-6 sm:flex-row sm:justify-end dark:border-slate-700 dark:!bg-slate-950">
+              <button
+                type="button"
+                onClick={fecharModal}
+                disabled={salvando}
+                className="min-h-11 rounded-2xl border border-slate-300 !bg-white px-5 text-sm font-black !text-slate-800 transition hover:!bg-slate-100 disabled:opacity-60 dark:border-slate-700 dark:!bg-slate-900 dark:!text-white"
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="button"
+                onClick={() => void salvarMeta()}
+                disabled={salvando}
+                className="min-h-11 rounded-2xl border !border-blue-700 !bg-blue-700 px-6 text-sm font-black !text-white transition hover:!bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {salvando
+                  ? "Salvando..."
+                  : editandoId
+                    ? "Salvar alterações"
+                    : "Criar meta"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {confirmacao && configuracaoConfirmacao && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/70 p-4">
+          <div className="w-full max-w-lg rounded-3xl border border-slate-200 !bg-white p-6 shadow-2xl dark:border-slate-700 dark:!bg-slate-900">
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-blue-700 dark:text-blue-300">
+              Confirmação
+            </p>
+
+            <h2 className="mt-2 text-2xl font-black !text-slate-950 dark:!text-white">
+              {configuracaoConfirmacao.titulo}
+            </h2>
+
+            <p className="mt-3 text-sm leading-6 !text-slate-600 dark:!text-slate-300">
+              {configuracaoConfirmacao.mensagem}
+            </p>
+
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => setConfirmacao(null)}
+                disabled={salvando}
+                className="min-h-11 rounded-2xl border border-slate-300 !bg-white px-5 text-sm font-black !text-slate-800 transition hover:!bg-slate-100 disabled:opacity-60 dark:border-slate-700 dark:!bg-slate-900 dark:!text-white"
+              >
+                Voltar
+              </button>
+
+              <button
+                type="button"
+                onClick={() => void confirmarAcao()}
+                disabled={salvando}
+                className={`min-h-11 rounded-2xl border px-5 text-sm font-black transition disabled:cursor-not-allowed disabled:opacity-60 ${configuracaoConfirmacao.classeBotao}`}
+              >
+                {salvando ? "Processando..." : configuracaoConfirmacao.acao}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </main>
+  );
 }

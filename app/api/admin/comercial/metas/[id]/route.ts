@@ -710,9 +710,73 @@ async function resolverParticipantesEquipe({
     );
   }
 
+  let idsDesejados: number[];
+
+  /*
+   * Se a seleção não foi enviada, usamos os membros
+   * ativos da equipe como seleção inicial.
+   *
+   * Quando participanteIds for enviado, qualquer
+   * funcionário ativo da instituição poderá participar,
+   * mesmo que não pertença à equipe responsável.
+   */
+  if (participanteIds === undefined) {
+    const membrosEquipe =
+      await prisma.equipeComercialMembro.findMany({
+        where: {
+          instituicaoId,
+          equipeId,
+          ativo: true,
+
+          inicioVigencia: {
+            lte: dataFim,
+          },
+
+          OR: [
+            {
+              fimVigencia: null,
+            },
+            {
+              fimVigencia: {
+                gte: dataInicio,
+              },
+            },
+          ],
+
+          funcionario: {
+            ativo: true,
+            statusFuncionario:
+              "ATIVO",
+          },
+        },
+
+        select: {
+          funcionarioId: true,
+        },
+      });
+
+    idsDesejados =
+      Array.from(
+        new Set<number>(
+          membrosEquipe.map(
+            (membro) =>
+              Number(
+                membro.funcionarioId
+              )
+          )
+        )
+      );
+  } else {
+    idsDesejados =
+      Array.from(
+        new Set<number>(
+          participanteIds
+        )
+      );
+  }
+
   if (
-    participanteIds !== undefined &&
-    participanteIds.length === 0
+    idsDesejados.length === 0
   ) {
     throw new ErroHttp(
       400,
@@ -721,83 +785,38 @@ async function resolverParticipantesEquipe({
     );
   }
 
-  const membros =
-    await prisma.equipeComercialMembro.findMany({
+  const funcionariosValidos =
+    await prisma.funcionario.findMany({
       where: {
         instituicaoId,
-        equipeId,
+
+        id: {
+          in: idsDesejados,
+        },
+
         ativo: true,
 
-        inicioVigencia: {
-          lte: dataFim,
-        },
-
-        OR: [
-          {
-            fimVigencia: null,
-          },
-          {
-            fimVigencia: {
-              gte: dataInicio,
-            },
-          },
-        ],
-
-        funcionario: {
-          ativo: true,
-          statusFuncionario:
-            "ATIVO",
-        },
-
-        ...(participanteIds !== undefined
-          ? {
-            funcionarioId: {
-              in: participanteIds,
-            },
-          }
-          : {}),
+        statusFuncionario:
+          "ATIVO",
       },
 
       select: {
-        funcionarioId: true,
+        id: true,
       },
     });
 
-  const idsDisponiveis: number[] =
-    Array.from(
-      new Set<number>(
-        membros.map(
-          (membro) =>
-            Number(
-              membro.funcionarioId
-            )
-        )
-      )
-    );
-
   if (
-    participanteIds !== undefined &&
-    idsDisponiveis.length !==
-    participanteIds.length
+    funcionariosValidos.length !==
+    idsDesejados.length
   ) {
     throw new ErroHttp(
       400,
-      "Um ou mais participantes selecionados não pertencem à equipe ou não estão ativos.",
-      "PARTICIPANTE_FORA_DA_EQUIPE"
+      "Um ou mais participantes selecionados não existem, estão inativos ou não pertencem a esta instituição.",
+      "PARTICIPANTE_INVALIDO"
     );
   }
 
-  if (
-    idsDisponiveis.length === 0
-  ) {
-    throw new ErroHttp(
-      400,
-      "A equipe selecionada não possui participantes ativos disponíveis para esta meta.",
-      "EQUIPE_SEM_PARTICIPANTES"
-    );
-  }
-
-  return idsDisponiveis;
+  return idsDesejados;
 }
 
 async function sincronizarParticipantesMeta({
