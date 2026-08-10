@@ -20371,3 +20371,93 @@ html[data-theme="light"]
 
   opacity: 1 !important;
 }
+
+/* =========================================================
+   METAS COMERCIAIS — PARTICIPANTES DA META
+   ESCURO E SISTEMA
+========================================================= */
+
+/* TEMA ESCURO */
+html[data-theme="dark"]
+  body
+  .phanyx-metas-comerciais-page
+  .phanyx-meta-participantes-box {
+  background: #0f172a !important;
+  background-color: #0f172a !important;
+  background-image: none !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"]
+  body
+  .phanyx-metas-comerciais-page
+  .phanyx-meta-participantes-box
+  > div:first-child
+  p:first-child {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="dark"]
+  body
+  .phanyx-metas-comerciais-page
+  .phanyx-meta-participantes-box
+  > div:first-child
+  p:last-child {
+  color: #cbd5e1 !important;
+  -webkit-text-fill-color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"]
+  body
+  .phanyx-metas-comerciais-page
+  .phanyx-meta-participantes-box
+  > div
+  > p.text-xs {
+  color: #cbd5e1 !important;
+  -webkit-text-fill-color: #cbd5e1 !important;
+}
+
+
+/* TEMA SISTEMA — CINZA NEUTRO */
+html[data-theme="system"]
+  body
+  .phanyx-metas-comerciais-page
+  .phanyx-meta-participantes-box {
+  background: #303030 !important;
+  background-color: #303030 !important;
+  background-image: none !important;
+  border-color: #565656 !important;
+  color: #f5f5f5 !important;
+}
+
+html[data-theme="system"]
+  body
+  .phanyx-metas-comerciais-page
+  .phanyx-meta-participantes-box
+  > div:first-child
+  p:first-child {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  body
+  .phanyx-metas-comerciais-page
+  .phanyx-meta-participantes-box
+  > div:first-child
+  p:last-child {
+  color: #d4d4d4 !important;
+  -webkit-text-fill-color: #d4d4d4 !important;
+}
+
+html[data-theme="system"]
+  body
+  .phanyx-metas-comerciais-page
+  .phanyx-meta-participantes-box
+  > div
+  > p.text-xs {
+  color: #d4d4d4 !important;
+  -webkit-text-fill-color: #d4d4d4 !important;
+}
