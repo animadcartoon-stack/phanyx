@@ -6,9 +6,14 @@ import {
 } from "@/lib/server-auth";
 
 import {
+  GatilhoComissaoRH,
   PapelParticipanteComercial,
   Prisma,
 } from "@prisma/client";
+
+import {
+  processarComissaoAutomatica,
+} from "@/lib/comercial/processar-comissao";
 
 function addMonths(date: Date, months: number) {
   const diaOriginal = date.getDate();
@@ -546,6 +551,7 @@ type MatriculaBody = {
   itensMatricula?: ItemMatriculaBody[];
   valorMatricula?: number | string;
   valorPagoMatricula?: number | string;
+  formaPagamentoMatricula?: string | null;
   valorMensalidade?: number | string;
   quantidadeParcelas?: number | string;
   quantidadeMensalidades?: number | string;
@@ -1741,13 +1747,69 @@ export async function POST(request: Request) {
         ? Number(body.semestre)
         : null;
 
-    const valorPagoMatricula = Number(body.valorPagoMatricula || 0);
+    const valorPagoMatricula =
+      Number(
+        body.valorPagoMatricula || 0
+      );
 
-    const turmaIdsRaw = Array.isArray(body.turmaIds)
-      ? body.turmaIds
-      : body.turmaId
-        ? [body.turmaId]
-        : [];
+    const formaPagamentoMatricula =
+      String(
+        body.formaPagamentoMatricula ||
+        ""
+      )
+        .trim()
+        .toUpperCase();
+
+    const formasPagamentoPermitidas =
+      new Set([
+        "DINHEIRO",
+        "PIX",
+        "CARTAO",
+        "BOLETO",
+        "TRANSFERENCIA",
+        "OUTRO",
+      ]);
+
+    if (
+      !Number.isFinite(
+        valorPagoMatricula
+      ) ||
+      valorPagoMatricula < 0
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "O valor pago no ato da matrícula é inválido.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    if (
+      valorPagoMatricula > 0 &&
+      !formasPagamentoPermitidas.has(
+        formaPagamentoMatricula
+      )
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Selecione uma forma de pagamento válida para o valor recebido no ato da matrícula.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const turmaIdsRaw =
+      Array.isArray(body.turmaIds)
+        ? body.turmaIds
+        : body.turmaId
+          ? [body.turmaId]
+          : [];
 
     const turmaIds = uniqueNumbers(
       turmaIdsRaw
@@ -2155,6 +2217,115 @@ export async function POST(request: Request) {
           })
         );
 
+    const turmaIdsDaMatricula =
+      uniqueNumbers(
+        itensClassificados.map(
+          (item) =>
+            Number(item.turmaId)
+        )
+      );
+
+    const turmasParaDefinirPolo =
+      await prisma.turma.findMany({
+        where: {
+          instituicaoId:
+            user.instituicaoId,
+
+          id: {
+            in: turmaIdsDaMatricula,
+          },
+        },
+
+        select: {
+          id: true,
+          poloId: true,
+        },
+      });
+
+    if (
+      turmasParaDefinirPolo.length !==
+      turmaIdsDaMatricula.length
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Uma ou mais turmas da matrícula não foram encontradas nesta instituição.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const poloIdsDasTurmas =
+      uniqueNumbers(
+        turmasParaDefinirPolo.map(
+          (turma) =>
+            turma.poloId
+              ? Number(turma.poloId)
+              : 0
+        )
+      );
+
+    if (
+      poloIdsDasTurmas.length > 1
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "As disciplinas selecionadas pertencem a turmas de polos diferentes. A matrícula deve pertencer a um único polo.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    let poloIdFinal: number | null =
+      poloIdsDasTurmas[0] ??
+      (
+        aluno.poloId
+          ? Number(aluno.poloId)
+          : null
+      );
+
+    if (!poloIdFinal) {
+      const polosAtivos =
+        await prisma.polo.findMany({
+          where: {
+            instituicaoId:
+              user.instituicaoId,
+
+            ativo: true,
+          },
+
+          select: {
+            id: true,
+          },
+
+          take: 2,
+        });
+
+      if (
+        polosAtivos.length === 1
+      ) {
+        poloIdFinal =
+          polosAtivos[0].id;
+      }
+    }
+
+    if (!poloIdFinal) {
+      return NextResponse.json(
+        {
+          error:
+            "Não foi possível determinar o polo desta matrícula. Vincule o aluno ou a turma a um polo antes de concluir a matrícula.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
     const valorMatricula = Number(
       body.valorMatricula ??
       body.valorPagoMatricula ??
@@ -2192,13 +2363,77 @@ export async function POST(request: Request) {
       (semestreFinal !== null ? `${semestreFinal}` : null);
 
     const modalidadeFinal =
-      String(body.modalidade || "").trim() || null;
+      String(
+        body.modalidade || ""
+      ).trim() || null;
+
+    let caixaAbertoPagamentoNoAto:
+      { id: number } | null =
+      null;
+
+    if (
+      valorPagoMatricula > 0
+    ) {
+      caixaAbertoPagamentoNoAto =
+        await prisma.caixa.findFirst({
+          where: {
+            instituicaoId:
+              user.instituicaoId,
+
+            status:
+              "ABERTO",
+
+            abertoPorId:
+              user.id,
+
+            origem:
+              "MANUAL",
+          },
+
+          select: {
+            id: true,
+          },
+        });
+
+      if (
+        !caixaAbertoPagamentoNoAto
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "Abra seu caixa em Financeiro → Caixa antes de registrar um valor pago no ato da matrícula.",
+
+            codigo:
+              "CAIXA_MANUAL_NAO_ABERTO",
+          },
+          {
+            status: 409,
+          }
+        );
+      }
+    }
 
     const matricula =
       await prisma.$transaction(
         async (tx) => {
           const agoraConversao =
             new Date();
+
+          if (!aluno.poloId) {
+            await tx.aluno.updateMany({
+              where: {
+                id: alunoId,
+                instituicaoId:
+                  user.instituicaoId,
+                poloId: null,
+              },
+
+              data: {
+                poloId:
+                  poloIdFinal,
+              },
+            });
+          }
 
           const matriculaCriada =
             await tx.matricula.create({
@@ -2272,9 +2507,11 @@ export async function POST(request: Request) {
                 instituicaoId:
                   user.instituicaoId,
 
+                poloId:
+                  poloIdFinal,
+
                 status:
                   statusInicialMatricula as any,
-
                 valorMatricula:
                   Number.isFinite(
                     valorMatricula
@@ -2456,75 +2693,255 @@ Assinatura da instituição: ________________________________
             },
           });
 
-          if (valorMatricula > 0) {
-            let statusLancamentoMatricula:
-              | "PENDENTE"
-              | "PARCIAL"
-              | "PAGO" =
-              "PENDENTE";
+         if (valorMatricula > 0) {
+  let statusLancamentoMatricula:
+    | "PENDENTE"
+    | "PARCIAL"
+    | "PAGO" =
+    "PENDENTE";
 
-            let pagoEm:
-              Date | null =
-              null;
+  let pagoEm:
+    Date | null =
+    null;
 
-            if (
-              valorPagoMatricula >=
-              valorMatricula
-            ) {
-              statusLancamentoMatricula =
-                "PAGO";
+  if (
+    valorPagoMatricula >
+    valorMatricula
+  ) {
+    throw new Error(
+      "O valor pago no ato não pode ser maior que o valor da matrícula."
+    );
+  }
 
-              pagoEm =
-                agoraConversao;
-            } else if (
-              valorPagoMatricula > 0
-            ) {
-              statusLancamentoMatricula =
-                "PARCIAL";
+  if (
+    valorPagoMatricula >=
+    valorMatricula
+  ) {
+    statusLancamentoMatricula =
+      "PAGO";
 
-              pagoEm =
-                agoraConversao;
-            }
+    pagoEm =
+      agoraConversao;
+  } else if (
+    valorPagoMatricula > 0
+  ) {
+    statusLancamentoMatricula =
+      "PARCIAL";
 
-            await tx
-              .lancamentoFinanceiro
-              .create({
-                data: {
-                  tipo:
-                    "MATRICULA",
+    pagoEm =
+      agoraConversao;
+  }
 
-                  descricao:
-                    `Taxa de matrícula - ${curso?.nome ??
-                    "Curso"
-                    }`,
+  const lancamentoMatriculaCriado =
+    await tx
+      .lancamentoFinanceiro
+      .create({
+        data: {
+          tipo:
+            "MATRICULA",
 
-                  valorOriginal:
-                    valorMatricula,
+          descricao:
+            `Taxa de matrícula - ${
+              curso?.nome ||
+              "Curso"
+            }`,
 
-                  valorPago:
-                    valorPagoMatricula >
-                      0
-                      ? valorPagoMatricula
-                      : 0,
+          valorOriginal:
+            valorMatricula,
 
-                  pagoEm,
+          valorFinal:
+            valorMatricula,
 
-                  status:
-                    statusLancamentoMatricula,
+          valorPago:
+            valorPagoMatricula >
+            0
+              ? valorPagoMatricula
+              : 0,
 
-                  observacao:
-                    "Gerado automaticamente no ato da matrícula",
+          pagoEm,
 
-                  alunoId,
+          status:
+            statusLancamentoMatricula,
 
-                  matriculaId:
-                    matriculaCriada.id,
+          observacao:
+            "Gerado automaticamente no ato da matrícula",
 
-                  instituicaoId:
-                    user.instituicaoId,
-                },
-              });
-          }
+          alunoId,
+
+          matriculaId:
+            matriculaCriada.id,
+
+          instituicaoId:
+            user.instituicaoId,
+
+          poloId:
+            poloIdFinal,
+        },
+      });
+
+  if (
+    valorPagoMatricula > 0
+  ) {
+    if (
+      !caixaAbertoPagamentoNoAto
+    ) {
+      throw new Error(
+        "Caixa manual não encontrado para registrar o pagamento no ato."
+      );
+    }
+
+    const pagamentoCriado =
+      await tx.pagamento.create({
+        data: {
+          valorPago:
+            valorPagoMatricula,
+
+          pagoEm:
+            agoraConversao,
+
+          formaPagamento:
+            formaPagamentoMatricula as any,
+
+          observacao:
+            "Pagamento registrado no ato da matrícula.",
+
+          instituicaoId:
+            user.instituicaoId,
+
+          alunoId,
+
+          lancamentoId:
+            lancamentoMatriculaCriado.id,
+        },
+      });
+
+    await tx.movimentoCaixa.create({
+      data: {
+        instituicaoId:
+          user.instituicaoId,
+
+        caixaId:
+          caixaAbertoPagamentoNoAto.id,
+
+        tipo:
+          "ENTRADA",
+
+        descricao:
+          `Recebimento MATRICULA — ${
+            aluno.nome ||
+            "Aluno não identificado"
+          }`,
+
+        valor:
+          valorPagoMatricula,
+
+        formaPagamento:
+          formaPagamentoMatricula as any,
+
+        alunoId,
+
+        lancamentoId:
+          lancamentoMatriculaCriado.id,
+      },
+    });
+
+    await tx.caixa.update({
+      where: {
+        id:
+          caixaAbertoPagamentoNoAto.id,
+      },
+
+      data: {
+        saldoSistema: {
+          increment:
+            valorPagoMatricula,
+        },
+      },
+    });
+
+    await tx.historicoCobranca.create({
+      data: {
+        instituicaoId:
+          user.instituicaoId,
+
+        alunoId,
+
+        alunoNome:
+          aluno.nome || null,
+
+        lancamentoFinanceiroId:
+          lancamentoMatriculaCriado.id,
+
+        responsavelId:
+          Number(user.id) || null,
+
+        responsavelNome:
+          (user as any)?.nome ||
+          user.email ||
+          "Usuário",
+
+        canal:
+          "SISTEMA",
+
+        acao:
+          statusLancamentoMatricula ===
+          "PAGO"
+            ? "PAGAMENTO_REGISTRADO"
+            : "PAGAMENTO_PARCIAL",
+
+        observacao:
+          `Pagamento no ato da matrícula via ${formaPagamentoMatricula}.`,
+
+        metadata: {
+          origem:
+            "MATRICULA",
+
+          formaPagamento:
+            formaPagamentoMatricula,
+
+          valorPago:
+            valorPagoMatricula,
+
+          valorMatricula,
+
+          statusFinal:
+            statusLancamentoMatricula,
+        },
+      },
+    });
+
+    if (
+      statusLancamentoMatricula ===
+      "PAGO"
+    ) {
+      await processarComissaoAutomatica({
+        tx,
+
+        instituicaoId:
+          user.instituicaoId,
+
+        matriculaId:
+          matriculaCriada.id,
+
+        pagamentoId:
+          pagamentoCriado.id,
+
+        valorRecebido:
+          valorPagoMatricula,
+
+        eventoEm:
+          pagamentoCriado.pagoEm,
+
+        criadoPorId:
+          Number(user.id) || null,
+
+        gatilho:
+          GatilhoComissaoRH
+            .PAGAMENTO_MATRICULA_CONFIRMADO,
+      });
+    }
+  }
+}
 
           if (
             valorMensalidade > 0 &&
@@ -2575,6 +2992,9 @@ Assinatura da instituição: ________________________________
 
                     instituicaoId:
                       user.instituicaoId,
+
+                    poloId:
+                      poloIdFinal,
                   },
                 });
             }
@@ -2718,7 +3138,7 @@ Assinatura da instituição: ________________________________
         );
       }
     }
-    
+
     console.error("ERRO COMPLETO AO CRIAR MATRÍCULA:", error);
     return NextResponse.json(
       { error: error?.message || "Erro ao criar matrícula" },

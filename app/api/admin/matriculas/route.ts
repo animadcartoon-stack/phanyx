@@ -72,7 +72,144 @@ export async function POST(req: Request) {
         sequencialGerado
       );
 
-      const poloId = aluno.poloId ?? null;
+      const idsTurmasInformadas = Array.isArray(turmaIds)
+        ? Array.from(
+          new Set<number>(
+            turmaIds
+              .map((turmaId: unknown) => Number(turmaId))
+              .filter(
+                (turmaId: number) =>
+                  Number.isInteger(turmaId) &&
+                  turmaId > 0
+              )
+          )
+        )
+        : [];
+
+      let poloId: number | null = null;
+
+      /*
+       * 1. Prioridade: polo da turma escolhida.
+       * A matrícula deve representar o local acadêmico
+       * em que o aluno realmente está sendo matriculado.
+       */
+      if (idsTurmasInformadas.length > 0) {
+        const turmasSelecionadas =
+          await tx.turma.findMany({
+            where: {
+              instituicaoId:
+                user.instituicaoId,
+
+              id: {
+                in: idsTurmasInformadas,
+              },
+            },
+
+            select: {
+              id: true,
+              cursoId: true,
+              poloId: true,
+            },
+          });
+
+        if (
+          turmasSelecionadas.length !==
+          idsTurmasInformadas.length
+        ) {
+          throw new Error(
+            "Uma ou mais turmas informadas não existem nesta instituição."
+          );
+        }
+
+        const turmaDeOutroCurso =
+          turmasSelecionadas.some(
+            (turma) =>
+              Number(turma.cursoId) !==
+              Number(cursoId)
+          );
+
+        if (turmaDeOutroCurso) {
+          throw new Error(
+            "Uma ou mais turmas selecionadas não pertencem ao curso informado."
+          );
+        }
+
+        const polosDasTurmas =
+          Array.from(
+            new Set<number>(
+              turmasSelecionadas
+                .map((turma) =>
+                  turma.poloId
+                    ? Number(turma.poloId)
+                    : null
+                )
+                .filter(
+                  (id): id is number =>
+                    id !== null &&
+                    Number.isInteger(id) &&
+                    id > 0
+                )
+            )
+          );
+
+        if (polosDasTurmas.length > 1) {
+          throw new Error(
+            "As turmas selecionadas pertencem a polos diferentes. Selecione turmas do mesmo polo."
+          );
+        }
+
+        if (polosDasTurmas.length === 1) {
+          poloId = polosDasTurmas[0];
+        }
+      }
+
+      /*
+       * 2. Se a turma não definiu o polo,
+       * usamos a lotação já registrada no aluno.
+       */
+      if (!poloId && aluno.poloId) {
+        poloId = Number(
+          aluno.poloId
+        );
+      }
+
+      /*
+       * 3. Se ainda não houver polo e a instituição
+       * tiver somente um polo ativo, usamos esse polo.
+       */
+      if (!poloId) {
+        const polosAtivos =
+          await tx.polo.findMany({
+            where: {
+              instituicaoId:
+                user.instituicaoId,
+
+              ativo: true,
+            },
+
+            select: {
+              id: true,
+            },
+
+            take: 2,
+          });
+
+        if (polosAtivos.length === 1) {
+          poloId =
+            polosAtivos[0].id;
+        }
+      }
+
+      /*
+       * 4. Nunca mais criar matrícula nova sem polo
+       * quando o sistema não consegue determinar
+       * com segurança onde ela pertence.
+       */
+      if (!poloId) {
+        throw new Error(
+          "Não foi possível determinar o polo desta matrícula. Informe o polo do aluno ou utilize uma turma vinculada a um polo."
+        );
+      }
 
       const matricula = await tx.matricula.create({
         data: {
@@ -94,17 +231,27 @@ export async function POST(req: Request) {
         },
       });
 
-      if (Array.isArray(turmaIds) && turmaIds.length > 0) {
-        await tx.itemMatricula.createMany({
-          data: turmaIds.map((turmaId: number) => ({
-            instituicaoId: user.instituicaoId,
-            matriculaId: matricula.id,
-            turmaId: Number(turmaId),
-            status: "A_CURSAR",
-          })),
-          skipDuplicates: true,
-        });
-      }
+      if (idsTurmasInformadas.length > 0) {
+  await tx.itemMatricula.createMany({
+    data:
+      idsTurmasInformadas.map(
+        (turmaId) => ({
+          instituicaoId:
+            user.instituicaoId,
+
+          matriculaId:
+            matricula.id,
+
+          turmaId,
+
+          status:
+            "A_CURSAR",
+        })
+      ),
+
+    skipDuplicates: true,
+  });
+}
 
       if (Number(valorPagoMatricula) > 0) {
         await tx.lancamentoFinanceiro.create({

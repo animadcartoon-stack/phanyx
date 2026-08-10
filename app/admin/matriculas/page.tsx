@@ -222,8 +222,16 @@ function AdminMatriculasPage() {
     useRef<HTMLDivElement | null>(null);
 
   const [turmasSelecionadas, setTurmasSelecionadas] = useState<number[]>([]);
-  const [valorPagoMatricula, setValorPagoMatricula] = useState<string>("");
-  const [valorMensalidade, setValorMensalidade] = useState<string>("");
+  const [valorPagoMatricula, setValorPagoMatricula] =
+    useState<string>("");
+
+  const [
+    formaPagamentoMatricula,
+    setFormaPagamentoMatricula,
+  ] = useState<string>("");
+
+  const [valorMensalidade, setValorMensalidade] =
+    useState<string>("");
   const [quantidadeParcelas, setQuantidadeParcelas] = useState<string>("");
   const [dataPrimeiroVencimento, setDataPrimeiroVencimento] = useState<string>("");
   const [periodoLetivo, setPeriodoLetivo] = useState<string>("");
@@ -1407,11 +1415,27 @@ function AdminMatriculasPage() {
     }
 
     if (!podeCriar) {
-      setErro("Preencha aluno, curso, semestre, turma e disciplinas antes de matricular.");
+      setErro(
+        "Preencha aluno, curso, semestre, turma e disciplinas antes de matricular."
+      );
+      return;
+    }
+
+    const valorPagoNoAto =
+      Number(valorPagoMatricula || 0);
+
+    if (
+      valorPagoNoAto > 0 &&
+      !formaPagamentoMatricula
+    ) {
+      setErro(
+        "Selecione a forma de pagamento do valor recebido no ato da matrícula."
+      );
       return;
     }
 
     setCreating(true);
+
     const itensMatricula =
       disciplinasIdsSelecionadasParaEnvio.map(
         (disciplinaId) => ({
@@ -1471,8 +1495,17 @@ function AdminMatriculasPage() {
           periodoLetivo,
           modalidade,
           status: statusInicialMatricula,
-          valorPagoMatricula: Number(valorPagoMatricula || 0),
-          valorMensalidade: Number(valorMensalidade || 0),
+
+          valorPagoMatricula:
+            Number(valorPagoMatricula || 0),
+
+          formaPagamentoMatricula:
+            Number(valorPagoMatricula || 0) > 0
+              ? formaPagamentoMatricula
+              : null,
+
+          valorMensalidade:
+            Number(valorMensalidade || 0),
           quantidadeParcelas: Number(quantidadeParcelas || 0),
           dataPrimeiroVencimento,
         }),
@@ -1492,6 +1525,7 @@ function AdminMatriculasPage() {
       setCursoSemestreId("");
       setTurmasSelecionadas([]);
       setValorPagoMatricula("");
+      setFormaPagamentoMatricula("");
       setValorMensalidade("");
       setQuantidadeParcelas("");
       setDataPrimeiroVencimento("");
@@ -1582,11 +1616,11 @@ function AdminMatriculasPage() {
   }
 
   function gerarDocumentoPhanyxDaMatricula(
-  matriculaId: number
-) {
-  window.location.href =
-    `/admin/documentos/gerar?matriculaId=${matriculaId}`;
-}
+    matriculaId: number
+  ) {
+    window.location.href =
+      `/admin/documentos/gerar?matriculaId=${matriculaId}`;
+  }
 
   async function abrirAssinaturaSecretaria(matriculaId: number) {
     try {
@@ -2619,15 +2653,93 @@ function AdminMatriculasPage() {
             <label className="text-sm font-medium text-gray-700">
               Valor pago no ato da matrícula
             </label>
+
             <input
               type="number"
               step="0.01"
               min="0"
               value={valorPagoMatricula}
-              onChange={(e) => setValorPagoMatricula(e.target.value)}
+              onChange={(e) => {
+                const valor =
+                  e.target.value;
+
+                setValorPagoMatricula(
+                  valor
+                );
+
+                if (
+                  !valor ||
+                  Number(valor) <= 0
+                ) {
+                  setFormaPagamentoMatricula(
+                    ""
+                  );
+                }
+              }}
               className="mt-1 w-full border rounded-xl px-3 py-2 bg-white"
               placeholder="0,00"
             />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-700">
+              Forma de pagamento no ato
+            </label>
+
+            <select
+              value={formaPagamentoMatricula}
+              onChange={(e) =>
+                setFormaPagamentoMatricula(
+                  e.target.value
+                )
+              }
+              disabled={
+                Number(
+                  valorPagoMatricula || 0
+                ) <= 0
+              }
+              className="mt-1 w-full border rounded-xl px-3 py-2 bg-white disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+            >
+              <option value="">
+                {Number(
+                  valorPagoMatricula || 0
+                ) > 0
+                  ? "Selecione..."
+                  : "Informe um valor primeiro"}
+              </option>
+
+              <option value="DINHEIRO">
+                Dinheiro
+              </option>
+
+              <option value="PIX">
+                PIX
+              </option>
+
+              <option value="CARTAO">
+                Cartão
+              </option>
+
+              <option value="BOLETO">
+                Boleto
+              </option>
+
+              <option value="TRANSFERENCIA">
+                Transferência
+              </option>
+
+              <option value="OUTRO">
+                Outro
+              </option>
+            </select>
+
+            {Number(
+              valorPagoMatricula || 0
+            ) > 0 && (
+                <p className="mt-1 text-xs text-slate-500">
+                  Este valor será registrado como recebimento financeiro no ato da matrícula.
+                </p>
+              )}
           </div>
         </div>
 

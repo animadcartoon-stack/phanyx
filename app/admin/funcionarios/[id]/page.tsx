@@ -51,6 +51,11 @@ type PoloLotacao = {
   statusComercial?: string | null;
 };
 
+type DepartamentoOption = {
+  id: number;
+  nome: string;
+};
+
 function moeda(v: any) {
   const n = Number(v || 0);
   return n.toLocaleString("pt-BR", {
@@ -258,6 +263,11 @@ function FuncionarioFichaPage() {
     useState<PoloLotacao[]>([]);
 
   const [
+    departamentos,
+    setDepartamentos,
+  ] = useState<DepartamentoOption[]>([]);
+
+  const [
     modalLotacaoAberto,
     setModalLotacaoAberto,
   ] = useState(false);
@@ -311,6 +321,7 @@ function FuncionarioFichaPage() {
     rg: "",
     telefone: "",
     cargo: "",
+    departamentoId: "",
     codigoFuncionario: "",
     email: "",
     role: "SECRETARIA",
@@ -542,6 +553,67 @@ function FuncionarioFichaPage() {
     }
   }
 
+  async function carregarDepartamentos() {
+    try {
+      const res = await fetch(
+        "/api/departamento",
+        {
+          credentials: "include",
+          cache: "no-store",
+        }
+      );
+
+      const data =
+        await res.json().catch(() => null);
+
+      if (!res.ok) {
+        console.error(
+          "Erro ao carregar departamentos:",
+          data?.error || res.statusText
+        );
+
+        setDepartamentos([]);
+        return;
+      }
+
+      const lista =
+        Array.isArray(data)
+          ? data
+          : [];
+
+      setDepartamentos(
+        lista
+          .map((departamento: any) => ({
+            id: Number(
+              departamento?.id
+            ),
+
+            nome: String(
+              departamento?.nome || ""
+            ).trim(),
+          }))
+          .filter(
+            (
+              departamento:
+                DepartamentoOption
+            ) =>
+              Number.isInteger(
+                departamento.id
+              ) &&
+              departamento.id > 0 &&
+              departamento.nome.length > 0
+          )
+      );
+    } catch (error) {
+      console.error(
+        "Erro ao carregar departamentos:",
+        error
+      );
+
+      setDepartamentos([]);
+    }
+  }
+
   async function carregarFuncionario() {
     try {
       const res = await fetch(`/api/funcionario/${funcionarioId}`, {
@@ -562,8 +634,23 @@ function FuncionarioFichaPage() {
         nome: data.funcionario.nome || "",
         cpf: data.funcionario.cpf || "",
         rg: data.funcionario.rg || "",
-        telefone: data.funcionario.telefone || "",
-        cargo: data.funcionario.cargo || "",
+        telefone:
+          data.funcionario.telefone || "",
+
+        cargo:
+          data.funcionario.cargo || "",
+
+        departamentoId:
+          data.funcionario.departamento?.id
+            ? String(
+              data.funcionario.departamento.id
+            )
+            : data.funcionario.departamentoId
+              ? String(
+                data.funcionario.departamentoId
+              )
+              : "",
+
         codigoFuncionario:
           data.funcionario.codigoFuncionario || "",
         email:
@@ -987,6 +1074,7 @@ function FuncionarioFichaPage() {
 
     carregarFuncionario();
     carregarPolos();
+    carregarDepartamentos();
     carregarBeneficios();
     carregarBancoHorasFuncionario();
     carregarDocumentosFuncionario();
@@ -1103,6 +1191,13 @@ function FuncionarioFichaPage() {
 
             cargo:
               formGeral.cargo,
+
+            departamentoId:
+              formGeral.departamentoId
+                ? Number(
+                  formGeral.departamentoId
+                )
+                : null,
 
             codigoFuncionario:
               formGeral.codigoFuncionario,
@@ -1441,6 +1536,18 @@ p-6
                             funcionario.telefone || "",
                           cargo:
                             funcionario.cargo || "",
+
+                          departamentoId:
+                            funcionario.departamento?.id
+                              ? String(
+                                funcionario.departamento.id
+                              )
+                              : funcionario.departamentoId
+                                ? String(
+                                  funcionario.departamentoId
+                                )
+                                : "",
+
                           codigoFuncionario:
                             funcionario.codigoFuncionario || "",
                           email:
@@ -1841,6 +1948,56 @@ px-3 py-2 text-sm
 text-slate-900 dark:text-white
 "
                     />
+                  </label>
+
+                  <label className="space-y-1">
+                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                      Departamento
+                    </span>
+
+                    <select
+                      value={
+                        formGeral.departamentoId
+                      }
+                      onChange={(e) =>
+                        setFormGeral((p) => ({
+                          ...p,
+                          departamentoId:
+                            e.target.value,
+                        }))
+                      }
+                      className="
+      w-full
+      rounded-xl
+      border
+      border-slate-300
+      bg-white
+      px-3
+      py-2
+      text-sm
+      text-slate-900
+      dark:border-slate-700
+      dark:bg-slate-950
+      dark:text-white
+    "
+                    >
+                      <option value="">
+                        Sem departamento
+                      </option>
+
+                      {departamentos.map(
+                        (departamento) => (
+                          <option
+                            key={departamento.id}
+                            value={String(
+                              departamento.id
+                            )}
+                          >
+                            {departamento.nome}
+                          </option>
+                        )
+                      )}
+                    </select>
                   </label>
 
                   <label className="space-y-1">
