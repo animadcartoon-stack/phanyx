@@ -56,6 +56,14 @@ type DepartamentoOption = {
   nome: string;
 };
 
+type CargoOption = {
+  id: number;
+  nome: string;
+  ativo: boolean;
+  departamentoId: number;
+  quantidadeFuncionarios?: number;
+};
+
 function moeda(v: any) {
   const n = Number(v || 0);
   return n.toLocaleString("pt-BR", {
@@ -268,6 +276,16 @@ function FuncionarioFichaPage() {
   ] = useState<DepartamentoOption[]>([]);
 
   const [
+    cargosDepartamento,
+    setCargosDepartamento,
+  ] = useState<CargoOption[]>([]);
+
+  const [
+    carregandoCargos,
+    setCarregandoCargos,
+  ] = useState(false);
+
+  const [
     modalLotacaoAberto,
     setModalLotacaoAberto,
   ] = useState(false);
@@ -321,6 +339,7 @@ function FuncionarioFichaPage() {
     rg: "",
     telefone: "",
     cargo: "",
+    cargoId: "",
     departamentoId: "",
     codigoFuncionario: "",
     email: "",
@@ -614,6 +633,145 @@ function FuncionarioFichaPage() {
     }
   }
 
+  async function carregarCargosDoDepartamento(
+    departamentoIdValue: string,
+    cargoIdAtual = "",
+    cargoNomeAtual = ""
+  ) {
+    if (!departamentoIdValue) {
+      setCargosDepartamento([]);
+      return;
+    }
+
+    try {
+      setCarregandoCargos(true);
+
+      const res = await fetch(
+        `/api/departamento/${departamentoIdValue}/cargos`,
+        {
+          credentials: "include",
+          cache: "no-store",
+        }
+      );
+
+      const data =
+        await res.json().catch(() => null);
+
+      if (!res.ok) {
+        throw new Error(
+          data?.error ||
+          "Não foi possível carregar os cargos."
+        );
+      }
+
+      const recebidos = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.cargos)
+          ? data.cargos
+          : [];
+
+      const lista: CargoOption[] =
+        recebidos
+          .map((item: any) => ({
+            id: Number(item?.id),
+
+            nome: String(
+              item?.nome || ""
+            ).trim(),
+
+            ativo:
+              item?.ativo !== false,
+
+            departamentoId: Number(
+              item?.departamentoId ||
+              departamentoIdValue
+            ),
+
+            quantidadeFuncionarios:
+              Number(
+                item?.quantidadeFuncionarios ??
+                item?._count?.funcionarios ??
+                0
+              ),
+          }))
+          .filter(
+            (item: CargoOption) =>
+              Number.isInteger(item.id) &&
+              item.id > 0 &&
+              item.nome &&
+              (
+                item.ativo ||
+                String(item.id) ===
+                String(cargoIdAtual)
+              )
+          );
+
+      setCargosDepartamento(lista);
+
+      if (cargoIdAtual) {
+        const encontradoPorId =
+          lista.find(
+            (item) =>
+              String(item.id) ===
+              String(cargoIdAtual)
+          );
+
+        if (encontradoPorId) {
+          setFormGeral((anterior) => ({
+            ...anterior,
+            cargoId:
+              String(encontradoPorId.id),
+            cargo:
+              encontradoPorId.nome,
+          }));
+
+          return;
+        }
+      }
+
+      if (cargoNomeAtual.trim()) {
+        const nomeNormalizado =
+          cargoNomeAtual
+            .trim()
+            .toLocaleLowerCase(
+              "pt-BR"
+            );
+
+        const encontradoPorNome =
+          lista.find(
+            (item) =>
+              item.nome
+                .trim()
+                .toLocaleLowerCase(
+                  "pt-BR"
+                ) ===
+              nomeNormalizado
+          );
+
+        if (encontradoPorNome) {
+          setFormGeral((anterior) => ({
+            ...anterior,
+            cargoId:
+              String(encontradoPorNome.id),
+            cargo:
+              encontradoPorNome.nome,
+          }));
+
+          return;
+        }
+      }
+    } catch (error) {
+      console.error(
+        "Erro ao carregar cargos:",
+        error
+      );
+
+      setCargosDepartamento([]);
+    } finally {
+      setCarregandoCargos(false);
+    }
+  }
+
   async function carregarFuncionario() {
     try {
       const res = await fetch(`/api/funcionario/${funcionarioId}`, {
@@ -630,6 +788,25 @@ function FuncionarioFichaPage() {
       console.log("FUNCIONARIO RECEBIDO:", data.funcionario);
 
       setFuncionario(data.funcionario);
+
+      const departamentoAtualId =
+        data.funcionario.departamento?.id
+          ? String(
+            data.funcionario.departamento.id
+          )
+          : data.funcionario.departamentoId
+            ? String(
+              data.funcionario.departamentoId
+            )
+            : "";
+
+      const cargoAtualId =
+        data.funcionario.cargoId
+          ? String(
+            data.funcionario.cargoId
+          )
+          : "";
+
       setFormGeral({
         nome: data.funcionario.nome || "",
         cpf: data.funcionario.cpf || "",
@@ -640,16 +817,11 @@ function FuncionarioFichaPage() {
         cargo:
           data.funcionario.cargo || "",
 
+        cargoId:
+          cargoAtualId,
+
         departamentoId:
-          data.funcionario.departamento?.id
-            ? String(
-              data.funcionario.departamento.id
-            )
-            : data.funcionario.departamentoId
-              ? String(
-                data.funcionario.departamentoId
-              )
-              : "",
+          departamentoAtualId,
 
         codigoFuncionario:
           data.funcionario.codigoFuncionario || "",
@@ -664,6 +836,16 @@ function FuncionarioFichaPage() {
         fotoPerfil:
           data.funcionario.fotoPerfil || "",
       });
+
+      if (departamentoAtualId) {
+        await carregarCargosDoDepartamento(
+          departamentoAtualId,
+          cargoAtualId,
+          data.funcionario.cargo || ""
+        );
+      } else {
+        setCargosDepartamento([]);
+      }
 
       setCriarAcessoSistema(false);
       preencherFormTrabalhista(data.funcionario);
@@ -1162,6 +1344,16 @@ function FuncionarioFichaPage() {
       return;
     }
 
+    if (
+      formGeral.departamentoId &&
+      !formGeral.cargoId
+    ) {
+      setErro(
+        "Selecione o cargo do funcionário."
+      );
+      return;
+    }
+
     try {
       setSalvando(true);
       setErro("");
@@ -1191,6 +1383,13 @@ function FuncionarioFichaPage() {
 
             cargo:
               formGeral.cargo,
+
+            cargoId:
+              formGeral.cargoId
+                ? Number(
+                  formGeral.cargoId
+                )
+                : null,
 
             departamentoId:
               formGeral.departamentoId
@@ -1378,6 +1577,8 @@ function FuncionarioFichaPage() {
       return;
     }
 
+
+
     try {
       setSalvando(true);
       setErro("");
@@ -1537,6 +1738,13 @@ p-6
                           cargo:
                             funcionario.cargo || "",
 
+                          cargoId:
+                            funcionario.cargoId
+                              ? String(
+                                funcionario.cargoId
+                              )
+                              : "",
+
                           departamentoId:
                             funcionario.departamento?.id
                               ? String(
@@ -1561,6 +1769,31 @@ p-6
                           fotoPerfil:
                             funcionario.fotoPerfil || "",
                         });
+
+                        const departamentoOriginalId =
+                          funcionario.departamento?.id
+                            ? String(
+                              funcionario.departamento.id
+                            )
+                            : funcionario.departamentoId
+                              ? String(
+                                funcionario.departamentoId
+                              )
+                              : "";
+
+                        if (departamentoOriginalId) {
+                          void carregarCargosDoDepartamento(
+                            departamentoOriginalId,
+                            funcionario.cargoId
+                              ? String(
+                                funcionario.cargoId
+                              )
+                              : "",
+                            funcionario.cargo || ""
+                          );
+                        } else {
+                          setCargosDepartamento([]);
+                        }
 
                         setCriarAcessoSistema(false);
                         setEditandoGeral(false);
@@ -1936,21 +2169,6 @@ text-slate-900 dark:text-white
                   </label>
 
                   <label className="space-y-1">
-                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Cargo</span>
-                    <input
-                      value={formGeral.cargo}
-                      onChange={(e) => setFormGeral((p) => ({ ...p, cargo: e.target.value }))}
-                      className="
-w-full rounded-xl
-border border-slate-300 dark:border-slate-700
-bg-white dark:bg-slate-950
-px-3 py-2 text-sm
-text-slate-900 dark:text-white
-"
-                    />
-                  </label>
-
-                  <label className="space-y-1">
                     <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                       Departamento
                     </span>
@@ -1959,13 +2177,26 @@ text-slate-900 dark:text-white
                       value={
                         formGeral.departamentoId
                       }
-                      onChange={(e) =>
-                        setFormGeral((p) => ({
-                          ...p,
+                      onChange={(e) => {
+                        const novoDepartamentoId =
+                          e.target.value;
+
+                        setFormGeral((anterior) => ({
+                          ...anterior,
                           departamentoId:
-                            e.target.value,
-                        }))
-                      }
+                            novoDepartamentoId,
+                          cargoId: "",
+                          cargo: "",
+                        }));
+
+                        setCargosDepartamento([]);
+
+                        if (novoDepartamentoId) {
+                          void carregarCargosDoDepartamento(
+                            novoDepartamentoId
+                          );
+                        }
+                      }}
                       className="
       w-full
       rounded-xl
@@ -1994,6 +2225,85 @@ text-slate-900 dark:text-white
                             )}
                           >
                             {departamento.nome}
+                          </option>
+                        )
+                      )}
+                    </select>
+                  </label>
+
+                  <label className="space-y-1">
+                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                      Cargo
+                    </span>
+
+                    <select
+                      value={formGeral.cargoId}
+                      disabled={
+                        !formGeral.departamentoId ||
+                        carregandoCargos
+                      }
+                      onChange={(e) => {
+                        const novoCargoId =
+                          e.target.value;
+
+                        const cargoSelecionado =
+                          cargosDepartamento.find(
+                            (item) =>
+                              String(item.id) ===
+                              novoCargoId
+                          );
+
+                        setFormGeral(
+                          (anterior) => ({
+                            ...anterior,
+                            cargoId:
+                              novoCargoId,
+                            cargo:
+                              cargoSelecionado?.nome ||
+                              "",
+                          })
+                        );
+                      }}
+                      className="
+      w-full
+      rounded-xl
+      border
+      border-slate-300
+      bg-white
+      px-3
+      py-2
+      text-sm
+      text-slate-900
+      disabled:cursor-not-allowed
+      disabled:bg-slate-100
+      disabled:text-slate-500
+      dark:border-slate-700
+      dark:bg-slate-950
+      dark:text-white
+      dark:disabled:bg-slate-800
+      dark:disabled:text-slate-400
+    "
+                    >
+                      <option value="">
+                        {carregandoCargos
+                          ? "Carregando cargos..."
+                          : !formGeral.departamentoId
+                            ? "Selecione primeiro o departamento"
+                            : cargosDepartamento.length === 0
+                              ? "Nenhum cargo ativo cadastrado"
+                              : "Selecione o cargo"}
+                      </option>
+
+                      {cargosDepartamento.map(
+                        (cargo) => (
+                          <option
+                            key={cargo.id}
+                            value={String(cargo.id)}
+                          >
+                            {cargo.nome}
+                            {!cargo.ativo
+                              ? " — Inativo"
+                              : ""}
                           </option>
                         )
                       )}

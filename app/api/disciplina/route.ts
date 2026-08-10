@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { getUserFromToken } from "@/lib/server-auth";
 import { sincronizarPublicacoesAtivasDoCurso } from "@/lib/publicacao-cursos-rede";
+import { Prisma } from "@prisma/client";
 
 // LISTAR DISCIPLINAS
 export async function GET() {
@@ -245,10 +246,70 @@ return NextResponse.json(
   { status: 201 }
 );
   } catch (error) {
-    console.error(error);
+  console.error("Erro ao criar disciplina:", error);
+
+  // Conflitos de chave única do Prisma
+  if (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    error.code === "P2002"
+  ) {
+    const target = Array.isArray(error.meta?.target)
+      ? error.meta.target.map(String)
+      : [String(error.meta?.target || "")];
+
+    if (target.some((campo) => campo.includes("nome"))) {
+      return NextResponse.json(
+        {
+          error:
+            "Já existe uma disciplina com esse nome nesta instituição.",
+        },
+        { status: 409 }
+      );
+    }
+
+    if (target.some((campo) => campo.includes("codigo"))) {
+      return NextResponse.json(
+        {
+          error:
+            "Já existe uma disciplina com esse código nesta instituição.",
+        },
+        { status: 409 }
+      );
+    }
+
     return NextResponse.json(
-      { error: "Erro ao criar disciplina" },
-      { status: 500 }
+      {
+        error:
+          "Já existe um registro com esses dados nesta instituição.",
+      },
+      { status: 409 }
     );
   }
+
+  // Erros de negócio gerados pela sincronização da rede
+  if (error instanceof Error) {
+    const mensagem = error.message || "";
+
+    if (
+      mensagem.startsWith("A unidade de destino") ||
+      mensagem.startsWith("A publicação") ||
+      mensagem.includes("já possui outra disciplina") ||
+      mensagem.includes("já possui o semestre")
+    ) {
+      return NextResponse.json(
+        {
+          error: mensagem,
+        },
+        { status: 409 }
+      );
+    }
+  }
+
+  return NextResponse.json(
+    {
+      error: "Erro interno ao criar disciplina.",
+    },
+    { status: 500 }
+  );
+}
 }
