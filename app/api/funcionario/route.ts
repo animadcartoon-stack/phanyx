@@ -319,6 +319,86 @@ export async function POST(request: Request) {
     }
 
     /*
+ * Cargo
+ */
+    const cargoId =
+      numeroInteiroOuNull(
+        body.cargoId
+      );
+
+    if (
+      body.cargoId !== null &&
+      body.cargoId !== undefined &&
+      limparTexto(body.cargoId) !== "" &&
+      !cargoId
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "O cargo informado é inválido.",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (cargoId && !departamentoId) {
+      return NextResponse.json(
+        {
+          error:
+            "Selecione o departamento antes de selecionar o cargo.",
+        },
+        { status: 400 }
+      );
+    }
+
+    let cargoSelecionado:
+      | {
+        id: number;
+        nome: string;
+        departamentoId: number;
+        ativo: boolean;
+      }
+      | null = null;
+
+    if (cargoId) {
+      cargoSelecionado =
+        await prisma.cargo.findFirst({
+          where: {
+            id: cargoId,
+            instituicaoId,
+            departamentoId:
+              departamentoId!,
+            ativo: true,
+          },
+          select: {
+            id: true,
+            nome: true,
+            departamentoId: true,
+            ativo: true,
+          },
+        });
+
+      if (!cargoSelecionado) {
+        return NextResponse.json(
+          {
+            error:
+              "O cargo selecionado não existe, está inativo ou não pertence ao departamento informado.",
+          },
+          { status: 400 }
+        );
+      }
+    }
+
+    /*
+     * Mantemos o texto legado sincronizado
+     * durante a transição para Cargo.
+     */
+    const cargoNomeFinal =
+      cargoSelecionado?.nome ||
+      limparTexto(body.cargo) ||
+      null;
+
+    /*
      * Datas
      */
     const dataNascimento = body.dataNascimento
@@ -658,8 +738,10 @@ export async function POST(request: Request) {
                 cep:
                   body.cep || null,
 
+                cargoId,
+
                 cargo:
-                  body.cargo || null,
+                  cargoNomeFinal,
 
                 setor:
                   body.setor || null,
@@ -776,8 +858,9 @@ export async function POST(request: Request) {
                 null,
 
               cargoAnteriorSnapshot: null,
+
               cargoNovoSnapshot:
-                limparTexto(body.cargo) || null,
+                cargoNomeFinal,
 
               setorAnteriorSnapshot: null,
               setorNovoSnapshot:

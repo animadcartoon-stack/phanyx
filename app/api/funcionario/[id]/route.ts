@@ -486,6 +486,108 @@ export async function PUT(
     }
 
     /*
+ * Cargo
+ */
+    const cargoId =
+      temCampo("cargoId")
+        ? numeroInteiroOuNull(
+          body.cargoId
+        )
+        : funcionario.cargoId;
+
+    if (
+      temCampo("cargoId") &&
+      body.cargoId !== null &&
+      body.cargoId !== undefined &&
+      limparTexto(body.cargoId) !== "" &&
+      !cargoId
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "O cargo informado é inválido.",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (cargoId && !departamentoId) {
+      return NextResponse.json(
+        {
+          error:
+            "Selecione o departamento antes de selecionar o cargo.",
+        },
+        { status: 400 }
+      );
+    }
+
+    let cargoSelecionado:
+      | {
+        id: number;
+        nome: string;
+        departamentoId: number;
+        ativo: boolean;
+      }
+      | null = null;
+
+    if (cargoId) {
+      cargoSelecionado =
+        await prisma.cargo.findFirst({
+          where: {
+            id: cargoId,
+            instituicaoId:
+              user.instituicaoId,
+            departamentoId:
+              departamentoId!,
+          },
+
+          select: {
+            id: true,
+            nome: true,
+            departamentoId: true,
+            ativo: true,
+          },
+        });
+
+      if (!cargoSelecionado) {
+        return NextResponse.json(
+          {
+            error:
+              "O cargo selecionado não pertence ao departamento informado.",
+          },
+          { status: 400 }
+        );
+      }
+
+      const cargoFoiAlterado =
+        cargoId !==
+        funcionario.cargoId;
+
+      if (
+        cargoFoiAlterado &&
+        !cargoSelecionado.ativo
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "O cargo selecionado está inativo.",
+          },
+          { status: 400 }
+        );
+      }
+    }
+
+    const cargoNomeFinal =
+      temCampo("cargoId")
+        ? cargoSelecionado?.nome ||
+        null
+        : cargoSelecionado?.nome ||
+        (temCampo("cargo")
+          ? limparTexto(body.cargo) ||
+          null
+          : funcionario.cargo);
+
+    /*
      * Datas
      */
     const dataNascimento =
@@ -1152,10 +1254,10 @@ export async function PUT(
                     ? body.cep || null
                     : undefined,
 
+                cargoId,
+
                 cargo:
-                  temCampo("cargo")
-                    ? body.cargo || null
-                    : undefined,
+                  cargoNomeFinal,
 
                 setor:
                   temCampo("setor")
