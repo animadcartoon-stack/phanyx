@@ -20291,3 +20291,62 @@ html[data-theme="light"]
   color: #475569 !important;
   -webkit-text-fill-color: #475569 !important;
 }
+
+/* =========================================================
+   METAS COMERCIAIS — PARTICIPANTES DA META
+========================================================= */
+
+/* TEMA CLARO */
+html[data-theme="light"]
+  body
+  .phanyx-metas-comerciais-page
+  .phanyx-meta-participantes-box {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  background-image: none !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  body
+  .phanyx-metas-comerciais-page
+  .phanyx-meta-participantes-box
+  p {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+}
+
+html[data-theme="light"]
+  body
+  .phanyx-metas-comerciais-page
+  .phanyx-meta-participantes-box
+  p:first-child {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+
+/* TEMA ESCURO */
+html[data-theme="dark"]
+  body
+  .phanyx-metas-comerciais-page
+  .phanyx-meta-participantes-box {
+  background: #0f172a !important;
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+  color: #ffffff !important;
+}
+
+
+/* TEMA SISTEMA — CINZA NEUTRO */
+html[data-theme="system"]
+  body
+  .phanyx-metas-comerciais-page
+  .phanyx-meta-participantes-box {
+  background: #303030 !important;
+  background-color: #303030 !important;
+  background-image: none !important;
+  border-color: #565656 !important;
+  color: #ffffff !important;
+}

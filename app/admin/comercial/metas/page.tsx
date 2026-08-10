@@ -1634,7 +1634,7 @@ export default function MetasComerciaisPage() {
                     </div>
 
                     {form.equipeId && (
-                      <div className="phanyx-meta-participantes-box md:col-span-2 rounded-2xl border border-slate-200 !bg-slate-50 p-5 dark:border-slate-700 dark:!bg-slate-950">
+                      <div className="phanyx-meta-participantes-box md:col-span-2 rounded-2xl border border-slate-200 !bg-slate-50 p-5">
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                           <div>
                             <p className="text-sm font-black !text-slate-900 dark:!text-white">
