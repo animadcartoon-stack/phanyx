@@ -21271,3 +21271,59 @@ html.dark:not([data-theme="system"]):not([data-theme="sistema"])
   -webkit-text-fill-color: #d1fae5 !important;
   opacity: 1 !important;
 }
+
+/* =====================================================
+   BOTÃO VISUALIZAR — TEMA CLARO
+   ===================================================== */
+
+html[data-theme="light"]
+  .phanyx-substituicoes-page
+  .phanyx-substituicoes-visualizar {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-substituicoes-page
+  .phanyx-substituicoes-visualizar:hover {
+  background: #f1f5f9 !important;
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  border-color: #94a3b8 !important;
+}
+
+/* Tema escuro */
+html[data-theme="dark"]
+  .phanyx-substituicoes-page
+  .phanyx-substituicoes-visualizar {
+  background: transparent !important;
+  color: #e2e8f0 !important;
+  border-color: #475569 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-substituicoes-page
+  .phanyx-substituicoes-visualizar:hover {
+  background: #1e293b !important;
+  color: #ffffff !important;
+}
+
+/* Tema sistema */
+html[data-theme="system"]
+  .phanyx-substituicoes-page
+  .phanyx-substituicoes-visualizar {
+  background: transparent !important;
+  color: #f5f5f5 !important;
+  border-color: #737373 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-substituicoes-page
+  .phanyx-substituicoes-visualizar:hover {
+  background: #3a3a3a !important;
+  color: #ffffff !important;
+}
