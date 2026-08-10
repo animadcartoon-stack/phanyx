@@ -13,53 +13,51 @@ export async function POST(
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     }
 
-    if (user.role !== "ADMIN" && user.role !== "admin") {
-      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
-    }
+    const role = String(user.role || "").toUpperCase();
 
-    const adminGeral =
-  String(user.role).toUpperCase() === "ADMIN" ||
-  String(user.role).toUpperCase() === "SUPER_ADMIN";
+const adminGeral =
+  role === "ADMIN" ||
+  role === "SUPER_ADMIN";
 
-if (adminGeral) {
-  // continua normalmente sem exigir permissão setorial
-} else {
-  return NextResponse.json(
-    { error: "Você não tem permissão para acessar publicações acadêmicas." },
-    { status: 403 }
-  );
-}
-
-    const permissoes = await prisma.departamentoPermissao.findMany({
-      where: {
-        departamento: {
-          funcionarios: {
-            some: {
-              userId: user.id,
-              instituicaoId: user.instituicaoId,
-            },
+// ADMIN e SUPER_ADMIN têm acesso direto.
+// Outros usuários precisam possuir permissão setorial.
+if (!adminGeral) {
+  const permissoes = await prisma.departamentoPermissao.findMany({
+    where: {
+      departamento: {
+        funcionarios: {
+          some: {
+            userId: user.id,
+            instituicaoId: user.instituicaoId,
           },
         },
-        chave: {
-          in: ["*", "academico.publicacoes.gerenciar"],
-        },
-        ativo: true,
       },
-      select: {
-        chave: true,
+      chave: {
+        in: ["*", "academico.publicacoes.gerenciar"],
       },
-    });
+      ativo: true,
+    },
+    select: {
+      chave: true,
+    },
+  });
 
-    const temAcesso =
-      permissoes.some((p) => p.chave === "*") ||
-      permissoes.some((p) => p.chave === "academico.publicacoes.gerenciar");
+  const temAcesso =
+    permissoes.some((p) => p.chave === "*") ||
+    permissoes.some(
+      (p) => p.chave === "academico.publicacoes.gerenciar"
+    );
 
-    if (!temAcesso) {
-      return NextResponse.json(
-        { error: "Você não tem permissão para devolver atividades." },
-        { status: 403 }
-      );
-    }
+  if (!temAcesso) {
+    return NextResponse.json(
+      {
+        error:
+          "Você não tem permissão para devolver atividades.",
+      },
+      { status: 403 }
+    );
+  }
+}
 
     const atividadeId = Number(params.atividadeId);
 
