@@ -14,16 +14,21 @@ export async function GET() {
 
     if (!user || !user.instituicaoId) {
       return NextResponse.json(
-        { error: "Não autorizado." },
-        { status: 401 }
+        {
+          error: "Não autorizado.",
+        },
+        {
+          status: 401,
+        }
       );
     }
 
-    const podeSelecionarVendedor = temAlgumaPermissao(user, [
-      "comercial.matriculas.vincular_vendedor",
-      "comercial.vendedores.ver",
-      "comercial.vendedores.gerenciar",
-    ]);
+    const podeSelecionarVendedor =
+      temAlgumaPermissao(user, [
+        "comercial.matriculas.vincular_vendedor",
+        "comercial.vendedores.ver",
+        "comercial.vendedores.gerenciar",
+      ]);
 
     if (!podeSelecionarVendedor) {
       return NextResponse.json(
@@ -31,148 +36,228 @@ export async function GET() {
           error:
             "Você não possui permissão para visualizar ou selecionar vendedores.",
         },
-        { status: 403 }
+        {
+          status: 403,
+        }
       );
     }
 
     const agora = new Date();
 
-const vendedores = await prisma.funcionario.findMany({
-  where: {
-    instituicaoId: user.instituicaoId,
-    ativo: true,
-    statusFuncionario: "ATIVO",
+    /*
+     * Cargo é a fonte oficial para determinar
+     * quem é vendedor.
+     *
+     * Não usamos mais plano de comissão
+     * como requisito para aparecer na matrícula.
+     */
+    const cargosVendedor =
+      await prisma.cargo.findMany({
+        where: {
+          instituicaoId:
+            user.instituicaoId,
 
-    planosComissaoRH: {
-      some: {
-        instituicaoId: user.instituicaoId,
-        ativo: true,
-        inicioVigencia: {
-          lte: agora,
+          ativo: true,
+
+          nomeNormalizado:
+            "vendedor",
         },
-        OR: [
-          {
-            fimVigencia: null,
+
+        select: {
+          id: true,
+        },
+      });
+
+    const cargoIds =
+      cargosVendedor.map(
+        (cargo) => cargo.id
+      );
+
+    if (cargoIds.length === 0) {
+      return NextResponse.json([]);
+    }
+
+    const vendedores =
+      await prisma.funcionario.findMany({
+        where: {
+          instituicaoId:
+            user.instituicaoId,
+
+          ativo: true,
+
+          statusFuncionario:
+            "ATIVO",
+
+          cargoId: {
+            in: cargoIds,
           },
-          {
-            fimVigencia: {
-              gte: agora,
+        },
+
+        select: {
+          id: true,
+          nome: true,
+          cargo: true,
+          cargoId: true,
+
+          departamento: {
+            select: {
+              id: true,
+              nome: true,
             },
           },
-        ],
-        plano: {
-          is: {
-            instituicaoId: user.instituicaoId,
-            ativo: true,
-            AND: [
-              {
-                OR: [
-                  {
-                    inicioVigencia: null,
-                  },
-                  {
-                    inicioVigencia: {
-                      lte: agora,
-                    },
-                  },
-                ],
+
+          /*
+           * Comissão continua opcional.
+           * Buscamos apenas um vínculo válido,
+           * caso exista.
+           */
+          planosComissaoRH: {
+            where: {
+              instituicaoId:
+                user.instituicaoId,
+
+              ativo: true,
+
+              inicioVigencia: {
+                lte: agora,
               },
-              {
-                OR: [
-                  {
-                    fimVigencia: null,
+
+              OR: [
+                {
+                  fimVigencia: null,
+                },
+                {
+                  fimVigencia: {
+                    gte: agora,
                   },
-                  {
-                    fimVigencia: {
-                      gte: agora,
+                },
+              ],
+
+              plano: {
+                is: {
+                  instituicaoId:
+                    user.instituicaoId,
+
+                  ativo: true,
+
+                  AND: [
+                    {
+                      OR: [
+                        {
+                          inicioVigencia:
+                            null,
+                        },
+                        {
+                          inicioVigencia:
+                            {
+                              lte: agora,
+                            },
+                        },
+                      ],
                     },
-                  },
-                ],
+
+                    {
+                      OR: [
+                        {
+                          fimVigencia:
+                            null,
+                        },
+                        {
+                          fimVigencia:
+                            {
+                              gte: agora,
+                            },
+                        },
+                      ],
+                    },
+                  ],
+                },
               },
-            ],
-          },
-        },
-      },
-    },
-  },
-
-  select: {
-    id: true,
-    nome: true,
-    cargo: true,
-
-    departamento: {
-      select: {
-        id: true,
-        nome: true,
-      },
-    },
-
-    planosComissaoRH: {
-      where: {
-        instituicaoId: user.instituicaoId,
-        ativo: true,
-        inicioVigencia: {
-          lte: agora,
-        },
-        OR: [
-          {
-            fimVigencia: null,
-          },
-          {
-            fimVigencia: {
-              gte: agora,
             },
-          },
-        ],
-      },
-      select: {
-        id: true,
-        inicioVigencia: true,
-        fimVigencia: true,
-        plano: {
-          select: {
-            id: true,
-            nome: true,
-            ativo: true,
+
+            select: {
+              id: true,
+              inicioVigencia: true,
+              fimVigencia: true,
+
+              plano: {
+                select: {
+                  id: true,
+                  nome: true,
+                },
+              },
+            },
+
+            orderBy: {
+              inicioVigencia:
+                "desc",
+            },
+
+            take: 1,
           },
         },
-      },
-      orderBy: {
-        inicioVigencia: "desc",
-      },
-      take: 1,
-    },
-  },
 
-  orderBy: {
-    nome: "asc",
-  },
-});
+        orderBy: {
+          nome: "asc",
+        },
+      });
 
-return NextResponse.json(
-  vendedores.map((vendedor) => {
-    const vinculoComissao = vendedor.planosComissaoRH[0] || null;
+    return NextResponse.json(
+      vendedores.map(
+        (vendedor) => {
+          const vinculoComissao =
+            vendedor
+              .planosComissaoRH[0] ||
+            null;
 
-    return {
-      id: vendedor.id,
-      nome: vendedor.nome,
-      cargo: vendedor.cargo,
-      departamento: vendedor.departamento,
+          return {
+            id: vendedor.id,
 
-      planoComissao: vinculoComissao
-        ? {
-            vinculoId: vinculoComissao.id,
-            planoId: vinculoComissao.plano.id,
-            planoNome: vinculoComissao.plano.nome,
-            inicioVigencia: vinculoComissao.inicioVigencia,
-            fimVigencia: vinculoComissao.fimVigencia,
-          }
-        : null,
-    };
-  })
-);
+            nome:
+              vendedor.nome,
 
+            cargo:
+              vendedor.cargo,
+
+            cargoId:
+              vendedor.cargoId,
+
+            departamento:
+              vendedor.departamento,
+
+            /*
+             * Pode ser null.
+             *
+             * Isso NÃO impede mais
+             * o funcionário de ser vendedor.
+             */
+            planoComissao:
+              vinculoComissao
+                ? {
+                    vinculoId:
+                      vinculoComissao.id,
+
+                    planoId:
+                      vinculoComissao
+                        .plano.id,
+
+                    planoNome:
+                      vinculoComissao
+                        .plano.nome,
+
+                    inicioVigencia:
+                      vinculoComissao
+                        .inicioVigencia,
+
+                    fimVigencia:
+                      vinculoComissao
+                        .fimVigencia,
+                  }
+                : null,
+          };
+        }
+      )
+    );
   } catch (error) {
     console.error(
       "Erro ao carregar vendedores disponíveis:",
@@ -184,7 +269,9 @@ return NextResponse.json(
         error:
           "Não foi possível carregar os vendedores disponíveis.",
       },
-      { status: 500 }
+      {
+        status: 500,
+      }
     );
   }
 }
