@@ -1594,498 +1594,481 @@ export default function MetasComerciaisPage() {
                   </select>
                 </div>
 
-                                {form.escopo === "EQUIPE" && (
-                  <>
-                    <div className="md:col-span-2">
-                      <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
-                        Equipe responsável
-                      </label>
+                {form.escopo === "EQUIPE" && (
+  <>
+    <div className="md:col-span-2">
+      <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
+        Equipe responsável
+      </label>
 
+      <select
+        value={form.equipeId}
+        onChange={(event) =>
+          alterarEquipe(
+            event.target.value
+          )
+        }
+        className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 font-semibold !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
+      >
+        <option value="">
+          Selecione a equipe
+        </option>
+
+        {catalogos.equipes.map(
+          (equipe) => (
+            <option
+              key={equipe.id}
+              value={equipe.id}
+            >
+              {equipe.nome}
+              {typeof equipe._count?.membros ===
+              "number"
+                ? ` — ${equipe._count.membros} membro(s)`
+                : ""}
+            </option>
+          )
+        )}
+      </select>
+    </div>
+
+    {form.equipeId && (
+      <div className="phanyx-meta-participantes-box md:col-span-2 rounded-2xl border border-slate-200 !bg-slate-50 p-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-black !text-slate-900 dark:!text-white">
+              Participantes desta meta
+            </p>
+
+            <p className="mt-1 text-xs !text-slate-600 dark:!text-slate-400">
+              Escolha quais membros da equipe terão seus resultados considerados nesta meta.
+            </p>
+          </div>
+
+          <div className="shrink-0 rounded-full border border-slate-300 !bg-slate-200 px-3 py-1 text-xs font-black !text-slate-950">
+            {form.participanteIds.length}{" "}
+            selecionado(s)
+          </div>
+        </div>
+
+        {membrosEquipeSelecionada.length >
+        0 ? (
+          <>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() =>
+                  setForm(
+                    (atual) => ({
+                      ...atual,
+
+                      participanteIds:
+                        membrosEquipeSelecionada.map(
+                          (membro) =>
+                            membro.funcionarioId
+                        ),
+                    })
+                  )
+                }
+                className="rounded-xl border border-slate-300 !bg-white px-3 py-2 text-xs font-black !text-slate-700 transition hover:!bg-slate-100 dark:border-slate-600 dark:!bg-slate-900 dark:!text-slate-100 dark:hover:!bg-slate-800"
+              >
+                Selecionar todos
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setForm(
+                    (atual) => ({
+                      ...atual,
+                      participanteIds: [],
+                    })
+                  )
+                }
+                className="rounded-xl border border-slate-300 !bg-white px-3 py-2 text-xs font-black !text-slate-700 transition hover:!bg-slate-100 dark:border-slate-600 dark:!bg-slate-900 dark:!text-slate-100 dark:hover:!bg-slate-800"
+              >
+                Limpar seleção
+              </button>
+            </div>
+
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {membrosEquipeSelecionada.map(
+                (membro) => {
+                  const selecionado =
+                    form.participanteIds.includes(
+                      membro.funcionarioId
+                    );
+
+                  return (
+                    <label
+                      key={membro.id}
+                      className={`flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition ${
+                        selecionado
+                          ? "border-emerald-500 !bg-white ring-1 ring-emerald-200 dark:border-emerald-600 dark:!bg-slate-900 dark:ring-emerald-900"
+                          : "border-slate-200 !bg-white hover:border-slate-400 dark:border-slate-700 dark:!bg-slate-900"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={
+                          selecionado
+                        }
+                        onChange={() =>
+                          alternarParticipante(
+                            membro.funcionarioId
+                          )
+                        }
+                        className="mt-1 h-4 w-4 shrink-0 accent-emerald-600"
+                      />
+
+                      <div className="min-w-0">
+                        <p className="font-black !text-slate-900 dark:!text-white">
+                          {
+                            membro
+                              .funcionario
+                              .nome
+                          }
+                        </p>
+
+                        {(membro
+                          .funcionario
+                          .cargo ||
+                          membro
+                            .funcionario
+                            .departamento
+                            ?.nome) && (
+                          <p className="mt-1 text-xs !text-slate-500 dark:!text-slate-400">
+                            {membro
+                              .funcionario
+                              .cargo ||
+                              "Cargo não informado"}
+
+                            {membro
+                              .funcionario
+                              .departamento
+                              ?.nome
+                              ? ` — ${membro.funcionario.departamento.nome}`
+                              : ""}
+                          </p>
+                        )}
+                      </div>
+                    </label>
+                  );
+                }
+              )}
+            </div>
+          </>
+        ) : (
+          <div className="mt-4 rounded-xl border border-amber-300 !bg-amber-50 px-4 py-3 text-sm font-bold !text-amber-900 dark:border-amber-800 dark:!bg-amber-950/30 dark:!text-amber-100">
+            Esta equipe não possui membros ativos disponíveis para a meta.
+          </div>
+        )}
+      </div>
+    )}
+  </>
+)}
+
+                    {form.escopo === "FUNCIONARIO" && (
+                      <div className="md:col-span-2">
+                        <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
+                          Funcionário responsável
+                        </label>
+                        <select
+                          value={form.funcionarioId}
+                          onChange={(event) =>
+                            setForm((atual) => ({
+                              ...atual,
+                              funcionarioId: event.target.value,
+                            }))
+                          }
+                          className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 font-semibold !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
+                        >
+                          <option value="">Selecione o funcionário</option>
+                          {catalogos.funcionarios.map((funcionario) => (
+                            <option key={funcionario.id} value={funcionario.id}>
+                              {funcionario.nome}
+                              {funcionario.cargo ? ` — ${funcionario.cargo}` : ""}
+                              {funcionario.departamento?.nome
+                                ? ` — ${funcionario.departamento.nome}`
+                                : ""}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
+                    <div>
+                      <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
+                        Periodicidade
+                      </label>
                       <select
-                        value={form.equipeId}
+                        value={form.periodicidade}
                         onChange={(event) =>
-                          alterarEquipe(
-                            event.target.value
+                          alterarPeriodicidade(
+                            event.target.value as PeriodicidadeMeta
                           )
                         }
                         className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 font-semibold !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
                       >
-                        <option value="">
-                          Selecione a equipe
-                        </option>
-
-                        {catalogos.equipes.map(
-                          (equipe) => (
-                            <option
-                              key={equipe.id}
-                              value={equipe.id}
-                            >
-                              {equipe.nome}
-                              {typeof equipe
-                                ._count
-                                ?.membros ===
-                              "number"
-                                ? ` — ${equipe._count.membros} membro(s)`
-                                : ""}
-                            </option>
-                          )
-                        )}
+                        <option value="MENSAL">Mensal</option>
+                        <option value="TRIMESTRAL">Trimestral</option>
+                        <option value="SEMESTRAL">Semestral</option>
+                        <option value="ANUAL">Anual</option>
+                        <option value="PERSONALIZADA">Personalizada</option>
                       </select>
                     </div>
 
-                    {form.equipeId && (
-                      <div className="phanyx-meta-participantes-box md:col-span-2 rounded-2xl border border-slate-200 !bg-slate-50 p-5">
-                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                          <div>
-                            <p className="text-sm font-black !text-slate-900 dark:!text-white">
-                              Participantes desta meta
-                            </p>
+                    <div>
+                      <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
+                        Valor-alvo
+                      </label>
+                      <input
+                        value={form.valorAlvo}
+                        onChange={(event) =>
+                          setForm((atual) => ({
+                            ...atual,
+                            valorAlvo: event.target.value,
+                          }))
+                        }
+                        inputMode={indicadorEhValor ? "decimal" : "numeric"}
+                        placeholder={indicadorEhValor ? "Ex.: 25.000,00" : "Ex.: 100"}
+                        className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
+                      />
+                      <p className="mt-2 text-xs !text-slate-500 dark:!text-slate-400">
+                        {indicadorEhValor
+                          ? "Informe o valor em reais."
+                          : "Informe uma quantidade inteira."}
+                      </p>
+                    </div>
 
-                            <p className="mt-1 text-xs !text-slate-600 dark:!text-slate-400">
-                              Escolha quais membros da equipe terão seus resultados considerados nesta meta.
-                            </p>
-                          </div>
+                    <div>
+                      <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
+                        Data inicial
+                      </label>
+                      <input
+                        type="date"
+                        value={form.dataInicio}
+                        onChange={(event) =>
+                          setForm((atual) => ({
+                            ...atual,
+                            dataInicio: event.target.value,
+                          }))
+                        }
+                        className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
+                      />
+                    </div>
 
-                          <span className="shrink-0 rounded-full border border-slate-300 !bg-white px-3 py-1 text-xs font-black !text-slate-700 dark:border-slate-600 dark:!bg-slate-900 dark:!text-slate-200">
-                            {
-                              form
-                                .participanteIds
-                                .length
-                            }{" "}
-                            selecionado(s)
-                          </span>
+                    <div>
+                      <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
+                        Data final
+                      </label>
+                      <input
+                        type="date"
+                        value={form.dataFim}
+                        onChange={(event) =>
+                          setForm((atual) => ({
+                            ...atual,
+                            dataFim: event.target.value,
+                          }))
+                        }
+                        className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
+                        Curso
+                      </label>
+                      <select
+                        value={form.cursoId}
+                        onChange={(event) =>
+                          setForm((atual) => ({
+                            ...atual,
+                            cursoId: event.target.value,
+                          }))
+                        }
+                        className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 font-semibold !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
+                      >
+                        <option value="">Todos os cursos</option>
+                        {catalogos.cursos.map((curso) => (
+                          <option key={curso.id} value={curso.id}>
+                            {curso.nome}
+                            {curso.codigo ? ` — ${curso.codigo}` : ""}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
+                        Polo
+                      </label>
+                      <select
+                        value={form.poloId}
+                        onChange={(event) =>
+                          setForm((atual) => ({
+                            ...atual,
+                            poloId: event.target.value,
+                          }))
+                        }
+                        className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 font-semibold !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
+                      >
+                        <option value="">Todos os polos</option>
+                        {catalogos.polos.map((polo) => (
+                          <option key={polo.id} value={polo.id}>
+                            {polo.nome}
+                            {polo.codigo ? ` — ${polo.codigo}` : ""}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {!editandoId && (
+                      <div className="md:col-span-2">
+                        <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
+                          Situação inicial
+                        </label>
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <label
+                            className={`cursor-pointer rounded-2xl border p-4 transition ${form.status === "RASCUNHO"
+                              ? "border-amber-600 !bg-amber-100 ring-1 ring-amber-300 dark:border-amber-700 dark:!bg-amber-950/30"
+                              : "border-slate-200 !bg-white dark:border-slate-700 dark:!bg-slate-950"
+                              }`}
+                          >
+                            <input
+                              type="radio"
+                              name="statusInicialMeta"
+                              value="RASCUNHO"
+                              checked={form.status === "RASCUNHO"}
+                              onChange={() =>
+                                setForm((atual) => ({
+                                  ...atual,
+                                  status: "RASCUNHO",
+                                }))
+                              }
+                              className="mr-3"
+                            />
+                            <strong className="!text-slate-900 dark:!text-white">
+                              Salvar como rascunho
+                            </strong>
+                            <span className="mt-1 block pl-7 text-xs !text-slate-500 dark:!text-slate-400">
+                              Permite revisar a meta antes de ativá-la.
+                            </span>
+                          </label>
+
+                          <label
+                            className={`cursor-pointer rounded-2xl border p-4 transition ${form.status === "ATIVA"
+                              ? "border-emerald-600 !bg-emerald-100 ring-1 ring-emerald-300 dark:border-emerald-700 dark:!bg-emerald-950/30"
+                              : "border-slate-200 !bg-white dark:border-slate-700 dark:!bg-slate-950"
+                              }`}
+                          >
+                            <input
+                              type="radio"
+                              name="statusInicialMeta"
+                              value="ATIVA"
+                              checked={form.status === "ATIVA"}
+                              onChange={() =>
+                                setForm((atual) => ({
+                                  ...atual,
+                                  status: "ATIVA",
+                                }))
+                              }
+                              className="mr-3"
+                            />
+                            <strong className="!text-slate-900 dark:!text-white">
+                              Criar como ativa
+                            </strong>
+                            <span className="mt-1 block pl-7 text-xs !text-slate-500 dark:!text-slate-400">
+                              A meta já começa valendo para o período definido.
+                            </span>
+                          </label>
                         </div>
-
-                        {membrosEquipeSelecionada.length >
-                        0 ? (
-                          <>
-                            <div className="mt-4 flex flex-wrap gap-2">
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setForm(
-                                    (
-                                      atual
-                                    ) => ({
-                                      ...atual,
-
-                                      participanteIds:
-                                        membrosEquipeSelecionada.map(
-                                          (
-                                            membro
-                                          ) =>
-                                            membro.funcionarioId
-                                        ),
-                                    })
-                                  )
-                                }
-                                className="rounded-xl border border-slate-300 !bg-white px-3 py-2 text-xs font-black !text-slate-700 transition hover:!bg-slate-100 dark:border-slate-600 dark:!bg-slate-900 dark:!text-slate-100 dark:hover:!bg-slate-800"
-                              >
-                                Selecionar todos
-                              </button>
-
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setForm(
-                                    (
-                                      atual
-                                    ) => ({
-                                      ...atual,
-                                      participanteIds:
-                                        [],
-                                    })
-                                  )
-                                }
-                                className="rounded-xl border border-slate-300 !bg-white px-3 py-2 text-xs font-black !text-slate-700 transition hover:!bg-slate-100 dark:border-slate-600 dark:!bg-slate-900 dark:!text-slate-100 dark:hover:!bg-slate-800"
-                              >
-                                Limpar seleção
-                              </button>
-                            </div>
-
-                            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                              {membrosEquipeSelecionada.map(
-                                (
-                                  membro
-                                ) => {
-                                  const selecionado =
-                                    form.participanteIds.includes(
-                                      membro.funcionarioId
-                                    );
-
-                                  return (
-                                    <label
-                                      key={
-                                        membro.id
-                                      }
-                                      className={`flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition ${
-                                        selecionado
-                                          ? "border-emerald-500 !bg-white ring-1 ring-emerald-200 dark:border-emerald-600 dark:!bg-slate-900 dark:ring-emerald-900"
-                                          : "border-slate-200 !bg-white hover:border-slate-400 dark:border-slate-700 dark:!bg-slate-900"
-                                      }`}
-                                    >
-                                      <input
-                                        type="checkbox"
-                                        checked={
-                                          selecionado
-                                        }
-                                        onChange={() =>
-                                          alternarParticipante(
-                                            membro.funcionarioId
-                                          )
-                                        }
-                                        className="mt-1 h-4 w-4 shrink-0 accent-emerald-600"
-                                      />
-
-                                      <div className="min-w-0">
-                                        <p className="font-black !text-slate-900 dark:!text-white">
-                                          {
-                                            membro
-                                              .funcionario
-                                              .nome
-                                          }
-                                        </p>
-
-                                        {(membro
-                                          .funcionario
-                                          .cargo ||
-                                          membro
-                                            .funcionario
-                                            .departamento
-                                            ?.nome) && (
-                                          <p className="mt-1 text-xs !text-slate-500 dark:!text-slate-400">
-                                            {membro
-                                              .funcionario
-                                              .cargo ||
-                                              "Cargo não informado"}
-
-                                            {membro
-                                              .funcionario
-                                              .departamento
-                                              ?.nome
-                                              ? ` — ${membro.funcionario.departamento.nome}`
-                                              : ""}
-                                          </p>
-                                        )}
-                                      </div>
-                                    </label>
-                                  );
-                                }
-                              )}
-                            </div>
-                          </>
-                        ) : (
-                          <div className="mt-4 rounded-xl border border-amber-300 !bg-amber-50 px-4 py-3 text-sm font-bold !text-amber-900 dark:border-amber-800 dark:!bg-amber-950/30 dark:!text-amber-100">
-                            Esta equipe não possui membros ativos disponíveis para a meta.
-                          </div>
-                        )}
                       </div>
                     )}
-                  </>
-                )}
 
-                {form.escopo === "FUNCIONARIO" && (
-                  <div className="md:col-span-2">
-                    <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
-                      Funcionário responsável
-                    </label>
-                    <select
-                      value={form.funcionarioId}
-                      onChange={(event) =>
-                        setForm((atual) => ({
-                          ...atual,
-                          funcionarioId: event.target.value,
-                        }))
-                      }
-                      className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 font-semibold !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
-                    >
-                      <option value="">Selecione o funcionário</option>
-                      {catalogos.funcionarios.map((funcionario) => (
-                        <option key={funcionario.id} value={funcionario.id}>
-                          {funcionario.nome}
-                          {funcionario.cargo ? ` — ${funcionario.cargo}` : ""}
-                          {funcionario.departamento?.nome
-                            ? ` — ${funcionario.departamento.nome}`
-                            : ""}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
-                <div>
-                  <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
-                    Periodicidade
-                  </label>
-                  <select
-                    value={form.periodicidade}
-                    onChange={(event) =>
-                      alterarPeriodicidade(
-                        event.target.value as PeriodicidadeMeta
-                      )
-                    }
-                    className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 font-semibold !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
-                  >
-                    <option value="MENSAL">Mensal</option>
-                    <option value="TRIMESTRAL">Trimestral</option>
-                    <option value="SEMESTRAL">Semestral</option>
-                    <option value="ANUAL">Anual</option>
-                    <option value="PERSONALIZADA">Personalizada</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
-                    Valor-alvo
-                  </label>
-                  <input
-                    value={form.valorAlvo}
-                    onChange={(event) =>
-                      setForm((atual) => ({
-                        ...atual,
-                        valorAlvo: event.target.value,
-                      }))
-                    }
-                    inputMode={indicadorEhValor ? "decimal" : "numeric"}
-                    placeholder={indicadorEhValor ? "Ex.: 25.000,00" : "Ex.: 100"}
-                    className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
-                  />
-                  <p className="mt-2 text-xs !text-slate-500 dark:!text-slate-400">
-                    {indicadorEhValor
-                      ? "Informe o valor em reais."
-                      : "Informe uma quantidade inteira."}
-                  </p>
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
-                    Data inicial
-                  </label>
-                  <input
-                    type="date"
-                    value={form.dataInicio}
-                    onChange={(event) =>
-                      setForm((atual) => ({
-                        ...atual,
-                        dataInicio: event.target.value,
-                      }))
-                    }
-                    className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
-                    Data final
-                  </label>
-                  <input
-                    type="date"
-                    value={form.dataFim}
-                    onChange={(event) =>
-                      setForm((atual) => ({
-                        ...atual,
-                        dataFim: event.target.value,
-                      }))
-                    }
-                    className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
-                    Curso
-                  </label>
-                  <select
-                    value={form.cursoId}
-                    onChange={(event) =>
-                      setForm((atual) => ({
-                        ...atual,
-                        cursoId: event.target.value,
-                      }))
-                    }
-                    className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 font-semibold !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
-                  >
-                    <option value="">Todos os cursos</option>
-                    {catalogos.cursos.map((curso) => (
-                      <option key={curso.id} value={curso.id}>
-                        {curso.nome}
-                        {curso.codigo ? ` — ${curso.codigo}` : ""}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
-                    Polo
-                  </label>
-                  <select
-                    value={form.poloId}
-                    onChange={(event) =>
-                      setForm((atual) => ({
-                        ...atual,
-                        poloId: event.target.value,
-                      }))
-                    }
-                    className="min-h-12 w-full rounded-2xl border border-slate-300 !bg-white px-4 font-semibold !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
-                  >
-                    <option value="">Todos os polos</option>
-                    {catalogos.polos.map((polo) => (
-                      <option key={polo.id} value={polo.id}>
-                        {polo.nome}
-                        {polo.codigo ? ` — ${polo.codigo}` : ""}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {!editandoId && (
-                  <div className="md:col-span-2">
-                    <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
-                      Situação inicial
-                    </label>
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      <label
-                        className={`cursor-pointer rounded-2xl border p-4 transition ${form.status === "RASCUNHO"
-                          ? "border-amber-600 !bg-amber-100 ring-1 ring-amber-300 dark:border-amber-700 dark:!bg-amber-950/30"
-                          : "border-slate-200 !bg-white dark:border-slate-700 dark:!bg-slate-950"
-                          }`}
-                      >
-                        <input
-                          type="radio"
-                          name="statusInicialMeta"
-                          value="RASCUNHO"
-                          checked={form.status === "RASCUNHO"}
-                          onChange={() =>
-                            setForm((atual) => ({
-                              ...atual,
-                              status: "RASCUNHO",
-                            }))
-                          }
-                          className="mr-3"
-                        />
-                        <strong className="!text-slate-900 dark:!text-white">
-                          Salvar como rascunho
-                        </strong>
-                        <span className="mt-1 block pl-7 text-xs !text-slate-500 dark:!text-slate-400">
-                          Permite revisar a meta antes de ativá-la.
-                        </span>
+                    <div className="md:col-span-2">
+                      <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
+                        Observações internas
                       </label>
-
-                      <label
-                        className={`cursor-pointer rounded-2xl border p-4 transition ${form.status === "ATIVA"
-                          ? "border-emerald-600 !bg-emerald-100 ring-1 ring-emerald-300 dark:border-emerald-700 dark:!bg-emerald-950/30"
-                          : "border-slate-200 !bg-white dark:border-slate-700 dark:!bg-slate-950"
-                          }`}
-                      >
-                        <input
-                          type="radio"
-                          name="statusInicialMeta"
-                          value="ATIVA"
-                          checked={form.status === "ATIVA"}
-                          onChange={() =>
-                            setForm((atual) => ({
-                              ...atual,
-                              status: "ATIVA",
-                            }))
-                          }
-                          className="mr-3"
-                        />
-                        <strong className="!text-slate-900 dark:!text-white">
-                          Criar como ativa
-                        </strong>
-                        <span className="mt-1 block pl-7 text-xs !text-slate-500 dark:!text-slate-400">
-                          A meta já começa valendo para o período definido.
-                        </span>
-                      </label>
+                      <textarea
+                        value={form.observacoes}
+                        onChange={(event) =>
+                          setForm((atual) => ({
+                            ...atual,
+                            observacoes: event.target.value,
+                          }))
+                        }
+                        rows={4}
+                        placeholder="Registre critérios, orientações ou informações internas sobre a meta."
+                        className="w-full rounded-2xl border border-slate-300 !bg-white px-4 py-3 !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
+                      />
                     </div>
                   </div>
-                )}
+              </div>
 
-                <div className="md:col-span-2">
-                  <label className="mb-2 block text-sm font-black !text-slate-800 dark:!text-slate-100">
-                    Observações internas
-                  </label>
-                  <textarea
-                    value={form.observacoes}
-                    onChange={(event) =>
-                      setForm((atual) => ({
-                        ...atual,
-                        observacoes: event.target.value,
-                      }))
-                    }
-                    rows={4}
-                    placeholder="Registre critérios, orientações ou informações internas sobre a meta."
-                    className="w-full rounded-2xl border border-slate-300 !bg-white px-4 py-3 !text-slate-950 outline-none focus:border-blue-600 dark:border-slate-700 dark:!bg-slate-950 dark:!text-white"
-                  />
+              <div className="sticky bottom-0 flex flex-col-reverse gap-3 border-t border-slate-200 !bg-slate-50 p-6 sm:flex-row sm:justify-end dark:border-slate-700 dark:!bg-slate-950">
+                <button
+                  type="button"
+                  onClick={fecharModal}
+                  disabled={salvando}
+                  className="min-h-11 rounded-2xl border border-slate-300 !bg-white px-5 text-sm font-black !text-slate-800 transition hover:!bg-slate-100 disabled:opacity-60 dark:border-slate-700 dark:!bg-slate-900 dark:!text-white"
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => void salvarMeta()}
+                  disabled={salvando}
+                  className="min-h-11 rounded-2xl border !border-blue-700 !bg-blue-700 px-6 text-sm font-black !text-white transition hover:!bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {salvando
+                    ? "Salvando..."
+                    : editandoId
+                      ? "Salvar alterações"
+                      : "Criar meta"}
+                </button>
+              </div>
+            </div>
+          </div>
+      )}
+
+          {confirmacao && configuracaoConfirmacao && (
+            <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/70 p-4">
+              <div className="w-full max-w-lg rounded-3xl border border-slate-200 !bg-white p-6 shadow-2xl dark:border-slate-700 dark:!bg-slate-900">
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-blue-700 dark:text-blue-300">
+                  Confirmação
+                </p>
+
+                <h2 className="mt-2 text-2xl font-black !text-slate-950 dark:!text-white">
+                  {configuracaoConfirmacao.titulo}
+                </h2>
+
+                <p className="mt-3 text-sm leading-6 !text-slate-600 dark:!text-slate-300">
+                  {configuracaoConfirmacao.mensagem}
+                </p>
+
+                <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setConfirmacao(null)}
+                    disabled={salvando}
+                    className="min-h-11 rounded-2xl border border-slate-300 !bg-white px-5 text-sm font-black !text-slate-800 transition hover:!bg-slate-100 disabled:opacity-60 dark:border-slate-700 dark:!bg-slate-900 dark:!text-white"
+                  >
+                    Voltar
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => void confirmarAcao()}
+                    disabled={salvando}
+                    className={`min-h-11 rounded-2xl border px-5 text-sm font-black transition disabled:cursor-not-allowed disabled:opacity-60 ${configuracaoConfirmacao.classeBotao}`}
+                  >
+                    {salvando ? "Processando..." : configuracaoConfirmacao.acao}
+                  </button>
                 </div>
               </div>
             </div>
-
-            <div className="sticky bottom-0 flex flex-col-reverse gap-3 border-t border-slate-200 !bg-slate-50 p-6 sm:flex-row sm:justify-end dark:border-slate-700 dark:!bg-slate-950">
-              <button
-                type="button"
-                onClick={fecharModal}
-                disabled={salvando}
-                className="min-h-11 rounded-2xl border border-slate-300 !bg-white px-5 text-sm font-black !text-slate-800 transition hover:!bg-slate-100 disabled:opacity-60 dark:border-slate-700 dark:!bg-slate-900 dark:!text-white"
-              >
-                Cancelar
-              </button>
-
-              <button
-                type="button"
-                onClick={() => void salvarMeta()}
-                disabled={salvando}
-                className="min-h-11 rounded-2xl border !border-blue-700 !bg-blue-700 px-6 text-sm font-black !text-white transition hover:!bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {salvando
-                  ? "Salvando..."
-                  : editandoId
-                    ? "Salvar alterações"
-                    : "Criar meta"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {confirmacao && configuracaoConfirmacao && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/70 p-4">
-          <div className="w-full max-w-lg rounded-3xl border border-slate-200 !bg-white p-6 shadow-2xl dark:border-slate-700 dark:!bg-slate-900">
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-blue-700 dark:text-blue-300">
-              Confirmação
-            </p>
-
-            <h2 className="mt-2 text-2xl font-black !text-slate-950 dark:!text-white">
-              {configuracaoConfirmacao.titulo}
-            </h2>
-
-            <p className="mt-3 text-sm leading-6 !text-slate-600 dark:!text-slate-300">
-              {configuracaoConfirmacao.mensagem}
-            </p>
-
-            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-              <button
-                type="button"
-                onClick={() => setConfirmacao(null)}
-                disabled={salvando}
-                className="min-h-11 rounded-2xl border border-slate-300 !bg-white px-5 text-sm font-black !text-slate-800 transition hover:!bg-slate-100 disabled:opacity-60 dark:border-slate-700 dark:!bg-slate-900 dark:!text-white"
-              >
-                Voltar
-              </button>
-
-              <button
-                type="button"
-                onClick={() => void confirmarAcao()}
-                disabled={salvando}
-                className={`min-h-11 rounded-2xl border px-5 text-sm font-black transition disabled:cursor-not-allowed disabled:opacity-60 ${configuracaoConfirmacao.classeBotao}`}
-              >
-                {salvando ? "Processando..." : configuracaoConfirmacao.acao}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </main>
-  );
+          )}
+        </main>
+      );
 }
