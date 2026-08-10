@@ -80,6 +80,7 @@ model Instituicao {
   cursoSemestres                 CursoSemestre[]
   cursoSemestreDisciplinas       CursoSemestreDisciplina[]
   Departamento                   Departamento[]
+  cargos                         Cargo[]
   disciplinas                    Disciplina[]
   documentosAlunos               DocumentoAluno[]
   documentosGerados              DocumentoGerado[]
@@ -1482,17 +1483,21 @@ model Funcionario {
   pontoMobileConviteCriadoPorId Int?
   pontoMobileConviteUsadoEm     DateTime?
 
-  instituicaoId             Int
-  userId                    Int?          @unique
-  user                      User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
-  departamentoId            Int?
-  departamento              Departamento? @relation(fields: [departamentoId], references: [id])
+  instituicaoId  Int
+  userId         Int?          @unique
+  user           User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  departamentoId Int?
+  departamento   Departamento? @relation(fields: [departamentoId], references: [id])
+
+  cargoId       Int?
+  cargoCadastro Cargo? @relation(fields: [cargoId], references: [id], onDelete: SetNull)
+
   poloId                    Int?
-  polo                      Polo?         @relation("FuncionarioPoloAtual", fields: [poloId], references: [id], onDelete: SetNull)
-  instituicao               Instituicao   @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  recebeMensagemAniversario Boolean       @default(true)
-  recebeWhatsappAniversario Boolean       @default(true)
-  professor                 Professor?    @relation("ProfessorFuncionarioRH")
+  polo                      Polo?       @relation("FuncionarioPoloAtual", fields: [poloId], references: [id], onDelete: SetNull)
+  instituicao               Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  recebeMensagemAniversario Boolean     @default(true)
+  recebeWhatsappAniversario Boolean     @default(true)
+  professor                 Professor?  @relation("ProfessorFuncionarioRH")
 
   historicosLotacaoRH FuncionarioLotacaoRH[]
 
@@ -1530,6 +1535,8 @@ model Funcionario {
 
   @@index([instituicaoId])
   @@index([departamentoId])
+  @@index([cargoId])
+  @@index([instituicaoId, cargoId])
   @@index([poloId])
   @@index([instituicaoId, poloId])
   @@index([nome])
@@ -1546,6 +1553,7 @@ model Departamento {
   instituicaoId Int
   instituicao   Instituicao   @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   funcionarios  Funcionario[]
+  cargos        Cargo[]
 
   lotacoesFuncionariosComoAnterior FuncionarioLotacaoRH[] @relation("FuncionarioLotacaoDepartamentoAnterior")
   lotacoesFuncionariosComoNovo     FuncionarioLotacaoRH[] @relation("FuncionarioLotacaoDepartamentoNovo")
@@ -1556,6 +1564,27 @@ model Departamento {
 
   @@unique([instituicaoId, nome])
   @@index([instituicaoId])
+}
+
+model Cargo {
+  id              Int      @id @default(autoincrement())
+  nome            String
+  nomeNormalizado String
+  ativo           Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  instituicaoId   Int
+  departamentoId  Int
+
+  instituicao  Instituicao   @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  departamento Departamento  @relation(fields: [departamentoId], references: [id], onDelete: Cascade)
+  funcionarios Funcionario[]
+
+  @@unique([instituicaoId, departamentoId, nomeNormalizado])
+  @@index([instituicaoId])
+  @@index([departamentoId])
+  @@index([instituicaoId, departamentoId])
+  @@index([ativo])
 }
 
 model AtestadoMedico {
