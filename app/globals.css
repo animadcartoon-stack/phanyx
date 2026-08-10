@@ -2364,43 +2364,234 @@ html[data-theme="system"] .agenda-operacional-checkbox:hover {
   opacity: 1 !important;
 }
 
-html[data-theme="light"] .phanyx-substituicoes-page,
-html[data-theme="light"] .phanyx-substituicoes-page * {
+/* =====================================================
+   TEMA CLARO
+   ===================================================== */
+
+html[data-theme="light"] .phanyx-substituicoes-page {
   color: #0f172a !important;
 }
 
-html[data-theme="light"] .phanyx-substituicoes-page p,
-html[data-theme="light"] .phanyx-substituicoes-page .text-slate-500,
-html[data-theme="light"] .phanyx-substituicoes-page .text-slate-600 {
-  color: #475569 !important;
-}
-
-html[data-theme="light"] .phanyx-substituicoes-page input,
-html[data-theme="light"] .phanyx-substituicoes-page select,
-html[data-theme="light"] .phanyx-substituicoes-page textarea {
+/* Cards e superfícies principais sempre claros */
+html[data-theme="light"]
+  .phanyx-substituicoes-page
+  .bg-white {
   background: #ffffff !important;
-  color: #0f172a !important;
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* Cards internos do modal Visualizar */
+html[data-theme="light"]
+  .phanyx-substituicoes-page
+  div.bg-slate-50 {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  background-image: none !important;
   border-color: #cbd5e1 !important;
 }
 
-html[data-theme="light"] .phanyx-substituicoes-page input::placeholder,
-html[data-theme="light"] .phanyx-substituicoes-page textarea::placeholder {
+/* Card do vínculo selecionado:
+   NÃO deixar azul no tema claro */
+html[data-theme="light"]
+  .phanyx-substituicoes-page
+  div.bg-blue-50 {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  background-image: none !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Títulos */
+html[data-theme="light"]
+  .phanyx-substituicoes-page
+  :is(h1, h2, h3, strong, .text-slate-900) {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+/* Textos secundários */
+html[data-theme="light"]
+  .phanyx-substituicoes-page
+  .text-slate-700 {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-substituicoes-page
+  :is(.text-slate-600, .text-slate-500, .text-slate-400) {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+}
+
+/* =====================================================
+   TABELA — tema claro
+   Sem barra azul
+   ===================================================== */
+
+html[data-theme="light"]
+  .phanyx-substituicoes-page
+  table
+  thead,
+html[data-theme="light"]
+  .phanyx-substituicoes-page
+  table
+  thead
+  tr {
+  background: #f1f5f9 !important;
+  background-color: #f1f5f9 !important;
+  background-image: none !important;
+}
+
+html[data-theme="light"]
+  .phanyx-substituicoes-page
+  table
+  thead
+  th {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-substituicoes-page
+  table
+  tbody
+  tr {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+}
+
+html[data-theme="light"]
+  .phanyx-substituicoes-page
+  table
+  tbody
+  td {
+  color: #334155 !important;
+  opacity: 1 !important;
+}
+
+/* =====================================================
+   STATUS — tema claro
+   Mantém badges legíveis, sem ficarem apagados
+   ===================================================== */
+
+/* ATIVA */
+html[data-theme="light"]
+  .phanyx-substituicoes-page
+  span.bg-green-50 {
+  background: #dcfce7 !important;
+  background-color: #dcfce7 !important;
+  color: #166534 !important;
+  -webkit-text-fill-color: #166534 !important;
+  border-color: #86efac !important;
+}
+
+/* AGENDADA */
+html[data-theme="light"]
+  .phanyx-substituicoes-page
+  span.bg-blue-50 {
+  background: #eff6ff !important;
+  background-color: #eff6ff !important;
+  color: #1d4ed8 !important;
+  -webkit-text-fill-color: #1d4ed8 !important;
+  border-color: #bfdbfe !important;
+}
+
+/* ENCERRADA */
+html[data-theme="light"]
+  .phanyx-substituicoes-page
+  span.bg-slate-100 {
+  background: #e2e8f0 !important;
+  background-color: #e2e8f0 !important;
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* CANCELADA */
+html[data-theme="light"]
+  .phanyx-substituicoes-page
+  span.bg-red-50 {
+  background: #fee2e2 !important;
+  background-color: #fee2e2 !important;
+  color: #b91c1c !important;
+  -webkit-text-fill-color: #b91c1c !important;
+  border-color: #fecaca !important;
+}
+
+/* SUSPENSA */
+html[data-theme="light"]
+  .phanyx-substituicoes-page
+  span.bg-yellow-50 {
+  background: #fef3c7 !important;
+  background-color: #fef3c7 !important;
+  color: #92400e !important;
+  -webkit-text-fill-color: #92400e !important;
+  border-color: #fde68a !important;
+}
+
+/* =====================================================
+   CAMPOS — tema claro
+   ===================================================== */
+
+html[data-theme="light"]
+  .phanyx-substituicoes-page
+  input,
+html[data-theme="light"]
+  .phanyx-substituicoes-page
+  select,
+html[data-theme="light"]
+  .phanyx-substituicoes-page
+  textarea {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-substituicoes-page
+  input::placeholder,
+html[data-theme="light"]
+  .phanyx-substituicoes-page
+  textarea::placeholder {
   color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
 }
 
-html[data-theme="light"] .phanyx-substituicoes-page button.bg-blue-600,
-html[data-theme="light"] .phanyx-substituicoes-page button.bg-blue-600 * {
+/* Botão principal continua azul,
+   mas texto sempre branco */
+html[data-theme="light"]
+  .phanyx-substituicoes-page
+  button.bg-blue-600,
+html[data-theme="light"]
+  .phanyx-substituicoes-page
+  button.bg-blue-600 * {
   color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }
 
-/* Sistema: cinza, sem azul nos selects/filtros */
+/* =====================================================
+   TEMA SISTEMA
+   ===================================================== */
+
 html[data-theme="system"] .phanyx-substituicoes-page {
   color: #ffffff !important;
 }
 
-html[data-theme="system"] .phanyx-substituicoes-page input,
-html[data-theme="system"] .phanyx-substituicoes-page select,
-html[data-theme="system"] .phanyx-substituicoes-page textarea {
+html[data-theme="system"]
+  .phanyx-substituicoes-page
+  input,
+html[data-theme="system"]
+  .phanyx-substituicoes-page
+  select,
+html[data-theme="system"]
+  .phanyx-substituicoes-page
+  textarea {
   background: #262626 !important;
   background-color: #262626 !important;
   background-image: none !important;
@@ -2408,28 +2599,42 @@ html[data-theme="system"] .phanyx-substituicoes-page textarea {
   border-color: #525252 !important;
 }
 
-html[data-theme="system"] .phanyx-substituicoes-page option {
+html[data-theme="system"]
+  .phanyx-substituicoes-page
+  option {
   background: #262626 !important;
-  background-color: #262626 !important;
   color: #ffffff !important;
 }
 
-/* Modal no sistema */
-html[data-theme="system"] .phanyx-substituicoes-page .fixed .rounded-3xl {
+html[data-theme="system"]
+  .phanyx-substituicoes-page
+  .fixed
+  .rounded-3xl {
   background: #262626 !important;
   border-color: #525252 !important;
 }
 
-/* Escuro */
-html[data-theme="dark"] .phanyx-substituicoes-page input,
-html[data-theme="dark"] .phanyx-substituicoes-page select,
-html[data-theme="dark"] .phanyx-substituicoes-page textarea {
+/* =====================================================
+   TEMA ESCURO
+   ===================================================== */
+
+html[data-theme="dark"]
+  .phanyx-substituicoes-page
+  input,
+html[data-theme="dark"]
+  .phanyx-substituicoes-page
+  select,
+html[data-theme="dark"]
+  .phanyx-substituicoes-page
+  textarea {
   background: #111827 !important;
   color: #f8fafc !important;
   border-color: #374151 !important;
 }
 
-html[data-theme="dark"] .phanyx-substituicoes-page option {
+html[data-theme="dark"]
+  .phanyx-substituicoes-page
+  option {
   background: #111827 !important;
   color: #f8fafc !important;
 }
