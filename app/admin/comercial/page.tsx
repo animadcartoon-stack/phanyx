@@ -1,4 +1,10 @@
+"use client";
+
 import Link from "next/link";
+import {
+  useEffect,
+  useState,
+} from "react";
 
 
 const STATUS_MODULO = {
@@ -26,6 +32,65 @@ type ModuloComercial = {
   href?: string;
   acao?: string;
 };
+
+type ResumoComercial = {
+  leadsAtivos: number;
+
+  vendasPeriodo: number;
+
+  metasAtingidas: number;
+  metasTotal: number;
+
+  comissoesPendentesQuantidade:
+  number;
+
+  comissoesPendentesValor:
+  number;
+
+  periodo: {
+    mes: number;
+    ano: number;
+  };
+};
+
+const RESUMO_INICIAL:
+  ResumoComercial = {
+  leadsAtivos: 0,
+
+  vendasPeriodo: 0,
+
+  metasAtingidas: 0,
+  metasTotal: 0,
+
+  comissoesPendentesQuantidade:
+    0,
+
+  comissoesPendentesValor:
+    0,
+
+  periodo: {
+    mes:
+      new Date().getMonth() +
+      1,
+
+    ano:
+      new Date().getFullYear(),
+  },
+};
+
+function formatarMoeda(
+  valor: number
+) {
+  return new Intl.NumberFormat(
+    "pt-BR",
+    {
+      style: "currency",
+      currency: "BRL",
+    }
+  ).format(
+    Number(valor || 0)
+  );
+}
 
 const MODULOS_COMERCIAIS: ModuloComercial[] = [
   {
@@ -82,18 +147,111 @@ const MODULOS_COMERCIAIS: ModuloComercial[] = [
     href: "/admin/comercial/configuracoes",
     acao: "Abrir planos de comissão",
   },
- {
-  icone: "📊",
-  titulo: "Relatórios",
-  descricao:
-    "Analise conversão, desempenho, leads, matrículas, vendas e resultados comerciais.",
-  status: "DISPONIVEL",
-  href: "/admin/comercial/relatorios",
-  acao: "Abrir relatórios comerciais",
-},
+  {
+    icone: "📊",
+    titulo: "Relatórios",
+    descricao:
+      "Analise conversão, desempenho, leads, matrículas, vendas e resultados comerciais.",
+    status: "DISPONIVEL",
+    href: "/admin/comercial/relatorios",
+    acao: "Abrir relatórios comerciais",
+  },
 ];
 
 export default function ComercialPage() {
+  const [
+    resumo,
+    setResumo,
+  ] =
+    useState<ResumoComercial>(
+      RESUMO_INICIAL
+    );
+
+  const [
+    carregandoResumo,
+    setCarregandoResumo,
+  ] =
+    useState(true);
+
+  const [
+    erroResumo,
+    setErroResumo,
+  ] =
+    useState("");
+
+  useEffect(() => {
+    let ativo = true;
+
+    async function carregarResumo() {
+      try {
+        setCarregandoResumo(
+          true
+        );
+
+        setErroResumo("");
+
+        const resposta =
+          await fetch(
+            "/api/admin/comercial/resumo",
+            {
+              cache:
+                "no-store",
+            }
+          );
+
+        const json =
+          await resposta.json();
+
+        if (!resposta.ok) {
+          throw new Error(
+            json?.error ||
+            "Não foi possível carregar o resumo comercial."
+          );
+        }
+
+        if (!ativo) {
+          return;
+        }
+
+        setResumo({
+          ...RESUMO_INICIAL,
+          ...json,
+
+          periodo: {
+            ...RESUMO_INICIAL
+              .periodo,
+
+            ...(json?.periodo ||
+              {}),
+          },
+        });
+      } catch (
+      error: any
+      ) {
+        if (!ativo) {
+          return;
+        }
+
+        setErroResumo(
+          error?.message ||
+          "Não foi possível carregar o resumo comercial."
+        );
+      } finally {
+        if (ativo) {
+          setCarregandoResumo(
+            false
+          );
+        }
+      }
+    }
+
+    carregarResumo();
+
+    return () => {
+      ativo = false;
+    };
+  }, []);
+
   return (
     <main className="phanyx-comercial-page mx-auto w-full max-w-7xl space-y-7 p-6 lg:p-8">
       <header>
@@ -111,6 +269,27 @@ export default function ComercialPage() {
         </p>
       </header>
 
+      {erroResumo && (
+        <div
+          className="
+      rounded-2xl
+      border
+      border-amber-300
+      bg-amber-50
+      px-4
+      py-3
+      text-sm
+      font-semibold
+      text-amber-900
+      dark:border-amber-800
+      dark:bg-amber-950/40
+      dark:text-amber-200
+    "
+        >
+          {erroResumo}
+        </div>
+      )}
+
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <article className="phanyx-comercial-resumo-card rounded-3xl border p-5 shadow-sm">
           <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
@@ -118,11 +297,13 @@ export default function ComercialPage() {
           </p>
 
           <p className="phanyx-comercial-indicador-valor mt-3 text-3xl font-black">
-            —
+            {carregandoResumo
+              ? "..."
+              : resumo.leadsAtivos}
           </p>
 
           <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-            O funil comercial será conectado nesta área.
+            Leads em andamento no funil comercial.
           </p>
         </article>
 
@@ -132,11 +313,13 @@ export default function ComercialPage() {
           </p>
 
           <p className="phanyx-comercial-indicador-valor mt-3 text-3xl font-black">
-            —
+            {carregandoResumo
+              ? "..."
+              : resumo.vendasPeriodo}
           </p>
 
           <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-            Matrículas e vendas confirmadas.
+            Matrículas confirmadas no mês atual.
           </p>
         </article>
 
@@ -146,11 +329,15 @@ export default function ComercialPage() {
           </p>
 
           <p className="phanyx-comercial-indicador-valor mt-3 text-3xl font-black">
-            —
+            {carregandoResumo
+              ? "..."
+              : resumo.metasAtingidas}
           </p>
 
           <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-            Resultado por vendedor e equipe.
+            {resumo.metasTotal > 0
+              ? `${resumo.metasAtingidas} de ${resumo.metasTotal} meta(s) do período.`
+              : "Nenhuma meta ativa no período."}
           </p>
         </article>
 
@@ -160,11 +347,20 @@ export default function ComercialPage() {
           </p>
 
           <p className="phanyx-comercial-indicador-valor mt-3 text-3xl font-black">
-            —
+            {carregandoResumo
+              ? "..."
+              : formatarMoeda(
+                resumo
+                  .comissoesPendentesValor
+              )}
           </p>
 
           <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-            Valores aguardando análise comercial.
+            {resumo
+              .comissoesPendentesQuantidade >
+              0
+              ? `${resumo.comissoesPendentesQuantidade} lançamento(s) aguardando análise.`
+              : "Nenhuma comissão pendente no período."}
           </p>
         </article>
       </section>
