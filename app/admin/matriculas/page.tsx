@@ -659,13 +659,13 @@ function AdminMatriculasPage() {
           vendedor.id === vendedorId
       );
 
-    if (!vendedorExiste) {
-      setErro(
-        "O responsável comercial do lead não está disponível como vendedor elegível. Verifique se ele está ativo e possui plano de comissão vigente."
-      );
+   if (!vendedorExiste) {
+  setErro(
+    "O responsável comercial do lead não está disponível como vendedor elegível. Verifique se ele está ativo e possui o cargo de Vendedor."
+  );
 
-      return;
-    }
+  return;
+}
 
     setVendedorResponsavelId(
       String(vendedorId)
