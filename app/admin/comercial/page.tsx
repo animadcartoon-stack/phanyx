@@ -14,11 +14,6 @@ const STATUS_MODULO = {
       "border-amber-700 bg-amber-100 [--phanyx-status-text:#78350f] dark:border-amber-700 dark:bg-amber-950/50 dark:[--phanyx-status-text:#fef3c7]",
   },
 
-  EM_IMPLANTACAO: {
-    texto: "Em implantação",
-    classes:
-      "border-slate-500 bg-slate-200 [--phanyx-status-text:#0f172a] dark:border-slate-700 dark:bg-slate-900 dark:[--phanyx-status-text:#e2e8f0]",
-  },
 } as const;
 
 type StatusModuloComercial = keyof typeof STATUS_MODULO;
@@ -87,13 +82,15 @@ const MODULOS_COMERCIAIS: ModuloComercial[] = [
     href: "/admin/comercial/configuracoes",
     acao: "Abrir planos de comissão",
   },
-  {
-    icone: "📊",
-    titulo: "Relatórios",
-    descricao:
-      "Analise conversão, desempenho, metas, vendas e resultados comerciais.",
-    status: "EM_IMPLANTACAO",
-  },
+ {
+  icone: "📊",
+  titulo: "Relatórios",
+  descricao:
+    "Analise conversão, desempenho, leads, matrículas, vendas e resultados comerciais.",
+  status: "DISPONIVEL",
+  href: "/admin/comercial/relatorios",
+  acao: "Abrir relatórios comerciais",
+},
 ];
 
 export default function ComercialPage() {
