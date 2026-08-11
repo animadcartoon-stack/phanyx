@@ -2336,53 +2336,7 @@ export async function POST(request: Request) {
         body.modalidade || ""
       ).trim() || null;
 
-    let caixaAbertoPagamentoNoAto:
-      { id: number } | null =
-      null;
-
-    if (
-      valorPagoMatricula > 0
-    ) {
-      caixaAbertoPagamentoNoAto =
-        await prisma.caixa.findFirst({
-          where: {
-            instituicaoId:
-              user.instituicaoId,
-
-            status:
-              "ABERTO",
-
-            abertoPorId:
-              user.id,
-
-            origem:
-              "MANUAL",
-          },
-
-          select: {
-            id: true,
-          },
-        });
-
-      if (
-        !caixaAbertoPagamentoNoAto
-      ) {
-        return NextResponse.json(
-          {
-            error:
-              "Abra seu caixa em Financeiro → Caixa antes de registrar um valor pago no ato da matrícula.",
-
-            codigo:
-              "CAIXA_MANUAL_NAO_ABERTO",
-          },
-          {
-            status: 409,
-          }
-        );
-      }
-    }
-
-    const matricula =
+       const matricula =
       await prisma.$transaction(
         async (tx) => {
           const agoraConversao =
@@ -2449,17 +2403,15 @@ export async function POST(request: Request) {
 
                 confirmacaoMenorPorUserId:
                   alunoMenorNoMomentoMatricula
-                    ? usuarioConfirmador
-                      ?.id ??
-                    user.id
+                    ? usuarioConfirmador?.id ??
+                      user.id
                     : null,
 
                 confirmacaoMenorPorFuncionarioId:
                   alunoMenorNoMomentoMatricula
                     ? usuarioConfirmador
-                      ?.funcionario
-                      ?.id ??
-                    null
+                        ?.funcionario
+                        ?.id ?? null
                     : null,
 
                 confirmacaoMenorPorNomeSnapshot:
@@ -2481,6 +2433,7 @@ export async function POST(request: Request) {
 
                 status:
                   statusInicialMatricula as any,
+
                 valorMatricula:
                   Number.isFinite(
                     valorMatricula
@@ -2506,13 +2459,11 @@ export async function POST(request: Request) {
                   dataPrimeiroVencimento,
 
                 vendedorResponsavelId:
-                  vendedorResponsavel
-                    ?.id ??
+                  vendedorResponsavel?.id ??
                   null,
 
                 vendedorResponsavelNomeSnapshot:
-                  vendedorResponsavel
-                    ?.nome ??
+                  vendedorResponsavel?.nome ??
                   null,
 
                 origemComercial:
@@ -2533,38 +2484,34 @@ export async function POST(request: Request) {
                 participantesComerciais:
                   vendedorResponsavel
                     ? {
-                      create: {
-                        instituicaoId:
-                          user.instituicaoId,
+                        create: {
+                          instituicaoId:
+                            user.instituicaoId,
 
-                        funcionarioId:
-                          vendedorResponsavel.id,
+                          funcionarioId:
+                            vendedorResponsavel.id,
 
-                        criadoPorId:
-                          user.id,
+                          criadoPorId:
+                            user.id,
 
-                        papel:
-                          PapelParticipanteComercial
-                            .RESPONSAVEL,
+                          papel:
+                            PapelParticipanteComercial.RESPONSAVEL,
 
-                        percentualParticipacao:
-                          100,
+                          percentualParticipacao:
+                            100,
 
-                        funcionarioNomeSnapshot:
-                          vendedorResponsavel
-                            .nome,
+                          funcionarioNomeSnapshot:
+                            vendedorResponsavel.nome,
 
-                        funcionarioCargoSnapshot:
-                          vendedorResponsavel
-                            .cargo,
+                          funcionarioCargoSnapshot:
+                            vendedorResponsavel.cargo,
 
-                        funcionarioDepartamentoSnapshot:
-                          vendedorResponsavel
-                            .departamento
-                            ?.nome ??
-                          null,
-                      },
-                    }
+                          funcionarioDepartamentoSnapshot:
+                            vendedorResponsavel
+                              .departamento?.nome ??
+                            null,
+                        },
+                      }
                     : undefined,
 
                 itens: {
@@ -2605,8 +2552,7 @@ export async function POST(request: Request) {
 
                   disciplina: {
                     nome:
-                      item.disciplina
-                        .nome,
+                      item.disciplina.nome,
                   },
 
                   tipoItem:
@@ -2642,8 +2588,8 @@ Assinatura da instituição: ________________________________
           await tx.documentoAluno.create({
             data: {
               titulo:
-                `Contrato de matrícula - ${aluno.nome ??
-                "Aluno"
+                `Contrato de matrícula - ${
+                  aluno.nome ?? "Aluno"
                 }`,
 
               tipo:
@@ -2662,262 +2608,65 @@ Assinatura da instituição: ________________________________
             },
           });
 
+          /*
+           * Lançamento da taxa de matrícula.
+           *
+           * Importante:
+           * o valor informado no ato NÃO é baixado
+           * automaticamente. O recebimento somente
+           * ocorrerá pelo Caixa.
+           */
           if (valorMatricula > 0) {
-            let statusLancamentoMatricula:
-              | "PENDENTE"
-              | "PARCIAL"
-              | "PAGO" =
-              "PENDENTE";
+            await tx.lancamentoFinanceiro.create({
+              data: {
+                tipo: "MATRICULA",
 
-            let pagoEm:
-              Date | null =
-              null;
+                descricao:
+                  `Taxa de matrícula - ${
+                    curso?.nome || "Curso"
+                  }`,
 
-            if (
-              valorPagoMatricula >
-              valorMatricula
-            ) {
-              throw new Error(
-                "O valor pago no ato não pode ser maior que o valor da matrícula."
-              );
-            }
+                valorOriginal:
+                  valorMatricula,
 
-            if (
-              valorPagoMatricula >=
-              valorMatricula
-            ) {
-              statusLancamentoMatricula =
-                "PAGO";
+                valorFinal:
+                  valorMatricula,
 
-              pagoEm =
-                agoraConversao;
-            } else if (
-              valorPagoMatricula > 0
-            ) {
-              statusLancamentoMatricula =
-                "PARCIAL";
+                valorPago: 0,
 
-              pagoEm =
-                agoraConversao;
-            }
+                pagoEm: null,
 
-            const lancamentoMatriculaCriado =
-              await tx
-                .lancamentoFinanceiro
-                .create({
-                  data: {
-                    tipo:
-                      "MATRICULA",
+                status: "PENDENTE",
 
-                    descricao:
-                      `Taxa de matrícula - ${curso?.nome ||
-                      "Curso"
-                      }`,
+                observacao:
+                  formaPagamentoMatricula
+                    ? `Forma de pagamento informada na matrícula: ${formaPagamentoMatricula}. Não representa pagamento realizado. A baixa ocorrerá somente após recebimento no Caixa.`
+                    : "Gerado no ato da matrícula. A baixa ocorrerá somente após recebimento no Caixa.",
 
-                    valorOriginal:
-                      valorMatricula,
+                alunoId,
 
-                    valorFinal:
-                      valorMatricula,
+                matriculaId:
+                  matriculaCriada.id,
 
-                    valorPago:
-                      valorPagoMatricula >
-                        0
-                        ? valorPagoMatricula
-                        : 0,
+                instituicaoId:
+                  user.instituicaoId,
 
-                    pagoEm,
-
-                    status:
-                      statusLancamentoMatricula,
-
-                    observacao:
-                      "Gerado automaticamente no ato da matrícula",
-
-                    alunoId,
-
-                    matriculaId:
-                      matriculaCriada.id,
-
-                    instituicaoId:
-                      user.instituicaoId,
-
-                    poloId:
-                      poloIdFinal,
-                  },
-                });
-
-            if (
-              valorPagoMatricula > 0
-            ) {
-              if (
-                !caixaAbertoPagamentoNoAto
-              ) {
-                throw new Error(
-                  "Caixa manual não encontrado para registrar o pagamento no ato."
-                );
-              }
-
-              const pagamentoCriado =
-                await tx.pagamento.create({
-                  data: {
-                    valorPago:
-                      valorPagoMatricula,
-
-                    pagoEm:
-                      agoraConversao,
-
-                    formaPagamento:
-                      formaPagamentoMatricula as any,
-
-                    observacao:
-                      "Pagamento registrado no ato da matrícula.",
-
-                    instituicaoId:
-                      user.instituicaoId,
-
-                    alunoId,
-
-                    lancamentoId:
-                      lancamentoMatriculaCriado.id,
-                  },
-                });
-
-              await tx.movimentoCaixa.create({
-                data: {
-                  instituicaoId:
-                    user.instituicaoId,
-
-                  caixaId:
-                    caixaAbertoPagamentoNoAto.id,
-
-                  tipo:
-                    "ENTRADA",
-
-                  descricao:
-                    `Recebimento MATRICULA — ${aluno.nome ||
-                    "Aluno não identificado"
-                    }`,
-
-                  valor:
-                    valorPagoMatricula,
-
-                  formaPagamento:
-                    formaPagamentoMatricula as any,
-
-                  alunoId,
-
-                  lancamentoId:
-                    lancamentoMatriculaCriado.id,
-                },
-              });
-
-              await tx.caixa.update({
-                where: {
-                  id:
-                    caixaAbertoPagamentoNoAto.id,
-                },
-
-                data: {
-                  saldoSistema: {
-                    increment:
-                      valorPagoMatricula,
-                  },
-                },
-              });
-
-              await tx.historicoCobranca.create({
-                data: {
-                  instituicaoId:
-                    user.instituicaoId,
-
-                  alunoId,
-
-                  alunoNome:
-                    aluno.nome || null,
-
-                  lancamentoFinanceiroId:
-                    lancamentoMatriculaCriado.id,
-
-                  responsavelId:
-                    Number(user.id) || null,
-
-                  responsavelNome:
-                    (user as any)?.nome ||
-                    user.email ||
-                    "Usuário",
-
-                  canal:
-                    "SISTEMA",
-
-                  acao:
-                    statusLancamentoMatricula ===
-                      "PAGO"
-                      ? "PAGAMENTO_REGISTRADO"
-                      : "PAGAMENTO_PARCIAL",
-
-                  observacao:
-                    `Pagamento no ato da matrícula via ${formaPagamentoMatricula}.`,
-
-                  metadata: {
-                    origem:
-                      "MATRICULA",
-
-                    formaPagamento:
-                      formaPagamentoMatricula,
-
-                    valorPago:
-                      valorPagoMatricula,
-
-                    valorMatricula,
-
-                    statusFinal:
-                      statusLancamentoMatricula,
-                  },
-                },
-              });
-
-              if (
-                statusLancamentoMatricula ===
-                "PAGO"
-              ) {
-                await processarComissaoAutomatica({
-                  tx,
-
-                  instituicaoId:
-                    user.instituicaoId,
-
-                  matriculaId:
-                    matriculaCriada.id,
-
-                  pagamentoId:
-                    pagamentoCriado.id,
-
-                  valorRecebido:
-                    valorPagoMatricula,
-
-                  eventoEm:
-                    pagamentoCriado.pagoEm,
-
-                  criadoPorId:
-                    Number(user.id) || null,
-
-                  gatilho:
-                    GatilhoComissaoRH
-                      .PAGAMENTO_MATRICULA_CONFIRMADO,
-                });
-              }
-            }
+                poloId:
+                  poloIdFinal,
+              },
+            });
           }
 
+          /*
+           * Geração das mensalidades.
+           */
           if (
             valorMensalidade > 0 &&
             quantidadeParcelas > 0
           ) {
             for (
               let indice = 0;
-              indice <
-              quantidadeParcelas;
+              indice < quantidadeParcelas;
               indice += 1
             ) {
               const vencimento =
@@ -2926,47 +2675,52 @@ Assinatura da instituição: ________________________________
                   indice
                 );
 
-              await tx
-                .lancamentoFinanceiro
-                .create({
-                  data: {
-                    tipo:
-                      "MENSALIDADE",
+              await tx.lancamentoFinanceiro.create({
+                data: {
+                  tipo:
+                    "MENSALIDADE",
 
-                    descricao:
-                      `Mensalidade ${indice + 1
-                      }/${quantidadeParcelas} - ${curso?.nome ??
-                      "Curso"
-                      }`,
+                  descricao:
+                    `Mensalidade ${
+                      indice + 1
+                    }/${quantidadeParcelas} - ${
+                      curso?.nome ?? "Curso"
+                    }`,
 
-                    valorOriginal:
-                      valorMensalidade,
+                  valorOriginal:
+                    valorMensalidade,
 
-                    valorPago: 0,
+                  valorFinal:
+                    valorMensalidade,
 
-                    vencimento,
+                  valorPago: 0,
 
-                    status:
-                      "PENDENTE",
+                  vencimento,
 
-                    observacao:
-                      "Gerado automaticamente na matrícula",
+                  status:
+                    "PENDENTE",
 
-                    alunoId,
+                  observacao:
+                    "Gerado automaticamente na matrícula",
 
-                    matriculaId:
-                      matriculaCriada.id,
+                  alunoId,
 
-                    instituicaoId:
-                      user.instituicaoId,
+                  matriculaId:
+                    matriculaCriada.id,
 
-                    poloId:
-                      poloIdFinal,
-                  },
-                });
+                  instituicaoId:
+                    user.instituicaoId,
+
+                  poloId:
+                    poloIdFinal,
+                },
+              });
             }
           }
 
+          /*
+           * Conversão do lead em matrícula.
+           */
           if (
             leadId &&
             leadParaConversao
@@ -3018,100 +2772,97 @@ Assinatura da instituição: ________________________________
               );
             }
 
-            await tx
-              .leadInteracao
-              .create({
-                data: {
-                  leadId,
+            await tx.leadInteracao.create({
+              data: {
+                leadId,
 
-                  instituicaoGestoraId:
-                    user.instituicaoId,
+                instituicaoGestoraId:
+                  user.instituicaoId,
 
-                  criadoPorId:
-                    user.id,
+                criadoPorId:
+                  user.id,
 
-                  tipo:
-                    "CONVERSAO",
+                tipo:
+                  "CONVERSAO",
 
-                  descricao:
-                    `Lead convertido em aluno e matrícula com sucesso. Aluno: ${aluno.nome ??
-                    "Aluno"
-                    }. Matrícula ID: ${matriculaCriada.id
-                    }. Curso: ${curso?.nome ??
-                    "não informado"
-                    }.`,
+                descricao:
+                  `Lead convertido em aluno e matrícula com sucesso. Aluno: ${
+                    aluno.nome ?? "Aluno"
+                  }. Matrícula ID: ${
+                    matriculaCriada.id
+                  }. Curso: ${
+                    curso?.nome ?? "não informado"
+                  }.`,
 
-                  usuarioNomeSnapshot:
-                    usuarioAuditoria
-                      ?.nome ??
-                    "Usuário autenticado",
-                },
-              });
+                usuarioNomeSnapshot:
+                  usuarioAuditoria?.nome ??
+                  "Usuário autenticado",
+              },
+            });
           }
 
           return matriculaCriada;
         },
-
         {
           maxWait: 5000,
           timeout: 20000,
         }
       );
 
-    return NextResponse.json({
-      message: "Matrícula criada com sucesso",
-      matricula,
-      financeiro: {
-        valorMatricula,
-        valorPagoMatricula,
-        valorMensalidade,
-        quantidadeParcelas,
-      },
-    });
-  } catch (error: any) {
-    if (
-      error instanceof
-      Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2002"
-    ) {
-      const alvo =
-        Array.isArray(
-          error.meta?.target
+  return NextResponse.json({
+    message: "Matrícula criada com sucesso",
+    matricula,
+    financeiro: {
+      valorMatricula,
+      valorPagoMatricula,
+      valorMensalidade,
+      quantidadeParcelas,
+    },
+  });
+} catch (error: any) {
+  if (
+    error instanceof
+    Prisma.PrismaClientKnownRequestError &&
+    error.code === "P2002"
+  ) {
+    const alvo =
+      Array.isArray(
+        error.meta?.target
+      )
+        ? error.meta.target.join(
+          ","
         )
-          ? error.meta.target.join(
-            ","
-          )
-          : String(
-            error.meta?.target ||
-            ""
-          );
-
-      if (
-        alvo.includes(
-          "leadOrigemId"
-        )
-      ) {
-        return NextResponse.json(
-          {
-            codigo:
-              "LEAD_JA_CONVERTIDO",
-
-            error:
-              "Este lead já foi convertido em outra matrícula.",
-          },
-          {
-            status: 409,
-          }
+        : String(
+          error.meta?.target ||
+          ""
         );
-      }
-    }
 
-    console.error("ERRO COMPLETO AO CRIAR MATRÍCULA:", error);
-    return NextResponse.json(
-      { error: error?.message || "Erro ao criar matrícula" },
-      { status: 500 }
-    );
+    if (
+      alvo.includes(
+        "leadOrigemId"
+      )
+    ) {
+      return NextResponse.json(
+        {
+          codigo:
+            "LEAD_JA_CONVERTIDO",
+
+          error:
+            "Este lead já foi convertido em outra matrícula.",
+        },
+        {
+          status: 409,
+        }
+      );
+    }
   }
+
+  console.error("ERRO COMPLETO AO CRIAR MATRÍCULA:", error);
+  return NextResponse.json(
+    { error: error?.message || "Erro ao criar matrícula" },
+    { status: 500 }
+  );
+}
 }
 
 export async function PATCH(request: Request) {
