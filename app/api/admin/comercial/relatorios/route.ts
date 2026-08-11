@@ -590,34 +590,72 @@ export async function GET(
             whereMatriculas,
 
           select: {
-            id: true,
-            createdAt: true,
-            confirmadaEm:
-              true,
+  id: true,
 
-            cursoId: true,
-            poloId: true,
+  numeroMatricula: true,
+  numeroMatriculaLegado: true,
 
-            status: true,
+  createdAt: true,
+  confirmadaEm: true,
 
-            vendedorResponsavelId:
-              true,
+  cursoId: true,
+  poloId: true,
 
-            leadOrigemId:
-              true,
+  status: true,
 
-            valorMatricula:
-              true,
+  vendedorResponsavelId:
+    true,
 
-            valorMensalidade:
-              true,
+  vendedorResponsavelNomeSnapshot:
+    true,
 
-            quantidadeParcelas:
-              true,
+  leadOrigemId: true,
 
-            quantidadeMensalidades:
-              true,
-          },
+  origemComercial: true,
+
+  valorMatricula: true,
+
+  valorMensalidade: true,
+
+  quantidadeParcelas: true,
+
+  quantidadeMensalidades: true,
+
+  aluno: {
+    select: {
+      id: true,
+      nome: true,
+    },
+  },
+
+  curso: {
+    select: {
+      id: true,
+      nome: true,
+    },
+  },
+
+  polo: {
+    select: {
+      id: true,
+      nome: true,
+    },
+  },
+
+  vendedorResponsavel: {
+    select: {
+      id: true,
+      nome: true,
+    },
+  },
+
+  leadOrigem: {
+    select: {
+      id: true,
+      origem: true,
+    },
+  },
+},
         });
 
     const matriculasValidas =
@@ -1271,6 +1309,141 @@ const taxaConversao =
                 .polo?.nome ??
               null
             : null,
+      };
+    }
+  ),
+
+  matriculas:
+  matriculasPeriodo.map(
+    (matricula) => {
+      const valorVendidoMatricula =
+        calcularValorVenda(
+          matricula
+        );
+
+      const pagamentosDaMatricula =
+        pagamentosMatricula.filter(
+          (pagamento) =>
+            pagamento
+              .lancamento
+              ?.matricula
+              ?.id ===
+            matricula.id
+        );
+
+      const valorRecebidoMatricula =
+        arredondar(
+          pagamentosDaMatricula.reduce(
+            (
+              total,
+              pagamento
+            ) =>
+              total +
+              numeroSeguro(
+                pagamento.valorPago
+              ),
+            0
+          )
+        );
+
+      return {
+        id:
+          matricula.id,
+
+        numero:
+          matricula
+            .numeroMatricula ||
+          matricula
+            .numeroMatriculaLegado ||
+          String(
+            matricula.id
+          ),
+
+        alunoId:
+          matricula.aluno.id,
+
+        alunoNome:
+          matricula.aluno.nome,
+
+        dataMatricula:
+          dataComercialMatricula(
+            matricula
+          ),
+
+        status:
+          matricula.status,
+
+        cursoId:
+          matricula.cursoId,
+
+        cursoNome:
+          matricula.curso
+            ?.nome ??
+          null,
+
+        poloId:
+          matricula.poloId,
+
+        poloNome:
+          matricula.polo
+            ?.nome ??
+          null,
+
+        vendedorId:
+          matricula
+            .vendedorResponsavelId,
+
+        vendedorNome:
+          matricula
+            .vendedorResponsavel
+            ?.nome ??
+          matricula
+            .vendedorResponsavelNomeSnapshot ??
+          null,
+
+        leadId:
+          matricula
+            .leadOrigemId,
+
+        origem:
+          matricula
+            .leadOrigem
+            ?.origem ??
+          matricula
+            .origemComercial ??
+          null,
+
+        valorMatricula:
+          numeroSeguro(
+            matricula
+              .valorMatricula
+          ),
+
+        valorMensalidade:
+          numeroSeguro(
+            matricula
+              .valorMensalidade
+          ),
+
+        quantidadeMensalidades:
+          Math.max(
+            0,
+            Math.trunc(
+              numeroSeguro(
+                matricula
+                  .quantidadeMensalidades ??
+                  matricula
+                    .quantidadeParcelas ??
+                  0
+              )
+            )
+          ),
+
+        valorVendido:
+          valorVendidoMatricula,
+
+        valorRecebido:
+          valorRecebidoMatricula,
       };
     }
   ),

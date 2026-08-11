@@ -71,6 +71,58 @@ type LeadRelatorio = {
     | null;
 };
 
+type MatriculaRelatorio = {
+    id: number;
+    numero: string;
+
+    alunoId: number;
+    alunoNome: string;
+
+    dataMatricula: string;
+
+    status: string;
+
+    cursoId:
+    | number
+    | null;
+
+    cursoNome:
+    | string
+    | null;
+
+    poloId:
+    | number
+    | null;
+
+    poloNome:
+    | string
+    | null;
+
+    vendedorId:
+    | number
+    | null;
+
+    vendedorNome:
+    | string
+    | null;
+
+    leadId:
+    | number
+    | null;
+
+    origem:
+    | string
+    | null;
+
+    valorMatricula: number;
+    valorMensalidade: number;
+    quantidadeMensalidades:
+    number;
+
+    valorVendido: number;
+    valorRecebido: number;
+};
+
 type OpcaoFiltro = {
     id: number;
     nome: string;
@@ -84,6 +136,9 @@ type RelatorioResponse = {
 
     leads:
     LeadRelatorio[];
+
+    matriculas:
+    MatriculaRelatorio[];
 
     filtros: {
         vendedores: OpcaoFiltro[];
@@ -259,6 +314,8 @@ export default function RelatoriosComerciaisPage() {
 
             leads: [],
 
+            matriculas: [],
+
             filtros: {
                 vendedores: [],
                 cursos: [],
@@ -346,6 +403,13 @@ export default function RelatoriosComerciaisPage() {
                             json?.leads
                         )
                             ? json.leads
+                            : [],
+
+                    matriculas:
+                        Array.isArray(
+                            json?.matriculas
+                        )
+                            ? json.matriculas
                             : [],
 
                     filtros: {
@@ -1461,12 +1525,259 @@ export default function RelatoriosComerciaisPage() {
                     </div>
                 )}
 
-                {/* ABAS QUE SERÃO DETALHADAS */}
+                {/* MATRÍCULAS */}
 
-                {(aba === "cursos" ||
-                    aba === "matriculas") && (
+                {aba === "matriculas" && (
+                    <div
+                        className="
+      overflow-hidden
+      rounded-2xl
+      border
+      border-slate-200
+      bg-white
+      shadow-sm
+      dark:border-slate-700
+      dark:bg-slate-900
+    "
+                    >
                         <div
                             className="
+        border-b
+        border-slate-200
+        p-5
+        dark:border-slate-700
+      "
+                        >
+                            <h2
+                                className="
+          text-lg
+          font-black
+          text-slate-950
+          dark:text-white
+        "
+                            >
+                                Matrículas do período
+                            </h2>
+
+                            <p
+                                className="
+          mt-1
+          text-sm
+          text-slate-500
+          dark:text-slate-400
+        "
+                            >
+                                Matrículas realizadas no
+                                período selecionado, com
+                                vendedor, origem e valores
+                                comerciais.
+                            </p>
+                        </div>
+
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full text-sm">
+                                <thead
+                                    className="
+            bg-slate-50
+            dark:bg-slate-950
+          "
+                                >
+                                    <tr>
+                                        <th className="px-4 py-3 text-left font-bold">
+                                            Matrícula
+                                        </th>
+
+                                        <th className="px-4 py-3 text-left font-bold">
+                                            Aluno
+                                        </th>
+
+                                        <th className="px-4 py-3 text-left font-bold">
+                                            Curso / Polo
+                                        </th>
+
+                                        <th className="px-4 py-3 text-left font-bold">
+                                            Vendedor
+                                        </th>
+
+                                        <th className="px-4 py-3 text-left font-bold">
+                                            Origem
+                                        </th>
+
+                                        <th className="px-4 py-3 text-left font-bold">
+                                            Status
+                                        </th>
+
+                                        <th className="px-4 py-3 text-right font-bold">
+                                            Vendido
+                                        </th>
+
+                                        <th className="px-4 py-3 text-right font-bold">
+                                            Recebido
+                                        </th>
+                                    </tr>
+                                </thead>
+
+                                <tbody
+                                    className="
+            divide-y
+            divide-slate-100
+            dark:divide-slate-800
+          "
+                                >
+                                    {!carregando &&
+                                        dados.matriculas
+                                            .length === 0 && (
+                                            <tr>
+                                                <td
+                                                    colSpan={8}
+                                                    className="
+                    px-4
+                    py-10
+                    text-center
+                    text-slate-500
+                    dark:text-slate-400
+                  "
+                                                >
+                                                    Nenhuma matrícula
+                                                    encontrada no período.
+                                                </td>
+                                            </tr>
+                                        )}
+
+                                    {dados.matriculas.map(
+                                        (matricula) => (
+                                            <tr
+                                                key={matricula.id}
+                                                className="
+                  hover:bg-slate-50
+                  dark:hover:bg-slate-800/50
+                "
+                                            >
+                                                <td className="px-4 py-3">
+                                                    <p className="font-bold">
+                                                        {
+                                                            matricula.numero
+                                                        }
+                                                    </p>
+
+                                                    <p
+                                                        className="
+                      mt-1
+                      text-xs
+                      text-slate-500
+                      dark:text-slate-400
+                    "
+                                                    >
+                                                        {formatarData(
+                                                            matricula
+                                                                .dataMatricula
+                                                        )}
+                                                    </p>
+                                                </td>
+
+                                                <td className="px-4 py-3 font-bold">
+                                                    {
+                                                        matricula
+                                                            .alunoNome
+                                                    }
+                                                </td>
+
+                                                <td className="px-4 py-3">
+                                                    <p className="font-semibold">
+                                                        {matricula
+                                                            .cursoNome ||
+                                                            "Sem curso"}
+                                                    </p>
+
+                                                    <p
+                                                        className="
+                      mt-1
+                      text-xs
+                      text-slate-500
+                      dark:text-slate-400
+                    "
+                                                    >
+                                                        {matricula
+                                                            .poloNome ||
+                                                            "Sem polo"}
+                                                    </p>
+                                                </td>
+
+                                                <td className="px-4 py-3">
+                                                    {matricula
+                                                        .vendedorNome ||
+                                                        "Não informado"}
+                                                </td>
+
+                                                <td className="px-4 py-3">
+                                                    {matricula.origem ||
+                                                        "-"}
+                                                </td>
+
+                                                <td className="px-4 py-3">
+                                                    <span
+                                                        className="
+                      inline-flex
+                      rounded-full
+                      border
+                      border-slate-300
+                      bg-slate-50
+                      px-2.5
+                      py-1
+                      text-xs
+                      font-bold
+                      text-slate-700
+                      dark:border-slate-700
+                      dark:bg-slate-800
+                      dark:text-slate-200
+                    "
+                                                    >
+                                                        {matricula.status}
+                                                    </span>
+                                                </td>
+
+                                                <td
+                                                    className="
+                    whitespace-nowrap
+                    px-4
+                    py-3
+                    text-right
+                    font-bold
+                  "
+                                                >
+                                                    {formatarMoeda(
+                                                        matricula
+                                                            .valorVendido
+                                                    )}
+                                                </td>
+
+                                                <td
+                                                    className="
+                    whitespace-nowrap
+                    px-4
+                    py-3
+                    text-right
+                  "
+                                                >
+                                                    {formatarMoeda(
+                                                        matricula
+                                                            .valorRecebido
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        )
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
+
+                {/* ABAS QUE SERÃO DETALHADAS */}
+
+                {aba === "cursos" && (
+                    <div
+                        className="
       rounded-2xl
       border
       border-slate-200
@@ -1477,35 +1788,32 @@ export default function RelatoriosComerciaisPage() {
       dark:border-slate-700
       dark:bg-slate-900
     "
+                    >
+                        <h2
+                            className="
+    font-black
+    text-slate-900
+    dark:text-white
+  "
                         >
-                            <h2
-                                className="
-        font-black
-        text-slate-900
-        dark:text-white
-      "
-                            >
-                                Relatório de{" "}
-                                {aba === "cursos"
-                                    ? "cursos"
-                                    : "matrículas"}
-                            </h2>
+                            Relatório de cursos
+                        </h2>
 
-                            <p
-                                className="
+                        <p
+                            className="
                 mt-2
                 text-sm
                 text-slate-500
                 dark:text-slate-400
               "
-                            >
-                                O detalhamento desta visão
-                                será alimentado pela mesma
-                                base de dados do relatório
-                                comercial.
-                            </p>
-                        </div>
-                    )}
+                        >
+                            O detalhamento desta visão
+                            será alimentado pela mesma
+                            base de dados do relatório
+                            comercial.
+                        </p>
+                    </div>
+                )}
             </div>
         </div>
     );
