@@ -647,76 +647,157 @@ export async function GET(
      */
 
     const leadsPeriodo =
-      await prisma.lead.findMany({
-        where: {
-          instituicaoGestoraId:
-            instituicaoId,
+  await prisma.lead.findMany({
+    where: {
+      instituicaoGestoraId:
+        instituicaoId,
 
-          tipo:
-            "INSTITUICAO",
+      tipo:
+        "INSTITUICAO",
 
-          createdAt: {
-            gte: inicio,
-            lte: fim,
-          },
+      createdAt: {
+        gte: inicio,
+        lte: fim,
+      },
 
-          ...(vendedorId
-            ? {
-                responsavelFuncionarioId:
-                  vendedorId,
-              }
-            : {}),
-        },
+      ...(vendedorId
+        ? {
+            responsavelFuncionarioId:
+              vendedorId,
+          }
+        : {}),
+    },
 
+    select: {
+      id: true,
+      nome: true,
+      email: true,
+      telefone: true,
+      origem: true,
+      interesse: true,
+      status: true,
+      createdAt: true,
+
+      responsavelFuncionarioId:
+        true,
+
+      responsavelNomeSnapshot:
+        true,
+
+      responsavelFuncionario: {
         select: {
           id: true,
+          nome: true,
+        },
+      },
 
-          responsavelFuncionarioId:
+      matriculaConvertida: {
+        select: {
+          id: true,
+          status: true,
+          confirmadaEm: true,
+
+          cursoId: true,
+          poloId: true,
+
+          vendedorResponsavelId:
             true,
 
-          createdAt: true,
+          curso: {
+            select: {
+              id: true,
+              nome: true,
+            },
+          },
+
+          polo: {
+            select: {
+              id: true,
+              nome: true,
+            },
+          },
         },
-      });
+      },
+    },
+
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 
     /*
-     * LEADS CONVERTIDOS
-     *
-     * A matrícula é a confirmação real
-     * da conversão.
-     */
+ * LEADS CONVERTIDOS
+ *
+ * A taxa considera os leads recebidos
+ * dentro do período selecionado.
+ *
+ * A matrícula vinculada ao próprio lead
+ * confirma a conversão.
+ */
 
-    const idsLeadsConvertidos =
-      new Set<number>();
+const leadEstaConvertidoNoEscopo = (
+  lead: (typeof leadsPeriodo)[number]
+) => {
+  const matricula =
+    lead.matriculaConvertida;
 
-    for (
-      const matricula of
-      matriculasValidas
-    ) {
-      if (
-        matricula.leadOrigemId
-      ) {
-        idsLeadsConvertidos.add(
-          matricula.leadOrigemId
-        );
-      }
-    }
+  if (!matricula) {
+    return false;
+  }
 
-    const leadsRecebidos =
-      leadsPeriodo.length;
+  if (
+    !STATUS_MATRICULAS_VALIDAS.includes(
+      matricula.status
+    )
+  ) {
+    return false;
+  }
 
-    const leadsConvertidos =
-      idsLeadsConvertidos.size;
+  if (
+    vendedorId &&
+    matricula.vendedorResponsavelId !==
+      vendedorId
+  ) {
+    return false;
+  }
 
-    const taxaConversao =
-      leadsRecebidos > 0
-        ? arredondar(
-            (
-              leadsConvertidos /
-              leadsRecebidos
-            ) * 100,
-            1
-          )
-        : 0;
+  if (
+    cursoId &&
+    matricula.cursoId !==
+      cursoId
+  ) {
+    return false;
+  }
+
+  if (
+    poloId &&
+    matricula.poloId !==
+      poloId
+  ) {
+    return false;
+  }
+
+  return true;
+};
+
+const leadsRecebidos =
+  leadsPeriodo.length;
+
+const leadsConvertidos =
+  leadsPeriodo.filter(
+    leadEstaConvertidoNoEscopo
+  ).length;
+
+const taxaConversao =
+  leadsRecebidos > 0
+    ? arredondar(
+        (
+          leadsConvertidos /
+          leadsRecebidos
+        ) * 100,
+        1
+      )
+    : 0;
 
     /*
      * VALOR VENDIDO
@@ -899,23 +980,6 @@ export async function GET(
                 vendedor.id
             );
 
-          const idsConvertidos =
-            new Set<number>();
-
-          for (
-            const matricula of
-            matriculasDoVendedor
-          ) {
-            if (
-              matricula.leadOrigemId
-            ) {
-              idsConvertidos.add(
-                matricula
-                  .leadOrigemId
-              );
-            }
-          }
-
           const pagamentosDoVendedor =
             pagamentosMatricula.filter(
               (pagamento) =>
@@ -957,8 +1021,50 @@ export async function GET(
               )
             );
 
-          const conversoes =
-            idsConvertidos.size;
+         const conversoes =
+  leadsDoVendedor.filter(
+    (lead) => {
+      const matricula =
+        lead.matriculaConvertida;
+
+      if (!matricula) {
+        return false;
+      }
+
+      if (
+        !STATUS_MATRICULAS_VALIDAS.includes(
+          matricula.status
+        )
+      ) {
+        return false;
+      }
+
+      if (
+        matricula.vendedorResponsavelId !==
+        vendedor.id
+      ) {
+        return false;
+      }
+
+      if (
+        cursoId &&
+        matricula.cursoId !==
+          cursoId
+      ) {
+        return false;
+      }
+
+      if (
+        poloId &&
+        matricula.poloId !==
+          poloId
+      ) {
+        return false;
+      }
+
+      return true;
+    }
+  ).length;
 
           const taxa =
             leadsDoVendedor.length >
@@ -1073,6 +1179,101 @@ export async function GET(
             matriculasCanceladas
               .length,
         },
+
+        leads:
+  leadsPeriodo.map(
+    (lead) => {
+      const convertido =
+        leadEstaConvertidoNoEscopo(
+          lead
+        );
+
+      const matricula =
+        lead.matriculaConvertida;
+
+      return {
+        id:
+          lead.id,
+
+        nome:
+          lead.nome,
+
+        email:
+          lead.email,
+
+        telefone:
+          lead.telefone,
+
+        origem:
+          lead.origem,
+
+        interesse:
+          lead.interesse,
+
+        status:
+          lead.status,
+
+        recebidoEm:
+          lead.createdAt,
+
+        responsavelId:
+          lead.responsavelFuncionarioId,
+
+        responsavelNome:
+          lead
+            .responsavelFuncionario
+            ?.nome ??
+          lead
+            .responsavelNomeSnapshot ??
+          null,
+
+        convertido,
+
+        matriculaId:
+          convertido &&
+          matricula
+            ? matricula.id
+            : null,
+
+        convertidoEm:
+          convertido &&
+          matricula
+            ? matricula
+                .confirmadaEm
+            : null,
+
+        cursoId:
+          convertido &&
+          matricula
+            ? matricula
+                .cursoId
+            : null,
+
+        cursoNome:
+          convertido &&
+          matricula
+            ? matricula
+                .curso?.nome ??
+              null
+            : null,
+
+        poloId:
+          convertido &&
+          matricula
+            ? matricula
+                .poloId
+            : null,
+
+        poloNome:
+          convertido &&
+          matricula
+            ? matricula
+                .polo?.nome ??
+              null
+            : null,
+      };
+    }
+  ),
 
         vendedores:
           desempenhoVendedores,

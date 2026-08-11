@@ -26,6 +26,51 @@ type VendedorRelatorio = {
     valorRecebido: number;
 };
 
+type LeadRelatorio = {
+    id: number;
+    nome: string;
+    email: string;
+    telefone: string | null;
+    origem: string;
+    interesse: string | null;
+    status: string;
+    recebidoEm: string;
+
+    responsavelId:
+    | number
+    | null;
+
+    responsavelNome:
+    | string
+    | null;
+
+    convertido: boolean;
+
+    matriculaId:
+    | number
+    | null;
+
+    convertidoEm:
+    | string
+    | null;
+
+    cursoId:
+    | number
+    | null;
+
+    cursoNome:
+    | string
+    | null;
+
+    poloId:
+    | number
+    | null;
+
+    poloNome:
+    | string
+    | null;
+};
+
 type OpcaoFiltro = {
     id: number;
     nome: string;
@@ -33,7 +78,12 @@ type OpcaoFiltro = {
 
 type RelatorioResponse = {
     resumo: ResumoComercial;
-    vendedores: VendedorRelatorio[];
+
+    vendedores:
+    VendedorRelatorio[];
+
+    leads:
+    LeadRelatorio[];
 
     filtros: {
         vendedores: OpcaoFiltro[];
@@ -70,6 +120,32 @@ function formatarMoeda(valor: number) {
 function formatarNumero(valor: number) {
     return new Intl.NumberFormat("pt-BR").format(
         Number(valor || 0)
+    );
+}
+
+function formatarData(
+    valor:
+        | string
+        | null
+        | undefined
+) {
+    if (!valor) {
+        return "-";
+    }
+
+    const data =
+        new Date(valor);
+
+    if (
+        Number.isNaN(
+            data.getTime()
+        )
+    ) {
+        return "-";
+    }
+
+    return data.toLocaleDateString(
+        "pt-BR"
     );
 }
 
@@ -181,6 +257,8 @@ export default function RelatoriosComerciaisPage() {
 
             vendedores: [],
 
+            leads: [],
+
             filtros: {
                 vendedores: [],
                 cursos: [],
@@ -261,6 +339,13 @@ export default function RelatoriosComerciaisPage() {
                             json?.vendedores
                         )
                             ? json.vendedores
+                            : [],
+
+                    leads:
+                        Array.isArray(
+                            json?.leads
+                        )
+                            ? json.leads
                             : [],
 
                     filtros: {
@@ -1110,37 +1195,300 @@ export default function RelatoriosComerciaisPage() {
                         </div>
                     )}
 
-                {/* ABAS QUE SERÃO DETALHADAS */}
+                {/* LEADS */}
 
-                {(aba === "cursos" ||
-                    aba === "matriculas" ||
-                    aba === "leads") && (
+                {aba === "leads" && (
+                    <div
+                        className="
+      overflow-hidden
+      rounded-2xl
+      border
+      border-slate-200
+      bg-white
+      shadow-sm
+      dark:border-slate-700
+      dark:bg-slate-900
+    "
+                    >
                         <div
                             className="
-              rounded-2xl
-              border
-              border-slate-200
-              bg-white
-              p-8
-              text-center
-              shadow-sm
-              dark:border-slate-700
-              dark:bg-slate-900
-            "
+        border-b
+        border-slate-200
+        p-5
+        dark:border-slate-700
+      "
                         >
                             <h2
                                 className="
-                font-black
-                text-slate-900
-                dark:text-white
-              "
+          text-lg
+          font-black
+          text-slate-950
+          dark:text-white
+        "
+                            >
+                                Leads recebidos
+                            </h2>
+
+                            <p
+                                className="
+          mt-1
+          text-sm
+          text-slate-500
+          dark:text-slate-400
+        "
+                            >
+                                Leads recebidos dentro
+                                do período selecionado e
+                                sua situação comercial.
+                            </p>
+                        </div>
+
+                        <div className="overflow-x-auto">
+                            <table
+                                className="
+          min-w-full
+          text-sm
+        "
+                            >
+                                <thead
+                                    className="
+            bg-slate-50
+            dark:bg-slate-950
+          "
+                                >
+                                    <tr>
+                                        <th className="px-4 py-3 text-left font-bold">
+                                            Lead
+                                        </th>
+
+                                        <th className="px-4 py-3 text-left font-bold">
+                                            Contato
+                                        </th>
+
+                                        <th className="px-4 py-3 text-left font-bold">
+                                            Origem
+                                        </th>
+
+                                        <th className="px-4 py-3 text-left font-bold">
+                                            Responsável
+                                        </th>
+
+                                        <th className="px-4 py-3 text-left font-bold">
+                                            Status
+                                        </th>
+
+                                        <th className="px-4 py-3 text-left font-bold">
+                                            Recebido em
+                                        </th>
+
+                                        <th className="px-4 py-3 text-left font-bold">
+                                            Conversão
+                                        </th>
+                                    </tr>
+                                </thead>
+
+                                <tbody
+                                    className="
+            divide-y
+            divide-slate-100
+            dark:divide-slate-800
+          "
+                                >
+                                    {!carregando &&
+                                        dados.leads.length ===
+                                        0 && (
+                                            <tr>
+                                                <td
+                                                    colSpan={7}
+                                                    className="
+                    px-4
+                    py-10
+                    text-center
+                    text-slate-500
+                    dark:text-slate-400
+                  "
+                                                >
+                                                    Nenhum lead foi
+                                                    encontrado neste
+                                                    período.
+                                                </td>
+                                            </tr>
+                                        )}
+
+                                    {dados.leads.map(
+                                        (lead) => (
+                                            <tr
+                                                key={lead.id}
+                                                className="
+                  hover:bg-slate-50
+                  dark:hover:bg-slate-800/50
+                "
+                                            >
+                                                <td className="px-4 py-3">
+                                                    <p className="font-bold">
+                                                        {lead.nome}
+                                                    </p>
+
+                                                    {lead.interesse && (
+                                                        <p
+                                                            className="
+                        mt-1
+                        text-xs
+                        text-slate-500
+                        dark:text-slate-400
+                      "
+                                                        >
+                                                            {lead.interesse}
+                                                        </p>
+                                                    )}
+                                                </td>
+
+                                                <td className="px-4 py-3">
+                                                    <p>
+                                                        {lead.telefone ||
+                                                            "-"}
+                                                    </p>
+
+                                                    <p
+                                                        className="
+                      text-xs
+                      text-slate-500
+                      dark:text-slate-400
+                    "
+                                                    >
+                                                        {lead.email ||
+                                                            "-"}
+                                                    </p>
+                                                </td>
+
+                                                <td className="px-4 py-3">
+                                                    {lead.origem ||
+                                                        "-"}
+                                                </td>
+
+                                                <td className="px-4 py-3">
+                                                    {lead.responsavelNome ||
+                                                        "Sem responsável"}
+                                                </td>
+
+                                                <td className="px-4 py-3">
+                                                    <span
+                                                        className="
+                      rounded-full
+                      border
+                      border-slate-200
+                      bg-slate-50
+                      px-2.5
+                      py-1
+                      text-xs
+                      font-bold
+                      text-slate-700
+                      dark:border-slate-700
+                      dark:bg-slate-800
+                      dark:text-slate-200
+                    "
+                                                    >
+                                                        {lead.status}
+                                                    </span>
+                                                </td>
+
+                                                <td className="px-4 py-3">
+                                                    {formatarData(
+                                                        lead.recebidoEm
+                                                    )}
+                                                </td>
+
+                                                <td className="px-4 py-3">
+                                                    {lead.convertido ? (
+                                                        <div>
+                                                            <p
+                                                                className="
+                          font-bold
+                          text-emerald-700
+                          dark:text-emerald-400
+                        "
+                                                            >
+                                                                Convertido
+                                                            </p>
+
+                                                            {lead.cursoNome && (
+                                                                <p
+                                                                    className="
+                            mt-1
+                            text-xs
+                            text-slate-500
+                            dark:text-slate-400
+                          "
+                                                                >
+                                                                    {
+                                                                        lead.cursoNome
+                                                                    }
+                                                                </p>
+                                                            )}
+
+                                                            {lead.convertidoEm && (
+                                                                <p
+                                                                    className="
+                            text-xs
+                            text-slate-500
+                            dark:text-slate-400
+                          "
+                                                                >
+                                                                    {formatarData(
+                                                                        lead.convertidoEm
+                                                                    )}
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    ) : (
+                                                        <span
+                                                            className="
+                        font-semibold
+                        text-slate-500
+                        dark:text-slate-400
+                      "
+                                                        >
+                                                            Não convertido
+                                                        </span>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        )
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
+
+                {/* ABAS QUE SERÃO DETALHADAS */}
+
+                {(aba === "cursos" ||
+                    aba === "matriculas") && (
+                        <div
+                            className="
+      rounded-2xl
+      border
+      border-slate-200
+      bg-white
+      p-8
+      text-center
+      shadow-sm
+      dark:border-slate-700
+      dark:bg-slate-900
+    "
+                        >
+                            <h2
+                                className="
+        font-black
+        text-slate-900
+        dark:text-white
+      "
                             >
                                 Relatório de{" "}
                                 {aba === "cursos"
                                     ? "cursos"
-                                    : aba === "leads"
-                                        ? "leads"
-                                        : "matrículas"}
+                                    : "matrículas"}
                             </h2>
 
                             <p
