@@ -858,6 +858,40 @@ function formatarData(data?: string) {
   return d.toLocaleString("pt-BR");
 }
 
+function normalizarCamposVisuaisAssinatura(
+  campos?: CampoVisualContrato[] | null
+) {
+  const lista = Array.isArray(campos)
+    ? campos
+    : [];
+
+  const outros = lista.filter(
+    (campo) =>
+      campo?.tipo !==
+      "ASSINATURA_DIRETOR"
+  );
+
+  const assinaturas = lista.filter(
+    (campo) =>
+      campo?.tipo ===
+      "ASSINATURA_DIRETOR"
+  );
+
+  const assinaturaMaisRecente =
+    assinaturas.length > 0
+      ? assinaturas[
+      assinaturas.length - 1
+      ]
+      : null;
+
+  return assinaturaMaisRecente
+    ? [
+      ...outros,
+      assinaturaMaisRecente,
+    ]
+    : outros;
+}
+
 function AdminDocumentosTemplatesPage() {
   const [templates, setTemplates] = useState<TemplateDocumento[]>([]);
   const [loading, setLoading] = useState(true);
@@ -1088,7 +1122,11 @@ function AdminDocumentosTemplatesPage() {
         ? "DUAS_VIAS_A4"
         : "A4_INTEIRA"
     );
-    setCamposVisuais(Array.isArray(template.camposVisuais) ? template.camposVisuais : []);
+    setCamposVisuais(
+      normalizarCamposVisuaisAssinatura(
+        template.camposVisuais
+      )
+    );
 
     setTimeout(() => {
       const editor = document.getElementById("editor-template-phanyx");
@@ -1129,8 +1167,10 @@ function AdminDocumentosTemplatesPage() {
         ativo,
         exigeAssinatura,
         formatoImpressao,
-        camposVisuais,
-
+        camposVisuais:
+          normalizarCamposVisuaisAssinatura(
+            camposVisuais
+          ),
       };
 
       const url = editingId
@@ -1270,7 +1310,10 @@ function AdminDocumentosTemplatesPage() {
 
           formatoImpressao,
 
-          camposVisuais,
+          camposVisuais:
+            normalizarCamposVisuaisAssinatura(
+              camposVisuais
+            ),
         }),
       });
 
@@ -1353,18 +1396,37 @@ function AdminDocumentosTemplatesPage() {
   }
 
   function adicionarAssinaturaDiretor() {
-    setCamposVisuais((atuais) => [
-      ...atuais,
-      {
-        id: crypto.randomUUID(),
-        tipo: "ASSINATURA_DIRETOR",
-        x: 70,
-        y: 18,
-        largura: 180,
-        altura: 55,
-        pagina: 1,
-      },
-    ]);
+    setCamposVisuais((atuais) => {
+      const normalizados =
+        normalizarCamposVisuaisAssinatura(
+          atuais
+        );
+
+      const jaExiste =
+        normalizados.some(
+          (campo) =>
+            campo.tipo ===
+            "ASSINATURA_DIRETOR"
+        );
+
+      if (jaExiste) {
+        return normalizados;
+      }
+
+      return [
+        ...normalizados,
+        {
+          id: crypto.randomUUID(),
+          tipo:
+            "ASSINATURA_DIRETOR",
+          x: 70,
+          y: 18,
+          largura: 180,
+          altura: 55,
+          pagina: 1,
+        },
+      ];
+    });
   }
 
   function moverCampoVisual(id: string, x: number, y: number) {

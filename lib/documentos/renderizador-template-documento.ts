@@ -147,11 +147,13 @@ function obterCampoVisualAssinatura(
   }
 
   const campo =
-    camposVisuais.find(
-      (item) =>
-        item?.tipo ===
-        "ASSINATURA_DIRETOR"
-    );
+    [...camposVisuais]
+      .reverse()
+      .find(
+        (item) =>
+          item?.tipo ===
+          "ASSINATURA_DIRETOR"
+      );
 
   if (!campo) {
     return null;
@@ -365,15 +367,15 @@ function criarImagemAssinatura({
   modoPrevia: boolean;
 
   campoVisual?:
-    | CampoVisualDocumento
-    | null;
+  | CampoVisualDocumento
+  | null;
 
   dentroDoBloco?: boolean;
 }) {
   const campo = campoVisual
     ? obterCampoVisualAssinatura([
-        campoVisual,
-      ])
+      campoVisual,
+    ])
     : null;
 
   if (!assinaturaUrl) {
@@ -438,8 +440,8 @@ function criarImagemAssinatura({
       >
         <img
           src="${escaparHtml(
-            assinaturaUrl
-          )}"
+      assinaturaUrl
+    )}"
           alt="Assinatura do diretor"
         />
       </span>
@@ -474,8 +476,8 @@ function criarImagemAssinatura({
       >
         <img
           src="${escaparHtml(
-            assinaturaUrl
-          )}"
+      assinaturaUrl
+    )}"
           alt="Assinatura do diretor"
           style="
             width: ${larguraMm}mm;
@@ -492,8 +494,8 @@ function criarImagemAssinatura({
     >
       <img
         src="${escaparHtml(
-          assinaturaUrl
-        )}"
+    assinaturaUrl
+  )}"
         alt="Assinatura do diretor"
       />
     </span>
@@ -584,29 +586,28 @@ function criarBlocoAssinatura({
       <span class="phanyx-identificacao-assinatura">
         <strong class="phanyx-assinatura-texto phanyx-assinatura-nome">
           ${escaparHtml(
-            instituicao.responsavelNome || "Responsável legal"
-          )}
+    instituicao.responsavelNome || "Responsável legal"
+  )}
         </strong>
 
         <span class="phanyx-assinatura-texto phanyx-assinatura-cargo">
           ${escaparHtml(
-            instituicao.responsavelCargo || "Representante legal"
-          )}
+    instituicao.responsavelCargo || "Representante legal"
+  )}
         </span>
 
         <span class="phanyx-assinatura-texto phanyx-assinatura-instituicao">
           ${escaparHtml(instituicao.nome)}
         </span>
 
-        ${
-          instituicao.cnpj
-            ? `
+        ${instituicao.cnpj
+      ? `
               <span class="phanyx-assinatura-texto phanyx-assinatura-cnpj">
                 CNPJ: ${escaparHtml(instituicao.cnpj)}
               </span>
             `
-            : ""
-        }
+      : ""
+    }
       </span>
     </span>
   `;

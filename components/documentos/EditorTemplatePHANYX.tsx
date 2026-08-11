@@ -1024,7 +1024,7 @@ type Props = {
   string | null;
 
   camposVisuais?:
-    CampoVisualAssinaturaPreview[] | null;
+  CampoVisualAssinaturaPreview[] | null;
 };
 
 function conteudoParaHtmlSeguro(valor: string) {
@@ -1131,7 +1131,9 @@ export default function EditorTemplatePHANYX({
 
   const campoVisualAssinatura =
     Array.isArray(camposVisuais)
-      ? camposVisuais.find(
+      ? [...camposVisuais]
+        .reverse()
+        .find(
           (campo) =>
             campo?.tipo ===
             "ASSINATURA_DIRETOR"
@@ -1141,11 +1143,11 @@ export default function EditorTemplatePHANYX({
   const chaveCampoVisualAssinatura =
     campoVisualAssinatura
       ? [
-          campoVisualAssinatura.x,
-          campoVisualAssinatura.y,
-          campoVisualAssinatura.largura,
-          campoVisualAssinatura.altura,
-        ].join("|")
+        campoVisualAssinatura.x,
+        campoVisualAssinatura.y,
+        campoVisualAssinatura.largura,
+        campoVisualAssinatura.altura,
+      ].join("|")
       : "sem-campo-visual";
 
   const [fonteAtual, setFonteAtual] = useState("");
@@ -1284,7 +1286,7 @@ export default function EditorTemplatePHANYX({
 
     (
       extensao.options as
-        DadosAssinaturaPreview
+      DadosAssinaturaPreview
     ).campoVisual =
       campoVisualAssinatura;
 
@@ -2466,10 +2468,10 @@ export default function EditorTemplatePHANYX({
 
               ...(duasVias
                 ? {
-                    height:
-                      `${alturaUtilPaginaMm}mm`,
-                    overflow: "hidden",
-                  }
+                  height:
+                    `${alturaUtilPaginaMm}mm`,
+                  overflow: "hidden",
+                }
                 : {}),
             }}
           >
