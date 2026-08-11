@@ -436,62 +436,176 @@ export default function DocumentosRHPage() {
       </div>
 
       {documentoParaArquivar && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="w-full max-w-lg rounded-3xl border border-slate-700 bg-slate-950 p-6 shadow-2xl">
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-              Arquivar documento RH
-            </h2>
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+    <div
+      className="
+        w-full max-w-lg rounded-3xl
+        border border-slate-200
+        bg-white
+        p-6
+        shadow-2xl
 
-            <p className="mt-3 text-sm text-slate-700 dark:text-slate-300">
-              Este documento não será excluído. Ele ficará preservado para
-              auditoria e poderá ser restaurado depois.
-            </p>
+        dark:border-slate-700
+        dark:bg-slate-950
+      "
+    >
+      <h2
+        className="
+          text-xl font-bold
+          text-slate-950
+          dark:text-white
+        "
+      >
+        Arquivar documento RH
+      </h2>
 
-            <div className="mt-5 rounded-2xl border border-slate-800 bg-slate-900 p-4 text-sm text-slate-200">
-              <p>
-                <strong>Documento:</strong>{" "}
-                {documentoParaArquivar.titulo}
-              </p>
+      <p
+        className="
+          mt-3 text-sm leading-6
+          text-slate-600
+          dark:text-slate-300
+        "
+      >
+        Este documento não será excluído. Ele ficará preservado para
+        auditoria e poderá ser restaurado depois.
+      </p>
 
-              <p className="mt-2">
-                <strong>Funcionário:</strong>{" "}
-                {documentoParaArquivar.funcionario?.nome || "-"}
-              </p>
-            </div>
+      <div
+        className="
+          mt-5 rounded-2xl
+          border border-slate-200
+          bg-slate-50
+          p-4
+          text-sm text-slate-700
 
-            <label className="mt-5 block text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
-              Motivo do arquivamento
-            </label>
+          dark:border-slate-800
+          dark:bg-slate-900
+          dark:text-slate-200
+        "
+      >
+        <p>
+          <strong className="text-slate-950 dark:text-white">
+            Documento:
+          </strong>{" "}
+          {documentoParaArquivar.titulo}
+        </p>
 
-            <textarea
-              value={motivoArquivo}
-              onChange={(e) => setMotivoArquivo(e.target.value)}
-              className="mt-2 min-h-28 w-full rounded-2xl border border-slate-700 bg-slate-900 p-4 text-sm text-slate-900 dark:text-white outline-none focus:border-amber-500"
-              placeholder="Explique por que este documento está sendo arquivado."
-            />
+        <p className="mt-2">
+          <strong className="text-slate-950 dark:text-white">
+            Funcionário:
+          </strong>{" "}
+          {documentoParaArquivar.funcionario?.nome || "-"}
+        </p>
+      </div>
 
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setDocumentoParaArquivar(null)}
-                disabled={arquivando}
-                className="rounded-2xl border border-slate-600 px-5 py-2 text-sm font-bold text-slate-200 hover:bg-slate-800 disabled:opacity-60"
-              >
-                Cancelar
-              </button>
+      <label
+        className="
+          mt-5 block
+          text-xs font-bold uppercase
+          tracking-wide
+          text-slate-700
+          dark:text-slate-300
+        "
+      >
+        Motivo do arquivamento
+      </label>
 
-              <button
-                type="button"
-                onClick={arquivarDocumento}
-                disabled={arquivando || !motivoArquivo.trim()}
-                className="rounded-2xl bg-amber-600 px-5 py-2 text-sm font-bold text-slate-900 dark:text-white hover:bg-amber-700 disabled:opacity-60"
-              >
-                {arquivando ? "Arquivando..." : "Arquivar documento"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <textarea
+        value={motivoArquivo}
+        onChange={(e) =>
+          setMotivoArquivo(e.target.value)
+        }
+        className="
+          mt-2 min-h-28 w-full
+          rounded-2xl
+          border border-slate-300
+          bg-white
+          p-4
+          text-sm text-slate-900
+          outline-none
+          placeholder:text-slate-500
+
+          focus:border-amber-500
+          focus:ring-2
+          focus:ring-amber-500/20
+
+          dark:border-slate-700
+          dark:bg-slate-900
+          dark:text-white
+          dark:placeholder:text-slate-400
+        "
+        placeholder="Explique por que este documento está sendo arquivado."
+      />
+
+      <div className="mt-6 flex justify-end gap-3">
+        <button
+          type="button"
+          onClick={() =>
+            setDocumentoParaArquivar(null)
+          }
+          disabled={arquivando}
+          className="
+            rounded-2xl
+            border border-slate-300
+            bg-white
+            px-5 py-2
+            text-sm font-bold
+            text-slate-700
+            transition
+
+            hover:bg-slate-100
+            hover:text-slate-950
+
+            disabled:cursor-not-allowed
+            disabled:opacity-60
+
+            dark:border-slate-600
+            dark:bg-transparent
+            dark:text-slate-200
+            dark:hover:bg-slate-800
+            dark:hover:text-white
+          "
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          onClick={arquivarDocumento}
+          disabled={
+            arquivando ||
+            !motivoArquivo.trim()
+          }
+          className="
+            rounded-2xl
+            bg-amber-500
+            px-5 py-2
+            text-sm font-bold
+            text-slate-950
+            transition
+
+            hover:bg-amber-600
+
+            disabled:cursor-not-allowed
+            disabled:bg-amber-200
+            disabled:text-amber-800
+            disabled:opacity-100
+
+            dark:bg-amber-600
+            dark:text-white
+            dark:hover:bg-amber-700
+            dark:disabled:bg-amber-900/50
+            dark:disabled:text-amber-300
+          "
+        >
+          {arquivando
+            ? "Arquivando..."
+            : "Arquivar documento"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }
