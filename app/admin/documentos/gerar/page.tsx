@@ -39,6 +39,33 @@ type Aluno = {
   nome: string;
 };
 
+type FuncionarioDocumento = {
+  id: number;
+  nome: string;
+  cargo?: string | null;
+  setor?: string | null;
+  salario?: number | null;
+  salarioBase?: number | null;
+  codigoFuncionario?: string | null;
+  dataAdmissao?: string | null;
+  statusFuncionario?: string | null;
+};
+
+type ProfessorDocumento = {
+  id: number;
+  nome: string;
+  statusProfessor?: string | null;
+
+  funcionarioId?: number | null;
+
+  funcionario?: {
+    id: number;
+    nome?: string | null;
+    cargo?: string | null;
+    ativo?: boolean | null;
+  } | null;
+};
+
 type Matricula = {
   id: number;
   aluno?: {
@@ -127,6 +154,21 @@ export default function GerarDocumentoPage() {
   const [matriculas, setMatriculas] =
     useState<Matricula[]>([]);
 
+  const [
+    funcionarios,
+    setFuncionarios,
+  ] = useState<FuncionarioDocumento[]>([]);
+
+  const [
+    professores,
+    setProfessores,
+  ] = useState<ProfessorDocumento[]>([]);
+
+  const [
+    pessoaRh,
+    setPessoaRh,
+  ] = useState("");
+
   const [templateId, setTemplateId] =
     useState("");
 
@@ -174,10 +216,21 @@ export default function GerarDocumentoPage() {
       templateSelecionado?.tipo
     );
 
-  const ehContratoSelecionado =
-    tipoSelecionado.includes(
-      "contrato"
+  const contextoSelecionado =
+    normalizarTipo(
+      templateSelecionado?.contexto
     );
+
+  const ehContratoAcademico =
+    tipoSelecionado === "contrato";
+
+  const ehDocumentoFuncionario =
+    contextoSelecionado ===
+    "funcionario" ||
+    contextoSelecionado ===
+    "professor" ||
+    contextoSelecionado ===
+    "rh";
 
   const camposManuais =
     Array.isArray(
@@ -185,7 +238,7 @@ export default function GerarDocumentoPage() {
         ?.camposManuais
     )
       ? templateSelecionado
-          ?.camposManuais || []
+        ?.camposManuais || []
       : [];
 
   useEffect(() => {
@@ -285,35 +338,56 @@ export default function GerarDocumentoPage() {
     matriculas,
   ]);
 
+  useEffect(() => {
+    if (ehDocumentoFuncionario) {
+      setAlunoId("");
+      setMatriculaId("");
+    } else {
+      setPessoaRh("");
+    }
+  }, [
+    templateSelecionado?.id,
+    ehDocumentoFuncionario,
+  ]);
+
   async function carregarDados() {
     try {
       const [
         tRes,
         aRes,
         mRes,
+        fRes,
+        pRes,
       ] = await Promise.all([
         fetch(
           "/api/admin/documentos/templates?somenteAtivos=1",
           {
-            credentials:
-              "include",
-            cache:
-              "no-store",
+            credentials: "include",
+            cache: "no-store",
           }
         ),
 
         fetch("/api/aluno", {
-          credentials:
-            "include",
-          cache:
-            "no-store",
+          credentials: "include",
+          cache: "no-store",
         }),
 
         fetch("/api/matricula", {
-          credentials:
-            "include",
-          cache:
-            "no-store",
+          credentials: "include",
+          cache: "no-store",
+        }),
+
+        fetch(
+          "/api/admin/funcionarios",
+          {
+            credentials: "include",
+            cache: "no-store",
+          }
+        ),
+
+        fetch("/api/professor", {
+          credentials: "include",
+          cache: "no-store",
         }),
       ]);
 
@@ -329,6 +403,16 @@ export default function GerarDocumentoPage() {
 
       const mData =
         await mRes
+          .json()
+          .catch(() => null);
+
+      const fData =
+        await fRes
+          .json()
+          .catch(() => null);
+
+      const pData =
+        await pRes
           .json()
           .catch(() => null);
 
@@ -352,6 +436,20 @@ export default function GerarDocumentoPage() {
           "matriculas"
         )
       );
+
+      setFuncionarios(
+        extrairLista<FuncionarioDocumento>(
+          fData,
+          "funcionarios"
+        )
+      );
+
+      setProfessores(
+        extrairLista<ProfessorDocumento>(
+          pData,
+          "professores"
+        )
+      );
     } catch (error) {
       console.error(
         "Erro ao carregar dados",
@@ -361,13 +459,14 @@ export default function GerarDocumentoPage() {
       setTemplates([]);
       setAlunos([]);
       setMatriculas([]);
+      setFuncionarios([]);
+      setProfessores([]);
 
       setErro(
         "Erro ao carregar dados para gerar documento."
       );
     }
   }
-
   function atualizarCampoManual(
     tag: string,
     valor: string
@@ -394,7 +493,7 @@ export default function GerarDocumentoPage() {
       const valor =
         converterValorMonetario(
           dadosPreenchimento[
-            tag
+          tag
           ]
         );
 
@@ -418,18 +517,19 @@ export default function GerarDocumentoPage() {
         setErro(
           "Selecione um template antes de gerar o documento."
         );
-
         return;
       }
 
-      if (
-        ehContratoSelecionado
-      ) {
+      /*
+       * CONTRATO ACADÊMICO
+       * Continua usando o módulo oficial
+       * de contratos/matrícula.
+       */
+      if (ehContratoAcademico) {
         if (!matriculaId) {
           setErro(
             "Selecione a matrícula do aluno para gerar o contrato."
           );
-
           return;
         }
 
@@ -445,7 +545,6 @@ export default function GerarDocumentoPage() {
           setErro(
             "A matrícula selecionada é inválida."
           );
-
           return;
         }
 
@@ -457,12 +556,10 @@ export default function GerarDocumentoPage() {
 
         setResultado({
           titulo:
-            templateSelecionado
-              ?.nome ||
+            templateSelecionado?.nome ||
             "Contrato educacional",
 
-          status:
-            "ABERTO",
+          status: "ABERTO",
 
           conteudo:
             "O contrato oficial foi aberto pelo módulo de Contratos do PHANYX.",
@@ -471,9 +568,65 @@ export default function GerarDocumentoPage() {
         return;
       }
 
+      /*
+       * DOCUMENTOS GERADOS PELOS TEMPLATES
+       * Inclui RH, recibos, declarações etc.
+       */
+      let funcionarioIdEnvio:
+        number | null = null;
+
+      let professorIdEnvio:
+        number | null = null;
+
+      if (ehDocumentoFuncionario) {
+        if (!pessoaRh) {
+          setErro(
+            "Selecione o funcionário ou professor para emitir este documento."
+          );
+          return;
+        }
+
+        const [
+          tipoPessoa,
+          idPessoaTexto,
+        ] = pessoaRh.split(":");
+
+        const idPessoa =
+          Number(idPessoaTexto);
+
+        if (
+          !Number.isInteger(idPessoa) ||
+          idPessoa <= 0
+        ) {
+          setErro(
+            "Funcionário ou professor inválido."
+          );
+          return;
+        }
+
+        if (
+          tipoPessoa ===
+          "FUNCIONARIO"
+        ) {
+          funcionarioIdEnvio =
+            idPessoa;
+        } else if (
+          tipoPessoa ===
+          "PROFESSOR"
+        ) {
+          professorIdEnvio =
+            idPessoa;
+        } else {
+          setErro(
+            "Tipo de pessoa inválido."
+          );
+          return;
+        }
+      }
+
       const quantidadeVias =
         formatoImpressao ===
-        "DUAS_VIAS_A4"
+          "DUAS_VIAS_A4"
           ? 2
           : 1;
 
@@ -481,8 +634,7 @@ export default function GerarDocumentoPage() {
         "/api/admin/documentos/gerar",
         {
           method: "POST",
-          credentials:
-            "include",
+          credentials: "include",
 
           headers: {
             "Content-Type":
@@ -493,18 +645,22 @@ export default function GerarDocumentoPage() {
             templateId:
               Number(templateId),
 
+            funcionarioId:
+              funcionarioIdEnvio,
+
+            professorId:
+              professorIdEnvio,
+
             alunoId:
-              alunoId
-                ? Number(
-                    alunoId
-                  )
+              !ehDocumentoFuncionario &&
+                alunoId
+                ? Number(alunoId)
                 : null,
 
             matriculaId:
-              matriculaId
-                ? Number(
-                    matriculaId
-                  )
+              !ehDocumentoFuncionario &&
+                matriculaId
+                ? Number(matriculaId)
                 : null,
 
             titulo,
@@ -552,7 +708,7 @@ export default function GerarDocumentoPage() {
   ) {
     const valor =
       dadosPreenchimento[
-        campo.tag
+      campo.tag
       ] || "";
 
     if (
@@ -748,86 +904,159 @@ export default function GerarDocumentoPage() {
           </div>
         )}
 
-        <div>
-          <label className="phanyx-doc-label mb-2 block text-sm">
-            Aluno ou pessoa vinculada
-          </label>
+        {ehDocumentoFuncionario ? (
+          <div>
+            <label className="phanyx-doc-label mb-2 block text-sm">
+              Funcionário ou professor
+            </label>
 
-          <select
-            className="phanyx-doc-input"
-            value={alunoId}
-            onChange={(evento) => {
-              setAlunoId(
-                evento.target.value
-              );
-
-              if (
-                evento.target.value ===
-                ""
-              ) {
-                setMatriculaId("");
+            <select
+              className="phanyx-doc-input"
+              value={pessoaRh}
+              onChange={(evento) =>
+                setPessoaRh(
+                  evento.target.value
+                )
               }
-            }}
-          >
-            <option value="">
-              Nenhum aluno selecionado
-            </option>
+            >
+              <option value="">
+                Selecione o funcionário ou professor
+              </option>
 
-            {alunos.map(
-              (aluno) => (
-                <option
-                  key={aluno.id}
-                  value={aluno.id}
-                >
-                  {aluno.nome}
+              {funcionarios.length > 0 && (
+                <optgroup label="Funcionários">
+                  {funcionarios.map(
+                    (funcionario) => (
+                      <option
+                        key={`funcionario-${funcionario.id}`}
+                        value={`FUNCIONARIO:${funcionario.id}`}
+                      >
+                        {funcionario.nome}
+                        {funcionario.cargo
+                          ? ` — ${funcionario.cargo}`
+                          : ""}
+                      </option>
+                    )
+                  )}
+                </optgroup>
+              )}
+
+              {professores.some(
+                (professor) =>
+                  !professor.funcionario?.id
+              ) && (
+                  <optgroup label="Professores sem vínculo RH">
+                    {professores
+                      .filter(
+                        (professor) =>
+                          !professor.funcionario
+                            ?.id
+                      )
+                      .map(
+                        (professor) => (
+                          <option
+                            key={`professor-${professor.id}`}
+                            value={`PROFESSOR:${professor.id}`}
+                            disabled
+                          >
+                            {professor.nome}
+                            {" — sem vínculo RH"}
+                          </option>
+                        )
+                      )}
+                  </optgroup>
+                )}
+            </select>
+
+            <p className="phanyx-doc-muted mt-2 text-xs">
+              Professores com vínculo RH aparecem na lista de funcionários.
+              Professores sem vínculo RH precisam ser vinculados ao RH antes da
+              emissão de documentos trabalhistas.
+            </p>
+          </div>
+        ) : (
+          <>
+            <div>
+              <label className="phanyx-doc-label mb-2 block text-sm">
+                Aluno ou pessoa vinculada
+              </label>
+
+              <select
+                className="phanyx-doc-input"
+                value={alunoId}
+                onChange={(evento) => {
+                  setAlunoId(
+                    evento.target.value
+                  );
+
+                  if (
+                    evento.target.value ===
+                    ""
+                  ) {
+                    setMatriculaId("");
+                  }
+                }}
+              >
+                <option value="">
+                  Nenhum aluno selecionado
                 </option>
-              )
-            )}
-          </select>
-        </div>
 
-        <div>
-          <label className="phanyx-doc-label mb-2 block text-sm">
-            Matrícula
-            {ehContratoSelecionado
-              ? " (obrigatória para contrato)"
-              : " (opcional)"}
-          </label>
+                {alunos.map(
+                  (aluno) => (
+                    <option
+                      key={aluno.id}
+                      value={aluno.id}
+                    >
+                      {aluno.nome}
+                    </option>
+                  )
+                )}
+              </select>
+            </div>
 
-          <select
-            className="phanyx-doc-input"
-            value={matriculaId}
-            onChange={(evento) =>
-              setMatriculaId(
-                evento.target.value
-              )
-            }
-          >
-            <option value="">
-              {ehContratoSelecionado
-                ? "Selecione a matrícula"
-                : "Nenhuma"}
-            </option>
+            <div>
+              <label className="phanyx-doc-label mb-2 block text-sm">
+                Matrícula
+                {ehContratoAcademico
+                  ? " (obrigatória para contrato acadêmico)"
+                  : " (opcional)"}
+              </label>
 
-            {matriculas.map(
-              (matricula) => (
-                <option
-                  key={matricula.id}
-                  value={matricula.id}
-                >
-                  #{matricula.id} -{" "}
-                  {matricula.aluno
-                    ?.nome ||
-                    "Aluno sem nome"}
+              <select
+                className="phanyx-doc-input"
+                value={matriculaId}
+                onChange={(evento) =>
+                  setMatriculaId(
+                    evento.target.value
+                  )
+                }
+              >
+                <option value="">
+                  {ehContratoAcademico
+                    ? "Selecione a matrícula"
+                    : "Nenhuma"}
                 </option>
-              )
-            )}
-          </select>
-        </div>
 
-        {!ehContratoSelecionado &&
+                {matriculas.map(
+                  (matricula) => (
+                    <option
+                      key={matricula.id}
+                      value={matricula.id}
+                    >
+                      #{matricula.id} -{" "}
+                      {matricula.aluno?.nome ||
+                        "Aluno sem nome"}
+                    </option>
+                  )
+                )}
+              </select>
+            </div>
+          </>
+        )}
+
+        {!ehContratoAcademico &&
           camposManuais.length >
-            0 && (
+          0 && (
             <div className="space-y-4 rounded-2xl border border-slate-200 p-4 dark:border-slate-700">
               <div>
                 <h2 className="phanyx-doc-section-title text-base font-bold">
@@ -861,16 +1090,16 @@ export default function GerarDocumentoPage() {
             </div>
           )}
 
-        {!ehContratoSelecionado &&
+        {!ehContratoAcademico &&
           templateSelecionado &&
           camposManuais.length ===
-            0 && (
+          0 && (
             <div className="phanyx-doc-preview rounded-2xl p-4 text-sm">
               Este modelo não possui campos de preenchimento manual. Os dados serão preenchidos automaticamente pelo PHANYX.
             </div>
           )}
 
-        {!ehContratoSelecionado && (
+        {!ehContratoAcademico && (
           <div>
             <label className="phanyx-doc-label mb-2 block text-sm">
               Complemento do título
@@ -891,7 +1120,7 @@ export default function GerarDocumentoPage() {
           </div>
         )}
 
-        {!ehContratoSelecionado && (
+        {!ehContratoAcademico && (
           <div className="space-y-3">
             <div>
               <h2 className="phanyx-doc-section-title text-base font-bold">
@@ -976,7 +1205,7 @@ export default function GerarDocumentoPage() {
           >
             {loading
               ? "Gerando..."
-              : ehContratoSelecionado
+              : ehContratoAcademico
                 ? "Abrir contrato oficial"
                 : "Gerar Documento"}
           </button>
@@ -1026,28 +1255,28 @@ export default function GerarDocumentoPage() {
           {(resultado.id ||
             resultado.documento
               ?.id) && (
-            <div className="flex justify-end">
-              <button
-                type="button"
-                className="phanyx-doc-primary-action"
-                onClick={() => {
-                  const documentoId =
-                    resultado.id ||
-                    resultado
-                      .documento
-                      ?.id;
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  className="phanyx-doc-primary-action"
+                  onClick={() => {
+                    const documentoId =
+                      resultado.id ||
+                      resultado
+                        .documento
+                        ?.id;
 
-                  window.open(
-                    `/api/admin/documentos/pdf/${documentoId}`,
-                    "_blank",
-                    "noopener,noreferrer"
-                  );
-                }}
-              >
-                Abrir PDF
-              </button>
-            </div>
-          )}
+                    window.open(
+                      `/api/admin/documentos/pdf/${documentoId}`,
+                      "_blank",
+                      "noopener,noreferrer"
+                    );
+                  }}
+                >
+                  Abrir PDF
+                </button>
+              </div>
+            )}
         </div>
       )}
     </div>

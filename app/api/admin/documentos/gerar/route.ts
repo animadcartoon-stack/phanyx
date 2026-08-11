@@ -529,6 +529,17 @@ export async function POST(req: Request) {
     const templateId = Number(body?.templateId);
     const alunoId = body?.alunoId ? Number(body.alunoId) : null;
     const matriculaId = body?.matriculaId ? Number(body.matriculaId) : null;
+
+    const funcionarioId =
+      body?.funcionarioId
+        ? Number(body.funcionarioId)
+        : null;
+
+    const professorId =
+      body?.professorId
+        ? Number(body.professorId)
+        : null;
+
     const tituloPersonalizado = body?.titulo
       ? String(body.titulo).trim()
       : null;
@@ -705,21 +716,66 @@ export async function POST(req: Request) {
         );
     }
 
-    const tipoTemplateNormalizado = String(
-      template.tipo || ""
-    )
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase();
+    const tipoTemplateNormalizado =
+      String(
+        template.tipo || ""
+      )
+        .normalize("NFD")
+        .replace(
+          /[\u0300-\u036f]/g,
+          ""
+        )
+        .toLowerCase()
+        .trim();
 
-    const ehContrato =
-      tipoTemplateNormalizado.includes("contrato");
+    const contextoTemplateNormalizado =
+      String(
+        template.contexto || ""
+      )
+        .normalize("NFD")
+        .replace(
+          /[\u0300-\u036f]/g,
+          ""
+        )
+        .toLowerCase()
+        .trim();
 
-    if (ehContrato && !matriculaId) {
+    const ehContratoAcademico =
+      tipoTemplateNormalizado ===
+      "contrato";
+
+    const ehDocumentoFuncionario =
+      contextoTemplateNormalizado ===
+      "funcionario" ||
+      contextoTemplateNormalizado ===
+      "professor" ||
+      contextoTemplateNormalizado ===
+      "rh";
+
+    if (
+      ehContratoAcademico &&
+      !matriculaId
+    ) {
       return NextResponse.json(
         {
           error:
-            "Selecione a matrícula correspondente antes de gerar um contrato.",
+            "Selecione a matrícula correspondente antes de gerar o contrato acadêmico.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    if (
+      ehDocumentoFuncionario &&
+      !funcionarioId &&
+      !professorId
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Selecione o funcionário ou professor para emitir este documento.",
         },
         {
           status: 400,
@@ -735,10 +791,114 @@ export async function POST(req: Request) {
 
     let aluno = null as any;
     let matricula = null as any;
+    let funcionario = null as any;
+    let professor = null as any;
     let cursoNome = "Curso não informado";
     let disciplinasLista: string[] = [];
     let valorContrato =
       valorInformado ?? 0;
+
+    if (
+      ehDocumentoFuncionario
+    ) {
+      if (
+        funcionarioId &&
+        Number.isFinite(funcionarioId) &&
+        funcionarioId > 0
+      ) {
+        funcionario =
+          await prisma.funcionario.findFirst({
+            where: {
+              id: funcionarioId,
+              instituicaoId:
+                user.instituicaoId,
+              ativo: true,
+            },
+
+            include: {
+              departamento: true,
+
+              user: {
+                select: {
+                  email: true,
+                },
+              },
+            },
+          });
+
+        if (!funcionario) {
+          return NextResponse.json(
+            {
+              error:
+                "Funcionário não encontrado nesta instituição.",
+            },
+            {
+              status: 404,
+            }
+          );
+        }
+      } else if (
+        professorId &&
+        Number.isFinite(professorId) &&
+        professorId > 0
+      ) {
+        professor =
+          await prisma.professor.findFirst({
+            where: {
+              id: professorId,
+              instituicaoId:
+                user.instituicaoId,
+            },
+
+            include: {
+              user: {
+                select: {
+                  email: true,
+                },
+              },
+
+              funcionario: {
+                include: {
+                  departamento: true,
+
+                  user: {
+                    select: {
+                      email: true,
+                    },
+                  },
+                },
+              },
+            },
+          });
+
+        if (!professor) {
+          return NextResponse.json(
+            {
+              error:
+                "Professor não encontrado nesta instituição.",
+            },
+            {
+              status: 404,
+            }
+          );
+        }
+
+        if (!professor.funcionario) {
+          return NextResponse.json(
+            {
+              error:
+                "Este professor ainda não possui vínculo com o RH. Vincule-o como funcionário antes de emitir documentos trabalhistas.",
+            },
+            {
+              status: 400,
+            }
+          );
+        }
+
+        funcionario =
+          professor.funcionario;
+      }
+    }
 
     if (matriculaId && Number.isFinite(matriculaId) && matriculaId > 0) {
       matricula = await prisma.matricula.findFirst({
@@ -1015,6 +1175,122 @@ export async function POST(req: Request) {
               montarBlocoInstituicao(
                 config
               ),
+
+            nomeFuncionario:
+              funcionario?.nome || "-",
+
+            funcionarioNome:
+              funcionario?.nome || "-",
+
+            cpfFuncionario:
+              funcionario?.cpf || "-",
+
+            funcionarioCpf:
+              funcionario?.cpf || "-",
+
+            rgFuncionario:
+              funcionario?.rg || "-",
+
+            funcionarioRg:
+              funcionario?.rg || "-",
+
+            telefoneFuncionario:
+              funcionario?.telefone || "-",
+
+            emailFuncionario:
+              funcionario?.user?.email ||
+              professor?.user?.email ||
+              "-",
+
+            codigoFuncionario:
+              funcionario?.codigoFuncionario ||
+              "-",
+
+            pisPasepFuncionario:
+              funcionario?.pisPasep || "-",
+
+            cargoFuncionario:
+              funcionario?.cargo || "-",
+
+            funcionarioCargo:
+              funcionario?.cargo || "-",
+
+            departamentoFuncionario:
+              funcionario?.departamento?.nome ||
+              funcionario?.setor ||
+              "-",
+
+            funcionarioDepartamento:
+              funcionario?.departamento?.nome ||
+              funcionario?.setor ||
+              "-",
+
+            dataAdmissaoFuncionario:
+              funcionario?.dataAdmissao
+                ? new Date(
+                  funcionario.dataAdmissao
+                ).toLocaleDateString(
+                  "pt-BR"
+                )
+                : "-",
+
+            funcionarioDataAdmissao:
+              funcionario?.dataAdmissao
+                ? new Date(
+                  funcionario.dataAdmissao
+                ).toLocaleDateString(
+                  "pt-BR"
+                )
+                : "-",
+
+            tipoContratoFuncionario:
+              funcionario?.tipoContrato ||
+              "-",
+
+            cargaHorariaMensalFuncionario:
+              funcionario?.cargaHorariaMensal !==
+                null &&
+                funcionario?.cargaHorariaMensal !==
+                undefined
+                ? `${funcionario.cargaHorariaMensal}h`
+                : "-",
+
+            salarioBaseFuncionario:
+              funcionario?.salarioBase !==
+                null &&
+                funcionario?.salarioBase !==
+                undefined
+                ? formatarMoeda(
+                  Number(
+                    funcionario.salarioBase
+                  )
+                )
+                : "-",
+
+            funcionarioSalario:
+              funcionario?.salarioBase !==
+                null &&
+                funcionario?.salarioBase !==
+                undefined
+                ? formatarMoeda(
+                  Number(
+                    funcionario.salarioBase
+                  )
+                )
+                : "-",
+
+            statusFuncionario:
+              funcionario?.statusFuncionario ||
+              "-",
+
+            jornadaTrabalhoFuncionario:
+              funcionario?.jornadaTrabalho ||
+              "-",
+
+            nomeProfessor:
+              professor?.nome ||
+              funcionario?.nome ||
+              "-",
 
             nomePolo:
               nomeUnidadeDocumento,
