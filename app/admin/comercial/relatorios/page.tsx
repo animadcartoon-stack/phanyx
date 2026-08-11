@@ -123,6 +123,21 @@ type MatriculaRelatorio = {
     valorRecebido: number;
 };
 
+type CursoRelatorio = {
+    cursoId: number | null;
+    cursoNome: string;
+
+    matriculas: number;
+    leadsConvertidos: number;
+    cancelamentos: number;
+
+    valorVendido: number;
+    valorRecebido: number;
+    ticketMedio: number;
+
+    participacao: number;
+};
+
 type OpcaoFiltro = {
     id: number;
     nome: string;
@@ -468,6 +483,184 @@ export default function RelatoriosComerciaisPage() {
         setCursoId("");
         setPoloId("");
     }
+
+    const cursosRelatorio =
+        useMemo<CursoRelatorio[]>(() => {
+            const mapa =
+                new Map<
+                    string,
+                    CursoRelatorio
+                >();
+
+            const statusValidos =
+                new Set([
+                    "ATIVA",
+                    "A_INICIAR",
+                    "CONCLUIDA",
+                ]);
+
+            const matriculasValidas =
+                dados.matriculas.filter(
+                    (matricula) =>
+                        statusValidos.has(
+                            String(
+                                matricula.status
+                            ).toUpperCase()
+                        )
+                );
+
+            const totalMatriculasValidas =
+                matriculasValidas.length;
+
+            for (
+                const matricula of
+                dados.matriculas
+            ) {
+                const chave =
+                    matricula.cursoId != null
+                        ? String(
+                            matricula.cursoId
+                        )
+                        : "SEM_CURSO";
+
+                if (!mapa.has(chave)) {
+                    mapa.set(chave, {
+                        cursoId:
+                            matricula.cursoId,
+
+                        cursoNome:
+                            matricula.cursoNome ||
+                            "Sem curso informado",
+
+                        matriculas: 0,
+
+                        leadsConvertidos: 0,
+
+                        cancelamentos: 0,
+
+                        valorVendido: 0,
+
+                        valorRecebido: 0,
+
+                        ticketMedio: 0,
+
+                        participacao: 0,
+                    });
+                }
+
+                const item =
+                    mapa.get(chave)!;
+
+                const status =
+                    String(
+                        matricula.status
+                    ).toUpperCase();
+
+                if (
+                    statusValidos.has(status)
+                ) {
+                    item.matriculas += 1;
+
+                    item.valorVendido +=
+                        Number(
+                            matricula.valorVendido ||
+                            0
+                        );
+
+                    item.valorRecebido +=
+                        Number(
+                            matricula.valorRecebido ||
+                            0
+                        );
+
+                    if (
+                        matricula.leadId != null
+                    ) {
+                        item.leadsConvertidos +=
+                            1;
+                    }
+                }
+
+                if (
+                    status === "CANCELADA"
+                ) {
+                    item.cancelamentos += 1;
+                }
+            }
+
+            const resultado =
+                Array.from(
+                    mapa.values()
+                ).map((item) => {
+                    const ticketMedio =
+                        item.matriculas > 0
+                            ? item.valorVendido /
+                            item.matriculas
+                            : 0;
+
+                    const participacao =
+                        totalMatriculasValidas >
+                            0
+                            ? (
+                                item.matriculas /
+                                totalMatriculasValidas
+                            ) * 100
+                            : 0;
+
+                    return {
+                        ...item,
+
+                        valorVendido:
+                            Number(
+                                item.valorVendido.toFixed(
+                                    2
+                                )
+                            ),
+
+                        valorRecebido:
+                            Number(
+                                item.valorRecebido.toFixed(
+                                    2
+                                )
+                            ),
+
+                        ticketMedio:
+                            Number(
+                                ticketMedio.toFixed(
+                                    2
+                                )
+                            ),
+
+                        participacao:
+                            Number(
+                                participacao.toFixed(
+                                    1
+                                )
+                            ),
+                    };
+                });
+
+            resultado.sort(
+                (a, b) => {
+                    if (
+                        b.valorVendido !==
+                        a.valorVendido
+                    ) {
+                        return (
+                            b.valorVendido -
+                            a.valorVendido
+                        );
+                    }
+
+                    return (
+                        b.matriculas -
+                        a.matriculas
+                    );
+                }
+            );
+
+            return resultado;
+        }, [dados.matriculas]);
 
     const abas: Array<{
         id: Aba;
@@ -1773,47 +1966,219 @@ export default function RelatoriosComerciaisPage() {
                     </div>
                 )}
 
-                {/* ABAS QUE SERÃO DETALHADAS */}
+                {/* CURSOS */}
 
                 {aba === "cursos" && (
                     <div
                         className="
+      overflow-hidden
       rounded-2xl
       border
       border-slate-200
       bg-white
-      p-8
-      text-center
       shadow-sm
       dark:border-slate-700
       dark:bg-slate-900
     "
                     >
-                        <h2
+                        <div
                             className="
-    font-black
-    text-slate-900
-    dark:text-white
-  "
+        border-b
+        border-slate-200
+        p-5
+        dark:border-slate-700
+      "
                         >
-                            Relatório de cursos
-                        </h2>
+                            <h2
+                                className="
+          text-lg
+          font-black
+          text-slate-950
+          dark:text-white
+        "
+                            >
+                                Desempenho por curso
+                            </h2>
 
-                        <p
-                            className="
-                mt-2
-                text-sm
-                text-slate-500
-                dark:text-slate-400
-              "
-                        >
-                            O detalhamento desta visão
-                            será alimentado pela mesma
-                            base de dados do relatório
-                            comercial.
-                        </p>
+                            <p
+                                className="
+          mt-1
+          text-sm
+          text-slate-500
+          dark:text-slate-400
+        "
+                            >
+                                Resultado comercial dos
+                                cursos no período
+                                selecionado.
+                            </p>
+                        </div>
+
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full text-sm">
+                                <thead
+                                    className="
+            bg-slate-50
+            dark:bg-slate-950
+          "
+                                >
+                                    <tr>
+                                        <th className="px-4 py-3 text-left font-bold">
+                                            Curso
+                                        </th>
+
+                                        <th className="px-4 py-3 text-right font-bold">
+                                            Matrículas
+                                        </th>
+
+                                        <th className="px-4 py-3 text-right font-bold">
+                                            Leads convertidos
+                                        </th>
+
+                                        <th className="px-4 py-3 text-right font-bold">
+                                            Participação
+                                        </th>
+
+                                        <th className="px-4 py-3 text-right font-bold">
+                                            Vendido
+                                        </th>
+
+                                        <th className="px-4 py-3 text-right font-bold">
+                                            Recebido
+                                        </th>
+
+                                        <th className="px-4 py-3 text-right font-bold">
+                                            Ticket médio
+                                        </th>
+
+                                        <th className="px-4 py-3 text-right font-bold">
+                                            Cancelamentos
+                                        </th>
+                                    </tr>
+                                </thead>
+
+                                <tbody
+                                    className="
+            divide-y
+            divide-slate-100
+            dark:divide-slate-800
+          "
+                                >
+                                    {!carregando &&
+                                        cursosRelatorio.length ===
+                                        0 && (
+                                            <tr>
+                                                <td
+                                                    colSpan={8}
+                                                    className="
+                    px-4
+                    py-10
+                    text-center
+                    text-slate-500
+                    dark:text-slate-400
+                  "
+                                                >
+                                                    Nenhum resultado
+                                                    encontrado por curso
+                                                    neste período.
+                                                </td>
+                                            </tr>
+                                        )}
+
+                                    {cursosRelatorio.map(
+                                        (curso) => (
+                                            <tr
+                                                key={
+                                                    curso.cursoId ??
+                                                    "sem-curso"
+                                                }
+                                                className="
+                  hover:bg-slate-50
+                  dark:hover:bg-slate-800/50
+                "
+                                            >
+                                                <td className="px-4 py-3">
+                                                    <p className="font-bold">
+                                                        {
+                                                            curso.cursoNome
+                                                        }
+                                                    </p>
+                                                </td>
+
+                                                <td className="px-4 py-3 text-right font-bold">
+                                                    {formatarNumero(
+                                                        curso.matriculas
+                                                    )}
+                                                </td>
+
+                                                <td className="px-4 py-3 text-right">
+                                                    {formatarNumero(
+                                                        curso
+                                                            .leadsConvertidos
+                                                    )}
+                                                </td>
+
+                                                <td className="px-4 py-3 text-right font-bold">
+                                                    {curso.participacao.toFixed(
+                                                        1
+                                                    )}
+                                                    %
+                                                </td>
+
+                                                <td
+                                                    className="
+                    whitespace-nowrap
+                    px-4
+                    py-3
+                    text-right
+                    font-bold
+                  "
+                                                >
+                                                    {formatarMoeda(
+                                                        curso.valorVendido
+                                                    )}
+                                                </td>
+
+                                                <td
+                                                    className="
+                    whitespace-nowrap
+                    px-4
+                    py-3
+                    text-right
+                  "
+                                                >
+                                                    {formatarMoeda(
+                                                        curso.valorRecebido
+                                                    )}
+                                                </td>
+
+                                                <td
+                                                    className="
+                    whitespace-nowrap
+                    px-4
+                    py-3
+                    text-right
+                  "
+                                                >
+                                                    {formatarMoeda(
+                                                        curso.ticketMedio
+                                                    )}
+                                                </td>
+
+                                                <td className="px-4 py-3 text-right">
+                                                    {formatarNumero(
+                                                        curso.cancelamentos
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        )
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 )}
+
             </div>
         </div>
     );
