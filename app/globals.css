@@ -21584,3 +21584,206 @@ html[data-theme="system"]
   background: #d97706 !important;
   color: #ffffff !important;
 }
+
+/* =========================================================
+   COMERCIAL — RELATÓRIOS
+========================================================= */
+
+.phanyx-comercial-relatorios-page {
+  opacity: 1 !important;
+}
+
+.phanyx-comercial-relatorios-page * {
+  opacity: 1 !important;
+}
+
+/* =========================
+   TEMA CLARO
+========================= */
+
+html[data-theme="light"] .phanyx-comercial-relatorios-page {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-comercial-relatorios-page .bg-white {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .phanyx-comercial-relatorios-page .bg-slate-50 {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .phanyx-comercial-relatorios-page .border-slate-200 {
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .phanyx-comercial-relatorios-page .text-slate-950,
+html[data-theme="light"] .phanyx-comercial-relatorios-page .text-slate-900,
+html[data-theme="light"] .phanyx-comercial-relatorios-page h1,
+html[data-theme="light"] .phanyx-comercial-relatorios-page h2,
+html[data-theme="light"] .phanyx-comercial-relatorios-page h3,
+html[data-theme="light"] .phanyx-comercial-relatorios-page th,
+html[data-theme="light"] .phanyx-comercial-relatorios-page strong {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-comercial-relatorios-page .text-slate-700 {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+}
+
+html[data-theme="light"] .phanyx-comercial-relatorios-page .text-slate-600,
+html[data-theme="light"] .phanyx-comercial-relatorios-page .text-slate-500,
+html[data-theme="light"] .phanyx-comercial-relatorios-page .text-slate-400,
+html[data-theme="light"] .phanyx-comercial-relatorios-page p,
+html[data-theme="light"] .phanyx-comercial-relatorios-page label,
+html[data-theme="light"] .phanyx-comercial-relatorios-page td,
+html[data-theme="light"] .phanyx-comercial-relatorios-page span {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+}
+
+html[data-theme="light"] .phanyx-comercial-relatorios-page input,
+html[data-theme="light"] .phanyx-comercial-relatorios-page select {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-comercial-relatorios-page input::placeholder {
+  color: #64748b !important;
+}
+
+html[data-theme="light"] .phanyx-comercial-relatorios-page table thead,
+html[data-theme="light"] .phanyx-comercial-relatorios-page table thead tr {
+  background: #f1f5f9 !important;
+  background-color: #f1f5f9 !important;
+}
+
+html[data-theme="light"] .phanyx-comercial-relatorios-page table tbody tr:hover {
+  background: #f8fafc !important;
+}
+
+html[data-theme="light"] .phanyx-comercial-relatorios-page .border-red-200 {
+  border-color: #fca5a5 !important;
+}
+
+html[data-theme="light"] .phanyx-comercial-relatorios-page .bg-red-50 {
+  background: #fef2f2 !important;
+}
+
+html[data-theme="light"] .phanyx-comercial-relatorios-page .text-red-800 {
+  color: #991b1b !important;
+  -webkit-text-fill-color: #991b1b !important;
+}
+
+/* Aba ativa */
+html[data-theme="light"] .phanyx-comercial-relatorios-page .bg-slate-900.text-white {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* =========================
+   TEMA ESCURO
+========================= */
+
+html[data-theme="dark"] .phanyx-comercial-relatorios-page .bg-white {
+  background: #111827 !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="dark"] .phanyx-comercial-relatorios-page .bg-slate-50 {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+/* =========================
+   TEMA SISTEMA
+========================= */
+
+html[data-theme="system"] .phanyx-comercial-relatorios-page {
+  background: #262626 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-comercial-relatorios-page .bg-white {
+  background: #2f2f2f !important;
+  border-color: #5f5f5f !important;
+}
+
+html[data-theme="system"] .phanyx-comercial-relatorios-page .bg-slate-50 {
+  background: #3a3a3a !important;
+  border-color: #666666 !important;
+}
+
+html[data-theme="system"] .phanyx-comercial-relatorios-page .text-slate-950,
+html[data-theme="system"] .phanyx-comercial-relatorios-page .text-slate-900,
+html[data-theme="system"] .phanyx-comercial-relatorios-page h1,
+html[data-theme="system"] .phanyx-comercial-relatorios-page h2,
+html[data-theme="system"] .phanyx-comercial-relatorios-page h3,
+html[data-theme="system"] .phanyx-comercial-relatorios-page th,
+html[data-theme="system"] .phanyx-comercial-relatorios-page strong {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-comercial-relatorios-page .text-slate-700,
+html[data-theme="system"] .phanyx-comercial-relatorios-page .text-slate-600,
+html[data-theme="system"] .phanyx-comercial-relatorios-page .text-slate-500,
+html[data-theme="system"] .phanyx-comercial-relatorios-page .text-slate-400,
+html[data-theme="system"] .phanyx-comercial-relatorios-page p,
+html[data-theme="system"] .phanyx-comercial-relatorios-page label,
+html[data-theme="system"] .phanyx-comercial-relatorios-page td,
+html[data-theme="system"] .phanyx-comercial-relatorios-page span {
+  color: #e5e7eb !important;
+  -webkit-text-fill-color: #e5e7eb !important;
+}
+
+html[data-theme="system"] .phanyx-comercial-relatorios-page input,
+html[data-theme="system"] .phanyx-comercial-relatorios-page select {
+  background: #2f2f2f !important;
+  border-color: #666666 !important;
+  color: #ffffff !important;
+}
+
+/* =========================================================
+   RELATÓRIOS COMERCIAIS — SELECTS NO TEMA SISTEMA
+========================================================= */
+
+html[data-theme="system"]
+  .phanyx-comercial-relatorios-page
+  select {
+  background-color: #2f2f2f !important;
+  color: #ffffff !important;
+  border-color: #666666 !important;
+  color-scheme: dark;
+}
+
+html[data-theme="system"]
+  .phanyx-comercial-relatorios-page
+  select option {
+  background-color: #3a3a3a !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-comercial-relatorios-page
+  select option:checked {
+  background-color: #525252 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-comercial-relatorios-page
+  select option:hover,
+html[data-theme="system"]
+  .phanyx-comercial-relatorios-page
+  select option:focus {
+  background-color: #525252 !important;
+  color: #ffffff !important;
+}
