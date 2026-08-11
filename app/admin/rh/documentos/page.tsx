@@ -100,16 +100,16 @@ function pontuarDocumento(documento: DocumentoRH, termoBusca: string) {
 }
 
 export default function DocumentosRHPage() {
-    const [documentos, setDocumentos] = useState<DocumentoRH[]>([]);
-    const [carregando, setCarregando] = useState(true);
-    const [documentoParaArquivar, setDocumentoParaArquivar] =
-        useState<DocumentoRH | null>(null);
-    const [motivoArquivo, setMotivoArquivo] = useState("");
-    const [arquivando, setArquivando] = useState(false);
-    const [busca, setBusca] = useState("");
-    const [filtroStatus, setFiltroStatus] = useState("");
-    const [filtroTipo, setFiltroTipo] = useState("");
-    const [mostrarSugestoes, setMostrarSugestoes] = useState(false);
+  const [documentos, setDocumentos] = useState<DocumentoRH[]>([]);
+  const [carregando, setCarregando] = useState(true);
+  const [documentoParaArquivar, setDocumentoParaArquivar] =
+    useState<DocumentoRH | null>(null);
+  const [motivoArquivo, setMotivoArquivo] = useState("");
+  const [arquivando, setArquivando] = useState(false);
+  const [busca, setBusca] = useState("");
+  const [filtroStatus, setFiltroStatus] = useState("");
+  const [filtroTipo, setFiltroTipo] = useState("");
+  const [mostrarSugestoes, setMostrarSugestoes] = useState(false);
 
   async function carregarDocumentos() {
     try {
@@ -127,55 +127,55 @@ export default function DocumentosRHPage() {
   }, []);
 
   const sugestoesBusca = useMemo(() => {
-  const termo = busca.trim();
+    const termo = busca.trim();
 
-  if (!termo) return [];
+    if (!termo) return [];
 
-  return documentos
-    .map((documento) => ({
-      documento,
-      pontuacao: pontuarDocumento(documento, termo),
-    }))
-    .filter((item) => item.pontuacao > 35)
-    .sort((a, b) => {
-      if (b.pontuacao !== a.pontuacao) {
-        return b.pontuacao - a.pontuacao;
-      }
+    return documentos
+      .map((documento) => ({
+        documento,
+        pontuacao: pontuarDocumento(documento, termo),
+      }))
+      .filter((item) => item.pontuacao > 35)
+      .sort((a, b) => {
+        if (b.pontuacao !== a.pontuacao) {
+          return b.pontuacao - a.pontuacao;
+        }
 
-      return normalizarTexto(a.documento.funcionario?.nome).localeCompare(
-        normalizarTexto(b.documento.funcionario?.nome)
-      );
-    })
-    .slice(0, 8);
-}, [documentos, busca]);
+        return normalizarTexto(a.documento.funcionario?.nome).localeCompare(
+          normalizarTexto(b.documento.funcionario?.nome)
+        );
+      })
+      .slice(0, 8);
+  }, [documentos, busca]);
 
   const documentosFiltrados = useMemo(() => {
-  const termo = busca.trim();
+    const termo = busca.trim();
 
-  return documentos
-  .filter((documento) => documento.status !== "ARQUIVADO")
-  .filter((documento) => {
-      const bateStatus = !filtroStatus || documento.status === filtroStatus;
-      const bateTipo = !filtroTipo || documento.tipo === filtroTipo;
+    return documentos
+      .filter((documento) => documento.status !== "ARQUIVADO")
+      .filter((documento) => {
+        const bateStatus = !filtroStatus || documento.status === filtroStatus;
+        const bateTipo = !filtroTipo || documento.tipo === filtroTipo;
 
-      if (!termo) return bateStatus && bateTipo;
+        if (!termo) return bateStatus && bateTipo;
 
-      return (
-        bateStatus &&
-        bateTipo &&
-        pontuarDocumento(documento, termo) > 35
-      );
-    })
-    .sort((a, b) => {
-      if (!termo) {
-        return normalizarTexto(a.funcionario?.nome).localeCompare(
-          normalizarTexto(b.funcionario?.nome)
+        return (
+          bateStatus &&
+          bateTipo &&
+          pontuarDocumento(documento, termo) > 35
         );
-      }
+      })
+      .sort((a, b) => {
+        if (!termo) {
+          return normalizarTexto(a.funcionario?.nome).localeCompare(
+            normalizarTexto(b.funcionario?.nome)
+          );
+        }
 
-      return pontuarDocumento(b, termo) - pontuarDocumento(a, termo);
-    });
-}, [documentos, busca, filtroStatus, filtroTipo]);
+        return pontuarDocumento(b, termo) - pontuarDocumento(a, termo);
+      });
+  }, [documentos, busca, filtroStatus, filtroTipo]);
 
   async function arquivarDocumento() {
     if (!documentoParaArquivar) return;
@@ -209,118 +209,118 @@ export default function DocumentosRHPage() {
   return (
     <div className="phanyx-rh-documentos-page space-y-6">
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
-  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-    <div>
-      <p className="text-xs font-bold uppercase tracking-[0.25em] text-cyan-400">
-        RH EMPRESARIAL
-      </p>
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.25em] text-cyan-400">
+              RH EMPRESARIAL
+            </p>
 
-      <h1 className="mt-2 text-4xl font-black text-[#020617] dark:text-white">
-        Documentos RH
-      </h1>
+            <h1 className="mt-2 text-4xl font-black text-[#020617] dark:text-white">
+              Documentos RH
+            </h1>
 
-      <p className="mt-2 text-slate-600 dark:text-slate-400">
-        Dossiê documental dos funcionários, preservado para auditoria,
-        compliance e histórico permanente.
-      </p>
-    </div>
-
-    <Link
-      href="/admin/rh/documentos/gerar"
-      className="inline-flex shrink-0 items-center justify-center rounded-2xl bg-blue-600 px-5 py-3 text-sm font-black text-slate-900 dark:text-white shadow-lg transition hover:bg-blue-500"
-    >
-      + Novo Documento RH
-    </Link>
-  </div>
-
-  <div className="mt-6 grid gap-3 lg:grid-cols-[1fr_220px_220px]">
-    <div className="relative">
-  <label className="mb-2 block text-xs font-bold uppercase tracking-[0.18em] text-slate-700 dark:text-slate-400">
-    Busca 
-  </label>
-
-  <input
-    value={busca}
-    onChange={(e) => {
-      setBusca(e.target.value);
-      setMostrarSugestoes(true);
-    }}
-    onFocus={() => setMostrarSugestoes(true)}
-    placeholder="Busque por funcionário, título, tipo, status ou cargo. Ex.: Jose, declaraçao, secretaria..."
-    className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-900 dark:text-white outline-none placeholder:text-slate-500 focus:border-blue-500"
-  />
-
-  {mostrarSugestoes && busca.trim() && sugestoesBusca.length > 0 && (
-    <div className="absolute left-0 right-0 top-[76px] z-50 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-950">
-      {sugestoesBusca.map(({ documento }) => (
-        <button
-          key={documento.id}
-          type="button"
-          onMouseDown={(e) => {
-            e.preventDefault();
-            setBusca(documento.funcionario?.nome || documento.titulo || "");
-            setMostrarSugestoes(false);
-          }}
-          className="block w-full border-b border-slate-200 px-4 py-3 text-left transition last:border-b-0 hover:bg-slate-100 dark:border-slate-800 dark:hover:bg-slate-800"
-        >
-          <div className="text-sm font-bold text-slate-900 dark:text-white">
-            {documento.funcionario?.nome || "-"}
+            <p className="mt-2 text-slate-600 dark:text-slate-400">
+              Dossiê documental dos funcionários, preservado para auditoria,
+              compliance e histórico permanente.
+            </p>
           </div>
 
-          <div className="mt-1 text-xs text-slate-600 dark:text-slate-400">
-            {documento.titulo} • {documento.tipo} • {documento.status}
+          <Link
+            href="/admin/rh/documentos/gerar"
+            className="inline-flex shrink-0 items-center justify-center rounded-2xl bg-blue-600 px-5 py-3 text-sm font-black text-slate-900 dark:text-white shadow-lg transition hover:bg-blue-500"
+          >
+            + Novo Documento RH
+          </Link>
+        </div>
+
+        <div className="mt-6 grid gap-3 lg:grid-cols-[1fr_220px_220px]">
+          <div className="relative">
+            <label className="mb-2 block text-xs font-bold uppercase tracking-[0.18em] text-slate-700 dark:text-slate-400">
+              Busca
+            </label>
+
+            <input
+              value={busca}
+              onChange={(e) => {
+                setBusca(e.target.value);
+                setMostrarSugestoes(true);
+              }}
+              onFocus={() => setMostrarSugestoes(true)}
+              placeholder="Busque por funcionário, título, tipo, status ou cargo. Ex.: Jose, declaraçao, secretaria..."
+              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-900 dark:text-white outline-none placeholder:text-slate-500 focus:border-blue-500"
+            />
+
+            {mostrarSugestoes && busca.trim() && sugestoesBusca.length > 0 && (
+              <div className="absolute left-0 right-0 top-[76px] z-50 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-950">
+                {sugestoesBusca.map(({ documento }) => (
+                  <button
+                    key={documento.id}
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      setBusca(documento.funcionario?.nome || documento.titulo || "");
+                      setMostrarSugestoes(false);
+                    }}
+                    className="block w-full border-b border-slate-200 px-4 py-3 text-left transition last:border-b-0 hover:bg-slate-100 dark:border-slate-800 dark:hover:bg-slate-800"
+                  >
+                    <div className="text-sm font-bold text-slate-900 dark:text-white">
+                      {documento.funcionario?.nome || "-"}
+                    </div>
+
+                    <div className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+                      {documento.titulo} • {documento.tipo} • {documento.status}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {mostrarSugestoes && busca.trim() && sugestoesBusca.length === 0 && (
+              <div className="absolute left-0 right-0 top-[76px] z-50 rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-700 dark:text-slate-400 shadow-2xl">
+                Nenhum documento encontrado.
+              </div>
+            )}
           </div>
-        </button>
-      ))}
-    </div>
-  )}
 
-  {mostrarSugestoes && busca.trim() && sugestoesBusca.length === 0 && (
-    <div className="absolute left-0 right-0 top-[76px] z-50 rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-700 dark:text-slate-400 shadow-2xl">
-      Nenhum documento encontrado.
-    </div>
-  )}
-</div>
+          <div>
+            <label className="mb-2 block text-xs font-bold uppercase tracking-[0.18em]text-slate-700 dark:text-slate-400">
+              Status
+            </label>
 
-    <div>
-      <label className="mb-2 block text-xs font-bold uppercase tracking-[0.18em]text-slate-700 dark:text-slate-400">
-        Status
-      </label>
+            <select
+              value={filtroStatus}
+              onChange={(e) => setFiltroStatus(e.target.value)}
+              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+            >
+              <option value="">Todos</option>
+              <option value="GERADO">Gerado</option>
+              <option value="ASSINADO">Assinado</option>
+              <option value="PENDENTE">Pendente</option>
+            </select>
+          </div>
 
-      <select
-        value={filtroStatus}
-        onChange={(e) => setFiltroStatus(e.target.value)}
-        className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-      >
-        <option value="">Todos</option>
-        <option value="GERADO">Gerado</option>
-        <option value="ASSINADO">Assinado</option>
-        <option value="PENDENTE">Pendente</option>
-      </select>
-    </div>
+          <div>
+            <label className="mb-2 block text-xs font-bold uppercase tracking-[0.18em] text-slate-700 dark:text-slate-400">
+              Tipo
+            </label>
 
-    <div>
-      <label className="mb-2 block text-xs font-bold uppercase tracking-[0.18em] text-slate-700 dark:text-slate-400">
-        Tipo
-      </label>
-
-      <select
-        value={filtroTipo}
-        onChange={(e) => setFiltroTipo(e.target.value)}
-        className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-      >
-        <option value="">Todos</option>
-        <option value="DECLARACAO">Declaração</option>
-        <option value="ADVERTENCIA">Advertência</option>
-        <option value="SUSPENSAO">Suspensão</option>
-        <option value="TERMO_RESPONSABILIDADE">Termo responsabilidade</option>
-        <option value="TERMO_RECEBIMENTO">Termo recebimento</option>
-        <option value="AVALIACAO_DESEMPENHO">Avaliação desempenho</option>
-        <option value="DOCUMENTO_LIVRE">Documento livre</option>
-      </select>
-    </div>
-  </div>
-</div>
+            <select
+              value={filtroTipo}
+              onChange={(e) => setFiltroTipo(e.target.value)}
+              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+            >
+              <option value="">Todos</option>
+              <option value="DECLARACAO">Declaração</option>
+              <option value="ADVERTENCIA">Advertência</option>
+              <option value="SUSPENSAO">Suspensão</option>
+              <option value="TERMO_RESPONSABILIDADE">Termo responsabilidade</option>
+              <option value="TERMO_RECEBIMENTO">Termo recebimento</option>
+              <option value="AVALIACAO_DESEMPENHO">Avaliação desempenho</option>
+              <option value="DOCUMENTO_LIVRE">Documento livre</option>
+            </select>
+          </div>
+        </div>
+      </div>
 
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
         <h2 className="text-xl font-bold text-slate-900 dark:text-white">
@@ -371,51 +371,51 @@ export default function DocumentosRHPage() {
                     </td>
 
                     <td className="p-3 text-slate-700 dark:text-slate-300">
-  {formatarData(documento.criadoEm)}
-</td>
+                      {formatarData(documento.criadoEm)}
+                    </td>
 
-<td className="p-3 text-slate-700 dark:text-slate-300">
-  {documento.criadoPor?.nome || documento.criadoPor?.email || "-"}
-</td>
+                    <td className="p-3 text-slate-700 dark:text-slate-300">
+                      {documento.criadoPor?.nome || documento.criadoPor?.email || "-"}
+                    </td>
 
-<td className="p-3 text-slate-700 dark:text-slate-300">
-  {documento.status}
-</td>
+                    <td className="p-3 text-slate-700 dark:text-slate-300">
+                      {documento.status}
+                    </td>
 
-<td className="p-3">
-  <div className="flex flex-wrap gap-2">
-    {documento.arquivoUrl ? (
-      <a
-        href={documento.arquivoUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="rounded-xl border border-blue-500 px-3 py-2 text-xs font-bold text-blue-700 hover:bg-blue-50 dark:text-white dark:hover:bg-blue-950/40"
-      >
-        Abrir
-      </a>
-    ) : (
-      <a
-        href={`/api/admin/rh/documentos/${documento.id}/imprimir`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="rounded-xl border border-blue-500 px-3 py-2 text-xs font-bold text-blue-700 hover:bg-blue-50 dark:text-white dark:hover:bg-blue-950/40"
-      >
-        Abrir
-      </a>
-    )}
+                    <td className="p-3">
+                      <div className="flex flex-wrap gap-2">
+                        {documento.arquivoUrl ? (
+                          <a
+                            href={documento.arquivoUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="rounded-xl border border-blue-500 px-3 py-2 text-xs font-bold text-blue-700 hover:bg-blue-50 dark:text-white dark:hover:bg-blue-950/40"
+                          >
+                            Abrir
+                          </a>
+                        ) : (
+                          <a
+                            href={`/api/admin/rh/documentos/${documento.id}/imprimir`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="rounded-xl border border-blue-500 px-3 py-2 text-xs font-bold text-blue-700 hover:bg-blue-50 dark:text-white dark:hover:bg-blue-950/40"
+                          >
+                            Abrir
+                          </a>
+                        )}
 
-    <a
-      href={`/api/admin/rh/documentos/${documento.id}/imprimir`}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="rounded-xl border border-emerald-500 px-3 py-2 text-xs font-bold text-emerald-700 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-950/40"
-    >
-      Imprimir
-    </a>
-  </div>
-</td>
+                        <a
+                          href={`/api/admin/rh/documentos/${documento.id}/imprimir`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="rounded-xl border border-emerald-500 px-3 py-2 text-xs font-bold text-emerald-700 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-950/40"
+                        >
+                          Imprimir
+                        </a>
+                      </div>
+                    </td>
 
-<td className="p-3">
+                    <td className="p-3">
                       <button
                         type="button"
                         onClick={() => {
@@ -436,9 +436,9 @@ export default function DocumentosRHPage() {
       </div>
 
       {documentoParaArquivar && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-    <div
-      className="
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div
+            className=" phanyx-rh-arquivar-modal
         w-full max-w-lg rounded-3xl
         border border-slate-200
         bg-white
@@ -448,164 +448,112 @@ export default function DocumentosRHPage() {
         dark:border-slate-700
         dark:bg-slate-950
       "
-    >
-      <h2
-        className="
+          >
+            <h2
+              className="
           text-xl font-bold
           text-slate-950
           dark:text-white
         "
-      >
-        Arquivar documento RH
-      </h2>
+            >
+              Arquivar documento RH
+            </h2>
 
-      <p
-        className="
+            <p
+              className="
           mt-3 text-sm leading-6
           text-slate-600
           dark:text-slate-300
         "
-      >
-        Este documento não será excluído. Ele ficará preservado para
-        auditoria e poderá ser restaurado depois.
-      </p>
+            >
+              Este documento não será excluído. Ele ficará preservado para
+              auditoria e poderá ser restaurado depois.
+            </p>
 
-      <div
-        className="
-          mt-5 rounded-2xl
-          border border-slate-200
-          bg-slate-50
-          p-4
-          text-sm text-slate-700
+           <div
+  className="
+    phanyx-rh-arquivar-info
+    mt-5 rounded-2xl border p-4 text-sm
+  "
+>
+  <p>
+    <strong className="text-slate-950 dark:text-white">
+      Documento:
+    </strong>{" "}
+    {documentoParaArquivar.titulo}
+  </p>
 
-          dark:border-slate-800
-          dark:bg-slate-900
-          dark:text-slate-200
-        "
-      >
-        <p>
-          <strong className="text-slate-950 dark:text-white">
-            Documento:
-          </strong>{" "}
-          {documentoParaArquivar.titulo}
-        </p>
+  <p className="mt-2">
+    <strong className="text-slate-950 dark:text-white">
+      Funcionário:
+    </strong>{" "}
+    {documentoParaArquivar.funcionario?.nome || "-"}
+  </p>
+</div>
 
-        <p className="mt-2">
-          <strong className="text-slate-950 dark:text-white">
-            Funcionário:
-          </strong>{" "}
-          {documentoParaArquivar.funcionario?.nome || "-"}
-        </p>
-      </div>
-
-      <label
-        className="
+            <label
+              className="
           mt-5 block
           text-xs font-bold uppercase
           tracking-wide
           text-slate-700
           dark:text-slate-300
         "
-      >
-        Motivo do arquivamento
-      </label>
+            >
+              Motivo do arquivamento
+            </label>
 
-      <textarea
-        value={motivoArquivo}
-        onChange={(e) =>
-          setMotivoArquivo(e.target.value)
-        }
-        className="
-          mt-2 min-h-28 w-full
-          rounded-2xl
-          border border-slate-300
-          bg-white
-          p-4
-          text-sm text-slate-900
-          outline-none
-          placeholder:text-slate-500
+            <textarea
+              value={motivoArquivo}
+              onChange={(e) =>
+                setMotivoArquivo(e.target.value)
+              }
+              className="
+  phanyx-rh-arquivar-textarea
+  mt-2 min-h-28 w-full
+  rounded-2xl border p-4
+  text-sm outline-none
+"
+              placeholder="Explique por que este documento está sendo arquivado."
+            />
 
-          focus:border-amber-500
-          focus:ring-2
-          focus:ring-amber-500/20
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() =>
+                  setDocumentoParaArquivar(null)
+                }
+                disabled={arquivando}
+                className="
+  phanyx-rh-arquivar-cancelar
+  rounded-2xl px-5 py-2
+  text-sm font-bold
+"
+              >
+                Cancelar
+              </button>
 
-          dark:border-slate-700
-          dark:bg-slate-900
-          dark:text-white
-          dark:placeholder:text-slate-400
-        "
-        placeholder="Explique por que este documento está sendo arquivado."
-      />
-
-      <div className="mt-6 flex justify-end gap-3">
-        <button
-          type="button"
-          onClick={() =>
-            setDocumentoParaArquivar(null)
-          }
-          disabled={arquivando}
-          className="
-            rounded-2xl
-            border border-slate-300
-            bg-white
-            px-5 py-2
-            text-sm font-bold
-            text-slate-700
-            transition
-
-            hover:bg-slate-100
-            hover:text-slate-950
-
-            disabled:cursor-not-allowed
-            disabled:opacity-60
-
-            dark:border-slate-600
-            dark:bg-transparent
-            dark:text-slate-200
-            dark:hover:bg-slate-800
-            dark:hover:text-white
-          "
-        >
-          Cancelar
-        </button>
-
-        <button
-          type="button"
-          onClick={arquivarDocumento}
-          disabled={
-            arquivando ||
-            !motivoArquivo.trim()
-          }
-          className="
-            rounded-2xl
-            bg-amber-500
-            px-5 py-2
-            text-sm font-bold
-            text-slate-950
-            transition
-
-            hover:bg-amber-600
-
-            disabled:cursor-not-allowed
-            disabled:bg-amber-200
-            disabled:text-amber-800
-            disabled:opacity-100
-
-            dark:bg-amber-600
-            dark:text-white
-            dark:hover:bg-amber-700
-            dark:disabled:bg-amber-900/50
-            dark:disabled:text-amber-300
-          "
-        >
-          {arquivando
-            ? "Arquivando..."
-            : "Arquivar documento"}
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+              <button
+                type="button"
+                onClick={arquivarDocumento}
+                disabled={
+                  arquivando ||
+                  !motivoArquivo.trim()
+                }
+               className="
+  phanyx-rh-arquivar-confirmar
+  rounded-2xl px-5 py-2
+  text-sm font-bold
+"
+              >
+                {arquivando
+                  ? "Arquivando..."
+                  : "Arquivar documento"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

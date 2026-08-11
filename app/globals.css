@@ -21327,3 +21327,260 @@ html[data-theme="system"]
   background: #3a3a3a !important;
   color: #ffffff !important;
 }
+
+/* =========================================================
+   DOCUMENTOS RH — MODAL ARQUIVAR
+   CORREÇÃO DEFINITIVA DOS 3 TEMAS
+========================================================= */
+
+/* =========================
+   TEMA CLARO
+========================= */
+
+html[data-theme="light"]
+  .phanyx-rh-arquivar-modal {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-rh-arquivar-modal h2 {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-rh-arquivar-modal > p {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-rh-arquivar-modal label {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+}
+
+/* Card Documento / Funcionário */
+html[data-theme="light"]
+  .phanyx-rh-arquivar-info {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  background-image: none !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-rh-arquivar-info p {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-rh-arquivar-info strong {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+/* Motivo */
+html[data-theme="light"]
+  .phanyx-rh-arquivar-textarea {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-rh-arquivar-textarea::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+}
+
+/* Cancelar */
+html[data-theme="light"]
+  .phanyx-rh-arquivar-cancelar {
+  background: #ffffff !important;
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-rh-arquivar-cancelar:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+/* Arquivar */
+/* =========================================================
+   DOCUMENTOS RH — BOTÃO ARQUIVAR / TEMA CLARO
+========================================================= */
+
+/* Botão habilitado */
+html[data-theme="light"]
+  .phanyx-rh-arquivar-confirmar:not(:disabled) {
+  background: #f59e0b !important;
+  background-color: #f59e0b !important;
+
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+
+  border: 1px solid #d97706 !important;
+
+  box-shadow:
+    0 3px 10px rgba(217, 119, 6, 0.30) !important;
+
+  opacity: 1 !important;
+  cursor: pointer !important;
+}
+
+/* Hover habilitado */
+html[data-theme="light"]
+  .phanyx-rh-arquivar-confirmar:not(:disabled):hover {
+  background: #d97706 !important;
+  background-color: #d97706 !important;
+
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+
+  border-color: #b45309 !important;
+
+  box-shadow:
+    0 4px 14px rgba(180, 83, 9, 0.32) !important;
+}
+
+/* Botão ainda bloqueado porque falta informar o motivo */
+html[data-theme="light"]
+  .phanyx-rh-arquivar-confirmar:disabled {
+  background: #facc15 !important;
+  background-color: #facc15 !important;
+
+  color: #713f12 !important;
+  -webkit-text-fill-color: #713f12 !important;
+
+  border: 1px solid #eab308 !important;
+
+  box-shadow:
+    0 2px 8px rgba(234, 179, 8, 0.22) !important;
+
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+}
+
+
+/* =========================
+   TEMA ESCURO
+========================= */
+
+html[data-theme="dark"]
+  .phanyx-rh-arquivar-modal {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-rh-arquivar-modal h2,
+html[data-theme="dark"]
+  .phanyx-rh-arquivar-modal label {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-rh-arquivar-modal > p {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-rh-arquivar-info {
+  background: #111827 !important;
+  border-color: #334155 !important;
+  color: #e2e8f0 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-rh-arquivar-info strong {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-rh-arquivar-textarea {
+  background: #111827 !important;
+  color: #ffffff !important;
+  border-color: #475569 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-rh-arquivar-cancelar {
+  background: transparent !important;
+  color: #e2e8f0 !important;
+  border: 1px solid #64748b !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-rh-arquivar-confirmar {
+  background: #d97706 !important;
+  color: #ffffff !important;
+}
+
+
+/* =========================
+   TEMA SISTEMA
+========================= */
+
+html[data-theme="system"]
+  .phanyx-rh-arquivar-modal {
+  background: #262626 !important;
+  border-color: #525252 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-rh-arquivar-modal h2,
+html[data-theme="system"]
+  .phanyx-rh-arquivar-modal label {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-rh-arquivar-modal > p {
+  color: #d4d4d4 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-rh-arquivar-info {
+  background: #303030 !important;
+  border-color: #525252 !important;
+  color: #f5f5f5 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-rh-arquivar-info strong {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-rh-arquivar-textarea {
+  background: #303030 !important;
+  color: #ffffff !important;
+  border-color: #5f5f5f !important;
+}
+
+html[data-theme="system"]
+  .phanyx-rh-arquivar-cancelar {
+  background: #303030 !important;
+  color: #ffffff !important;
+  border: 1px solid #666666 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-rh-arquivar-confirmar {
+  background: #d97706 !important;
+  color: #ffffff !important;
+}
