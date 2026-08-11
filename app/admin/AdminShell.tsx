@@ -765,17 +765,6 @@ export default function AdminShell({
                           </Link>
                         )}
 
-                        {podeVerRelatoriosComerciais && (
-                          <Link
-                            href="/admin/comercial/relatorios"
-                            className={getLinkClass(
-                              "/admin/comercial/relatorios"
-                            )}
-                          >
-                            📈 Relatórios
-                          </Link>
-                        )}
-
                         {podeVerEquipesComerciais && (
                           <Link
                             href="/admin/comercial/equipes"
