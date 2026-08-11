@@ -1,11 +1,11 @@
 import {
-  NextRequest,
-  NextResponse,
+    NextRequest,
+    NextResponse,
 } from "next/server";
 
 import {
-  Prisma,
-  StatusMatricula,
+    Prisma,
+    StatusMatricula,
 } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
@@ -17,1493 +17,1496 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 class ErroHttp extends Error {
-  status: number;
-  codigo?: string;
+    status: number;
+    codigo?: string;
 
-  constructor(
-    status: number,
-    mensagem: string,
-    codigo?: string
-  ) {
-    super(mensagem);
+    constructor(
+        status: number,
+        mensagem: string,
+        codigo?: string
+    ) {
+        super(mensagem);
 
-    this.name = "ErroHttp";
-    this.status = status;
-    this.codigo = codigo;
-  }
+        this.name = "ErroHttp";
+        this.status = status;
+        this.codigo = codigo;
+    }
 }
 
 const STATUS_MATRICULAS_VALIDAS:
-  StatusMatricula[] = [
-    StatusMatricula.ATIVA,
-    StatusMatricula.A_INICIAR,
-    StatusMatricula.CONCLUIDA,
-  ];
+    StatusMatricula[] = [
+        StatusMatricula.ATIVA,
+        StatusMatricula.A_INICIAR,
+        StatusMatricula.CONCLUIDA,
+    ];
 
 function numeroSeguro(
-  valor: unknown
+    valor: unknown
 ) {
-  const numero =
-    Number(valor ?? 0);
+    const numero =
+        Number(valor ?? 0);
 
-  return Number.isFinite(numero)
-    ? numero
-    : 0;
+    return Number.isFinite(numero)
+        ? numero
+        : 0;
 }
 
 function arredondar(
-  valor: number,
-  casas = 2
+    valor: number,
+    casas = 2
 ) {
-  const fator =
-    10 ** casas;
+    const fator =
+        10 ** casas;
 
-  return (
-    Math.round(
-      (valor +
-        Number.EPSILON) *
-        fator
-    ) / fator
-  );
+    return (
+        Math.round(
+            (valor +
+                Number.EPSILON) *
+            fator
+        ) / fator
+    );
 }
 
 function inteiroPositivoOuNull(
-  valor: string | null
+    valor: string | null
 ) {
-  if (!valor) {
-    return null;
-  }
+    if (!valor) {
+        return null;
+    }
 
-  const numero =
-    Number(valor);
+    const numero =
+        Number(valor);
 
-  if (
-    !Number.isInteger(numero) ||
-    numero <= 0
-  ) {
-    return null;
-  }
+    if (
+        !Number.isInteger(numero) ||
+        numero <= 0
+    ) {
+        return null;
+    }
 
-  return numero;
+    return numero;
 }
 
 function dataInicio(
-  valor: string | null
+    valor: string | null
 ) {
-  if (!valor) {
-    return null;
-  }
+    if (!valor) {
+        return null;
+    }
 
-  const partes =
-    valor.split("-").map(Number);
+    const partes =
+        valor.split("-").map(Number);
 
-  if (
-    partes.length !== 3 ||
-    !partes[0] ||
-    !partes[1] ||
-    !partes[2]
-  ) {
-    return null;
-  }
+    if (
+        partes.length !== 3 ||
+        !partes[0] ||
+        !partes[1] ||
+        !partes[2]
+    ) {
+        return null;
+    }
 
-  const [
-    ano,
-    mes,
-    dia,
-  ] = partes;
-
-  const data =
-    new Date(
-      Date.UTC(
+    const [
         ano,
-        mes - 1,
+        mes,
         dia,
-        0,
-        0,
-        0,
-        0
-      )
-    );
+    ] = partes;
 
-  return Number.isNaN(
-    data.getTime()
-  )
-    ? null
-    : data;
+    const data =
+        new Date(
+            Date.UTC(
+                ano,
+                mes - 1,
+                dia,
+                0,
+                0,
+                0,
+                0
+            )
+        );
+
+    return Number.isNaN(
+        data.getTime()
+    )
+        ? null
+        : data;
 }
 
 function dataFim(
-  valor: string | null
+    valor: string | null
 ) {
-  if (!valor) {
-    return null;
-  }
+    if (!valor) {
+        return null;
+    }
 
-  const partes =
-    valor.split("-").map(Number);
+    const partes =
+        valor.split("-").map(Number);
 
-  if (
-    partes.length !== 3 ||
-    !partes[0] ||
-    !partes[1] ||
-    !partes[2]
-  ) {
-    return null;
-  }
+    if (
+        partes.length !== 3 ||
+        !partes[0] ||
+        !partes[1] ||
+        !partes[2]
+    ) {
+        return null;
+    }
 
-  const [
-    ano,
-    mes,
-    dia,
-  ] = partes;
-
-  const data =
-    new Date(
-      Date.UTC(
+    const [
         ano,
-        mes - 1,
+        mes,
         dia,
-        23,
-        59,
-        59,
-        999
-      )
-    );
+    ] = partes;
 
-  return Number.isNaN(
-    data.getTime()
-  )
-    ? null
-    : data;
+    const data =
+        new Date(
+            Date.UTC(
+                ano,
+                mes - 1,
+                dia,
+                23,
+                59,
+                59,
+                999
+            )
+        );
+
+    return Number.isNaN(
+        data.getTime()
+    )
+        ? null
+        : data;
 }
 
 function calcularValorVenda(
-  matricula: {
-    valorMatricula:
-      | Prisma.Decimal
-      | number
-      | string
-      | null;
+    matricula: {
+        valorMatricula:
+        | Prisma.Decimal
+        | number
+        | string
+        | null;
 
-    valorMensalidade:
-      | Prisma.Decimal
-      | number
-      | string
-      | null;
+        valorMensalidade:
+        | Prisma.Decimal
+        | number
+        | string
+        | null;
 
-    quantidadeParcelas:
-      | number
-      | null;
+        quantidadeParcelas:
+        | number
+        | null;
 
-    quantidadeMensalidades:
-      | number
-      | null;
-  }
+        quantidadeMensalidades:
+        | number
+        | null;
+    }
 ) {
-  const valorMatricula =
-    numeroSeguro(
-      matricula.valorMatricula
-    );
-
-  const valorMensalidade =
-    numeroSeguro(
-      matricula.valorMensalidade
-    );
-
-  const quantidade =
-    Math.max(
-      0,
-      Math.trunc(
+    const valorMatricula =
         numeroSeguro(
-          matricula
-            .quantidadeMensalidades ??
-            matricula
-              .quantidadeParcelas ??
-            0
-        )
-      )
-    );
+            matricula.valorMatricula
+        );
 
-  return arredondar(
-    valorMatricula +
-      valorMensalidade *
+    const valorMensalidade =
+        numeroSeguro(
+            matricula.valorMensalidade
+        );
+
+    const quantidade =
+        Math.max(
+            0,
+            Math.trunc(
+                numeroSeguro(
+                    matricula
+                        .quantidadeMensalidades ??
+                    matricula
+                        .quantidadeParcelas ??
+                    0
+                )
+            )
+        );
+
+    return arredondar(
+        valorMatricula +
+        valorMensalidade *
         quantidade
-  );
+    );
 }
 
 function dataComercialMatricula(
-  matricula: {
-    confirmadaEm: Date | null;
-    createdAt: Date;
-  }
+    matricula: {
+        confirmadaEm: Date | null;
+        createdAt: Date;
+    }
 ) {
-  return (
-    matricula.confirmadaEm ??
-    matricula.createdAt
-  );
+    return (
+        matricula.confirmadaEm ??
+        matricula.createdAt
+    );
 }
 
 function estaNoPeriodo(
-  data: Date,
-  inicio: Date,
-  fim: Date
+    data: Date,
+    inicio: Date,
+    fim: Date
 ) {
-  const tempo =
-    data.getTime();
+    const tempo =
+        data.getTime();
 
-  return (
-    tempo >=
-      inicio.getTime() &&
-    tempo <=
-      fim.getTime()
-  );
+    return (
+        tempo >=
+        inicio.getTime() &&
+        tempo <=
+        fim.getTime()
+    );
 }
 
 function respostaErro(
-  error: unknown
+    error: unknown
 ) {
-  if (
-    error instanceof ErroHttp
-  ) {
-    return NextResponse.json(
-      {
-        error:
-          error.message,
+    if (
+        error instanceof ErroHttp
+    ) {
+        return NextResponse.json(
+            {
+                error:
+                    error.message,
 
-        codigo:
-          error.codigo,
-      },
-      {
-        status:
-          error.status,
-      }
-    );
-  }
-
-  console.error(
-    "Erro na API de relatórios comerciais:",
-    error
-  );
-
-  return NextResponse.json(
-    {
-      error:
-        "Não foi possível carregar os relatórios comerciais.",
-    },
-    {
-      status: 500,
+                codigo:
+                    error.codigo,
+            },
+            {
+                status:
+                    error.status,
+            }
+        );
     }
-  );
+
+    console.error(
+        "Erro na API de relatórios comerciais:",
+        error
+    );
+
+    return NextResponse.json(
+        {
+            error:
+                "Não foi possível carregar os relatórios comerciais.",
+        },
+        {
+            status: 500,
+        }
+    );
 }
 
 export async function GET(
-  request: NextRequest
+    request: NextRequest
 ) {
-  try {
-    /*
-     * AUTENTICAÇÃO
-     */
-
-    const user =
-      await getUserFromToken();
-
-    if (!user) {
-      throw new ErroHttp(
-        401,
-        "Usuário não autenticado.",
-        "NAO_AUTENTICADO"
-      );
-    }
-
-    /*
-     * PERMISSÃO
-     */
-
-    const permitido =
-      await usuarioPossuiPermissao(
-        user,
-        "comercial.relatorios.ver"
-      );
-
-    if (!permitido) {
-      throw new ErroHttp(
-        403,
-        "Você não possui permissão para visualizar relatórios comerciais.",
-        "SEM_PERMISSAO"
-      );
-    }
-
-    const instituicaoId =
-      Number(
-        user.instituicaoId
-      );
-
-    if (
-      !Number.isInteger(
-        instituicaoId
-      ) ||
-      instituicaoId <= 0
-    ) {
-      throw new ErroHttp(
-        403,
-        "O usuário não está vinculado a uma instituição válida.",
-        "INSTITUICAO_INVALIDA"
-      );
-    }
-
-    /*
-     * FILTROS
-     */
-
-    const searchParams =
-      request.nextUrl
-        .searchParams;
-
-    const dataInicialTexto =
-      searchParams.get(
-        "dataInicial"
-      );
-
-    const dataFinalTexto =
-      searchParams.get(
-        "dataFinal"
-      );
-
-    const inicio =
-      dataInicio(
-        dataInicialTexto
-      );
-
-    const fim =
-      dataFim(
-        dataFinalTexto
-      );
-
-    if (
-      !inicio ||
-      !fim
-    ) {
-      throw new ErroHttp(
-        400,
-        "Informe um período válido para o relatório.",
-        "PERIODO_INVALIDO"
-      );
-    }
-
-    if (
-      inicio.getTime() >
-      fim.getTime()
-    ) {
-      throw new ErroHttp(
-        400,
-        "A data inicial não pode ser posterior à data final.",
-        "PERIODO_INVALIDO"
-      );
-    }
-
-    const vendedorId =
-      inteiroPositivoOuNull(
-        searchParams.get(
-          "vendedorId"
-        )
-      );
-
-    const cursoId =
-      inteiroPositivoOuNull(
-        searchParams.get(
-          "cursoId"
-        )
-      );
-
-    const poloId =
-      inteiroPositivoOuNull(
-        searchParams.get(
-          "poloId"
-        )
-      );
-
-    /*
-     * VENDEDORES ELEGÍVEIS
-     *
-     * A fonte oficial é Cargo.
-     * Plano de comissão NÃO é requisito.
-     */
-
-    const cargosVendedor =
-      await prisma.cargo.findMany({
-        where: {
-          instituicaoId,
-          ativo: true,
-
-          nomeNormalizado:
-            "vendedor",
-        },
-
-        select: {
-          id: true,
-        },
-      });
-
-    const cargoIds =
-      cargosVendedor.map(
-        (cargo) =>
-          cargo.id
-      );
-
-    const vendedores =
-      cargoIds.length > 0
-        ? await prisma
-            .funcionario
-            .findMany({
-              where: {
-                instituicaoId,
-                ativo: true,
-
-                statusFuncionario:
-                  "ATIVO",
-
-                cargoId: {
-                  in: cargoIds,
-                },
-
-                ...(vendedorId
-                  ? {
-                      id:
-                        vendedorId,
-                    }
-                  : {}),
-              },
-
-              select: {
-                id: true,
-                nome: true,
-                cargo: true,
-
-                departamento: {
-                  select: {
-                    nome: true,
-                  },
-                },
-              },
-
-              orderBy: {
-                nome: "asc",
-              },
-            })
-        : [];
-
-    /*
-     * CURSOS E POLOS
-     */
-
-    const [
-      cursos,
-      polos,
-    ] =
-      await Promise.all([
-        prisma.curso.findMany({
-          where: {
-            instituicaoId,
-            ativo: true,
-          },
-
-          select: {
-            id: true,
-            nome: true,
-          },
-
-          orderBy: {
-            nome: "asc",
-          },
-        }),
-
-        prisma.polo.findMany({
-          where: {
-            instituicaoId,
-            ativo: true,
-          },
-
-          select: {
-            id: true,
-            nome: true,
-          },
-
-          orderBy: {
-            nome: "asc",
-          },
-        }),
-      ]);
-
-    /*
-     * MATRÍCULAS DO PERÍODO
-     */
-
-    const whereMatriculas:
-      Prisma.MatriculaWhereInput =
-      {
-        instituicaoId,
-
-        ...(vendedorId
-          ? {
-              vendedorResponsavelId:
-                vendedorId,
-            }
-          : {}),
-
-        ...(cursoId
-          ? {
-              cursoId,
-            }
-          : {}),
-
-        ...(poloId
-          ? {
-              poloId,
-            }
-          : {}),
-
-        OR: [
-          {
-            confirmadaEm: {
-              gte: inicio,
-              lte: fim,
-            },
-          },
-
-          {
-            confirmadaEm:
-              null,
-
-            createdAt: {
-              gte: inicio,
-              lte: fim,
-            },
-          },
-        ],
-      };
-
-    const matriculasPeriodo =
-      await prisma
-        .matricula
-        .findMany({
-          where:
-            whereMatriculas,
-
-          select: {
-  id: true,
-
-  numeroMatricula: true,
-  numeroMatriculaLegado: true,
-
-  createdAt: true,
-  confirmadaEm: true,
-
-  cursoId: true,
-  poloId: true,
-
-  status: true,
-
-  vendedorResponsavelId:
-    true,
-
-  vendedorResponsavelNomeSnapshot:
-    true,
-
-  leadOrigemId: true,
-
-  origemComercial: true,
-
-  valorMatricula: true,
-
-  valorMensalidade: true,
-
-  quantidadeParcelas: true,
-
-  quantidadeMensalidades: true,
-
-  aluno: {
-    select: {
-      id: true,
-      nome: true,
-    },
-  },
-
-  curso: {
-    select: {
-      id: true,
-      nome: true,
-    },
-  },
-
-  polo: {
-    select: {
-      id: true,
-      nome: true,
-    },
-  },
-
-  vendedorResponsavel: {
-    select: {
-      id: true,
-      nome: true,
-    },
-  },
-
-  leadOrigem: {
-    select: {
-      id: true,
-      origem: true,
-    },
-  },
-},
-        });
-
-    const matriculasValidas =
-      matriculasPeriodo.filter(
-        (matricula) =>
-          STATUS_MATRICULAS_VALIDAS.includes(
-            matricula.status
-          )
-      );
-
-    const matriculasCanceladas =
-      matriculasPeriodo.filter(
-        (matricula) =>
-          matricula.status ===
-          StatusMatricula.CANCELADA
-      );
-
-    /*
-     * LEADS RECEBIDOS
-     *
-     * Curso e polo não existem diretamente
-     * no Lead. Por isso, esses dois filtros
-     * são aplicados às matrículas/vendas.
-     *
-     * Vendedor pode ser aplicado ao Lead
-     * porque existe responsavelFuncionarioId.
-     */
-
-    const leadsPeriodo =
-  await prisma.lead.findMany({
-    where: {
-      instituicaoGestoraId:
-        instituicaoId,
-
-      tipo:
-        "INSTITUICAO",
-
-      createdAt: {
-        gte: inicio,
-        lte: fim,
-      },
-
-      ...(vendedorId
-        ? {
-            responsavelFuncionarioId:
-              vendedorId,
-          }
-        : {}),
-    },
-
-    select: {
-      id: true,
-      nome: true,
-      email: true,
-      telefone: true,
-      origem: true,
-      interesse: true,
-      status: true,
-      createdAt: true,
-
-      responsavelFuncionarioId:
-        true,
-
-      responsavelNomeSnapshot:
-        true,
-
-      responsavelFuncionario: {
-        select: {
-          id: true,
-          nome: true,
-        },
-      },
-
-      matriculaConvertida: {
-        select: {
-          id: true,
-          status: true,
-          confirmadaEm: true,
-
-          cursoId: true,
-          poloId: true,
-
-          vendedorResponsavelId:
-            true,
-
-          curso: {
-            select: {
-              id: true,
-              nome: true,
-            },
-          },
-
-          polo: {
-            select: {
-              id: true,
-              nome: true,
-            },
-          },
-        },
-      },
-    },
-
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
-
-    /*
- * LEADS CONVERTIDOS
- *
- * A taxa considera os leads recebidos
- * dentro do período selecionado.
- *
- * A matrícula vinculada ao próprio lead
- * confirma a conversão.
- */
-
-const leadEstaConvertidoNoEscopo = (
-  lead: (typeof leadsPeriodo)[number]
-) => {
-  const matricula =
-    lead.matriculaConvertida;
-
-  if (!matricula) {
-    return false;
-  }
-
-  if (
-    !STATUS_MATRICULAS_VALIDAS.includes(
-      matricula.status
-    )
-  ) {
-    return false;
-  }
-
-  if (
-    vendedorId &&
-    matricula.vendedorResponsavelId !==
-      vendedorId
-  ) {
-    return false;
-  }
-
-  if (
-    cursoId &&
-    matricula.cursoId !==
-      cursoId
-  ) {
-    return false;
-  }
-
-  if (
-    poloId &&
-    matricula.poloId !==
-      poloId
-  ) {
-    return false;
-  }
-
-  return true;
-};
-
-const leadsRecebidos =
-  leadsPeriodo.length;
-
-const leadsConvertidos =
-  leadsPeriodo.filter(
-    leadEstaConvertidoNoEscopo
-  ).length;
-
-const taxaConversao =
-  leadsRecebidos > 0
-    ? arredondar(
-        (
-          leadsConvertidos /
-          leadsRecebidos
-        ) * 100,
-        1
-      )
-    : 0;
-
-    /*
-     * VALOR VENDIDO
-     */
-
-    const valorVendido =
-      arredondar(
-        matriculasValidas.reduce(
-          (
-            total,
-            matricula
-          ) =>
-            total +
-            calcularValorVenda(
-              matricula
-            ),
-          0
-        )
-      );
-
-    /*
-     * PAGAMENTOS DE MATRÍCULA
-     *
-     * Aqui consideramos Pagamento ligado
-     * a lançamento do tipo MATRÍCULA.
-     *
-     * Assim mensalidades pagas posteriormente
-     * não entram como "recebido no ato".
-     */
-
-    const pagamentosPeriodo =
-      await prisma
-        .pagamento
-        .findMany({
-          where: {
-            instituicaoId,
-
-            pagoEm: {
-              gte: inicio,
-              lte: fim,
-            },
-          },
-
-          select: {
-            id: true,
-            valorPago: true,
-            pagoEm: true,
-
-            lancamento: {
-              select: {
-                tipo: true,
-
-                matricula: {
-                  select: {
-                    id: true,
-                    instituicaoId:
-                      true,
-
-                    cursoId: true,
-                    poloId: true,
-
-                    vendedorResponsavelId:
-                      true,
-
-                    status: true,
-                  },
-                },
-              },
-            },
-          },
-        });
-
-    const pagamentosMatricula =
-      pagamentosPeriodo.filter(
-        (pagamento) => {
-          const lancamento =
-            pagamento.lancamento;
-
-          const matricula =
-            lancamento
-              ?.matricula;
-
-          if (
-            lancamento?.tipo !==
-            "MATRICULA"
-          ) {
-            return false;
-          }
-
-          if (!matricula) {
-            return false;
-          }
-
-          if (
-            matricula.instituicaoId !==
-            instituicaoId
-          ) {
-            return false;
-          }
-
-          if (
-            vendedorId &&
-            matricula
-              .vendedorResponsavelId !==
-              vendedorId
-          ) {
-            return false;
-          }
-
-          if (
-            cursoId &&
-            matricula.cursoId !==
-              cursoId
-          ) {
-            return false;
-          }
-
-          if (
-            poloId &&
-            matricula.poloId !==
-              poloId
-          ) {
-            return false;
-          }
-
-          return true;
+    try {
+        /*
+         * AUTENTICAÇÃO
+         */
+
+        const user =
+            await getUserFromToken();
+
+        if (!user) {
+            throw new ErroHttp(
+                401,
+                "Usuário não autenticado.",
+                "NAO_AUTENTICADO"
+            );
         }
-      );
 
-    const valorRecebido =
-      arredondar(
-        pagamentosMatricula.reduce(
-          (
-            total,
-            pagamento
-          ) =>
-            total +
-            numeroSeguro(
-              pagamento.valorPago
-            ),
-          0
-        )
-      );
+        /*
+         * PERMISSÃO
+         */
 
-    /*
-     * TICKET MÉDIO
-     */
-
-    const quantidadeMatriculas =
-      matriculasValidas.length;
-
-    const ticketMedio =
-      quantidadeMatriculas > 0
-        ? arredondar(
-            valorVendido /
-              quantidadeMatriculas
-          )
-        : 0;
-
-    /*
-     * DESEMPENHO POR VENDEDOR
-     */
-
-    const desempenhoVendedores =
-      vendedores.map(
-        (vendedor) => {
-          const leadsDoVendedor =
-            leadsPeriodo.filter(
-              (lead) =>
-                lead
-                  .responsavelFuncionarioId ===
-                vendedor.id
+        const permitido =
+            await usuarioPossuiPermissao(
+                user,
+                "comercial.relatorios.ver"
             );
 
-          const matriculasDoVendedor =
-            matriculasValidas.filter(
-              (matricula) =>
-                matricula
-                  .vendedorResponsavelId ===
-                vendedor.id
+        if (!permitido) {
+            throw new ErroHttp(
+                403,
+                "Você não possui permissão para visualizar relatórios comerciais.",
+                "SEM_PERMISSAO"
+            );
+        }
+
+        const instituicaoId =
+            Number(
+                user.instituicaoId
             );
 
-          const pagamentosDoVendedor =
-            pagamentosMatricula.filter(
-              (pagamento) =>
-                pagamento
-                  .lancamento
-                  ?.matricula
-                  ?.vendedorResponsavelId ===
-                vendedor.id
+        if (
+            !Number.isInteger(
+                instituicaoId
+            ) ||
+            instituicaoId <= 0
+        ) {
+            throw new ErroHttp(
+                403,
+                "O usuário não está vinculado a uma instituição válida.",
+                "INSTITUICAO_INVALIDA"
+            );
+        }
+
+        /*
+         * FILTROS
+         */
+
+        const searchParams =
+            request.nextUrl
+                .searchParams;
+
+        const dataInicialTexto =
+            searchParams.get(
+                "dataInicial"
             );
 
-          const valorVendidoVendedor =
-            arredondar(
-              matriculasDoVendedor.reduce(
-                (
-                  total,
-                  matricula
-                ) =>
-                  total +
-                  calcularValorVenda(
-                    matricula
-                  ),
-                0
-              )
+        const dataFinalTexto =
+            searchParams.get(
+                "dataFinal"
             );
 
-          const valorRecebidoVendedor =
-            arredondar(
-              pagamentosDoVendedor.reduce(
-                (
-                  total,
-                  pagamento
-                ) =>
-                  total +
-                  numeroSeguro(
-                    pagamento
-                      .valorPago
-                  ),
-                0
-              )
+        const inicio =
+            dataInicio(
+                dataInicialTexto
             );
 
-         const conversoes =
-  leadsDoVendedor.filter(
-    (lead) => {
-      const matricula =
-        lead.matriculaConvertida;
+        const fim =
+            dataFim(
+                dataFinalTexto
+            );
 
-      if (!matricula) {
-        return false;
-      }
+        if (
+            !inicio ||
+            !fim
+        ) {
+            throw new ErroHttp(
+                400,
+                "Informe um período válido para o relatório.",
+                "PERIODO_INVALIDO"
+            );
+        }
 
-      if (
-        !STATUS_MATRICULAS_VALIDAS.includes(
-          matricula.status
-        )
-      ) {
-        return false;
-      }
+        if (
+            inicio.getTime() >
+            fim.getTime()
+        ) {
+            throw new ErroHttp(
+                400,
+                "A data inicial não pode ser posterior à data final.",
+                "PERIODO_INVALIDO"
+            );
+        }
 
-      if (
-        matricula.vendedorResponsavelId !==
-        vendedor.id
-      ) {
-        return false;
-      }
-
-      if (
-        cursoId &&
-        matricula.cursoId !==
-          cursoId
-      ) {
-        return false;
-      }
-
-      if (
-        poloId &&
-        matricula.poloId !==
-          poloId
-      ) {
-        return false;
-      }
-
-      return true;
-    }
-  ).length;
-
-          const taxa =
-            leadsDoVendedor.length >
-            0
-              ? arredondar(
-                  (
-                    conversoes /
-                    leadsDoVendedor
-                      .length
-                  ) * 100,
-                  1
+        const vendedorId =
+            inteiroPositivoOuNull(
+                searchParams.get(
+                    "vendedorId"
                 )
-              : 0;
+            );
 
-          return {
-            funcionarioId:
-              vendedor.id,
+        const cursoId =
+            inteiroPositivoOuNull(
+                searchParams.get(
+                    "cursoId"
+                )
+            );
 
-            nome:
-              vendedor.nome,
+        const poloId =
+            inteiroPositivoOuNull(
+                searchParams.get(
+                    "poloId"
+                )
+            );
 
-            cargo:
-              vendedor.cargo,
+        /*
+         * VENDEDORES ELEGÍVEIS
+         *
+         * A fonte oficial é Cargo.
+         * Plano de comissão NÃO é requisito.
+         */
 
-            departamento:
-              vendedor
-                .departamento
-                ?.nome ??
-              null,
+        const cargosVendedor =
+            await prisma.cargo.findMany({
+                where: {
+                    instituicaoId,
+                    ativo: true,
 
-            leads:
-              leadsDoVendedor
-                .length,
+                    nomeNormalizado:
+                        "vendedor",
+                },
 
-            conversoes,
+                select: {
+                    id: true,
+                },
+            });
 
-            matriculas:
-              matriculasDoVendedor
-                .length,
+        const cargoIds =
+            cargosVendedor.map(
+                (cargo) =>
+                    cargo.id
+            );
 
-            taxaConversao:
-              taxa,
+        const vendedores =
+            cargoIds.length > 0
+                ? await prisma
+                    .funcionario
+                    .findMany({
+                        where: {
+                            instituicaoId,
+                            ativo: true,
 
-            valorVendido:
-              valorVendidoVendedor,
+                            statusFuncionario:
+                                "ATIVO",
 
-            valorRecebido:
-              valorRecebidoVendedor,
-          };
-        }
-      );
+                            cargoId: {
+                                in: cargoIds,
+                            },
 
-    /*
-     * ORDENAÇÃO
+                            ...(vendedorId
+                                ? {
+                                    id:
+                                        vendedorId,
+                                }
+                                : {}),
+                        },
+
+                        select: {
+                            id: true,
+                            nome: true,
+                            cargo: true,
+
+                            departamento: {
+                                select: {
+                                    nome: true,
+                                },
+                            },
+                        },
+
+                        orderBy: {
+                            nome: "asc",
+                        },
+                    })
+                : [];
+
+        /*
+         * CURSOS E POLOS
+         */
+
+        const [
+            cursos,
+            polos,
+        ] =
+            await Promise.all([
+                prisma.curso.findMany({
+                    where: {
+                        instituicaoId,
+                        ativo: true,
+                    },
+
+                    select: {
+                        id: true,
+                        nome: true,
+                    },
+
+                    orderBy: {
+                        nome: "asc",
+                    },
+                }),
+
+                prisma.polo.findMany({
+                    where: {
+                        instituicaoId,
+                        ativo: true,
+                    },
+
+                    select: {
+                        id: true,
+                        nome: true,
+                    },
+
+                    orderBy: {
+                        nome: "asc",
+                    },
+                }),
+            ]);
+
+        /*
+         * MATRÍCULAS DO PERÍODO
+         */
+
+        const whereMatriculas:
+            Prisma.MatriculaWhereInput =
+        {
+            instituicaoId,
+
+            ...(vendedorId
+                ? {
+                    vendedorResponsavelId:
+                        vendedorId,
+                }
+                : {}),
+
+            ...(cursoId
+                ? {
+                    cursoId,
+                }
+                : {}),
+
+            ...(poloId
+                ? {
+                    poloId,
+                }
+                : {}),
+
+            OR: [
+                {
+                    confirmadaEm: {
+                        gte: inicio,
+                        lte: fim,
+                    },
+                },
+
+                {
+                    confirmadaEm:
+                        null,
+
+                    createdAt: {
+                        gte: inicio,
+                        lte: fim,
+                    },
+                },
+            ],
+        };
+
+        const matriculasPeriodo =
+            await prisma
+                .matricula
+                .findMany({
+                    where:
+                        whereMatriculas,
+
+                    select: {
+                        id: true,
+
+                        numeroMatricula: true,
+                        numeroMatriculaLegado: true,
+
+                        createdAt: true,
+                        confirmadaEm: true,
+
+                        cursoId: true,
+                        poloId: true,
+
+                        status: true,
+
+                        vendedorResponsavelId:
+                            true,
+
+                        vendedorResponsavelNomeSnapshot:
+                            true,
+
+                        leadOrigemId: true,
+
+                        origemComercial: true,
+
+                        valorMatricula: true,
+
+                        valorMensalidade: true,
+
+                        quantidadeParcelas: true,
+
+                        quantidadeMensalidades: true,
+
+                        aluno: {
+                            select: {
+                                id: true,
+                                nome: true,
+                            },
+                        },
+
+                        curso: {
+                            select: {
+                                id: true,
+                                nome: true,
+                            },
+                        },
+
+                        polo: {
+                            select: {
+                                id: true,
+                                nome: true,
+                            },
+                        },
+
+                        vendedorResponsavel: {
+                            select: {
+                                id: true,
+                                nome: true,
+                            },
+                        },
+
+                        leadOrigem: {
+                            select: {
+                                id: true,
+                                origem: true,
+                            },
+                        },
+                    },
+                });
+
+        const matriculasValidas =
+            matriculasPeriodo.filter(
+                (matricula) =>
+                    STATUS_MATRICULAS_VALIDAS.includes(
+                        matricula.status
+                    )
+            );
+
+        const matriculasCanceladas =
+            matriculasPeriodo.filter(
+                (matricula) =>
+                    matricula.status ===
+                    StatusMatricula.CANCELADA
+            );
+
+        /*
+         * LEADS RECEBIDOS
+         *
+         * Curso e polo não existem diretamente
+         * no Lead. Por isso, esses dois filtros
+         * são aplicados às matrículas/vendas.
+         *
+         * Vendedor pode ser aplicado ao Lead
+         * porque existe responsavelFuncionarioId.
+         */
+
+        const leadsPeriodo =
+            await prisma.lead.findMany({
+                where: {
+                    instituicaoGestoraId:
+                        instituicaoId,
+
+                    tipo:
+                        "INSTITUICAO",
+
+                    createdAt: {
+                        gte: inicio,
+                        lte: fim,
+                    },
+
+                    ...(vendedorId
+                        ? {
+                            responsavelFuncionarioId:
+                                vendedorId,
+                        }
+                        : {}),
+                },
+
+                select: {
+                    id: true,
+                    nome: true,
+                    email: true,
+                    telefone: true,
+                    origem: true,
+                    interesse: true,
+                    status: true,
+                    createdAt: true,
+
+                    responsavelFuncionarioId:
+                        true,
+
+                    responsavelNomeSnapshot:
+                        true,
+
+                    responsavelFuncionario: {
+                        select: {
+                            id: true,
+                            nome: true,
+                        },
+                    },
+
+                    matriculaConvertida: {
+                        select: {
+                            id: true,
+                            status: true,
+                            confirmadaEm: true,
+
+                            cursoId: true,
+                            poloId: true,
+
+                            vendedorResponsavelId:
+                                true,
+
+                            curso: {
+                                select: {
+                                    id: true,
+                                    nome: true,
+                                },
+                            },
+
+                            polo: {
+                                select: {
+                                    id: true,
+                                    nome: true,
+                                },
+                            },
+                        },
+                    },
+                },
+
+                orderBy: {
+                    createdAt: "desc",
+                },
+            });
+
+        /*
+     * LEADS CONVERTIDOS
      *
-     * Quem vendeu mais aparece primeiro.
-     * Empate: maior número de matrículas.
+     * A taxa considera os leads recebidos
+     * dentro do período selecionado.
+     *
+     * A matrícula vinculada ao próprio lead
+     * confirma a conversão.
      */
 
-    desempenhoVendedores.sort(
-      (a, b) => {
-        if (
-          b.valorVendido !==
-          a.valorVendido
-        ) {
-          return (
-            b.valorVendido -
-            a.valorVendido
-          );
-        }
+        const leadEstaConvertidoNoEscopo = (
+            lead: (typeof leadsPeriodo)[number]
+        ) => {
+            const matricula =
+                lead.matriculaConvertida;
 
-        if (
-          b.matriculas !==
-          a.matriculas
-        ) {
-          return (
-            b.matriculas -
-            a.matriculas
-          );
-        }
+            if (!matricula) {
+                return false;
+            }
 
-        return a.nome.localeCompare(
-          b.nome,
-          "pt-BR"
-        );
-      }
-    );
+            if (
+                !STATUS_MATRICULAS_VALIDAS.includes(
+                    matricula.status
+                )
+            ) {
+                return false;
+            }
 
-    /*
-     * RESPOSTA
-     */
+            if (
+                vendedorId &&
+                matricula.vendedorResponsavelId !==
+                vendedorId
+            ) {
+                return false;
+            }
 
-    return NextResponse.json(
-      {
-        resumo: {
-          leadsRecebidos,
+            if (
+                cursoId &&
+                matricula.cursoId !==
+                cursoId
+            ) {
+                return false;
+            }
 
-          leadsConvertidos,
+            if (
+                poloId &&
+                matricula.poloId !==
+                poloId
+            ) {
+                return false;
+            }
 
-          taxaConversao,
+            return true;
+        };
 
-          matriculas:
-            quantidadeMatriculas,
+        const leadsRecebidos =
+            leadsPeriodo.length;
 
-          valorVendido,
+        const leadsConvertidos =
+            leadsPeriodo.filter(
+                leadEstaConvertidoNoEscopo
+            ).length;
 
-          valorRecebido,
+        const taxaConversao =
+            leadsRecebidos > 0
+                ? arredondar(
+                    (
+                        leadsConvertidos /
+                        leadsRecebidos
+                    ) * 100,
+                    1
+                )
+                : 0;
 
-          ticketMedio,
+        /*
+         * VALOR VENDIDO
+         */
 
-          cancelamentos:
-            matriculasCanceladas
-              .length,
-        },
+        const valorVendido =
+            arredondar(
+                matriculasValidas.reduce(
+                    (
+                        total,
+                        matricula
+                    ) =>
+                        total +
+                        calcularValorVenda(
+                            matricula
+                        ),
+                    0
+                )
+            );
 
-        leads:
-  leadsPeriodo.map(
-    (lead) => {
-      const convertido =
-        leadEstaConvertidoNoEscopo(
-          lead
-        );
+        /*
+         * PAGAMENTOS DE MATRÍCULA
+         *
+         * Aqui consideramos Pagamento ligado
+         * a lançamento do tipo MATRÍCULA.
+         *
+         * Assim mensalidades pagas posteriormente
+         * não entram como "recebido no ato".
+         */
 
-      const matricula =
-        lead.matriculaConvertida;
+        const pagamentosPeriodo =
+            await prisma
+                .pagamento
+                .findMany({
+                    where: {
+                        instituicaoId,
 
-      return {
-        id:
-          lead.id,
+                        pagoEm: {
+                            gte: inicio,
+                            lte: fim,
+                        },
 
-        nome:
-          lead.nome,
+                        observacao:
+                            "Pagamento registrado no ato da matrícula.",
+                    },
 
-        email:
-          lead.email,
+                    select: {
+                        id: true,
+                        valorPago: true,
+                        pagoEm: true,
 
-        telefone:
-          lead.telefone,
+                        lancamento: {
+                            select: {
+                                tipo: true,
 
-        origem:
-          lead.origem,
+                                matricula: {
+                                    select: {
+                                        id: true,
+                                        instituicaoId:
+                                            true,
 
-        interesse:
-          lead.interesse,
+                                        cursoId: true,
+                                        poloId: true,
 
-        status:
-          lead.status,
+                                        vendedorResponsavelId:
+                                            true,
 
-        recebidoEm:
-          lead.createdAt,
+                                        status: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                });
 
-        responsavelId:
-          lead.responsavelFuncionarioId,
+        const pagamentosMatricula =
+            pagamentosPeriodo.filter(
+                (pagamento) => {
+                    const lancamento =
+                        pagamento.lancamento;
 
-        responsavelNome:
-          lead
-            .responsavelFuncionario
-            ?.nome ??
-          lead
-            .responsavelNomeSnapshot ??
-          null,
+                    const matricula =
+                        lancamento
+                            ?.matricula;
 
-        convertido,
+                    if (
+                        lancamento?.tipo !==
+                        "MATRICULA"
+                    ) {
+                        return false;
+                    }
 
-        matriculaId:
-          convertido &&
-          matricula
-            ? matricula.id
-            : null,
+                    if (!matricula) {
+                        return false;
+                    }
 
-        convertidoEm:
-          convertido &&
-          matricula
-            ? matricula
-                .confirmadaEm
-            : null,
+                    if (
+                        matricula.instituicaoId !==
+                        instituicaoId
+                    ) {
+                        return false;
+                    }
 
-        cursoId:
-          convertido &&
-          matricula
-            ? matricula
-                .cursoId
-            : null,
+                    if (
+                        vendedorId &&
+                        matricula
+                            .vendedorResponsavelId !==
+                        vendedorId
+                    ) {
+                        return false;
+                    }
 
-        cursoNome:
-          convertido &&
-          matricula
-            ? matricula
-                .curso?.nome ??
-              null
-            : null,
+                    if (
+                        cursoId &&
+                        matricula.cursoId !==
+                        cursoId
+                    ) {
+                        return false;
+                    }
 
-        poloId:
-          convertido &&
-          matricula
-            ? matricula
-                .poloId
-            : null,
+                    if (
+                        poloId &&
+                        matricula.poloId !==
+                        poloId
+                    ) {
+                        return false;
+                    }
 
-        poloNome:
-          convertido &&
-          matricula
-            ? matricula
-                .polo?.nome ??
-              null
-            : null,
-      };
-    }
-  ),
+                    return true;
+                }
+            );
 
-  matriculas:
-  matriculasPeriodo.map(
-    (matricula) => {
-      const valorVendidoMatricula =
-        calcularValorVenda(
-          matricula
-        );
+        const valorRecebido =
+            arredondar(
+                pagamentosMatricula.reduce(
+                    (
+                        total,
+                        pagamento
+                    ) =>
+                        total +
+                        numeroSeguro(
+                            pagamento.valorPago
+                        ),
+                    0
+                )
+            );
 
-      const pagamentosDaMatricula =
-        pagamentosMatricula.filter(
-          (pagamento) =>
-            pagamento
-              .lancamento
-              ?.matricula
-              ?.id ===
-            matricula.id
-        );
+        /*
+         * TICKET MÉDIO
+         */
 
-      const valorRecebidoMatricula =
-        arredondar(
-          pagamentosDaMatricula.reduce(
-            (
-              total,
-              pagamento
-            ) =>
-              total +
-              numeroSeguro(
-                pagamento.valorPago
-              ),
-            0
-          )
-        );
+        const quantidadeMatriculas =
+            matriculasValidas.length;
 
-      return {
-        id:
-          matricula.id,
+        const ticketMedio =
+            quantidadeMatriculas > 0
+                ? arredondar(
+                    valorVendido /
+                    quantidadeMatriculas
+                )
+                : 0;
 
-        numero:
-          matricula
-            .numeroMatricula ||
-          matricula
-            .numeroMatriculaLegado ||
-          String(
-            matricula.id
-          ),
+        /*
+         * DESEMPENHO POR VENDEDOR
+         */
 
-        alunoId:
-          matricula.aluno.id,
-
-        alunoNome:
-          matricula.aluno.nome,
-
-        dataMatricula:
-          dataComercialMatricula(
-            matricula
-          ),
-
-        status:
-          matricula.status,
-
-        cursoId:
-          matricula.cursoId,
-
-        cursoNome:
-          matricula.curso
-            ?.nome ??
-          null,
-
-        poloId:
-          matricula.poloId,
-
-        poloNome:
-          matricula.polo
-            ?.nome ??
-          null,
-
-        vendedorId:
-          matricula
-            .vendedorResponsavelId,
-
-        vendedorNome:
-          matricula
-            .vendedorResponsavel
-            ?.nome ??
-          matricula
-            .vendedorResponsavelNomeSnapshot ??
-          null,
-
-        leadId:
-          matricula
-            .leadOrigemId,
-
-        origem:
-          matricula
-            .leadOrigem
-            ?.origem ??
-          matricula
-            .origemComercial ??
-          null,
-
-        valorMatricula:
-          numeroSeguro(
-            matricula
-              .valorMatricula
-          ),
-
-        valorMensalidade:
-          numeroSeguro(
-            matricula
-              .valorMensalidade
-          ),
-
-        quantidadeMensalidades:
-          Math.max(
-            0,
-            Math.trunc(
-              numeroSeguro(
-                matricula
-                  .quantidadeMensalidades ??
-                  matricula
-                    .quantidadeParcelas ??
-                  0
-              )
-            )
-          ),
-
-        valorVendido:
-          valorVendidoMatricula,
-
-        valorRecebido:
-          valorRecebidoMatricula,
-      };
-    }
-  ),
-
-        vendedores:
-          desempenhoVendedores,
-
-        filtros: {
-          vendedores:
+        const desempenhoVendedores =
             vendedores.map(
-              (vendedor) => ({
-                id:
-                  vendedor.id,
+                (vendedor) => {
+                    const leadsDoVendedor =
+                        leadsPeriodo.filter(
+                            (lead) =>
+                                lead
+                                    .responsavelFuncionarioId ===
+                                vendedor.id
+                        );
 
-                nome:
-                  vendedor.nome,
-              })
-            ),
+                    const matriculasDoVendedor =
+                        matriculasValidas.filter(
+                            (matricula) =>
+                                matricula
+                                    .vendedorResponsavelId ===
+                                vendedor.id
+                        );
 
-          cursos:
-            cursos.map(
-              (curso) => ({
-                id:
-                  curso.id,
+                    const pagamentosDoVendedor =
+                        pagamentosMatricula.filter(
+                            (pagamento) =>
+                                pagamento
+                                    .lancamento
+                                    ?.matricula
+                                    ?.vendedorResponsavelId ===
+                                vendedor.id
+                        );
 
-                nome:
-                  curso.nome,
-              })
-            ),
+                    const valorVendidoVendedor =
+                        arredondar(
+                            matriculasDoVendedor.reduce(
+                                (
+                                    total,
+                                    matricula
+                                ) =>
+                                    total +
+                                    calcularValorVenda(
+                                        matricula
+                                    ),
+                                0
+                            )
+                        );
 
-          polos:
-            polos.map(
-              (polo) => ({
-                id:
-                  polo.id,
+                    const valorRecebidoVendedor =
+                        arredondar(
+                            pagamentosDoVendedor.reduce(
+                                (
+                                    total,
+                                    pagamento
+                                ) =>
+                                    total +
+                                    numeroSeguro(
+                                        pagamento
+                                            .valorPago
+                                    ),
+                                0
+                            )
+                        );
 
-                nome:
-                  polo.nome,
-              })
-            ),
-        },
+                    const conversoes =
+                        leadsDoVendedor.filter(
+                            (lead) => {
+                                const matricula =
+                                    lead.matriculaConvertida;
 
-        periodo: {
-          dataInicial:
-            dataInicialTexto,
+                                if (!matricula) {
+                                    return false;
+                                }
 
-          dataFinal:
-            dataFinalTexto,
-        },
-      },
-      {
-        headers: {
-          "Cache-Control":
-            "no-store, no-cache, must-revalidate",
-        },
-      }
-    );
-  } catch (error) {
-    return respostaErro(
-      error
-    );
-  }
+                                if (
+                                    !STATUS_MATRICULAS_VALIDAS.includes(
+                                        matricula.status
+                                    )
+                                ) {
+                                    return false;
+                                }
+
+                                if (
+                                    matricula.vendedorResponsavelId !==
+                                    vendedor.id
+                                ) {
+                                    return false;
+                                }
+
+                                if (
+                                    cursoId &&
+                                    matricula.cursoId !==
+                                    cursoId
+                                ) {
+                                    return false;
+                                }
+
+                                if (
+                                    poloId &&
+                                    matricula.poloId !==
+                                    poloId
+                                ) {
+                                    return false;
+                                }
+
+                                return true;
+                            }
+                        ).length;
+
+                    const taxa =
+                        leadsDoVendedor.length >
+                            0
+                            ? arredondar(
+                                (
+                                    conversoes /
+                                    leadsDoVendedor
+                                        .length
+                                ) * 100,
+                                1
+                            )
+                            : 0;
+
+                    return {
+                        funcionarioId:
+                            vendedor.id,
+
+                        nome:
+                            vendedor.nome,
+
+                        cargo:
+                            vendedor.cargo,
+
+                        departamento:
+                            vendedor
+                                .departamento
+                                ?.nome ??
+                            null,
+
+                        leads:
+                            leadsDoVendedor
+                                .length,
+
+                        conversoes,
+
+                        matriculas:
+                            matriculasDoVendedor
+                                .length,
+
+                        taxaConversao:
+                            taxa,
+
+                        valorVendido:
+                            valorVendidoVendedor,
+
+                        valorRecebido:
+                            valorRecebidoVendedor,
+                    };
+                }
+            );
+
+        /*
+         * ORDENAÇÃO
+         *
+         * Quem vendeu mais aparece primeiro.
+         * Empate: maior número de matrículas.
+         */
+
+        desempenhoVendedores.sort(
+            (a, b) => {
+                if (
+                    b.valorVendido !==
+                    a.valorVendido
+                ) {
+                    return (
+                        b.valorVendido -
+                        a.valorVendido
+                    );
+                }
+
+                if (
+                    b.matriculas !==
+                    a.matriculas
+                ) {
+                    return (
+                        b.matriculas -
+                        a.matriculas
+                    );
+                }
+
+                return a.nome.localeCompare(
+                    b.nome,
+                    "pt-BR"
+                );
+            }
+        );
+
+        /*
+         * RESPOSTA
+         */
+
+        return NextResponse.json(
+            {
+                resumo: {
+                    leadsRecebidos,
+
+                    leadsConvertidos,
+
+                    taxaConversao,
+
+                    matriculas:
+                        quantidadeMatriculas,
+
+                    valorVendido,
+
+                    valorRecebido,
+
+                    ticketMedio,
+
+                    cancelamentos:
+                        matriculasCanceladas
+                            .length,
+                },
+
+                leads:
+                    leadsPeriodo.map(
+                        (lead) => {
+                            const convertido =
+                                leadEstaConvertidoNoEscopo(
+                                    lead
+                                );
+
+                            const matricula =
+                                lead.matriculaConvertida;
+
+                            return {
+                                id:
+                                    lead.id,
+
+                                nome:
+                                    lead.nome,
+
+                                email:
+                                    lead.email,
+
+                                telefone:
+                                    lead.telefone,
+
+                                origem:
+                                    lead.origem,
+
+                                interesse:
+                                    lead.interesse,
+
+                                status:
+                                    lead.status,
+
+                                recebidoEm:
+                                    lead.createdAt,
+
+                                responsavelId:
+                                    lead.responsavelFuncionarioId,
+
+                                responsavelNome:
+                                    lead
+                                        .responsavelFuncionario
+                                        ?.nome ??
+                                    lead
+                                        .responsavelNomeSnapshot ??
+                                    null,
+
+                                convertido,
+
+                                matriculaId:
+                                    convertido &&
+                                        matricula
+                                        ? matricula.id
+                                        : null,
+
+                                convertidoEm:
+                                    convertido &&
+                                        matricula
+                                        ? matricula
+                                            .confirmadaEm
+                                        : null,
+
+                                cursoId:
+                                    convertido &&
+                                        matricula
+                                        ? matricula
+                                            .cursoId
+                                        : null,
+
+                                cursoNome:
+                                    convertido &&
+                                        matricula
+                                        ? matricula
+                                            .curso?.nome ??
+                                        null
+                                        : null,
+
+                                poloId:
+                                    convertido &&
+                                        matricula
+                                        ? matricula
+                                            .poloId
+                                        : null,
+
+                                poloNome:
+                                    convertido &&
+                                        matricula
+                                        ? matricula
+                                            .polo?.nome ??
+                                        null
+                                        : null,
+                            };
+                        }
+                    ),
+
+                matriculas:
+                    matriculasPeriodo.map(
+                        (matricula) => {
+                            const valorVendidoMatricula =
+                                calcularValorVenda(
+                                    matricula
+                                );
+
+                            const pagamentosDaMatricula =
+                                pagamentosMatricula.filter(
+                                    (pagamento) =>
+                                        pagamento
+                                            .lancamento
+                                            ?.matricula
+                                            ?.id ===
+                                        matricula.id
+                                );
+
+                            const valorRecebidoMatricula =
+                                arredondar(
+                                    pagamentosDaMatricula.reduce(
+                                        (
+                                            total,
+                                            pagamento
+                                        ) =>
+                                            total +
+                                            numeroSeguro(
+                                                pagamento.valorPago
+                                            ),
+                                        0
+                                    )
+                                );
+
+                            return {
+                                id:
+                                    matricula.id,
+
+                                numero:
+                                    matricula
+                                        .numeroMatricula ||
+                                    matricula
+                                        .numeroMatriculaLegado ||
+                                    String(
+                                        matricula.id
+                                    ),
+
+                                alunoId:
+                                    matricula.aluno.id,
+
+                                alunoNome:
+                                    matricula.aluno.nome,
+
+                                dataMatricula:
+                                    dataComercialMatricula(
+                                        matricula
+                                    ),
+
+                                status:
+                                    matricula.status,
+
+                                cursoId:
+                                    matricula.cursoId,
+
+                                cursoNome:
+                                    matricula.curso
+                                        ?.nome ??
+                                    null,
+
+                                poloId:
+                                    matricula.poloId,
+
+                                poloNome:
+                                    matricula.polo
+                                        ?.nome ??
+                                    null,
+
+                                vendedorId:
+                                    matricula
+                                        .vendedorResponsavelId,
+
+                                vendedorNome:
+                                    matricula
+                                        .vendedorResponsavel
+                                        ?.nome ??
+                                    matricula
+                                        .vendedorResponsavelNomeSnapshot ??
+                                    null,
+
+                                leadId:
+                                    matricula
+                                        .leadOrigemId,
+
+                                origem:
+                                    matricula
+                                        .leadOrigem
+                                        ?.origem ??
+                                    matricula
+                                        .origemComercial ??
+                                    null,
+
+                                valorMatricula:
+                                    numeroSeguro(
+                                        matricula
+                                            .valorMatricula
+                                    ),
+
+                                valorMensalidade:
+                                    numeroSeguro(
+                                        matricula
+                                            .valorMensalidade
+                                    ),
+
+                                quantidadeMensalidades:
+                                    Math.max(
+                                        0,
+                                        Math.trunc(
+                                            numeroSeguro(
+                                                matricula
+                                                    .quantidadeMensalidades ??
+                                                matricula
+                                                    .quantidadeParcelas ??
+                                                0
+                                            )
+                                        )
+                                    ),
+
+                                valorVendido:
+                                    valorVendidoMatricula,
+
+                                valorRecebido:
+                                    valorRecebidoMatricula,
+                            };
+                        }
+                    ),
+
+                vendedores:
+                    desempenhoVendedores,
+
+                filtros: {
+                    vendedores:
+                        vendedores.map(
+                            (vendedor) => ({
+                                id:
+                                    vendedor.id,
+
+                                nome:
+                                    vendedor.nome,
+                            })
+                        ),
+
+                    cursos:
+                        cursos.map(
+                            (curso) => ({
+                                id:
+                                    curso.id,
+
+                                nome:
+                                    curso.nome,
+                            })
+                        ),
+
+                    polos:
+                        polos.map(
+                            (polo) => ({
+                                id:
+                                    polo.id,
+
+                                nome:
+                                    polo.nome,
+                            })
+                        ),
+                },
+
+                periodo: {
+                    dataInicial:
+                        dataInicialTexto,
+
+                    dataFinal:
+                        dataFinalTexto,
+                },
+            },
+            {
+                headers: {
+                    "Cache-Control":
+                        "no-store, no-cache, must-revalidate",
+                },
+            }
+        );
+    } catch (error) {
+        return respostaErro(
+            error
+        );
+    }
 }
