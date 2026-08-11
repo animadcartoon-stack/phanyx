@@ -471,6 +471,11 @@ export default function AdminShell({
     "comercial.metas.ver"
   );
 
+  const podeVerRelatoriosComerciais =
+    podeAcessar(
+      "comercial.relatorios.ver"
+    );
+
   const podeGerenciarConfiguracoesComerciais =
     podeAcessar(
       "comercial.configuracoes.gerenciar"
@@ -760,6 +765,17 @@ export default function AdminShell({
                           </Link>
                         )}
 
+                        {podeVerRelatoriosComerciais && (
+                          <Link
+                            href="/admin/comercial/relatorios"
+                            className={getLinkClass(
+                              "/admin/comercial/relatorios"
+                            )}
+                          >
+                            📈 Relatórios
+                          </Link>
+                        )}
+
                         {podeVerEquipesComerciais && (
                           <Link
                             href="/admin/comercial/equipes"
@@ -779,6 +795,17 @@ export default function AdminShell({
                             )}
                           >
                             📈 Metas comerciais
+                          </Link>
+                        )}
+
+                        {podeVerRelatoriosComerciais && (
+                          <Link
+                            href="/admin/comercial/relatorios"
+                            className={getLinkClass(
+                              "/admin/comercial/relatorios"
+                            )}
+                          >
+                            📈 Relatórios
                           </Link>
                         )}
 
@@ -1449,6 +1476,15 @@ export default function AdminShell({
                           className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                         >
                           📈 Metas comerciais
+                        </Link>
+                      )}
+
+                      {podeVerRelatoriosComerciais && (
+                        <Link
+                          href="/admin/comercial/relatorios"
+                          className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+                        >
+                          📈 Relatórios
                         </Link>
                       )}
 
