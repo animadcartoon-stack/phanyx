@@ -165,17 +165,16 @@ export default function NovaQuestaoPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           enunciado: enunciado.trim(),
-          tipo:
-            tipo === "MULTIPLA_ESCOLHA"
-              ? "multipla_escolha"
-              : "discursiva",
+          tipo,
           valor: valorNumerico,
           respostaModelo:
             tipo === "DISCURSIVA" && respostaModelo.trim()
               ? respostaModelo.trim()
               : null,
           alternativas:
-            tipo === "MULTIPLA_ESCOLHA" ? alternativasValidas : [],
+            tipo === "MULTIPLA_ESCOLHA"
+              ? alternativasValidas
+              : [],
         }),
       });
 

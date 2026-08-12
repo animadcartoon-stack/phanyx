@@ -16,12 +16,18 @@ export async function POST(
     const user = await getUserFromToken();
 
     if (!user || (user.role !== "PROFESSOR" && user.role !== "professor")) {
-      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+      return NextResponse.json(
+        { error: "Sem permissão" },
+        { status: 403 }
+      );
     }
 
     const professor = await prisma.professor.findUnique({
       where: { userId: user.id },
-      select: { id: true, instituicaoId: true },
+      select: {
+        id: true,
+        instituicaoId: true,
+      },
     });
 
     if (!professor) {
@@ -34,7 +40,10 @@ export async function POST(
     const provaId = Number(ctx.params.provaId);
 
     if (!Number.isFinite(provaId)) {
-      return NextResponse.json({ error: "Prova inválida" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Prova inválida" },
+        { status: 400 }
+      );
     }
 
     const prova: any = await provaPertenceAoProfessor({
@@ -62,16 +71,17 @@ export async function POST(
     const enunciado = String(body.enunciado || "").trim();
     const tipo = String(body.tipo || "").trim();
     const valor = Number(body.valor);
+
     const respostaModelo =
-      body.respostaModelo !== undefined && body.respostaModelo !== null
+      body.respostaModelo !== undefined &&
+      body.respostaModelo !== null
         ? String(body.respostaModelo).trim()
         : "";
 
-    const alternativasRecebidas: AlternativaPayload[] = Array.isArray(
-      body.alternativas
-    )
-      ? body.alternativas
-      : [];
+    const alternativasRecebidas: AlternativaPayload[] =
+      Array.isArray(body.alternativas)
+        ? body.alternativas
+        : [];
 
     if (!enunciado) {
       return NextResponse.json(
@@ -80,21 +90,46 @@ export async function POST(
       );
     }
 
-    if (tipo !== "MULTIPLA_ESCOLHA" && tipo !== "DISCURSIVA") {
+    if (
+      tipo !== "MULTIPLA_ESCOLHA" &&
+      tipo !== "DISCURSIVA"
+    ) {
       return NextResponse.json(
         { error: "Tipo de questão inválido" },
         { status: 400 }
       );
     }
 
+    /*
+     * A interface trabalha com:
+     * MULTIPLA_ESCOLHA
+     * DISCURSIVA
+     *
+     * O Prisma utiliza:
+     * multipla_escolha
+     * discursiva
+     *
+     * Fazemos a conversão somente aqui, antes do create.
+     */
+    const tipoPrisma =
+      tipo === "MULTIPLA_ESCOLHA"
+        ? "multipla_escolha"
+        : "discursiva";
+
     if (!Number.isFinite(valor) || valor <= 0) {
       return NextResponse.json(
-        { error: "O valor da questão precisa ser maior que zero" },
+        {
+          error:
+            "O valor da questão precisa ser maior que zero",
+        },
         { status: 400 }
       );
     }
 
-    let alternativasValidas: { texto: string; correta: boolean }[] = [];
+    let alternativasValidas: {
+      texto: string;
+      correta: boolean;
+    }[] = [];
 
     if (tipo === "MULTIPLA_ESCOLHA") {
       alternativasValidas = alternativasRecebidas
@@ -114,7 +149,9 @@ export async function POST(
         );
       }
 
-      const corretas = alternativasValidas.filter((alt) => alt.correta);
+      const corretas = alternativasValidas.filter(
+        (alt) => alt.correta
+      );
 
       if (corretas.length !== 1) {
         return NextResponse.json(
@@ -132,8 +169,12 @@ export async function POST(
         provaId,
         instituicaoId: user.instituicaoId,
       },
-      orderBy: { ordem: "desc" },
-      select: { ordem: true },
+      orderBy: {
+        ordem: "desc",
+      },
+      select: {
+        ordem: true,
+      },
     });
 
     const novaOrdem = last ? last.ordem + 1 : 1;
@@ -141,36 +182,62 @@ export async function POST(
     const questao = await prisma.questao.create({
       data: {
         enunciado,
-        tipo: tipo as any,
+
+        // Valor compatível com o enum QuestaoTipo do Prisma
+        tipo: tipoPrisma,
+
         valor,
+
         respostaModelo:
-          tipo === "DISCURSIVA" && respostaModelo ? respostaModelo : null,
+          tipo === "DISCURSIVA" && respostaModelo
+            ? respostaModelo
+            : null,
+
         ordem: novaOrdem,
+
         provaId,
+
         instituicaoId: user.instituicaoId,
+
         alternativas:
           tipo === "MULTIPLA_ESCOLHA"
             ? {
-                create: alternativasValidas.map((alt, index) => ({
-                  texto: alt.texto,
-                  correta: alt.correta,
-                  ordem: index + 1,
-                  instituicaoId: user.instituicaoId,
-                })),
+                create: alternativasValidas.map(
+                  (alt, index) => ({
+                    texto: alt.texto,
+                    correta: alt.correta,
+                    ordem: index + 1,
+                    instituicaoId: user.instituicaoId,
+                  })
+                ),
               }
             : undefined,
       },
+
       include: {
         alternativas: {
-          orderBy: { ordem: "asc" },
+          orderBy: {
+            ordem: "asc",
+          },
         },
       },
     });
 
-    return NextResponse.json(questao, { status: 201 });
+    return NextResponse.json(questao, {
+      status: 201,
+    });
   } catch (e: any) {
+    console.error(
+      "Erro ao criar questão:",
+      e
+    );
+
     return NextResponse.json(
-      { error: e.message || "Erro ao criar questão" },
+      {
+        error:
+          e.message ||
+          "Erro ao criar questão",
+      },
       { status: 500 }
     );
   }
