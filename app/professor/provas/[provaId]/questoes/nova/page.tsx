@@ -122,6 +122,11 @@ export default function NovaQuestaoPage() {
 
     const valorNumerico = Number(valor);
 
+    const tipoPrisma =
+      tipo === "MULTIPLA_ESCOLHA"
+        ? "multipla_escolha"
+        : "discursiva";
+
     if (!enunciado.trim()) {
       setErro("Digite o enunciado da questão.");
       return;
@@ -160,7 +165,10 @@ export default function NovaQuestaoPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           enunciado: enunciado.trim(),
-          tipo,
+          tipo:
+            tipo === "MULTIPLA_ESCOLHA"
+              ? "multipla_escolha"
+              : "discursiva",
           valor: valorNumerico,
           respostaModelo:
             tipo === "DISCURSIVA" && respostaModelo.trim()
