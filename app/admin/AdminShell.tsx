@@ -491,6 +491,9 @@ export default function AdminShell({
   const podeGerenciarEmailInstitucional =
     podeAcessar("integracoes.email.gerenciar");
 
+  const podeGerenciarWhatsappInstitucional =
+    podeAcessar("integracoes.whatsapp.gerenciar");
+
   function isActive(path: string) {
     if (path === "/admin") {
       return pathname === "/admin";
@@ -1304,6 +1307,15 @@ export default function AdminShell({
                         </Link>
                       )}
 
+                      {podeGerenciarWhatsappInstitucional && (
+                        <Link
+                          href="/admin/integracoes/whatsapp"
+                          className={getLinkClass("/admin/integracoes/whatsapp")}
+                        >
+                          💬 WhatsApp institucional
+                        </Link>
+                      )}
+
                       {podeGerenciarPolos && (
                         <Link
                           href="/admin/polos"
@@ -1694,6 +1706,14 @@ export default function AdminShell({
                         className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
                       >
                         📧 E-mail institucional
+                      </Link>
+                    )}
+                    {podeGerenciarWhatsappInstitucional && (
+                      <Link
+                        href="/admin/integracoes/whatsapp"
+                        className={getLinkClass("/admin/integracoes/whatsapp")}
+                      >
+                        💬 WhatsApp institucional
                       </Link>
                     )}
                     {podeGerenciarPolos && (

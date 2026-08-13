@@ -285,6 +285,12 @@ export const PERMISSOES_PHANYX = [
     descricao:
       "Permite configurar, testar, ativar e alterar as credenciais SMTP utilizadas pela instituição para envio de e-mails pelo PHANYX.",
   },
+  {
+  chave: "integracoes.whatsapp.gerenciar",
+  nome: "Integrações - Gerenciar WhatsApp institucional",
+  descricao:
+    "Permite conectar, testar, ativar, desativar e configurar o WhatsApp Business utilizado pela instituição para comunicações automáticas pelo PHANYX.",
+},
 
 
   // =====================================================

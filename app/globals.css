@@ -22007,3 +22007,276 @@ html[data-theme="light"]
   > div.border-t {
   border-color: #cbd5e1 !important;
 }
+
+/* =========================================================
+   PHANYX — WHATSAPP INSTITUCIONAL
+   TEMA CLARO NEUTRO — SEM CARDS AZUIS
+   ========================================================= */
+
+html[data-theme="light"] .phanyx-whatsapp-page {
+  color: #0f172a !important;
+}
+
+/* ---------------------------------------------------------
+   TÍTULOS E TEXTOS PRINCIPAIS
+   --------------------------------------------------------- */
+
+html[data-theme="light"] .phanyx-whatsapp-page h1,
+html[data-theme="light"] .phanyx-whatsapp-page h2,
+html[data-theme="light"] .phanyx-whatsapp-page h3 {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-whatsapp-page p {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+/* Sobrescreve dark:text-white que estiver vazando no claro */
+html[data-theme="light"]
+  .phanyx-whatsapp-page
+  .dark\:text-white {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-whatsapp-page
+  .dark\:text-slate-300,
+html[data-theme="light"]
+  .phanyx-whatsapp-page
+  .dark\:text-slate-200,
+html[data-theme="light"]
+  .phanyx-whatsapp-page
+  .dark\:text-slate-400 {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+}
+
+/* ---------------------------------------------------------
+   CARDS PRINCIPAIS
+   --------------------------------------------------------- */
+
+html[data-theme="light"]
+  .phanyx-whatsapp-page
+  section {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border-color: #d7dde5 !important;
+  color: #0f172a !important;
+}
+
+/* Neutraliza os dark:bg-* que estão ficando azul-marinho */
+html[data-theme="light"]
+  .phanyx-whatsapp-page
+  .dark\:bg-slate-950,
+html[data-theme="light"]
+  .phanyx-whatsapp-page
+  .dark\:bg-slate-900 {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+}
+
+/* ---------------------------------------------------------
+   CARDS INTERNOS DE INFORMAÇÃO
+   Nome comercial, número, webhook etc.
+   --------------------------------------------------------- */
+
+html[data-theme="light"]
+  .phanyx-whatsapp-page
+  .bg-slate-50 {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  background-image: none !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+/* Importante: quando dark:bg-slate-900 vence no Tailwind */
+html[data-theme="light"]
+  .phanyx-whatsapp-page
+  .bg-slate-50.dark\:bg-slate-900 {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  background-image: none !important;
+}
+
+/* Textos dentro dos cards internos */
+html[data-theme="light"]
+  .phanyx-whatsapp-page
+  .bg-slate-50 p,
+html[data-theme="light"]
+  .phanyx-whatsapp-page
+  .bg-slate-50 strong {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-whatsapp-page
+  .bg-slate-50
+  .text-slate-500,
+html[data-theme="light"]
+  .phanyx-whatsapp-page
+  .bg-slate-50
+  .text-slate-600 {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+}
+
+/* ---------------------------------------------------------
+   RESUMO
+   --------------------------------------------------------- */
+
+html[data-theme="light"]
+  .phanyx-whatsapp-page
+  section
+  .dark\:bg-slate-900 {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  background-image: none !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* ---------------------------------------------------------
+   ÁREA DE AUTOMAÇÕES
+   --------------------------------------------------------- */
+
+html[data-theme="light"]
+  .phanyx-whatsapp-page
+  label {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-whatsapp-page
+  label.bg-white {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-whatsapp-page
+  label.bg-slate-50 {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* ---------------------------------------------------------
+   CARD SEGURANÇA
+   --------------------------------------------------------- */
+
+html[data-theme="light"]
+  .phanyx-whatsapp-page
+  section.bg-slate-50 {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  background-image: none !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* ---------------------------------------------------------
+   BORDAS
+   --------------------------------------------------------- */
+
+html[data-theme="light"]
+  .phanyx-whatsapp-page
+  .border-slate-200,
+html[data-theme="light"]
+  .phanyx-whatsapp-page
+  .dark\:border-slate-700 {
+  border-color: #d7dde5 !important;
+}
+
+/* ---------------------------------------------------------
+   STATUS "NÃO CONECTADO"
+   --------------------------------------------------------- */
+
+html[data-theme="light"]
+  .phanyx-whatsapp-page
+  .border-slate-300.bg-white {
+  background: #ffffff !important;
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+}
+
+/* ---------------------------------------------------------
+   STATUS CONECTADO
+   Verde continua permitido
+   --------------------------------------------------------- */
+
+html[data-theme="light"]
+  .phanyx-whatsapp-page
+  .bg-emerald-50 {
+  background: #ecfdf5 !important;
+  color: #047857 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-whatsapp-page
+  .bg-emerald-50 * {
+  color: #047857 !important;
+  -webkit-text-fill-color: #047857 !important;
+}
+
+/* ---------------------------------------------------------
+   BOTÃO CONECTAR
+   Verde WhatsApp continua
+   --------------------------------------------------------- */
+
+html[data-theme="light"]
+  .phanyx-whatsapp-page
+  button.bg-emerald-600 {
+  background: #059669 !important;
+  background-color: #059669 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="light"]
+  .phanyx-whatsapp-page
+  button.bg-emerald-600:hover {
+  background: #047857 !important;
+  background-color: #047857 !important;
+}
+
+/* ---------------------------------------------------------
+   BOTÃO SALVAR
+   Grafite, nunca azul
+   --------------------------------------------------------- */
+
+html[data-theme="light"]
+  .phanyx-whatsapp-page
+  button.bg-slate-900 {
+  background: #111827 !important;
+  background-color: #111827 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="light"]
+  .phanyx-whatsapp-page
+  button.bg-slate-900:hover:not(:disabled) {
+  background: #1f2937 !important;
+  background-color: #1f2937 !important;
+}
+
+/* ---------------------------------------------------------
+   ELEMENTOS DESABILITADOS
+   --------------------------------------------------------- */
+
+html[data-theme="light"]
+  .phanyx-whatsapp-page
+  input:disabled,
+html[data-theme="light"]
+  .phanyx-whatsapp-page
+  button:disabled {
+  opacity: 0.55 !important;
+}
