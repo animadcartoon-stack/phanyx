@@ -239,6 +239,10 @@ model Instituicao {
   bibliotecaRenovacoes  BibliotecaRenovacao[]
   bibliotecaReservas    BibliotecaReserva[]
 
+  bibliotecaPrateleiras       BibliotecaPrateleira[]
+  bibliotecaFavoritos         BibliotecaFavorito[]
+  bibliotecaProgressosLeitura BibliotecaProgressoLeitura[]
+
   @@index([redeInstitucionalId])
   @@index([redeInstitucionalId, ativo])
 }
@@ -444,6 +448,13 @@ model User {
   bibliotecaReservasCriadas    BibliotecaReserva[] @relation("BibliotecaReservaCriadaPor")
   bibliotecaReservasAtendidas  BibliotecaReserva[] @relation("BibliotecaReservaAtendidaPor")
   bibliotecaReservasCanceladas BibliotecaReserva[] @relation("BibliotecaReservaCanceladaPor")
+
+  bibliotecaPrateleirasProprias        BibliotecaPrateleira[]       @relation("BibliotecaPrateleiraProprietario")
+  bibliotecaPrateleirasCriadas         BibliotecaPrateleira[]       @relation("BibliotecaPrateleiraCriadaPor")
+  bibliotecaPrateleirasAtualizadas     BibliotecaPrateleira[]       @relation("BibliotecaPrateleiraAtualizadaPor")
+  bibliotecaItensPrateleiraAdicionados BibliotecaPrateleiraItem[]   @relation("BibliotecaPrateleiraItemAdicionadoPor")
+  bibliotecaFavoritos                  BibliotecaFavorito[]
+  bibliotecaProgressosLeitura          BibliotecaProgressoLeitura[]
 
   @@unique([id, instituicaoId])
   @@index([instituicaoId])
@@ -5694,6 +5705,10 @@ model BibliotecaItem {
   licencas   BibliotecaLicenca[]
   exemplares BibliotecaExemplar[]
 
+  prateleiras       BibliotecaPrateleiraItem[]
+  favoritos         BibliotecaFavorito[]
+  progressosLeitura BibliotecaProgressoLeitura[]
+
   @@unique([instituicaoId, slug])
   @@unique([id, instituicaoId])
   @@index([instituicaoId])
@@ -5877,6 +5892,8 @@ model BibliotecaArquivo {
 
   enviadoPor   User? @relation("BibliotecaArquivoEnviadoPor", fields: [enviadoPorId], references: [id], onDelete: SetNull)
   arquivadoPor User? @relation("BibliotecaArquivoArquivadoPor", fields: [arquivadoPorId], references: [id], onDelete: SetNull)
+
+  progressosLeitura BibliotecaProgressoLeitura[]
 
   @@unique([id, instituicaoId])
   @@unique([instituicaoId, itemId, versao])
@@ -6423,6 +6440,123 @@ model BibliotecaReserva {
   @@index([itemId, status, posicaoFila])
   @@index([reservadaEm])
   @@index([expiraEm])
+}
+
+model BibliotecaPrateleira {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+
+  nome         String
+  descricao    String?                          @db.Text
+  tipo         TipoPrateleiraBiblioteca         @default(INSTITUCIONAL)
+  visibilidade VisibilidadePrateleiraBiblioteca @default(TODOS)
+
+  slug     String
+  capaUrl  String?
+  cor      String?
+  icone    String?
+  ordem    Int     @default(0)
+  destaque Boolean @default(false)
+  ativa    Boolean @default(true)
+
+  proprietarioId  Int?
+  criadoPorId     Int?
+  atualizadoPorId Int?
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  proprietario User? @relation("BibliotecaPrateleiraProprietario", fields: [proprietarioId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  criadoPor User? @relation("BibliotecaPrateleiraCriadaPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+
+  atualizadoPor User? @relation("BibliotecaPrateleiraAtualizadaPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
+
+  itens BibliotecaPrateleiraItem[]
+
+  @@unique([id, instituicaoId])
+  @@unique([instituicaoId, slug])
+  @@index([instituicaoId])
+  @@index([instituicaoId, ativa])
+  @@index([instituicaoId, tipo])
+  @@index([instituicaoId, visibilidade])
+  @@index([proprietarioId])
+  @@index([destaque])
+}
+
+model BibliotecaPrateleiraItem {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+  prateleiraId  Int
+  itemId        Int
+
+  ordem           Int      @default(0)
+  adicionadoEm    DateTime @default(now())
+  adicionadoPorId Int?
+
+  prateleira BibliotecaPrateleira @relation(fields: [prateleiraId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  item BibliotecaItem @relation(fields: [itemId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  adicionadoPor User? @relation("BibliotecaPrateleiraItemAdicionadoPor", fields: [adicionadoPorId], references: [id], onDelete: SetNull)
+
+  @@unique([instituicaoId, prateleiraId, itemId])
+  @@index([instituicaoId])
+  @@index([prateleiraId, ordem])
+  @@index([itemId])
+}
+
+model BibliotecaFavorito {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+  usuarioId     Int
+  itemId        Int
+
+  criadoEm DateTime @default(now())
+
+  usuario User @relation(fields: [usuarioId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  item        BibliotecaItem @relation(fields: [itemId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+  Instituicao Instituicao    @relation(fields: [instituicaoId], references: [id])
+
+  @@unique([instituicaoId, usuarioId, itemId])
+  @@index([instituicaoId])
+  @@index([usuarioId])
+  @@index([itemId])
+}
+
+model BibliotecaProgressoLeitura {
+  id            Int  @id @default(autoincrement())
+  instituicaoId Int
+  usuarioId     Int
+  itemId        Int
+  arquivoId     Int?
+
+  paginaAtual     Int?
+  totalPaginas    Int?
+  posicaoSegundos Int?
+  percentual      Decimal @default(0) @db.Decimal(5, 2)
+
+  iniciadoEm     DateTime  @default(now())
+  ultimoAcessoEm DateTime  @default(now())
+  concluidoEm    DateTime?
+  atualizadoEm   DateTime  @updatedAt
+
+  usuario User @relation(fields: [usuarioId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  item BibliotecaItem @relation(fields: [itemId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  arquivo     BibliotecaArquivo? @relation(fields: [arquivoId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+  Instituicao Instituicao        @relation(fields: [instituicaoId], references: [id])
+
+  @@unique([instituicaoId, usuarioId, itemId])
+  @@index([instituicaoId])
+  @@index([usuarioId])
+  @@index([itemId])
+  @@index([arquivoId])
+  @@index([instituicaoId, ultimoAcessoEm])
 }
 
 enum ModalidadeCertificado {
@@ -7312,4 +7446,20 @@ enum OrigemReservaBiblioteca {
   OPERADOR
   PROFESSOR
   SISTEMA
+}
+
+enum TipoPrateleiraBiblioteca {
+  INSTITUCIONAL
+  PESSOAL
+  DIDATICA
+  DESTAQUE
+  TEMATICA
+}
+
+enum VisibilidadePrateleiraBiblioteca {
+  PRIVADA
+  ALUNOS
+  PROFESSORES
+  FUNCIONARIOS
+  TODOS
 }

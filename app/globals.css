@@ -22461,3 +22461,228 @@ html:not(.dark):not([data-theme="dark"])
   .phanyx-motivo-observacao {
   color: #fcd34d !important;
 }
+
+/* =====================================================
+   PIPELINE COMERCIAL — TEMA CLARO
+   Impede que as variantes dark: sigam o tema do Windows
+   quando o PHANYX estiver explicitamente no modo claro.
+   ===================================================== */
+
+html[data-theme="light"] .phanyx-pipeline-page {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .bg-white,
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .dark\:bg-slate-950 {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+}
+
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .bg-slate-50,
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .dark\:bg-slate-900,
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .dark\:bg-slate-900\/40 {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  background-image: none !important;
+}
+
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .text-slate-950,
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .text-slate-900,
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .dark\:text-white,
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  h1,
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  h2,
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  h3,
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  h4 {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .text-slate-800,
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .text-slate-700 {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .text-slate-600,
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .text-slate-500,
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .text-slate-400,
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .dark\:text-slate-300,
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .dark\:text-slate-400 {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .border-slate-200,
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .dark\:border-slate-800 {
+  border-color: #e2e8f0 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .border-slate-300,
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .dark\:border-slate-700 {
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  input,
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  select {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  input::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+/* Botões de ação continuam brancos sobre o verde */
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  button.bg-emerald-600 {
+  background: #059669 !important;
+  background-color: #059669 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  button.bg-emerald-600:hover:not(:disabled) {
+  background: #047857 !important;
+  background-color: #047857 !important;
+}
+
+/* Restaura alertas e estados no claro quando dark: vazar do sistema */
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .dark\:bg-red-950 {
+  background: #fef2f2 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .dark\:border-red-900 {
+  border-color: #fca5a5 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .dark\:text-red-100 {
+  color: #991b1b !important;
+  -webkit-text-fill-color: #991b1b !important;
+}
+
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .dark\:bg-orange-950 {
+  background: #fff7ed !important;
+}
+
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .dark\:border-orange-900 {
+  border-color: #fdba74 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .dark\:text-orange-100 {
+  color: #9a3412 !important;
+  -webkit-text-fill-color: #9a3412 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .dark\:bg-amber-950 {
+  background: #fffbeb !important;
+}
+
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .dark\:border-amber-900 {
+  border-color: #fcd34d !important;
+}
+
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .dark\:text-amber-100 {
+  color: #78350f !important;
+  -webkit-text-fill-color: #78350f !important;
+}
+
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .dark\:bg-emerald-950 {
+  background: #ecfdf5 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .dark\:border-emerald-900 {
+  border-color: #6ee7b7 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .dark\:text-emerald-100 {
+  color: #065f46 !important;
+  -webkit-text-fill-color: #065f46 !important;
+}
