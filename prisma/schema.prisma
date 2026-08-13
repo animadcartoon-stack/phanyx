@@ -64,7 +64,7 @@ model Instituicao {
   aniversarioEnviarChatPadrao     Boolean @default(true)
   aniversarioEnviarWhatsappPadrao Boolean @default(false)
 
-  configuracaoEmail              ConfiguracaoEmailInstituicao?
+  configuracaoEmail ConfiguracaoEmailInstituicao?
 
   alternativas                   Alternativa[]
   ouvidoriasPhanyx               OuvidoriaPhanyx[]
@@ -217,6 +217,12 @@ model Instituicao {
   restricoesRematricula          RestricaoRematriculaAluno[]
   historicosRestricaoRematricula RestricaoRematriculaHistorico[]
 
+  modulosAdicionais      ModuloAdicionalInstituicao[]
+  bibliotecaConfiguracao BibliotecaConfiguracao?
+  bibliotecaOperadores   BibliotecaOperador[]
+  bibliotecaConsumos     BibliotecaConsumoArmazenamento[]
+  bibliotecaAuditorias   BibliotecaAuditoria[]
+
   @@index([redeInstitucionalId])
   @@index([redeInstitucionalId, ativo])
 }
@@ -368,6 +374,15 @@ model User {
   publicacoesCursosRedeCriadas     CursoPublicacaoRede[]           @relation("CursoPublicacaoPublicadoPor")
   publicacoesCursosRedeAtualizadas CursoPublicacaoRede[]           @relation("CursoPublicacaoAtualizadoPor")
   publicacoesCursosRedeRetiradas   CursoPublicacaoRede[]           @relation("CursoPublicacaoRetiradoPor")
+
+  modulosAdicionaisBibliotecaCriados     ModuloAdicionalInstituicao[]     @relation("ModuloAdicionalCriadoPor")
+  modulosAdicionaisBibliotecaAtualizados ModuloAdicionalInstituicao[]     @relation("ModuloAdicionalAtualizadoPor")
+  bibliotecaConfiguracoesAtualizadas     BibliotecaConfiguracao[]         @relation("BibliotecaConfiguracaoAtualizadaPor")
+  bibliotecaOperadores                   BibliotecaOperador[]             @relation("BibliotecaOperadorUsuario")
+  bibliotecaOperadoresCriados            BibliotecaOperador[]             @relation("BibliotecaOperadorCriadoPor")
+  bibliotecaOperadoresRevogados          BibliotecaOperador[]             @relation("BibliotecaOperadorRevogadoPor")
+  bibliotecaConsumosRegistrados          BibliotecaConsumoArmazenamento[] @relation("BibliotecaConsumoRegistradoPor")
+  bibliotecaAuditoriasRealizadas         BibliotecaAuditoria[]            @relation("BibliotecaAuditoriaUsuario")
 
   @@index([instituicaoId])
   @@index([role])
@@ -1541,6 +1556,7 @@ model Funcionario {
   lancamentosComissaoRH                       LancamentoComissaoRH[]
   participacoesProgramasRemuneracaoVariavelRH ParticipanteProgramaRemuneracaoVariavelRH[]
   lancamentosRemuneracaoVariavelRH            LancamentoRemuneracaoVariavelRH[]
+  bibliotecaOperacoes                         BibliotecaOperador[]
 
   @@index([instituicaoId])
   @@index([departamentoId])
@@ -5259,8 +5275,8 @@ model WhatsAppMensagemEvento {
 }
 
 model ConfiguracaoEmailInstituicao {
-  id            Int      @id @default(autoincrement())
-  instituicaoId Int      @unique
+  id            Int @id @default(autoincrement())
+  instituicaoId Int @unique
 
   ativo  Boolean @default(false)
   host   String
@@ -5279,6 +5295,194 @@ model ConfiguracaoEmailInstituicao {
 
   @@index([instituicaoId])
   @@index([ativo])
+}
+
+model ModuloAdicionalInstituicao {
+  id            Int                   @id @default(autoincrement())
+  instituicaoId Int
+  tipo          TipoModuloAdicional
+  plano         String
+  status        StatusModuloAdicional @default(PENDENTE)
+
+  valorMensal Decimal @default(0) @db.Decimal(10, 2)
+
+  armazenamentoContratadoBytes BigInt @default(0)
+  armazenamentoExtraBytes      BigInt @default(0)
+
+  inicioEm          DateTime?
+  testeGratisFimEm  DateTime?
+  proximaCobrancaEm DateTime?
+  suspensoEm        DateTime?
+  canceladoEm       DateTime?
+
+  motivoSuspensao    String? @db.Text
+  motivoCancelamento String? @db.Text
+
+  asaasSubscriptionId String? @unique
+  asaasCustomerId     String?
+  asaasBillingType    String?
+  asaasCycle          String  @default("MONTHLY")
+
+  criadoPorId     Int?
+  atualizadoPorId Int?
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  criadoPor User? @relation("ModuloAdicionalCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+
+  atualizadoPor User? @relation("ModuloAdicionalAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
+
+  @@unique([instituicaoId, tipo])
+  @@index([instituicaoId])
+  @@index([tipo])
+  @@index([status])
+  @@index([instituicaoId, status])
+  @@index([asaasCustomerId])
+}
+
+model BibliotecaConfiguracao {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int @unique
+
+  nomeExibicao String  @default("Biblioteca Virtual")
+  descricao    String? @db.Text
+
+  permitirDownload          Boolean @default(false)
+  permitirAvaliacao         Boolean @default(true)
+  permitirFavoritos         Boolean @default(true)
+  permitirReserva           Boolean @default(true)
+  permitirRenovacao         Boolean @default(true)
+  permitirSugestaoAquisicao Boolean @default(true)
+
+  diasEmprestimoPadrao Int @default(7)
+  diasReservaPadrao    Int @default(2)
+  limiteRenovacoes     Int @default(1)
+  limiteEmprestimos    Int @default(3)
+
+  notificarVencimento       Boolean @default(true)
+  diasAvisoAntesVencimento  Int     @default(2)
+  bloquearAlunoComPendencia Boolean @default(false)
+
+  logoUrl             String?
+  bannerUrl           String?
+  corPrincipal        String?
+  termosUso           String? @db.Text
+  politicaPrivacidade String? @db.Text
+
+  armazenamentoUtilizadoBytes BigInt @default(0)
+
+  atualizadoPorId Int?
+  criadoEm        DateTime @default(now())
+  atualizadoEm    DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  atualizadoPor User? @relation("BibliotecaConfiguracaoAtualizadaPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
+
+  @@index([instituicaoId])
+}
+
+model BibliotecaOperador {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+  funcionarioId Int
+  usuarioId     Int
+
+  ativo Boolean @default(true)
+
+  podeCatalogar             Boolean @default(true)
+  podePublicar              Boolean @default(false)
+  podeArquivar              Boolean @default(false)
+  podeGerenciarEmprestimo   Boolean @default(true)
+  podeGerenciarReserva      Boolean @default(true)
+  podeGerenciarColecao      Boolean @default(true)
+  podeGerenciarLicenca      Boolean @default(false)
+  podeGerenciarOperador     Boolean @default(false)
+  podeVisualizarRelatorio   Boolean @default(true)
+  podeGerenciarConfiguracao Boolean @default(false)
+
+  criadoPorId     Int?
+  revogadoPorId   Int?
+  criadoEm        DateTime  @default(now())
+  atualizadoEm    DateTime  @updatedAt
+  revogadoEm      DateTime?
+  motivoRevogacao String?   @db.Text
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  funcionario Funcionario @relation(fields: [funcionarioId], references: [id], onDelete: Restrict)
+
+  usuario User @relation("BibliotecaOperadorUsuario", fields: [usuarioId], references: [id], onDelete: Restrict)
+
+  criadoPor User? @relation("BibliotecaOperadorCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+
+  revogadoPor User? @relation("BibliotecaOperadorRevogadoPor", fields: [revogadoPorId], references: [id], onDelete: SetNull)
+
+  @@unique([instituicaoId, usuarioId])
+  @@unique([instituicaoId, funcionarioId])
+  @@index([instituicaoId])
+  @@index([funcionarioId])
+  @@index([usuarioId])
+  @@index([instituicaoId, ativo])
+}
+
+model BibliotecaConsumoArmazenamento {
+  id            BigInt @id @default(autoincrement())
+  instituicaoId Int
+
+  tipoMovimento       TipoMovimentoArmazenamento
+  quantidadeBytes     BigInt
+  saldoAnteriorBytes  BigInt
+  saldoPosteriorBytes BigInt
+
+  arquivoReferenciaId String?
+  arquivoNomeSnapshot String?
+  motivo              String? @db.Text
+
+  registradoPorId Int?
+  registradoEm    DateTime @default(now())
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  registradoPor User? @relation("BibliotecaConsumoRegistradoPor", fields: [registradoPorId], references: [id], onDelete: SetNull)
+
+  @@index([instituicaoId])
+  @@index([instituicaoId, registradoEm])
+  @@index([tipoMovimento])
+  @@index([arquivoReferenciaId])
+}
+
+model BibliotecaAuditoria {
+  id            BigInt @id @default(autoincrement())
+  instituicaoId Int
+  usuarioId     Int?
+
+  entidade   String
+  entidadeId String?
+  acao       AcaoAuditoriaBiblioteca
+  descricao  String?                 @db.Text
+
+  dadosAnteriores  Json?
+  dadosPosteriores Json?
+  metadados        Json?
+
+  ip        String?
+  userAgent String? @db.Text
+
+  criadoEm DateTime @default(now())
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  usuario User? @relation("BibliotecaAuditoriaUsuario", fields: [usuarioId], references: [id], onDelete: SetNull)
+
+  @@index([instituicaoId])
+  @@index([usuarioId])
+  @@index([entidade, entidadeId])
+  @@index([acao])
+  @@index([instituicaoId, criadoEm])
 }
 
 enum ModalidadeCertificado {
@@ -5896,4 +6100,44 @@ enum TipoComunicacaoWhatsApp {
   CORRECAO_PONTO_FUNCIONARIO
 
   OUTRO
+}
+
+enum TipoModuloAdicional {
+  BIBLIOTECA_VIRTUAL
+}
+
+enum StatusModuloAdicional {
+  PENDENTE
+  TESTE_GRATIS
+  ATIVO
+  EM_ATRASO
+  SUSPENSO
+  CANCELADO
+}
+
+enum TipoMovimentoArmazenamento {
+  UPLOAD
+  SUBSTITUICAO
+  EXCLUSAO
+  RESTAURACAO
+  AJUSTE
+}
+
+enum AcaoAuditoriaBiblioteca {
+  CRIAR
+  VISUALIZAR
+  ATUALIZAR
+  PUBLICAR
+  ARQUIVAR
+  RESTAURAR
+  EXCLUIR
+  BAIXAR
+  EMPRESTAR
+  RENOVAR
+  RESERVAR
+  DEVOLVER
+  CANCELAR
+  CONFIGURAR
+  CONCEDER_ACESSO
+  REVOGAR_ACESSO
 }
