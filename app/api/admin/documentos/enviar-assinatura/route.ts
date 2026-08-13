@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
-import { enviarEmailAssinaturaContrato } from "@/lib/email";
+import {
+  enviarEmailAssinaturaContratoInstitucional,
+} from "@/lib/email";
 
 export async function POST(req: Request) {
   try {
@@ -88,7 +90,8 @@ export async function POST(req: Request) {
 
     const linkAssinatura = `${baseUrl}/assinatura/${tokenAssinatura}`;
 
-    await enviarEmailAssinaturaContrato({
+    await enviarEmailAssinaturaContratoInstitucional({
+      instituicaoId: user.instituicaoId!,
       email: emailAluno,
       nome: contrato.aluno.nome,
       instituicao: contrato.instituicao.nome,

@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { getUserFromToken, isAdminLike } from "@/lib/server-auth";
-import { enviarEmailPrimeiroAcesso } from "@/lib/email";
+import { enviarEmailPrimeiroAcessoInstitucional } from "@/lib/email";
 
 function limparTexto(valor: unknown) {
   return String(valor ?? "").trim();
@@ -425,135 +425,135 @@ export async function POST(request: Request) {
     }
 
     if (!dataNascimento) {
-  return NextResponse.json(
-    {
-      error:
-        "A data de nascimento do aluno é obrigatória.",
-    },
-    {
-      status: 400,
+      return NextResponse.json(
+        {
+          error:
+            "A data de nascimento do aluno é obrigatória.",
+        },
+        {
+          status: 400,
+        }
+      );
     }
-  );
-}
 
-const idadeCadastro =
-  calcularIdadeCadastro(
-    dataNascimento
-  );
+    const idadeCadastro =
+      calcularIdadeCadastro(
+        dataNascimento
+      );
 
-if (
-  idadeCadastro < 0 ||
-  idadeCadastro > 120
-) {
-  return NextResponse.json(
-    {
-      error:
-        "A data de nascimento informada é inválida.",
-    },
-    {
-      status: 400,
+    if (
+      idadeCadastro < 0 ||
+      idadeCadastro > 120
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "A data de nascimento informada é inválida.",
+        },
+        {
+          status: 400,
+        }
+      );
     }
-  );
-}
 
-const alunoMenorCadastro =
-  idadeCadastro < 18;
+    const alunoMenorCadastro =
+      idadeCadastro < 18;
 
-const pendenciasResponsavel =
-  alunoMenorCadastro
-    ? camposResponsavelPendentes(
-        body
-      )
-    : [];
+    const pendenciasResponsavel =
+      alunoMenorCadastro
+        ? camposResponsavelPendentes(
+          body
+        )
+        : [];
 
-const responsavelIncompleto =
-  alunoMenorCadastro &&
-  pendenciasResponsavel.length > 0;
+    const responsavelIncompleto =
+      alunoMenorCadastro &&
+      pendenciasResponsavel.length > 0;
 
-if (
-  alunoMenorCadastro &&
-  body.confirmacaoMenorCadastroAceita !==
-    true
-) {
-  return NextResponse.json(
-    {
-      codigo:
-        "CONFIRMACAO_MENOR_CADASTRO_NECESSARIA",
+    if (
+      alunoMenorCadastro &&
+      body.confirmacaoMenorCadastroAceita !==
+      true
+    ) {
+      return NextResponse.json(
+        {
+          codigo:
+            "CONFIRMACAO_MENOR_CADASTRO_NECESSARIA",
 
-      error:
-        responsavelIncompleto
-          ? `O aluno possui ${idadeCadastro} ano(s) e os dados do responsável estão incompletos.`
-          : `O aluno possui ${idadeCadastro} ano(s) e ainda não atingiu a idade adulta.`,
+          error:
+            responsavelIncompleto
+              ? `O aluno possui ${idadeCadastro} ano(s) e os dados do responsável estão incompletos.`
+              : `O aluno possui ${idadeCadastro} ano(s) e ainda não atingiu a idade adulta.`,
 
-      idade: idadeCadastro,
+          idade: idadeCadastro,
 
-      responsavelIncompleto,
+          responsavelIncompleto,
 
-      camposResponsavelPendentes:
-        pendenciasResponsavel,
-    },
-    {
-      status: 409,
+          camposResponsavelPendentes:
+            pendenciasResponsavel,
+        },
+        {
+          status: 409,
+        }
+      );
     }
-  );
-}
 
     const userExistente = await prisma.user.findUnique({
-  where: {
-    email,
-  },
-  select: {
-    id: true,
-    instituicaoId: true,
-
-    aluno: {
+      where: {
+        email,
+      },
       select: {
         id: true,
-        nome: true,
-        statusAluno: true,
-      },
-    },
-  },
-});
-
-if (userExistente) {
-  const alunoExistente =
-    userExistente.aluno;
-
-  const pertenceMesmaInstituicao =
-    userExistente.instituicaoId ===
-    user.instituicaoId;
-
-  if (
-    pertenceMesmaInstituicao &&
-    alunoExistente
-  ) {
-    return NextResponse.json(
-      {
-        codigo: "ALUNO_EXISTENTE",
-        error:
-          "Já existe um aluno com este e-mail nesta instituição.",
-        campo: "EMAIL",
+        instituicaoId: true,
 
         aluno: {
-          id: alunoExistente.id,
-          nome: alunoExistente.nome,
-          statusAluno:
-            alunoExistente.statusAluno,
+          select: {
+            id: true,
+            nome: true,
+            statusAluno: true,
+          },
         },
       },
-      { status: 409 }
-    );
-  }
+    });
 
-  return NextResponse.json(
-    {
-      error:
-        "Este e-mail já está cadastrado no PHANYX.",
-    },
-    { status: 400 }
-  );
-}
+    if (userExistente) {
+      const alunoExistente =
+        userExistente.aluno;
+
+      const pertenceMesmaInstituicao =
+        userExistente.instituicaoId ===
+        user.instituicaoId;
+
+      if (
+        pertenceMesmaInstituicao &&
+        alunoExistente
+      ) {
+        return NextResponse.json(
+          {
+            codigo: "ALUNO_EXISTENTE",
+            error:
+              "Já existe um aluno com este e-mail nesta instituição.",
+            campo: "EMAIL",
+
+            aluno: {
+              id: alunoExistente.id,
+              nome: alunoExistente.nome,
+              statusAluno:
+                alunoExistente.statusAluno,
+            },
+          },
+          { status: 409 }
+        );
+      }
+
+      return NextResponse.json(
+        {
+          error:
+            "Este e-mail já está cadastrado no PHANYX.",
+        },
+        { status: 400 }
+      );
+    }
 
     if (matriculaInformada) {
       const matriculaExistente = await prisma.aluno.findFirst({
@@ -574,38 +574,38 @@ if (userExistente) {
 
     if (cpf) {
       const cpfExistente =
-  await prisma.aluno.findFirst({
-    where: {
-      instituicaoId:
-        user.instituicaoId,
-      cpf,
-    },
+        await prisma.aluno.findFirst({
+          where: {
+            instituicaoId:
+              user.instituicaoId,
+            cpf,
+          },
 
-    select: {
-      id: true,
-      nome: true,
-      statusAluno: true,
-    },
-  });
+          select: {
+            id: true,
+            nome: true,
+            statusAluno: true,
+          },
+        });
 
-if (cpfExistente) {
-  return NextResponse.json(
-    {
-      codigo: "ALUNO_EXISTENTE",
-      error:
-        "Já existe um aluno com este CPF nesta instituição.",
-      campo: "CPF",
+      if (cpfExistente) {
+        return NextResponse.json(
+          {
+            codigo: "ALUNO_EXISTENTE",
+            error:
+              "Já existe um aluno com este CPF nesta instituição.",
+            campo: "CPF",
 
-      aluno: {
-        id: cpfExistente.id,
-        nome: cpfExistente.nome,
-        statusAluno:
-          cpfExistente.statusAluno,
-      },
-    },
-    { status: 409 }
-  );
-}
+            aluno: {
+              id: cpfExistente.id,
+              nome: cpfExistente.nome,
+              statusAluno:
+                cpfExistente.statusAluno,
+            },
+          },
+          { status: 409 }
+        );
+      }
     }
 
     if (poloId !== null) {
@@ -724,7 +724,8 @@ if (cpfExistente) {
     let avisoEmail: string | null = null;
 
     try {
-      await enviarEmailPrimeiroAcesso({
+      await enviarEmailPrimeiroAcessoInstitucional({
+        instituicaoId: user.instituicaoId!,
         email,
         nome,
         senha: senhaTemporaria,

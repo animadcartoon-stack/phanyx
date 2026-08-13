@@ -64,6 +64,8 @@ model Instituicao {
   aniversarioEnviarChatPadrao     Boolean @default(true)
   aniversarioEnviarWhatsappPadrao Boolean @default(false)
 
+  configuracaoEmail              ConfiguracaoEmailInstituicao?
+
   alternativas                   Alternativa[]
   ouvidoriasPhanyx               OuvidoriaPhanyx[]
   alunos                         Aluno[]
@@ -180,15 +182,21 @@ model Instituicao {
   EntregaAtividadeHistorico                   EntregaAtividadeHistorico[]
   documentosProfessor                         DocumentoProfessor[]
   notificacoes                                Notificacao[]
-  substituicoesDocentes                       SubstituicaoDocente[]
-  preferenciasAgendaOperacional               PreferenciaAgendaOperacional[]
-  crachaModelos                               CrachaModelo[]
-  crachasEmitidos                             CrachaEmitido[]
-  CrachaLoteEmissao                           CrachaLoteEmissao[]
-  visitantes                                  Visitante[]
-  leadsGerenciados                            Lead[]                                      @relation("LeadInstituicaoGestora")
-  leadsComoInteressada                        Lead[]                                      @relation("LeadInstituicaoInteressada")
-  interacoesLead                              LeadInteracao[]                             @relation("LeadInteracaoInstituicao")
+
+  whatsappIntegracao    WhatsAppInstituicao?
+  whatsappTemplates     WhatsAppTemplate[]
+  whatsappMensagens     WhatsAppMensagem[]
+  whatsappConfiguracoes WhatsAppConfiguracaoComunicacao[]
+
+  substituicoesDocentes         SubstituicaoDocente[]
+  preferenciasAgendaOperacional PreferenciaAgendaOperacional[]
+  crachaModelos                 CrachaModelo[]
+  crachasEmitidos               CrachaEmitido[]
+  CrachaLoteEmissao             CrachaLoteEmissao[]
+  visitantes                    Visitante[]
+  leadsGerenciados              Lead[]                         @relation("LeadInstituicaoGestora")
+  leadsComoInteressada          Lead[]                         @relation("LeadInstituicaoInteressada")
+  interacoesLead                LeadInteracao[]                @relation("LeadInteracaoInstituicao")
 
   regraLiberacaoCertificado      String                           @default("CURSO_COMPLETO")
   mediaMinimaCertificado         Float                            @default(7)
@@ -248,10 +256,11 @@ model User {
   acessoTodosPolos   Boolean      @default(true)
   instituicao        Instituicao  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
 
-  cursosCriados   Curso[]       @relation("CursoCriadoPor")
-  cursosExcluidos Curso[]       @relation("CursoExcluidoPor")
-  CreditoIA       CreditoIA?
-  notificacoes    Notificacao[]
+  cursosCriados     Curso[]            @relation("CursoCriadoPor")
+  cursosExcluidos   Curso[]            @relation("CursoExcluidoPor")
+  CreditoIA         CreditoIA?
+  notificacoes      Notificacao[]
+  whatsappMensagens WhatsAppMensagem[]
 
   autorizacoesCorrecaoPontoRH AutorizacaoCorrecaoPontoRH[] @relation("AutorizacaoCorrecaoPontoRHAutorizadoPor")
 
@@ -5078,6 +5087,200 @@ model InstituicaoLogo {
   @@index([instituicaoId, principal])
 }
 
+model WhatsAppInstituicao {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int @unique
+
+  ativo     Boolean @default(false)
+  conectado Boolean @default(false)
+
+  // Dados exibidos no PHANYX
+  numeroTelefone String?
+  numeroExibicao String?
+  nomeExibicao   String?
+
+  // Identificadores fornecidos pela Meta
+  phoneNumberId      String?
+  whatsappBusinessId String?
+  metaBusinessId     String?
+
+  // Nunca armazenar token Meta em texto puro.
+  tokenAcessoCriptografado String? @db.Text
+
+  tokenExpiraEm DateTime?
+
+  webhookAtivo Boolean @default(false)
+
+  conectadoEm           DateTime?
+  desconectadoEm        DateTime?
+  ultimaSincronizacaoEm DateTime?
+  ultimaFalhaEm         DateTime?
+  ultimaFalhaMensagem   String?   @db.Text
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  templates WhatsAppTemplate[]
+  mensagens WhatsAppMensagem[]
+
+  @@index([ativo])
+  @@index([conectado])
+}
+
+model WhatsAppTemplate {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+
+  whatsappInstituicaoId Int?
+
+  nome     String
+  nomeMeta String?
+
+  tipoComunicacao TipoComunicacaoWhatsApp
+
+  idioma String @default("pt_BR")
+
+  categoriaMeta String?
+  statusMeta    String?
+
+  titulo String?
+  corpo  String  @db.Text
+  rodape String?
+
+  aprovadoMeta Boolean @default(false)
+  ativo        Boolean @default(true)
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  whatsappInstituicao WhatsAppInstituicao? @relation(fields: [whatsappInstituicaoId], references: [id], onDelete: SetNull)
+
+  mensagens WhatsAppMensagem[]
+
+  @@index([instituicaoId])
+  @@index([whatsappInstituicaoId])
+  @@index([tipoComunicacao])
+  @@index([ativo])
+  @@index([aprovadoMeta])
+}
+
+model WhatsAppConfiguracaoComunicacao {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+
+  tipoComunicacao TipoComunicacaoWhatsApp
+
+  ativo Boolean @default(false)
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  @@unique([instituicaoId, tipoComunicacao])
+  @@index([instituicaoId])
+  @@index([tipoComunicacao])
+  @@index([ativo])
+}
+
+model WhatsAppMensagem {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+
+  whatsappInstituicaoId Int?
+  templateId            Int?
+  usuarioId             Int?
+
+  tipoComunicacao TipoComunicacaoWhatsApp
+  status          StatusWhatsAppMensagem  @default(PENDENTE)
+
+  telefoneDestinatario String
+  nomeDestinatario     String?
+
+  mensagem String? @db.Text
+
+  parametros Json?
+
+  metaMessageId String? @unique
+
+  tentativa Int @default(0)
+
+  erroCodigo   String?
+  erroMensagem String? @db.Text
+
+  criadaEm     DateTime  @default(now())
+  processadaEm DateTime?
+  enviadaEm    DateTime?
+  entregueEm   DateTime?
+  lidaEm       DateTime?
+  falhouEm     DateTime?
+
+  atualizadoEm DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  whatsappInstituicao WhatsAppInstituicao? @relation(fields: [whatsappInstituicaoId], references: [id], onDelete: SetNull)
+
+  template WhatsAppTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+
+  usuario User? @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
+
+  eventos WhatsAppMensagemEvento[]
+
+  @@index([instituicaoId])
+  @@index([whatsappInstituicaoId])
+  @@index([templateId])
+  @@index([usuarioId])
+  @@index([tipoComunicacao])
+  @@index([status])
+  @@index([criadaEm])
+}
+
+model WhatsAppMensagemEvento {
+  id Int @id @default(autoincrement())
+
+  mensagemId Int
+
+  status StatusWhatsAppMensagem
+
+  payload Json?
+
+  recebidoEm DateTime @default(now())
+
+  mensagem WhatsAppMensagem @relation(fields: [mensagemId], references: [id], onDelete: Cascade)
+
+  @@index([mensagemId])
+  @@index([status])
+  @@index([recebidoEm])
+}
+
+model ConfiguracaoEmailInstituicao {
+  id            Int      @id @default(autoincrement())
+  instituicaoId Int      @unique
+
+  ativo  Boolean @default(false)
+  host   String
+  port   Int
+  secure Boolean @default(true)
+
+  usuario            String
+  senhaCriptografada String
+  remetenteNome      String?
+  remetenteEmail     String
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  @@index([instituicaoId])
+  @@index([ativo])
+}
+
 enum ModalidadeCertificado {
   GERAL
   BACHARELADO
@@ -5656,4 +5859,41 @@ enum StatusPublicacaoCursoRede {
   ATIVA
   SUSPENSA
   RETIRADA
+}
+
+enum StatusWhatsAppMensagem {
+  PENDENTE
+  PROCESSANDO
+  ENVIADA
+  ENTREGUE
+  LIDA
+  FALHOU
+  CANCELADA
+}
+
+enum TipoComunicacaoWhatsApp {
+  REUNIAO_CRIADA
+  REUNIAO_ALTERADA
+  REUNIAO_CANCELADA
+  REUNIAO_LEMBRETE
+
+  OUVIDORIA_RESPONDIDA
+
+  MENSAGEM_ALUNO_PARA_PROFESSOR
+  MENSAGEM_PROFESSOR_PARA_ALUNO
+
+  ATIVIDADE_PUBLICADA
+  PROVA_PUBLICADA
+
+  DOCUMENTO_DISPONIVEL
+
+  AVISO_ACADEMICO
+
+  MENSALIDADE_VENCENDO
+  MENSALIDADE_VENCIDA
+  PAGAMENTO_CONFIRMADO
+
+  CORRECAO_PONTO_FUNCIONARIO
+
+  OUTRO
 }

@@ -7,7 +7,7 @@ import {
 import { TipoRemuneracaoRH } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
-import { enviarEmailPrimeiroAcesso } from "@/lib/email";
+import { enviarEmailPrimeiroAcessoInstitucional } from "@/lib/email";
 
 function limparTexto(valor: unknown) {
   return String(valor ?? "").trim();
@@ -1509,7 +1509,8 @@ export async function PUT(
       senhaTemporaria
     ) {
       try {
-        await enviarEmailPrimeiroAcesso({
+        await enviarEmailPrimeiroAcessoInstitucional({
+          instituicaoId: user.instituicaoId!,
           email,
           nome,
           senha: senhaTemporaria,

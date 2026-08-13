@@ -7,7 +7,7 @@ import {
 } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
-import { enviarEmailPrimeiroAcesso } from "@/lib/email";
+import { enviarEmailPrimeiroAcessoInstitucional } from "@/lib/email";
 import {
   obterPoloAtivoVisivelParaInstituicao,
 } from "@/lib/polos-rede";
@@ -985,7 +985,8 @@ export async function POST(request: Request) {
       senhaTemporaria
     ) {
       try {
-        await enviarEmailPrimeiroAcesso({
+        await enviarEmailPrimeiroAcessoInstitucional({
+          instituicaoId: user.instituicaoId!,
           email,
           nome,
           senha: senhaTemporaria,

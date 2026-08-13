@@ -105,6 +105,7 @@ export default function AdminShell({
     if (pathname.startsWith("/admin/aniversariantes")) return "comunicacao";
 
     if (pathname.startsWith("/admin/configuracoes")) return "configuracoes";
+    if (pathname.startsWith("/admin/integracoes")) return "configuracoes";
     if (pathname.startsWith("/master")) return "master";
 
     return "academico";
@@ -486,6 +487,9 @@ export default function AdminShell({
 
   const podeVerAssinaturaPhanyx =
     usuarioAdmin || temPermissao("assinatura.ver");
+
+  const podeGerenciarEmailInstitucional =
+    podeAcessar("integracoes.email.gerenciar");
 
   function isActive(path: string) {
     if (path === "/admin") {
@@ -1289,6 +1293,17 @@ export default function AdminShell({
                         🖼️ Logos institucionais
                       </Link>
 
+                      {podeGerenciarEmailInstitucional && (
+                        <Link
+                          href="/admin/integracoes/email"
+                          className={getLinkClass(
+                            "/admin/integracoes/email"
+                          )}
+                        >
+                          📧 E-mail institucional
+                        </Link>
+                      )}
+
                       {podeGerenciarPolos && (
                         <Link
                           href="/admin/polos"
@@ -1673,6 +1688,14 @@ export default function AdminShell({
                     >
                       🖼️ Logos institucionais
                     </Link>
+                    {podeGerenciarEmailInstitucional && (
+                      <Link
+                        href="/admin/integracoes/email"
+                        className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                      >
+                        📧 E-mail institucional
+                      </Link>
+                    )}
                     {podeGerenciarPolos && (
                       <Link
                         href="/admin/polos"

@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
-import nodemailer from "nodemailer";
+import {
+  criarTransporterEmailInstituicao,
+  montarRemetenteEmail,
+} from "@/lib/email-instituicao/transporter";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -98,21 +101,6 @@ export async function POST(req: Request) {
       );
     }
 
-    if (
-      !process.env.SMTP_HOST ||
-      !process.env.SMTP_PORT ||
-      !process.env.SMTP_USER ||
-      !process.env.SMTP_PASS
-    ) {
-      return NextResponse.json(
-        {
-          error:
-            "Configuração SMTP incompleta. Verifique SMTP_HOST, SMTP_PORT, SMTP_USER e SMTP_PASS.",
-        },
-        { status: 500 }
-      );
-    }
-
     const baseUrl = new URL(req.url).origin;
     const cookieHeader = req.headers.get("cookie") || "";
 
@@ -153,22 +141,20 @@ export async function POST(req: Request) {
     const pdfBuffer = Buffer.from(await pdfRes.arrayBuffer());
     const excelBuffer = Buffer.from(await excelRes.arrayBuffer());
 
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT || 465),
-      secure: String(process.env.SMTP_SECURE || "true") === "true",
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
+    const {
+      transporter,
+      remetente,
+    } = await criarTransporterEmailInstituicao(
+      usuario.instituicaoId
+    );
 
     const nomeRelatorio = NOMES_RELATORIO[tipo] || "Relatório RH";
 
     await transporter.sendMail({
-      from:
-        process.env.SMTP_FROM ||
-        `PHANYX <${process.env.SMTP_USER}>`,
+      from: montarRemetenteEmail({
+        nome: remetente.nome,
+        email: remetente.email,
+      }),
       to: emailDestino,
       subject: assunto,
       text: `${mensagem}

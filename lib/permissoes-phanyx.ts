@@ -276,6 +276,17 @@ export const PERMISSOES_PHANYX = [
       "Permite configurar etapas, origens, regras, planos e parâmetros comerciais.",
   },
 
+    // =====================================================
+  // INTEGRAÇÕES
+  // =====================================================
+  {
+    chave: "integracoes.email.gerenciar",
+    nome: "Integrações - Gerenciar e-mail institucional",
+    descricao:
+      "Permite configurar, testar, ativar e alterar as credenciais SMTP utilizadas pela instituição para envio de e-mails pelo PHANYX.",
+  },
+
+
   // =====================================================
   // FINANCEIRO
   // =====================================================
