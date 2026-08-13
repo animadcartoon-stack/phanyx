@@ -285,20 +285,43 @@ function CardIndicador({
     );
 }
 
+function formatarDataInputLocal(
+    data: Date
+) {
+    const ano =
+        data.getFullYear();
+
+    const mes =
+        String(
+            data.getMonth() + 1
+        ).padStart(2, "0");
+
+    const dia =
+        String(
+            data.getDate()
+        ).padStart(2, "0");
+
+    return `${ano}-${mes}-${dia}`;
+}
+
 export default function RelatoriosComerciaisPage() {
     const hoje = useMemo(() => {
-        const data = new Date();
-
-        return data.toISOString().slice(0, 10);
+        return formatarDataInputLocal(
+            new Date()
+        );
     }, []);
 
-    const primeiroDiaMes = useMemo(() => {
-        const data = new Date();
+    const primeiroDiaMes =
+        useMemo(() => {
+            const data =
+                new Date();
 
-        data.setDate(1);
+            data.setDate(1);
 
-        return data.toISOString().slice(0, 10);
-    }, []);
+            return formatarDataInputLocal(
+                data
+            );
+        }, []);
 
     const [aba, setAba] =
         useState<Aba>("visao-geral");
@@ -502,57 +525,50 @@ export default function RelatoriosComerciaisPage() {
                     "CONCLUIDA",
                 ]);
 
-            const matriculasValidas =
-                dados.matriculas.filter(
-                    (matricula) =>
-                        statusValidos.has(
-                            String(
-                                matricula.status
-                            ).toUpperCase()
-                        )
-                );
+            function obterCurso(
+                cursoId: number | null,
+                cursoNome: string | null
+            ) {
+                const chave =
+                    cursoId != null
+                        ? String(cursoId)
+                        : "SEM_CURSO";
 
-            const totalMatriculasValidas =
-                matriculasValidas.length;
+                if (!mapa.has(chave)) {
+                    mapa.set(chave, {
+                        cursoId,
+
+                        cursoNome:
+                            cursoNome ||
+                            "Sem curso informado",
+
+                        matriculas: 0,
+                        leadsConvertidos: 0,
+                        cancelamentos: 0,
+
+                        valorVendido: 0,
+                        valorRecebido: 0,
+                        ticketMedio: 0,
+                        participacao: 0,
+                    });
+                }
+
+                return mapa.get(chave)!;
+            }
+
+            /*
+             * MATRÍCULAS E VALORES
+             */
 
             for (
                 const matricula of
                 dados.matriculas
             ) {
-                const chave =
-                    matricula.cursoId != null
-                        ? String(
-                            matricula.cursoId
-                        )
-                        : "SEM_CURSO";
-
-                if (!mapa.has(chave)) {
-                    mapa.set(chave, {
-                        cursoId:
-                            matricula.cursoId,
-
-                        cursoNome:
-                            matricula.cursoNome ||
-                            "Sem curso informado",
-
-                        matriculas: 0,
-
-                        leadsConvertidos: 0,
-
-                        cancelamentos: 0,
-
-                        valorVendido: 0,
-
-                        valorRecebido: 0,
-
-                        ticketMedio: 0,
-
-                        participacao: 0,
-                    });
-                }
-
                 const item =
-                    mapa.get(chave)!;
+                    obterCurso(
+                        matricula.cursoId,
+                        matricula.cursoNome
+                    );
 
                 const status =
                     String(
@@ -569,20 +585,20 @@ export default function RelatoriosComerciaisPage() {
                             matricula.valorVendido ||
                             0
                         );
-
-                    item.valorRecebido +=
-                        Number(
-                            matricula.valorRecebido ||
-                            0
-                        );
-
-                    if (
-                        matricula.leadId != null
-                    ) {
-                        item.leadsConvertidos +=
-                            1;
-                    }
                 }
+
+                /*
+                 * Recebido representa dinheiro
+                 * efetivamente registrado no ato,
+                 * mesmo que a matrícula tenha sido
+                 * cancelada posteriormente.
+                 */
+
+                item.valorRecebido +=
+                    Number(
+                        matricula.valorRecebido ||
+                        0
+                    );
 
                 if (
                     status === "CANCELADA"
@@ -590,6 +606,43 @@ export default function RelatoriosComerciaisPage() {
                     item.cancelamentos += 1;
                 }
             }
+
+            /*
+             * LEADS CONVERTIDOS
+             *
+             * Usa a mesma fonte oficial da aba Leads:
+             * lead.matriculaConvertida válida.
+             */
+
+            for (
+                const lead of
+                dados.leads
+            ) {
+                if (!lead.convertido) {
+                    continue;
+                }
+
+                const item =
+                    obterCurso(
+                        lead.cursoId,
+                        lead.cursoNome
+                    );
+
+                item.leadsConvertidos += 1;
+            }
+
+            const totalMatriculasValidas =
+                Array.from(
+                    mapa.values()
+                ).reduce(
+                    (
+                        total,
+                        item
+                    ) =>
+                        total +
+                        item.matriculas,
+                    0
+                );
 
             const resultado =
                 Array.from(
@@ -655,15 +708,28 @@ export default function RelatoriosComerciaisPage() {
                         );
                     }
 
-                    return (
-                        b.matriculas -
+                    if (
+                        b.matriculas !==
                         a.matriculas
+                    ) {
+                        return (
+                            b.matriculas -
+                            a.matriculas
+                        );
+                    }
+
+                    return a.cursoNome.localeCompare(
+                        b.cursoNome,
+                        "pt-BR"
                     );
                 }
             );
 
             return resultado;
-        }, [dados.matriculas]);
+        }, [
+            dados.matriculas,
+            dados.leads,
+        ]);
 
     const abas: Array<{
         id: Aba;

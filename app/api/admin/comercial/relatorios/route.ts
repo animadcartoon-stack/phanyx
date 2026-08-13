@@ -87,21 +87,14 @@ function inteiroPositivoOuNull(
     return numero;
 }
 
-function dataInicio(
+function partesDataValida(
     valor: string | null
 ) {
-    if (!valor) {
-        return null;
-    }
-
-    const partes =
-        valor.split("-").map(Number);
-
     if (
-        partes.length !== 3 ||
-        !partes[0] ||
-        !partes[1] ||
-        !partes[2]
+        !valor ||
+        !/^\d{4}-\d{2}-\d{2}$/.test(
+            valor
+        )
     ) {
         return null;
     }
@@ -110,19 +103,50 @@ function dataInicio(
         ano,
         mes,
         dia,
-    ] = partes;
+    ] = valor
+        .split("-")
+        .map(Number);
 
-    const data =
+    const validacao =
         new Date(
             Date.UTC(
                 ano,
                 mes - 1,
-                dia,
-                0,
-                0,
-                0,
-                0
+                dia
             )
+        );
+
+    if (
+        validacao.getUTCFullYear() !==
+        ano ||
+        validacao.getUTCMonth() !==
+        mes - 1 ||
+        validacao.getUTCDate() !==
+        dia
+    ) {
+        return null;
+    }
+
+    return {
+        ano,
+        mes,
+        dia,
+    };
+}
+
+function dataInicio(
+    valor: string | null
+) {
+    if (
+        !partesDataValida(valor) ||
+        !valor
+    ) {
+        return null;
+    }
+
+    const data =
+        new Date(
+            `${valor}T00:00:00.000-03:00`
         );
 
     return Number.isNaN(
@@ -135,39 +159,16 @@ function dataInicio(
 function dataFim(
     valor: string | null
 ) {
-    if (!valor) {
-        return null;
-    }
-
-    const partes =
-        valor.split("-").map(Number);
-
     if (
-        partes.length !== 3 ||
-        !partes[0] ||
-        !partes[1] ||
-        !partes[2]
+        !partesDataValida(valor) ||
+        !valor
     ) {
         return null;
     }
 
-    const [
-        ano,
-        mes,
-        dia,
-    ] = partes;
-
     const data =
         new Date(
-            Date.UTC(
-                ano,
-                mes - 1,
-                dia,
-                23,
-                59,
-                59,
-                999
-            )
+            `${valor}T23:59:59.999-03:00`
         );
 
     return Number.isNaN(
@@ -450,47 +451,62 @@ export async function GET(
                     cargo.id
             );
 
-        const vendedores =
+        const vendedoresElegiveis =
             cargoIds.length > 0
-                ? await prisma
-                    .funcionario
-                    .findMany({
-                        where: {
-                            instituicaoId,
-                            ativo: true,
+                ? await prisma.funcionario.findMany({
+                    where: {
+                        instituicaoId,
+                        ativo: true,
 
-                            statusFuncionario:
-                                "ATIVO",
+                        statusFuncionario:
+                            "ATIVO",
 
-                            cargoId: {
-                                in: cargoIds,
-                            },
-
-                            ...(vendedorId
-                                ? {
-                                    id:
-                                        vendedorId,
-                                }
-                                : {}),
+                        cargoId: {
+                            in: cargoIds,
                         },
+                    },
 
-                        select: {
-                            id: true,
-                            nome: true,
-                            cargo: true,
+                    select: {
+                        id: true,
+                        nome: true,
+                        cargo: true,
 
-                            departamento: {
-                                select: {
-                                    nome: true,
-                                },
+                        departamento: {
+                            select: {
+                                nome: true,
                             },
                         },
+                    },
 
-                        orderBy: {
-                            nome: "asc",
-                        },
-                    })
+                    orderBy: {
+                        nome: "asc",
+                    },
+                })
                 : [];
+
+        if (
+            vendedorId &&
+            !vendedoresElegiveis.some(
+                (vendedor) =>
+                    vendedor.id ===
+                    vendedorId
+            )
+        ) {
+            throw new ErroHttp(
+                400,
+                "O vendedor selecionado não está disponível para relatórios comerciais.",
+                "VENDEDOR_INVALIDO"
+            );
+        }
+
+        const vendedores =
+            vendedorId
+                ? vendedoresElegiveis.filter(
+                    (vendedor) =>
+                        vendedor.id ===
+                        vendedorId
+                )
+                : vendedoresElegiveis;
 
         /*
          * CURSOS E POLOS
@@ -1472,7 +1488,7 @@ export async function GET(
 
                 filtros: {
                     vendedores:
-                        vendedores.map(
+                        vendedoresElegiveis.map(
                             (vendedor) => ({
                                 id:
                                     vendedor.id,

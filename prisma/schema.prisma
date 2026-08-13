@@ -188,16 +188,21 @@ model Instituicao {
   whatsappMensagens     WhatsAppMensagem[]
   whatsappConfiguracoes WhatsAppConfiguracaoComunicacao[]
 
-  substituicoesDocentes         SubstituicaoDocente[]
-  preferenciasAgendaOperacional PreferenciaAgendaOperacional[]
-  crachaModelos                 CrachaModelo[]
-  crachasEmitidos               CrachaEmitido[]
-  CrachaLoteEmissao             CrachaLoteEmissao[]
-  visitantes                    Visitante[]
-  leadsGerenciados              Lead[]                         @relation("LeadInstituicaoGestora")
-  leadsComoInteressada          Lead[]                         @relation("LeadInstituicaoInteressada")
-  interacoesLead                LeadInteracao[]                @relation("LeadInteracaoInstituicao")
-
+  substituicoesDocentes          SubstituicaoDocente[]
+  preferenciasAgendaOperacional  PreferenciaAgendaOperacional[]
+  crachaModelos                  CrachaModelo[]
+  crachasEmitidos                CrachaEmitido[]
+  CrachaLoteEmissao              CrachaLoteEmissao[]
+  visitantes                     Visitante[]
+  leadsGerenciados               Lead[]                           @relation("LeadInstituicaoGestora")
+  leadsComoInteressada           Lead[]                           @relation("LeadInstituicaoInteressada")
+  interacoesLead                 LeadInteracao[]                  @relation("LeadInteracaoInstituicao")
+  funisComerciais                FunilComercial[]
+  etapasFunisComerciais          EtapaFunilComercial[]
+  motivosPerdaComerciais         MotivoPerdaComercial[]
+  movimentacoesFunilLead         LeadMovimentacaoFunil[]
+  transferenciasLead             LeadTransferencia[]
+  tarefasComerciais              TarefaComercial[]
   regraLiberacaoCertificado      String                           @default("CURSO_COMPLETO")
   mediaMinimaCertificado         Float                            @default(7)
   frequenciaMinimaCertificado    Float                            @default(75)
@@ -226,6 +231,9 @@ model Instituicao {
   bibliotecaAutores      BibliotecaAutor[]
   bibliotecaEditoras     BibliotecaEditora[]
   bibliotecaCategorias   BibliotecaCategoria[]
+  bibliotecaArquivos     BibliotecaArquivo[]
+  bibliotecaLicencas     BibliotecaLicenca[]
+  bibliotecaExemplares   BibliotecaExemplar[]
 
   @@index([redeInstitucionalId])
   @@index([redeInstitucionalId, ativo])
@@ -339,6 +347,9 @@ model User {
   leadsCriados                                         Lead[]                                      @relation("LeadCriadoPor")
   leadsAtualizados                                     Lead[]                                      @relation("LeadAtualizadoPor")
   interacoesLeadCriadas                                LeadInteracao[]                             @relation("LeadInteracaoCriadaPor")
+  leadsPerdidos                                        Lead[]                                      @relation("LeadPerdidoPor")
+  leadsArquivados                                      Lead[]                                      @relation("LeadArquivadoPor")
+  leadsRestaurados                                     Lead[]                                      @relation("LeadRestauradoPor")
   equipesComerciaisCriadas                             EquipeComercial[]                           @relation("EquipeComercialCriadaPor")
   equipesComerciaisAtualizadas                         EquipeComercial[]                           @relation("EquipeComercialAtualizadaPor")
   membrosEquipesComerciaisCriados                      EquipeComercialMembro[]                     @relation("EquipeComercialMembroCriadoPor")
@@ -358,6 +369,26 @@ model User {
   impersonacoesComoMaster                              ImpersonacaoSuporte[]                       @relation("ImpersonacaoSuporteMaster")
   impersonacoesComoAlvo                                ImpersonacaoSuporte[]                       @relation("ImpersonacaoSuporteAlvo")
   rematriculasAnalisadas                               RematriculaSemestral[]                      @relation("RematriculaAnalisadaPor")
+  funisComerciaisCriados                               FunilComercial[]                            @relation("FunilComercialCriadoPor")
+  funisComerciaisAtualizados                           FunilComercial[]                            @relation("FunilComercialAtualizadoPor")
+  funisComerciaisArquivados                            FunilComercial[]                            @relation("FunilComercialArquivadoPor")
+  funisComerciaisRestaurados                           FunilComercial[]                            @relation("FunilComercialRestauradoPor")
+  movimentacoesFunilLeadRealizadas                     LeadMovimentacaoFunil[]                     @relation("LeadMovimentacaoRealizadaPor")
+  transferenciasLeadRealizadas                         LeadTransferencia[]                         @relation("LeadTransferenciaRealizadaPor")
+
+  tarefasComerciaisCriadas         TarefaComercial[]     @relation("TarefaComercialCriadaPor")
+  tarefasComerciaisAtualizadas     TarefaComercial[]     @relation("TarefaComercialAtualizadaPor")
+  tarefasComerciaisConcluidas      TarefaComercial[]     @relation("TarefaComercialConcluidaPor")
+  tarefasComerciaisCanceladas      TarefaComercial[]     @relation("TarefaComercialCanceladaPor")
+  etapasFunisComerciaisCriadas     EtapaFunilComercial[] @relation("EtapaFunilComercialCriadaPor")
+  etapasFunisComerciaisAtualizadas EtapaFunilComercial[] @relation("EtapaFunilComercialAtualizadaPor")
+  etapasFunisComerciaisArquivadas  EtapaFunilComercial[] @relation("EtapaFunilComercialArquivadaPor")
+  etapasFunisComerciaisRestauradas EtapaFunilComercial[] @relation("EtapaFunilComercialRestauradaPor")
+
+  motivosPerdaComerciaisCriados     MotivoPerdaComercial[] @relation("MotivoPerdaComercialCriadoPor")
+  motivosPerdaComerciaisAtualizados MotivoPerdaComercial[] @relation("MotivoPerdaComercialAtualizadoPor")
+  motivosPerdaComerciaisArquivados  MotivoPerdaComercial[] @relation("MotivoPerdaComercialArquivadoPor")
+  motivosPerdaComerciaisRestaurados MotivoPerdaComercial[] @relation("MotivoPerdaComercialRestauradoPor")
 
   acessosPolos          UserPolo[] @relation("UserPoloUsuario")
   acessosPolosCriados   UserPolo[] @relation("UserPoloCriadoPor")
@@ -391,6 +422,12 @@ model User {
   bibliotecaItensAtualizados             BibliotecaItem[]                 @relation("BibliotecaItemAtualizadoPor")
   bibliotecaItensPublicados              BibliotecaItem[]                 @relation("BibliotecaItemPublicadoPor")
   bibliotecaItensArquivados              BibliotecaItem[]                 @relation("BibliotecaItemArquivadoPor")
+  bibliotecaArquivosEnviados             BibliotecaArquivo[]              @relation("BibliotecaArquivoEnviadoPor")
+  bibliotecaArquivosArquivados           BibliotecaArquivo[]              @relation("BibliotecaArquivoArquivadoPor")
+  bibliotecaLicencasCriadas              BibliotecaLicenca[]              @relation("BibliotecaLicencaCriadaPor")
+  bibliotecaLicencasAtualizadas          BibliotecaLicenca[]              @relation("BibliotecaLicencaAtualizadaPor")
+  bibliotecaExemplaresCriados            BibliotecaExemplar[]             @relation("BibliotecaExemplarCriadoPor")
+  bibliotecaExemplaresAtualizados        BibliotecaExemplar[]             @relation("BibliotecaExemplarAtualizadoPor")
 
   @@index([instituicaoId])
   @@index([role])
@@ -629,6 +666,7 @@ model Curso {
   metasComerciais             MetaComercial[]
   publicacoesRedeOrigem       CursoPublicacaoRede[]           @relation("CursoPublicacaoOrigem")
   publicacaoRedeDestino       CursoPublicacaoRede?            @relation("CursoPublicacaoDestino")
+  leadsInteressados           Lead[]                          @relation("LeadCursoInteresse")
 
   @@unique([instituicaoId, nome])
   @@unique([instituicaoId, codigo])
@@ -1565,6 +1603,9 @@ model Funcionario {
   participacoesProgramasRemuneracaoVariavelRH ParticipanteProgramaRemuneracaoVariavelRH[]
   lancamentosRemuneracaoVariavelRH            LancamentoRemuneracaoVariavelRH[]
   bibliotecaOperacoes                         BibliotecaOperador[]
+  transferenciasLeadComoAnterior              LeadTransferencia[]                         @relation("LeadTransferenciaResponsavelAnterior")
+  transferenciasLeadComoNovo                  LeadTransferencia[]                         @relation("LeadTransferenciaResponsavelNovo")
+  tarefasComerciaisResponsavel                TarefaComercial[]                           @relation("TarefaComercialResponsavel")
 
   @@index([instituicaoId])
   @@index([departamentoId])
@@ -1970,49 +2011,111 @@ model LeadMatriculaIbe {
 }
 
 model Lead {
-  id                       Int             @id @default(autoincrement())
+  id                       Int  @id @default(autoincrement())
   instituicaoGestoraId     Int?
-  instituicaoInteressadaId Int?            @map("instituicaoId")
+  instituicaoInteressadaId Int? @map("instituicaoId")
+
   responsavelFuncionarioId Int?
-  criadoPorId              Int?
-  atualizadoPorId          Int?
-  nome                     String
-  email                    String
-  telefone                 String?
-  instituicaoNome          String?
-  cargo                    String?
-  origem                   String          @default("SITE_PHANYX")
-  tipo                     String          @default("PHANYX")
-  interesse                String?
-  observacoes              String?
-  status                   String          @default("NOVO")
-  prioridade               String          @default("MEDIA")
-  valorEstimado            Float?
-  proximoContatoEm         DateTime?
-  ultimoContatoEm          DateTime?
-  responsavelNomeSnapshot  String?         @map("responsavelNome")
-  createdAt                DateTime        @default(now())
-  updatedAt                DateTime        @updatedAt
-  instituicaoGestora       Instituicao?    @relation("LeadInstituicaoGestora", fields: [instituicaoGestoraId], references: [id], onDelete: Cascade)
-  instituicaoInteressada   Instituicao?    @relation("LeadInstituicaoInteressada", fields: [instituicaoInteressadaId], references: [id], onDelete: SetNull)
-  responsavelFuncionario   Funcionario?    @relation("LeadResponsavelFuncionario", fields: [responsavelFuncionarioId], references: [id], onDelete: SetNull)
-  criadoPor                User?           @relation("LeadCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
-  atualizadoPor            User?           @relation("LeadAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
-  interacoes               LeadInteracao[]
-  matriculaConvertida      Matricula?      @relation("LeadMatriculaConvertida")
+  equipeResponsavelId      Int?
+
+  funilId       Int?
+  etapaFunilId  Int?
+  motivoPerdaId Int?
+
+  cursoInteresseId Int?
+  poloInteresseId  Int?
+
+  criadoPorId     Int?
+  atualizadoPorId Int?
+  perdidoPorId    Int?
+  arquivadoPorId  Int?
+  restauradoPorId Int?
+
+  nome            String
+  email           String
+  telefone        String?
+  instituicaoNome String?
+  cargo           String?
+
+  origem    String  @default("SITE_PHANYX")
+  tipo      String  @default("PHANYX")
+  interesse String?
+
+  observacoes String? @db.Text
+  status      String  @default("NOVO")
+  prioridade  String  @default("MEDIA")
+
+  valorEstimado Float?
+
+  proximoContatoEm      DateTime?
+  primeiroContatoEm     DateTime?
+  ultimoContatoEm       DateTime?
+  qualificadoEm         DateTime?
+  entrouEtapaEm         DateTime?
+  perdidoEm             DateTime?
+  encerradoEm           DateTime?
+  arquivadoEm           DateTime?
+  restauradoEm          DateTime?
+  motivoPerdaObservacao String?   @db.Text
+
+  responsavelNomeSnapshot String? @map("responsavelNome")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  instituicaoGestora     Instituicao?          @relation("LeadInstituicaoGestora", fields: [instituicaoGestoraId], references: [id], onDelete: Cascade)
+  instituicaoInteressada Instituicao?          @relation("LeadInstituicaoInteressada", fields: [instituicaoInteressadaId], references: [id], onDelete: SetNull)
+  responsavelFuncionario Funcionario?          @relation("LeadResponsavelFuncionario", fields: [responsavelFuncionarioId], references: [id], onDelete: SetNull)
+  equipeResponsavel      EquipeComercial?      @relation("LeadEquipeResponsavel", fields: [equipeResponsavelId], references: [id], onDelete: SetNull)
+  funil                  FunilComercial?       @relation("LeadFunilComercial", fields: [funilId], references: [id], onDelete: SetNull)
+  etapaFunil             EtapaFunilComercial?  @relation("LeadEtapaFunilComercial", fields: [etapaFunilId], references: [id], onDelete: SetNull)
+  motivoPerda            MotivoPerdaComercial? @relation("LeadMotivoPerda", fields: [motivoPerdaId], references: [id], onDelete: SetNull)
+  cursoInteresse         Curso?                @relation("LeadCursoInteresse", fields: [cursoInteresseId], references: [id], onDelete: SetNull)
+  poloInteresse          Polo?                 @relation("LeadPoloInteresse", fields: [poloInteresseId], references: [id], onDelete: SetNull)
+  criadoPor              User?                 @relation("LeadCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+  atualizadoPor          User?                 @relation("LeadAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
+  perdidoPor             User?                 @relation("LeadPerdidoPor", fields: [perdidoPorId], references: [id], onDelete: SetNull)
+  arquivadoPor           User?                 @relation("LeadArquivadoPor", fields: [arquivadoPorId], references: [id], onDelete: SetNull)
+  restauradoPor          User?                 @relation("LeadRestauradoPor", fields: [restauradoPorId], references: [id], onDelete: SetNull)
+
+  interacoes          LeadInteracao[]
+  matriculaConvertida Matricula?      @relation("LeadMatriculaConvertida")
+
+  movimentacoesFunil LeadMovimentacaoFunil[]
+  transferencias     LeadTransferencia[]
+  tarefasComerciais  TarefaComercial[]
 
   @@index([instituicaoGestoraId])
   @@index([instituicaoInteressadaId])
   @@index([instituicaoGestoraId, status])
   @@index([instituicaoGestoraId, tipo])
   @@index([instituicaoGestoraId, responsavelFuncionarioId])
+  @@index([instituicaoGestoraId, equipeResponsavelId])
+  @@index([instituicaoGestoraId, funilId])
+  @@index([instituicaoGestoraId, etapaFunilId])
+  @@index([instituicaoGestoraId, cursoInteresseId])
+  @@index([instituicaoGestoraId, poloInteresseId])
+  @@index([instituicaoGestoraId, etapaFunilId, responsavelFuncionarioId])
   @@index([instituicaoGestoraId, email])
   @@index([responsavelFuncionarioId])
+  @@index([equipeResponsavelId])
+  @@index([funilId])
+  @@index([etapaFunilId])
+  @@index([motivoPerdaId])
+  @@index([cursoInteresseId])
+  @@index([poloInteresseId])
   @@index([criadoPorId])
   @@index([atualizadoPorId])
+  @@index([perdidoPorId])
+  @@index([arquivadoPorId])
+  @@index([restauradoPorId])
   @@index([status])
   @@index([origem])
   @@index([tipo])
+  @@index([proximoContatoEm])
+  @@index([entrouEtapaEm])
+  @@index([perdidoEm])
+  @@index([arquivadoEm])
   @@index([createdAt])
 }
 
@@ -2321,6 +2424,7 @@ model Polo {
   lancamentosFinanceiros LancamentoFinanceiro[]
   metasComerciais        MetaComercial[]
   publicacoesCursosRede  CursoPublicacaoRede[]  @relation("CursoPublicacaoPolo")
+  leadsInteressados      Lead[]                 @relation("LeadPoloInteresse")
 
   @@unique([instituicaoId, nome])
   @@unique([instituicaoId, codigo])
@@ -4492,6 +4596,10 @@ model EquipeComercial {
   atualizadoPor          User?                   @relation("EquipeComercialAtualizadaPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
   membros                EquipeComercialMembro[]
   metas                  MetaComercial[]
+  leadsResponsabilidade  Lead[]                  @relation("LeadEquipeResponsavel")
+
+  transferenciasLeadComoAnterior LeadTransferencia[] @relation("LeadTransferenciaEquipeAnterior")
+  transferenciasLeadComoNova     LeadTransferencia[] @relation("LeadTransferenciaEquipeNova")
 
   @@unique([instituicaoId, nome])
   @@index([instituicaoId])
@@ -5564,6 +5672,9 @@ model BibliotecaItem {
 
   autores    BibliotecaItemAutor[]
   categorias BibliotecaItemCategoria[]
+  arquivos   BibliotecaArquivo[]
+  licencas   BibliotecaLicenca[]
+  exemplares BibliotecaExemplar[]
 
   @@unique([instituicaoId, slug])
   @@unique([id, instituicaoId])
@@ -5699,6 +5810,457 @@ model BibliotecaItemCategoria {
   @@index([instituicaoId])
   @@index([itemId])
   @@index([categoriaId])
+}
+
+model BibliotecaArquivo {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+  itemId        Int
+
+  tipo   TipoArquivoBiblioteca
+  status StatusArquivoBiblioteca @default(AGUARDANDO_UPLOAD)
+
+  nomeOriginal String
+  nomeInterno  String?
+  extensao     String?
+  mimeType     String?
+  tamanhoBytes BigInt  @default(0)
+
+  provedorArmazenamento String?
+  bucket                String?
+  storageKey            String? @unique
+  urlExterna            String?
+  checksumSha256        String?
+
+  versao           Int     @default(1)
+  principal        Boolean @default(false)
+  protegido        Boolean @default(true)
+  permitirDownload Boolean @default(false)
+
+  larguraPixels     Int?
+  alturaPixels      Int?
+  duracaoSegundos   Int?
+  quantidadePaginas Int?
+
+  processadoEm          DateTime?
+  erroProcessamento     String?   @db.Text
+  verificadoAntivirusEm DateTime?
+  resultadoAntivirus    String?
+
+  enviadoPorId       Int?
+  arquivadoPorId     Int?
+  enviadoEm          DateTime  @default(now())
+  atualizadoEm       DateTime  @updatedAt
+  arquivadoEm        DateTime?
+  motivoArquivamento String?   @db.Text
+
+  instituicao Instituicao    @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  item        BibliotecaItem @relation(fields: [itemId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  enviadoPor   User? @relation("BibliotecaArquivoEnviadoPor", fields: [enviadoPorId], references: [id], onDelete: SetNull)
+  arquivadoPor User? @relation("BibliotecaArquivoArquivadoPor", fields: [arquivadoPorId], references: [id], onDelete: SetNull)
+
+  @@unique([id, instituicaoId])
+  @@unique([instituicaoId, itemId, versao])
+  @@index([instituicaoId])
+  @@index([instituicaoId, status])
+  @@index([itemId])
+  @@index([tipo])
+  @@index([checksumSha256])
+  @@index([enviadoEm])
+}
+
+model BibliotecaLicenca {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+  itemId        Int
+
+  tipoDireito     TipoDireitoBiblioteca
+  titulo          String?
+  titularDireitos String?
+  descricao       String?               @db.Text
+
+  numeroLicenca  String?
+  origem         String?
+  urlLicenca     String?
+  comprovanteUrl String?
+
+  inicioVigencia DateTime?
+  fimVigencia    DateTime?
+
+  permitirVisualizacao Boolean @default(true)
+  permitirDownload     Boolean @default(false)
+  permitirImpressao    Boolean @default(false)
+  permitirCopia        Boolean @default(false)
+  permitirEmprestimo   Boolean @default(true)
+
+  acessosSimultaneos Int?
+  quantidadeLicencas Int?
+  territorio         String?
+
+  ativo       Boolean @default(true)
+  observacoes String? @db.Text
+
+  criadoPorId     Int?
+  atualizadoPorId Int?
+  criadoEm        DateTime @default(now())
+  atualizadoEm    DateTime @updatedAt
+
+  instituicao Instituicao    @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  item        BibliotecaItem @relation(fields: [itemId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  criadoPor     User? @relation("BibliotecaLicencaCriadaPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+  atualizadoPor User? @relation("BibliotecaLicencaAtualizadaPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
+
+  exemplares BibliotecaExemplar[]
+
+  @@unique([id, instituicaoId])
+  @@index([instituicaoId])
+  @@index([instituicaoId, ativo])
+  @@index([itemId])
+  @@index([tipoDireito])
+  @@index([fimVigencia])
+}
+
+model BibliotecaExemplar {
+  id            Int  @id @default(autoincrement())
+  instituicaoId Int
+  itemId        Int
+  licencaId     Int?
+
+  tipo   TipoExemplarBiblioteca
+  status StatusExemplarBiblioteca @default(DISPONIVEL)
+
+  codigoInterno String
+  codigoBarras  String?
+  numeroTombo   String?
+  patrimonio    String?
+
+  poloIdSnapshot      Int?
+  unidadeSnapshot     String?
+  setor               String?
+  sala                String?
+  estante             String?
+  prateleira          String?
+  localizacaoCompleta String?
+
+  dataAquisicao  DateTime?
+  formaAquisicao String?
+  fornecedor     String?
+  valorAquisicao Decimal?  @db.Decimal(12, 2)
+
+  permiteEmprestimo Boolean @default(true)
+  observacoes       String? @db.Text
+
+  criadoPorId     Int?
+  atualizadoPorId Int?
+  criadoEm        DateTime  @default(now())
+  atualizadoEm    DateTime  @updatedAt
+  baixadoEm       DateTime?
+  motivoBaixa     String?   @db.Text
+
+  instituicao Instituicao        @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  item        BibliotecaItem     @relation(fields: [itemId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+  licenca     BibliotecaLicenca? @relation(fields: [licencaId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+
+  criadoPor     User? @relation("BibliotecaExemplarCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+  atualizadoPor User? @relation("BibliotecaExemplarAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
+
+  @@unique([id, instituicaoId])
+  @@unique([instituicaoId, codigoInterno])
+  @@unique([instituicaoId, codigoBarras])
+  @@unique([instituicaoId, numeroTombo])
+  @@index([instituicaoId])
+  @@index([instituicaoId, status])
+  @@index([itemId])
+  @@index([licencaId])
+  @@index([tipo])
+}
+
+model FunilComercial {
+  id              Int  @id @default(autoincrement())
+  instituicaoId   Int
+  criadoPorId     Int?
+  atualizadoPorId Int?
+  arquivadoPorId  Int?
+  restauradoPorId Int?
+
+  nome      String
+  descricao String? @db.Text
+  padrao    Boolean @default(false)
+  ativo     Boolean @default(true)
+
+  criadoEm     DateTime  @default(now())
+  atualizadoEm DateTime  @updatedAt
+  arquivadoEm  DateTime?
+  restauradoEm DateTime?
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  criadoPor User? @relation("FunilComercialCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+
+  atualizadoPor User? @relation("FunilComercialAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
+
+  arquivadoPor User? @relation("FunilComercialArquivadoPor", fields: [arquivadoPorId], references: [id], onDelete: SetNull)
+
+  restauradoPor User? @relation("FunilComercialRestauradoPor", fields: [restauradoPorId], references: [id], onDelete: SetNull)
+
+  etapas        EtapaFunilComercial[]
+  leads         Lead[]                  @relation("LeadFunilComercial")
+  movimentacoes LeadMovimentacaoFunil[] @relation("LeadMovimentacaoFunil")
+
+  @@unique([instituicaoId, nome])
+  @@index([instituicaoId])
+  @@index([instituicaoId, ativo])
+  @@index([instituicaoId, padrao])
+  @@index([criadoPorId])
+  @@index([atualizadoPorId])
+  @@index([arquivadoPorId])
+  @@index([restauradoPorId])
+}
+
+model EtapaFunilComercial {
+  id              Int  @id @default(autoincrement())
+  instituicaoId   Int
+  funilId         Int
+  criadoPorId     Int?
+  atualizadoPorId Int?
+  arquivadoPorId  Int?
+  restauradoPorId Int?
+
+  nome      String
+  descricao String? @db.Text
+
+  categoria CategoriaEtapaFunilComercial
+  resultado ResultadoEtapaFunilComercial @default(ABERTA)
+
+  ordem                  Int
+  cor                    String  @default("#64748B")
+  probabilidadeConversao Int     @default(0)
+  prazoMaximoHoras       Int?
+  exigeProximaAcao       Boolean @default(false)
+  exigeMotivoPerda       Boolean @default(false)
+  permiteMovimentoManual Boolean @default(true)
+  visivelNoKanban        Boolean @default(true)
+  ativo                  Boolean @default(true)
+
+  criadoEm     DateTime  @default(now())
+  atualizadoEm DateTime  @updatedAt
+  arquivadoEm  DateTime?
+  restauradoEm DateTime?
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  funil FunilComercial @relation(fields: [funilId], references: [id], onDelete: Cascade)
+
+  criadoPor User? @relation("EtapaFunilComercialCriadaPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+
+  atualizadoPor User? @relation("EtapaFunilComercialAtualizadaPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
+
+  arquivadoPor User? @relation("EtapaFunilComercialArquivadaPor", fields: [arquivadoPorId], references: [id], onDelete: SetNull)
+
+  restauradoPor User? @relation("EtapaFunilComercialRestauradaPor", fields: [restauradoPorId], references: [id], onDelete: SetNull)
+
+  leadsAtuais               Lead[]                  @relation("LeadEtapaFunilComercial")
+  movimentacoesComoAnterior LeadMovimentacaoFunil[] @relation("LeadMovimentacaoEtapaAnterior")
+  movimentacoesComoNova     LeadMovimentacaoFunil[] @relation("LeadMovimentacaoEtapaNova")
+
+  @@unique([funilId, nome])
+  @@unique([funilId, ordem])
+  @@index([instituicaoId])
+  @@index([instituicaoId, ativo])
+  @@index([funilId])
+  @@index([funilId, ativo, ordem])
+  @@index([categoria])
+  @@index([resultado])
+  @@index([criadoPorId])
+  @@index([atualizadoPorId])
+  @@index([arquivadoPorId])
+  @@index([restauradoPorId])
+}
+
+model MotivoPerdaComercial {
+  id              Int  @id @default(autoincrement())
+  instituicaoId   Int
+  criadoPorId     Int?
+  atualizadoPorId Int?
+  arquivadoPorId  Int?
+  restauradoPorId Int?
+
+  nome            String
+  descricao       String?                       @db.Text
+  categoria       CategoriaMotivoPerdaComercial
+  exigeObservacao Boolean                       @default(false)
+  ordem           Int                           @default(0)
+  ativo           Boolean                       @default(true)
+
+  criadoEm     DateTime  @default(now())
+  atualizadoEm DateTime  @updatedAt
+  arquivadoEm  DateTime?
+  restauradoEm DateTime?
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  criadoPor User? @relation("MotivoPerdaComercialCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+
+  atualizadoPor User? @relation("MotivoPerdaComercialAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
+
+  arquivadoPor User? @relation("MotivoPerdaComercialArquivadoPor", fields: [arquivadoPorId], references: [id], onDelete: SetNull)
+
+  restauradoPor User? @relation("MotivoPerdaComercialRestauradoPor", fields: [restauradoPorId], references: [id], onDelete: SetNull)
+
+  leads Lead[] @relation("LeadMotivoPerda")
+
+  @@unique([instituicaoId, nome])
+  @@index([instituicaoId])
+  @@index([instituicaoId, ativo])
+  @@index([instituicaoId, categoria])
+  @@index([ordem])
+  @@index([criadoPorId])
+  @@index([atualizadoPorId])
+  @@index([arquivadoPorId])
+  @@index([restauradoPorId])
+}
+
+model LeadMovimentacaoFunil {
+  id               Int  @id @default(autoincrement())
+  instituicaoId    Int
+  leadId           Int
+  funilId          Int?
+  etapaAnteriorId  Int?
+  etapaNovaId      Int?
+  movimentadoPorId Int?
+
+  origem OrigemMovimentacaoFunilComercial @default(MANUAL)
+  motivo String?                          @db.Text
+
+  tempoEtapaAnteriorMinutos Int?
+  dados                     Json?
+
+  funilNomeSnapshot          String?
+  etapaAnteriorNomeSnapshot  String?
+  etapaNovaNomeSnapshot      String?
+  movimentadoPorNomeSnapshot String?
+
+  criadoEm DateTime @default(now())
+
+  instituicao    Instituicao          @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  lead           Lead                 @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  funil          FunilComercial?      @relation("LeadMovimentacaoFunil", fields: [funilId], references: [id], onDelete: SetNull)
+  etapaAnterior  EtapaFunilComercial? @relation("LeadMovimentacaoEtapaAnterior", fields: [etapaAnteriorId], references: [id], onDelete: SetNull)
+  etapaNova      EtapaFunilComercial? @relation("LeadMovimentacaoEtapaNova", fields: [etapaNovaId], references: [id], onDelete: SetNull)
+  movimentadoPor User?                @relation("LeadMovimentacaoRealizadaPor", fields: [movimentadoPorId], references: [id], onDelete: SetNull)
+
+  @@index([instituicaoId])
+  @@index([leadId])
+  @@index([funilId])
+  @@index([etapaAnteriorId])
+  @@index([etapaNovaId])
+  @@index([movimentadoPorId])
+  @@index([origem])
+  @@index([criadoEm])
+  @@index([instituicaoId, leadId, criadoEm])
+  @@index([instituicaoId, etapaNovaId, criadoEm])
+}
+
+model LeadTransferencia {
+  id                    Int  @id @default(autoincrement())
+  instituicaoId         Int
+  leadId                Int
+  responsavelAnteriorId Int?
+  responsavelNovoId     Int?
+  equipeAnteriorId      Int?
+  equipeNovaId          Int?
+  realizadoPorId        Int?
+
+  origem OrigemTransferenciaLead @default(MANUAL)
+  motivo String?                 @db.Text
+
+  responsavelAnteriorNomeSnapshot String?
+  responsavelNovoNomeSnapshot     String?
+  equipeAnteriorNomeSnapshot      String?
+  equipeNovaNomeSnapshot          String?
+  realizadoPorNomeSnapshot        String?
+
+  criadoEm DateTime @default(now())
+
+  instituicao         Instituicao      @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  lead                Lead             @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  responsavelAnterior Funcionario?     @relation("LeadTransferenciaResponsavelAnterior", fields: [responsavelAnteriorId], references: [id], onDelete: SetNull)
+  responsavelNovo     Funcionario?     @relation("LeadTransferenciaResponsavelNovo", fields: [responsavelNovoId], references: [id], onDelete: SetNull)
+  equipeAnterior      EquipeComercial? @relation("LeadTransferenciaEquipeAnterior", fields: [equipeAnteriorId], references: [id], onDelete: SetNull)
+  equipeNova          EquipeComercial? @relation("LeadTransferenciaEquipeNova", fields: [equipeNovaId], references: [id], onDelete: SetNull)
+  realizadoPor        User?            @relation("LeadTransferenciaRealizadaPor", fields: [realizadoPorId], references: [id], onDelete: SetNull)
+
+  @@index([instituicaoId])
+  @@index([leadId])
+  @@index([responsavelAnteriorId])
+  @@index([responsavelNovoId])
+  @@index([equipeAnteriorId])
+  @@index([equipeNovaId])
+  @@index([realizadoPorId])
+  @@index([origem])
+  @@index([criadoEm])
+  @@index([instituicaoId, leadId, criadoEm])
+  @@index([instituicaoId, responsavelNovoId, criadoEm])
+}
+
+model TarefaComercial {
+  id                       Int  @id @default(autoincrement())
+  instituicaoId            Int
+  leadId                   Int
+  responsavelFuncionarioId Int?
+  criadoPorId              Int?
+  atualizadoPorId          Int?
+  concluidaPorId           Int?
+  canceladaPorId           Int?
+
+  tipo       TipoTarefaComercial
+  status     StatusTarefaComercial     @default(PENDENTE)
+  prioridade PrioridadeTarefaComercial @default(MEDIA)
+
+  titulo             String
+  descricao          String? @db.Text
+  resultado          String? @db.Text
+  motivoCancelamento String? @db.Text
+  proximaAcao        Boolean @default(false)
+
+  agendadaPara DateTime
+  prazoEm      DateTime?
+  lembreteEm   DateTime?
+  iniciadaEm   DateTime?
+  concluidaEm  DateTime?
+  canceladaEm  DateTime?
+
+  responsavelNomeSnapshot String?
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  instituicao            Instituicao  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  lead                   Lead         @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  responsavelFuncionario Funcionario? @relation("TarefaComercialResponsavel", fields: [responsavelFuncionarioId], references: [id], onDelete: SetNull)
+  criadoPor              User?        @relation("TarefaComercialCriadaPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+  atualizadoPor          User?        @relation("TarefaComercialAtualizadaPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
+  concluidaPor           User?        @relation("TarefaComercialConcluidaPor", fields: [concluidaPorId], references: [id], onDelete: SetNull)
+  canceladaPor           User?        @relation("TarefaComercialCanceladaPor", fields: [canceladaPorId], references: [id], onDelete: SetNull)
+
+  @@index([instituicaoId])
+  @@index([leadId])
+  @@index([responsavelFuncionarioId])
+  @@index([criadoPorId])
+  @@index([atualizadoPorId])
+  @@index([concluidaPorId])
+  @@index([canceladaPorId])
+  @@index([tipo])
+  @@index([status])
+  @@index([prioridade])
+  @@index([agendadaPara])
+  @@index([prazoEm])
+  @@index([lembreteEm])
+  @@index([instituicaoId, status, agendadaPara])
+  @@index([instituicaoId, responsavelFuncionarioId, status, agendadaPara])
+  @@index([leadId, status, agendadaPara])
 }
 
 enum ModalidadeCertificado {
@@ -6407,4 +6969,146 @@ enum BibliotecariaFuncaoAutor {
   TRADUTOR
   ORIENTADOR
   COLABORADOR
+}
+
+enum TipoArquivoBiblioteca {
+  PDF
+  EPUB
+  DOC
+  DOCX
+  PPT
+  PPTX
+  XLS
+  XLSX
+  IMAGEM
+  AUDIO
+  VIDEO
+  LEGENDA
+  CAPA
+  MINIATURA
+  COMPROVANTE_LICENCA
+  LINK_EXTERNO
+  OUTRO
+}
+
+enum StatusArquivoBiblioteca {
+  AGUARDANDO_UPLOAD
+  ENVIADO
+  PROCESSANDO
+  DISPONIVEL
+  ERRO
+  QUARENTENA
+  BLOQUEADO
+  ARQUIVADO
+}
+
+enum TipoDireitoBiblioteca {
+  DOMINIO_PUBLICO
+  AUTORIA_INSTITUICAO
+  CREATIVE_COMMONS
+  LICENCA_ABERTA
+  LICENCA_ADQUIRIDA
+  AUTORIZACAO_AUTOR
+  AUTORIZACAO_EDITORA
+  MATERIAL_ACADEMICO_INTERNO
+  ACESSO_EXTERNO_AUTORIZADO
+  OUTRO
+}
+
+enum TipoExemplarBiblioteca {
+  FISICO
+  DIGITAL
+}
+
+enum StatusExemplarBiblioteca {
+  DISPONIVEL
+  EMPRESTADO
+  RESERVADO
+  MANUTENCAO
+  DANIFICADO
+  EXTRAVIADO
+  INDISPONIVEL
+  BAIXADO
+}
+
+enum CategoriaEtapaFunilComercial {
+  ENTRADA
+  PRIMEIRO_CONTATO
+  EM_ATENDIMENTO
+  QUALIFICACAO
+  APRESENTACAO
+  PROPOSTA
+  NEGOCIACAO
+  DOCUMENTACAO
+  PAGAMENTO
+  CONVERSAO
+  PERDA
+  PAUSA
+  DESCARTE
+}
+
+enum ResultadoEtapaFunilComercial {
+  ABERTA
+  GANHA
+  PERDIDA
+  DESCARTADA
+}
+
+enum OrigemMovimentacaoFunilComercial {
+  MANUAL
+  AUTOMATICA
+  CONVERSAO
+  REABERTURA
+  IMPORTACAO
+}
+
+enum TipoTarefaComercial {
+  LIGACAO
+  WHATSAPP
+  EMAIL
+  REUNIAO
+  RETORNO
+  ENVIAR_PROPOSTA
+  SOLICITAR_DOCUMENTOS
+  CONFIRMAR_PAGAMENTO
+  OUTRA
+}
+
+enum StatusTarefaComercial {
+  PENDENTE
+  EM_ANDAMENTO
+  CONCLUIDA
+  CANCELADA
+}
+
+enum PrioridadeTarefaComercial {
+  BAIXA
+  MEDIA
+  ALTA
+  URGENTE
+}
+
+enum CategoriaMotivoPerdaComercial {
+  SEM_INTERESSE
+  PRECO
+  CONCORRENCIA
+  SEM_CONTATO
+  CURSO_INDISPONIVEL
+  HORARIO_INCOMPATIVEL
+  LOCALIZACAO
+  DOCUMENTACAO
+  FINANCEIRO
+  DESISTENCIA
+  DUPLICIDADE
+  FORA_DO_PERFIL
+  OUTRO
+}
+
+enum OrigemTransferenciaLead {
+  MANUAL
+  RODIZIO
+  REDISTRIBUICAO
+  AUSENCIA
+  CAPACIDADE
+  AUTOMATICA
 }
