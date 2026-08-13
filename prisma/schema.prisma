@@ -235,6 +235,10 @@ model Instituicao {
   bibliotecaLicencas     BibliotecaLicenca[]
   bibliotecaExemplares   BibliotecaExemplar[]
 
+  bibliotecaEmprestimos BibliotecaEmprestimo[]
+  bibliotecaRenovacoes  BibliotecaRenovacao[]
+  bibliotecaReservas    BibliotecaReserva[]
+
   @@index([redeInstitucionalId])
   @@index([redeInstitucionalId, ativo])
 }
@@ -428,7 +432,20 @@ model User {
   bibliotecaLicencasAtualizadas          BibliotecaLicenca[]              @relation("BibliotecaLicencaAtualizadaPor")
   bibliotecaExemplaresCriados            BibliotecaExemplar[]             @relation("BibliotecaExemplarCriadoPor")
   bibliotecaExemplaresAtualizados        BibliotecaExemplar[]             @relation("BibliotecaExemplarAtualizadoPor")
+  bibliotecaEmprestimos                  BibliotecaEmprestimo[]           @relation("BibliotecaEmprestimoUsuario")
+  bibliotecaEmprestimosRegistrados       BibliotecaEmprestimo[]           @relation("BibliotecaEmprestimoRegistradoPor")
+  bibliotecaDevolucoesRegistradas        BibliotecaEmprestimo[]           @relation("BibliotecaEmprestimoDevolvidoPor")
+  bibliotecaEmprestimosCancelados        BibliotecaEmprestimo[]           @relation("BibliotecaEmprestimoCanceladoPor")
 
+  bibliotecaRenovacoesSolicitadas BibliotecaRenovacao[] @relation("BibliotecaRenovacaoSolicitadaPor")
+  bibliotecaRenovacoesAnalisadas  BibliotecaRenovacao[] @relation("BibliotecaRenovacaoAnalisadaPor")
+
+  bibliotecaReservas           BibliotecaReserva[] @relation("BibliotecaReservaUsuario")
+  bibliotecaReservasCriadas    BibliotecaReserva[] @relation("BibliotecaReservaCriadaPor")
+  bibliotecaReservasAtendidas  BibliotecaReserva[] @relation("BibliotecaReservaAtendidaPor")
+  bibliotecaReservasCanceladas BibliotecaReserva[] @relation("BibliotecaReservaCanceladaPor")
+
+  @@unique([id, instituicaoId])
   @@index([instituicaoId])
   @@index([role])
   @@index([instituicaoId, acessoTodosPolos])
@@ -5613,9 +5630,10 @@ model BibliotecaItem {
   subtitulo         String?
   tituloAlternativo String?
   slug              String
-  sinopse           String?  @db.Text
-  descricao         String?  @db.Text
-  palavrasChave     String[] @default([])
+  sinopse           String?             @db.Text
+  descricao         String?             @db.Text
+  palavrasChave     String[]            @default([])
+  reservas          BibliotecaReserva[]
 
   isbn10 String?
   isbn13 String?
@@ -5966,6 +5984,9 @@ model BibliotecaExemplar {
   criadoPor     User? @relation("BibliotecaExemplarCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
   atualizadoPor User? @relation("BibliotecaExemplarAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
 
+  emprestimos BibliotecaEmprestimo[]
+  reservas    BibliotecaReserva[]
+
   @@unique([id, instituicaoId])
   @@unique([instituicaoId, codigoInterno])
   @@unique([instituicaoId, codigoBarras])
@@ -6261,6 +6282,147 @@ model TarefaComercial {
   @@index([instituicaoId, status, agendadaPara])
   @@index([instituicaoId, responsavelFuncionarioId, status, agendadaPara])
   @@index([leadId, status, agendadaPara])
+}
+
+model BibliotecaEmprestimo {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+  exemplarId    Int
+  usuarioId     Int
+
+  status StatusEmprestimoBiblioteca @default(ATIVO)
+
+  emprestadoEm DateTime  @default(now())
+  vencimentoEm DateTime
+  devolvidoEm  DateTime?
+
+  quantidadeRenovacoes Int @default(0)
+
+  devolucaoCondicao   CondicaoDevolucaoBiblioteca?
+  observacaoRetirada  String?                      @db.Text
+  observacaoDevolucao String?                      @db.Text
+
+  diasAtrasoCalculado Int @default(0)
+
+  bloqueioGerado      Boolean  @default(false)
+  multaGerada         Boolean  @default(false)
+  valorMultaCalculado Decimal? @db.Decimal(10, 2)
+
+  registradoPorId Int?
+  devolvidoPorId  Int?
+  canceladoPorId  Int?
+
+  canceladoEm        DateTime?
+  motivoCancelamento String?   @db.Text
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  instituicao Instituicao        @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  exemplar    BibliotecaExemplar @relation(fields: [exemplarId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+
+  usuario       User  @relation("BibliotecaEmprestimoUsuario", fields: [usuarioId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+  registradoPor User? @relation("BibliotecaEmprestimoRegistradoPor", fields: [registradoPorId], references: [id], onDelete: SetNull)
+  devolvidoPor  User? @relation("BibliotecaEmprestimoDevolvidoPor", fields: [devolvidoPorId], references: [id], onDelete: SetNull)
+  canceladoPor  User? @relation("BibliotecaEmprestimoCanceladoPor", fields: [canceladoPorId], references: [id], onDelete: SetNull)
+
+  renovacoes BibliotecaRenovacao[]
+
+  @@unique([id, instituicaoId])
+  @@index([instituicaoId])
+  @@index([instituicaoId, status])
+  @@index([exemplarId])
+  @@index([usuarioId])
+  @@index([usuarioId, status])
+  @@index([vencimentoEm])
+  @@index([devolvidoEm])
+  @@index([emprestadoEm])
+}
+
+model BibliotecaRenovacao {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+  emprestimoId  Int
+
+  status StatusRenovacaoBiblioteca @default(SOLICITADA)
+
+  vencimentoAnterior DateTime
+  novoVencimento     DateTime?
+
+  solicitadaEm DateTime  @default(now())
+  analisadaEm  DateTime?
+
+  motivoSolicitacao String? @db.Text
+  motivoRecusa      String? @db.Text
+  observacao        String? @db.Text
+
+  solicitadaPorId Int?
+  analisadaPorId  Int?
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  instituicao Instituicao          @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  emprestimo  BibliotecaEmprestimo @relation(fields: [emprestimoId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  solicitadaPor User? @relation("BibliotecaRenovacaoSolicitadaPor", fields: [solicitadaPorId], references: [id], onDelete: SetNull)
+  analisadaPor  User? @relation("BibliotecaRenovacaoAnalisadaPor", fields: [analisadaPorId], references: [id], onDelete: SetNull)
+
+  @@index([instituicaoId])
+  @@index([instituicaoId, status])
+  @@index([emprestimoId])
+  @@index([solicitadaEm])
+  @@index([analisadaEm])
+}
+
+model BibliotecaReserva {
+  id            Int  @id @default(autoincrement())
+  instituicaoId Int
+  itemId        Int
+  exemplarId    Int?
+  usuarioId     Int
+
+  status StatusReservaBiblioteca @default(AGUARDANDO)
+
+  posicaoFila Int?
+
+  reservadaEm  DateTime  @default(now())
+  disponivelEm DateTime?
+  expiraEm     DateTime?
+  atendidaEm   DateTime?
+  canceladaEm  DateTime?
+
+  origem OrigemReservaBiblioteca @default(USUARIO)
+
+  observacao         String? @db.Text
+  motivoCancelamento String? @db.Text
+
+  criadaPorId    Int?
+  atendidaPorId  Int?
+  canceladaPorId Int?
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  instituicao Instituicao         @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  item        BibliotecaItem      @relation(fields: [itemId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+  exemplar    BibliotecaExemplar? @relation(fields: [exemplarId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+
+  usuario      User  @relation("BibliotecaReservaUsuario", fields: [usuarioId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+  criadaPor    User? @relation("BibliotecaReservaCriadaPor", fields: [criadaPorId], references: [id], onDelete: SetNull)
+  atendidaPor  User? @relation("BibliotecaReservaAtendidaPor", fields: [atendidaPorId], references: [id], onDelete: SetNull)
+  canceladaPor User? @relation("BibliotecaReservaCanceladaPor", fields: [canceladaPorId], references: [id], onDelete: SetNull)
+
+  @@unique([id, instituicaoId])
+  @@index([instituicaoId])
+  @@index([instituicaoId, status])
+  @@index([itemId])
+  @@index([exemplarId])
+  @@index([usuarioId])
+  @@index([usuarioId, status])
+  @@index([itemId, status, posicaoFila])
+  @@index([reservadaEm])
+  @@index([expiraEm])
 }
 
 enum ModalidadeCertificado {
@@ -7111,4 +7273,43 @@ enum OrigemTransferenciaLead {
   AUSENCIA
   CAPACIDADE
   AUTOMATICA
+}
+
+enum StatusEmprestimoBiblioteca {
+  ATIVO
+  ATRASADO
+  DEVOLVIDO
+  PERDIDO
+  DANIFICADO
+  CANCELADO
+}
+
+enum CondicaoDevolucaoBiblioteca {
+  NORMAL
+  DESGASTE
+  DANIFICADO
+  INCOMPLETO
+  PERDIDO
+}
+
+enum StatusRenovacaoBiblioteca {
+  SOLICITADA
+  APROVADA
+  RECUSADA
+  CANCELADA
+}
+
+enum StatusReservaBiblioteca {
+  AGUARDANDO
+  DISPONIVEL
+  ATENDIDA
+  EXPIRADA
+  CANCELADA
+}
+
+enum OrigemReservaBiblioteca {
+  USUARIO
+  OPERADOR
+  PROFESSOR
+  SISTEMA
 }

@@ -22368,3 +22368,96 @@ html[data-theme="dark"] .phanyx-whatsapp-checkbox:checked {
   background: #059669;
   border-color: #059669;
 }
+
+/* =====================================================
+   FUNIS COMERCIAIS — LEGIBILIDADE NO TEMA CLARO
+   ===================================================== */
+
+html:not(.dark):not([data-theme="dark"])
+  .phanyx-funis-comerciais-page {
+  color: #0f172a !important;
+}
+
+html:not(.dark):not([data-theme="dark"])
+  .phanyx-funis-comerciais-page
+  .bg-white {
+  background-color: #ffffff !important;
+}
+
+html:not(.dark):not([data-theme="dark"])
+  .phanyx-funis-comerciais-page
+  .bg-slate-50 {
+  background-color: #f8fafc !important;
+}
+
+html:not(.dark):not([data-theme="dark"])
+  .phanyx-funis-comerciais-page
+  .bg-slate-100 {
+  background-color: #f1f5f9 !important;
+}
+
+html:not(.dark):not([data-theme="dark"])
+  .phanyx-funis-comerciais-page
+  .text-slate-950 {
+  color: #020617 !important;
+}
+
+html:not(.dark):not([data-theme="dark"])
+  .phanyx-funis-comerciais-page
+  .text-slate-900,
+html:not(.dark):not([data-theme="dark"])
+  .phanyx-funis-comerciais-page
+  .text-slate-800 {
+  color: #1e293b !important;
+}
+
+html:not(.dark):not([data-theme="dark"])
+  .phanyx-funis-comerciais-page
+  .text-slate-700,
+html:not(.dark):not([data-theme="dark"])
+  .phanyx-funis-comerciais-page
+  .text-slate-600 {
+  color: #475569 !important;
+}
+
+html:not(.dark):not([data-theme="dark"])
+  .phanyx-funis-comerciais-page
+  .text-slate-500,
+html:not(.dark):not([data-theme="dark"])
+  .phanyx-funis-comerciais-page
+  .text-slate-400 {
+  color: #64748b !important;
+}
+
+html:not(.dark):not([data-theme="dark"])
+  .phanyx-funis-comerciais-page
+  .border-slate-200 {
+  border-color: #e2e8f0 !important;
+}
+
+html:not(.dark):not([data-theme="dark"])
+  .phanyx-funis-comerciais-page
+  .border-slate-300 {
+  border-color: #cbd5e1 !important;
+}
+
+html:not(.dark):not([data-theme="dark"])
+  .phanyx-funis-comerciais-page
+  button.text-white {
+  color: #ffffff !important;
+}
+
+/* Aviso obrigatório nos motivos de perda */
+.phanyx-funis-comerciais-page
+  .phanyx-motivo-observacao {
+  color: #92400e !important;
+}
+
+.dark
+  .phanyx-funis-comerciais-page
+  .phanyx-motivo-observacao,
+[data-theme="dark"]
+  .phanyx-funis-comerciais-page
+  .phanyx-motivo-observacao {
+  color: #fcd34d !important;
+}

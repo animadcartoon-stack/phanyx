@@ -75,7 +75,7 @@ const GRUPOS_PERMISSOES: GrupoPermissoes[] = [
     nome: "Comercial",
     icone: "📈",
     descricao:
-      "Leads, vendedores, metas, vendas, matrículas comerciais, comissões e relatórios.",
+  "Funis, leads, oportunidades, tarefas, vendedores, metas, vendas, matrículas, comissões e relatórios.",
     prefixos: ["comercial"],
   },
   {

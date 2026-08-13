@@ -39,6 +39,16 @@ const CONTEXTOS_BUSCA: ContextoBusca[] = [
       "estudantes",
       "discente",
       "academico",
+      "pipeline",
+      "etapa",
+      "etapas",
+      "tarefa",
+      "tarefas",
+      "negociação",
+      "transferência",
+      "histórico",
+      "auditoria",
+      "perda",
     ],
     relacionados: [
       "aluno",
@@ -52,6 +62,19 @@ const CONTEXTOS_BUSCA: ContextoBusca[] = [
       "presenca",
       "prova",
       "avaliacao",
+      "funil",
+      "pipeline",
+      "etapa",
+      "movimentar",
+      "tarefa",
+      "retorno",
+      "negociação",
+      "transferir",
+      "arquivar",
+      "restaurar",
+      "histórico",
+      "auditoria",
+      "perda",
     ],
   },
   {
@@ -99,7 +122,7 @@ const CONTEXTOS_BUSCA: ContextoBusca[] = [
       "escala",
     ],
   },
-    {
+  {
     gatilhos: [
       "comercial",
       "vendedor",
@@ -508,35 +531,35 @@ export default function FuncionarioPermissoesPage({
 
   const [busca, setBusca] = useState("");
 
-const permissoesFiltradas = useMemo(() => {
-  const consulta = busca.trim();
+  const permissoesFiltradas = useMemo(() => {
+    const consulta = busca.trim();
 
-  if (!consulta) {
-    return PERMISSOES_PHANYX;
-  }
+    if (!consulta) {
+      return PERMISSOES_PHANYX;
+    }
 
-  return PERMISSOES_PHANYX.map((permissao) => ({
-    permissao,
-    pontuacao: pontuarPermissao(permissao, consulta),
-  }))
-    .filter((resultado) => resultado.pontuacao > 0)
-    .sort((a, b) => {
-      if (b.pontuacao !== a.pontuacao) {
-        return b.pontuacao - a.pontuacao;
-      }
+    return PERMISSOES_PHANYX.map((permissao) => ({
+      permissao,
+      pontuacao: pontuarPermissao(permissao, consulta),
+    }))
+      .filter((resultado) => resultado.pontuacao > 0)
+      .sort((a, b) => {
+        if (b.pontuacao !== a.pontuacao) {
+          return b.pontuacao - a.pontuacao;
+        }
 
-      return a.permissao.nome.localeCompare(b.permissao.nome, "pt-BR");
-    })
-    .map((resultado) => resultado.permissao);
-}, [busca]);
+        return a.permissao.nome.localeCompare(b.permissao.nome, "pt-BR");
+      })
+      .map((resultado) => resultado.permissao);
+  }, [busca]);
 
-const sugestoesBusca = useMemo(() => {
-  if (!busca.trim()) {
-    return [];
-  }
+  const sugestoesBusca = useMemo(() => {
+    if (!busca.trim()) {
+      return [];
+    }
 
-  return permissoesFiltradas.slice(0, 6);
-}, [busca, permissoesFiltradas]);
+    return permissoesFiltradas.slice(0, 6);
+  }, [busca, permissoesFiltradas]);
 
   async function carregarPermissoes() {
     try {
@@ -566,16 +589,16 @@ const sugestoesBusca = useMemo(() => {
       setSelecionadas(
         Array.isArray(data?.permissoesIndividuais)
           ? data.permissoesIndividuais
-              .filter((p) => p.ativo)
-              .map((p) => p.chave)
+            .filter((p) => p.ativo)
+            .map((p) => p.chave)
           : []
       );
 
       setHerdadasDepartamento(
         Array.isArray(data?.permissoesDepartamento)
           ? data.permissoesDepartamento
-              .filter((p) => p.ativo)
-              .map((p) => p.chave)
+            .filter((p) => p.ativo)
+            .map((p) => p.chave)
           : []
       );
     } catch (error: any) {
@@ -698,152 +721,151 @@ const sugestoesBusca = useMemo(() => {
 
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
         <div className="phanyx-permissoes-funcionario-aviso mb-5 rounded-2xl border p-4 text-sm">
-  <strong>Como funciona:</strong> as permissões herdadas do departamento
-  continuam valendo. Aqui você marca apenas permissões extras para este
-  funcionário.
-</div>
+          <strong>Como funciona:</strong> as permissões herdadas do departamento
+          continuam valendo. Aqui você marca apenas permissões extras para este
+          funcionário.
+        </div>
 
         <div className="mb-6">
-  <label
-    htmlFor="busca-permissoes-funcionario"
-    className="mb-2 block text-sm font-semibold text-slate-800 dark:text-slate-100"
-  >
-    🔎 Busca inteligente de permissões
-  </label>
+          <label
+            htmlFor="busca-permissoes-funcionario"
+            className="mb-2 block text-sm font-semibold text-slate-800 dark:text-slate-100"
+          >
+            🔎 Busca inteligente de permissões
+          </label>
 
-  <div className="relative">
-    <input
-      id="busca-permissoes-funcionario"
-      type="search"
-      value={busca}
-      onChange={(event) => setBusca(event.target.value)}
-      placeholder="Ex.: editar alunos, vendedor, comissão, dinheiro, ponto, crachá..."
-      autoComplete="off"
-      className="phanyx-busca-permissoes-input w-full rounded-2xl border px-5 py-4 pr-24 text-sm outline-none transition"
-    />
+          <div className="relative">
+            <input
+              id="busca-permissoes-funcionario"
+              type="search"
+              value={busca}
+              onChange={(event) => setBusca(event.target.value)}
+              placeholder="Ex.: editar alunos, vendedor, comissão, dinheiro, ponto, crachá..."
+              autoComplete="off"
+              className="phanyx-busca-permissoes-input w-full rounded-2xl border px-5 py-4 pr-24 text-sm outline-none transition"
+            />
 
-    {busca && (
-      <button
-        type="button"
-        onClick={() => setBusca("")}
-        className="phanyx-busca-permissoes-limpar absolute right-3 top-1/2 -translate-y-1/2 rounded-xl border px-3 py-1.5 text-xs font-semibold transition"
-      >
-        Limpar
-      </button>
-    )}
-  </div>
-
-  <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-    <p className="text-xs text-slate-500 dark:text-slate-400">
-      Digite com suas próprias palavras. O PHANYX procurará permissões
-      diretas e relacionadas.
-    </p>
-
-    {busca.trim() && (
-      <span className="phanyx-busca-permissoes-contador rounded-full border px-3 py-1 text-xs font-semibold">
-        {permissoesFiltradas.length}{" "}
-        {permissoesFiltradas.length === 1
-          ? "permissão encontrada"
-          : "permissões encontradas"}
-      </span>
-    )}
-  </div>
-
-  {sugestoesBusca.length > 0 && (
-  <div
-    data-permissoes-sugestoes="true"
-    className="phanyx-busca-permissoes-sugestoes mt-4 rounded-2xl border p-4"
-  >
-    <p className="phanyx-busca-permissoes-titulo-sugestoes mb-3 text-xs font-bold uppercase tracking-wide">
-      Sugestões mais próximas
-    </p>
-
-    <div className="flex flex-wrap gap-2">
-      {sugestoesBusca.map((sugestao) => (
-        <button
-          key={`sugestao-${sugestao.chave}`}
-          type="button"
-          data-permissao-sugestao="true"
-          onClick={() => setBusca(sugestao.nome)}
-          className="phanyx-busca-permissoes-chip rounded-full border px-3 py-2 text-xs font-semibold transition"
-        >
-          {sugestao.nome}
-        </button>
-      ))}
-    </div>
-  </div>
-)}
-</div>
-
-{permissoesFiltradas.length === 0 ? (
-  <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center dark:border-slate-700 dark:bg-slate-950">
-    <div className="text-3xl">🔍</div>
-
-    <h3 className="mt-3 font-bold text-slate-900 dark:text-white">
-      Nenhuma permissão encontrada
-    </h3>
-
-    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-      Tente escrever de outra forma, como “alunos”, “comercial”,
-“vendedor”, “financeiro”, “funcionários” ou “documentos”.
-    </p>
-
-    <button
-      type="button"
-      onClick={() => setBusca("")}
-      className="mt-4 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
-    >
-      Mostrar todas as permissões
-    </button>
-  </div>
-) : (
-  <div className="grid gap-3 md:grid-cols-2">
-    {permissoesFiltradas.map((permissao) => {
-            const marcadaIndividual = selecionadas.includes(permissao.chave);
-            const herdada = herdadasDepartamento.includes(permissao.chave);
-
-            return (
+            {busca && (
               <button
-  key={permissao.chave}
-  type="button"
-  onClick={() => alternar(permissao.chave)}
-  className={`phanyx-permissao-funcionario-card ${
-    marcadaIndividual
-      ? "individual"
-      : herdada
-      ? "herdada"
-      : "inativa"
-  }`}
->
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <div className="font-semibold">
-                      {marcadaIndividual ? "✅ " : herdada ? "🟢 " : "⬜ "}
-                      {permissao.nome}
-                    </div>
-
-                    <div className="mt-1 text-xs opacity-80">
-                      {permissao.chave}
-                    </div>
-                  </div>
-
-                  {herdada && !marcadaIndividual && (
-  <span className="phanyx-permissao-funcionario-badge herdada">
-    Herdada
-  </span>
-)}
-
-                  {marcadaIndividual && (
-  <span className="phanyx-permissao-funcionario-badge individual">
-    Individual
-  </span>
-)}
-                </div>
+                type="button"
+                onClick={() => setBusca("")}
+                className="phanyx-busca-permissoes-limpar absolute right-3 top-1/2 -translate-y-1/2 rounded-xl border px-3 py-1.5 text-xs font-semibold transition"
+              >
+                Limpar
               </button>
-            );
-          })}
-                </div>
-      )}
+            )}
+          </div>
+
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Digite com suas próprias palavras. O PHANYX procurará permissões
+              diretas e relacionadas.
+            </p>
+
+            {busca.trim() && (
+              <span className="phanyx-busca-permissoes-contador rounded-full border px-3 py-1 text-xs font-semibold">
+                {permissoesFiltradas.length}{" "}
+                {permissoesFiltradas.length === 1
+                  ? "permissão encontrada"
+                  : "permissões encontradas"}
+              </span>
+            )}
+          </div>
+
+          {sugestoesBusca.length > 0 && (
+            <div
+              data-permissoes-sugestoes="true"
+              className="phanyx-busca-permissoes-sugestoes mt-4 rounded-2xl border p-4"
+            >
+              <p className="phanyx-busca-permissoes-titulo-sugestoes mb-3 text-xs font-bold uppercase tracking-wide">
+                Sugestões mais próximas
+              </p>
+
+              <div className="flex flex-wrap gap-2">
+                {sugestoesBusca.map((sugestao) => (
+                  <button
+                    key={`sugestao-${sugestao.chave}`}
+                    type="button"
+                    data-permissao-sugestao="true"
+                    onClick={() => setBusca(sugestao.nome)}
+                    className="phanyx-busca-permissoes-chip rounded-full border px-3 py-2 text-xs font-semibold transition"
+                  >
+                    {sugestao.nome}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {permissoesFiltradas.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center dark:border-slate-700 dark:bg-slate-950">
+            <div className="text-3xl">🔍</div>
+
+            <h3 className="mt-3 font-bold text-slate-900 dark:text-white">
+              Nenhuma permissão encontrada
+            </h3>
+
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              Tente escrever de outra forma, como “alunos”, “comercial”,
+              “vendedor”, “financeiro”, “funcionários” ou “documentos”.
+            </p>
+
+            <button
+              type="button"
+              onClick={() => setBusca("")}
+              className="mt-4 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+            >
+              Mostrar todas as permissões
+            </button>
+          </div>
+        ) : (
+          <div className="grid gap-3 md:grid-cols-2">
+            {permissoesFiltradas.map((permissao) => {
+              const marcadaIndividual = selecionadas.includes(permissao.chave);
+              const herdada = herdadasDepartamento.includes(permissao.chave);
+
+              return (
+                <button
+                  key={permissao.chave}
+                  type="button"
+                  onClick={() => alternar(permissao.chave)}
+                  className={`phanyx-permissao-funcionario-card ${marcadaIndividual
+                    ? "individual"
+                    : herdada
+                      ? "herdada"
+                      : "inativa"
+                    }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="font-semibold">
+                        {marcadaIndividual ? "✅ " : herdada ? "🟢 " : "⬜ "}
+                        {permissao.nome}
+                      </div>
+
+                      <div className="mt-1 text-xs opacity-80">
+                        {permissao.chave}
+                      </div>
+                    </div>
+
+                    {herdada && !marcadaIndividual && (
+                      <span className="phanyx-permissao-funcionario-badge herdada">
+                        Herdada
+                      </span>
+                    )}
+
+                    {marcadaIndividual && (
+                      <span className="phanyx-permissao-funcionario-badge individual">
+                        Individual
+                      </span>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         <button
           type="button"

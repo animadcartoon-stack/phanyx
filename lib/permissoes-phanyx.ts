@@ -86,6 +86,20 @@ export const PERMISSOES_PHANYX = [
       "Permite consultar indicadores, resultados e o resumo comercial.",
   },
 
+    // FUNIS COMERCIAIS
+  {
+    chave: "comercial.funis.ver",
+    nome: "Comercial - Ver funis comerciais",
+    descricao:
+      "Permite consultar funis, etapas, probabilidades, prazos e motivos de perda.",
+  },
+  {
+    chave: "comercial.funis.gerenciar",
+    nome: "Comercial - Gerenciar funis comerciais",
+    descricao:
+      "Permite criar, editar, ordenar, arquivar e restaurar funis, etapas e motivos de perda.",
+  },
+
   // LEADS E OPORTUNIDADES
   {
     chave: "comercial.leads.ver",
@@ -122,6 +136,92 @@ export const PERMISSOES_PHANYX = [
     nome: "Comercial - Converter lead em venda ou matrícula",
     descricao:
       "Permite transformar uma oportunidade em venda ou matrícula.",
+  },
+    {
+    chave: "comercial.leads.ver_todos",
+    nome: "Comercial - Ver todos os leads",
+    descricao:
+      "Permite visualizar leads de todos os vendedores e equipes da instituição.",
+  },
+  {
+    chave: "comercial.leads.movimentar",
+    nome: "Comercial - Movimentar leads no funil",
+    descricao:
+      "Permite movimentar oportunidades entre as etapas do funil comercial.",
+  },
+  {
+    chave: "comercial.leads.registrar_perda",
+    nome: "Comercial - Registrar perda de oportunidade",
+    descricao:
+      "Permite encerrar uma oportunidade como perdida, informando motivo e observação.",
+  },
+  {
+    chave: "comercial.leads.transferir",
+    nome: "Comercial - Transferir leads",
+    descricao:
+      "Permite transferir leads entre vendedores e equipes, preservando o histórico.",
+  },
+  {
+    chave: "comercial.leads.arquivar",
+    nome: "Comercial - Arquivar leads",
+    descricao:
+      "Permite arquivar leads sem apagar seus dados, contatos, tarefas e histórico.",
+  },
+  {
+    chave: "comercial.leads.restaurar",
+    nome: "Comercial - Restaurar leads",
+    descricao:
+      "Permite restaurar leads anteriormente arquivados.",
+  },
+  {
+    chave: "comercial.leads.historico.ver",
+    nome: "Comercial - Ver histórico dos leads",
+    descricao:
+      "Permite consultar movimentações, transferências, contatos e demais registros de auditoria.",
+  },
+
+    // TAREFAS E PRÓXIMAS AÇÕES
+  {
+    chave: "comercial.tarefas.ver",
+    nome: "Comercial - Ver tarefas comerciais",
+    descricao:
+      "Permite consultar tarefas, retornos, ligações, reuniões e próximas ações atribuídas ao usuário.",
+  },
+  {
+    chave: "comercial.tarefas.ver_todas",
+    nome: "Comercial - Ver todas as tarefas comerciais",
+    descricao:
+      "Permite consultar tarefas comerciais de todos os vendedores e equipes.",
+  },
+  {
+    chave: "comercial.tarefas.criar",
+    nome: "Comercial - Criar tarefas comerciais",
+    descricao:
+      "Permite agendar ligações, retornos, reuniões e outras ações relacionadas aos leads.",
+  },
+  {
+    chave: "comercial.tarefas.editar",
+    nome: "Comercial - Editar tarefas comerciais",
+    descricao:
+      "Permite alterar informações, datas, responsáveis e prioridades das tarefas.",
+  },
+  {
+    chave: "comercial.tarefas.atribuir",
+    nome: "Comercial - Atribuir tarefas",
+    descricao:
+      "Permite atribuir ou transferir tarefas para outros funcionários comerciais.",
+  },
+  {
+    chave: "comercial.tarefas.concluir",
+    nome: "Comercial - Concluir tarefas comerciais",
+    descricao:
+      "Permite registrar a conclusão e o resultado de uma tarefa comercial.",
+  },
+  {
+    chave: "comercial.tarefas.cancelar",
+    nome: "Comercial - Cancelar tarefas comerciais",
+    descricao:
+      "Permite cancelar tarefas mediante registro do motivo e auditoria.",
   },
 
   // VENDEDORES
@@ -291,7 +391,6 @@ export const PERMISSOES_PHANYX = [
   descricao:
     "Permite conectar, testar, ativar, desativar e configurar o WhatsApp Business utilizado pela instituição para comunicações automáticas pelo PHANYX.",
 },
-
 
   // =====================================================
   // FINANCEIRO
