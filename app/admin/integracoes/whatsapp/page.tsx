@@ -779,7 +779,7 @@ export default function WhatsAppInstitucionalPage() {
                     ativo: event.target.checked,
                   }))
                 }
-                className="h-5 w-5 accent-emerald-600"
+                className="phanyx-whatsapp-checkbox h-5 w-5"
               />
             </label>
           </div>
@@ -833,7 +833,7 @@ export default function WhatsAppInstitucionalPage() {
                               event.target.checked
                             )
                           }
-                          className="mt-1 h-5 w-5 shrink-0 accent-emerald-600"
+                          className="phanyx-whatsapp-checkbox mt-1 h-5 w-5 shrink-0"
                         />
 
                         <div>

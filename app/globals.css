@@ -22280,3 +22280,91 @@ html[data-theme="light"]
   button:disabled {
   opacity: 0.55 !important;
 }
+
+/* =========================================================
+   PHANYX — CHECKBOXES WHATSAPP
+   Visíveis no tema claro
+   ========================================================= */
+
+.phanyx-whatsapp-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+
+  width: 20px;
+  height: 20px;
+
+  border: 2px solid #64748b;
+  border-radius: 5px;
+
+  background: #ffffff;
+
+  display: inline-grid;
+  place-content: center;
+
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.phanyx-whatsapp-checkbox::before {
+  content: "";
+  width: 10px;
+  height: 6px;
+
+  border-left: 2px solid #ffffff;
+  border-bottom: 2px solid #ffffff;
+
+  transform: rotate(-45deg) scale(0);
+  transform-origin: center;
+
+  margin-top: -2px;
+
+  transition: transform 0.12s ease;
+}
+
+.phanyx-whatsapp-checkbox:checked {
+  background: #059669 !important;
+  border-color: #059669 !important;
+}
+
+.phanyx-whatsapp-checkbox:checked::before {
+  transform: rotate(-45deg) scale(1);
+}
+
+/* Mesmo desabilitado, precisa continuar VISÍVEL */
+.phanyx-whatsapp-checkbox:disabled {
+  opacity: 1 !important;
+  cursor: not-allowed;
+
+  background: #f8fafc !important;
+  border-color: #94a3b8 !important;
+}
+
+/* Tema claro */
+html[data-theme="light"] .phanyx-whatsapp-checkbox {
+  background: #ffffff !important;
+  border-color: #64748b !important;
+}
+
+html[data-theme="light"] .phanyx-whatsapp-checkbox:disabled {
+  background: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+}
+
+html[data-theme="light"] .phanyx-whatsapp-checkbox:checked {
+  background: #059669 !important;
+  border-color: #059669 !important;
+}
+
+/* Tema escuro */
+html[data-theme="dark"] .phanyx-whatsapp-checkbox {
+  background: #0f172a;
+  border-color: #94a3b8;
+}
+
+html[data-theme="dark"] .phanyx-whatsapp-checkbox:checked {
+  background: #059669;
+  border-color: #059669;
+}
