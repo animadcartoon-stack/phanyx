@@ -425,12 +425,28 @@ export default function AdminShell({
   const podeVerComercialInstituicao = podeAcessar(
     "comercial.ver",
     "comercial.dashboard.ver",
+    "comercial.funis.ver",
+    "comercial.funis.gerenciar",
     "comercial.leads.ver",
     "comercial.leads.criar",
     "comercial.leads.editar",
     "comercial.leads.excluir",
     "comercial.leads.atribuir",
     "comercial.leads.converter",
+    "comercial.leads.ver_todos",
+    "comercial.leads.movimentar",
+    "comercial.leads.registrar_perda",
+    "comercial.leads.transferir",
+    "comercial.leads.arquivar",
+    "comercial.leads.restaurar",
+    "comercial.leads.historico.ver",
+    "comercial.tarefas.ver",
+    "comercial.tarefas.ver_todas",
+    "comercial.tarefas.criar",
+    "comercial.tarefas.editar",
+    "comercial.tarefas.atribuir",
+    "comercial.tarefas.concluir",
+    "comercial.tarefas.cancelar",
     "comercial.vendedores.ver",
     "comercial.vendedores.gerenciar",
     "comercial.equipes.ver",
@@ -456,12 +472,24 @@ export default function AdminShell({
     "comercial.configuracoes.gerenciar"
   );
 
+  const podeVerFunisComerciais = podeAcessar(
+    "comercial.funis.ver",
+    "comercial.funis.gerenciar"
+  );
+
   const podeVerLeadsComerciais = podeAcessar(
     "comercial.leads.ver",
     "comercial.leads.criar",
     "comercial.leads.editar",
     "comercial.leads.atribuir",
-    "comercial.leads.converter"
+    "comercial.leads.converter",
+    "comercial.leads.ver_todos",
+    "comercial.leads.movimentar",
+    "comercial.leads.registrar_perda",
+    "comercial.leads.transferir",
+    "comercial.leads.arquivar",
+    "comercial.leads.restaurar",
+    "comercial.leads.historico.ver"
   );
 
   const podeVerEquipesComerciais = podeAcessar(
@@ -762,6 +790,17 @@ export default function AdminShell({
                         >
                           📊 Visão Geral
                         </Link>
+
+                        {podeVerFunisComerciais && (
+                          <Link
+                            href="/admin/comercial/funis"
+                            className={getLinkClass(
+                              "/admin/comercial/funis"
+                            )}
+                          >
+                            🧭 Funis comerciais
+                          </Link>
+                        )}
 
                         {podeVerLeadsComerciais && (
                           <Link
@@ -1467,6 +1506,15 @@ export default function AdminShell({
                       >
                         📊 Visão Geral
                       </Link>
+
+                      {podeVerFunisComerciais && (
+                        <Link
+                          href="/admin/comercial/funis"
+                          className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+                        >
+                          🧭 Funis comerciais
+                        </Link>
+                      )}
 
                       {podeVerLeadsComerciais && (
                         <Link
