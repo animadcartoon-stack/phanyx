@@ -29,7 +29,7 @@ type VendedorRelatorio = {
 type LeadRelatorio = {
     id: number;
     nome: string;
-    email: string;
+    email: string | null;
     telefone: string | null;
     origem: string;
     interesse: string | null;
@@ -1494,9 +1494,11 @@ export default function RelatoriosComerciaisPage() {
           dark:text-slate-400
         "
                             >
-                                Leads recebidos dentro
-                                do período selecionado e
-                                sua situação comercial.
+                                Leads recebidos no período e
+                                sua situação comercial. Ao
+                                filtrar por curso ou polo, a
+                                conversão considera a matrícula
+                                vinculada correspondente.
                             </p>
                         </div>
 
@@ -1668,20 +1670,24 @@ export default function RelatoriosComerciaisPage() {
                                                                 Convertido
                                                             </p>
 
-                                                            {lead.cursoNome && (
-                                                                <p
-                                                                    className="
-                            mt-1
-                            text-xs
-                            text-slate-500
-                            dark:text-slate-400
-                          "
-                                                                >
-                                                                    {
-                                                                        lead.cursoNome
-                                                                    }
-                                                                </p>
-                                                            )}
+                                                            {(lead.cursoNome ||
+                                                                lead.poloNome) && (
+                                                                    <p
+                                                                        className="
+            mt-1
+            text-xs
+            text-slate-500
+            dark:text-slate-400
+        "
+                                                                    >
+                                                                        {[
+                                                                            lead.cursoNome,
+                                                                            lead.poloNome,
+                                                                        ]
+                                                                            .filter(Boolean)
+                                                                            .join(" • ")}
+                                                                    </p>
+                                                                )}
 
                                                             {lead.convertidoEm && (
                                                                 <p

@@ -733,6 +733,7 @@ export async function GET(
                         select: {
                             id: true,
                             status: true,
+                            createdAt: true,
                             confirmadaEm: true,
 
                             cursoId: true,
@@ -1277,10 +1278,10 @@ export async function GET(
                                         : null,
 
                                 convertidoEm:
-                                    convertido &&
-                                        matricula
-                                        ? matricula
-                                            .confirmadaEm
+                                    convertido && matricula
+                                        ? dataComercialMatricula(
+                                            matricula
+                                        )
                                         : null,
 
                                 cursoId:
