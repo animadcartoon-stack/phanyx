@@ -14,13 +14,19 @@ type Questao = {
   id: number;
   enunciado: string;
   pergunta?: string;
-  tipo: "MULTIPLA_ESCOLHA" | "DISCURSIVA";
+  tipo:
+  | "MULTIPLA_ESCOLHA"
+  | "DISCURSIVA"
+  | "multipla_escolha"
+  | "discursiva";
   valor: number;
   ordem: number;
   alternativas?: Alternativa[];
 };
 
 type FeedbackTipo = "sucesso" | "erro" | "";
+
+type TipoQuestao = "MULTIPLA_ESCOLHA" | "DISCURSIVA";
 
 export default function QuestaoPage() {
   const params = useParams();
@@ -33,7 +39,8 @@ export default function QuestaoPage() {
 
   const [enunciado, setEnunciado] = useState("");
   const [pergunta, setPergunta] = useState("");
-  const [tipo, setTipo] = useState<string>("MULTIPLA_ESCOLHA");
+  const [tipo, setTipo] =
+    useState<TipoQuestao>("MULTIPLA_ESCOLHA");
   const [valor, setValor] = useState("1");
 
   const [novaAlternativa, setNovaAlternativa] = useState("");
@@ -89,7 +96,14 @@ export default function QuestaoPage() {
       setQuestao(questaoEncontrada);
       setEnunciado(questaoEncontrada.enunciado || "");
       setPergunta(questaoEncontrada.pergunta || "");
-      setTipo(questaoEncontrada.tipo);
+
+      const tipoInterface =
+        questaoEncontrada.tipo === "multipla_escolha"
+          ? "MULTIPLA_ESCOLHA"
+          : "DISCURSIVA";
+
+      setTipo(tipoInterface);
+
       setValor(String(questaoEncontrada.valor ?? 1));
     } catch (e: any) {
       setErro(e.message || "Erro ao carregar questão");
@@ -245,11 +259,10 @@ export default function QuestaoPage() {
         <div className="mx-auto max-w-4xl space-y-6">
           {feedback && (
             <div
-              className={`rounded-2xl border px-4 py-3 text-sm shadow-sm ${
-                feedbackTipo === "sucesso"
-                  ? "border-green-200 bg-green-50 text-green-700"
-                  : "border-red-200 bg-red-50 text-red-700"
-              }`}
+              className={`rounded-2xl border px-4 py-3 text-sm shadow-sm ${feedbackTipo === "sucesso"
+                ? "border-green-200 bg-green-50 text-green-700"
+                : "border-red-200 bg-red-50 text-red-700"
+                }`}
             >
               {feedback}
             </div>
@@ -316,7 +329,9 @@ export default function QuestaoPage() {
                 </label>
                 <select
                   value={tipo}
-                  onChange={(e) => setTipo(e.target.value)}
+                  onChange={(e) =>
+                    setTipo(e.target.value as TipoQuestao)
+                  }
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
                 >
                   <option value="MULTIPLA_ESCOLHA">Múltipla escolha</option>
@@ -360,7 +375,7 @@ export default function QuestaoPage() {
             </div>
           </form>
 
-          {(tipo === "MULTIPLA_ESCOLHA" || tipo === "multipla_escolha") && (
+          {tipo === "MULTIPLA_ESCOLHA" && (
             <div className="space-y-4 rounded-2xl border bg-white p-6 shadow-sm">
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">
@@ -386,11 +401,10 @@ export default function QuestaoPage() {
                       setNovaAlternativa(e.target.value);
                       if (erroAlternativa) setErroAlternativa("");
                     }}
-                    className={`w-full rounded-lg border px-3 py-2 text-sm outline-none ${
-                      erroAlternativa
-                        ? "border-red-400 focus:border-red-500"
-                        : "border-gray-300 focus:border-blue-500"
-                    }`}
+                    className={`w-full rounded-lg border px-3 py-2 text-sm outline-none ${erroAlternativa
+                      ? "border-red-400 focus:border-red-500"
+                      : "border-gray-300 focus:border-blue-500"
+                      }`}
                     placeholder="Digite a alternativa"
                   />
                   {erroAlternativa && (
