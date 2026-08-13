@@ -1320,10 +1320,20 @@ export async function GET(
                 matriculas:
                     matriculasPeriodo.map(
                         (matricula) => {
-                            const valorVendidoMatricula =
+                            const contabilizadaComoVenda =
+                                STATUS_MATRICULAS_VALIDAS.includes(
+                                    matricula.status
+                                );
+
+                            const valorContratadoMatricula =
                                 calcularValorVenda(
                                     matricula
                                 );
+
+                            const valorVendidoMatricula =
+                                contabilizadaComoVenda
+                                    ? valorContratadoMatricula
+                                    : 0;
 
                             const pagamentosDaMatricula =
                                 pagamentosMatricula.filter(
@@ -1442,6 +1452,11 @@ export async function GET(
                                             )
                                         )
                                     ),
+
+                                contabilizadaComoVenda,
+
+                                valorContratado:
+                                    valorContratadoMatricula,
 
                                 valorVendido:
                                     valorVendidoMatricula,

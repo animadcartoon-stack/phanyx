@@ -119,6 +119,9 @@ type MatriculaRelatorio = {
     quantidadeMensalidades:
     number;
 
+    contabilizadaComoVenda: boolean;
+    valorContratado: number;
+
     valorVendido: number;
     valorRecebido: number;
 };
@@ -1247,6 +1250,46 @@ export default function RelatoriosComerciaisPage() {
                                         .cancelamentos
                                 )}
                             />
+
+                            <CardIndicador
+                                titulo="Matrículas"
+                                valor={formatarNumero(
+                                    dados.resumo.matriculas
+                                )}
+                                descricao="Ativas, a iniciar ou concluídas"
+                            />
+
+                            <CardIndicador
+                                titulo="Valor vendido"
+                                valor={formatarMoeda(
+                                    dados.resumo.valorVendido
+                                )}
+                                descricao="Matrícula e mensalidades das vendas válidas"
+                            />
+
+                            <CardIndicador
+                                titulo="Recebido no ato"
+                                valor={formatarMoeda(
+                                    dados.resumo.valorRecebido
+                                )}
+                                descricao="Pagamentos registrados no ato da matrícula"
+                            />
+
+                            <CardIndicador
+                                titulo="Ticket médio"
+                                valor={formatarMoeda(
+                                    dados.resumo.ticketMedio
+                                )}
+                                descricao="Valor vendido dividido pelas matrículas válidas"
+                            />
+
+                            <CardIndicador
+                                titulo="Cancelamentos"
+                                valor={formatarNumero(
+                                    dados.resumo.cancelamentos
+                                )}
+                                descricao="Matrículas do período atualmente canceladas"
+                            />
                         </div>
                     )}
 
@@ -1937,16 +1980,45 @@ export default function RelatoriosComerciaisPage() {
 
                                                 <td
                                                     className="
-                    whitespace-nowrap
-                    px-4
-                    py-3
-                    text-right
-                    font-bold
-                  "
+        whitespace-nowrap
+        px-4
+        py-3
+        text-right
+    "
                                                 >
-                                                    {formatarMoeda(
-                                                        matricula
-                                                            .valorVendido
+                                                    {matricula.contabilizadaComoVenda ? (
+                                                        <span className="font-bold">
+                                                            {formatarMoeda(
+                                                                matricula.valorVendido
+                                                            )}
+                                                        </span>
+                                                    ) : (
+                                                        <div>
+                                                            <p
+                                                                className="
+                    text-xs
+                    font-bold
+                    text-slate-500
+                    dark:text-slate-400
+                "
+                                                            >
+                                                                Não contabilizada
+                                                            </p>
+
+                                                            <p
+                                                                className="
+                    mt-1
+                    text-xs
+                    text-slate-500
+                    dark:text-slate-400
+                "
+                                                            >
+                                                                Previsto:{" "}
+                                                                {formatarMoeda(
+                                                                    matricula.valorContratado
+                                                                )}
+                                                            </p>
+                                                        </div>
                                                     )}
                                                 </td>
 
