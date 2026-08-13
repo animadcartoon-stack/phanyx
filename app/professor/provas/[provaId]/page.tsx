@@ -74,6 +74,15 @@ export default function ProvaPage() {
       setProva({
         ...data,
         status: data.status || (data.ativa ? "PUBLICADA" : "RASCUNHO"),
+        questoes: (data.questoes || []).map((q: any) => ({
+          ...q,
+          tipo:
+            q.tipo === "discursiva"
+              ? "DISCURSIVA"
+              : q.tipo === "multipla_escolha"
+                ? "MULTIPLA_ESCOLHA"
+                : q.tipo,
+        })),
       });
     } catch (e: any) {
       setErro(e.message || "Erro ao carregar prova");
@@ -185,11 +194,10 @@ export default function ProvaPage() {
         <div className="mx-auto max-w-6xl space-y-6">
           {feedback && (
             <div
-              className={`rounded-2xl border px-4 py-3 text-sm shadow-sm ${
-                feedbackTipo === "sucesso"
+              className={`rounded-2xl border px-4 py-3 text-sm shadow-sm ${feedbackTipo === "sucesso"
                   ? "border-green-200 bg-green-50 text-green-700"
                   : "border-red-200 bg-red-50 text-red-700"
-              }`}
+                }`}
             >
               {feedback}
             </div>
@@ -327,11 +335,10 @@ export default function ProvaPage() {
                         </span>
 
                         <span
-                          className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-                            q.tipo === "DISCURSIVA"
+                          className={`rounded-full px-2.5 py-1 text-xs font-semibold ${q.tipo === "DISCURSIVA"
                               ? "bg-purple-100 text-purple-700"
                               : "bg-blue-100 text-blue-700"
-                          }`}
+                            }`}
                         >
                           {q.tipo === "DISCURSIVA"
                             ? "Discursiva"
