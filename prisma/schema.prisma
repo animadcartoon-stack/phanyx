@@ -222,6 +222,10 @@ model Instituicao {
   bibliotecaOperadores   BibliotecaOperador[]
   bibliotecaConsumos     BibliotecaConsumoArmazenamento[]
   bibliotecaAuditorias   BibliotecaAuditoria[]
+  bibliotecaItens        BibliotecaItem[]
+  bibliotecaAutores      BibliotecaAutor[]
+  bibliotecaEditoras     BibliotecaEditora[]
+  bibliotecaCategorias   BibliotecaCategoria[]
 
   @@index([redeInstitucionalId])
   @@index([redeInstitucionalId, ativo])
@@ -383,6 +387,10 @@ model User {
   bibliotecaOperadoresRevogados          BibliotecaOperador[]             @relation("BibliotecaOperadorRevogadoPor")
   bibliotecaConsumosRegistrados          BibliotecaConsumoArmazenamento[] @relation("BibliotecaConsumoRegistradoPor")
   bibliotecaAuditoriasRealizadas         BibliotecaAuditoria[]            @relation("BibliotecaAuditoriaUsuario")
+  bibliotecaItensCriados                 BibliotecaItem[]                 @relation("BibliotecaItemCriadoPor")
+  bibliotecaItensAtualizados             BibliotecaItem[]                 @relation("BibliotecaItemAtualizadoPor")
+  bibliotecaItensPublicados              BibliotecaItem[]                 @relation("BibliotecaItemPublicadoPor")
+  bibliotecaItensArquivados              BibliotecaItem[]                 @relation("BibliotecaItemArquivadoPor")
 
   @@index([instituicaoId])
   @@index([role])
@@ -5485,6 +5493,214 @@ model BibliotecaAuditoria {
   @@index([instituicaoId, criadoEm])
 }
 
+model BibliotecaItem {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+
+  tipo       TipoItemBiblioteca
+  status     StatusItemBiblioteca       @default(RASCUNHO)
+  modalidade ModalidadeAcessoBiblioteca @default(LEITURA_INTERNA)
+
+  titulo            String
+  subtitulo         String?
+  tituloAlternativo String?
+  slug              String
+  sinopse           String?  @db.Text
+  descricao         String?  @db.Text
+  palavrasChave     String[] @default([])
+
+  isbn10 String?
+  isbn13 String?
+  issn   String?
+  doi    String?
+
+  idioma          String    @default("pt-BR")
+  paisPublicacao  String?
+  anoPublicacao   Int?
+  dataPublicacao  DateTime?
+  edicao          String?
+  volume          String?
+  numero          String?
+  numeroPaginas   Int?
+  duracaoSegundos Int?
+
+  classificacaoBibliografica String?
+  codigoChamada              String?
+  cdd                        String?
+  cdu                        String?
+
+  capaUrl                 String?
+  miniaturaUrl            String?
+  classificacaoIndicativa String?
+  observacoesInternas     String? @db.Text
+
+  destaque          Boolean @default(false)
+  permitirDownload  Boolean @default(false)
+  permitirAvaliacao Boolean @default(true)
+  acessoLivre       Boolean @default(false)
+
+  editoraId Int?
+
+  criadoPorId     Int?
+  atualizadoPorId Int?
+  publicadoPorId  Int?
+  arquivadoPorId  Int?
+
+  publicadoEm        DateTime?
+  arquivadoEm        DateTime?
+  motivoArquivamento String?   @db.Text
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  editora BibliotecaEditora? @relation(fields: [editoraId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+
+  criadoPor     User? @relation("BibliotecaItemCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+  atualizadoPor User? @relation("BibliotecaItemAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
+  publicadoPor  User? @relation("BibliotecaItemPublicadoPor", fields: [publicadoPorId], references: [id], onDelete: SetNull)
+  arquivadoPor  User? @relation("BibliotecaItemArquivadoPor", fields: [arquivadoPorId], references: [id], onDelete: SetNull)
+
+  autores    BibliotecaItemAutor[]
+  categorias BibliotecaItemCategoria[]
+
+  @@unique([instituicaoId, slug])
+  @@unique([id, instituicaoId])
+  @@index([instituicaoId])
+  @@index([instituicaoId, status])
+  @@index([instituicaoId, tipo])
+  @@index([instituicaoId, destaque])
+  @@index([editoraId])
+  @@index([isbn10])
+  @@index([isbn13])
+  @@index([issn])
+  @@index([doi])
+  @@index([titulo])
+}
+
+model BibliotecaAutor {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+
+  nome            String
+  nomeOrdenacao   String?
+  biografia       String?   @db.Text
+  nacionalidade   String?
+  dataNascimento  DateTime?
+  dataFalecimento DateTime?
+  fotoUrl         String?
+  siteUrl         String?
+  orcid           String?
+  ativo           Boolean   @default(true)
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  instituicao Instituicao           @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  itens       BibliotecaItemAutor[]
+
+  @@unique([id, instituicaoId])
+  @@index([instituicaoId])
+  @@index([instituicaoId, ativo])
+  @@index([nome])
+  @@index([orcid])
+}
+
+model BibliotecaEditora {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+
+  nome      String
+  descricao String? @db.Text
+  siteUrl   String?
+  email     String?
+  telefone  String?
+  cidade    String?
+  estado    String?
+  pais      String?
+  ativo     Boolean @default(true)
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  instituicao Instituicao      @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  itens       BibliotecaItem[]
+
+  @@unique([id, instituicaoId])
+  @@unique([instituicaoId, nome])
+  @@index([instituicaoId])
+  @@index([instituicaoId, ativo])
+  @@index([nome])
+}
+
+model BibliotecaCategoria {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+
+  nome      String
+  slug      String
+  descricao String? @db.Text
+  cor       String?
+  icone     String?
+  ordem     Int     @default(0)
+  ativo     Boolean @default(true)
+
+  categoriaPaiId Int?
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  categoriaPai  BibliotecaCategoria?  @relation("BibliotecaCategoriaHierarquia", fields: [categoriaPaiId, instituicaoId], references: [id, instituicaoId], onDelete: NoAction)
+  subcategorias BibliotecaCategoria[] @relation("BibliotecaCategoriaHierarquia")
+
+  itens BibliotecaItemCategoria[]
+
+  @@unique([id, instituicaoId])
+  @@unique([instituicaoId, slug])
+  @@index([instituicaoId])
+  @@index([instituicaoId, ativo])
+  @@index([categoriaPaiId])
+  @@index([nome])
+}
+
+model BibliotecaItemAutor {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+  itemId        Int
+  autorId       Int
+
+  funcao BibliotecariaFuncaoAutor @default(AUTOR)
+  ordem  Int                      @default(0)
+
+  item  BibliotecaItem  @relation(fields: [itemId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+  autor BibliotecaAutor @relation(fields: [autorId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  @@unique([instituicaoId, itemId, autorId, funcao])
+  @@index([instituicaoId])
+  @@index([itemId])
+  @@index([autorId])
+}
+
+model BibliotecaItemCategoria {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+  itemId        Int
+  categoriaId   Int
+
+  principal Boolean @default(false)
+
+  item      BibliotecaItem      @relation(fields: [itemId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+  categoria BibliotecaCategoria @relation(fields: [categoriaId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  @@unique([instituicaoId, itemId, categoriaId])
+  @@index([instituicaoId])
+  @@index([itemId])
+  @@index([categoriaId])
+}
+
 enum ModalidadeCertificado {
   GERAL
   BACHARELADO
@@ -6140,4 +6356,55 @@ enum AcaoAuditoriaBiblioteca {
   CONFIGURAR
   CONCEDER_ACESSO
   REVOGAR_ACESSO
+}
+
+enum TipoItemBiblioteca {
+  LIVRO
+  EBOOK
+  ARTIGO_CIENTIFICO
+  REVISTA
+  PERIODICO
+  APOSTILA
+  TCC
+  MONOGRAFIA
+  DISSERTACAO
+  TESE
+  PESQUISA
+  DOCUMENTO
+  VIDEO
+  DOCUMENTARIO
+  AUDIO
+  AUDIOLIVRO
+  PODCAST
+  LINK_EXTERNO
+  OUTRO
+}
+
+enum StatusItemBiblioteca {
+  RASCUNHO
+  EM_REVISAO
+  PUBLICADO
+  RESTRITO
+  INDISPONIVEL
+  ARQUIVADO
+}
+
+enum ModalidadeAcessoBiblioteca {
+  LEITURA_INTERNA
+  ACESSO_LIVRE
+  DOWNLOAD_AUTORIZADO
+  EMPRESTIMO_DIGITAL
+  EMPRESTIMO_FISICO
+  STREAMING
+  LINK_EXTERNO
+}
+
+enum BibliotecariaFuncaoAutor {
+  AUTOR
+  COAUTOR
+  ORGANIZADOR
+  EDITOR
+  TRADUTOR
+  ORIENTADOR
+  COLABORADOR
 }
