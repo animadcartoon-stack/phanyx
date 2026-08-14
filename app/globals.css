@@ -22686,3 +22686,38 @@ html[data-theme="light"]
   color: #065f46 !important;
   -webkit-text-fill-color: #065f46 !important;
 }
+
+/* Complementos do modal de movimentação do Pipeline */
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .dark\:bg-slate-800 {
+  background: #f1f5f9 !important;
+  background-color: #f1f5f9 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .dark\:text-slate-200 {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .dark\:border-red-800 {
+  border-color: #fca5a5 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .dark\:text-red-200 {
+  color: #991b1b !important;
+  -webkit-text-fill-color: #991b1b !important;
+}
+
+html[data-theme="light"]
+  .phanyx-pipeline-page
+  .dark\:text-emerald-300 {
+  color: #047857 !important;
+  -webkit-text-fill-color: #047857 !important;
+}
