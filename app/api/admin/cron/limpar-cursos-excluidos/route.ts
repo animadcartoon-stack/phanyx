@@ -69,33 +69,57 @@ export async function GET(req: Request) {
     });
 
     if (dryRun) {
-      let queSeriamExcluidos = 0;
-      let mantidosPorVinculo = 0;
+  let queSeriamExcluidos = 0;
+  let mantidosPorVinculo = 0;
 
-      for (const curso of cursos) {
-        const temVinculos =
-          curso._count.matriculas > 0 ||
-          curso._count.turmas > 0 ||
-          curso._count.disciplinas > 0 ||
-          curso._count.documentosGerados > 0 ||
-          curso._count.periodosMatricula > 0 ||
-          curso._count.disciplinasExtrasPermitidas > 0;
+  const candidatosExclusao: Array<{
+    id: number;
+    nome: string;
+  }> = [];
 
-        if (temVinculos) {
-          mantidosPorVinculo++;
-        } else {
-          queSeriamExcluidos++;
-        }
-      }
+  const cursosMantidos: Array<{
+    id: number;
+    nome: string;
+  }> = [];
 
-      return NextResponse.json({
-        ok: true,
-        dryRun: true,
-        encontrados: cursos.length,
-        queSeriamExcluidos,
-        mantidosPorVinculo,
+  for (const curso of cursos) {
+    const temVinculos =
+      curso._count.matriculas > 0 ||
+      curso._count.turmas > 0 ||
+      curso._count.disciplinas > 0 ||
+      curso._count.documentosGerados > 0 ||
+      curso._count.periodosMatricula > 0 ||
+      curso._count.disciplinasExtrasPermitidas > 0;
+
+    if (temVinculos) {
+      mantidosPorVinculo++;
+
+      cursosMantidos.push({
+        id: curso.id,
+        nome: curso.nome,
       });
+
+      continue;
     }
+
+    queSeriamExcluidos++;
+
+    candidatosExclusao.push({
+      id: curso.id,
+      nome: curso.nome,
+    });
+  }
+
+  return NextResponse.json({
+    ok: true,
+    dryRun: true,
+    encontrados: cursos.length,
+    queSeriamExcluidos,
+    mantidosPorVinculo,
+    candidatosExclusao,
+    cursosMantidos,
+  });
+}
 
     let excluidos = 0;
     let mantidos = 0;
