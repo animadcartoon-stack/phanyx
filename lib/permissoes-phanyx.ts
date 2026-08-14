@@ -239,6 +239,109 @@ export const PERMISSOES_PHANYX = [
       "Permite consultar indicadores, resultados e o resumo comercial.",
   },
 
+    // =====================================================
+  // CENTRAL DE CAPTAÇÃO
+  // =====================================================
+
+  {
+    chave: "comercial.captacao.ver",
+    nome: "Comercial - Acessar Central de Captação",
+    descricao:
+      "Permite acessar a Central de Captação de Leads e consultar sua visão geral.",
+  },
+
+  // CANAIS DE CAPTAÇÃO
+  {
+    chave: "comercial.captacao.canais.ver",
+    nome: "Comercial - Ver canais de captação",
+    descricao:
+      "Permite consultar os canais utilizados para entrada de leads na instituição.",
+  },
+  {
+    chave: "comercial.captacao.canais.gerenciar",
+    nome: "Comercial - Gerenciar canais de captação",
+    descricao:
+      "Permite criar, editar, ativar e desativar canais de captação de leads.",
+  },
+
+  // CAMPANHAS
+  {
+    chave: "comercial.captacao.campanhas.ver",
+    nome: "Comercial - Ver campanhas de captação",
+    descricao:
+      "Permite consultar campanhas, origens, parâmetros UTM e indicadores de captação.",
+  },
+  {
+    chave: "comercial.captacao.campanhas.gerenciar",
+    nome: "Comercial - Gerenciar campanhas de captação",
+    descricao:
+      "Permite criar, editar, ativar, pausar e configurar campanhas de captação.",
+  },
+
+  // FORMULÁRIOS
+  {
+    chave: "comercial.captacao.formularios.ver",
+    nome: "Comercial - Ver formulários de captação",
+    descricao:
+      "Permite consultar formulários públicos utilizados para captação de interessados.",
+  },
+  {
+    chave: "comercial.captacao.formularios.gerenciar",
+    nome: "Comercial - Gerenciar formulários de captação",
+    descricao:
+      "Permite criar, editar, publicar, pausar e configurar formulários e seus campos personalizados.",
+  },
+
+  // SUBMISSÕES
+  {
+    chave: "comercial.captacao.submissoes.ver",
+    nome: "Comercial - Ver submissões de captação",
+    descricao:
+      "Permite consultar formulários recebidos, dados normalizados, origem, consentimento e situação do processamento.",
+  },
+  {
+    chave: "comercial.captacao.submissoes.reprocessar",
+    nome: "Comercial - Reprocessar submissões de captação",
+    descricao:
+      "Permite solicitar novo processamento de submissões que apresentaram falha ou ficaram pendentes.",
+  },
+
+  // DISTRIBUIÇÃO AUTOMÁTICA
+  {
+    chave: "comercial.captacao.distribuicao.ver",
+    nome: "Comercial - Ver regras de distribuição de leads",
+    descricao:
+      "Permite consultar as regras responsáveis pela distribuição automática dos leads captados.",
+  },
+  {
+    chave: "comercial.captacao.distribuicao.gerenciar",
+    nome: "Comercial - Gerenciar distribuição de leads",
+    descricao:
+      "Permite criar, editar, priorizar, ativar e desativar regras de distribuição automática de leads.",
+  },
+
+  // INTEGRAÇÕES E WEBHOOKS
+  {
+    chave: "comercial.captacao.integracoes.ver",
+    nome: "Comercial - Ver integrações de captação",
+    descricao:
+      "Permite consultar integrações, webhooks, eventos, tentativas de processamento e erros da Central de Captação.",
+  },
+  {
+    chave: "comercial.captacao.integracoes.gerenciar",
+    nome: "Comercial - Gerenciar integrações de captação",
+    descricao:
+      "Permite configurar, ativar, desativar e alterar integrações e webhooks utilizados na captação de leads.",
+  },
+
+  // AUDITORIA
+  {
+    chave: "comercial.captacao.auditoria.ver",
+    nome: "Comercial - Ver auditoria da captação",
+    descricao:
+      "Permite consultar eventos, falhas, tentativas de processamento e registros de auditoria relacionados à captação de leads.",
+  },
+
     // FUNIS COMERCIAIS
   {
     chave: "comercial.funis.ver",

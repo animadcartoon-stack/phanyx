@@ -457,7 +457,39 @@ export default function AdminShell({
     "rh.professores.remuneracao.editar"
   );
 
-  const podeVerComercialInstituicao = podeAcessar(
+  const podeVerCentralCaptacao = podeAcessar(
+  "comercial.captacao.ver",
+
+  "comercial.captacao.canais.ver",
+  "comercial.captacao.canais.gerenciar",
+
+  "comercial.captacao.campanhas.ver",
+  "comercial.captacao.campanhas.gerenciar",
+
+  "comercial.captacao.formularios.ver",
+  "comercial.captacao.formularios.gerenciar",
+
+  "comercial.captacao.submissoes.ver",
+  "comercial.captacao.submissoes.reprocessar",
+
+  "comercial.captacao.distribuicao.ver",
+  "comercial.captacao.distribuicao.gerenciar",
+
+  "comercial.captacao.integracoes.ver",
+  "comercial.captacao.integracoes.gerenciar",
+
+  "comercial.captacao.auditoria.ver"
+);
+
+const podeVerVisaoGeralComercial =
+  podeAcessar(
+    "comercial.ver",
+    "comercial.dashboard.ver"
+  );
+
+  const podeVerComercialInstituicao =
+  podeVerCentralCaptacao ||
+  podeAcessar(
     "comercial.ver",
     "comercial.dashboard.ver",
     "comercial.funis.ver",
@@ -852,16 +884,29 @@ export default function AdminShell({
                       </span>
                     </button>
 
-                    {menuAberto === "comercial" && (
-                      <div className="ml-3 mt-2 flex flex-col space-y-1">
-                        <Link
-                          href="/admin/comercial"
-                          className={getLinkClass(
-                            "/admin/comercial"
-                          )}
-                        >
-                          📊 Visão Geral
-                        </Link>
+{menuAberto === "comercial" && (
+  <div className="ml-3 mt-2 flex flex-col space-y-1">
+    {podeVerVisaoGeralComercial && (
+      <Link
+        href="/admin/comercial"
+        className={getLinkClass(
+          "/admin/comercial"
+        )}
+      >
+        📊 Visão Geral
+      </Link>
+    )}
+
+    {podeVerCentralCaptacao && (
+      <Link
+        href="/admin/comercial/captacao"
+        className={getLinkClass(
+          "/admin/comercial/captacao"
+        )}
+      >
+        🎯 Central de Captação
+      </Link>
+    )}
 
                         {podeVerFunisComerciais && (
                           <Link
@@ -1640,12 +1685,23 @@ export default function AdminShell({
                 {menuMobileAberto === "Comercial" &&
                   podeVerComercialInstituicao && (
                     <div className="grid grid-cols-2 gap-2">
-                      <Link
-                        href="/admin/comercial"
-                        className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                      >
-                        📊 Visão Geral
-                      </Link>
+                      {podeVerVisaoGeralComercial && (
+  <Link
+    href="/admin/comercial"
+    className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+  >
+    📊 Visão Geral
+  </Link>
+)}
+
+{podeVerCentralCaptacao && (
+  <Link
+    href="/admin/comercial/captacao"
+    className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+  >
+    🎯 Central de Captação
+  </Link>
+)}
 
                       {podeVerFunisComerciais && (
                         <Link
