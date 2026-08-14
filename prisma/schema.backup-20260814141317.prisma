@@ -203,14 +203,6 @@ model Instituicao {
   movimentacoesFunilLead         LeadMovimentacaoFunil[]
   transferenciasLead             LeadTransferencia[]
   tarefasComerciais              TarefaComercial[]
-  canaisCaptacaoLead             CanalCaptacaoLead[]
-  campanhasCaptacaoLead          CampanhaCaptacaoLead[]
-  formulariosCaptacaoLead        FormularioCaptacaoLead[]
-  camposFormularioCaptacaoLead   CampoFormularioCaptacaoLead[]
-  submissoesCaptacaoLead         SubmissaoCaptacaoLead[]
-  regrasDistribuicaoLead         RegraDistribuicaoLead[]
-  integracoesCaptacaoLead        IntegracaoCaptacaoLead[]
-  eventosIntegracaoCaptacaoLead  EventoIntegracaoCaptacaoLead[]
   regraLiberacaoCertificado      String                           @default("CURSO_COMPLETO")
   mediaMinimaCertificado         Float                            @default(7)
   frequenciaMinimaCertificado    Float                            @default(75)
@@ -396,24 +388,14 @@ model User {
   movimentacoesFunilLeadRealizadas                     LeadMovimentacaoFunil[]                     @relation("LeadMovimentacaoRealizadaPor")
   transferenciasLeadRealizadas                         LeadTransferencia[]                         @relation("LeadTransferenciaRealizadaPor")
 
-  tarefasComerciaisCriadas           TarefaComercial[]        @relation("TarefaComercialCriadaPor")
-  tarefasComerciaisAtualizadas       TarefaComercial[]        @relation("TarefaComercialAtualizadaPor")
-  tarefasComerciaisConcluidas        TarefaComercial[]        @relation("TarefaComercialConcluidaPor")
-  tarefasComerciaisCanceladas        TarefaComercial[]        @relation("TarefaComercialCanceladaPor")
-  canaisCaptacaoLeadCriados          CanalCaptacaoLead[]      @relation("CanalCaptacaoLeadCriadoPor")
-  canaisCaptacaoLeadAtualizados      CanalCaptacaoLead[]      @relation("CanalCaptacaoLeadAtualizadoPor")
-  campanhasCaptacaoLeadCriadas       CampanhaCaptacaoLead[]   @relation("CampanhaCaptacaoLeadCriadaPor")
-  campanhasCaptacaoLeadAtualizadas   CampanhaCaptacaoLead[]   @relation("CampanhaCaptacaoLeadAtualizadaPor")
-  formulariosCaptacaoLeadCriados     FormularioCaptacaoLead[] @relation("FormularioCaptacaoLeadCriadoPor")
-  formulariosCaptacaoLeadAtualizados FormularioCaptacaoLead[] @relation("FormularioCaptacaoLeadAtualizadoPor")
-  regrasDistribuicaoLeadCriadas      RegraDistribuicaoLead[]  @relation("RegraDistribuicaoLeadCriadaPor")
-  regrasDistribuicaoLeadAtualizadas  RegraDistribuicaoLead[]  @relation("RegraDistribuicaoLeadAtualizadaPor")
-  integracoesCaptacaoLeadCriadas     IntegracaoCaptacaoLead[] @relation("IntegracaoCaptacaoLeadCriadaPor")
-  integracoesCaptacaoLeadAtualizadas IntegracaoCaptacaoLead[] @relation("IntegracaoCaptacaoLeadAtualizadaPor")
-  etapasFunisComerciaisCriadas       EtapaFunilComercial[]    @relation("EtapaFunilComercialCriadaPor")
-  etapasFunisComerciaisAtualizadas   EtapaFunilComercial[]    @relation("EtapaFunilComercialAtualizadaPor")
-  etapasFunisComerciaisArquivadas    EtapaFunilComercial[]    @relation("EtapaFunilComercialArquivadaPor")
-  etapasFunisComerciaisRestauradas   EtapaFunilComercial[]    @relation("EtapaFunilComercialRestauradaPor")
+  tarefasComerciaisCriadas         TarefaComercial[]     @relation("TarefaComercialCriadaPor")
+  tarefasComerciaisAtualizadas     TarefaComercial[]     @relation("TarefaComercialAtualizadaPor")
+  tarefasComerciaisConcluidas      TarefaComercial[]     @relation("TarefaComercialConcluidaPor")
+  tarefasComerciaisCanceladas      TarefaComercial[]     @relation("TarefaComercialCanceladaPor")
+  etapasFunisComerciaisCriadas     EtapaFunilComercial[] @relation("EtapaFunilComercialCriadaPor")
+  etapasFunisComerciaisAtualizadas EtapaFunilComercial[] @relation("EtapaFunilComercialAtualizadaPor")
+  etapasFunisComerciaisArquivadas  EtapaFunilComercial[] @relation("EtapaFunilComercialArquivadaPor")
+  etapasFunisComerciaisRestauradas EtapaFunilComercial[] @relation("EtapaFunilComercialRestauradaPor")
 
   motivosPerdaComerciaisCriados     MotivoPerdaComercial[] @relation("MotivoPerdaComercialCriadoPor")
   motivosPerdaComerciaisAtualizados MotivoPerdaComercial[] @relation("MotivoPerdaComercialAtualizadoPor")
@@ -724,8 +706,6 @@ model Curso {
   publicacoesRedeOrigem           CursoPublicacaoRede[]           @relation("CursoPublicacaoOrigem")
   publicacaoRedeDestino           CursoPublicacaoRede?            @relation("CursoPublicacaoDestino")
   leadsInteressados               Lead[]                          @relation("LeadCursoInteresse")
-  formulariosCaptacaoPadrao       FormularioCaptacaoLead[]        @relation("FormularioCaptacaoCursoPadrao")
-  regrasDistribuicaoCaptacao      RegraDistribuicaoLead[]         @relation("RegraDistribuicaoCurso")
   destinosRecomendacoesBiblioteca BibliotecaRecomendacaoDestino[]
 
   @@unique([instituicaoId, nome])
@@ -1671,8 +1651,6 @@ model Funcionario {
   transferenciasLeadComoAnterior              LeadTransferencia[]                         @relation("LeadTransferenciaResponsavelAnterior")
   transferenciasLeadComoNovo                  LeadTransferencia[]                         @relation("LeadTransferenciaResponsavelNovo")
   tarefasComerciaisResponsavel                TarefaComercial[]                           @relation("TarefaComercialResponsavel")
-  formulariosCaptacaoComoResponsavelPadrao    FormularioCaptacaoLead[]                    @relation("FormularioCaptacaoResponsavelPadrao")
-  regrasDistribuicaoComoResponsavelFixo       RegraDistribuicaoLead[]                     @relation("RegraDistribuicaoResponsavelFixo")
 
   @@index([instituicaoId])
   @@index([departamentoId])
@@ -1888,7 +1866,7 @@ model ConfiguracaoInstituicao {
   endereco                 String?
   cidade                   String?
   estado                   String?
-  fusoHorario              String      @default("America/Sao_Paulo")
+    fusoHorario String @default("America/Sao_Paulo")
   responsavelNome          String?
   responsavelCargo         String?
   logoUrl                  String?
@@ -2152,7 +2130,6 @@ model Lead {
   movimentacoesFunil LeadMovimentacaoFunil[]
   transferencias     LeadTransferencia[]
   tarefasComerciais  TarefaComercial[]
-  submissoesCaptacao SubmissaoCaptacaoLead[]
 
   @@index([instituicaoGestoraId])
   @@index([instituicaoInteressadaId])
@@ -2485,17 +2462,15 @@ model Polo {
   lotacoesFuncionariosComoAnterior FuncionarioLotacaoRH[] @relation("FuncionarioLotacaoPoloAnterior")
   lotacoesFuncionariosComoNovo     FuncionarioLotacaoRH[] @relation("FuncionarioLotacaoPoloNovo")
 
-  turmas                     Turma[]
-  alunos                     Aluno[]
-  cursosPolos                CursoPolo[]
-  matriculas                 Matricula[]
-  cobrancas                  Cobranca[]
-  lancamentosFinanceiros     LancamentoFinanceiro[]
-  metasComerciais            MetaComercial[]
-  publicacoesCursosRede      CursoPublicacaoRede[]    @relation("CursoPublicacaoPolo")
-  leadsInteressados          Lead[]                   @relation("LeadPoloInteresse")
-  formulariosCaptacaoPadrao  FormularioCaptacaoLead[] @relation("FormularioCaptacaoPoloPadrao")
-  regrasDistribuicaoCaptacao RegraDistribuicaoLead[]  @relation("RegraDistribuicaoPolo")
+  turmas                 Turma[]
+  alunos                 Aluno[]
+  cursosPolos            CursoPolo[]
+  matriculas             Matricula[]
+  cobrancas              Cobranca[]
+  lancamentosFinanceiros LancamentoFinanceiro[]
+  metasComerciais        MetaComercial[]
+  publicacoesCursosRede  CursoPublicacaoRede[]  @relation("CursoPublicacaoPolo")
+  leadsInteressados      Lead[]                 @relation("LeadPoloInteresse")
 
   @@unique([instituicaoId, nome])
   @@unique([instituicaoId, codigo])
@@ -4661,15 +4636,13 @@ model EquipeComercial {
   criadoEm                 DateTime @default(now())
   atualizadoEm             DateTime @updatedAt
 
-  instituicao                         Instituicao              @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  responsavelFuncionario              Funcionario?             @relation("EquipeComercialResponsavel", fields: [responsavelFuncionarioId], references: [id], onDelete: SetNull)
-  criadoPor                           User?                    @relation("EquipeComercialCriadaPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
-  atualizadoPor                       User?                    @relation("EquipeComercialAtualizadaPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
-  membros                             EquipeComercialMembro[]
-  metas                               MetaComercial[]
-  leadsResponsabilidade               Lead[]                   @relation("LeadEquipeResponsavel")
-  formulariosCaptacaoComoEquipePadrao FormularioCaptacaoLead[] @relation("FormularioCaptacaoEquipePadrao")
-  regrasDistribuicaoCaptacao          RegraDistribuicaoLead[]  @relation("RegraDistribuicaoEquipe")
+  instituicao            Instituicao             @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  responsavelFuncionario Funcionario?            @relation("EquipeComercialResponsavel", fields: [responsavelFuncionarioId], references: [id], onDelete: SetNull)
+  criadoPor              User?                   @relation("EquipeComercialCriadaPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+  atualizadoPor          User?                   @relation("EquipeComercialAtualizadaPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
+  membros                EquipeComercialMembro[]
+  metas                  MetaComercial[]
+  leadsResponsabilidade  Lead[]                  @relation("LeadEquipeResponsavel")
 
   transferenciasLeadComoAnterior LeadTransferencia[] @relation("LeadTransferenciaEquipeAnterior")
   transferenciasLeadComoNova     LeadTransferencia[] @relation("LeadTransferenciaEquipeNova")
@@ -5408,9 +5381,9 @@ model WhatsAppMensagem {
 
   mensagem String? @db.Text
 
-  parametros Json?
+    parametros Json?
 
-  // Identifica de forma única uma comunicação originada
+    // Identifica de forma única uma comunicação originada
   // de um evento do PHANYX.
   //
   // Exemplo:
@@ -5419,7 +5392,7 @@ model WhatsAppMensagem {
   // Evita que cron, retry ou execuções concorrentes
   // disparem a mesma comunicação duas vezes.
   chaveIdempotencia String? @unique
-
+  
   metaMessageId String? @unique
 
   tentativa Int @default(0)
@@ -6175,10 +6148,9 @@ model FunilComercial {
 
   restauradoPor User? @relation("FunilComercialRestauradoPor", fields: [restauradoPorId], references: [id], onDelete: SetNull)
 
-  etapas                    EtapaFunilComercial[]
-  leads                     Lead[]                   @relation("LeadFunilComercial")
-  movimentacoes             LeadMovimentacaoFunil[]  @relation("LeadMovimentacaoFunil")
-  formulariosCaptacaoPadrao FormularioCaptacaoLead[] @relation("FormularioCaptacaoFunilPadrao")
+  etapas        EtapaFunilComercial[]
+  leads         Lead[]                  @relation("LeadFunilComercial")
+  movimentacoes LeadMovimentacaoFunil[] @relation("LeadMovimentacaoFunil")
 
   @@unique([instituicaoId, nome])
   @@index([instituicaoId])
@@ -6232,10 +6204,9 @@ model EtapaFunilComercial {
 
   restauradoPor User? @relation("EtapaFunilComercialRestauradaPor", fields: [restauradoPorId], references: [id], onDelete: SetNull)
 
-  leadsAtuais               Lead[]                   @relation("LeadEtapaFunilComercial")
-  movimentacoesComoAnterior LeadMovimentacaoFunil[]  @relation("LeadMovimentacaoEtapaAnterior")
-  movimentacoesComoNova     LeadMovimentacaoFunil[]  @relation("LeadMovimentacaoEtapaNova")
-  formulariosCaptacaoPadrao FormularioCaptacaoLead[] @relation("FormularioCaptacaoEtapaPadrao")
+  leadsAtuais               Lead[]                  @relation("LeadEtapaFunilComercial")
+  movimentacoesComoAnterior LeadMovimentacaoFunil[] @relation("LeadMovimentacaoEtapaAnterior")
+  movimentacoesComoNova     LeadMovimentacaoFunil[] @relation("LeadMovimentacaoEtapaNova")
 
   @@unique([funilId, nome])
   @@unique([funilId, ordem])
@@ -6433,418 +6404,6 @@ model TarefaComercial {
   @@index([instituicaoId, status, agendadaPara])
   @@index([instituicaoId, responsavelFuncionarioId, status, agendadaPara])
   @@index([leadId, status, agendadaPara])
-}
-
-model CanalCaptacaoLead {
-  id              Int  @id @default(autoincrement())
-  instituicaoId   Int
-  criadoPorId     Int?
-  atualizadoPorId Int?
-
-  nome      String
-  slug      String
-  descricao String?               @db.Text
-  tipo      TipoCanalCaptacaoLead
-  cor       String?               @default("#64748B")
-  icone     String?
-  padrao    Boolean               @default(false)
-  ativo     Boolean               @default(true)
-
-  criadoEm     DateTime @default(now())
-  atualizadoEm DateTime @updatedAt
-
-  instituicao   Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  criadoPor     User?       @relation("CanalCaptacaoLeadCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
-  atualizadoPor User?       @relation("CanalCaptacaoLeadAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
-
-  campanhas          CampanhaCaptacaoLead[]
-  formularios        FormularioCaptacaoLead[]
-  submissoes         SubmissaoCaptacaoLead[]
-  regrasDistribuicao RegraDistribuicaoLead[]
-  integracoes        IntegracaoCaptacaoLead[]
-
-  @@unique([instituicaoId, slug])
-  @@unique([instituicaoId, nome])
-  @@index([instituicaoId])
-  @@index([instituicaoId, ativo])
-  @@index([instituicaoId, tipo])
-  @@index([instituicaoId, padrao])
-  @@index([criadoPorId])
-  @@index([atualizadoPorId])
-}
-
-model CampanhaCaptacaoLead {
-  id              Int  @id @default(autoincrement())
-  instituicaoId   Int
-  canalId         Int?
-  criadoPorId     Int?
-  atualizadoPorId Int?
-
-  nome      String
-  codigo    String
-  descricao String?                    @db.Text
-  status    StatusCampanhaCaptacaoLead @default(RASCUNHO)
-  ativo     Boolean                    @default(true)
-
-  dataInicio DateTime?
-  dataFim    DateTime?
-  orcamento  Decimal?  @db.Decimal(14, 2)
-  moeda      String    @default("BRL")
-
-  utmSource   String?
-  utmMedium   String?
-  utmCampaign String?
-  utmContent  String?
-  utmTerm     String?
-  urlDestino  String? @db.Text
-  observacoes String? @db.Text
-
-  criadoEm     DateTime @default(now())
-  atualizadoEm DateTime @updatedAt
-
-  instituicao   Instituicao        @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  canal         CanalCaptacaoLead? @relation(fields: [canalId], references: [id], onDelete: SetNull)
-  criadoPor     User?              @relation("CampanhaCaptacaoLeadCriadaPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
-  atualizadoPor User?              @relation("CampanhaCaptacaoLeadAtualizadaPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
-
-  formularios        FormularioCaptacaoLead[]
-  submissoes         SubmissaoCaptacaoLead[]
-  regrasDistribuicao RegraDistribuicaoLead[]
-  integracoes        IntegracaoCaptacaoLead[]
-
-  @@unique([instituicaoId, codigo])
-  @@index([instituicaoId])
-  @@index([instituicaoId, status])
-  @@index([instituicaoId, ativo])
-  @@index([canalId])
-  @@index([dataInicio, dataFim])
-  @@index([utmCampaign])
-  @@index([criadoPorId])
-  @@index([atualizadoPorId])
-}
-
-model FormularioCaptacaoLead {
-  id                  Int  @id @default(autoincrement())
-  instituicaoId       Int
-  canalId             Int?
-  campanhaId          Int?
-  funilPadraoId       Int?
-  etapaPadraoId       Int?
-  equipePadraoId      Int?
-  responsavelPadraoId Int?
-  cursoPadraoId       Int?
-  poloPadraoId        Int?
-  criadoPorId         Int?
-  atualizadoPorId     Int?
-
-  nome                String
-  slug                String
-  tokenPublico        String                       @unique @default(cuid())
-  titulo              String
-  descricao           String?                      @db.Text
-  mensagemSucesso     String?                      @db.Text
-  urlRedirecionamento String?                      @db.Text
-  status              StatusFormularioCaptacaoLead @default(RASCUNHO)
-  versao              Int                          @default(1)
-  publico             Boolean                      @default(true)
-  ativo               Boolean                      @default(true)
-
-  exigeConsentimento          Boolean             @default(true)
-  textoConsentimento          String?             @db.Text
-  versaoConsentimento         String?
-  politicaPrivacidadeUrl      String?             @db.Text
-  bloquearDuplicados          Boolean             @default(true)
-  atualizarLeadExistente      Boolean             @default(true)
-  criarTarefaPrimeiroContato  Boolean             @default(true)
-  tipoTarefaInicial           TipoTarefaComercial @default(RETORNO)
-  prazoPrimeiroContatoMinutos Int                 @default(15)
-
-  recaptchaAtivo            Boolean @default(false)
-  honeypotAtivo             Boolean @default(true)
-  limiteSubmissoesPorIpHora Int     @default(20)
-  configuracaoVisual        Json?
-  metadados                 Json?
-
-  publicadoEm  DateTime?
-  pausadoEm    DateTime?
-  arquivadoEm  DateTime?
-  criadoEm     DateTime  @default(now())
-  atualizadoEm DateTime  @updatedAt
-
-  instituicao       Instituicao           @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  canal             CanalCaptacaoLead?    @relation(fields: [canalId], references: [id], onDelete: SetNull)
-  campanha          CampanhaCaptacaoLead? @relation(fields: [campanhaId], references: [id], onDelete: SetNull)
-  funilPadrao       FunilComercial?       @relation("FormularioCaptacaoFunilPadrao", fields: [funilPadraoId], references: [id], onDelete: SetNull)
-  etapaPadrao       EtapaFunilComercial?  @relation("FormularioCaptacaoEtapaPadrao", fields: [etapaPadraoId], references: [id], onDelete: SetNull)
-  equipePadrao      EquipeComercial?      @relation("FormularioCaptacaoEquipePadrao", fields: [equipePadraoId], references: [id], onDelete: SetNull)
-  responsavelPadrao Funcionario?          @relation("FormularioCaptacaoResponsavelPadrao", fields: [responsavelPadraoId], references: [id], onDelete: SetNull)
-  cursoPadrao       Curso?                @relation("FormularioCaptacaoCursoPadrao", fields: [cursoPadraoId], references: [id], onDelete: SetNull)
-  poloPadrao        Polo?                 @relation("FormularioCaptacaoPoloPadrao", fields: [poloPadraoId], references: [id], onDelete: SetNull)
-  criadoPor         User?                 @relation("FormularioCaptacaoLeadCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
-  atualizadoPor     User?                 @relation("FormularioCaptacaoLeadAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
-
-  campos             CampoFormularioCaptacaoLead[]
-  submissoes         SubmissaoCaptacaoLead[]
-  regrasDistribuicao RegraDistribuicaoLead[]
-  integracoes        IntegracaoCaptacaoLead[]
-
-  @@unique([instituicaoId, slug])
-  @@index([instituicaoId])
-  @@index([instituicaoId, status])
-  @@index([instituicaoId, ativo])
-  @@index([canalId])
-  @@index([campanhaId])
-  @@index([funilPadraoId])
-  @@index([etapaPadraoId])
-  @@index([equipePadraoId])
-  @@index([responsavelPadraoId])
-  @@index([cursoPadraoId])
-  @@index([poloPadraoId])
-  @@index([criadoPorId])
-  @@index([atualizadoPorId])
-}
-
-model CampoFormularioCaptacaoLead {
-  id            Int @id @default(autoincrement())
-  instituicaoId Int
-  formularioId  Int
-
-  chave       String
-  rotulo      String
-  tipo        TipoCampoFormularioCaptacaoLead       @default(TEXTO_CURTO)
-  mapeamento  MapeamentoCampoFormularioCaptacaoLead @default(PERSONALIZADO)
-  placeholder String?
-  textoAjuda  String?                               @db.Text
-  valorPadrao String?                               @db.Text
-  mascara     String?
-  obrigatorio Boolean                               @default(false)
-  ativo       Boolean                               @default(true)
-  ordem       Int
-  largura     Int                                   @default(12)
-  opcoes      Json?
-  validacoes  Json?
-
-  criadoEm     DateTime @default(now())
-  atualizadoEm DateTime @updatedAt
-
-  instituicao Instituicao            @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  formulario  FormularioCaptacaoLead @relation(fields: [formularioId], references: [id], onDelete: Cascade)
-
-  @@unique([formularioId, chave])
-  @@unique([formularioId, ordem])
-  @@index([instituicaoId])
-  @@index([formularioId, ativo, ordem])
-  @@index([mapeamento])
-}
-
-model RegraDistribuicaoLead {
-  id                Int  @id @default(autoincrement())
-  instituicaoId     Int
-  canalId           Int?
-  campanhaId        Int?
-  formularioId      Int?
-  cursoId           Int?
-  poloId            Int?
-  equipeId          Int?
-  responsavelFixoId Int?
-  criadoPorId       Int?
-  atualizadoPorId   Int?
-
-  nome                             String
-  descricao                        String?                    @db.Text
-  estrategia                       EstrategiaDistribuicaoLead @default(RODIZIO)
-  ordemPrioridade                  Int                        @default(0)
-  maximoLeadsAbertosPorResponsavel Int?
-  somenteMembrosAtivos             Boolean                    @default(true)
-  respeitarDisponibilidade         Boolean                    @default(true)
-  proximoIndiceRodizio             Int                        @default(0)
-  criterios                        Json?
-  configuracao                     Json?
-  ativo                            Boolean                    @default(true)
-
-  criadoEm     DateTime @default(now())
-  atualizadoEm DateTime @updatedAt
-
-  instituicao     Instituicao             @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  canal           CanalCaptacaoLead?      @relation(fields: [canalId], references: [id], onDelete: SetNull)
-  campanha        CampanhaCaptacaoLead?   @relation(fields: [campanhaId], references: [id], onDelete: SetNull)
-  formulario      FormularioCaptacaoLead? @relation(fields: [formularioId], references: [id], onDelete: SetNull)
-  curso           Curso?                  @relation("RegraDistribuicaoCurso", fields: [cursoId], references: [id], onDelete: SetNull)
-  polo            Polo?                   @relation("RegraDistribuicaoPolo", fields: [poloId], references: [id], onDelete: SetNull)
-  equipe          EquipeComercial?        @relation("RegraDistribuicaoEquipe", fields: [equipeId], references: [id], onDelete: SetNull)
-  responsavelFixo Funcionario?            @relation("RegraDistribuicaoResponsavelFixo", fields: [responsavelFixoId], references: [id], onDelete: SetNull)
-  criadoPor       User?                   @relation("RegraDistribuicaoLeadCriadaPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
-  atualizadoPor   User?                   @relation("RegraDistribuicaoLeadAtualizadaPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
-
-  @@unique([instituicaoId, nome])
-  @@index([instituicaoId])
-  @@index([instituicaoId, ativo, ordemPrioridade])
-  @@index([canalId])
-  @@index([campanhaId])
-  @@index([formularioId])
-  @@index([cursoId])
-  @@index([poloId])
-  @@index([equipeId])
-  @@index([responsavelFixoId])
-  @@index([estrategia])
-  @@index([criadoPorId])
-  @@index([atualizadoPorId])
-}
-
-model IntegracaoCaptacaoLead {
-  id              Int  @id @default(autoincrement())
-  instituicaoId   Int
-  canalId         Int?
-  campanhaId      Int?
-  formularioId    Int?
-  criadoPorId     Int?
-  atualizadoPorId Int?
-
-  nome                 String
-  tipo                 TipoIntegracaoCaptacaoLead
-  status               StatusIntegracaoCaptacaoLead @default(INATIVA)
-  chavePublica         String                       @unique @default(cuid())
-  segredoCriptografado String?                      @db.Text
-  urlEndpoint          String?                      @db.Text
-  configuracao         Json?
-  eventosAssinados     Json?
-  ativo                Boolean                      @default(true)
-
-  ultimoSucessoEm DateTime?
-  ultimoErroEm    DateTime?
-  ultimoErro      String?   @db.Text
-  criadoEm        DateTime  @default(now())
-  atualizadoEm    DateTime  @updatedAt
-
-  instituicao   Instituicao             @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  canal         CanalCaptacaoLead?      @relation(fields: [canalId], references: [id], onDelete: SetNull)
-  campanha      CampanhaCaptacaoLead?   @relation(fields: [campanhaId], references: [id], onDelete: SetNull)
-  formulario    FormularioCaptacaoLead? @relation(fields: [formularioId], references: [id], onDelete: SetNull)
-  criadoPor     User?                   @relation("IntegracaoCaptacaoLeadCriadaPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
-  atualizadoPor User?                   @relation("IntegracaoCaptacaoLeadAtualizadaPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
-
-  submissoes SubmissaoCaptacaoLead[]
-  eventos    EventoIntegracaoCaptacaoLead[]
-
-  @@unique([instituicaoId, nome])
-  @@index([instituicaoId])
-  @@index([instituicaoId, status])
-  @@index([instituicaoId, tipo])
-  @@index([instituicaoId, ativo])
-  @@index([canalId])
-  @@index([campanhaId])
-  @@index([formularioId])
-  @@index([criadoPorId])
-  @@index([atualizadoPorId])
-}
-
-model SubmissaoCaptacaoLead {
-  id            Int  @id @default(autoincrement())
-  instituicaoId Int
-  canalId       Int?
-  campanhaId    Int?
-  formularioId  Int?
-  integracaoId  Int?
-  leadId        Int?
-
-  identificadorExterno  String?
-  chaveDeduplicacao     String?
-  status                StatusSubmissaoCaptacaoLead       @default(RECEBIDA)
-  resultadoDeduplicacao ResultadoDeduplicacaoCaptacaoLead @default(NAO_VERIFICADA)
-
-  nomeSnapshot      String?
-  emailSnapshot     String?
-  telefoneSnapshot  String?
-  dadosOriginais    Json
-  dadosNormalizados Json?
-
-  utmSource    String?
-  utmMedium    String?
-  utmCampaign  String?
-  utmContent   String?
-  utmTerm      String?
-  gclid        String?
-  fbclid       String?
-  msclkid      String?
-  paginaOrigem String? @db.Text
-  referrer     String? @db.Text
-  ipHash       String?
-  userAgent    String? @db.Text
-  idioma       String?
-
-  consentimentoLgpd          Boolean   @default(false)
-  consentimentoEm            DateTime?
-  versaoConsentimento        String?
-  textoConsentimentoSnapshot String?   @db.Text
-
-  tentativasProcessamento Int       @default(0)
-  codigoErro              String?
-  mensagemErro            String?   @db.Text
-  recebidoEm              DateTime  @default(now())
-  processadoEm            DateTime?
-  atualizadoEm            DateTime  @updatedAt
-
-  instituicao Instituicao             @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  canal       CanalCaptacaoLead?      @relation(fields: [canalId], references: [id], onDelete: SetNull)
-  campanha    CampanhaCaptacaoLead?   @relation(fields: [campanhaId], references: [id], onDelete: SetNull)
-  formulario  FormularioCaptacaoLead? @relation(fields: [formularioId], references: [id], onDelete: SetNull)
-  integracao  IntegracaoCaptacaoLead? @relation(fields: [integracaoId], references: [id], onDelete: SetNull)
-  lead        Lead?                   @relation(fields: [leadId], references: [id], onDelete: SetNull)
-
-  eventosIntegracao EventoIntegracaoCaptacaoLead[]
-
-  @@unique([integracaoId, identificadorExterno])
-  @@index([instituicaoId])
-  @@index([instituicaoId, status, recebidoEm])
-  @@index([canalId])
-  @@index([campanhaId])
-  @@index([formularioId])
-  @@index([integracaoId])
-  @@index([leadId])
-  @@index([chaveDeduplicacao])
-  @@index([emailSnapshot])
-  @@index([telefoneSnapshot])
-  @@index([utmCampaign])
-  @@index([recebidoEm])
-  @@index([processadoEm])
-}
-
-model EventoIntegracaoCaptacaoLead {
-  id            Int  @id @default(autoincrement())
-  instituicaoId Int
-  integracaoId  Int
-  submissaoId   Int?
-
-  identificadorEvento String?
-  tipoEvento          String
-  direcao             DirecaoEventoIntegracaoCaptacaoLead
-  status              StatusEventoIntegracaoCaptacaoLead  @default(RECEBIDO)
-  headers             Json?
-  payload             Json
-  resposta            Json?
-  codigoHttp          Int?
-  numeroTentativas    Int                                 @default(0)
-  proximaTentativaEm  DateTime?
-  mensagemErro        String?                             @db.Text
-
-  recebidoEm   DateTime  @default(now())
-  processadoEm DateTime?
-  criadoEm     DateTime  @default(now())
-  atualizadoEm DateTime  @updatedAt
-
-  instituicao Instituicao            @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  integracao  IntegracaoCaptacaoLead @relation(fields: [integracaoId], references: [id], onDelete: Cascade)
-  submissao   SubmissaoCaptacaoLead? @relation(fields: [submissaoId], references: [id], onDelete: SetNull)
-
-  @@unique([integracaoId, identificadorEvento])
-  @@index([instituicaoId])
-  @@index([integracaoId])
-  @@index([submissaoId])
-  @@index([status])
-  @@index([direcao])
-  @@index([tipoEvento])
-  @@index([proximaTentativaEm])
-  @@index([recebidoEm])
 }
 
 model BibliotecaEmprestimo {
@@ -8028,126 +7587,6 @@ enum StatusExemplarBiblioteca {
   EXTRAVIADO
   INDISPONIVEL
   BAIXADO
-}
-
-enum TipoCanalCaptacaoLead {
-  SITE
-  LANDING_PAGE
-  FORMULARIO
-  META_ADS
-  GOOGLE_ADS
-  WHATSAPP
-  INDICACAO
-  EVENTO
-  PARCERIA
-  IMPORTACAO
-  API
-  OUTRO
-}
-
-enum StatusCampanhaCaptacaoLead {
-  RASCUNHO
-  AGENDADA
-  ATIVA
-  PAUSADA
-  ENCERRADA
-  ARQUIVADA
-}
-
-enum StatusFormularioCaptacaoLead {
-  RASCUNHO
-  PUBLICADO
-  PAUSADO
-  ARQUIVADO
-}
-
-enum TipoCampoFormularioCaptacaoLead {
-  TEXTO_CURTO
-  TEXTO_LONGO
-  EMAIL
-  TELEFONE
-  NUMERO
-  DATA
-  SELECAO_UNICA
-  SELECAO_MULTIPLA
-  CHECKBOX
-  CONSENTIMENTO
-  OCULTO
-}
-
-enum MapeamentoCampoFormularioCaptacaoLead {
-  NOME
-  EMAIL
-  TELEFONE
-  INSTITUICAO_NOME
-  CARGO
-  INTERESSE
-  OBSERVACOES
-  CURSO_INTERESSE_ID
-  POLO_INTERESSE_ID
-  CONSENTIMENTO
-  PERSONALIZADO
-}
-
-enum EstrategiaDistribuicaoLead {
-  RODIZIO
-  MENOR_CARGA
-  ALEATORIA
-  RESPONSAVEL_FIXO
-  EQUIPE_SEM_RESPONSAVEL
-  MANUAL
-}
-
-enum TipoIntegracaoCaptacaoLead {
-  WEBHOOK_ENTRADA
-  WEBHOOK_SAIDA
-  META_LEAD_ADS
-  GOOGLE_LEAD_FORM
-  API
-  IMPORTACAO
-  OUTRA
-}
-
-enum StatusIntegracaoCaptacaoLead {
-  INATIVA
-  ATIVA
-  PAUSADA
-  ERRO
-  REVOGADA
-}
-
-enum StatusSubmissaoCaptacaoLead {
-  RECEBIDA
-  VALIDANDO
-  PROCESSANDO
-  PROCESSADA
-  DUPLICADA
-  REJEITADA
-  SPAM
-  ERRO
-}
-
-enum ResultadoDeduplicacaoCaptacaoLead {
-  NAO_VERIFICADA
-  NOVO_LEAD
-  LEAD_EXISTENTE_ATUALIZADO
-  DUPLICADA_IGNORADA
-  REVISAO_MANUAL
-}
-
-enum DirecaoEventoIntegracaoCaptacaoLead {
-  ENTRADA
-  SAIDA
-}
-
-enum StatusEventoIntegracaoCaptacaoLead {
-  RECEBIDO
-  PENDENTE
-  PROCESSANDO
-  PROCESSADO
-  ENTREGUE
-  ERRO
-  DESCARTADO
 }
 
 enum CategoriaEtapaFunilComercial {

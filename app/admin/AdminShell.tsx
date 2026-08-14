@@ -24,8 +24,12 @@ type UsuarioLogado = {
 
 export default function AdminShell({
   children,
+  usuarioInicial = null,
+  permissoesIniciais = [],
 }: {
   children: React.ReactNode;
+  usuarioInicial?: UsuarioLogado | null;
+  permissoesIniciais?: string[];
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -123,13 +127,19 @@ export default function AdminShell({
     descobrirMenuInicial()
   );
 
-  const [usuario, setUsuario] = useState<UsuarioLogado | null>(null);
-  const [permissoes, setPermissoes] = useState<string[]>([]);
+  const [usuario, setUsuario] = useState<UsuarioLogado | null>(
+    usuarioInicial
+  );
+  const [permissoes, setPermissoes] = useState<string[]>(
+    permissoesIniciais
+  );
   const [funcionario, setFuncionario] = useState<{
     nome?: string;
     fotoPerfil?: string | null;
   } | null>(null);
-  const [carregandoUsuario, setCarregandoUsuario] = useState(true);
+  const [carregandoUsuario, setCarregandoUsuario] = useState(
+    !usuarioInicial
+  );
   const [sessaoExpirada, setSessaoExpirada] = useState(false);
   const [menuMobileAberto, setMenuMobileAberto] = useState<string | null>(null);
 
@@ -251,61 +261,82 @@ export default function AdminShell({
   }, []);
 
   useEffect(() => {
-    async function carregarUsuario() {
+    async function carregarFuncionario() {
       try {
-        const res = await fetch("/api/auth/me", {
+        const resFuncionario = await fetch("/api/admin/funcionarios/me", {
           cache: "no-store",
           credentials: "include",
         });
 
-        if (!res.ok) {
-          setUsuario(null);
-          return;
-        }
+        if (resFuncionario.ok) {
+          const funcionarioData = await resFuncionario.json();
 
-        const data = await res.json();
-
-        setUsuario(data.user ?? null);
-
-        try {
-          const resPermissoes = await fetch("/api/admin/permissoes/me", {
-            cache: "no-store",
-            credentials: "include",
+          setFuncionario({
+            nome: funcionarioData?.nome,
+            fotoPerfil: funcionarioData?.fotoPerfil,
           });
-
-          if (resPermissoes.ok) {
-            const permissoesData = await resPermissoes.json();
-            setPermissoes(Array.isArray(permissoesData.permissoes) ? permissoesData.permissoes : []);
-          }
-        } catch {
-          setPermissoes([]);
-        }
-
-        try {
-          const resFuncionario = await fetch("/api/admin/funcionarios/me", {
-            cache: "no-store",
-            credentials: "include",
-          });
-
-          if (resFuncionario.ok) {
-            const funcionarioData = await resFuncionario.json();
-
-            setFuncionario({
-              nome: funcionarioData?.nome,
-              fotoPerfil: funcionarioData?.fotoPerfil,
-            });
-          }
-        } catch {
-          setFuncionario(null);
         }
       } catch {
-        setUsuario(null);
-      } finally {
-        setCarregandoUsuario(false);
+        setFuncionario(null);
       }
     }
 
-    carregarUsuario();
+    async function revalidarSessao() {
+      /*
+       * A fotografia do funcionário é complementar. Ela começa a carregar
+       * junto com a sessão, mas não deve atrasar os menus do painel.
+       */
+      const promessaFuncionario = carregarFuncionario();
+
+      try {
+        const [resUsuario, resPermissoes] = await Promise.all([
+          fetch("/api/auth/me", {
+            cache: "no-store",
+            credentials: "include",
+          }),
+          fetch("/api/admin/permissoes/me", {
+            cache: "no-store",
+            credentials: "include",
+          }),
+        ]);
+
+        if (!resUsuario.ok) {
+          setUsuario(null);
+          setPermissoes([]);
+          return;
+        }
+
+        const dataUsuario = await resUsuario.json();
+        setUsuario(dataUsuario.user ?? null);
+
+        if (resPermissoes.ok) {
+          const permissoesData = await resPermissoes.json();
+          setPermissoes(
+            Array.isArray(permissoesData.permissoes)
+              ? permissoesData.permissoes
+              : []
+          );
+        } else if (!usuarioInicial) {
+          setPermissoes([]);
+        }
+      } catch {
+        /*
+         * Se o layout já entregou uma sessão válida, uma falha transitória
+         * de rede não deve fazer o menu desaparecer. Sem dados iniciais,
+         * mantemos o comportamento seguro anterior.
+         */
+        if (!usuarioInicial) {
+          setUsuario(null);
+          setPermissoes([]);
+        }
+      } finally {
+        setCarregandoUsuario(false);
+      }
+
+      await promessaFuncionario;
+    }
+
+    revalidarSessao();
     carregarNotificacoes();
 
     const intervaloNotificacoes = setInterval(carregarNotificacoes, 30000);
@@ -549,9 +580,9 @@ export default function AdminShell({
       )
     );
 
-    const podeVerAcervoBiblioteca = podeAcessar(
-                "biblioteca.catalogo.ver"
-                );
+  const podeVerAcervoBiblioteca = podeAcessar(
+    "biblioteca.catalogo.ver"
+  );
 
   const podeGerenciarEmailInstitucional =
     podeAcessar("integracoes.email.gerenciar");
