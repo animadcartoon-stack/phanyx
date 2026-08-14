@@ -37,7 +37,12 @@ export async function GET() {
       );
     }
 
-    const [podeVer, podeGerenciar] = await Promise.all([
+    const [
+      podeVer,
+      podeGerenciar,
+      podeMovimentar,
+      podeRegistrarPerda,
+    ] = await Promise.all([
       usuarioPossuiPermissao(
         user,
         "comercial.funis.ver"
@@ -46,12 +51,24 @@ export async function GET() {
         user,
         "comercial.funis.gerenciar"
       ),
+      usuarioPossuiPermissao(
+        user,
+        "comercial.leads.movimentar"
+      ),
+      usuarioPossuiPermissao(
+        user,
+        "comercial.leads.registrar_perda"
+      ),
     ]);
 
-    if (!podeVer && !podeGerenciar) {
+    if (
+      !podeVer &&
+      !podeGerenciar &&
+      !podeMovimentar
+    ) {
       throw new ErroHttp(
         403,
-        "Você não possui permissão para visualizar os funis comerciais.",
+        "Você não possui permissão para consultar a estrutura comercial.",
         "SEM_PERMISSAO"
       );
     }
@@ -184,6 +201,8 @@ export async function GET() {
         permissoes: {
           podeVer,
           podeGerenciar,
+          podeMovimentar,
+          podeRegistrarPerda,
         },
         configuracao: {
           estruturaConfigurada: Boolean(funilPadrao),

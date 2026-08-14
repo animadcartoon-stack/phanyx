@@ -804,6 +804,17 @@ export default function AdminShell({
 
                         {podeVerLeadsComerciais && (
                           <Link
+                            href="/admin/comercial/pipeline"
+                            className={getLinkClass(
+                              "/admin/comercial/pipeline"
+                            )}
+                          >
+                            🗂️ Pipeline comercial
+                          </Link>
+                        )}
+
+                        {podeVerLeadsComerciais && (
+                          <Link
                             href="/admin/leads"
                             className={getLinkClass("/admin/leads")}
                           >
@@ -1513,6 +1524,15 @@ export default function AdminShell({
                           className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                         >
                           🧭 Funis comerciais
+                        </Link>
+                      )}
+
+                      {podeVerLeadsComerciais && (
+                        <Link
+                          href="/admin/comercial/pipeline"
+                          className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+                        >
+                          🗂️ Pipeline comercial
                         </Link>
                       )}
 
