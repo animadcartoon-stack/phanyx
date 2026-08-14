@@ -5,11 +5,35 @@ export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
   try {
-    const authHeader = req.headers.get("authorization");
-    const cronSecret = process.env.CRON_SECRET;
+    const authHeader =
+      req.headers.get("authorization");
 
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-      return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    const cronSecret =
+      process.env.CRON_SECRET?.trim();
+
+    if (!cronSecret) {
+      console.error(
+        "CRON_SECRET não está configurado."
+      );
+
+      return NextResponse.json(
+        {
+          error:
+            "Serviço de cron não configurado.",
+        },
+        { status: 503 }
+      );
+    }
+
+    if (
+      authHeader !== `Bearer ${cronSecret}`
+    ) {
+      return NextResponse.json(
+        {
+          error: "Não autorizado",
+        },
+        { status: 401 }
+      );
     }
 
     const limite = new Date();
