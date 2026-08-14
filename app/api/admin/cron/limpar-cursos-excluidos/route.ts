@@ -54,6 +54,9 @@ export async function GET(req: Request) {
       select: {
         id: true,
         nome: true,
+        ativo: true,
+        excluidoEm: true,
+
         _count: {
           select: {
             matriculas: true,
@@ -69,57 +72,94 @@ export async function GET(req: Request) {
     });
 
     if (dryRun) {
-  let queSeriamExcluidos = 0;
-  let mantidosPorVinculo = 0;
+      let queSeriamExcluidos = 0;
+      let mantidosPorVinculo = 0;
 
-  const candidatosExclusao: Array<{
-    id: number;
-    nome: string;
-  }> = [];
+      const candidatosExclusao: Array<{
+        id: number;
+        nome: string;
+        ativo: boolean;
+        excluidoEm: Date | null;
+        vinculos: {
+          matriculas: number;
+          turmas: number;
+          disciplinas: number;
+          documentosGerados: number;
+          periodosMatricula: number;
+          disciplinasExtrasPermitidas: number;
+          cursosPolos: number;
+        };
+      }> = [];
 
-  const cursosMantidos: Array<{
-    id: number;
-    nome: string;
-  }> = [];
+      const cursosMantidos: Array<{
+        id: number;
+        nome: string;
+      }> = [];
 
-  for (const curso of cursos) {
-    const temVinculos =
-      curso._count.matriculas > 0 ||
-      curso._count.turmas > 0 ||
-      curso._count.disciplinas > 0 ||
-      curso._count.documentosGerados > 0 ||
-      curso._count.periodosMatricula > 0 ||
-      curso._count.disciplinasExtrasPermitidas > 0;
+      for (const curso of cursos) {
+        const temVinculos =
+          curso._count.matriculas > 0 ||
+          curso._count.turmas > 0 ||
+          curso._count.disciplinas > 0 ||
+          curso._count.documentosGerados > 0 ||
+          curso._count.periodosMatricula > 0 ||
+          curso._count.disciplinasExtrasPermitidas > 0;
 
-    if (temVinculos) {
-      mantidosPorVinculo++;
+        if (temVinculos) {
+          mantidosPorVinculo++;
 
-      cursosMantidos.push({
-        id: curso.id,
-        nome: curso.nome,
+          cursosMantidos.push({
+            id: curso.id,
+            nome: curso.nome,
+          });
+
+          continue;
+        }
+
+        queSeriamExcluidos++;
+
+        candidatosExclusao.push({
+  id: curso.id,
+  nome: curso.nome,
+  ativo: curso.ativo,
+  excluidoEm: curso.excluidoEm,
+
+  vinculos: {
+    matriculas:
+      curso._count.matriculas,
+
+    turmas:
+      curso._count.turmas,
+
+    disciplinas:
+      curso._count.disciplinas,
+
+    documentosGerados:
+      curso._count.documentosGerados,
+
+    periodosMatricula:
+      curso._count.periodosMatricula,
+
+    disciplinasExtrasPermitidas:
+      curso._count
+        .disciplinasExtrasPermitidas,
+
+    cursosPolos:
+      curso._count.cursosPolos,
+  },
+});
+      }
+
+      return NextResponse.json({
+        ok: true,
+        dryRun: true,
+        encontrados: cursos.length,
+        queSeriamExcluidos,
+        mantidosPorVinculo,
+        candidatosExclusao,
+        cursosMantidos,
       });
-
-      continue;
     }
-
-    queSeriamExcluidos++;
-
-    candidatosExclusao.push({
-      id: curso.id,
-      nome: curso.nome,
-    });
-  }
-
-  return NextResponse.json({
-    ok: true,
-    dryRun: true,
-    encontrados: cursos.length,
-    queSeriamExcluidos,
-    mantidosPorVinculo,
-    candidatosExclusao,
-    cursosMantidos,
-  });
-}
 
     let excluidos = 0;
     let mantidos = 0;
