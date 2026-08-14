@@ -69,6 +69,139 @@ export const PERMISSOES_PHANYX = [
   },
 
     // =====================================================
+  // BIBLIOTECA VIRTUAL
+  // =====================================================
+
+  {
+    chave: "biblioteca.ver",
+    nome: "Biblioteca Virtual - Acessar módulo",
+    descricao:
+      "Permite acessar o módulo da Biblioteca Virtual da instituição.",
+  },
+  {
+    chave: "biblioteca.dashboard.ver",
+    nome: "Biblioteca Virtual - Ver painel",
+    descricao:
+      "Permite consultar indicadores, atividades recentes e resumo da biblioteca.",
+  },
+
+  // CATÁLOGO
+  {
+    chave: "biblioteca.catalogo.ver",
+    nome: "Biblioteca Virtual - Ver catálogo",
+  },
+  {
+    chave: "biblioteca.catalogo.criar",
+    nome: "Biblioteca Virtual - Cadastrar itens",
+  },
+  {
+    chave: "biblioteca.catalogo.editar",
+    nome: "Biblioteca Virtual - Editar itens",
+  },
+  {
+    chave: "biblioteca.catalogo.publicar",
+    nome: "Biblioteca Virtual - Publicar itens",
+  },
+  {
+    chave: "biblioteca.catalogo.arquivar",
+    nome: "Biblioteca Virtual - Arquivar e restaurar itens",
+  },
+
+  // ARQUIVOS E ARMAZENAMENTO
+  {
+    chave: "biblioteca.arquivos.upload",
+    nome: "Biblioteca Virtual - Enviar arquivos",
+  },
+  {
+    chave: "biblioteca.arquivos.download",
+    nome: "Biblioteca Virtual - Baixar arquivos administrativos",
+  },
+  {
+    chave: "biblioteca.arquivos.excluir",
+    nome: "Biblioteca Virtual - Arquivar ou remover arquivos",
+  },
+  {
+    chave: "biblioteca.armazenamento.ver",
+    nome: "Biblioteca Virtual - Ver armazenamento",
+  },
+  {
+    chave: "biblioteca.armazenamento.gerenciar",
+    nome: "Biblioteca Virtual - Gerenciar armazenamento",
+  },
+
+  // CIRCULAÇÃO
+  {
+    chave: "biblioteca.circulacao.ver",
+    nome: "Biblioteca Virtual - Ver circulação",
+  },
+  {
+    chave: "biblioteca.emprestimos.gerenciar",
+    nome: "Biblioteca Virtual - Gerenciar empréstimos e devoluções",
+  },
+  {
+    chave: "biblioteca.renovacoes.gerenciar",
+    nome: "Biblioteca Virtual - Gerenciar renovações",
+  },
+  {
+    chave: "biblioteca.reservas.gerenciar",
+    nome: "Biblioteca Virtual - Gerenciar reservas",
+  },
+
+  // PRATELEIRAS E CONTEÚDO
+  {
+    chave: "biblioteca.prateleiras.gerenciar",
+    nome: "Biblioteca Virtual - Gerenciar prateleiras",
+  },
+  {
+    chave: "biblioteca.avaliacoes.moderar",
+    nome: "Biblioteca Virtual - Moderar avaliações",
+  },
+  {
+    chave: "biblioteca.recomendacoes.ver",
+    nome: "Biblioteca Virtual - Ver recomendações acadêmicas",
+  },
+  {
+    chave: "biblioteca.recomendacoes.gerenciar",
+    nome: "Biblioteca Virtual - Gerenciar recomendações acadêmicas",
+  },
+
+  // LICENÇAS
+  {
+    chave: "biblioteca.licencas.ver",
+    nome: "Biblioteca Virtual - Ver licenças e direitos",
+  },
+  {
+    chave: "biblioteca.licencas.gerenciar",
+    nome: "Biblioteca Virtual - Gerenciar licenças e direitos",
+  },
+
+  // ADMINISTRAÇÃO
+  {
+    chave: "biblioteca.operadores.ver",
+    nome: "Biblioteca Virtual - Ver operadores",
+  },
+  {
+    chave: "biblioteca.operadores.gerenciar",
+    nome: "Biblioteca Virtual - Gerenciar operadores",
+  },
+  {
+    chave: "biblioteca.configuracoes.gerenciar",
+    nome: "Biblioteca Virtual - Gerenciar configurações",
+  },
+  {
+    chave: "biblioteca.relatorios.ver",
+    nome: "Biblioteca Virtual - Ver relatórios",
+  },
+  {
+    chave: "biblioteca.relatorios.exportar",
+    nome: "Biblioteca Virtual - Exportar relatórios",
+  },
+  {
+    chave: "biblioteca.auditoria.ver",
+    nome: "Biblioteca Virtual - Ver auditoria",
+  },
+
+    // =====================================================
   // COMERCIAL
   // =====================================================
 
