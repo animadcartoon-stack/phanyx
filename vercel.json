@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "crons": [
+    {
+      "path": "/api/admin/cron/limpar-cursos-excluidos",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/reunioes/lembretes",
+      "schedule": "0 11 * * *"
+    }
+  ]
+}

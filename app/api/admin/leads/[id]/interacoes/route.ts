@@ -1,9 +1,15 @@
 import { NextResponse } from "next/server";
+
 import { prisma } from "@/lib/prisma";
 import {
   getUserFromToken,
   type UsuarioLogado,
 } from "@/lib/server-auth";
+import { usuarioPossuiPermissao } from "@/lib/server-permissions";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const TIPOS_INTERACAO_VALIDOS = [
   "WHATSAPP",
@@ -13,36 +19,42 @@ const TIPOS_INTERACAO_VALIDOS = [
   "OBSERVACAO",
 ] as const;
 
+const TIPOS_QUE_REGISTRAM_CONTATO = new Set<string>([
+  "WHATSAPP",
+  "LIGACAO",
+  "EMAIL",
+  "REUNIAO",
+]);
+
+const LIMITE_DESCRICAO = 5000;
+
+type TipoInteracao = (typeof TIPOS_INTERACAO_VALIDOS)[number];
+
+type PermissoesInteracao = {
+  podeConsultar: boolean;
+  podeRegistrar: boolean;
+  podeVerTodos: boolean;
+};
+
+class ErroHttp extends Error {
+  status: number;
+  codigo: string;
+
+  constructor(status: number, mensagem: string, codigo: string) {
+    super(mensagem);
+
+    this.name = "ErroHttp";
+    this.status = status;
+    this.codigo = codigo;
+  }
+}
+
 function ehMasterReal(user: UsuarioLogado) {
   return (
     user.isMasterAdmin === true &&
     user.impersonacao === false &&
-    user.email.trim().toLowerCase() ===
-      "academicophanyx@gmail.com"
+    user.email.trim().toLowerCase() === "academicophanyx@gmail.com"
   );
-}
-
-function podeGerenciar(user: UsuarioLogado | null) {
-  if (!user) return false;
-  if (ehMasterReal(user)) return true;
-
-  return ["ADMIN", "SECRETARIA", "FINANCEIRO"].includes(
-    user.role
-  );
-}
-
-function obterEscopoLead(user: UsuarioLogado) {
-  if (ehMasterReal(user)) {
-    return {
-      instituicaoGestoraId: null,
-      tipo: "PHANYX",
-    };
-  }
-
-  return {
-    instituicaoGestoraId: user.instituicaoId!,
-    tipo: "INSTITUICAO",
-  };
 }
 
 function parseId(valor: string) {
@@ -51,17 +63,17 @@ function parseId(valor: string) {
   return Number.isInteger(id) && id > 0 ? id : null;
 }
 
-function normalizarTipoInteracao(valor: unknown) {
+function normalizarTipoInteracao(valor: unknown): TipoInteracao | null {
   const tipo = String(valor || "OBSERVACAO")
     .trim()
     .toUpperCase();
 
   if (
     TIPOS_INTERACAO_VALIDOS.includes(
-      tipo as (typeof TIPOS_INTERACAO_VALIDOS)[number]
+      tipo as TipoInteracao
     )
   ) {
-    return tipo;
+    return tipo as TipoInteracao;
   }
 
   return null;
@@ -80,8 +92,7 @@ function serializarInteracao(interacao: {
   return {
     id: interacao.id,
     leadId: interacao.leadId,
-    instituicaoGestoraId:
-      interacao.instituicaoGestoraId,
+    instituicaoGestoraId: interacao.instituicaoGestoraId,
     criadoPorId: interacao.criadoPorId,
     tipo: interacao.tipo,
     descricao: interacao.descricao,
@@ -90,46 +101,120 @@ function serializarInteracao(interacao: {
   };
 }
 
-async function validarUsuario() {
+async function autenticarUsuario() {
   const user = await getUserFromToken();
 
   if (!user) {
+    throw new ErroHttp(
+      401,
+      "Usuário não autenticado.",
+      "NAO_AUTENTICADO"
+    );
+  }
+
+  if (ehMasterReal(user)) {
+    return user;
+  }
+
+  const instituicaoId = Number(user.instituicaoId);
+
+  if (!Number.isInteger(instituicaoId) || instituicaoId <= 0) {
+    throw new ErroHttp(
+      403,
+      "O usuário não está vinculado a uma instituição válida.",
+      "INSTITUICAO_INVALIDA"
+    );
+  }
+
+  return user;
+}
+
+async function obterPermissoes(
+  user: UsuarioLogado
+): Promise<PermissoesInteracao> {
+  if (ehMasterReal(user)) {
     return {
-      user: null,
-      resposta: NextResponse.json(
-        { error: "Usuário não autenticado." },
-        { status: 401 }
-      ),
+      podeConsultar: true,
+      podeRegistrar: true,
+      podeVerTodos: true,
     };
   }
 
-  if (!podeGerenciar(user)) {
+  const [podeVer, podeEditar, podeInteragir, podeVerTodos] =
+    await Promise.all([
+      usuarioPossuiPermissao(user, "comercial.leads.ver"),
+      usuarioPossuiPermissao(user, "comercial.leads.editar"),
+      usuarioPossuiPermissao(user, "comercial.leads.interagir"),
+      usuarioPossuiPermissao(user, "comercial.leads.ver_todos"),
+    ]);
+
+  return {
+    podeConsultar: podeVer || podeEditar || podeInteragir,
+    podeRegistrar: podeEditar || podeInteragir,
+    podeVerTodos,
+  };
+}
+
+function obterEscopoLead(
+  user: UsuarioLogado,
+  podeVerTodos: boolean
+) {
+  if (ehMasterReal(user)) {
     return {
-      user: null,
-      resposta: NextResponse.json(
-        { error: "Sem permissão." },
-        { status: 403 }
-      ),
+      instituicaoGestoraId: null,
+      tipo: "PHANYX",
     };
   }
 
-  if (!ehMasterReal(user) && !user.instituicaoId) {
-    return {
-      user: null,
-      resposta: NextResponse.json(
-        {
-          error:
-            "O usuário não está vinculado a uma instituição.",
-        },
-        { status: 403 }
-      ),
-    };
+  const escopoInstitucional = {
+    instituicaoGestoraId: Number(user.instituicaoId),
+    tipo: "INSTITUICAO",
+  };
+
+  if (podeVerTodos) {
+    return escopoInstitucional;
+  }
+
+  const funcionarioId = Number(user.funcionarioId);
+
+  if (!Number.isInteger(funcionarioId) || funcionarioId <= 0) {
+    throw new ErroHttp(
+      403,
+      "O usuário precisa estar vinculado a um funcionário para acessar seus próprios leads.",
+      "FUNCIONARIO_NAO_VINCULADO"
+    );
   }
 
   return {
-    user,
-    resposta: null,
+    ...escopoInstitucional,
+    responsavelFuncionarioId: funcionarioId,
   };
+}
+
+function responderErro(error: unknown, contexto: string) {
+  if (error instanceof ErroHttp) {
+    return NextResponse.json(
+      {
+        error: error.message,
+        codigo: error.codigo,
+      },
+      {
+        status: error.status,
+      }
+    );
+  }
+
+  console.error(contexto, error);
+
+  return NextResponse.json(
+    {
+      error: "Não foi possível processar as interações do lead.",
+      codigo: "ERRO_INTERNO",
+    },
+    {
+      status: 500,
+    }
+  );
 }
 
 export async function GET(
@@ -137,123 +222,24 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const autenticacao = await validarUsuario();
+    const user = await autenticarUsuario();
+    const permissoes = await obterPermissoes(user);
 
-    if (!autenticacao.user) {
-      return autenticacao.resposta!;
+    if (!permissoes.podeConsultar) {
+      throw new ErroHttp(
+        403,
+        "Você não possui permissão para consultar interações comerciais.",
+        "SEM_PERMISSAO"
+      );
     }
 
-    const user = autenticacao.user;
     const leadId = parseId(params.id);
 
     if (!leadId) {
-      return NextResponse.json(
-        { error: "ID inválido." },
-        { status: 400 }
-      );
+      throw new ErroHttp(400, "ID do lead inválido.", "LEAD_INVALIDO");
     }
 
-    const lead = await prisma.lead.findFirst({
-      where: {
-        id: leadId,
-        ...obterEscopoLead(user),
-      },
-      select: {
-        id: true,
-        instituicaoGestoraId: true,
-      },
-    });
-
-    if (!lead) {
-      return NextResponse.json(
-        { error: "Lead não encontrado." },
-        { status: 404 }
-      );
-    }
-
-    const interacoes =
-      await prisma.leadInteracao.findMany({
-        where: {
-          leadId: lead.id,
-          instituicaoGestoraId:
-            lead.instituicaoGestoraId,
-        },
-        select: {
-          id: true,
-          leadId: true,
-          instituicaoGestoraId: true,
-          criadoPorId: true,
-          tipo: true,
-          descricao: true,
-          usuarioNomeSnapshot: true,
-          createdAt: true,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-      });
-
-    return NextResponse.json(
-      interacoes.map(serializarInteracao)
-    );
-  } catch (error) {
-    console.error("Erro ao buscar interações:", error);
-
-    return NextResponse.json(
-      { error: "Erro ao buscar interações." },
-      { status: 500 }
-    );
-  }
-}
-
-export async function POST(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const autenticacao = await validarUsuario();
-
-    if (!autenticacao.user) {
-      return autenticacao.resposta!;
-    }
-
-    const user = autenticacao.user;
-    const escopo = obterEscopoLead(user);
-    const leadId = parseId(params.id);
-
-    if (!leadId) {
-      return NextResponse.json(
-        { error: "ID inválido." },
-        { status: 400 }
-      );
-    }
-
-    const body = await req.json();
-
-    const descricao = String(
-      body?.descricao || ""
-    ).trim();
-
-    const tipo = normalizarTipoInteracao(
-      body?.tipo
-    );
-
-    if (!descricao) {
-      return NextResponse.json(
-        { error: "Descrição é obrigatória." },
-        { status: 400 }
-      );
-    }
-
-    if (!tipo) {
-      return NextResponse.json(
-        {
-          error:
-            "O tipo da interação informado é inválido.",
-        },
-        { status: 400 }
-      );
-    }
+    const escopo = obterEscopoLead(user, permissoes.podeVerTodos);
 
     const lead = await prisma.lead.findFirst({
       where: {
@@ -267,13 +253,147 @@ export async function POST(
     });
 
     if (!lead) {
-      return NextResponse.json(
-        { error: "Lead não encontrado." },
-        { status: 404 }
+      throw new ErroHttp(
+        404,
+        "Lead não encontrado ou indisponível para este usuário.",
+        "LEAD_NAO_ENCONTRADO"
+      );
+    }
+
+    const interacoes = await prisma.leadInteracao.findMany({
+      where: {
+        leadId: lead.id,
+        instituicaoGestoraId: lead.instituicaoGestoraId,
+      },
+      select: {
+        id: true,
+        leadId: true,
+        instituicaoGestoraId: true,
+        criadoPorId: true,
+        tipo: true,
+        descricao: true,
+        usuarioNomeSnapshot: true,
+        createdAt: true,
+      },
+      orderBy: [
+        {
+          createdAt: "desc",
+        },
+        {
+          id: "desc",
+        },
+      ],
+    });
+
+    return NextResponse.json(
+      interacoes.map(serializarInteracao),
+      {
+        status: 200,
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+        },
+      }
+    );
+  } catch (error) {
+    return responderErro(error, "Erro ao buscar interações do lead:");
+  }
+}
+
+export async function POST(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const user = await autenticarUsuario();
+    const permissoes = await obterPermissoes(user);
+
+    if (!permissoes.podeRegistrar) {
+      throw new ErroHttp(
+        403,
+        "Você não possui permissão para registrar interações comerciais.",
+        "SEM_PERMISSAO"
+      );
+    }
+
+    const leadId = parseId(params.id);
+
+    if (!leadId) {
+      throw new ErroHttp(400, "ID do lead inválido.", "LEAD_INVALIDO");
+    }
+
+    let body: Record<string, unknown>;
+
+    try {
+      const payload = (await req.json()) as unknown;
+
+      if (
+        !payload ||
+        typeof payload !== "object" ||
+        Array.isArray(payload)
+      ) {
+        throw new Error("FORMATO_INVALIDO");
+      }
+
+      body = payload as Record<string, unknown>;
+    } catch {
+      throw new ErroHttp(
+        400,
+        "O corpo da solicitação contém JSON inválido.",
+        "JSON_INVALIDO"
+      );
+    }
+
+    const descricao = String(body.descricao || "").trim();
+    const tipo = normalizarTipoInteracao(body.tipo);
+
+    if (!descricao) {
+      throw new ErroHttp(
+        400,
+        "A descrição da interação é obrigatória.",
+        "DESCRICAO_OBRIGATORIA"
+      );
+    }
+
+    if (descricao.length > LIMITE_DESCRICAO) {
+      throw new ErroHttp(
+        400,
+        `A descrição deve possuir no máximo ${LIMITE_DESCRICAO} caracteres.`,
+        "DESCRICAO_MUITO_LONGA"
+      );
+    }
+
+    if (!tipo) {
+      throw new ErroHttp(
+        400,
+        "O tipo da interação informado é inválido.",
+        "TIPO_INVALIDO"
+      );
+    }
+
+    const escopo = obterEscopoLead(user, permissoes.podeVerTodos);
+
+    const lead = await prisma.lead.findFirst({
+      where: {
+        id: leadId,
+        ...escopo,
+      },
+      select: {
+        id: true,
+        instituicaoGestoraId: true,
+        primeiroContatoEm: true,
+      },
+    });
+
+    if (!lead) {
+      throw new ErroHttp(
+        404,
+        "Lead não encontrado ou indisponível para este usuário.",
+        "LEAD_NAO_ENCONTRADO"
       );
     }
 
     const agora = new Date();
+    const registraContato = TIPOS_QUE_REGISTRAM_CONTATO.has(tipo);
 
     const usuarioNomeSnapshot =
       String(user.nome || "").trim() ||
@@ -281,63 +401,59 @@ export async function POST(
       user.role ||
       "Sistema";
 
-    const interacao = await prisma.$transaction(
-      async (tx) => {
-        const novaInteracao =
-          await tx.leadInteracao.create({
-            data: {
-              leadId: lead.id,
-              instituicaoGestoraId:
-                lead.instituicaoGestoraId,
-              criadoPorId: user.id,
-              tipo,
-              descricao,
-              usuarioNomeSnapshot,
-            },
-            select: {
-              id: true,
-              leadId: true,
-              instituicaoGestoraId: true,
-              criadoPorId: true,
-              tipo: true,
-              descricao: true,
-              usuarioNomeSnapshot: true,
-              createdAt: true,
-            },
-          });
+    const interacao = await prisma.$transaction(async (tx) => {
+      const novaInteracao = await tx.leadInteracao.create({
+        data: {
+          leadId: lead.id,
+          instituicaoGestoraId: lead.instituicaoGestoraId,
+          criadoPorId: user.id,
+          tipo,
+          descricao,
+          usuarioNomeSnapshot,
+        },
+        select: {
+          id: true,
+          leadId: true,
+          instituicaoGestoraId: true,
+          criadoPorId: true,
+          tipo: true,
+          descricao: true,
+          usuarioNomeSnapshot: true,
+          createdAt: true,
+        },
+      });
 
-        const atualizacaoLead =
-          await tx.lead.updateMany({
-            where: {
-              id: lead.id,
-              ...escopo,
-            },
-            data: {
-              ultimoContatoEm: agora,
-              atualizadoPorId: user.id,
-            },
-          });
+      const atualizacaoLead = await tx.lead.updateMany({
+        where: {
+          id: lead.id,
+          ...escopo,
+        },
+        data: {
+          atualizadoPorId: user.id,
+          ...(registraContato
+            ? {
+                ultimoContatoEm: agora,
+                primeiroContatoEm: lead.primeiroContatoEm ?? agora,
+              }
+            : {}),
+        },
+      });
 
-        if (atualizacaoLead.count !== 1) {
-          throw new Error(
-            "O lead não pôde ser atualizado após a interação."
-          );
-        }
-
-        return novaInteracao;
+      if (atualizacaoLead.count !== 1) {
+        throw new ErroHttp(
+          409,
+          "O lead foi alterado durante o registro da interação. Atualize a página e tente novamente.",
+          "CONFLITO_ATUALIZACAO"
+        );
       }
-    );
 
-    return NextResponse.json(
-      serializarInteracao(interacao),
-      { status: 201 }
-    );
+      return novaInteracao;
+    });
+
+    return NextResponse.json(serializarInteracao(interacao), {
+      status: 201,
+    });
   } catch (error) {
-    console.error("Erro ao criar interação:", error);
-
-    return NextResponse.json(
-      { error: "Erro ao criar interação." },
-      { status: 500 }
-    );
+    return responderErro(error, "Erro ao registrar interação do lead:");
   }
 }

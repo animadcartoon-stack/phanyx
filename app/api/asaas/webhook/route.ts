@@ -8,6 +8,7 @@ import {
   enviarEmailPrimeiroAcesso,
   enviarEmailAssinaturaContrato,
 } from "@/lib/email";
+import { processarWebhookBibliotecaAsaas } from "@/lib/biblioteca-webhook-asaas";
 
 const ASAAS_API_URL =
   process.env.ASAAS_ENV === "production"
@@ -19,7 +20,7 @@ const ASAAS_API_KEY = process.env.ASAAS_API_KEY;
 const ASAAS_WEBHOOK_TOKEN =
   process.env.ASAAS_WEBHOOK_TOKEN;
 
-  const IBE_INSTITUICAO_ID = Number(
+const IBE_INSTITUICAO_ID = Number(
   process.env.IBE_INSTITUICAO_ID || 0
 );
 
@@ -263,9 +264,9 @@ async function processarAssinaturaPhanyxCriada(body: any, adesaoId: string) {
         subscription.value || adesao.valor || politicaPlano.valorBase
       ),
 
-     alunosAtivosReferencia: 0,
-polosReferencia: 1,
-polosInclusosContrato: politicaPlano.polosInclusos,
+      alunosAtivosReferencia: 0,
+      polosReferencia: 1,
+      polosInclusosContrato: politicaPlano.polosInclusos,
 
       ultimoEventoAsaas: body?.event || "SUBSCRIPTION_CREATED",
       ultimoWebhookAsaasEm: new Date(),
@@ -447,18 +448,18 @@ function obterReferencia(body: any) {
     externalReference: payment?.externalReference
       ? String(payment.externalReference).trim()
       : subscription?.externalReference
-      ? String(subscription.externalReference).trim()
-      : checkout?.externalReference
-      ? String(checkout.externalReference).trim()
-      : "",
+        ? String(subscription.externalReference).trim()
+        : checkout?.externalReference
+          ? String(checkout.externalReference).trim()
+          : "",
 
     asaasPaymentId: payment?.id ? String(payment.id).trim() : "",
 
     asaasSubscriptionId: payment?.subscription
       ? String(payment.subscription).trim()
       : subscription?.id
-      ? String(subscription.id).trim()
-      : "",
+        ? String(subscription.id).trim()
+        : "",
 
     asaasCheckoutId: checkout?.id ? String(checkout.id).trim() : "",
   };
@@ -618,8 +619,6 @@ export async function POST(req: Request) {
       ? String(payment.status).trim().toUpperCase()
       : "";
 
-    console.log("🔥 Webhook recebido:", JSON.stringify(body, null, 2));
-
     const {
       externalReference,
       asaasPaymentId,
@@ -627,82 +626,120 @@ export async function POST(req: Request) {
       asaasCheckoutId,
     } = obterReferencia(body);
 
-    // 🚀 CRÉDITOS IA
-if (
-  (event === "PAYMENT_RECEIVED" ||
-    event === "PAYMENT_CONFIRMED" ||
-    event === "PAYMENT_AUTHORIZED") &&
-  externalReference?.startsWith("CREDITOS_IA:")
-) {
-  try {
-    const partes = externalReference.split(":");
-
-    const userId = Number(partes[1]);
-    const creditos = Number(partes[2]);
-
-    if (
-  externalReference?.startsWith("CREDITOS_IA_PUBLICO:") &&
-  ["PAYMENT_RECEIVED", "PAYMENT_CONFIRMED", "PAYMENT_AUTHORIZED"].includes(event)
-) {
-  const [, email, creditosTexto] = externalReference.split(":");
-  const creditos = Number(creditosTexto);
-
-  if (email && creditos > 0) {
-    await prisma.creditoIAPublico.upsert({
-      where: { email: email.toLowerCase() },
-      update: {
-        saldo: {
-          increment: creditos,
-        },
-      },
-      create: {
-        email: email.toLowerCase(),
-        saldo: creditos,
-      },
+    console.log("Webhook Asaas recebido:", {
+      eventoId: String(body?.id || ""),
+      event,
+      paymentStatus,
+      possuiExternalReference:
+        Boolean(externalReference),
+      asaasPaymentId:
+        asaasPaymentId || null,
+      asaasSubscriptionId:
+        asaasSubscriptionId || null,
+      asaasCheckoutId:
+        asaasCheckoutId || null,
     });
-  }
 
-  return NextResponse.json({ received: true });
+    const resultadoBiblioteca =
+  await processarWebhookBibliotecaAsaas(body);
+
+if (resultadoBiblioteca.reconhecido) {
+  console.info("[ASAAS][BIBLIOTECA]", {
+    evento: resultadoBiblioteca.evento || event,
+    contratacaoId:
+      resultadoBiblioteca.contratacaoId || null,
+    acao: resultadoBiblioteca.acao || null,
+    duplicado:
+      resultadoBiblioteca.duplicado === true,
+  });
+
+  return NextResponse.json({
+    received: true,
+    biblioteca: true,
+    processado:
+      resultadoBiblioteca.processado === true,
+    duplicado:
+      resultadoBiblioteca.duplicado === true,
+    acao: resultadoBiblioteca.acao || null,
+  });
 }
 
-    if (!userId || !creditos) {
-      console.error("Webhook créditos IA inválido:", externalReference);
-      return NextResponse.json({ ok: true });
+    // 🚀 CRÉDITOS IA
+    if (
+      (event === "PAYMENT_RECEIVED" ||
+        event === "PAYMENT_CONFIRMED" ||
+        event === "PAYMENT_AUTHORIZED") &&
+      externalReference?.startsWith("CREDITOS_IA:")
+    ) {
+      try {
+        const partes = externalReference.split(":");
+
+        const userId = Number(partes[1]);
+        const creditos = Number(partes[2]);
+
+        if (
+          externalReference?.startsWith("CREDITOS_IA_PUBLICO:") &&
+          ["PAYMENT_RECEIVED", "PAYMENT_CONFIRMED", "PAYMENT_AUTHORIZED"].includes(event)
+        ) {
+          const [, email, creditosTexto] = externalReference.split(":");
+          const creditos = Number(creditosTexto);
+
+          if (email && creditos > 0) {
+            await prisma.creditoIAPublico.upsert({
+              where: { email: email.toLowerCase() },
+              update: {
+                saldo: {
+                  increment: creditos,
+                },
+              },
+              create: {
+                email: email.toLowerCase(),
+                saldo: creditos,
+              },
+            });
+          }
+
+          return NextResponse.json({ received: true });
+        }
+
+        if (!userId || !creditos) {
+          console.error("Webhook créditos IA inválido:", externalReference);
+          return NextResponse.json({ ok: true });
+        }
+
+        await prisma.creditoIA.upsert({
+          where: {
+            userId,
+          },
+          update: {
+            saldo: {
+              increment: creditos,
+            },
+          },
+          create: {
+            userId,
+            saldo: creditos,
+          },
+        });
+
+        console.log(
+          `✅ Créditos IA adicionados | usuário ${userId} | +${creditos}`
+        );
+
+        return NextResponse.json({
+          ok: true,
+          creditosAdicionados: true,
+        });
+      } catch (error) {
+        console.error("Erro webhook créditos IA:", error);
+
+        return NextResponse.json({
+          ok: true,
+        });
+      }
     }
 
-    await prisma.creditoIA.upsert({
-  where: {
-    userId,
-  },
-  update: {
-    saldo: {
-      increment: creditos,
-    },
-  },
-  create: {
-    userId,
-    saldo: creditos,
-  },
-});
-
-    console.log(
-      `✅ Créditos IA adicionados | usuário ${userId} | +${creditos}`
-    );
-
-    return NextResponse.json({
-      ok: true,
-      creditosAdicionados: true,
-    });
-  } catch (error) {
-    console.error("Erro webhook créditos IA:", error);
-
-    return NextResponse.json({
-      ok: true,
-    });
-  }
-}
-
-        // 🚀 BLOCO — MATRÍCULA IBE
+    // 🚀 BLOCO — MATRÍCULA IBE
     const filtrosPagamentoIbe: any[] = [];
 
     if (externalReference) {
@@ -726,23 +763,23 @@ if (
     const pagamentoIbeLocalizado =
       filtrosPagamentoIbe.length > 0
         ? await prisma
-            .matriculaOnlineIbePagamento
-            .findFirst({
-              where: {
-                OR: filtrosPagamentoIbe,
-              },
-              include: {
-                matriculaOnlineIbe: {
-                  include: {
-                    pagamentos: {
-                      orderBy: {
-                        ordem: "asc",
-                      },
+          .matriculaOnlineIbePagamento
+          .findFirst({
+            where: {
+              OR: filtrosPagamentoIbe,
+            },
+            include: {
+              matriculaOnlineIbe: {
+                include: {
+                  pagamentos: {
+                    orderBy: {
+                      ordem: "asc",
                     },
                   },
                 },
               },
-            })
+            },
+          })
         : null;
 
     const eventoMatriculaIbe =
@@ -932,10 +969,10 @@ if (
 
       const pagamentoDoCheckout =
         event === "CHECKOUT_PAID" &&
-        checkoutIdParaConsulta
+          checkoutIdParaConsulta
           ? await buscarPagamentoDoCheckoutAsaas(
-              checkoutIdParaConsulta
-            )
+            checkoutIdParaConsulta
+          )
           : null;
 
       const asaasPaymentIdConfirmado =
@@ -949,9 +986,9 @@ if (
       const billingTypeConfirmado =
         String(
           payment?.billingType ||
-            pagamentoDoCheckout?.billingType ||
-            pagamentoIbe.billingTypeAsaas ||
-            ""
+          pagamentoDoCheckout?.billingType ||
+          pagamentoIbe.billingTypeAsaas ||
+          ""
         )
           .trim()
           .toUpperCase();
@@ -959,8 +996,8 @@ if (
       const statusAsaasConfirmado =
         String(
           paymentStatus ||
-            pagamentoDoCheckout?.status ||
-            ""
+          pagamentoDoCheckout?.status ||
+          ""
         )
           .trim()
           .toUpperCase();
@@ -970,11 +1007,11 @@ if (
         event === "PAYMENT_RECEIVED" ||
         event === "PAYMENT_CONFIRMED" ||
         statusAsaasConfirmado ===
-          "RECEIVED" ||
+        "RECEIVED" ||
         statusAsaasConfirmado ===
-          "CONFIRMED" ||
+        "CONFIRMED" ||
         statusAsaasConfirmado ===
-          "RECEIVED_IN_CASH";
+        "RECEIVED_IN_CASH";
 
       if (!pagamentoConfirmado) {
         console.log(
@@ -1018,7 +1055,7 @@ if (
           },
         });
 
-            const preMatricula =
+      const preMatricula =
         await prisma
           .matriculaOnlineIbe
           .findUnique({
@@ -1135,7 +1172,7 @@ if (
           saldoRestante: Math.max(
             0,
             valorTotalMatricula -
-              valorPagoConfirmado
+            valorPagoConfirmado
           ),
         });
       }
@@ -1188,285 +1225,285 @@ if (
 
       try {
         if (
-  !Number.isInteger(IBE_INSTITUICAO_ID) ||
-  IBE_INSTITUICAO_ID <= 0
-) {
-  throw new Error(
-    "IBE_INSTITUICAO_ID não está configurado corretamente."
-  );
-}
+          !Number.isInteger(IBE_INSTITUICAO_ID) ||
+          IBE_INSTITUICAO_ID <= 0
+        ) {
+          throw new Error(
+            "IBE_INSTITUICAO_ID não está configurado corretamente."
+          );
+        }
 
-const instituicaoIdIbe =
-  IBE_INSTITUICAO_ID;
+        const instituicaoIdIbe =
+          IBE_INSTITUICAO_ID;
 
-    
-  let senhaTempIbe = "";
-  let userIbe = await prisma.user.findUnique({
-    where: { email: preMatricula.email },
-  });
 
-  if (
-  userIbe &&
-  Number(userIbe.instituicaoId) !==
-    instituicaoIdIbe
-) {
-  throw new Error(
-    "Este e-mail já está vinculado a outra instituição no PHANYX."
-  );
-}
+        let senhaTempIbe = "";
+        let userIbe = await prisma.user.findUnique({
+          where: { email: preMatricula.email },
+        });
 
-if (
-  userIbe &&
-  String(userIbe.role).toUpperCase() !==
-    "ALUNO"
-) {
-  throw new Error(
-    "Este e-mail já pertence a um usuário que não possui perfil de aluno."
-  );
-}
+        if (
+          userIbe &&
+          Number(userIbe.instituicaoId) !==
+          instituicaoIdIbe
+        ) {
+          throw new Error(
+            "Este e-mail já está vinculado a outra instituição no PHANYX."
+          );
+        }
 
-  if (!userIbe) {
-    senhaTempIbe = gerarSenhaTemporaria();
-    const senhaHashIbe = await bcrypt.hash(senhaTempIbe, 10);
+        if (
+          userIbe &&
+          String(userIbe.role).toUpperCase() !==
+          "ALUNO"
+        ) {
+          throw new Error(
+            "Este e-mail já pertence a um usuário que não possui perfil de aluno."
+          );
+        }
 
-    userIbe = await prisma.user.create({
-      data: {
-        nome: preMatricula.nome,
-        email: preMatricula.email,
-        senha: senhaHashIbe,
-        role: "ALUNO",
-        instituicaoId: instituicaoIdIbe,
-        precisaTrocarSenha: true,
-      },
-    });
-  }
+        if (!userIbe) {
+          senhaTempIbe = gerarSenhaTemporaria();
+          const senhaHashIbe = await bcrypt.hash(senhaTempIbe, 10);
 
-  let alunoIbe = await prisma.aluno.findFirst({
-    where: {
-      userId: userIbe.id,
-      instituicaoId: instituicaoIdIbe,
-    },
-  });
+          userIbe = await prisma.user.create({
+            data: {
+              nome: preMatricula.nome,
+              email: preMatricula.email,
+              senha: senhaHashIbe,
+              role: "ALUNO",
+              instituicaoId: instituicaoIdIbe,
+              precisaTrocarSenha: true,
+            },
+          });
+        }
 
-  if (!alunoIbe) {
-    alunoIbe = await prisma.aluno.create({
-      data: {
-        nome: preMatricula.nome,
-        cpf: preMatricula.cpf || null,
-        telefone: preMatricula.whatsapp,
-        instituicaoId: instituicaoIdIbe,
-        userId: userIbe.id,
-        statusAluno: "ATIVO",
-        matricula: `IBE-${Date.now().toString().slice(-6)}`,
-      },
-    });
-  }
+        let alunoIbe = await prisma.aluno.findFirst({
+          where: {
+            userId: userIbe.id,
+            instituicaoId: instituicaoIdIbe,
+          },
+        });
 
-  const matriculaIbe = await prisma.matricula.create({
-    data: {
-      alunoId: alunoIbe.id,
-      instituicaoId: instituicaoIdIbe,
-      status: "ATIVA",
-      realizadaPeloAluno: true,
-      confirmadaEm: new Date(),
-      valorMatricula: preMatricula.valorTotal,
-    },
-  });
+        if (!alunoIbe) {
+          alunoIbe = await prisma.aluno.create({
+            data: {
+              nome: preMatricula.nome,
+              cpf: preMatricula.cpf || null,
+              telefone: preMatricula.whatsapp,
+              instituicaoId: instituicaoIdIbe,
+              userId: userIbe.id,
+              statusAluno: "ATIVO",
+              matricula: `IBE-${Date.now().toString().slice(-6)}`,
+            },
+          });
+        }
 
-  await prisma.matriculaOnlineIbe.update({
-  where: {
-    id: preMatricula.id,
-  },
-  data: {
-    alunoGeradoId: alunoIbe.id,
-    matriculaGeradaId: matriculaIbe.id,
-  },
-});
+        const matriculaIbe = await prisma.matricula.create({
+          data: {
+            alunoId: alunoIbe.id,
+            instituicaoId: instituicaoIdIbe,
+            status: "ATIVA",
+            realizadaPeloAluno: true,
+            confirmadaEm: new Date(),
+            valorMatricula: preMatricula.valorTotal,
+          },
+        });
 
-  const turmaIbe = await prisma.turma.findFirst({
-    where: {
-      instituicaoId: instituicaoIdIbe,
-      ativa: true,
-    },
-    orderBy: {
-      id: "asc",
-    },
-  });
+        await prisma.matriculaOnlineIbe.update({
+          where: {
+            id: preMatricula.id,
+          },
+          data: {
+            alunoGeradoId: alunoIbe.id,
+            matriculaGeradaId: matriculaIbe.id,
+          },
+        });
 
-  if (!turmaIbe) {
-    throw new Error("Nenhuma turma ativa encontrada para a matrícula IBE.");
-  }
+        const turmaIbe = await prisma.turma.findFirst({
+          where: {
+            instituicaoId: instituicaoIdIbe,
+            ativa: true,
+          },
+          orderBy: {
+            id: "asc",
+          },
+        });
 
-  const disciplinasIds = JSON.parse(preMatricula.disciplinasIds || "[]");
+        if (!turmaIbe) {
+          throw new Error("Nenhuma turma ativa encontrada para a matrícula IBE.");
+        }
 
-  for (const disciplinaId of disciplinasIds) {
-    await prisma.itemMatricula.create({
-      data: {
-        matriculaId: matriculaIbe.id,
-        disciplinaId: Number(disciplinaId),
-        turmaId: turmaIbe.id,
-        instituicaoId: instituicaoIdIbe,
-        tipoItem: "GRADE_PRINCIPAL",
-        status: "EM_CURSO",
-      },
-    });
-  }
+        const disciplinasIds = JSON.parse(preMatricula.disciplinasIds || "[]");
 
-  const lancamento = await prisma.lancamentoFinanceiro.create({
-    data: {
-      tipo: "MATRICULA",
-      descricao: "Matrícula online IBE - Bacharel Livre em Teologia",
-      valorOriginal: Number(preMatricula.valorTotal || 0),
-      valorFinal: Number(preMatricula.valorTotal || 0),
-      valorPago: Number(preMatricula.valorTotal || 0),
-      vencimento: new Date(),
-      pagoEm: new Date(),
-      status: "PAGO",
-      observacao:
-  `Pagamento confirmado pelo Asaas. ` +
-  `Referência: ${preMatricula.externalReference}`,
-      instituicaoId: instituicaoIdIbe,
-      alunoId: alunoIbe.id,
-      matriculaId: matriculaIbe.id,
-    },
-  });
+        for (const disciplinaId of disciplinasIds) {
+          await prisma.itemMatricula.create({
+            data: {
+              matriculaId: matriculaIbe.id,
+              disciplinaId: Number(disciplinaId),
+              turmaId: turmaIbe.id,
+              instituicaoId: instituicaoIdIbe,
+              tipoItem: "GRADE_PRINCIPAL",
+              status: "EM_CURSO",
+            },
+          });
+        }
 
-  const agora = new Date();
-  const inicioDoDia = new Date(agora);
-  inicioDoDia.setHours(0, 0, 0, 0);
+        const lancamento = await prisma.lancamentoFinanceiro.create({
+          data: {
+            tipo: "MATRICULA",
+            descricao: "Matrícula online IBE - Bacharel Livre em Teologia",
+            valorOriginal: Number(preMatricula.valorTotal || 0),
+            valorFinal: Number(preMatricula.valorTotal || 0),
+            valorPago: Number(preMatricula.valorTotal || 0),
+            vencimento: new Date(),
+            pagoEm: new Date(),
+            status: "PAGO",
+            observacao:
+              `Pagamento confirmado pelo Asaas. ` +
+              `Referência: ${preMatricula.externalReference}`,
+            instituicaoId: instituicaoIdIbe,
+            alunoId: alunoIbe.id,
+            matriculaId: matriculaIbe.id,
+          },
+        });
 
-  const fimDoDia = new Date(agora);
-  fimDoDia.setHours(23, 59, 59, 999);
+        const agora = new Date();
+        const inicioDoDia = new Date(agora);
+        inicioDoDia.setHours(0, 0, 0, 0);
 
-  const identificadorOnline = `ONLINE_ASAAS_IBE_${inicioDoDia
-    .toISOString()
-    .slice(0, 10)}`;
+        const fimDoDia = new Date(agora);
+        fimDoDia.setHours(23, 59, 59, 999);
 
-  let caixaOnline = await prisma.caixa.findFirst({
-    where: {
-      instituicaoId: instituicaoIdIbe,
-      origem: "ONLINE_ASAAS_IBE",
-      identificadorOnline,
-      dataAbertura: {
-        gte: inicioDoDia,
-        lte: fimDoDia,
-      },
-    },
-  });
+        const identificadorOnline = `ONLINE_ASAAS_IBE_${inicioDoDia
+          .toISOString()
+          .slice(0, 10)}`;
 
-  if (!caixaOnline) {
-    caixaOnline = await prisma.caixa.create({
-      data: {
-        instituicaoId: instituicaoIdIbe,
-        origem: "ONLINE_ASAAS_IBE",
-        identificadorOnline,
-        fechamentoAutomatico: true,
-        status: "ABERTO",
-        saldoInicial: 0,
-        saldoSistema: 0,
-        observacaoAbertura:
-          "Caixa online criado automaticamente para pagamentos Asaas da matrícula IBE.",
-      },
-    });
-  }
+        let caixaOnline = await prisma.caixa.findFirst({
+          where: {
+            instituicaoId: instituicaoIdIbe,
+            origem: "ONLINE_ASAAS_IBE",
+            identificadorOnline,
+            dataAbertura: {
+              gte: inicioDoDia,
+              lte: fimDoDia,
+            },
+          },
+        });
 
-  let totalNovosMovimentos = 0;
+        if (!caixaOnline) {
+          caixaOnline = await prisma.caixa.create({
+            data: {
+              instituicaoId: instituicaoIdIbe,
+              origem: "ONLINE_ASAAS_IBE",
+              identificadorOnline,
+              fechamentoAutomatico: true,
+              status: "ABERTO",
+              saldoInicial: 0,
+              saldoSistema: 0,
+              observacaoAbertura:
+                "Caixa online criado automaticamente para pagamentos Asaas da matrícula IBE.",
+            },
+          });
+        }
 
-  const partesPagas =
-    preMatricula.pagamentos.filter(
-      (parte) =>
-        parte.status === "PAGO"
-    );
+        let totalNovosMovimentos = 0;
 
-  for (const partePaga of partesPagas) {
-    const filtrosMovimento: any[] = [
-      {
-        externalReference:
-          partePaga.externalReference,
-      },
-    ];
+        const partesPagas =
+          preMatricula.pagamentos.filter(
+            (parte) =>
+              parte.status === "PAGO"
+          );
 
-    if (partePaga.asaasPaymentId) {
-      filtrosMovimento.push({
-        asaasPaymentId:
-          partePaga.asaasPaymentId,
-      });
-    }
+        for (const partePaga of partesPagas) {
+          const filtrosMovimento: any[] = [
+            {
+              externalReference:
+                partePaga.externalReference,
+            },
+          ];
 
-    const movimentoExistente =
-      await prisma.movimentoCaixa.findFirst({
-        where: {
-          OR: filtrosMovimento,
-        },
-      });
+          if (partePaga.asaasPaymentId) {
+            filtrosMovimento.push({
+              asaasPaymentId:
+                partePaga.asaasPaymentId,
+            });
+          }
 
-    if (movimentoExistente) {
-      continue;
-    }
+          const movimentoExistente =
+            await prisma.movimentoCaixa.findFirst({
+              where: {
+                OR: filtrosMovimento,
+              },
+            });
 
-    const valorParte = Number(
-      partePaga.valor || 0
-    );
+          if (movimentoExistente) {
+            continue;
+          }
 
-    await prisma.movimentoCaixa.create({
-      data: {
-        tipo: "ENTRADA",
+          const valorParte = Number(
+            partePaga.valor || 0
+          );
 
-        descricao:
-          `Recebimento online Asaas - ` +
-          `matrícula IBE - parte ` +
-          `${partePaga.ordem}`,
+          await prisma.movimentoCaixa.create({
+            data: {
+              tipo: "ENTRADA",
 
-        valor: valorParte,
+              descricao:
+                `Recebimento online Asaas - ` +
+                `matrícula IBE - parte ` +
+                `${partePaga.ordem}`,
 
-        formaPagamento:
-          mapearFormaPagamentoCaixa(
-            partePaga.billingTypeAsaas
-          ),
+              valor: valorParte,
 
-        origem: "ONLINE_ASAAS_IBE",
+              formaPagamento:
+                mapearFormaPagamentoCaixa(
+                  partePaga.billingTypeAsaas
+                ),
 
-        asaasPaymentId:
-          partePaga.asaasPaymentId ||
-          null,
+              origem: "ONLINE_ASAAS_IBE",
 
-        externalReference:
-          partePaga.externalReference,
+              asaasPaymentId:
+                partePaga.asaasPaymentId ||
+                null,
 
-        instituicaoId:
-          instituicaoIdIbe,
+              externalReference:
+                partePaga.externalReference,
 
-        caixaId: caixaOnline.id,
-        alunoId: alunoIbe.id,
-        lancamentoId: lancamento.id,
-      },
-    });
+              instituicaoId:
+                instituicaoIdIbe,
 
-    totalNovosMovimentos +=
-      valorParte;
-  }
+              caixaId: caixaOnline.id,
+              alunoId: alunoIbe.id,
+              lancamentoId: lancamento.id,
+            },
+          });
 
-  if (totalNovosMovimentos > 0) {
-    await prisma.caixa.update({
-      where: {
-        id: caixaOnline.id,
-      },
-      data: {
-        saldoSistema: {
-          increment:
-            totalNovosMovimentos,
-        },
-      },
-    });
-  }
+          totalNovosMovimentos +=
+            valorParte;
+        }
 
-  const contrato = await prisma.contrato.create({
-    data: {
-      alunoId: alunoIbe.id,
-      instituicaoId: instituicaoIdIbe,
-      matriculaId: matriculaIbe.id,
-      status: "PENDENTE",
-      conteudo: `
+        if (totalNovosMovimentos > 0) {
+          await prisma.caixa.update({
+            where: {
+              id: caixaOnline.id,
+            },
+            data: {
+              saldoSistema: {
+                increment:
+                  totalNovosMovimentos,
+              },
+            },
+          });
+        }
+
+        const contrato = await prisma.contrato.create({
+          data: {
+            alunoId: alunoIbe.id,
+            instituicaoId: instituicaoIdIbe,
+            matriculaId: matriculaIbe.id,
+            status: "PENDENTE",
+            conteudo: `
         CONTRATO DE MATRÍCULA - IBE
 
         Aluno: ${alunoIbe.nome}
@@ -1474,114 +1511,114 @@ if (
         Curso: Bacharel Livre em Teologia
         Valor: R$ ${String(preMatricula.valorTotal)}
       `,
-    },
-  });
+          },
+        });
 
-  await prisma.matriculaOnlineIbe.update({
-  where: {
-    id: preMatricula.id,
-  },
-  data: {
-    status: "PAGO",
+        await prisma.matriculaOnlineIbe.update({
+          where: {
+            id: preMatricula.id,
+          },
+          data: {
+            status: "PAGO",
 
-    valorPago:
-      preMatricula.valorTotal,
+            valorPago:
+              preMatricula.valorTotal,
 
-    asaasPaymentId:
-      asaasPaymentIdConfirmado ||
-      preMatricula.asaasPaymentId,
+            asaasPaymentId:
+              asaasPaymentIdConfirmado ||
+              preMatricula.asaasPaymentId,
 
-    alunoGeradoId:
-      alunoIbe.id,
+            alunoGeradoId:
+              alunoIbe.id,
 
-    matriculaGeradaId:
-      matriculaIbe.id,
+            matriculaGeradaId:
+              matriculaIbe.id,
 
-    acessoLiberadoEm:
-      preMatricula.acessoLiberadoEm ||
-      new Date(),
-  },
-});
+            acessoLiberadoEm:
+              preMatricula.acessoLiberadoEm ||
+              new Date(),
+          },
+        });
 
-  const baseUrl =
-  process.env.NEXT_PUBLIC_APP_URL?.trim() ||
-  "http://localhost:3000";
+        const baseUrl =
+          process.env.NEXT_PUBLIC_APP_URL?.trim() ||
+          "http://localhost:3000";
 
-const linkAssinatura =
-  `${baseUrl}/assinatura/` +
-  `${contrato.tokenAssinatura}`;
+        const linkAssinatura =
+          `${baseUrl}/assinatura/` +
+          `${contrato.tokenAssinatura}`;
 
-/*
- * E-mail de acesso:
- * somente uma vez por pré-matrícula.
- */
-if (!preMatricula.emailAcessoEnviadoEm) {
-  try {
-    if (senhaTempIbe) {
-      await enviarEmailPrimeiroAcesso({
-        email: userIbe.email,
-        nome: userIbe.nome,
-        senha: senhaTempIbe,
-        instituicao:
-          "Instituto Batista de Educação",
-        portal: "aluno",
-      });
-    } else {
-      await enviarEmailAcessoExistente({
-        email: userIbe.email,
-        nome: userIbe.nome,
-        instituicao:
-          "Instituto Batista de Educação",
-      });
-    }
+        /*
+         * E-mail de acesso:
+         * somente uma vez por pré-matrícula.
+         */
+        if (!preMatricula.emailAcessoEnviadoEm) {
+          try {
+            if (senhaTempIbe) {
+              await enviarEmailPrimeiroAcesso({
+                email: userIbe.email,
+                nome: userIbe.nome,
+                senha: senhaTempIbe,
+                instituicao:
+                  "Instituto Batista de Educação",
+                portal: "aluno",
+              });
+            } else {
+              await enviarEmailAcessoExistente({
+                email: userIbe.email,
+                nome: userIbe.nome,
+                instituicao:
+                  "Instituto Batista de Educação",
+              });
+            }
 
-    await prisma.matriculaOnlineIbe.update({
-      where: {
-        id: preMatricula.id,
-      },
-      data: {
-        emailAcessoEnviadoEm:
-          new Date(),
-      },
-    });
-  } catch (emailError) {
-    console.error(
-      "Erro ao enviar e-mail de acesso IBE:",
-      emailError
-    );
-  }
-}
+            await prisma.matriculaOnlineIbe.update({
+              where: {
+                id: preMatricula.id,
+              },
+              data: {
+                emailAcessoEnviadoEm:
+                  new Date(),
+              },
+            });
+          } catch (emailError) {
+            console.error(
+              "Erro ao enviar e-mail de acesso IBE:",
+              emailError
+            );
+          }
+        }
 
-/*
- * O envio do contrato fica separado.
- * Uma falha no contrato não apaga o registro
- * de que o acesso já foi enviado.
- */
-try {
-  await enviarEmailAssinaturaContrato({
-    email: userIbe.email,
-    nome: userIbe.nome,
-    instituicao:
-      "Instituto Batista de Educação",
-    titulo:
-      "Contrato de matrícula - Bacharel Livre em Teologia",
-    linkAssinatura,
-  });
-} catch (contratoEmailError) {
-  console.error(
-    "Erro ao enviar contrato de matrícula:",
-    contratoEmailError
-  );
-}
+        /*
+         * O envio do contrato fica separado.
+         * Uma falha no contrato não apaga o registro
+         * de que o acesso já foi enviado.
+         */
+        try {
+          await enviarEmailAssinaturaContrato({
+            email: userIbe.email,
+            nome: userIbe.nome,
+            instituicao:
+              "Instituto Batista de Educação",
+            titulo:
+              "Contrato de matrícula - Bacharel Livre em Teologia",
+            linkAssinatura,
+          });
+        } catch (contratoEmailError) {
+          console.error(
+            "Erro ao enviar contrato de matrícula:",
+            contratoEmailError
+          );
+        }
 
-          return NextResponse.json({
+        return NextResponse.json({
           ok: true,
           alunoId: alunoIbe.id,
           matriculaId:
             matriculaIbe.id,
         });
       } catch (
-        processamentoError
+      processamentoError
       ) {
         /*
          * Impede que uma nova entrega do
@@ -1628,71 +1665,71 @@ try {
     }
 
     // 🚀 PHANYX SaaS — assinatura criada pelo checkout com cartão
-if (event === "SUBSCRIPTION_CREATED") {
-  const tratado = await processarAssinaturaPhanyxCriada(
-    body,
-    externalReference
-  );
+    if (event === "SUBSCRIPTION_CREATED") {
+      const tratado = await processarAssinaturaPhanyxCriada(
+        body,
+        externalReference
+      );
 
-  if (tratado) {
-    return NextResponse.json({
-      ok: true,
-      assinaturaPhanyxCriada: true,
-      adesaoId: externalReference,
-      asaasSubscriptionId,
-    });
-  }
-}
+      if (tratado) {
+        return NextResponse.json({
+          ok: true,
+          assinaturaPhanyxCriada: true,
+          adesaoId: externalReference,
+          asaasSubscriptionId,
+        });
+      }
+    }
 
-// 🚀 PHANYX SaaS — assinatura atualizada ou cancelada
-if (
-  event === "SUBSCRIPTION_UPDATED" ||
-  event === "SUBSCRIPTION_INACTIVATED" ||
-  event === "SUBSCRIPTION_DELETED"
-) {
-  const tratado = await processarAssinaturaPhanyxAtualizadaOuCancelada(
-    body,
-    asaasSubscriptionId
-  );
+    // 🚀 PHANYX SaaS — assinatura atualizada ou cancelada
+    if (
+      event === "SUBSCRIPTION_UPDATED" ||
+      event === "SUBSCRIPTION_INACTIVATED" ||
+      event === "SUBSCRIPTION_DELETED"
+    ) {
+      const tratado = await processarAssinaturaPhanyxAtualizadaOuCancelada(
+        body,
+        asaasSubscriptionId
+      );
 
-  if (tratado) {
-    return NextResponse.json({
-      ok: true,
-      assinaturaPhanyxAtualizada: true,
-      asaasSubscriptionId,
-      event,
-    });
-  }
-}
+      if (tratado) {
+        return NextResponse.json({
+          ok: true,
+          assinaturaPhanyxAtualizada: true,
+          asaasSubscriptionId,
+          event,
+        });
+      }
+    }
 
-// 🚀 PHANYX SaaS — pagamento de assinatura recorrente
-if (event.startsWith("PAYMENT_") && asaasSubscriptionId) {
-  const tratado = await processarPagamentoAssinaturaPhanyx(
-    event,
-    asaasSubscriptionId
-  );
+    // 🚀 PHANYX SaaS — pagamento de assinatura recorrente
+    if (event.startsWith("PAYMENT_") && asaasSubscriptionId) {
+      const tratado = await processarPagamentoAssinaturaPhanyx(
+        event,
+        asaasSubscriptionId
+      );
 
-  if (tratado) {
-    return NextResponse.json({
-      ok: true,
-      pagamentoAssinaturaPhanyx: true,
-      asaasSubscriptionId,
-      event,
-    });
-  }
-}
+      if (tratado) {
+        return NextResponse.json({
+          ok: true,
+          pagamentoAssinaturaPhanyx: true,
+          asaasSubscriptionId,
+          event,
+        });
+      }
+    }
 
     const eventoPagamento =
-  event === "PAYMENT_CREATED" ||
-  event === "PAYMENT_RECEIVED" ||
-  event === "PAYMENT_CONFIRMED" ||
-  event === "PAYMENT_AUTHORIZED" ||
-  event === "PAYMENT_UPDATED" ||
-  event === "PAYMENT_OVERDUE" ||
-  event === "PAYMENT_DELETED" ||
-  event === "PAYMENT_AWAITING_RISK_ANALYSIS" ||
-  event === "PAYMENT_APPROVED_BY_RISK_ANALYSIS" ||
-  event === "PAYMENT_REPROVED_BY_RISK_ANALYSIS";
+      event === "PAYMENT_CREATED" ||
+      event === "PAYMENT_RECEIVED" ||
+      event === "PAYMENT_CONFIRMED" ||
+      event === "PAYMENT_AUTHORIZED" ||
+      event === "PAYMENT_UPDATED" ||
+      event === "PAYMENT_OVERDUE" ||
+      event === "PAYMENT_DELETED" ||
+      event === "PAYMENT_AWAITING_RISK_ANALYSIS" ||
+      event === "PAYMENT_APPROVED_BY_RISK_ANALYSIS" ||
+      event === "PAYMENT_REPROVED_BY_RISK_ANALYSIS";
 
     const eventoAssinatura =
       event === "SUBSCRIPTION_CREATED" ||
@@ -1787,8 +1824,8 @@ if (event.startsWith("PAYMENT_") && asaasSubscriptionId) {
             event === "SUBSCRIPTION_DELETED"
               ? "CANCELADO"
               : adesao.status === "PAGO"
-              ? "PAGO"
-              : "PROCESSANDO",
+                ? "PAGO"
+                : "PROCESSANDO",
         },
       });
 
@@ -1863,37 +1900,37 @@ if (event.startsWith("PAYMENT_") && asaasSubscriptionId) {
       event === "PAYMENT_CONFIRMED" ||
       event === "PAYMENT_AUTHORIZED";
 
-      if (event === "PAYMENT_AWAITING_RISK_ANALYSIS") {
-  await prisma.adesaoInstituicao.update({
-    where: { id: adesao.id },
-    data: {
-      status: "PROCESSANDO",
-      asaasId: asaasPaymentId || adesao.asaasId,
-    },
-  });
+    if (event === "PAYMENT_AWAITING_RISK_ANALYSIS") {
+      await prisma.adesaoInstituicao.update({
+        where: { id: adesao.id },
+        data: {
+          status: "PROCESSANDO",
+          asaasId: asaasPaymentId || adesao.asaasId,
+        },
+      });
 
-  return NextResponse.json({
-    ok: true,
-    aguardandoAnaliseRisco: true,
-    adesaoId: adesao.id,
-  });
-}
+      return NextResponse.json({
+        ok: true,
+        aguardandoAnaliseRisco: true,
+        adesaoId: adesao.id,
+      });
+    }
 
-if (event === "PAYMENT_REPROVED_BY_RISK_ANALYSIS") {
-  await prisma.adesaoInstituicao.update({
-    where: { id: adesao.id },
-    data: {
-      status: "ERRO",
-      asaasId: asaasPaymentId || adesao.asaasId,
-    },
-  });
+    if (event === "PAYMENT_REPROVED_BY_RISK_ANALYSIS") {
+      await prisma.adesaoInstituicao.update({
+        where: { id: adesao.id },
+        data: {
+          status: "ERRO",
+          asaasId: asaasPaymentId || adesao.asaasId,
+        },
+      });
 
-  return NextResponse.json({
-    ok: true,
-    reprovadoAnaliseRisco: true,
-    adesaoId: adesao.id,
-  });
-}
+      return NextResponse.json({
+        ok: true,
+        reprovadoAnaliseRisco: true,
+        adesaoId: adesao.id,
+      });
+    }
 
     if (!statusPago) {
       console.log("ℹ️ Evento recebido, mas ainda sem pagamento confirmado:", {
@@ -1969,34 +2006,34 @@ if (event === "PAYMENT_REPROVED_BY_RISK_ANALYSIS") {
 
     let senhaTemp = "";
 
-if (!user) {
-  senhaTemp = gerarSenhaTemporaria();
-  const senhaHash = await bcrypt.hash(senhaTemp, 10);
+    if (!user) {
+      senhaTemp = gerarSenhaTemporaria();
+      const senhaHash = await bcrypt.hash(senhaTemp, 10);
 
-  user = await prisma.user.create({
-    data: {
-      nome: adesao.nomeResponsavel,
-      email: adesao.email,
-      senha: senhaHash,
-      role: "ADMIN",
-      instituicaoId: instituicao.id,
-      precisaTrocarSenha: true,
-    },
-  });
+      user = await prisma.user.create({
+        data: {
+          nome: adesao.nomeResponsavel,
+          email: adesao.email,
+          senha: senhaHash,
+          role: "ADMIN",
+          instituicaoId: instituicao.id,
+          precisaTrocarSenha: true,
+        },
+      });
 
-  console.log("✅ Admin criado:", user.email);
-} else {
-  user = await prisma.user.update({
-    where: { id: user.id },
-    data: {
-      nome: user.nome || adesao.nomeResponsavel,
-      role: "ADMIN",
-      instituicaoId: instituicao.id,
-    },
-  });
+      console.log("✅ Admin criado:", user.email);
+    } else {
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          nome: user.nome || adesao.nomeResponsavel,
+          role: "ADMIN",
+          instituicaoId: instituicao.id,
+        },
+      });
 
-  console.log("♻️ Admin reutilizado:", user.email);
-}
+      console.log("♻️ Admin reutilizado:", user.email);
+    }
 
     await prisma.adesaoInstituicao.update({
       where: { id: adesao.id },
@@ -2032,7 +2069,7 @@ if (!user) {
       console.error("❌ Erro ao enviar email de acesso:", emailError);
     }
 
-        return NextResponse.json({
+    return NextResponse.json({
       ok: true,
       pago: true,
       adesaoId: adesao.id,

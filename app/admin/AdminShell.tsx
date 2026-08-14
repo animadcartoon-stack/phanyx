@@ -82,6 +82,10 @@ export default function AdminShell({
       return "configuracoes";
     }
 
+    if (pathname.startsWith("/admin/biblioteca")) {
+      return "biblioteca";
+    }
+
     if (pathname.startsWith("/admin/comercial")) {
       return "comercial";
     }
@@ -469,7 +473,14 @@ export default function AdminShell({
     "comercial.comissoes.enviar_rh",
     "comercial.relatorios.ver",
     "comercial.relatorios.exportar",
-    "comercial.configuracoes.gerenciar"
+    "comercial.configuracoes.gerenciar",
+    "comercial.tarefas.ver",
+    "comercial.tarefas.ver_todas",
+    "comercial.tarefas.criar",
+    "comercial.tarefas.editar",
+    "comercial.tarefas.atribuir",
+    "comercial.tarefas.concluir",
+    "comercial.tarefas.cancelar",
   );
 
   const podeVerFunisComerciais = podeAcessar(
@@ -490,6 +501,16 @@ export default function AdminShell({
     "comercial.leads.arquivar",
     "comercial.leads.restaurar",
     "comercial.leads.historico.ver"
+  );
+
+  const podeVerAgendaComercial = podeAcessar(
+    "comercial.tarefas.ver",
+    "comercial.tarefas.ver_todas",
+    "comercial.tarefas.criar",
+    "comercial.tarefas.editar",
+    "comercial.tarefas.atribuir",
+    "comercial.tarefas.concluir",
+    "comercial.tarefas.cancelar"
   );
 
   const podeVerEquipesComerciais = podeAcessar(
@@ -516,6 +537,22 @@ export default function AdminShell({
   const podeVerAssinaturaPhanyx =
     usuarioAdmin || temPermissao("assinatura.ver");
 
+  const podeVerBiblioteca =
+    !carregandoUsuario &&
+    (
+      usuarioAdmin ||
+      permissoes.includes("*") ||
+      permissoes.some(
+        (chave) =>
+          chave === "biblioteca.ver" ||
+          chave.startsWith("biblioteca.")
+      )
+    );
+
+    const podeVerAcervoBiblioteca = podeAcessar(
+                "biblioteca.catalogo.ver"
+                );
+
   const podeGerenciarEmailInstitucional =
     podeAcessar("integracoes.email.gerenciar");
 
@@ -525,6 +562,10 @@ export default function AdminShell({
   function isActive(path: string) {
     if (path === "/admin") {
       return pathname === "/admin";
+    }
+
+    if (path === "/admin/biblioteca") {
+      return pathname === "/admin/biblioteca";
     }
 
     if (path === "/admin/rh") {
@@ -813,6 +854,15 @@ export default function AdminShell({
                           </Link>
                         )}
 
+                        {podeVerAgendaComercial && (
+                          <Link
+                            href="/admin/comercial/agenda"
+                            className={getLinkClass("/admin/comercial/agenda")}
+                          >
+                            📅 Agenda comercial
+                          </Link>
+                        )}
+
                         {podeVerLeadsComerciais && (
                           <Link
                             href="/admin/leads"
@@ -973,6 +1023,46 @@ export default function AdminShell({
                     </div>
                   )}
                 </div>
+
+                {podeVerBiblioteca && (
+  <div className="mt-2 border-t pt-2">
+    <button
+      type="button"
+      onClick={() => toggleMenu("biblioteca")}
+      className={buttonClass}
+    >
+      <span className={sectionTitleClass}>
+        📚 Biblioteca Virtual
+      </span>
+
+      <span>
+        {menuAberto === "biblioteca" ? "▾" : "▸"}
+      </span>
+    </button>
+
+    {menuAberto === "biblioteca" && (
+      <div className="ml-3 mt-2 flex flex-col space-y-1">
+        <Link
+          href="/admin/biblioteca"
+          className={getLinkClass("/admin/biblioteca")}
+        >
+          📊 Visão geral
+        </Link>
+
+        {podeVerAcervoBiblioteca && (
+          <Link
+            href="/admin/biblioteca/acervo"
+            className={getLinkClass(
+              "/admin/biblioteca/acervo"
+            )}
+          >
+            📚 Acervo
+          </Link>
+        )}
+      </div>
+    )}
+  </div>
+)}
 
                 <div className="border-t pt-2 mt-2">
                   <button
@@ -1505,6 +1595,14 @@ export default function AdminShell({
                         📤 Publicações Acadêmicas
                       </Link>
                     )}
+                    {podeVerBiblioteca && (
+                      <Link
+                        href="/admin/biblioteca"
+                        className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                      >
+                        📚 Biblioteca Virtual
+                      </Link>
+                    )}
                   </div>
                 )}
 
@@ -1533,6 +1631,15 @@ export default function AdminShell({
                           className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                         >
                           🗂️ Pipeline comercial
+                        </Link>
+                      )}
+
+                      {podeVerAgendaComercial && (
+                        <Link
+                          href="/admin/comercial/agenda"
+                          className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+                        >
+                          📅 Agenda comercial
                         </Link>
                       )}
 

@@ -85,6 +85,26 @@ export const PERMISSOES_PHANYX = [
       "Permite consultar indicadores, atividades recentes e resumo da biblioteca.",
   },
 
+    // CONTRATAÇÃO E COBRANÇA
+  {
+    chave: "biblioteca.contratacao.ver",
+    nome: "Biblioteca Virtual - Ver contratação e plano",
+    descricao:
+      "Permite consultar o plano, armazenamento, mensalidade e situação da contratação da Biblioteca Virtual.",
+  },
+  {
+    chave: "biblioteca.contratacao.gerenciar",
+    nome: "Biblioteca Virtual - Contratar ou alterar plano",
+    descricao:
+      "Permite iniciar a contratação, realizar upgrade e adquirir armazenamento adicional para a Biblioteca Virtual.",
+  },
+  {
+    chave: "biblioteca.contratacao.cancelar",
+    nome: "Biblioteca Virtual - Cancelar contratação",
+    descricao:
+      "Permite cancelar a assinatura comercial da Biblioteca Virtual.",
+  },
+
   // CATÁLOGO
   {
     chave: "biblioteca.catalogo.ver",
@@ -251,6 +271,12 @@ export const PERMISSOES_PHANYX = [
     nome: "Comercial - Editar leads",
     descricao:
       "Permite alterar dados, etapa, origem e informações dos leads.",
+  },
+  {
+    chave: "comercial.leads.interagir",
+    nome: "Comercial - Registrar interações com leads",
+    descricao:
+      "Permite registrar ligações, mensagens de WhatsApp, e-mails, reuniões e observações no histórico comercial dos leads.",
   },
   {
     chave: "comercial.leads.excluir",

@@ -57,6 +57,38 @@ type RespostaConfiguracao = {
   resumo: Resumo;
 };
 
+type TemplateWhatsapp = {
+  id?: number;
+  nome: string;
+  nomeMeta: string;
+  tipoComunicacao: TipoComunicacao;
+  idioma: string;
+  categoriaMeta?: string | null;
+  statusMeta?: string | null;
+  titulo?: string | null;
+  corpo: string;
+  rodape?: string | null;
+  aprovadoMeta: boolean;
+  ativo: boolean;
+};
+
+type TipoTemplateEditavel =
+  | "REUNIAO_CRIADA"
+  | "REUNIAO_LEMBRETE";
+
+type DefinicaoTemplateWhatsapp = {
+  tipo: TipoTemplateEditavel;
+  titulo: string;
+  descricao: string;
+
+  variaveis: Array<{
+    codigo: string;
+    descricao: string;
+  }>;
+
+  inicial: TemplateWhatsapp;
+};
+
 type FormConexao = {
   phoneNumberId: string;
   whatsappBusinessId: string;
@@ -70,109 +102,109 @@ const COMUNICACOES: Array<{
   descricao: string;
   grupo: string;
 }> = [
-  {
-    tipo: "REUNIAO_CRIADA",
-    titulo: "Reunião criada",
-    descricao:
-      "Avisa os participantes quando uma nova reunião for marcada.",
-    grupo: "Reuniões",
-  },
-  {
-    tipo: "REUNIAO_ALTERADA",
-    titulo: "Reunião alterada",
-    descricao:
-      "Avisa os participantes quando data, horário ou informações forem alteradas.",
-    grupo: "Reuniões",
-  },
-  {
-    tipo: "REUNIAO_CANCELADA",
-    titulo: "Reunião cancelada",
-    descricao:
-      "Avisa os participantes quando uma reunião for cancelada.",
-    grupo: "Reuniões",
-  },
-  {
-    tipo: "REUNIAO_LEMBRETE",
-    titulo: "Lembrete de reunião",
-    descricao:
-      "Permite o envio de lembretes antes de reuniões programadas.",
-    grupo: "Reuniões",
-  },
+    {
+      tipo: "REUNIAO_CRIADA",
+      titulo: "Reunião criada",
+      descricao:
+        "Avisa os participantes quando uma nova reunião for marcada.",
+      grupo: "Reuniões",
+    },
+    {
+      tipo: "REUNIAO_ALTERADA",
+      titulo: "Reunião alterada",
+      descricao:
+        "Avisa os participantes quando data, horário ou informações forem alteradas.",
+      grupo: "Reuniões",
+    },
+    {
+      tipo: "REUNIAO_CANCELADA",
+      titulo: "Reunião cancelada",
+      descricao:
+        "Avisa os participantes quando uma reunião for cancelada.",
+      grupo: "Reuniões",
+    },
+    {
+      tipo: "REUNIAO_LEMBRETE",
+      titulo: "Lembrete de reunião",
+      descricao:
+        "Permite o envio de lembretes antes de reuniões programadas.",
+      grupo: "Reuniões",
+    },
 
-  {
-    tipo: "OUVIDORIA_RESPONDIDA",
-    titulo: "Resposta da ouvidoria",
-    descricao:
-      "Avisa o usuário quando sua manifestação receber uma resposta.",
-    grupo: "Atendimento",
-  },
+    {
+      tipo: "OUVIDORIA_RESPONDIDA",
+      titulo: "Resposta da ouvidoria",
+      descricao:
+        "Avisa o usuário quando sua manifestação receber uma resposta.",
+      grupo: "Atendimento",
+    },
 
-  {
-    tipo: "MENSAGEM_ALUNO_PARA_PROFESSOR",
-    titulo: "Mensagem de aluno para professor",
-    descricao:
-      "Avisa o professor quando um aluno enviar uma pergunta ou mensagem.",
-    grupo: "Mensagens",
-  },
-  {
-    tipo: "MENSAGEM_PROFESSOR_PARA_ALUNO",
-    titulo: "Mensagem de professor para aluno",
-    descricao:
-      "Avisa o aluno quando o professor enviar uma resposta.",
-    grupo: "Mensagens",
-  },
+    {
+      tipo: "MENSAGEM_ALUNO_PARA_PROFESSOR",
+      titulo: "Mensagem de aluno para professor",
+      descricao:
+        "Avisa o professor quando um aluno enviar uma pergunta ou mensagem.",
+      grupo: "Mensagens",
+    },
+    {
+      tipo: "MENSAGEM_PROFESSOR_PARA_ALUNO",
+      titulo: "Mensagem de professor para aluno",
+      descricao:
+        "Avisa o aluno quando o professor enviar uma resposta.",
+      grupo: "Mensagens",
+    },
 
-  {
-    tipo: "ATIVIDADE_PUBLICADA",
-    titulo: "Atividade publicada",
-    descricao:
-      "Avisa os alunos quando uma nova atividade acadêmica for publicada.",
-    grupo: "Acadêmico",
-  },
-  {
-    tipo: "PROVA_PUBLICADA",
-    titulo: "Prova publicada",
-    descricao:
-      "Avisa os alunos quando uma prova ficar disponível.",
-    grupo: "Acadêmico",
-  },
-  {
-    tipo: "DOCUMENTO_DISPONIVEL",
-    titulo: "Documento disponível",
-    descricao:
-      "Avisa quando um novo documento estiver disponível no PHANYX.",
-    grupo: "Acadêmico",
-  },
-  {
-    tipo: "AVISO_ACADEMICO",
-    titulo: "Avisos acadêmicos",
-    descricao:
-      "Permite comunicações acadêmicas institucionais importantes.",
-    grupo: "Acadêmico",
-  },
+    {
+      tipo: "ATIVIDADE_PUBLICADA",
+      titulo: "Atividade publicada",
+      descricao:
+        "Avisa os alunos quando uma nova atividade acadêmica for publicada.",
+      grupo: "Acadêmico",
+    },
+    {
+      tipo: "PROVA_PUBLICADA",
+      titulo: "Prova publicada",
+      descricao:
+        "Avisa os alunos quando uma prova ficar disponível.",
+      grupo: "Acadêmico",
+    },
+    {
+      tipo: "DOCUMENTO_DISPONIVEL",
+      titulo: "Documento disponível",
+      descricao:
+        "Avisa quando um novo documento estiver disponível no PHANYX.",
+      grupo: "Acadêmico",
+    },
+    {
+      tipo: "AVISO_ACADEMICO",
+      titulo: "Avisos acadêmicos",
+      descricao:
+        "Permite comunicações acadêmicas institucionais importantes.",
+      grupo: "Acadêmico",
+    },
 
-  {
-    tipo: "MENSALIDADE_VENCENDO",
-    titulo: "Mensalidade vencendo",
-    descricao:
-      "Permite avisar o responsável antes do vencimento da mensalidade.",
-    grupo: "Financeiro",
-  },
-  {
-    tipo: "MENSALIDADE_VENCIDA",
-    titulo: "Mensalidade vencida",
-    descricao:
-      "Permite avisar quando existir uma mensalidade vencida.",
-    grupo: "Financeiro",
-  },
-  {
-    tipo: "PAGAMENTO_CONFIRMADO",
-    titulo: "Pagamento confirmado",
-    descricao:
-      "Avisa o usuário quando um pagamento for confirmado.",
-    grupo: "Financeiro",
-  },
-];
+    {
+      tipo: "MENSALIDADE_VENCENDO",
+      titulo: "Mensalidade vencendo",
+      descricao:
+        "Permite avisar o responsável antes do vencimento da mensalidade.",
+      grupo: "Financeiro",
+    },
+    {
+      tipo: "MENSALIDADE_VENCIDA",
+      titulo: "Mensalidade vencida",
+      descricao:
+        "Permite avisar quando existir uma mensalidade vencida.",
+      grupo: "Financeiro",
+    },
+    {
+      tipo: "PAGAMENTO_CONFIRMADO",
+      titulo: "Pagamento confirmado",
+      descricao:
+        "Avisa o usuário quando um pagamento for confirmado.",
+      grupo: "Financeiro",
+    },
+  ];
 
 const GRUPOS = [
   "Reuniões",
@@ -200,6 +232,118 @@ const formConexaoInicial: FormConexao = {
   whatsappBusinessId: "",
   metaBusinessId: "",
   accessToken: "",
+};
+
+const TEMPLATES_EDITAVEIS: Record<
+  TipoTemplateEditavel,
+  DefinicaoTemplateWhatsapp
+> = {
+  REUNIAO_CRIADA: {
+    tipo: "REUNIAO_CRIADA",
+
+    titulo: "Reunião criada",
+
+    descricao:
+      "Mensagem enviada aos participantes quando uma nova reunião é agendada.",
+
+    variaveis: [
+      {
+        codigo: "{{1}}",
+        descricao: "Nome do participante",
+      },
+      {
+        codigo: "{{2}}",
+        descricao: "Título da reunião",
+      },
+      {
+        codigo: "{{3}}",
+        descricao: "Data e horário",
+      },
+      {
+        codigo: "{{4}}",
+        descricao: "Link ou orientação de acesso",
+      },
+    ],
+
+    inicial: {
+      nome: "Reunião criada",
+      nomeMeta: "phanyx_reuniao_criada",
+      tipoComunicacao: "REUNIAO_CRIADA",
+      idioma: "pt_BR",
+      categoriaMeta: "UTILITY",
+      statusMeta: null,
+      titulo: null,
+
+      corpo: `Olá, {{1}}! 👋
+
+Uma nova reunião foi agendada.
+
+📌 {{2}}
+📅 {{3}}
+
+🔗 {{4}}`,
+
+      rodape:
+        "Mensagem automática enviada pelo PHANYX.",
+
+      aprovadoMeta: false,
+      ativo: true,
+    },
+  },
+
+  REUNIAO_LEMBRETE: {
+    tipo: "REUNIAO_LEMBRETE",
+
+    titulo: "Lembrete de reunião",
+
+    descricao:
+      "Mensagem enviada no dia anterior ou no dia da reunião.",
+
+    variaveis: [
+      {
+        codigo: "{{1}}",
+        descricao: "Nome do participante",
+      },
+      {
+        codigo: "{{2}}",
+        descricao: "Título da reunião",
+      },
+      {
+        codigo: "{{3}}",
+        descricao:
+          'Horário do lembrete, como "amanhã às 19:30" ou "hoje às 19:30"',
+      },
+      {
+        codigo: "{{4}}",
+        descricao: "Link da reunião",
+      },
+    ],
+
+    inicial: {
+      nome: "Lembrete de reunião",
+      nomeMeta: "phanyx_reuniao_lembrete",
+      tipoComunicacao: "REUNIAO_LEMBRETE",
+      idioma: "pt_BR",
+      categoriaMeta: "UTILITY",
+      statusMeta: null,
+      titulo: null,
+
+      corpo: `Olá, {{1}}! 👋
+
+Este é um lembrete da sua reunião.
+
+📌 {{2}}
+⏰ {{3}}
+
+🔗 {{4}}`,
+
+      rodape:
+        "Mensagem automática enviada pelo PHANYX.",
+
+      aprovadoMeta: false,
+      ativo: true,
+    },
+  },
 };
 
 function formatarData(valor?: string | null) {
@@ -233,12 +377,106 @@ export default function WhatsAppInstitucionalPage() {
   const [comunicacoes, setComunicacoes] = useState<Comunicacao[]>([]);
   const [resumo, setResumo] = useState<Resumo>(resumoInicial);
 
+  const [templatesWhatsapp, setTemplatesWhatsapp] =
+    useState<
+      Record<TipoTemplateEditavel, TemplateWhatsapp>
+    >({
+      REUNIAO_CRIADA:
+        TEMPLATES_EDITAVEIS.REUNIAO_CRIADA.inicial,
+
+      REUNIAO_LEMBRETE:
+        TEMPLATES_EDITAVEIS.REUNIAO_LEMBRETE.inicial,
+    });
+
+  const [
+    tipoTemplateSelecionado,
+    setTipoTemplateSelecionado,
+  ] = useState<TipoTemplateEditavel>(
+    "REUNIAO_CRIADA"
+  );
+
+  const [salvandoTemplate, setSalvandoTemplate] =
+    useState(false);
+
+  const templateSelecionado =
+    templatesWhatsapp[tipoTemplateSelecionado];
+
+  const definicaoTemplateSelecionado =
+    TEMPLATES_EDITAVEIS[tipoTemplateSelecionado];
+
   const [modalConexaoAberto, setModalConexaoAberto] = useState(false);
   const [modalDesconectarAberto, setModalDesconectarAberto] =
     useState(false);
 
   const [formConexao, setFormConexao] =
     useState<FormConexao>(formConexaoInicial);
+
+  async function carregarTemplatesWhatsapp() {
+  try {
+    const response = await fetch(
+      "/api/admin/integracoes/whatsapp/templates",
+      {
+        method: "GET",
+        cache: "no-store",
+        credentials: "include",
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data?.error ||
+          "Não foi possível carregar os templates do WhatsApp."
+      );
+    }
+
+    const recebidos: TemplateWhatsapp[] =
+      Array.isArray(data?.templates)
+        ? data.templates
+        : [];
+
+    const proximos: Record<
+      TipoTemplateEditavel,
+      TemplateWhatsapp
+    > = {
+      REUNIAO_CRIADA: {
+        ...TEMPLATES_EDITAVEIS.REUNIAO_CRIADA
+          .inicial,
+      },
+
+      REUNIAO_LEMBRETE: {
+        ...TEMPLATES_EDITAVEIS.REUNIAO_LEMBRETE
+          .inicial,
+      },
+    };
+
+    (
+      Object.keys(
+        TEMPLATES_EDITAVEIS
+      ) as TipoTemplateEditavel[]
+    ).forEach((tipo) => {
+      const encontrado = recebidos.find(
+        (template) =>
+          template.tipoComunicacao === tipo
+      );
+
+      if (encontrado) {
+        proximos[tipo] = {
+          ...TEMPLATES_EDITAVEIS[tipo].inicial,
+          ...encontrado,
+        };
+      }
+    });
+
+    setTemplatesWhatsapp(proximos);
+  } catch (error) {
+    console.error(
+      "Erro ao carregar templates do WhatsApp:",
+      error
+    );
+  }
+}
 
   async function carregarConfiguracao() {
     try {
@@ -256,7 +494,7 @@ export default function WhatsAppInstitucionalPage() {
       if (!response.ok) {
         throw new Error(
           data?.error ||
-            "Não foi possível carregar a configuração do WhatsApp."
+          "Não foi possível carregar a configuração do WhatsApp."
         );
       }
 
@@ -301,8 +539,9 @@ export default function WhatsAppInstitucionalPage() {
   }
 
   useEffect(() => {
-    carregarConfiguracao();
-  }, []);
+  carregarConfiguracao();
+  carregarTemplatesWhatsapp();
+}, []);
 
   function alterarCampoConexao(
     campo: keyof FormConexao,
@@ -322,13 +561,26 @@ export default function WhatsAppInstitucionalPage() {
       atuais.map((item) =>
         item.tipoComunicacao === tipoComunicacao
           ? {
-              ...item,
-              ativo,
-            }
+            ...item,
+            ativo,
+          }
           : item
       )
     );
   }
+
+  function atualizarTemplateSelecionado(
+  alteracoes: Partial<TemplateWhatsapp>
+) {
+  setTemplatesWhatsapp((atuais) => ({
+    ...atuais,
+
+    [tipoTemplateSelecionado]: {
+      ...atuais[tipoTemplateSelecionado],
+      ...alteracoes,
+    },
+  }));
+}
 
   async function conectarWhatsApp() {
     try {
@@ -360,7 +612,7 @@ export default function WhatsAppInstitucionalPage() {
       if (!response.ok || data?.ok === false) {
         throw new Error(
           data?.error ||
-            "Não foi possível conectar o WhatsApp Business."
+          "Não foi possível conectar o WhatsApp Business."
         );
       }
 
@@ -369,7 +621,7 @@ export default function WhatsAppInstitucionalPage() {
 
       setSucesso(
         data?.message ||
-          "WhatsApp Business conectado com sucesso."
+        "WhatsApp Business conectado com sucesso."
       );
 
       await carregarConfiguracao();
@@ -403,13 +655,13 @@ export default function WhatsAppInstitucionalPage() {
       if (!response.ok || data?.ok === false) {
         throw new Error(
           data?.error ||
-            "Não foi possível validar a conexão com o WhatsApp Business."
+          "Não foi possível validar a conexão com o WhatsApp Business."
         );
       }
 
       setSucesso(
         data?.message ||
-          "Conexão com o WhatsApp Business validada com sucesso."
+        "Conexão com o WhatsApp Business validada com sucesso."
       );
 
       await carregarConfiguracao();
@@ -443,7 +695,7 @@ export default function WhatsAppInstitucionalPage() {
       if (!response.ok || data?.ok === false) {
         throw new Error(
           data?.error ||
-            "Não foi possível desconectar o WhatsApp Business."
+          "Não foi possível desconectar o WhatsApp Business."
         );
       }
 
@@ -451,7 +703,7 @@ export default function WhatsAppInstitucionalPage() {
 
       setSucesso(
         data?.message ||
-          "WhatsApp Business desconectado com sucesso."
+        "WhatsApp Business desconectado com sucesso."
       );
 
       await carregarConfiguracao();
@@ -465,6 +717,103 @@ export default function WhatsAppInstitucionalPage() {
       setDesconectando(false);
     }
   }
+
+  async function salvarTemplateSelecionado() {
+  try {
+    setSalvandoTemplate(true);
+    setErro("");
+    setSucesso("");
+
+    const template =
+      templatesWhatsapp[tipoTemplateSelecionado];
+
+    const response = await fetch(
+      "/api/admin/integracoes/whatsapp/templates",
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        credentials: "include",
+
+        body: JSON.stringify({
+          nome:
+            template.nome.trim() ||
+            definicaoTemplateSelecionado.titulo,
+
+          nomeMeta:
+            template.nomeMeta.trim(),
+
+          tipoComunicacao:
+            tipoTemplateSelecionado,
+
+          idioma:
+            template.idioma || "pt_BR",
+
+          categoriaMeta:
+            template.categoriaMeta ||
+            "UTILITY",
+
+          statusMeta:
+            template.statusMeta || null,
+
+          titulo:
+            template.titulo || null,
+
+          corpo:
+            template.corpo.trim(),
+
+          rodape:
+            template.rodape || null,
+
+          aprovadoMeta:
+            template.aprovadoMeta === true,
+
+          ativo: true,
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data?.error ||
+          "Não foi possível salvar o modelo de mensagem."
+      );
+    }
+
+    if (data?.template) {
+      setTemplatesWhatsapp((atuais) => ({
+        ...atuais,
+
+        [tipoTemplateSelecionado]: {
+          ...TEMPLATES_EDITAVEIS[
+            tipoTemplateSelecionado
+          ].inicial,
+
+          ...data.template,
+        },
+      }));
+    }
+
+    setSucesso(
+      `Modelo "${definicaoTemplateSelecionado.titulo}" salvo com sucesso.`
+    );
+
+    await carregarConfiguracao();
+  } catch (error) {
+    setErro(
+      error instanceof Error
+        ? error.message
+        : "Erro ao salvar o modelo de mensagem."
+    );
+  } finally {
+    setSalvandoTemplate(false);
+  }
+}
 
   async function salvarConfiguracao() {
     try {
@@ -495,13 +844,13 @@ export default function WhatsAppInstitucionalPage() {
       if (!response.ok) {
         throw new Error(
           data?.error ||
-            "Não foi possível salvar as configurações."
+          "Não foi possível salvar as configurações."
         );
       }
 
       setSucesso(
         data?.message ||
-          "Configurações do WhatsApp salvas com sucesso."
+        "Configurações do WhatsApp salvas com sucesso."
       );
 
       await carregarConfiguracao();
@@ -752,6 +1101,286 @@ export default function WhatsAppInstitucionalPage() {
         </div>
 
         <section className="mt-5 rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-950">
+  <div className="border-b border-slate-200 p-5 dark:border-slate-700">
+    <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
+      <div>
+        <h2 className="text-lg font-bold text-slate-950 dark:text-white">
+          Modelos de mensagens
+        </h2>
+
+        <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
+          Configure os modelos utilizados pelo PHANYX nas
+          comunicações automáticas do WhatsApp.
+        </p>
+      </div>
+
+      <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+        <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          Modelos configurados
+        </p>
+
+        <p className="mt-1 font-bold text-slate-950 dark:text-white">
+          {resumo.quantidadeTemplates}
+        </p>
+      </div>
+    </div>
+
+    <div className="mt-5 flex flex-wrap gap-2">
+      {(
+        Object.keys(
+          TEMPLATES_EDITAVEIS
+        ) as TipoTemplateEditavel[]
+      ).map((tipo) => {
+        const definicao =
+          TEMPLATES_EDITAVEIS[tipo];
+
+        const template =
+          templatesWhatsapp[tipo];
+
+        const selecionado =
+          tipoTemplateSelecionado === tipo;
+
+        return (
+          <button
+            key={tipo}
+            type="button"
+            onClick={() =>
+              setTipoTemplateSelecionado(tipo)
+            }
+            className={[
+              "inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition",
+              selecionado
+                ? "border-slate-900 bg-slate-900 text-white dark:border-white dark:bg-white dark:text-slate-950"
+                : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800",
+            ].join(" ")}
+          >
+            {definicao.titulo}
+
+            {template.id ? (
+              <span
+                className={[
+                  "h-2 w-2 rounded-full",
+                  template.aprovadoMeta
+                    ? "bg-emerald-500"
+                    : "bg-amber-400",
+                ].join(" ")}
+              />
+            ) : (
+              <span className="h-2 w-2 rounded-full bg-slate-300" />
+            )}
+          </button>
+        );
+      })}
+    </div>
+  </div>
+
+  <div className="flex flex-col justify-between gap-4 border-b border-slate-200 p-5 sm:flex-row sm:items-start dark:border-slate-700">
+    <div>
+      <div className="flex flex-wrap items-center gap-3">
+        <h3 className="text-lg font-bold text-slate-950 dark:text-white">
+          {definicaoTemplateSelecionado.titulo}
+        </h3>
+
+        <span
+          className={[
+            "rounded-full border px-3 py-1 text-xs font-bold",
+            templateSelecionado.aprovadoMeta
+              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+              : templateSelecionado.id
+                ? "border-amber-200 bg-amber-50 text-amber-800"
+                : "border-slate-300 bg-slate-50 text-slate-600",
+          ].join(" ")}
+        >
+          {templateSelecionado.aprovadoMeta
+            ? "Aprovado pela Meta"
+            : templateSelecionado.id
+              ? "Aguardando Meta"
+              : "Ainda não salvo"}
+        </span>
+      </div>
+
+      <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
+        {definicaoTemplateSelecionado.descricao}
+      </p>
+    </div>
+
+    <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+      <p className="font-semibold text-slate-900 dark:text-white">
+        Categoria Meta
+      </p>
+
+      <p className="mt-1 text-slate-600 dark:text-slate-300">
+        {templateSelecionado.categoriaMeta ||
+          "UTILITY"}
+      </p>
+    </div>
+  </div>
+
+  <div className="grid gap-6 p-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+    <div className="space-y-5">
+      <div>
+        <label className="mb-1.5 block text-sm font-semibold text-slate-800 dark:text-slate-200">
+          Nome interno
+        </label>
+
+        <input
+          type="text"
+          value={templateSelecionado.nome}
+          onChange={(event) =>
+            atualizarTemplateSelecionado({
+              nome: event.target.value,
+            })
+          }
+          placeholder={
+            definicaoTemplateSelecionado.titulo
+          }
+          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-950 outline-none transition focus:border-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+        />
+      </div>
+
+      <div>
+        <label className="mb-1.5 block text-sm font-semibold text-slate-800 dark:text-slate-200">
+          Nome do template na Meta
+        </label>
+
+        <input
+          type="text"
+          value={templateSelecionado.nomeMeta}
+          onChange={(event) =>
+            atualizarTemplateSelecionado({
+              nomeMeta: event.target.value
+                .toLowerCase()
+                .replace(/[^a-z0-9_]/g, "_"),
+            })
+          }
+          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 font-mono text-sm text-slate-950 outline-none transition focus:border-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+        />
+
+        <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
+          Use apenas letras minúsculas, números e underline.
+          O nome precisa corresponder exatamente ao template
+          aprovado na Meta.
+        </p>
+      </div>
+
+      <div>
+        <label className="mb-1.5 block text-sm font-semibold text-slate-800 dark:text-slate-200">
+          Conteúdo da mensagem
+        </label>
+
+        <textarea
+          rows={10}
+          value={templateSelecionado.corpo}
+          onChange={(event) =>
+            atualizarTemplateSelecionado({
+              corpo: event.target.value,
+            })
+          }
+          className="w-full resize-y rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+        />
+      </div>
+
+      <div>
+        <label className="mb-1.5 block text-sm font-semibold text-slate-800 dark:text-slate-200">
+          Rodapé
+        </label>
+
+        <input
+          type="text"
+          value={
+            templateSelecionado.rodape || ""
+          }
+          onChange={(event) =>
+            atualizarTemplateSelecionado({
+              rodape: event.target.value,
+            })
+          }
+          placeholder="Mensagem automática enviada pelo PHANYX."
+          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-950 outline-none transition focus:border-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+        />
+      </div>
+    </div>
+
+    <div className="space-y-4">
+      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
+        <h3 className="font-bold text-slate-950 dark:text-white">
+          Variáveis disponíveis
+        </h3>
+
+        <div className="mt-4 space-y-3 text-sm">
+          {definicaoTemplateSelecionado.variaveis.map(
+            (variavel) => (
+              <VariavelTemplate
+                key={variavel.codigo}
+                codigo={variavel.codigo}
+                descricao={variavel.descricao}
+              />
+            )
+          )}
+        </div>
+      </div>
+
+      {!templateSelecionado.aprovadoMeta && (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+          <p className="text-sm font-bold text-amber-900">
+            Aprovação da Meta pendente
+          </p>
+
+          <p className="mt-2 text-sm leading-6 text-amber-800">
+            O modelo pode ser preparado e salvo no
+            PHANYX antes da aprovação. Nenhum disparo
+            real será realizado enquanto ele não estiver
+            aprovado pela Meta.
+          </p>
+        </div>
+      )}
+
+      {tipoTemplateSelecionado ===
+        "REUNIAO_LEMBRETE" && (
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-950">
+          <p className="text-sm font-bold text-slate-900 dark:text-white">
+            Como funciona o lembrete
+          </p>
+
+          <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+            O mesmo modelo será utilizado tanto para o
+            aviso do dia anterior quanto para o aviso do
+            próprio dia. A variável {"{{3}}"} receberá
+            automaticamente textos como
+            &quot;amanhã às 19:30&quot; ou
+            &quot;hoje às 19:30&quot;.
+          </p>
+        </div>
+      )}
+    </div>
+  </div>
+
+  <div className="flex flex-col gap-3 border-t border-slate-200 p-5 sm:flex-row sm:items-center sm:justify-between dark:border-slate-700">
+    <p className="text-xs text-slate-500 dark:text-slate-400">
+      {templateSelecionado.id
+        ? `Modelo salvo no PHANYX • ID ${templateSelecionado.id}`
+        : "Este modelo ainda não foi salvo no PHANYX."}
+    </p>
+
+    <button
+      type="button"
+      onClick={salvarTemplateSelecionado}
+      disabled={
+        salvandoTemplate ||
+        !templateSelecionado.nome.trim() ||
+        !templateSelecionado.nomeMeta.trim() ||
+        !templateSelecionado.corpo.trim()
+      }
+      className="rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      {salvandoTemplate
+        ? "Salvando modelo..."
+        : "Salvar modelo"}
+    </button>
+  </div>
+</section>
+
+        <section className="mt-5 rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-950">
           <div className="flex flex-col justify-between gap-4 border-b border-slate-200 p-5 sm:flex-row sm:items-center dark:border-slate-700">
             <div>
               <h2 className="text-lg font-bold text-slate-950 dark:text-white">
@@ -882,7 +1511,7 @@ export default function WhatsAppInstitucionalPage() {
       </div>
 
       {modalConexaoAberto && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
+  <div className="phanyx-whatsapp-page fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-xl rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-950">
             <div className="border-b border-slate-200 p-5 dark:border-slate-700">
               <h2 className="text-xl font-bold text-slate-950 dark:text-white">
@@ -974,7 +1603,7 @@ export default function WhatsAppInstitucionalPage() {
                   !formConexao.accessToken.trim()
                 }
                 onClick={conectarWhatsApp}
-                className="rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+                className="phanyx-whatsapp-connect-modal-button rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed"
               >
                 {conectando
                   ? "Conectando..."
@@ -986,7 +1615,7 @@ export default function WhatsAppInstitucionalPage() {
       )}
 
       {modalDesconectarAberto && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
+  <div className="phanyx-whatsapp-page fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-950">
             <div className="p-5">
               <h2 className="text-xl font-bold text-slate-950 dark:text-white">
@@ -1094,6 +1723,26 @@ function Campo({
         placeholder={placeholder}
         className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-950 outline-none transition focus:border-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
       />
+    </div>
+  );
+}
+
+function VariavelTemplate({
+  codigo,
+  descricao,
+}: {
+  codigo: string;
+  descricao: string;
+}) {
+  return (
+    <div className="flex items-start gap-3">
+      <code className="shrink-0 rounded-lg border border-slate-300 bg-white px-2 py-1 font-mono text-xs font-bold text-slate-800 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100">
+        {codigo}
+      </code>
+
+      <span className="pt-1 text-slate-600 dark:text-slate-300">
+        {descricao}
+      </span>
     </div>
   );
 }

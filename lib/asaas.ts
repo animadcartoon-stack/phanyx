@@ -1,3 +1,5 @@
+import "server-only";
+
 type AsaasBillingType = "PIX" | "BOLETO" | "CREDIT_CARD";
 type AsaasCycle =
   | "WEEKLY"
@@ -161,45 +163,30 @@ type AtualizarAssinaturaAsaasInput = Partial<{
 }>;
 
 function getAsaasConfig() {
-  const apiKey =
-    process.env.ASAAS_API_KEY ||
-    process.env.ASAAS_ACCESS_TOKEN ||
-    process.env.ASAAS_TOKEN ||
-    process.env.NEXT_PUBLIC_ASAAS_API_KEY ||
-    process.env.NEXT_PUBLIC_ASAAS_ACCESS_TOKEN ||
-    "";
+  const apiKey = String(process.env.ASAAS_API_KEY || "").trim();
 
-    console.log("🔎 ENV RAW:", {
-  ASAAS_API_KEY: process.env.ASAAS_API_KEY ? "OK" : "VAZIO",
-  ASAAS_ACCESS_TOKEN: process.env.ASAAS_ACCESS_TOKEN ? "OK" : "VAZIO",
-  ASAAS_TOKEN: process.env.ASAAS_TOKEN ? "OK" : "VAZIO",
-  NEXT_PUBLIC_ASAAS_API_KEY: process.env.NEXT_PUBLIC_ASAAS_API_KEY ? "OK" : "VAZIO",
-  NEXT_PUBLIC_ASAAS_ACCESS_TOKEN: process.env.NEXT_PUBLIC_ASAAS_ACCESS_TOKEN ? "OK" : "VAZIO",
-});
-
-  const baseUrl =
+  const baseUrl = String(
     process.env.ASAAS_BASE_URL ||
-    process.env.NEXT_PUBLIC_ASAAS_BASE_URL ||
-    "https://api.asaas.com/v3";
-
-  console.log("🔎 ASAAS CONFIG:", {
-  temApiKey: Boolean(apiKey),
-  tamanhoApiKey: apiKey ? apiKey.length : 0,
-  inicioApiKey: apiKey ? apiKey.slice(0, 6) : "",
-  baseUrl,
-});
+    (process.env.ASAAS_ENV === "production"
+      ? "https://api.asaas.com/v3"
+      : "https://api-sandbox.asaas.com/v3")
+  )
+    .trim()
+    .replace(/\/+$/, "");
 
   if (!apiKey) {
-    throw new Error("Configuração do Asaas ausente no servidor.");
+    throw new Error("ASAAS_API_KEY não configurada no servidor.");
+  }
+
+  if (!baseUrl.startsWith("https://")) {
+    throw new Error("ASAAS_BASE_URL inválida.");
   }
 
   return {
     apiKey,
-    baseUrl: baseUrl.replace(/\/+$/, ""),
+    baseUrl,
   };
 }
-
-
 
 async function asaasFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const { apiKey, baseUrl } = getAsaasConfig();
@@ -226,8 +213,8 @@ async function asaasFetch<T>(path: string, init?: RequestInit): Promise<T> {
 
     throw new Error(
       data?.errors?.[0]?.description ||
-        data?.message ||
-        `Erro HTTP ${res.status} ao comunicar com Asaas`
+      data?.message ||
+      `Erro HTTP ${res.status} ao comunicar com Asaas`
     );
   }
 
@@ -342,23 +329,23 @@ export async function criarCheckoutAssinaturaAsaas(
       chargeTypes: ["RECURRENT"],
 
       name: "PHANYX - mensalidade base",
-description: `Plano ${data.plano}. Valor base mensal. Cadastro para cobrança futura após 60 dias grátis. A cobrança final poderá ser recalculada pelo PHANYX conforme alunos ativos e polos cadastrados antes da primeira cobrança.`,
-value: data.value,
-externalReference: data.externalReference,
+      description: `Plano ${data.plano}. Valor base mensal. Cadastro para cobrança futura após 60 dias grátis. A cobrança final poderá ser recalculada pelo PHANYX conforme alunos ativos e polos cadastrados antes da primeira cobrança.`,
+      value: data.value,
+      externalReference: data.externalReference,
 
       items: [
-  {
-    name: "PHANYX - mensalidade base",
-    description: `Plano ${data.plano}. Valor base mensal. Os primeiros 60 dias são gratuitos. Alunos ativos e polos adicionais poderão compor o valor final da cobrança.`,
-    quantity: 1,
-    value: data.value,
-  },
-],
+        {
+          name: "PHANYX - mensalidade base",
+          description: `Plano ${data.plano}. Valor base mensal. Os primeiros 60 dias são gratuitos. Alunos ativos e polos adicionais poderão compor o valor final da cobrança.`,
+          quantity: 1,
+          value: data.value,
+        },
+      ],
 
       subscription: {
-  cycle: "MONTHLY",
-  nextDueDate: data.nextDueDate,
-},
+        cycle: "MONTHLY",
+        nextDueDate: data.nextDueDate,
+      },
       customerData: {
         name: data.nomeResponsavel,
         cpfCnpj: data.cpfCnpj,
@@ -372,44 +359,313 @@ externalReference: data.externalReference,
       },
 
       callback: {
-  successUrl: `${
-    process.env.NEXT_PUBLIC_BASE_URL || "https://www.phanyx.com.br"
-  }/sucesso?checkout=recorrente&ref=${data.externalReference}`,
-  cancelUrl: `${
-    process.env.NEXT_PUBLIC_BASE_URL || "https://www.phanyx.com.br"
-  }/cancelado?motivo=checkout-cancelado&ref=${data.externalReference}`,
-  autoRedirect: true,
-},
+        successUrl: `${process.env.NEXT_PUBLIC_BASE_URL || "https://www.phanyx.com.br"
+          }/sucesso?checkout=recorrente&ref=${data.externalReference}`,
+        cancelUrl: `${process.env.NEXT_PUBLIC_BASE_URL || "https://www.phanyx.com.br"
+          }/cancelado?motivo=checkout-cancelado&ref=${data.externalReference}`,
+        autoRedirect: true,
+      },
     }),
   });
 
-  console.log("🟣 RESPOSTA CHECKOUT ASAAS:", JSON.stringify(response, null, 2));
+  console.info("Checkout Asaas criado.", {
+    id: response?.id,
+    status: response?.status,
+  });
 
-const checkoutUrl =
-  response.url ||
-  response.link ||
-  response.checkoutUrl ||
-  response.paymentUrl ||
-  response.invoiceUrl ||
-  "";
+  const checkoutUrl =
+    response.url ||
+    response.link ||
+    response.checkoutUrl ||
+    response.paymentUrl ||
+    response.invoiceUrl ||
+    "";
 
-if (!checkoutUrl) {
-  throw new Error(
-    "Asaas criou o checkout, mas não retornou uma URL válida para redirecionamento."
-  );
+  if (!checkoutUrl) {
+    throw new Error(
+      "Asaas criou o checkout, mas não retornou uma URL válida para redirecionamento."
+    );
+  }
+
+  return {
+    id: response.id,
+    url: checkoutUrl,
+  };
 }
 
-return {
-  id: response.id,
-  url: checkoutUrl,
+export type CriarCheckoutBibliotecaAsaasInput = {
+  contratacaoId: string;
+  externalReference: string;
+
+  planoNome: string;
+  armazenamentoGb: number;
+  valorMensal: number;
+  nextDueDate: string;
+
+  nomeResponsavel: string;
+  email: string;
+  cpfCnpj: string;
+  telefone?: string;
+
+  postalCode?: string;
+  address?: string;
+  addressNumber?: string;
+  complement?: string;
+  province?: string;
+  city?: string | number;
 };
+
+export type CriarCheckoutBibliotecaAsaasResponse = {
+  id: string;
+  url: string;
+  status: string;
+  externalReference: string;
+};
+
+type CheckoutBibliotecaCriadoAsaas = {
+  id?: string;
+  link?: string;
+  url?: string;
+  checkoutUrl?: string;
+  status?: string;
+  externalReference?: string;
+};
+
+export async function criarCheckoutBibliotecaAsaas(
+  data: CriarCheckoutBibliotecaAsaasInput
+): Promise<CriarCheckoutBibliotecaAsaasResponse> {
+  const contratacaoId = String(
+    data.contratacaoId || ""
+  ).trim();
+
+  const externalReference = String(
+    data.externalReference || ""
+  ).trim();
+
+  const valorMensal = Number(
+    data.valorMensal
+  );
+
+  const armazenamentoGb = Number(
+    data.armazenamentoGb
+  );
+
+  const cpfCnpj = String(
+    data.cpfCnpj || ""
+  ).replace(/\D/g, "");
+
+  const telefone = String(
+    data.telefone || ""
+  ).replace(/\D/g, "");
+
+  const postalCode = String(
+    data.postalCode || ""
+  ).replace(/\D/g, "");
+
+  if (!contratacaoId) {
+    throw new Error(
+      "Identificador da contratação da Biblioteca ausente."
+    );
+  }
+
+  if (
+    !externalReference.startsWith(
+      "PHANYX_BIBLIOTECA:"
+    )
+  ) {
+    throw new Error(
+      "Referência externa da Biblioteca inválida."
+    );
+  }
+
+  if (externalReference.length > 200) {
+    throw new Error(
+      "Referência externa da Biblioteca excede o limite permitido."
+    );
+  }
+
+  if (
+    !Number.isFinite(valorMensal) ||
+    valorMensal <= 0
+  ) {
+    throw new Error(
+      "Valor mensal da Biblioteca inválido."
+    );
+  }
+
+  if (
+    !Number.isInteger(armazenamentoGb) ||
+    armazenamentoGb <= 0
+  ) {
+    throw new Error(
+      "Armazenamento da Biblioteca inválido."
+    );
+  }
+
+  if (
+    !/^\d{4}-\d{2}-\d{2}$/.test(
+      data.nextDueDate
+    )
+  ) {
+    throw new Error(
+      "Data da primeira cobrança inválida."
+    );
+  }
+
+  if (
+    cpfCnpj.length !== 11 &&
+    cpfCnpj.length !== 14
+  ) {
+    throw new Error(
+      "CPF ou CNPJ do responsável financeiro inválido."
+    );
+  }
+
+  const baseUrlPhanyx = String(
+    process.env.PHANYX_BASE_URL ||
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      "https://www.phanyx.com.br"
+  ).replace(/\/+$/, "");
+
+  const parametroContratacao =
+    encodeURIComponent(contratacaoId);
+
+  const response =
+    await asaasFetch<CheckoutBibliotecaCriadoAsaas>(
+      "/checkouts",
+      {
+        method: "POST",
+
+        body: JSON.stringify({
+          billingTypes: ["CREDIT_CARD"],
+          chargeTypes: ["RECURRENT"],
+
+          minutesToExpire: 120,
+
+          externalReference,
+
+          items: [
+            {
+              externalReference:
+                `${externalReference}:MENSALIDADE`,
+
+              name: `PHANYX - ${data.planoNome}`,
+
+              description:
+                `Biblioteca Virtual PHANYX com ${armazenamentoGb} GB de armazenamento.`,
+
+              quantity: 1,
+              value: valorMensal,
+            },
+          ],
+
+          subscription: {
+            cycle: "MONTHLY",
+            nextDueDate: data.nextDueDate,
+          },
+
+          customerData: {
+            name: String(
+              data.nomeResponsavel || ""
+            ).trim(),
+
+            email: String(
+              data.email || ""
+            )
+              .trim()
+              .toLowerCase(),
+
+            cpfCnpj,
+
+            phone: telefone || undefined,
+
+            postalCode:
+              postalCode || undefined,
+
+            address:
+              String(data.address || "").trim() ||
+              undefined,
+
+            addressNumber:
+              String(
+                data.addressNumber || ""
+              ).trim() || undefined,
+
+            complement:
+              String(
+                data.complement || ""
+              ).trim() || undefined,
+
+            province:
+              String(
+                data.province || ""
+              ).trim() || undefined,
+
+            city:
+              data.city || undefined,
+          },
+
+          callback: {
+            successUrl:
+              `${baseUrlPhanyx}/admin/biblioteca/contratacao` +
+              `?retorno=sucesso&contratacao=${parametroContratacao}`,
+
+            cancelUrl:
+              `${baseUrlPhanyx}/admin/biblioteca/contratacao` +
+              `?retorno=cancelado&contratacao=${parametroContratacao}`,
+
+            expiredUrl:
+              `${baseUrlPhanyx}/admin/biblioteca/contratacao` +
+              `?retorno=expirado&contratacao=${parametroContratacao}`,
+
+            autoRedirect: true,
+          },
+        }),
+      }
+    );
+
+  const checkoutId = String(
+    response?.id || ""
+  ).trim();
+
+  const checkoutUrl = String(
+    response?.link ||
+      response?.url ||
+      response?.checkoutUrl ||
+      ""
+  ).trim();
+
+  if (!checkoutId || !checkoutUrl) {
+    throw new Error(
+      "O Asaas não retornou os dados completos do checkout da Biblioteca."
+    );
+  }
+
+  console.info(
+    "Checkout da Biblioteca criado no Asaas.",
+    {
+      checkoutId,
+      status: response?.status || "ACTIVE",
+      externalReference,
+    }
+  );
+
+  return {
+    id: checkoutId,
+    url: checkoutUrl,
+    status: String(
+      response?.status || "ACTIVE"
+    ),
+    externalReference,
+  };
 }
+
 export async function atualizarClienteAsaas(
   customerId: string,
   data: Partial<AsaasCustomerInput>
 ) {
   return asaasFetch(`/customers/${customerId}`, {
-    method: "POST",
+    method: "PUT",
     body: JSON.stringify(data),
   });
 }

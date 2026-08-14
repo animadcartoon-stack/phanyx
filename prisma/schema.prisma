@@ -460,9 +460,10 @@ model User {
   bibliotecaFavoritos                  BibliotecaFavorito[]
   bibliotecaProgressosLeitura          BibliotecaProgressoLeitura[]
 
-  bibliotecaAvaliacoesRealizadas BibliotecaAvaliacao[]       @relation("BibliotecaAvaliacaoUsuario")
-  bibliotecaAvaliacoesModeradas  BibliotecaAvaliacao[]       @relation("BibliotecaAvaliacaoModeradaPor")
-  bibliotecaHistoricosAcesso     BibliotecaHistoricoAcesso[]
+  bibliotecaAvaliacoesRealizadas           BibliotecaAvaliacao[]        @relation("BibliotecaAvaliacaoUsuario")
+  bibliotecaAvaliacoesModeradas            BibliotecaAvaliacao[]        @relation("BibliotecaAvaliacaoModeradaPor")
+  bibliotecaHistoricosAcesso               BibliotecaHistoricoAcesso[]
+  contratacoesModulosAdicionaisSolicitadas ModuloAdicionalContratacao[] @relation("ModuloAdicionalContratacaoSolicitadaPor")
 
   @@unique([id, instituicaoId])
   @@index([instituicaoId])
@@ -1865,6 +1866,7 @@ model ConfiguracaoInstituicao {
   endereco                 String?
   cidade                   String?
   estado                   String?
+    fusoHorario String @default("America/Sao_Paulo")
   responsavelNome          String?
   responsavelCargo         String?
   logoUrl                  String?
@@ -5379,8 +5381,18 @@ model WhatsAppMensagem {
 
   mensagem String? @db.Text
 
-  parametros Json?
+    parametros Json?
 
+    // Identifica de forma única uma comunicação originada
+  // de um evento do PHANYX.
+  //
+  // Exemplo:
+  // reuniao:35:lembrete:amanha:usuario:18
+  //
+  // Evita que cron, retry ou execuções concorrentes
+  // disparem a mesma comunicação duas vezes.
+  chaveIdempotencia String? @unique
+  
   metaMessageId String? @unique
 
   tentativa Int @default(0)
@@ -5495,12 +5507,85 @@ model ModuloAdicionalInstituicao {
 
   atualizadoPor User? @relation("ModuloAdicionalAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
 
+  contratacoes ModuloAdicionalContratacao[]
+
   @@unique([instituicaoId, tipo])
+  @@unique([id, instituicaoId])
   @@index([instituicaoId])
   @@index([tipo])
   @@index([status])
   @@index([instituicaoId, status])
   @@index([asaasCustomerId])
+}
+
+model ModuloAdicionalContratacao {
+  id            String @id @default(cuid())
+  moduloId      Int
+  instituicaoId Int
+
+  tipo   TipoModuloAdicional
+  plano  String
+  status StatusContratacaoModulo @default(CRIADA)
+
+  valorMensal                  Decimal @db.Decimal(10, 2)
+  armazenamentoContratadoBytes BigInt
+
+  // Impede dois contratos vigentes para o mesmo módulo/instituição.
+  // Será preenchida, por exemplo, com:
+  // BIBLIOTECA_VIRTUAL:1
+  chaveVigente String? @unique
+
+  externalReference   String  @unique
+  asaasCheckoutId     String? @unique
+  asaasSubscriptionId String? @unique
+
+  checkoutUrl      String?   @db.Text
+  checkoutExpiraEm DateTime?
+
+  pagoEm      DateTime?
+  canceladoEm DateTime?
+  expiradoEm  DateTime?
+  falhouEm    DateTime?
+
+  ultimoErro String? @db.Text
+
+  solicitadoPorId Int?
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  modulo ModuloAdicionalInstituicao @relation(fields: [moduloId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  solicitadoPor User? @relation("ModuloAdicionalContratacaoSolicitadaPor", fields: [solicitadoPorId], references: [id], onDelete: SetNull)
+
+  @@index([instituicaoId, tipo, status])
+  @@index([moduloId, status])
+  @@index([criadoEm])
+}
+
+model AsaasWebhookEvento {
+  id Int @id @default(autoincrement())
+
+  asaasEventoId String @unique
+  evento        String
+
+  status StatusProcessamentoWebhookAsaas @default(RECEBIDO)
+
+  externalReference   String?
+  asaasPaymentId      String?
+  asaasSubscriptionId String?
+  asaasCheckoutId     String?
+
+  tentativas Int     @default(0)
+  ultimoErro String? @db.Text
+
+  recebidoEm   DateTime  @default(now())
+  processadoEm DateTime?
+  atualizadoEm DateTime  @updatedAt
+
+  @@index([status, recebidoEm])
+  @@index([externalReference])
+  @@index([asaasSubscriptionId])
 }
 
 model BibliotecaConfiguracao {
@@ -7669,4 +7754,20 @@ enum TipoDestinoRecomendacaoBiblioteca {
   CURSO
   TURMA
   DISCIPLINA
+}
+
+enum StatusContratacaoModulo {
+  CRIADA
+  AGUARDANDO_PAGAMENTO
+  PAGA
+  EXPIRADA
+  CANCELADA
+  FALHA
+}
+
+enum StatusProcessamentoWebhookAsaas {
+  RECEBIDO
+  PROCESSANDO
+  PROCESSADO
+  ERRO
 }

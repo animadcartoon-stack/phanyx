@@ -1632,13 +1632,27 @@ export default function AdminLeadsPage() {
                           </td>
 
                           <td className="sticky right-0 z-10 bg-white px-3 py-4 text-center align-top group-hover:bg-slate-50">
-                            <button
-                              type="button"
-                              onClick={() => abrirEdicao(lead)}
-                              className="inline-flex w-full min-w-[82px] items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-800 transition hover:border-blue-500 hover:text-blue-700"
-                            >
-                              Detalhes
-                            </button>
+                            <div className="flex min-w-[108px] flex-col gap-2">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  router.push(
+                                    `/admin/comercial/leads/${lead.id}`
+                                  )
+                                }
+                                className="inline-flex w-full items-center justify-center rounded-xl border border-slate-900 bg-slate-900 px-3 py-2 text-xs font-bold text-white transition hover:bg-slate-700 dark:border-slate-200 dark:bg-slate-100 dark:text-slate-950 dark:hover:bg-white"
+                              >
+                                Ficha 360°
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => abrirEdicao(lead)}
+                                className="inline-flex w-full items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-800 transition hover:border-blue-500 hover:text-blue-700"
+                              >
+                                Detalhes
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );
@@ -1677,13 +1691,29 @@ export default function AdminLeadsPage() {
                   ) : null}
                 </div>
 
-                <button
-                  type="button"
-                  onClick={fecharPainel}
-                  className="rounded-2xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700"
-                >
-                  Fechar
-                </button>
+                <div className="flex flex-wrap justify-end gap-2">
+                  {!criandoNovo && leadSelecionado ? (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        router.push(
+                          `/admin/comercial/leads/${leadSelecionado.id}`
+                        )
+                      }
+                      className="rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2 text-sm font-bold text-white transition hover:bg-slate-700 dark:border-slate-200 dark:bg-slate-100 dark:text-slate-950 dark:hover:bg-white"
+                    >
+                      Abrir Ficha 360°
+                    </button>
+                  ) : null}
+
+                  <button
+                    type="button"
+                    onClick={fecharPainel}
+                    className="rounded-2xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700"
+                  >
+                    Fechar
+                  </button>
+                </div>
               </div>
 
               <div className="mt-8 grid gap-4 md:grid-cols-2">
@@ -2265,4 +2295,3 @@ export default function AdminLeadsPage() {
     </div>
   );
 }
-

@@ -1,4 +1,5 @@
 import {
+  Prisma,
   StatusWhatsAppMensagem,
   TipoComunicacaoWhatsApp,
 } from "@prisma/client";
@@ -33,6 +34,8 @@ type EnviarComunicacaoWhatsappParams = {
 
   tipoComunicacao: TipoComunicacaoWhatsApp;
 
+  chaveIdempotencia?: string | null;
+
   telefone?: string | null;
   nomeDestinatario?: string | null;
 
@@ -43,34 +46,36 @@ type EnviarComunicacaoWhatsappParams = {
 
 export type ResultadoEnvioComunicacaoWhatsapp =
   | {
-      enviado: true;
-      ignorado: false;
-      mensagemId: number;
-      metaMessageId: string;
-    }
+    enviado: true;
+    ignorado: false;
+    mensagemId: number;
+    metaMessageId: string;
+  }
   | {
-      enviado: false;
-      ignorado: true;
-      motivo:
-        | "INSTITUICAO_INVALIDA"
-        | "WHATSAPP_NAO_CONFIGURADO"
-        | "WHATSAPP_DESATIVADO"
-        | "WHATSAPP_DESCONECTADO"
-        | "PHONE_NUMBER_ID_AUSENTE"
-        | "TOKEN_AUSENTE"
-        | "COMUNICACAO_DESATIVADA"
-        | "TELEFONE_AUSENTE"
-        | "TELEFONE_INVALIDO"
-        | "TEMPLATE_NAO_CONFIGURADO"
-        | "TEMPLATE_META_NAO_CONFIGURADO";
-    }
+    enviado: false;
+    ignorado: true;
+    motivo:
+    | "INSTITUICAO_INVALIDA"
+    | "WHATSAPP_NAO_CONFIGURADO"
+    | "WHATSAPP_DESATIVADO"
+    | "WHATSAPP_DESCONECTADO"
+    | "PHONE_NUMBER_ID_AUSENTE"
+    | "TOKEN_AUSENTE"
+    | "COMUNICACAO_DESATIVADA"
+    | "TELEFONE_AUSENTE"
+    | "TELEFONE_INVALIDO"
+    | "TEMPLATE_NAO_CONFIGURADO"
+    | "TEMPLATE_META_NAO_CONFIGURADO"
+    | "TEMPLATE_NAO_APROVADO_META"
+    | "COMUNICACAO_DUPLICADA";
+  }
   | {
-      enviado: false;
-      ignorado: false;
-      mensagemId: number;
-      motivo: "ERRO_ENVIO";
-      erro: string;
-    };
+    enviado: false;
+    ignorado: false;
+    mensagemId: number;
+    motivo: "ERRO_ENVIO";
+    erro: string;
+  };
 
 function mensagemErroSegura(error: unknown): string {
   if (error instanceof Error) {
@@ -87,6 +92,7 @@ export async function enviarComunicacaoWhatsapp(
     instituicaoId,
     usuarioId,
     tipoComunicacao,
+    chaveIdempotencia,
     telefone,
     nomeDestinatario,
     componentes = [],
@@ -108,22 +114,22 @@ export async function enviarComunicacaoWhatsapp(
   });
 
   if (!permissao.permitido) {
-  const motivo = permissao.motivo;
+    const motivo = permissao.motivo;
 
-  if (motivo === "OK") {
+    if (motivo === "OK") {
+      return {
+        enviado: false,
+        ignorado: true,
+        motivo: "WHATSAPP_NAO_CONFIGURADO",
+      };
+    }
+
     return {
       enviado: false,
       ignorado: true,
-      motivo: "WHATSAPP_NAO_CONFIGURADO",
+      motivo,
     };
   }
-
-  return {
-    enviado: false,
-    ignorado: true,
-    motivo,
-  };
-}
 
   /**
    * 2. Obtém a integração da instituição.
@@ -213,11 +219,57 @@ export async function enviarComunicacaoWhatsapp(
   }
 
   /**
+   * O template precisa estar aprovado pela Meta antes
+   * que o PHANYX tente utilizá-lo em um disparo real.
+   */
+  if (!template.aprovadoMeta) {
+    return {
+      enviado: false,
+      ignorado: true,
+      motivo: "TEMPLATE_NAO_APROVADO_META",
+    };
+  }
+
+  /**
+ * 5. Proteção de idempotência.
+ *
+ * A chave representa um evento único do PHANYX.
+ * Se ele já tiver originado uma mensagem, não tentamos
+ * enviá-lo novamente.
+ */
+const chaveIdempotenciaNormalizada =
+  chaveIdempotencia?.trim() || null;
+
+if (chaveIdempotenciaNormalizada) {
+  const mensagemExistente =
+    await prisma.whatsAppMensagem.findUnique({
+      where: {
+        chaveIdempotencia:
+          chaveIdempotenciaNormalizada,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+  if (mensagemExistente) {
+    return {
+      enviado: false,
+      ignorado: true,
+      motivo: "COMUNICACAO_DUPLICADA",
+    };
+  }
+}
+
+  /**
    * 5. Cria o registro antes de falar com a Meta.
    *
    * Assim conseguimos auditar toda tentativa real de envio.
    */
-  const mensagem = await prisma.whatsAppMensagem.create({
+  let mensagem;
+
+try {
+  mensagem = await prisma.whatsAppMensagem.create({
     data: {
       instituicaoId,
       whatsappInstituicaoId: integracao.id,
@@ -226,20 +278,47 @@ export async function enviarComunicacaoWhatsapp(
 
       tipoComunicacao,
 
+      chaveIdempotencia:
+        chaveIdempotenciaNormalizada,
+
       status: StatusWhatsAppMensagem.PENDENTE,
 
-      telefoneDestinatario: telefoneNormalizado,
+      telefoneDestinatario:
+        telefoneNormalizado,
 
       nomeDestinatario:
         nomeDestinatario?.trim() || null,
 
       mensagem: template.corpo,
 
-      parametros: parametros ?? undefined,
+      parametros:
+        parametros ?? undefined,
 
       tentativa: 0,
     },
   });
+} catch (error) {
+  /**
+   * Mesmo que duas execuções cheguem exatamente
+   * ao mesmo tempo, o índice UNIQUE do banco
+   * garante que apenas uma delas consiga criar
+   * a mensagem.
+   */
+  if (
+    chaveIdempotenciaNormalizada &&
+    error instanceof
+      Prisma.PrismaClientKnownRequestError &&
+    error.code === "P2002"
+  ) {
+    return {
+      enviado: false,
+      ignorado: true,
+      motivo: "COMUNICACAO_DUPLICADA",
+    };
+  }
+
+  throw error;
+}
 
   try {
     /**

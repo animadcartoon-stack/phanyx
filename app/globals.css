@@ -22815,3 +22815,1798 @@ html[data-theme="system"]
   color: #a3a3a3 !important;
   -webkit-text-fill-color: #a3a3a3 !important;
 }
+
+/* =====================================================
+   PIPELINE — LISTBOX PERSONALIZADO DE ETAPAS
+   Evita o azul nativo do Chrome/Windows no tema Sistema
+   ===================================================== */
+
+html[data-theme="system"]
+  .phanyx-pipeline-page
+  .phanyx-etapa-destino-trigger,
+html[data-theme="system"]
+  .phanyx-pipeline-page
+  .phanyx-etapa-destino-lista {
+  background: #262626 !important;
+  background-color: #262626 !important;
+  border-color: #666666 !important;
+  color: #f5f5f5 !important;
+  -webkit-text-fill-color: #f5f5f5 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-pipeline-page
+  .phanyx-etapa-destino-trigger
+  > span {
+  color: inherit !important;
+  -webkit-text-fill-color: inherit !important;
+}
+
+html[data-theme="system"]
+  .phanyx-pipeline-page
+  .phanyx-etapa-destino-trigger:focus-visible {
+  border-color: #a3a3a3 !important;
+  box-shadow: 0 0 0 3px rgb(163 163 163 / 24%) !important;
+  outline: none !important;
+}
+
+html[data-theme="system"]
+  .phanyx-pipeline-page
+  .phanyx-etapa-destino-opcao {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: #f5f5f5 !important;
+  -webkit-text-fill-color: #f5f5f5 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-pipeline-page
+  .phanyx-etapa-destino-opcao:hover:not(:disabled),
+html[data-theme="system"]
+  .phanyx-pipeline-page
+  .phanyx-etapa-destino-opcao:focus-visible {
+  background: #404040 !important;
+  background-color: #404040 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  outline: 2px solid #a3a3a3 !important;
+  outline-offset: -2px;
+}
+
+html[data-theme="system"]
+  .phanyx-pipeline-page
+  .phanyx-etapa-destino-opcao[aria-selected="true"] {
+  background: #525252 !important;
+  background-color: #525252 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-pipeline-page
+  .phanyx-etapa-destino-opcao:disabled {
+  background: transparent !important;
+  color: #a3a3a3 !important;
+  -webkit-text-fill-color: #a3a3a3 !important;
+  opacity: 0.7 !important;
+}
+
+/* =====================================================
+   BIBLIOTECA VIRTUAL — TEMA CLARO
+   ===================================================== */
+
+html[data-theme="light"] .phanyx-biblioteca-page {
+  background: #f3f4f6 !important;
+  background-color: #f3f4f6 !important;
+  background-image: none !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-biblioteca-page .dark\:bg-slate-950,
+html[data-theme="light"] .phanyx-biblioteca-page .dark\:bg-slate-900 {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+}
+
+html[data-theme="light"] .phanyx-biblioteca-page .dark\:text-white {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-biblioteca-page .dark\:text-slate-300,
+html[data-theme="light"] .phanyx-biblioteca-page .dark\:text-slate-400 {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+}
+
+html[data-theme="light"] .phanyx-biblioteca-page .dark\:border-slate-800,
+html[data-theme="light"] .phanyx-biblioteca-page .dark\:border-slate-700 {
+  border-color: #e2e8f0 !important;
+}
+
+/* Estado de Biblioteca indisponível */
+
+html[data-theme="light"] .phanyx-biblioteca-erro {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border-color: #fecaca !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-biblioteca-erro-icone {
+  background: #fee2e2 !important;
+  color: #991b1b !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-biblioteca-erro-titulo {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-biblioteca-erro-texto {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  button.phanyx-biblioteca-erro-botao {
+  background: #0f172a !important;
+  background-color: #0f172a !important;
+  border: 1px solid #0f172a !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  button.phanyx-biblioteca-erro-botao:hover {
+  background: #334155 !important;
+  background-color: #334155 !important;
+  border-color: #334155 !important;
+}
+
+/* =====================================================
+   BIBLIOTECA — BOTÃO NOS TEMAS ESCURO E SISTEMA
+   ===================================================== */
+
+html[data-theme="dark"]
+  .phanyx-biblioteca-page
+  button.phanyx-biblioteca-erro-botao,
+html[data-theme="system"]
+  .phanyx-biblioteca-page
+  button.phanyx-biblioteca-erro-botao {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  min-height: 42px !important;
+  padding: 10px 18px !important;
+
+  background: #2563eb !important;
+  background-color: #2563eb !important;
+  background-image: none !important;
+
+  border: 1px solid #3b82f6 !important;
+  border-radius: 12px !important;
+
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+
+  font-weight: 700 !important;
+  line-height: 1.25rem !important;
+  opacity: 1 !important;
+  cursor: pointer !important;
+
+  box-shadow:
+    0 4px 12px rgb(37 99 235 / 30%),
+    0 1px 2px rgb(0 0 0 / 25%) !important;
+
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    transform 150ms ease,
+    box-shadow 150ms ease !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-biblioteca-page
+  button.phanyx-biblioteca-erro-botao:hover,
+html[data-theme="system"]
+  .phanyx-biblioteca-page
+  button.phanyx-biblioteca-erro-botao:hover {
+  background: #1d4ed8 !important;
+  background-color: #1d4ed8 !important;
+  border-color: #60a5fa !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+
+  box-shadow:
+    0 6px 18px rgb(37 99 235 / 40%),
+    0 2px 4px rgb(0 0 0 / 30%) !important;
+
+  transform: translateY(-1px);
+}
+
+html[data-theme="dark"]
+  .phanyx-biblioteca-page
+  button.phanyx-biblioteca-erro-botao:active,
+html[data-theme="system"]
+  .phanyx-biblioteca-page
+  button.phanyx-biblioteca-erro-botao:active {
+  background: #1e40af !important;
+  transform: translateY(0);
+  box-shadow: none !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-biblioteca-page
+  button.phanyx-biblioteca-erro-botao:focus-visible,
+html[data-theme="system"]
+  .phanyx-biblioteca-page
+  button.phanyx-biblioteca-erro-botao:focus-visible {
+  outline: 3px solid rgb(96 165 250 / 55%) !important;
+  outline-offset: 3px !important;
+}
+
+/* =====================================================
+   BIBLIOTECA — PAINEL COMPLETO NO TEMA CLARO
+   ===================================================== */
+
+html[data-theme="light"] .phanyx-biblioteca-page {
+  background: #f3f4f6 !important;
+  background-color: #f3f4f6 !important;
+  background-image: none !important;
+  color: #0f172a !important;
+}
+
+/* Cards */
+
+html[data-theme="light"]
+  .phanyx-biblioteca-page
+  .bg-white,
+html[data-theme="light"]
+  .phanyx-biblioteca-page
+  .dark\:bg-slate-950,
+html[data-theme="light"]
+  .phanyx-biblioteca-page
+  .dark\:bg-slate-900 {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+}
+
+/* Títulos */
+
+html[data-theme="light"] .phanyx-biblioteca-page h1,
+html[data-theme="light"] .phanyx-biblioteca-page h2,
+html[data-theme="light"] .phanyx-biblioteca-page h3,
+html[data-theme="light"] .phanyx-biblioteca-page h4 {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+/* Textos fortes, números e valores */
+
+html[data-theme="light"]
+  .phanyx-biblioteca-page
+  .text-slate-950,
+html[data-theme="light"]
+  .phanyx-biblioteca-page
+  .text-slate-900,
+html[data-theme="light"]
+  .phanyx-biblioteca-page
+  .text-slate-800,
+html[data-theme="light"]
+  .phanyx-biblioteca-page
+  .dark\:text-white,
+html[data-theme="light"]
+  .phanyx-biblioteca-page
+  .dark\:text-slate-100,
+html[data-theme="light"]
+  .phanyx-biblioteca-page
+  .dark\:text-slate-200 {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+/* Textos auxiliares e descrições */
+
+html[data-theme="light"]
+  .phanyx-biblioteca-page
+  .text-slate-700,
+html[data-theme="light"]
+  .phanyx-biblioteca-page
+  .text-slate-600,
+html[data-theme="light"]
+  .phanyx-biblioteca-page
+  .text-slate-500,
+html[data-theme="light"]
+  .phanyx-biblioteca-page
+  .text-slate-400,
+html[data-theme="light"]
+  .phanyx-biblioteca-page
+  .text-slate-300,
+html[data-theme="light"]
+  .phanyx-biblioteca-page
+  .text-slate-200,
+html[data-theme="light"]
+  .phanyx-biblioteca-page
+  .dark\:text-slate-300,
+html[data-theme="light"]
+  .phanyx-biblioteca-page
+  .dark\:text-slate-400 {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+/* Corrige textos definidos diretamente como brancos */
+
+html[data-theme="light"]
+  .phanyx-biblioteca-page
+  .text-white:not(button):not([class*="bg-"]) {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+/* Bordas dos cards */
+
+html[data-theme="light"]
+  .phanyx-biblioteca-page
+  .border-slate-200,
+html[data-theme="light"]
+  .phanyx-biblioteca-page
+  .dark\:border-slate-800 {
+  border-color: #d7dde5 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-biblioteca-page
+  .border-slate-300,
+html[data-theme="light"]
+  .phanyx-biblioteca-page
+  .dark\:border-slate-700 {
+  border-color: #cbd5e1 !important;
+}
+
+/* Barra de armazenamento */
+
+html[data-theme="light"]
+  .phanyx-biblioteca-page
+  .h-3.overflow-hidden.rounded-full {
+  background: #e2e8f0 !important;
+  background-color: #e2e8f0 !important;
+}
+
+/* Mantém textos brancos nos botões coloridos */
+
+html[data-theme="light"]
+  .phanyx-biblioteca-page
+  button[class*="bg-emerald"],
+html[data-theme="light"]
+  .phanyx-biblioteca-page
+  button[class*="bg-green"],
+html[data-theme="light"]
+  .phanyx-biblioteca-page
+  button[class*="bg-blue"],
+html[data-theme="light"]
+  .phanyx-biblioteca-page
+  button[class*="bg-emerald"]
+  *,
+html[data-theme="light"]
+  .phanyx-biblioteca-page
+  button[class*="bg-green"]
+  *,
+html[data-theme="light"]
+  .phanyx-biblioteca-page
+  button[class*="bg-blue"]
+  * {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* =====================================================
+   BIBLIOTECA — PLANOS E CONTRATAÇÃO — TRÊS TEMAS
+   ===================================================== */
+
+.phanyx-biblioteca-contratacao-page {
+  --bib-page: #f8fafc;
+  --bib-card: #ffffff;
+  --bib-soft: #f8fafc;
+  --bib-disabled: #e2e8f0;
+
+  --bib-title: #020617;
+  --bib-text: #334155;
+  --bib-muted: #64748b;
+
+  --bib-border: #e2e8f0;
+  --bib-border-strong: #cbd5e1;
+
+  --bib-success-text: #047857;
+  --bib-success-bg: #ecfdf5;
+  --bib-success-border: #6ee7b7;
+
+  --bib-violet-text: #6d28d9;
+  --bib-violet-bg: #f5f3ff;
+  --bib-violet-border: #c4b5fd;
+
+  --bib-warning-text: #92400e;
+  --bib-warning-bg: #fffbeb;
+  --bib-warning-border: #fcd34d;
+
+  --bib-danger-text: #991b1b;
+  --bib-danger-bg: #fef2f2;
+  --bib-danger-border: #fca5a5;
+
+  background: var(--bib-page) !important;
+  color: var(--bib-title) !important;
+  color-scheme: light;
+}
+
+/* Tema escuro */
+html[data-theme="dark"]
+  .phanyx-biblioteca-contratacao-page {
+  --bib-page: #020617;
+  --bib-card: #0f172a;
+  --bib-soft: #111827;
+  --bib-disabled: #1e293b;
+
+  --bib-title: #ffffff;
+  --bib-text: #e2e8f0;
+  --bib-muted: #94a3b8;
+
+  --bib-border: #1e293b;
+  --bib-border-strong: #475569;
+
+  --bib-success-text: #a7f3d0;
+  --bib-success-bg: #052e26;
+  --bib-success-border: #047857;
+
+  --bib-violet-text: #ddd6fe;
+  --bib-violet-bg: #2e1065;
+  --bib-violet-border: #7c3aed;
+
+  --bib-warning-text: #fde68a;
+  --bib-warning-bg: #422006;
+  --bib-warning-border: #b45309;
+
+  --bib-danger-text: #fecaca;
+  --bib-danger-bg: #450a0a;
+  --bib-danger-border: #b91c1c;
+
+  color-scheme: dark;
+}
+
+/* Tema sistema — tons neutros, sem cards azuis */
+html[data-theme="system"]
+  .phanyx-biblioteca-contratacao-page {
+  --bib-page: #202020;
+  --bib-card: #262626;
+  --bib-soft: #303030;
+  --bib-disabled: #404040;
+
+  --bib-title: #ffffff;
+  --bib-text: #e5e5e5;
+  --bib-muted: #a3a3a3;
+
+  --bib-border: #404040;
+  --bib-border-strong: #666666;
+
+  --bib-success-text: #a7f3d0;
+  --bib-success-bg: #12382e;
+  --bib-success-border: #378f72;
+
+  --bib-violet-text: #ddd6fe;
+  --bib-violet-bg: #35234f;
+  --bib-violet-border: #8b5cf6;
+
+  --bib-warning-text: #fde68a;
+  --bib-warning-bg: #493817;
+  --bib-warning-border: #a87920;
+
+  --bib-danger-text: #fecaca;
+  --bib-danger-bg: #4a2020;
+  --bib-danger-border: #a34b4b;
+
+  color-scheme: dark;
+}
+
+/* Fundos */
+.phanyx-biblioteca-contratacao-page .bg-white {
+  background: var(--bib-card) !important;
+}
+
+.phanyx-biblioteca-contratacao-page .bg-slate-50 {
+  background: var(--bib-soft) !important;
+}
+
+.phanyx-biblioteca-contratacao-page .bg-slate-100 {
+  background: var(--bib-soft) !important;
+}
+
+.phanyx-biblioteca-contratacao-page .bg-slate-200 {
+  background: var(--bib-disabled) !important;
+}
+
+/* Textos principais */
+.phanyx-biblioteca-contratacao-page .text-slate-950,
+.phanyx-biblioteca-contratacao-page .text-slate-900 {
+  color: var(--bib-title) !important;
+  -webkit-text-fill-color: var(--bib-title) !important;
+}
+
+.phanyx-biblioteca-contratacao-page .text-slate-800,
+.phanyx-biblioteca-contratacao-page .text-slate-700,
+.phanyx-biblioteca-contratacao-page .text-slate-600 {
+  color: var(--bib-text) !important;
+  -webkit-text-fill-color: var(--bib-text) !important;
+}
+
+.phanyx-biblioteca-contratacao-page .text-slate-500,
+.phanyx-biblioteca-contratacao-page .text-slate-400 {
+  color: var(--bib-muted) !important;
+  -webkit-text-fill-color: var(--bib-muted) !important;
+}
+
+/* Bordas */
+.phanyx-biblioteca-contratacao-page .border-slate-200 {
+  border-color: var(--bib-border) !important;
+}
+
+.phanyx-biblioteca-contratacao-page .border-slate-300,
+.phanyx-biblioteca-contratacao-page .border-slate-700,
+.phanyx-biblioteca-contratacao-page .border-slate-800 {
+  border-color: var(--bib-border-strong) !important;
+}
+
+/* Verde */
+.phanyx-biblioteca-contratacao-page .text-emerald-700,
+.phanyx-biblioteca-contratacao-page .text-emerald-800 {
+  color: var(--bib-success-text) !important;
+  -webkit-text-fill-color: var(--bib-success-text) !important;
+}
+
+.phanyx-biblioteca-contratacao-page .bg-emerald-50 {
+  background: var(--bib-success-bg) !important;
+}
+
+.phanyx-biblioteca-contratacao-page .border-emerald-300 {
+  border-color: var(--bib-success-border) !important;
+}
+
+/* Cortesia */
+.phanyx-biblioteca-contratacao-page .text-violet-800 {
+  color: var(--bib-violet-text) !important;
+  -webkit-text-fill-color: var(--bib-violet-text) !important;
+}
+
+.phanyx-biblioteca-contratacao-page .bg-violet-50 {
+  background: var(--bib-violet-bg) !important;
+}
+
+.phanyx-biblioteca-contratacao-page .border-violet-300 {
+  border-color: var(--bib-violet-border) !important;
+}
+
+/* Avisos */
+.phanyx-biblioteca-contratacao-page .text-amber-900,
+.phanyx-biblioteca-contratacao-page .text-amber-800 {
+  color: var(--bib-warning-text) !important;
+  -webkit-text-fill-color: var(--bib-warning-text) !important;
+}
+
+.phanyx-biblioteca-contratacao-page .bg-amber-50 {
+  background: var(--bib-warning-bg) !important;
+}
+
+.phanyx-biblioteca-contratacao-page .border-amber-300 {
+  border-color: var(--bib-warning-border) !important;
+}
+
+.phanyx-biblioteca-contratacao-page .text-red-800 {
+  color: var(--bib-danger-text) !important;
+  -webkit-text-fill-color: var(--bib-danger-text) !important;
+}
+
+.phanyx-biblioteca-contratacao-page .bg-red-50 {
+  background: var(--bib-danger-bg) !important;
+}
+
+.phanyx-biblioteca-contratacao-page .border-red-300 {
+  border-color: var(--bib-danger-border) !important;
+}
+
+/* Botões verdes permanecem brancos */
+.phanyx-biblioteca-contratacao-page
+  button.bg-emerald-700,
+.phanyx-biblioteca-contratacao-page
+  a.bg-emerald-700 {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* =====================================================
+   AGENDA COMERCIAL — TEMA SISTEMA EM CINZA
+   Manter este bloco no final de app/globals.css
+   ===================================================== */
+
+html[data-theme="system"] .agenda-page {
+  --ac-surface: #292929 !important;
+  --ac-surface-soft: #303030 !important;
+  --ac-surface-muted: #383838 !important;
+  --ac-text: #f5f5f5 !important;
+  --ac-muted: #c4c4c4 !important;
+  --ac-border: #4a4a4a !important;
+  --ac-border-strong: #606060 !important;
+}
+
+html[data-theme="system"] .agenda-page .agenda-surface,
+html[data-theme="system"] .agenda-page .agenda-header,
+html[data-theme="system"] .agenda-page .agenda-kpi,
+html[data-theme="system"] .agenda-page .agenda-filters,
+html[data-theme="system"] .agenda-page .agenda-task,
+html[data-theme="system"] .agenda-page .agenda-empty-list,
+html[data-theme="system"] .agenda-page .agenda-empty-page,
+html[data-theme="system"] .agenda-page .agenda-modal {
+  background: #292929 !important;
+  background-color: #292929 !important;
+  border-color: #4a4a4a !important;
+  color: #f5f5f5 !important;
+}
+
+html[data-theme="system"] .agenda-page input,
+html[data-theme="system"] .agenda-page select,
+html[data-theme="system"] .agenda-page textarea,
+html[data-theme="system"] .agenda-page .agenda-form-check {
+  background: #303030 !important;
+  background-color: #303030 !important;
+  border-color: #565656 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="system"] .agenda-page input::placeholder,
+html[data-theme="system"] .agenda-page textarea::placeholder {
+  color: #a3a3a3 !important;
+  -webkit-text-fill-color: #a3a3a3 !important;
+}
+
+html[data-theme="system"] .agenda-page .agenda-button-secondary,
+html[data-theme="system"] .agenda-page .agenda-mini-button,
+html[data-theme="system"] .agenda-page .agenda-task-actions button,
+html[data-theme="system"] .agenda-page .agenda-periods button:not(.active),
+html[data-theme="system"] .agenda-page .agenda-modal-close {
+  background: #303030 !important;
+  background-color: #303030 !important;
+  border-color: #565656 !important;
+  color: #f5f5f5 !important;
+  -webkit-text-fill-color: #f5f5f5 !important;
+}
+
+html[data-theme="system"] .agenda-page .agenda-periods button.active {
+  background: #f5f5f5 !important;
+  background-color: #f5f5f5 !important;
+  border-color: #f5f5f5 !important;
+  color: #171717 !important;
+  -webkit-text-fill-color: #171717 !important;
+}
+
+html[data-theme="system"] .agenda-page .agenda-group > header span,
+html[data-theme="system"] .agenda-page .agenda-badge,
+html[data-theme="system"] .agenda-page .agenda-task-content dl div {
+  border-color: #565656 !important;
+}
+
+html[data-theme="system"] .agenda-page .agenda-modal > header,
+html[data-theme="system"] .agenda-page .agenda-modal form > footer,
+html[data-theme="system"] .agenda-page .agenda-filter-bottom {
+  border-color: #4a4a4a !important;
+}
+
+/* =========================================================
+   PHANYX — WHATSAPP
+   Botão Conectar conta no modal
+   ========================================================= */
+
+/* Ativo */
+html[data-theme="light"]
+  .phanyx-whatsapp-page
+  .phanyx-whatsapp-connect-modal-button:not(:disabled) {
+  background: #059669 !important;
+  background-color: #059669 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-whatsapp-page
+  .phanyx-whatsapp-connect-modal-button:not(:disabled):hover {
+  background: #047857 !important;
+  background-color: #047857 !important;
+}
+
+/* Desabilitado */
+html[data-theme="light"]
+  .phanyx-whatsapp-page
+  .phanyx-whatsapp-connect-modal-button:disabled {
+  background: #64748b !important;
+  background-color: #64748b !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+}
+
+/* =========================================================
+   BIBLIOTECA VIRTUAL - ACERVO ADMINISTRATIVO
+   Escopo exclusivo: app/admin/biblioteca/acervo/page.tsx
+   ========================================================= */
+
+.phanyx-biblioteca-acervo-page {
+  --bib-page: #f1f5f9;
+  --bib-card: #ffffff;
+  --bib-soft: #f8fafc;
+  --bib-soft-strong: #e2e8f0;
+  --bib-text: #0f172a;
+  --bib-muted: #475569;
+  --bib-subtle: #64748b;
+  --bib-border: #cbd5e1;
+  --bib-border-soft: #e2e8f0;
+  --bib-input: #ffffff;
+  --bib-input-text: #0f172a;
+  --bib-primary: #047857;
+  --bib-primary-hover: #065f46;
+  --bib-primary-text: #ffffff;
+  --bib-focus: rgba(5, 150, 105, 0.26);
+  --bib-overlay: rgba(15, 23, 42, 0.72);
+  --bib-shadow: 0 2px 5px rgba(15, 23, 42, 0.08);
+
+  min-height: 100vh;
+  background: var(--bib-page) !important;
+  color: var(--bib-text) !important;
+  padding: 1.5rem;
+}
+
+html[data-theme="dark"] .phanyx-biblioteca-acervo-page {
+  --bib-page: #020617;
+  --bib-card: #0f172a;
+  --bib-soft: #111c30;
+  --bib-soft-strong: #1e293b;
+  --bib-text: #f8fafc;
+  --bib-muted: #cbd5e1;
+  --bib-subtle: #94a3b8;
+  --bib-border: #475569;
+  --bib-border-soft: #334155;
+  --bib-input: #020617;
+  --bib-input-text: #f8fafc;
+  --bib-primary: #059669;
+  --bib-primary-hover: #10b981;
+  --bib-primary-text: #ffffff;
+  --bib-focus: rgba(16, 185, 129, 0.3);
+  --bib-overlay: rgba(2, 6, 23, 0.86);
+  --bib-shadow: 0 2px 7px rgba(0, 0, 0, 0.28);
+}
+
+html[data-theme="system"] .phanyx-biblioteca-acervo-page {
+  --bib-page: #3f3f3f;
+  --bib-card: #242424;
+  --bib-soft: #303030;
+  --bib-soft-strong: #3b3b3b;
+  --bib-text: #fafafa;
+  --bib-muted: #e5e7eb;
+  --bib-subtle: #cbd5e1;
+  --bib-border: #737373;
+  --bib-border-soft: #4b5563;
+  --bib-input: #181818;
+  --bib-input-text: #ffffff;
+  --bib-primary: #059669;
+  --bib-primary-hover: #10b981;
+  --bib-primary-text: #ffffff;
+  --bib-focus: rgba(16, 185, 129, 0.3);
+  --bib-overlay: rgba(0, 0, 0, 0.8);
+  --bib-shadow: 0 2px 7px rgba(0, 0, 0, 0.3);
+}
+
+.phanyx-biblioteca-acervo-page,
+.phanyx-biblioteca-acervo-page * {
+  box-sizing: border-box;
+}
+
+.phanyx-biblioteca-acervo-page .bib-page-shell {
+  width: min(100%, 1120px);
+  margin: 0 auto;
+}
+
+.phanyx-biblioteca-acervo-page h1,
+.phanyx-biblioteca-acervo-page h2,
+.phanyx-biblioteca-acervo-page h3,
+.phanyx-biblioteca-acervo-page p {
+  color: inherit;
+}
+
+.phanyx-biblioteca-acervo-page .bib-hero,
+.phanyx-biblioteca-acervo-page .bib-card,
+.phanyx-biblioteca-acervo-page .bib-summary-card {
+  border: 1px solid var(--bib-border-soft) !important;
+  background: var(--bib-card) !important;
+  color: var(--bib-text) !important;
+  box-shadow: var(--bib-shadow);
+}
+
+.phanyx-biblioteca-acervo-page .bib-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  border-radius: 1.35rem;
+  padding: 1.5rem;
+}
+
+.phanyx-biblioteca-acervo-page .bib-eyebrow {
+  margin: 0 0 0.45rem;
+  color: #059669 !important;
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+html[data-theme="dark"]
+  .phanyx-biblioteca-acervo-page
+  .bib-eyebrow,
+html[data-theme="system"]
+  .phanyx-biblioteca-acervo-page
+  .bib-eyebrow {
+  color: #6ee7b7 !important;
+}
+
+.phanyx-biblioteca-acervo-page .bib-hero h1 {
+  margin: 0;
+  color: var(--bib-text) !important;
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  font-weight: 950;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+
+.phanyx-biblioteca-acervo-page .bib-hero-description {
+  max-width: 690px;
+  margin: 0.7rem 0 0;
+  color: var(--bib-muted) !important;
+  font-size: 0.93rem;
+  line-height: 1.6;
+}
+
+.phanyx-biblioteca-acervo-page .bib-hero-actions,
+.phanyx-biblioteca-acervo-page .bib-filter-actions,
+.phanyx-biblioteca-acervo-page .bib-modal-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.phanyx-biblioteca-acervo-page .bib-hero-actions {
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.phanyx-biblioteca-acervo-page .bib-button {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent !important;
+  border-radius: 0.75rem;
+  padding: 0.7rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 850;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease,
+    transform 150ms ease;
+}
+
+.phanyx-biblioteca-acervo-page .bib-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.phanyx-biblioteca-acervo-page .bib-button:focus-visible,
+.phanyx-biblioteca-acervo-page .bib-input:focus-visible,
+.phanyx-biblioteca-acervo-page .bib-modal-close:focus-visible {
+  outline: 3px solid var(--bib-focus) !important;
+  outline-offset: 2px;
+}
+
+.phanyx-biblioteca-acervo-page .bib-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+}
+
+.phanyx-biblioteca-acervo-page .bib-button-primary {
+  border-color: var(--bib-primary) !important;
+  background: var(--bib-primary) !important;
+  color: var(--bib-primary-text) !important;
+}
+
+.phanyx-biblioteca-acervo-page
+  .bib-button-primary:hover:not(:disabled) {
+  border-color: var(--bib-primary-hover) !important;
+  background: var(--bib-primary-hover) !important;
+}
+
+.phanyx-biblioteca-acervo-page .bib-button-secondary,
+.phanyx-biblioteca-acervo-page .bib-button-ghost {
+  border-color: var(--bib-border) !important;
+  background: var(--bib-card) !important;
+  color: var(--bib-text) !important;
+}
+
+.phanyx-biblioteca-acervo-page
+  .bib-button-secondary:hover:not(:disabled),
+.phanyx-biblioteca-acervo-page
+  .bib-button-ghost:hover:not(:disabled) {
+  background: var(--bib-soft) !important;
+}
+
+.phanyx-biblioteca-acervo-page .bib-button-danger {
+  border-color: #b91c1c !important;
+  background: #b91c1c !important;
+  color: #ffffff !important;
+}
+
+.phanyx-biblioteca-acervo-page .bib-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.phanyx-biblioteca-acervo-page .bib-summary-card {
+  display: flex;
+  min-height: 6rem;
+  align-items: center;
+  gap: 1rem;
+  border-radius: 1rem;
+  padding: 1rem 1.15rem;
+}
+
+.phanyx-biblioteca-acervo-page .bib-summary-icon {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 0.85rem;
+  background: var(--bib-soft-strong) !important;
+  font-size: 1.3rem;
+}
+
+.phanyx-biblioteca-acervo-page .bib-summary-card div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.phanyx-biblioteca-acervo-page .bib-summary-card div span {
+  color: var(--bib-muted) !important;
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
+.phanyx-biblioteca-acervo-page .bib-summary-card strong {
+  margin-top: 0.2rem;
+  color: var(--bib-text) !important;
+  font-size: 1.55rem;
+  font-weight: 950;
+}
+
+.phanyx-biblioteca-acervo-page .bib-card {
+  margin-top: 1rem;
+  border-radius: 1.35rem;
+  padding: 1.5rem;
+}
+
+.phanyx-biblioteca-acervo-page .bib-section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.phanyx-biblioteca-acervo-page .bib-section-heading h2 {
+  margin: 0;
+  color: var(--bib-text) !important;
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+
+.phanyx-biblioteca-acervo-page .bib-section-heading p {
+  margin: 0.35rem 0 0;
+  color: var(--bib-muted) !important;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.phanyx-biblioteca-acervo-page .bib-result-count {
+  flex: 0 0 auto;
+  border: 1px solid var(--bib-border-soft);
+  border-radius: 999px;
+  background: var(--bib-soft) !important;
+  color: var(--bib-muted) !important;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.phanyx-biblioteca-acervo-page .bib-filter-grid {
+  display: grid;
+  grid-template-columns: minmax(240px, 1.8fr) minmax(160px, 1fr) minmax(160px, 1fr) auto;
+  align-items: end;
+  gap: 0.9rem;
+  margin-top: 1.25rem;
+}
+
+.phanyx-biblioteca-acervo-page .bib-field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.phanyx-biblioteca-acervo-page .bib-field > span,
+.phanyx-biblioteca-acervo-page .bib-options legend {
+  color: var(--bib-text) !important;
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.phanyx-biblioteca-acervo-page .bib-field > span b {
+  color: #dc2626 !important;
+}
+
+.phanyx-biblioteca-acervo-page .bib-input {
+  width: 100%;
+  min-height: 2.75rem;
+  border: 1px solid var(--bib-border) !important;
+  border-radius: 0.75rem !important;
+  background: var(--bib-input) !important;
+  color: var(--bib-input-text) !important;
+  padding: 0.7rem 0.8rem !important;
+  font: inherit;
+  font-size: 0.875rem;
+  box-shadow: none !important;
+}
+
+.phanyx-biblioteca-acervo-page .bib-input::placeholder {
+  color: var(--bib-subtle) !important;
+  opacity: 1;
+}
+
+.phanyx-biblioteca-acervo-page select.bib-input,
+.phanyx-biblioteca-acervo-page select.bib-input option {
+  background: var(--bib-input) !important;
+  color: var(--bib-input-text) !important;
+}
+
+.phanyx-biblioteca-acervo-page .bib-catalog-card {
+  overflow: hidden;
+}
+
+.phanyx-biblioteca-acervo-page .bib-catalog-heading {
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid var(--bib-border-soft);
+}
+
+.phanyx-biblioteca-acervo-page .bib-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-top: 1.1rem;
+}
+
+.phanyx-biblioteca-acervo-page .bib-item {
+  display: grid;
+  grid-template-columns: 5rem minmax(0, 1fr);
+  gap: 1rem;
+  border: 1px solid var(--bib-border-soft) !important;
+  border-radius: 1rem;
+  background: var(--bib-soft) !important;
+  color: var(--bib-text) !important;
+  padding: 1rem;
+}
+
+.phanyx-biblioteca-acervo-page .bib-cover {
+  display: grid;
+  width: 5rem;
+  min-height: 6.7rem;
+  overflow: hidden;
+  place-items: center;
+  border: 1px solid var(--bib-border-soft);
+  border-radius: 0.8rem;
+  background: var(--bib-soft-strong) !important;
+  font-size: 2rem;
+}
+
+.phanyx-biblioteca-acervo-page .bib-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.phanyx-biblioteca-acervo-page .bib-item-content {
+  min-width: 0;
+}
+
+.phanyx-biblioteca-acervo-page .bib-item-topline,
+.phanyx-biblioteca-acervo-page .bib-item-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.phanyx-biblioteca-acervo-page .bib-item-badges,
+.phanyx-biblioteca-acervo-page .bib-item-counts {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.phanyx-biblioteca-acervo-page .bib-status,
+.phanyx-biblioteca-acervo-page .bib-type-badge,
+.phanyx-biblioteca-acervo-page .bib-highlight-badge {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+
+.phanyx-biblioteca-acervo-page .bib-status-success {
+  border-color: #6ee7b7;
+  background: #d1fae5 !important;
+  color: #065f46 !important;
+}
+
+.phanyx-biblioteca-acervo-page .bib-status-warning {
+  border-color: #fcd34d;
+  background: #fef3c7 !important;
+  color: #92400e !important;
+}
+
+.phanyx-biblioteca-acervo-page .bib-status-danger {
+  border-color: #fca5a5;
+  background: #fee2e2 !important;
+  color: #991b1b !important;
+}
+
+.phanyx-biblioteca-acervo-page .bib-status-neutral {
+  border-color: #cbd5e1;
+  background: #e2e8f0 !important;
+  color: #334155 !important;
+}
+
+.phanyx-biblioteca-acervo-page .bib-status-draft {
+  border-color: #c4b5fd;
+  background: #ede9fe !important;
+  color: #5b21b6 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-biblioteca-acervo-page
+  .bib-status-success,
+html[data-theme="system"]
+  .phanyx-biblioteca-acervo-page
+  .bib-status-success {
+  border-color: #047857;
+  background: #064e3b !important;
+  color: #d1fae5 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-biblioteca-acervo-page
+  .bib-status-warning,
+html[data-theme="system"]
+  .phanyx-biblioteca-acervo-page
+  .bib-status-warning {
+  border-color: #a16207;
+  background: #713f12 !important;
+  color: #fef3c7 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-biblioteca-acervo-page
+  .bib-status-danger,
+html[data-theme="system"]
+  .phanyx-biblioteca-acervo-page
+  .bib-status-danger {
+  border-color: #b91c1c;
+  background: #7f1d1d !important;
+  color: #fee2e2 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-biblioteca-acervo-page
+  .bib-status-neutral,
+html[data-theme="system"]
+  .phanyx-biblioteca-acervo-page
+  .bib-status-neutral {
+  border-color: #64748b;
+  background: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-biblioteca-acervo-page
+  .bib-status-draft,
+html[data-theme="system"]
+  .phanyx-biblioteca-acervo-page
+  .bib-status-draft {
+  border-color: #7c3aed;
+  background: #4c1d95 !important;
+  color: #ede9fe !important;
+}
+
+.phanyx-biblioteca-acervo-page .bib-type-badge {
+  border-color: var(--bib-border);
+  background: var(--bib-card) !important;
+  color: var(--bib-muted) !important;
+}
+
+.phanyx-biblioteca-acervo-page .bib-highlight-badge {
+  border-color: #fcd34d;
+  background: #fef3c7 !important;
+  color: #92400e !important;
+}
+
+.phanyx-biblioteca-acervo-page .bib-item-id {
+  color: var(--bib-subtle) !important;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.phanyx-biblioteca-acervo-page .bib-item h3 {
+  margin: 0.65rem 0 0;
+  color: var(--bib-text) !important;
+  font-size: 1.1rem;
+  font-weight: 900;
+  line-height: 1.3;
+}
+
+.phanyx-biblioteca-acervo-page .bib-subtitle {
+  margin: 0.25rem 0 0;
+  color: var(--bib-muted) !important;
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.phanyx-biblioteca-acervo-page .bib-item-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 1.25rem;
+  margin-top: 0.75rem;
+  color: var(--bib-muted) !important;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.phanyx-biblioteca-acervo-page .bib-item-meta b {
+  color: var(--bib-text) !important;
+}
+
+.phanyx-biblioteca-acervo-page .bib-item-footer {
+  margin-top: 0.8rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--bib-border-soft);
+}
+
+.phanyx-biblioteca-acervo-page .bib-item-counts {
+  color: var(--bib-subtle) !important;
+  font-size: 0.73rem;
+}
+
+.phanyx-biblioteca-acervo-page .bib-next-step {
+  flex: 0 0 auto;
+  color: var(--bib-muted) !important;
+  font-size: 0.72rem;
+  font-weight: 750;
+}
+
+.phanyx-biblioteca-acervo-page .bib-empty {
+  display: flex;
+  min-height: 18rem;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 2rem;
+  text-align: center;
+}
+
+.phanyx-biblioteca-acervo-page .bib-empty-icon {
+  display: grid;
+  width: 4rem;
+  height: 4rem;
+  place-items: center;
+  border-radius: 1rem;
+  background: var(--bib-soft-strong) !important;
+  font-size: 2rem;
+}
+
+.phanyx-biblioteca-acervo-page .bib-empty h2 {
+  margin: 1rem 0 0;
+  color: var(--bib-text) !important;
+  font-size: 1.05rem;
+  font-weight: 900;
+}
+
+.phanyx-biblioteca-acervo-page .bib-empty p {
+  max-width: 460px;
+  margin: 0.45rem 0 0;
+  color: var(--bib-muted) !important;
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.phanyx-biblioteca-acervo-page .bib-feedback {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+  border: 1px solid;
+  border-radius: 0.85rem;
+  padding: 0.85rem 1rem;
+  font-size: 0.85rem;
+}
+
+.phanyx-biblioteca-acervo-page .bib-feedback strong,
+.phanyx-biblioteca-acervo-page .bib-feedback p {
+  margin: 0;
+  color: inherit !important;
+}
+
+.phanyx-biblioteca-acervo-page .bib-feedback p + p,
+.phanyx-biblioteca-acervo-page .bib-feedback strong + p {
+  margin-top: 0.2rem;
+}
+
+.phanyx-biblioteca-acervo-page .bib-feedback-error {
+  border-color: #fca5a5 !important;
+  background: #fef2f2 !important;
+  color: #991b1b !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-biblioteca-acervo-page
+  .bib-feedback-error,
+html[data-theme="system"]
+  .phanyx-biblioteca-acervo-page
+  .bib-feedback-error {
+  border-color: #b91c1c !important;
+  background: #450a0a !important;
+  color: #fecaca !important;
+}
+
+.phanyx-biblioteca-acervo-page .bib-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.1rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--bib-border-soft);
+}
+
+.phanyx-biblioteca-acervo-page .bib-pagination > span {
+  color: var(--bib-muted) !important;
+  font-size: 0.8rem;
+}
+
+.phanyx-biblioteca-acervo-page .bib-pagination strong {
+  color: var(--bib-text) !important;
+}
+
+.phanyx-biblioteca-acervo-page .bib-modal-backdrop {
+  position: fixed;
+  z-index: 9999;
+  inset: 0;
+  display: grid;
+  overflow-y: auto;
+  place-items: center;
+  background: var(--bib-overlay) !important;
+  padding: 1.5rem;
+}
+
+.phanyx-biblioteca-acervo-page .bib-modal {
+  width: min(100%, 820px);
+  max-height: calc(100vh - 3rem);
+  overflow: hidden;
+  border: 1px solid var(--bib-border) !important;
+  border-radius: 1.35rem;
+  background: var(--bib-card) !important;
+  color: var(--bib-text) !important;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
+}
+
+.phanyx-biblioteca-acervo-page .bib-modal form {
+  display: flex;
+  max-height: calc(100vh - 11rem);
+  flex-direction: column;
+}
+
+.phanyx-biblioteca-acervo-page .bib-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.35rem 1.5rem;
+  border-bottom: 1px solid var(--bib-border-soft);
+}
+
+.phanyx-biblioteca-acervo-page .bib-modal-header h2 {
+  margin: 0;
+  color: var(--bib-text) !important;
+  font-size: 1.4rem;
+  font-weight: 950;
+}
+
+.phanyx-biblioteca-acervo-page .bib-modal-header p:last-child {
+  margin: 0.45rem 0 0;
+  color: var(--bib-muted) !important;
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.phanyx-biblioteca-acervo-page .bib-modal-close {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--bib-border) !important;
+  border-radius: 0.75rem;
+  background: var(--bib-soft) !important;
+  color: var(--bib-text) !important;
+  font-size: 1.4rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.phanyx-biblioteca-acervo-page .bib-modal-close:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.phanyx-biblioteca-acervo-page .bib-modal-body {
+  overflow-y: auto;
+  padding: 1.35rem 1.5rem;
+}
+
+.phanyx-biblioteca-acervo-page .bib-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.phanyx-biblioteca-acervo-page .bib-field-full {
+  grid-column: 1 / -1;
+}
+
+.phanyx-biblioteca-acervo-page .bib-textarea {
+  min-height: 7rem;
+  resize: vertical;
+}
+
+.phanyx-biblioteca-acervo-page .bib-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 1.25rem 0 0;
+  border: 1px solid var(--bib-border-soft) !important;
+  border-radius: 1rem;
+  background: var(--bib-soft) !important;
+  padding: 1rem;
+}
+
+.phanyx-biblioteca-acervo-page .bib-options legend {
+  padding: 0 0.35rem;
+}
+
+.phanyx-biblioteca-acervo-page .bib-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  border: 1px solid var(--bib-border-soft);
+  border-radius: 0.8rem;
+  background: var(--bib-card) !important;
+  padding: 0.85rem;
+  cursor: pointer;
+}
+
+.phanyx-biblioteca-acervo-page .bib-check input {
+  width: 1rem !important;
+  height: 1rem !important;
+  flex: 0 0 auto;
+  margin-top: 0.15rem;
+  accent-color: var(--bib-primary);
+}
+
+.phanyx-biblioteca-acervo-page .bib-check span {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.phanyx-biblioteca-acervo-page .bib-check b {
+  color: var(--bib-text) !important;
+  font-size: 0.78rem;
+}
+
+.phanyx-biblioteca-acervo-page .bib-check small {
+  color: var(--bib-muted) !important;
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+.phanyx-biblioteca-acervo-page .bib-modal-footer {
+  justify-content: flex-end;
+  border-top: 1px solid var(--bib-border-soft);
+  background: var(--bib-soft) !important;
+  padding: 1rem 1.5rem;
+}
+
+.phanyx-biblioteca-acervo-page .bib-toast {
+  position: fixed;
+  z-index: 10000;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  display: grid;
+  width: min(calc(100vw - 3rem), 430px);
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid;
+  border-radius: 0.9rem;
+  padding: 0.9rem 1rem;
+  color: #ffffff !important;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
+}
+
+.phanyx-biblioteca-acervo-page .bib-toast-sucesso {
+  border-color: #047857;
+  background: #065f46 !important;
+}
+
+.phanyx-biblioteca-acervo-page .bib-toast-erro {
+  border-color: #b91c1c;
+  background: #991b1b !important;
+}
+
+.phanyx-biblioteca-acervo-page .bib-toast p {
+  margin: 0;
+  color: #ffffff !important;
+  font-size: 0.84rem;
+  font-weight: 750;
+}
+
+.phanyx-biblioteca-acervo-page .bib-toast > span {
+  display: grid;
+  width: 1.7rem;
+  height: 1.7rem;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16) !important;
+  color: #ffffff !important;
+  font-weight: 900;
+}
+
+.phanyx-biblioteca-acervo-page .bib-toast button {
+  border: 0 !important;
+  background: transparent !important;
+  color: #ffffff !important;
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+.phanyx-biblioteca-acervo-page .bib-skeleton {
+  overflow: hidden;
+}
+
+.phanyx-biblioteca-acervo-page .bib-skeleton > span,
+.phanyx-biblioteca-acervo-page .bib-skeleton > div span {
+  display: block;
+  border-radius: 0.55rem;
+  background: var(--bib-soft-strong) !important;
+  animation: bib-pulse 1.4s ease-in-out infinite;
+}
+
+.phanyx-biblioteca-acervo-page .bib-skeleton > span {
+  width: 5rem;
+  min-height: 6.7rem;
+}
+
+.phanyx-biblioteca-acervo-page .bib-skeleton > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding-top: 0.2rem;
+}
+
+.phanyx-biblioteca-acervo-page .bib-skeleton > div span:nth-child(1) {
+  width: 35%;
+  height: 1rem;
+}
+
+.phanyx-biblioteca-acervo-page .bib-skeleton > div span:nth-child(2) {
+  width: 70%;
+  height: 1.25rem;
+}
+
+.phanyx-biblioteca-acervo-page .bib-skeleton > div span:nth-child(3) {
+  width: 50%;
+  height: 0.8rem;
+}
+
+@keyframes bib-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 980px) {
+  .phanyx-biblioteca-acervo-page .bib-filter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .phanyx-biblioteca-acervo-page .bib-search-field,
+  .phanyx-biblioteca-acervo-page .bib-filter-actions {
+    grid-column: 1 / -1;
+  }
+
+  .phanyx-biblioteca-acervo-page .bib-options {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .phanyx-biblioteca-acervo-page {
+    padding: 1rem;
+  }
+
+  .phanyx-biblioteca-acervo-page .bib-hero,
+  .phanyx-biblioteca-acervo-page .bib-section-heading,
+  .phanyx-biblioteca-acervo-page .bib-item-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .phanyx-biblioteca-acervo-page .bib-hero-actions,
+  .phanyx-biblioteca-acervo-page .bib-filter-actions {
+    justify-content: stretch;
+  }
+
+  .phanyx-biblioteca-acervo-page .bib-hero-actions .bib-button,
+  .phanyx-biblioteca-acervo-page .bib-filter-actions .bib-button {
+    flex: 1 1 0;
+  }
+
+  .phanyx-biblioteca-acervo-page .bib-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .phanyx-biblioteca-acervo-page .bib-item {
+    grid-template-columns: 4rem minmax(0, 1fr);
+  }
+
+  .phanyx-biblioteca-acervo-page .bib-cover,
+  .phanyx-biblioteca-acervo-page .bib-skeleton > span {
+    width: 4rem;
+    min-height: 5.4rem;
+  }
+
+  .phanyx-biblioteca-acervo-page .bib-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .phanyx-biblioteca-acervo-page .bib-field-full {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 520px) {
+  .phanyx-biblioteca-acervo-page .bib-filter-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .phanyx-biblioteca-acervo-page .bib-search-field,
+  .phanyx-biblioteca-acervo-page .bib-filter-actions {
+    grid-column: auto;
+  }
+
+  .phanyx-biblioteca-acervo-page .bib-card,
+  .phanyx-biblioteca-acervo-page .bib-hero {
+    padding: 1rem;
+  }
+
+  .phanyx-biblioteca-acervo-page .bib-item {
+    grid-template-columns: 1fr;
+  }
+
+  .phanyx-biblioteca-acervo-page .bib-cover {
+    width: 4.5rem;
+    min-height: 6rem;
+  }
+
+  .phanyx-biblioteca-acervo-page .bib-item-topline {
+    align-items: flex-start;
+  }
+
+  .phanyx-biblioteca-acervo-page .bib-pagination {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .phanyx-biblioteca-acervo-page .bib-modal-backdrop {
+    align-items: end;
+    padding: 0;
+  }
+
+  .phanyx-biblioteca-acervo-page .bib-modal {
+    width: 100%;
+    max-height: 94vh;
+    border-radius: 1.25rem 1.25rem 0 0;
+  }
+
+  .phanyx-biblioteca-acervo-page .bib-modal form {
+    max-height: calc(94vh - 7rem);
+  }
+
+  .phanyx-biblioteca-acervo-page .bib-modal-header,
+  .phanyx-biblioteca-acervo-page .bib-modal-body,
+  .phanyx-biblioteca-acervo-page .bib-modal-footer {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .phanyx-biblioteca-acervo-page .bib-modal-footer .bib-button {
+    flex: 1 1 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .phanyx-biblioteca-acervo-page *,
+  .phanyx-biblioteca-acervo-page *::before,
+  .phanyx-biblioteca-acervo-page *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

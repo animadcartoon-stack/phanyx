@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
+import { TipoComunicacaoWhatsApp } from "@prisma/client";
+
+import { enviarComunicacaoWhatsapp } from "@/lib/whatsapp/enviar-comunicacao";
+
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
@@ -31,14 +35,14 @@ export async function GET() {
           },
           ...(user.role === "ALUNO"
             ? [
-                {
-                  participantes: {
-                    some: {
-                      userId: user.id,
-                    },
+              {
+                participantes: {
+                  some: {
+                    userId: user.id,
                   },
                 },
-              ]
+              },
+            ]
             : []),
         ],
       },
@@ -191,112 +195,154 @@ export async function POST(req: NextRequest) {
     }
 
     if (publicoTipo === "SETOR") {
-  if (!setor) {
-    return NextResponse.json(
-      { error: "Escolha o setor da reunião." },
-      { status: 400 }
-    );
-  }
+      if (!setor) {
+        return NextResponse.json(
+          { error: "Escolha o setor da reunião." },
+          { status: 400 }
+        );
+      }
 
- const funcionarios = await prisma.funcionario.findMany({
-  where: {
-    instituicaoId: user.instituicaoId,
-    ativo: true,
-    OR: [
-      { setor },
-      {
-        departamento: {
-          nome: setor,
-        },
-      },
-    ],
-    user: {
-      ativo: true,
-    },
-  },
-  include: {
-    user: true,
-    permissoes: true,
-    departamento: {
-      include: {
-        permissoes: true,
-      },
-    },
-  },
-});
-
-function funcionarioTemPermissaoReuniaoSetor(funcionario: any) {
-  const setorNormalizado = String(setor || "")
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-
-  let permissaoObrigatoria: string | null = null;
-
-  if (setorNormalizado.includes("financeiro")) {
-    permissaoObrigatoria = "financeiro.ver";
-  }
-
-  if (setorNormalizado.includes("rh")) {
-    permissaoObrigatoria = "funcionarios.ver";
-  }
-
-  if (setorNormalizado.includes("secretaria")) {
-    permissaoObrigatoria = "matriculas.ver";
-  }
-
-  if (setorNormalizado.includes("comercial")) {
-    permissaoObrigatoria = "leads.ver";
-  }
-
-  if (!permissaoObrigatoria) return true;
-
-  const temPermissaoIndividual = funcionario.permissoes?.some(
-    (p: any) => p.chave === permissaoObrigatoria && p.ativo
-  );
-
-  const temPermissaoDepartamento = funcionario.departamento?.permissoes?.some(
-    (p: any) => p.chave === permissaoObrigatoria && p.ativo
-  );
-
-  return Boolean(temPermissaoIndividual || temPermissaoDepartamento);
-}
-
-funcionarios
-  .filter(funcionarioTemPermissaoReuniaoSetor)
-  .forEach((funcionario) =>
-    adicionarParticipante({
-      userId: funcionario.userId,
-      tipo: funcionario.user.role,
-      nome: funcionario.nome,
-      email: funcionario.user?.email || null,
-      telefone: funcionario.telefone || null,
-    })
-  );
-
-}
-
-if (publicoTipo === "TURMA") {
-  if (!turmaId) {
-    return NextResponse.json(
-      { error: "Escolha uma turma para a reunião." },
-      { status: 400 }
-    );
-  }
-
-  const itens = await prisma.itemMatricula.findMany({
-    where: {
-      instituicaoId: user.instituicaoId,
-      turmaId,
-      matricula: {
-        status: "ATIVA",
-        aluno: {
+      const funcionarios = await prisma.funcionario.findMany({
+        where: {
+          instituicaoId: user.instituicaoId,
           ativo: true,
+          OR: [
+            { setor },
+            {
+              departamento: {
+                nome: setor,
+              },
+            },
+          ],
+          user: {
+            ativo: true,
+          },
         },
-      },
-    },
-    include: {
-      matricula: {
+        include: {
+          user: true,
+          permissoes: true,
+          departamento: {
+            include: {
+              permissoes: true,
+            },
+          },
+        },
+      });
+
+      function funcionarioTemPermissaoReuniaoSetor(funcionario: any) {
+        const setorNormalizado = String(setor || "")
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "");
+
+        let permissaoObrigatoria: string | null = null;
+
+        if (setorNormalizado.includes("financeiro")) {
+          permissaoObrigatoria = "financeiro.ver";
+        }
+
+        if (setorNormalizado.includes("rh")) {
+          permissaoObrigatoria = "funcionarios.ver";
+        }
+
+        if (setorNormalizado.includes("secretaria")) {
+          permissaoObrigatoria = "matriculas.ver";
+        }
+
+        if (setorNormalizado.includes("comercial")) {
+          permissaoObrigatoria = "leads.ver";
+        }
+
+        if (!permissaoObrigatoria) return true;
+
+        const temPermissaoIndividual = funcionario.permissoes?.some(
+          (p: any) => p.chave === permissaoObrigatoria && p.ativo
+        );
+
+        const temPermissaoDepartamento = funcionario.departamento?.permissoes?.some(
+          (p: any) => p.chave === permissaoObrigatoria && p.ativo
+        );
+
+        return Boolean(temPermissaoIndividual || temPermissaoDepartamento);
+      }
+
+      funcionarios
+        .filter(funcionarioTemPermissaoReuniaoSetor)
+        .forEach((funcionario) =>
+          adicionarParticipante({
+            userId: funcionario.userId,
+            tipo: funcionario.user.role,
+            nome: funcionario.nome,
+            email: funcionario.user?.email || null,
+            telefone: funcionario.telefone || null,
+          })
+        );
+
+    }
+
+    if (publicoTipo === "TURMA") {
+      if (!turmaId) {
+        return NextResponse.json(
+          { error: "Escolha uma turma para a reunião." },
+          { status: 400 }
+        );
+      }
+
+      const itens = await prisma.itemMatricula.findMany({
+        where: {
+          instituicaoId: user.instituicaoId,
+          turmaId,
+          matricula: {
+            status: "ATIVA",
+            aluno: {
+              ativo: true,
+            },
+          },
+        },
+        include: {
+          matricula: {
+            include: {
+              aluno: {
+                include: {
+                  user: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      itens.forEach((item) => {
+        const aluno = item.matricula.aluno;
+
+        adicionarParticipante({
+          userId: aluno.userId,
+          alunoId: aluno.id,
+          tipo: "ALUNO",
+          nome: aluno.nome,
+          email: aluno.user?.email || null,
+          telefone: aluno.telefone || null,
+        });
+      });
+    }
+
+    if (publicoTipo === "CURSO") {
+      if (!cursoId) {
+        return NextResponse.json(
+          { error: "Escolha um curso para a reunião." },
+          { status: 400 }
+        );
+      }
+
+      const matriculas = await prisma.matricula.findMany({
+        where: {
+          instituicaoId: user.instituicaoId,
+          cursoId,
+          status: "ATIVA",
+          aluno: {
+            ativo: true,
+          },
+        },
         include: {
           aluno: {
             include: {
@@ -304,63 +350,21 @@ if (publicoTipo === "TURMA") {
             },
           },
         },
-      },
-    },
-  });
+      });
 
-  itens.forEach((item) => {
-    const aluno = item.matricula.aluno;
+      matriculas.forEach((matricula) => {
+        const aluno = matricula.aluno;
 
-    adicionarParticipante({
-      userId: aluno.userId,
-      alunoId: aluno.id,
-      tipo: "ALUNO",
-      nome: aluno.nome,
-      email: aluno.user?.email || null,
-      telefone: aluno.telefone || null,
-    });
-  });
-}
-
-if (publicoTipo === "CURSO") {
-  if (!cursoId) {
-    return NextResponse.json(
-      { error: "Escolha um curso para a reunião." },
-      { status: 400 }
-    );
-  }
-
-  const matriculas = await prisma.matricula.findMany({
-    where: {
-      instituicaoId: user.instituicaoId,
-      cursoId,
-      status: "ATIVA",
-      aluno: {
-        ativo: true,
-      },
-    },
-    include: {
-      aluno: {
-        include: {
-          user: true,
-        },
-      },
-    },
-  });
-
-  matriculas.forEach((matricula) => {
-    const aluno = matricula.aluno;
-
-    adicionarParticipante({
-      userId: aluno.userId,
-      alunoId: aluno.id,
-      tipo: "ALUNO",
-      nome: aluno.nome,
-      email: aluno.user?.email || null,
-      telefone: aluno.telefone || null,
-    });
-  });
-}
+        adicionarParticipante({
+          userId: aluno.userId,
+          alunoId: aluno.id,
+          tipo: "ALUNO",
+          nome: aluno.nome,
+          email: aluno.user?.email || null,
+          telefone: aluno.telefone || null,
+        });
+      });
+    }
 
     if (publicoTipo === "TODA_EQUIPE") {
       const usuariosEquipe = await prisma.user.findMany({
@@ -440,32 +444,117 @@ if (publicoTipo === "CURSO") {
       },
     });
 
-const dataFormatada = new Date(reuniao.dataHora).toLocaleString("pt-BR", {
-  dateStyle: "short",
-  timeStyle: "short",
-});
+    const dataFormatada = new Date(reuniao.dataHora).toLocaleString("pt-BR", {
+      dateStyle: "short",
+      timeStyle: "short",
+    });
 
-function linkReuniaoPorTipo(tipo: string) {
-  if (tipo === "ALUNO") return "/aluno/reunioes";
-  if (tipo === "PROFESSOR") return "/professor/reunioes";
-  return "/admin/reunioes";
-}
+    function linkReuniaoPorTipo(tipo: string) {
+      if (tipo === "ALUNO") return "/aluno/reunioes";
+      if (tipo === "PROFESSOR") return "/professor/reunioes";
+      return "/admin/reunioes";
+    }
 
-const notificacoes = reuniao.participantes
-  .filter((participante) => participante.userId)
-  .map((participante) => ({
-    usuarioId: participante.userId!,
-    tipo: "REUNIAO",
-    titulo: "📅 Nova reunião agendada",
-    descricao: `${reuniao.titulo} • ${dataFormatada}`,
-    link: linkReuniaoPorTipo(participante.tipo),
-  }));
+    const notificacoes = reuniao.participantes
+      .filter((participante) => participante.userId)
+      .map((participante) => ({
+        usuarioId: participante.userId!,
+        tipo: "REUNIAO",
+        titulo: "📅 Nova reunião agendada",
+        descricao: `${reuniao.titulo} • ${dataFormatada}`,
+        link: linkReuniaoPorTipo(participante.tipo),
+      }));
 
-if (notificacoes.length > 0) {
-  await prisma.notificacao.createMany({
-    data: notificacoes,
-  });
-}
+    if (notificacoes.length > 0) {
+      await prisma.notificacao.createMany({
+        data: notificacoes,
+      });
+    }
+
+    /**
+     * WhatsApp é um canal complementar.
+     *
+     * A reunião já foi criada e as notificações internas já foram
+     * registradas. Qualquer problema no WhatsApp não pode desfazer
+     * ou impedir a criação da reunião.
+     */
+    try {
+      const enviosWhatsapp = reuniao.participantes.map(
+        async (participante) => {
+          return enviarComunicacaoWhatsapp({
+            instituicaoId: user.instituicaoId!,
+
+            usuarioId: participante.userId ?? null,
+
+            tipoComunicacao:
+              TipoComunicacaoWhatsApp.REUNIAO_CRIADA,
+
+            telefone: participante.telefone ?? null,
+
+            nomeDestinatario:
+              participante.nome ?? null,
+
+            parametros: {
+              reuniaoId: reuniao.id,
+              titulo: reuniao.titulo,
+              dataHora: reuniao.dataHora.toISOString(),
+              dataFormatada,
+              link: reuniao.link ?? null,
+              participanteTipo: participante.tipo,
+            },
+
+            componentes: [
+              {
+                type: "body",
+                parameters: [
+                  {
+                    type: "text",
+                    text:
+                      participante.nome?.trim() ||
+                      "Participante",
+                  },
+                  {
+                    type: "text",
+                    text: reuniao.titulo,
+                  },
+                  {
+                    type: "text",
+                    text: dataFormatada,
+                  },
+                  {
+                    type: "text",
+                    text:
+                      reuniao.link?.trim() ||
+                      "Acesse o PHANYX para mais informações.",
+                  },
+                ],
+              },
+            ],
+          });
+        }
+      );
+
+      const resultadosWhatsapp =
+        await Promise.allSettled(enviosWhatsapp);
+
+      const falhasInesperadas =
+        resultadosWhatsapp.filter(
+          (resultado) =>
+            resultado.status === "rejected"
+        );
+
+      if (falhasInesperadas.length > 0) {
+        console.error(
+          "Falhas inesperadas ao processar WhatsApp da reunião:",
+          falhasInesperadas.length
+        );
+      }
+    } catch (errorWhatsapp) {
+      console.error(
+        "Erro ao iniciar comunicações WhatsApp da reunião:",
+        errorWhatsapp
+      );
+    }
 
     return NextResponse.json(reuniao);
   } catch (error: any) {
