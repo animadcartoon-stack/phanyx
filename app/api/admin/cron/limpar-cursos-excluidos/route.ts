@@ -36,6 +36,11 @@ export async function GET(req: Request) {
       );
     }
 
+    const url = new URL(req.url);
+
+    const dryRun =
+      url.searchParams.get("dryRun") === "1";
+
     const limite = new Date();
     limite.setDate(limite.getDate() - 3);
 
@@ -62,6 +67,35 @@ export async function GET(req: Request) {
         },
       },
     });
+
+    if (dryRun) {
+      let queSeriamExcluidos = 0;
+      let mantidosPorVinculo = 0;
+
+      for (const curso of cursos) {
+        const temVinculos =
+          curso._count.matriculas > 0 ||
+          curso._count.turmas > 0 ||
+          curso._count.disciplinas > 0 ||
+          curso._count.documentosGerados > 0 ||
+          curso._count.periodosMatricula > 0 ||
+          curso._count.disciplinasExtrasPermitidas > 0;
+
+        if (temVinculos) {
+          mantidosPorVinculo++;
+        } else {
+          queSeriamExcluidos++;
+        }
+      }
+
+      return NextResponse.json({
+        ok: true,
+        dryRun: true,
+        encontrados: cursos.length,
+        queSeriamExcluidos,
+        mantidosPorVinculo,
+      });
+    }
 
     let excluidos = 0;
     let mantidos = 0;

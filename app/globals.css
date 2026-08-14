@@ -24610,3 +24610,608 @@ html[data-theme="system"]
     transition-duration: 0.01ms !important;
   }
 }
+
+/* =========================================================
+   BIBLIOTECA VIRTUAL - DETALHE DO ITEM
+   Adicione ao final de app/globals.css, depois do CSS do acervo.
+   Escopo: app/admin/biblioteca/acervo/[itemId]/page.tsx
+   ========================================================= */
+
+/* Navegação da listagem para o detalhe do item. */
+.phanyx-biblioteca-acervo-page .bib-item-title-link {
+  color: inherit !important;
+  text-decoration: none;
+}
+
+.phanyx-biblioteca-acervo-page .bib-item-title-link:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.2rem;
+}
+
+.phanyx-biblioteca-acervo-page .bib-item-title-link:focus-visible,
+.phanyx-biblioteca-acervo-page .bib-item-open-link:focus-visible {
+  border-radius: 0.3rem;
+  outline: 3px solid var(--bib-focus) !important;
+  outline-offset: 3px;
+}
+
+.phanyx-biblioteca-acervo-page .bib-item-open-link {
+  display: inline-flex;
+  min-height: 2rem;
+  flex: 0 0 auto;
+  align-items: center;
+  border: 1px solid var(--bib-border) !important;
+  border-radius: 0.6rem;
+  background: var(--bib-card) !important;
+  color: var(--bib-text) !important;
+  padding: 0.4rem 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.phanyx-biblioteca-acervo-page .bib-item-open-link:hover {
+  background: var(--bib-soft-strong) !important;
+}
+
+.phanyx-biblioteca-item-page {
+  padding-bottom: 7rem;
+}
+
+.phanyx-biblioteca-item-page .bib-item-detail-hero {
+  align-items: flex-start;
+}
+
+.phanyx-biblioteca-item-page .bib-item-detail-heading {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 1.1rem;
+}
+
+.phanyx-biblioteca-item-page .bib-detail-cover {
+  display: grid;
+  width: 5.2rem;
+  min-width: 5.2rem;
+  height: 6.7rem;
+  overflow: hidden;
+  place-items: center;
+  border: 1px solid var(--bib-border-soft) !important;
+  border-radius: 0.9rem;
+  background: var(--bib-soft-strong) !important;
+  font-size: 2rem;
+}
+
+.phanyx-biblioteca-item-page .bib-detail-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.phanyx-biblioteca-item-page .bib-detail-title-line {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.phanyx-biblioteca-item-page .bib-detail-title-line h1 {
+  overflow-wrap: anywhere;
+}
+
+.phanyx-biblioteca-item-page .bib-detail-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-detail-summary
+  .bib-summary-card {
+  min-width: 0;
+  min-height: 6rem;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-detail-summary
+  .bib-summary-card
+  strong {
+  overflow: hidden;
+  font-size: 1rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.phanyx-biblioteca-item-page .bib-detail-form {
+  display: block;
+}
+
+.phanyx-biblioteca-item-page .bib-detail-section {
+  padding: 0;
+  overflow: hidden;
+}
+
+.phanyx-biblioteca-item-page .bib-detail-section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--bib-border-soft) !important;
+  background: var(--bib-soft) !important;
+  padding: 1.15rem 1.35rem;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-detail-section-heading
+  > div {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 0.8rem;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-detail-section-heading
+  > div
+  > span {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--bib-border-soft) !important;
+  border-radius: 0.75rem;
+  background: var(--bib-card) !important;
+  font-size: 1.1rem;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-detail-section-heading
+  h2 {
+  margin: 0;
+  color: var(--bib-text) !important;
+  font-size: 1.05rem;
+  font-weight: 900;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-detail-section-heading
+  p {
+  margin: 0.3rem 0 0;
+  color: var(--bib-muted) !important;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.phanyx-biblioteca-item-page .bib-readonly-chip {
+  display: inline-flex;
+  min-height: 2rem;
+  flex: 0 0 auto;
+  align-items: center;
+  border: 1px solid var(--bib-border) !important;
+  border-radius: 999px;
+  background: var(--bib-card) !important;
+  color: var(--bib-muted) !important;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.phanyx-biblioteca-item-page .bib-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  padding: 1.35rem;
+}
+
+.phanyx-biblioteca-item-page .bib-field-span-2 {
+  grid-column: span 2;
+}
+
+.phanyx-biblioteca-item-page .bib-field-span-3 {
+  grid-column: 1 / -1;
+}
+
+.phanyx-biblioteca-item-page .bib-field small {
+  color: var(--bib-subtle) !important;
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+.phanyx-biblioteca-item-page .bib-input:disabled {
+  border-color: transparent !important;
+  background: var(--bib-soft) !important;
+  color: var(--bib-text) !important;
+  cursor: default;
+  opacity: 1;
+  -webkit-text-fill-color: var(--bib-text);
+}
+
+.phanyx-biblioteca-item-page select.bib-input:disabled {
+  appearance: none;
+}
+
+.phanyx-biblioteca-item-page .bib-static-value {
+  display: flex;
+  min-height: 2.75rem;
+  align-items: center;
+  overflow-wrap: anywhere;
+  border-radius: 0.75rem;
+  background: var(--bib-soft) !important;
+  color: var(--bib-text) !important;
+  padding: 0.7rem 0.8rem;
+  font-size: 0.84rem;
+}
+
+.phanyx-biblioteca-item-page .bib-detail-options {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0 1.35rem 1.35rem;
+}
+
+.phanyx-biblioteca-item-page .bib-check:has(input:disabled) {
+  cursor: default;
+}
+
+.phanyx-biblioteca-item-page .bib-detail-notes {
+  margin: 0 1.35rem 1.35rem;
+}
+
+.phanyx-biblioteca-item-page .bib-relationship-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  padding: 1.35rem;
+}
+
+.phanyx-biblioteca-item-page .bib-relationship-card {
+  min-width: 0;
+  border: 1px solid var(--bib-border-soft) !important;
+  border-radius: 0.9rem;
+  background: var(--bib-soft) !important;
+  padding: 1rem;
+}
+
+.phanyx-biblioteca-item-page .bib-relationship-card h3 {
+  margin: 0 0 0.75rem;
+  color: var(--bib-text) !important;
+  font-size: 0.85rem;
+  font-weight: 900;
+}
+
+.phanyx-biblioteca-item-page .bib-relationship-card p {
+  margin: 0;
+  color: var(--bib-muted) !important;
+  font-size: 0.78rem;
+}
+
+.phanyx-biblioteca-item-page .bib-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.phanyx-biblioteca-item-page .bib-tag {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  overflow-wrap: anywhere;
+  border: 1px solid var(--bib-border) !important;
+  border-radius: 999px;
+  background: var(--bib-card) !important;
+  color: var(--bib-text) !important;
+  padding: 0.42rem 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 750;
+}
+
+.phanyx-biblioteca-item-page .bib-related-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-related-grid
+  .bib-card {
+  height: fit-content;
+}
+
+.phanyx-biblioteca-item-page .bib-related-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: 1.15rem 1.35rem 1.35rem;
+}
+
+.phanyx-biblioteca-item-page .bib-related-row {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid var(--bib-border-soft) !important;
+  border-radius: 0.8rem;
+  background: var(--bib-soft) !important;
+  padding: 0.8rem;
+}
+
+.phanyx-biblioteca-item-page .bib-related-row > span {
+  display: grid;
+  width: 2.2rem;
+  height: 2.2rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 0.65rem;
+  background: var(--bib-soft-strong) !important;
+}
+
+.phanyx-biblioteca-item-page .bib-related-row > div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.phanyx-biblioteca-item-page .bib-related-row strong {
+  overflow: hidden;
+  color: var(--bib-text) !important;
+  font-size: 0.8rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.phanyx-biblioteca-item-page .bib-related-row small {
+  color: var(--bib-muted) !important;
+  font-size: 0.68rem;
+  line-height: 1.4;
+}
+
+.phanyx-biblioteca-item-page .bib-compact-empty {
+  margin: 1.15rem 1.35rem 1.35rem;
+  border: 1px dashed var(--bib-border) !important;
+  border-radius: 0.85rem;
+  background: var(--bib-soft) !important;
+  color: var(--bib-muted) !important;
+  padding: 1.4rem;
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+.phanyx-biblioteca-item-page .bib-detail-history {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.phanyx-biblioteca-item-page .bib-detail-history > div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.25rem;
+  border-right: 1px solid var(--bib-border-soft);
+}
+
+.phanyx-biblioteca-item-page
+  .bib-detail-history
+  > div:last-child {
+  border-right: 0;
+}
+
+.phanyx-biblioteca-item-page .bib-detail-history span {
+  color: var(--bib-muted) !important;
+  font-size: 0.72rem;
+}
+
+.phanyx-biblioteca-item-page .bib-detail-history strong {
+  color: var(--bib-text) !important;
+  font-size: 0.82rem;
+}
+
+.phanyx-biblioteca-item-page .bib-detail-savebar {
+  position: sticky;
+  z-index: 30;
+  bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+  border: 1px solid var(--bib-border) !important;
+  border-radius: 1rem;
+  background: var(--bib-card) !important;
+  color: var(--bib-text) !important;
+  padding: 0.9rem 1rem;
+  box-shadow: 0 16px 45px rgba(15, 23, 42, 0.2);
+}
+
+.phanyx-biblioteca-item-page
+  .bib-detail-savebar
+  > div:first-child {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.phanyx-biblioteca-item-page .bib-detail-savebar strong {
+  color: var(--bib-text) !important;
+  font-size: 0.8rem;
+}
+
+.phanyx-biblioteca-item-page .bib-detail-savebar span {
+  color: var(--bib-muted) !important;
+  font-size: 0.7rem;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-detail-savebar
+  > div:last-child {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.7rem;
+}
+
+.phanyx-biblioteca-item-page .bib-feedback-warning {
+  border-color: #f59e0b !important;
+  background: #fffbeb !important;
+  color: #92400e !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-biblioteca-item-page
+  .bib-feedback-warning,
+html[data-theme="system"]
+  .phanyx-biblioteca-item-page
+  .bib-feedback-warning {
+  border-color: #a16207 !important;
+  background: #422006 !important;
+  color: #fde68a !important;
+}
+
+.phanyx-biblioteca-item-page .bib-detail-error {
+  display: flex;
+  min-height: 25rem;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+.phanyx-biblioteca-item-page .bib-detail-error h1 {
+  margin: 1rem 0 0;
+  color: var(--bib-text) !important;
+  font-size: 1.35rem;
+}
+
+.phanyx-biblioteca-item-page .bib-detail-error p {
+  max-width: 520px;
+  margin: 0.5rem 0 0;
+  color: var(--bib-muted) !important;
+}
+
+.phanyx-biblioteca-item-page .bib-detail-error-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.phanyx-biblioteca-item-page .bib-detail-loading {
+  min-height: 10rem;
+  animation: bib-detail-pulse 1.35s ease-in-out infinite;
+}
+
+.phanyx-biblioteca-item-page .bib-detail-loading-card {
+  min-height: 28rem;
+  animation: bib-detail-pulse 1.35s ease-in-out infinite;
+}
+
+@keyframes bib-detail-pulse {
+  0%,
+  100% {
+    opacity: 0.62;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 980px) {
+  .phanyx-biblioteca-item-page .bib-detail-summary,
+  .phanyx-biblioteca-item-page .bib-detail-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .phanyx-biblioteca-item-page .bib-detail-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .phanyx-biblioteca-item-page .bib-field-span-3 {
+    grid-column: 1 / -1;
+  }
+
+  .phanyx-biblioteca-item-page .bib-relationship-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .phanyx-biblioteca-item-page .bib-item-detail-hero,
+  .phanyx-biblioteca-item-page .bib-detail-savebar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .phanyx-biblioteca-item-page .bib-item-detail-heading {
+    flex-direction: column;
+  }
+
+  .phanyx-biblioteca-item-page .bib-hero-actions,
+  .phanyx-biblioteca-item-page
+    .bib-detail-savebar
+    > div:last-child {
+    width: 100%;
+  }
+
+  .phanyx-biblioteca-item-page .bib-hero-actions .bib-button,
+  .phanyx-biblioteca-item-page
+    .bib-detail-savebar
+    .bib-button {
+    flex: 1 1 0;
+  }
+
+  .phanyx-biblioteca-item-page .bib-detail-summary,
+  .phanyx-biblioteca-item-page .bib-related-grid,
+  .phanyx-biblioteca-item-page .bib-detail-history {
+    grid-template-columns: 1fr;
+  }
+
+  .phanyx-biblioteca-item-page
+    .bib-detail-history
+    > div {
+    border-right: 0;
+    border-bottom: 1px solid var(--bib-border-soft);
+    padding-bottom: 0.8rem;
+  }
+
+  .phanyx-biblioteca-item-page
+    .bib-detail-history
+    > div:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .phanyx-biblioteca-item-page {
+    padding: 0.85rem 0.7rem 6rem;
+  }
+
+  .phanyx-biblioteca-item-page .bib-detail-summary,
+  .phanyx-biblioteca-item-page .bib-detail-grid,
+  .phanyx-biblioteca-item-page .bib-detail-options {
+    grid-template-columns: 1fr;
+  }
+
+  .phanyx-biblioteca-item-page .bib-field-span-2,
+  .phanyx-biblioteca-item-page .bib-field-span-3 {
+    grid-column: 1;
+  }
+
+  .phanyx-biblioteca-item-page .bib-detail-section-heading {
+    flex-direction: column;
+  }
+
+  .phanyx-biblioteca-item-page .bib-readonly-chip {
+    align-self: flex-start;
+  }
+
+  .phanyx-biblioteca-item-page .bib-detail-error-actions,
+  .phanyx-biblioteca-item-page
+    .bib-detail-savebar
+    > div:last-child {
+    flex-direction: column;
+  }
+}

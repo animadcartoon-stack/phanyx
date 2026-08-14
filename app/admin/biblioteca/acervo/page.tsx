@@ -322,7 +322,7 @@ export default function BibliotecaAcervoPage() {
         if (!resposta.ok) {
           throw new Error(
             dados.error ||
-              "Não foi possível carregar o acervo."
+            "Não foi possível carregar o acervo."
           );
         }
 
@@ -351,12 +351,12 @@ export default function BibliotecaAcervoPage() {
         }
       }
     }, [
-      atualizacao,
-      buscaAplicada,
-      pagina,
-      status,
-      tipo,
-    ]
+    atualizacao,
+    buscaAplicada,
+    pagina,
+    status,
+    tipo,
+  ]
   );
 
   useEffect(() => {
@@ -509,7 +509,7 @@ export default function BibliotecaAcervoPage() {
       if (!resposta.ok) {
         throw new Error(
           dados.error ||
-            "Não foi possível cadastrar o item."
+          "Não foi possível cadastrar o item."
         );
       }
 
@@ -771,7 +771,14 @@ export default function BibliotecaAcervoPage() {
                       </span>
                     </div>
 
-                    <h3>{item.titulo}</h3>
+                    <h3>
+                      <Link
+                        href={`/admin/biblioteca/acervo/${item.id}`}
+                        className="bib-item-title-link"
+                      >
+                        {item.titulo}
+                      </Link>
+                    </h3>
                     {item.subtitulo ? (
                       <p className="bib-subtitle">
                         {item.subtitulo}
@@ -811,9 +818,12 @@ export default function BibliotecaAcervoPage() {
                           Atualizado em {formatarData(item.atualizadoEm)}
                         </span>
                       </div>
-                      <span className="bib-next-step">
-                        Aguardando complementação
-                      </span>
+                      <Link
+                        href={`/admin/biblioteca/acervo/${item.id}`}
+                        className="bib-item-open-link"
+                      >
+                        Abrir item →
+                      </Link>
                     </div>
                   </div>
                 </article>
