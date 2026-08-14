@@ -243,6 +243,10 @@ model Instituicao {
   bibliotecaFavoritos         BibliotecaFavorito[]
   bibliotecaProgressosLeitura BibliotecaProgressoLeitura[]
 
+  bibliotecaAvaliacoes       BibliotecaAvaliacao[]
+  bibliotecaHistoricosAcesso BibliotecaHistoricoAcesso[]
+  bibliotecaRecomendacoes    BibliotecaRecomendacao[]
+
   @@index([redeInstitucionalId])
   @@index([redeInstitucionalId, ativo])
 }
@@ -456,6 +460,10 @@ model User {
   bibliotecaFavoritos                  BibliotecaFavorito[]
   bibliotecaProgressosLeitura          BibliotecaProgressoLeitura[]
 
+  bibliotecaAvaliacoesRealizadas BibliotecaAvaliacao[]       @relation("BibliotecaAvaliacaoUsuario")
+  bibliotecaAvaliacoesModeradas  BibliotecaAvaliacao[]       @relation("BibliotecaAvaliacaoModeradaPor")
+  bibliotecaHistoricosAcesso     BibliotecaHistoricoAcesso[]
+
   @@unique([id, instituicaoId])
   @@index([instituicaoId])
   @@index([role])
@@ -647,8 +655,10 @@ model Professor {
   substituicoesComoTitular    SubstituicaoDocente[]    @relation("ProfessorTitularSubstituicao")
   substituicoesComoSubstituto SubstituicaoDocente[]    @relation("ProfessorSubstitutoSubstituicao")
   historicosRemuneracaoRH     HistoricoRemuneracaoRH[]
+  recomendacoesBiblioteca     BibliotecaRecomendacao[]
 
   @@unique([instituicaoId, slug])
+  @@unique([id, instituicaoId])
   @@index([instituicaoId])
   @@index([nome])
   @@index([cpf])
@@ -681,23 +691,25 @@ model Curso {
   instituicao                Instituicao           @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   certificadoModelo          CertificadoModelo?    @relation(fields: [certificadoModeloId], references: [id], onDelete: SetNull)
 
-  semestres                   CursoSemestre[]
-  disciplinas                 Disciplina[]
-  documentosGerados           DocumentoGerado[]
-  matriculas                  Matricula[]
-  turmas                      Turma[]
-  periodosMatricula           PeriodoMatricula[]
-  disciplinasExtrasPermitidas CursoDisciplinaExtraPermitida[]
-  cursosPolos                 CursoPolo[]
-  reunioes                    Reuniao[]
-  regrasComissaoRH            RegraComissaoRH[]
-  metasComerciais             MetaComercial[]
-  publicacoesRedeOrigem       CursoPublicacaoRede[]           @relation("CursoPublicacaoOrigem")
-  publicacaoRedeDestino       CursoPublicacaoRede?            @relation("CursoPublicacaoDestino")
-  leadsInteressados           Lead[]                          @relation("LeadCursoInteresse")
+  semestres                       CursoSemestre[]
+  disciplinas                     Disciplina[]
+  documentosGerados               DocumentoGerado[]
+  matriculas                      Matricula[]
+  turmas                          Turma[]
+  periodosMatricula               PeriodoMatricula[]
+  disciplinasExtrasPermitidas     CursoDisciplinaExtraPermitida[]
+  cursosPolos                     CursoPolo[]
+  reunioes                        Reuniao[]
+  regrasComissaoRH                RegraComissaoRH[]
+  metasComerciais                 MetaComercial[]
+  publicacoesRedeOrigem           CursoPublicacaoRede[]           @relation("CursoPublicacaoOrigem")
+  publicacaoRedeDestino           CursoPublicacaoRede?            @relation("CursoPublicacaoDestino")
+  leadsInteressados               Lead[]                          @relation("LeadCursoInteresse")
+  destinosRecomendacoesBiblioteca BibliotecaRecomendacaoDestino[]
 
   @@unique([instituicaoId, nome])
   @@unique([instituicaoId, codigo])
+  @@unique([id, instituicaoId])
   @@index([instituicaoId])
   @@index([certificadoModeloId])
   @@index([instituicaoId, modalidadeCertificado])
@@ -839,41 +851,43 @@ model DocumentoAluno {
 }
 
 model Disciplina {
-  id                        Int                             @id @default(autoincrement())
-  nome                      String
-  cursoId                   Int?
-  disciplinaOrigemRedeId    Int?
-  instituicaoId             Int
-  descricao                 String?
-  semestre                  Int?
-  ativo                     Boolean                         @default(true)
-  codigo                    String?
-  createdAt                 DateTime                        @default(now())
-  updatedAt                 DateTime                        @updatedAt
-  cargaHoraria              Int?
-  certificados              Certificado[]
-  semestresCurso            CursoSemestreDisciplina[]
-  professorId               Int?
-  professor                 Professor?                      @relation(fields: [professorId], references: [id])
-  curso                     Curso?                          @relation(fields: [cursoId], references: [id])
-  instituicao               Instituicao                     @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  resultadosFinais          ResultadoFinal[]
-  itensMatricula            ItemMatricula[]
-  prerequisitosDaDisciplina DisciplinaPreRequisito[]        @relation("DisciplinaPrincipal")
-  liberaOutrasDisciplinas   DisciplinaPreRequisito[]        @relation("DisciplinaPreRequisito")
-  permitidaComoExtraEm      CursoDisciplinaExtraPermitida[]
-  turmaDisciplinas          TurmaDisciplina[]
-  professoresHabilitados    ProfessorDisciplina[]
-  aulas                     Aula[]
-  atividades                Atividade[]
-  substituicoesDocentes     SubstituicaoDocente[]
-  itensRematriculaSemestral RematriculaSemestralItem[]
-  disciplinaOrigemRede      Disciplina?                     @relation("DisciplinaPublicacaoRede", fields: [disciplinaOrigemRedeId], references: [id], onDelete: SetNull)
-  disciplinasPublicadasRede Disciplina[]                    @relation("DisciplinaPublicacaoRede")
+  id                              Int                             @id @default(autoincrement())
+  nome                            String
+  cursoId                         Int?
+  disciplinaOrigemRedeId          Int?
+  instituicaoId                   Int
+  descricao                       String?
+  semestre                        Int?
+  ativo                           Boolean                         @default(true)
+  codigo                          String?
+  createdAt                       DateTime                        @default(now())
+  updatedAt                       DateTime                        @updatedAt
+  cargaHoraria                    Int?
+  certificados                    Certificado[]
+  semestresCurso                  CursoSemestreDisciplina[]
+  professorId                     Int?
+  professor                       Professor?                      @relation(fields: [professorId], references: [id])
+  curso                           Curso?                          @relation(fields: [cursoId], references: [id])
+  instituicao                     Instituicao                     @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  resultadosFinais                ResultadoFinal[]
+  itensMatricula                  ItemMatricula[]
+  prerequisitosDaDisciplina       DisciplinaPreRequisito[]        @relation("DisciplinaPrincipal")
+  liberaOutrasDisciplinas         DisciplinaPreRequisito[]        @relation("DisciplinaPreRequisito")
+  permitidaComoExtraEm            CursoDisciplinaExtraPermitida[]
+  turmaDisciplinas                TurmaDisciplina[]
+  professoresHabilitados          ProfessorDisciplina[]
+  aulas                           Aula[]
+  atividades                      Atividade[]
+  substituicoesDocentes           SubstituicaoDocente[]
+  itensRematriculaSemestral       RematriculaSemestralItem[]
+  disciplinaOrigemRede            Disciplina?                     @relation("DisciplinaPublicacaoRede", fields: [disciplinaOrigemRedeId], references: [id], onDelete: SetNull)
+  disciplinasPublicadasRede       Disciplina[]                    @relation("DisciplinaPublicacaoRede")
+  destinosRecomendacoesBiblioteca BibliotecaRecomendacaoDestino[]
 
   @@unique([instituicaoId, nome])
   @@unique([instituicaoId, codigo])
   @@unique([instituicaoId, disciplinaOrigemRedeId])
+  @@unique([id, instituicaoId])
   @@index([instituicaoId])
   @@index([cursoId])
   @@index([professorId])
@@ -881,46 +895,48 @@ model Disciplina {
 }
 
 model Turma {
-  id                    Int                   @id @default(autoincrement())
-  nome                  String
-  semestre              String
-  professorId           Int?
-  instituicaoId         Int
-  ativa                 Boolean               @default(true)
-  codigo                String?
-  createdAt             DateTime              @default(now())
-  periodoLetivo         String?
-  turno                 String?
-  modalidade            String?
-  predio                String?
-  ala                   String?
-  andar                 String?
-  sala                  String?
-  updatedAt             DateTime              @updatedAt
-  capacidadeMaxima      Int?
-  capacidadeMinima      Int?
-  cursoId               Int?
-  dataInicio            DateTime?
-  dataFim               DateTime?
-  statusTurma           StatusTurma           @default(AGUARDANDO)
-  atividades            Atividade[]
-  aulas                 Aula[]
-  itensMatricula        ItemMatricula[]
-  modulos               Modulo[]
-  notas                 Nota[]
-  provas                Prova[]
-  resultadosFinais      ResultadoFinal[]
-  curso                 Curso?                @relation(fields: [cursoId], references: [id])
-  instituicao           Instituicao           @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  professor             Professor?            @relation(fields: [professorId], references: [id])
-  disciplinas           TurmaDisciplina[]
-  semestres             TurmaSemestre[]
-  poloId                Int?
-  polo                  Polo?                 @relation(fields: [poloId], references: [id])
-  reunioes              Reuniao[]
-  substituicoesDocentes SubstituicaoDocente[]
+  id                              Int                             @id @default(autoincrement())
+  nome                            String
+  semestre                        String
+  professorId                     Int?
+  instituicaoId                   Int
+  ativa                           Boolean                         @default(true)
+  codigo                          String?
+  createdAt                       DateTime                        @default(now())
+  periodoLetivo                   String?
+  turno                           String?
+  modalidade                      String?
+  predio                          String?
+  ala                             String?
+  andar                           String?
+  sala                            String?
+  updatedAt                       DateTime                        @updatedAt
+  capacidadeMaxima                Int?
+  capacidadeMinima                Int?
+  cursoId                         Int?
+  dataInicio                      DateTime?
+  dataFim                         DateTime?
+  statusTurma                     StatusTurma                     @default(AGUARDANDO)
+  atividades                      Atividade[]
+  aulas                           Aula[]
+  itensMatricula                  ItemMatricula[]
+  modulos                         Modulo[]
+  notas                           Nota[]
+  provas                          Prova[]
+  resultadosFinais                ResultadoFinal[]
+  curso                           Curso?                          @relation(fields: [cursoId], references: [id])
+  instituicao                     Instituicao                     @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  professor                       Professor?                      @relation(fields: [professorId], references: [id])
+  disciplinas                     TurmaDisciplina[]
+  semestres                       TurmaSemestre[]
+  poloId                          Int?
+  polo                            Polo?                           @relation(fields: [poloId], references: [id])
+  reunioes                        Reuniao[]
+  substituicoesDocentes           SubstituicaoDocente[]
+  destinosRecomendacoesBiblioteca BibliotecaRecomendacaoDestino[]
 
   @@unique([instituicaoId, nome, semestre, periodoLetivo])
+  @@unique([id, instituicaoId])
   @@index([instituicaoId])
   @@index([professorId])
   @@index([statusTurma])
@@ -5708,6 +5724,9 @@ model BibliotecaItem {
   prateleiras       BibliotecaPrateleiraItem[]
   favoritos         BibliotecaFavorito[]
   progressosLeitura BibliotecaProgressoLeitura[]
+  avaliacoes        BibliotecaAvaliacao[]
+  historicosAcesso  BibliotecaHistoricoAcesso[]
+  recomendacoes     BibliotecaRecomendacao[]
 
   @@unique([instituicaoId, slug])
   @@unique([id, instituicaoId])
@@ -5894,6 +5913,7 @@ model BibliotecaArquivo {
   arquivadoPor User? @relation("BibliotecaArquivoArquivadoPor", fields: [arquivadoPorId], references: [id], onDelete: SetNull)
 
   progressosLeitura BibliotecaProgressoLeitura[]
+  historicosAcesso  BibliotecaHistoricoAcesso[]
 
   @@unique([id, instituicaoId])
   @@unique([instituicaoId, itemId, versao])
@@ -6557,6 +6577,163 @@ model BibliotecaProgressoLeitura {
   @@index([itemId])
   @@index([arquivoId])
   @@index([instituicaoId, ultimoAcessoEm])
+}
+
+model BibliotecaAvaliacao {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+  usuarioId     Int
+  itemId        Int
+
+  nota       Int
+  titulo     String?
+  comentario String? @db.Text
+
+  status StatusAvaliacaoBiblioteca @default(PENDENTE)
+
+  moderadaPorId   Int?
+  moderadaEm      DateTime?
+  motivoModeracao String?   @db.Text
+
+  criadaEm     DateTime @default(now())
+  atualizadaEm DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Restrict)
+
+  usuario User @relation("BibliotecaAvaliacaoUsuario", fields: [usuarioId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  item BibliotecaItem @relation(fields: [itemId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  moderadaPor User? @relation("BibliotecaAvaliacaoModeradaPor", fields: [moderadaPorId], references: [id], onDelete: SetNull)
+
+  @@unique([instituicaoId, usuarioId, itemId])
+  @@index([instituicaoId])
+  @@index([instituicaoId, status])
+  @@index([itemId])
+  @@index([itemId, status])
+  @@index([usuarioId])
+  @@index([nota])
+  @@index([criadaEm])
+}
+
+model BibliotecaHistoricoAcesso {
+  id            BigInt @id @default(autoincrement())
+  instituicaoId Int
+  usuarioId     Int
+  itemId        Int
+  arquivoId     Int?
+
+  tipo TipoAcessoBiblioteca
+
+  sessaoId String?
+
+  paginaInicial Int?
+  paginaFinal   Int?
+
+  posicaoInicialSegundos Int?
+  posicaoFinalSegundos   Int?
+  duracaoSegundos        Int?
+
+  percentualInicial Decimal? @db.Decimal(5, 2)
+  percentualFinal   Decimal? @db.Decimal(5, 2)
+
+  ip        String?
+  userAgent String? @db.Text
+
+  iniciadoEm   DateTime  @default(now())
+  finalizadoEm DateTime?
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Restrict)
+
+  usuario User @relation(fields: [usuarioId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+
+  item BibliotecaItem @relation(fields: [itemId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+
+  arquivo BibliotecaArquivo? @relation(fields: [arquivoId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+
+  @@index([instituicaoId])
+  @@index([instituicaoId, iniciadoEm])
+  @@index([instituicaoId, tipo])
+  @@index([usuarioId])
+  @@index([usuarioId, iniciadoEm])
+  @@index([itemId])
+  @@index([itemId, iniciadoEm])
+  @@index([arquivoId])
+  @@index([sessaoId])
+}
+
+model BibliotecaRecomendacao {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+  itemId        Int
+  professorId   Int
+
+  titulo   String?
+  mensagem String? @db.Text
+
+  status      StatusRecomendacaoBiblioteca @default(RASCUNHO)
+  obrigatoria Boolean                      @default(false)
+  destaque    Boolean                      @default(false)
+
+  disponivelInicioEm DateTime?
+  disponivelFimEm    DateTime?
+
+  publicadaEm        DateTime?
+  encerradaEm        DateTime?
+  canceladaEm        DateTime?
+  motivoCancelamento String?   @db.Text
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Restrict)
+
+  item BibliotecaItem @relation(fields: [itemId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+
+  professor Professor @relation(fields: [professorId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+
+  destinos BibliotecaRecomendacaoDestino[]
+
+  @@unique([id, instituicaoId])
+  @@index([instituicaoId])
+  @@index([instituicaoId, status])
+  @@index([instituicaoId, disponivelInicioEm, disponivelFimEm])
+  @@index([itemId])
+  @@index([professorId])
+  @@index([publicadaEm])
+}
+
+model BibliotecaRecomendacaoDestino {
+  id             Int @id @default(autoincrement())
+  instituicaoId  Int
+  recomendacaoId Int
+
+  tipo TipoDestinoRecomendacaoBiblioteca
+
+  cursoId      Int?
+  turmaId      Int?
+  disciplinaId Int?
+
+  // Exemplos: TODOS, CURSO:12, TURMA:30 ou DISCIPLINA:8
+  chaveDestino String
+
+  criadoEm DateTime @default(now())
+
+  recomendacao BibliotecaRecomendacao @relation(fields: [recomendacaoId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  curso Curso? @relation(fields: [cursoId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+
+  turma Turma? @relation(fields: [turmaId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+
+  disciplina Disciplina? @relation(fields: [disciplinaId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+
+  @@unique([instituicaoId, recomendacaoId, chaveDestino])
+  @@index([instituicaoId])
+  @@index([recomendacaoId])
+  @@index([tipo])
+  @@index([cursoId])
+  @@index([turmaId])
+  @@index([disciplinaId])
 }
 
 enum ModalidadeCertificado {
@@ -7462,4 +7639,34 @@ enum VisibilidadePrateleiraBiblioteca {
   PROFESSORES
   FUNCIONARIOS
   TODOS
+}
+
+enum StatusAvaliacaoBiblioteca {
+  PENDENTE
+  APROVADA
+  REJEITADA
+  OCULTA
+}
+
+enum TipoAcessoBiblioteca {
+  VISUALIZACAO
+  LEITURA
+  DOWNLOAD
+  REPRODUCAO
+  RETOMADA
+  CONCLUSAO
+}
+
+enum StatusRecomendacaoBiblioteca {
+  RASCUNHO
+  PUBLICADA
+  ENCERRADA
+  CANCELADA
+}
+
+enum TipoDestinoRecomendacaoBiblioteca {
+  TODA_INSTITUICAO
+  CURSO
+  TURMA
+  DISCIPLINA
 }
