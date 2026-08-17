@@ -25215,3 +25215,71 @@ html[data-theme="system"]
     flex-direction: column;
   }
 }
+
+/* =========================================================
+   PHANYX — CENTRAL DE CAPTAÇÃO — CANAIS
+   Correção específica do tema claro
+   ========================================================= */
+
+html[data-theme="light"] .phanyx-captacao-canais-page {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-captacao-canais-page h1,
+html[data-theme="light"] .phanyx-captacao-canais-page h2,
+html[data-theme="light"] .phanyx-captacao-canais-page h3 {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-captacao-canais-page
+  .dark\:text-white {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-captacao-canais-page
+  .dark\:text-slate-100,
+html[data-theme="light"]
+  .phanyx-captacao-canais-page
+  .dark\:text-slate-200 {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-captacao-canais-page
+  .dark\:text-slate-300 {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+}
+
+html[data-theme="light"] .phanyx-captacao-canais-page label {
+  color: #334155 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-captacao-canais-page
+  input,
+html[data-theme="light"]
+  .phanyx-captacao-canais-page
+  textarea,
+html[data-theme="light"]
+  .phanyx-captacao-canais-page
+  select {
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+}
+
+html[data-theme="light"]
+  .phanyx-captacao-canais-page
+  input::placeholder,
+html[data-theme="light"]
+  .phanyx-captacao-canais-page
+  textarea::placeholder {
+  color: #94a3b8 !important;
+  opacity: 1 !important;
+}

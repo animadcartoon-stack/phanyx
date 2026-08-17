@@ -46,7 +46,7 @@ function ehMasterReal(
     user.isMasterAdmin === true &&
     user.impersonacao === false &&
     user.email.trim().toLowerCase() ===
-      "academicophanyx@gmail.com"
+    "academicophanyx@gmail.com"
   );
 }
 
@@ -196,7 +196,7 @@ function statusOuNull(
     String(valor ?? "")
       .trim()
       .toUpperCase() as
-      StatusCampanhaCaptacaoLead;
+    StatusCampanhaCaptacaoLead;
 
   return Object.values(
     StatusCampanhaCaptacaoLead
@@ -285,7 +285,7 @@ function responderErro(
 
   if (
     error instanceof
-      Prisma.PrismaClientKnownRequestError &&
+    Prisma.PrismaClientKnownRequestError &&
     error.code === "P2002"
   ) {
     return NextResponse.json(
@@ -376,8 +376,8 @@ export async function GET(
       ativoParam === null
         ? null
         : booleano(
-            ativoParam
-          );
+          ativoParam
+        );
 
     const campanhas =
       await prisma.campanhaCaptacaoLead.findMany({
@@ -386,62 +386,62 @@ export async function GET(
 
           ...(canalId
             ? {
-                canalId,
-              }
+              canalId,
+            }
             : {}),
 
           ...(status
             ? {
-                status,
-              }
+              status,
+            }
             : {}),
 
           ...(ativo !== null
             ? {
-                ativo,
-              }
+              ativo,
+            }
             : {}),
 
           ...(busca
             ? {
-                OR: [
-                  {
-                    nome: {
-                      contains:
-                        busca,
-                      mode:
-                        "insensitive",
-                    },
+              OR: [
+                {
+                  nome: {
+                    contains:
+                      busca,
+                    mode:
+                      "insensitive",
                   },
+                },
 
-                  {
-                    codigo: {
-                      contains:
-                        busca,
-                      mode:
-                        "insensitive",
-                    },
+                {
+                  codigo: {
+                    contains:
+                      busca,
+                    mode:
+                      "insensitive",
                   },
+                },
 
-                  {
-                    descricao: {
-                      contains:
-                        busca,
-                      mode:
-                        "insensitive",
-                    },
+                {
+                  descricao: {
+                    contains:
+                      busca,
+                    mode:
+                      "insensitive",
                   },
+                },
 
-                  {
-                    utmCampaign: {
-                      contains:
-                        busca,
-                      mode:
-                        "insensitive",
-                    },
+                {
+                  utmCampaign: {
+                    contains:
+                      busca,
+                    mode:
+                      "insensitive",
                   },
-                ],
-              }
+                },
+              ],
+            }
             : {}),
         },
 
@@ -555,7 +555,7 @@ export async function GET(
             campanhas.filter(
               (campanha) =>
                 campanha.status ===
-                  StatusCampanhaCaptacaoLead.ATIVA &&
+                StatusCampanhaCaptacaoLead.ATIVA &&
                 campanha.ativo
             ).length,
 
@@ -624,11 +624,11 @@ export async function POST(
         .catch(
           () => null
         )) as
-        | Record<
-            string,
-            unknown
-          >
-        | null;
+      | Record<
+        string,
+        unknown
+      >
+      | null;
 
     if (!body) {
       throw new ErroHttp(
@@ -662,7 +662,7 @@ export async function POST(
     const codigo =
       codigoCampanha(
         codigoInformado ??
-          nome
+        nome
       );
 
     if (
@@ -709,11 +709,35 @@ export async function POST(
       ) ??
       StatusCampanhaCaptacaoLead.RASCUNHO;
 
-    const ativo =
+    let ativo =
       booleano(
         body.ativo,
         true
       );
+
+    /*
+     * Mantém criação e edição
+     * com as mesmas regras.
+     */
+    if (
+      status ===
+      StatusCampanhaCaptacaoLead.ATIVA ||
+      status ===
+      StatusCampanhaCaptacaoLead.AGENDADA ||
+      status ===
+      StatusCampanhaCaptacaoLead.PAUSADA
+    ) {
+      ativo = true;
+    }
+
+    if (
+      status ===
+      StatusCampanhaCaptacaoLead.ENCERRADA ||
+      status ===
+      StatusCampanhaCaptacaoLead.ARQUIVADA
+    ) {
+      ativo = false;
+    }
 
     const dataInicio =
       dataOuNull(
@@ -751,7 +775,7 @@ export async function POST(
       dataInicio &&
       dataFim &&
       dataFim.getTime() <
-        dataInicio.getTime()
+      dataInicio.getTime()
     ) {
       throw new ErroHttp(
         400,

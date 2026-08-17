@@ -48,7 +48,7 @@ function ehMasterReal(
     user.isMasterAdmin === true &&
     user.impersonacao === false &&
     user.email.trim().toLowerCase() ===
-      "academicophanyx@gmail.com"
+    "academicophanyx@gmail.com"
   );
 }
 
@@ -213,7 +213,7 @@ function tipoCampoOuNull(
     String(valor ?? "")
       .trim()
       .toUpperCase() as
-      TipoCampoFormularioCaptacaoLead;
+    TipoCampoFormularioCaptacaoLead;
 
   return Object.values(
     TipoCampoFormularioCaptacaoLead
@@ -229,7 +229,7 @@ function mapeamentoOuNull(
     String(valor ?? "")
       .trim()
       .toUpperCase() as
-      MapeamentoCampoFormularioCaptacaoLead;
+    MapeamentoCampoFormularioCaptacaoLead;
 
   return Object.values(
     MapeamentoCampoFormularioCaptacaoLead
@@ -292,7 +292,7 @@ function responderErro(
 
   if (
     error instanceof
-      Prisma.PrismaClientKnownRequestError &&
+    Prisma.PrismaClientKnownRequestError &&
     error.code === "P2002"
   ) {
     return NextResponse.json(
@@ -444,6 +444,23 @@ export async function GET(
         },
       });
 
+    const polos =
+      await prisma.polo.findMany({
+        where: {
+          instituicaoId,
+          ativo: true,
+        },
+
+        select: {
+          id: true,
+          nome: true,
+        },
+
+        orderBy: {
+          nome: "asc",
+        },
+      });
+
     return NextResponse.json(
       {
         success: true,
@@ -461,6 +478,10 @@ export async function GET(
           Object.values(
             MapeamentoCampoFormularioCaptacaoLead
           ),
+
+        referencias: {
+          polos,
+        },
 
         resumo: {
           total:
@@ -573,11 +594,11 @@ export async function POST(
         .catch(
           () => null
         )) as
-        | Record<
-            string,
-            unknown
-          >
-        | null;
+      | Record<
+        string,
+        unknown
+      >
+      | null;
 
     if (!body) {
       throw new ErroHttp(
@@ -595,7 +616,7 @@ export async function POST(
     if (
       !rotulo ||
       rotulo.length >
-        180
+      180
     ) {
       throw new ErroHttp(
         400,
@@ -612,7 +633,7 @@ export async function POST(
     const chave =
       normalizarChave(
         chaveInformada ??
-          rotulo
+        rotulo
       );
 
     if (
@@ -673,9 +694,9 @@ export async function POST(
 
     if (
       body.largura !==
-        undefined &&
+      undefined &&
       body.largura !==
-        null &&
+      null &&
       body.largura !== ""
     ) {
       const larguraInformada =
@@ -686,7 +707,7 @@ export async function POST(
       if (
         !larguraInformada ||
         larguraInformada >
-          12
+        12
       ) {
         throw new ErroHttp(
           400,
@@ -741,9 +762,9 @@ export async function POST(
 
     if (
       body.ordem !==
-        undefined &&
+      undefined &&
       body.ordem !==
-        null &&
+      null &&
       body.ordem !== "" &&
       !ordem
     ) {
@@ -830,17 +851,17 @@ export async function POST(
                 largura,
 
                 ...(opcoes !==
-                undefined
+                  undefined
                   ? {
-                      opcoes,
-                    }
+                    opcoes,
+                  }
                   : {}),
 
                 ...(validacoes !==
-                undefined
+                  undefined
                   ? {
-                      validacoes,
-                    }
+                    validacoes,
+                  }
                   : {}),
               },
 

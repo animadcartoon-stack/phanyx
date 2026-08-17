@@ -9,6 +9,9 @@ import {
 } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
+import {
+  emitirEventosSaidaSubmissaoCaptacaoSeguro,
+} from "@/lib/comercial/captacao/emitir-eventos-saida-submissao";
 
 const STATUS_LEADS_ABERTOS = [
   "NOVO",
@@ -35,7 +38,7 @@ export type ResultadoProcessamentoCaptacao = {
   submissaoId: number;
   status: StatusSubmissaoCaptacaoLead;
   resultadoDeduplicacao:
-    ResultadoDeduplicacaoCaptacaoLead;
+  ResultadoDeduplicacaoCaptacaoLead;
   leadId: number | null;
   tarefaId: number | null;
   regraDistribuicaoId: number | null;
@@ -46,8 +49,7 @@ type StatusFinalErroCaptacao =
   | typeof StatusSubmissaoCaptacaoLead.ERRO;
 
 export class ErroProcessamentoCaptacao
-  extends Error
-{
+  extends Error {
   codigo: string;
   statusFinal: StatusFinalErroCaptacao;
 
@@ -285,7 +287,7 @@ function mensagemErro(
 
   return String(
     error ??
-      "Erro desconhecido."
+    "Erro desconhecido."
   );
 }
 
@@ -294,36 +296,36 @@ async function normalizarDados(
     nomeSnapshot: string | null;
     emailSnapshot: string | null;
     telefoneSnapshot:
-      string | null;
+    string | null;
 
     dadosOriginais:
-      Prisma.JsonValue;
+    Prisma.JsonValue;
 
     dadosNormalizados:
-      Prisma.JsonValue | null;
+    Prisma.JsonValue | null;
 
     consentimentoLgpd:
-      boolean;
+    boolean;
 
     formulario: {
       exigeConsentimento:
-        boolean;
+      boolean;
 
       textoConsentimento:
-        string | null;
+      string | null;
 
       versaoConsentimento:
-        string | null;
+      string | null;
 
       campos: Array<{
         chave: string;
         rotulo: string;
         mapeamento:
-          MapeamentoCampoFormularioCaptacaoLead;
+        MapeamentoCampoFormularioCaptacaoLead;
         valorPadrao:
-          string | null;
+        string | null;
         obrigatorio:
-          boolean;
+        boolean;
         ativo: boolean;
       }>;
     } | null;
@@ -342,62 +344,62 @@ async function normalizarDados(
   let nome =
     texto(
       submissao.nomeSnapshot ??
-        anteriores.nome ??
-        originais.nome ??
-        originais.name
+      anteriores.nome ??
+      originais.nome ??
+      originais.name
     );
 
   let email =
     normalizarEmail(
       submissao.emailSnapshot ??
-        anteriores.email ??
-        originais.email
+      anteriores.email ??
+      originais.email
     );
 
   let telefone =
     normalizarTelefone(
       submissao.telefoneSnapshot ??
-        anteriores.telefone ??
-        originais.telefone ??
-        originais.phone ??
-        originais.whatsapp
+      anteriores.telefone ??
+      originais.telefone ??
+      originais.phone ??
+      originais.whatsapp
     );
 
   let instituicaoNome =
     texto(
       anteriores.instituicaoNome ??
-        originais.instituicaoNome ??
-        originais.instituicao
+      originais.instituicaoNome ??
+      originais.instituicao
     );
 
   let cargo =
     texto(
       anteriores.cargo ??
-        originais.cargo
+      originais.cargo
     );
 
   let interesse =
     texto(
       anteriores.interesse ??
-        originais.interesse
+      originais.interesse
     );
 
   let observacoes =
     texto(
       anteriores.observacoes ??
-        originais.observacoes
+      originais.observacoes
     );
 
   let cursoInteresseId =
     idPositivo(
       anteriores.cursoInteresseId ??
-        originais.cursoInteresseId
+      originais.cursoInteresseId
     );
 
   let poloInteresseId =
     idPositivo(
       anteriores.poloInteresseId ??
-        originais.poloInteresseId
+      originais.poloInteresseId
     );
 
   let consentimentoLgpd =
@@ -405,9 +407,9 @@ async function normalizarDados(
 
   const personalizados:
     Record<string, unknown> =
-      registroJson(
-        anteriores.personalizados
-      );
+    registroJson(
+      anteriores.personalizados
+    );
 
   if (submissao.formulario) {
     for (
@@ -434,7 +436,7 @@ async function normalizarDados(
       }
 
       switch (
-        campo.mapeamento
+      campo.mapeamento
       ) {
         case MapeamentoCampoFormularioCaptacaoLead.NOME:
           nome =
@@ -631,22 +633,22 @@ async function resolverEstruturaFunil(
   instituicaoId: number,
   formulario: {
     funilPadraoId:
-      number | null;
+    number | null;
     etapaPadraoId:
-      number | null;
+    number | null;
   } | null
 ) {
   let funilId:
     number | null =
-      formulario
-        ?.funilPadraoId ??
-      null;
+    formulario
+      ?.funilPadraoId ??
+    null;
 
   let etapaFunilId:
     number | null =
-      formulario
-        ?.etapaPadraoId ??
-      null;
+    formulario
+      ?.etapaPadraoId ??
+    null;
 
   if (funilId) {
     const funil =
@@ -812,9 +814,9 @@ function regraCombina(
   regra: {
     canalId: number | null;
     campanhaId:
-      number | null;
+    number | null;
     formularioId:
-      number | null;
+    number | null;
     cursoId: number | null;
     poloId: number | null;
     criterios: Prisma.JsonValue | null;
@@ -822,9 +824,9 @@ function regraCombina(
   valores: {
     canalId: number | null;
     campanhaId:
-      number | null;
+    number | null;
     formularioId:
-      number | null;
+    number | null;
     cursoId: number | null;
     poloId: number | null;
   }
@@ -877,9 +879,9 @@ function especificidadeRegra(
   regra: {
     canalId: number | null;
     campanhaId:
-      number | null;
+    number | null;
     formularioId:
-      number | null;
+    number | null;
     cursoId: number | null;
     poloId: number | null;
   }
@@ -970,17 +972,17 @@ async function distribuirLead(
 
     canalId: number | null;
     campanhaId:
-      number | null;
+    number | null;
     formularioId:
-      number | null;
+    number | null;
     cursoId: number | null;
     poloId: number | null;
 
     equipePadraoId:
-      number | null;
+    number | null;
 
     responsavelPadraoId:
-      number | null;
+    number | null;
   }
 ) {
   const regras =
@@ -1250,30 +1252,30 @@ async function distribuirLead(
 
         ...(regra.somenteMembrosAtivos
           ? {
-              ativo: true,
-            }
+            ativo: true,
+          }
           : {}),
 
         ...(regra.respeitarDisponibilidade
           ? {
-              inicioVigencia: {
-                lte: agora,
+            inicioVigencia: {
+              lte: agora,
+            },
+
+            OR: [
+              {
+                fimVigencia:
+                  null,
               },
 
-              OR: [
-                {
-                  fimVigencia:
-                    null,
+              {
+                fimVigencia: {
+                  gte:
+                    agora,
                 },
-
-                {
-                  fimVigencia: {
-                    gte:
-                      agora,
-                  },
-                },
-              ],
-            }
+              },
+            ],
+          }
           : {}),
 
         funcionario: {
@@ -1410,10 +1412,10 @@ async function distribuirLead(
   ) {
     escolhido =
       elegiveis[
-        Math.floor(
-          Math.random() *
-            elegiveis.length
-        )
+      Math.floor(
+        Math.random() *
+        elegiveis.length
+      )
       ];
   }
 
@@ -1448,14 +1450,14 @@ async function distribuirLead(
       Math.max(
         atualizada
           .proximoIndiceRodizio -
-          1,
+        1,
         0
       );
 
     escolhido =
       elegiveis[
-        indiceAnterior %
-          elegiveis.length
+      indiceAnterior %
+      elegiveis.length
       ];
   }
 
@@ -1807,33 +1809,33 @@ export async function processarSubmissaoCaptacao(
         consentimentoEm:
           dados.consentimentoLgpd
             ? (
-                submissao.consentimentoEm ??
-                agora
-              )
+              submissao.consentimentoEm ??
+              agora
+            )
             : null,
 
         versaoConsentimento:
           dados.consentimentoLgpd
             ? (
-                submissao
-                  .versaoConsentimento ??
-                submissao
-                  .formulario
-                  ?.versaoConsentimento ??
-                null
-              )
+              submissao
+                .versaoConsentimento ??
+              submissao
+                .formulario
+                ?.versaoConsentimento ??
+              null
+            )
             : null,
 
         textoConsentimentoSnapshot:
           dados.consentimentoLgpd
             ? (
-                submissao
-                  .textoConsentimentoSnapshot ??
-                submissao
-                  .formulario
-                  ?.textoConsentimento ??
-                null
-              )
+              submissao
+                .textoConsentimentoSnapshot ??
+              submissao
+                .formulario
+                ?.textoConsentimento ??
+              null
+            )
             : null,
       },
     });
@@ -1847,10 +1849,10 @@ export async function processarSubmissaoCaptacao(
               instituicaoId,
 
               dados.cursoInteresseId ??
-                submissao
-                  .formulario
-                  ?.cursoPadraoId ??
-                null
+              submissao
+                .formulario
+                ?.cursoPadraoId ??
+              null
             );
 
           const poloId =
@@ -1859,44 +1861,44 @@ export async function processarSubmissaoCaptacao(
               instituicaoId,
 
               dados.poloInteresseId ??
-                submissao
-                  .formulario
-                  ?.poloPadraoId ??
-                null
+              submissao
+                .formulario
+                ?.poloPadraoId ??
+              null
             );
 
           let leadExistente =
             submissao.leadId
               ? await tx.lead.findFirst({
-                  where: {
-                    id:
-                      submissao.leadId,
+                where: {
+                  id:
+                    submissao.leadId,
 
-                    instituicaoGestoraId:
-                      instituicaoId,
-                  },
+                  instituicaoGestoraId:
+                    instituicaoId,
+                },
 
-                  select: {
-                    id: true,
-                    nome: true,
-                    email: true,
-                    telefone: true,
+                select: {
+                  id: true,
+                  nome: true,
+                  email: true,
+                  telefone: true,
 
-                    instituicaoNome:
-                      true,
+                  instituicaoNome:
+                    true,
 
-                    cargo: true,
-                    interesse: true,
-                    observacoes:
-                      true,
+                  cargo: true,
+                  interesse: true,
+                  observacoes:
+                    true,
 
-                    cursoInteresseId:
-                      true,
+                  cursoInteresseId:
+                    true,
 
-                    poloInteresseId:
-                      true,
-                  },
-                })
+                  poloInteresseId:
+                    true,
+                },
+              })
               : null;
 
           if (
@@ -1904,17 +1906,17 @@ export async function processarSubmissaoCaptacao(
           ) {
             const or:
               Prisma.LeadWhereInput[] =
-                [
-                  {
-                    email: {
-                      equals:
-                        dados.email,
+              [
+                {
+                  email: {
+                    equals:
+                      dados.email,
 
-                      mode:
-                        "insensitive",
-                    },
+                    mode:
+                      "insensitive",
                   },
-                ];
+                },
+              ];
 
             if (
               dados.telefone
@@ -1927,8 +1929,8 @@ export async function processarSubmissaoCaptacao(
 
                       submissao.telefoneSnapshot
                         ? String(
-                            submissao.telefoneSnapshot
-                          ).trim()
+                          submissao.telefoneSnapshot
+                        ).trim()
                         : null,
                     ].filter(
                       (
@@ -2081,30 +2083,30 @@ export async function processarSubmissaoCaptacao(
 
                   ...(dados.telefone
                     ? {
-                        telefone:
-                          dados.telefone,
-                      }
+                      telefone:
+                        dados.telefone,
+                    }
                     : {}),
 
                   ...(dados.instituicaoNome
                     ? {
-                        instituicaoNome:
-                          dados.instituicaoNome,
-                      }
+                      instituicaoNome:
+                        dados.instituicaoNome,
+                    }
                     : {}),
 
                   ...(dados.cargo
                     ? {
-                        cargo:
-                          dados.cargo,
-                      }
+                      cargo:
+                        dados.cargo,
+                    }
                     : {}),
 
                   ...(dados.interesse
                     ? {
-                        interesse:
-                          dados.interesse,
-                      }
+                      interesse:
+                        dados.interesse,
+                    }
                     : {}),
 
                   observacoes:
@@ -2117,22 +2119,22 @@ export async function processarSubmissaoCaptacao(
                   ...(
                     !leadExistente
                       .cursoInteresseId &&
-                    cursoId
+                      cursoId
                       ? {
-                          cursoInteresseId:
-                            cursoId,
-                        }
+                        cursoInteresseId:
+                          cursoId,
+                      }
                       : {}
                   ),
 
                   ...(
                     !leadExistente
                       .poloInteresseId &&
-                    poloId
+                      poloId
                       ? {
-                          poloInteresseId:
-                            poloId,
-                        }
+                        poloInteresseId:
+                          poloId,
+                      }
                       : {}
                   ),
                 },
@@ -2263,14 +2265,14 @@ export async function processarSubmissaoCaptacao(
               submissao
                 .formulario
                 ?.prazoPrimeiroContatoMinutos ??
-                15
+              15
             );
 
           const prazoPrimeiroContato =
             new Date(
               agora.getTime() +
-                prazoMinutos *
-                  60_000
+              prazoMinutos *
+              60_000
             );
 
           const lead =
@@ -2373,7 +2375,7 @@ export async function processarSubmissaoCaptacao(
 
           let tarefaId:
             number | null =
-              null;
+            null;
 
           if (criarTarefa) {
             const tarefa =
@@ -2473,8 +2475,24 @@ export async function processarSubmissaoCaptacao(
         }
       );
 
+    /*
+   * A partir daqui o resultado da
+   * captação já foi definitivamente
+   * persistido.
+   *
+   * Marcamos como finalizada ANTES
+   * de qualquer integração externa.
+   * Assim uma eventual falha de
+   * webhook jamais transforma um
+   * lead já processado em ERRO.
+   */
     finalizada =
       true;
+
+    await emitirEventosSaidaSubmissaoCaptacaoSeguro({
+      submissaoId,
+      instituicaoId,
+    });
 
     return {
       submissaoId,
@@ -2506,7 +2524,7 @@ export async function processarSubmissaoCaptacao(
     ) {
       const erroCaptacao =
         error instanceof
-        ErroProcessamentoCaptacao
+          ErroProcessamentoCaptacao
           ? error
           : null;
 
@@ -2530,34 +2548,56 @@ export async function processarSubmissaoCaptacao(
           error
         );
 
-      try {
-        await prisma.submissaoCaptacaoLead.updateMany({
-          where: {
-            id:
-              submissaoId,
+            try {
+        const registroFalha =
+          await prisma.submissaoCaptacaoLead.updateMany({
+            where: {
+              id:
+                submissaoId,
+
+              instituicaoId,
+            },
+
+            data: {
+              status:
+                statusFinal,
+
+              resultadoDeduplicacao:
+                ResultadoDeduplicacaoCaptacaoLead.NAO_VERIFICADA,
+
+              codigoErro,
+
+              mensagemErro:
+                textoErro,
+
+              processadoEm:
+                statusFinal ===
+                StatusSubmissaoCaptacaoLead.REJEITADA
+                  ? new Date()
+                  : null,
+            },
+          });
+
+        /*
+         * REJEITADA é um resultado de
+         * negócio/validação que pode
+         * interessar aos sistemas
+         * externos.
+         *
+         * ERRO técnico não é emitido
+         * aqui como evento comercial.
+         */
+        if (
+          registroFalha.count === 1 &&
+          statusFinal ===
+            StatusSubmissaoCaptacaoLead.REJEITADA
+        ) {
+          await emitirEventosSaidaSubmissaoCaptacaoSeguro({
+            submissaoId,
             instituicaoId,
-          },
-
-          data: {
-            status:
-              statusFinal,
-
-            resultadoDeduplicacao:
-              ResultadoDeduplicacaoCaptacaoLead.NAO_VERIFICADA,
-
-            codigoErro,
-
-            mensagemErro:
-              textoErro,
-
-            processadoEm:
-              statusFinal ===
-              StatusSubmissaoCaptacaoLead.REJEITADA
-                ? new Date()
-                : null,
-          },
-        });
-      } catch (
+          });
+        }
+         } catch (
         erroAoRegistrar
       ) {
         console.error(

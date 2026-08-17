@@ -464,7 +464,7 @@ function obterIp(request: NextRequest) {
 function responderErro(erro: unknown) {
   if (
     erro instanceof
-      Prisma.PrismaClientKnownRequestError &&
+    Prisma.PrismaClientKnownRequestError &&
     erro.code === "P2002"
   ) {
     return responder(
@@ -618,19 +618,74 @@ export async function GET(
       }
     }
 
+    let podeEnviarArquivo =
+      !usuario.impersonacao &&
+      item.status !== StatusItemBiblioteca.ARQUIVADO;
+
+    if (podeEnviarArquivo) {
+      try {
+        exigirPermissaoBiblioteca(
+          usuario,
+          contexto,
+          "biblioteca.arquivos.upload"
+        );
+      } catch {
+        podeEnviarArquivo = false;
+      }
+    } 
+
     return responder({
-      ok: true,
-      item: serializarItemParaResposta(item),
-      permissoes: {
-        podeEditar,
-        impersonacao: usuario.impersonacao,
-      },
-      configuracao: {
-        permitirDownload:
-          contexto.configuracao?.permitirDownload ??
-          false,
-      },
-    });
+  ok: true,
+
+  instituicaoId:
+  contexto.instituicaoId,
+
+  item:
+    serializarItemParaResposta(
+      item
+    ),
+
+  permissoes: {
+    podeEditar,
+    podeEnviarArquivo,
+    impersonacao:
+      usuario.impersonacao,
+  },
+
+  configuracao: {
+    permitirDownload:
+      contexto.configuracao
+        ?.permitirDownload ??
+      false,
+  },
+
+  armazenamento: {
+    contratadoBytes:
+      contexto.armazenamento
+        .contratadoBytes
+        .toString(),
+
+    extraBytes:
+      contexto.armazenamento
+        .extraBytes
+        .toString(),
+
+    limiteBytes:
+      contexto.armazenamento
+        .limiteBytes
+        .toString(),
+
+    utilizadoBytes:
+      contexto.armazenamento
+        .utilizadoBytes
+        .toString(),
+
+    disponivelBytes:
+      contexto.armazenamento
+        .disponivelBytes
+        .toString(),
+  },
+});
   } catch (erro) {
     return responderErro(erro);
   }
@@ -776,7 +831,7 @@ export async function PATCH(
 
     if (
       modalidade ===
-        ModalidadeAcessoBiblioteca.DOWNLOAD_AUTORIZADO &&
+      ModalidadeAcessoBiblioteca.DOWNLOAD_AUTORIZADO &&
       !contexto.configuracao?.permitirDownload
     ) {
       falhar(
@@ -788,7 +843,7 @@ export async function PATCH(
 
     const permitirDownload = Boolean(
       contexto.configuracao?.permitirDownload &&
-        permitirDownloadSolicitado
+      permitirDownloadSolicitado
     );
     const anoMaximo = new Date().getFullYear() + 2;
     const ip = obterIp(request);

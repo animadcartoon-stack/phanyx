@@ -1,14 +1,21 @@
 "use client";
 
+import { upload } from "@vercel/blob/client";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+
 import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
-import type { FormEvent } from "react";
+
+import type {
+  ChangeEvent,
+  FormEvent,
+} from "react";
 
 type AutorItem = {
   funcao: string;
@@ -42,6 +49,14 @@ type ArquivoItem = {
   principal: boolean;
   enviadoEm: string;
   atualizadoEm: string;
+};
+
+type ArmazenamentoBiblioteca = {
+  contratadoBytes: string;
+  extraBytes: string;
+  limiteBytes: string;
+  utilizadoBytes: string;
+  disponivelBytes: string;
 };
 
 type ExemplarItem = {
@@ -154,17 +169,26 @@ type FormularioItem = {
 
 type RespostaItem = {
   ok?: boolean;
+
+  instituicaoId?: number;
+
   item?: ItemDetalhe;
+
   mensagem?: string;
   error?: string;
   codigo?: string;
+
   permissoes?: {
     podeEditar: boolean;
+    podeEnviarArquivo: boolean;
     impersonacao: boolean;
   };
+
   configuracao?: {
     permitirDownload: boolean;
   };
+
+  armazenamento?: ArmazenamentoBiblioteca;
 };
 
 type Toast = {
@@ -203,6 +227,98 @@ const MODALIDADES = [
   "STREAMING",
   "LINK_EXTERNO",
 ] as const;
+
+const EXTENSOES_UPLOAD_BIBLIOTECA =
+  new Set([
+    "pdf",
+    "epub",
+
+    "mp3",
+    "m4a",
+    "wav",
+    "ogg",
+
+    "mp4",
+    "webm",
+    "mov",
+  ]);
+
+const ACCEPT_UPLOAD_BIBLIOTECA = [
+  ".pdf",
+  ".epub",
+  ".mp3",
+  ".m4a",
+  ".wav",
+  ".ogg",
+  ".mp4",
+  ".webm",
+  ".mov",
+].join(",");
+
+function obterExtensaoUpload(
+  nomeArquivo: string
+) {
+  const nome =
+    String(nomeArquivo || "").trim();
+
+  const ultimaParte =
+    nome
+      .split(".")
+      .pop()
+      ?.toLowerCase() || "";
+
+  if (
+    !ultimaParte ||
+    ultimaParte ===
+    nome.toLowerCase()
+  ) {
+    return "";
+  }
+
+  return ultimaParte;
+}
+
+function limparNomeArquivoUpload(
+  nomeArquivo: string
+) {
+  const nomeOriginal =
+    String(nomeArquivo || "").trim();
+
+  const extensao =
+    obterExtensaoUpload(
+      nomeOriginal
+    );
+
+  const semExtensao =
+    extensao
+      ? nomeOriginal.slice(
+        0,
+        -(extensao.length + 1)
+      )
+      : nomeOriginal;
+
+  const nomeSeguro =
+    semExtensao
+      .normalize("NFD")
+      .replace(
+        /[\u0300-\u036f]/g,
+        ""
+      )
+      .replace(
+        /[^a-zA-Z0-9_-]+/g,
+        "-"
+      )
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "")
+      .slice(0, 120) ||
+    "arquivo";
+
+  if (!extensao) {
+    return nomeSeguro;
+  }
+
+  return `${nomeSeguro}.${extensao}`;
+}
 
 function rotuloEnum(valor?: string | null) {
   if (!valor) return "—";
@@ -339,6 +455,44 @@ export default function BibliotecaItemPage() {
   const [impersonacao, setImpersonacao] = useState(false);
   const [downloadPermitido, setDownloadPermitido] =
     useState(false);
+
+  const [
+    instituicaoId,
+    setInstituicaoId,
+  ] =
+    useState<number | null>(null);
+
+  const [
+    podeEnviarArquivo,
+    setPodeEnviarArquivo,
+  ] =
+    useState(false);
+
+  const [
+    armazenamento,
+    setArmazenamento,
+  ] =
+    useState<ArmazenamentoBiblioteca | null>(
+      null
+    );
+
+  const [
+    enviandoArquivo,
+    setEnviandoArquivo,
+  ] =
+    useState(false);
+
+  const [
+    progressoUpload,
+    setProgressoUpload,
+  ] =
+    useState(0);
+
+  const arquivoInputRef =
+    useRef<HTMLInputElement | null>(
+      null
+    );
+
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
   const [editando, setEditando] = useState(false);
@@ -388,7 +542,24 @@ export default function BibliotecaItemPage() {
         );
         setDownloadPermitido(
           resultado.configuracao?.permitirDownload ===
-            true
+          true
+        );
+        setInstituicaoId(
+          Number.isInteger(
+            resultado.instituicaoId
+          )
+            ? resultado.instituicaoId!
+            : null
+        );
+
+        setPodeEnviarArquivo(
+          resultado.permissoes
+            ?.podeEnviarArquivo === true
+        );
+
+        setArmazenamento(
+          resultado.armazenamento ||
+          null
         );
       } catch (falha) {
         if (
@@ -447,9 +618,9 @@ export default function BibliotecaItemPage() {
     setFormulario((atual) =>
       atual
         ? {
-            ...atual,
-            [campo]: valor,
-          }
+          ...atual,
+          [campo]: valor,
+        }
         : atual
     );
   }
@@ -460,6 +631,205 @@ export default function BibliotecaItemPage() {
     }
 
     setEditando(false);
+  }
+
+  async function enviarArquivo(
+    evento: ChangeEvent<HTMLInputElement>
+  ) {
+    const arquivo =
+      evento.target.files?.[0];
+
+    /*
+     * Permite escolher novamente
+     * o mesmo arquivo depois.
+     */
+    evento.target.value = "";
+
+    if (!arquivo) {
+      return;
+    }
+
+    if (
+      enviandoArquivo ||
+      !podeEnviarArquivo
+    ) {
+      return;
+    }
+
+    if (
+      !instituicaoId ||
+      !Number.isInteger(
+        instituicaoId
+      )
+    ) {
+      setToast({
+        tipo: "erro",
+        mensagem:
+          "Não foi possível identificar a instituição da Biblioteca Virtual.",
+      });
+
+      return;
+    }
+
+    if (!armazenamento) {
+      setToast({
+        tipo: "erro",
+        mensagem:
+          "Não foi possível consultar o armazenamento disponível.",
+      });
+
+      return;
+    }
+
+    const extensao =
+      obterExtensaoUpload(
+        arquivo.name
+      );
+
+    if (
+      !EXTENSOES_UPLOAD_BIBLIOTECA.has(
+        extensao
+      )
+    ) {
+      setToast({
+        tipo: "erro",
+        mensagem:
+          "Formato não permitido. Envie PDF, EPUB, áudio ou vídeo compatível.",
+      });
+
+      return;
+    }
+
+    let disponivel = 0n;
+
+    try {
+      disponivel =
+        BigInt(
+          armazenamento
+            .disponivelBytes ||
+          "0"
+        );
+    } catch {
+      disponivel = 0n;
+    }
+
+    const tamanhoArquivo =
+      BigInt(arquivo.size);
+
+    if (
+      tamanhoArquivo >
+      disponivel
+    ) {
+      setToast({
+        tipo: "erro",
+        mensagem:
+          `O arquivo possui ${formatarBytes(
+            String(arquivo.size)
+          )}, mas existem apenas ${formatarBytes(
+            armazenamento.disponivelBytes
+          )} disponíveis.`,
+      });
+
+      return;
+    }
+
+    const nomeSeguro =
+      limparNomeArquivoUpload(
+        arquivo.name
+      );
+
+    const pathname = [
+      "biblioteca",
+      `instituicao-${instituicaoId}`,
+      `item-${itemId}`,
+      nomeSeguro,
+    ].join("/");
+
+    setEnviandoArquivo(true);
+    setProgressoUpload(0);
+
+    try {
+      await upload(
+        pathname,
+        arquivo,
+        {
+          access: "private",
+
+          handleUploadUrl:
+            `/api/admin/biblioteca/acervo/${itemId}/arquivos/upload`,
+
+          clientPayload:
+            JSON.stringify({
+              nomeOriginal:
+                arquivo.name,
+
+              tamanhoBytes:
+                arquivo.size,
+
+              mimeType:
+                arquivo.type || "",
+            }),
+
+          multipart: true,
+
+          contentType:
+            arquivo.type ||
+            undefined,
+
+          onUploadProgress(
+            progresso
+          ) {
+            setProgressoUpload(
+              Math.max(
+                0,
+                Math.min(
+                  100,
+                  Math.round(
+                    progresso.percentage
+                  )
+                )
+              )
+            );
+          },
+        }
+      );
+
+      setProgressoUpload(100);
+
+      setToast({
+        tipo: "sucesso",
+        mensagem:
+          "Arquivo enviado. O PHANYX está concluindo o registro no acervo.",
+      });
+
+      /*
+       * O callback de conclusão
+       * do Blob pode terminar
+       * instantes depois do upload
+       * do navegador.
+       */
+      window.setTimeout(
+        () => {
+          setAtualizacao(
+            (valor) =>
+              valor + 1
+          );
+        },
+        1_500
+      );
+    } catch (falha) {
+      setToast({
+        tipo: "erro",
+        mensagem:
+          falha instanceof Error
+            ? falha.message
+            : "Não foi possível enviar o arquivo.",
+      });
+    } finally {
+      setEnviandoArquivo(
+        false
+      );
+    }
   }
 
   async function salvar(evento: FormEvent<HTMLFormElement>) {
@@ -1314,13 +1684,109 @@ export default function BibliotecaItemPage() {
             <article className="bib-card bib-detail-section">
               <header className="bib-detail-section-heading">
                 <div>
-                  <span aria-hidden="true">📎</span>
+                  <span aria-hidden="true">
+                    📎
+                  </span>
+
                   <div>
-                    <h2>Arquivos digitais</h2>
-                    <p>{item._count.arquivos} arquivo(s) vinculado(s).</p>
+                    <h2>
+                      Arquivos digitais
+                    </h2>
+
+                    <p>
+                      {item._count.arquivos}{" "}
+                      arquivo(s) vinculado(s).
+                    </p>
+
+                    {armazenamento ? (
+                      <small>
+                        {formatarBytes(
+                          armazenamento
+                            .utilizadoBytes
+                        )}{" "}
+                        utilizados de{" "}
+                        {formatarBytes(
+                          armazenamento
+                            .limiteBytes
+                        )}
+                        {" · "}
+                        {formatarBytes(
+                          armazenamento
+                            .disponivelBytes
+                        )}{" "}
+                        disponíveis
+                      </small>
+                    ) : null}
                   </div>
                 </div>
+
+                {podeEnviarArquivo &&
+                  !impersonacao ? (
+                  <div>
+                    <input
+                      ref={arquivoInputRef}
+                      type="file"
+                      accept={
+                        ACCEPT_UPLOAD_BIBLIOTECA
+                      }
+                      hidden
+                      disabled={
+                        enviandoArquivo
+                      }
+                      onChange={
+                        enviarArquivo
+                      }
+                    />
+
+                    <button
+                      type="button"
+                      className="bib-button bib-button-primary"
+                      disabled={
+                        enviandoArquivo
+                      }
+                      onClick={() =>
+                        arquivoInputRef
+                          .current
+                          ?.click()
+                      }
+                    >
+                      {enviandoArquivo
+                        ? `Enviando ${progressoUpload}%`
+                        : "⬆️ Enviar arquivo"}
+                    </button>
+                  </div>
+                ) : null}
               </header>
+
+              {enviandoArquivo ? (
+                <div className="bib-feedback">
+                  <div
+                    style={{
+                      width: "100%",
+                    }}
+                  >
+                    <strong>
+                      Enviando arquivo...
+                    </strong>
+
+                    <p>
+                      {progressoUpload}% concluído
+                    </p>
+
+                    <progress
+                      value={
+                        progressoUpload
+                      }
+                      max={100}
+                      style={{
+                        width: "100%",
+                        marginTop: "0.5rem",
+                      }}
+                    />
+                  </div>
+                </div>
+              ) : null}
+
               {item.arquivos.length ? (
                 <div className="bib-related-list">
                   {item.arquivos.map((arquivo) => (
