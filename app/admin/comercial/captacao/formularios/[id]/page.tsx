@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import ProtecaoDadosFormulario from "./ProtecaoDadosFormulario";
 import {
     FormEvent,
     useCallback,
@@ -1482,6 +1483,15 @@ export default function ConfigurarFormularioCaptacaoPage() {
                         </div>
 
                         <div className="flex flex-wrap gap-2">
+
+                            <Link
+                                href={`/admin/comercial/captacao/formularios/${formularioId}/visualizar`}
+                                target="_blank"
+                                className={`rounded-xl border px-4 py-2.5 text-sm font-semibold ${c.botaoSecundario}`}
+                            >
+                                👁️ Pré-visualizar
+                            </Link>
+
                             <button
                                 type="button"
                                 onClick={() =>
@@ -1518,6 +1528,27 @@ export default function ConfigurarFormularioCaptacaoPage() {
                         </div>
                     </div>
                 </section>
+
+                <ProtecaoDadosFormulario
+                    formularioId={
+                        formularioId
+                    }
+                    podeGerenciar={
+                        dados.permissoes
+                            .podeGerenciar
+                    }
+                    arquivado={
+                        dados.formulario
+                            .status ===
+                        "ARQUIVADO"
+                    }
+                    temaEscuro={
+                        temaEscuro
+                    }
+                    onAtualizado={() =>
+                        carregar(true)
+                    }
+                />
 
                 <section className="grid gap-4 sm:grid-cols-3">
                     <div
@@ -1687,25 +1718,24 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                                         {nomeTipo(
                                                             campo.tipo
                                                         )}
+
                                                         {" • "}
+
                                                         {nomeMapeamento(
                                                             campo.mapeamento
                                                         )}
-                                                        {" • "}
-                                                        Largura{" "}
-                                                        {
-                                                            campo.largura
-                                                        }
-                                                        /12
-                                                    </p>
 
-                                                    <p
-                                                        className={`mt-1 text-xs ${c.muted}`}
-                                                    >
-                                                        Chave:{" "}
-                                                        {
-                                                            campo.chave
-                                                        }
+                                                        {" • "}
+
+                                                        {campo.largura === 12
+                                                            ? "Linha inteira"
+                                                            : campo.largura === 6
+                                                                ? "Metade da linha"
+                                                                : campo.largura === 4
+                                                                    ? "Um terço da linha"
+                                                                    : campo.largura === 3
+                                                                        ? "Um quarto da linha"
+                                                                        : "Tamanho personalizado"}
                                                     </p>
 
                                                     {campo.textoAjuda && (
@@ -1880,6 +1910,14 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                 >
                                     {dados
                                         .mapeamentosDisponiveis
+                                        .filter(
+                                            (item) =>
+                                                item !==
+                                                "CONSENTIMENTO" ||
+                                                campoEmEdicao
+                                                    ?.mapeamento ===
+                                                "CONSENTIMENTO"
+                                        )
                                         .map(
                                             (
                                                 item

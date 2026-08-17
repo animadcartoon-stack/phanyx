@@ -47,7 +47,7 @@ function ehMasterReal(
     user.isMasterAdmin === true &&
     user.impersonacao === false &&
     user.email.trim().toLowerCase() ===
-      "academicophanyx@gmail.com"
+    "academicophanyx@gmail.com"
   );
 }
 
@@ -222,7 +222,7 @@ function statusOuNull(
     String(valor ?? "")
       .trim()
       .toUpperCase() as
-      StatusFormularioCaptacaoLead;
+    StatusFormularioCaptacaoLead;
 
   return Object.values(
     StatusFormularioCaptacaoLead
@@ -238,7 +238,7 @@ function tipoTarefaOuNull(
     String(valor ?? "")
       .trim()
       .toUpperCase() as
-      TipoTarefaComercial;
+    TipoTarefaComercial;
 
   return Object.values(
     TipoTarefaComercial
@@ -300,7 +300,7 @@ function responderErro(
 
   if (
     error instanceof
-      Prisma.PrismaClientKnownRequestError &&
+    Prisma.PrismaClientKnownRequestError &&
     error.code === "P2002"
   ) {
     return NextResponse.json(
@@ -865,17 +865,28 @@ export async function PATCH(
       );
     }
 
+    if (
+      atual.status ===
+      StatusFormularioCaptacaoLead.ARQUIVADO
+    ) {
+      throw new ErroHttp(
+        409,
+        "Este formulário está arquivado e não pode mais ser alterado.",
+        "FORMULARIO_ARQUIVADO"
+      );
+    }
+
     const body =
       (await req
         .json()
         .catch(
           () => null
         )) as
-        | Record<
-            string,
-            unknown
-          >
-        | null;
+      | Record<
+        string,
+        unknown
+      >
+      | null;
 
     if (!body) {
       throw new ErroHttp(
@@ -962,7 +973,7 @@ export async function PATCH(
       if (
         !informado ||
         informado.length >
-          180
+        180
       ) {
         throw new ErroHttp(
           400,
@@ -1064,7 +1075,7 @@ export async function PATCH(
       if (
         !informado ||
         informado.length >
-          250
+        250
       ) {
         throw new ErroHttp(
           400,
@@ -1083,8 +1094,8 @@ export async function PATCH(
         "descricao"
       )
         ? textoOuNull(
-            body.descricao
-          )
+          body.descricao
+        )
         : atual.descricao;
 
     const mensagemSucesso =
@@ -1093,8 +1104,8 @@ export async function PATCH(
         "mensagemSucesso"
       )
         ? textoOuNull(
-            body.mensagemSucesso
-          )
+          body.mensagemSucesso
+        )
         : atual.mensagemSucesso;
 
     const urlRedirecionamento =
@@ -1103,8 +1114,8 @@ export async function PATCH(
         "urlRedirecionamento"
       )
         ? textoOuNull(
-            body.urlRedirecionamento
-          )
+          body.urlRedirecionamento
+        )
         : atual.urlRedirecionamento;
 
     let canalId =
@@ -1118,7 +1129,7 @@ export async function PATCH(
     ) {
       if (
         body.canalId ===
-          null ||
+        null ||
         body.canalId === ""
       ) {
         canalId = null;
@@ -1173,7 +1184,7 @@ export async function PATCH(
     ) {
       if (
         body.campanhaId ===
-          null ||
+        null ||
         body.campanhaId === ""
       ) {
         campanhaId = null;
@@ -1217,7 +1228,7 @@ export async function PATCH(
           canalId &&
           campanha.canalId &&
           campanha.canalId !==
-            canalId
+          canalId
         ) {
           throw new ErroHttp(
             400,
@@ -1263,7 +1274,7 @@ export async function PATCH(
       if (
         campanhaAtual?.canalId &&
         campanhaAtual.canalId !==
-          canalId
+        canalId
       ) {
         throw new ErroHttp(
           400,
@@ -1284,9 +1295,9 @@ export async function PATCH(
     ) {
       if (
         body.funilPadraoId ===
-          null ||
+        null ||
         body.funilPadraoId ===
-          ""
+        ""
       ) {
         funilPadraoId =
           null;
@@ -1343,9 +1354,9 @@ export async function PATCH(
     ) {
       if (
         body.etapaPadraoId ===
-          null ||
+        null ||
         body.etapaPadraoId ===
-          ""
+        ""
       ) {
         etapaPadraoId =
           null;
@@ -1390,7 +1401,7 @@ export async function PATCH(
         if (
           funilPadraoId &&
           etapa.funilId !==
-            funilPadraoId
+          funilPadraoId
         ) {
           throw new ErroHttp(
             400,
@@ -1434,7 +1445,7 @@ export async function PATCH(
       if (
         etapa &&
         etapa.funilId !==
-          funilPadraoId
+        funilPadraoId
       ) {
         etapaPadraoId =
           null;
@@ -1452,9 +1463,9 @@ export async function PATCH(
     ) {
       if (
         body.equipePadraoId ===
-          null ||
+        null ||
         body.equipePadraoId ===
-          ""
+        ""
       ) {
         equipePadraoId =
           null;
@@ -1467,16 +1478,16 @@ export async function PATCH(
         const equipe =
           informado
             ? await prisma.equipeComercial.findFirst({
-                where: {
-                  id: informado,
-                  instituicaoId,
-                  ativo: true,
-                },
+              where: {
+                id: informado,
+                instituicaoId,
+                ativo: true,
+              },
 
-                select: {
-                  id: true,
-                },
-              })
+              select: {
+                id: true,
+              },
+            })
             : null;
 
         if (!equipe) {
@@ -1503,9 +1514,9 @@ export async function PATCH(
     ) {
       if (
         body.responsavelPadraoId ===
-          null ||
+        null ||
         body.responsavelPadraoId ===
-          ""
+        ""
       ) {
         responsavelPadraoId =
           null;
@@ -1518,19 +1529,19 @@ export async function PATCH(
         const funcionario =
           informado
             ? await prisma.funcionario.findFirst({
-                where: {
-                  id: informado,
-                  instituicaoId,
-                  ativo: true,
+              where: {
+                id: informado,
+                instituicaoId,
+                ativo: true,
 
-                  statusFuncionario:
-                    "ATIVO",
-                },
+                statusFuncionario:
+                  "ATIVO",
+              },
 
-                select: {
-                  id: true,
-                },
-              })
+              select: {
+                id: true,
+              },
+            })
             : null;
 
         if (!funcionario) {
@@ -1557,9 +1568,9 @@ export async function PATCH(
     ) {
       if (
         body.cursoPadraoId ===
-          null ||
+        null ||
         body.cursoPadraoId ===
-          ""
+        ""
       ) {
         cursoPadraoId =
           null;
@@ -1572,18 +1583,18 @@ export async function PATCH(
         const curso =
           informado
             ? await prisma.curso.findFirst({
-                where: {
-                  id: informado,
-                  instituicaoId,
-                  ativo: true,
-                  excluidoEm:
-                    null,
-                },
+              where: {
+                id: informado,
+                instituicaoId,
+                ativo: true,
+                excluidoEm:
+                  null,
+              },
 
-                select: {
-                  id: true,
-                },
-              })
+              select: {
+                id: true,
+              },
+            })
             : null;
 
         if (!curso) {
@@ -1610,9 +1621,9 @@ export async function PATCH(
     ) {
       if (
         body.poloPadraoId ===
-          null ||
+        null ||
         body.poloPadraoId ===
-          ""
+        ""
       ) {
         poloPadraoId =
           null;
@@ -1625,16 +1636,16 @@ export async function PATCH(
         const polo =
           informado
             ? await prisma.polo.findFirst({
-                where: {
-                  id: informado,
-                  instituicaoId,
-                  ativo: true,
-                },
+              where: {
+                id: informado,
+                instituicaoId,
+                ativo: true,
+              },
 
-                select: {
-                  id: true,
-                },
-              })
+              select: {
+                id: true,
+              },
+            })
             : null;
 
         if (!polo) {
@@ -1676,15 +1687,15 @@ export async function PATCH(
         informado;
     }
 
-    const publico =
+    let publico =
       possuiCampo(
         body,
         "publico"
       )
         ? booleano(
-            body.publico,
-            atual.publico
-          )
+          body.publico,
+          atual.publico
+        )
         : atual.publico;
 
     let ativo =
@@ -1693,9 +1704,9 @@ export async function PATCH(
         "ativo"
       )
         ? booleano(
-            body.ativo,
-            atual.ativo
-          )
+          body.ativo,
+          atual.ativo
+        )
         : atual.ativo;
 
     const exigeConsentimento =
@@ -1704,9 +1715,9 @@ export async function PATCH(
         "exigeConsentimento"
       )
         ? booleano(
-            body.exigeConsentimento,
-            atual.exigeConsentimento
-          )
+          body.exigeConsentimento,
+          atual.exigeConsentimento
+        )
         : atual.exigeConsentimento;
 
     const textoConsentimento =
@@ -1715,8 +1726,8 @@ export async function PATCH(
         "textoConsentimento"
       )
         ? textoOuNull(
-            body.textoConsentimento
-          )
+          body.textoConsentimento
+        )
         : atual.textoConsentimento;
 
     const versaoConsentimento =
@@ -1725,8 +1736,8 @@ export async function PATCH(
         "versaoConsentimento"
       )
         ? textoOuNull(
-            body.versaoConsentimento
-          )
+          body.versaoConsentimento
+        )
         : atual.versaoConsentimento;
 
     const politicaPrivacidadeUrl =
@@ -1735,24 +1746,157 @@ export async function PATCH(
         "politicaPrivacidadeUrl"
       )
         ? textoOuNull(
-            body.politicaPrivacidadeUrl
-          )
+          body.politicaPrivacidadeUrl
+        )
         : atual.politicaPrivacidadeUrl;
 
     if (
       status ===
-        StatusFormularioCaptacaoLead.PUBLICADO &&
-      exigeConsentimento &&
-      (
-        !textoConsentimento ||
-        !versaoConsentimento
-      )
+      StatusFormularioCaptacaoLead.PUBLICADO
     ) {
-      throw new ErroHttp(
-        400,
-        "Antes de publicar, informe o texto e a versão do consentimento LGPD.",
-        "CONSENTIMENTO_INCOMPLETO"
-      );
+      const pendencias:
+        string[] = [];
+
+      const camposAtivos =
+        atual.campos.filter(
+          (campo) =>
+            campo.ativo
+        );
+
+      if (
+        camposAtivos.length ===
+        0
+      ) {
+        pendencias.push(
+          "Adicione pelo menos um campo ao formulário."
+        );
+      }
+
+      const campoNome =
+        camposAtivos.find(
+          (campo) =>
+            campo.mapeamento ===
+            "NOME"
+        );
+
+      if (!campoNome) {
+        pendencias.push(
+          "Adicione o campo Nome completo."
+        );
+      } else if (
+        !campoNome.obrigatorio
+      ) {
+        pendencias.push(
+          "Marque Nome completo como obrigatório."
+        );
+      }
+
+      const campoEmail =
+        camposAtivos.find(
+          (campo) =>
+            campo.mapeamento ===
+            "EMAIL"
+        );
+
+      if (!campoEmail) {
+        pendencias.push(
+          "Adicione o campo E-mail."
+        );
+      } else if (
+        !campoEmail.obrigatorio
+      ) {
+        pendencias.push(
+          "Marque E-mail como obrigatório."
+        );
+      }
+
+      const usaCurso =
+        camposAtivos.some(
+          (campo) =>
+            campo.mapeamento ===
+            "CURSO_INTERESSE_ID"
+        );
+
+      if (usaCurso) {
+        const totalCursos =
+          await prisma.curso.count({
+            where: {
+              instituicaoId,
+              ativo: true,
+              excluidoEm: null,
+            },
+          });
+
+        if (
+          totalCursos ===
+          0
+        ) {
+          pendencias.push(
+            "Cadastre pelo menos um curso ativo antes de publicar."
+          );
+        }
+      }
+
+      const usaPolo =
+        camposAtivos.some(
+          (campo) =>
+            campo.mapeamento ===
+            "POLO_INTERESSE_ID"
+        );
+
+      if (usaPolo) {
+        const totalPolos =
+          await prisma.polo.count({
+            where: {
+              instituicaoId,
+              ativo: true,
+            },
+          });
+
+        if (
+          totalPolos ===
+          0
+        ) {
+          pendencias.push(
+            "Cadastre pelo menos uma unidade ou polo ativo antes de publicar."
+          );
+        }
+      }
+
+      if (
+        exigeConsentimento &&
+        (
+          !textoConsentimento ||
+          !versaoConsentimento
+        )
+      ) {
+        pendencias.push(
+          "Revise e salve a seção Proteção de dados."
+        );
+      }
+
+      if (
+        pendencias.length >
+        0
+      ) {
+        throw new ErroHttp(
+          400,
+          "O formulário ainda não está pronto para publicação.",
+          "FORMULARIO_INCOMPLETO",
+          {
+            pendencias,
+          }
+        );
+      }
+
+      /*
+       * Publicar significa tornar
+       * disponível pelo endereço público.
+       * O administrador não precisa
+       * entender a diferença entre
+       * status e flag `publico`.
+       */
+      publico = true;
     }
 
     const bloquearDuplicados =
@@ -1761,9 +1905,9 @@ export async function PATCH(
         "bloquearDuplicados"
       )
         ? booleano(
-            body.bloquearDuplicados,
-            atual.bloquearDuplicados
-          )
+          body.bloquearDuplicados,
+          atual.bloquearDuplicados
+        )
         : atual.bloquearDuplicados;
 
     const atualizarLeadExistente =
@@ -1772,9 +1916,9 @@ export async function PATCH(
         "atualizarLeadExistente"
       )
         ? booleano(
-            body.atualizarLeadExistente,
-            atual.atualizarLeadExistente
-          )
+          body.atualizarLeadExistente,
+          atual.atualizarLeadExistente
+        )
         : atual.atualizarLeadExistente;
 
     const criarTarefaPrimeiroContato =
@@ -1783,9 +1927,9 @@ export async function PATCH(
         "criarTarefaPrimeiroContato"
       )
         ? booleano(
-            body.criarTarefaPrimeiroContato,
-            atual.criarTarefaPrimeiroContato
-          )
+          body.criarTarefaPrimeiroContato,
+          atual.criarTarefaPrimeiroContato
+        )
         : atual.criarTarefaPrimeiroContato;
 
     let tipoTarefaInicial =
@@ -1849,9 +1993,9 @@ export async function PATCH(
         "recaptchaAtivo"
       )
         ? booleano(
-            body.recaptchaAtivo,
-            atual.recaptchaAtivo
-          )
+          body.recaptchaAtivo,
+          atual.recaptchaAtivo
+        )
         : atual.recaptchaAtivo;
 
     const honeypotAtivo =
@@ -1860,9 +2004,9 @@ export async function PATCH(
         "honeypotAtivo"
       )
         ? booleano(
-            body.honeypotAtivo,
-            atual.honeypotAtivo
-          )
+          body.honeypotAtivo,
+          atual.honeypotAtivo
+        )
         : atual.honeypotAtivo;
 
     let limiteSubmissoesPorIpHora =
@@ -1896,7 +2040,7 @@ export async function PATCH(
 
     let configuracaoVisual:
       any =
-        atual.configuracaoVisual;
+      atual.configuracaoVisual;
 
     if (
       possuiCampo(
@@ -1912,7 +2056,7 @@ export async function PATCH(
 
     let metadados:
       any =
-        atual.metadados;
+      atual.metadados;
 
     if (
       possuiCampo(
@@ -1946,7 +2090,7 @@ export async function PATCH(
     if (
       !ativo &&
       status ===
-        StatusFormularioCaptacaoLead.PUBLICADO
+      StatusFormularioCaptacaoLead.PUBLICADO
     ) {
       status =
         StatusFormularioCaptacaoLead.PAUSADO;
@@ -1976,7 +2120,13 @@ export async function PATCH(
       ativo = true;
 
       pausadoEm =
-        agora;
+        atual.status ===
+          StatusFormularioCaptacaoLead.PAUSADO
+          ? (
+            atual.pausadoEm ??
+            agora
+          )
+          : agora;
 
       arquivadoEm =
         null;
@@ -2054,6 +2204,10 @@ export async function PATCH(
         pausadoEm,
         arquivadoEm,
 
+        versao: {
+          increment: 1,
+        },
+
         atualizadoPorId:
           user.id,
       },
@@ -2071,13 +2225,13 @@ export async function PATCH(
 
         message:
           status ===
-          StatusFormularioCaptacaoLead.PUBLICADO
+            StatusFormularioCaptacaoLead.PUBLICADO
             ? "Formulário publicado com sucesso."
             : status ===
-                StatusFormularioCaptacaoLead.PAUSADO
+              StatusFormularioCaptacaoLead.PAUSADO
               ? "Formulário pausado com sucesso."
               : status ===
-                  StatusFormularioCaptacaoLead.ARQUIVADO
+                StatusFormularioCaptacaoLead.ARQUIVADO
                 ? "Formulário arquivado com sucesso."
                 : "Formulário atualizado com sucesso.",
 

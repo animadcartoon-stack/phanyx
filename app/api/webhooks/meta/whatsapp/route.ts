@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { StatusWhatsAppMensagem } from "@prisma/client";
-
+import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
 const VERIFY_TOKEN =
-  process.env.META_WHATSAPP_WEBHOOK_VERIFY_TOKEN;
+  process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN;
 
 const META_APP_SECRET =
   process.env.META_WHATSAPP_APP_SECRET;
@@ -92,6 +92,73 @@ function converterTimestampMeta(
   return new Date(numero * 1000);
 }
 
+function validarAssinaturaMeta(params: {
+  rawBody: string;
+  assinatura: string;
+  appSecret: string;
+}): boolean {
+  const {
+    rawBody,
+    assinatura,
+    appSecret,
+  } = params;
+
+  const prefixo = "sha256=";
+
+  if (
+    !assinatura.startsWith(prefixo)
+  ) {
+    return false;
+  }
+
+  const assinaturaRecebida =
+    assinatura
+      .slice(prefixo.length)
+      .trim()
+      .toLowerCase();
+
+  if (
+    !/^[a-f0-9]{64}$/.test(
+      assinaturaRecebida
+    )
+  ) {
+    return false;
+  }
+
+  const assinaturaEsperada =
+    crypto
+      .createHmac(
+        "sha256",
+        appSecret
+      )
+      .update(rawBody, "utf8")
+      .digest("hex");
+
+  const bufferRecebido =
+    Buffer.from(
+      assinaturaRecebida,
+      "hex"
+    );
+
+  const bufferEsperado =
+    Buffer.from(
+      assinaturaEsperada,
+      "hex"
+    );
+
+  if (
+    bufferRecebido.length !==
+    bufferEsperado.length
+  ) {
+    return false;
+  }
+
+  return crypto.timingSafeEqual(
+    bufferRecebido,
+    bufferEsperado
+  );
+}
+
 /**
  * GET
  *
@@ -145,16 +212,96 @@ export async function GET(req: NextRequest) {
  */
 export async function POST(req: NextRequest) {
   try {
-    let payload: PayloadWhatsapp;
+    if (!META_APP_SECRET) {
+      console.error(
+        "META_WHATSAPP_APP_SECRET não configurado."
+      );
+
+      return NextResponse.json(
+        {
+          received: false,
+          error:
+            "Webhook do WhatsApp não configurado.",
+        },
+        {
+          status: 503,
+        }
+      );
+    }
+
+    const assinatura =
+      req.headers.get(
+        "x-hub-signature-256"
+      );
+
+    if (!assinatura) {
+      return NextResponse.json(
+        {
+          received: false,
+          error:
+            "Assinatura do webhook ausente.",
+        },
+        {
+          status: 401,
+        }
+      );
+    }
+
+    let rawBody: string;
 
     try {
-      payload =
-        (await req.json()) as PayloadWhatsapp;
+      rawBody = await req.text();
     } catch {
       return NextResponse.json(
         {
           received: false,
-          error: "Payload inválido.",
+          error:
+            "Não foi possível ler o payload.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const assinaturaValida =
+      validarAssinaturaMeta({
+        rawBody,
+        assinatura,
+        appSecret:
+          META_APP_SECRET,
+      });
+
+    if (!assinaturaValida) {
+      console.warn(
+        "Webhook WhatsApp rejeitado por assinatura inválida."
+      );
+
+      return NextResponse.json(
+        {
+          received: false,
+          error:
+            "Assinatura do webhook inválida.",
+        },
+        {
+          status: 401,
+        }
+      );
+    }
+
+    let payload: PayloadWhatsapp;
+
+    try {
+      payload =
+        JSON.parse(
+          rawBody
+        ) as PayloadWhatsapp;
+    } catch {
+      return NextResponse.json(
+        {
+          received: false,
+          error:
+            "Payload inválido.",
         },
         {
           status: 400,
@@ -285,8 +432,8 @@ export async function POST(req: NextRequest) {
 
         const dataAtualizacao:
           Record<string, unknown> = {
-            status: evento.status,
-          };
+          status: evento.status,
+        };
 
         if (
           evento.status ===
