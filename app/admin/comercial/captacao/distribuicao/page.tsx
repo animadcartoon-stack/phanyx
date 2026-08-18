@@ -319,6 +319,21 @@ export default function DistribuicaoCaptacaoPage() {
         setResponsavelNovaRegra,
     ] = useState("");
 
+    const [
+        salvandoNovaRegra,
+        setSalvandoNovaRegra,
+    ] = useState(false);
+
+    const [
+        erroNovaRegra,
+        setErroNovaRegra,
+    ] = useState("");
+
+    const [
+        mensagemSucesso,
+        setMensagemSucesso,
+    ] = useState("");
+
     const carregar =
         useCallback(
             async (
@@ -476,6 +491,7 @@ export default function DistribuicaoCaptacaoPage() {
 
         setEquipeNovaRegra("");
         setResponsavelNovaRegra("");
+        setErroNovaRegra("");
 
         setModalNovaRegraAberto(
             true
@@ -483,9 +499,178 @@ export default function DistribuicaoCaptacaoPage() {
     }
 
     function fecharModalNovaRegra() {
+        if (salvandoNovaRegra) {
+            return;
+        }
+
         setModalNovaRegraAberto(
             false
         );
+
+        setErroNovaRegra("");
+    }
+
+    const estrategiaExigeEquipe =
+        estrategiaNovaRegra ===
+        "RODIZIO" ||
+        estrategiaNovaRegra ===
+        "MENOR_CARGA" ||
+        estrategiaNovaRegra ===
+        "ALEATORIA" ||
+        estrategiaNovaRegra ===
+        "EQUIPE_SEM_RESPONSAVEL";
+
+    const estrategiaExigeResponsavel =
+        estrategiaNovaRegra ===
+        "RESPONSAVEL_FIXO";
+
+    const podeCriarNovaRegra =
+        nomeNovaRegra.trim().length >=
+        3 &&
+        (!estrategiaExigeEquipe ||
+            Boolean(
+                equipeNovaRegra
+            )) &&
+        (!estrategiaExigeResponsavel ||
+            Boolean(
+                responsavelNovaRegra
+            ));
+
+    function idOuNull(
+        valor: string
+    ) {
+        if (!valor) {
+            return null;
+        }
+
+        const numero = Number(valor);
+
+        return Number.isFinite(numero) &&
+            numero > 0
+            ? numero
+            : null;
+    }
+
+    async function criarNovaRegra() {
+        if (
+            !podeCriarNovaRegra ||
+            salvandoNovaRegra
+        ) {
+            return;
+        }
+
+        try {
+            setSalvandoNovaRegra(
+                true
+            );
+
+            setErroNovaRegra("");
+            setMensagemSucesso("");
+
+            const resposta =
+                await fetch(
+                    "/api/admin/comercial/captacao/distribuicao",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+                        },
+
+                        body: JSON.stringify(
+                            {
+                                nome:
+                                    nomeNovaRegra.trim(),
+
+                                estrategia:
+                                    estrategiaNovaRegra,
+
+                                canalId:
+                                    idOuNull(
+                                        canalNovaRegra
+                                    ),
+
+                                campanhaId:
+                                    idOuNull(
+                                        campanhaNovaRegra
+                                    ),
+
+                                formularioId:
+                                    idOuNull(
+                                        formularioNovaRegra
+                                    ),
+
+                                cursoId:
+                                    idOuNull(
+                                        cursoNovaRegra
+                                    ),
+
+                                poloId:
+                                    idOuNull(
+                                        poloNovaRegra
+                                    ),
+
+                                equipeId:
+                                    estrategiaExigeEquipe
+                                        ? idOuNull(
+                                            equipeNovaRegra
+                                        )
+                                        : null,
+
+                                responsavelFixoId:
+                                    estrategiaExigeResponsavel
+                                        ? idOuNull(
+                                            responsavelNovaRegra
+                                        )
+                                        : null,
+
+                                ativo: true,
+                            }
+                        ),
+                    }
+                );
+
+            const json =
+                (await resposta
+                    .json()
+                    .catch(() => null)) as
+                | RespostaErro
+                | {
+                    success?: boolean;
+                }
+                | null;
+
+            if (!resposta.ok) {
+                throw new Error(
+                    json &&
+                        "error" in json
+                        ? json.error ||
+                        "Não foi possível criar a regra."
+                        : "Não foi possível criar a regra."
+                );
+            }
+
+            setModalNovaRegraAberto(
+                false
+            );
+
+            setMensagemSucesso(
+                "Regra de distribuição criada com sucesso."
+            );
+
+            await carregar(true);
+        } catch (error) {
+            setErroNovaRegra(
+                error instanceof Error
+                    ? error.message
+                    : "Não foi possível criar a regra de distribuição."
+            );
+        } finally {
+            setSalvandoNovaRegra(
+                false
+            );
+        }
     }
 
     if (carregando) {
@@ -592,6 +777,12 @@ export default function DistribuicaoCaptacaoPage() {
                 {erro && (
                     <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700 shadow-sm dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">
                         {erro}
+                    </div>
+                )}
+
+                {mensagemSucesso && (
+                    <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800">
+                        ✓ {mensagemSucesso}
                     </div>
                 )}
 
@@ -1447,6 +1638,12 @@ export default function DistribuicaoCaptacaoPage() {
                                 ) : null}
                             </div>
 
+                            {erroNovaRegra && (
+                                <div className="mx-6 mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+                                    {erroNovaRegra}
+                                </div>
+                            )}
+
                             <div className="phanyx-captacao-distribuicao-modal-footer">
                                 <button
                                     type="button"
@@ -1460,17 +1657,24 @@ export default function DistribuicaoCaptacaoPage() {
 
                                 <button
                                     type="button"
-                                    disabled
+                                    onClick={() =>
+                                        void criarNovaRegra()
+                                    }
+                                    disabled={
+                                        !podeCriarNovaRegra ||
+                                        salvandoNovaRegra
+                                    }
                                     className="phanyx-captacao-distribuicao-save"
-                                    title="A gravação será conectada na próxima etapa."
                                 >
-                                    Criar regra
+                                    {salvandoNovaRegra
+                                        ? "Criando..."
+                                        : "Criar regra"}
                                 </button>
                             </div>
                         </div>
-                            </div>,
-        document.body
-    )}
+                    </div>,
+                    document.body
+                )}
         </div>
     );
 }
