@@ -25329,3 +25329,119 @@ html[data-theme="light"]
   margin-top: 0.3rem;
   color: var(--bib-subtle) !important;
 }
+
+.phanyx-biblioteca-item-page
+  .bib-file-action-danger {
+  border-color: #fecaca !important;
+  background: #fff1f2 !important;
+  color: #b91c1c !important;
+  cursor: pointer;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-file-action-danger:hover {
+  border-color: #f87171 !important;
+  background: #fee2e2 !important;
+  color: #991b1b !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-biblioteca-item-page
+  .bib-file-action-danger,
+html[data-theme="system"]
+  .phanyx-biblioteca-item-page
+  .bib-file-action-danger {
+  border-color: #7f1d1d !important;
+  background: #450a0a !important;
+  color: #fecaca !important;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-delete-file-modal {
+  width: min(100%, 610px);
+}
+
+.phanyx-biblioteca-item-page
+  .bib-delete-file-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  border: 1px solid var(--bib-border-soft);
+  border-radius: 0.9rem;
+  background: var(--bib-soft) !important;
+  padding: 1rem;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-delete-file-summary
+  > span {
+  display: grid;
+  width: 2.8rem;
+  height: 2.8rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 0.75rem;
+  background: var(--bib-soft-strong) !important;
+  font-size: 1.2rem;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-delete-file-summary
+  > div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-delete-file-summary
+  strong {
+  overflow: hidden;
+  color: var(--bib-text) !important;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-delete-file-summary
+  small {
+  color: var(--bib-muted) !important;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-delete-warning {
+  margin: 1rem 0;
+  border: 1px solid #fca5a5 !important;
+  border-radius: 0.85rem;
+  background: #fef2f2 !important;
+  color: #991b1b !important;
+  padding: 0.9rem 1rem;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-delete-warning
+  strong,
+.phanyx-biblioteca-item-page
+  .bib-delete-warning
+  p {
+  color: inherit !important;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-delete-warning
+  p {
+  margin: 0.3rem 0 0;
+  line-height: 1.5;
+}
+
+html[data-theme="dark"]
+  .phanyx-biblioteca-item-page
+  .bib-delete-warning,
+html[data-theme="system"]
+  .phanyx-biblioteca-item-page
+  .bib-delete-warning {
+  border-color: #991b1b !important;
+  background: #450a0a !important;
+  color: #fecaca !important;
+}

@@ -182,6 +182,7 @@ type RespostaItem = {
     podeEditar: boolean;
     podeEnviarArquivo: boolean;
     impersonacao: boolean;
+    podeExcluirArquivo: boolean;
   };
 
   configuracao?: {
@@ -557,6 +558,11 @@ export default function BibliotecaItemPage() {
             ?.podeEnviarArquivo === true
         );
 
+        setPodeExcluirArquivo(
+          resultado.permissoes
+            ?.podeExcluirArquivo === true
+        );
+
         setArmazenamento(
           resultado.armazenamento ||
           null
@@ -582,6 +588,28 @@ export default function BibliotecaItemPage() {
     },
     [itemId]
   );
+
+  const [
+    podeExcluirArquivo,
+    setPodeExcluirArquivo,
+  ] = useState(false);
+
+  const [
+    arquivoParaExcluir,
+    setArquivoParaExcluir,
+  ] = useState<ArquivoItem | null>(
+    null
+  );
+
+  const [
+    motivoExclusao,
+    setMotivoExclusao,
+  ] = useState("");
+
+  const [
+    excluindoArquivo,
+    setExcluindoArquivo,
+  ] = useState(false);
 
   useEffect(() => {
     const controlador = new AbortController();
@@ -827,6 +855,125 @@ export default function BibliotecaItemPage() {
       });
     } finally {
       setEnviandoArquivo(
+        false
+      );
+    }
+  }
+
+  function abrirExclusaoArquivo(
+    arquivo: ArquivoItem
+  ) {
+    if (
+      !podeExcluirArquivo ||
+      impersonacao
+    ) {
+      return;
+    }
+
+    setArquivoParaExcluir(
+      arquivo
+    );
+
+    setMotivoExclusao("");
+  }
+
+  function fecharExclusaoArquivo() {
+    if (excluindoArquivo) {
+      return;
+    }
+
+    setArquivoParaExcluir(
+      null
+    );
+
+    setMotivoExclusao("");
+  }
+
+  async function excluirArquivo() {
+    if (
+      !arquivoParaExcluir ||
+      excluindoArquivo ||
+      !podeExcluirArquivo
+    ) {
+      return;
+    }
+
+    setExcluindoArquivo(true);
+
+    try {
+      const resposta =
+        await fetch(
+          `/api/admin/biblioteca/arquivos/${arquivoParaExcluir.id}`,
+          {
+            method: "DELETE",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body: JSON.stringify({
+              motivo:
+                motivoExclusao.trim() ||
+                "Arquivo removido pelo operador da Biblioteca Virtual.",
+            }),
+          }
+        );
+
+      const resultado =
+        (await resposta.json()) as {
+          ok?: boolean;
+          mensagem?: string;
+          error?: string;
+          armazenamentoLiberadoBytes?: string;
+        };
+
+      if (!resposta.ok) {
+        throw new Error(
+          resultado.error ||
+          "Não foi possível excluir o arquivo."
+        );
+      }
+
+      const liberado =
+        resultado.armazenamentoLiberadoBytes
+          ? formatarBytes(
+            resultado.armazenamentoLiberadoBytes
+          )
+          : null;
+
+      setToast({
+        tipo: "sucesso",
+
+        mensagem:
+          liberado &&
+            liberado !== "0 B"
+            ? `Arquivo removido. ${liberado} foram liberados do armazenamento.`
+            : resultado.mensagem ||
+            "Arquivo removido com sucesso.",
+      });
+
+      setArquivoParaExcluir(
+        null
+      );
+
+      setMotivoExclusao("");
+
+      setAtualizacao(
+        (valor) =>
+          valor + 1
+      );
+    } catch (falha) {
+      setToast({
+        tipo: "erro",
+
+        mensagem:
+          falha instanceof Error
+            ? falha.message
+            : "Não foi possível excluir o arquivo.",
+      });
+    } finally {
+      setExcluindoArquivo(
         false
       );
     }
@@ -1843,6 +1990,22 @@ export default function BibliotecaItemPage() {
                             >
                               ⬇ Baixar
                             </a>
+
+                            {podeExcluirArquivo &&
+                              !impersonacao ? (
+                              <button
+                                type="button"
+                                className="bib-file-action bib-file-action-danger"
+                                onClick={() =>
+                                  abrirExclusaoArquivo(
+                                    arquivo
+                                  )
+                                }
+                              >
+                                🗑 Excluir
+                              </button>
+                            ) : null}
+
                           </div>
                         ) : (
                           <small className="bib-file-unavailable">
@@ -1945,6 +2108,163 @@ export default function BibliotecaItemPage() {
           ) : null}
         </form>
       </div>
+
+      {arquivoParaExcluir ? (
+        <div
+          className="bib-modal-backdrop"
+          role="presentation"
+        >
+          <section
+            className="bib-modal bib-delete-file-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="titulo-exclusao-arquivo"
+          >
+            <header className="bib-modal-header">
+              <div>
+                <span className="bib-modal-kicker">
+                  Biblioteca Virtual
+                </span>
+
+                <h2
+                  id="titulo-exclusao-arquivo"
+                >
+                  Excluir arquivo
+                </h2>
+
+                <p>
+                  O arquivo será removido do
+                  armazenamento privado e deixará
+                  de aparecer no acervo.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="bib-modal-close"
+                onClick={
+                  fecharExclusaoArquivo
+                }
+                disabled={
+                  excluindoArquivo
+                }
+                aria-label="Fechar"
+              >
+                ×
+              </button>
+            </header>
+
+            <div className="bib-modal-body">
+              <div className="bib-delete-file-summary">
+                <span
+                  aria-hidden="true"
+                >
+                  🗑
+                </span>
+
+                <div>
+                  <strong>
+                    {
+                      arquivoParaExcluir
+                        .nomeOriginal
+                    }
+                  </strong>
+
+                  <small>
+                    {rotuloEnum(
+                      arquivoParaExcluir
+                        .tipo
+                    )}
+                    {" · "}
+                    {formatarBytes(
+                      arquivoParaExcluir
+                        .tamanhoBytes
+                    )}
+                  </small>
+                </div>
+              </div>
+
+              <div className="bib-delete-warning">
+                <strong>
+                  O espaço será devolvido à
+                  instituição.
+                </strong>
+
+                <p>
+                  Serão liberados{" "}
+                  <b>
+                    {formatarBytes(
+                      arquivoParaExcluir
+                        .tamanhoBytes
+                    )}
+                  </b>{" "}
+                  do armazenamento contratado.
+                  O registro da operação será
+                  preservado para auditoria.
+                </p>
+              </div>
+
+              <label className="bib-field">
+                <span>
+                  Motivo da exclusão
+                </span>
+
+                <textarea
+                  className="bib-input bib-textarea"
+                  value={
+                    motivoExclusao
+                  }
+                  onChange={(evento) =>
+                    setMotivoExclusao(
+                      evento.target.value
+                    )
+                  }
+                  maxLength={2000}
+                  disabled={
+                    excluindoArquivo
+                  }
+                  placeholder="Opcional. Ex.: arquivo enviado por engano."
+                />
+
+                <small>
+                  O motivo ficará registrado no
+                  histórico da Biblioteca Virtual.
+                </small>
+              </label>
+            </div>
+
+            <footer className="bib-modal-footer">
+              <button
+                type="button"
+                className="bib-button bib-button-secondary"
+                onClick={
+                  fecharExclusaoArquivo
+                }
+                disabled={
+                  excluindoArquivo
+                }
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="button"
+                className="bib-button bib-button-danger"
+                onClick={() =>
+                  void excluirArquivo()
+                }
+                disabled={
+                  excluindoArquivo
+                }
+              >
+                {excluindoArquivo
+                  ? "Excluindo..."
+                  : "🗑 Excluir arquivo"}
+              </button>
+            </footer>
+          </section>
+        </div>
+      ) : null}
 
       {toast ? (
         <div
