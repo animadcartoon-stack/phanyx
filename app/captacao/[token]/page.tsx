@@ -587,7 +587,7 @@ export default function FormularioPublicoCaptacaoPage() {
     );
   }
 
-    function validar() {
+      function validar() {
     if (!dados) {
       return false;
     }

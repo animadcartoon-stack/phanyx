@@ -8,10 +8,11 @@ import {
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import type {
+    CountryCode,
+} from "libphonenumber-js";
 
-import {
-    formatarTelefoneBR,
-} from "@/lib/comercial/captacao/telefone";
+import CampoTelefoneInternacional from "@/components/comercial/captacao/CampoTelefoneInternacional";
 
 type Campo = {
     id: number;
@@ -221,6 +222,23 @@ export default function VisualizarFormularioCaptacaoPage() {
         setSimulouEnvio,
     ] =
         useState(false);
+
+    const [
+        telefones,
+        setTelefones,
+    ] = useState<
+        Record<string, string>
+    >({});
+
+    const [
+        paisesTelefone,
+        setPaisesTelefone,
+    ] = useState<
+        Record<
+            string,
+            CountryCode
+        >
+    >({});
 
     useEffect(() => {
         function calcularTema() {
@@ -790,6 +808,50 @@ export default function VisualizarFormularioCaptacaoPage() {
                                                                 )
                                                             )}
                                                         </div>
+                                                    ) : campo.tipo ===
+                                                        "TELEFONE" ? (
+                                                        <CampoTelefoneInternacional
+                                                            value={
+                                                                telefones[
+                                                                campo.chave
+                                                                ] ??
+                                                                campo.valorPadrao ??
+                                                                ""
+                                                            }
+                                                            pais={
+                                                                paisesTelefone[
+                                                                campo.chave
+                                                                ] ?? "BR"
+                                                            }
+                                                            required={
+                                                                campo.obrigatorio
+                                                            }
+                                                            placeholder="Digite seu telefone"
+                                                            onChange={(
+                                                                valor,
+                                                                pais
+                                                            ) => {
+                                                                setTelefones(
+                                                                    (
+                                                                        atual
+                                                                    ) => ({
+                                                                        ...atual,
+                                                                        [campo.chave]:
+                                                                            valor,
+                                                                    })
+                                                                );
+
+                                                                setPaisesTelefone(
+                                                                    (
+                                                                        atual
+                                                                    ) => ({
+                                                                        ...atual,
+                                                                        [campo.chave]:
+                                                                            pais,
+                                                                    })
+                                                                );
+                                                            }}
+                                                        />
                                                     ) : (
                                                         <input
                                                             type={
@@ -797,22 +859,12 @@ export default function VisualizarFormularioCaptacaoPage() {
                                                                     "EMAIL"
                                                                     ? "email"
                                                                     : campo.tipo ===
-                                                                        "TELEFONE"
-                                                                        ? "tel"
+                                                                        "NUMERO"
+                                                                        ? "number"
                                                                         : campo.tipo ===
-                                                                            "NUMERO"
-                                                                            ? "number"
-                                                                            : campo.tipo ===
-                                                                                "DATA"
-                                                                                ? "date"
-                                                                                : "text"
-                                                            }
-
-                                                            inputMode={
-                                                                campo.tipo ===
-                                                                    "TELEFONE"
-                                                                    ? "tel"
-                                                                    : undefined
+                                                                            "DATA"
+                                                                            ? "date"
+                                                                            : "text"
                                                             }
 
                                                             autoComplete={
@@ -822,10 +874,7 @@ export default function VisualizarFormularioCaptacaoPage() {
                                                                     : campo.mapeamento ===
                                                                         "EMAIL"
                                                                         ? "email"
-                                                                        : campo.mapeamento ===
-                                                                            "TELEFONE"
-                                                                            ? "tel"
-                                                                            : undefined
+                                                                        : undefined
                                                             }
 
                                                             required={
@@ -833,34 +882,13 @@ export default function VisualizarFormularioCaptacaoPage() {
                                                             }
 
                                                             placeholder={
-                                                                campo.tipo ===
-                                                                    "TELEFONE"
-                                                                    ? "Digite seu telefone"
-                                                                    : (
-                                                                        campo.placeholder ??
-                                                                        ""
-                                                                    )
+                                                                campo.placeholder ??
+                                                                ""
                                                             }
 
                                                             defaultValue={
                                                                 campo.valorPadrao ??
                                                                 ""
-                                                            }
-
-                                                            onChange={
-                                                                campo.tipo ===
-                                                                    "TELEFONE"
-                                                                    ? (
-                                                                        event
-                                                                    ) => {
-                                                                        event.currentTarget.value =
-                                                                            formatarTelefoneBR(
-                                                                                event
-                                                                                    .currentTarget
-                                                                                    .value
-                                                                            );
-                                                                    }
-                                                                    : undefined
                                                             }
 
                                                             className={
