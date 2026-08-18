@@ -39,6 +39,60 @@ const INCLUDE_LEAD = {
     },
   },
 
+  cursoInteresse: {
+    select: {
+      id: true,
+      nome: true,
+    },
+  },
+
+  poloInteresse: {
+    select: {
+      id: true,
+      nome: true,
+    },
+  },
+
+  submissoesCaptacao: {
+    orderBy: {
+      recebidoEm: "desc",
+    },
+
+    take: 1,
+
+    select: {
+      id: true,
+      recebidoEm: true,
+
+      consentimentoLgpd: true,
+      consentimentoEm: true,
+
+      canal: {
+        select: {
+          id: true,
+          nome: true,
+          tipo: true,
+        },
+      },
+
+      campanha: {
+        select: {
+          id: true,
+          nome: true,
+          codigo: true,
+        },
+      },
+
+      formulario: {
+        select: {
+          id: true,
+          nome: true,
+          titulo: true,
+        },
+      },
+    },
+  },
+
   matriculaConvertida: {
     select: {
       id: true,
@@ -202,20 +256,43 @@ function lerDataOpcional(valor: unknown) {
   };
 }
 
-function serializarLead(lead: any) {
+function serializarLead(
+  lead: any
+) {
+  const captacaoMaisRecente =
+    Array.isArray(
+      lead.submissoesCaptacao
+    ) &&
+      lead.submissoesCaptacao
+        .length > 0
+      ? lead
+        .submissoesCaptacao[0]
+      : null;
+
   return {
     ...lead,
 
     matriculaConvertida:
-      lead.matriculaConvertida ?? null,
+      lead.matriculaConvertida ??
+      null,
 
     responsavelNome:
-      lead.responsavelFuncionario?.nome ||
-      lead.responsavelNomeSnapshot ||
+      lead
+        .responsavelFuncionario
+        ?.nome ||
+      lead
+        .responsavelNomeSnapshot ||
       null,
 
     instituicaoId:
-      lead.instituicaoInteressadaId ?? null,
+      lead
+        .instituicaoInteressadaId ??
+      null,
+
+    captacaoMaisRecente,
+
+    submissoesCaptacao:
+      undefined,
   };
 }
 
