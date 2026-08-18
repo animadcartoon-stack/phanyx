@@ -52,6 +52,67 @@ type ArquivoItem = {
   atualizadoEm: string;
 };
 
+type UsuarioHistoricoArquivo = {
+  id: number;
+  nome: string;
+  email: string;
+};
+
+type ArquivoHistorico = {
+  id: number;
+
+  tipo: string;
+  status: string;
+
+  nomeOriginal: string;
+  extensao: string | null;
+  mimeType: string | null;
+
+  tamanhoBytes: string;
+  versao: number;
+
+  principalAtual: boolean;
+  eraPrincipal: boolean;
+
+  disponivel: boolean;
+  arquivado: boolean;
+
+  enviadoEm: string;
+  atualizadoEm: string;
+  processadoEm: string | null;
+
+  arquivadoEm: string | null;
+  motivoArquivamento: string | null;
+
+  enviadoPor:
+  | UsuarioHistoricoArquivo
+  | null;
+
+  arquivadoPor:
+  | UsuarioHistoricoArquivo
+  | null;
+};
+
+type RespostaHistoricoArquivos = {
+  ok?: boolean;
+
+  item?: {
+    id: number;
+    titulo: string;
+  };
+
+  resumo?: {
+    total: number;
+    ativos: number;
+    arquivados: number;
+  };
+
+  arquivos?: ArquivoHistorico[];
+
+  error?: string;
+  mensagem?: string;
+};
+
 type ArmazenamentoBiblioteca = {
   contratadoBytes: string;
   extraBytes: string;
@@ -628,6 +689,35 @@ export default function BibliotecaItemPage() {
     setDefinindoPrincipalId,
   ] = useState<number | null>(null);
 
+  const [
+    historicoArquivosAberto,
+    setHistoricoArquivosAberto,
+  ] = useState(false);
+
+  const [
+    historicoArquivos,
+    setHistoricoArquivos,
+  ] = useState<ArquivoHistorico[]>([]);
+
+  const [
+    resumoHistoricoArquivos,
+    setResumoHistoricoArquivos,
+  ] = useState({
+    total: 0,
+    ativos: 0,
+    arquivados: 0,
+  });
+
+  const [
+    carregandoHistoricoArquivos,
+    setCarregandoHistoricoArquivos,
+  ] = useState(false);
+
+  const [
+    erroHistoricoArquivos,
+    setErroHistoricoArquivos,
+  ] = useState<string | null>(null);
+
   useEffect(() => {
     const controlador = new AbortController();
 
@@ -1066,6 +1156,81 @@ export default function BibliotecaItemPage() {
         null
       );
     }
+  }
+
+  async function abrirHistoricoArquivos() {
+    if (
+      !podeGerenciarArquivo ||
+      impersonacao ||
+      carregandoHistoricoArquivos
+    ) {
+      return;
+    }
+
+    setHistoricoArquivosAberto(true);
+    setCarregandoHistoricoArquivos(true);
+    setErroHistoricoArquivos(null);
+
+    try {
+      const resposta =
+        await fetch(
+          `/api/admin/biblioteca/acervo/${itemId}/arquivos/historico`,
+          {
+            method: "GET",
+            cache: "no-store",
+          }
+        );
+
+      const resultado =
+        (await resposta.json()) as
+        RespostaHistoricoArquivos;
+
+      if (!resposta.ok) {
+        throw new Error(
+          resultado.error ||
+          resultado.mensagem ||
+          "Não foi possível carregar o histórico dos arquivos."
+        );
+      }
+
+      setHistoricoArquivos(
+        resultado.arquivos || []
+      );
+
+      setResumoHistoricoArquivos(
+        resultado.resumo || {
+          total: 0,
+          ativos: 0,
+          arquivados: 0,
+        }
+      );
+    } catch (falha) {
+      setErroHistoricoArquivos(
+        falha instanceof Error
+          ? falha.message
+          : "Não foi possível carregar o histórico dos arquivos."
+      );
+    } finally {
+      setCarregandoHistoricoArquivos(
+        false
+      );
+    }
+  }
+
+  function fecharHistoricoArquivos() {
+    if (
+      carregandoHistoricoArquivos
+    ) {
+      return;
+    }
+
+    setHistoricoArquivosAberto(
+      false
+    );
+
+    setErroHistoricoArquivos(
+      null
+    );
   }
 
   async function salvar(evento: FormEvent<HTMLFormElement>) {
@@ -1956,42 +2121,57 @@ export default function BibliotecaItemPage() {
                   </div>
                 </div>
 
-                {podeEnviarArquivo &&
-                  !impersonacao ? (
-                  <div>
-                    <input
-                      ref={arquivoInputRef}
-                      type="file"
-                      accept={
-                        ACCEPT_UPLOAD_BIBLIOTECA
-                      }
-                      hidden
-                      disabled={
-                        enviandoArquivo
-                      }
-                      onChange={
-                        enviarArquivo
-                      }
-                    />
+                <div className="bib-file-header-actions">
+  {podeGerenciarArquivo &&
+  !impersonacao ? (
+    <button
+      type="button"
+      className="bib-button bib-button-secondary"
+      onClick={() =>
+        void abrirHistoricoArquivos()
+      }
+    >
+      🕘 Histórico
+    </button>
+  ) : null}
 
-                    <button
-                      type="button"
-                      className="bib-button bib-button-primary"
-                      disabled={
-                        enviandoArquivo
-                      }
-                      onClick={() =>
-                        arquivoInputRef
-                          .current
-                          ?.click()
-                      }
-                    >
-                      {enviandoArquivo
-                        ? `Enviando ${progressoUpload}%`
-                        : "⬆️ Enviar arquivo"}
-                    </button>
-                  </div>
-                ) : null}
+  {podeEnviarArquivo &&
+  !impersonacao ? (
+    <>
+      <input
+        ref={arquivoInputRef}
+        type="file"
+        accept={
+          ACCEPT_UPLOAD_BIBLIOTECA
+        }
+        hidden
+        disabled={
+          enviandoArquivo
+        }
+        onChange={
+          enviarArquivo
+        }
+      />
+
+      <button
+        type="button"
+        className="bib-button bib-button-primary"
+        disabled={
+          enviandoArquivo
+        }
+        onClick={() =>
+          arquivoInputRef
+            .current
+            ?.click()
+        }
+      >
+        {enviandoArquivo
+          ? `Enviando ${progressoUpload}%`
+          : "⬆️ Enviar arquivo"}
+      </button>
+    </>
+  ) : null}
+</div>
               </header>
 
               {enviandoArquivo ? (
@@ -2229,6 +2409,341 @@ export default function BibliotecaItemPage() {
             </div>
           ) : null}
         </form>
+        {historicoArquivosAberto ? (
+          <div
+            className="bib-modal-backdrop"
+            role="presentation"
+          >
+            <section
+              className="bib-modal bib-file-history-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="titulo-historico-arquivos"
+            >
+              <header className="bib-modal-header">
+                <div>
+                  <span className="bib-modal-kicker">
+                    Biblioteca Virtual
+                  </span>
+
+                  <h2
+                    id="titulo-historico-arquivos"
+                  >
+                    Histórico de arquivos
+                  </h2>
+
+                  <p>
+                    Consulte todas as versões
+                    enviadas para este item,
+                    inclusive arquivos já
+                    removidos.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  className="bib-modal-close"
+                  onClick={
+                    fecharHistoricoArquivos
+                  }
+                  disabled={
+                    carregandoHistoricoArquivos
+                  }
+                  aria-label="Fechar"
+                >
+                  ×
+                </button>
+              </header>
+
+              <div className="bib-modal-body bib-file-history-body">
+                <div className="bib-history-summary">
+                  <div>
+                    <small>
+                      Total de versões
+                    </small>
+                    <strong>
+                      {
+                        resumoHistoricoArquivos
+                          .total
+                      }
+                    </strong>
+                  </div>
+
+                  <div>
+                    <small>
+                      Ativas
+                    </small>
+                    <strong>
+                      {
+                        resumoHistoricoArquivos
+                          .ativos
+                      }
+                    </strong>
+                  </div>
+
+                  <div>
+                    <small>
+                      Excluídas
+                    </small>
+                    <strong>
+                      {
+                        resumoHistoricoArquivos
+                          .arquivados
+                      }
+                    </strong>
+                  </div>
+                </div>
+
+                {carregandoHistoricoArquivos ? (
+                  <div className="bib-history-loading">
+                    <strong>
+                      Carregando histórico...
+                    </strong>
+
+                    <p>
+                      Consultando as versões
+                      deste item.
+                    </p>
+                  </div>
+                ) : erroHistoricoArquivos ? (
+                  <div className="bib-feedback bib-feedback-error">
+                    <div>
+                      <strong>
+                        Não foi possível carregar
+                        o histórico
+                      </strong>
+
+                      <p>
+                        {
+                          erroHistoricoArquivos
+                        }
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="bib-button bib-button-secondary"
+                      onClick={() =>
+                        void abrirHistoricoArquivos()
+                      }
+                    >
+                      Tentar novamente
+                    </button>
+                  </div>
+                ) : historicoArquivos.length ? (
+                  <div className="bib-file-history-list">
+                    {historicoArquivos.map(
+                      (arquivo) => (
+                        <article
+                          key={arquivo.id}
+                          className={[
+                            "bib-file-history-entry",
+
+                            arquivo.arquivado
+                              ? "bib-file-history-entry-archived"
+                              : "",
+                          ]
+                            .filter(Boolean)
+                            .join(" ")}
+                        >
+                          <div className="bib-file-history-marker">
+                            <span>
+                              {arquivo.arquivado
+                                ? "🗑️"
+                                : arquivo.principalAtual
+                                  ? "⭐"
+                                  : "📄"}
+                            </span>
+                          </div>
+
+                          <div className="bib-file-history-content">
+                            <div className="bib-file-history-top">
+                              <div>
+                                <span className="bib-history-version">
+                                  Versão{" "}
+                                  {
+                                    arquivo.versao
+                                  }
+                                </span>
+
+                                {arquivo.principalAtual ? (
+                                  <span className="bib-history-badge bib-history-badge-primary">
+                                    ⭐ Principal atual
+                                  </span>
+                                ) : arquivo.arquivado ? (
+                                  <span className="bib-history-badge bib-history-badge-archived">
+                                    🗑 Excluído
+                                  </span>
+                                ) : (
+                                  <span className="bib-history-badge bib-history-badge-active">
+                                    Ativo
+                                  </span>
+                                )}
+                              </div>
+
+                              <small>
+                                #
+                                {
+                                  arquivo.id
+                                }
+                              </small>
+                            </div>
+
+                            <strong className="bib-history-file-name">
+                              {
+                                arquivo.nomeOriginal
+                              }
+                            </strong>
+
+                            <div className="bib-history-file-meta">
+                              <span>
+                                {rotuloEnum(
+                                  arquivo.tipo
+                                )}
+                              </span>
+
+                              <span>
+                                {formatarBytes(
+                                  arquivo.tamanhoBytes
+                                )}
+                              </span>
+
+                              <span>
+                                {rotuloEnum(
+                                  arquivo.status
+                                )}
+                              </span>
+                            </div>
+
+                            <div className="bib-history-event-grid">
+                              <div>
+                                <small>
+                                  Enviado em
+                                </small>
+
+                                <strong>
+                                  {formatarData(
+                                    arquivo.enviadoEm
+                                  )}
+                                </strong>
+                              </div>
+
+                              <div>
+                                <small>
+                                  Enviado por
+                                </small>
+
+                                <strong>
+                                  {arquivo.enviadoPor
+                                    ?.nome ||
+                                    "Usuário não disponível"}
+                                </strong>
+                              </div>
+
+                              {arquivo.arquivado ? (
+                                <>
+                                  <div>
+                                    <small>
+                                      Excluído em
+                                    </small>
+
+                                    <strong>
+                                      {formatarData(
+                                        arquivo.arquivadoEm
+                                      )}
+                                    </strong>
+                                  </div>
+
+                                  <div>
+                                    <small>
+                                      Excluído por
+                                    </small>
+
+                                    <strong>
+                                      {arquivo.arquivadoPor
+                                        ?.nome ||
+                                        "Usuário não disponível"}
+                                    </strong>
+                                  </div>
+                                </>
+                              ) : null}
+                            </div>
+
+                            {arquivo.arquivado &&
+                              arquivo.motivoArquivamento ? (
+                              <div className="bib-history-reason">
+                                <small>
+                                  Motivo da exclusão
+                                </small>
+
+                                <p>
+                                  {
+                                    arquivo.motivoArquivamento
+                                  }
+                                </p>
+                              </div>
+                            ) : null}
+
+                            {!arquivo.arquivado &&
+                              arquivo.disponivel ? (
+                              <div className="bib-file-actions">
+                                <a
+                                  href={`/api/admin/biblioteca/arquivos/${arquivo.id}/conteudo`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="bib-file-action"
+                                >
+                                  👁 Visualizar
+                                </a>
+
+                                <a
+                                  href={`/api/admin/biblioteca/arquivos/${arquivo.id}/conteudo?download=1`}
+                                  className="bib-file-action"
+                                >
+                                  ⬇ Baixar
+                                </a>
+                              </div>
+                            ) : null}
+                          </div>
+                        </article>
+                      )
+                    )}
+                  </div>
+                ) : (
+                  <div className="bib-history-empty">
+                    <span aria-hidden="true">
+                      🕘
+                    </span>
+
+                    <strong>
+                      Nenhuma versão registrada
+                    </strong>
+
+                    <p>
+                      Este item ainda não possui
+                      histórico de arquivos.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <footer className="bib-modal-footer">
+                <button
+                  type="button"
+                  className="bib-button bib-button-secondary"
+                  onClick={
+                    fecharHistoricoArquivos
+                  }
+                  disabled={
+                    carregandoHistoricoArquivos
+                  }
+                >
+                  Fechar
+                </button>
+              </footer>
+            </section>
+          </div>
+        ) : null}
       </div>
 
       {arquivoParaExcluir ? (

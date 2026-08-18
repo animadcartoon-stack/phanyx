@@ -24417,3 +24417,332 @@ html[data-theme="system"] .phanyx-captacao-distribuicao-status-toggle strong {
 html[data-theme="system"] .phanyx-captacao-distribuicao-status-toggle small {
   color: #d4d4d4 !important;
 }
+
+.phanyx-biblioteca-item-page
+  .bib-file-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-file-history-modal {
+  width: min(100%, 780px);
+}
+
+.phanyx-biblioteca-item-page
+  .bib-file-history-body {
+  overflow-y: auto;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-history-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-history-summary
+  > div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.2rem;
+  border: 1px solid var(--bib-border-soft);
+  border-radius: 0.85rem;
+  background: var(--bib-soft) !important;
+  padding: 0.85rem 1rem;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-history-summary
+  small {
+  color: var(--bib-muted) !important;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-history-summary
+  strong {
+  color: var(--bib-text) !important;
+  font-size: 1.25rem;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-file-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-file-history-entry {
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  gap: 0.85rem;
+  border: 1px solid var(--bib-border-soft);
+  border-radius: 1rem;
+  background: var(--bib-card) !important;
+  padding: 1rem;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-file-history-entry-archived {
+  background: var(--bib-soft) !important;
+  opacity: 0.86;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-file-history-marker {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  place-items: center;
+  border-radius: 0.8rem;
+  background: var(--bib-soft-strong) !important;
+  font-size: 1.1rem;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-file-history-content {
+  min-width: 0;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-file-history-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-file-history-top
+  > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-history-version {
+  color: var(--bib-text) !important;
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-history-badge {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid;
+  border-radius: 999px;
+  padding: 0.22rem 0.5rem;
+  font-size: 0.65rem;
+  font-weight: 900;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-history-badge-primary {
+  border-color: #fbbf24 !important;
+  background: #fffbeb !important;
+  color: #92400e !important;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-history-badge-active {
+  border-color: #6ee7b7 !important;
+  background: #ecfdf5 !important;
+  color: #065f46 !important;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-history-badge-archived {
+  border-color: #fca5a5 !important;
+  background: #fef2f2 !important;
+  color: #991b1b !important;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-history-file-name {
+  display: block;
+  overflow: hidden;
+  margin-top: 0.55rem;
+  color: var(--bib-text) !important;
+  text-overflow: ellipsis;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-history-file-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.25rem;
+  color: var(--bib-muted) !important;
+  font-size: 0.72rem;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-history-file-meta
+  span:not(:last-child)::after {
+  content: "·";
+  margin-left: 0.45rem;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-history-event-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin-top: 0.8rem;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-history-event-grid
+  > div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.12rem;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-history-event-grid
+  small,
+.phanyx-biblioteca-item-page
+  .bib-history-reason
+  small {
+  color: var(--bib-subtle) !important;
+  font-size: 0.67rem;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-history-event-grid
+  strong {
+  overflow: hidden;
+  color: var(--bib-text) !important;
+  font-size: 0.73rem;
+  text-overflow: ellipsis;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-history-reason {
+  margin-top: 0.8rem;
+  border-left: 3px solid #f87171;
+  border-radius: 0.4rem;
+  background: #fef2f2 !important;
+  padding: 0.65rem 0.8rem;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-history-reason
+  p {
+  margin: 0.2rem 0 0;
+  color: #991b1b !important;
+  line-height: 1.45;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-history-loading,
+.phanyx-biblioteca-item-page
+  .bib-history-empty {
+  display: grid;
+  min-height: 10rem;
+  place-items: center;
+  align-content: center;
+  gap: 0.35rem;
+  text-align: center;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-history-loading
+  p,
+.phanyx-biblioteca-item-page
+  .bib-history-empty
+  p {
+  margin: 0;
+  color: var(--bib-muted) !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-biblioteca-item-page
+  .bib-history-badge-primary,
+html[data-theme="system"]
+  .phanyx-biblioteca-item-page
+  .bib-history-badge-primary {
+  border-color: #a16207 !important;
+  background: #422006 !important;
+  color: #fde68a !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-biblioteca-item-page
+  .bib-history-badge-active,
+html[data-theme="system"]
+  .phanyx-biblioteca-item-page
+  .bib-history-badge-active {
+  border-color: #047857 !important;
+  background: #064e3b !important;
+  color: #d1fae5 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-biblioteca-item-page
+  .bib-history-badge-archived,
+html[data-theme="system"]
+  .phanyx-biblioteca-item-page
+  .bib-history-badge-archived,
+html[data-theme="dark"]
+  .phanyx-biblioteca-item-page
+  .bib-history-reason,
+html[data-theme="system"]
+  .phanyx-biblioteca-item-page
+  .bib-history-reason {
+  border-color: #991b1b !important;
+  background: #450a0a !important;
+  color: #fecaca !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-biblioteca-item-page
+  .bib-history-reason
+  p,
+html[data-theme="system"]
+  .phanyx-biblioteca-item-page
+  .bib-history-reason
+  p {
+  color: #fecaca !important;
+}
+
+@media (max-width: 640px) {
+  .phanyx-biblioteca-item-page
+    .bib-history-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .phanyx-biblioteca-item-page
+    .bib-history-event-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .phanyx-biblioteca-item-page
+    .bib-file-history-entry {
+    grid-template-columns: 1fr;
+  }
+
+  .phanyx-biblioteca-item-page
+    .bib-file-header-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .phanyx-biblioteca-item-page
+    .bib-file-header-actions
+    .bib-button {
+    flex: 1 1 0;
+  }
+}
