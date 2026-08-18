@@ -2,6 +2,7 @@ import {
   AcaoAuditoriaBiblioteca,
   ModalidadeAcessoBiblioteca,
   Prisma,
+  StatusArquivoBiblioteca,
   StatusItemBiblioteca,
   TipoItemBiblioteca,
 } from "@prisma/client";
@@ -101,35 +102,53 @@ const ITEM_DETALHE_SELECT = {
     },
   },
   categorias: {
-    orderBy: [{ principal: "desc" }, { id: "asc" }],
-    select: {
-      principal: true,
-      categoria: {
-        select: {
-          id: true,
-          nome: true,
-          slug: true,
-          cor: true,
-          icone: true,
-        },
+  orderBy: [
+    { principal: "desc" },
+    { id: "asc" },
+  ],
+
+  select: {
+    principal: true,
+
+    categoria: {
+      select: {
+        id: true,
+        nome: true,
+        slug: true,
+        cor: true,
+        icone: true,
       },
     },
   },
-  arquivos: {
-    orderBy: [{ principal: "desc" }, { id: "asc" }],
-    select: {
-      id: true,
-      tipo: true,
-      status: true,
-      nomeOriginal: true,
-      extensao: true,
-      mimeType: true,
-      tamanhoBytes: true,
-      principal: true,
-      enviadoEm: true,
-      atualizadoEm: true,
+},
+
+arquivos: {
+  where: {
+    arquivadoEm: null,
+
+    status: {
+      not: StatusArquivoBiblioteca.ARQUIVADO,
     },
   },
+
+  orderBy: [
+    { principal: "desc" },
+    { id: "asc" },
+  ],
+
+  select: {
+    id: true,
+    tipo: true,
+    status: true,
+    nomeOriginal: true,
+    extensao: true,
+    mimeType: true,
+    tamanhoBytes: true,
+    principal: true,
+    enviadoEm: true,
+    atualizadoEm: true,
+  },
+},
   exemplares: {
     orderBy: [{ id: "asc" }],
     select: {
@@ -150,8 +169,20 @@ const ITEM_DETALHE_SELECT = {
   },
   _count: {
     select: {
-      arquivos: true,
-      exemplares: true,
+      arquivos: {
+        where: {
+          arquivadoEm:
+            null,
+
+          status: {
+            not:
+              StatusArquivoBiblioteca.ARQUIVADO,
+          },
+        },
+      },
+
+      exemplares:
+        true,
     },
   },
 } satisfies Prisma.BibliotecaItemSelect;
@@ -632,60 +663,80 @@ export async function GET(
       } catch {
         podeEnviarArquivo = false;
       }
-    } 
+    }
+
+    let podeExcluirArquivo =
+      !usuario.impersonacao &&
+      item.status !==
+      StatusItemBiblioteca.ARQUIVADO;
+
+    if (podeExcluirArquivo) {
+      try {
+        exigirPermissaoBiblioteca(
+          usuario,
+          contexto,
+          "biblioteca.arquivos.excluir"
+        );
+      } catch {
+        podeExcluirArquivo =
+          false;
+      }
+    }
 
     return responder({
-  ok: true,
+      ok: true,
 
-  instituicaoId:
-  contexto.instituicaoId,
+      instituicaoId:
+        contexto.instituicaoId,
 
-  item:
-    serializarItemParaResposta(
-      item
-    ),
+      item:
+        serializarItemParaResposta(
+          item
+        ),
 
-  permissoes: {
-    podeEditar,
-    podeEnviarArquivo,
-    impersonacao:
-      usuario.impersonacao,
-  },
+      permissoes: {
+        podeEditar,
+        podeEnviarArquivo,
+        podeExcluirArquivo,
 
-  configuracao: {
-    permitirDownload:
-      contexto.configuracao
-        ?.permitirDownload ??
-      false,
-  },
+        impersonacao:
+          usuario.impersonacao,
+      },
 
-  armazenamento: {
-    contratadoBytes:
-      contexto.armazenamento
-        .contratadoBytes
-        .toString(),
+      configuracao: {
+        permitirDownload:
+          contexto.configuracao
+            ?.permitirDownload ??
+          false,
+      },
 
-    extraBytes:
-      contexto.armazenamento
-        .extraBytes
-        .toString(),
+      armazenamento: {
+        contratadoBytes:
+          contexto.armazenamento
+            .contratadoBytes
+            .toString(),
 
-    limiteBytes:
-      contexto.armazenamento
-        .limiteBytes
-        .toString(),
+        extraBytes:
+          contexto.armazenamento
+            .extraBytes
+            .toString(),
 
-    utilizadoBytes:
-      contexto.armazenamento
-        .utilizadoBytes
-        .toString(),
+        limiteBytes:
+          contexto.armazenamento
+            .limiteBytes
+            .toString(),
 
-    disponivelBytes:
-      contexto.armazenamento
-        .disponivelBytes
-        .toString(),
-  },
-});
+        utilizadoBytes:
+          contexto.armazenamento
+            .utilizadoBytes
+            .toString(),
+
+        disponivelBytes:
+          contexto.armazenamento
+            .disponivelBytes
+            .toString(),
+      },
+    });
   } catch (erro) {
     return responderErro(erro);
   }

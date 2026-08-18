@@ -7,6 +7,7 @@ import {
   Prisma,
   StatusItemBiblioteca,
   TipoItemBiblioteca,
+  StatusArquivoBiblioteca,
 } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -122,11 +123,23 @@ const ITEM_ACERVO_SELECT = {
     },
   },
   _count: {
-    select: {
-      arquivos: true,
-      exemplares: true,
+  select: {
+    arquivos: {
+      where: {
+        arquivadoEm:
+          null,
+
+        status: {
+          not:
+            StatusArquivoBiblioteca.ARQUIVADO,
+        },
+      },
     },
+
+    exemplares:
+      true,
   },
+},
 } satisfies Prisma.BibliotecaItemSelect;
 
 type CorpoCadastro = Record<string, unknown>;
