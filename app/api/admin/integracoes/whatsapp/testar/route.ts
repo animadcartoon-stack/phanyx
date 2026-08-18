@@ -242,6 +242,25 @@ export async function POST() {
       integracao.tokenAcessoCriptografado.length
     );
 
+    try {
+      const testeCriptografia =
+        descriptografarTokenWhatsapp(
+          "sW7duWHOx+pQpoc+.SbIi8NQ6JZ9oypvc6mQD5g==.tDHrqIU+Q2VqTDPbSDKjg4Ry8Q=="
+        );
+
+      console.log(
+        "[WhatsApp] TESTE_CRYPTO_VERCEL:",
+        testeCriptografia === "PHANYX_TESTE_CRYPTO"
+          ? "OK"
+          : "CONTEUDO_DIFERENTE"
+      );
+    } catch (error) {
+      console.error(
+        "[WhatsApp] TESTE_CRYPTO_VERCEL: FALHOU",
+        error
+      );
+    }
+
     let accessToken: string;
 
     try {
