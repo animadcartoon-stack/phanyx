@@ -26154,3 +26154,56 @@ html[data-theme="system"]
   border-color: #808080 !important;
   background: #444444 !important;
 }
+
+.phanyx-biblioteca-item-page
+  .bib-file-primary-badge {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  margin-top: 0.35rem;
+  border: 1px solid #fbbf24 !important;
+  border-radius: 999px;
+  background: #fffbeb !important;
+  color: #92400e !important;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-file-action-primary {
+  border-color: #fbbf24 !important;
+  background: #fffbeb !important;
+  color: #92400e !important;
+  cursor: pointer;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-file-action-primary:hover:not(:disabled) {
+  border-color: #f59e0b !important;
+  background: #fef3c7 !important;
+  color: #78350f !important;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-file-action-primary:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+html[data-theme="dark"]
+  .phanyx-biblioteca-item-page
+  .bib-file-primary-badge,
+html[data-theme="system"]
+  .phanyx-biblioteca-item-page
+  .bib-file-primary-badge,
+html[data-theme="dark"]
+  .phanyx-biblioteca-item-page
+  .bib-file-action-primary,
+html[data-theme="system"]
+  .phanyx-biblioteca-item-page
+  .bib-file-action-primary {
+  border-color: #a16207 !important;
+  background: #422006 !important;
+  color: #fde68a !important;
+}

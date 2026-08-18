@@ -8,6 +8,7 @@ import {
 } from "react";
 
 import Link from "next/link";
+import { createPortal } from "react-dom";
 
 type Estrategia =
     | "RODIZIO"
@@ -909,562 +910,566 @@ export default function DistribuicaoCaptacaoPage() {
                 )}
             </div>
             {modalNovaRegraAberto &&
-    dados && (
-        <div
-            className="phanyx-captacao-distribuicao-modal-backdrop"
-            onMouseDown={
-                fecharModalNovaRegra
-            }
-        >
-            <div
-                className="phanyx-captacao-distribuicao-modal"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="titulo-nova-regra"
-                onMouseDown={(
-                    event
-                ) =>
-                    event.stopPropagation()
-                }
-            >
-                <div className="phanyx-captacao-distribuicao-modal-header">
-                    <div>
-                        <p className="phanyx-captacao-distribuicao-modal-kicker">
-                            DISTRIBUIÇÃO
-                            AUTOMÁTICA
-                        </p>
-
-                        <h2 id="titulo-nova-regra">
-                            Nova regra
-                            de
-                            distribuição
-                        </h2>
-
-                        <p className="phanyx-captacao-distribuicao-modal-subtitle">
-                            Diga ao
-                            PHANYX quais
-                            interessados
-                            esta regra
-                            atende e
-                            para onde
-                            eles devem
-                            ser
-                            encaminhados.
-                        </p>
-                    </div>
-
-                    <button
-                        type="button"
-                        onClick={
+                dados &&
+                typeof document !==
+                "undefined" &&
+                createPortal(
+                    <div
+                        className="phanyx-captacao-distribuicao-modal-backdrop"
+                        onMouseDown={
                             fecharModalNovaRegra
                         }
-                        className="phanyx-captacao-distribuicao-modal-close"
-                        aria-label="Fechar"
                     >
-                        ✕
-                    </button>
-                </div>
-
-                <div className="phanyx-captacao-distribuicao-modal-body">
-                    <section className="phanyx-captacao-distribuicao-modal-section">
-                        <div className="phanyx-captacao-distribuicao-section-heading">
-                            <span>
-                                1
-                            </span>
-
-                            <div>
-                                <h3>
-                                    Identifique
-                                    a regra
-                                </h3>
-
-                                <p>
-                                    Use um
-                                    nome que
-                                    sua
-                                    equipe
-                                    reconheça
-                                    facilmente.
-                                </p>
-                            </div>
-                        </div>
-
-                        <label>
-                            Nome da
-                            regra
-                        </label>
-
-                        <input
-                            value={
-                                nomeNovaRegra
-                            }
-                            onChange={(
+                        <div
+                            className="phanyx-captacao-distribuicao-modal"
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby="titulo-nova-regra"
+                            onMouseDown={(
                                 event
                             ) =>
-                                setNomeNovaRegra(
-                                    event
-                                        .target
-                                        .value
-                                )
+                                event.stopPropagation()
                             }
-                            placeholder="Ex.: Leads do Vestibular 2027"
-                        />
-                    </section>
+                        >
+                            <div className="phanyx-captacao-distribuicao-modal-header">
+                                <div>
+                                    <p className="phanyx-captacao-distribuicao-modal-kicker">
+                                        DISTRIBUIÇÃO
+                                        AUTOMÁTICA
+                                    </p>
 
-                    <section className="phanyx-captacao-distribuicao-modal-section">
-                        <div className="phanyx-captacao-distribuicao-section-heading">
-                            <span>
-                                2
-                            </span>
+                                    <h2 id="titulo-nova-regra">
+                                        Nova regra
+                                        de
+                                        distribuição
+                                    </h2>
 
-                            <div>
-                                <h3>
-                                    Quando
-                                    esta
-                                    regra
-                                    deve ser
-                                    usada?
-                                </h3>
+                                    <p className="phanyx-captacao-distribuicao-modal-subtitle">
+                                        Diga ao
+                                        PHANYX quais
+                                        interessados
+                                        esta regra
+                                        atende e
+                                        para onde
+                                        eles devem
+                                        ser
+                                        encaminhados.
+                                    </p>
+                                </div>
 
-                                <p>
-                                    Você
-                                    pode
-                                    combinar
-                                    informações.
-                                    Campos
-                                    deixados
-                                    em branco
-                                    valem
-                                    para
-                                    qualquer
-                                    opção.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="phanyx-captacao-distribuicao-form-grid">
-                            <div>
-                                <label>
-                                    Canal
-                                </label>
-
-                                <select
-                                    value={
-                                        canalNovaRegra
+                                <button
+                                    type="button"
+                                    onClick={
+                                        fecharModalNovaRegra
                                     }
-                                    onChange={(
-                                        event
-                                    ) =>
-                                        setCanalNovaRegra(
-                                            event
-                                                .target
-                                                .value
-                                        )
-                                    }
+                                    className="phanyx-captacao-distribuicao-modal-close"
+                                    aria-label="Fechar"
                                 >
-                                    <option value="">
-                                        Qualquer
-                                        canal
-                                    </option>
-
-                                    {dados.referencias.canais.map(
-                                        (
-                                            item
-                                        ) => (
-                                            <option
-                                                key={
-                                                    item.id
-                                                }
-                                                value={
-                                                    item.id
-                                                }
-                                            >
-                                                {
-                                                    item.nome
-                                                }
-                                            </option>
-                                        )
-                                    )}
-                                </select>
+                                    ✕
+                                </button>
                             </div>
 
-                            <div>
-                                <label>
-                                    Campanha
-                                </label>
+                            <div className="phanyx-captacao-distribuicao-modal-body">
+                                <section className="phanyx-captacao-distribuicao-modal-section">
+                                    <div className="phanyx-captacao-distribuicao-section-heading">
+                                        <span>
+                                            1
+                                        </span>
 
-                                <select
-                                    value={
-                                        campanhaNovaRegra
-                                    }
-                                    onChange={(
-                                        event
-                                    ) =>
-                                        setCampanhaNovaRegra(
-                                            event
-                                                .target
-                                                .value
-                                        )
-                                    }
-                                >
-                                    <option value="">
-                                        Qualquer
-                                        campanha
-                                    </option>
+                                        <div>
+                                            <h3>
+                                                Identifique
+                                                a regra
+                                            </h3>
 
-                                    {dados.referencias.campanhas.map(
-                                        (
-                                            item
-                                        ) => (
-                                            <option
-                                                key={
-                                                    item.id
-                                                }
-                                                value={
-                                                    item.id
-                                                }
-                                            >
-                                                {
-                                                    item.nome
-                                                }
-                                            </option>
-                                        )
-                                    )}
-                                </select>
-                            </div>
+                                            <p>
+                                                Use um
+                                                nome que
+                                                sua
+                                                equipe
+                                                reconheça
+                                                facilmente.
+                                            </p>
+                                        </div>
+                                    </div>
 
-                            <div>
-                                <label>
-                                    Formulário
-                                </label>
+                                    <label>
+                                        Nome da
+                                        regra
+                                    </label>
 
-                                <select
-                                    value={
-                                        formularioNovaRegra
-                                    }
-                                    onChange={(
-                                        event
-                                    ) =>
-                                        setFormularioNovaRegra(
-                                            event
-                                                .target
-                                                .value
-                                        )
-                                    }
-                                >
-                                    <option value="">
-                                        Qualquer
-                                        formulário
-                                    </option>
-
-                                    {dados.referencias.formularios.map(
-                                        (
-                                            item
-                                        ) => (
-                                            <option
-                                                key={
-                                                    item.id
-                                                }
-                                                value={
-                                                    item.id
-                                                }
-                                            >
-                                                {item.titulo ||
-                                                    item.nome}
-                                            </option>
-                                        )
-                                    )}
-                                </select>
-                            </div>
-
-                            <div>
-                                <label>
-                                    Curso
-                                </label>
-
-                                <select
-                                    value={
-                                        cursoNovaRegra
-                                    }
-                                    onChange={(
-                                        event
-                                    ) =>
-                                        setCursoNovaRegra(
-                                            event
-                                                .target
-                                                .value
-                                        )
-                                    }
-                                >
-                                    <option value="">
-                                        Qualquer
-                                        curso
-                                    </option>
-
-                                    {dados.referencias.cursos.map(
-                                        (
-                                            item
-                                        ) => (
-                                            <option
-                                                key={
-                                                    item.id
-                                                }
-                                                value={
-                                                    item.id
-                                                }
-                                            >
-                                                {
-                                                    item.nome
-                                                }
-                                            </option>
-                                        )
-                                    )}
-                                </select>
-                            </div>
-
-                            <div>
-                                <label>
-                                    Unidade
-                                </label>
-
-                                <select
-                                    value={
-                                        poloNovaRegra
-                                    }
-                                    onChange={(
-                                        event
-                                    ) =>
-                                        setPoloNovaRegra(
-                                            event
-                                                .target
-                                                .value
-                                        )
-                                    }
-                                >
-                                    <option value="">
-                                        Qualquer
-                                        unidade
-                                    </option>
-
-                                    {dados.referencias.polos.map(
-                                        (
-                                            item
-                                        ) => (
-                                            <option
-                                                key={
-                                                    item.id
-                                                }
-                                                value={
-                                                    item.id
-                                                }
-                                            >
-                                                {
-                                                    item.nome
-                                                }
-                                            </option>
-                                        )
-                                    )}
-                                </select>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section className="phanyx-captacao-distribuicao-modal-section">
-                        <div className="phanyx-captacao-distribuicao-section-heading">
-                            <span>
-                                3
-                            </span>
-
-                            <div>
-                                <h3>
-                                    Como o
-                                    PHANYX
-                                    deve
-                                    distribuir?
-                                </h3>
-
-                                <p>
-                                    Escolha
-                                    apenas
-                                    como
-                                    deseja
-                                    trabalhar.
-                                    A parte
-                                    técnica
-                                    fica por
-                                    conta do
-                                    sistema.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="phanyx-captacao-distribuicao-strategies">
-                            {dados.estrategiasDisponiveis.map(
-                                (
-                                    estrategia
-                                ) => (
-                                    <button
-                                        key={
-                                            estrategia
+                                    <input
+                                        value={
+                                            nomeNovaRegra
                                         }
-                                        type="button"
-                                        onClick={() =>
-                                            setEstrategiaNovaRegra(
-                                                estrategia
+                                        onChange={(
+                                            event
+                                        ) =>
+                                            setNomeNovaRegra(
+                                                event
+                                                    .target
+                                                    .value
                                             )
                                         }
-                                        className={
-                                            estrategiaNovaRegra ===
-                                            estrategia
-                                                ? "is-selected"
-                                                : ""
-                                        }
-                                    >
-                                        <strong>
-                                            {nomeEstrategia(
-                                                estrategia
-                                            )}
-                                        </strong>
+                                        placeholder="Ex.: Leads do Vestibular 2027"
+                                    />
+                                </section>
 
+                                <section className="phanyx-captacao-distribuicao-modal-section">
+                                    <div className="phanyx-captacao-distribuicao-section-heading">
                                         <span>
-                                            {descricaoEstrategia(
-                                                estrategia
-                                            )}
+                                            2
                                         </span>
-                                    </button>
-                                )
-                            )}
+
+                                        <div>
+                                            <h3>
+                                                Quando
+                                                esta
+                                                regra
+                                                deve ser
+                                                usada?
+                                            </h3>
+
+                                            <p>
+                                                Você
+                                                pode
+                                                combinar
+                                                informações.
+                                                Campos
+                                                deixados
+                                                em branco
+                                                valem
+                                                para
+                                                qualquer
+                                                opção.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="phanyx-captacao-distribuicao-form-grid">
+                                        <div>
+                                            <label>
+                                                Canal
+                                            </label>
+
+                                            <select
+                                                value={
+                                                    canalNovaRegra
+                                                }
+                                                onChange={(
+                                                    event
+                                                ) =>
+                                                    setCanalNovaRegra(
+                                                        event
+                                                            .target
+                                                            .value
+                                                    )
+                                                }
+                                            >
+                                                <option value="">
+                                                    Qualquer
+                                                    canal
+                                                </option>
+
+                                                {dados.referencias.canais.map(
+                                                    (
+                                                        item
+                                                    ) => (
+                                                        <option
+                                                            key={
+                                                                item.id
+                                                            }
+                                                            value={
+                                                                item.id
+                                                            }
+                                                        >
+                                                            {
+                                                                item.nome
+                                                            }
+                                                        </option>
+                                                    )
+                                                )}
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label>
+                                                Campanha
+                                            </label>
+
+                                            <select
+                                                value={
+                                                    campanhaNovaRegra
+                                                }
+                                                onChange={(
+                                                    event
+                                                ) =>
+                                                    setCampanhaNovaRegra(
+                                                        event
+                                                            .target
+                                                            .value
+                                                    )
+                                                }
+                                            >
+                                                <option value="">
+                                                    Qualquer
+                                                    campanha
+                                                </option>
+
+                                                {dados.referencias.campanhas.map(
+                                                    (
+                                                        item
+                                                    ) => (
+                                                        <option
+                                                            key={
+                                                                item.id
+                                                            }
+                                                            value={
+                                                                item.id
+                                                            }
+                                                        >
+                                                            {
+                                                                item.nome
+                                                            }
+                                                        </option>
+                                                    )
+                                                )}
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label>
+                                                Formulário
+                                            </label>
+
+                                            <select
+                                                value={
+                                                    formularioNovaRegra
+                                                }
+                                                onChange={(
+                                                    event
+                                                ) =>
+                                                    setFormularioNovaRegra(
+                                                        event
+                                                            .target
+                                                            .value
+                                                    )
+                                                }
+                                            >
+                                                <option value="">
+                                                    Qualquer
+                                                    formulário
+                                                </option>
+
+                                                {dados.referencias.formularios.map(
+                                                    (
+                                                        item
+                                                    ) => (
+                                                        <option
+                                                            key={
+                                                                item.id
+                                                            }
+                                                            value={
+                                                                item.id
+                                                            }
+                                                        >
+                                                            {item.titulo ||
+                                                                item.nome}
+                                                        </option>
+                                                    )
+                                                )}
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label>
+                                                Curso
+                                            </label>
+
+                                            <select
+                                                value={
+                                                    cursoNovaRegra
+                                                }
+                                                onChange={(
+                                                    event
+                                                ) =>
+                                                    setCursoNovaRegra(
+                                                        event
+                                                            .target
+                                                            .value
+                                                    )
+                                                }
+                                            >
+                                                <option value="">
+                                                    Qualquer
+                                                    curso
+                                                </option>
+
+                                                {dados.referencias.cursos.map(
+                                                    (
+                                                        item
+                                                    ) => (
+                                                        <option
+                                                            key={
+                                                                item.id
+                                                            }
+                                                            value={
+                                                                item.id
+                                                            }
+                                                        >
+                                                            {
+                                                                item.nome
+                                                            }
+                                                        </option>
+                                                    )
+                                                )}
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label>
+                                                Unidade
+                                            </label>
+
+                                            <select
+                                                value={
+                                                    poloNovaRegra
+                                                }
+                                                onChange={(
+                                                    event
+                                                ) =>
+                                                    setPoloNovaRegra(
+                                                        event
+                                                            .target
+                                                            .value
+                                                    )
+                                                }
+                                            >
+                                                <option value="">
+                                                    Qualquer
+                                                    unidade
+                                                </option>
+
+                                                {dados.referencias.polos.map(
+                                                    (
+                                                        item
+                                                    ) => (
+                                                        <option
+                                                            key={
+                                                                item.id
+                                                            }
+                                                            value={
+                                                                item.id
+                                                            }
+                                                        >
+                                                            {
+                                                                item.nome
+                                                            }
+                                                        </option>
+                                                    )
+                                                )}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <section className="phanyx-captacao-distribuicao-modal-section">
+                                    <div className="phanyx-captacao-distribuicao-section-heading">
+                                        <span>
+                                            3
+                                        </span>
+
+                                        <div>
+                                            <h3>
+                                                Como o
+                                                PHANYX
+                                                deve
+                                                distribuir?
+                                            </h3>
+
+                                            <p>
+                                                Escolha
+                                                apenas
+                                                como
+                                                deseja
+                                                trabalhar.
+                                                A parte
+                                                técnica
+                                                fica por
+                                                conta do
+                                                sistema.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="phanyx-captacao-distribuicao-strategies">
+                                        {dados.estrategiasDisponiveis.map(
+                                            (
+                                                estrategia
+                                            ) => (
+                                                <button
+                                                    key={
+                                                        estrategia
+                                                    }
+                                                    type="button"
+                                                    onClick={() =>
+                                                        setEstrategiaNovaRegra(
+                                                            estrategia
+                                                        )
+                                                    }
+                                                    className={
+                                                        estrategiaNovaRegra ===
+                                                            estrategia
+                                                            ? "is-selected"
+                                                            : ""
+                                                    }
+                                                >
+                                                    <strong>
+                                                        {nomeEstrategia(
+                                                            estrategia
+                                                        )}
+                                                    </strong>
+
+                                                    <span>
+                                                        {descricaoEstrategia(
+                                                            estrategia
+                                                        )}
+                                                    </span>
+                                                </button>
+                                            )
+                                        )}
+                                    </div>
+                                </section>
+
+                                {estrategiaNovaRegra ===
+                                    "RESPONSAVEL_FIXO" ? (
+                                    <section className="phanyx-captacao-distribuicao-modal-section">
+                                        <label>
+                                            Quem deve
+                                            receber
+                                            estes
+                                            leads?
+                                        </label>
+
+                                        <select
+                                            value={
+                                                responsavelNovaRegra
+                                            }
+                                            onChange={(
+                                                event
+                                            ) =>
+                                                setResponsavelNovaRegra(
+                                                    event
+                                                        .target
+                                                        .value
+                                                )
+                                            }
+                                        >
+                                            <option value="">
+                                                Selecione
+                                                uma pessoa
+                                            </option>
+
+                                            {dados.referencias.responsaveis.map(
+                                                (
+                                                    item
+                                                ) => (
+                                                    <option
+                                                        key={
+                                                            item.id
+                                                        }
+                                                        value={
+                                                            item.id
+                                                        }
+                                                    >
+                                                        {
+                                                            item.nome
+                                                        }
+                                                        {item.cargo
+                                                            ? ` — ${item.cargo}`
+                                                            : ""}
+                                                    </option>
+                                                )
+                                            )}
+                                        </select>
+                                    </section>
+                                ) : estrategiaNovaRegra !==
+                                    "MANUAL" ? (
+                                    <section className="phanyx-captacao-distribuicao-modal-section">
+                                        <label>
+                                            Qual
+                                            equipe
+                                            receberá
+                                            estes
+                                            leads?
+                                        </label>
+
+                                        <select
+                                            value={
+                                                equipeNovaRegra
+                                            }
+                                            onChange={(
+                                                event
+                                            ) =>
+                                                setEquipeNovaRegra(
+                                                    event
+                                                        .target
+                                                        .value
+                                                )
+                                            }
+                                        >
+                                            <option value="">
+                                                Selecione
+                                                uma
+                                                equipe
+                                            </option>
+
+                                            {dados.referencias.equipes.map(
+                                                (
+                                                    item
+                                                ) => (
+                                                    <option
+                                                        key={
+                                                            item.id
+                                                        }
+                                                        value={
+                                                            item.id
+                                                        }
+                                                    >
+                                                        {
+                                                            item.nome
+                                                        }
+                                                    </option>
+                                                )
+                                            )}
+                                        </select>
+                                    </section>
+                                ) : null}
+                            </div>
+
+                            <div className="phanyx-captacao-distribuicao-modal-footer">
+                                <button
+                                    type="button"
+                                    onClick={
+                                        fecharModalNovaRegra
+                                    }
+                                    className="phanyx-captacao-distribuicao-cancel"
+                                >
+                                    Cancelar
+                                </button>
+
+                                <button
+                                    type="button"
+                                    disabled
+                                    className="phanyx-captacao-distribuicao-save"
+                                    title="A gravação será conectada na próxima etapa."
+                                >
+                                    Criar regra
+                                </button>
+                            </div>
                         </div>
-                    </section>
-
-                    {estrategiaNovaRegra ===
-                    "RESPONSAVEL_FIXO" ? (
-                        <section className="phanyx-captacao-distribuicao-modal-section">
-                            <label>
-                                Quem deve
-                                receber
-                                estes
-                                leads?
-                            </label>
-
-                            <select
-                                value={
-                                    responsavelNovaRegra
-                                }
-                                onChange={(
-                                    event
-                                ) =>
-                                    setResponsavelNovaRegra(
-                                        event
-                                            .target
-                                            .value
-                                    )
-                                }
-                            >
-                                <option value="">
-                                    Selecione
-                                    uma pessoa
-                                </option>
-
-                                {dados.referencias.responsaveis.map(
-                                    (
-                                        item
-                                    ) => (
-                                        <option
-                                            key={
-                                                item.id
-                                            }
-                                            value={
-                                                item.id
-                                            }
-                                        >
-                                            {
-                                                item.nome
-                                            }
-                                            {item.cargo
-                                                ? ` — ${item.cargo}`
-                                                : ""}
-                                        </option>
-                                    )
-                                )}
-                            </select>
-                        </section>
-                    ) : estrategiaNovaRegra !==
-                      "MANUAL" ? (
-                        <section className="phanyx-captacao-distribuicao-modal-section">
-                            <label>
-                                Qual
-                                equipe
-                                receberá
-                                estes
-                                leads?
-                            </label>
-
-                            <select
-                                value={
-                                    equipeNovaRegra
-                                }
-                                onChange={(
-                                    event
-                                ) =>
-                                    setEquipeNovaRegra(
-                                        event
-                                            .target
-                                            .value
-                                    )
-                                }
-                            >
-                                <option value="">
-                                    Selecione
-                                    uma
-                                    equipe
-                                </option>
-
-                                {dados.referencias.equipes.map(
-                                    (
-                                        item
-                                    ) => (
-                                        <option
-                                            key={
-                                                item.id
-                                            }
-                                            value={
-                                                item.id
-                                            }
-                                        >
-                                            {
-                                                item.nome
-                                            }
-                                        </option>
-                                    )
-                                )}
-                            </select>
-                        </section>
-                    ) : null}
-                </div>
-
-                <div className="phanyx-captacao-distribuicao-modal-footer">
-                    <button
-                        type="button"
-                        onClick={
-                            fecharModalNovaRegra
-                        }
-                        className="phanyx-captacao-distribuicao-cancel"
-                    >
-                        Cancelar
-                    </button>
-
-                    <button
-                        type="button"
-                        disabled
-                        className="phanyx-captacao-distribuicao-save"
-                        title="A gravação será conectada na próxima etapa."
-                    >
-                        Criar regra
-                    </button>
-                </div>
-            </div>
-        </div>
+                            </div>,
+        document.body
     )}
         </div>
     );

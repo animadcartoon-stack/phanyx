@@ -102,53 +102,54 @@ const ITEM_DETALHE_SELECT = {
     },
   },
   categorias: {
-  orderBy: [
-    { principal: "desc" },
-    { id: "asc" },
-  ],
+    orderBy: [
+      { principal: "desc" },
+      { id: "asc" },
+    ],
 
-  select: {
-    principal: true,
+    select: {
+      principal: true,
 
-    categoria: {
-      select: {
-        id: true,
-        nome: true,
-        slug: true,
-        cor: true,
-        icone: true,
+      categoria: {
+        select: {
+          id: true,
+          nome: true,
+          slug: true,
+          cor: true,
+          icone: true,
+        },
       },
     },
   },
-},
 
-arquivos: {
-  where: {
-    arquivadoEm: null,
+  arquivos: {
+    where: {
+      arquivadoEm: null,
 
-    status: {
-      not: StatusArquivoBiblioteca.ARQUIVADO,
+      status: {
+        not: StatusArquivoBiblioteca.ARQUIVADO,
+      },
+    },
+
+    orderBy: [
+      { principal: "desc" },
+      { id: "asc" },
+    ],
+
+    select: {
+      id: true,
+      tipo: true,
+      status: true,
+      nomeOriginal: true,
+      extensao: true,
+      mimeType: true,
+      tamanhoBytes: true,
+      versao: true,
+      principal: true,
+      enviadoEm: true,
+      atualizadoEm: true,
     },
   },
-
-  orderBy: [
-    { principal: "desc" },
-    { id: "asc" },
-  ],
-
-  select: {
-    id: true,
-    tipo: true,
-    status: true,
-    nomeOriginal: true,
-    extensao: true,
-    mimeType: true,
-    tamanhoBytes: true,
-    principal: true,
-    enviadoEm: true,
-    atualizadoEm: true,
-  },
-},
   exemplares: {
     orderBy: [{ id: "asc" }],
     select: {
@@ -683,6 +684,22 @@ export async function GET(
       }
     }
 
+    let podeGerenciarArquivo =
+      !usuario.impersonacao &&
+      item.status !== StatusItemBiblioteca.ARQUIVADO;
+
+    if (podeGerenciarArquivo) {
+      try {
+        exigirPermissaoBiblioteca(
+          usuario,
+          contexto,
+          "biblioteca.arquivos.gerenciar"
+        );
+      } catch {
+        podeGerenciarArquivo = false;
+      }
+    }
+
     return responder({
       ok: true,
 
@@ -698,9 +715,8 @@ export async function GET(
         podeEditar,
         podeEnviarArquivo,
         podeExcluirArquivo,
-
-        impersonacao:
-          usuario.impersonacao,
+        podeGerenciarArquivo,
+        impersonacao: usuario.impersonacao,
       },
 
       configuracao: {

@@ -68,7 +68,7 @@ export const PERMISSOES_PHANYX = [
     nome: "Apoio Docente - Selecionar alunos específicos",
   },
 
-    // =====================================================
+  // =====================================================
   // BIBLIOTECA VIRTUAL
   // =====================================================
 
@@ -85,7 +85,7 @@ export const PERMISSOES_PHANYX = [
       "Permite consultar indicadores, atividades recentes e resumo da biblioteca.",
   },
 
-    // CONTRATAÇÃO E COBRANÇA
+  // CONTRATAÇÃO E COBRANÇA
   {
     chave: "biblioteca.contratacao.ver",
     nome: "Biblioteca Virtual - Ver contratação e plano",
@@ -131,6 +131,12 @@ export const PERMISSOES_PHANYX = [
   {
     chave: "biblioteca.arquivos.upload",
     nome: "Biblioteca Virtual - Enviar arquivos",
+  },
+  {
+    chave: "biblioteca.arquivos.gerenciar",
+    nome: "Biblioteca Virtual - Gerenciar arquivos",
+    descricao:
+      "Permite definir arquivo principal, organizar versões e gerenciar propriedades administrativas dos arquivos da biblioteca.",
   },
   {
     chave: "biblioteca.arquivos.download",
@@ -221,7 +227,7 @@ export const PERMISSOES_PHANYX = [
     nome: "Biblioteca Virtual - Ver auditoria",
   },
 
-    // =====================================================
+  // =====================================================
   // COMERCIAL
   // =====================================================
 
@@ -239,7 +245,7 @@ export const PERMISSOES_PHANYX = [
       "Permite consultar indicadores, resultados e o resumo comercial.",
   },
 
-    // =====================================================
+  // =====================================================
   // CENTRAL DE CAPTAÇÃO
   // =====================================================
 
@@ -342,7 +348,7 @@ export const PERMISSOES_PHANYX = [
       "Permite consultar eventos, falhas, tentativas de processamento e registros de auditoria relacionados à captação de leads.",
   },
 
-    // FUNIS COMERCIAIS
+  // FUNIS COMERCIAIS
   {
     chave: "comercial.funis.ver",
     nome: "Comercial - Ver funis comerciais",
@@ -399,7 +405,7 @@ export const PERMISSOES_PHANYX = [
     descricao:
       "Permite transformar uma oportunidade em venda ou matrícula.",
   },
-    {
+  {
     chave: "comercial.leads.ver_todos",
     nome: "Comercial - Ver todos os leads",
     descricao:
@@ -442,7 +448,7 @@ export const PERMISSOES_PHANYX = [
       "Permite consultar movimentações, transferências, contatos e demais registros de auditoria.",
   },
 
-    // TAREFAS E PRÓXIMAS AÇÕES
+  // TAREFAS E PRÓXIMAS AÇÕES
   {
     chave: "comercial.tarefas.ver",
     nome: "Comercial - Ver tarefas comerciais",
@@ -494,39 +500,39 @@ export const PERMISSOES_PHANYX = [
       "Permite consultar os funcionários vinculados às atividades comerciais.",
   },
   {
-  chave: "comercial.vendedores.gerenciar",
-  nome: "Comercial - Gerenciar vendedores",
-  descricao:
-    "Permite definir funcionários responsáveis por vendas, matrículas e metas.",
-},
+    chave: "comercial.vendedores.gerenciar",
+    nome: "Comercial - Gerenciar vendedores",
+    descricao:
+      "Permite definir funcionários responsáveis por vendas, matrículas e metas.",
+  },
 
-// EQUIPES COMERCIAIS
-{
-  chave: "comercial.equipes.ver",
-  nome: "Comercial - Ver equipes comerciais",
-  descricao:
-    "Permite consultar equipes comerciais, líderes e membros vinculados.",
-},
-{
-  chave: "comercial.equipes.criar",
-  nome: "Comercial - Criar equipes comerciais",
-  descricao:
-    "Permite cadastrar novas equipes comerciais e selecionar seus membros.",
-},
-{
-  chave: "comercial.equipes.editar",
-  nome: "Comercial - Editar equipes comerciais",
-  descricao:
-    "Permite alterar nome, descrição, liderança, membros e situação das equipes.",
-},
-{
-  chave: "comercial.equipes.excluir",
-  nome: "Comercial - Desativar equipes comerciais",
-  descricao:
-    "Permite desativar equipes comerciais, preservando seu histórico e suas metas.",
-},
+  // EQUIPES COMERCIAIS
+  {
+    chave: "comercial.equipes.ver",
+    nome: "Comercial - Ver equipes comerciais",
+    descricao:
+      "Permite consultar equipes comerciais, líderes e membros vinculados.",
+  },
+  {
+    chave: "comercial.equipes.criar",
+    nome: "Comercial - Criar equipes comerciais",
+    descricao:
+      "Permite cadastrar novas equipes comerciais e selecionar seus membros.",
+  },
+  {
+    chave: "comercial.equipes.editar",
+    nome: "Comercial - Editar equipes comerciais",
+    descricao:
+      "Permite alterar nome, descrição, liderança, membros e situação das equipes.",
+  },
+  {
+    chave: "comercial.equipes.excluir",
+    nome: "Comercial - Desativar equipes comerciais",
+    descricao:
+      "Permite desativar equipes comerciais, preservando seu histórico e suas metas.",
+  },
 
-// METAS
+  // METAS
   {
     chave: "comercial.metas.ver",
     nome: "Comercial - Ver metas",
@@ -638,7 +644,7 @@ export const PERMISSOES_PHANYX = [
       "Permite configurar etapas, origens, regras, planos e parâmetros comerciais.",
   },
 
-    // =====================================================
+  // =====================================================
   // INTEGRAÇÕES
   // =====================================================
   {
@@ -648,11 +654,11 @@ export const PERMISSOES_PHANYX = [
       "Permite configurar, testar, ativar e alterar as credenciais SMTP utilizadas pela instituição para envio de e-mails pelo PHANYX.",
   },
   {
-  chave: "integracoes.whatsapp.gerenciar",
-  nome: "Integrações - Gerenciar WhatsApp institucional",
-  descricao:
-    "Permite conectar, testar, ativar, desativar e configurar o WhatsApp Business utilizado pela instituição para comunicações automáticas pelo PHANYX.",
-},
+    chave: "integracoes.whatsapp.gerenciar",
+    nome: "Integrações - Gerenciar WhatsApp institucional",
+    descricao:
+      "Permite conectar, testar, ativar, desativar e configurar o WhatsApp Business utilizado pela instituição para comunicações automáticas pelo PHANYX.",
+  },
 
   // =====================================================
   // FINANCEIRO
@@ -706,47 +712,47 @@ export const PERMISSOES_PHANYX = [
 
   { chave: "rh.funcionarios", nome: "RH - Funcionários" },
 
-{ chave: "rh.professores", nome: "RH - Professores" },
+  { chave: "rh.professores", nome: "RH - Professores" },
 
-{
-  chave: "rh.professores.ver",
-  nome: "RH - Ver professores",
-  descricao:
-    "Permite acessar a lista de professores pelo módulo de RH.",
-},
-{
-  chave: "rh.professores.criar",
-  nome: "RH - Cadastrar professores",
-  descricao:
-    "Permite cadastrar professores acadêmicos e professores com vínculo trabalhista.",
-},
-{
-  chave: "rh.professores.editar",
-  nome: "RH - Editar professores",
-  descricao:
-    "Permite alterar os dados cadastrais e acadêmicos dos professores.",
-},
-{
-  chave: "rh.professores.vinculo.gerenciar",
-  nome: "RH - Gerenciar vínculo trabalhista dos professores",
-  descricao:
-    "Permite incluir o professor no RH e alterar dados do vínculo contratual.",
-},
-{
-  chave: "rh.professores.remuneracao.ver",
-  nome: "RH - Ver remuneração dos professores",
-  descricao:
-    "Permite visualizar salário, valores por hora, aula, turma ou disciplina.",
-},
-{
-  chave: "rh.professores.remuneracao.editar",
-  nome: "RH - Editar remuneração dos professores",
-  descricao:
-    "Permite alterar salário e demais modalidades de remuneração dos professores.",
-},
+  {
+    chave: "rh.professores.ver",
+    nome: "RH - Ver professores",
+    descricao:
+      "Permite acessar a lista de professores pelo módulo de RH.",
+  },
+  {
+    chave: "rh.professores.criar",
+    nome: "RH - Cadastrar professores",
+    descricao:
+      "Permite cadastrar professores acadêmicos e professores com vínculo trabalhista.",
+  },
+  {
+    chave: "rh.professores.editar",
+    nome: "RH - Editar professores",
+    descricao:
+      "Permite alterar os dados cadastrais e acadêmicos dos professores.",
+  },
+  {
+    chave: "rh.professores.vinculo.gerenciar",
+    nome: "RH - Gerenciar vínculo trabalhista dos professores",
+    descricao:
+      "Permite incluir o professor no RH e alterar dados do vínculo contratual.",
+  },
+  {
+    chave: "rh.professores.remuneracao.ver",
+    nome: "RH - Ver remuneração dos professores",
+    descricao:
+      "Permite visualizar salário, valores por hora, aula, turma ou disciplina.",
+  },
+  {
+    chave: "rh.professores.remuneracao.editar",
+    nome: "RH - Editar remuneração dos professores",
+    descricao:
+      "Permite alterar salário e demais modalidades de remuneração dos professores.",
+  },
 
-{ chave: "rh.departamentos", nome: "RH - Departamentos" },
-{ chave: "rh.permissoes", nome: "RH - Permissões por setor" },
+  { chave: "rh.departamentos", nome: "RH - Departamentos" },
+  { chave: "rh.permissoes", nome: "RH - Permissões por setor" },
 
   { chave: "rh.admissoes", nome: "RH - Admissões" },
   { chave: "rh.desligamentos", nome: "RH - Desligamentos" },
@@ -782,11 +788,11 @@ export const PERMISSOES_PHANYX = [
   { chave: "rh.holerites", nome: "RH - Holerites" },
   { chave: "rh.holerites_gerar", nome: "RH - Gerar holerites" },
   {
-  chave: "rh.holerites_assinar",
-  nome: "RH - Assinar digitalmente recibos de holerites",
-  descricao:
-    "Permite ao funcionário autorizado do RH assinar digitalmente o recibo de pagamento com seu usuário e ID.",
-},
+    chave: "rh.holerites_assinar",
+    nome: "RH - Assinar digitalmente recibos de holerites",
+    descricao:
+      "Permite ao funcionário autorizado do RH assinar digitalmente o recibo de pagamento com seu usuário e ID.",
+  },
   { chave: "rh.holerites_excluir", nome: "RH - Excluir holerites" },
 
   { chave: "rh.ferias", nome: "RH - Férias" },
@@ -803,41 +809,41 @@ export const PERMISSOES_PHANYX = [
   { chave: "rh.indicadores", nome: "RH - Indicadores e métricas" },
 
   {
-  chave: "rh.ponto.mobile.ver",
-  nome: "Ponto Mobile - Visualizar",
-  descricao:
-    "Permite visualizar o módulo e as informações gerais do Ponto Mobile.",
-},
-{
-  chave: "rh.ponto.mobile.configurar",
-  nome: "Ponto Mobile - Configurar",
-  descricao:
-    "Permite ativar o Ponto Mobile e alterar foto, localização, reconhecimento facial e raio permitido.",
-},
-{
-  chave: "rh.ponto.mobile.funcionarios.gerenciar",
-  nome: "Ponto Mobile - Gerenciar funcionários",
-  descricao:
-    "Permite liberar ou bloquear funcionários para registrar ponto pelo celular.",
-},
-{
-  chave: "rh.ponto.mobile.locais.gerenciar",
-  nome: "Ponto Mobile - Gerenciar locais",
-  descricao:
-    "Permite cadastrar e alterar unidades, endereços, coordenadas e áreas autorizadas.",
-},
-{
-  chave: "rh.ponto.mobile.marcacoes.ver",
-  nome: "Ponto Mobile - Ver marcações",
-  descricao:
-    "Permite consultar fotos, horários, localização e comprovantes das marcações mobile.",
-},
-{
-  chave: "rh.ponto.mobile.ocorrencias.gerenciar",
-  nome: "Ponto Mobile - Gerenciar ocorrências",
-  descricao:
-    "Permite analisar registros fora da área, falhas de localização e divergências de reconhecimento.",
-},
+    chave: "rh.ponto.mobile.ver",
+    nome: "Ponto Mobile - Visualizar",
+    descricao:
+      "Permite visualizar o módulo e as informações gerais do Ponto Mobile.",
+  },
+  {
+    chave: "rh.ponto.mobile.configurar",
+    nome: "Ponto Mobile - Configurar",
+    descricao:
+      "Permite ativar o Ponto Mobile e alterar foto, localização, reconhecimento facial e raio permitido.",
+  },
+  {
+    chave: "rh.ponto.mobile.funcionarios.gerenciar",
+    nome: "Ponto Mobile - Gerenciar funcionários",
+    descricao:
+      "Permite liberar ou bloquear funcionários para registrar ponto pelo celular.",
+  },
+  {
+    chave: "rh.ponto.mobile.locais.gerenciar",
+    nome: "Ponto Mobile - Gerenciar locais",
+    descricao:
+      "Permite cadastrar e alterar unidades, endereços, coordenadas e áreas autorizadas.",
+  },
+  {
+    chave: "rh.ponto.mobile.marcacoes.ver",
+    nome: "Ponto Mobile - Ver marcações",
+    descricao:
+      "Permite consultar fotos, horários, localização e comprovantes das marcações mobile.",
+  },
+  {
+    chave: "rh.ponto.mobile.ocorrencias.gerenciar",
+    nome: "Ponto Mobile - Gerenciar ocorrências",
+    descricao:
+      "Permite analisar registros fora da área, falhas de localização e divergências de reconhecimento.",
+  },
 
   // =====================================================
   // CONTROLE DE ACESSO / CRACHÁS / VISITANTES

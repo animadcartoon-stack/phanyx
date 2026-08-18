@@ -46,6 +46,7 @@ type ArquivoItem = {
   extensao: string | null;
   mimeType: string | null;
   tamanhoBytes: string;
+  versao: number;
   principal: boolean;
   enviadoEm: string;
   atualizadoEm: string;
@@ -181,6 +182,7 @@ type RespostaItem = {
   permissoes?: {
     podeEditar: boolean;
     podeEnviarArquivo: boolean;
+    podeGerenciarArquivo: boolean;
     impersonacao: boolean;
     podeExcluirArquivo: boolean;
   };
@@ -563,6 +565,11 @@ export default function BibliotecaItemPage() {
             ?.podeExcluirArquivo === true
         );
 
+        setPodeGerenciarArquivo(
+          resultado.permissoes
+            ?.podeGerenciarArquivo === true
+        );
+
         setArmazenamento(
           resultado.armazenamento ||
           null
@@ -610,6 +617,16 @@ export default function BibliotecaItemPage() {
     excluindoArquivo,
     setExcluindoArquivo,
   ] = useState(false);
+
+  const [
+    podeGerenciarArquivo,
+    setPodeGerenciarArquivo,
+  ] = useState(false);
+
+  const [
+    definindoPrincipalId,
+    setDefinindoPrincipalId,
+  ] = useState<number | null>(null);
 
   useEffect(() => {
     const controlador = new AbortController();
@@ -975,6 +992,78 @@ export default function BibliotecaItemPage() {
     } finally {
       setExcluindoArquivo(
         false
+      );
+    }
+  }
+
+  async function definirArquivoPrincipal(
+    arquivo: ArquivoItem
+  ) {
+    if (
+      arquivo.principal ||
+      definindoPrincipalId !== null ||
+      !podeGerenciarArquivo ||
+      impersonacao
+    ) {
+      return;
+    }
+
+    setDefinindoPrincipalId(
+      arquivo.id
+    );
+
+    try {
+      const resposta =
+        await fetch(
+          `/api/admin/biblioteca/arquivos/${arquivo.id}/principal`,
+          {
+            method: "PATCH",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+          }
+        );
+
+      const resultado =
+        (await resposta.json()) as {
+          ok?: boolean;
+          mensagem?: string;
+          error?: string;
+        };
+
+      if (!resposta.ok) {
+        throw new Error(
+          resultado.error ||
+          "Não foi possível definir o arquivo principal."
+        );
+      }
+
+      setToast({
+        tipo: "sucesso",
+
+        mensagem:
+          resultado.mensagem ||
+          "Arquivo definido como principal.",
+      });
+
+      setAtualizacao(
+        (valor) =>
+          valor + 1
+      );
+    } catch (falha) {
+      setToast({
+        tipo: "erro",
+
+        mensagem:
+          falha instanceof Error
+            ? falha.message
+            : "Não foi possível definir o arquivo principal.",
+      });
+    } finally {
+      setDefinindoPrincipalId(
+        null
       );
     }
   }
@@ -1961,16 +2050,24 @@ export default function BibliotecaItemPage() {
                         <small>
                           {rotuloEnum(
                             arquivo.tipo
-                          )}{" "}
-                          ·{" "}
+                          )}
+                          {" · "}
                           {formatarBytes(
                             arquivo.tamanhoBytes
-                          )}{" "}
-                          ·{" "}
+                          )}
+                          {" · "}
+                          Versão {arquivo.versao}
+                          {" · "}
                           {rotuloEnum(
                             arquivo.status
                           )}
                         </small>
+
+                        {arquivo.principal ? (
+                          <span className="bib-file-primary-badge">
+                            ⭐ Principal
+                          </span>
+                        ) : null}
 
                         {arquivo.status ===
                           "DISPONIVEL" ? (
@@ -1990,6 +2087,31 @@ export default function BibliotecaItemPage() {
                             >
                               ⬇ Baixar
                             </a>
+
+                            {arquivo.status ===
+                              "DISPONIVEL" &&
+                              !arquivo.principal &&
+                              podeGerenciarArquivo &&
+                              !impersonacao ? (
+                              <button
+                                type="button"
+                                className="bib-file-action bib-file-action-primary"
+                                disabled={
+                                  definindoPrincipalId !==
+                                  null
+                                }
+                                onClick={() =>
+                                  void definirArquivoPrincipal(
+                                    arquivo
+                                  )
+                                }
+                              >
+                                {definindoPrincipalId ===
+                                  arquivo.id
+                                  ? "Definindo..."
+                                  : "☆ Definir como principal"}
+                              </button>
+                            ) : null}
 
                             {podeExcluirArquivo &&
                               !impersonacao ? (
