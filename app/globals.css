@@ -25445,3 +25445,368 @@ html[data-theme="system"]
   background: #450a0a !important;
   color: #fecaca !important;
 }
+
+/* =========================================================
+   PHANYX — CENTRAL DE CAPTAÇÃO — DISTRIBUIÇÃO DE LEADS
+   Claro, escuro e sistema
+   Manter no final do globals.css
+   ========================================================= */
+
+.phanyx-captacao-distribuicao-page {
+  opacity: 1 !important;
+}
+
+/* =========================================================
+   TEMA CLARO
+   ========================================================= */
+
+html[data-theme="light"]
+  .phanyx-captacao-distribuicao-page {
+  background: #f3f4f6 !important;
+  color: #0f172a !important;
+}
+
+/* Títulos e valores principais */
+html[data-theme="light"]
+  .phanyx-captacao-distribuicao-page h1,
+html[data-theme="light"]
+  .phanyx-captacao-distribuicao-page h2,
+html[data-theme="light"]
+  .phanyx-captacao-distribuicao-page h3,
+html[data-theme="light"]
+  .phanyx-captacao-distribuicao-page strong {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+/* Texto normal */
+html[data-theme="light"]
+  .phanyx-captacao-distribuicao-page p,
+html[data-theme="light"]
+  .phanyx-captacao-distribuicao-page label {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+  opacity: 1 !important;
+}
+
+/* Textos auxiliares */
+html[data-theme="light"]
+  .phanyx-captacao-distribuicao-page
+  .text-slate-400,
+html[data-theme="light"]
+  .phanyx-captacao-distribuicao-page
+  .text-slate-500,
+html[data-theme="light"]
+  .phanyx-captacao-distribuicao-page
+  .text-slate-600 {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-captacao-distribuicao-page
+  .text-slate-700,
+html[data-theme="light"]
+  .phanyx-captacao-distribuicao-page
+  .text-slate-800,
+html[data-theme="light"]
+  .phanyx-captacao-distribuicao-page
+  .text-slate-900,
+html[data-theme="light"]
+  .phanyx-captacao-distribuicao-page
+  .text-slate-950 {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+/* Cards */
+html[data-theme="light"]
+  .phanyx-captacao-distribuicao-page
+  .bg-white {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-captacao-distribuicao-page
+  .bg-slate-50 {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  background-image: none !important;
+  color: #0f172a !important;
+}
+
+/* Bordas */
+html[data-theme="light"]
+  .phanyx-captacao-distribuicao-page
+  .border-slate-200,
+html[data-theme="light"]
+  .phanyx-captacao-distribuicao-page
+  .border-slate-300 {
+  border-color: #cbd5e1 !important;
+}
+
+/* Campo de busca */
+html[data-theme="light"]
+  .phanyx-captacao-distribuicao-page input {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-captacao-distribuicao-page
+  input::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+/* Checkbox */
+html[data-theme="light"]
+  .phanyx-captacao-distribuicao-page
+  input[type="checkbox"] {
+  background: #ffffff !important;
+  border-color: #64748b !important;
+  accent-color: #2563eb !important;
+}
+
+/* Botões secundários */
+html[data-theme="light"]
+  .phanyx-captacao-distribuicao-page
+  button:not(.bg-blue-600) {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+/* Botões principais azuis */
+html[data-theme="light"]
+  .phanyx-captacao-distribuicao-page
+  button.bg-blue-600 {
+  background: #2563eb !important;
+  background-color: #2563eb !important;
+  background-image: none !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-captacao-distribuicao-page
+  button.bg-blue-600:hover:not(:disabled) {
+  background: #1d4ed8 !important;
+  background-color: #1d4ed8 !important;
+}
+
+/* Atualizar desabilitado */
+html[data-theme="light"]
+  .phanyx-captacao-distribuicao-page
+  button:disabled {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+}
+
+/* Link voltar */
+html[data-theme="light"]
+  .phanyx-captacao-distribuicao-page a {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-captacao-distribuicao-page a:hover {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+
+/* =========================================================
+   TEMA ESCURO
+   ========================================================= */
+
+html[data-theme="dark"]
+  .phanyx-captacao-distribuicao-page {
+  background: #050505 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-captacao-distribuicao-page
+  .bg-white {
+  background: #111111 !important;
+  background-color: #111111 !important;
+  background-image: none !important;
+  border-color: #2f2f2f !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-captacao-distribuicao-page
+  .bg-slate-50 {
+  background: #181818 !important;
+  background-color: #181818 !important;
+  background-image: none !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-captacao-distribuicao-page h1,
+html[data-theme="dark"]
+  .phanyx-captacao-distribuicao-page h2,
+html[data-theme="dark"]
+  .phanyx-captacao-distribuicao-page h3,
+html[data-theme="dark"]
+  .phanyx-captacao-distribuicao-page strong {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-captacao-distribuicao-page p,
+html[data-theme="dark"]
+  .phanyx-captacao-distribuicao-page label {
+  color: #cbd5e1 !important;
+  -webkit-text-fill-color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-captacao-distribuicao-page
+  input {
+  background: #111827 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border-color: #374151 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-captacao-distribuicao-page
+  input::placeholder {
+  color: #94a3b8 !important;
+  -webkit-text-fill-color: #94a3b8 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-captacao-distribuicao-page
+  button.bg-blue-600 {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+
+/* =========================================================
+   TEMA SISTEMA
+   Cinza neutro, sem cards azuis
+   ========================================================= */
+
+html[data-theme="system"]
+  .phanyx-captacao-distribuicao-page {
+  background: #262626 !important;
+  color: #f5f5f5 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-captacao-distribuicao-page
+  .bg-white {
+  background: #2a2a2a !important;
+  background-color: #2a2a2a !important;
+  background-image: none !important;
+  border-color: #555555 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-captacao-distribuicao-page
+  .bg-slate-50 {
+  background: #333333 !important;
+  background-color: #333333 !important;
+  background-image: none !important;
+  border-color: #5f5f5f !important;
+}
+
+html[data-theme="system"]
+  .phanyx-captacao-distribuicao-page h1,
+html[data-theme="system"]
+  .phanyx-captacao-distribuicao-page h2,
+html[data-theme="system"]
+  .phanyx-captacao-distribuicao-page h3,
+html[data-theme="system"]
+  .phanyx-captacao-distribuicao-page strong {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-captacao-distribuicao-page p,
+html[data-theme="system"]
+  .phanyx-captacao-distribuicao-page label {
+  color: #e5e5e5 !important;
+  -webkit-text-fill-color: #e5e5e5 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-captacao-distribuicao-page
+  .text-slate-400,
+html[data-theme="system"]
+  .phanyx-captacao-distribuicao-page
+  .text-slate-500,
+html[data-theme="system"]
+  .phanyx-captacao-distribuicao-page
+  .text-slate-600 {
+  color: #d4d4d4 !important;
+  -webkit-text-fill-color: #d4d4d4 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-captacao-distribuicao-page
+  input {
+  background: #262626 !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border-color: #5f5f5f !important;
+}
+
+html[data-theme="system"]
+  .phanyx-captacao-distribuicao-page
+  input::placeholder {
+  color: #a3a3a3 !important;
+  -webkit-text-fill-color: #a3a3a3 !important;
+  opacity: 1 !important;
+}
+
+/* Botões neutros no sistema */
+html[data-theme="system"]
+  .phanyx-captacao-distribuicao-page
+  button:not(.bg-blue-600) {
+  background: #303030 !important;
+  background-image: none !important;
+  border-color: #606060 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* Azul fica somente nas ações principais */
+html[data-theme="system"]
+  .phanyx-captacao-distribuicao-page
+  button.bg-blue-600 {
+  background: #2563eb !important;
+  background-color: #2563eb !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}

@@ -411,7 +411,7 @@ export default function DistribuicaoCaptacaoPage() {
 
     if (carregando) {
         return (
-            <div className="min-h-screen bg-slate-50 p-6 text-slate-900 dark:bg-slate-950 dark:text-white">
+            <div className="phanyx-captacao-distribuicao-page min-h-screen bg-slate-50 p-6">
                 <div className="mx-auto max-w-7xl">
                     <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                         <div className="flex items-center gap-3">
@@ -432,7 +432,7 @@ export default function DistribuicaoCaptacaoPage() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 p-6 text-slate-900 dark:bg-slate-950 dark:text-white">
+        <div className="phanyx-captacao-distribuicao-page min-h-screen bg-slate-50 p-6">
             <div className="mx-auto max-w-7xl space-y-6">
                 <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                     <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
