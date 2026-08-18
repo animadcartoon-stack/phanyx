@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 const VERIFY_TOKEN =
+  process.env.META_WHATSAPP_WEBHOOK_VERIFY_TOKEN ||
   process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN;
 
 const META_APP_SECRET =
