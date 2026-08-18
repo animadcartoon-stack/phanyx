@@ -24746,3 +24746,82 @@ html[data-theme="system"]
     flex: 1 1 0;
   }
 }
+
+/* =========================================================
+   CENTRAL DE CAPTAÇÃO — STATUS DAS REGRAS
+   ========================================================= */
+
+.phanyx-captacao-distribuicao-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 24px;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* CLARO — ATIVA */
+html[data-theme="light"]
+  .phanyx-captacao-distribuicao-status-badge.is-active {
+  background: #d1fae5 !important;
+  background-color: #d1fae5 !important;
+  color: #065f46 !important;
+  -webkit-text-fill-color: #065f46 !important;
+  border: 1px solid #6ee7b7 !important;
+  opacity: 1 !important;
+}
+
+/* CLARO — INATIVA */
+html[data-theme="light"]
+  .phanyx-captacao-distribuicao-status-badge.is-inactive {
+  background: #e2e8f0 !important;
+  background-color: #e2e8f0 !important;
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+  border: 1px solid #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+/* ESCURO — ATIVA */
+html[data-theme="dark"]
+  .phanyx-captacao-distribuicao-status-badge.is-active {
+  background: #064e3b !important;
+  background-color: #064e3b !important;
+  color: #a7f3d0 !important;
+  -webkit-text-fill-color: #a7f3d0 !important;
+  border: 1px solid #047857 !important;
+}
+
+/* ESCURO — INATIVA */
+html[data-theme="dark"]
+  .phanyx-captacao-distribuicao-status-badge.is-inactive {
+  background: #334155 !important;
+  background-color: #334155 !important;
+  color: #f1f5f9 !important;
+  -webkit-text-fill-color: #f1f5f9 !important;
+  border: 1px solid #475569 !important;
+}
+
+/* SISTEMA — ATIVA */
+html[data-theme="system"]
+  .phanyx-captacao-distribuicao-status-badge.is-active {
+  background: #14532d !important;
+  background-color: #14532d !important;
+  color: #dcfce7 !important;
+  -webkit-text-fill-color: #dcfce7 !important;
+  border: 1px solid #15803d !important;
+}
+
+/* SISTEMA — INATIVA */
+html[data-theme="system"]
+  .phanyx-captacao-distribuicao-status-badge.is-inactive {
+  background: #4b5563 !important;
+  background-color: #4b5563 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border: 1px solid #6b7280 !important;
+}

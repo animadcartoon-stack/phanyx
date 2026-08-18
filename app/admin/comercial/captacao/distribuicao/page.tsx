@@ -654,141 +654,141 @@ export default function DistribuicaoCaptacaoPage() {
     }
 
     async function criarNovaRegra() {
-    if (
-        !podeCriarNovaRegra ||
-        salvandoNovaRegra
-    ) {
-        return;
-    }
-
-    const editando =
-        regraEditandoId !== null;
-
-    try {
-        setSalvandoNovaRegra(
-            true
-        );
-
-        setErroNovaRegra("");
-        setMensagemSucesso("");
-
-        const url = editando
-            ? `/api/admin/comercial/captacao/distribuicao/${regraEditandoId}`
-            : "/api/admin/comercial/captacao/distribuicao";
-
-        const resposta =
-            await fetch(url, {
-                method: editando
-                    ? "PATCH"
-                    : "POST",
-
-                headers: {
-                    "Content-Type":
-                        "application/json",
-                },
-
-                body: JSON.stringify({
-                    nome:
-                        nomeNovaRegra.trim(),
-
-                    estrategia:
-                        estrategiaNovaRegra,
-
-                    canalId:
-                        idOuNull(
-                            canalNovaRegra
-                        ),
-
-                    campanhaId:
-                        idOuNull(
-                            campanhaNovaRegra
-                        ),
-
-                    formularioId:
-                        idOuNull(
-                            formularioNovaRegra
-                        ),
-
-                    cursoId:
-                        idOuNull(
-                            cursoNovaRegra
-                        ),
-
-                    poloId:
-                        idOuNull(
-                            poloNovaRegra
-                        ),
-
-                    equipeId:
-                        estrategiaExigeEquipe
-                            ? idOuNull(
-                                  equipeNovaRegra
-                              )
-                            : null,
-
-                    responsavelFixoId:
-                        estrategiaExigeResponsavel
-                            ? idOuNull(
-                                  responsavelNovaRegra
-                              )
-                            : null,
-
-                    ativo: editando
-                        ? ativoRegra
-                        : true,
-                }),
-            });
-
-        const json =
-            (await resposta
-                .json()
-                .catch(() => null)) as
-                | RespostaErro
-                | {
-                      success?: boolean;
-                      message?: string;
-                  }
-                | null;
-
-        if (!resposta.ok) {
-            throw new Error(
-                json &&
-                    "error" in json
-                    ? json.error ||
-                          "Não foi possível salvar a regra."
-                    : "Não foi possível salvar a regra."
-            );
+        if (
+            !podeCriarNovaRegra ||
+            salvandoNovaRegra
+        ) {
+            return;
         }
 
-        setModalNovaRegraAberto(
-            false
-        );
+        const editando =
+            regraEditandoId !== null;
 
-        setRegraEditandoId(
-            null
-        );
+        try {
+            setSalvandoNovaRegra(
+                true
+            );
 
-        setErroNovaRegra("");
+            setErroNovaRegra("");
+            setMensagemSucesso("");
 
-        setMensagemSucesso(
-            editando
-                ? "Regra de distribuição atualizada com sucesso."
-                : "Regra de distribuição criada com sucesso."
-        );
+            const url = editando
+                ? `/api/admin/comercial/captacao/distribuicao/${regraEditandoId}`
+                : "/api/admin/comercial/captacao/distribuicao";
 
-        await carregar(true);
-    } catch (error) {
-        setErroNovaRegra(
-            error instanceof Error
-                ? error.message
-                : "Não foi possível salvar a regra de distribuição."
-        );
-    } finally {
-        setSalvandoNovaRegra(
-            false
-        );
+            const resposta =
+                await fetch(url, {
+                    method: editando
+                        ? "PATCH"
+                        : "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+                    },
+
+                    body: JSON.stringify({
+                        nome:
+                            nomeNovaRegra.trim(),
+
+                        estrategia:
+                            estrategiaNovaRegra,
+
+                        canalId:
+                            idOuNull(
+                                canalNovaRegra
+                            ),
+
+                        campanhaId:
+                            idOuNull(
+                                campanhaNovaRegra
+                            ),
+
+                        formularioId:
+                            idOuNull(
+                                formularioNovaRegra
+                            ),
+
+                        cursoId:
+                            idOuNull(
+                                cursoNovaRegra
+                            ),
+
+                        poloId:
+                            idOuNull(
+                                poloNovaRegra
+                            ),
+
+                        equipeId:
+                            estrategiaExigeEquipe
+                                ? idOuNull(
+                                    equipeNovaRegra
+                                )
+                                : null,
+
+                        responsavelFixoId:
+                            estrategiaExigeResponsavel
+                                ? idOuNull(
+                                    responsavelNovaRegra
+                                )
+                                : null,
+
+                        ativo: editando
+                            ? ativoRegra
+                            : true,
+                    }),
+                });
+
+            const json =
+                (await resposta
+                    .json()
+                    .catch(() => null)) as
+                | RespostaErro
+                | {
+                    success?: boolean;
+                    message?: string;
+                }
+                | null;
+
+            if (!resposta.ok) {
+                throw new Error(
+                    json &&
+                        "error" in json
+                        ? json.error ||
+                        "Não foi possível salvar a regra."
+                        : "Não foi possível salvar a regra."
+                );
+            }
+
+            setModalNovaRegraAberto(
+                false
+            );
+
+            setRegraEditandoId(
+                null
+            );
+
+            setErroNovaRegra("");
+
+            setMensagemSucesso(
+                editando
+                    ? "Regra de distribuição atualizada com sucesso."
+                    : "Regra de distribuição criada com sucesso."
+            );
+
+            await carregar(true);
+        } catch (error) {
+            setErroNovaRegra(
+                error instanceof Error
+                    ? error.message
+                    : "Não foi possível salvar a regra de distribuição."
+            );
+        } finally {
+            setSalvandoNovaRegra(
+                false
+            );
+        }
     }
-}
 
     if (carregando) {
         return (
@@ -1104,9 +1104,9 @@ export default function DistribuicaoCaptacaoPage() {
                                                                 </h3>
 
                                                                 <span
-                                                                    className={`rounded-full px-2.5 py-1 text-xs font-bold ${regra.ativo
-                                                                        ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
-                                                                        : "bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                                                                    className={`phanyx-captacao-distribuicao-status-badge ${regra.ativo
+                                                                            ? "is-active"
+                                                                            : "is-inactive"
                                                                         }`}
                                                                 >
                                                                     {regra.ativo
