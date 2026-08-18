@@ -55,6 +55,7 @@ type RespostaCampos = {
         nome: string;
         titulo: string;
         slug: string;
+        tokenPublico: string;
         status: string;
         versao: number;
         ativo: boolean;
@@ -800,6 +801,33 @@ export default function ConfigurarFormularioCaptacaoPage() {
             );
         } finally {
             setPublicando(false);
+        }
+    }
+
+    async function copiarLinkPublico() {
+        if (
+            !dados ||
+            dados.formulario.status !==
+            "PUBLICADO"
+        ) {
+            return;
+        }
+
+        try {
+            const link =
+                `${window.location.origin}/captacao/${dados.formulario.tokenPublico}`;
+
+            await navigator.clipboard.writeText(
+                link
+            );
+
+            setToast(
+                "Link do formulário copiado."
+            );
+        } catch {
+            setErro(
+                "Não foi possível copiar o link. Tente novamente."
+            );
         }
     }
 
@@ -1666,6 +1694,31 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                     >
                                         🚀 Publicar formulário
                                     </button>
+                                )}
+
+                            {dados.formulario
+                                .status ===
+                                "PUBLICADO" && (
+                                    <>
+                                        <a
+                                            href={`/captacao/${dados.formulario.tokenPublico}`}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
+                                        >
+                                            🌐 Abrir formulário
+                                        </a>
+
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                void copiarLinkPublico()
+                                            }
+                                            className={`rounded-xl border px-4 py-2.5 text-sm font-semibold ${c.botaoSecundario}`}
+                                        >
+                                            📋 Copiar link
+                                        </button>
+                                    </>
                                 )}
 
                             <button

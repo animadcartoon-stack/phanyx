@@ -343,6 +343,9 @@ async function localizarFormulario(
       nome: true,
       titulo: true,
       slug: true,
+
+      tokenPublico: true,
+
       status: true,
       versao: true,
       ativo: true,
