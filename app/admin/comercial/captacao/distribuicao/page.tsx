@@ -272,6 +272,18 @@ export default function DistribuicaoCaptacaoPage() {
     ] = useState(false);
 
     const [
+        regraEditandoId,
+        setRegraEditandoId,
+    ] = useState<number | null>(
+        null
+    );
+
+    const [
+        ativoRegra,
+        setAtivoRegra,
+    ] = useState(true);
+
+    const [
         nomeNovaRegra,
         setNomeNovaRegra,
     ] = useState("");
@@ -478,7 +490,10 @@ export default function DistribuicaoCaptacaoPage() {
         ]);
 
     function abrirModalNovaRegra() {
+        setRegraEditandoId(null);
+
         setNomeNovaRegra("");
+
         setEstrategiaNovaRegra(
             "RODIZIO"
         );
@@ -491,6 +506,93 @@ export default function DistribuicaoCaptacaoPage() {
 
         setEquipeNovaRegra("");
         setResponsavelNovaRegra("");
+
+        setAtivoRegra(true);
+
+        setErroNovaRegra("");
+
+        setModalNovaRegraAberto(
+            true
+        );
+    }
+
+    function abrirModalEditarRegra(
+        regra: Regra
+    ) {
+        setRegraEditandoId(
+            regra.id
+        );
+
+        setNomeNovaRegra(
+            regra.nome || ""
+        );
+
+        setEstrategiaNovaRegra(
+            regra.estrategia
+        );
+
+        setCanalNovaRegra(
+            regra.canal?.id
+                ? String(
+                    regra.canal.id
+                )
+                : ""
+        );
+
+        setCampanhaNovaRegra(
+            regra.campanha?.id
+                ? String(
+                    regra.campanha.id
+                )
+                : ""
+        );
+
+        setFormularioNovaRegra(
+            regra.formulario?.id
+                ? String(
+                    regra.formulario.id
+                )
+                : ""
+        );
+
+        setCursoNovaRegra(
+            regra.curso?.id
+                ? String(
+                    regra.curso.id
+                )
+                : ""
+        );
+
+        setPoloNovaRegra(
+            regra.polo?.id
+                ? String(
+                    regra.polo.id
+                )
+                : ""
+        );
+
+        setEquipeNovaRegra(
+            regra.equipe?.id
+                ? String(
+                    regra.equipe.id
+                )
+                : ""
+        );
+
+        setResponsavelNovaRegra(
+            regra.responsavelFixo?.id
+                ? String(
+                    regra
+                        .responsavelFixo
+                        .id
+                )
+                : ""
+        );
+
+        setAtivoRegra(
+            regra.ativo
+        );
+
         setErroNovaRegra("");
 
         setModalNovaRegraAberto(
@@ -1084,6 +1186,11 @@ export default function DistribuicaoCaptacaoPage() {
                                                             .podeGerenciar && (
                                                                 <button
                                                                     type="button"
+                                                                    onClick={() =>
+                                                                        abrirModalEditarRegra(
+                                                                            regra
+                                                                        )
+                                                                    }
                                                                     className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-800"
                                                                 >
                                                                     Editar
@@ -1130,21 +1237,15 @@ export default function DistribuicaoCaptacaoPage() {
                                     </p>
 
                                     <h2 id="titulo-nova-regra">
-                                        Nova regra
-                                        de
-                                        distribuição
+                                        {regraEditandoId
+                                            ? "Editar regra de distribuição"
+                                            : "Nova regra de distribuição"}
                                     </h2>
 
                                     <p className="phanyx-captacao-distribuicao-modal-subtitle">
-                                        Diga ao
-                                        PHANYX quais
-                                        interessados
-                                        esta regra
-                                        atende e
-                                        para onde
-                                        eles devem
-                                        ser
-                                        encaminhados.
+                                        {regraEditandoId
+                                            ? "Atualize os critérios e defina como os próximos interessados desta regra serão encaminhados."
+                                            : "Diga ao PHANYX quais interessados esta regra atende e para onde eles devem ser encaminhados."}
                                     </p>
                                 </div>
 
@@ -1204,6 +1305,41 @@ export default function DistribuicaoCaptacaoPage() {
                                         }
                                         placeholder="Ex.: Leads do Vestibular 2027"
                                     />
+                                    {regraEditandoId && (
+                                        <div className="mt-4">
+                                            <label className="phanyx-captacao-distribuicao-status-toggle">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={
+                                                        ativoRegra
+                                                    }
+                                                    onChange={(
+                                                        event
+                                                    ) =>
+                                                        setAtivoRegra(
+                                                            event
+                                                                .target
+                                                                .checked
+                                                        )
+                                                    }
+                                                />
+
+                                                <span>
+                                                    <strong>
+                                                        {ativoRegra
+                                                            ? "Regra ativa"
+                                                            : "Regra pausada"}
+                                                    </strong>
+
+                                                    <small>
+                                                        {ativoRegra
+                                                            ? "O PHANYX utilizará esta regra nas próximas captações."
+                                                            : "Novos leads não serão distribuídos por esta regra enquanto ela estiver pausada."}
+                                                    </small>
+                                                </span>
+                                            </label>
+                                        </div>
+                                    )}
                                 </section>
 
                                 <section className="phanyx-captacao-distribuicao-modal-section">
@@ -1667,8 +1803,12 @@ export default function DistribuicaoCaptacaoPage() {
                                     className="phanyx-captacao-distribuicao-save"
                                 >
                                     {salvandoNovaRegra
-                                        ? "Criando..."
-                                        : "Criar regra"}
+                                        ? regraEditandoId
+                                            ? "Salvando..."
+                                            : "Criando..."
+                                        : regraEditandoId
+                                            ? "Salvar alterações"
+                                            : "Criar regra"}
                                 </button>
                             </div>
                         </div>
