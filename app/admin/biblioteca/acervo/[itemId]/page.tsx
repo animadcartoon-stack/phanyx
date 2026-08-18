@@ -1790,15 +1790,66 @@ export default function BibliotecaItemPage() {
               {item.arquivos.length ? (
                 <div className="bib-related-list">
                   {item.arquivos.map((arquivo) => (
-                    <div className="bib-related-row" key={arquivo.id}>
-                      <span aria-hidden="true">📄</span>
-                      <div>
-                        <strong>{arquivo.nomeOriginal}</strong>
+                    <div
+                      className="bib-related-row"
+                      key={arquivo.id}
+                    >
+                      <span aria-hidden="true">
+                        {arquivo.tipo === "PDF"
+                          ? "📄"
+                          : arquivo.tipo === "EPUB"
+                            ? "📘"
+                            : arquivo.tipo === "AUDIO"
+                              ? "🎧"
+                              : arquivo.tipo === "VIDEO"
+                                ? "🎬"
+                                : "📎"}
+                      </span>
+
+                      <div className="bib-file-info">
+                        <strong>
+                          {arquivo.nomeOriginal}
+                        </strong>
+
                         <small>
-                          {rotuloEnum(arquivo.tipo)} ·{" "}
-                          {formatarBytes(arquivo.tamanhoBytes)} ·{" "}
-                          {rotuloEnum(arquivo.status)}
+                          {rotuloEnum(
+                            arquivo.tipo
+                          )}{" "}
+                          ·{" "}
+                          {formatarBytes(
+                            arquivo.tamanhoBytes
+                          )}{" "}
+                          ·{" "}
+                          {rotuloEnum(
+                            arquivo.status
+                          )}
                         </small>
+
+                        {arquivo.status ===
+                          "DISPONIVEL" ? (
+                          <div className="bib-file-actions">
+                            <a
+                              href={`/api/admin/biblioteca/arquivos/${arquivo.id}/conteudo`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="bib-file-action"
+                            >
+                              👁 Visualizar
+                            </a>
+
+                            <a
+                              href={`/api/admin/biblioteca/arquivos/${arquivo.id}/conteudo?download=1`}
+                              className="bib-file-action"
+                            >
+                              ⬇ Baixar
+                            </a>
+                          </div>
+                        ) : (
+                          <small className="bib-file-unavailable">
+                            O arquivo ainda não está
+                            disponível para acesso.
+                          </small>
+                        )}
                       </div>
                     </div>
                   ))}

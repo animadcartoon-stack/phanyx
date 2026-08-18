@@ -25283,3 +25283,49 @@ html[data-theme="light"]
   color: #94a3b8 !important;
   opacity: 1 !important;
 }
+
+.phanyx-biblioteca-item-page .bib-file-info {
+  flex: 1 1 auto;
+}
+
+.phanyx-biblioteca-item-page .bib-file-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.45rem;
+}
+
+.phanyx-biblioteca-item-page .bib-file-action {
+  display: inline-flex;
+  min-height: 2rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--bib-border) !important;
+  border-radius: 0.6rem;
+  background: var(--bib-card) !important;
+  color: var(--bib-text) !important;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.7rem;
+  font-weight: 850;
+  line-height: 1;
+  text-decoration: none;
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+
+.phanyx-biblioteca-item-page .bib-file-action:hover {
+  background: var(--bib-soft-strong) !important;
+  transform: translateY(-1px);
+}
+
+.phanyx-biblioteca-item-page .bib-file-action:focus-visible {
+  outline: 3px solid var(--bib-focus) !important;
+  outline-offset: 2px;
+}
+
+.phanyx-biblioteca-item-page .bib-file-unavailable {
+  margin-top: 0.3rem;
+  color: var(--bib-subtle) !important;
+}
