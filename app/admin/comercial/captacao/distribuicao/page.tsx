@@ -33,7 +33,7 @@ type Regra = {
     ordemPrioridade: number;
 
     maximoLeadsAbertosPorResponsavel?:
-        number | null;
+    number | null;
 
     somenteMembrosAtivos: boolean;
     respeitarDisponibilidade: boolean;
@@ -73,7 +73,7 @@ type RespostaDistribuicao = {
     };
 
     estrategiasDisponiveis:
-        Estrategia[];
+    Estrategia[];
 
     resumo: {
         total: number;
@@ -172,7 +172,7 @@ function destinoRegra(
 ) {
     if (
         regra.estrategia ===
-            "RESPONSAVEL_FIXO" &&
+        "RESPONSAVEL_FIXO" &&
         regra.responsavelFixo
     ) {
         return regra
@@ -206,10 +206,9 @@ function criteriosRegra(
 
     if (regra.formulario) {
         criterios.push(
-            `Formulário: ${
-                regra.formulario
-                    .titulo ||
-                regra.formulario.nome
+            `Formulário: ${regra.formulario
+                .titulo ||
+            regra.formulario.nome
             }`
         );
     }
@@ -266,6 +265,59 @@ export default function DistribuicaoCaptacaoPage() {
     ] =
         useState(false);
 
+    const [
+        modalNovaRegraAberto,
+        setModalNovaRegraAberto,
+    ] = useState(false);
+
+    const [
+        nomeNovaRegra,
+        setNomeNovaRegra,
+    ] = useState("");
+
+    const [
+        estrategiaNovaRegra,
+        setEstrategiaNovaRegra,
+    ] =
+        useState<Estrategia>(
+            "RODIZIO"
+        );
+
+    const [
+        canalNovaRegra,
+        setCanalNovaRegra,
+    ] = useState("");
+
+    const [
+        campanhaNovaRegra,
+        setCampanhaNovaRegra,
+    ] = useState("");
+
+    const [
+        formularioNovaRegra,
+        setFormularioNovaRegra,
+    ] = useState("");
+
+    const [
+        cursoNovaRegra,
+        setCursoNovaRegra,
+    ] = useState("");
+
+    const [
+        poloNovaRegra,
+        setPoloNovaRegra,
+    ] = useState("");
+
+    const [
+        equipeNovaRegra,
+        setEquipeNovaRegra,
+    ] = useState("");
+
+    const [
+        responsavelNovaRegra,
+        setResponsavelNovaRegra,
+    ] = useState("");
+
     const carregar =
         useCallback(
             async (
@@ -300,22 +352,22 @@ export default function DistribuicaoCaptacaoPage() {
                                 () =>
                                     null
                             )) as
-                            | RespostaDistribuicao
-                            | RespostaErro
-                            | null;
+                        | RespostaDistribuicao
+                        | RespostaErro
+                        | null;
 
                     if (
                         !resposta.ok ||
                         !json ||
                         json.success !==
-                            true
+                        true
                     ) {
                         throw new Error(
                             json &&
                                 "error" in
-                                    json
+                                json
                                 ? json.error ||
-                                      "Não foi possível carregar as regras."
+                                "Não foi possível carregar as regras."
                                 : "Não foi possível carregar as regras."
                         );
                     }
@@ -409,6 +461,32 @@ export default function DistribuicaoCaptacaoPage() {
             somenteAtivas,
         ]);
 
+    function abrirModalNovaRegra() {
+        setNomeNovaRegra("");
+        setEstrategiaNovaRegra(
+            "RODIZIO"
+        );
+
+        setCanalNovaRegra("");
+        setCampanhaNovaRegra("");
+        setFormularioNovaRegra("");
+        setCursoNovaRegra("");
+        setPoloNovaRegra("");
+
+        setEquipeNovaRegra("");
+        setResponsavelNovaRegra("");
+
+        setModalNovaRegraAberto(
+            true
+        );
+    }
+
+    function fecharModalNovaRegra() {
+        setModalNovaRegraAberto(
+            false
+        );
+    }
+
     if (carregando) {
         return (
             <div className="phanyx-captacao-distribuicao-page min-h-screen bg-slate-50 p-6">
@@ -497,14 +575,15 @@ export default function DistribuicaoCaptacaoPage() {
                             {dados
                                 ?.permissoes
                                 .podeGerenciar && (
-                                <button
-                                    type="button"
-                                    className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
-                                >
-                                    + Nova
-                                    regra
-                                </button>
-                            )}
+                                    <button
+                                        type="button"
+                                        onClick={abrirModalNovaRegra}
+                                        className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+                                    >
+                                        + Nova
+                                        regra
+                                    </button>
+                                )}
                         </div>
                     </div>
                 </section>
@@ -640,7 +719,7 @@ export default function DistribuicaoCaptacaoPage() {
                                         regrasFiltradas.length
                                     }{" "}
                                     {regrasFiltradas.length ===
-                                    1
+                                        1
                                         ? "regra encontrada"
                                         : "regras encontradas"}
                                     .
@@ -648,7 +727,7 @@ export default function DistribuicaoCaptacaoPage() {
                             </div>
 
                             {regrasFiltradas.length ===
-                            0 ? (
+                                0 ? (
                                 <div className="px-6 py-12 text-center">
                                     <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-2xl dark:bg-slate-800">
                                         🔄
@@ -676,16 +755,17 @@ export default function DistribuicaoCaptacaoPage() {
                                     {dados
                                         .permissoes
                                         .podeGerenciar && (
-                                        <button
-                                            type="button"
-                                            className="mt-5 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
-                                        >
-                                            +
-                                            Criar
-                                            primeira
-                                            regra
-                                        </button>
-                                    )}
+                                            <button
+                                                type="button"
+                                                onClick={abrirModalNovaRegra}
+                                                className="mt-5 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+                                            >
+                                                +
+                                                Criar
+                                                primeira
+                                                regra
+                                            </button>
+                                        )}
                                 </div>
                             ) : (
                                 <div className="divide-y divide-slate-200 dark:divide-slate-800">
@@ -715,11 +795,10 @@ export default function DistribuicaoCaptacaoPage() {
                                                                 </h3>
 
                                                                 <span
-                                                                    className={`rounded-full px-2.5 py-1 text-xs font-bold ${
-                                                                        regra.ativo
-                                                                            ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
-                                                                            : "bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
-                                                                    }`}
+                                                                    className={`rounded-full px-2.5 py-1 text-xs font-bold ${regra.ativo
+                                                                        ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
+                                                                        : "bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                                                                        }`}
                                                                 >
                                                                     {regra.ativo
                                                                         ? "Ativa"
@@ -779,7 +858,7 @@ export default function DistribuicaoCaptacaoPage() {
 
                                                                 <div className="mt-2 flex flex-wrap gap-2">
                                                                     {criterios.length >
-                                                                    0 ? (
+                                                                        0 ? (
                                                                         criterios.map(
                                                                             (
                                                                                 criterio
@@ -811,13 +890,13 @@ export default function DistribuicaoCaptacaoPage() {
                                                         {dados
                                                             .permissoes
                                                             .podeGerenciar && (
-                                                            <button
-                                                                type="button"
-                                                                className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-800"
-                                                            >
-                                                                Editar
-                                                            </button>
-                                                        )}
+                                                                <button
+                                                                    type="button"
+                                                                    className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-800"
+                                                                >
+                                                                    Editar
+                                                                </button>
+                                                            )}
                                                     </div>
                                                 </article>
                                             );
@@ -829,6 +908,564 @@ export default function DistribuicaoCaptacaoPage() {
                     </>
                 )}
             </div>
+            {modalNovaRegraAberto &&
+    dados && (
+        <div
+            className="phanyx-captacao-distribuicao-modal-backdrop"
+            onMouseDown={
+                fecharModalNovaRegra
+            }
+        >
+            <div
+                className="phanyx-captacao-distribuicao-modal"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="titulo-nova-regra"
+                onMouseDown={(
+                    event
+                ) =>
+                    event.stopPropagation()
+                }
+            >
+                <div className="phanyx-captacao-distribuicao-modal-header">
+                    <div>
+                        <p className="phanyx-captacao-distribuicao-modal-kicker">
+                            DISTRIBUIÇÃO
+                            AUTOMÁTICA
+                        </p>
+
+                        <h2 id="titulo-nova-regra">
+                            Nova regra
+                            de
+                            distribuição
+                        </h2>
+
+                        <p className="phanyx-captacao-distribuicao-modal-subtitle">
+                            Diga ao
+                            PHANYX quais
+                            interessados
+                            esta regra
+                            atende e
+                            para onde
+                            eles devem
+                            ser
+                            encaminhados.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={
+                            fecharModalNovaRegra
+                        }
+                        className="phanyx-captacao-distribuicao-modal-close"
+                        aria-label="Fechar"
+                    >
+                        ✕
+                    </button>
+                </div>
+
+                <div className="phanyx-captacao-distribuicao-modal-body">
+                    <section className="phanyx-captacao-distribuicao-modal-section">
+                        <div className="phanyx-captacao-distribuicao-section-heading">
+                            <span>
+                                1
+                            </span>
+
+                            <div>
+                                <h3>
+                                    Identifique
+                                    a regra
+                                </h3>
+
+                                <p>
+                                    Use um
+                                    nome que
+                                    sua
+                                    equipe
+                                    reconheça
+                                    facilmente.
+                                </p>
+                            </div>
+                        </div>
+
+                        <label>
+                            Nome da
+                            regra
+                        </label>
+
+                        <input
+                            value={
+                                nomeNovaRegra
+                            }
+                            onChange={(
+                                event
+                            ) =>
+                                setNomeNovaRegra(
+                                    event
+                                        .target
+                                        .value
+                                )
+                            }
+                            placeholder="Ex.: Leads do Vestibular 2027"
+                        />
+                    </section>
+
+                    <section className="phanyx-captacao-distribuicao-modal-section">
+                        <div className="phanyx-captacao-distribuicao-section-heading">
+                            <span>
+                                2
+                            </span>
+
+                            <div>
+                                <h3>
+                                    Quando
+                                    esta
+                                    regra
+                                    deve ser
+                                    usada?
+                                </h3>
+
+                                <p>
+                                    Você
+                                    pode
+                                    combinar
+                                    informações.
+                                    Campos
+                                    deixados
+                                    em branco
+                                    valem
+                                    para
+                                    qualquer
+                                    opção.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="phanyx-captacao-distribuicao-form-grid">
+                            <div>
+                                <label>
+                                    Canal
+                                </label>
+
+                                <select
+                                    value={
+                                        canalNovaRegra
+                                    }
+                                    onChange={(
+                                        event
+                                    ) =>
+                                        setCanalNovaRegra(
+                                            event
+                                                .target
+                                                .value
+                                        )
+                                    }
+                                >
+                                    <option value="">
+                                        Qualquer
+                                        canal
+                                    </option>
+
+                                    {dados.referencias.canais.map(
+                                        (
+                                            item
+                                        ) => (
+                                            <option
+                                                key={
+                                                    item.id
+                                                }
+                                                value={
+                                                    item.id
+                                                }
+                                            >
+                                                {
+                                                    item.nome
+                                                }
+                                            </option>
+                                        )
+                                    )}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label>
+                                    Campanha
+                                </label>
+
+                                <select
+                                    value={
+                                        campanhaNovaRegra
+                                    }
+                                    onChange={(
+                                        event
+                                    ) =>
+                                        setCampanhaNovaRegra(
+                                            event
+                                                .target
+                                                .value
+                                        )
+                                    }
+                                >
+                                    <option value="">
+                                        Qualquer
+                                        campanha
+                                    </option>
+
+                                    {dados.referencias.campanhas.map(
+                                        (
+                                            item
+                                        ) => (
+                                            <option
+                                                key={
+                                                    item.id
+                                                }
+                                                value={
+                                                    item.id
+                                                }
+                                            >
+                                                {
+                                                    item.nome
+                                                }
+                                            </option>
+                                        )
+                                    )}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label>
+                                    Formulário
+                                </label>
+
+                                <select
+                                    value={
+                                        formularioNovaRegra
+                                    }
+                                    onChange={(
+                                        event
+                                    ) =>
+                                        setFormularioNovaRegra(
+                                            event
+                                                .target
+                                                .value
+                                        )
+                                    }
+                                >
+                                    <option value="">
+                                        Qualquer
+                                        formulário
+                                    </option>
+
+                                    {dados.referencias.formularios.map(
+                                        (
+                                            item
+                                        ) => (
+                                            <option
+                                                key={
+                                                    item.id
+                                                }
+                                                value={
+                                                    item.id
+                                                }
+                                            >
+                                                {item.titulo ||
+                                                    item.nome}
+                                            </option>
+                                        )
+                                    )}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label>
+                                    Curso
+                                </label>
+
+                                <select
+                                    value={
+                                        cursoNovaRegra
+                                    }
+                                    onChange={(
+                                        event
+                                    ) =>
+                                        setCursoNovaRegra(
+                                            event
+                                                .target
+                                                .value
+                                        )
+                                    }
+                                >
+                                    <option value="">
+                                        Qualquer
+                                        curso
+                                    </option>
+
+                                    {dados.referencias.cursos.map(
+                                        (
+                                            item
+                                        ) => (
+                                            <option
+                                                key={
+                                                    item.id
+                                                }
+                                                value={
+                                                    item.id
+                                                }
+                                            >
+                                                {
+                                                    item.nome
+                                                }
+                                            </option>
+                                        )
+                                    )}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label>
+                                    Unidade
+                                </label>
+
+                                <select
+                                    value={
+                                        poloNovaRegra
+                                    }
+                                    onChange={(
+                                        event
+                                    ) =>
+                                        setPoloNovaRegra(
+                                            event
+                                                .target
+                                                .value
+                                        )
+                                    }
+                                >
+                                    <option value="">
+                                        Qualquer
+                                        unidade
+                                    </option>
+
+                                    {dados.referencias.polos.map(
+                                        (
+                                            item
+                                        ) => (
+                                            <option
+                                                key={
+                                                    item.id
+                                                }
+                                                value={
+                                                    item.id
+                                                }
+                                            >
+                                                {
+                                                    item.nome
+                                                }
+                                            </option>
+                                        )
+                                    )}
+                                </select>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section className="phanyx-captacao-distribuicao-modal-section">
+                        <div className="phanyx-captacao-distribuicao-section-heading">
+                            <span>
+                                3
+                            </span>
+
+                            <div>
+                                <h3>
+                                    Como o
+                                    PHANYX
+                                    deve
+                                    distribuir?
+                                </h3>
+
+                                <p>
+                                    Escolha
+                                    apenas
+                                    como
+                                    deseja
+                                    trabalhar.
+                                    A parte
+                                    técnica
+                                    fica por
+                                    conta do
+                                    sistema.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="phanyx-captacao-distribuicao-strategies">
+                            {dados.estrategiasDisponiveis.map(
+                                (
+                                    estrategia
+                                ) => (
+                                    <button
+                                        key={
+                                            estrategia
+                                        }
+                                        type="button"
+                                        onClick={() =>
+                                            setEstrategiaNovaRegra(
+                                                estrategia
+                                            )
+                                        }
+                                        className={
+                                            estrategiaNovaRegra ===
+                                            estrategia
+                                                ? "is-selected"
+                                                : ""
+                                        }
+                                    >
+                                        <strong>
+                                            {nomeEstrategia(
+                                                estrategia
+                                            )}
+                                        </strong>
+
+                                        <span>
+                                            {descricaoEstrategia(
+                                                estrategia
+                                            )}
+                                        </span>
+                                    </button>
+                                )
+                            )}
+                        </div>
+                    </section>
+
+                    {estrategiaNovaRegra ===
+                    "RESPONSAVEL_FIXO" ? (
+                        <section className="phanyx-captacao-distribuicao-modal-section">
+                            <label>
+                                Quem deve
+                                receber
+                                estes
+                                leads?
+                            </label>
+
+                            <select
+                                value={
+                                    responsavelNovaRegra
+                                }
+                                onChange={(
+                                    event
+                                ) =>
+                                    setResponsavelNovaRegra(
+                                        event
+                                            .target
+                                            .value
+                                    )
+                                }
+                            >
+                                <option value="">
+                                    Selecione
+                                    uma pessoa
+                                </option>
+
+                                {dados.referencias.responsaveis.map(
+                                    (
+                                        item
+                                    ) => (
+                                        <option
+                                            key={
+                                                item.id
+                                            }
+                                            value={
+                                                item.id
+                                            }
+                                        >
+                                            {
+                                                item.nome
+                                            }
+                                            {item.cargo
+                                                ? ` — ${item.cargo}`
+                                                : ""}
+                                        </option>
+                                    )
+                                )}
+                            </select>
+                        </section>
+                    ) : estrategiaNovaRegra !==
+                      "MANUAL" ? (
+                        <section className="phanyx-captacao-distribuicao-modal-section">
+                            <label>
+                                Qual
+                                equipe
+                                receberá
+                                estes
+                                leads?
+                            </label>
+
+                            <select
+                                value={
+                                    equipeNovaRegra
+                                }
+                                onChange={(
+                                    event
+                                ) =>
+                                    setEquipeNovaRegra(
+                                        event
+                                            .target
+                                            .value
+                                    )
+                                }
+                            >
+                                <option value="">
+                                    Selecione
+                                    uma
+                                    equipe
+                                </option>
+
+                                {dados.referencias.equipes.map(
+                                    (
+                                        item
+                                    ) => (
+                                        <option
+                                            key={
+                                                item.id
+                                            }
+                                            value={
+                                                item.id
+                                            }
+                                        >
+                                            {
+                                                item.nome
+                                            }
+                                        </option>
+                                    )
+                                )}
+                            </select>
+                        </section>
+                    ) : null}
+                </div>
+
+                <div className="phanyx-captacao-distribuicao-modal-footer">
+                    <button
+                        type="button"
+                        onClick={
+                            fecharModalNovaRegra
+                        }
+                        className="phanyx-captacao-distribuicao-cancel"
+                    >
+                        Cancelar
+                    </button>
+
+                    <button
+                        type="button"
+                        disabled
+                        className="phanyx-captacao-distribuicao-save"
+                        title="A gravação será conectada na próxima etapa."
+                    >
+                        Criar regra
+                    </button>
+                </div>
+            </div>
+        </div>
+    )}
         </div>
     );
 }
