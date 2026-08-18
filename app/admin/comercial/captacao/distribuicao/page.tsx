@@ -6,6 +6,7 @@ import {
     useMemo,
     useState,
 } from "react";
+
 import Link from "next/link";
 
 type Estrategia =
@@ -82,6 +83,7 @@ type RespostaDistribuicao = {
 
     referencias: {
         canais: Referencia[];
+
         campanhas: Referencia[];
 
         formularios: {
@@ -146,19 +148,19 @@ function descricaoEstrategia(
             return "O PHANYX alterna os novos interessados entre os membros da equipe.";
 
         case "MENOR_CARGA":
-            return "O PHANYX direciona para quem está com menos leads em atendimento.";
+            return "O PHANYX direciona o novo interessado para quem está com menos leads em atendimento.";
 
         case "ALEATORIA":
-            return "Os novos interessados são distribuídos aleatoriamente entre os membros elegíveis.";
+            return "Os novos interessados são distribuídos aleatoriamente entre os membros disponíveis.";
 
         case "RESPONSAVEL_FIXO":
             return "Todos os leads desta regra são direcionados para a mesma pessoa.";
 
         case "EQUIPE_SEM_RESPONSAVEL":
-            return "O lead entra na equipe e pode ser assumido posteriormente.";
+            return "O lead entra na equipe e pode ser assumido posteriormente por um integrante.";
 
         case "MANUAL":
-            return "O lead permanece disponível para definição manual de responsável.";
+            return "O lead fica disponível para que o responsável seja definido manualmente.";
 
         default:
             return "";
@@ -330,6 +332,7 @@ export default function DistribuicaoCaptacaoPage() {
                     setCarregando(
                         false
                     );
+
                     setAtualizando(
                         false
                     );
@@ -408,11 +411,20 @@ export default function DistribuicaoCaptacaoPage() {
 
     if (carregando) {
         return (
-            <div className="min-h-screen bg-slate-100 p-6 text-slate-900 dark:bg-slate-950 dark:text-white">
+            <div className="min-h-screen bg-slate-50 p-6 text-slate-900 dark:bg-slate-950 dark:text-white">
                 <div className="mx-auto max-w-7xl">
                     <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                        Carregando regras de
-                        distribuição...
+                        <div className="flex items-center gap-3">
+                            <span className="text-xl">
+                                🔄
+                            </span>
+
+                            <span className="font-semibold text-slate-700 dark:text-slate-200">
+                                Carregando
+                                regras de
+                                distribuição...
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -427,19 +439,27 @@ export default function DistribuicaoCaptacaoPage() {
                         <div>
                             <Link
                                 href="/admin/comercial/captacao"
-                                className="text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                                className="text-sm font-semibold text-slate-600 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
                             >
                                 ← Central
                                 de Captação
                             </Link>
 
-                            <h1 className="mt-3 text-3xl font-bold">
-                                🔄
-                                Distribuição
-                                de leads
-                            </h1>
+                            <div className="mt-3 flex items-center gap-3">
+                                <span
+                                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-xl dark:bg-slate-800"
+                                    aria-hidden="true"
+                                >
+                                    🔄
+                                </span>
 
-                            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-700 dark:text-slate-300">
+                                <h1 className="text-3xl font-bold tracking-tight text-slate-950 dark:text-white">
+                                    Distribuição
+                                    de leads
+                                </h1>
+                            </div>
+
+                            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-700 dark:text-slate-300">
                                 Defina
                                 automaticamente
                                 quem deve
@@ -467,7 +487,7 @@ export default function DistribuicaoCaptacaoPage() {
                                 disabled={
                                     atualizando
                                 }
-                                className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-800"
+                                className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-800"
                             >
                                 {atualizando
                                     ? "Atualizando..."
@@ -490,7 +510,7 @@ export default function DistribuicaoCaptacaoPage() {
                 </section>
 
                 {erro && (
-                    <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">
+                    <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700 shadow-sm dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">
                         {erro}
                     </div>
                 )}
@@ -503,12 +523,17 @@ export default function DistribuicaoCaptacaoPage() {
                                     Total
                                 </p>
 
-                                <p className="mt-1 text-3xl font-bold">
+                                <p className="mt-1 text-3xl font-bold text-slate-950 dark:text-white">
                                     {
                                         dados
                                             .resumo
                                             .total
                                     }
+                                </p>
+
+                                <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+                                    Regras
+                                    cadastradas
                                 </p>
                             </div>
 
@@ -517,12 +542,18 @@ export default function DistribuicaoCaptacaoPage() {
                                     Ativas
                                 </p>
 
-                                <p className="mt-1 text-3xl font-bold">
+                                <p className="mt-1 text-3xl font-bold text-slate-950 dark:text-white">
                                     {
                                         dados
                                             .resumo
                                             .ativas
                                     }
+                                </p>
+
+                                <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+                                    Distribuindo
+                                    novos
+                                    leads
                                 </p>
                             </div>
 
@@ -531,12 +562,17 @@ export default function DistribuicaoCaptacaoPage() {
                                     Inativas
                                 </p>
 
-                                <p className="mt-1 text-3xl font-bold">
+                                <p className="mt-1 text-3xl font-bold text-slate-950 dark:text-white">
                                     {
                                         dados
                                             .resumo
                                             .inativas
                                     }
+                                </p>
+
+                                <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+                                    Temporariamente
+                                    pausadas
                                 </p>
                             </div>
                         </section>
@@ -544,7 +580,7 @@ export default function DistribuicaoCaptacaoPage() {
                         <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                             <div className="flex flex-col gap-4 md:flex-row md:items-end">
                                 <div className="flex-1">
-                                    <label className="text-sm font-semibold">
+                                    <label className="text-sm font-semibold text-slate-800 dark:text-slate-100">
                                         Buscar
                                     </label>
 
@@ -562,11 +598,11 @@ export default function DistribuicaoCaptacaoPage() {
                                             )
                                         }
                                         placeholder="Nome, campanha, curso, equipe..."
-                                        className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 outline-none transition focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500"
+                                        className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 dark:focus:ring-blue-950"
                                     />
                                 </div>
 
-                                <label className="flex min-h-11 items-center gap-3 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
+                                <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800">
                                     <input
                                         type="checkbox"
                                         checked={
@@ -581,6 +617,7 @@ export default function DistribuicaoCaptacaoPage() {
                                                     .checked
                                             )
                                         }
+                                        className="h-4 w-4"
                                     />
 
                                     Mostrar
@@ -591,9 +628,9 @@ export default function DistribuicaoCaptacaoPage() {
                             </div>
                         </section>
 
-                        <section className="rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                        <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
                             <div className="border-b border-slate-200 p-5 dark:border-slate-800">
-                                <h2 className="text-xl font-bold">
+                                <h2 className="text-xl font-bold text-slate-950 dark:text-white">
                                     Regras
                                     cadastradas
                                 </h2>
@@ -612,12 +649,12 @@ export default function DistribuicaoCaptacaoPage() {
 
                             {regrasFiltradas.length ===
                             0 ? (
-                                <div className="p-8 text-center">
-                                    <div className="text-4xl">
+                                <div className="px-6 py-12 text-center">
+                                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-2xl dark:bg-slate-800">
                                         🔄
                                     </div>
 
-                                    <h3 className="mt-3 text-lg font-bold">
+                                    <h3 className="mt-4 text-lg font-bold text-slate-950 dark:text-white">
                                         Nenhuma
                                         regra
                                         encontrada
@@ -635,6 +672,20 @@ export default function DistribuicaoCaptacaoPage() {
                                         próximos
                                         interessados.
                                     </p>
+
+                                    {dados
+                                        .permissoes
+                                        .podeGerenciar && (
+                                        <button
+                                            type="button"
+                                            className="mt-5 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+                                        >
+                                            +
+                                            Criar
+                                            primeira
+                                            regra
+                                        </button>
+                                    )}
                                 </div>
                             ) : (
                                 <div className="divide-y divide-slate-200 dark:divide-slate-800">
@@ -657,7 +708,7 @@ export default function DistribuicaoCaptacaoPage() {
                                                     <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
                                                         <div className="min-w-0 flex-1">
                                                             <div className="flex flex-wrap items-center gap-2">
-                                                                <h3 className="text-lg font-bold">
+                                                                <h3 className="text-lg font-bold text-slate-950 dark:text-white">
                                                                     {
                                                                         regra.nome
                                                                     }
@@ -666,8 +717,8 @@ export default function DistribuicaoCaptacaoPage() {
                                                                 <span
                                                                     className={`rounded-full px-2.5 py-1 text-xs font-bold ${
                                                                         regra.ativo
-                                                                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
-                                                                            : "bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                                                                            ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
+                                                                            : "bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
                                                                     }`}
                                                                 >
                                                                     {regra.ativo
@@ -677,7 +728,7 @@ export default function DistribuicaoCaptacaoPage() {
                                                             </div>
 
                                                             {regra.descricao && (
-                                                                <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                                                                <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
                                                                     {
                                                                         regra.descricao
                                                                     }
@@ -686,18 +737,18 @@ export default function DistribuicaoCaptacaoPage() {
 
                                                             <div className="mt-4 grid gap-3 md:grid-cols-2">
                                                                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
-                                                                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                                                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">
                                                                         Como
                                                                         distribuir
                                                                     </p>
 
-                                                                    <p className="mt-1 font-bold">
+                                                                    <p className="mt-1 font-bold text-slate-950 dark:text-white">
                                                                         {nomeEstrategia(
                                                                             regra.estrategia
                                                                         )}
                                                                     </p>
 
-                                                                    <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
+                                                                    <p className="mt-1 text-xs leading-5 text-slate-600 dark:text-slate-400">
                                                                         {descricaoEstrategia(
                                                                             regra.estrategia
                                                                         )}
@@ -705,11 +756,11 @@ export default function DistribuicaoCaptacaoPage() {
                                                                 </div>
 
                                                                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
-                                                                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                                                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">
                                                                         Destino
                                                                     </p>
 
-                                                                    <p className="mt-1 font-bold">
+                                                                    <p className="mt-1 font-bold text-slate-950 dark:text-white">
                                                                         {destinoRegra(
                                                                             regra
                                                                         )}
@@ -718,7 +769,7 @@ export default function DistribuicaoCaptacaoPage() {
                                                             </div>
 
                                                             <div className="mt-4">
-                                                                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                                                <p className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">
                                                                     Quando
                                                                     esta
                                                                     regra
@@ -737,7 +788,7 @@ export default function DistribuicaoCaptacaoPage() {
                                                                                     key={
                                                                                         criterio
                                                                                     }
-                                                                                    className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+                                                                                    className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
                                                                                 >
                                                                                     {
                                                                                         criterio
@@ -746,7 +797,7 @@ export default function DistribuicaoCaptacaoPage() {
                                                                             )
                                                                         )
                                                                     ) : (
-                                                                        <span className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+                                                                        <span className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-800 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-300">
                                                                             Todos
                                                                             os
                                                                             novos
@@ -762,7 +813,7 @@ export default function DistribuicaoCaptacaoPage() {
                                                             .podeGerenciar && (
                                                             <button
                                                                 type="button"
-                                                                className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                                                                className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-800"
                                                             >
                                                                 Editar
                                                             </button>
