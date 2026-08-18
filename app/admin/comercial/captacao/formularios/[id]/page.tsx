@@ -87,6 +87,10 @@ type RespostaErro = {
     success?: false;
     error?: string;
     codigo?: string;
+
+    detalhes?: {
+        pendencias?: string[];
+    };
 };
 
 type FormularioCampo = {
@@ -409,6 +413,26 @@ export default function ConfigurarFormularioCaptacaoPage() {
             null
         );
 
+    const [
+        modalPublicarAberto,
+        setModalPublicarAberto,
+    ] = useState(false);
+
+    const [
+        publicando,
+        setPublicando,
+    ] = useState(false);
+
+    const [
+        erroPublicacao,
+        setErroPublicacao,
+    ] = useState("");
+
+    const [
+        pendenciasPublicacao,
+        setPendenciasPublicacao,
+    ] = useState<string[]>([]);
+
     useEffect(() => {
         function calcularTema() {
             const tema =
@@ -645,6 +669,139 @@ export default function ConfigurarFormularioCaptacaoPage() {
     useEffect(() => {
         void carregar();
     }, [carregar]);
+
+    function abrirPublicacao() {
+        setErroPublicacao("");
+        setPendenciasPublicacao([]);
+        setModalPublicarAberto(
+            true
+        );
+    }
+
+    function fecharPublicacao() {
+        if (publicando) {
+            return;
+        }
+
+        setModalPublicarAberto(
+            false
+        );
+
+        setErroPublicacao("");
+        setPendenciasPublicacao(
+            []
+        );
+    }
+
+    async function publicarFormulario() {
+        if (
+            !dados ||
+            publicando
+        ) {
+            return;
+        }
+
+        try {
+            setPublicando(true);
+            setErroPublicacao("");
+            setPendenciasPublicacao(
+                []
+            );
+
+            const resposta =
+                await fetch(
+                    `/api/admin/comercial/captacao/formularios/${formularioId}`,
+                    {
+                        method:
+                            "PATCH",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+                        },
+
+                        body:
+                            JSON.stringify({
+                                status:
+                                    "PUBLICADO",
+                            }),
+                    }
+                );
+
+            const json =
+                (
+                    await resposta
+                        .json()
+                        .catch(
+                            () => ({})
+                        )
+                ) as {
+                    success?: boolean;
+                    error?: string;
+                    codigo?: string;
+
+                    detalhes?: {
+                        pendencias?:
+                        string[];
+                    };
+                };
+
+            if (
+                !resposta.ok ||
+                json.success !==
+                true
+            ) {
+                const pendencias =
+                    Array.isArray(
+                        json.detalhes
+                            ?.pendencias
+                    )
+                        ? json.detalhes
+                            ?.pendencias ??
+                        []
+                        : [];
+
+                if (
+                    pendencias.length >
+                    0
+                ) {
+                    setPendenciasPublicacao(
+                        pendencias
+                    );
+
+                    setErroPublicacao(
+                        "Antes de publicar, revise os itens abaixo."
+                    );
+
+                    return;
+                }
+
+                throw new Error(
+                    json.error ||
+                    "Não foi possível publicar o formulário."
+                );
+            }
+
+            setModalPublicarAberto(
+                false
+            );
+
+            setToast(
+                "Formulário publicado com sucesso."
+            );
+
+            await carregar(true);
+        } catch (error) {
+            setErroPublicacao(
+                error instanceof
+                    Error
+                    ? error.message
+                    : "Não foi possível publicar o formulário."
+            );
+        } finally {
+            setPublicando(false);
+        }
+    }
 
     function abrirNovoCampo() {
         setCampoEmEdicao(
@@ -1492,6 +1649,25 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                 👁️ Pré-visualizar
                             </Link>
 
+                            {dados.permissoes
+                                .podeGerenciar &&
+                                dados.formulario
+                                    .status !==
+                                "PUBLICADO" &&
+                                dados.formulario
+                                    .status !==
+                                "ARQUIVADO" && (
+                                    <button
+                                        type="button"
+                                        onClick={
+                                            abrirPublicacao
+                                        }
+                                        className="rounded-xl bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800"
+                                    >
+                                        🚀 Publicar formulário
+                                    </button>
+                                )}
+
                             <button
                                 type="button"
                                 onClick={() =>
@@ -1823,6 +1999,102 @@ export default function ConfigurarFormularioCaptacaoPage() {
                     )}
                 </section>
             </div>
+
+            {modalPublicarAberto && (
+                <div className="fixed inset-0 z-[130] flex items-center justify-center bg-slate-950/60 p-4">
+                    <div
+                        className={`w-full max-w-lg rounded-3xl border p-6 shadow-2xl ${c.card}`}
+                    >
+                        <div className="flex items-start gap-4">
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-100 text-xl">
+                                🚀
+                            </div>
+
+                            <div>
+                                <h2
+                                    className={`text-lg font-bold ${c.titulo}`}
+                                >
+                                    Publicar formulário?
+                                </h2>
+
+                                <p
+                                    className={`mt-2 text-sm leading-6 ${c.texto}`}
+                                >
+                                    Depois de publicar,
+                                    pessoas com o link
+                                    poderão preencher e
+                                    enviar seus dados.
+                                </p>
+                            </div>
+                        </div>
+
+                        {erroPublicacao && (
+                            <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                                <p className="font-semibold">
+                                    {erroPublicacao}
+                                </p>
+
+                                {pendenciasPublicacao.length >
+                                    0 && (
+                                        <ul className="mt-3 space-y-2">
+                                            {pendenciasPublicacao.map(
+                                                (
+                                                    pendencia,
+                                                    indice
+                                                ) => (
+                                                    <li
+                                                        key={`${indice}-${pendencia}`}
+                                                        className="flex gap-2"
+                                                    >
+                                                        <span>
+                                                            •
+                                                        </span>
+
+                                                        <span>
+                                                            {
+                                                                pendencia
+                                                            }
+                                                        </span>
+                                                    </li>
+                                                )
+                                            )}
+                                        </ul>
+                                    )}
+                            </div>
+                        )}
+
+                        <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                            <button
+                                type="button"
+                                onClick={
+                                    fecharPublicacao
+                                }
+                                disabled={
+                                    publicando
+                                }
+                                className={`rounded-xl border px-4 py-2.5 text-sm font-semibold disabled:opacity-60 ${c.botaoSecundario}`}
+                            >
+                                Cancelar
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    void publicarFormulario()
+                                }
+                                disabled={
+                                    publicando
+                                }
+                                className="rounded-xl bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                                {publicando
+                                    ? "Publicando..."
+                                    : "Publicar agora"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {modalAberto && (
                 <div
