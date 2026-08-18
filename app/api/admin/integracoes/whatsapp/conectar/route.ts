@@ -7,6 +7,10 @@ import {
   criptografarTokenWhatsapp,
 } from "@/lib/whatsapp/crypto";
 
+import {
+  assinarWebhookWabaMeta,
+} from "@/lib/whatsapp/meta";
+
 export const dynamic = "force-dynamic";
 
 const META_GRAPH_VERSION =
@@ -257,6 +261,37 @@ export async function POST(req: NextRequest) {
     const tokenAcessoCriptografado =
       criptografarTokenWhatsapp(accessToken);
 
+    /**
+     * 3. Assina o aplicativo PHANYX na WABA.
+     *
+     * Só consideramos o webhook ativo quando
+     * a própria Meta confirmar a assinatura.
+     */
+    try {
+      await assinarWebhookWabaMeta({
+        whatsappBusinessId,
+        tokenCriptografado:
+          tokenAcessoCriptografado,
+      });
+    } catch (error) {
+      console.error(
+        "Erro ao assinar webhook da WABA:",
+        error
+      );
+
+      return NextResponse.json(
+        {
+          error:
+            error instanceof Error
+              ? error.message
+              : "Não foi possível ativar o webhook da conta WhatsApp Business.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
     const agora = new Date();
 
     /**
@@ -297,7 +332,7 @@ export async function POST(req: NextRequest) {
 
           tokenAcessoCriptografado,
 
-          webhookAtivo: false,
+          webhookAtivo: true,
 
           conectadoEm: agora,
           desconectadoEm: null,
@@ -338,6 +373,8 @@ export async function POST(req: NextRequest) {
           metaBusinessId,
 
           tokenAcessoCriptografado,
+
+          webhookAtivo: true,
 
           conectadoEm: agora,
           desconectadoEm: null,

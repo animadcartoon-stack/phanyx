@@ -7,6 +7,10 @@ import {
   descriptografarTokenWhatsapp,
 } from "@/lib/whatsapp/crypto";
 
+import {
+  assinarWebhookWabaMeta,
+} from "@/lib/whatsapp/meta";
+
 export const dynamic = "force-dynamic";
 
 const META_GRAPH_VERSION =
@@ -81,7 +85,7 @@ async function testarNumeroMeta(params: {
   if (!response.ok || data.error) {
     const erro = new Error(
       data.error?.message ||
-        "Não foi possível validar a conexão com o WhatsApp Business."
+      "Não foi possível validar a conexão com o WhatsApp Business."
     );
 
     Object.assign(erro, {
@@ -179,6 +183,18 @@ export async function POST() {
       );
     }
 
+    if (!integracao.whatsappBusinessId) {
+      return NextResponse.json(
+        {
+          error:
+            "O WhatsApp Business Account ID não está configurado.",
+        },
+        {
+          status: 409,
+        }
+      );
+    }
+
     if (!integracao.tokenAcessoCriptografado) {
       return NextResponse.json(
         {
@@ -212,6 +228,7 @@ export async function POST() {
         data: {
           conectado: false,
           ativo: false,
+          webhookAtivo: false,
 
           ultimaFalhaEm: new Date(),
 
@@ -240,6 +257,21 @@ export async function POST() {
           accessToken,
         });
 
+      /**
+       * Confirma a assinatura do aplicativo PHANYX
+       * na WABA desta instituição.
+       *
+       * Só depois da confirmação da Meta
+       * consideramos o webhook ativo.
+       */
+      await assinarWebhookWabaMeta({
+        whatsappBusinessId:
+          integracao.whatsappBusinessId,
+
+        tokenCriptografado:
+          integracao.tokenAcessoCriptografado,
+      });
+
       const agora = new Date();
 
       const atualizada =
@@ -250,6 +282,7 @@ export async function POST() {
 
           data: {
             conectado: true,
+            webhookAtivo: true,
 
             numeroTelefone:
               dadosMeta.display_phone_number ??
@@ -326,6 +359,7 @@ export async function POST() {
         data: {
           conectado: false,
           ativo: false,
+          webhookAtivo: false,
 
           ultimaFalhaEm: new Date(),
           ultimaFalhaMensagem: mensagemErro,
