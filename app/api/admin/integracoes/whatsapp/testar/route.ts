@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
-import crypto from "crypto";
+
 import {
   descriptografarTokenWhatsapp,
 } from "@/lib/whatsapp/crypto";
@@ -204,60 +204,6 @@ export async function POST() {
         {
           status: 409,
         }
-      );
-    }
-
-    const segredoCriptografia =
-      process.env.CREDENTIALS_ENCRYPTION_KEY;
-
-    const fingerprintCriptografia =
-      segredoCriptografia
-        ? crypto
-          .createHash("sha256")
-          .update(segredoCriptografia)
-          .digest("hex")
-          .substring(0, 12)
-          .toUpperCase()
-        : "AUSENTE";
-
-    console.log(
-      "[WhatsApp] Fingerprint CREDENTIALS_ENCRYPTION_KEY:",
-      fingerprintCriptografia
-    );
-
-    const fingerprintCredencial =
-      crypto
-        .createHash("sha256")
-        .update(
-          integracao.tokenAcessoCriptografado
-        )
-        .digest("hex")
-        .substring(0, 12)
-        .toUpperCase();
-
-    console.log(
-      "[WhatsApp] Fingerprint credencial criptografada:",
-      fingerprintCredencial,
-      "Tamanho:",
-      integracao.tokenAcessoCriptografado.length
-    );
-
-    try {
-      const testeCriptografia =
-        descriptografarTokenWhatsapp(
-          "sW7duWHOx+pQpoc+.SbIi8NQ6JZ9oypvc6mQD5g==.tDHrqIU+Q2VqTDPbSDKjg4Ry8Q=="
-        );
-
-      console.log(
-        "[WhatsApp] TESTE_CRYPTO_VERCEL:",
-        testeCriptografia === "PHANYX_TESTE_CRYPTO"
-          ? "OK"
-          : "CONTEUDO_DIFERENTE"
-      );
-    } catch (error) {
-      console.error(
-        "[WhatsApp] TESTE_CRYPTO_VERCEL: FALHOU",
-        error
       );
     }
 
