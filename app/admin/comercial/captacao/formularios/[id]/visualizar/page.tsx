@@ -897,15 +897,20 @@ export default function VisualizarFormularioCaptacaoPage() {
                                                         />
                                                     )}
 
-                                                    {campo.textoAjuda && (
-                                                        <p
-                                                            className={`mt-1.5 text-xs leading-5 ${c.muted}`}
-                                                        >
-                                                            {
-                                                                campo.textoAjuda
-                                                            }
-                                                        </p>
-                                                    )}
+                                                    {(
+                                                        campo.tipo ===
+                                                        "TELEFONE" ||
+                                                        campo.textoAjuda
+                                                    ) && (
+                                                            <p
+                                                                className={`mt-1.5 text-xs leading-5 ${c.muted}`}
+                                                            >
+                                                                {campo.tipo ===
+                                                                    "TELEFONE"
+                                                                    ? "Informe seu telefone com DDD."
+                                                                    : campo.textoAjuda}
+                                                            </p>
+                                                        )}
                                                 </>
                                             )}
                                         </div>
