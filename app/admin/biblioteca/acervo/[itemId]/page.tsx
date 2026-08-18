@@ -2122,56 +2122,56 @@ export default function BibliotecaItemPage() {
                 </div>
 
                 <div className="bib-file-header-actions">
-  {podeGerenciarArquivo &&
-  !impersonacao ? (
-    <button
-      type="button"
-      className="bib-button bib-button-secondary"
-      onClick={() =>
-        void abrirHistoricoArquivos()
-      }
-    >
-      🕘 Histórico
-    </button>
-  ) : null}
+                  {podeGerenciarArquivo &&
+                    !impersonacao ? (
+                    <button
+                      type="button"
+                      className="bib-button bib-button-secondary"
+                      onClick={() =>
+                        void abrirHistoricoArquivos()
+                      }
+                    >
+                      🕘 Histórico
+                    </button>
+                  ) : null}
 
-  {podeEnviarArquivo &&
-  !impersonacao ? (
-    <>
-      <input
-        ref={arquivoInputRef}
-        type="file"
-        accept={
-          ACCEPT_UPLOAD_BIBLIOTECA
-        }
-        hidden
-        disabled={
-          enviandoArquivo
-        }
-        onChange={
-          enviarArquivo
-        }
-      />
+                  {podeEnviarArquivo &&
+                    !impersonacao ? (
+                    <>
+                      <input
+                        ref={arquivoInputRef}
+                        type="file"
+                        accept={
+                          ACCEPT_UPLOAD_BIBLIOTECA
+                        }
+                        hidden
+                        disabled={
+                          enviandoArquivo
+                        }
+                        onChange={
+                          enviarArquivo
+                        }
+                      />
 
-      <button
-        type="button"
-        className="bib-button bib-button-primary"
-        disabled={
-          enviandoArquivo
-        }
-        onClick={() =>
-          arquivoInputRef
-            .current
-            ?.click()
-        }
-      >
-        {enviandoArquivo
-          ? `Enviando ${progressoUpload}%`
-          : "⬆️ Enviar arquivo"}
-      </button>
-    </>
-  ) : null}
-</div>
+                      <button
+                        type="button"
+                        className="bib-button bib-button-primary"
+                        disabled={
+                          enviandoArquivo
+                        }
+                        onClick={() =>
+                          arquivoInputRef
+                            .current
+                            ?.click()
+                        }
+                      >
+                        {enviandoArquivo
+                          ? `Enviando ${progressoUpload}%`
+                          : "⬆️ Enviar arquivo"}
+                      </button>
+                    </>
+                  ) : null}
+                </div>
               </header>
 
               {enviandoArquivo ? (
@@ -2634,8 +2634,8 @@ export default function BibliotecaItemPage() {
                                 </small>
 
                                 <strong>
-                                  {arquivo.enviadoPor
-                                    ?.nome ||
+                                  {arquivo.enviadoPor?.nome?.trim() ||
+                                    arquivo.enviadoPor?.email?.trim() ||
                                     "Usuário não disponível"}
                                 </strong>
                               </div>
@@ -2660,8 +2660,8 @@ export default function BibliotecaItemPage() {
                                     </small>
 
                                     <strong>
-                                      {arquivo.arquivadoPor
-                                        ?.nome ||
+                                      {arquivo.arquivadoPor?.nome?.trim() ||
+                                        arquivo.arquivadoPor?.email?.trim() ||
                                         "Usuário não disponível"}
                                     </strong>
                                   </div>
