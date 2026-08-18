@@ -36,6 +36,41 @@ type Lead = {
     numeroMatricula?: string | null;
     status?: string | null;
   } | null;
+  cursoInteresse?: {
+    id: number;
+    nome: string;
+  } | null;
+
+  poloInteresse?: {
+    id: number;
+    nome: string;
+  } | null;
+
+  captacaoMaisRecente?: {
+    id: number;
+    recebidoEm: string;
+
+    consentimentoLgpd: boolean;
+    consentimentoEm?: string | null;
+
+    canal?: {
+      id: number;
+      nome: string;
+      tipo: string;
+    } | null;
+
+    campanha?: {
+      id: number;
+      nome: string;
+      codigo: string;
+    } | null;
+
+    formulario?: {
+      id: number;
+      nome: string;
+      titulo: string;
+    } | null;
+  } | null;
 };
 
 type Interacao = {
@@ -2026,6 +2061,115 @@ export default function AdminLeadsPage() {
                   />
                 </div>
               </div>
+
+              {leadSelecionado &&
+                (
+                  leadSelecionado.cursoInteresse ||
+                  leadSelecionado.poloInteresse ||
+                  leadSelecionado.captacaoMaisRecente
+                ) && (
+                  <div className="mt-8 rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                    <div>
+                      <h3 className="text-xl font-bold text-slate-900">
+                        🎯 Origem da captação
+                      </h3>
+
+                      <p className="mt-1 text-sm text-slate-500">
+                        Veja de onde este interessado veio e o que ele selecionou no momento da captação.
+                      </p>
+                    </div>
+
+                    <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                      <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                          Curso de interesse
+                        </p>
+
+                        <p className="mt-1 font-semibold text-slate-900">
+                          {leadSelecionado.cursoInteresse?.nome ||
+                            "Não informado"}
+                        </p>
+                      </div>
+
+                      <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                          Unidade
+                        </p>
+
+                        <p className="mt-1 font-semibold text-slate-900">
+                          {leadSelecionado.poloInteresse?.nome ||
+                            "Não informada"}
+                        </p>
+                      </div>
+
+                      <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                          Canal
+                        </p>
+
+                        <p className="mt-1 font-semibold text-slate-900">
+                          {leadSelecionado.captacaoMaisRecente?.canal?.nome ||
+                            "Não informado"}
+                        </p>
+                      </div>
+
+                      <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                          Campanha
+                        </p>
+
+                        <p className="mt-1 font-semibold text-slate-900">
+                          {leadSelecionado.captacaoMaisRecente?.campanha?.nome ||
+                            "Não informada"}
+                        </p>
+                      </div>
+
+                      <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                          Formulário
+                        </p>
+
+                        <p className="mt-1 font-semibold text-slate-900">
+                          {leadSelecionado.captacaoMaisRecente?.formulario?.titulo ||
+                            leadSelecionado.captacaoMaisRecente?.formulario?.nome ||
+                            "Não informado"}
+                        </p>
+                      </div>
+
+                      <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                          Recebido em
+                        </p>
+
+                        <p className="mt-1 font-semibold text-slate-900">
+                          {leadSelecionado.captacaoMaisRecente?.recebidoEm
+                            ? formatarDataHora(
+                              leadSelecionado.captacaoMaisRecente.recebidoEm
+                            )
+                            : "Não informado"}
+                        </p>
+                      </div>
+                    </div>
+
+                    {leadSelecionado.captacaoMaisRecente?.consentimentoLgpd && (
+                      <div className="mt-4 flex items-start gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                        <span aria-hidden="true">
+                          ✓
+                        </span>
+
+                        <span>
+                          Consentimento para tratamento de dados registrado
+                          {leadSelecionado.captacaoMaisRecente.consentimentoEm
+                            ? ` em ${formatarDataHora(
+                              leadSelecionado.captacaoMaisRecente.consentimentoEm
+                            )}`
+                            : ""}
+                          .
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
 
               <div className="mt-8 rounded-3xl border border-slate-200 bg-slate-50 p-5">
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">

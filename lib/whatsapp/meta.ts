@@ -176,3 +176,109 @@ export async function enviarTemplateWhatsappMeta(
       data.messages?.[0]?.message_status,
   };
 }
+
+type RespostaAssinaturaWabaMeta = {
+  success?: boolean | string;
+
+  error?: {
+    message?: string;
+    type?: string;
+    code?: number;
+    error_subcode?: number;
+    fbtrace_id?: string;
+  };
+};
+
+function obterUrlAssinaturaWaba(
+  whatsappBusinessId: string
+) {
+  if (!whatsappBusinessId) {
+    throw new Error(
+      "WhatsApp Business Account ID não informado."
+    );
+  }
+
+  return `https://graph.facebook.com/${META_GRAPH_VERSION}/${whatsappBusinessId}/subscribed_apps`;
+}
+
+export async function assinarWebhookWabaMeta(params: {
+  whatsappBusinessId: string;
+  tokenCriptografado: string;
+}): Promise<{
+  sucesso: true;
+}> {
+  const {
+    whatsappBusinessId,
+    tokenCriptografado,
+  } = params;
+
+  if (!tokenCriptografado) {
+    throw new Error(
+      "Credencial do WhatsApp não informada."
+    );
+  }
+
+  const accessToken =
+    descriptografarTokenWhatsapp(
+      tokenCriptografado
+    );
+
+  const response = await fetch(
+    obterUrlAssinaturaWaba(
+      whatsappBusinessId
+    ),
+    {
+      method: "POST",
+
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+
+      cache: "no-store",
+    }
+  );
+
+  let data: RespostaAssinaturaWabaMeta;
+
+  try {
+    data =
+      (await response.json()) as RespostaAssinaturaWabaMeta;
+  } catch {
+    throw new ErroMetaWhatsapp({
+      message:
+        "A Meta retornou uma resposta inválida ao assinar o webhook da conta WhatsApp Business.",
+      statusHttp: response.status,
+    });
+  }
+
+  if (!response.ok || data.error) {
+    throw new ErroMetaWhatsapp({
+      message:
+        data.error?.message ||
+        "Não foi possível assinar o webhook da conta WhatsApp Business.",
+      statusHttp: response.status,
+      codigoMeta: data.error?.code,
+      subcodigoMeta:
+        data.error?.error_subcode,
+      tipoMeta: data.error?.type,
+      fbtraceId:
+        data.error?.fbtrace_id,
+    });
+  }
+
+  const sucesso =
+    data.success === true ||
+    data.success === "true";
+
+  if (!sucesso) {
+    throw new ErroMetaWhatsapp({
+      message:
+        "A Meta não confirmou a assinatura do webhook da conta WhatsApp Business.",
+      statusHttp: response.status,
+    });
+  }
+
+  return {
+    sucesso: true,
+  };
+}

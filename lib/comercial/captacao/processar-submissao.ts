@@ -223,11 +223,30 @@ function emailValido(
 function normalizarTelefone(
   valor: unknown
 ) {
-  const telefone =
+  const bruto =
     String(valor ?? "")
-      .replace(/\D/g, "");
+      .trim();
 
-  return telefone || null;
+  if (!bruto) {
+    return null;
+  }
+
+  const internacional =
+    bruto.startsWith("+");
+
+  const digitos =
+    bruto.replace(
+      /\D/g,
+      ""
+    );
+
+  if (!digitos) {
+    return null;
+  }
+
+  return internacional
+    ? `+${digitos}`
+    : digitos;
 }
 
 function criteriosVazios(
@@ -2548,7 +2567,7 @@ export async function processarSubmissaoCaptacao(
           error
         );
 
-            try {
+      try {
         const registroFalha =
           await prisma.submissaoCaptacaoLead.updateMany({
             where: {
@@ -2572,7 +2591,7 @@ export async function processarSubmissaoCaptacao(
 
               processadoEm:
                 statusFinal ===
-                StatusSubmissaoCaptacaoLead.REJEITADA
+                  StatusSubmissaoCaptacaoLead.REJEITADA
                   ? new Date()
                   : null,
             },
@@ -2590,15 +2609,15 @@ export async function processarSubmissaoCaptacao(
         if (
           registroFalha.count === 1 &&
           statusFinal ===
-            StatusSubmissaoCaptacaoLead.REJEITADA
+          StatusSubmissaoCaptacaoLead.REJEITADA
         ) {
           await emitirEventosSaidaSubmissaoCaptacaoSeguro({
             submissaoId,
             instituicaoId,
           });
         }
-         } catch (
-        erroAoRegistrar
+      } catch (
+      erroAoRegistrar
       ) {
         console.error(
           "Erro ao registrar falha da submissão de captação:",

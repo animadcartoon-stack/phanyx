@@ -136,17 +136,39 @@ function lerDataOpcional(valor: unknown) {
   };
 }
 
-function serializarLead(lead: any) {
+function serializarLead(
+  lead: any
+) {
+  const captacaoMaisRecente =
+    Array.isArray(
+      lead.submissoesCaptacao
+    ) &&
+      lead.submissoesCaptacao
+        .length > 0
+      ? lead
+        .submissoesCaptacao[0]
+      : null;
+
   return {
     ...lead,
 
     responsavelNome:
-      lead.responsavelFuncionario?.nome ||
-      lead.responsavelNomeSnapshot ||
+      lead
+        .responsavelFuncionario
+        ?.nome ||
+      lead
+        .responsavelNomeSnapshot ||
       null,
 
     instituicaoId:
-      lead.instituicaoInteressadaId ?? null,
+      lead
+        .instituicaoInteressadaId ??
+      null,
+
+    captacaoMaisRecente,
+
+    submissoesCaptacao:
+      undefined,
   };
 }
 
@@ -192,93 +214,93 @@ export async function GET(req: Request) {
         AND: [
           masterReal
             ? {
-                instituicaoGestoraId: null,
-                tipo: "PHANYX",
-              }
+              instituicaoGestoraId: null,
+              tipo: "PHANYX",
+            }
             : {
-                instituicaoGestoraId: user.instituicaoId,
-                tipo: "INSTITUICAO",
-              },
+              instituicaoGestoraId: user.instituicaoId,
+              tipo: "INSTITUICAO",
+            },
 
           q
             ? {
-                OR: [
-                  {
+              OR: [
+                {
+                  nome: {
+                    contains: q,
+                    mode: "insensitive",
+                  },
+                },
+                {
+                  email: {
+                    contains: q,
+                    mode: "insensitive",
+                  },
+                },
+                {
+                  telefone: {
+                    contains: q,
+                    mode: "insensitive",
+                  },
+                },
+                {
+                  instituicaoNome: {
+                    contains: q,
+                    mode: "insensitive",
+                  },
+                },
+                {
+                  cargo: {
+                    contains: q,
+                    mode: "insensitive",
+                  },
+                },
+                {
+                  origem: {
+                    contains: q,
+                    mode: "insensitive",
+                  },
+                },
+                {
+                  tipo: {
+                    contains: q,
+                    mode: "insensitive",
+                  },
+                },
+                {
+                  interesse: {
+                    contains: q,
+                    mode: "insensitive",
+                  },
+                },
+                {
+                  observacoes: {
+                    contains: q,
+                    mode: "insensitive",
+                  },
+                },
+                {
+                  responsavelNomeSnapshot: {
+                    contains: q,
+                    mode: "insensitive",
+                  },
+                },
+                {
+                  responsavelFuncionario: {
                     nome: {
                       contains: q,
                       mode: "insensitive",
                     },
                   },
-                  {
-                    email: {
-                      contains: q,
-                      mode: "insensitive",
-                    },
-                  },
-                  {
-                    telefone: {
-                      contains: q,
-                      mode: "insensitive",
-                    },
-                  },
-                  {
-                    instituicaoNome: {
-                      contains: q,
-                      mode: "insensitive",
-                    },
-                  },
-                  {
-                    cargo: {
-                      contains: q,
-                      mode: "insensitive",
-                    },
-                  },
-                  {
-                    origem: {
-                      contains: q,
-                      mode: "insensitive",
-                    },
-                  },
-                  {
-                    tipo: {
-                      contains: q,
-                      mode: "insensitive",
-                    },
-                  },
-                  {
-                    interesse: {
-                      contains: q,
-                      mode: "insensitive",
-                    },
-                  },
-                  {
-                    observacoes: {
-                      contains: q,
-                      mode: "insensitive",
-                    },
-                  },
-                  {
-                    responsavelNomeSnapshot: {
-                      contains: q,
-                      mode: "insensitive",
-                    },
-                  },
-                  {
-                    responsavelFuncionario: {
-                      nome: {
-                        contains: q,
-                        mode: "insensitive",
-                      },
-                    },
-                  },
-                ],
-              }
+                },
+              ],
+            }
             : {},
 
           origem
             ? {
-                origem,
-              }
+              origem,
+            }
             : {},
         ],
       },
@@ -300,6 +322,60 @@ export async function GET(req: Request) {
             id: true,
             nome: true,
             ativo: true,
+          },
+        },
+
+        cursoInteresse: {
+          select: {
+            id: true,
+            nome: true,
+          },
+        },
+
+        poloInteresse: {
+          select: {
+            id: true,
+            nome: true,
+          },
+        },
+
+        submissoesCaptacao: {
+          orderBy: {
+            recebidoEm: "desc",
+          },
+
+          take: 1,
+
+          select: {
+            id: true,
+            recebidoEm: true,
+
+            consentimentoLgpd: true,
+            consentimentoEm: true,
+
+            canal: {
+              select: {
+                id: true,
+                nome: true,
+                tipo: true,
+              },
+            },
+
+            campanha: {
+              select: {
+                id: true,
+                nome: true,
+                codigo: true,
+              },
+            },
+
+            formulario: {
+              select: {
+                id: true,
+                nome: true,
+                titulo: true,
+              },
+            },
           },
         },
       },
@@ -436,9 +512,9 @@ export async function POST(req: Request) {
 
     let responsavelFuncionario:
       | {
-          id: number;
-          nome: string;
-        }
+        id: number;
+        nome: string;
+      }
       | null = null;
 
     if (responsavelInformado.valor) {
@@ -483,7 +559,7 @@ export async function POST(req: Request) {
       const instituicaoInteressadaInformada =
         lerIdOpcional(
           body?.instituicaoInteressadaId ??
-            body?.instituicaoId
+          body?.instituicaoId
         );
 
       if (!instituicaoInteressadaInformada.valido) {
