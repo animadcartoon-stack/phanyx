@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
-
+import crypto from "crypto";
 import {
   descriptografarTokenWhatsapp,
 } from "@/lib/whatsapp/crypto";
@@ -206,6 +206,24 @@ export async function POST() {
         }
       );
     }
+
+    const segredoCriptografia =
+      process.env.CREDENTIALS_ENCRYPTION_KEY;
+
+    const fingerprintCriptografia =
+      segredoCriptografia
+        ? crypto
+          .createHash("sha256")
+          .update(segredoCriptografia)
+          .digest("hex")
+          .substring(0, 12)
+          .toUpperCase()
+        : "AUSENTE";
+
+    console.log(
+      "[WhatsApp] Fingerprint CREDENTIALS_ENCRYPTION_KEY:",
+      fingerprintCriptografia
+    );
 
     let accessToken: string;
 
