@@ -654,126 +654,141 @@ export default function DistribuicaoCaptacaoPage() {
     }
 
     async function criarNovaRegra() {
-        if (
-            !podeCriarNovaRegra ||
-            salvandoNovaRegra
-        ) {
-            return;
-        }
+    if (
+        !podeCriarNovaRegra ||
+        salvandoNovaRegra
+    ) {
+        return;
+    }
 
-        try {
-            setSalvandoNovaRegra(
-                true
-            );
+    const editando =
+        regraEditandoId !== null;
 
-            setErroNovaRegra("");
-            setMensagemSucesso("");
+    try {
+        setSalvandoNovaRegra(
+            true
+        );
 
-            const resposta =
-                await fetch(
-                    "/api/admin/comercial/captacao/distribuicao",
-                    {
-                        method: "POST",
+        setErroNovaRegra("");
+        setMensagemSucesso("");
 
-                        headers: {
-                            "Content-Type":
-                                "application/json",
-                        },
+        const url = editando
+            ? `/api/admin/comercial/captacao/distribuicao/${regraEditandoId}`
+            : "/api/admin/comercial/captacao/distribuicao";
 
-                        body: JSON.stringify(
-                            {
-                                nome:
-                                    nomeNovaRegra.trim(),
+        const resposta =
+            await fetch(url, {
+                method: editando
+                    ? "PATCH"
+                    : "POST",
 
-                                estrategia:
-                                    estrategiaNovaRegra,
+                headers: {
+                    "Content-Type":
+                        "application/json",
+                },
 
-                                canalId:
-                                    idOuNull(
-                                        canalNovaRegra
-                                    ),
+                body: JSON.stringify({
+                    nome:
+                        nomeNovaRegra.trim(),
 
-                                campanhaId:
-                                    idOuNull(
-                                        campanhaNovaRegra
-                                    ),
+                    estrategia:
+                        estrategiaNovaRegra,
 
-                                formularioId:
-                                    idOuNull(
-                                        formularioNovaRegra
-                                    ),
-
-                                cursoId:
-                                    idOuNull(
-                                        cursoNovaRegra
-                                    ),
-
-                                poloId:
-                                    idOuNull(
-                                        poloNovaRegra
-                                    ),
-
-                                equipeId:
-                                    estrategiaExigeEquipe
-                                        ? idOuNull(
-                                            equipeNovaRegra
-                                        )
-                                        : null,
-
-                                responsavelFixoId:
-                                    estrategiaExigeResponsavel
-                                        ? idOuNull(
-                                            responsavelNovaRegra
-                                        )
-                                        : null,
-
-                                ativo: true,
-                            }
+                    canalId:
+                        idOuNull(
+                            canalNovaRegra
                         ),
-                    }
-                );
 
-            const json =
-                (await resposta
-                    .json()
-                    .catch(() => null)) as
+                    campanhaId:
+                        idOuNull(
+                            campanhaNovaRegra
+                        ),
+
+                    formularioId:
+                        idOuNull(
+                            formularioNovaRegra
+                        ),
+
+                    cursoId:
+                        idOuNull(
+                            cursoNovaRegra
+                        ),
+
+                    poloId:
+                        idOuNull(
+                            poloNovaRegra
+                        ),
+
+                    equipeId:
+                        estrategiaExigeEquipe
+                            ? idOuNull(
+                                  equipeNovaRegra
+                              )
+                            : null,
+
+                    responsavelFixoId:
+                        estrategiaExigeResponsavel
+                            ? idOuNull(
+                                  responsavelNovaRegra
+                              )
+                            : null,
+
+                    ativo: editando
+                        ? ativoRegra
+                        : true,
+                }),
+            });
+
+        const json =
+            (await resposta
+                .json()
+                .catch(() => null)) as
                 | RespostaErro
                 | {
-                    success?: boolean;
-                }
+                      success?: boolean;
+                      message?: string;
+                  }
                 | null;
 
-            if (!resposta.ok) {
-                throw new Error(
-                    json &&
-                        "error" in json
-                        ? json.error ||
-                        "Não foi possível criar a regra."
-                        : "Não foi possível criar a regra."
-                );
-            }
-
-            setModalNovaRegraAberto(
-                false
-            );
-
-            setMensagemSucesso(
-                "Regra de distribuição criada com sucesso."
-            );
-
-            await carregar(true);
-        } catch (error) {
-            setErroNovaRegra(
-                error instanceof Error
-                    ? error.message
-                    : "Não foi possível criar a regra de distribuição."
-            );
-        } finally {
-            setSalvandoNovaRegra(
-                false
+        if (!resposta.ok) {
+            throw new Error(
+                json &&
+                    "error" in json
+                    ? json.error ||
+                          "Não foi possível salvar a regra."
+                    : "Não foi possível salvar a regra."
             );
         }
+
+        setModalNovaRegraAberto(
+            false
+        );
+
+        setRegraEditandoId(
+            null
+        );
+
+        setErroNovaRegra("");
+
+        setMensagemSucesso(
+            editando
+                ? "Regra de distribuição atualizada com sucesso."
+                : "Regra de distribuição criada com sucesso."
+        );
+
+        await carregar(true);
+    } catch (error) {
+        setErroNovaRegra(
+            error instanceof Error
+                ? error.message
+                : "Não foi possível salvar a regra de distribuição."
+        );
+    } finally {
+        setSalvandoNovaRegra(
+            false
+        );
     }
+}
 
     if (carregando) {
         return (
