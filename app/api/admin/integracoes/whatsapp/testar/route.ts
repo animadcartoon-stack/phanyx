@@ -225,6 +225,23 @@ export async function POST() {
       fingerprintCriptografia
     );
 
+    const fingerprintCredencial =
+      crypto
+        .createHash("sha256")
+        .update(
+          integracao.tokenAcessoCriptografado
+        )
+        .digest("hex")
+        .substring(0, 12)
+        .toUpperCase();
+
+    console.log(
+      "[WhatsApp] Fingerprint credencial criptografada:",
+      fingerprintCredencial,
+      "Tamanho:",
+      integracao.tokenAcessoCriptografado.length
+    );
+
     let accessToken: string;
 
     try {
