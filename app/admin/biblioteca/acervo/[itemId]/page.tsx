@@ -728,6 +728,38 @@ export default function BibliotecaItemPage() {
   );
 
   const [
+    buscaUsuarioEmprestimo,
+    setBuscaUsuarioEmprestimo,
+  ] = useState("");
+
+  const [
+    usuariosEmprestimo,
+    setUsuariosEmprestimo,
+  ] = useState<
+    UsuarioEmprestimo[]
+  >([]);
+
+  const [
+    usuarioEmprestimoSelecionado,
+    setUsuarioEmprestimoSelecionado,
+  ] =
+    useState<UsuarioEmprestimo | null>(
+      null
+    );
+
+  const [
+    buscandoUsuariosEmprestimo,
+    setBuscandoUsuariosEmprestimo,
+  ] = useState(false);
+
+  const [
+    erroBuscaUsuariosEmprestimo,
+    setErroBuscaUsuariosEmprestimo,
+  ] = useState<string | null>(
+    null
+  );
+
+  const [
     carregandoExemplares,
     setCarregandoExemplares,
   ] = useState(false);
@@ -1740,12 +1772,22 @@ export default function BibliotecaItemPage() {
       !podeGerenciarEmprestimos ||
       impersonacao ||
       exemplar.tipo !== "FISICO" ||
-      exemplar.status !== "DISPONIVEL" ||
+      exemplar.status !==
+      "DISPONIVEL" ||
       !exemplar.permiteEmprestimo ||
       exemplar.baixadoEm
     ) {
       return;
     }
+
+    setBuscaUsuarioEmprestimo("");
+    setUsuariosEmprestimo([]);
+    setUsuarioEmprestimoSelecionado(
+      null
+    );
+    setErroBuscaUsuariosEmprestimo(
+      null
+    );
 
     setExemplarParaEmprestimo(
       exemplar
@@ -1753,7 +1795,22 @@ export default function BibliotecaItemPage() {
   }
 
   function fecharEmprestimo() {
+    if (
+      buscandoUsuariosEmprestimo
+    ) {
+      return;
+    }
+
     setExemplarParaEmprestimo(
+      null
+    );
+
+    setBuscaUsuarioEmprestimo("");
+    setUsuariosEmprestimo([]);
+    setUsuarioEmprestimoSelecionado(
+      null
+    );
+    setErroBuscaUsuariosEmprestimo(
       null
     );
   }
@@ -2181,6 +2238,125 @@ export default function BibliotecaItemPage() {
       setSalvandoExemplar(false);
     }
   }
+
+  useEffect(() => {
+    if (!exemplarParaEmprestimo) {
+      return;
+    }
+
+    const termo =
+      buscaUsuarioEmprestimo.trim();
+
+    if (termo.length < 2) {
+      setUsuariosEmprestimo([]);
+      setBuscandoUsuariosEmprestimo(
+        false
+      );
+      setErroBuscaUsuariosEmprestimo(
+        null
+      );
+
+      return;
+    }
+
+    const controle =
+      new AbortController();
+
+    const temporizador =
+      window.setTimeout(
+        async () => {
+          setBuscandoUsuariosEmprestimo(
+            true
+          );
+
+          setErroBuscaUsuariosEmprestimo(
+            null
+          );
+
+          try {
+            const resposta =
+              await fetch(
+                `/api/admin/biblioteca/circulacao/usuarios?q=${encodeURIComponent(
+                  termo
+                )}`,
+                {
+                  method: "GET",
+                  cache: "no-store",
+                  credentials:
+                    "include",
+                  signal:
+                    controle.signal,
+                }
+              );
+
+            const resultado =
+              (await resposta.json()) as
+              RespostaUsuariosEmprestimo;
+
+            if (!resposta.ok) {
+              throw new Error(
+                resultado.error ||
+                resultado.mensagem ||
+                "Não foi possível pesquisar usuários."
+              );
+            }
+
+            if (
+              controle.signal.aborted
+            ) {
+              return;
+            }
+
+            setUsuariosEmprestimo(
+              Array.isArray(
+                resultado.usuarios
+              )
+                ? resultado.usuarios
+                : []
+            );
+          } catch (falha) {
+            if (
+              falha instanceof
+              DOMException &&
+              falha.name ===
+              "AbortError"
+            ) {
+              return;
+            }
+
+            setUsuariosEmprestimo(
+              []
+            );
+
+            setErroBuscaUsuariosEmprestimo(
+              falha instanceof Error
+                ? falha.message
+                : "Não foi possível pesquisar usuários."
+            );
+          } finally {
+            if (
+              !controle.signal.aborted
+            ) {
+              setBuscandoUsuariosEmprestimo(
+                false
+              );
+            }
+          }
+        },
+        350
+      );
+
+    return () => {
+      window.clearTimeout(
+        temporizador
+      );
+
+      controle.abort();
+    };
+  }, [
+    buscaUsuarioEmprestimo,
+    exemplarParaEmprestimo,
+  ]);
 
   return (
     <main className="phanyx-biblioteca-acervo-page phanyx-biblioteca-item-page">
@@ -3934,13 +4110,186 @@ export default function BibliotecaItemPage() {
                 </div>
               </div>
 
-              <div className="bib-compact-empty">
-                Na próxima etapa,
-                pesquisaremos aqui o
-                aluno, professor ou
-                funcionário que receberá
-                o exemplar.
-              </div>
+              <label className="bib-field">
+                <span>
+                  Pesquisar pessoa
+                </span>
+
+                <input
+                  type="search"
+                  className="bib-input"
+                  value={
+                    buscaUsuarioEmprestimo
+                  }
+                  onChange={(evento) => {
+                    setBuscaUsuarioEmprestimo(
+                      evento.target.value
+                    );
+
+                    setUsuarioEmprestimoSelecionado(
+                      null
+                    );
+                  }}
+                  placeholder="Nome, e-mail, matrícula, CPF ou código funcional"
+                  autoComplete="off"
+                  autoFocus
+                />
+
+                <small>
+                  Digite pelo menos 2
+                  caracteres.
+                </small>
+              </label>
+
+              {usuarioEmprestimoSelecionado ? (
+                <div className="bib-feedback bib-feedback-success">
+                  <div>
+                    <strong>
+                      Tomador selecionado
+                    </strong>
+
+                    <p>
+                      {
+                        usuarioEmprestimoSelecionado.nome
+                      }
+
+                      {" · "}
+
+                      {rotuloEnum(
+                        usuarioEmprestimoSelecionado.tipo
+                      )}
+
+                      {usuarioEmprestimoSelecionado
+                        .identificador
+                        ? ` · ${usuarioEmprestimoSelecionado.tipo ===
+                          "ALUNO"
+                          ? "Matrícula"
+                          : "Código"
+                        } ${usuarioEmprestimoSelecionado.identificador
+                        }`
+                        : ""}
+                    </p>
+                  </div>
+                </div>
+              ) : null}
+
+              {buscandoUsuariosEmprestimo ? (
+                <div className="bib-compact-empty">
+                  Pesquisando pessoas...
+                </div>
+              ) : null}
+
+              {erroBuscaUsuariosEmprestimo ? (
+                <div className="bib-feedback bib-feedback-danger">
+                  <div>
+                    <strong>
+                      Não foi possível
+                      pesquisar
+                    </strong>
+
+                    <p>
+                      {
+                        erroBuscaUsuariosEmprestimo
+                      }
+                    </p>
+                  </div>
+                </div>
+              ) : null}
+
+              {!buscandoUsuariosEmprestimo &&
+                buscaUsuarioEmprestimo
+                  .trim()
+                  .length >= 2 &&
+                !erroBuscaUsuariosEmprestimo &&
+                usuariosEmprestimo.length ===
+                0 ? (
+                <div className="bib-compact-empty">
+                  Nenhuma pessoa encontrada
+                  com essa pesquisa.
+                </div>
+              ) : null}
+
+              {!buscandoUsuariosEmprestimo &&
+                usuariosEmprestimo.length >
+                0 ? (
+                <div className="bib-related-list">
+                  {usuariosEmprestimo.map(
+                    (usuarioBusca) => (
+                      <div
+                        className="bib-related-row"
+                        key={usuarioBusca.id}
+                      >
+                        <span
+                          aria-hidden="true"
+                        >
+                          {usuarioBusca.tipo ===
+                            "ALUNO"
+                            ? "🎓"
+                            : usuarioBusca.tipo ===
+                              "PROFESSOR"
+                              ? "👨‍🏫"
+                              : "👤"}
+                        </span>
+
+                        <div>
+                          <strong>
+                            {
+                              usuarioBusca.nome
+                            }
+                          </strong>
+
+                          <small>
+                            {rotuloEnum(
+                              usuarioBusca.tipo
+                            )}
+
+                            {usuarioBusca
+                              .identificador
+                              ? ` · ${usuarioBusca.tipo ===
+                                "ALUNO"
+                                ? "Matrícula"
+                                : "Código"
+                              } ${usuarioBusca.identificador
+                              }`
+                              : ""}
+
+                            {usuarioBusca
+                              .cpfMascarado
+                              ? ` · CPF ${usuarioBusca.cpfMascarado}`
+                              : ""}
+                          </small>
+
+                          <small>
+                            {
+                              usuarioBusca.email
+                            }
+
+                            {usuarioBusca.cargo
+                              ? ` · ${usuarioBusca.cargo}`
+                              : ""}
+                          </small>
+                        </div>
+
+                        <button
+                          type="button"
+                          className="bib-button bib-button-secondary"
+                          onClick={() =>
+                            setUsuarioEmprestimoSelecionado(
+                              usuarioBusca
+                            )
+                          }
+                        >
+                          {usuarioEmprestimoSelecionado
+                            ?.id ===
+                            usuarioBusca.id
+                            ? "✓ Selecionado"
+                            : "Selecionar"}
+                        </button>
+                      </div>
+                    )
+                  )}
+                </div>
+              ) : null}
             </div>
 
             <footer className="bib-modal-footer">
