@@ -4053,7 +4053,7 @@ export default function BibliotecaItemPage() {
           role="presentation"
         >
           <section
-            className="bib-modal"
+            className="bib-modal bib-emprestimo-modal"
             role="dialog"
             aria-modal="true"
             aria-labelledby="titulo-emprestimo-biblioteca"
