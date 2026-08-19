@@ -3303,114 +3303,121 @@ export default function BibliotecaItemPage() {
               </button>
             </header>
 
-            <div className="bib-modal-body">
-              <div className="bib-delete-file-summary">
-                <span
-                  aria-hidden="true"
-                >
-                  🗑
-                </span>
+            <form
+              onSubmit={(evento) => {
+                evento.preventDefault();
+                void cadastrarExemplar();
+              }}
+            >
+              <div className="bib-modal-body">
+                <div className="bib-delete-file-summary">
+                  <span
+                    aria-hidden="true"
+                  >
+                    🗑
+                  </span>
 
-                <div>
+                  <div>
+                    <strong>
+                      {
+                        arquivoParaExcluir
+                          .nomeOriginal
+                      }
+                    </strong>
+
+                    <small>
+                      {rotuloEnum(
+                        arquivoParaExcluir
+                          .tipo
+                      )}
+                      {" · "}
+                      {formatarBytes(
+                        arquivoParaExcluir
+                          .tamanhoBytes
+                      )}
+                    </small>
+                  </div>
+                </div>
+
+                <div className="bib-delete-warning">
                   <strong>
-                    {
-                      arquivoParaExcluir
-                        .nomeOriginal
-                    }
+                    O espaço será devolvido à
+                    instituição.
                   </strong>
 
-                  <small>
-                    {rotuloEnum(
-                      arquivoParaExcluir
-                        .tipo
-                    )}
-                    {" · "}
-                    {formatarBytes(
-                      arquivoParaExcluir
-                        .tamanhoBytes
-                    )}
-                  </small>
+                  <p>
+                    Serão liberados{" "}
+                    <b>
+                      {formatarBytes(
+                        arquivoParaExcluir
+                          .tamanhoBytes
+                      )}
+                    </b>{" "}
+                    do armazenamento contratado.
+                    O registro da operação será
+                    preservado para auditoria.
+                  </p>
                 </div>
+
+                <label className="bib-field">
+                  <span>
+                    Motivo da exclusão
+                  </span>
+
+                  <textarea
+                    className="bib-input bib-textarea"
+                    value={
+                      motivoExclusao
+                    }
+                    onChange={(evento) =>
+                      setMotivoExclusao(
+                        evento.target.value
+                      )
+                    }
+                    maxLength={2000}
+                    disabled={
+                      excluindoArquivo
+                    }
+                    placeholder="Opcional. Ex.: arquivo enviado por engano."
+                  />
+
+                  <small>
+                    O motivo ficará registrado no
+                    histórico da Biblioteca Virtual.
+                  </small>
+                </label>
               </div>
 
-              <div className="bib-delete-warning">
-                <strong>
-                  O espaço será devolvido à
-                  instituição.
-                </strong>
-
-                <p>
-                  Serão liberados{" "}
-                  <b>
-                    {formatarBytes(
-                      arquivoParaExcluir
-                        .tamanhoBytes
-                    )}
-                  </b>{" "}
-                  do armazenamento contratado.
-                  O registro da operação será
-                  preservado para auditoria.
-                </p>
-              </div>
-
-              <label className="bib-field">
-                <span>
-                  Motivo da exclusão
-                </span>
-
-                <textarea
-                  className="bib-input bib-textarea"
-                  value={
-                    motivoExclusao
+              <footer className="bib-modal-footer">
+                <button
+                  type="button"
+                  className="bib-button bib-button-secondary"
+                  onClick={
+                    fecharExclusaoArquivo
                   }
-                  onChange={(evento) =>
-                    setMotivoExclusao(
-                      evento.target.value
-                    )
-                  }
-                  maxLength={2000}
                   disabled={
                     excluindoArquivo
                   }
-                  placeholder="Opcional. Ex.: arquivo enviado por engano."
-                />
+                >
+                  Cancelar
+                </button>
 
-                <small>
-                  O motivo ficará registrado no
-                  histórico da Biblioteca Virtual.
-                </small>
-              </label>
-            </div>
-
-            <footer className="bib-modal-footer">
-              <button
-                type="button"
-                className="bib-button bib-button-secondary"
-                onClick={
-                  fecharExclusaoArquivo
-                }
-                disabled={
-                  excluindoArquivo
-                }
-              >
-                Cancelar
-              </button>
-
-              <button
-                type="button"
-                className="bib-button bib-button-danger"
-                onClick={() =>
-                  void excluirArquivo()
-                }
-                disabled={
-                  excluindoArquivo
-                }
-              >
-                {excluindoArquivo
-                  ? "Excluindo..."
-                  : "🗑 Excluir arquivo"}
-              </button>
-            </footer>
+                <button
+                  type="button"
+                  className="bib-button bib-button-danger"
+                  onClick={() =>
+                    void excluirArquivo()
+                  }
+                  disabled={
+                    excluindoArquivo
+                  }
+                >
+                  {excluindoArquivo
+                    ? "Excluindo..."
+                    : "🗑 Excluir arquivo"}
+                </button>
+              </footer>
+            </form>
           </section>
         </div>
       ) : null}
@@ -3886,11 +3893,8 @@ export default function BibliotecaItemPage() {
               </button>
 
               <button
-                type="button"
+                type="submit"
                 className="bib-button bib-button-primary"
-                onClick={() =>
-                  void cadastrarExemplar()
-                }
                 disabled={
                   salvandoExemplar ||
                   !formularioExemplar
