@@ -25069,3 +25069,285 @@ html[data-theme="dark"]
   border-color: #334155 !important;
 }
 
+/* =========================================================
+   CENTRAL DE CAPTAÇÃO
+   DETALHE DA SUBMISSÃO
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   TEMA ESCURO
+   O hero deve ter o mesmo fundo dos demais cards
+   --------------------------------------------------------- */
+
+html[data-theme="dark"]
+  .captacao-submissao-detalhe-page
+  .phanyx-admin-hero {
+  background: #111827 !important;
+  background-color: #111827 !important;
+  background-image: none !important;
+  border-color: #334155 !important;
+}
+
+
+/* ---------------------------------------------------------
+   TEMA SISTEMA
+   Estrutura neutra — sem fundos azuis
+   --------------------------------------------------------- */
+
+html[data-theme="system"]
+  .captacao-submissao-detalhe-page {
+  background-color: #262626 !important;
+}
+
+
+/* Card superior */
+
+html[data-theme="system"]
+  .captacao-submissao-detalhe-page
+  .phanyx-admin-hero {
+  background: #2f2f2f !important;
+  background-color: #2f2f2f !important;
+  background-image: none !important;
+  border-color: #4b4b4b !important;
+}
+
+
+/* Cards principais */
+
+html[data-theme="system"]
+  .captacao-submissao-detalhe-page
+  .phanyx-card {
+  background: #303030 !important;
+  background-color: #303030 !important;
+  background-image: none !important;
+  border-color: #4b4b4b !important;
+}
+
+
+/* Cards internos:
+   nome, e-mail, telefone, status, resultado,
+   canal, campanha, formulário, curso, unidade etc. */
+
+html[data-theme="system"]
+  .captacao-submissao-detalhe-page
+  .bg-slate-50 {
+  background-color: #414141 !important;
+}
+
+html[data-theme="system"]
+  .captacao-submissao-detalhe-page
+  .border-slate-200 {
+  border-color: #606060 !important;
+}
+
+html[data-theme="system"]
+  .captacao-submissao-detalhe-page
+  .border-slate-300 {
+  border-color: #686868 !important;
+}
+
+
+/* Textos originalmente escuros precisam ficar claros */
+
+html[data-theme="system"]
+  .captacao-submissao-detalhe-page
+  .text-slate-900 {
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"]
+  .captacao-submissao-detalhe-page
+  .text-slate-600 {
+  color: #d1d5db !important;
+}
+
+html[data-theme="system"]
+  .captacao-submissao-detalhe-page
+  .text-slate-500 {
+  color: #b8bec8 !important;
+}
+
+
+/* Botões brancos do cabeçalho também ficam neutros */
+
+html[data-theme="system"]
+  .captacao-submissao-detalhe-page
+  button.bg-white,
+html[data-theme="system"]
+  .captacao-submissao-detalhe-page
+  a.bg-white {
+  background-color: #383838 !important;
+  border-color: #606060 !important;
+  color: #ffffff !important;
+}
+
+
+/* Mantém os cards sem tonalidade azul mesmo
+   quando alguma regra global atingir slate */
+
+html[data-theme="system"]
+  .captacao-submissao-detalhe-page
+  .bg-slate-800,
+html[data-theme="system"]
+  .captacao-submissao-detalhe-page
+  .bg-slate-900 {
+  background-color: #383838 !important;
+}
+
+/* =========================================================
+   CENTRAL DE CAPTAÇÃO
+   INTEGRAÇÕES
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   TEMA ESCURO
+   O cabeçalho deve acompanhar os demais cards escuros
+   --------------------------------------------------------- */
+
+html[data-theme="dark"]
+  .captacao-integracoes-page
+  .phanyx-admin-hero {
+  background: #111827 !important;
+  background-color: #111827 !important;
+  background-image: none !important;
+  border-color: #334155 !important;
+}
+
+
+/* ---------------------------------------------------------
+   TEMA SISTEMA
+   Estrutura neutra em tons de cinza
+   --------------------------------------------------------- */
+
+html[data-theme="system"]
+  .captacao-integracoes-page {
+  background-color: #262626 !important;
+}
+
+
+/* Cabeçalho */
+
+html[data-theme="system"]
+  .captacao-integracoes-page
+  .phanyx-admin-hero {
+  background: #2f2f2f !important;
+  background-color: #2f2f2f !important;
+  background-image: none !important;
+  border-color: #4b4b4b !important;
+}
+
+
+/* Todos os cards principais:
+   contadores, filtros e lista de integrações */
+
+html[data-theme="system"]
+  .captacao-integracoes-page
+  .phanyx-card {
+  background: #303030 !important;
+  background-color: #303030 !important;
+  background-image: none !important;
+  border-color: #4b4b4b !important;
+}
+
+
+/* Cards internos das integrações */
+
+html[data-theme="system"]
+  .captacao-integracoes-page
+  .bg-slate-50 {
+  background-color: #414141 !important;
+}
+
+html[data-theme="system"]
+  .captacao-integracoes-page
+  .border-slate-200 {
+  border-color: #606060 !important;
+}
+
+html[data-theme="system"]
+  .captacao-integracoes-page
+  .border-slate-300 {
+  border-color: #686868 !important;
+}
+
+
+/* Divisórias da lista */
+
+html[data-theme="system"]
+  .captacao-integracoes-page
+  .divide-slate-200
+  > :not([hidden])
+  ~ :not([hidden]) {
+  border-color: #505050 !important;
+}
+
+
+/* Campos de busca e selects */
+
+html[data-theme="system"]
+  .captacao-integracoes-page
+  input.bg-white,
+html[data-theme="system"]
+  .captacao-integracoes-page
+  select.bg-white {
+  background-color: #383838 !important;
+  border-color: #606060 !important;
+  color: #ffffff !important;
+}
+
+
+/* Opções dos selects */
+
+html[data-theme="system"]
+  .captacao-integracoes-page
+  select option {
+  background-color: #383838 !important;
+  color: #ffffff !important;
+}
+
+
+/* Botão Atualizar e outros botões brancos */
+
+html[data-theme="system"]
+  .captacao-integracoes-page
+  button.bg-white,
+html[data-theme="system"]
+  .captacao-integracoes-page
+  a.bg-white {
+  background-color: #383838 !important;
+  border-color: #606060 !important;
+  color: #ffffff !important;
+}
+
+
+/* Textos que possuem cores claras hardcoded no JSX */
+
+html[data-theme="system"]
+  .captacao-integracoes-page
+  .text-slate-900 {
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"]
+  .captacao-integracoes-page
+  .text-slate-600 {
+  color: #d1d5db !important;
+}
+
+html[data-theme="system"]
+  .captacao-integracoes-page
+  .text-slate-500 {
+  color: #b8bec8 !important;
+}
+
+
+/* Evita navy/azul estrutural herdado de regras globais */
+
+html[data-theme="system"]
+  .captacao-integracoes-page
+  .bg-slate-800,
+html[data-theme="system"]
+  .captacao-integracoes-page
+  .bg-slate-900 {
+  background-color: #383838 !important;
+}

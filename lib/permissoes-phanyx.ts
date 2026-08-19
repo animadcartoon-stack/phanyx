@@ -126,6 +126,25 @@ export const PERMISSOES_PHANYX = [
     chave: "biblioteca.catalogo.arquivar",
     nome: "Biblioteca Virtual - Arquivar e restaurar itens",
   },
+    // EXEMPLARES
+  {
+    chave: "biblioteca.exemplares.ver",
+    nome: "Biblioteca Virtual - Ver exemplares",
+    descricao:
+      "Permite consultar exemplares físicos e digitais cadastrados no acervo.",
+  },
+  {
+    chave: "biblioteca.exemplares.gerenciar",
+    nome: "Biblioteca Virtual - Gerenciar exemplares",
+    descricao:
+      "Permite cadastrar e editar exemplares, localização, patrimônio e dados de aquisição.",
+  },
+  {
+    chave: "biblioteca.exemplares.baixar",
+    nome: "Biblioteca Virtual - Baixar exemplares",
+    descricao:
+      "Permite realizar a baixa de exemplares do acervo com motivo e auditoria.",
+  },
 
   // ARQUIVOS E ARMAZENAMENTO
   {

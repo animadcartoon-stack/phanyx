@@ -46,7 +46,7 @@ function ehMasterReal(
     user.isMasterAdmin === true &&
     user.impersonacao === false &&
     user.email.trim().toLowerCase() ===
-      "academicophanyx@gmail.com"
+    "academicophanyx@gmail.com"
   );
 }
 
@@ -376,6 +376,56 @@ export async function GET(
             },
           },
 
+          lead: {
+            select: {
+              id: true,
+              nome: true,
+              email: true,
+              telefone: true,
+
+              status: true,
+              prioridade: true,
+              origem: true,
+
+              cursoInteresseId: true,
+              poloInteresseId: true,
+
+              responsavelFuncionarioId:
+                true,
+
+              equipeResponsavelId:
+                true,
+
+              cursoInteresse: {
+                select: {
+                  id: true,
+                  nome: true,
+                },
+              },
+
+              poloInteresse: {
+                select: {
+                  id: true,
+                  nome: true,
+                },
+              },
+
+              responsavelFuncionario: {
+                select: {
+                  id: true,
+                  nome: true,
+                },
+              },
+
+              equipeResponsavel: {
+                select: {
+                  id: true,
+                  nome: true,
+                },
+              },
+            },
+          },
+
           eventosIntegracao: {
             select: {
               id: true,
@@ -452,60 +502,60 @@ export async function GET(
       permissoes.podeVerAuditoria
         ? submissao.eventosIntegracao
         : submissao.eventosIntegracao.map(
-            (evento) => ({
-              id:
-                evento.id,
+          (evento) => ({
+            id:
+              evento.id,
 
-              integracaoId:
-                evento.integracaoId,
+            integracaoId:
+              evento.integracaoId,
 
-              submissaoId:
-                evento.submissaoId,
+            submissaoId:
+              evento.submissaoId,
 
-              identificadorEvento:
-                evento.identificadorEvento,
+            identificadorEvento:
+              evento.identificadorEvento,
 
-              tipoEvento:
-                evento.tipoEvento,
+            tipoEvento:
+              evento.tipoEvento,
 
-              direcao:
-                evento.direcao,
+            direcao:
+              evento.direcao,
 
-              status:
-                evento.status,
+            status:
+              evento.status,
 
-              codigoHttp:
-                evento.codigoHttp,
+            codigoHttp:
+              evento.codigoHttp,
 
-              numeroTentativas:
-                evento.numeroTentativas,
+            numeroTentativas:
+              evento.numeroTentativas,
 
-              proximaTentativaEm:
-                evento.proximaTentativaEm,
+            proximaTentativaEm:
+              evento.proximaTentativaEm,
 
-              mensagemErro:
-                evento.mensagemErro,
+            mensagemErro:
+              evento.mensagemErro,
 
-              recebidoEm:
-                evento.recebidoEm,
+            recebidoEm:
+              evento.recebidoEm,
 
-              processadoEm:
-                evento.processadoEm,
+            processadoEm:
+              evento.processadoEm,
 
-              criadoEm:
-                evento.criadoEm,
+            criadoEm:
+              evento.criadoEm,
 
-              atualizadoEm:
-                evento.atualizadoEm,
+            atualizadoEm:
+              evento.atualizadoEm,
 
-              integracao:
-                evento.integracao,
-            })
-          );
+            integracao:
+              evento.integracao,
+          })
+        );
 
     const {
       eventosIntegracao:
-        _eventosOriginais,
+      _eventosOriginais,
 
       ...dadosSubmissao
     } = submissao;
@@ -514,11 +564,11 @@ export async function GET(
       permissoes.podeReprocessar &&
       (
         submissao.status ===
-          StatusSubmissaoCaptacaoLead.ERRO ||
+        StatusSubmissaoCaptacaoLead.ERRO ||
         submissao.status ===
-          StatusSubmissaoCaptacaoLead.REJEITADA ||
+        StatusSubmissaoCaptacaoLead.REJEITADA ||
         submissao.status ===
-          StatusSubmissaoCaptacaoLead.RECEBIDA
+        StatusSubmissaoCaptacaoLead.RECEBIDA
       );
 
     return NextResponse.json(

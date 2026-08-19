@@ -137,6 +137,55 @@ type ExemplarItem = {
   atualizadoEm: string;
 };
 
+type FormularioExemplar = {
+  tipo: "FISICO" | "DIGITAL";
+
+  codigoInterno: string;
+  codigoBarras: string;
+  numeroTombo: string;
+  patrimonio: string;
+
+  unidadeSnapshot: string;
+  setor: string;
+  sala: string;
+  estante: string;
+  prateleira: string;
+  localizacaoCompleta: string;
+
+  dataAquisicao: string;
+  formaAquisicao: string;
+  fornecedor: string;
+  valorAquisicao: string;
+
+  permiteEmprestimo: boolean;
+  observacoes: string;
+};
+
+type RespostaExemplares = {
+  ok?: boolean;
+
+  item?: {
+    id: number;
+    titulo: string;
+  };
+
+  exemplares?: ExemplarItem[];
+
+  total?: number;
+
+  permissoes?: {
+    podeGerenciar: boolean;
+    podeBaixar: boolean;
+    impersonacao: boolean;
+  };
+
+  exemplar?: ExemplarItem;
+
+  mensagem?: string;
+  error?: string;
+  codigo?: string;
+};
+
 type ItemDetalhe = {
   id: number;
   tipo: string;
@@ -508,6 +557,30 @@ function obterMensagemErro(
   return resposta.error || padrao;
 }
 
+const FORMULARIO_EXEMPLAR_INICIAL: FormularioExemplar = {
+  tipo: "FISICO",
+
+  codigoInterno: "",
+  codigoBarras: "",
+  numeroTombo: "",
+  patrimonio: "",
+
+  unidadeSnapshot: "",
+  setor: "",
+  sala: "",
+  estante: "",
+  prateleira: "",
+  localizacaoCompleta: "",
+
+  dataAquisicao: "",
+  formaAquisicao: "",
+  fornecedor: "",
+  valorAquisicao: "",
+
+  permiteEmprestimo: true,
+  observacoes: "",
+};
+
 export default function BibliotecaItemPage() {
   const params = useParams<{ itemId: string }>();
   const itemId = Number(params.itemId);
@@ -563,6 +636,43 @@ export default function BibliotecaItemPage() {
   const [erro, setErro] = useState<string | null>(null);
   const [toast, setToast] = useState<Toast>(null);
   const [atualizacao, setAtualizacao] = useState(0);
+
+  const [
+    exemplares,
+    setExemplares,
+  ] = useState<ExemplarItem[]>([]);
+
+  const [
+    podeGerenciarExemplares,
+    setPodeGerenciarExemplares,
+  ] = useState(false);
+
+  const [
+    podeBaixarExemplares,
+    setPodeBaixarExemplares,
+  ] = useState(false);
+
+  const [
+    carregandoExemplares,
+    setCarregandoExemplares,
+  ] = useState(false);
+
+  const [
+    modalExemplarAberto,
+    setModalExemplarAberto,
+  ] = useState(false);
+
+  const [
+    salvandoExemplar,
+    setSalvandoExemplar,
+  ] = useState(false);
+
+  const [
+    formularioExemplar,
+    setFormularioExemplar,
+  ] = useState<FormularioExemplar>({
+    ...FORMULARIO_EXEMPLAR_INICIAL,
+  });
 
   const carregarItem = useCallback(
     async (signal?: AbortSignal) => {
@@ -657,6 +767,99 @@ export default function BibliotecaItemPage() {
     [itemId]
   );
 
+  const carregarExemplares =
+    useCallback(
+      async (
+        signal?: AbortSignal
+      ) => {
+        if (
+          !Number.isInteger(itemId) ||
+          itemId <= 0
+        ) {
+          return;
+        }
+
+        setCarregandoExemplares(true);
+
+        try {
+          const resposta =
+            await fetch(
+              `/api/admin/biblioteca/acervo/${itemId}/exemplares`,
+              {
+                method: "GET",
+                cache: "no-store",
+                signal,
+              }
+            );
+
+          const resultado =
+            (await resposta.json()) as
+            RespostaExemplares;
+
+          if (!resposta.ok) {
+            throw new Error(
+              resultado.error ||
+              resultado.mensagem ||
+              "Não foi possível carregar os exemplares."
+            );
+          }
+
+          setExemplares(
+            Array.isArray(
+              resultado.exemplares
+            )
+              ? resultado.exemplares
+              : []
+          );
+
+          setPodeGerenciarExemplares(
+            resultado.permissoes
+              ?.podeGerenciar === true
+          );
+
+          setPodeBaixarExemplares(
+            resultado.permissoes
+              ?.podeBaixar === true
+          );
+        } catch (falha) {
+          if (
+            falha instanceof
+            DOMException &&
+            falha.name ===
+            "AbortError"
+          ) {
+            return;
+          }
+
+          setExemplares([]);
+
+          setPodeGerenciarExemplares(
+            false
+          );
+
+          setPodeBaixarExemplares(
+            false
+          );
+
+          setToast({
+            tipo: "erro",
+
+            mensagem:
+              falha instanceof Error
+                ? falha.message
+                : "Não foi possível carregar os exemplares.",
+          });
+        } finally {
+          if (!signal?.aborted) {
+            setCarregandoExemplares(
+              false
+            );
+          }
+        }
+      },
+      [itemId]
+    );
+
   const [
     podeExcluirArquivo,
     setPodeExcluirArquivo,
@@ -725,6 +928,21 @@ export default function BibliotecaItemPage() {
 
     return () => controlador.abort();
   }, [carregarItem, atualizacao]);
+
+  useEffect(() => {
+    const controlador =
+      new AbortController();
+
+    void carregarExemplares(
+      controlador.signal
+    );
+
+    return () =>
+      controlador.abort();
+  }, [
+    carregarExemplares,
+    atualizacao,
+  ]);
 
   useEffect(() => {
     if (!toast) return;
@@ -938,19 +1156,32 @@ export default function BibliotecaItemPage() {
       });
 
       /*
-       * O callback de conclusão
-       * do Blob pode terminar
-       * instantes depois do upload
-       * do navegador.
-       */
-      window.setTimeout(
-        () => {
-          setAtualizacao(
-            (valor) =>
-              valor + 1
+ * O callback de conclusão do Vercel Blob
+ * pode terminar alguns instantes depois
+ * que o navegador conclui o envio.
+ *
+ * Fazemos mais de uma atualização para
+ * refletir o arquivo e o consumo sem
+ * depender de um único tempo fixo.
+ */
+      const temposAtualizacao = [
+        800,
+        2_000,
+        4_000,
+      ];
+
+      temposAtualizacao.forEach(
+        (tempo) => {
+          window.setTimeout(
+            () => {
+              setAtualizacao(
+                (valor) =>
+                  valor + 1
+              );
+            },
+            tempo
           );
-        },
-        1_500
+        }
       );
     } catch (falha) {
       setToast({
@@ -2329,34 +2560,80 @@ export default function BibliotecaItemPage() {
             <article className="bib-card bib-detail-section">
               <header className="bib-detail-section-heading">
                 <div>
-                  <span aria-hidden="true">📚</span>
+                  <span aria-hidden="true">
+                    📚
+                  </span>
+
                   <div>
                     <h2>Exemplares</h2>
-                    <p>{item._count.exemplares} exemplar(es) cadastrado(s).</p>
+
+                    <p>
+                      {carregandoExemplares
+                        ? "Carregando exemplares..."
+                        : `${exemplares.length} exemplar(es) cadastrado(s).`}
+                    </p>
                   </div>
                 </div>
               </header>
-              {item.exemplares.length ? (
+
+              {carregandoExemplares ? (
+                <div className="bib-compact-empty">
+                  Carregando exemplares...
+                </div>
+              ) : exemplares.length ? (
                 <div className="bib-related-list">
-                  {item.exemplares.map((exemplar) => (
-                    <div className="bib-related-row" key={exemplar.id}>
-                      <span aria-hidden="true">📕</span>
-                      <div>
-                        <strong>{exemplar.codigoInterno}</strong>
-                        <small>
-                          {rotuloEnum(exemplar.tipo)} ·{" "}
-                          {rotuloEnum(exemplar.status)}
-                          {exemplar.localizacaoCompleta
-                            ? ` · ${exemplar.localizacaoCompleta}`
-                            : ""}
-                        </small>
+                  {exemplares.map(
+                    (exemplar) => (
+                      <div
+                        className="bib-related-row"
+                        key={exemplar.id}
+                      >
+                        <span
+                          aria-hidden="true"
+                        >
+                          {exemplar.tipo ===
+                            "DIGITAL"
+                            ? "💻"
+                            : "📕"}
+                        </span>
+
+                        <div>
+                          <strong>
+                            {
+                              exemplar.codigoInterno
+                            }
+                          </strong>
+
+                          <small>
+                            {rotuloEnum(
+                              exemplar.tipo
+                            )}
+
+                            {" · "}
+
+                            {rotuloEnum(
+                              exemplar.status
+                            )}
+
+                            {exemplar
+                              .numeroTombo
+                              ? ` · Tombo ${exemplar.numeroTombo}`
+                              : ""}
+
+                            {exemplar
+                              .localizacaoCompleta
+                              ? ` · ${exemplar.localizacaoCompleta}`
+                              : ""}
+                          </small>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  )}
                 </div>
               ) : (
                 <div className="bib-compact-empty">
-                  Nenhum exemplar cadastrado para este item.
+                  Nenhum exemplar cadastrado
+                  para este item.
                 </div>
               )}
             </article>

@@ -106,6 +106,7 @@ function operadorPossuiPermissao(
     case "biblioteca.ver":
     case "biblioteca.dashboard.ver":
     case "biblioteca.catalogo.ver":
+    case "biblioteca.exemplares.ver":
     case "biblioteca.arquivos.download":
     case "biblioteca.circulacao.ver":
     case "biblioteca.recomendacoes.ver":
@@ -116,6 +117,7 @@ function operadorPossuiPermissao(
 
     case "biblioteca.catalogo.criar":
     case "biblioteca.catalogo.editar":
+    case "biblioteca.exemplares.gerenciar":
     case "biblioteca.arquivos.upload":
     case "biblioteca.arquivos.gerenciar":
       return operador.podeCatalogar;
@@ -125,6 +127,7 @@ function operadorPossuiPermissao(
       return operador.podePublicar;
 
     case "biblioteca.catalogo.arquivar":
+    case "biblioteca.exemplares.baixar":
     case "biblioteca.arquivos.excluir":
       return operador.podeArquivar;
 

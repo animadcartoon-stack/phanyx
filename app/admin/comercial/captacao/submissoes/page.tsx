@@ -476,9 +476,9 @@ export default function SubmissoesCaptacaoPage() {
               .catch(
                 () => null
               )) as
-              | RespostaApi
-              | RespostaErro
-              | null;
+            | RespostaApi
+            | RespostaErro
+            | null;
 
           if (
             !resposta.ok ||
@@ -489,7 +489,7 @@ export default function SubmissoesCaptacaoPage() {
               json &&
                 "error" in json
                 ? json.error ||
-                    "Não foi possível carregar as submissões."
+                "Não foi possível carregar as submissões."
                 : "Não foi possível carregar as submissões."
             );
           }
@@ -600,17 +600,17 @@ export default function SubmissoesCaptacaoPage() {
           .catch(
             () => null
           )) as
-          | {
-              success?: boolean;
-              error?: string;
-              message?: string;
-            }
-          | null;
+        | {
+          success?: boolean;
+          error?: string;
+          message?: string;
+        }
+        | null;
 
       if (!resposta.ok) {
         throw new Error(
           json?.error ||
-            "Não foi possível tentar novamente."
+          "Não foi possível tentar novamente."
         );
       }
 
@@ -1142,14 +1142,14 @@ export default function SubmissoesCaptacaoPage() {
                 <p className="phanyx-muted mt-1 text-sm">
                   {dados.paginacao.total}{" "}
                   {dados.paginacao.total ===
-                  1
+                    1
                     ? "submissão encontrada."
                     : "submissões encontradas."}
                 </p>
               </div>
 
               {dados.submissoes.length ===
-              0 ? (
+                0 ? (
                 <div className="px-6 py-16 text-center">
                   <div className="text-4xl">
                     📥
@@ -1329,7 +1329,7 @@ export default function SubmissoesCaptacaoPage() {
                               {(submissao.status ===
                                 "ERRO" ||
                                 submissao.status ===
-                                  "REJEITADA") &&
+                                "REJEITADA") &&
                                 submissao.mensagemErro && (
                                   <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3">
                                     <p className="text-xs font-bold uppercase tracking-wide text-red-700">
@@ -1346,6 +1346,14 @@ export default function SubmissoesCaptacaoPage() {
                             </div>
 
                             <div className="flex shrink-0 flex-wrap gap-2 xl:flex-col">
+
+                              <Link
+                                href={`/admin/comercial/captacao/submissoes/${submissao.id}`}
+                                className="rounded-xl border border-slate-300 px-4 py-2.5 text-center text-sm font-bold"
+                              >
+                                Ver detalhes
+                              </Link>
+
                               {submissao.leadId && (
                                 <Link
                                   href={`/admin/comercial/leads/${submissao.leadId}`}
@@ -1383,70 +1391,70 @@ export default function SubmissoesCaptacaoPage() {
 
               {dados.paginacao.totalPaginas >
                 1 && (
-                <div className="flex flex-col gap-3 border-t border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-                  <p className="phanyx-muted text-sm">
-                    Página{" "}
-                    {
-                      dados
-                        .paginacao
-                        .pagina
-                    }{" "}
-                    de{" "}
-                    {
-                      dados
-                        .paginacao
-                        .totalPaginas
-                    }
-                  </p>
-
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      disabled={
-                        !dados
+                  <div className="flex flex-col gap-3 border-t border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+                    <p className="phanyx-muted text-sm">
+                      Página{" "}
+                      {
+                        dados
                           .paginacao
-                          .temAnterior
+                          .pagina
+                      }{" "}
+                      de{" "}
+                      {
+                        dados
+                          .paginacao
+                          .totalPaginas
                       }
-                      onClick={() =>
-                        setPagina(
-                          (
-                            atual
-                          ) =>
-                            Math.max(
-                              1,
-                              atual -
+                    </p>
+
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        disabled={
+                          !dados
+                            .paginacao
+                            .temAnterior
+                        }
+                        onClick={() =>
+                          setPagina(
+                            (
+                              atual
+                            ) =>
+                              Math.max(
+                                1,
+                                atual -
                                 1
-                            )
-                        )
-                      }
-                      className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-bold disabled:opacity-40"
-                    >
-                      Anterior
-                    </button>
+                              )
+                          )
+                        }
+                        className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-bold disabled:opacity-40"
+                      >
+                        Anterior
+                      </button>
 
-                    <button
-                      type="button"
-                      disabled={
-                        !dados
-                          .paginacao
-                          .temProxima
-                      }
-                      onClick={() =>
-                        setPagina(
-                          (
-                            atual
-                          ) =>
-                            atual +
-                            1
-                        )
-                      }
-                      className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-bold disabled:opacity-40"
-                    >
-                      Próxima
-                    </button>
+                      <button
+                        type="button"
+                        disabled={
+                          !dados
+                            .paginacao
+                            .temProxima
+                        }
+                        onClick={() =>
+                          setPagina(
+                            (
+                              atual
+                            ) =>
+                              atual +
+                              1
+                          )
+                        }
+                        className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-bold disabled:opacity-40"
+                      >
+                        Próxima
+                      </button>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </section>
           </>
         )}
@@ -1501,7 +1509,7 @@ export default function SubmissoesCaptacaoPage() {
                 className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-blue-700 disabled:opacity-60"
               >
                 {reprocessandoId !==
-                null
+                  null
                   ? "Processando..."
                   : "Tentar novamente"}
               </button>
