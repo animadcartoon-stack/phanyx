@@ -25057,14 +25057,14 @@ html[data-theme="system"]
 
 /* =========================================================
    CENTRAL DE CAPTAÇÃO — SUBMISSÕES — TEMA ESCURO
-   Hero sem fundo cinza
+   Hero integrado aos demais cards
    ========================================================= */
 
 html[data-theme="dark"]
   .captacao-submissoes-page
   .phanyx-admin-hero {
-  background: #050505 !important;
-  background-color: #050505 !important;
+  background: #111827 !important;
+  background-color: #111827 !important;
   background-image: none !important;
-  border-color: #262626 !important;
+  border-color: #334155 !important;
 }
