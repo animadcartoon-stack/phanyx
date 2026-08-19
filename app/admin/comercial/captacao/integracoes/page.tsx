@@ -462,10 +462,9 @@ export default function IntegracoesCaptacaoPage() {
 
           const resposta =
             await fetch(
-              `/api/admin/comercial/captacao/integracoes${
-                query
-                  ? `?${query}`
-                  : ""
+              `/api/admin/comercial/captacao/integracoes${query
+                ? `?${query}`
+                : ""
               }`,
               {
                 cache:
@@ -479,9 +478,9 @@ export default function IntegracoesCaptacaoPage() {
               .catch(
                 () => null
               )) as
-              | RespostaLista
-              | RespostaErro
-              | null;
+            | RespostaLista
+            | RespostaErro
+            | null;
 
           if (
             !resposta.ok ||
@@ -492,7 +491,7 @@ export default function IntegracoesCaptacaoPage() {
               json &&
                 "error" in json
                 ? json.error ||
-                    "Não foi possível consultar as integrações."
+                "Não foi possível consultar as integrações."
                 : "Não foi possível consultar as integrações."
             );
           }
@@ -501,7 +500,7 @@ export default function IntegracoesCaptacaoPage() {
             json
           );
         } catch (
-          error
+        error
         ) {
           setErro(
             error instanceof
@@ -649,7 +648,7 @@ export default function IntegracoesCaptacaoPage() {
 
     if (
       tipo ===
-        "WEBHOOK_SAIDA" &&
+      "WEBHOOK_SAIDA" &&
       !urlEndpoint.trim()
     ) {
       setErro(
@@ -697,22 +696,22 @@ export default function IntegracoesCaptacaoPage() {
                 canalId:
                   canalId
                     ? Number(
-                        canalId
-                      )
+                      canalId
+                    )
                     : null,
 
                 campanhaId:
                   campanhaId
                     ? Number(
-                        campanhaId
-                      )
+                      campanhaId
+                    )
                     : null,
 
                 formularioId:
                   formularioId
                     ? Number(
-                        formularioId
-                      )
+                      formularioId
+                    )
                     : null,
 
                 urlEndpoint:
@@ -728,21 +727,21 @@ export default function IntegracoesCaptacaoPage() {
           .catch(
             () => null
           )) as
-          | {
-              success?: boolean;
-              error?: string;
-              message?: string;
+        | {
+          success?: boolean;
+          error?: string;
+          message?: string;
 
-              credenciais?: {
-                chavePublica: string;
-                segredo:
-                  | string
-                  | null;
-                exibirUmaUnicaVez:
-                  boolean;
-              };
-            }
-          | null;
+          credenciais?: {
+            chavePublica: string;
+            segredo:
+            | string
+            | null;
+            exibirUmaUnicaVez:
+            boolean;
+          };
+        }
+        | null;
 
       if (
         !resposta.ok ||
@@ -750,7 +749,7 @@ export default function IntegracoesCaptacaoPage() {
       ) {
         throw new Error(
           json?.error ||
-            "Não foi possível criar a integração."
+          "Não foi possível criar a integração."
         );
       }
 
@@ -772,14 +771,14 @@ export default function IntegracoesCaptacaoPage() {
 
       setMensagem(
         json.message ||
-          "Integração criada com sucesso."
+        "Integração criada com sucesso."
       );
 
       await carregar(
         true
       );
     } catch (
-      error
+    error
     ) {
       setErro(
         error instanceof
@@ -844,7 +843,7 @@ export default function IntegracoesCaptacaoPage() {
               </Link>
 
               <div className="mt-4 flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-neutral-900 text-2xl text-white">
+                <div className="captacao-integracoes-hero-icon flex h-14 w-14 items-center justify-center rounded-2xl text-2xl text-white">
                   🔌
                 </div>
 
@@ -863,16 +862,16 @@ export default function IntegracoesCaptacaoPage() {
             <div className="flex flex-wrap gap-2">
               {dados?.permissoes
                 .podeGerenciar && (
-                <button
-                  type="button"
-                  onClick={
-                    abrirNova
-                  }
-                  className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-blue-700"
-                >
-                  + Nova integração
-                </button>
-              )}
+                  <button
+                    type="button"
+                    onClick={
+                      abrirNova
+                    }
+                    className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-blue-700"
+                  >
+                    + Nova integração
+                  </button>
+                )}
 
               <button
                 type="button"
@@ -1146,7 +1145,7 @@ export default function IntegracoesCaptacaoPage() {
               </div>
 
               {dados.integracoes.length ===
-              0 ? (
+                0 ? (
                 <div className="p-8 text-center">
                   <div className="text-4xl">
                     🔌
@@ -1361,26 +1360,26 @@ export default function IntegracoesCaptacaoPage() {
 
               {tipo ===
                 "WEBHOOK_SAIDA" && (
-                <div>
-                  <label className="mb-2 block text-sm font-bold">
-                    Para qual endereço o PHANYX deverá enviar?
-                  </label>
+                  <div>
+                    <label className="mb-2 block text-sm font-bold">
+                      Para qual endereço o PHANYX deverá enviar?
+                    </label>
 
-                  <input
-                    type="url"
-                    value={
-                      urlEndpoint
-                    }
-                    onChange={(e) =>
-                      setUrlEndpoint(
-                        e.target.value
-                      )
-                    }
-                    placeholder="https://..."
-                    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm"
-                  />
-                </div>
-              )}
+                    <input
+                      type="url"
+                      value={
+                        urlEndpoint
+                      }
+                      onChange={(e) =>
+                        setUrlEndpoint(
+                          e.target.value
+                        )
+                      }
+                      placeholder="https://..."
+                      className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm"
+                    />
+                  </div>
+                )}
 
               <div className="rounded-2xl border border-slate-200 p-4">
                 <h3 className="font-black">

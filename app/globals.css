@@ -25351,3 +25351,22 @@ html[data-theme="system"]
   .bg-slate-900 {
   background-color: #383838 !important;
 }
+
+/* Ícone do topo - Integrações da Captação */
+.captacao-integracoes-page .captacao-integracoes-hero-icon {
+  background-color: #111827;
+}
+
+/* Tema escuro: clarear o fundo do ícone */
+html[data-theme="dark"]
+  .captacao-integracoes-page
+  .captacao-integracoes-hero-icon {
+  background-color: #374151 !important;
+}
+
+/* Tema sistema: fundo neutro cinza, sem azul */
+html[data-theme="system"]
+  .captacao-integracoes-page
+  .captacao-integracoes-hero-icon {
+  background-color: #4b5563 !important;
+}
