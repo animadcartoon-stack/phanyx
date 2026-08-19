@@ -1722,7 +1722,7 @@ export default function BibliotecaItemPage() {
     );
   }
 
-  async function cadastrarExemplar() {
+  async function salvarExemplar() {
     if (
       salvandoExemplar ||
       !podeGerenciarExemplares ||
@@ -1746,14 +1746,25 @@ export default function BibliotecaItemPage() {
       return;
     }
 
+    const editandoExemplar =
+      exemplarEmEdicao !== null;
+
     setSalvandoExemplar(true);
 
     try {
+      const url =
+        editandoExemplar
+          ? `/api/admin/biblioteca/exemplares/${exemplarEmEdicao.id}`
+          : `/api/admin/biblioteca/acervo/${itemId}/exemplares`;
+
       const resposta =
         await fetch(
-          `/api/admin/biblioteca/acervo/${itemId}/exemplares`,
+          url,
           {
-            method: "POST",
+            method:
+              editandoExemplar
+                ? "PATCH"
+                : "POST",
 
             headers: {
               "Content-Type":
@@ -1864,11 +1875,15 @@ export default function BibliotecaItemPage() {
         throw new Error(
           resultado.error ||
           resultado.mensagem ||
-          "Não foi possível cadastrar o exemplar."
+          (editandoExemplar
+            ? "Não foi possível atualizar o exemplar."
+            : "Não foi possível cadastrar o exemplar.")
         );
       }
 
       setModalExemplarAberto(false);
+
+      setExemplarEmEdicao(null);
 
       setFormularioExemplar({
         ...FORMULARIO_EXEMPLAR_INICIAL,
@@ -1876,16 +1891,14 @@ export default function BibliotecaItemPage() {
 
       setToast({
         tipo: "sucesso",
+
         mensagem:
           resultado.mensagem ||
-          "Exemplar cadastrado com sucesso.",
+          (editandoExemplar
+            ? "Exemplar atualizado com sucesso."
+            : "Exemplar cadastrado com sucesso."),
       });
 
-      /*
-       * Atualiza tanto o detalhe do item
-       * quanto a listagem específica
-       * de exemplares.
-       */
       setAtualizacao(
         (valor) => valor + 1
       );
@@ -1896,7 +1909,7 @@ export default function BibliotecaItemPage() {
         mensagem:
           falha instanceof Error
             ? falha.message
-            : "Não foi possível cadastrar o exemplar.",
+            : "Não foi possível salvar o exemplar.",
       });
     } finally {
       setSalvandoExemplar(false);
@@ -3561,13 +3574,14 @@ export default function BibliotecaItemPage() {
                 <h2
                   id="titulo-cadastro-exemplar"
                 >
-                  Cadastrar exemplar
+                  {exemplarEmEdicao
+                    ? "Editar exemplar"
+                    : "Cadastrar exemplar"}
                 </h2>
-
                 <p>
-                  Registre a unidade física ou
-                  digital vinculada a este item
-                  do acervo.
+                  {exemplarEmEdicao
+                    ? "Atualize os dados deste exemplar do acervo."
+                    : "Registre a unidade física ou digital vinculada a este item do acervo."}
                 </p>
               </div>
 
@@ -3589,7 +3603,7 @@ export default function BibliotecaItemPage() {
             <form
               onSubmit={(evento) => {
                 evento.preventDefault();
-                void cadastrarExemplar();
+                void salvarExemplar();
               }}
             >
               <div className="bib-modal-body">
@@ -4028,8 +4042,12 @@ export default function BibliotecaItemPage() {
                   }
                 >
                   {salvandoExemplar
-                    ? "Cadastrando..."
-                    : "Cadastrar exemplar"}
+                    ? exemplarEmEdicao
+                      ? "Salvando..."
+                      : "Cadastrando..."
+                    : exemplarEmEdicao
+                      ? "Salvar alterações"
+                      : "Cadastrar exemplar"}
                 </button>
               </footer>
             </form>
