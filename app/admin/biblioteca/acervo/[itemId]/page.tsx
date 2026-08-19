@@ -203,6 +203,52 @@ type RespostaExemplares = {
   codigo?: string;
 };
 
+type UsuarioEmprestimo = {
+  id: number;
+  nome: string;
+  email: string;
+  role: string;
+
+  tipo:
+  | "ALUNO"
+  | "PROFESSOR"
+  | "FUNCIONARIO";
+
+  identificador:
+  | string
+  | null;
+
+  cpfMascarado:
+  | string
+  | null;
+
+  alunoStatus:
+  | string
+  | null;
+
+  professorStatus:
+  | string
+  | null;
+
+  funcionarioStatus:
+  | string
+  | null;
+
+  cargo:
+  | string
+  | null;
+};
+
+type RespostaUsuariosEmprestimo = {
+  ok?: boolean;
+
+  usuarios?: UsuarioEmprestimo[];
+
+  mensagem?: string;
+  error?: string;
+  codigo?: string;
+};
+
 type ItemDetalhe = {
   id: number;
   tipo: string;
@@ -670,6 +716,11 @@ export default function BibliotecaItemPage() {
   ] = useState(false);
 
   const [
+    podeGerenciarEmprestimos,
+    setPodeGerenciarEmprestimos,
+  ] = useState(false);
+
+  const [
     carregandoExemplares,
     setCarregandoExemplares,
   ] = useState(false);
@@ -961,6 +1012,63 @@ export default function BibliotecaItemPage() {
     erroHistoricoArquivos,
     setErroHistoricoArquivos,
   ] = useState<string | null>(null);
+
+  useEffect(() => {
+  const controle =
+    new AbortController();
+
+  async function verificarPermissaoEmprestimos() {
+    try {
+      /*
+       * Consulta sem termo.
+       *
+       * A API primeiro valida a permissão
+       * biblioteca.emprestimos.gerenciar
+       * e, como não existem 2 caracteres
+       * de busca, não carrega pessoas.
+       */
+      const resposta =
+        await fetch(
+          "/api/admin/biblioteca/circulacao/usuarios?q=",
+          {
+            method: "GET",
+            cache: "no-store",
+            credentials: "include",
+            signal:
+              controle.signal,
+          }
+        );
+
+      if (
+        controle.signal.aborted
+      ) {
+        return;
+      }
+
+      setPodeGerenciarEmprestimos(
+        resposta.ok
+      );
+    } catch (falha) {
+      if (
+        falha instanceof
+          DOMException &&
+        falha.name ===
+          "AbortError"
+      ) {
+        return;
+      }
+
+      setPodeGerenciarEmprestimos(
+        false
+      );
+    }
+  }
+
+  void verificarPermissaoEmprestimos();
+
+  return () =>
+    controle.abort();
+}, []);
 
   useEffect(() => {
     const controlador = new AbortController();
@@ -3116,7 +3224,7 @@ export default function BibliotecaItemPage() {
                             </small>
                           ) : null}
                         </div>
-                        
+
                         {podeGerenciarExemplares &&
                           !impersonacao &&
                           !exemplar.baixadoEm ? (
