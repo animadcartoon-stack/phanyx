@@ -1268,7 +1268,14 @@ export default function IntegracoesCaptacaoPage() {
                               )}
                           </div>
 
-                          <div className="flex shrink-0 flex-wrap gap-2">
+                          <div className="flex shrink-0 flex-wrap items-center gap-2">
+                            <Link
+                              href={`/admin/comercial/captacao/integracoes/${integracao.id}`}
+                              className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-bold transition hover:bg-slate-100"
+                            >
+                              Ver detalhes
+                            </Link>
+
                             <span className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-bold">
                               {integracao.possuiSegredo
                                 ? "🔐 Credencial configurada"
