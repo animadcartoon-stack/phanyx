@@ -1547,7 +1547,7 @@ export default function IntegracoesCaptacaoPage() {
               </label>
             </div>
 
-            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <div className="sticky bottom-0 z-10 -mx-6 mt-6 flex flex-col-reverse gap-3 border-t border-slate-200 bg-white px-6 pb-1 pt-4 sm:flex-row sm:justify-end">
               <button
                 type="button"
                 onClick={() =>
