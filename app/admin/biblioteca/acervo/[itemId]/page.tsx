@@ -721,6 +721,13 @@ export default function BibliotecaItemPage() {
   ] = useState(false);
 
   const [
+    exemplarParaEmprestimo,
+    setExemplarParaEmprestimo,
+  ] = useState<ExemplarItem | null>(
+    null
+  );
+
+  const [
     carregandoExemplares,
     setCarregandoExemplares,
   ] = useState(false);
@@ -1014,61 +1021,61 @@ export default function BibliotecaItemPage() {
   ] = useState<string | null>(null);
 
   useEffect(() => {
-  const controle =
-    new AbortController();
+    const controle =
+      new AbortController();
 
-  async function verificarPermissaoEmprestimos() {
-    try {
-      /*
-       * Consulta sem termo.
-       *
-       * A API primeiro valida a permissão
-       * biblioteca.emprestimos.gerenciar
-       * e, como não existem 2 caracteres
-       * de busca, não carrega pessoas.
-       */
-      const resposta =
-        await fetch(
-          "/api/admin/biblioteca/circulacao/usuarios?q=",
-          {
-            method: "GET",
-            cache: "no-store",
-            credentials: "include",
-            signal:
-              controle.signal,
-          }
+    async function verificarPermissaoEmprestimos() {
+      try {
+        /*
+         * Consulta sem termo.
+         *
+         * A API primeiro valida a permissão
+         * biblioteca.emprestimos.gerenciar
+         * e, como não existem 2 caracteres
+         * de busca, não carrega pessoas.
+         */
+        const resposta =
+          await fetch(
+            "/api/admin/biblioteca/circulacao/usuarios?q=",
+            {
+              method: "GET",
+              cache: "no-store",
+              credentials: "include",
+              signal:
+                controle.signal,
+            }
+          );
+
+        if (
+          controle.signal.aborted
+        ) {
+          return;
+        }
+
+        setPodeGerenciarEmprestimos(
+          resposta.ok
         );
-
-      if (
-        controle.signal.aborted
-      ) {
-        return;
-      }
-
-      setPodeGerenciarEmprestimos(
-        resposta.ok
-      );
-    } catch (falha) {
-      if (
-        falha instanceof
+      } catch (falha) {
+        if (
+          falha instanceof
           DOMException &&
-        falha.name ===
+          falha.name ===
           "AbortError"
-      ) {
-        return;
+        ) {
+          return;
+        }
+
+        setPodeGerenciarEmprestimos(
+          false
+        );
       }
-
-      setPodeGerenciarEmprestimos(
-        false
-      );
     }
-  }
 
-  void verificarPermissaoEmprestimos();
+    void verificarPermissaoEmprestimos();
 
-  return () =>
-    controle.abort();
-}, []);
+    return () =>
+      controle.abort();
+  }, []);
 
   useEffect(() => {
     const controlador = new AbortController();
@@ -1725,6 +1732,31 @@ export default function BibliotecaItemPage() {
   }
 
   const camposBloqueados = !editando || salvando;
+
+  function abrirEmprestimo(
+    exemplar: ExemplarItem
+  ) {
+    if (
+      !podeGerenciarEmprestimos ||
+      impersonacao ||
+      exemplar.tipo !== "FISICO" ||
+      exemplar.status !== "DISPONIVEL" ||
+      !exemplar.permiteEmprestimo ||
+      exemplar.baixadoEm
+    ) {
+      return;
+    }
+
+    setExemplarParaEmprestimo(
+      exemplar
+    );
+  }
+
+  function fecharEmprestimo() {
+    setExemplarParaEmprestimo(
+      null
+    );
+  }
 
   function abrirCadastroExemplar() {
     if (
@@ -3241,6 +3273,27 @@ export default function BibliotecaItemPage() {
                           </button>
                         ) : null}
 
+                        {podeGerenciarEmprestimos &&
+                          !impersonacao &&
+                          exemplar.tipo ===
+                          "FISICO" &&
+                          exemplar.status ===
+                          "DISPONIVEL" &&
+                          exemplar.permiteEmprestimo &&
+                          !exemplar.baixadoEm ? (
+                          <button
+                            type="button"
+                            className="bib-button bib-button-primary"
+                            onClick={() =>
+                              abrirEmprestimo(
+                                exemplar
+                              )
+                            }
+                          >
+                            📤 Emprestar
+                          </button>
+                        ) : null}
+
                         {podeBaixarExemplares &&
                           !impersonacao &&
                           !exemplar.baixadoEm ? (
@@ -3814,6 +3867,93 @@ export default function BibliotecaItemPage() {
                 </button>
               </footer>
             </form>
+          </section>
+        </div>
+      ) : null}
+
+      {exemplarParaEmprestimo ? (
+        <div
+          className="bib-modal-backdrop"
+          role="presentation"
+        >
+          <section
+            className="bib-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="titulo-emprestimo-biblioteca"
+          >
+            <header className="bib-modal-header">
+              <div>
+                <span className="bib-modal-kicker">
+                  Biblioteca Virtual
+                </span>
+
+                <h2
+                  id="titulo-emprestimo-biblioteca"
+                >
+                  Registrar empréstimo
+                </h2>
+
+                <p>
+                  Selecione quem receberá
+                  este exemplar.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="bib-modal-close"
+                onClick={
+                  fecharEmprestimo
+                }
+                aria-label="Fechar"
+              >
+                ×
+              </button>
+            </header>
+
+            <div className="bib-modal-body">
+              <div className="bib-feedback">
+                <div>
+                  <strong>
+                    {
+                      exemplarParaEmprestimo
+                        .codigoInterno
+                    }
+                  </strong>
+
+                  <p>
+                    {item?.titulo ||
+                      "Item do acervo"}
+
+                    {exemplarParaEmprestimo
+                      .numeroTombo
+                      ? ` · Tombo ${exemplarParaEmprestimo.numeroTombo}`
+                      : ""}
+                  </p>
+                </div>
+              </div>
+
+              <div className="bib-compact-empty">
+                Na próxima etapa,
+                pesquisaremos aqui o
+                aluno, professor ou
+                funcionário que receberá
+                o exemplar.
+              </div>
+            </div>
+
+            <footer className="bib-modal-footer">
+              <button
+                type="button"
+                className="bib-button bib-button-secondary"
+                onClick={
+                  fecharEmprestimo
+                }
+              >
+                Cancelar
+              </button>
+            </footer>
           </section>
         </div>
       ) : null}
