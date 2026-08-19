@@ -381,6 +381,45 @@ export async function DELETE(
                 FOR UPDATE
               `;
 
+            await transacao.$queryRaw`
+  SELECT "id"
+  FROM "BibliotecaItem"
+  WHERE "id" = ${arquivo.itemId}
+    AND "instituicaoId" = ${contexto.instituicaoId}
+  FOR UPDATE
+`;
+
+            const arquivoAtual =
+              await transacao.bibliotecaArquivo.findFirst({
+                where: {
+                  id: arquivo.id,
+                  instituicaoId:
+                    contexto.instituicaoId,
+                  itemId: arquivo.itemId,
+                },
+
+                select: {
+                  id: true,
+                  itemId: true,
+                  nomeOriginal: true,
+                  versao: true,
+                  principal: true,
+                  status: true,
+                  tamanhoBytes: true,
+                },
+              });
+
+            if (!arquivoAtual) {
+              throw new ErroBiblioteca(
+                404,
+                "Arquivo não encontrado.",
+                "ARQUIVO_NAO_ENCONTRADO"
+              );
+            }
+
+            const eraPrincipal =
+              arquivoAtual.principal;
+
             const configuracao =
               await transacao
                 .bibliotecaConfiguracao
@@ -446,18 +485,18 @@ export async function DELETE(
              * não descontamos novamente.
              */
             if (
-              registroArquivo
-                .arquivadoEm ||
-              registroArquivo
-                .status ===
-                StatusArquivoBiblioteca.ARQUIVADO
+              registroArquivo.arquivadoEm ||
+              registroArquivo.status ===
+              StatusArquivoBiblioteca.ARQUIVADO
             ) {
               return {
-                jaExcluido:
-                  true,
+                jaExcluido: true,
 
-                liberadoBytes:
-                  0n,
+                liberadoBytes: 0n,
+
+                eraPrincipal: false,
+
+                novoPrincipal: null,
               };
             }
 
@@ -487,9 +526,9 @@ export async function DELETE(
 
             const novoSaldo =
               utilizado >=
-              tamanho
+                tamanho
                 ? utilizado -
-                  tamanho
+                tamanho
                 : 0n;
 
             const agora =
@@ -500,18 +539,20 @@ export async function DELETE(
               .update({
                 where: {
                   id_instituicaoId:
-                    {
-                      id:
-                        registroArquivo.id,
+                  {
+                    id:
+                      registroArquivo.id,
 
-                      instituicaoId:
-                        contexto.instituicaoId,
-                    },
+                    instituicaoId:
+                      contexto.instituicaoId,
+                  },
                 },
 
                 data: {
                   status:
                     StatusArquivoBiblioteca.ARQUIVADO,
+
+                  principal: false,
 
                   arquivadoEm:
                     agora,
@@ -526,6 +567,115 @@ export async function DELETE(
                     null,
                 },
               });
+
+            let novoPrincipal:
+              | {
+                id: number;
+                nomeOriginal: string;
+                versao: number;
+              }
+              | null = null;
+
+            if (eraPrincipal) {
+              /*
+               * Antes de escolher outro, confirma
+               * se alguma operação concorrente já
+               * definiu outro principal.
+               */
+              const principalExistente =
+                await transacao.bibliotecaArquivo.findFirst({
+                  where: {
+                    instituicaoId:
+                      contexto.instituicaoId,
+
+                    itemId:
+                      arquivoAtual.itemId,
+
+                    arquivadoEm: null,
+
+                    status:
+                      StatusArquivoBiblioteca.DISPONIVEL,
+
+                    principal: true,
+                  },
+
+                  select: {
+                    id: true,
+                    nomeOriginal: true,
+                    versao: true,
+                  },
+                });
+
+              if (!principalExistente) {
+                const candidato =
+                  await transacao.bibliotecaArquivo.findFirst({
+                    where: {
+                      instituicaoId:
+                        contexto.instituicaoId,
+
+                      itemId:
+                        arquivoAtual.itemId,
+
+                      id: {
+                        not:
+                          arquivoAtual.id,
+                      },
+
+                      arquivadoEm:
+                        null,
+
+                      status:
+                        StatusArquivoBiblioteca.DISPONIVEL,
+                    },
+
+                    orderBy: [
+                      {
+                        versao:
+                          "desc",
+                      },
+                      {
+                        id:
+                          "desc",
+                      },
+                    ],
+
+                    select: {
+                      id: true,
+                      nomeOriginal: true,
+                      versao: true,
+                    },
+                  });
+
+                if (candidato) {
+                  novoPrincipal =
+                    await transacao.bibliotecaArquivo.update({
+                      where: {
+                        id_instituicaoId: {
+                          id:
+                            candidato.id,
+
+                          instituicaoId:
+                            contexto.instituicaoId,
+                        },
+                      },
+
+                      data: {
+                        principal:
+                          true,
+                      },
+
+                      select: {
+                        id: true,
+                        nomeOriginal: true,
+                        versao: true,
+                      },
+                    });
+                }
+              } else {
+                novoPrincipal =
+                  principalExistente;
+              }
+            }
 
             await transacao
               .bibliotecaConfiguracao
@@ -603,41 +753,109 @@ export async function DELETE(
                     "Arquivo removido do armazenamento privado da Biblioteca Virtual.",
 
                   dadosAnteriores:
-                    {
-                      status:
-                        registroArquivo.status,
+                  {
+                    status:
+                      registroArquivo.status,
 
-                      tamanhoBytes:
-                        tamanho.toString(),
+                    tamanhoBytes:
+                      tamanho.toString(),
 
-                      nomeOriginal:
-                        registroArquivo.nomeOriginal,
-                    },
+                    nomeOriginal:
+                      registroArquivo.nomeOriginal,
+                  },
 
                   dadosPosteriores:
-                    {
-                      status:
-                        StatusArquivoBiblioteca.ARQUIVADO,
+                  {
+                    status:
+                      StatusArquivoBiblioteca.ARQUIVADO,
 
-                      arquivadoEm:
-                        agora.toISOString(),
+                    arquivadoEm:
+                      agora.toISOString(),
 
-                      motivo,
-                    },
+                    motivo,
+                  },
 
                   metadados:
-                    {
-                      origem:
-                        "api_admin_biblioteca_arquivo_excluir",
+                  {
+                    origem:
+                      "api_admin_biblioteca_arquivo_excluir",
 
-                      armazenamentoLiberadoBytes:
-                        tamanho.toString(),
-                    },
+                    armazenamentoLiberadoBytes:
+                      tamanho.toString(),
+                  },
 
                   ip,
                   userAgent,
                 },
               });
+
+            if (
+              eraPrincipal &&
+              novoPrincipal
+            ) {
+              await transacao.bibliotecaAuditoria.create({
+                data: {
+                  instituicaoId:
+                    contexto.instituicaoId,
+
+                  usuarioId:
+                    usuario.id,
+
+                  entidade:
+                    "BibliotecaArquivo",
+
+                  entidadeId:
+                    String(
+                      novoPrincipal.id
+                    ),
+
+                  acao:
+                    AcaoAuditoriaBiblioteca.ATUALIZAR,
+
+                  descricao:
+                    "Arquivo promovido automaticamente a principal após exclusão do arquivo principal anterior.",
+
+                  dadosAnteriores: {
+                    principal:
+                      false,
+
+                    arquivoPrincipalAnteriorId:
+                      arquivoAtual.id,
+
+                    arquivoPrincipalAnteriorNome:
+                      arquivoAtual.nomeOriginal,
+
+                    arquivoPrincipalAnteriorVersao:
+                      arquivoAtual.versao,
+                  },
+
+                  dadosPosteriores: {
+                    principal:
+                      true,
+
+                    arquivoPrincipalId:
+                      novoPrincipal.id,
+
+                    arquivoPrincipalNome:
+                      novoPrincipal.nomeOriginal,
+
+                    arquivoPrincipalVersao:
+                      novoPrincipal.versao,
+                  },
+
+                  metadados: {
+                    origem:
+                      "exclusao_arquivo_principal",
+
+                    itemId:
+                      arquivoAtual.itemId,
+                  },
+
+                  ip,
+                  userAgent,
+                },
+              });
+            }
 
             return {
               jaExcluido:
@@ -645,7 +863,12 @@ export async function DELETE(
 
               liberadoBytes:
                 tamanho,
+
+              eraPrincipal,
+
+              novoPrincipal,
             };
+
           },
           {
             maxWait:
@@ -669,6 +892,9 @@ export async function DELETE(
           resultado
             .liberadoBytes
             .toString(),
+
+        arquivoPrincipalPromovido:
+          resultado.novoPrincipal,
       },
       {
         status: 200,
