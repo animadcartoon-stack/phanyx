@@ -1302,7 +1302,7 @@ export default function IntegracoesCaptacaoPage() {
               Informe apenas o necessário. O PHANYX cuidará automaticamente das credenciais técnicas quando elas forem exigidas.
             </p>
 
-            <div className="mt-6 space-y-5 pb-20">
+            <div className="mt-6 space-y-5 pb-32">
               <div>
                 <label className="mb-2 block text-sm font-bold">
                   Nome da integração
