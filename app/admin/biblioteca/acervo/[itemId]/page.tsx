@@ -3629,19 +3629,21 @@ export default function BibliotecaItemPage() {
 
                         {podeBaixarExemplares &&
                           !impersonacao &&
-                          !exemplar.baixadoEm ? (
-                          <button
-                            type="button"
-                            className="bib-button bib-button-danger"
-                            onClick={() =>
-                              abrirBaixaExemplar(
-                                exemplar
-                              )
-                            }
-                          >
-                            ⬇ Dar baixa
-                          </button>
-                        ) : null}
+                          !exemplar.baixadoEm &&
+                          exemplar.status !== "EMPRESTADO" &&
+                          exemplar.status !== "RESERVADO" ? (
+                            <button
+                              type="button"
+                              className="bib-button bib-button-danger"
+                              onClick={() =>
+                                abrirBaixaExemplar(
+                                  exemplar
+                                )
+                              }
+                            >
+                              ⬇ Dar baixa
+                            </button>
+                          ) : null}
                       </div>
                     )
                   )}
