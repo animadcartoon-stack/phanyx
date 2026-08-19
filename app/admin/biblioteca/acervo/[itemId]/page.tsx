@@ -760,6 +760,21 @@ export default function BibliotecaItemPage() {
   );
 
   const [
+    vencimentoEmprestimo,
+    setVencimentoEmprestimo,
+  ] = useState("");
+
+  const [
+    observacaoRetirada,
+    setObservacaoRetirada,
+  ] = useState("");
+
+  const [
+    registrandoEmprestimo,
+    setRegistrandoEmprestimo,
+  ] = useState(false);
+
+  const [
     carregandoExemplares,
     setCarregandoExemplares,
   ] = useState(false);
@@ -1901,6 +1916,8 @@ export default function BibliotecaItemPage() {
 
     setBuscaUsuarioEmprestimo("");
     setUsuariosEmprestimo([]);
+    setVencimentoEmprestimo("");
+    setObservacaoRetirada("");
     setUsuarioEmprestimoSelecionado(
       null
     );
@@ -1915,7 +1932,8 @@ export default function BibliotecaItemPage() {
 
   function fecharEmprestimo() {
     if (
-      buscandoUsuariosEmprestimo
+      buscandoUsuariosEmprestimo ||
+      registrandoEmprestimo
     ) {
       return;
     }
@@ -1926,6 +1944,8 @@ export default function BibliotecaItemPage() {
 
     setBuscaUsuarioEmprestimo("");
     setUsuariosEmprestimo([]);
+    setVencimentoEmprestimo("");
+    setObservacaoRetirada("");
     setUsuarioEmprestimoSelecionado(
       null
     );
@@ -2355,6 +2375,143 @@ export default function BibliotecaItemPage() {
       });
     } finally {
       setSalvandoExemplar(false);
+    }
+  }
+
+  async function registrarEmprestimo() {
+    if (
+      !exemplarParaEmprestimo ||
+      !usuarioEmprestimoSelecionado ||
+      registrandoEmprestimo ||
+      !podeGerenciarEmprestimos ||
+      impersonacao
+    ) {
+      return;
+    }
+
+    if (!vencimentoEmprestimo) {
+      setToast({
+        tipo: "erro",
+        mensagem:
+          "Informe a data prevista para devolução.",
+      });
+
+      return;
+    }
+
+    const dataVencimento =
+      new Date(
+        `${vencimentoEmprestimo}T23:59:00`
+      );
+
+    if (
+      Number.isNaN(
+        dataVencimento.getTime()
+      ) ||
+      dataVencimento.getTime() <=
+      Date.now()
+    ) {
+      setToast({
+        tipo: "erro",
+        mensagem:
+          "A data prevista para devolução deve ser futura.",
+      });
+
+      return;
+    }
+
+    setRegistrandoEmprestimo(
+      true
+    );
+
+    try {
+      const resposta =
+        await fetch(
+          `/api/admin/biblioteca/exemplares/${exemplarParaEmprestimo.id}/emprestar`,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body: JSON.stringify({
+              usuarioId:
+                usuarioEmprestimoSelecionado.id,
+
+              vencimentoEm:
+                dataVencimento.toISOString(),
+
+              observacaoRetirada:
+                observacaoRetirada
+                  .trim() ||
+                null,
+            }),
+          }
+        );
+
+      const resultado =
+        (await resposta.json()) as {
+          ok?: boolean;
+          mensagem?: string;
+          error?: string;
+        };
+
+      if (!resposta.ok) {
+        throw new Error(
+          resultado.error ||
+          resultado.mensagem ||
+          "Não foi possível registrar o empréstimo."
+        );
+      }
+
+      setExemplarParaEmprestimo(
+        null
+      );
+
+      setBuscaUsuarioEmprestimo(
+        ""
+      );
+
+      setUsuariosEmprestimo([]);
+
+      setUsuarioEmprestimoSelecionado(
+        null
+      );
+
+      setVencimentoEmprestimo(
+        ""
+      );
+
+      setObservacaoRetirada(
+        ""
+      );
+
+      setToast({
+        tipo: "sucesso",
+
+        mensagem:
+          resultado.mensagem ||
+          "Empréstimo registrado com sucesso.",
+      });
+
+      setAtualizacao(
+        (valor) => valor + 1
+      );
+    } catch (falha) {
+      setToast({
+        tipo: "erro",
+
+        mensagem:
+          falha instanceof Error
+            ? falha.message
+            : "Não foi possível registrar o empréstimo.",
+      });
+    } finally {
+      setRegistrandoEmprestimo(
+        false
+      );
     }
   }
 
@@ -4173,6 +4330,67 @@ export default function BibliotecaItemPage() {
                 </div>
               ) : null}
 
+              {usuarioEmprestimoSelecionado ? (
+                <>
+                  <label className="bib-field">
+                    <span>
+                      Data prevista para devolução{" "}
+                      <b>*</b>
+                    </span>
+
+                    <input
+                      type="date"
+                      className="bib-input"
+                      value={
+                        vencimentoEmprestimo
+                      }
+                      onChange={(evento) =>
+                        setVencimentoEmprestimo(
+                          evento.target.value
+                        )
+                      }
+                      disabled={
+                        registrandoEmprestimo
+                      }
+                    />
+
+                    <small>
+                      Informe o último dia
+                      previsto para devolução
+                      deste exemplar.
+                    </small>
+                  </label>
+
+                  <label className="bib-field">
+                    <span>
+                      Observação da retirada
+                    </span>
+
+                    <textarea
+                      className="bib-input bib-textarea"
+                      value={
+                        observacaoRetirada
+                      }
+                      onChange={(evento) =>
+                        setObservacaoRetirada(
+                          evento.target.value
+                        )
+                      }
+                      maxLength={5_000}
+                      disabled={
+                        registrandoEmprestimo
+                      }
+                      placeholder="Ex.: exemplar entregue em bom estado, acompanhado de material complementar..."
+                    />
+
+                    <small>
+                      Campo opcional. A informação
+                      ficará registrada no empréstimo.
+                    </small>
+                  </label>
+                </>
+              ) : null}
+
               {buscandoUsuariosEmprestimo ? (
                 <div className="bib-compact-empty">
                   Pesquisando pessoas...
@@ -4299,8 +4517,28 @@ export default function BibliotecaItemPage() {
                 onClick={
                   fecharEmprestimo
                 }
+                disabled={
+                  registrandoEmprestimo
+                }
               >
                 Cancelar
+              </button>
+
+              <button
+                type="button"
+                className="bib-button bib-button-primary"
+                onClick={() =>
+                  void registrarEmprestimo()
+                }
+                disabled={
+                  registrandoEmprestimo ||
+                  !usuarioEmprestimoSelecionado ||
+                  !vencimentoEmprestimo
+                }
+              >
+                {registrandoEmprestimo
+                  ? "Registrando..."
+                  : "📤 Registrar empréstimo"}
               </button>
             </footer>
           </section>

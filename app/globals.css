@@ -26494,3 +26494,18 @@ html[data-theme="system"] .ci-event-error {
     max-height: 94dvh;
   }
 }
+
+/* Chave pública da integração: não quebrar no meio */
+.captacao-integracao-detalhe-page
+  .ci-copy-row:not(.ci-copy-row-column)
+  code {
+  white-space: nowrap;
+  overflow-x: auto;
+  overflow-wrap: normal;
+}
+
+.captacao-integracao-detalhe-page
+  .ci-copy-row:not(.ci-copy-row-column)
+  button {
+  flex: 0 0 auto;
+}
