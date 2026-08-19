@@ -4744,287 +4744,338 @@ export default function CrachasClient() {
       </div>
 
       {modalEmissaoAberto && (
-        <div
-          className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60 px-4"
-          onMouseDown={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            fecharModalEmissaoCracha();
-          }}
+  <div
+    className="phanyx-crachas-modal-overlay fixed inset-0 z-[99999] flex items-center justify-center px-4"
+    onMouseDown={(e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      fecharModalEmissaoCracha();
+    }}
+  >
+    <div
+      className="phanyx-crachas-modal w-full max-w-2xl rounded-3xl border p-5 shadow-2xl"
+      onMouseDown={(e) => {
+        e.stopPropagation();
+      }}
+    >
+      <div className="mb-4 flex items-start justify-between gap-4">
+        <div>
+          <h2 className="phanyx-crachas-modal-title text-lg font-black">
+            Emitir crachá
+          </h2>
+
+          <p className="phanyx-crachas-modal-subtitle mt-1 text-sm">
+            Este modelo será emitido para:
+            <strong className="ml-1">
+              {nomeTipoModeloCracha(tipoModeloCracha)}
+            </strong>
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => fecharModalEmissaoCracha()}
+          className="phanyx-crachas-modal-close flex h-9 w-9 items-center justify-center rounded-full border text-lg font-black"
+          aria-label="Fechar emissão"
         >
-          <div
-            className="w-full max-w-2xl rounded-3xl border border-slate-300 bg-white p-5 text-slate-900 shadow-2xl dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
-            onMouseDown={(e) => {
-              e.stopPropagation();
+          ×
+        </button>
+      </div>
+
+      <div className="phanyx-crachas-modal-info rounded-2xl border p-4 text-sm">
+        O QR Code continuará usando apenas
+        <strong className="mx-1">
+          {"{{codigoCracha}}"}
+        </strong>
+        . Na emissão real, o PHANYX vai gerar um código único para a pessoa
+        escolhida.
+      </div>
+
+      <div className="mt-4">
+        <label className="phanyx-crachas-modal-label mb-2 block text-sm font-bold">
+          Modo de emissão
+        </label>
+
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setModoEmissaoCracha("INDIVIDUAL");
+              setErroEmissaoCracha("");
+              setFiltroLoteEmissao("");
             }}
+            className={
+              modoEmissaoCracha === "INDIVIDUAL"
+                ? "phanyx-crachas-button-primary"
+                : "phanyx-crachas-button-secondary"
+            }
           >
-            <div className="mb-4 flex items-start justify-between gap-4">
-              <div>
-                <h2 className="text-lg font-black">
-                  Emitir crachá
-                </h2>
+            Individual
+          </button>
 
-                <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                  Este modelo será emitido para:
-                  <strong className="ml-1">
-                    {nomeTipoModeloCracha(tipoModeloCracha)}
-                  </strong>
-                </p>
-              </div>
+          <button
+            type="button"
+            onClick={() => {
+              setModoEmissaoCracha("LOTE");
+              setErroEmissaoCracha("");
+              setPessoaSelecionadaEmissao(null);
+            }}
+            className={
+              modoEmissaoCracha === "LOTE"
+                ? "phanyx-crachas-button-primary"
+                : "phanyx-crachas-button-secondary"
+            }
+          >
+            Em lote
+          </button>
+        </div>
+      </div>
 
+      {modoEmissaoCracha === "INDIVIDUAL" ? (
+        <>
+          <div className="mt-4">
+            <label className="phanyx-crachas-modal-label mb-2 block text-sm font-bold">
+              Buscar pessoa
+            </label>
+
+            <input
+              value={buscaPessoaEmissao}
+              onChange={(e) =>
+                setBuscaPessoaEmissao(e.target.value)
+              }
+              placeholder={placeholderBuscaEmissao(
+                tipoModeloCracha
+              )}
+              className="phanyx-crachas-input w-full"
+            />
+
+            <div className="mt-3 flex justify-end">
               <button
                 type="button"
-                onClick={() => fecharModalEmissaoCracha()}
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 text-lg font-black text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-                aria-label="Fechar emissão"
-              >
-                ×
-              </button>
-            </div>
-
-            <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-100">
-              O QR Code continuará usando apenas
-              <strong className="mx-1">{"{{codigoCracha}}"}</strong>.
-              Na emissão real, o PHANYX vai gerar um código único para a pessoa escolhida.
-            </div>
-
-            <div className="mt-4">
-              <label className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-200">
-                Modo de emissão
-              </label>
-
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setModoEmissaoCracha("INDIVIDUAL");
-                    setErroEmissaoCracha("");
-                    setFiltroLoteEmissao("");
-                  }}
-                  className={
-                    modoEmissaoCracha === "INDIVIDUAL"
-                      ? "phanyx-crachas-button-primary"
-                      : "phanyx-crachas-button-secondary"
-                  }
-                >
-                  Individual
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setModoEmissaoCracha("LOTE");
-                    setErroEmissaoCracha("");
-                    setPessoaSelecionadaEmissao(null);
-                  }}
-                  className={
-                    modoEmissaoCracha === "LOTE"
-                      ? "phanyx-crachas-button-primary"
-                      : "phanyx-crachas-button-secondary"
-                  }
-                >
-                  Em lote
-                </button>
-              </div>
-            </div>
-
-            {modoEmissaoCracha === "INDIVIDUAL" ? (
-              <>
-                <div className="mt-4">
-                  <label className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-200">
-                    Buscar pessoa
-                  </label>
-
-                  <input
-                    value={buscaPessoaEmissao}
-                    onChange={(e) => setBuscaPessoaEmissao(e.target.value)}
-                    placeholder={placeholderBuscaEmissao(tipoModeloCracha)}
-                    className="phanyx-crachas-input w-full"
-                  />
-
-                  <div className="mt-3 flex justify-end">
-                    <button
-                      type="button"
-                      onClick={buscarPessoasParaEmissaoCracha}
-                      disabled={carregandoPessoasEmissao}
-                      className="phanyx-crachas-button-secondary"
-                    >
-                      {carregandoPessoasEmissao ? "Buscando..." : "Buscar pessoa"}
-                    </button>
-                  </div>
-                </div>
-
-                {erroEmissaoCracha && (
-                  <div className="mt-4 rounded-2xl border border-red-300 bg-red-50 p-3 text-sm font-semibold text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200">
-                    {erroEmissaoCracha}
-                  </div>
-                )}
-
-                <div className="mt-4 rounded-2xl border border-dashed border-slate-300 p-4 text-sm text-slate-600 dark:border-slate-700 dark:text-slate-300">
-                  {pessoasEmissaoCracha.length > 0 ? (
-                    <div className="space-y-2">
-                      {pessoasEmissaoCracha.map((pessoa) => (
-                        <button
-                          key={`${pessoa.tipo}-${pessoa.id}`}
-                          type="button"
-                          onClick={() => {
-                            setPessoaSelecionadaEmissao(pessoa);
-                            setErroEmissaoCracha("");
-                          }}
-                          className={`flex w-full items-center justify-between gap-3 rounded-2xl border p-3 text-left transition ${pessoaSelecionadaEmissao?.id === pessoa.id &&
-                              pessoaSelecionadaEmissao?.tipo === pessoa.tipo
-                              ? "border-blue-500 bg-blue-50 dark:bg-blue-950/40"
-                              : "border-slate-200 bg-white hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800"
-                            }`}
-                        >
-                          <div>
-                            <p className="font-bold text-slate-900 dark:text-slate-100">
-                              {pessoa.nome}
-                            </p>
-
-                            {pessoa.descricao && (
-                              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                                {pessoa.descricao}
-                              </p>
-                            )}
-                          </div>
-
-                          <span
-                            className={`rounded-full border px-3 py-1 text-xs font-bold ${pessoa.aptoParaCracha
-                                ? "border-green-300 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-950/40 dark:text-green-300"
-                                : "border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
-                              }`}
-                          >
-                            {pessoa.aptoParaCracha ? "Com foto" : "Sem foto"}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    <p>Busque uma pessoa para selecionar e emitir o crachá.</p>
-                  )}
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="mt-4">
-                  <label className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-200">
-                    Filtro do lote
-                  </label>
-
-                  <select
-                    value={filtroLoteEmissao}
-                    onChange={(e) => {
-                      setFiltroLoteEmissao(e.target.value);
-                      setErroEmissaoCracha("");
-                    }}
-                    className="phanyx-crachas-input w-full"
-                  >
-                    <option value="">Selecione o filtro do lote</option>
-
-                    {opcoesLotePorTipo(tipoModeloCracha).map((opcao) => (
-                      <option key={opcao.valor} value={opcao.valor}>
-                        {opcao.rotulo}
-                      </option>
-                    ))}
-                  </select>
-
-                  <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-                    A emissão em lote gerará um crachá e um QR Code único para cada pessoa encontrada.
-                    <div className="mt-3 flex justify-end">
-                      <button
-                        type="button"
-                        onClick={buscarPessoasParaEmissaoCracha}
-                        disabled={carregandoPessoasEmissao}
-                        className="phanyx-crachas-button-secondary"
-                      >
-                        {carregandoPessoasEmissao ? "Processando..." : "Pré-visualizar lote"}
-                      </button>
-                    </div>
-                  </p>
-                </div>
-
-                {erroEmissaoCracha && (
-                  <div className="mt-4 rounded-2xl border border-red-300 bg-red-50 p-3 text-sm font-semibold text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200">
-                    {erroEmissaoCracha}
-                  </div>
-                )}
-
-                <div className="mt-4 rounded-2xl border border-dashed border-slate-300 p-4 text-sm text-slate-600 dark:border-slate-700 dark:text-slate-300">
-                  {resumoEmissaoCracha ? (
-                    <div className="space-y-3">
-                      <div className="grid gap-3 md:grid-cols-3">
-                        <div className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900">
-                          <p className="text-xs font-bold text-slate-500 dark:text-slate-400">
-                            Total encontrado
-                          </p>
-
-                          <strong className="text-2xl text-slate-900 dark:text-white">
-                            {resumoEmissaoCracha.total}
-                          </strong>
-                        </div>
-
-                        <div className="rounded-2xl border border-green-300 bg-green-50 p-3 dark:border-green-800 dark:bg-green-950/40">
-                          <p className="text-xs font-bold text-green-700 dark:text-green-300">
-                            Aptos com foto
-                          </p>
-
-                          <strong className="text-2xl text-green-700 dark:text-green-300">
-                            {resumoEmissaoCracha.aptos}
-                          </strong>
-                        </div>
-
-                        <div className="rounded-2xl border border-red-300 bg-red-50 p-3 dark:border-red-800 dark:bg-red-950/40">
-                          <p className="text-xs font-bold text-red-700 dark:text-red-300">
-                            Pendentes sem foto
-                          </p>
-
-                          <strong className="text-2xl text-red-700 dark:text-red-300">
-                            {resumoEmissaoCracha.pendentesFoto}
-                          </strong>
-                        </div>
-                      </div>
-
-                      {resumoEmissaoCracha.pendentesFoto > 0 && (
-                        <p className="rounded-2xl border border-yellow-300 bg-yellow-50 p-3 text-xs font-semibold text-yellow-800 dark:border-yellow-800 dark:bg-yellow-950/40 dark:text-yellow-200">
-                          Cadastros sem foto oficial não serão emitidos agora. O PHANYX poderá
-                          gerar somente os aptos.
-                        </p>
-                      )}
-                    </div>
-                  ) : (
-                    <p>Pré-visualize o lote para ver aptos e pendentes sem foto.</p>
-                  )}
-                </div>
-              </>
-            )}
-
-            <div className="mt-5 flex flex-wrap justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => fecharModalEmissaoCracha()}
-                disabled={emitindoCracha}
+                onClick={buscarPessoasParaEmissaoCracha}
+                disabled={carregandoPessoasEmissao}
                 className="phanyx-crachas-button-secondary disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Cancelar
-              </button>
-
-              <button
-                type="button"
-                onClick={continuarEmissaoCracha}
-                disabled={emitindoCracha || carregandoPessoasEmissao}
-                className="phanyx-crachas-button-primary disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {emitindoCracha
-                  ? "Emitindo..."
-                  : modoEmissaoCracha === "INDIVIDUAL"
-                    ? "Emitir crachá"
-                    : "Continuar"}
+                {carregandoPessoasEmissao
+                  ? "Buscando..."
+                  : "Buscar pessoa"}
               </button>
             </div>
           </div>
-        </div>
+
+          {erroEmissaoCracha && (
+            <div className="phanyx-crachas-alert-error mt-4 rounded-2xl border p-3 text-sm font-semibold">
+              {erroEmissaoCracha}
+            </div>
+          )}
+
+          <div className="phanyx-crachas-pessoas-box mt-4 rounded-2xl border border-dashed p-4 text-sm">
+            {pessoasEmissaoCracha.length > 0 ? (
+              <div className="space-y-2">
+                {pessoasEmissaoCracha.map((pessoa) => {
+                  const selecionada =
+                    pessoaSelecionadaEmissao?.id ===
+                      pessoa.id &&
+                    pessoaSelecionadaEmissao?.tipo ===
+                      pessoa.tipo;
+
+                  return (
+                    <button
+                      key={`${pessoa.tipo}-${pessoa.id}`}
+                      type="button"
+                      onClick={() => {
+                        setPessoaSelecionadaEmissao(
+                          pessoa
+                        );
+                        setErroEmissaoCracha("");
+                      }}
+                      className={[
+                        "phanyx-crachas-pessoa-item",
+                        selecionada
+                          ? "phanyx-crachas-pessoa-item-selecionada"
+                          : "",
+                      ].join(" ")}
+                    >
+                      <div className="min-w-0">
+                        <p className="phanyx-crachas-pessoa-nome font-bold">
+                          {pessoa.nome}
+                        </p>
+
+                        {pessoa.descricao && (
+                          <p className="phanyx-crachas-pessoa-descricao mt-1 text-xs">
+                            {pessoa.descricao}
+                          </p>
+                        )}
+                      </div>
+
+                      <span
+                        className={
+                          pessoa.aptoParaCracha
+                            ? "phanyx-crachas-status phanyx-crachas-status-com-foto"
+                            : "phanyx-crachas-status phanyx-crachas-status-sem-foto"
+                        }
+                      >
+                        {pessoa.aptoParaCracha
+                          ? "Com foto"
+                          : "Sem foto"}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="phanyx-crachas-modal-muted">
+                Busque uma pessoa para selecionar e
+                emitir o crachá.
+              </p>
+            )}
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="mt-4">
+            <label className="phanyx-crachas-modal-label mb-2 block text-sm font-bold">
+              Filtro do lote
+            </label>
+
+            <select
+              value={filtroLoteEmissao}
+              onChange={(e) => {
+                setFiltroLoteEmissao(
+                  e.target.value
+                );
+                setErroEmissaoCracha("");
+              }}
+              className="phanyx-crachas-input w-full"
+            >
+              <option value="">
+                Selecione o filtro do lote
+              </option>
+
+              {opcoesLotePorTipo(
+                tipoModeloCracha
+              ).map((opcao) => (
+                <option
+                  key={opcao.valor}
+                  value={opcao.valor}
+                >
+                  {opcao.rotulo}
+                </option>
+              ))}
+            </select>
+
+            <p className="phanyx-crachas-modal-muted mt-2 text-xs">
+              A emissão em lote gerará um crachá e um QR
+              Code único para cada pessoa encontrada.
+            </p>
+
+            <div className="mt-3 flex justify-end">
+              <button
+                type="button"
+                onClick={buscarPessoasParaEmissaoCracha}
+                disabled={carregandoPessoasEmissao}
+                className="phanyx-crachas-button-secondary disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {carregandoPessoasEmissao
+                  ? "Processando..."
+                  : "Pré-visualizar lote"}
+              </button>
+            </div>
+          </div>
+
+          {erroEmissaoCracha && (
+            <div className="phanyx-crachas-alert-error mt-4 rounded-2xl border p-3 text-sm font-semibold">
+              {erroEmissaoCracha}
+            </div>
+          )}
+
+          <div className="phanyx-crachas-lote-box mt-4 rounded-2xl border border-dashed p-4 text-sm">
+            {resumoEmissaoCracha ? (
+              <div className="space-y-3">
+                <div className="grid gap-3 md:grid-cols-3">
+                  <div className="phanyx-crachas-resumo-card phanyx-crachas-resumo-total rounded-2xl border p-3">
+                    <p className="text-xs font-bold">
+                      Total encontrado
+                    </p>
+
+                    <strong className="text-2xl">
+                      {resumoEmissaoCracha.total}
+                    </strong>
+                  </div>
+
+                  <div className="phanyx-crachas-resumo-card phanyx-crachas-resumo-apto rounded-2xl border p-3">
+                    <p className="text-xs font-bold">
+                      Aptos com foto
+                    </p>
+
+                    <strong className="text-2xl">
+                      {resumoEmissaoCracha.aptos}
+                    </strong>
+                  </div>
+
+                  <div className="phanyx-crachas-resumo-card phanyx-crachas-resumo-pendente rounded-2xl border p-3">
+                    <p className="text-xs font-bold">
+                      Pendentes sem foto
+                    </p>
+
+                    <strong className="text-2xl">
+                      {
+                        resumoEmissaoCracha
+                          .pendentesFoto
+                      }
+                    </strong>
+                  </div>
+                </div>
+
+                {resumoEmissaoCracha.pendentesFoto >
+                  0 && (
+                  <p className="phanyx-crachas-alert-warning rounded-2xl border p-3 text-xs font-semibold">
+                    Cadastros sem foto oficial não serão
+                    emitidos agora. O PHANYX poderá gerar
+                    somente os aptos.
+                  </p>
+                )}
+              </div>
+            ) : (
+              <p className="phanyx-crachas-modal-muted">
+                Pré-visualize o lote para ver aptos e
+                pendentes sem foto.
+              </p>
+            )}
+          </div>
+        </>
       )}
+
+      <div className="mt-5 flex flex-wrap justify-end gap-2">
+        <button
+          type="button"
+          onClick={() => fecharModalEmissaoCracha()}
+          disabled={emitindoCracha}
+          className="phanyx-crachas-button-secondary disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          onClick={continuarEmissaoCracha}
+          disabled={
+            emitindoCracha ||
+            carregandoPessoasEmissao
+          }
+          className="phanyx-crachas-button-primary disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {emitindoCracha
+            ? "Emitindo..."
+            : modoEmissaoCracha ===
+                "INDIVIDUAL"
+              ? "Emitir crachá"
+              : "Continuar"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       {avisoCracha && (
         <div

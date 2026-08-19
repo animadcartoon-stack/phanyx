@@ -99,18 +99,22 @@ function formatarData(valor?: string | null) {
 
 function classeStatus(status: StatusVisitante) {
   if (status === "DENTRO") {
-    return "border-green-300 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-950/40 dark:text-green-300";
+    return "phanyx-visitantes-status phanyx-visitantes-status-dentro";
   }
 
   if (status === "SAIU") {
-    return "border-slate-300 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300";
+    return "phanyx-visitantes-status phanyx-visitantes-status-saiu";
   }
 
-  if (status === "CANCELADO" || status === "BLOQUEADO") {
-    return "border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300";
+  if (status === "CANCELADO") {
+    return "phanyx-visitantes-status phanyx-visitantes-status-cancelado";
   }
 
-  return "border-yellow-300 bg-yellow-50 text-yellow-700 dark:border-yellow-800 dark:bg-yellow-950/40 dark:text-yellow-300";
+  if (status === "BLOQUEADO") {
+    return "phanyx-visitantes-status phanyx-visitantes-status-bloqueado";
+  }
+
+  return "phanyx-visitantes-status phanyx-visitantes-status-aguardando";
 }
 
 function AdminVisitantesPage() {
@@ -396,7 +400,7 @@ function AdminVisitantesPage() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="phanyx-visitantes-resumo-card rounded-3xl border p-5 shadow-sm">
             <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
               Dentro da instituição
             </p>
@@ -405,7 +409,7 @@ function AdminVisitantesPage() {
             </strong>
           </div>
 
-          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="phanyx-visitantes-resumo-card rounded-3xl border p-5 shadow-sm">
             <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
               Aguardando entrada
             </p>
@@ -414,7 +418,7 @@ function AdminVisitantesPage() {
             </strong>
           </div>
 
-          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="phanyx-visitantes-resumo-card rounded-3xl border p-5 shadow-sm">
             <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
               Sem foto oficial
             </p>
@@ -426,7 +430,7 @@ function AdminVisitantesPage() {
 
         <form
           onSubmit={salvarVisitante}
-          className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+          className="phanyx-visitantes-form-card rounded-3xl border p-6 shadow-sm"
         >
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
             <div>
@@ -725,13 +729,13 @@ function AdminVisitantesPage() {
               {salvando
                 ? "Salvando..."
                 : editandoId
-                ? "Salvar alterações"
-                : "Cadastrar visitante"}
+                  ? "Salvar alterações"
+                  : "Cadastrar visitante"}
             </button>
           </div>
         </form>
 
-        <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <section className="phanyx-visitantes-section rounded-3xl border p-5 shadow-sm">
           <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <h2 className="text-xl font-bold text-slate-950 dark:text-white">
@@ -771,12 +775,12 @@ function AdminVisitantesPage() {
               />
 
               <button
-  type="button"
-  onClick={carregarVisitantes}
-  className="phanyx-visitantes-filtrar-btn rounded-xl border px-4 py-2 text-sm font-bold"
->
-  Filtrar
-</button>
+                type="button"
+                onClick={carregarVisitantes}
+                className="phanyx-visitantes-filtrar-btn rounded-xl border px-4 py-2 text-sm font-bold"
+              >
+                Filtrar
+              </button>
             </div>
           </div>
 
@@ -793,7 +797,7 @@ function AdminVisitantesPage() {
               {visitantes.map((visitante) => (
                 <div
                   key={visitante.id}
-                  className="rounded-3xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950"
+                  className="phanyx-visitantes-lista-card rounded-3xl border p-4"
                 >
                   <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                     <div className="flex gap-4">
@@ -817,16 +821,12 @@ function AdminVisitantesPage() {
                             {visitante.nome}
                           </h3>
 
-                          <span
-                            className={`rounded-full border px-3 py-1 text-xs font-bold ${classeStatus(
-                              visitante.status
-                            )}`}
-                          >
+                          <span className={classeStatus(visitante.status)}>
                             {visitante.status}
                           </span>
 
                           {!visitante.fotoPerfil && (
-                            <span className="rounded-full border border-red-300 bg-red-50 px-3 py-1 text-xs font-bold text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300">
+                            <span className="phanyx-visitantes-status phanyx-visitantes-status-sem-foto">
                               Sem foto
                             </span>
                           )}

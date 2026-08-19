@@ -26509,3 +26509,755 @@ html[data-theme="system"] .ci-event-error {
   button {
   flex: 0 0 auto;
 }
+
+/* =========================================================
+   PHANYX — CRACHÁS
+   MODAL DE EMISSÃO / CLARO / ESCURO / SISTEMA
+   ========================================================= */
+
+/* Overlay */
+.phanyx-crachas-modal-overlay {
+  background: rgba(2, 6, 23, 0.62) !important;
+}
+
+/* =========================================================
+   CLARO
+   ========================================================= */
+
+html[data-theme="light"] .phanyx-crachas-modal,
+html:not([data-theme]) .phanyx-crachas-modal {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-crachas-modal-title,
+html:not([data-theme]) .phanyx-crachas-modal-title {
+  color: #020617 !important;
+}
+
+html[data-theme="light"] .phanyx-crachas-modal-subtitle,
+html:not([data-theme]) .phanyx-crachas-modal-subtitle {
+  color: #475569 !important;
+}
+
+html[data-theme="light"] .phanyx-crachas-modal-subtitle strong,
+html:not([data-theme]) .phanyx-crachas-modal-subtitle strong {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-crachas-modal-label,
+html:not([data-theme]) .phanyx-crachas-modal-label {
+  color: #334155 !important;
+}
+
+/*
+ * Informação do QR Code.
+ * No tema claro NÃO fica azul.
+ */
+html[data-theme="light"] .phanyx-crachas-modal-info,
+html:not([data-theme]) .phanyx-crachas-modal-info {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+html[data-theme="light"] .phanyx-crachas-modal-info strong,
+html:not([data-theme]) .phanyx-crachas-modal-info strong {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-crachas-modal-close,
+html:not([data-theme]) .phanyx-crachas-modal-close {
+  background: #ffffff !important;
+  border-color: #94a3b8 !important;
+  color: #334155 !important;
+}
+
+html[data-theme="light"] .phanyx-crachas-modal-close:hover,
+html:not([data-theme]) .phanyx-crachas-modal-close:hover {
+  background: #f1f5f9 !important;
+  color: #020617 !important;
+}
+
+/* Input e select */
+html[data-theme="light"] .phanyx-crachas-modal .phanyx-crachas-input,
+html:not([data-theme]) .phanyx-crachas-modal .phanyx-crachas-input {
+  background: #ffffff !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-crachas-modal .phanyx-crachas-input::placeholder,
+html:not([data-theme]) .phanyx-crachas-modal .phanyx-crachas-input::placeholder {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-crachas-modal select option,
+html:not([data-theme]) .phanyx-crachas-modal select option {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+/* Caixa onde aparecem pessoas */
+html[data-theme="light"] .phanyx-crachas-pessoas-box,
+html[data-theme="light"] .phanyx-crachas-lote-box,
+html:not([data-theme]) .phanyx-crachas-pessoas-box,
+html:not([data-theme]) .phanyx-crachas-lote-box {
+  background: #ffffff !important;
+  border-color: #94a3b8 !important;
+  color: #334155 !important;
+}
+
+html[data-theme="light"] .phanyx-crachas-modal-muted,
+html:not([data-theme]) .phanyx-crachas-modal-muted {
+  color: #64748b !important;
+}
+
+/* Pessoa da pesquisa */
+.phanyx-crachas-pessoa-item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-radius: 1rem;
+  border-width: 1px;
+  padding: 0.75rem;
+  text-align: left;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+html[data-theme="light"] .phanyx-crachas-pessoa-item,
+html:not([data-theme]) .phanyx-crachas-pessoa-item {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-crachas-pessoa-item:hover,
+html:not([data-theme]) .phanyx-crachas-pessoa-item:hover {
+  background: #f8fafc !important;
+  border-color: #94a3b8 !important;
+}
+
+/*
+ * Selecionado no CLARO:
+ * sem card azul.
+ */
+html[data-theme="light"] .phanyx-crachas-pessoa-item-selecionada,
+html:not([data-theme]) .phanyx-crachas-pessoa-item-selecionada {
+  background: #f1f5f9 !important;
+  border-color: #475569 !important;
+  box-shadow: 0 0 0 2px rgba(71, 85, 105, 0.12) !important;
+}
+
+html[data-theme="light"] .phanyx-crachas-pessoa-nome,
+html:not([data-theme]) .phanyx-crachas-pessoa-nome {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-crachas-pessoa-descricao,
+html:not([data-theme]) .phanyx-crachas-pessoa-descricao {
+  color: #64748b !important;
+}
+
+/* =========================================================
+   STATUS — COM FOTO / SEM FOTO
+   ========================================================= */
+
+.phanyx-crachas-status {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border-width: 1px;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 800;
+}
+
+/* Com foto */
+html[data-theme="light"] .phanyx-crachas-status-com-foto,
+html:not([data-theme]) .phanyx-crachas-status-com-foto {
+  background: #dcfce7 !important;
+  border-color: #16a34a !important;
+  color: #166534 !important;
+}
+
+/* Sem foto */
+html[data-theme="light"] .phanyx-crachas-status-sem-foto,
+html:not([data-theme]) .phanyx-crachas-status-sem-foto {
+  background: #fee2e2 !important;
+  border-color: #dc2626 !important;
+  color: #991b1b !important;
+}
+
+/* =========================================================
+   RESUMO DO LOTE — CLARO
+   ========================================================= */
+
+html[data-theme="light"] .phanyx-crachas-resumo-card,
+html:not([data-theme]) .phanyx-crachas-resumo-card {
+  box-shadow: none !important;
+}
+
+html[data-theme="light"] .phanyx-crachas-resumo-total,
+html:not([data-theme]) .phanyx-crachas-resumo-total {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-crachas-resumo-total p,
+html[data-theme="light"] .phanyx-crachas-resumo-total strong,
+html:not([data-theme]) .phanyx-crachas-resumo-total p,
+html:not([data-theme]) .phanyx-crachas-resumo-total strong {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-crachas-resumo-apto,
+html:not([data-theme]) .phanyx-crachas-resumo-apto {
+  background: #f0fdf4 !important;
+  border-color: #16a34a !important;
+}
+
+html[data-theme="light"] .phanyx-crachas-resumo-apto p,
+html[data-theme="light"] .phanyx-crachas-resumo-apto strong,
+html:not([data-theme]) .phanyx-crachas-resumo-apto p,
+html:not([data-theme]) .phanyx-crachas-resumo-apto strong {
+  color: #166534 !important;
+}
+
+html[data-theme="light"] .phanyx-crachas-resumo-pendente,
+html:not([data-theme]) .phanyx-crachas-resumo-pendente {
+  background: #fef2f2 !important;
+  border-color: #dc2626 !important;
+}
+
+html[data-theme="light"] .phanyx-crachas-resumo-pendente p,
+html[data-theme="light"] .phanyx-crachas-resumo-pendente strong,
+html:not([data-theme]) .phanyx-crachas-resumo-pendente p,
+html:not([data-theme]) .phanyx-crachas-resumo-pendente strong {
+  color: #991b1b !important;
+}
+
+/* Avisos */
+html[data-theme="light"] .phanyx-crachas-alert-warning,
+html:not([data-theme]) .phanyx-crachas-alert-warning {
+  background: #fffbeb !important;
+  border-color: #d97706 !important;
+  color: #92400e !important;
+}
+
+html[data-theme="light"] .phanyx-crachas-alert-error,
+html:not([data-theme]) .phanyx-crachas-alert-error {
+  background: #fef2f2 !important;
+  border-color: #dc2626 !important;
+  color: #991b1b !important;
+}
+
+/* =========================================================
+   ESCURO
+   ========================================================= */
+
+html[data-theme="dark"] .phanyx-crachas-modal {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-crachas-modal-title {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-crachas-modal-subtitle,
+html[data-theme="dark"] .phanyx-crachas-modal-muted {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .phanyx-crachas-modal-label {
+  color: #e2e8f0 !important;
+}
+
+html[data-theme="dark"] .phanyx-crachas-modal-info {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+  color: #e2e8f0 !important;
+}
+
+html[data-theme="dark"] .phanyx-crachas-pessoas-box,
+html[data-theme="dark"] .phanyx-crachas-lote-box {
+  background: #0f172a !important;
+  border-color: #475569 !important;
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .phanyx-crachas-pessoa-item {
+  background: #111827 !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="dark"] .phanyx-crachas-pessoa-item-selecionada {
+  background: #172554 !important;
+  border-color: #3b82f6 !important;
+}
+
+html[data-theme="dark"] .phanyx-crachas-pessoa-nome {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-crachas-pessoa-descricao {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .phanyx-crachas-status-com-foto {
+  background: #052e16 !important;
+  border-color: #22c55e !important;
+  color: #86efac !important;
+}
+
+html[data-theme="dark"] .phanyx-crachas-status-sem-foto {
+  background: #450a0a !important;
+  border-color: #ef4444 !important;
+  color: #fca5a5 !important;
+}
+
+html[data-theme="dark"] .phanyx-crachas-resumo-total {
+  background: #111827 !important;
+  border-color: #475569 !important;
+}
+
+html[data-theme="dark"] .phanyx-crachas-resumo-total p,
+html[data-theme="dark"] .phanyx-crachas-resumo-total strong {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-crachas-resumo-apto {
+  background: #052e16 !important;
+  border-color: #22c55e !important;
+}
+
+html[data-theme="dark"] .phanyx-crachas-resumo-apto p,
+html[data-theme="dark"] .phanyx-crachas-resumo-apto strong {
+  color: #86efac !important;
+}
+
+html[data-theme="dark"] .phanyx-crachas-resumo-pendente {
+  background: #450a0a !important;
+  border-color: #ef4444 !important;
+}
+
+html[data-theme="dark"] .phanyx-crachas-resumo-pendente p,
+html[data-theme="dark"] .phanyx-crachas-resumo-pendente strong {
+  color: #fca5a5 !important;
+}
+
+html[data-theme="dark"] .phanyx-crachas-alert-warning {
+  background: #422006 !important;
+  border-color: #f59e0b !important;
+  color: #fde68a !important;
+}
+
+html[data-theme="dark"] .phanyx-crachas-alert-error {
+  background: #450a0a !important;
+  border-color: #ef4444 !important;
+  color: #fecaca !important;
+}
+
+/* =========================================================
+   SISTEMA
+   ========================================================= */
+
+html[data-theme="system"] .phanyx-crachas-modal {
+  background: #262626 !important;
+  border-color: #525252 !important;
+  color: #fafafa !important;
+}
+
+html[data-theme="system"] .phanyx-crachas-modal-title {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-crachas-modal-subtitle,
+html[data-theme="system"] .phanyx-crachas-modal-muted {
+  color: #d4d4d4 !important;
+}
+
+html[data-theme="system"] .phanyx-crachas-modal-label {
+  color: #e5e5e5 !important;
+}
+
+html[data-theme="system"] .phanyx-crachas-modal-info {
+  background: #333333 !important;
+  border-color: #525252 !important;
+  color: #f5f5f5 !important;
+}
+
+html[data-theme="system"] .phanyx-crachas-pessoas-box,
+html[data-theme="system"] .phanyx-crachas-lote-box {
+  background: #262626 !important;
+  border-color: #525252 !important;
+  color: #d4d4d4 !important;
+}
+
+html[data-theme="system"] .phanyx-crachas-pessoa-item {
+  background: #303030 !important;
+  border-color: #525252 !important;
+}
+
+html[data-theme="system"] .phanyx-crachas-pessoa-item-selecionada {
+  background: #1e3a5f !important;
+  border-color: #60a5fa !important;
+}
+
+html[data-theme="system"] .phanyx-crachas-pessoa-nome {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-crachas-pessoa-descricao {
+  color: #d4d4d4 !important;
+}
+
+html[data-theme="system"] .phanyx-crachas-status-com-foto {
+  background: #14532d !important;
+  border-color: #4ade80 !important;
+  color: #dcfce7 !important;
+}
+
+html[data-theme="system"] .phanyx-crachas-status-sem-foto {
+  background: #7f1d1d !important;
+  border-color: #f87171 !important;
+  color: #fee2e2 !important;
+}
+
+html[data-theme="system"] .phanyx-crachas-resumo-total {
+  background: #303030 !important;
+  border-color: #525252 !important;
+}
+
+html[data-theme="system"] .phanyx-crachas-resumo-total p,
+html[data-theme="system"] .phanyx-crachas-resumo-total strong {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-crachas-resumo-apto {
+  background: #14532d !important;
+  border-color: #4ade80 !important;
+}
+
+html[data-theme="system"] .phanyx-crachas-resumo-apto p,
+html[data-theme="system"] .phanyx-crachas-resumo-apto strong {
+  color: #dcfce7 !important;
+}
+
+html[data-theme="system"] .phanyx-crachas-resumo-pendente {
+  background: #7f1d1d !important;
+  border-color: #f87171 !important;
+}
+
+html[data-theme="system"] .phanyx-crachas-resumo-pendente p,
+html[data-theme="system"] .phanyx-crachas-resumo-pendente strong {
+  color: #fee2e2 !important;
+}
+
+html[data-theme="system"] .phanyx-crachas-alert-warning {
+  background: #713f12 !important;
+  border-color: #f59e0b !important;
+  color: #fef3c7 !important;
+}
+
+html[data-theme="system"] .phanyx-crachas-alert-error {
+  background: #7f1d1d !important;
+  border-color: #f87171 !important;
+  color: #fee2e2 !important;
+}
+
+/* =========================================================
+   PHANYX — VISITANTES / CONTROLE DE ACESSO
+   CLARO / ESCURO / SISTEMA
+   ========================================================= */
+
+/* =========================================================
+   TEMA CLARO
+   ========================================================= */
+
+html[data-theme="light"] .phanyx-visitantes-page,
+html:not([data-theme]) .phanyx-visitantes-page {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-visitantes-resumo-card,
+html:not([data-theme]) .phanyx-visitantes-resumo-card,
+html[data-theme="light"] .phanyx-visitantes-form-card,
+html:not([data-theme]) .phanyx-visitantes-form-card,
+html[data-theme="light"] .phanyx-visitantes-section,
+html:not([data-theme]) .phanyx-visitantes-section {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+/*
+ * Card individual do visitante.
+ * IMPORTANTE:
+ * nada de fundo azul no tema claro.
+ */
+html[data-theme="light"] .phanyx-visitantes-lista-card,
+html:not([data-theme]) .phanyx-visitantes-lista-card {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-visitantes-lista-card h3,
+html:not([data-theme]) .phanyx-visitantes-lista-card h3 {
+  color: #020617 !important;
+}
+
+html[data-theme="light"] .phanyx-visitantes-lista-card p,
+html:not([data-theme]) .phanyx-visitantes-lista-card p {
+  color: #475569 !important;
+}
+
+/* Inputs */
+html[data-theme="light"] .phanyx-visitantes-page input,
+html[data-theme="light"] .phanyx-visitantes-page select,
+html[data-theme="light"] .phanyx-visitantes-page textarea,
+html:not([data-theme]) .phanyx-visitantes-page input,
+html:not([data-theme]) .phanyx-visitantes-page select,
+html:not([data-theme]) .phanyx-visitantes-page textarea {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .phanyx-visitantes-page input::placeholder,
+html[data-theme="light"] .phanyx-visitantes-page textarea::placeholder,
+html:not([data-theme]) .phanyx-visitantes-page input::placeholder,
+html:not([data-theme]) .phanyx-visitantes-page textarea::placeholder {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-visitantes-page option,
+html:not([data-theme]) .phanyx-visitantes-page option {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.phanyx-visitantes-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  border: 1px solid;
+  border-radius: 9999px;
+
+  padding: 0.3rem 0.75rem;
+
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 800;
+}
+
+/* AGUARDANDO */
+html[data-theme="light"] .phanyx-visitantes-status-aguardando,
+html:not([data-theme]) .phanyx-visitantes-status-aguardando {
+  background: #fef3c7 !important;
+  border-color: #d97706 !important;
+  color: #92400e !important;
+}
+
+/* DENTRO */
+html[data-theme="light"] .phanyx-visitantes-status-dentro,
+html:not([data-theme]) .phanyx-visitantes-status-dentro {
+  background: #dcfce7 !important;
+  border-color: #16a34a !important;
+  color: #166534 !important;
+}
+
+/* SAIU */
+html[data-theme="light"] .phanyx-visitantes-status-saiu,
+html:not([data-theme]) .phanyx-visitantes-status-saiu {
+  background: #e2e8f0 !important;
+  border-color: #64748b !important;
+  color: #334155 !important;
+}
+
+/* CANCELADO */
+html[data-theme="light"] .phanyx-visitantes-status-cancelado,
+html:not([data-theme]) .phanyx-visitantes-status-cancelado {
+  background: #fee2e2 !important;
+  border-color: #dc2626 !important;
+  color: #991b1b !important;
+}
+
+/* BLOQUEADO */
+html[data-theme="light"] .phanyx-visitantes-status-bloqueado,
+html:not([data-theme]) .phanyx-visitantes-status-bloqueado {
+  background: #450a0a !important;
+  border-color: #991b1b !important;
+  color: #ffffff !important;
+}
+
+/* SEM FOTO */
+html[data-theme="light"] .phanyx-visitantes-status-sem-foto,
+html:not([data-theme]) .phanyx-visitantes-status-sem-foto {
+  background: #fee2e2 !important;
+  border-color: #dc2626 !important;
+  color: #991b1b !important;
+}
+
+/* =========================================================
+   BOTÃO FILTRAR
+   ========================================================= */
+
+html[data-theme="light"] .phanyx-visitantes-filtrar-btn,
+html:not([data-theme]) .phanyx-visitantes-filtrar-btn {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .phanyx-visitantes-filtrar-btn:hover,
+html:not([data-theme]) .phanyx-visitantes-filtrar-btn:hover {
+  background: #1d4ed8 !important;
+  border-color: #1d4ed8 !important;
+}
+
+/* =========================================================
+   TEMA ESCURO
+   ========================================================= */
+
+html[data-theme="dark"] .phanyx-visitantes-page {
+  background: #020617 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-visitantes-resumo-card,
+html[data-theme="dark"] .phanyx-visitantes-form-card,
+html[data-theme="dark"] .phanyx-visitantes-section {
+  background: #111827 !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-visitantes-lista-card {
+  background: #020617 !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-visitantes-lista-card h3 {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-visitantes-lista-card p {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .phanyx-visitantes-status-aguardando {
+  background: #422006 !important;
+  border-color: #f59e0b !important;
+  color: #fde68a !important;
+}
+
+html[data-theme="dark"] .phanyx-visitantes-status-dentro {
+  background: #052e16 !important;
+  border-color: #22c55e !important;
+  color: #86efac !important;
+}
+
+html[data-theme="dark"] .phanyx-visitantes-status-saiu {
+  background: #1e293b !important;
+  border-color: #64748b !important;
+  color: #e2e8f0 !important;
+}
+
+html[data-theme="dark"] .phanyx-visitantes-status-cancelado,
+html[data-theme="dark"] .phanyx-visitantes-status-sem-foto {
+  background: #450a0a !important;
+  border-color: #ef4444 !important;
+  color: #fca5a5 !important;
+}
+
+html[data-theme="dark"] .phanyx-visitantes-status-bloqueado {
+  background: #7f1d1d !important;
+  border-color: #f87171 !important;
+  color: #ffffff !important;
+}
+
+/* =========================================================
+   TEMA SISTEMA
+   ========================================================= */
+
+html[data-theme="system"] .phanyx-visitantes-page {
+  background: #171717 !important;
+  color: #fafafa !important;
+}
+
+html[data-theme="system"] .phanyx-visitantes-resumo-card,
+html[data-theme="system"] .phanyx-visitantes-form-card,
+html[data-theme="system"] .phanyx-visitantes-section {
+  background: #262626 !important;
+  border-color: #525252 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-visitantes-lista-card {
+  background: #202020 !important;
+  border-color: #525252 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-visitantes-lista-card h3 {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-visitantes-lista-card p {
+  color: #d4d4d4 !important;
+}
+
+html[data-theme="system"] .phanyx-visitantes-status-aguardando {
+  background: #713f12 !important;
+  border-color: #f59e0b !important;
+  color: #fef3c7 !important;
+}
+
+html[data-theme="system"] .phanyx-visitantes-status-dentro {
+  background: #14532d !important;
+  border-color: #4ade80 !important;
+  color: #dcfce7 !important;
+}
+
+html[data-theme="system"] .phanyx-visitantes-status-saiu {
+  background: #404040 !important;
+  border-color: #737373 !important;
+  color: #f5f5f5 !important;
+}
+
+html[data-theme="system"] .phanyx-visitantes-status-cancelado,
+html[data-theme="system"] .phanyx-visitantes-status-sem-foto {
+  background: #7f1d1d !important;
+  border-color: #f87171 !important;
+  color: #fee2e2 !important;
+}
+
+html[data-theme="system"] .phanyx-visitantes-status-bloqueado {
+  background: #991b1b !important;
+  border-color: #f87171 !important;
+  color: #ffffff !important;
+}
