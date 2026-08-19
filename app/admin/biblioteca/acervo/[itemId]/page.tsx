@@ -1618,6 +1618,187 @@ export default function BibliotecaItemPage() {
     );
   }
 
+  async function cadastrarExemplar() {
+    if (
+      salvandoExemplar ||
+      !podeGerenciarExemplares ||
+      impersonacao
+    ) {
+      return;
+    }
+
+    const codigoInterno =
+      formularioExemplar
+        .codigoInterno
+        .trim();
+
+    if (!codigoInterno) {
+      setToast({
+        tipo: "erro",
+        mensagem:
+          "Informe o código interno do exemplar.",
+      });
+
+      return;
+    }
+
+    setSalvandoExemplar(true);
+
+    try {
+      const resposta =
+        await fetch(
+          `/api/admin/biblioteca/acervo/${itemId}/exemplares`,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body: JSON.stringify({
+              tipo:
+                formularioExemplar.tipo,
+
+              codigoInterno,
+
+              codigoBarras:
+                formularioExemplar
+                  .codigoBarras
+                  .trim() ||
+                null,
+
+              numeroTombo:
+                formularioExemplar
+                  .numeroTombo
+                  .trim() ||
+                null,
+
+              patrimonio:
+                formularioExemplar
+                  .patrimonio
+                  .trim() ||
+                null,
+
+              unidadeSnapshot:
+                formularioExemplar
+                  .unidadeSnapshot
+                  .trim() ||
+                null,
+
+              setor:
+                formularioExemplar
+                  .setor
+                  .trim() ||
+                null,
+
+              sala:
+                formularioExemplar
+                  .sala
+                  .trim() ||
+                null,
+
+              estante:
+                formularioExemplar
+                  .estante
+                  .trim() ||
+                null,
+
+              prateleira:
+                formularioExemplar
+                  .prateleira
+                  .trim() ||
+                null,
+
+              localizacaoCompleta:
+                formularioExemplar
+                  .localizacaoCompleta
+                  .trim() ||
+                null,
+
+              dataAquisicao:
+                formularioExemplar
+                  .dataAquisicao ||
+                null,
+
+              formaAquisicao:
+                formularioExemplar
+                  .formaAquisicao
+                  .trim() ||
+                null,
+
+              fornecedor:
+                formularioExemplar
+                  .fornecedor
+                  .trim() ||
+                null,
+
+              valorAquisicao:
+                formularioExemplar
+                  .valorAquisicao
+                  .trim() ||
+                null,
+
+              permiteEmprestimo:
+                formularioExemplar
+                  .permiteEmprestimo,
+
+              observacoes:
+                formularioExemplar
+                  .observacoes
+                  .trim() ||
+                null,
+            }),
+          }
+        );
+
+      const resultado =
+        (await resposta.json()) as
+        RespostaExemplares;
+
+      if (!resposta.ok) {
+        throw new Error(
+          resultado.error ||
+          resultado.mensagem ||
+          "Não foi possível cadastrar o exemplar."
+        );
+      }
+
+      setModalExemplarAberto(false);
+
+      setFormularioExemplar({
+        ...FORMULARIO_EXEMPLAR_INICIAL,
+      });
+
+      setToast({
+        tipo: "sucesso",
+        mensagem:
+          resultado.mensagem ||
+          "Exemplar cadastrado com sucesso.",
+      });
+
+      /*
+       * Atualiza tanto o detalhe do item
+       * quanto a listagem específica
+       * de exemplares.
+       */
+      setAtualizacao(
+        (valor) => valor + 1
+      );
+    } catch (falha) {
+      setToast({
+        tipo: "erro",
+
+        mensagem:
+          falha instanceof Error
+            ? falha.message
+            : "Não foi possível cadastrar o exemplar.",
+      });
+    } finally {
+      setSalvandoExemplar(false);
+    }
+  }
+
   return (
     <main className="phanyx-biblioteca-acervo-page phanyx-biblioteca-item-page">
       <div className="bib-page-shell">
@@ -3542,7 +3723,152 @@ export default function BibliotecaItemPage() {
                     placeholder="Ex.: Biblioteca central · Estante A · Prateleira 03"
                   />
                 </label>
+
+                <label className="bib-field">
+                  <span>Data de aquisição</span>
+
+                  <input
+                    className="bib-input"
+                    type="date"
+                    value={
+                      formularioExemplar
+                        .dataAquisicao
+                    }
+                    onChange={(evento) =>
+                      alterarExemplar(
+                        "dataAquisicao",
+                        evento.target.value
+                      )
+                    }
+                    disabled={
+                      salvandoExemplar
+                    }
+                  />
+                </label>
+
+                <label className="bib-field">
+                  <span>Forma de aquisição</span>
+
+                  <input
+                    className="bib-input"
+                    value={
+                      formularioExemplar
+                        .formaAquisicao
+                    }
+                    onChange={(evento) =>
+                      alterarExemplar(
+                        "formaAquisicao",
+                        evento.target.value
+                      )
+                    }
+                    maxLength={160}
+                    disabled={
+                      salvandoExemplar
+                    }
+                    placeholder="Ex.: Compra, doação"
+                  />
+                </label>
+
+                <label className="bib-field">
+                  <span>Fornecedor</span>
+
+                  <input
+                    className="bib-input"
+                    value={
+                      formularioExemplar
+                        .fornecedor
+                    }
+                    onChange={(evento) =>
+                      alterarExemplar(
+                        "fornecedor",
+                        evento.target.value
+                      )
+                    }
+                    maxLength={240}
+                    disabled={
+                      salvandoExemplar
+                    }
+                    placeholder="Editora, livraria ou fornecedor"
+                  />
+                </label>
+
+                <label className="bib-field">
+                  <span>Valor de aquisição</span>
+
+                  <input
+                    className="bib-input"
+                    inputMode="decimal"
+                    value={
+                      formularioExemplar
+                        .valorAquisicao
+                    }
+                    onChange={(evento) =>
+                      alterarExemplar(
+                        "valorAquisicao",
+                        evento.target.value
+                      )
+                    }
+                    disabled={
+                      salvandoExemplar
+                    }
+                    placeholder="0,00"
+                  />
+                </label>
+
+                <label className="bib-field bib-field-span-3">
+                  <span>Observações</span>
+
+                  <textarea
+                    className="bib-input bib-textarea"
+                    value={
+                      formularioExemplar
+                        .observacoes
+                    }
+                    onChange={(evento) =>
+                      alterarExemplar(
+                        "observacoes",
+                        evento.target.value
+                      )
+                    }
+                    maxLength={10_000}
+                    disabled={
+                      salvandoExemplar
+                    }
+                    placeholder="Informações adicionais sobre este exemplar."
+                  />
+                </label>
               </div>
+              <fieldset className="bib-options">
+                <legend>Circulação</legend>
+
+                <label className="bib-check">
+                  <input
+                    type="checkbox"
+                    checked={
+                      formularioExemplar
+                        .permiteEmprestimo
+                    }
+                    onChange={(evento) =>
+                      alterarExemplar(
+                        "permiteEmprestimo",
+                        evento.target.checked
+                      )
+                    }
+                    disabled={
+                      salvandoExemplar
+                    }
+                  />
+
+                  <span>
+                    <b>Permitir empréstimo</b>
+
+                    <small>
+                      Este exemplar poderá participar
+                      da circulação da biblioteca.
+                    </small>
+                  </span>
+                </label>
+              </fieldset>
             </div>
 
             <footer className="bib-modal-footer">
@@ -3562,9 +3888,19 @@ export default function BibliotecaItemPage() {
               <button
                 type="button"
                 className="bib-button bib-button-primary"
-                disabled
+                onClick={() =>
+                  void cadastrarExemplar()
+                }
+                disabled={
+                  salvandoExemplar ||
+                  !formularioExemplar
+                    .codigoInterno
+                    .trim()
+                }
               >
-                Cadastrar exemplar
+                {salvandoExemplar
+                  ? "Cadastrando..."
+                  : "Cadastrar exemplar"}
               </button>
             </footer>
           </section>
