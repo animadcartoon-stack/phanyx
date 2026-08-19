@@ -32,15 +32,15 @@ type Referencia = {
 type EventoTimeline = {
   id: string;
   tipo:
-    | "CRIACAO"
-    | "INTERACAO"
-    | "MOVIMENTACAO_FUNIL"
-    | "TRANSFERENCIA"
-    | "TAREFA"
-    | "PERDA"
-    | "ARQUIVAMENTO"
-    | "RESTAURACAO"
-    | "CONVERSAO";
+  | "CRIACAO"
+  | "INTERACAO"
+  | "MOVIMENTACAO_FUNIL"
+  | "TRANSFERENCIA"
+  | "TAREFA"
+  | "PERDA"
+  | "ARQUIVAMENTO"
+  | "RESTAURACAO"
+  | "CONVERSAO";
   subtipo: string;
   titulo: string;
   descricao: string | null;
@@ -90,19 +90,19 @@ type RespostaTimeline = {
     equipe: Referencia | null;
     funil: Referencia | null;
     etapa:
-      | (Referencia & {
-          categoria: string;
-          resultado: string;
-          ordem: number;
-          cor: string;
-        })
-      | null;
+    | (Referencia & {
+      categoria: string;
+      resultado: string;
+      ordem: number;
+      cor: string;
+    })
+    | null;
     motivoPerda:
-      | (Referencia & {
-          categoria: string;
-          observacao: string | null;
-        })
-      | null;
+    | (Referencia & {
+      categoria: string;
+      observacao: string | null;
+    })
+    | null;
     curso: Referencia | null;
     polo: Referencia | null;
     matricula: {
@@ -166,12 +166,12 @@ const TIPOS_INTERACAO: Array<{
   nome: string;
   icone: string;
 }> = [
-  { valor: "WHATSAPP", nome: "WhatsApp", icone: "💬" },
-  { valor: "LIGACAO", nome: "Ligação", icone: "📞" },
-  { valor: "EMAIL", nome: "E-mail", icone: "✉️" },
-  { valor: "REUNIAO", nome: "Reunião", icone: "👥" },
-  { valor: "OBSERVACAO", nome: "Observação", icone: "📝" },
-];
+    { valor: "WHATSAPP", nome: "WhatsApp", icone: "💬" },
+    { valor: "LIGACAO", nome: "Ligação", icone: "📞" },
+    { valor: "EMAIL", nome: "E-mail", icone: "✉️" },
+    { valor: "REUNIAO", nome: "Reunião", icone: "👥" },
+    { valor: "OBSERVACAO", nome: "Observação", icone: "📝" },
+  ];
 
 const TIPOS_QUE_REGISTRAM_CONTATO = new Set<string>([
   "WHATSAPP",
@@ -184,13 +184,13 @@ const FILTROS_EVENTO: Array<{
   valor: TipoFiltro;
   nome: string;
 }> = [
-  { valor: "TODOS", nome: "Tudo" },
-  { valor: "INTERACAO", nome: "Contatos" },
-  { valor: "MOVIMENTACAO_FUNIL", nome: "Funil" },
-  { valor: "TAREFA", nome: "Tarefas" },
-  { valor: "TRANSFERENCIA", nome: "Transferências" },
-  { valor: "CONVERSAO", nome: "Conversão" },
-];
+    { valor: "TODOS", nome: "Tudo" },
+    { valor: "INTERACAO", nome: "Contatos" },
+    { valor: "MOVIMENTACAO_FUNIL", nome: "Funil" },
+    { valor: "TAREFA", nome: "Tarefas" },
+    { valor: "TRANSFERENCIA", nome: "Transferências" },
+    { valor: "CONVERSAO", nome: "Conversão" },
+  ];
 
 const EVENTOS_VISUAIS: Record<
   EventoTimeline["tipo"],
@@ -320,9 +320,9 @@ export default function Lead360Page() {
   const [erroInteracao, setErroInteracao] = useState("");
   const [toast, setToast] = useState<
     | {
-        tipo: "sucesso" | "erro";
-        mensagem: string;
-      }
+      tipo: "sucesso" | "erro";
+      mensagem: string;
+    }
     | null
   >(null);
 
@@ -475,8 +475,8 @@ export default function Lead360Page() {
         .json()
         .catch(() => null)) as
         | {
-            error?: string;
-          }
+          error?: string;
+        }
         | null;
 
       if (!resposta.ok) {
@@ -893,7 +893,7 @@ export default function Lead360Page() {
                   <dd>{lead.polo?.nome ?? "Não informado"}</dd>
                 </div>
                 <div>
-                  <dt>Instituição</dt>
+                  <dt>Instituição / empresa do interessado</dt>
                   <dd>{lead.instituicaoNome ?? "Não informada"}</dd>
                 </div>
                 <div>
