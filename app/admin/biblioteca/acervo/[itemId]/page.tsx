@@ -1577,6 +1577,47 @@ export default function BibliotecaItemPage() {
 
   const camposBloqueados = !editando || salvando;
 
+  function abrirCadastroExemplar() {
+    if (
+      !podeGerenciarExemplares ||
+      impersonacao
+    ) {
+      return;
+    }
+
+    setFormularioExemplar({
+      ...FORMULARIO_EXEMPLAR_INICIAL,
+    });
+
+    setModalExemplarAberto(true);
+  }
+
+  function fecharCadastroExemplar() {
+    if (salvandoExemplar) {
+      return;
+    }
+
+    setModalExemplarAberto(false);
+
+    setFormularioExemplar({
+      ...FORMULARIO_EXEMPLAR_INICIAL,
+    });
+  }
+
+  function alterarExemplar<
+    K extends keyof FormularioExemplar
+  >(
+    campo: K,
+    valor: FormularioExemplar[K]
+  ) {
+    setFormularioExemplar(
+      (atual) => ({
+        ...atual,
+        [campo]: valor,
+      })
+    );
+  }
+
   return (
     <main className="phanyx-biblioteca-acervo-page phanyx-biblioteca-item-page">
       <div className="bib-page-shell">
@@ -2574,6 +2615,18 @@ export default function BibliotecaItemPage() {
                     </p>
                   </div>
                 </div>
+                {podeGerenciarExemplares &&
+                  !impersonacao ? (
+                  <button
+                    type="button"
+                    className="bib-button bib-button-primary"
+                    onClick={
+                      abrirCadastroExemplar
+                    }
+                  >
+                    ＋ Cadastrar exemplar
+                  </button>
+                ) : null}
               </header>
 
               {carregandoExemplares ? (
@@ -2686,6 +2739,7 @@ export default function BibliotecaItemPage() {
             </div>
           ) : null}
         </form>
+
         {historicoArquivosAberto ? (
           <div
             className="bib-modal-backdrop"
@@ -3174,6 +3228,343 @@ export default function BibliotecaItemPage() {
                 {excluindoArquivo
                   ? "Excluindo..."
                   : "🗑 Excluir arquivo"}
+              </button>
+            </footer>
+          </section>
+        </div>
+      ) : null}
+
+      {modalExemplarAberto ? (
+        <div
+          className="bib-modal-backdrop"
+          role="presentation"
+        >
+          <section
+            className="bib-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="titulo-cadastro-exemplar"
+          >
+            <header className="bib-modal-header">
+              <div>
+                <span className="bib-modal-kicker">
+                  Biblioteca Virtual
+                </span>
+
+                <h2
+                  id="titulo-cadastro-exemplar"
+                >
+                  Cadastrar exemplar
+                </h2>
+
+                <p>
+                  Registre a unidade física ou
+                  digital vinculada a este item
+                  do acervo.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="bib-modal-close"
+                onClick={
+                  fecharCadastroExemplar
+                }
+                disabled={
+                  salvandoExemplar
+                }
+                aria-label="Fechar"
+              >
+                ×
+              </button>
+            </header>
+
+            <div className="bib-modal-body">
+              <div className="bib-detail-grid">
+                <label className="bib-field">
+                  <span>
+                    Tipo <b>*</b>
+                  </span>
+
+                  <select
+                    className="bib-input"
+                    value={
+                      formularioExemplar.tipo
+                    }
+                    onChange={(evento) =>
+                      alterarExemplar(
+                        "tipo",
+                        evento.target
+                          .value as
+                        | "FISICO"
+                        | "DIGITAL"
+                      )
+                    }
+                    disabled={
+                      salvandoExemplar
+                    }
+                  >
+                    <option value="FISICO">
+                      Físico
+                    </option>
+
+                    <option value="DIGITAL">
+                      Digital
+                    </option>
+                  </select>
+                </label>
+
+                <label className="bib-field">
+                  <span>
+                    Código interno <b>*</b>
+                  </span>
+
+                  <input
+                    className="bib-input"
+                    value={
+                      formularioExemplar
+                        .codigoInterno
+                    }
+                    onChange={(evento) =>
+                      alterarExemplar(
+                        "codigoInterno",
+                        evento.target.value
+                      )
+                    }
+                    maxLength={120}
+                    disabled={
+                      salvandoExemplar
+                    }
+                    placeholder="Ex.: LIV-0001"
+                  />
+                </label>
+
+                <label className="bib-field">
+                  <span>
+                    Código de barras
+                  </span>
+
+                  <input
+                    className="bib-input"
+                    value={
+                      formularioExemplar
+                        .codigoBarras
+                    }
+                    onChange={(evento) =>
+                      alterarExemplar(
+                        "codigoBarras",
+                        evento.target.value
+                      )
+                    }
+                    maxLength={120}
+                    disabled={
+                      salvandoExemplar
+                    }
+                  />
+                </label>
+
+                <label className="bib-field">
+                  <span>Número de tombo</span>
+
+                  <input
+                    className="bib-input"
+                    value={
+                      formularioExemplar
+                        .numeroTombo
+                    }
+                    onChange={(evento) =>
+                      alterarExemplar(
+                        "numeroTombo",
+                        evento.target.value
+                      )
+                    }
+                    maxLength={120}
+                    disabled={
+                      salvandoExemplar
+                    }
+                  />
+                </label>
+
+                <label className="bib-field">
+                  <span>Patrimônio</span>
+
+                  <input
+                    className="bib-input"
+                    value={
+                      formularioExemplar
+                        .patrimonio
+                    }
+                    onChange={(evento) =>
+                      alterarExemplar(
+                        "patrimonio",
+                        evento.target.value
+                      )
+                    }
+                    maxLength={120}
+                    disabled={
+                      salvandoExemplar
+                    }
+                  />
+                </label>
+
+                <label className="bib-field">
+                  <span>Unidade / Polo</span>
+
+                  <input
+                    className="bib-input"
+                    value={
+                      formularioExemplar
+                        .unidadeSnapshot
+                    }
+                    onChange={(evento) =>
+                      alterarExemplar(
+                        "unidadeSnapshot",
+                        evento.target.value
+                      )
+                    }
+                    maxLength={200}
+                    disabled={
+                      salvandoExemplar
+                    }
+                  />
+                </label>
+
+                <label className="bib-field">
+                  <span>Setor</span>
+
+                  <input
+                    className="bib-input"
+                    value={
+                      formularioExemplar.setor
+                    }
+                    onChange={(evento) =>
+                      alterarExemplar(
+                        "setor",
+                        evento.target.value
+                      )
+                    }
+                    maxLength={160}
+                    disabled={
+                      salvandoExemplar
+                    }
+                    placeholder="Ex.: Biblioteca"
+                  />
+                </label>
+
+                <label className="bib-field">
+                  <span>Sala</span>
+
+                  <input
+                    className="bib-input"
+                    value={
+                      formularioExemplar.sala
+                    }
+                    onChange={(evento) =>
+                      alterarExemplar(
+                        "sala",
+                        evento.target.value
+                      )
+                    }
+                    maxLength={120}
+                    disabled={
+                      salvandoExemplar
+                    }
+                  />
+                </label>
+
+                <label className="bib-field">
+                  <span>Estante</span>
+
+                  <input
+                    className="bib-input"
+                    value={
+                      formularioExemplar
+                        .estante
+                    }
+                    onChange={(evento) =>
+                      alterarExemplar(
+                        "estante",
+                        evento.target.value
+                      )
+                    }
+                    maxLength={120}
+                    disabled={
+                      salvandoExemplar
+                    }
+                    placeholder="Ex.: A"
+                  />
+                </label>
+
+                <label className="bib-field">
+                  <span>Prateleira</span>
+
+                  <input
+                    className="bib-input"
+                    value={
+                      formularioExemplar
+                        .prateleira
+                    }
+                    onChange={(evento) =>
+                      alterarExemplar(
+                        "prateleira",
+                        evento.target.value
+                      )
+                    }
+                    maxLength={120}
+                    disabled={
+                      salvandoExemplar
+                    }
+                    placeholder="Ex.: 03"
+                  />
+                </label>
+
+                <label className="bib-field bib-field-span-3">
+                  <span>
+                    Localização completa
+                  </span>
+
+                  <input
+                    className="bib-input"
+                    value={
+                      formularioExemplar
+                        .localizacaoCompleta
+                    }
+                    onChange={(evento) =>
+                      alterarExemplar(
+                        "localizacaoCompleta",
+                        evento.target.value
+                      )
+                    }
+                    maxLength={500}
+                    disabled={
+                      salvandoExemplar
+                    }
+                    placeholder="Ex.: Biblioteca central · Estante A · Prateleira 03"
+                  />
+                </label>
+              </div>
+            </div>
+
+            <footer className="bib-modal-footer">
+              <button
+                type="button"
+                className="bib-button bib-button-secondary"
+                onClick={
+                  fecharCadastroExemplar
+                }
+                disabled={
+                  salvandoExemplar
+                }
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="button"
+                className="bib-button bib-button-primary"
+                disabled
+              >
+                Cadastrar exemplar
               </button>
             </footer>
           </section>
