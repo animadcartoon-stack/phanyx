@@ -698,6 +698,23 @@ export default function BibliotecaItemPage() {
     ...FORMULARIO_EXEMPLAR_INICIAL,
   });
 
+  const [
+    exemplarParaBaixa,
+    setExemplarParaBaixa,
+  ] = useState<ExemplarItem | null>(
+    null
+  );
+
+  const [
+    motivoBaixaExemplar,
+    setMotivoBaixaExemplar,
+  ] = useState("");
+
+  const [
+    baixandoExemplar,
+    setBaixandoExemplar,
+  ] = useState(false);
+
   const carregarItem = useCallback(
     async (signal?: AbortSignal) => {
       if (!Number.isInteger(itemId) || itemId <= 0) {
@@ -1706,6 +1723,115 @@ export default function BibliotecaItemPage() {
     setFormularioExemplar({
       ...FORMULARIO_EXEMPLAR_INICIAL,
     });
+  }
+
+  function abrirBaixaExemplar(
+    exemplar: ExemplarItem
+  ) {
+    if (
+      !podeBaixarExemplares ||
+      impersonacao ||
+      exemplar.baixadoEm
+    ) {
+      return;
+    }
+
+    setExemplarParaBaixa(
+      exemplar
+    );
+
+    setMotivoBaixaExemplar("");
+  }
+
+  function fecharBaixaExemplar() {
+    if (baixandoExemplar) {
+      return;
+    }
+
+    setExemplarParaBaixa(null);
+    setMotivoBaixaExemplar("");
+  }
+
+  async function darBaixaExemplar() {
+    if (
+      !exemplarParaBaixa ||
+      baixandoExemplar ||
+      !podeBaixarExemplares ||
+      impersonacao
+    ) {
+      return;
+    }
+
+    const motivo =
+      motivoBaixaExemplar.trim();
+
+    if (!motivo) {
+      setToast({
+        tipo: "erro",
+        mensagem:
+          "Informe o motivo da baixa do exemplar.",
+      });
+
+      return;
+    }
+
+    setBaixandoExemplar(true);
+
+    try {
+      const resposta =
+        await fetch(
+          `/api/admin/biblioteca/exemplares/${exemplarParaBaixa.id}/baixa`,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body: JSON.stringify({
+              motivo,
+            }),
+          }
+        );
+
+      const resultado =
+        (await resposta.json()) as
+        RespostaExemplares;
+
+      if (!resposta.ok) {
+        throw new Error(
+          resultado.error ||
+          resultado.mensagem ||
+          "Não foi possível realizar a baixa do exemplar."
+        );
+      }
+
+      setExemplarParaBaixa(null);
+      setMotivoBaixaExemplar("");
+
+      setToast({
+        tipo: "sucesso",
+        mensagem:
+          resultado.mensagem ||
+          "Baixa do exemplar realizada com sucesso.",
+      });
+
+      setAtualizacao(
+        (valor) => valor + 1
+      );
+    } catch (falha) {
+      setToast({
+        tipo: "erro",
+
+        mensagem:
+          falha instanceof Error
+            ? falha.message
+            : "Não foi possível realizar a baixa do exemplar.",
+      });
+    } finally {
+      setBaixandoExemplar(false);
+    }
   }
 
   function alterarExemplar<
@@ -2976,6 +3102,19 @@ export default function BibliotecaItemPage() {
                               ? ` · ${exemplar.localizacaoCompleta}`
                               : ""}
                           </small>
+
+                          {exemplar.baixadoEm ? (
+                            <small>
+                              Baixado em{" "}
+                              {formatarData(
+                                exemplar.baixadoEm
+                              )}
+
+                              {exemplar.motivoBaixa
+                                ? ` · Motivo: ${exemplar.motivoBaixa}`
+                                : ""}
+                            </small>
+                          ) : null}
                         </div>
                         {podeGerenciarExemplares &&
                           !impersonacao &&
@@ -2990,6 +3129,39 @@ export default function BibliotecaItemPage() {
                             }
                           >
                             ✏️ Editar
+                          </button>
+
+                        ) : null}
+
+                        {podeGerenciarExemplares &&
+                          !impersonacao &&
+                          !exemplar.baixadoEm ? (
+                          <button
+                            type="button"
+                            className="bib-button bib-button-secondary"
+                            onClick={() =>
+                              abrirEdicaoExemplar(
+                                exemplar
+                              )
+                            }
+                          >
+                            ✏️ Editar
+                          </button>
+                        ) : null}
+
+                        {podeBaixarExemplares &&
+                          !impersonacao &&
+                          !exemplar.baixadoEm ? (
+                          <button
+                            type="button"
+                            className="bib-button bib-button-danger"
+                            onClick={() =>
+                              abrirBaixaExemplar(
+                                exemplar
+                              )
+                            }
+                          >
+                            ⬇ Dar baixa
                           </button>
                         ) : null}
                       </div>
@@ -4048,6 +4220,151 @@ export default function BibliotecaItemPage() {
                     : exemplarEmEdicao
                       ? "Salvar alterações"
                       : "Cadastrar exemplar"}
+                </button>
+              </footer>
+            </form>
+          </section>
+        </div>
+      ) : null}
+
+      {exemplarParaBaixa ? (
+        <div
+          className="bib-modal-backdrop"
+          role="presentation"
+        >
+          <section
+            className="bib-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="titulo-baixa-exemplar"
+          >
+            <header className="bib-modal-header">
+              <div>
+                <span className="bib-modal-kicker">
+                  Biblioteca Virtual
+                </span>
+
+                <h2
+                  id="titulo-baixa-exemplar"
+                >
+                  Dar baixa no exemplar
+                </h2>
+
+                <p>
+                  O exemplar será retirado da
+                  circulação, mas permanecerá
+                  registrado no histórico do
+                  acervo.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="bib-modal-close"
+                onClick={
+                  fecharBaixaExemplar
+                }
+                disabled={
+                  baixandoExemplar
+                }
+                aria-label="Fechar"
+              >
+                ×
+              </button>
+            </header>
+
+            <form
+              onSubmit={(evento) => {
+                evento.preventDefault();
+                void darBaixaExemplar();
+              }}
+            >
+              <div className="bib-modal-body">
+                <div className="bib-feedback bib-feedback-warning">
+                  <div>
+                    <strong>
+                      {
+                        exemplarParaBaixa
+                          .codigoInterno
+                      }
+                    </strong>
+
+                    <p>
+                      {rotuloEnum(
+                        exemplarParaBaixa.tipo
+                      )}
+
+                      {" · "}
+
+                      {rotuloEnum(
+                        exemplarParaBaixa.status
+                      )}
+
+                      {exemplarParaBaixa
+                        .numeroTombo
+                        ? ` · Tombo ${exemplarParaBaixa.numeroTombo}`
+                        : ""}
+                    </p>
+                  </div>
+                </div>
+
+                <label className="bib-field">
+                  <span>
+                    Motivo da baixa <b>*</b>
+                  </span>
+
+                  <textarea
+                    className="bib-input bib-textarea"
+                    value={
+                      motivoBaixaExemplar
+                    }
+                    onChange={(evento) =>
+                      setMotivoBaixaExemplar(
+                        evento.target.value
+                      )
+                    }
+                    maxLength={5_000}
+                    disabled={
+                      baixandoExemplar
+                    }
+                    placeholder="Ex.: exemplar extraviado, dano irreparável, descarte patrimonial..."
+                    autoFocus
+                  />
+
+                  <small>
+                    O motivo ficará registrado
+                    na auditoria e no histórico
+                    deste exemplar.
+                  </small>
+                </label>
+              </div>
+
+              <footer className="bib-modal-footer">
+                <button
+                  type="button"
+                  className="bib-button bib-button-secondary"
+                  onClick={
+                    fecharBaixaExemplar
+                  }
+                  disabled={
+                    baixandoExemplar
+                  }
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="submit"
+                  className="bib-button bib-button-danger"
+                  disabled={
+                    baixandoExemplar ||
+                    !motivoBaixaExemplar
+                      .trim()
+                  }
+                >
+                  {baixandoExemplar
+                    ? "Realizando baixa..."
+                    : "⬇ Dar baixa no exemplar"}
                 </button>
               </footer>
             </form>
