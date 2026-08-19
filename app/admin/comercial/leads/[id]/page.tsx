@@ -893,7 +893,7 @@ export default function Lead360Page() {
                   <dd>{lead.polo?.nome ?? "Não informado"}</dd>
                 </div>
                 <div>
-                  <dt>Instituição / empresa do interessado</dt>
+                  <dt>Empresa / instituição</dt>
                   <dd>{lead.instituicaoNome ?? "Não informada"}</dd>
                 </div>
                 <div>
