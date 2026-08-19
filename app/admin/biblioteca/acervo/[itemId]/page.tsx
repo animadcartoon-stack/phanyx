@@ -3306,7 +3306,7 @@ export default function BibliotecaItemPage() {
             <form
               onSubmit={(evento) => {
                 evento.preventDefault();
-                void cadastrarExemplar();
+                void excluirArquivo();
               }}
             >
               <div className="bib-modal-body">
@@ -3467,446 +3467,453 @@ export default function BibliotecaItemPage() {
               </button>
             </header>
 
-            <div className="bib-modal-body">
-              <div className="bib-detail-grid">
-                <label className="bib-field">
-                  <span>
-                    Tipo <b>*</b>
-                  </span>
+            <form
+              onSubmit={(evento) => {
+                evento.preventDefault();
+                void cadastrarExemplar();
+              }}
+            >
+              <div className="bib-modal-body">
+                <div className="bib-detail-grid">
+                  <label className="bib-field">
+                    <span>
+                      Tipo <b>*</b>
+                    </span>
 
-                  <select
-                    className="bib-input"
-                    value={
-                      formularioExemplar.tipo
-                    }
-                    onChange={(evento) =>
-                      alterarExemplar(
-                        "tipo",
-                        evento.target
-                          .value as
-                        | "FISICO"
-                        | "DIGITAL"
-                      )
-                    }
-                    disabled={
-                      salvandoExemplar
-                    }
-                  >
-                    <option value="FISICO">
-                      Físico
-                    </option>
+                    <select
+                      className="bib-input"
+                      value={
+                        formularioExemplar.tipo
+                      }
+                      onChange={(evento) =>
+                        alterarExemplar(
+                          "tipo",
+                          evento.target
+                            .value as
+                          | "FISICO"
+                          | "DIGITAL"
+                        )
+                      }
+                      disabled={
+                        salvandoExemplar
+                      }
+                    >
+                      <option value="FISICO">
+                        Físico
+                      </option>
 
-                    <option value="DIGITAL">
-                      Digital
-                    </option>
-                  </select>
-                </label>
+                      <option value="DIGITAL">
+                        Digital
+                      </option>
+                    </select>
+                  </label>
 
-                <label className="bib-field">
-                  <span>
-                    Código interno <b>*</b>
-                  </span>
+                  <label className="bib-field">
+                    <span>
+                      Código interno <b>*</b>
+                    </span>
 
-                  <input
-                    className="bib-input"
-                    value={
-                      formularioExemplar
-                        .codigoInterno
-                    }
-                    onChange={(evento) =>
-                      alterarExemplar(
-                        "codigoInterno",
-                        evento.target.value
-                      )
-                    }
-                    maxLength={120}
-                    disabled={
-                      salvandoExemplar
-                    }
-                    placeholder="Ex.: LIV-0001"
-                  />
-                </label>
+                    <input
+                      className="bib-input"
+                      value={
+                        formularioExemplar
+                          .codigoInterno
+                      }
+                      onChange={(evento) =>
+                        alterarExemplar(
+                          "codigoInterno",
+                          evento.target.value
+                        )
+                      }
+                      maxLength={120}
+                      disabled={
+                        salvandoExemplar
+                      }
+                      placeholder="Ex.: LIV-0001"
+                    />
+                  </label>
 
-                <label className="bib-field">
-                  <span>
-                    Código de barras
-                  </span>
+                  <label className="bib-field">
+                    <span>
+                      Código de barras
+                    </span>
 
-                  <input
-                    className="bib-input"
-                    value={
-                      formularioExemplar
-                        .codigoBarras
-                    }
-                    onChange={(evento) =>
-                      alterarExemplar(
-                        "codigoBarras",
-                        evento.target.value
-                      )
-                    }
-                    maxLength={120}
-                    disabled={
-                      salvandoExemplar
-                    }
-                  />
-                </label>
+                    <input
+                      className="bib-input"
+                      value={
+                        formularioExemplar
+                          .codigoBarras
+                      }
+                      onChange={(evento) =>
+                        alterarExemplar(
+                          "codigoBarras",
+                          evento.target.value
+                        )
+                      }
+                      maxLength={120}
+                      disabled={
+                        salvandoExemplar
+                      }
+                    />
+                  </label>
 
-                <label className="bib-field">
-                  <span>Número de tombo</span>
+                  <label className="bib-field">
+                    <span>Número de tombo</span>
 
-                  <input
-                    className="bib-input"
-                    value={
-                      formularioExemplar
-                        .numeroTombo
-                    }
-                    onChange={(evento) =>
-                      alterarExemplar(
-                        "numeroTombo",
-                        evento.target.value
-                      )
-                    }
-                    maxLength={120}
-                    disabled={
-                      salvandoExemplar
-                    }
-                  />
-                </label>
+                    <input
+                      className="bib-input"
+                      value={
+                        formularioExemplar
+                          .numeroTombo
+                      }
+                      onChange={(evento) =>
+                        alterarExemplar(
+                          "numeroTombo",
+                          evento.target.value
+                        )
+                      }
+                      maxLength={120}
+                      disabled={
+                        salvandoExemplar
+                      }
+                    />
+                  </label>
 
-                <label className="bib-field">
-                  <span>Patrimônio</span>
+                  <label className="bib-field">
+                    <span>Patrimônio</span>
 
-                  <input
-                    className="bib-input"
-                    value={
-                      formularioExemplar
-                        .patrimonio
-                    }
-                    onChange={(evento) =>
-                      alterarExemplar(
-                        "patrimonio",
-                        evento.target.value
-                      )
-                    }
-                    maxLength={120}
-                    disabled={
-                      salvandoExemplar
-                    }
-                  />
-                </label>
+                    <input
+                      className="bib-input"
+                      value={
+                        formularioExemplar
+                          .patrimonio
+                      }
+                      onChange={(evento) =>
+                        alterarExemplar(
+                          "patrimonio",
+                          evento.target.value
+                        )
+                      }
+                      maxLength={120}
+                      disabled={
+                        salvandoExemplar
+                      }
+                    />
+                  </label>
 
-                <label className="bib-field">
-                  <span>Unidade / Polo</span>
+                  <label className="bib-field">
+                    <span>Unidade / Polo</span>
 
-                  <input
-                    className="bib-input"
-                    value={
-                      formularioExemplar
-                        .unidadeSnapshot
-                    }
-                    onChange={(evento) =>
-                      alterarExemplar(
-                        "unidadeSnapshot",
-                        evento.target.value
-                      )
-                    }
-                    maxLength={200}
-                    disabled={
-                      salvandoExemplar
-                    }
-                  />
-                </label>
+                    <input
+                      className="bib-input"
+                      value={
+                        formularioExemplar
+                          .unidadeSnapshot
+                      }
+                      onChange={(evento) =>
+                        alterarExemplar(
+                          "unidadeSnapshot",
+                          evento.target.value
+                        )
+                      }
+                      maxLength={200}
+                      disabled={
+                        salvandoExemplar
+                      }
+                    />
+                  </label>
 
-                <label className="bib-field">
-                  <span>Setor</span>
+                  <label className="bib-field">
+                    <span>Setor</span>
 
-                  <input
-                    className="bib-input"
-                    value={
-                      formularioExemplar.setor
-                    }
-                    onChange={(evento) =>
-                      alterarExemplar(
-                        "setor",
-                        evento.target.value
-                      )
-                    }
-                    maxLength={160}
-                    disabled={
-                      salvandoExemplar
-                    }
-                    placeholder="Ex.: Biblioteca"
-                  />
-                </label>
+                    <input
+                      className="bib-input"
+                      value={
+                        formularioExemplar.setor
+                      }
+                      onChange={(evento) =>
+                        alterarExemplar(
+                          "setor",
+                          evento.target.value
+                        )
+                      }
+                      maxLength={160}
+                      disabled={
+                        salvandoExemplar
+                      }
+                      placeholder="Ex.: Biblioteca"
+                    />
+                  </label>
 
-                <label className="bib-field">
-                  <span>Sala</span>
+                  <label className="bib-field">
+                    <span>Sala</span>
 
-                  <input
-                    className="bib-input"
-                    value={
-                      formularioExemplar.sala
-                    }
-                    onChange={(evento) =>
-                      alterarExemplar(
-                        "sala",
-                        evento.target.value
-                      )
-                    }
-                    maxLength={120}
-                    disabled={
-                      salvandoExemplar
-                    }
-                  />
-                </label>
+                    <input
+                      className="bib-input"
+                      value={
+                        formularioExemplar.sala
+                      }
+                      onChange={(evento) =>
+                        alterarExemplar(
+                          "sala",
+                          evento.target.value
+                        )
+                      }
+                      maxLength={120}
+                      disabled={
+                        salvandoExemplar
+                      }
+                    />
+                  </label>
 
-                <label className="bib-field">
-                  <span>Estante</span>
+                  <label className="bib-field">
+                    <span>Estante</span>
 
-                  <input
-                    className="bib-input"
-                    value={
-                      formularioExemplar
-                        .estante
-                    }
-                    onChange={(evento) =>
-                      alterarExemplar(
-                        "estante",
-                        evento.target.value
-                      )
-                    }
-                    maxLength={120}
-                    disabled={
-                      salvandoExemplar
-                    }
-                    placeholder="Ex.: A"
-                  />
-                </label>
+                    <input
+                      className="bib-input"
+                      value={
+                        formularioExemplar
+                          .estante
+                      }
+                      onChange={(evento) =>
+                        alterarExemplar(
+                          "estante",
+                          evento.target.value
+                        )
+                      }
+                      maxLength={120}
+                      disabled={
+                        salvandoExemplar
+                      }
+                      placeholder="Ex.: A"
+                    />
+                  </label>
 
-                <label className="bib-field">
-                  <span>Prateleira</span>
+                  <label className="bib-field">
+                    <span>Prateleira</span>
 
-                  <input
-                    className="bib-input"
-                    value={
-                      formularioExemplar
-                        .prateleira
-                    }
-                    onChange={(evento) =>
-                      alterarExemplar(
-                        "prateleira",
-                        evento.target.value
-                      )
-                    }
-                    maxLength={120}
-                    disabled={
-                      salvandoExemplar
-                    }
-                    placeholder="Ex.: 03"
-                  />
-                </label>
+                    <input
+                      className="bib-input"
+                      value={
+                        formularioExemplar
+                          .prateleira
+                      }
+                      onChange={(evento) =>
+                        alterarExemplar(
+                          "prateleira",
+                          evento.target.value
+                        )
+                      }
+                      maxLength={120}
+                      disabled={
+                        salvandoExemplar
+                      }
+                      placeholder="Ex.: 03"
+                    />
+                  </label>
 
-                <label className="bib-field bib-field-span-3">
-                  <span>
-                    Localização completa
-                  </span>
+                  <label className="bib-field bib-field-span-3">
+                    <span>
+                      Localização completa
+                    </span>
 
-                  <input
-                    className="bib-input"
-                    value={
-                      formularioExemplar
-                        .localizacaoCompleta
-                    }
-                    onChange={(evento) =>
-                      alterarExemplar(
-                        "localizacaoCompleta",
-                        evento.target.value
-                      )
-                    }
-                    maxLength={500}
-                    disabled={
-                      salvandoExemplar
-                    }
-                    placeholder="Ex.: Biblioteca central · Estante A · Prateleira 03"
-                  />
-                </label>
+                    <input
+                      className="bib-input"
+                      value={
+                        formularioExemplar
+                          .localizacaoCompleta
+                      }
+                      onChange={(evento) =>
+                        alterarExemplar(
+                          "localizacaoCompleta",
+                          evento.target.value
+                        )
+                      }
+                      maxLength={500}
+                      disabled={
+                        salvandoExemplar
+                      }
+                      placeholder="Ex.: Biblioteca central · Estante A · Prateleira 03"
+                    />
+                  </label>
 
-                <label className="bib-field">
-                  <span>Data de aquisição</span>
+                  <label className="bib-field">
+                    <span>Data de aquisição</span>
 
-                  <input
-                    className="bib-input"
-                    type="date"
-                    value={
-                      formularioExemplar
-                        .dataAquisicao
-                    }
-                    onChange={(evento) =>
-                      alterarExemplar(
-                        "dataAquisicao",
-                        evento.target.value
-                      )
-                    }
-                    disabled={
-                      salvandoExemplar
-                    }
-                  />
-                </label>
+                    <input
+                      className="bib-input"
+                      type="date"
+                      value={
+                        formularioExemplar
+                          .dataAquisicao
+                      }
+                      onChange={(evento) =>
+                        alterarExemplar(
+                          "dataAquisicao",
+                          evento.target.value
+                        )
+                      }
+                      disabled={
+                        salvandoExemplar
+                      }
+                    />
+                  </label>
 
-                <label className="bib-field">
-                  <span>Forma de aquisição</span>
+                  <label className="bib-field">
+                    <span>Forma de aquisição</span>
 
-                  <input
-                    className="bib-input"
-                    value={
-                      formularioExemplar
-                        .formaAquisicao
-                    }
-                    onChange={(evento) =>
-                      alterarExemplar(
-                        "formaAquisicao",
-                        evento.target.value
-                      )
-                    }
-                    maxLength={160}
-                    disabled={
-                      salvandoExemplar
-                    }
-                    placeholder="Ex.: Compra, doação"
-                  />
-                </label>
+                    <input
+                      className="bib-input"
+                      value={
+                        formularioExemplar
+                          .formaAquisicao
+                      }
+                      onChange={(evento) =>
+                        alterarExemplar(
+                          "formaAquisicao",
+                          evento.target.value
+                        )
+                      }
+                      maxLength={160}
+                      disabled={
+                        salvandoExemplar
+                      }
+                      placeholder="Ex.: Compra, doação"
+                    />
+                  </label>
 
-                <label className="bib-field">
-                  <span>Fornecedor</span>
+                  <label className="bib-field">
+                    <span>Fornecedor</span>
 
-                  <input
-                    className="bib-input"
-                    value={
-                      formularioExemplar
-                        .fornecedor
-                    }
-                    onChange={(evento) =>
-                      alterarExemplar(
-                        "fornecedor",
-                        evento.target.value
-                      )
-                    }
-                    maxLength={240}
-                    disabled={
-                      salvandoExemplar
-                    }
-                    placeholder="Editora, livraria ou fornecedor"
-                  />
-                </label>
+                    <input
+                      className="bib-input"
+                      value={
+                        formularioExemplar
+                          .fornecedor
+                      }
+                      onChange={(evento) =>
+                        alterarExemplar(
+                          "fornecedor",
+                          evento.target.value
+                        )
+                      }
+                      maxLength={240}
+                      disabled={
+                        salvandoExemplar
+                      }
+                      placeholder="Editora, livraria ou fornecedor"
+                    />
+                  </label>
 
-                <label className="bib-field">
-                  <span>Valor de aquisição</span>
+                  <label className="bib-field">
+                    <span>Valor de aquisição</span>
 
-                  <input
-                    className="bib-input"
-                    inputMode="decimal"
-                    value={
-                      formularioExemplar
-                        .valorAquisicao
-                    }
-                    onChange={(evento) =>
-                      alterarExemplar(
-                        "valorAquisicao",
-                        evento.target.value
-                      )
-                    }
-                    disabled={
-                      salvandoExemplar
-                    }
-                    placeholder="0,00"
-                  />
-                </label>
+                    <input
+                      className="bib-input"
+                      inputMode="decimal"
+                      value={
+                        formularioExemplar
+                          .valorAquisicao
+                      }
+                      onChange={(evento) =>
+                        alterarExemplar(
+                          "valorAquisicao",
+                          evento.target.value
+                        )
+                      }
+                      disabled={
+                        salvandoExemplar
+                      }
+                      placeholder="0,00"
+                    />
+                  </label>
 
-                <label className="bib-field bib-field-span-3">
-                  <span>Observações</span>
+                  <label className="bib-field bib-field-span-3">
+                    <span>Observações</span>
 
-                  <textarea
-                    className="bib-input bib-textarea"
-                    value={
-                      formularioExemplar
-                        .observacoes
-                    }
-                    onChange={(evento) =>
-                      alterarExemplar(
-                        "observacoes",
-                        evento.target.value
-                      )
-                    }
-                    maxLength={10_000}
-                    disabled={
-                      salvandoExemplar
-                    }
-                    placeholder="Informações adicionais sobre este exemplar."
-                  />
-                </label>
+                    <textarea
+                      className="bib-input bib-textarea"
+                      value={
+                        formularioExemplar
+                          .observacoes
+                      }
+                      onChange={(evento) =>
+                        alterarExemplar(
+                          "observacoes",
+                          evento.target.value
+                        )
+                      }
+                      maxLength={10_000}
+                      disabled={
+                        salvandoExemplar
+                      }
+                      placeholder="Informações adicionais sobre este exemplar."
+                    />
+                  </label>
+                </div>
+                <fieldset className="bib-options">
+                  <legend>Circulação</legend>
+
+                  <label className="bib-check">
+                    <input
+                      type="checkbox"
+                      checked={
+                        formularioExemplar
+                          .permiteEmprestimo
+                      }
+                      onChange={(evento) =>
+                        alterarExemplar(
+                          "permiteEmprestimo",
+                          evento.target.checked
+                        )
+                      }
+                      disabled={
+                        salvandoExemplar
+                      }
+                    />
+
+                    <span>
+                      <b>Permitir empréstimo</b>
+
+                      <small>
+                        Este exemplar poderá participar
+                        da circulação da biblioteca.
+                      </small>
+                    </span>
+                  </label>
+                </fieldset>
               </div>
-              <fieldset className="bib-options">
-                <legend>Circulação</legend>
 
-                <label className="bib-check">
-                  <input
-                    type="checkbox"
-                    checked={
-                      formularioExemplar
-                        .permiteEmprestimo
-                    }
-                    onChange={(evento) =>
-                      alterarExemplar(
-                        "permiteEmprestimo",
-                        evento.target.checked
-                      )
-                    }
-                    disabled={
-                      salvandoExemplar
-                    }
-                  />
+              <footer className="bib-modal-footer">
+                <button
+                  type="button"
+                  className="bib-button bib-button-secondary"
+                  onClick={
+                    fecharCadastroExemplar
+                  }
+                  disabled={
+                    salvandoExemplar
+                  }
+                >
+                  Cancelar
+                </button>
 
-                  <span>
-                    <b>Permitir empréstimo</b>
-
-                    <small>
-                      Este exemplar poderá participar
-                      da circulação da biblioteca.
-                    </small>
-                  </span>
-                </label>
-              </fieldset>
-            </div>
-
-            <footer className="bib-modal-footer">
-              <button
-                type="button"
-                className="bib-button bib-button-secondary"
-                onClick={
-                  fecharCadastroExemplar
-                }
-                disabled={
-                  salvandoExemplar
-                }
-              >
-                Cancelar
-              </button>
-
-              <button
-                type="submit"
-                className="bib-button bib-button-primary"
-                disabled={
-                  salvandoExemplar ||
-                  !formularioExemplar
-                    .codigoInterno
-                    .trim()
-                }
-              >
-                {salvandoExemplar
-                  ? "Cadastrando..."
-                  : "Cadastrar exemplar"}
-              </button>
-            </footer>
+                <button
+                  type="submit"
+                  className="bib-button bib-button-primary"
+                  disabled={
+                    salvandoExemplar ||
+                    !formularioExemplar
+                      .codigoInterno
+                      .trim()
+                  }
+                >
+                  {salvandoExemplar
+                    ? "Cadastrando..."
+                    : "Cadastrar exemplar"}
+                </button>
+              </footer>
+            </form>
           </section>
         </div>
       ) : null}
