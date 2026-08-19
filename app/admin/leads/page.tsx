@@ -17,8 +17,10 @@ type Lead = {
   instituicaoId?: number | null;
   cargo?: string | null;
   origem: string;
-  tipo: string;
+   tipo: string;
+
   interesse?: string | null;
+
   cursoInteresse?: {
     id: number;
     nome: string;
@@ -28,6 +30,7 @@ type Lead = {
     id: number;
     nome: string;
   } | null;
+
   observacoes?: string | null;
   status: string;
   prioridade: string;
@@ -45,16 +48,7 @@ type Lead = {
     numeroMatricula?: string | null;
     status?: string | null;
   } | null;
-  cursoInteresse?: {
-    id: number;
-    nome: string;
-  } | null;
-
-  poloInteresse?: {
-    id: number;
-    nome: string;
-  } | null;
-
+ 
   captacaoMaisRecente?: {
     id: number;
     recebidoEm: string;
