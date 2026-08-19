@@ -371,7 +371,7 @@ export async function POST(
 
     const body =
       (await request.json()) as
-        HandleUploadBody;
+      HandleUploadBody;
 
     const token =
       obterTokenBibliotecaBlob();
@@ -488,8 +488,8 @@ export async function POST(
               )
                 ? dados.mimeType
                 : mimePadraoPorExtensao(
-                    extensao
-                  );
+                  extensao
+                );
 
             if (
               !mimeType ||
@@ -555,7 +555,7 @@ export async function POST(
             const expiracaoReserva =
               new Date(
                 agora.getTime() -
-                  UMA_HORA_MS
+                UMA_HORA_MS
               );
 
             const ip =
@@ -665,7 +665,7 @@ export async function POST(
                         reservas
                           ._sum
                           .tamanhoBytes ??
-                          0
+                        0
                       );
 
                     const utilizado =
@@ -794,7 +794,7 @@ export async function POST(
                                 contexto
                                   .configuracao
                                   ?.permitirDownload &&
-                                  item.permitirDownload
+                                item.permitirDownload
                               ),
 
                             enviadoPorId:
@@ -833,27 +833,27 @@ export async function POST(
                             "Upload de arquivo autorizado para o acervo da Biblioteca Virtual.",
 
                           dadosPosteriores:
-                            {
-                              itemId,
-                              nomeOriginal:
-                                dados.nomeOriginal,
-                              extensao,
-                              mimeType,
-                              tipo,
-                              tamanhoBytes:
-                                tamanho.toString(),
-                              versao,
-                              status:
-                                StatusArquivoBiblioteca.AGUARDANDO_UPLOAD,
-                            },
+                          {
+                            itemId,
+                            nomeOriginal:
+                              dados.nomeOriginal,
+                            extensao,
+                            mimeType,
+                            tipo,
+                            tamanhoBytes:
+                              tamanho.toString(),
+                            versao,
+                            status:
+                              StatusArquivoBiblioteca.AGUARDANDO_UPLOAD,
+                          },
 
                           metadados:
-                            {
-                              origem:
-                                "api_admin_biblioteca_upload",
-                              pathname:
-                                pathnameEsperado,
-                            },
+                          {
+                            origem:
+                              "api_admin_biblioteca_upload",
+                            pathname:
+                              pathnameEsperado,
+                          },
 
                           ip,
                           userAgent,
@@ -1005,6 +1005,22 @@ export async function POST(
                       FOR UPDATE
                     `;
 
+                  /*
+                   * Serializa também as alterações
+                   * de arquivos/principal deste item.
+                   *
+                   * Se dois uploads terminarem juntos,
+                   * somente o primeiro poderá perceber
+                   * que o item ainda não possui principal.
+                   */
+                  await transacao.$queryRaw`
+  SELECT "id"
+  FROM "BibliotecaItem"
+  WHERE "id" = ${dados.itemId}
+    AND "instituicaoId" = ${dados.instituicaoId}
+  FOR UPDATE
+`;
+
                   const arquivo =
                     await transacao
                       .bibliotecaArquivo
@@ -1034,12 +1050,44 @@ export async function POST(
                    */
                   if (
                     arquivo.status ===
-                      StatusArquivoBiblioteca.DISPONIVEL &&
+                    StatusArquivoBiblioteca.DISPONIVEL &&
                     arquivo.storageKey ===
-                      detalhes.pathname
+                    detalhes.pathname
                   ) {
                     return;
                   }
+
+                  const principalExistente =
+                    await transacao.bibliotecaArquivo.findFirst({
+                      where: {
+                        instituicaoId:
+                          dados.instituicaoId,
+
+                        itemId:
+                          dados.itemId,
+
+                        id: {
+                          not:
+                            arquivo.id,
+                        },
+
+                        arquivadoEm:
+                          null,
+
+                        status:
+                          StatusArquivoBiblioteca.DISPONIVEL,
+
+                        principal:
+                          true,
+                      },
+
+                      select: {
+                        id: true,
+                      },
+                    });
+
+                  const tornarPrincipal =
+                    !principalExistente;
 
                   const configuracao =
                     await transacao
@@ -1070,13 +1118,13 @@ export async function POST(
                       .findUnique({
                         where: {
                           instituicaoId_tipo:
-                            {
-                              instituicaoId:
-                                dados.instituicaoId,
+                          {
+                            instituicaoId:
+                              dados.instituicaoId,
 
-                              tipo:
-                                TipoModuloAdicional.BIBLIOTECA_VIRTUAL,
-                            },
+                            tipo:
+                              TipoModuloAdicional.BIBLIOTECA_VIRTUAL,
+                          },
                         },
 
                         select: {
@@ -1137,18 +1185,21 @@ export async function POST(
                     .update({
                       where: {
                         id_instituicaoId:
-                          {
-                            id:
-                              arquivo.id,
+                        {
+                          id:
+                            arquivo.id,
 
-                            instituicaoId:
-                              dados.instituicaoId,
-                          },
+                          instituicaoId:
+                            dados.instituicaoId,
+                        },
                       },
 
                       data: {
                         status:
                           StatusArquivoBiblioteca.DISPONIVEL,
+
+                        principal:
+                          tornarPrincipal,
 
                         nomeInterno,
 
@@ -1175,6 +1226,50 @@ export async function POST(
                           null,
                       },
                     });
+
+                  if (tornarPrincipal) {
+                    await transacao.bibliotecaAuditoria.create({
+                      data: {
+                        instituicaoId:
+                          dados.instituicaoId,
+
+                        usuarioId:
+                          dados.usuarioId,
+
+                        entidade:
+                          "BibliotecaArquivo",
+
+                        entidadeId:
+                          String(
+                            arquivo.id
+                          ),
+
+                        acao:
+                          AcaoAuditoriaBiblioteca.ATUALIZAR,
+
+                        descricao:
+                          "Arquivo definido automaticamente como principal por não existir outro arquivo principal ativo no item.",
+
+                        dadosAnteriores: {
+                          principal:
+                            false,
+                        },
+
+                        dadosPosteriores: {
+                          principal:
+                            true,
+                        },
+
+                        metadados: {
+                          origem:
+                            "upload_primeiro_arquivo_principal",
+
+                          itemId:
+                            dados.itemId,
+                        },
+                      },
+                    });
+                  }
 
                   await transacao
                     .bibliotecaConfiguracao
@@ -1250,34 +1345,40 @@ export async function POST(
                           "Upload do arquivo concluído e armazenamento contabilizado.",
 
                         dadosAnteriores:
-                          {
-                            status:
-                              arquivo.status,
+                        {
+                          status:
+                            arquivo.status,
 
-                            tamanhoBytes:
-                              arquivo.tamanhoBytes.toString(),
-                          },
+                          tamanhoBytes:
+                            arquivo.tamanhoBytes.toString(),
+                        },
 
                         dadosPosteriores:
-                          {
-                            status:
-                              StatusArquivoBiblioteca.DISPONIVEL,
+                        {
+                          status:
+                            StatusArquivoBiblioteca.DISPONIVEL,
 
-                            tamanhoBytes:
-                              tamanhoReal.toString(),
+                          tamanhoBytes:
+                            tamanhoReal.toString(),
 
-                            storageKey:
-                              detalhes.pathname,
-                          },
+                          storageKey:
+                            detalhes.pathname,
+
+                          principal:
+                            tornarPrincipal,
+                        },
 
                         metadados:
-                          {
-                            origem:
-                              "vercel_blob_upload_completed",
+                        {
+                          origem:
+                            "vercel_blob_upload_completed",
 
-                            etag:
-                              detalhes.etag,
-                          },
+                          etag:
+                            detalhes.etag,
+
+                          principalAutomatico:
+                            tornarPrincipal,
+                        },
                       },
                     });
                 },
