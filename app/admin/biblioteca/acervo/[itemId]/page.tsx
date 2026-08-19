@@ -3116,23 +3116,7 @@ export default function BibliotecaItemPage() {
                             </small>
                           ) : null}
                         </div>
-                        {podeGerenciarExemplares &&
-                          !impersonacao &&
-                          !exemplar.baixadoEm ? (
-                          <button
-                            type="button"
-                            className="bib-button bib-button-secondary"
-                            onClick={() =>
-                              abrirEdicaoExemplar(
-                                exemplar
-                              )
-                            }
-                          >
-                            ✏️ Editar
-                          </button>
-
-                        ) : null}
-
+                        
                         {podeGerenciarExemplares &&
                           !impersonacao &&
                           !exemplar.baixadoEm ? (
