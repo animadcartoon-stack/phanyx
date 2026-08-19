@@ -27261,3 +27261,248 @@ html[data-theme="system"] .phanyx-visitantes-status-bloqueado {
   border-color: #f87171 !important;
   color: #ffffff !important;
 }
+
+/* =========================================================
+   PHANYX — VISITANTES
+   BOTÕES DE AÇÃO
+   ========================================================= */
+
+.phanyx-visitantes-acao {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  min-height: 40px !important;
+
+  padding: 0.55rem 0.9rem !important;
+
+  border-width: 1px !important;
+  border-style: solid !important;
+  border-radius: 0.75rem !important;
+
+  font-size: 0.875rem !important;
+  line-height: 1.25rem !important;
+  font-weight: 800 !important;
+
+  opacity: 1 !important;
+
+  cursor: pointer !important;
+
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease !important;
+}
+
+/* =========================================================
+   TEMA CLARO
+   ========================================================= */
+
+/* EDITAR */
+html[data-theme="light"]
+  .phanyx-visitantes-acao-editar,
+html:not([data-theme])
+  .phanyx-visitantes-acao-editar {
+  background: #ffffff !important;
+  border-color: #475569 !important;
+  color: #0f172a !important;
+
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.08) !important;
+}
+
+html[data-theme="light"]
+  .phanyx-visitantes-acao-editar:hover,
+html:not([data-theme])
+  .phanyx-visitantes-acao-editar:hover {
+  background: #e2e8f0 !important;
+  border-color: #334155 !important;
+  color: #020617 !important;
+}
+
+/* ENTRADA */
+html[data-theme="light"]
+  .phanyx-visitantes-acao-entrada,
+html:not([data-theme])
+  .phanyx-visitantes-acao-entrada {
+  background: #15803d !important;
+  border-color: #166534 !important;
+  color: #ffffff !important;
+
+  box-shadow:
+    0 1px 2px rgba(21, 128, 61, 0.22) !important;
+}
+
+html[data-theme="light"]
+  .phanyx-visitantes-acao-entrada:hover,
+html:not([data-theme])
+  .phanyx-visitantes-acao-entrada:hover {
+  background: #166534 !important;
+  border-color: #14532d !important;
+  color: #ffffff !important;
+}
+
+/* SAÍDA */
+html[data-theme="light"]
+  .phanyx-visitantes-acao-saida,
+html:not([data-theme])
+  .phanyx-visitantes-acao-saida {
+  background: #334155 !important;
+  border-color: #1e293b !important;
+  color: #ffffff !important;
+
+  box-shadow:
+    0 1px 2px rgba(51, 65, 85, 0.2) !important;
+}
+
+html[data-theme="light"]
+  .phanyx-visitantes-acao-saida:hover,
+html:not([data-theme])
+  .phanyx-visitantes-acao-saida:hover {
+  background: #1e293b !important;
+  border-color: #0f172a !important;
+  color: #ffffff !important;
+}
+
+/* BLOQUEAR */
+html[data-theme="light"]
+  .phanyx-visitantes-acao-bloquear,
+html:not([data-theme])
+  .phanyx-visitantes-acao-bloquear {
+  background: #dc2626 !important;
+  border-color: #b91c1c !important;
+  color: #ffffff !important;
+
+  box-shadow:
+    0 1px 2px rgba(220, 38, 38, 0.22) !important;
+}
+
+html[data-theme="light"]
+  .phanyx-visitantes-acao-bloquear:hover,
+html:not([data-theme])
+  .phanyx-visitantes-acao-bloquear:hover {
+  background: #b91c1c !important;
+  border-color: #991b1b !important;
+  color: #ffffff !important;
+}
+
+/* =========================================================
+   TEMA ESCURO
+   ========================================================= */
+
+html[data-theme="dark"]
+  .phanyx-visitantes-acao-editar {
+  background: #334155 !important;
+  border-color: #64748b !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-visitantes-acao-editar:hover {
+  background: #475569 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-visitantes-acao-entrada {
+  background: #15803d !important;
+  border-color: #22c55e !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-visitantes-acao-entrada:hover {
+  background: #166534 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-visitantes-acao-saida {
+  background: #475569 !important;
+  border-color: #94a3b8 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-visitantes-acao-saida:hover {
+  background: #334155 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-visitantes-acao-bloquear {
+  background: #dc2626 !important;
+  border-color: #f87171 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-visitantes-acao-bloquear:hover {
+  background: #b91c1c !important;
+}
+
+/* =========================================================
+   TEMA SISTEMA
+   ========================================================= */
+
+html[data-theme="system"]
+  .phanyx-visitantes-acao-editar {
+  background: #404040 !important;
+  border-color: #737373 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-visitantes-acao-editar:hover {
+  background: #525252 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-visitantes-acao-entrada {
+  background: #15803d !important;
+  border-color: #4ade80 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-visitantes-acao-entrada:hover {
+  background: #166534 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-visitantes-acao-saida {
+  background: #525252 !important;
+  border-color: #a3a3a3 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-visitantes-acao-saida:hover {
+  background: #404040 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-visitantes-acao-bloquear {
+  background: #dc2626 !important;
+  border-color: #f87171 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-visitantes-acao-bloquear:hover {
+  background: #b91c1c !important;
+}
+
+/* =========================================================
+   SOMENTE QUANDO REALMENTE DESABILITADO
+   ========================================================= */
+
+.phanyx-visitantes-acao:disabled {
+  background: #e2e8f0 !important;
+  border-color: #cbd5e1 !important;
+  color: #94a3b8 !important;
+
+  opacity: 0.65 !important;
+
+  cursor: not-allowed !important;
+
+  box-shadow: none !important;
+}

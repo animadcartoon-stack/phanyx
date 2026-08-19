@@ -849,11 +849,13 @@ function AdminVisitantesPage() {
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-2 md:justify-end">
+                    <div className="phanyx-visitantes-acoes flex flex-wrap gap-2 md:justify-end">
                       <button
                         type="button"
-                        onClick={() => iniciarEdicao(visitante)}
-                        className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+                        onClick={() =>
+                          iniciarEdicao(visitante)
+                        }
+                        className="phanyx-visitantes-acao phanyx-visitantes-acao-editar"
                       >
                         Editar
                       </button>
@@ -866,7 +868,7 @@ function AdminVisitantesPage() {
                             "REGISTRAR_ENTRADA"
                           )
                         }
-                        className="rounded-xl border border-green-300 bg-green-50 px-3 py-2 text-sm font-bold text-green-700 hover:bg-green-100 dark:border-green-800 dark:bg-green-950/40 dark:text-green-300"
+                        className="phanyx-visitantes-acao phanyx-visitantes-acao-entrada"
                       >
                         Entrada
                       </button>
@@ -879,7 +881,7 @@ function AdminVisitantesPage() {
                             "REGISTRAR_SAIDA"
                           )
                         }
-                        className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+                        className="phanyx-visitantes-acao phanyx-visitantes-acao-saida"
                       >
                         Saída
                       </button>
@@ -887,9 +889,12 @@ function AdminVisitantesPage() {
                       <button
                         type="button"
                         onClick={() =>
-                          executarAcaoVisitante(visitante.id, "BLOQUEAR")
+                          executarAcaoVisitante(
+                            visitante.id,
+                            "BLOQUEAR"
+                          )
                         }
-                        className="rounded-xl border border-red-300 bg-red-50 px-3 py-2 text-sm font-bold text-red-700 hover:bg-red-100 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
+                        className="phanyx-visitantes-acao phanyx-visitantes-acao-bloquear"
                       >
                         Bloquear
                       </button>
