@@ -47,7 +47,7 @@ function ehMasterReal(
     user.isMasterAdmin === true &&
     user.impersonacao === false &&
     user.email.trim().toLowerCase() ===
-      "academicophanyx@gmail.com"
+    "academicophanyx@gmail.com"
   );
 }
 
@@ -146,7 +146,7 @@ function statusOuNull(
     String(valor ?? "")
       .trim()
       .toUpperCase() as
-      StatusSubmissaoCaptacaoLead;
+    StatusSubmissaoCaptacaoLead;
 
   return Object.values(
     StatusSubmissaoCaptacaoLead
@@ -162,7 +162,7 @@ function resultadoOuNull(
     String(valor ?? "")
       .trim()
       .toUpperCase() as
-      ResultadoDeduplicacaoCaptacaoLead;
+    ResultadoDeduplicacaoCaptacaoLead;
 
   return Object.values(
     ResultadoDeduplicacaoCaptacaoLead
@@ -251,8 +251,8 @@ export async function GET(
     const status =
       statusParam
         ? statusOuNull(
-            statusParam
-          )
+          statusParam
+        )
         : null;
 
     if (
@@ -274,8 +274,8 @@ export async function GET(
     const resultado =
       resultadoParam
         ? resultadoOuNull(
-            resultadoParam
-          )
+          resultadoParam
+        )
         : null;
 
     if (
@@ -343,106 +343,106 @@ export async function GET(
 
     const where:
       Prisma.SubmissaoCaptacaoLeadWhereInput =
-      {
-        instituicaoId,
+    {
+      instituicaoId,
 
-        ...(status
-          ? {
-              status,
-            }
-          : {}),
+      ...(status
+        ? {
+          status,
+        }
+        : {}),
 
-        ...(resultado
-          ? {
-              resultadoDeduplicacao:
-                resultado,
-            }
-          : {}),
+      ...(resultado
+        ? {
+          resultadoDeduplicacao:
+            resultado,
+        }
+        : {}),
 
-        ...(canalId
-          ? {
-              canalId,
-            }
-          : {}),
+      ...(canalId
+        ? {
+          canalId,
+        }
+        : {}),
 
-        ...(campanhaId
-          ? {
-              campanhaId,
-            }
-          : {}),
+      ...(campanhaId
+        ? {
+          campanhaId,
+        }
+        : {}),
 
-        ...(formularioId
-          ? {
-              formularioId,
-            }
-          : {}),
+      ...(formularioId
+        ? {
+          formularioId,
+        }
+        : {}),
 
-        ...(integracaoId
-          ? {
-              integracaoId,
-            }
-          : {}),
+      ...(integracaoId
+        ? {
+          integracaoId,
+        }
+        : {}),
 
-        ...(busca
-          ? {
-              OR: [
-                {
-                  nomeSnapshot: {
-                    contains:
-                      busca,
-                    mode:
-                      "insensitive",
-                  },
-                },
+      ...(busca
+        ? {
+          OR: [
+            {
+              nomeSnapshot: {
+                contains:
+                  busca,
+                mode:
+                  "insensitive",
+              },
+            },
 
-                {
-                  emailSnapshot: {
-                    contains:
-                      busca,
-                    mode:
-                      "insensitive",
-                  },
-                },
+            {
+              emailSnapshot: {
+                contains:
+                  busca,
+                mode:
+                  "insensitive",
+              },
+            },
 
-                {
-                  telefoneSnapshot: {
-                    contains:
-                      busca,
-                    mode:
-                      "insensitive",
-                  },
-                },
+            {
+              telefoneSnapshot: {
+                contains:
+                  busca,
+                mode:
+                  "insensitive",
+              },
+            },
 
-                {
-                  identificadorExterno: {
-                    contains:
-                      busca,
-                    mode:
-                      "insensitive",
-                  },
-                },
+            {
+              identificadorExterno: {
+                contains:
+                  busca,
+                mode:
+                  "insensitive",
+              },
+            },
 
-                {
-                  utmCampaign: {
-                    contains:
-                      busca,
-                    mode:
-                      "insensitive",
-                  },
-                },
+            {
+              utmCampaign: {
+                contains:
+                  busca,
+                mode:
+                  "insensitive",
+              },
+            },
 
-                {
-                  codigoErro: {
-                    contains:
-                      busca,
-                    mode:
-                      "insensitive",
-                  },
-                },
-              ],
-            }
-          : {}),
-      };
+            {
+              codigoErro: {
+                contains:
+                  busca,
+                mode:
+                  "insensitive",
+              },
+            },
+          ],
+        }
+        : {}),
+    };
 
     const [
       totalFiltrado,
@@ -476,6 +476,27 @@ export async function GET(
             formularioId: true,
             integracaoId: true,
             leadId: true,
+
+            lead: {
+              select: {
+                id: true,
+                nome: true,
+
+                cursoInteresse: {
+                  select: {
+                    id: true,
+                    nome: true,
+                  },
+                },
+
+                poloInteresse: {
+                  select: {
+                    id: true,
+                    nome: true,
+                  },
+                },
+              },
+            },
 
             identificadorExterno:
               true,
@@ -718,9 +739,9 @@ export async function GET(
     const totalPaginas =
       totalFiltrado > 0
         ? Math.ceil(
-            totalFiltrado /
-              limite
-          )
+          totalFiltrado /
+          limite
+        )
         : 0;
 
     return NextResponse.json(
