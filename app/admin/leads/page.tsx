@@ -19,6 +19,15 @@ type Lead = {
   origem: string;
   tipo: string;
   interesse?: string | null;
+  cursoInteresse?: {
+    id: number;
+    nome: string;
+  } | null;
+
+  poloInteresse?: {
+    id: number;
+    nome: string;
+  } | null;
   observacoes?: string | null;
   status: string;
   prioridade: string;
@@ -1596,10 +1605,20 @@ export default function AdminLeadsPage() {
                                 "Instituição não informada"}
                             </p>
 
-                            <p className="mt-2 max-w-[210px] text-sm leading-5 text-slate-500">
+                            <p className="mt-2 max-w-[210px] text-sm font-medium leading-5 text-slate-600">
                               {lead.interesse ||
+                                lead.cursoInteresse?.nome ||
                                 "Interesse não informado"}
                             </p>
+
+                            {lead.poloInteresse?.nome && (
+                              <p className="mt-1 max-w-[210px] text-xs text-slate-500">
+                                Unidade:{" "}
+                                <span className="font-semibold">
+                                  {lead.poloInteresse.nome}
+                                </span>
+                              </p>
+                            )}
 
                             <p className="mt-2 max-w-[210px] text-xs text-slate-500">
                               Cargo:{" "}

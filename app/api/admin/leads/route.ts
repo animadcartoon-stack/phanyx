@@ -675,6 +675,20 @@ export async function POST(req: Request) {
           },
         },
       },
+
+      cursoInteresse: {
+        select: {
+          id: true,
+          nome: true,
+        },
+      },
+
+      poloInteresse: {
+        select: {
+          id: true,
+          nome: true,
+        },
+      },
     });
 
     return NextResponse.json(
