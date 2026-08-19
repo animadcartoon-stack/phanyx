@@ -3428,7 +3428,7 @@ export default function BibliotecaItemPage() {
           role="presentation"
         >
           <section
-            className="bib-modal"
+            className="bib-modal bib-exemplar-modal"
             role="dialog"
             aria-modal="true"
             aria-labelledby="titulo-cadastro-exemplar"

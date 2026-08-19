@@ -25370,3 +25370,63 @@ html[data-theme="system"]
   .captacao-integracoes-hero-icon {
   background-color: #525252 !important;
 }
+
+/* =========================================================
+   BIBLIOTECA VIRTUAL
+   MODAL DE CADASTRO DE EXEMPLAR
+   Rolagem interna com cabeçalho e rodapé visíveis
+   ========================================================= */
+
+.phanyx-biblioteca-item-page .bib-exemplar-modal {
+  display: flex;
+  width: min(100%, 820px);
+  height: min(760px, calc(100dvh - 3rem));
+  max-height: calc(100dvh - 3rem);
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-exemplar-modal
+  > form {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-exemplar-modal
+  .bib-modal-header {
+  flex: 0 0 auto;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-exemplar-modal
+  .bib-modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-exemplar-modal
+  .bib-modal-footer {
+  flex: 0 0 auto;
+  background: var(--bib-card) !important;
+}
+
+/* Responsivo */
+@media (max-width: 520px) {
+  .phanyx-biblioteca-item-page
+    .bib-exemplar-modal {
+    width: 100%;
+    height: 94dvh;
+    max-height: 94dvh;
+  }
+}
