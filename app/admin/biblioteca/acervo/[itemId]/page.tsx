@@ -123,16 +123,33 @@ type ArmazenamentoBiblioteca = {
 
 type ExemplarItem = {
   id: number;
-  tipo: string;
+
+  tipo: "FISICO" | "DIGITAL";
+  status: string;
+
   codigoInterno: string;
   codigoBarras: string | null;
   numeroTombo: string | null;
-  status: string;
+  patrimonio: string | null;
+
+  unidadeSnapshot: string | null;
   setor: string | null;
   sala: string | null;
   estante: string | null;
   prateleira: string | null;
   localizacaoCompleta: string | null;
+
+  dataAquisicao: string | null;
+  formaAquisicao: string | null;
+  fornecedor: string | null;
+  valorAquisicao: string | null;
+
+  permiteEmprestimo: boolean;
+  observacoes: string | null;
+
+  baixadoEm: string | null;
+  motivoBaixa: string | null;
+
   criadoEm: string;
   atualizadoEm: string;
 };
@@ -661,6 +678,13 @@ export default function BibliotecaItemPage() {
     modalExemplarAberto,
     setModalExemplarAberto,
   ] = useState(false);
+
+  const [
+    exemplarEmEdicao,
+    setExemplarEmEdicao,
+  ] = useState<ExemplarItem | null>(
+    null
+  );
 
   const [
     salvandoExemplar,
@@ -1585,8 +1609,86 @@ export default function BibliotecaItemPage() {
       return;
     }
 
+    setExemplarEmEdicao(null);
+
     setFormularioExemplar({
       ...FORMULARIO_EXEMPLAR_INICIAL,
+    });
+
+    setModalExemplarAberto(true);
+  }
+
+  function abrirEdicaoExemplar(
+    exemplar: ExemplarItem
+  ) {
+    if (
+      !podeGerenciarExemplares ||
+      impersonacao ||
+      exemplar.baixadoEm
+    ) {
+      return;
+    }
+
+    setExemplarEmEdicao(
+      exemplar
+    );
+
+    setFormularioExemplar({
+      tipo:
+        exemplar.tipo,
+
+      codigoInterno:
+        exemplar.codigoInterno,
+
+      codigoBarras:
+        exemplar.codigoBarras || "",
+
+      numeroTombo:
+        exemplar.numeroTombo || "",
+
+      patrimonio:
+        exemplar.patrimonio || "",
+
+      unidadeSnapshot:
+        exemplar.unidadeSnapshot || "",
+
+      setor:
+        exemplar.setor || "",
+
+      sala:
+        exemplar.sala || "",
+
+      estante:
+        exemplar.estante || "",
+
+      prateleira:
+        exemplar.prateleira || "",
+
+      localizacaoCompleta:
+        exemplar.localizacaoCompleta || "",
+
+      dataAquisicao:
+        exemplar.dataAquisicao
+          ? exemplar.dataAquisicao.slice(
+            0,
+            10
+          )
+          : "",
+
+      formaAquisicao:
+        exemplar.formaAquisicao || "",
+
+      fornecedor:
+        exemplar.fornecedor || "",
+
+      valorAquisicao:
+        exemplar.valorAquisicao || "",
+
+      permiteEmprestimo:
+        exemplar.permiteEmprestimo,
+
+      observacoes:
+        exemplar.observacoes || "",
     });
 
     setModalExemplarAberto(true);
@@ -1598,6 +1700,8 @@ export default function BibliotecaItemPage() {
     }
 
     setModalExemplarAberto(false);
+
+    setExemplarEmEdicao(null);
 
     setFormularioExemplar({
       ...FORMULARIO_EXEMPLAR_INICIAL,
@@ -2860,6 +2964,21 @@ export default function BibliotecaItemPage() {
                               : ""}
                           </small>
                         </div>
+                        {podeGerenciarExemplares &&
+                          !impersonacao &&
+                          !exemplar.baixadoEm ? (
+                          <button
+                            type="button"
+                            className="bib-button bib-button-secondary"
+                            onClick={() =>
+                              abrirEdicaoExemplar(
+                                exemplar
+                              )
+                            }
+                          >
+                            ✏️ Editar
+                          </button>
+                        ) : null}
                       </div>
                     )
                   )}
