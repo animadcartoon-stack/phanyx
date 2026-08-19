@@ -24825,3 +24825,246 @@ html[data-theme="system"]
   -webkit-text-fill-color: #ffffff !important;
   border: 1px solid #6b7280 !important;
 }
+
+/* =========================================================
+   CENTRAL DE CAPTAÇÃO — SUBMISSÕES — TEMA SISTEMA
+   Paleta neutra / sem fundos azuis
+   ========================================================= */
+
+html[data-theme="system"] .captacao-submissoes-page {
+  background: #262626 !important;
+  color: #f5f5f5 !important;
+}
+
+/* Hero */
+html[data-theme="system"]
+  .captacao-submissoes-page
+  .phanyx-admin-hero {
+  background: #2f2f2f !important;
+  background-image: none !important;
+  border-color: #505050 !important;
+  color: #ffffff !important;
+}
+
+/* Cards principais */
+html[data-theme="system"]
+  .captacao-submissoes-page
+  .phanyx-card {
+  background: #303030 !important;
+  border-color: #505050 !important;
+  color: #f8fafc !important;
+}
+
+/* Cards internos que usam slate */
+html[data-theme="system"]
+  .captacao-submissoes-page
+  .bg-slate-50,
+html[data-theme="system"]
+  .captacao-submissoes-page
+  .bg-slate-100,
+html[data-theme="system"]
+  .captacao-submissoes-page
+  .bg-slate-800,
+html[data-theme="system"]
+  .captacao-submissoes-page
+  .bg-slate-900,
+html[data-theme="system"]
+  .captacao-submissoes-page
+  .bg-slate-950 {
+  background: #414141 !important;
+  background-color: #414141 !important;
+}
+
+/* Remove gradientes azuis */
+html[data-theme="system"]
+  .captacao-submissoes-page
+  [class*="from-white"],
+html[data-theme="system"]
+  .captacao-submissoes-page
+  [class*="to-blue"],
+html[data-theme="system"]
+  .captacao-submissoes-page
+  [class*="via-blue"] {
+  background-image: none !important;
+}
+
+/* Campos de busca, selects e textarea */
+html[data-theme="system"]
+  .captacao-submissoes-page
+  input,
+html[data-theme="system"]
+  .captacao-submissoes-page
+  select,
+html[data-theme="system"]
+  .captacao-submissoes-page
+  textarea,
+html[data-theme="system"]
+  .captacao-submissoes-page
+  .phanyx-input,
+html[data-theme="system"]
+  .captacao-submissoes-page
+  .phanyx-select,
+html[data-theme="system"]
+  .captacao-submissoes-page
+  .phanyx-textarea {
+  background: #383838 !important;
+  background-color: #383838 !important;
+  color: #ffffff !important;
+  border-color: #5f5f5f !important;
+  box-shadow: none !important;
+}
+
+/* Placeholder */
+html[data-theme="system"]
+  .captacao-submissoes-page
+  input::placeholder,
+html[data-theme="system"]
+  .captacao-submissoes-page
+  textarea::placeholder {
+  color: #b8b8b8 !important;
+  opacity: 1 !important;
+}
+
+/* Foco dos campos — cinza, não azul */
+html[data-theme="system"]
+  .captacao-submissoes-page
+  input:focus,
+html[data-theme="system"]
+  .captacao-submissoes-page
+  select:focus,
+html[data-theme="system"]
+  .captacao-submissoes-page
+  textarea:focus,
+html[data-theme="system"]
+  .captacao-submissoes-page
+  .phanyx-input:focus,
+html[data-theme="system"]
+  .captacao-submissoes-page
+  .phanyx-select:focus,
+html[data-theme="system"]
+  .captacao-submissoes-page
+  .phanyx-textarea:focus {
+  background: #3d3d3d !important;
+  border-color: #8a8a8a !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Options dos selects */
+html[data-theme="system"]
+  .captacao-submissoes-page
+  select option {
+  background: #353535 !important;
+  color: #ffffff !important;
+}
+
+/* Item selecionado no select */
+html[data-theme="system"]
+  .captacao-submissoes-page
+  select option:checked {
+  background: #525252 !important;
+  background-color: #525252 !important;
+  color: #ffffff !important;
+}
+
+/* Bordas */
+html[data-theme="system"]
+  .captacao-submissoes-page
+  .border-slate-200,
+html[data-theme="system"]
+  .captacao-submissoes-page
+  .border-slate-300 {
+  border-color: #575757 !important;
+}
+
+/* Textos principais */
+html[data-theme="system"]
+  .captacao-submissoes-page
+  .text-slate-900,
+html[data-theme="system"]
+  .captacao-submissoes-page
+  .text-slate-800,
+html[data-theme="system"]
+  .captacao-submissoes-page
+  .text-slate-700 {
+  color: #ffffff !important;
+}
+
+/* Textos secundários */
+html[data-theme="system"]
+  .captacao-submissoes-page
+  .text-slate-600,
+html[data-theme="system"]
+  .captacao-submissoes-page
+  .text-slate-500,
+html[data-theme="system"]
+  .captacao-submissoes-page
+  .phanyx-muted {
+  color: #c9c9c9 !important;
+}
+
+/* Botões secundários */
+html[data-theme="system"]
+  .captacao-submissoes-page
+  button.border,
+html[data-theme="system"]
+  .captacao-submissoes-page
+  a.border {
+  background: #383838 !important;
+  border-color: #696969 !important;
+  color: #ffffff !important;
+}
+
+/* Hover secundário */
+html[data-theme="system"]
+  .captacao-submissoes-page
+  button.border:hover,
+html[data-theme="system"]
+  .captacao-submissoes-page
+  a.border:hover {
+  background: #484848 !important;
+}
+
+/* Botão Filtrar — cinza no Sistema */
+html[data-theme="system"]
+  .captacao-submissoes-page
+  button.bg-blue-600 {
+  background: #555555 !important;
+  background-color: #555555 !important;
+  color: #ffffff !important;
+}
+
+/* Hover do botão Filtrar */
+html[data-theme="system"]
+  .captacao-submissoes-page
+  button.bg-blue-600:hover {
+  background: #666666 !important;
+  background-color: #666666 !important;
+}
+
+/* Divisórias */
+html[data-theme="system"]
+  .captacao-submissoes-page
+  .divide-slate-200 > :not([hidden]) ~ :not([hidden]),
+html[data-theme="system"]
+  .captacao-submissoes-page
+  .border-b,
+html[data-theme="system"]
+  .captacao-submissoes-page
+  .border-t {
+  border-color: #555555 !important;
+}
+
+/* =========================================================
+   CENTRAL DE CAPTAÇÃO — SUBMISSÕES — TEMA ESCURO
+   Hero sem fundo cinza
+   ========================================================= */
+
+html[data-theme="dark"]
+  .captacao-submissoes-page
+  .phanyx-admin-hero {
+  background: #050505 !important;
+  background-color: #050505 !important;
+  background-image: none !important;
+  border-color: #262626 !important;
+}

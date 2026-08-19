@@ -654,7 +654,7 @@ export default function SubmissoesCaptacaoPage() {
   }
 
   return (
-    <div className="min-h-screen p-4 sm:p-6">
+    <div className="captacao-submissoes-page min-h-screen p-4 sm:p-6">
       <div className="mx-auto max-w-7xl space-y-6">
 
         <section className="phanyx-admin-hero rounded-3xl border p-6 shadow-sm">
