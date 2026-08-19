@@ -2519,72 +2519,270 @@ export default function CrachasClient() {
   }
 
   function redimensionarForma(
-    e: React.MouseEvent<HTMLSpanElement>,
-    objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>,
-    canto: "nw" | "ne" | "sw" | "se"
-  ) {
-    e.preventDefault();
-    e.stopPropagation();
+  e: React.MouseEvent<HTMLSpanElement>,
+  objeto: Extract<
+    ObjetoCracha,
+    { tipo: "FORMA" }
+  >,
+  canto: "nw" | "ne" | "sw" | "se"
+) {
+  e.preventDefault();
+  e.stopPropagation();
 
-    setObjetoSelecionado(objeto.id);
+  setObjetoSelecionado(objeto.id);
 
-    const inicioX = e.clientX;
-    const inicioY = e.clientY;
+  const inicioX = e.clientX;
+  const inicioY = e.clientY;
 
-    const xOriginal = objeto.x;
-    const yOriginal = objeto.y;
-    const larguraOriginal = objeto.largura;
-    const alturaOriginal = objeto.altura;
+  const xOriginal = objeto.x;
+  const yOriginal = objeto.y;
 
-    function mover(ev: MouseEvent) {
-      const dx = ev.clientX - inicioX;
-      const dy = ev.clientY - inicioY;
+  const larguraOriginal =
+    objeto.largura;
 
-      let novoX = xOriginal;
-      let novoY = yOriginal;
-      let novaLargura = larguraOriginal;
-      let novaAltura = alturaOriginal;
+  const alturaOriginal =
+    objeto.altura;
 
+  /*
+   * Cantos opostos que devem
+   * permanecer fixos durante
+   * o redimensionamento.
+   */
+  const direitaOriginal =
+    xOriginal + larguraOriginal;
+
+  const baixoOriginal =
+    yOriginal + alturaOriginal;
+
+  const proporcaoOriginal =
+    alturaOriginal > 0
+      ? larguraOriginal /
+        alturaOriginal
+      : 1;
+
+  const tamanhoMinimo = 10;
+
+  function mover(ev: MouseEvent) {
+    const dx =
+      ev.clientX - inicioX;
+
+    const dy =
+      ev.clientY - inicioY;
+
+    let novoX = xOriginal;
+    let novoY = yOriginal;
+
+    let novaLargura =
+      larguraOriginal;
+
+    let novaAltura =
+      alturaOriginal;
+
+    /*
+     * Primeiro calcula o tamanho livre,
+     * exatamente como já funcionava.
+     */
+    if (canto === "se") {
+      novaLargura =
+        larguraOriginal + dx;
+
+      novaAltura =
+        alturaOriginal + dy;
+    }
+
+    if (canto === "sw") {
+      novaLargura =
+        larguraOriginal - dx;
+
+      novaAltura =
+        alturaOriginal + dy;
+    }
+
+    if (canto === "ne") {
+      novaLargura =
+        larguraOriginal + dx;
+
+      novaAltura =
+        alturaOriginal - dy;
+    }
+
+    if (canto === "nw") {
+      novaLargura =
+        larguraOriginal - dx;
+
+      novaAltura =
+        alturaOriginal - dy;
+    }
+
+    /*
+     * SHIFT:
+     * preserva a proporção original
+     * da forma.
+     */
+    if (ev.shiftKey) {
+      const escalaLargura =
+        novaLargura /
+        larguraOriginal;
+
+      const escalaAltura =
+        novaAltura /
+        alturaOriginal;
+
+      /*
+       * Usa o eixo que sofreu
+       * a alteração proporcional maior.
+       *
+       * Isso deixa o movimento natural
+       * tanto na horizontal quanto
+       * na vertical.
+       */
+      let escala =
+        Math.abs(
+          escalaLargura - 1
+        ) >=
+        Math.abs(
+          escalaAltura - 1
+        )
+          ? escalaLargura
+          : escalaAltura;
+
+      const escalaMinima =
+        Math.max(
+          tamanhoMinimo /
+            larguraOriginal,
+
+          tamanhoMinimo /
+            alturaOriginal
+        );
+
+      escala =
+        Math.max(
+          escalaMinima,
+          escala
+        );
+
+      novaLargura =
+        larguraOriginal * escala;
+
+      novaAltura =
+        novaLargura /
+        proporcaoOriginal;
+
+      /*
+       * Mantém o canto oposto fixo.
+       */
       if (canto === "se") {
-        novaLargura = larguraOriginal + dx;
-        novaAltura = alturaOriginal + dy;
+        novoX = xOriginal;
+        novoY = yOriginal;
       }
 
       if (canto === "sw") {
-        novoX = xOriginal + dx;
-        novaLargura = larguraOriginal - dx;
-        novaAltura = alturaOriginal + dy;
+        novoX =
+          direitaOriginal -
+          novaLargura;
+
+        novoY = yOriginal;
       }
 
       if (canto === "ne") {
-        novoY = yOriginal + dy;
-        novaLargura = larguraOriginal + dx;
-        novaAltura = alturaOriginal - dy;
+        novoX = xOriginal;
+
+        novoY =
+          baixoOriginal -
+          novaAltura;
       }
 
       if (canto === "nw") {
-        novoX = xOriginal + dx;
-        novoY = yOriginal + dy;
-        novaLargura = larguraOriginal - dx;
-        novaAltura = alturaOriginal - dy;
+        novoX =
+          direitaOriginal -
+          novaLargura;
+
+        novoY =
+          baixoOriginal -
+          novaAltura;
+      }
+    } else {
+      /*
+       * Sem SHIFT:
+       * redimensionamento livre.
+       */
+      novaLargura =
+        Math.max(
+          tamanhoMinimo,
+          novaLargura
+        );
+
+      novaAltura =
+        Math.max(
+          tamanhoMinimo,
+          novaAltura
+        );
+
+      /*
+       * Recalcula X/Y depois do limite
+       * mínimo para o canto oposto
+       * não se deslocar.
+       */
+      if (canto === "sw") {
+        novoX =
+          direitaOriginal -
+          novaLargura;
       }
 
-      atualizarObjeto(objeto.id, {
+      if (canto === "ne") {
+        novoY =
+          baixoOriginal -
+          novaAltura;
+      }
+
+      if (canto === "nw") {
+        novoX =
+          direitaOriginal -
+          novaLargura;
+
+        novoY =
+          baixoOriginal -
+          novaAltura;
+      }
+    }
+
+    atualizarObjeto(
+      objeto.id,
+      {
         x: novoX,
         y: novoY,
-        largura: Math.max(10, novaLargura),
-        altura: Math.max(10, novaAltura),
-      });
-    }
 
-    function soltar() {
-      window.removeEventListener("mousemove", mover);
-      window.removeEventListener("mouseup", soltar);
-    }
+        largura:
+          novaLargura,
 
-    window.addEventListener("mousemove", mover);
-    window.addEventListener("mouseup", soltar);
+        altura:
+          novaAltura,
+      }
+    );
   }
+
+  function soltar() {
+    window.removeEventListener(
+      "mousemove",
+      mover
+    );
+
+    window.removeEventListener(
+      "mouseup",
+      soltar
+    );
+  }
+
+  window.addEventListener(
+    "mousemove",
+    mover
+  );
+
+  window.addEventListener(
+    "mouseup",
+    soltar
+  );
+}
 
   function BotaoExcluirObjeto() {
     return (
