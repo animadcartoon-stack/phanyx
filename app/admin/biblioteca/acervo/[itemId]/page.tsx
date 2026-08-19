@@ -1143,6 +1143,125 @@ export default function BibliotecaItemPage() {
     return () => window.clearTimeout(temporizador);
   }, [toast]);
 
+  useEffect(() => {
+    if (!exemplarParaEmprestimo) {
+      return;
+    }
+
+    const termo =
+      buscaUsuarioEmprestimo.trim();
+
+    if (termo.length < 2) {
+      setUsuariosEmprestimo([]);
+      setBuscandoUsuariosEmprestimo(
+        false
+      );
+      setErroBuscaUsuariosEmprestimo(
+        null
+      );
+
+      return;
+    }
+
+    const controle =
+      new AbortController();
+
+    const temporizador =
+      window.setTimeout(
+        async () => {
+          setBuscandoUsuariosEmprestimo(
+            true
+          );
+
+          setErroBuscaUsuariosEmprestimo(
+            null
+          );
+
+          try {
+            const resposta =
+              await fetch(
+                `/api/admin/biblioteca/circulacao/usuarios?q=${encodeURIComponent(
+                  termo
+                )}`,
+                {
+                  method: "GET",
+                  cache: "no-store",
+                  credentials:
+                    "include",
+                  signal:
+                    controle.signal,
+                }
+              );
+
+            const resultado =
+              (await resposta.json()) as
+              RespostaUsuariosEmprestimo;
+
+            if (!resposta.ok) {
+              throw new Error(
+                resultado.error ||
+                resultado.mensagem ||
+                "Não foi possível pesquisar usuários."
+              );
+            }
+
+            if (
+              controle.signal.aborted
+            ) {
+              return;
+            }
+
+            setUsuariosEmprestimo(
+              Array.isArray(
+                resultado.usuarios
+              )
+                ? resultado.usuarios
+                : []
+            );
+          } catch (falha) {
+            if (
+              falha instanceof
+              DOMException &&
+              falha.name ===
+              "AbortError"
+            ) {
+              return;
+            }
+
+            setUsuariosEmprestimo(
+              []
+            );
+
+            setErroBuscaUsuariosEmprestimo(
+              falha instanceof Error
+                ? falha.message
+                : "Não foi possível pesquisar usuários."
+            );
+          } finally {
+            if (
+              !controle.signal.aborted
+            ) {
+              setBuscandoUsuariosEmprestimo(
+                false
+              );
+            }
+          }
+        },
+        350
+      );
+
+    return () => {
+      window.clearTimeout(
+        temporizador
+      );
+
+      controle.abort();
+    };
+  }, [
+    buscaUsuarioEmprestimo,
+    exemplarParaEmprestimo,
+  ]);
+
   const alterado = useMemo(() => {
     if (!item || !formulario) return false;
 
@@ -2238,125 +2357,6 @@ export default function BibliotecaItemPage() {
       setSalvandoExemplar(false);
     }
   }
-
-  useEffect(() => {
-    if (!exemplarParaEmprestimo) {
-      return;
-    }
-
-    const termo =
-      buscaUsuarioEmprestimo.trim();
-
-    if (termo.length < 2) {
-      setUsuariosEmprestimo([]);
-      setBuscandoUsuariosEmprestimo(
-        false
-      );
-      setErroBuscaUsuariosEmprestimo(
-        null
-      );
-
-      return;
-    }
-
-    const controle =
-      new AbortController();
-
-    const temporizador =
-      window.setTimeout(
-        async () => {
-          setBuscandoUsuariosEmprestimo(
-            true
-          );
-
-          setErroBuscaUsuariosEmprestimo(
-            null
-          );
-
-          try {
-            const resposta =
-              await fetch(
-                `/api/admin/biblioteca/circulacao/usuarios?q=${encodeURIComponent(
-                  termo
-                )}`,
-                {
-                  method: "GET",
-                  cache: "no-store",
-                  credentials:
-                    "include",
-                  signal:
-                    controle.signal,
-                }
-              );
-
-            const resultado =
-              (await resposta.json()) as
-              RespostaUsuariosEmprestimo;
-
-            if (!resposta.ok) {
-              throw new Error(
-                resultado.error ||
-                resultado.mensagem ||
-                "Não foi possível pesquisar usuários."
-              );
-            }
-
-            if (
-              controle.signal.aborted
-            ) {
-              return;
-            }
-
-            setUsuariosEmprestimo(
-              Array.isArray(
-                resultado.usuarios
-              )
-                ? resultado.usuarios
-                : []
-            );
-          } catch (falha) {
-            if (
-              falha instanceof
-              DOMException &&
-              falha.name ===
-              "AbortError"
-            ) {
-              return;
-            }
-
-            setUsuariosEmprestimo(
-              []
-            );
-
-            setErroBuscaUsuariosEmprestimo(
-              falha instanceof Error
-                ? falha.message
-                : "Não foi possível pesquisar usuários."
-            );
-          } finally {
-            if (
-              !controle.signal.aborted
-            ) {
-              setBuscandoUsuariosEmprestimo(
-                false
-              );
-            }
-          }
-        },
-        350
-      );
-
-    return () => {
-      window.clearTimeout(
-        temporizador
-      );
-
-      controle.abort();
-    };
-  }, [
-    buscaUsuarioEmprestimo,
-    exemplarParaEmprestimo,
-  ]);
 
   return (
     <main className="phanyx-biblioteca-acervo-page phanyx-biblioteca-item-page">
