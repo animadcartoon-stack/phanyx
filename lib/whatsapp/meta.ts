@@ -282,3 +282,144 @@ export async function assinarWebhookWabaMeta(params: {
     sucesso: true,
   };
 }
+
+type TemplateWabaMeta = {
+  id: string;
+  nome: string;
+  idioma: string;
+  categoria: string;
+  status: string;
+};
+
+type RespostaTemplatesWabaMeta = {
+  data?: Array<{
+    id?: string;
+    name?: string;
+    language?: string;
+    category?: string;
+    status?: string;
+  }>;
+
+  paging?: {
+    cursors?: {
+      after?: string;
+    };
+    next?: string;
+  };
+
+  error?: {
+    message?: string;
+    type?: string;
+    code?: number;
+    error_subcode?: number;
+    fbtrace_id?: string;
+  };
+};
+
+export async function listarTemplatesWabaMeta(params: {
+  whatsappBusinessId: string;
+  tokenCriptografado: string;
+}): Promise<TemplateWabaMeta[]> {
+  const {
+    whatsappBusinessId,
+    tokenCriptografado,
+  } = params;
+
+  if (!whatsappBusinessId) {
+    throw new Error(
+      "WhatsApp Business Account ID não informado."
+    );
+  }
+
+  if (!tokenCriptografado) {
+    throw new Error(
+      "Credencial do WhatsApp não informada."
+    );
+  }
+
+  const accessToken =
+    descriptografarTokenWhatsapp(
+      tokenCriptografado
+    );
+
+  const templates: TemplateWabaMeta[] = [];
+  let cursor: string | null = null;
+
+  do {
+    const parametros = new URLSearchParams({
+      fields:
+        "id,name,language,category,status",
+      limit: "100",
+    });
+
+    if (cursor) {
+      parametros.set("after", cursor);
+    }
+
+    const url =
+      `https://graph.facebook.com/${META_GRAPH_VERSION}` +
+      `/${whatsappBusinessId}/message_templates` +
+      `?${parametros.toString()}`;
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      cache: "no-store",
+    });
+
+    let data: RespostaTemplatesWabaMeta;
+
+    try {
+      data =
+        (await response.json()) as RespostaTemplatesWabaMeta;
+    } catch {
+      throw new ErroMetaWhatsapp({
+        message:
+          "A Meta retornou uma resposta inválida ao consultar os templates do WhatsApp.",
+        statusHttp: response.status,
+      });
+    }
+
+    if (!response.ok || data.error) {
+      throw new ErroMetaWhatsapp({
+        message:
+          data.error?.message ||
+          "Não foi possível consultar os templates do WhatsApp na Meta.",
+        statusHttp: response.status,
+        codigoMeta: data.error?.code,
+        subcodigoMeta:
+          data.error?.error_subcode,
+        tipoMeta: data.error?.type,
+        fbtraceId:
+          data.error?.fbtrace_id,
+      });
+    }
+
+    for (const template of data.data || []) {
+      if (
+        !template.id ||
+        !template.name ||
+        !template.language ||
+        !template.status
+      ) {
+        continue;
+      }
+
+      templates.push({
+        id: template.id,
+        nome: template.name,
+        idioma: template.language,
+        categoria:
+          template.category || "",
+        status: template.status,
+      });
+    }
+
+    cursor =
+      data.paging?.cursors?.after || null;
+  } while (cursor);
+
+  return templates;
+}

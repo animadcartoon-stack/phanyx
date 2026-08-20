@@ -181,6 +181,152 @@ type RespostaEventos = {
   message?: string;
 };
 
+type EventoDetalhe = Evento & {
+  headers: unknown;
+  payload: unknown;
+  resposta: unknown;
+
+  integracao: {
+    id: number;
+    canalId: number | null;
+    campanhaId: number | null;
+    formularioId: number | null;
+
+    nome: string;
+    tipo: string;
+    status: string;
+
+    chavePublica: string;
+    urlEndpoint: string | null;
+    configuracao: unknown;
+    eventosAssinados: unknown;
+
+    ativo: boolean;
+
+    ultimoSucessoEm: string | null;
+    ultimoErroEm: string | null;
+    ultimoErro: string | null;
+
+    criadoEm: string;
+    atualizadoEm: string;
+
+    canal: {
+      id: number;
+      nome: string;
+      tipo: string;
+      ativo: boolean;
+    } | null;
+
+    campanha: {
+      id: number;
+      nome: string;
+      codigo: string | null;
+      status: string;
+      ativo: boolean;
+    } | null;
+
+    formulario: {
+      id: number;
+      nome: string;
+      titulo: string | null;
+      status: string;
+      ativo: boolean;
+    } | null;
+  };
+
+  submissao: {
+    id: number;
+
+    canalId: number | null;
+    campanhaId: number | null;
+    formularioId: number | null;
+    integracaoId: number | null;
+    leadId: number | null;
+
+    identificadorExterno: string | null;
+    chaveDeduplicacao: string | null;
+
+    status: string;
+    resultadoDeduplicacao: string | null;
+
+    nomeSnapshot: string | null;
+    emailSnapshot: string | null;
+    telefoneSnapshot: string | null;
+
+    dadosOriginais: unknown;
+    dadosNormalizados: unknown;
+
+    utmSource: string | null;
+    utmMedium: string | null;
+    utmCampaign: string | null;
+    utmContent: string | null;
+    utmTerm: string | null;
+
+    gclid: string | null;
+    fbclid: string | null;
+    msclkid: string | null;
+
+    paginaOrigem: string | null;
+    referrer: string | null;
+    ipHash: string | null;
+    userAgent: string | null;
+    idioma: string | null;
+
+    consentimentoLgpd: boolean;
+    consentimentoEm: string | null;
+    versaoConsentimento: string | null;
+    textoConsentimentoSnapshot: string | null;
+
+    tentativasProcessamento: number;
+    codigoErro: string | null;
+    mensagemErro: string | null;
+
+    recebidoEm: string | null;
+    processadoEm: string | null;
+    atualizadoEm: string;
+
+    canal: {
+      id: number;
+      nome: string;
+      tipo: string;
+    } | null;
+
+    campanha: {
+      id: number;
+      nome: string;
+      codigo: string | null;
+    } | null;
+
+    formulario: {
+      id: number;
+      nome: string;
+      titulo: string | null;
+      status: string;
+    } | null;
+  } | null;
+};
+
+type RespostaEventoDetalhe = {
+  success: boolean;
+
+  permissoes: {
+    podeVerAuditoria: boolean;
+    podeReprocessarSubmissao: boolean;
+    podeGerenciarIntegracoes: boolean;
+  };
+
+  acoes: {
+    submissaoPodeSerReprocessada: boolean;
+    eventoPossuiFalha: boolean;
+    eventoPendente: boolean;
+  };
+
+  evento: EventoDetalhe;
+
+  error?: string;
+  message?: string;
+};
+
 type CredenciaisGeradas = {
   chavePublica: string;
   segredo: string;
@@ -334,6 +480,48 @@ async function lerJson(
           "O servidor retornou uma resposta inválida.",
       })
     );
+}
+
+function formatarConteudoTecnico(
+  valor: unknown
+) {
+  if (
+    valor === null ||
+    valor === undefined ||
+    valor === ""
+  ) {
+    return "Não informado";
+  }
+
+  if (
+    typeof valor ===
+    "string"
+  ) {
+    try {
+      return JSON.stringify(
+        JSON.parse(valor),
+        null,
+        2
+      );
+    } catch {
+      return valor;
+    }
+  }
+
+  try {
+    return (
+      JSON.stringify(
+        valor,
+        null,
+        2
+      ) ||
+      String(valor)
+    );
+  } catch {
+    return String(
+      valor
+    );
+  }
 }
 
 export default function IntegracaoDetalhePage() {
@@ -499,6 +687,40 @@ export default function IntegracaoDetalhePage() {
     useState(false);
 
   const [
+    eventoDetalheAberto,
+    setEventoDetalheAberto,
+  ] =
+    useState<number | null>(
+      null
+    );
+
+  const [
+    detalheEvento,
+    setDetalheEvento,
+  ] =
+    useState<RespostaEventoDetalhe | null>(
+      null
+    );
+
+  const [
+    carregandoDetalheEvento,
+    setCarregandoDetalheEvento,
+  ] =
+    useState(false);
+
+  const [
+    reprocessandoSubmissao,
+    setReprocessandoSubmissao,
+  ] =
+    useState(false);
+
+  const [
+    detalhesTecnicosAbertos,
+    setDetalhesTecnicosAbertos,
+  ] =
+    useState(false);
+
+  const [
     credenciaisGeradas,
     setCredenciaisGeradas,
   ] =
@@ -551,7 +773,7 @@ export default function IntegracaoDetalhePage() {
           (campanha) =>
             !campanha.canalId ||
             campanha.canalId ===
-              canalId
+            canalId
         );
       },
       [
@@ -566,15 +788,15 @@ export default function IntegracaoDetalhePage() {
         const canalId =
           formulario.canalId
             ? Number(
-                formulario.canalId
-              )
+              formulario.canalId
+            )
             : null;
 
         const campanhaId =
           formulario.campanhaId
             ? Number(
-                formulario.campanhaId
-              )
+              formulario.campanhaId
+            )
             : null;
 
         return referencias.formularios.filter(
@@ -583,7 +805,7 @@ export default function IntegracaoDetalhePage() {
               canalId &&
               item.canalId &&
               item.canalId !==
-                canalId
+              canalId
             ) {
               return false;
             }
@@ -592,7 +814,7 @@ export default function IntegracaoDetalhePage() {
               campanhaId &&
               item.campanhaId &&
               item.campanhaId !==
-                campanhaId
+              campanhaId
             ) {
               return false;
             }
@@ -686,8 +908,8 @@ export default function IntegracaoDetalhePage() {
       ) {
         throw new Error(
           dados.error ||
-            dados.message ||
-            "Não foi possível carregar a integração."
+          dados.message ||
+          "Não foi possível carregar a integração."
         );
       }
 
@@ -697,12 +919,12 @@ export default function IntegracaoDetalhePage() {
 
       setPermissoes(
         dados.permissoes ||
-          {}
+        {}
       );
 
       setTiposDisponiveis(
         dados.tiposDisponiveis ||
-          []
+        []
       );
 
       setReferencias(
@@ -726,27 +948,27 @@ export default function IntegracaoDetalhePage() {
           dados.integracao
             .canalId
             ? String(
-                dados.integracao
-                  .canalId
-              )
+              dados.integracao
+                .canalId
+            )
             : "",
 
         campanhaId:
           dados.integracao
             .campanhaId
             ? String(
-                dados.integracao
-                  .campanhaId
-              )
+              dados.integracao
+                .campanhaId
+            )
             : "",
 
         formularioId:
           dados.integracao
             .formularioId
             ? String(
-                dados.integracao
-                  .formularioId
-              )
+              dados.integracao
+                .formularioId
+            )
             : "",
 
         urlEndpoint:
@@ -848,35 +1070,35 @@ export default function IntegracaoDetalhePage() {
       ) {
         throw new Error(
           dados.error ||
-            dados.message ||
-            "Não foi possível carregar os eventos."
+          dados.message ||
+          "Não foi possível carregar os eventos."
         );
       }
 
       setEventos(
         dados.eventos ||
-          []
+        []
       );
 
       setPaginacao(
         dados.paginacao ||
-          null
+        null
       );
 
       setPaginaEventos(
         dados.paginacao
           ?.pagina ||
-          pagina
+        pagina
       );
 
       setStatusDisponiveisEventos(
         dados.statusDisponiveis ||
-          []
+        []
       );
 
       setDirecoesDisponiveis(
         dados.direcoesDisponiveis ||
-          []
+        []
       );
     } catch (error) {
       mostrarErro(
@@ -952,22 +1174,22 @@ export default function IntegracaoDetalhePage() {
               canalId:
                 formulario.canalId
                   ? Number(
-                      formulario.canalId
-                    )
+                    formulario.canalId
+                  )
                   : null,
 
               campanhaId:
                 formulario.campanhaId
                   ? Number(
-                      formulario.campanhaId
-                    )
+                    formulario.campanhaId
+                  )
                   : null,
 
               formularioId:
                 formulario.formularioId
                   ? Number(
-                      formulario.formularioId
-                    )
+                    formulario.formularioId
+                  )
                   : null,
 
               urlEndpoint:
@@ -988,8 +1210,8 @@ export default function IntegracaoDetalhePage() {
       ) {
         throw new Error(
           dados.error ||
-            dados.message ||
-            "Não foi possível salvar a integração."
+          dados.message ||
+          "Não foi possível salvar a integração."
         );
       }
 
@@ -1017,7 +1239,7 @@ export default function IntegracaoDetalhePage() {
       !integracao ||
       !permissoes.podeGerenciar ||
       integracao.status ===
-        "REVOGADA"
+      "REVOGADA"
     ) {
       return;
     }
@@ -1046,17 +1268,17 @@ export default function IntegracaoDetalhePage() {
             body: JSON.stringify(
               estaAtiva
                 ? {
-                    status:
-                      "PAUSADA",
-                    ativo:
-                      false,
-                  }
+                  status:
+                    "PAUSADA",
+                  ativo:
+                    false,
+                }
                 : {
-                    status:
-                      "ATIVA",
-                    ativo:
-                      true,
-                  }
+                  status:
+                    "ATIVA",
+                  ativo:
+                    true,
+                }
             ),
           }
         );
@@ -1072,8 +1294,8 @@ export default function IntegracaoDetalhePage() {
       ) {
         throw new Error(
           dados.error ||
-            dados.message ||
-            "Não foi possível alterar a situação da integração."
+          dados.message ||
+          "Não foi possível alterar a situação da integração."
         );
       }
 
@@ -1140,8 +1362,8 @@ export default function IntegracaoDetalhePage() {
       ) {
         throw new Error(
           dados.error ||
-            dados.message ||
-            "Não foi possível gerar uma nova credencial."
+          dados.message ||
+          "Não foi possível gerar uma nova credencial."
         );
       }
 
@@ -1223,8 +1445,8 @@ export default function IntegracaoDetalhePage() {
       ) {
         throw new Error(
           dados.error ||
-            dados.message ||
-            "Não foi possível revogar a integração."
+          dados.message ||
+          "Não foi possível revogar a integração."
         );
       }
 
@@ -1270,6 +1492,188 @@ export default function IntegracaoDetalhePage() {
     } catch {
       mostrarErro(
         "Não foi possível copiar automaticamente."
+      );
+    }
+  }
+
+  async function abrirDetalheEvento(
+    eventoId: number
+  ) {
+    if (
+      !permissoes.podeAuditar
+    ) {
+      mostrarErro(
+        "Você não possui permissão para consultar os detalhes técnicos deste evento."
+      );
+
+      return;
+    }
+
+    try {
+      setEventoDetalheAberto(
+        eventoId
+      );
+
+      setDetalheEvento(
+        null
+      );
+
+      setDetalhesTecnicosAbertos(
+        false
+      );
+
+      setCarregandoDetalheEvento(
+        true
+      );
+
+      const resposta =
+        await fetch(
+          `/api/admin/comercial/captacao/integracoes/eventos/${eventoId}`,
+          {
+            cache:
+              "no-store",
+          }
+        );
+
+      const dados =
+        (await lerJson(
+          resposta
+        )) as RespostaEventoDetalhe;
+
+      if (
+        !resposta.ok ||
+        !dados.success
+      ) {
+        throw new Error(
+          dados.error ||
+          dados.message ||
+          "Não foi possível carregar os detalhes do evento."
+        );
+      }
+
+      setDetalheEvento(
+        dados
+      );
+    } catch (error) {
+      setEventoDetalheAberto(
+        null
+      );
+
+      setDetalheEvento(
+        null
+      );
+
+      mostrarErro(
+        error instanceof Error
+          ? error.message
+          : "Erro ao carregar os detalhes do evento."
+      );
+    } finally {
+      setCarregandoDetalheEvento(
+        false
+      );
+    }
+  }
+
+  function fecharDetalheEvento() {
+    if (
+      reprocessandoSubmissao
+    ) {
+      return;
+    }
+
+    setEventoDetalheAberto(
+      null
+    );
+
+    setDetalheEvento(
+      null
+    );
+
+    setDetalhesTecnicosAbertos(
+      false
+    );
+  }
+
+  async function reprocessarSubmissaoEvento() {
+    const submissaoId =
+      detalheEvento?.evento
+        .submissao?.id;
+
+    if (
+      !submissaoId ||
+      !detalheEvento?.acoes
+        .submissaoPodeSerReprocessada
+    ) {
+      mostrarErro(
+        "Esta submissão não pode ser processada novamente."
+      );
+
+      return;
+    }
+
+    try {
+      setReprocessandoSubmissao(
+        true
+      );
+
+      const resposta =
+        await fetch(
+          `/api/admin/comercial/captacao/submissoes/${submissaoId}/reprocessar`,
+          {
+            method:
+              "POST",
+          }
+        );
+
+      const dados =
+        (await lerJson(
+          resposta
+        )) as {
+          success: boolean;
+          message?: string;
+          error?: string;
+        };
+
+      if (
+        !resposta.ok ||
+        !dados.success
+      ) {
+        throw new Error(
+          dados.error ||
+          dados.message ||
+          "Não foi possível tentar o processamento novamente."
+        );
+      }
+
+      mostrarSucesso(
+        dados.message ||
+        "Submissão processada novamente com sucesso."
+      );
+
+      await Promise.all([
+        carregarEventos(
+          paginaEventos
+        ),
+        carregarIntegracao(),
+      ]);
+
+      if (
+        eventoDetalheAberto
+      ) {
+        await abrirDetalheEvento(
+          eventoDetalheAberto
+        );
+      }
+    } catch (error) {
+      mostrarErro(
+        error instanceof Error
+          ? error.message
+          : "Erro ao tentar processar novamente."
+      );
+    } finally {
+      setReprocessandoSubmissao(
+        false
       );
     }
   }
@@ -1358,12 +1762,11 @@ export default function IntegracaoDetalhePage() {
     <div className="captacao-integracao-detalhe-page">
       {toast && (
         <div
-          className={`ci-toast ${
-            toast.tipo ===
+          className={`ci-toast ${toast.tipo ===
             "sucesso"
-              ? "ci-toast-success"
-              : "ci-toast-error"
-          }`}
+            ? "ci-toast-success"
+            : "ci-toast-error"
+            }`}
         >
           {toast.mensagem}
         </div>
@@ -1428,11 +1831,10 @@ export default function IntegracaoDetalhePage() {
               !revogada && (
                 <button
                   type="button"
-                  className={`ci-button ${
-                    ativa
-                      ? "ci-warning-button"
-                      : "ci-primary"
-                  }`}
+                  className={`ci-button ${ativa
+                    ? "ci-warning-button"
+                    : "ci-primary"
+                    }`}
                   disabled={
                     processandoStatus
                   }
@@ -1443,8 +1845,8 @@ export default function IntegracaoDetalhePage() {
                   {processandoStatus
                     ? "Aguarde..."
                     : ativa
-                    ? "Pausar integração"
-                    : "Ativar integração"}
+                      ? "Pausar integração"
+                      : "Ativar integração"}
                 </button>
               )}
           </div>
@@ -1466,8 +1868,8 @@ export default function IntegracaoDetalhePage() {
               {ativa
                 ? "Funcionando normalmente"
                 : revogada
-                ? "Credencial encerrada"
-                : "Não está recebendo normalmente"}
+                  ? "Credencial encerrada"
+                  : "Não está recebendo normalmente"}
             </small>
           </div>
 
@@ -1837,43 +2239,43 @@ export default function IntegracaoDetalhePage() {
                 {formulario.tipo.includes(
                   "SAIDA"
                 ) && (
-                  <div className="ci-field">
-                    <label>
-                      Endereço de destino
-                    </label>
+                    <div className="ci-field">
+                      <label>
+                        Endereço de destino
+                      </label>
 
-                    <input
-                      type="url"
-                      placeholder="https://..."
-                      value={
-                        formulario.urlEndpoint
-                      }
-                      disabled={
-                        revogada ||
-                        !permissoes.podeGerenciar
-                      }
-                      onChange={(
-                        event
-                      ) =>
-                        setFormulario(
-                          (
-                            atual
-                          ) => ({
-                            ...atual,
-                            urlEndpoint:
-                              event
-                                .target
-                                .value,
-                          })
-                        )
-                      }
-                    />
+                      <input
+                        type="url"
+                        placeholder="https://..."
+                        value={
+                          formulario.urlEndpoint
+                        }
+                        disabled={
+                          revogada ||
+                          !permissoes.podeGerenciar
+                        }
+                        onChange={(
+                          event
+                        ) =>
+                          setFormulario(
+                            (
+                              atual
+                            ) => ({
+                              ...atual,
+                              urlEndpoint:
+                                event
+                                  .target
+                                  .value,
+                            })
+                          )
+                        }
+                      />
 
-                    <small>
-                      Endereço do sistema que receberá os dados enviados pelo PHANYX.
-                    </small>
-                  </div>
-                )}
+                      <small>
+                        Endereço do sistema que receberá os dados enviados pelo PHANYX.
+                      </small>
+                    </div>
+                  )}
 
                 {permissoes.podeGerenciar &&
                   !revogada && (
@@ -2113,7 +2515,7 @@ export default function IntegracaoDetalhePage() {
                           <time>
                             {formatarData(
                               evento.recebidoEm ||
-                                evento.criadoEm
+                              evento.criadoEm
                             )}
                           </time>
                         </div>
@@ -2162,8 +2564,8 @@ export default function IntegracaoDetalhePage() {
                             <strong>
                               {evento.processadoEm
                                 ? formatarData(
-                                    evento.processadoEm
-                                  )
+                                  evento.processadoEm
+                                )
                                 : "Ainda não"}
                             </strong>
                           </div>
@@ -2194,13 +2596,13 @@ export default function IntegracaoDetalhePage() {
 
                             {evento.submissao
                               .leadId && (
-                              <Link
-                                href={`/admin/comercial/leads/${evento.submissao.leadId}`}
-                                className="ci-inline-link"
-                              >
-                                Abrir lead →
-                              </Link>
-                            )}
+                                <Link
+                                  href={`/admin/comercial/leads/${evento.submissao.leadId}`}
+                                  className="ci-inline-link"
+                                >
+                                  Abrir lead →
+                                </Link>
+                              )}
                           </div>
                         )}
 
@@ -2217,6 +2619,28 @@ export default function IntegracaoDetalhePage() {
                             </p>
                           </div>
                         )}
+                        {permissoes.podeAuditar && (
+                          <div className="ci-event-actions">
+                            <button
+                              type="button"
+                              className="ci-button ci-secondary"
+                              disabled={
+                                carregandoDetalheEvento
+                              }
+                              onClick={() =>
+                                void abrirDetalheEvento(
+                                  evento.id
+                                )
+                              }
+                            >
+                              {carregandoDetalheEvento &&
+                                eventoDetalheAberto ===
+                                evento.id
+                                ? "Abrindo..."
+                                : "Ver detalhes"}
+                            </button>
+                          </div>
+                        )}
                       </article>
                     )
                   )
@@ -2225,7 +2649,7 @@ export default function IntegracaoDetalhePage() {
 
               {paginacao &&
                 paginacao.total >
-                  0 && (
+                0 && (
                   <div className="ci-pagination">
                     <span>
                       Página{" "}
@@ -2255,7 +2679,7 @@ export default function IntegracaoDetalhePage() {
                         onClick={() =>
                           void carregarEventos(
                             paginaEventos -
-                              1
+                            1
                           )
                         }
                       >
@@ -2272,7 +2696,7 @@ export default function IntegracaoDetalhePage() {
                         onClick={() =>
                           void carregarEventos(
                             paginaEventos +
-                              1
+                            1
                           )
                         }
                       >
@@ -2555,6 +2979,657 @@ export default function IntegracaoDetalhePage() {
           </aside>
         </div>
       </div>
+
+      {eventoDetalheAberto !==
+        null && (
+          <div
+            className="ci-modal-backdrop"
+            onMouseDown={(
+              event
+            ) => {
+              if (
+                event.target ===
+                event.currentTarget
+              ) {
+                fecharDetalheEvento();
+              }
+            }}
+          >
+            <div
+              className="ci-modal ci-event-detail-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="ci-event-detail-title"
+            >
+              <div className="ci-event-detail-header">
+                <div>
+                  <span className="ci-eyebrow">
+                    EVENTO DA INTEGRAÇÃO
+                  </span>
+
+                  <h2 id="ci-event-detail-title">
+                    {detalheEvento
+                      ?.evento
+                      .tipoEvento ||
+                      `Evento #${eventoDetalheAberto}`}
+                  </h2>
+
+                  <p>
+                    Informações sobre o recebimento e processamento deste evento.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  className="ci-modal-close"
+                  aria-label="Fechar detalhes do evento"
+                  disabled={
+                    reprocessandoSubmissao
+                  }
+                  onClick={
+                    fecharDetalheEvento
+                  }
+                >
+                  ×
+                </button>
+              </div>
+
+              {carregandoDetalheEvento ? (
+                <div className="ci-event-detail-loading">
+                  Carregando detalhes do evento...
+                </div>
+              ) : detalheEvento ? (
+                <>
+                  <div className="ci-event-detail-badges">
+                    <span
+                      className={classeStatus(
+                        detalheEvento
+                          .evento
+                          .status
+                      )}
+                    >
+                      {formatarRotulo(
+                        detalheEvento
+                          .evento
+                          .status
+                      )}
+                    </span>
+
+                    <span className="ci-badge">
+                      {formatarRotulo(
+                        detalheEvento
+                          .evento
+                          .direcao
+                      )}
+                    </span>
+                  </div>
+
+                  <div className="ci-event-detail-grid">
+                    <div>
+                      <span>
+                        Data e hora
+                      </span>
+
+                      <strong>
+                        {formatarData(
+                          detalheEvento
+                            .evento
+                            .recebidoEm ||
+                          detalheEvento
+                            .evento
+                            .criadoEm
+                        )}
+                      </strong>
+                    </div>
+
+                    <div>
+                      <span>
+                        Tipo
+                      </span>
+
+                      <strong>
+                        {formatarRotulo(
+                          detalheEvento
+                            .evento
+                            .tipoEvento
+                        )}
+                      </strong>
+                    </div>
+
+                    <div>
+                      <span>
+                        Entrada ou saída
+                      </span>
+
+                      <strong>
+                        {formatarRotulo(
+                          detalheEvento
+                            .evento
+                            .direcao
+                        )}
+                      </strong>
+                    </div>
+
+                    <div>
+                      <span>
+                        Número de tentativas
+                      </span>
+
+                      <strong>
+                        {
+                          detalheEvento
+                            .evento
+                            .numeroTentativas
+                        }
+                      </strong>
+                    </div>
+
+                    <div>
+                      <span>
+                        HTTP
+                      </span>
+
+                      <strong>
+                        {detalheEvento
+                          .evento
+                          .codigoHttp ??
+                          "Não informado"}
+                      </strong>
+                    </div>
+
+                    <div>
+                      <span>
+                        Processado em
+                      </span>
+
+                      <strong>
+                        {detalheEvento
+                          .evento
+                          .processadoEm
+                          ? formatarData(
+                            detalheEvento
+                              .evento
+                              .processadoEm
+                          )
+                          : "Ainda não"}
+                      </strong>
+                    </div>
+
+                    <div>
+                      <span>
+                        Submissão
+                      </span>
+
+                      {detalheEvento
+                        .evento
+                        .submissao ? (
+                        <Link
+                          href={`/admin/comercial/captacao/submissoes/${detalheEvento.evento.submissao.id}`}
+                          className="ci-inline-link"
+                        >
+                          #
+                          {
+                            detalheEvento
+                              .evento
+                              .submissao
+                              .id
+                          }
+                        </Link>
+                      ) : (
+                        <strong>
+                          Não vinculada
+                        </strong>
+                      )}
+                    </div>
+
+                    <div>
+                      <span>
+                        Lead
+                      </span>
+
+                      {detalheEvento
+                        .evento
+                        .submissao
+                        ?.leadId ? (
+                        <Link
+                          href={`/admin/comercial/leads/${detalheEvento.evento.submissao.leadId}`}
+                          className="ci-inline-link"
+                        >
+                          Abrir lead #
+                          {
+                            detalheEvento
+                              .evento
+                              .submissao
+                              .leadId
+                          }
+                        </Link>
+                      ) : (
+                        <strong>
+                          Não gerado
+                        </strong>
+                      )}
+                    </div>
+                  </div>
+
+                  {detalheEvento
+                    .evento
+                    .submissao && (
+                      <div className="ci-event-detail-person">
+                        <span>
+                          Interessado
+                        </span>
+
+                        <strong>
+                          {detalheEvento
+                            .evento
+                            .submissao
+                            .nomeSnapshot ||
+                            "Nome não informado"}
+                        </strong>
+
+                        <p>
+                          {[
+                            detalheEvento
+                              .evento
+                              .submissao
+                              .emailSnapshot,
+                            detalheEvento
+                              .evento
+                              .submissao
+                              .telefoneSnapshot,
+                          ]
+                            .filter(Boolean)
+                            .join(" · ") ||
+                            "Contato não informado"}
+                        </p>
+                      </div>
+                    )}
+
+                  <div
+                    className={`ci-event-detail-result ${detalheEvento
+                        .acoes
+                        .eventoPossuiFalha
+                        ? "ci-event-detail-result-error"
+                        : detalheEvento
+                          .acoes
+                          .eventoPendente
+                          ? "ci-event-detail-result-warning"
+                          : "ci-event-detail-result-success"
+                      }`}
+                  >
+                    <strong>
+                      O que aconteceu
+                    </strong>
+
+                    <p>
+                      {detalheEvento
+                        .evento
+                        .mensagemErro ||
+                        (detalheEvento
+                          .acoes
+                          .eventoPendente
+                          ? "O evento foi recebido e ainda está aguardando a conclusão do processamento."
+                          : "O evento foi concluído sem falhas registradas.")}
+                    </p>
+
+                    {detalheEvento
+                      .evento
+                      .proximaTentativaEm && (
+                        <small>
+                          Próxima tentativa:{" "}
+                          {formatarData(
+                            detalheEvento
+                              .evento
+                              .proximaTentativaEm
+                          )}
+                        </small>
+                      )}
+                  </div>
+
+                  {detalheEvento
+                    .acoes
+                    .submissaoPodeSerReprocessada && (
+                      <div className="ci-event-retry">
+                        <div>
+                          <strong>
+                            O processamento pode ser tentado novamente
+                          </strong>
+
+                          <p>
+                            O PHANYX usará novamente os dados já recebidos nesta submissão.
+                          </p>
+                        </div>
+
+                        <button
+                          type="button"
+                          className="ci-button ci-primary"
+                          disabled={
+                            reprocessandoSubmissao
+                          }
+                          onClick={() =>
+                            void reprocessarSubmissaoEvento()
+                          }
+                        >
+                          {reprocessandoSubmissao
+                            ? "Tentando novamente..."
+                            : "Tentar novamente"}
+                        </button>
+                      </div>
+                    )}
+
+                  {detalheEvento
+                    .permissoes
+                    .podeVerAuditoria && (
+                      <div className="ci-technical-details">
+                        <button
+                          type="button"
+                          className="ci-technical-toggle"
+                          aria-expanded={
+                            detalhesTecnicosAbertos
+                          }
+                          onClick={() =>
+                            setDetalhesTecnicosAbertos(
+                              (
+                                valorAtual
+                              ) =>
+                                !valorAtual
+                            )
+                          }
+                        >
+                          <span>
+                            Detalhes técnicos
+                          </span>
+
+                          <span aria-hidden="true">
+                            {detalhesTecnicosAbertos
+                              ? "−"
+                              : "+"}
+                          </span>
+                        </button>
+
+                        {detalhesTecnicosAbertos && (
+                          <div className="ci-technical-content">
+                            <section>
+                              <h3>
+                                Identificação
+                              </h3>
+
+                              <dl>
+                                <div>
+                                  <dt>
+                                    Evento
+                                  </dt>
+
+                                  <dd>
+                                    #
+                                    {
+                                      detalheEvento
+                                        .evento
+                                        .id
+                                    }
+                                  </dd>
+                                </div>
+
+                                <div>
+                                  <dt>
+                                    Identificador
+                                  </dt>
+
+                                  <dd>
+                                    {detalheEvento
+                                      .evento
+                                      .identificadorEvento ||
+                                      "Não informado"}
+                                  </dd>
+                                </div>
+
+                                <div>
+                                  <dt>
+                                    Integração
+                                  </dt>
+
+                                  <dd>
+                                    {
+                                      detalheEvento
+                                        .evento
+                                        .integracao
+                                        .nome
+                                    }
+                                  </dd>
+                                </div>
+
+                                <div>
+                                  <dt>
+                                    Chave pública
+                                  </dt>
+
+                                  <dd>
+                                    {
+                                      detalheEvento
+                                        .evento
+                                        .integracao
+                                        .chavePublica
+                                    }
+                                  </dd>
+                                </div>
+                              </dl>
+                            </section>
+
+                            <section>
+                              <h3>
+                                Headers
+                              </h3>
+
+                              <pre>
+                                {formatarConteudoTecnico(
+                                  detalheEvento
+                                    .evento
+                                    .headers
+                                )}
+                              </pre>
+                            </section>
+
+                            <section>
+                              <h3>
+                                Payload recebido
+                              </h3>
+
+                              <pre>
+                                {formatarConteudoTecnico(
+                                  detalheEvento
+                                    .evento
+                                    .payload
+                                )}
+                              </pre>
+                            </section>
+
+                            <section>
+                              <h3>
+                                Resposta
+                              </h3>
+
+                              <pre>
+                                {formatarConteudoTecnico(
+                                  detalheEvento
+                                    .evento
+                                    .resposta
+                                )}
+                              </pre>
+                            </section>
+
+                            <section>
+                              <h3>
+                                Configuração da integração
+                              </h3>
+
+                              <pre>
+                                {formatarConteudoTecnico({
+                                  configuracao:
+                                    detalheEvento
+                                      .evento
+                                      .integracao
+                                      .configuracao,
+
+                                  eventosAssinados:
+                                    detalheEvento
+                                      .evento
+                                      .integracao
+                                      .eventosAssinados,
+
+                                  urlEndpoint:
+                                    detalheEvento
+                                      .evento
+                                      .integracao
+                                      .urlEndpoint,
+                                })}
+                              </pre>
+                            </section>
+
+                            {detalheEvento
+                              .evento
+                              .submissao && (
+                                <>
+                                  <section>
+                                    <h3>
+                                      Dados originais
+                                    </h3>
+
+                                    <pre>
+                                      {formatarConteudoTecnico(
+                                        detalheEvento
+                                          .evento
+                                          .submissao
+                                          .dadosOriginais
+                                      )}
+                                    </pre>
+                                  </section>
+
+                                  <section>
+                                    <h3>
+                                      Dados normalizados
+                                    </h3>
+
+                                    <pre>
+                                      {formatarConteudoTecnico(
+                                        detalheEvento
+                                          .evento
+                                          .submissao
+                                          .dadosNormalizados
+                                      )}
+                                    </pre>
+                                  </section>
+
+                                  <section>
+                                    <h3>
+                                      Rastreamento e auditoria
+                                    </h3>
+
+                                    <pre>
+                                      {formatarConteudoTecnico({
+                                        utmSource:
+                                          detalheEvento
+                                            .evento
+                                            .submissao
+                                            .utmSource,
+
+                                        utmMedium:
+                                          detalheEvento
+                                            .evento
+                                            .submissao
+                                            .utmMedium,
+
+                                        utmCampaign:
+                                          detalheEvento
+                                            .evento
+                                            .submissao
+                                            .utmCampaign,
+
+                                        utmContent:
+                                          detalheEvento
+                                            .evento
+                                            .submissao
+                                            .utmContent,
+
+                                        utmTerm:
+                                          detalheEvento
+                                            .evento
+                                            .submissao
+                                            .utmTerm,
+
+                                        gclid:
+                                          detalheEvento
+                                            .evento
+                                            .submissao
+                                            .gclid,
+
+                                        fbclid:
+                                          detalheEvento
+                                            .evento
+                                            .submissao
+                                            .fbclid,
+
+                                        msclkid:
+                                          detalheEvento
+                                            .evento
+                                            .submissao
+                                            .msclkid,
+
+                                        paginaOrigem:
+                                          detalheEvento
+                                            .evento
+                                            .submissao
+                                            .paginaOrigem,
+
+                                        referrer:
+                                          detalheEvento
+                                            .evento
+                                            .submissao
+                                            .referrer,
+
+                                        ipHash:
+                                          detalheEvento
+                                            .evento
+                                            .submissao
+                                            .ipHash,
+
+                                        userAgent:
+                                          detalheEvento
+                                            .evento
+                                            .submissao
+                                            .userAgent,
+                                      })}
+                                    </pre>
+                                  </section>
+                                </>
+                              )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                  <div className="ci-modal-actions">
+                    <button
+                      type="button"
+                      className="ci-button ci-secondary"
+                      disabled={
+                        reprocessandoSubmissao
+                      }
+                      onClick={
+                        fecharDetalheEvento
+                      }
+                    >
+                      Fechar
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="ci-event-detail-loading">
+                  Não foi possível exibir este evento.
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
       {modalRevogar && (
         <div className="ci-modal-backdrop">

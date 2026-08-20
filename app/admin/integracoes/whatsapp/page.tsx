@@ -398,6 +398,11 @@ export default function WhatsAppInstitucionalPage() {
   const [salvandoTemplate, setSalvandoTemplate] =
     useState(false);
 
+  const [
+    sincronizandoTemplates,
+    setSincronizandoTemplates,
+  ] = useState(false);
+
   const templateSelecionado =
     templatesWhatsapp[tipoTemplateSelecionado];
 
@@ -412,71 +417,114 @@ export default function WhatsAppInstitucionalPage() {
     useState<FormConexao>(formConexaoInicial);
 
   async function carregarTemplatesWhatsapp() {
-  try {
-    const response = await fetch(
-      "/api/admin/integracoes/whatsapp/templates",
-      {
-        method: "GET",
-        cache: "no-store",
-        credentials: "include",
-      }
-    );
+    try {
+      const response = await fetch(
+        "/api/admin/integracoes/whatsapp/templates",
+        {
+          method: "GET",
+          cache: "no-store",
+          credentials: "include",
+        }
+      );
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (!response.ok) {
-      throw new Error(
-        data?.error ||
+      if (!response.ok) {
+        throw new Error(
+          data?.error ||
           "Não foi possível carregar os templates do WhatsApp."
+        );
+      }
+
+      const recebidos: TemplateWhatsapp[] =
+        Array.isArray(data?.templates)
+          ? data.templates
+          : [];
+
+      const proximos: Record<
+        TipoTemplateEditavel,
+        TemplateWhatsapp
+      > = {
+        REUNIAO_CRIADA: {
+          ...TEMPLATES_EDITAVEIS.REUNIAO_CRIADA
+            .inicial,
+        },
+
+        REUNIAO_LEMBRETE: {
+          ...TEMPLATES_EDITAVEIS.REUNIAO_LEMBRETE
+            .inicial,
+        },
+      };
+
+      (
+        Object.keys(
+          TEMPLATES_EDITAVEIS
+        ) as TipoTemplateEditavel[]
+      ).forEach((tipo) => {
+        const encontrado = recebidos.find(
+          (template) =>
+            template.tipoComunicacao === tipo
+        );
+
+        if (encontrado) {
+          proximos[tipo] = {
+            ...TEMPLATES_EDITAVEIS[tipo].inicial,
+            ...encontrado,
+          };
+        }
+      });
+
+      setTemplatesWhatsapp(proximos);
+    } catch (error) {
+      console.error(
+        "Erro ao carregar templates do WhatsApp:",
+        error
       );
     }
+  }
 
-    const recebidos: TemplateWhatsapp[] =
-      Array.isArray(data?.templates)
-        ? data.templates
-        : [];
+  async function sincronizarTemplatesMeta() {
+    try {
+      setSincronizandoTemplates(true);
+      setErro("");
+      setSucesso("");
 
-    const proximos: Record<
-      TipoTemplateEditavel,
-      TemplateWhatsapp
-    > = {
-      REUNIAO_CRIADA: {
-        ...TEMPLATES_EDITAVEIS.REUNIAO_CRIADA
-          .inicial,
-      },
-
-      REUNIAO_LEMBRETE: {
-        ...TEMPLATES_EDITAVEIS.REUNIAO_LEMBRETE
-          .inicial,
-      },
-    };
-
-    (
-      Object.keys(
-        TEMPLATES_EDITAVEIS
-      ) as TipoTemplateEditavel[]
-    ).forEach((tipo) => {
-      const encontrado = recebidos.find(
-        (template) =>
-          template.tipoComunicacao === tipo
+      const response = await fetch(
+        "/api/admin/integracoes/whatsapp/templates/sincronizar",
+        {
+          method: "POST",
+          credentials: "include",
+        }
       );
 
-      if (encontrado) {
-        proximos[tipo] = {
-          ...TEMPLATES_EDITAVEIS[tipo].inicial,
-          ...encontrado,
-        };
-      }
-    });
+      const data = await response.json();
 
-    setTemplatesWhatsapp(proximos);
-  } catch (error) {
-    console.error(
-      "Erro ao carregar templates do WhatsApp:",
-      error
-    );
+      if (!response.ok) {
+        throw new Error(
+          data?.error ||
+          "Não foi possível sincronizar os templates com a Meta."
+        );
+      }
+
+      await Promise.all([
+        carregarTemplatesWhatsapp(),
+        carregarConfiguracao(),
+      ]);
+
+      setSucesso(
+        data?.message ||
+        "Templates sincronizados com a Meta."
+      );
+    } catch (error) {
+      setErro(
+        error instanceof Error
+          ? error.message
+          : "Erro ao sincronizar os templates com a Meta."
+      );
+    } finally {
+      setSincronizandoTemplates(false);
+    }
   }
-}
 
   async function carregarConfiguracao() {
     try {
@@ -539,9 +587,9 @@ export default function WhatsAppInstitucionalPage() {
   }
 
   useEffect(() => {
-  carregarConfiguracao();
-  carregarTemplatesWhatsapp();
-}, []);
+    carregarConfiguracao();
+    carregarTemplatesWhatsapp();
+  }, []);
 
   function alterarCampoConexao(
     campo: keyof FormConexao,
@@ -570,17 +618,17 @@ export default function WhatsAppInstitucionalPage() {
   }
 
   function atualizarTemplateSelecionado(
-  alteracoes: Partial<TemplateWhatsapp>
-) {
-  setTemplatesWhatsapp((atuais) => ({
-    ...atuais,
+    alteracoes: Partial<TemplateWhatsapp>
+  ) {
+    setTemplatesWhatsapp((atuais) => ({
+      ...atuais,
 
-    [tipoTemplateSelecionado]: {
-      ...atuais[tipoTemplateSelecionado],
-      ...alteracoes,
-    },
-  }));
-}
+      [tipoTemplateSelecionado]: {
+        ...atuais[tipoTemplateSelecionado],
+        ...alteracoes,
+      },
+    }));
+  }
 
   async function conectarWhatsApp() {
     try {
@@ -719,101 +767,101 @@ export default function WhatsAppInstitucionalPage() {
   }
 
   async function salvarTemplateSelecionado() {
-  try {
-    setSalvandoTemplate(true);
-    setErro("");
-    setSucesso("");
+    try {
+      setSalvandoTemplate(true);
+      setErro("");
+      setSucesso("");
 
-    const template =
-      templatesWhatsapp[tipoTemplateSelecionado];
+      const template =
+        templatesWhatsapp[tipoTemplateSelecionado];
 
-    const response = await fetch(
-      "/api/admin/integracoes/whatsapp/templates",
-      {
-        method: "POST",
+      const response = await fetch(
+        "/api/admin/integracoes/whatsapp/templates",
+        {
+          method: "POST",
 
-        headers: {
-          "Content-Type": "application/json",
-        },
+          headers: {
+            "Content-Type": "application/json",
+          },
 
-        credentials: "include",
+          credentials: "include",
 
-        body: JSON.stringify({
-          nome:
-            template.nome.trim() ||
-            definicaoTemplateSelecionado.titulo,
+          body: JSON.stringify({
+            nome:
+              template.nome.trim() ||
+              definicaoTemplateSelecionado.titulo,
 
-          nomeMeta:
-            template.nomeMeta.trim(),
+            nomeMeta:
+              template.nomeMeta.trim(),
 
-          tipoComunicacao:
-            tipoTemplateSelecionado,
+            tipoComunicacao:
+              tipoTemplateSelecionado,
 
-          idioma:
-            template.idioma || "pt_BR",
+            idioma:
+              template.idioma || "pt_BR",
 
-          categoriaMeta:
-            template.categoriaMeta ||
-            "UTILITY",
+            categoriaMeta:
+              template.categoriaMeta ||
+              "UTILITY",
 
-          statusMeta:
-            template.statusMeta || null,
+            statusMeta:
+              template.statusMeta || null,
 
-          titulo:
-            template.titulo || null,
+            titulo:
+              template.titulo || null,
 
-          corpo:
-            template.corpo.trim(),
+            corpo:
+              template.corpo.trim(),
 
-          rodape:
-            template.rodape || null,
+            rodape:
+              template.rodape || null,
 
-          aprovadoMeta:
-            template.aprovadoMeta === true,
+            aprovadoMeta:
+              template.aprovadoMeta === true,
 
-          ativo: true,
-        }),
-      }
-    );
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(
-        data?.error ||
-          "Não foi possível salvar o modelo de mensagem."
+            ativo: true,
+          }),
+        }
       );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data?.error ||
+          "Não foi possível salvar o modelo de mensagem."
+        );
+      }
+
+      if (data?.template) {
+        setTemplatesWhatsapp((atuais) => ({
+          ...atuais,
+
+          [tipoTemplateSelecionado]: {
+            ...TEMPLATES_EDITAVEIS[
+              tipoTemplateSelecionado
+            ].inicial,
+
+            ...data.template,
+          },
+        }));
+      }
+
+      setSucesso(
+        `Modelo "${definicaoTemplateSelecionado.titulo}" salvo com sucesso.`
+      );
+
+      await carregarConfiguracao();
+    } catch (error) {
+      setErro(
+        error instanceof Error
+          ? error.message
+          : "Erro ao salvar o modelo de mensagem."
+      );
+    } finally {
+      setSalvandoTemplate(false);
     }
-
-    if (data?.template) {
-      setTemplatesWhatsapp((atuais) => ({
-        ...atuais,
-
-        [tipoTemplateSelecionado]: {
-          ...TEMPLATES_EDITAVEIS[
-            tipoTemplateSelecionado
-          ].inicial,
-
-          ...data.template,
-        },
-      }));
-    }
-
-    setSucesso(
-      `Modelo "${definicaoTemplateSelecionado.titulo}" salvo com sucesso.`
-    );
-
-    await carregarConfiguracao();
-  } catch (error) {
-    setErro(
-      error instanceof Error
-        ? error.message
-        : "Erro ao salvar o modelo de mensagem."
-    );
-  } finally {
-    setSalvandoTemplate(false);
   }
-}
 
   async function salvarConfiguracao() {
     try {
@@ -1101,284 +1149,300 @@ export default function WhatsAppInstitucionalPage() {
         </div>
 
         <section className="mt-5 rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-950">
-  <div className="border-b border-slate-200 p-5 dark:border-slate-700">
-    <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
-      <div>
-        <h2 className="text-lg font-bold text-slate-950 dark:text-white">
-          Modelos de mensagens
-        </h2>
+          <div className="border-b border-slate-200 p-5 dark:border-slate-700">
+            <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
+              <div>
+                <h2 className="text-lg font-bold text-slate-950 dark:text-white">
+                  Modelos de mensagens
+                </h2>
 
-        <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
-          Configure os modelos utilizados pelo PHANYX nas
-          comunicações automáticas do WhatsApp.
-        </p>
-      </div>
+                <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
+                  Configure os modelos utilizados pelo PHANYX nas
+                  comunicações automáticas do WhatsApp.
+                </p>
+              </div>
 
-      <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
-        <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-          Modelos configurados
-        </p>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+                <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                  Modelos configurados
+                </p>
 
-        <p className="mt-1 font-bold text-slate-950 dark:text-white">
-          {resumo.quantidadeTemplates}
-        </p>
-      </div>
-    </div>
+                <p className="mt-1 font-bold text-slate-950 dark:text-white">
+                  {resumo.quantidadeTemplates}
+                </p>
+              </div>
+            </div>
 
-    <div className="mt-5 flex flex-wrap gap-2">
-      {(
-        Object.keys(
-          TEMPLATES_EDITAVEIS
-        ) as TipoTemplateEditavel[]
-      ).map((tipo) => {
-        const definicao =
-          TEMPLATES_EDITAVEIS[tipo];
+            <div className="mt-5 flex flex-wrap gap-2">
+              {(
+                Object.keys(
+                  TEMPLATES_EDITAVEIS
+                ) as TipoTemplateEditavel[]
+              ).map((tipo) => {
+                const definicao =
+                  TEMPLATES_EDITAVEIS[tipo];
 
-        const template =
-          templatesWhatsapp[tipo];
+                const template =
+                  templatesWhatsapp[tipo];
 
-        const selecionado =
-          tipoTemplateSelecionado === tipo;
+                const selecionado =
+                  tipoTemplateSelecionado === tipo;
 
-        return (
-          <button
-            key={tipo}
-            type="button"
-            onClick={() =>
-              setTipoTemplateSelecionado(tipo)
-            }
-            className={[
-              "inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition",
-              selecionado
-                ? "border-slate-900 bg-slate-900 text-white dark:border-white dark:bg-white dark:text-slate-950"
-                : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800",
-            ].join(" ")}
-          >
-            {definicao.titulo}
+                return (
+                  <button
+                    key={tipo}
+                    type="button"
+                    onClick={() =>
+                      setTipoTemplateSelecionado(tipo)
+                    }
+                    className={[
+                      "inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition",
+                      selecionado
+                        ? "border-slate-900 bg-slate-900 text-white dark:border-white dark:bg-white dark:text-slate-950"
+                        : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800",
+                    ].join(" ")}
+                  >
+                    {definicao.titulo}
 
-            {template.id ? (
-              <span
-                className={[
-                  "h-2 w-2 rounded-full",
-                  template.aprovadoMeta
-                    ? "bg-emerald-500"
-                    : "bg-amber-400",
-                ].join(" ")}
-              />
-            ) : (
-              <span className="h-2 w-2 rounded-full bg-slate-300" />
-            )}
-          </button>
-        );
-      })}
-    </div>
-  </div>
+                    {template.id ? (
+                      <span
+                        className={[
+                          "h-2 w-2 rounded-full",
+                          template.aprovadoMeta
+                            ? "bg-emerald-500"
+                            : "bg-amber-400",
+                        ].join(" ")}
+                      />
+                    ) : (
+                      <span className="h-2 w-2 rounded-full bg-slate-300" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
-  <div className="flex flex-col justify-between gap-4 border-b border-slate-200 p-5 sm:flex-row sm:items-start dark:border-slate-700">
-    <div>
-      <div className="flex flex-wrap items-center gap-3">
-        <h3 className="text-lg font-bold text-slate-950 dark:text-white">
-          {definicaoTemplateSelecionado.titulo}
-        </h3>
+          <div className="flex flex-col justify-between gap-4 border-b border-slate-200 p-5 sm:flex-row sm:items-start dark:border-slate-700">
+            <div>
+              <div className="flex flex-wrap items-center gap-3">
+                <h3 className="text-lg font-bold text-slate-950 dark:text-white">
+                  {definicaoTemplateSelecionado.titulo}
+                </h3>
 
-        <span
-          className={[
-            "rounded-full border px-3 py-1 text-xs font-bold",
-            templateSelecionado.aprovadoMeta
-              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-              : templateSelecionado.id
-                ? "border-amber-200 bg-amber-50 text-amber-800"
-                : "border-slate-300 bg-slate-50 text-slate-600",
-          ].join(" ")}
-        >
-          {templateSelecionado.aprovadoMeta
-            ? "Aprovado pela Meta"
-            : templateSelecionado.id
-              ? "Aguardando Meta"
-              : "Ainda não salvo"}
-        </span>
-      </div>
+                <span
+                  className={[
+                    "rounded-full border px-3 py-1 text-xs font-bold",
+                    templateSelecionado.aprovadoMeta
+                      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                      : templateSelecionado.id
+                        ? "border-amber-200 bg-amber-50 text-amber-800"
+                        : "border-slate-300 bg-slate-50 text-slate-600",
+                  ].join(" ")}
+                >
+                  {templateSelecionado.aprovadoMeta
+                    ? "Aprovado pela Meta"
+                    : templateSelecionado.id
+                      ? "Aguardando Meta"
+                      : "Ainda não salvo"}
+                </span>
+              </div>
 
-      <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
-        {definicaoTemplateSelecionado.descricao}
-      </p>
-    </div>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
+                {definicaoTemplateSelecionado.descricao}
+              </p>
+            </div>
 
-    <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
-      <p className="font-semibold text-slate-900 dark:text-white">
-        Categoria Meta
-      </p>
+            <div className="flex w-full flex-col gap-3 sm:w-auto sm:min-w-[220px]">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+                <p className="font-semibold text-slate-900 dark:text-white">
+                  Categoria Meta
+                </p>
 
-      <p className="mt-1 text-slate-600 dark:text-slate-300">
-        {templateSelecionado.categoriaMeta ||
-          "UTILITY"}
-      </p>
-    </div>
-  </div>
+                <p className="mt-1 text-slate-600 dark:text-slate-300">
+                  {templateSelecionado.categoriaMeta ||
+                    "UTILITY"}
+                </p>
+              </div>
 
-  <div className="grid gap-6 p-5 lg:grid-cols-[minmax(0,1fr)_320px]">
-    <div className="space-y-5">
-      <div>
-        <label className="mb-1.5 block text-sm font-semibold text-slate-800 dark:text-slate-200">
-          Nome interno
-        </label>
+              <button
+                type="button"
+                onClick={sincronizarTemplatesMeta}
+                disabled={
+                  sincronizandoTemplates ||
+                  !integracao.conectado
+                }
+                className="rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {sincronizandoTemplates
+                  ? "Sincronizando..."
+                  : "Sincronizar com a Meta"}
+              </button>
+            </div>
+          </div>
 
-        <input
-          type="text"
-          value={templateSelecionado.nome}
-          onChange={(event) =>
-            atualizarTemplateSelecionado({
-              nome: event.target.value,
-            })
-          }
-          placeholder={
-            definicaoTemplateSelecionado.titulo
-          }
-          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-950 outline-none transition focus:border-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-        />
-      </div>
+          <div className="grid gap-6 p-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+            <div className="space-y-5">
+              <div>
+                <label className="mb-1.5 block text-sm font-semibold text-slate-800 dark:text-slate-200">
+                  Nome interno
+                </label>
 
-      <div>
-        <label className="mb-1.5 block text-sm font-semibold text-slate-800 dark:text-slate-200">
-          Nome do template na Meta
-        </label>
+                <input
+                  type="text"
+                  value={templateSelecionado.nome}
+                  onChange={(event) =>
+                    atualizarTemplateSelecionado({
+                      nome: event.target.value,
+                    })
+                  }
+                  placeholder={
+                    definicaoTemplateSelecionado.titulo
+                  }
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-950 outline-none transition focus:border-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                />
+              </div>
 
-        <input
-          type="text"
-          value={templateSelecionado.nomeMeta}
-          onChange={(event) =>
-            atualizarTemplateSelecionado({
-              nomeMeta: event.target.value
-                .toLowerCase()
-                .replace(/[^a-z0-9_]/g, "_"),
-            })
-          }
-          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 font-mono text-sm text-slate-950 outline-none transition focus:border-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-        />
+              <div>
+                <label className="mb-1.5 block text-sm font-semibold text-slate-800 dark:text-slate-200">
+                  Nome do template na Meta
+                </label>
 
-        <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
-          Use apenas letras minúsculas, números e underline.
-          O nome precisa corresponder exatamente ao template
-          aprovado na Meta.
-        </p>
-      </div>
+                <input
+                  type="text"
+                  value={templateSelecionado.nomeMeta}
+                  onChange={(event) =>
+                    atualizarTemplateSelecionado({
+                      nomeMeta: event.target.value
+                        .toLowerCase()
+                        .replace(/[^a-z0-9_]/g, "_"),
+                    })
+                  }
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 font-mono text-sm text-slate-950 outline-none transition focus:border-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                />
 
-      <div>
-        <label className="mb-1.5 block text-sm font-semibold text-slate-800 dark:text-slate-200">
-          Conteúdo da mensagem
-        </label>
+                <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
+                  Use apenas letras minúsculas, números e underline.
+                  O nome precisa corresponder exatamente ao template
+                  aprovado na Meta.
+                </p>
+              </div>
 
-        <textarea
-          rows={10}
-          value={templateSelecionado.corpo}
-          onChange={(event) =>
-            atualizarTemplateSelecionado({
-              corpo: event.target.value,
-            })
-          }
-          className="w-full resize-y rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-        />
-      </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-semibold text-slate-800 dark:text-slate-200">
+                  Conteúdo da mensagem
+                </label>
 
-      <div>
-        <label className="mb-1.5 block text-sm font-semibold text-slate-800 dark:text-slate-200">
-          Rodapé
-        </label>
+                <textarea
+                  rows={10}
+                  value={templateSelecionado.corpo}
+                  onChange={(event) =>
+                    atualizarTemplateSelecionado({
+                      corpo: event.target.value,
+                    })
+                  }
+                  className="w-full resize-y rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                />
+              </div>
 
-        <input
-          type="text"
-          value={
-            templateSelecionado.rodape || ""
-          }
-          onChange={(event) =>
-            atualizarTemplateSelecionado({
-              rodape: event.target.value,
-            })
-          }
-          placeholder="Mensagem automática enviada pelo PHANYX."
-          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-950 outline-none transition focus:border-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-        />
-      </div>
-    </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-semibold text-slate-800 dark:text-slate-200">
+                  Rodapé
+                </label>
 
-    <div className="space-y-4">
-      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
-        <h3 className="font-bold text-slate-950 dark:text-white">
-          Variáveis disponíveis
-        </h3>
+                <input
+                  type="text"
+                  value={
+                    templateSelecionado.rodape || ""
+                  }
+                  onChange={(event) =>
+                    atualizarTemplateSelecionado({
+                      rodape: event.target.value,
+                    })
+                  }
+                  placeholder="Mensagem automática enviada pelo PHANYX."
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-950 outline-none transition focus:border-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                />
+              </div>
+            </div>
 
-        <div className="mt-4 space-y-3 text-sm">
-          {definicaoTemplateSelecionado.variaveis.map(
-            (variavel) => (
-              <VariavelTemplate
-                key={variavel.codigo}
-                codigo={variavel.codigo}
-                descricao={variavel.descricao}
-              />
-            )
-          )}
-        </div>
-      </div>
+            <div className="space-y-4">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
+                <h3 className="font-bold text-slate-950 dark:text-white">
+                  Variáveis disponíveis
+                </h3>
 
-      {!templateSelecionado.aprovadoMeta && (
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
-          <p className="text-sm font-bold text-amber-900">
-            Aprovação da Meta pendente
-          </p>
+                <div className="mt-4 space-y-3 text-sm">
+                  {definicaoTemplateSelecionado.variaveis.map(
+                    (variavel) => (
+                      <VariavelTemplate
+                        key={variavel.codigo}
+                        codigo={variavel.codigo}
+                        descricao={variavel.descricao}
+                      />
+                    )
+                  )}
+                </div>
+              </div>
 
-          <p className="mt-2 text-sm leading-6 text-amber-800">
-            O modelo pode ser preparado e salvo no
-            PHANYX antes da aprovação. Nenhum disparo
-            real será realizado enquanto ele não estiver
-            aprovado pela Meta.
-          </p>
-        </div>
-      )}
+              {!templateSelecionado.aprovadoMeta && (
+                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                  <p className="text-sm font-bold text-amber-900">
+                    Aprovação da Meta pendente
+                  </p>
 
-      {tipoTemplateSelecionado ===
-        "REUNIAO_LEMBRETE" && (
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-950">
-          <p className="text-sm font-bold text-slate-900 dark:text-white">
-            Como funciona o lembrete
-          </p>
+                  <p className="mt-2 text-sm leading-6 text-amber-800">
+                    O modelo pode ser preparado e salvo no
+                    PHANYX antes da aprovação. Nenhum disparo
+                    real será realizado enquanto ele não estiver
+                    aprovado pela Meta.
+                  </p>
+                </div>
+              )}
 
-          <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-            O mesmo modelo será utilizado tanto para o
-            aviso do dia anterior quanto para o aviso do
-            próprio dia. A variável {"{{3}}"} receberá
-            automaticamente textos como
-            &quot;amanhã às 19:30&quot; ou
-            &quot;hoje às 19:30&quot;.
-          </p>
-        </div>
-      )}
-    </div>
-  </div>
+              {tipoTemplateSelecionado ===
+                "REUNIAO_LEMBRETE" && (
+                  <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-950">
+                    <p className="text-sm font-bold text-slate-900 dark:text-white">
+                      Como funciona o lembrete
+                    </p>
 
-  <div className="flex flex-col gap-3 border-t border-slate-200 p-5 sm:flex-row sm:items-center sm:justify-between dark:border-slate-700">
-    <p className="text-xs text-slate-500 dark:text-slate-400">
-      {templateSelecionado.id
-        ? `Modelo salvo no PHANYX • ID ${templateSelecionado.id}`
-        : "Este modelo ainda não foi salvo no PHANYX."}
-    </p>
+                    <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                      O mesmo modelo será utilizado tanto para o
+                      aviso do dia anterior quanto para o aviso do
+                      próprio dia. A variável {"{{3}}"} receberá
+                      automaticamente textos como
+                      &quot;amanhã às 19:30&quot; ou
+                      &quot;hoje às 19:30&quot;.
+                    </p>
+                  </div>
+                )}
+            </div>
+          </div>
 
-    <button
-      type="button"
-      onClick={salvarTemplateSelecionado}
-      disabled={
-        salvandoTemplate ||
-        !templateSelecionado.nome.trim() ||
-        !templateSelecionado.nomeMeta.trim() ||
-        !templateSelecionado.corpo.trim()
-      }
-      className="rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
-    >
-      {salvandoTemplate
-        ? "Salvando modelo..."
-        : "Salvar modelo"}
-    </button>
-  </div>
-</section>
+          <div className="flex flex-col gap-3 border-t border-slate-200 p-5 sm:flex-row sm:items-center sm:justify-between dark:border-slate-700">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              {templateSelecionado.id
+                ? `Modelo salvo no PHANYX • ID ${templateSelecionado.id}`
+                : "Este modelo ainda não foi salvo no PHANYX."}
+            </p>
+
+            <button
+              type="button"
+              onClick={salvarTemplateSelecionado}
+              disabled={
+                salvandoTemplate ||
+                !templateSelecionado.nome.trim() ||
+                !templateSelecionado.nomeMeta.trim() ||
+                !templateSelecionado.corpo.trim()
+              }
+              className="rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {salvandoTemplate
+                ? "Salvando modelo..."
+                : "Salvar modelo"}
+            </button>
+          </div>
+        </section>
 
         <section className="mt-5 rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-950">
           <div className="flex flex-col justify-between gap-4 border-b border-slate-200 p-5 sm:flex-row sm:items-center dark:border-slate-700">
@@ -1511,7 +1575,7 @@ export default function WhatsAppInstitucionalPage() {
       </div>
 
       {modalConexaoAberto && (
-  <div className="phanyx-whatsapp-page fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
+        <div className="phanyx-whatsapp-page fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-xl rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-950">
             <div className="border-b border-slate-200 p-5 dark:border-slate-700">
               <h2 className="text-xl font-bold text-slate-950 dark:text-white">
@@ -1615,7 +1679,7 @@ export default function WhatsAppInstitucionalPage() {
       )}
 
       {modalDesconectarAberto && (
-  <div className="phanyx-whatsapp-page fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
+        <div className="phanyx-whatsapp-page fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-950">
             <div className="p-5">
               <h2 className="text-xl font-bold text-slate-950 dark:text-white">

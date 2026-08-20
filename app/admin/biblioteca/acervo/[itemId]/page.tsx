@@ -3670,6 +3670,9 @@ export default function BibliotecaItemPage() {
                     </p>
                   </div>
                 </div>
+
+                <div className="bib-exemplar-actions"></div>
+
                 {podeGerenciarExemplares &&
                   !impersonacao ? (
                   <button
@@ -3693,7 +3696,7 @@ export default function BibliotecaItemPage() {
                   {exemplares.map(
                     (exemplar) => (
                       <div
-                        className="bib-related-row"
+                        className="bib-related-row bib-exemplar-row"
                         key={exemplar.id}
                       >
                         <span
@@ -3705,7 +3708,7 @@ export default function BibliotecaItemPage() {
                             : "📕"}
                         </span>
 
-                        <div>
+                        <div className="bib-exemplar-info">
                           <strong>
                             {
                               exemplar.codigoInterno
@@ -3748,80 +3751,84 @@ export default function BibliotecaItemPage() {
                           ) : null}
                         </div>
 
-                        {podeGerenciarExemplares &&
-                          !impersonacao &&
-                          !exemplar.baixadoEm ? (
-                          <button
-                            type="button"
-                            className="bib-button bib-button-secondary"
-                            onClick={() =>
-                              abrirEdicaoExemplar(
-                                exemplar
-                              )
-                            }
-                          >
-                            ✏️ Editar
-                          </button>
-                        ) : null}
+                        <div className="bib-exemplar-actions">
+                          {podeGerenciarExemplares &&
+                            !impersonacao &&
+                            !exemplar.baixadoEm ? (
+                            <button
+                              type="button"
+                              className="bib-button bib-button-secondary"
+                              onClick={() =>
+                                abrirEdicaoExemplar(
+                                  exemplar
+                                )
+                              }
+                            >
+                              ✏️ Editar
+                            </button>
+                          ) : null}
 
-                        {podeGerenciarEmprestimos &&
-                          !impersonacao &&
-                          exemplar.tipo ===
-                          "FISICO" &&
-                          exemplar.status ===
-                          "DISPONIVEL" &&
-                          exemplar.permiteEmprestimo &&
-                          !exemplar.baixadoEm ? (
-                          <button
-                            type="button"
-                            className="bib-button bib-button-primary"
-                            onClick={() =>
-                              abrirEmprestimo(
-                                exemplar
-                              )
-                            }
-                          >
-                            📤 Emprestar
-                          </button>
-                        ) : null}
+                          {podeGerenciarEmprestimos &&
+                            !impersonacao &&
+                            exemplar.tipo ===
+                            "FISICO" &&
+                            exemplar.status ===
+                            "DISPONIVEL" &&
+                            exemplar.permiteEmprestimo &&
+                            !exemplar.baixadoEm ? (
+                            <button
+                              type="button"
+                              className="bib-button bib-button-primary"
+                              onClick={() =>
+                                abrirEmprestimo(
+                                  exemplar
+                                )
+                              }
+                            >
+                              📤 Emprestar
+                            </button>
+                          ) : null}
 
-                        {podeGerenciarEmprestimos &&
-                          !impersonacao &&
-                          exemplar.tipo ===
-                          "FISICO" &&
-                          exemplar.status ===
-                          "EMPRESTADO" &&
-                          !exemplar.baixadoEm ? (
-                          <button
-                            type="button"
-                            className="bib-button bib-button-primary"
-                            onClick={() =>
-                              abrirDevolucao(
-                                exemplar
-                              )
-                            }
-                          >
-                            📥 Registrar devolução
-                          </button>
-                        ) : null}
+                          {podeGerenciarEmprestimos &&
+                            !impersonacao &&
+                            exemplar.tipo ===
+                            "FISICO" &&
+                            exemplar.status ===
+                            "EMPRESTADO" &&
+                            !exemplar.baixadoEm ? (
+                            <button
+                              type="button"
+                              className="bib-button bib-button-primary"
+                              onClick={() =>
+                                abrirDevolucao(
+                                  exemplar
+                                )
+                              }
+                            >
+                              📥 Registrar devolução
+                            </button>
+                          ) : null}
 
-                        {podeBaixarExemplares &&
-                          !impersonacao &&
-                          !exemplar.baixadoEm &&
-                          exemplar.status !== "EMPRESTADO" &&
-                          exemplar.status !== "RESERVADO" ? (
-                          <button
-                            type="button"
-                            className="bib-button bib-button-danger"
-                            onClick={() =>
-                              abrirBaixaExemplar(
-                                exemplar
-                              )
-                            }
-                          >
-                            ⬇ Dar baixa
-                          </button>
-                        ) : null}
+                          {podeBaixarExemplares &&
+                            !impersonacao &&
+                            !exemplar.baixadoEm &&
+                            exemplar.status !== "EMPRESTADO" &&
+                            exemplar.status !== "RESERVADO" ? (
+                            <button
+                              type="button"
+                              className="bib-button bib-button-danger"
+                              onClick={() =>
+                                abrirBaixaExemplar(
+                                  exemplar
+                                )
+                              }
+                            >
+                              ⬇ Dar baixa
+                            </button>
+                          ) : null}
+                        </div>
+
+
                       </div>
                     )
                   )}
