@@ -28284,3 +28284,156 @@ html[data-theme="dark"] .phanyx-chat-gif-header {
 html[data-theme="system"] .phanyx-chat-gif-header {
   background: #262626 !important;
 }
+
+/* =========================================================
+   SELETOR DE EMOJIS — CHAT PHANYX
+   ========================================================= */
+
+.phanyx-chat-emoji-panel {
+  min-height: 0;
+}
+
+.phanyx-chat-emoji-grid {
+  max-height: 180px;
+  min-height: 0;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  touch-action: pan-y;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: #64748b transparent;
+  padding-right: 4px;
+}
+
+.phanyx-chat-emoji-grid::-webkit-scrollbar {
+  width: 8px;
+}
+
+.phanyx-chat-emoji-grid::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.phanyx-chat-emoji-grid::-webkit-scrollbar-thumb {
+  background: #64748b;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
+}
+
+.phanyx-chat-emoji-grid::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+  background-clip: padding-box;
+}
+
+.phanyx-chat-emoji-opcao {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background-color 150ms ease,
+    transform 150ms ease;
+}
+
+.phanyx-chat-emoji-opcao:hover {
+  transform: scale(1.12);
+}
+
+/* Tema claro */
+html[data-theme="light"] .phanyx-chat-emoji-panel,
+html:not([data-theme]) .phanyx-chat-emoji-panel {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .phanyx-chat-emoji-header,
+html:not([data-theme]) .phanyx-chat-emoji-header {
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .phanyx-chat-emoji-title,
+html:not([data-theme]) .phanyx-chat-emoji-title {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-chat-emoji-cancel,
+html:not([data-theme]) .phanyx-chat-emoji-cancel {
+  background: #f8fafc !important;
+  border-color: #64748b !important;
+  color: #1e293b !important;
+}
+
+html[data-theme="light"] .phanyx-chat-emoji-cancel:hover,
+html:not([data-theme]) .phanyx-chat-emoji-cancel:hover {
+  background: #e2e8f0 !important;
+  color: #020617 !important;
+}
+
+html[data-theme="light"] .phanyx-chat-emoji-opcao,
+html:not([data-theme]) .phanyx-chat-emoji-opcao {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-chat-emoji-opcao:hover,
+html:not([data-theme]) .phanyx-chat-emoji-opcao:hover {
+  background: #dbeafe !important;
+}
+
+/* Tema escuro */
+html[data-theme="dark"] .phanyx-chat-emoji-panel {
+  background: #020617 !important;
+  border-color: #475569 !important;
+}
+
+html[data-theme="dark"] .phanyx-chat-emoji-header {
+  border-color: #475569 !important;
+}
+
+html[data-theme="dark"] .phanyx-chat-emoji-title {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-chat-emoji-cancel {
+  background: #1e293b !important;
+  border-color: #64748b !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-chat-emoji-opcao {
+  background: #0f172a !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-chat-emoji-opcao:hover {
+  background: #1e3a8a !important;
+}
+
+/* Tema sistema */
+html[data-theme="system"] .phanyx-chat-emoji-panel {
+  background: #262626 !important;
+  border-color: #525252 !important;
+}
+
+html[data-theme="system"] .phanyx-chat-emoji-header {
+  border-color: #525252 !important;
+}
+
+html[data-theme="system"] .phanyx-chat-emoji-title {
+  color: #fafafa !important;
+}
+
+html[data-theme="system"] .phanyx-chat-emoji-cancel {
+  background: #333333 !important;
+  border-color: #737373 !important;
+  color: #fafafa !important;
+}
+
+html[data-theme="system"] .phanyx-chat-emoji-opcao {
+  background: #333333 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-chat-emoji-opcao:hover {
+  background: #404040 !important;
+}
