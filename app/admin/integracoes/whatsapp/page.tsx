@@ -2040,13 +2040,13 @@ export default function WhatsAppInstitucionalPage() {
             </div>
 
             <div className="space-y-5 p-5">
-              <div className="rounded-xl border-2 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950 dark:border-amber-600 dark:bg-amber-950/50 dark:text-amber-100">
-                <p className="font-bold">
+              <div className="rounded-xl border-2 !border-amber-500 !bg-amber-50 p-4 text-sm leading-6 !text-amber-950 shadow-sm dark:!border-amber-600 dark:!bg-amber-950/60 dark:!text-amber-100">
+                <p className="font-bold !text-amber-950 dark:!text-amber-100">
                   O aplicativo WhatsApp Business no celular não é
                   suficiente para esta integração.
                 </p>
 
-                <p className="mt-1">
+                <p className="mt-1 !text-amber-900 dark:!text-amber-200">
                   A instituição precisa configurar um número na WhatsApp
                   Business Platform, também chamada de Cloud API.
                 </p>
@@ -2110,7 +2110,7 @@ export default function WhatsAppInstitucionalPage() {
                 target="_blank"
                 rel="noreferrer"
                 onClick={() => setModalOrientacaoAberto(false)}
-                className="rounded-xl bg-emerald-600 px-5 py-2.5 text-center text-sm font-bold text-white transition hover:bg-emerald-700"
+                className="rounded-xl !bg-emerald-600 px-5 py-2.5 text-center text-sm font-bold !text-white transition hover:!bg-emerald-700"
               >
                 Ir para a página de configuração
               </a>
