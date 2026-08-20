@@ -96,12 +96,14 @@ async function obterPermissoes(
     return {
       podeVer: true,
       podeGerenciar: true,
+      podeAuditar: true,
     };
   }
 
   const [
     podeVer,
     podeGerenciar,
+    podeAuditar,
   ] = await Promise.all([
     usuarioPossuiPermissao(
       user,
@@ -112,6 +114,11 @@ async function obterPermissoes(
       user,
       "comercial.captacao.integracoes.gerenciar"
     ),
+
+    usuarioPossuiPermissao(
+      user,
+      "comercial.captacao.auditoria.ver"
+    ),
   ]);
 
   return {
@@ -120,6 +127,8 @@ async function obterPermissoes(
       podeGerenciar,
 
     podeGerenciar,
+
+    podeAuditar,
   };
 }
 
