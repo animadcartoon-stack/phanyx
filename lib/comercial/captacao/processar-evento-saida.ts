@@ -14,7 +14,10 @@ import {
 
 import { isIP } from "net";
 
+import { lookup } from "dns/promises";
+
 import { prisma } from "@/lib/prisma";
+
 
 const TIMEOUT_PADRAO_MS =
   10_000;
@@ -57,7 +60,7 @@ export type ResultadoProcessamentoEventoSaida = {
   eventoId: number;
 
   status:
-    StatusEventoIntegracaoCaptacaoLead;
+  StatusEventoIntegracaoCaptacaoLead;
 
   tentativa: number;
 
@@ -68,13 +71,13 @@ export type ResultadoProcessamentoEventoSaida = {
   ignorado: boolean;
 
   codigoHttp:
-    number | null;
+  number | null;
 
   proximaTentativaEm:
-    Date | null;
+  Date | null;
 
   mensagem:
-    string;
+  string;
 };
 
 function idPositivo(
@@ -120,7 +123,7 @@ function obterObjetoConfiguracao(
   if (
     !valor ||
     typeof valor !==
-      "object" ||
+    "object" ||
     Array.isArray(valor)
   ) {
     return null;
@@ -159,7 +162,7 @@ function numeroConfiguracao(
 
   if (
     valor ===
-      undefined ||
+    undefined ||
     valor === null ||
     valor === ""
   ) {
@@ -229,17 +232,17 @@ function calcularProximaTentativa(
         0
       ),
       BACKOFF_SEGUNDOS.length -
-        1
+      1
     );
 
   const segundos =
     BACKOFF_SEGUNDOS[
-      indice
+    indice
     ];
 
   return new Date(
     Date.now() +
-      segundos * 1000
+    segundos * 1000
   );
 }
 
@@ -358,61 +361,65 @@ function ipv4EhPrivado(
   const [
     a,
     b,
+    c,
   ] = partes;
 
-  if (a === 0) {
-    return true;
-  }
-
-  if (a === 10) {
-    return true;
-  }
-
-  if (a === 127) {
-    return true;
-  }
-
-  if (
-    a === 169 &&
-    b === 254
-  ) {
-    return true;
-  }
-
-  if (
-    a === 172 &&
-    b >= 16 &&
-    b <= 31
-  ) {
-    return true;
-  }
-
-  if (
-    a === 192 &&
-    b === 168
-  ) {
-    return true;
-  }
-
-  /*
-   * Carrier-grade NAT.
-   */
-  if (
-    a === 100 &&
-    b >= 64 &&
-    b <= 127
-  ) {
-    return true;
-  }
-
-  /*
-   * Multicast/reservados.
-   */
-  if (a >= 224) {
-    return true;
-  }
-
-  return false;
+  return (
+    a === 0 ||
+    a === 10 ||
+    a === 127 ||
+    (
+      a === 100 &&
+      b >= 64 &&
+      b <= 127
+    ) ||
+    (
+      a === 169 &&
+      b === 254
+    ) ||
+    (
+      a === 172 &&
+      b >= 16 &&
+      b <= 31
+    ) ||
+    (
+      a === 192 &&
+      b === 0 &&
+      c === 0
+    ) ||
+    (
+      a === 192 &&
+      b === 0 &&
+      c === 2
+    ) ||
+    (
+      a === 192 &&
+      b === 88 &&
+      c === 99
+    ) ||
+    (
+      a === 192 &&
+      b === 168
+    ) ||
+    (
+      a === 198 &&
+      (
+        b === 18 ||
+        b === 19
+      )
+    ) ||
+    (
+      a === 198 &&
+      b === 51 &&
+      c === 100
+    ) ||
+    (
+      a === 203 &&
+      b === 0 &&
+      c === 113
+    ) ||
+    a >= 224
+  );
 }
 
 function ipv6EhPrivado(
@@ -421,42 +428,88 @@ function ipv6EhPrivado(
   const normalizado =
     hostname
       .toLowerCase()
-      .replace(
-        /^\[/,
-        ""
-      )
-      .replace(
-        /\]$/,
-        ""
+      .replace(/^\[/, "")
+      .replace(/\]$/, "");
+
+  if (
+    normalizado === "::" ||
+    normalizado === "::1"
+  ) {
+    return true;
+  }
+
+  const ipv4MapeadoComPontos =
+    normalizado.match(
+      /^::ffff:(\d+\.\d+\.\d+\.\d+)$/
+    );
+
+  if (
+    ipv4MapeadoComPontos
+  ) {
+    return ipv4EhPrivado(
+      ipv4MapeadoComPontos[1]
+    );
+  }
+
+  const ipv4MapeadoHexadecimal =
+    normalizado.match(
+      /^::ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/
+    );
+
+  if (
+    ipv4MapeadoHexadecimal
+  ) {
+    const parteAlta =
+      Number.parseInt(
+        ipv4MapeadoHexadecimal[1],
+        16
       );
 
-  if (
-    normalizado ===
-      "::1" ||
-    normalizado ===
-      "::"
-  ) {
-    return true;
+    const parteBaixa =
+      Number.parseInt(
+        ipv4MapeadoHexadecimal[2],
+        16
+      );
+
+    const ipv4 = [
+      parteAlta >> 8,
+      parteAlta & 255,
+      parteBaixa >> 8,
+      parteBaixa & 255,
+    ].join(".");
+
+    return ipv4EhPrivado(
+      ipv4
+    );
   }
 
-  if (
-    normalizado.startsWith(
-      "fc"
+  const primeiroBloco =
+    Number.parseInt(
+      normalizado.split(":")[0] ||
+      "0",
+      16
+    );
+
+  return (
+    (
+      primeiroBloco >= 0xfc00 &&
+      primeiroBloco <= 0xfdff
+    ) ||
+    (
+      primeiroBloco >= 0xfe80 &&
+      primeiroBloco <= 0xfebf
+    ) ||
+    (
+      primeiroBloco >= 0xff00 &&
+      primeiroBloco <= 0xffff
     ) ||
     normalizado.startsWith(
-      "fd"
-    ) ||
-    normalizado.startsWith(
-      "fe80:"
+      "2001:db8:"
     )
-  ) {
-    return true;
-  }
-
-  return false;
+  );
 }
 
-function validarEndpoint(
+async function validarEndpoint(
   valor: string
 ) {
   let url: URL;
@@ -472,12 +525,10 @@ function validarEndpoint(
 
   if (
     url.protocol !==
-      "https:" &&
-    url.protocol !==
-      "http:"
+    "https:"
   ) {
     throw new Error(
-      "O webhook deve utilizar HTTP ou HTTPS."
+      "O webhook de saída deve utilizar uma conexão HTTPS segura."
     );
   }
 
@@ -501,7 +552,7 @@ function validarEndpoint(
 
   if (
     hostname ===
-      "localhost" ||
+    "localhost" ||
     hostname.endsWith(
       ".localhost"
     ) ||
@@ -509,20 +560,25 @@ function validarEndpoint(
       ".local"
     ) ||
     hostname ===
-      "metadata.google.internal"
+    "metadata.google.internal"
   ) {
     throw new Error(
       "O endpoint informado não é permitido."
     );
   }
 
+  const hostnameParaIp =
+    hostname
+      .replace(/^\[/, "")
+      .replace(/\]$/, "");
+
   const tipoIp =
-    isIP(hostname);
+    isIP(hostnameParaIp);
 
   if (
     tipoIp === 4 &&
     ipv4EhPrivado(
-      hostname
+      hostnameParaIp
     )
   ) {
     throw new Error(
@@ -533,12 +589,70 @@ function validarEndpoint(
   if (
     tipoIp === 6 &&
     ipv6EhPrivado(
-      hostname
+      hostnameParaIp
     )
   ) {
     throw new Error(
       "Endereços IPv6 privados ou locais não são permitidos."
     );
+  }
+
+  if (tipoIp === 0) {
+    let enderecos:
+      Array<{
+        address: string;
+        family: number;
+      }>;
+
+    try {
+      enderecos =
+        await lookup(
+          hostname,
+          {
+            all: true,
+            verbatim: true,
+          }
+        );
+    } catch {
+      throw new Error(
+        "Não foi possível verificar o endereço do webhook."
+      );
+    }
+
+    if (!enderecos.length) {
+      throw new Error(
+        "O endereço do webhook não pôde ser resolvido."
+      );
+    }
+
+    const possuiEnderecoBloqueado =
+      enderecos.some(
+        (endereco) => {
+          if (
+            endereco.family === 4
+          ) {
+            return ipv4EhPrivado(
+              endereco.address
+            );
+          }
+
+          if (
+            endereco.family === 6
+          ) {
+            return ipv6EhPrivado(
+              endereco.address
+            );
+          }
+
+          return true;
+        }
+      );
+
+    if (possuiEnderecoBloqueado) {
+      throw new Error(
+        "O domínio do webhook aponta para um endereço privado, local ou reservado."
+      );
+    }
   }
 
   return url.toString();
@@ -548,7 +662,7 @@ function montarIdentificadorExterno(
   evento: {
     id: number;
     identificadorEvento:
-      string | null;
+    string | null;
   }
 ) {
   return (
@@ -562,19 +676,19 @@ function montarCorpoWebhook(
     id: number;
 
     identificadorEvento:
-      string | null;
+    string | null;
 
     tipoEvento: string;
 
     submissaoId:
-      number | null;
+    number | null;
 
     recebidoEm:
-      Date;
+    Date;
 
     payload:
-      Prisma.JsonValue |
-      null;
+    Prisma.JsonValue |
+    null;
   }
 ) {
   return {
@@ -626,11 +740,105 @@ async function lerRespostaHttp(
       "content-type"
     );
 
-  const texto =
-    limitarTexto(
-      await response.text(),
-      LIMITE_RESPOSTA_CARACTERES
-    );
+  const reader =
+    response.body?.getReader();
+
+  let texto = "";
+  let truncado = false;
+
+  if (reader) {
+    const decoder =
+      new TextDecoder();
+
+    try {
+      while (true) {
+        const {
+          done,
+          value,
+        } = await reader.read();
+
+        if (done) {
+          const restante =
+            decoder.decode();
+
+          if (restante) {
+            const limiteDisponivel =
+              Math.max(
+                LIMITE_RESPOSTA_CARACTERES -
+                texto.length,
+                0
+              );
+
+            texto +=
+              restante.slice(
+                0,
+                limiteDisponivel
+              );
+
+            if (
+              restante.length >
+              limiteDisponivel
+            ) {
+              truncado = true;
+            }
+          }
+
+          break;
+        }
+
+        const trecho =
+          decoder.decode(
+            value,
+            {
+              stream: true,
+            }
+          );
+
+        const limiteDisponivel =
+          LIMITE_RESPOSTA_CARACTERES -
+          texto.length;
+
+        if (
+          limiteDisponivel <= 0
+        ) {
+          truncado = true;
+
+          try {
+            await reader.cancel();
+          } catch {
+            // A resposta já pode ter sido encerrada.
+          }
+
+          break;
+        }
+
+        if (
+          trecho.length >
+          limiteDisponivel
+        ) {
+          texto +=
+            trecho.slice(
+              0,
+              limiteDisponivel
+            );
+
+          truncado = true;
+
+          try {
+            await reader.cancel();
+          } catch {
+            // A resposta já pode ter sido encerrada.
+          }
+
+          break;
+        }
+
+        texto += trecho;
+      }
+    } finally {
+      reader.releaseLock();
+    }
+  }
 
   let corpo:
     unknown =
@@ -638,6 +846,7 @@ async function lerRespostaHttp(
 
   if (
     texto &&
+    !truncado &&
     contentType
       ?.toLowerCase()
       .includes(
@@ -666,6 +875,8 @@ async function lerRespostaHttp(
 
     body:
       corpo,
+
+    truncado,
   };
 }
 
@@ -674,14 +885,14 @@ async function registrarDescarte(
     eventoId: number;
 
     integracaoId:
-      number;
+    number;
 
     mensagem: string;
 
     tentativa: number;
 
     marcarIntegracaoComErro?:
-      boolean;
+    boolean;
   }
 ): Promise<ResultadoProcessamentoEventoSaida> {
   const agora =
@@ -725,9 +936,9 @@ async function registrarDescarte(
         ...(params
           .marcarIntegracaoComErro
           ? {
-              status:
-                StatusIntegracaoCaptacaoLead.ERRO,
-            }
+            status:
+              StatusIntegracaoCaptacaoLead.ERRO,
+          }
           : {}),
       },
     }),
@@ -768,20 +979,20 @@ async function registrarFalha(
     eventoId: number;
 
     integracaoId:
-      number;
+    number;
 
     tentativa: number;
 
     maxTentativas:
-      number;
+    number;
 
     mensagem: string;
 
     codigoHttp:
-      number | null;
+    number | null;
 
     resposta?:
-      unknown;
+    unknown;
   }
 ): Promise<ResultadoProcessamentoEventoSaida> {
   const atingiuLimite =
@@ -795,8 +1006,8 @@ async function registrarFalha(
     atingiuLimite
       ? null
       : calcularProximaTentativa(
-          params.tentativa
-        );
+        params.tentativa
+      );
 
   const status =
     atingiuLimite
@@ -822,13 +1033,13 @@ async function registrarFalha(
         proximaTentativaEm,
 
         ...(params.resposta !==
-        undefined
+          undefined
           ? {
-              resposta:
-                paraJsonPrisma(
-                  params.resposta
-                ),
-            }
+            resposta:
+              paraJsonPrisma(
+                params.resposta
+              ),
+          }
           : {}),
 
         processadoEm:
@@ -853,9 +1064,9 @@ async function registrarFalha(
 
         ...(atingiuLimite
           ? {
-              status:
-                StatusIntegracaoCaptacaoLead.ERRO,
-            }
+            status:
+              StatusIntegracaoCaptacaoLead.ERRO,
+          }
           : {}),
       },
     }),
@@ -896,7 +1107,7 @@ export async function processarEventoSaidaCaptacao(
     eventoId: number;
 
     instituicaoId?:
-      number;
+    number;
   }
 ): Promise<ResultadoProcessamentoEventoSaida> {
   const eventoId =
@@ -915,12 +1126,12 @@ export async function processarEventoSaidaCaptacao(
       undefined
       ? null
       : idPositivo(
-          params.instituicaoId
-        );
+        params.instituicaoId
+      );
 
   if (
     params.instituicaoId !==
-      undefined &&
+    undefined &&
     !instituicaoId
   ) {
     throw new Error(
@@ -939,8 +1150,8 @@ export async function processarEventoSaidaCaptacao(
 
         ...(instituicaoId
           ? {
-              instituicaoId,
-            }
+            instituicaoId,
+          }
           : {}),
 
         direcao:
@@ -1017,9 +1228,9 @@ export async function processarEventoSaidaCaptacao(
    */
   if (
     evento.status ===
-      StatusEventoIntegracaoCaptacaoLead.ENTREGUE ||
+    StatusEventoIntegracaoCaptacaoLead.ENTREGUE ||
     evento.status ===
-      StatusEventoIntegracaoCaptacaoLead.DESCARTADO
+    StatusEventoIntegracaoCaptacaoLead.DESCARTADO
   ) {
     return {
       eventoId:
@@ -1090,7 +1301,7 @@ export async function processarEventoSaidaCaptacao(
   if (
     evento.proximaTentativaEm &&
     evento.proximaTentativaEm >
-      agora
+    agora
   ) {
     return {
       eventoId:
@@ -1159,9 +1370,9 @@ export async function processarEventoSaidaCaptacao(
    */
   if (
     integracao.status ===
-      StatusIntegracaoCaptacaoLead.REVOGADA ||
+    StatusIntegracaoCaptacaoLead.REVOGADA ||
     integracao.ativo ===
-      false
+    false
   ) {
     return registrarDescarte({
       eventoId:
@@ -1360,7 +1571,7 @@ export async function processarEventoSaidaCaptacao(
       );
 
     const endpoint =
-      validarEndpoint(
+      await validarEndpoint(
         integracao
           .urlEndpoint
       );
@@ -1392,25 +1603,25 @@ export async function processarEventoSaidaCaptacao(
      * auditoria.
      */
     const headersAuditoria =
-      {
-        "content-type":
-          "application/json",
+    {
+      "content-type":
+        "application/json",
 
-        "user-agent":
-          "PHANYX-Captacao/1.0",
+      "user-agent":
+        "PHANYX-Captacao/1.0",
 
-        "x-phanyx-event-id":
-          identificador,
+      "x-phanyx-event-id":
+        identificador,
 
-        "x-phanyx-event-type":
-          evento.tipoEvento,
+      "x-phanyx-event-type":
+        evento.tipoEvento,
 
-        authorization:
-          "[REDACTED]",
+      authorization:
+        "[REDACTED]",
 
-        "x-phanyx-signature":
-          "[REDACTED]",
-      };
+      "x-phanyx-signature":
+        "[REDACTED]",
+    };
 
     await prisma.eventoIntegracaoCaptacaoLead.update({
       where: {
@@ -1565,12 +1776,6 @@ export async function processarEventoSaidaCaptacao(
         data: {
           ultimoSucessoEm:
             entregueEm,
-
-          ultimoErroEm:
-            null,
-
-          ultimoErro:
-            null,
         },
       }),
     ]);
@@ -1608,7 +1813,7 @@ export async function processarEventoSaidaCaptacao(
       error instanceof Error &&
       (
         error.name ===
-          "AbortError" ||
+        "AbortError" ||
         error.message
           .toLowerCase()
           .includes(
@@ -1620,14 +1825,14 @@ export async function processarEventoSaidaCaptacao(
       ehTimeout
         ? `O webhook excedeu o tempo limite de ${timeoutMs} ms.`
         : (
-            error instanceof
-              Error
-              ? limitarTexto(
-                  error.message,
-                  4000
-                )
-              : "Falha desconhecida no envio do webhook."
-          );
+          error instanceof
+            Error
+            ? limitarTexto(
+              error.message,
+              4000
+            )
+            : "Falha desconhecida no envio do webhook."
+        );
 
     return registrarFalha({
       eventoId:

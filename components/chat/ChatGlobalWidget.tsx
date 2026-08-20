@@ -56,6 +56,11 @@ export default function ChatGlobalWidget() {
   const [mostrarEmojis, setMostrarEmojis] = useState(false);
   const [mostrarGifs, setMostrarGifs] = useState(false);
 
+  useEffect(() => {
+    setMostrarGifs(false);
+    setMostrarEmojis(false);
+  }, [aberto, conversaAberta?.id, modoNovaConversa]);
+
   const inputArquivoRef = useRef<HTMLInputElement | null>(null);
 
   const [modoTurmas, setModoTurmas] = useState(false);
@@ -67,9 +72,21 @@ export default function ChatGlobalWidget() {
   const [chatMaximizado, setChatMaximizado] = useState(false);
 
   const [chatTamanho, setChatTamanho] = useState({
-  largura: 320,
-  altura: 560,
-});
+    largura: 320,
+    altura: 560,
+  });
+
+  const chatContainerRef = useRef<HTMLDivElement | null>(null);
+
+  const [chatPosicao, setChatPosicao] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
+
+  const chatTamanhoRestauradoRef = useRef({
+    largura: 320,
+    altura: 560,
+  });
 
   useEffect(() => {
     async function atualizarPresenca() {
@@ -88,37 +105,37 @@ export default function ChatGlobalWidget() {
   }, []);
 
   useEffect(() => {
-  function abrirChatPelaNotificacao(event: any) {
-    const conversaId = Number(event.detail?.conversaId);
+    function abrirChatPelaNotificacao(event: any) {
+      const conversaId = Number(event.detail?.conversaId);
 
-    setAberto(true);
-    setChatMaximizado(false);
-    setModoNovaConversa(false);
-    setModoTurmas(false);
-    setMostrarEmojis(false);
-    setMostrarGifs(false);
+      setAberto(true);
+      setChatMaximizado(false);
+      setModoNovaConversa(false);
+      setModoTurmas(false);
+      setMostrarEmojis(false);
+      setMostrarGifs(false);
 
-    if (!Number.isFinite(conversaId) || conversaId <= 0) {
-      setConversaAberta(null);
-      setMensagens([]);
-      return;
+      if (!Number.isFinite(conversaId) || conversaId <= 0) {
+        setConversaAberta(null);
+        setMensagens([]);
+        return;
+      }
+
+      setConversaAberta({
+        id: conversaId,
+        nome: event.detail?.remetenteNome || `Conversa #${conversaId}`,
+        role: event.detail?.remetenteRole || "",
+      });
+
+      carregarMensagens(conversaId);
     }
 
-    setConversaAberta({
-      id: conversaId,
-      nome: event.detail?.remetenteNome || `Conversa #${conversaId}`,
-      role: event.detail?.remetenteRole || "",
-    });
+    window.addEventListener("phanyx:abrir-chat", abrirChatPelaNotificacao);
 
-    carregarMensagens(conversaId);
-  }
-
-  window.addEventListener("phanyx:abrir-chat", abrirChatPelaNotificacao);
-
-  return () => {
-    window.removeEventListener("phanyx:abrir-chat", abrirChatPelaNotificacao);
-  };
-}, []);
+    return () => {
+      window.removeEventListener("phanyx:abrir-chat", abrirChatPelaNotificacao);
+    };
+  }, []);
 
 
   useEffect(() => {
@@ -133,85 +150,162 @@ export default function ChatGlobalWidget() {
     return () => clearInterval(intervalo);
   }, [conversaAberta]);
 
-  function iniciarRedimensionamento(e: React.MouseEvent<HTMLDivElement>) {
-  e.preventDefault();
+  function iniciarArrasteChat(e: React.MouseEvent<HTMLDivElement>) {
+    if (chatMaximizado || e.button !== 0) return;
 
-  const inicioX = e.clientX;
-  const inicioY = e.clientY;
-  const larguraInicial = chatTamanho.largura;
-  const alturaInicial = chatTamanho.altura;
+    const elementoClicado = e.target as HTMLElement;
 
-  function mover(ev: MouseEvent) {
-    const novaLargura = Math.max(320, larguraInicial - (ev.clientX - inicioX));
-    const novaAltura = Math.max(420, alturaInicial - (ev.clientY - inicioY));
+    if (elementoClicado.closest("button")) return;
 
-    setChatTamanho({
-      largura: Math.min(novaLargura, window.innerWidth - 40),
-      altura: Math.min(novaAltura, window.innerHeight - 80),
-    });
-  }
+    const container = chatContainerRef.current;
 
-  function soltar() {
-    window.removeEventListener("mousemove", mover);
-    window.removeEventListener("mouseup", soltar);
-  }
+    if (!container) return;
 
-  window.addEventListener("mousemove", mover);
-  window.addEventListener("mouseup", soltar);
-}
+    e.preventDefault();
 
-function iniciarRedimensionamentoAltura(e: React.MouseEvent<HTMLDivElement>) {
-  e.preventDefault();
+    const retangulo = container.getBoundingClientRect();
+    const deslocamentoX = e.clientX - retangulo.left;
+    const deslocamentoY = e.clientY - retangulo.top;
 
-  const inicioY = e.clientY;
-  const alturaInicial = chatTamanho.altura;
+    const userSelectAnterior = document.body.style.userSelect;
+    const cursorAnterior = document.body.style.cursor;
 
-  function mover(ev: MouseEvent) {
-    const novaAltura = Math.max(420, alturaInicial - (ev.clientY - inicioY));
+    document.body.style.userSelect = "none";
+    document.body.style.cursor = "grabbing";
 
-    setChatTamanho((atual) => ({
-      ...atual,
-      altura: Math.min(novaAltura, window.innerHeight - 80),
-    }));
-  }
-
-  function soltar() {
-    window.removeEventListener("mousemove", mover);
-    window.removeEventListener("mouseup", soltar);
-  }
-
-  window.addEventListener("mousemove", mover);
-  window.addEventListener("mouseup", soltar);
-}
-
- async function carregarUsuarios() {
-  setConversaAberta(null);
-  setMensagens([]);
-  setModoNovaConversa(true);
-  setCarregandoUsuarios(true);
-
-  try {
-    const res = await fetch("/api/chat/usuarios", {
-      credentials: "include",
+    setChatPosicao({
+      x: retangulo.left,
+      y: retangulo.top,
     });
 
-    const data = await res.json();
+    function mover(ev: MouseEvent) {
+      const margem = 8;
+      const larguraContainer = container.offsetWidth;
+      const alturaContainer = container.offsetHeight;
 
-    if (!res.ok) {
-      console.error(data);
-      setUsuarios([]);
-      return;
+      const limiteX = Math.max(
+        margem,
+        window.innerWidth - larguraContainer - margem
+      );
+
+      const limiteY = Math.max(
+        margem,
+        window.innerHeight - alturaContainer - margem
+      );
+
+      const x = Math.min(
+        Math.max(margem, ev.clientX - deslocamentoX),
+        limiteX
+      );
+
+      const y = Math.min(
+        Math.max(margem, ev.clientY - deslocamentoY),
+        limiteY
+      );
+
+      setChatPosicao({ x, y });
     }
 
-    setUsuarios(data.usuarios || []);
-    setUsuarioRole(data.usuarioRole || "");
-  } catch (error) {
-    console.error("Erro ao carregar usuários do chat:", error);
-    setUsuarios([]);
-  } finally {
-    setCarregandoUsuarios(false);
+    function soltar() {
+      window.removeEventListener("mousemove", mover);
+      window.removeEventListener("mouseup", soltar);
+
+      document.body.style.userSelect = userSelectAnterior;
+      document.body.style.cursor = cursorAnterior;
+    }
+
+    window.addEventListener("mousemove", mover);
+    window.addEventListener("mouseup", soltar);
   }
-}
+
+  function reposicionarChatNoPadrao() {
+    if (chatMaximizado) {
+      setChatTamanho(chatTamanhoRestauradoRef.current);
+    }
+
+    setChatMaximizado(false);
+    setChatPosicao(null);
+  }
+
+  function iniciarRedimensionamento(e: React.MouseEvent<HTMLDivElement>) {
+    e.preventDefault();
+
+    const inicioX = e.clientX;
+    const inicioY = e.clientY;
+    const larguraInicial = chatTamanho.largura;
+    const alturaInicial = chatTamanho.altura;
+
+    function mover(ev: MouseEvent) {
+      const novaLargura = Math.max(320, larguraInicial - (ev.clientX - inicioX));
+      const novaAltura = Math.max(420, alturaInicial - (ev.clientY - inicioY));
+
+      setChatTamanho({
+        largura: Math.min(novaLargura, window.innerWidth - 40),
+        altura: Math.min(novaAltura, window.innerHeight - 80),
+      });
+    }
+
+    function soltar() {
+      window.removeEventListener("mousemove", mover);
+      window.removeEventListener("mouseup", soltar);
+    }
+
+    window.addEventListener("mousemove", mover);
+    window.addEventListener("mouseup", soltar);
+  }
+
+  function iniciarRedimensionamentoAltura(e: React.MouseEvent<HTMLDivElement>) {
+    e.preventDefault();
+
+    const inicioY = e.clientY;
+    const alturaInicial = chatTamanho.altura;
+
+    function mover(ev: MouseEvent) {
+      const novaAltura = Math.max(420, alturaInicial - (ev.clientY - inicioY));
+
+      setChatTamanho((atual) => ({
+        ...atual,
+        altura: Math.min(novaAltura, window.innerHeight - 80),
+      }));
+    }
+
+    function soltar() {
+      window.removeEventListener("mousemove", mover);
+      window.removeEventListener("mouseup", soltar);
+    }
+
+    window.addEventListener("mousemove", mover);
+    window.addEventListener("mouseup", soltar);
+  }
+
+  async function carregarUsuarios() {
+    setConversaAberta(null);
+    setMensagens([]);
+    setModoNovaConversa(true);
+    setCarregandoUsuarios(true);
+
+    try {
+      const res = await fetch("/api/chat/usuarios", {
+        credentials: "include",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.error(data);
+        setUsuarios([]);
+        return;
+      }
+
+      setUsuarios(data.usuarios || []);
+      setUsuarioRole(data.usuarioRole || "");
+    } catch (error) {
+      console.error("Erro ao carregar usuários do chat:", error);
+      setUsuarios([]);
+    } finally {
+      setCarregandoUsuarios(false);
+    }
+  }
 
   async function abrirConversa(usuario: UsuarioChat) {
     try {
@@ -242,60 +336,60 @@ function iniciarRedimensionamentoAltura(e: React.MouseEvent<HTMLDivElement>) {
   }
 
   async function carregarTurmasChat() {
-  setModoTurmas(true);
-  setCarregandoTurmas(true);
+    setModoTurmas(true);
+    setCarregandoTurmas(true);
 
-  try {
-    const res = await fetch("/api/chat/turmas", {
-      credentials: "include",
-    });
+    try {
+      const res = await fetch("/api/chat/turmas", {
+        credentials: "include",
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!res.ok) {
-      console.error(data);
+      if (!res.ok) {
+        console.error(data);
+        setTurmasChat([]);
+        return;
+      }
+
+      setTurmasChat(data.turmas || []);
+    } catch (error) {
+      console.error("Erro ao carregar turmas do chat:", error);
       setTurmasChat([]);
-      return;
+    } finally {
+      setCarregandoTurmas(false);
     }
-
-    setTurmasChat(data.turmas || []);
-  } catch (error) {
-    console.error("Erro ao carregar turmas do chat:", error);
-    setTurmasChat([]);
-  } finally {
-    setCarregandoTurmas(false);
   }
-}
 
-async function abrirConversaTurma(turma: TurmaChat) {
-  try {
-    const res = await fetch("/api/chat/turmas", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ turmaId: turma.id }),
-    });
+  async function abrirConversaTurma(turma: TurmaChat) {
+    try {
+      const res = await fetch("/api/chat/turmas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ turmaId: turma.id }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!res.ok) {
-      console.error(data);
-      return;
+      if (!res.ok) {
+        console.error(data);
+        return;
+      }
+
+      setConversaAberta({
+        id: data.conversa.id,
+        nome: data.conversa.titulo || turma.nome,
+        role: "GRUPO",
+      });
+
+      setModoNovaConversa(false);
+      setModoTurmas(false);
+      await carregarMensagens(data.conversa.id);
+    } catch (error) {
+      console.error("Erro ao abrir conversa da turma:", error);
     }
-
-    setConversaAberta({
-      id: data.conversa.id,
-      nome: data.conversa.titulo || turma.nome,
-      role: "GRUPO",
-    });
-
-    setModoNovaConversa(false);
-    setModoTurmas(false);
-    await carregarMensagens(data.conversa.id);
-  } catch (error) {
-    console.error("Erro ao abrir conversa da turma:", error);
   }
-}
 
   async function carregarMensagens(conversaId: number) {
     try {
@@ -356,71 +450,71 @@ async function abrirConversaTurma(turma: TurmaChat) {
     }
   }
 
-async function enviarArquivo(file: File | null) {
-  if (!file || !conversaAberta || enviando) return;
+  async function enviarArquivo(file: File | null) {
+    if (!file || !conversaAberta || enviando) return;
 
-  setEnviando(true);
+    setEnviando(true);
 
-  try {
-    const formData = new FormData();
-    formData.append("file", file);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
 
-    const res = await fetch(
-      `/api/chat/conversas/${conversaAberta.id}/anexos`,
-      {
-        method: "POST",
-        credentials: "include",
-        body: formData,
+      const res = await fetch(
+        `/api/chat/conversas/${conversaAberta.id}/anexos`,
+        {
+          method: "POST",
+          credentials: "include",
+          body: formData,
+        }
+      );
+
+      if (!res.ok) {
+        console.error(await res.json());
+        return;
       }
-    );
 
-    if (!res.ok) {
-      console.error(await res.json());
-      return;
+      await carregarMensagens(conversaAberta.id);
+    } catch (error) {
+      console.error("Erro ao enviar arquivo:", error);
+    } finally {
+      setEnviando(false);
     }
-
-    await carregarMensagens(conversaAberta.id);
-  } catch (error) {
-    console.error("Erro ao enviar arquivo:", error);
-  } finally {
-    setEnviando(false);
   }
-}
 
   function adicionarEmoji(emoji: string) {
-  setTextoMensagem((prev) => prev + emoji);
-  setMostrarEmojis(false);
-}
-
-async function enviarGif(url: string) {
-  if (!conversaAberta || enviando) return;
-
-  setEnviando(true);
-
-  try {
-    const res = await fetch(
-      `/api/chat/conversas/${conversaAberta.id}/mensagens`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ texto: `[GIF]${url}` }),
-      }
-    );
-
-    if (!res.ok) {
-      console.error(await res.json());
-      return;
-    }
-
-    setMostrarGifs(false);
-    await carregarMensagens(conversaAberta.id);
-  } catch (error) {
-    console.error("Erro ao enviar GIF:", error);
-  } finally {
-    setEnviando(false);
+    setTextoMensagem((prev) => prev + emoji);
+    setMostrarEmojis(false);
   }
-}
+
+  async function enviarGif(url: string) {
+    if (!conversaAberta || enviando) return;
+
+    setEnviando(true);
+
+    try {
+      const res = await fetch(
+        `/api/chat/conversas/${conversaAberta.id}/mensagens`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ texto: `[GIF]${url}` }),
+        }
+      );
+
+      if (!res.ok) {
+        console.error(await res.json());
+        return;
+      }
+
+      setMostrarGifs(false);
+      await carregarMensagens(conversaAberta.id);
+    } catch (error) {
+      console.error("Erro ao enviar GIF:", error);
+    } finally {
+      setEnviando(false);
+    }
+  }
 
   function nomeRole(role: string) {
     if (role === "ADMIN") return "Admin";
@@ -436,56 +530,103 @@ async function enviarGif(url: string) {
 
   return (
     <div
-  className={`fixed z-[9999] ${
-    chatMaximizado
-      ? "left-10 top-10"
-      : "bottom-6 right-6"
-  }`}
->
+      ref={chatContainerRef}
+      style={
+        aberto && chatPosicao && !chatMaximizado
+          ? {
+            left: chatPosicao.x,
+            top: chatPosicao.y,
+          }
+          : undefined
+      }
+      className={`fixed z-[9999] ${chatMaximizado
+        ? "left-10 top-10"
+        : aberto && chatPosicao
+          ? ""
+          : "bottom-6 right-6"
+        }`}
+    >
       {aberto && (
         <div
-  style={{
-  width: chatTamanho.largura,
-  height: chatTamanho.altura,
-}}
-  className="relative mb-3 flex flex-col overflow-hidden rounded-2xl border border-slate-700 bg-slate-950 shadow-2xl"
->
-          <div className="flex items-start justify-between bg-blue-600 px-4 py-3 text-white">
-  <div>
-    <p className="font-bold">Chat interno PHANYX</p>
-    <p className="text-xs text-blue-100">Você está online</p>
-  </div>
+          style={{
+            width: chatTamanho.largura,
+            height: chatTamanho.altura,
+          }}
+          className="relative mb-3 flex flex-col overflow-hidden rounded-2xl border border-slate-700 bg-slate-950 shadow-2xl"
+        >
+          <div
+            onMouseDown={iniciarArrasteChat}
+            className="phanyx-chat-cabecalho flex cursor-move select-none items-start justify-between bg-blue-600 px-4 py-3 text-white"
+            title={
+              chatMaximizado
+                ? "Restaure o chat para poder arrastar"
+                : "Arraste para movimentar o chat"
+            }
+          >
+            <div>
+              <p className="font-bold">Chat interno PHANYX</p>
+              <p className="text-xs text-blue-100">Você está online</p>
+            </div>
 
-  <div className="flex gap-2">
-    <button
-      type="button"
-      onClick={() => {
-  setChatTamanho({
-    largura: window.innerWidth - 80,
-    altura: window.innerHeight - 80,
-  });
+            <div
+              className="flex gap-1"
+              onMouseDown={(e) => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                onClick={reposicionarChatNoPadrao}
+                className="phanyx-chat-controle rounded-md px-2 text-sm hover:bg-white/20"
+                title="Voltar ao canto inferior direito"
+                aria-label="Voltar o chat à posição padrão"
+              >
+                ↘
+              </button>
 
-  setChatMaximizado((prev) => !prev);
-}}
-      className="rounded-md px-2 text-sm hover:bg-white/20"
-      title={chatMaximizado ? "Minimizar" : "Maximizar"}
-    >
-      {chatMaximizado ? "🗗" : "🗖"}
-    </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (chatMaximizado) {
+                    setChatTamanho(chatTamanhoRestauradoRef.current);
+                    setChatMaximizado(false);
+                    return;
+                  }
 
-    <button
-      type="button"
-      onClick={() => {
-        setAberto(false);
-        setChatMaximizado(false);
-      }}
-      className="rounded-md px-2 text-sm hover:bg-white/20"
-      title="Fechar"
-    >
-      ✕
-    </button>
-  </div>
-</div>
+                  chatTamanhoRestauradoRef.current = chatTamanho;
+
+                  setChatTamanho({
+                    largura: Math.max(320, window.innerWidth - 80),
+                    altura: Math.max(420, window.innerHeight - 120),
+                  });
+
+                  setChatMaximizado(true);
+                }}
+                className="phanyx-chat-controle rounded-md px-2 text-sm hover:bg-white/20"
+                title={chatMaximizado ? "Restaurar tamanho" : "Maximizar"}
+                aria-label={chatMaximizado ? "Restaurar tamanho do chat" : "Maximizar chat"}
+              >
+                {chatMaximizado ? "🗗" : "🗖"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  if (chatMaximizado) {
+                    setChatTamanho(chatTamanhoRestauradoRef.current);
+                  }
+
+                  setMostrarGifs(false);
+                  setMostrarEmojis(false);
+                  setAberto(false);
+                  setChatMaximizado(false);
+                }}
+                className="phanyx-chat-controle rounded-md px-2 text-sm hover:bg-white/20"
+                title="Fechar"
+                aria-label="Fechar chat"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
 
           <div className="border-b border-slate-700 bg-slate-900 p-3">
             <button
@@ -507,36 +648,36 @@ async function enviarGif(url: string) {
             <div className="flex min-h-0 flex-1 flex-col">
               <div className="border-b border-slate-700 bg-slate-900 px-4 py-3">
                 <div className="flex items-start justify-between">
-  <div>
-    <button
-      type="button"
-      onClick={() => {
-        setConversaAberta(null);
-        setModoNovaConversa(true);
-      }}
-      className="mb-1 text-xs text-blue-400 hover:text-blue-300"
-    >
-      ← Voltar
-    </button>
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setConversaAberta(null);
+                        setModoNovaConversa(true);
+                      }}
+                      className="mb-1 text-xs text-blue-400 hover:text-blue-300"
+                    >
+                      ← Voltar
+                    </button>
 
-    <p className="text-sm font-bold text-white">
-      {conversaAberta.nome}
-    </p>
+                    <p className="text-sm font-bold text-white">
+                      {conversaAberta.nome}
+                    </p>
 
-  </div>
+                  </div>
 
-  <button
-    type="button"
-    onClick={() => {
-      setConversaAberta(null);
-      setModoNovaConversa(false);
-      setAberto(false);
-    }}
-    className="text-slate-400 hover:text-white"
-  >
-    ✕
-  </button>
-</div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setConversaAberta(null);
+                      setModoNovaConversa(false);
+                      setAberto(false);
+                    }}
+                    className="text-slate-400 hover:text-white"
+                  >
+                    ✕
+                  </button>
+                </div>
                 <p className="text-xs text-slate-400">
                   {nomeRole(conversaAberta.role)}
                 </p>
@@ -558,69 +699,68 @@ async function enviarGif(url: string) {
                       className={`flex ${minha ? "justify-end" : "justify-start"}`}
                     >
                       <div
-                        className={`max-w-[75%] rounded-2xl px-3 py-2 ${
-                          minha
-                            ? "bg-blue-600 text-white"
-                            : "bg-slate-800 text-slate-100"
-                        }`}
+                        className={`max-w-[75%] rounded-2xl px-3 py-2 ${minha
+                          ? "bg-blue-600 text-white"
+                          : "bg-slate-800 text-slate-100"
+                          }`}
                       >
                         {mensagem.anexos && mensagem.anexos.length > 0 ? (
-  <div className="space-y-2">
-    {mensagem.anexos.map((anexo: any) => {
-      const mime = anexo.tipoMime || "";
+                          <div className="space-y-2">
+                            {mensagem.anexos.map((anexo: any) => {
+                              const mime = anexo.tipoMime || "";
 
-      if (mime.startsWith("image/")) {
-        return (
-          <a
-            key={anexo.id}
-            href={anexo.url}
-            target="_blank"
-            rel="noreferrer"
-          >
-            <img
-              src={anexo.url}
-              alt={anexo.nomeArquivo}
-              className="max-h-40 rounded-xl"
-            />
-          </a>
-        );
-      }
+                              if (mime.startsWith("image/")) {
+                                return (
+                                  <a
+                                    key={anexo.id}
+                                    href={anexo.url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                  >
+                                    <img
+                                      src={anexo.url}
+                                      alt={anexo.nomeArquivo}
+                                      className="max-h-40 rounded-xl"
+                                    />
+                                  </a>
+                                );
+                              }
 
-      if (mime.startsWith("video/")) {
-        return (
-          <video
-            key={anexo.id}
-            src={anexo.url}
-            controls
-            className="max-h-40 rounded-xl"
-          />
-        );
-      }
+                              if (mime.startsWith("video/")) {
+                                return (
+                                  <video
+                                    key={anexo.id}
+                                    src={anexo.url}
+                                    controls
+                                    className="max-h-40 rounded-xl"
+                                  />
+                                );
+                              }
 
-      return (
-        <a
-          key={anexo.id}
-          href={anexo.url}
-          target="_blank"
-          rel="noreferrer"
-          className="block underline"
-        >
-          📎 {anexo.nomeArquivo}
-        </a>
-      );
-    })}
-  </div>
-) : mensagem.texto?.startsWith("[GIF]") ? (
-  <img
-    src={mensagem.texto.replace("[GIF]", "")}
-    alt="GIF enviado"
-    className="max-h-40 rounded-xl"
-  />
-) : (
-  mensagem.texto
-)}
- 
- 
+                              return (
+                                <a
+                                  key={anexo.id}
+                                  href={anexo.url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="block underline"
+                                >
+                                  📎 {anexo.nomeArquivo}
+                                </a>
+                              );
+                            })}
+                          </div>
+                        ) : mensagem.texto?.startsWith("[GIF]") ? (
+                          <img
+                            src={mensagem.texto.replace("[GIF]", "")}
+                            alt="GIF enviado"
+                            className="max-h-40 rounded-xl"
+                          />
+                        ) : (
+                          mensagem.texto
+                        )}
+
+
                       </div>
                     </div>
                   );
@@ -629,256 +769,275 @@ async function enviarGif(url: string) {
 
               <div className="border-t border-slate-700 bg-slate-900 p-3">
 
-{mostrarEmojis && (
-  <div className="mb-2 grid grid-cols-6 gap-2 rounded-xl border border-slate-700 bg-slate-950 p-2">
-    {EMOJIS_RAPIDOS.map((emoji) => (
-      <button
-        key={emoji}
-        type="button"
-        onClick={() => adicionarEmoji(emoji)}
-        className="rounded-lg p-1 text-xl hover:bg-slate-800"
-      >
-        {emoji}
-      </button>
-    ))}
-  </div>
-)}
+                {mostrarEmojis && (
+                  <div className="mb-2 grid grid-cols-6 gap-2 rounded-xl border border-slate-700 bg-slate-950 p-2">
+                    {EMOJIS_RAPIDOS.map((emoji) => (
+                      <button
+                        key={emoji}
+                        type="button"
+                        onClick={() => adicionarEmoji(emoji)}
+                        className="rounded-lg p-1 text-xl hover:bg-slate-800"
+                      >
+                        {emoji}
+                      </button>
+                    ))}
+                  </div>
+                )}
 
-{mostrarGifs && (
-  <div className="mb-2 grid grid-cols-2 gap-2 rounded-xl border border-slate-700 bg-slate-950 p-2">
-    {GIFS_RAPIDOS.map((gif) => (
-      <button
-        key={gif}
-        type="button"
-        onClick={() => enviarGif(gif)}
-        className="overflow-hidden rounded-lg border border-slate-700"
-      >
-        <img src={gif} alt="GIF" className="h-20 w-full object-cover" />
-      </button>
-    ))}
-  </div>
-)}
+                {mostrarGifs && (
+                  <div className="phanyx-chat-gif-panel mb-2 grid grid-cols-2 gap-2 rounded-xl border p-2">
+                    <div className="phanyx-chat-gif-header col-span-2 flex items-center justify-between gap-3 border-b pb-2">
+                      <span className="phanyx-chat-gif-title text-xs font-semibold">
+                        Escolha um GIF
+                      </span>
+
+                      <button
+                        type="button"
+                        onClick={() => setMostrarGifs(false)}
+                        className="phanyx-chat-gif-cancel rounded-lg border px-2 py-1 text-xs font-semibold"
+                        title="Cancelar envio de GIF"
+                      >
+                        ✕ Cancelar
+                      </button>
+                    </div>
+
+                    {GIFS_RAPIDOS.map((gif) => (
+                      <button
+                        key={gif}
+                        type="button"
+                        onClick={() => enviarGif(gif)}
+                        disabled={enviando}
+                        className="phanyx-chat-gif-option overflow-hidden rounded-lg border disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        <img
+                          src={gif}
+                          alt="Enviar este GIF"
+                          className="h-20 w-full object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
 
                 <div className="flex items-center gap-2">
-  <button
-    type="button"
-    onClick={() => {
-      setMostrarEmojis((prev) => !prev);
-      setMostrarGifs(false);
-    }}
-    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-800 text-sm text-white"
-  >
-    😊
-  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMostrarEmojis((prev) => !prev);
+                      setMostrarGifs(false);
+                    }}
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-800 text-sm text-white"
+                  >
+                    😊
+                  </button>
 
-  <button
-    type="button"
-    onClick={() => {
-      setMostrarGifs((prev) => !prev);
-      setMostrarEmojis(false);
-    }}
-    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-800 text-[10px] font-bold text-white"
-  >
-    GIF
-  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMostrarGifs((prev) => !prev);
+                      setMostrarEmojis(false);
+                    }}
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-800 text-[10px] font-bold text-white"
+                  >
+                    GIF
+                  </button>
 
-  <input
-  ref={inputArquivoRef}
-  type="file"
-  className="hidden"
-  accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
-  onChange={(e) => {
-    const file = e.target.files?.[0] || null;
-    enviarArquivo(file);
-    e.target.value = "";
-  }}
-/>
+                  <input
+                    ref={inputArquivoRef}
+                    type="file"
+                    className="hidden"
+                    accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      enviarArquivo(file);
+                      e.target.value = "";
+                    }}
+                  />
 
-<button
-  type="button"
-  onClick={() => inputArquivoRef.current?.click()}
-  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-800 text-sm text-white"
-  title="Enviar arquivo"
->
-  📎
-</button>
+                  <button
+                    type="button"
+                    onClick={() => inputArquivoRef.current?.click()}
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-800 text-sm text-white"
+                    title="Enviar arquivo"
+                  >
+                    📎
+                  </button>
 
-  <input
-    type="text"
-    value={textoMensagem}
-    onChange={(e) => setTextoMensagem(e.target.value)}
-    onKeyDown={(e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        enviarMensagem();
-      }
-    }}
-    placeholder="Digite..."
-    className="min-w-0 flex-[2] rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white outline-none"
-  />
+                  <input
+                    type="text"
+                    value={textoMensagem}
+                    onChange={(e) => setTextoMensagem(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        enviarMensagem();
+                      }
+                    }}
+                    placeholder="Digite..."
+                    className="min-w-0 flex-[2] rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white outline-none"
+                  />
 
-  <button
-    type="button"
-    onClick={enviarMensagem}
-    disabled={enviando || !textoMensagem.trim()}
-    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-sm font-semibold text-white disabled:opacity-50"
-    title="Enviar"
-  >
-    ➤
-  </button>
-</div>
+                  <button
+                    type="button"
+                    onClick={enviarMensagem}
+                    disabled={enviando || !textoMensagem.trim()}
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-sm font-semibold text-white disabled:opacity-50"
+                    title="Enviar"
+                  >
+                    ➤
+                  </button>
+                </div>
               </div>
             </div>
           )}
 
           {modoNovaConversa && (
-  <div className="max-h-80 overflow-y-auto p-3">
-    <div className="mb-2 flex items-center justify-between">
-      <p className="text-sm font-bold text-white">
-        {modoTurmas ? "Escolher turma" : "Iniciar conversa"}
-      </p>
+            <div className="max-h-80 overflow-y-auto p-3">
+              <div className="mb-2 flex items-center justify-between">
+                <p className="text-sm font-bold text-white">
+                  {modoTurmas ? "Escolher turma" : "Iniciar conversa"}
+                </p>
 
-      <button
-        type="button"
-        onClick={() => {
-          if (modoTurmas) {
-            setModoTurmas(false);
-          } else {
-            setModoNovaConversa(false);
-          }
-        }}
-        className="text-xs text-slate-400 hover:text-white"
-      >
-        Voltar
-      </button>
-    </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (modoTurmas) {
+                      setModoTurmas(false);
+                    } else {
+                      setModoNovaConversa(false);
+                    }
+                  }}
+                  className="text-xs text-slate-400 hover:text-white"
+                >
+                  Voltar
+                </button>
+              </div>
 
-    {!modoTurmas && usuarioRole !== "ALUNO" && (
-  <div className="mb-3 grid grid-cols-1 gap-2">
-    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-      Conversas
-    </p>
+              {!modoTurmas && usuarioRole !== "ALUNO" && (
+                <div className="mb-3 grid grid-cols-1 gap-2">
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                    Conversas
+                  </p>
 
-    {usuarioRole === "PROFESSOR" && (
-      <button
-        type="button"
-        onClick={carregarTurmasChat}
-        className="rounded-xl border border-slate-800 bg-slate-900 p-3 text-left text-sm font-semibold text-white hover:bg-blue-950"
-      >
-        👥 Conversa da turma
-      </button>
-    )}
-  </div>
-)}
+                  {usuarioRole === "PROFESSOR" && (
+                    <button
+                      type="button"
+                      onClick={carregarTurmasChat}
+                      className="rounded-xl border border-slate-800 bg-slate-900 p-3 text-left text-sm font-semibold text-white hover:bg-blue-950"
+                    >
+                      👥 Conversa da turma
+                    </button>
+                  )}
+                </div>
+              )}
 
-{!modoTurmas && usuarioRole === "ALUNO" && (
-  <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-    Escolha seu professor
-  </p>
-)}
+              {!modoTurmas && usuarioRole === "ALUNO" && (
+                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                  Escolha seu professor
+                </p>
+              )}
 
-    {!modoTurmas && carregandoUsuarios && (
-      <p className="py-4 text-sm text-slate-400">
-        Carregando usuários...
-      </p>
-    )}
+              {!modoTurmas && carregandoUsuarios && (
+                <p className="py-4 text-sm text-slate-400">
+                  Carregando usuários...
+                </p>
+              )}
 
-    {!modoTurmas && !carregandoUsuarios && usuarios.length === 0 && (
-      <p className="py-4 text-sm text-slate-400">
-        Nenhum contato individual disponível.
-      </p>
-    )}
+              {!modoTurmas && !carregandoUsuarios && usuarios.length === 0 && (
+                <p className="py-4 text-sm text-slate-400">
+                  Nenhum contato individual disponível.
+                </p>
+              )}
 
-    {!modoTurmas &&
-      !carregandoUsuarios &&
-      usuarios.map((usuario) => (
-        <button
-          key={usuario.id}
-          type="button"
-          onClick={() => abrirConversa(usuario)}
-          className="mb-2 flex w-full items-center gap-3 rounded-xl border border-slate-800 bg-slate-900 p-3 text-left hover:bg-blue-950"
-        >
-          <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 text-lg">
-            👤
+              {!modoTurmas &&
+                !carregandoUsuarios &&
+                usuarios.map((usuario) => (
+                  <button
+                    key={usuario.id}
+                    type="button"
+                    onClick={() => abrirConversa(usuario)}
+                    className="mb-2 flex w-full items-center gap-3 rounded-xl border border-slate-800 bg-slate-900 p-3 text-left hover:bg-blue-950"
+                  >
+                    <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 text-lg">
+                      👤
 
-            <span
-              className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-slate-900 ${
-                usuario.online ? "bg-green-500" : "bg-slate-400"
-              }`}
-              title={usuario.online ? "Online" : "Offline"}
-            />
-          </div>
+                      <span
+                        className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-slate-900 ${usuario.online ? "bg-green-500" : "bg-slate-400"
+                          }`}
+                        title={usuario.online ? "Online" : "Offline"}
+                      />
+                    </div>
 
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-white">
-              {usuario.nome}
-            </p>
-            <p className="text-xs text-slate-400">
-              {nomeRole(usuario.role)}
-            </p>
-          </div>
-        </button>
-      ))}
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-white">
+                        {usuario.nome}
+                      </p>
+                      <p className="text-xs text-slate-400">
+                        {nomeRole(usuario.role)}
+                      </p>
+                    </div>
+                  </button>
+                ))}
 
-    {modoTurmas && carregandoTurmas && (
-      <p className="py-4 text-sm text-slate-400">
-        Carregando turmas...
-      </p>
-    )}
+              {modoTurmas && carregandoTurmas && (
+                <p className="py-4 text-sm text-slate-400">
+                  Carregando turmas...
+                </p>
+              )}
 
-    {modoTurmas && !carregandoTurmas && turmasChat.length === 0 && (
-      <p className="py-4 text-sm text-slate-400">
-        Nenhuma turma disponível.
-      </p>
-    )}
+              {modoTurmas && !carregandoTurmas && turmasChat.length === 0 && (
+                <p className="py-4 text-sm text-slate-400">
+                  Nenhuma turma disponível.
+                </p>
+              )}
 
-    {modoTurmas &&
-      !carregandoTurmas &&
-      turmasChat.map((turma) => (
-        <button
-          key={turma.id}
-          type="button"
-          onClick={() => abrirConversaTurma(turma)}
-          className="mb-2 flex w-full items-center gap-3 rounded-xl border border-slate-800 bg-slate-900 p-3 text-left hover:bg-blue-950"
-        >
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 text-lg">
-            👥
-          </div>
+              {modoTurmas &&
+                !carregandoTurmas &&
+                turmasChat.map((turma) => (
+                  <button
+                    key={turma.id}
+                    type="button"
+                    onClick={() => abrirConversaTurma(turma)}
+                    className="mb-2 flex w-full items-center gap-3 rounded-xl border border-slate-800 bg-slate-900 p-3 text-left hover:bg-blue-950"
+                  >
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 text-lg">
+                      👥
+                    </div>
 
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-white">
-              {turma.nome}
-            </p>
-            <p className="text-xs text-slate-400">
-              {turma.semestre || "Turma"}
-            </p>
-          </div>
-        </button>
-      ))}
-  </div>
-)}
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-white">
+                        {turma.nome}
+                      </p>
+                      <p className="text-xs text-slate-400">
+                        {turma.semestre || "Turma"}
+                      </p>
+                    </div>
+                  </button>
+                ))}
+            </div>
+          )}
 
-  {aberto && (
-  <>
-    <div
-      onMouseDown={iniciarRedimensionamento}
-      className="absolute left-0 top-0 z-[99999] h-10 w-10 cursor-nwse-resize rounded-br-xl bg-white/30 hover:bg-white/60"
-      title="Arrastar para redimensionar"
-    />
+          {aberto && (
+            <>
+              <div
+                onMouseDown={iniciarRedimensionamento}
+                className="absolute left-0 top-0 z-20 h-10 w-10 cursor-nwse-resize rounded-br-xl bg-transparent hover:bg-white/10"
+                title="Arrastar para redimensionar"
+              />
 
-    <div
-      onMouseDown={iniciarRedimensionamento}
-      className="absolute left-0 top-10 z-[99999] h-[calc(100%-40px)] w-5 cursor-ew-resize bg-white/5 hover:bg-white/30"
-      title="Arrastar lateral"
-    />
+              <div
+                onMouseDown={iniciarRedimensionamento}
+                className="absolute left-0 top-10 z-[99999] h-[calc(100%-40px)] w-5 cursor-ew-resize bg-white/5 hover:bg-white/30"
+                title="Arrastar lateral"
+              />
 
-    <div
-  onMouseDown={iniciarRedimensionamentoAltura}
-  className="absolute left-12 top-0 z-[999999] h-2 w-[calc(100%-96px)] cursor-ns-resize bg-white/10 hover:bg-white/40"
-  title="Arrastar para cima"
-/>
-  </>
-)}
+              <div
+                onMouseDown={iniciarRedimensionamentoAltura}
+                className="absolute left-12 top-0 z-[999999] h-2 w-[calc(100%-96px)] cursor-ns-resize bg-white/10 hover:bg-white/40"
+                title="Arrastar para cima"
+              />
+            </>
+          )}
 
         </div>
       )}

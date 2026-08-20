@@ -28324,3 +28324,204 @@ html[data-theme="system"]
   flex: 1 1 0;
   white-space: nowrap;
 }
+
+/* =========================================================
+   CHAT INTERNO PHANYX
+   ========================================================= */
+
+.phanyx-chat-gif-panel,
+.phanyx-chat-gif-header,
+.phanyx-chat-gif-cancel,
+.phanyx-chat-gif-option {
+  transition:
+    color 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.phanyx-chat-gif-option {
+  background: transparent;
+}
+
+.phanyx-chat-gif-option:hover {
+  transform: translateY(-1px);
+}
+
+.phanyx-chat-gif-option:focus-visible,
+.phanyx-chat-gif-cancel:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.35);
+  outline-offset: 2px;
+}
+
+/* Tema claro */
+html[data-theme="light"] .phanyx-chat-gif-panel,
+html:not([data-theme]) .phanyx-chat-gif-panel {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-chat-gif-header,
+html:not([data-theme]) .phanyx-chat-gif-header {
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .phanyx-chat-gif-title,
+html:not([data-theme]) .phanyx-chat-gif-title {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-chat-gif-cancel,
+html:not([data-theme]) .phanyx-chat-gif-cancel {
+  background: #f8fafc !important;
+  border-color: #64748b !important;
+  color: #1e293b !important;
+}
+
+html[data-theme="light"] .phanyx-chat-gif-cancel:hover,
+html:not([data-theme]) .phanyx-chat-gif-cancel:hover {
+  background: #e2e8f0 !important;
+  border-color: #334155 !important;
+  color: #020617 !important;
+}
+
+html[data-theme="light"] .phanyx-chat-gif-option,
+html:not([data-theme]) .phanyx-chat-gif-option {
+  border-color: #cbd5e1 !important;
+  background: #f8fafc !important;
+}
+
+html[data-theme="light"] .phanyx-chat-gif-option:hover,
+html:not([data-theme]) .phanyx-chat-gif-option:hover {
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.16);
+}
+
+/* Tema escuro */
+html[data-theme="dark"] .phanyx-chat-gif-panel {
+  background: #020617 !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-chat-gif-header {
+  border-color: #475569 !important;
+}
+
+html[data-theme="dark"] .phanyx-chat-gif-title {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-chat-gif-cancel {
+  background: #1e293b !important;
+  border-color: #64748b !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-chat-gif-cancel:hover {
+  background: #334155 !important;
+  border-color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .phanyx-chat-gif-option {
+  background: #0f172a !important;
+  border-color: #475569 !important;
+}
+
+html[data-theme="dark"] .phanyx-chat-gif-option:hover {
+  border-color: #60a5fa !important;
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.18);
+}
+
+/* Tema sistema */
+html[data-theme="system"] .phanyx-chat-gif-panel {
+  background: #262626 !important;
+  border-color: #525252 !important;
+  color: #fafafa !important;
+}
+
+html[data-theme="system"] .phanyx-chat-gif-header {
+  border-color: #525252 !important;
+}
+
+html[data-theme="system"] .phanyx-chat-gif-title {
+  color: #fafafa !important;
+}
+
+html[data-theme="system"] .phanyx-chat-gif-cancel {
+  background: #333333 !important;
+  border-color: #737373 !important;
+  color: #fafafa !important;
+}
+
+html[data-theme="system"] .phanyx-chat-gif-cancel:hover {
+  background: #404040 !important;
+  border-color: #a3a3a3 !important;
+}
+
+html[data-theme="system"] .phanyx-chat-gif-option {
+  background: #333333 !important;
+  border-color: #525252 !important;
+}
+
+html[data-theme="system"] .phanyx-chat-gif-option:hover {
+  border-color: #60a5fa !important;
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.18);
+}
+
+/* Alças invisíveis enquanto não estão sendo usadas */
+.phanyx-chat-resize-handle {
+  background: transparent !important;
+}
+
+html[data-theme="light"] .phanyx-chat-resize-handle:hover,
+html:not([data-theme]) .phanyx-chat-resize-handle:hover {
+  background: rgba(15, 23, 42, 0.12) !important;
+}
+
+html[data-theme="dark"] .phanyx-chat-resize-handle:hover {
+  background: rgba(255, 255, 255, 0.14) !important;
+}
+
+html[data-theme="system"] .phanyx-chat-resize-handle:hover {
+  background: rgba(255, 255, 255, 0.16) !important;
+}
+
+/* Movimento e controles do Chat PHANYX */
+.phanyx-chat-cabecalho {
+  cursor: grab !important;
+  user-select: none;
+  touch-action: none;
+}
+
+.phanyx-chat-cabecalho:active {
+  cursor: grabbing !important;
+}
+
+.phanyx-chat-controle {
+  min-width: 32px;
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.18) !important;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #ffffff !important;
+  line-height: 1;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.phanyx-chat-controle:hover {
+  background: rgba(15, 23, 42, 0.36) !important;
+  border-color: rgba(255, 255, 255, 0.7);
+  transform: translateY(-1px);
+}
+
+.phanyx-chat-controle:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.55);
+  outline-offset: 2px;
+}
