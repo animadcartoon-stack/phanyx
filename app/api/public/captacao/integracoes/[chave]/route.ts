@@ -291,24 +291,71 @@ function headersAuditaveis(
   const headers:
     Record<string, string> = {};
 
-  const bloqueados =
+  const bloqueadosExatos =
     new Set([
       "authorization",
+      "proxy-authorization",
       "cookie",
       "set-cookie",
       "x-phanyx-secret",
-      "proxy-authorization",
+      "x-api-key",
+      "api-key",
+
+      "forwarded",
+      "x-forwarded-for",
+      "x-real-ip",
+      "x-client-ip",
+      "x-cluster-client-ip",
+      "true-client-ip",
+      "cf-connecting-ip",
+      "fastly-client-ip",
+      "x-appengine-user-ip",
+      "x-vercel-forwarded-for",
+      "x-vercel-proxied-for",
     ]);
+
+  const termosSensiveis = [
+    "authorization",
+    "cookie",
+    "secret",
+    "token",
+    "signature",
+    "api-key",
+    "apikey",
+  ];
 
   req.headers.forEach(
     (valor, chave) => {
       const normalizada =
-        chave.toLowerCase();
+        chave
+          .trim()
+          .toLowerCase();
+
+      const contemSegredo =
+        termosSensiveis.some(
+          (termo) =>
+            normalizada.includes(
+              termo
+            )
+        );
+
+      const contemIp =
+        normalizada.endsWith(
+          "-ip"
+        ) ||
+        normalizada.includes(
+          "client-ip"
+        ) ||
+        normalizada.startsWith(
+          "x-vercel-ip-"
+        );
 
       if (
-        bloqueados.has(
+        bloqueadosExatos.has(
           normalizada
-        )
+        ) ||
+        contemSegredo ||
+        contemIp
       ) {
         return;
       }

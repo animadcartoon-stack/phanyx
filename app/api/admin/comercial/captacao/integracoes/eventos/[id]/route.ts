@@ -46,7 +46,7 @@ function ehMasterReal(
     user.isMasterAdmin === true &&
     user.impersonacao === false &&
     user.email.trim().toLowerCase() ===
-      "academicophanyx@gmail.com"
+    "academicophanyx@gmail.com"
   );
 }
 
@@ -137,6 +137,76 @@ function numeroPositivo(
   )
     ? numero
     : null;
+}
+
+function sanitizarHeadersAuditoria(
+  valor: unknown
+) {
+  if (
+    !valor ||
+    typeof valor !==
+    "object" ||
+    Array.isArray(valor)
+  ) {
+    return valor;
+  }
+
+  const headers =
+    valor as Record<
+      string,
+      unknown
+    >;
+
+  const termosSensiveis = [
+    "authorization",
+    "cookie",
+    "secret",
+    "token",
+    "signature",
+    "api-key",
+    "apikey",
+  ];
+
+  const headersComIp = [
+    "x-forwarded-for",
+    "x-real-ip",
+    "x-vercel-forwarded-for",
+    "x-vercel-proxied-for",
+  ];
+
+  return Object.fromEntries(
+    Object.entries(
+      headers
+    ).map(
+      ([
+        chave,
+        conteudo,
+      ]) => {
+        const normalizada =
+          chave
+            .trim()
+            .toLowerCase();
+
+        const sensivel =
+          termosSensiveis.some(
+            (termo) =>
+              normalizada.includes(
+                termo
+              )
+          ) ||
+          headersComIp.includes(
+            normalizada
+          );
+
+        return [
+          chave,
+          sensivel
+            ? "[PROTEGIDO]"
+            : conteudo,
+        ];
+      }
+    )
+  );
 }
 
 function responderErro(
@@ -528,28 +598,28 @@ export async function GET(
         evento.submissao &&
         (
           evento.submissao.status ===
-            "RECEBIDA" ||
+          "RECEBIDA" ||
           evento.submissao.status ===
-            "REJEITADA" ||
+          "REJEITADA" ||
           evento.submissao.status ===
-            "ERRO"
+          "ERRO"
         )
       );
 
     const eventoPossuiFalha =
       evento.status ===
-        StatusEventoIntegracaoCaptacaoLead.ERRO ||
+      StatusEventoIntegracaoCaptacaoLead.ERRO ||
       Boolean(
         evento.mensagemErro
       );
 
     const eventoPendente =
       evento.status ===
-        StatusEventoIntegracaoCaptacaoLead.RECEBIDO ||
+      StatusEventoIntegracaoCaptacaoLead.RECEBIDO ||
       evento.status ===
-        StatusEventoIntegracaoCaptacaoLead.PENDENTE ||
+      StatusEventoIntegracaoCaptacaoLead.PENDENTE ||
       evento.status ===
-        StatusEventoIntegracaoCaptacaoLead.PROCESSANDO;
+      StatusEventoIntegracaoCaptacaoLead.PROCESSANDO;
 
     return NextResponse.json(
       {
@@ -575,7 +645,14 @@ export async function GET(
           eventoPendente,
         },
 
-        evento,
+        evento: {
+          ...evento,
+
+          headers:
+            sanitizarHeadersAuditoria(
+              evento.headers
+            ),
+        },
       },
       {
         status: 200,
