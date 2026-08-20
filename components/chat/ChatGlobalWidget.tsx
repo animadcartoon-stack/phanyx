@@ -1021,19 +1021,19 @@ export default function ChatGlobalWidget() {
             <>
               <div
                 onMouseDown={iniciarRedimensionamento}
-                className="absolute left-0 top-0 z-20 h-10 w-10 cursor-nwse-resize rounded-br-xl bg-transparent hover:bg-white/10"
+                className="phanyx-chat-resize-handle absolute left-0 top-0 z-30 h-4 w-4 cursor-nwse-resize"
                 title="Arrastar para redimensionar"
               />
 
               <div
                 onMouseDown={iniciarRedimensionamento}
-                className="absolute left-0 top-10 z-[99999] h-[calc(100%-40px)] w-5 cursor-ew-resize bg-white/5 hover:bg-white/30"
+                className="phanyx-chat-resize-handle absolute bottom-0 left-0 top-4 z-20 w-2 cursor-ew-resize"
                 title="Arrastar lateral"
               />
 
               <div
                 onMouseDown={iniciarRedimensionamentoAltura}
-                className="absolute left-12 top-0 z-[999999] h-2 w-[calc(100%-96px)] cursor-ns-resize bg-white/10 hover:bg-white/40"
+                className="phanyx-chat-resize-handle absolute left-4 right-4 top-0 z-20 h-2 cursor-ns-resize"
                 title="Arrastar para cima"
               />
             </>
