@@ -350,12 +350,18 @@ function headersAuditaveis(
           "x-vercel-ip-"
         );
 
+      const internoVercel =
+        normalizada.startsWith(
+          "x-vercel-sc-"
+        );
+
       if (
         bloqueadosExatos.has(
           normalizada
         ) ||
         contemSegredo ||
-        contemIp
+        contemIp ||
+        internoVercel
       ) {
         return;
       }

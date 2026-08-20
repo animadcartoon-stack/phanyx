@@ -157,6 +157,21 @@ function sanitizarHeadersAuditoria(
       unknown
     >;
 
+  const bloqueadosExatos =
+    new Set([
+      "forwarded",
+      "x-forwarded-for",
+      "x-real-ip",
+      "x-client-ip",
+      "x-cluster-client-ip",
+      "true-client-ip",
+      "cf-connecting-ip",
+      "fastly-client-ip",
+      "x-appengine-user-ip",
+      "x-vercel-forwarded-for",
+      "x-vercel-proxied-for",
+    ]);
+
   const termosSensiveis = [
     "authorization",
     "cookie",
@@ -165,13 +180,6 @@ function sanitizarHeadersAuditoria(
     "signature",
     "api-key",
     "apikey",
-  ];
-
-  const headersComIp = [
-    "x-forwarded-for",
-    "x-real-ip",
-    "x-vercel-forwarded-for",
-    "x-vercel-proxied-for",
   ];
 
   return Object.fromEntries(
@@ -187,16 +195,37 @@ function sanitizarHeadersAuditoria(
             .trim()
             .toLowerCase();
 
-        const sensivel =
+        const contemSegredo =
           termosSensiveis.some(
             (termo) =>
               normalizada.includes(
                 termo
               )
-          ) ||
-          headersComIp.includes(
-            normalizada
           );
+
+        const contemIpOuLocalizacao =
+          bloqueadosExatos.has(
+            normalizada
+          ) ||
+          normalizada.endsWith(
+            "-ip"
+          ) ||
+          normalizada.includes(
+            "client-ip"
+          ) ||
+          normalizada.startsWith(
+            "x-vercel-ip-"
+          );
+
+        const internoVercel =
+          normalizada.startsWith(
+            "x-vercel-sc-"
+          );
+
+        const sensivel =
+          contemSegredo ||
+          contemIpOuLocalizacao ||
+          internoVercel;
 
         return [
           chave,

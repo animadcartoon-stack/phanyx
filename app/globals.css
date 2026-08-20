@@ -28293,6 +28293,7 @@ html[data-theme="system"]
 }
 
 .phanyx-biblioteca-item-page .bib-exemplar-row {
+  display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: start;
 }
