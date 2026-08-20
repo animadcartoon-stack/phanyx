@@ -5287,68 +5287,76 @@ export default function CrachasClient() {
       )}
 
       {menuContexto.aberto && menuContexto.objetoId && (
-        <div
-          className="fixed w-56 rounded-2xl border border-slate-300 bg-white p-2 text-sm font-semibold text-slate-900 shadow-2xl dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
-          style={{
-            left: menuContexto.x,
-            top: menuContexto.y,
-            zIndex: 2147483647,
-          }}
-          onMouseDown={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-        >
-          <div
-            onMouseDown={iniciarArrastoMenuContexto}
-            className="mb-2 cursor-move rounded-xl border border-slate-200 bg-slate-100 px-3 py-2 text-xs font-bold text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
-          >
-            ⠿ Arrastar menu
-          </div>
+  <div
+    className="phanyx-crachas-context-menu fixed w-56 rounded-2xl border p-2 text-sm font-semibold shadow-2xl"
+    style={{
+      left: menuContexto.x,
+      top: menuContexto.y,
+      zIndex: 2147483647,
+    }}
+    onMouseDown={(e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    }}
+  >
+    <div
+      onMouseDown={iniciarArrastoMenuContexto}
+      className="phanyx-crachas-context-drag mb-2 cursor-move rounded-xl border px-3 py-2 text-xs font-bold"
+    >
+      ⠿ Arrastar menu
+    </div>
 
-          <button
-            type="button"
-            onClick={() =>
-              trazerObjetoParaFrentePorId(menuContexto.objetoId!)
-            }
-            className="w-full rounded-xl px-3 py-2 text-left hover:bg-slate-100 dark:hover:bg-slate-800"
-          >
-            Trazer para frente
-          </button>
+    <button
+      type="button"
+      onClick={() =>
+        trazerObjetoParaFrentePorId(
+          menuContexto.objetoId!
+        )
+      }
+      className="phanyx-crachas-context-item"
+    >
+      Trazer para frente
+    </button>
 
-          <button
-            type="button"
-            onClick={() =>
-              enviarObjetoParaTrasPorId(menuContexto.objetoId!)
-            }
-            className="w-full rounded-xl px-3 py-2 text-left hover:bg-slate-100 dark:hover:bg-slate-800"
-          >
-            Enviar para trás
-          </button>
+    <button
+      type="button"
+      onClick={() =>
+        enviarObjetoParaTrasPorId(
+          menuContexto.objetoId!
+        )
+      }
+      className="phanyx-crachas-context-item"
+    >
+      Enviar para trás
+    </button>
 
-          <button
-            type="button"
-            onClick={() =>
-              duplicarObjetoPorId(menuContexto.objetoId!)
-            }
-            className="w-full rounded-xl px-3 py-2 text-left hover:bg-slate-100 dark:hover:bg-slate-800"
-          >
-            Duplicar
-          </button>
+    <button
+      type="button"
+      onClick={() =>
+        duplicarObjetoPorId(
+          menuContexto.objetoId!
+        )
+      }
+      className="phanyx-crachas-context-item"
+    >
+      Duplicar
+    </button>
 
-          <div className="my-1 border-t border-slate-200 dark:border-slate-800" />
+    <div className="phanyx-crachas-context-divider my-1 border-t" />
 
-          <button
-            type="button"
-            onClick={() =>
-              excluirObjetoPorId(menuContexto.objetoId!)
-            }
-            className="w-full rounded-xl px-3 py-2 text-left text-red-600 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-950"
-          >
-            Excluir
-          </button>
-        </div>
-      )}
+    <button
+      type="button"
+      onClick={() =>
+        excluirObjetoPorId(
+          menuContexto.objetoId!
+        )
+      }
+      className="phanyx-crachas-context-item phanyx-crachas-context-delete"
+    >
+      Excluir
+    </button>
+  </div>
+)}
 
       <div className="grid grid-cols-12 gap-4">
 

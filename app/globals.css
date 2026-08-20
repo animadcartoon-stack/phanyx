@@ -27506,3 +27506,194 @@ html[data-theme="system"]
 
   box-shadow: none !important;
 }
+
+/* =========================================================
+   PHANYX — CRACHÁS
+   MENU DE CONTEXTO
+   ========================================================= */
+
+.phanyx-crachas-context-item {
+  display: block !important;
+  width: 100% !important;
+
+  border: 1px solid transparent !important;
+  border-radius: 0.75rem !important;
+
+  padding: 0.55rem 0.75rem !important;
+
+  text-align: left !important;
+  font-weight: 700 !important;
+
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease !important;
+}
+
+/* =========================
+   CLARO
+   ========================= */
+
+html[data-theme="light"]
+  .phanyx-crachas-context-menu,
+html:not([data-theme])
+  .phanyx-crachas-context-menu {
+  background: #ffffff !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+
+  box-shadow:
+    0 18px 45px rgba(15, 23, 42, 0.22) !important;
+}
+
+html[data-theme="light"]
+  .phanyx-crachas-context-drag,
+html:not([data-theme])
+  .phanyx-crachas-context-drag {
+  background: #e2e8f0 !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-crachas-context-item,
+html:not([data-theme])
+  .phanyx-crachas-context-item {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-crachas-context-item:hover,
+html:not([data-theme])
+  .phanyx-crachas-context-item:hover {
+  background: #e2e8f0 !important;
+  border-color: #94a3b8 !important;
+  color: #020617 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-crachas-context-divider,
+html:not([data-theme])
+  .phanyx-crachas-context-divider {
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-crachas-context-delete,
+html:not([data-theme])
+  .phanyx-crachas-context-delete {
+  background: #fef2f2 !important;
+  border-color: #fecaca !important;
+  color: #b91c1c !important;
+}
+
+html[data-theme="light"]
+  .phanyx-crachas-context-delete:hover,
+html:not([data-theme])
+  .phanyx-crachas-context-delete:hover {
+  background: #fee2e2 !important;
+  border-color: #ef4444 !important;
+  color: #991b1b !important;
+}
+
+/* =========================
+   ESCURO
+   ========================= */
+
+html[data-theme="dark"]
+  .phanyx-crachas-context-menu {
+  background: #0f172a !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-crachas-context-drag {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-crachas-context-item {
+  background: #111827 !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-crachas-context-item:hover {
+  background: #1e293b !important;
+  border-color: #64748b !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-crachas-context-divider {
+  border-color: #334155 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-crachas-context-delete {
+  background: #450a0a !important;
+  border-color: #7f1d1d !important;
+  color: #fca5a5 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-crachas-context-delete:hover {
+  background: #7f1d1d !important;
+  border-color: #ef4444 !important;
+  color: #ffffff !important;
+}
+
+/* =========================
+   SISTEMA
+   ========================= */
+
+html[data-theme="system"]
+  .phanyx-crachas-context-menu {
+  background: #262626 !important;
+  border-color: #525252 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-crachas-context-drag {
+  background: #333333 !important;
+  border-color: #737373 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-crachas-context-item {
+  background: #303030 !important;
+  border-color: #525252 !important;
+  color: #f5f5f5 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-crachas-context-item:hover {
+  background: #404040 !important;
+  border-color: #737373 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-crachas-context-divider {
+  border-color: #525252 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-crachas-context-delete {
+  background: #7f1d1d !important;
+  border-color: #991b1b !important;
+  color: #fee2e2 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-crachas-context-delete:hover {
+  background: #991b1b !important;
+  border-color: #ef4444 !important;
+  color: #ffffff !important;
+}
