@@ -60,9 +60,23 @@ const EMOJIS_RAPIDOS = Array.from(
 
 const GIFS_RAPIDOS = [
   "https://media.giphy.com/media/111ebonMs90YLu/giphy.gif",
-  "https://media.giphy.com/media/3o6Zt481isNVuQI1l6/giphy.gif",
   "https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif",
   "https://media.giphy.com/media/26u4cqiYI30juCOGY/giphy.gif",
+  "https://media.giphy.com/media/IwAZ6dvvvaTtdI8SD5/giphy.gif",
+  "https://media.giphy.com/media/l3q2XhfQ8oCkm1Ts4/giphy.gif",
+  "https://media.giphy.com/media/3o7abKhOpu0NwenH3O/giphy.gif",
+  "https://media.giphy.com/media/3oz8xIsloV7zOmt81G/giphy.gif",
+  "https://media.giphy.com/media/FpR7QUejI3uW1z5vXm/giphy.gif",
+  "https://media.giphy.com/media/OybPkol4N2zkXfopZn/giphy.gif",
+  "https://media.giphy.com/media/3ohjV6sH93mHU45AHK/giphy.gif",
+  "https://media.giphy.com/media/TiSnPeQUmEZ4dyjpHa/giphy.gif",
+  "https://media.giphy.com/media/ekqaUtvIzvtsijg3p9/giphy.gif",
+  "https://media.giphy.com/media/dyFrmQPBobmx69JiHZ/giphy.gif",
+  "https://media.giphy.com/media/q4YtZsDOUUzfoLYjFQ/giphy.gif",
+  "https://media.giphy.com/media/z5W8pA96qnpaIWbQNt/giphy.gif",
+  "https://media.giphy.com/media/Ov09jGgEThFKpxZ9eC/giphy.gif",
+  "https://media.giphy.com/media/5xtDarmwsuR9sDRObyU/giphy.gif",
+  "https://media.giphy.com/media/26gsjCZpPolPr3sBy/giphy.gif",
 ];
 
 export default function ChatGlobalWidget() {
@@ -724,8 +738,8 @@ export default function ChatGlobalWidget() {
                     >
                       <div
                         className={`max-w-[75%] rounded-2xl px-3 py-2 ${minha
-                            ? "phanyx-chat-mensagem-minha bg-blue-600 text-white"
-                            : "phanyx-chat-mensagem-recebida bg-slate-800 text-slate-100"
+                          ? "phanyx-chat-mensagem-minha bg-blue-600 text-white"
+                          : "phanyx-chat-mensagem-recebida bg-slate-800 text-slate-100"
                           }`}
                       >
                         {mensagem.anexos && mensagem.anexos.length > 0 ? (
@@ -781,7 +795,18 @@ export default function ChatGlobalWidget() {
                             className="max-h-40 rounded-xl"
                           />
                         ) : (
-                          mensagem.texto
+                          <span
+                            style={{
+                              color: minha
+                                ? "#ffffff"
+                                : "#f8fafc",
+                              WebkitTextFillColor: minha
+                                ? "#ffffff"
+                                : "#f8fafc",
+                            }}
+                          >
+                            {mensagem.texto}
+                          </span>
                         )}
 
 
@@ -830,8 +855,8 @@ export default function ChatGlobalWidget() {
                 )}
 
                 {mostrarGifs && (
-                  <div className="phanyx-chat-gif-panel mb-2 grid grid-cols-2 gap-2 rounded-xl border p-2">
-                    <div className="phanyx-chat-gif-header col-span-2 flex items-center justify-between gap-3 border-b pb-2">
+                  <div className="phanyx-chat-gif-panel mb-2 rounded-xl border p-2">
+                    <div className="phanyx-chat-gif-header flex items-center justify-between gap-3 border-b pb-2">
                       <span className="phanyx-chat-gif-title text-xs font-semibold">
                         Escolha um GIF
                       </span>
@@ -846,21 +871,26 @@ export default function ChatGlobalWidget() {
                       </button>
                     </div>
 
-                    {GIFS_RAPIDOS.map((gif) => (
-                      <button
-                        key={gif}
-                        type="button"
-                        onClick={() => enviarGif(gif)}
-                        disabled={enviando}
-                        className="phanyx-chat-gif-option overflow-hidden rounded-lg border disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        <img
-                          src={gif}
-                          alt="Enviar este GIF"
-                          className="h-20 w-full object-cover"
-                        />
-                      </button>
-                    ))}
+                    <div
+                      className="phanyx-chat-gif-grid mt-2 grid grid-cols-2 gap-2"
+                      onWheel={(event) => event.stopPropagation()}
+                    >
+                      {GIFS_RAPIDOS.map((gif) => (
+                        <button
+                          key={gif}
+                          type="button"
+                          onClick={() => enviarGif(gif)}
+                          disabled={enviando}
+                          className="phanyx-chat-gif-option overflow-hidden rounded-lg border disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          <img
+                            src={gif}
+                            alt="Enviar este GIF"
+                            className="h-20 w-full object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 )}
 

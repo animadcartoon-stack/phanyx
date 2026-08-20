@@ -28235,10 +28235,13 @@ html[data-theme="system"] .phanyx-prof-reunioes-entrar:hover {
 
 /* Rolagem interna do seletor de GIFs */
 .phanyx-chat-gif-panel {
-  max-height: min(280px, 42vh);
+  height: 210px !important;
+  min-height: 210px !important;
+  max-height: 210px !important;
   overflow-x: hidden !important;
-  overflow-y: auto !important;
-  overscroll-behavior: contain;
+  overflow-y: scroll !important;
+  touch-action: pan-y;
+  pointer-events: auto;
   scrollbar-gutter: stable;
   scrollbar-width: thin;
   scrollbar-color: #64748b transparent;
@@ -28457,5 +28460,16 @@ html[data-theme="system"] .phanyx-chat-emoji-opcao:hover {
 .phanyx-chat-cabecalho,
 .phanyx-chat-cabecalho p,
 .phanyx-chat-cabecalho span {
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .phanyx-chat-mensagem-minha,
+html[data-theme="light"] .phanyx-chat-mensagem-minha *,
+html:not([data-theme]) .phanyx-chat-mensagem-minha,
+html:not([data-theme]) .phanyx-chat-mensagem-minha *,
+html[data-theme="dark"] .phanyx-chat-mensagem-minha,
+html[data-theme="dark"] .phanyx-chat-mensagem-minha *,
+html[data-theme="system"] .phanyx-chat-mensagem-minha,
+html[data-theme="system"] .phanyx-chat-mensagem-minha * {
   color: #ffffff !important;
 }
