@@ -1394,11 +1394,18 @@ export default function WhatsAppInstitucionalPage() {
               Nenhuma mensagem foi registrada até o momento.
             </div>
           ) : (
-            <div className="space-y-4 bg-slate-100 p-5 dark:bg-slate-900/60">
+            <div className="divide-y divide-slate-300 !bg-white dark:divide-slate-700 dark:!bg-slate-950">
               {mensagensRecentes.map((mensagem) => (
                 <article
                   key={mensagem.id}
-                  className="rounded-2xl border border-slate-300 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-950"
+                  className={`border-l-4 !bg-white p-5 dark:!bg-slate-950 ${["FALHOU", "CANCELADA"].includes(mensagem.status)
+                      ? "border-l-red-500"
+                      : ["ENTREGUE", "LIDA"].includes(mensagem.status)
+                        ? "border-l-emerald-500"
+                        : mensagem.status === "ENVIADA"
+                          ? "border-l-blue-500"
+                          : "border-l-amber-500"
+                    }`}
                 >
                   <div className="flex flex-col justify-between gap-3 lg:flex-row lg:items-start">
                     <div>
@@ -1450,19 +1457,19 @@ export default function WhatsAppInstitucionalPage() {
                   </div>
 
                   {(mensagem.erroMensagem || mensagem.erroCodigo) && (
-                    <div className="mt-4 rounded-xl border-2 border-red-500 bg-red-100 p-4 text-sm text-red-950 shadow-sm dark:border-red-600 dark:bg-red-950/70 dark:text-red-100">
-                      <p className="font-bold">
+                    <div className="mt-4 rounded-lg border border-red-300 border-l-4 border-l-red-600 !bg-red-50 p-4 text-sm !text-red-950 dark:border-red-800 dark:border-l-red-500 dark:!bg-red-950/40 dark:!text-red-100">
+                      <p className="font-bold !text-red-950 dark:!text-red-100">
                         Falha informada pela Meta
                       </p>
 
                       {mensagem.erroCodigo && (
-                        <p className="mt-2">
+                        <p className="mt-2 !text-red-900 dark:!text-red-200">
                           Código: {mensagem.erroCodigo}
                         </p>
                       )}
 
                       {mensagem.erroMensagem && (
-                        <p className="mt-1 whitespace-pre-wrap">
+                        <p className="mt-1 whitespace-pre-wrap !text-red-900 dark:!text-red-200">
                           {mensagem.erroMensagem}
                         </p>
                       )}
@@ -2003,116 +2010,114 @@ export default function WhatsAppInstitucionalPage() {
         </section>
       </div>
 
-      {!carregando &&
-        !integracao.configurada &&
-        modalOrientacaoAberto && (
-          <div className="phanyx-whatsapp-page fixed inset-0 z-[110] flex items-center justify-center bg-black/60 p-4">
-            <div className="w-full max-w-2xl overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-950">
-              <div className="flex items-start justify-between gap-4 border-b border-slate-200 p-5 dark:border-slate-700">
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-400">
-                    WhatsApp institucional
-                  </p>
+      {!carregando && modalOrientacaoAberto && (
+        <div className="phanyx-whatsapp-page fixed inset-0 z-[110] flex items-center justify-center bg-black/60 p-4">
+          <div className="w-full max-w-2xl overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-950">
+            <div className="flex items-start justify-between gap-4 border-b border-slate-200 p-5 dark:border-slate-700">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-400">
+                  WhatsApp institucional
+                </p>
 
-                  <h2 className="mt-1 text-xl font-bold text-slate-950 dark:text-white">
-                    Antes de conectar o WhatsApp
-                  </h2>
+                <h2 className="mt-1 text-xl font-bold text-slate-950 dark:text-white">
+                  Antes de conectar o WhatsApp
+                </h2>
 
-                  <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                    A integração do PHANYX utiliza a plataforma oficial
-                    WhatsApp Business da Meta.
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  aria-label="Fechar orientações"
-                  onClick={() => setModalOrientacaoAberto(false)}
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-300 bg-slate-50 text-lg font-bold text-slate-700 transition hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-                >
-                  ×
-                </button>
+                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                  A integração do PHANYX utiliza a plataforma oficial
+                  WhatsApp Business da Meta.
+                </p>
               </div>
 
-              <div className="space-y-5 p-5">
-                <div className="rounded-xl border-2 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950 dark:border-amber-600 dark:bg-amber-950/50 dark:text-amber-100">
-                  <p className="font-bold">
-                    O aplicativo WhatsApp Business no celular não é
-                    suficiente para esta integração.
-                  </p>
+              <button
+                type="button"
+                aria-label="Fechar orientações"
+                onClick={() => setModalOrientacaoAberto(false)}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-300 bg-slate-50 text-lg font-bold text-slate-700 transition hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+              >
+                ×
+              </button>
+            </div>
 
-                  <p className="mt-1">
-                    A instituição precisa configurar um número na WhatsApp
-                    Business Platform, também chamada de Cloud API.
-                  </p>
-                </div>
+            <div className="space-y-5 p-5">
+              <div className="rounded-xl border-2 border-amber-400 bg-amber-50 p-4 text-sm leading-6 text-amber-950 dark:border-amber-600 dark:bg-amber-950/50 dark:text-amber-100">
+                <p className="font-bold">
+                  O aplicativo WhatsApp Business no celular não é
+                  suficiente para esta integração.
+                </p>
 
-                <div>
-                  <h3 className="font-bold text-slate-950 dark:text-white">
-                    A instituição precisará ter:
-                  </h3>
-
-                  <ul className="mt-3 space-y-2 text-sm text-slate-700 dark:text-slate-300">
-                    <li className="flex gap-2">
-                      <span className="font-bold text-emerald-600">✓</span>
-                      Um número institucional real e autorizado pela Meta.
-                    </li>
-
-                    <li className="flex gap-2">
-                      <span className="font-bold text-emerald-600">✓</span>
-                      O Phone Number ID do número conectado.
-                    </li>
-
-                    <li className="flex gap-2">
-                      <span className="font-bold text-emerald-600">✓</span>
-                      O WhatsApp Business Account ID, também chamado de
-                      WABA ID.
-                    </li>
-
-                    <li className="flex gap-2">
-                      <span className="font-bold text-emerald-600">✓</span>
-                      Um token permanente com as permissões necessárias.
-                    </li>
-
-                    <li className="flex gap-2">
-                      <span className="font-bold text-emerald-600">✓</span>
-                      Templates de mensagens aprovados pela Meta.
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="rounded-xl border border-slate-300 bg-slate-100 p-4 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
-                  As credenciais serão vinculadas somente à instituição
-                  autenticada. O token será criptografado e não será exibido
-                  novamente depois da conexão.
-                </div>
+                <p className="mt-1">
+                  A instituição precisa configurar um número na WhatsApp
+                  Business Platform, também chamada de Cloud API.
+                </p>
               </div>
 
-              <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 p-5 sm:flex-row sm:justify-end dark:border-slate-700 dark:bg-slate-900">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setModalOrientacaoAberto(false);
-                    setModalConexaoAberto(true);
-                  }}
-                  className="rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-bold text-slate-800 transition hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
-                >
-                  Já tenho os dados
-                </button>
+              <div>
+                <h3 className="font-bold text-slate-950 dark:text-white">
+                  A instituição precisará ter:
+                </h3>
 
-                <a
-                  href="https://business.facebook.com/wa/manage/"
-                  target="_blank"
-                  rel="noreferrer"
-                  onClick={() => setModalOrientacaoAberto(false)}
-                  className="rounded-xl bg-emerald-600 px-5 py-2.5 text-center text-sm font-bold text-white transition hover:bg-emerald-700"
-                >
-                  Ir para a página de configuração
-                </a>
+                <ul className="mt-3 space-y-2 text-sm text-slate-700 dark:text-slate-300">
+                  <li className="flex gap-2">
+                    <span className="font-bold text-emerald-600">✓</span>
+                    Um número institucional real e autorizado pela Meta.
+                  </li>
+
+                  <li className="flex gap-2">
+                    <span className="font-bold text-emerald-600">✓</span>
+                    O Phone Number ID do número conectado.
+                  </li>
+
+                  <li className="flex gap-2">
+                    <span className="font-bold text-emerald-600">✓</span>
+                    O WhatsApp Business Account ID, também chamado de
+                    WABA ID.
+                  </li>
+
+                  <li className="flex gap-2">
+                    <span className="font-bold text-emerald-600">✓</span>
+                    Um token permanente com as permissões necessárias.
+                  </li>
+
+                  <li className="flex gap-2">
+                    <span className="font-bold text-emerald-600">✓</span>
+                    Templates de mensagens aprovados pela Meta.
+                  </li>
+                </ul>
+              </div>
+
+              <div className="rounded-xl border border-slate-300 bg-slate-100 p-4 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
+                As credenciais serão vinculadas somente à instituição
+                autenticada. O token será criptografado e não será exibido
+                novamente depois da conexão.
               </div>
             </div>
+
+            <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 p-5 sm:flex-row sm:justify-end dark:border-slate-700 dark:bg-slate-900">
+              <button
+                type="button"
+                onClick={() => {
+                  setModalOrientacaoAberto(false);
+                  setModalConexaoAberto(true);
+                }}
+                className="rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-bold text-slate-800 transition hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
+              >
+                Já tenho os dados
+              </button>
+
+              <a
+                href="https://business.facebook.com/wa/manage/"
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => setModalOrientacaoAberto(false)}
+                className="rounded-xl bg-emerald-600 px-5 py-2.5 text-center text-sm font-bold text-white transition hover:bg-emerald-700"
+              >
+                Ir para a página de configuração
+              </a>
+            </div>
           </div>
-        )}
+        </div>
+      )}
 
       {modalConexaoAberto && (
         <div className="phanyx-whatsapp-page fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
