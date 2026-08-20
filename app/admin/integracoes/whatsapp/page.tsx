@@ -1389,11 +1389,11 @@ export default function WhatsAppInstitucionalPage() {
               Nenhuma mensagem foi registrada até o momento.
             </div>
           ) : (
-            <div className="divide-y divide-slate-200 dark:divide-slate-700">
+            <div className="space-y-4 bg-slate-100 p-5 dark:bg-slate-900/60">
               {mensagensRecentes.map((mensagem) => (
                 <article
                   key={mensagem.id}
-                  className="p-5"
+                  className="rounded-2xl border border-slate-300 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-950"
                 >
                   <div className="flex flex-col justify-between gap-3 lg:flex-row lg:items-start">
                     <div>
@@ -1409,7 +1409,7 @@ export default function WhatsAppInstitucionalPage() {
                               : ["FALHOU", "CANCELADA"].includes(
                                 mensagem.status
                               )
-                                ? "border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300"
+                                ? "border-red-400 bg-red-100 text-red-900 dark:border-red-700 dark:bg-red-950/70 dark:text-red-200"
                                 : mensagem.status === "ENVIADA"
                                   ? "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-300"
                                   : "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300"
@@ -1445,7 +1445,7 @@ export default function WhatsAppInstitucionalPage() {
                   </div>
 
                   {(mensagem.erroMensagem || mensagem.erroCodigo) && (
-                    <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">
+                    <div className="mt-4 rounded-xl border-2 border-red-500 bg-red-100 p-4 text-sm text-red-950 shadow-sm dark:border-red-600 dark:bg-red-950/70 dark:text-red-100">
                       <p className="font-bold">
                         Falha informada pela Meta
                       </p>
@@ -1743,7 +1743,7 @@ export default function WhatsAppInstitucionalPage() {
                   }
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 font-mono text-sm text-slate-950 outline-none transition focus:border-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                 />
-                
+
                 <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
                   Use apenas letras minúsculas, números e underline.
                   O nome precisa corresponder exatamente ao template
