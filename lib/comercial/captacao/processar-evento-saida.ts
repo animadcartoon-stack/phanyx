@@ -842,7 +842,7 @@ async function lerRespostaHttp(
 
   let corpo:
     unknown =
-      texto;
+    texto;
 
   if (
     texto &&
@@ -1649,7 +1649,16 @@ export async function processarEventoSaidaCaptacao(
       );
 
     let response:
-      Response;
+      Response | null =
+      null;
+
+    let respostaHttp:
+      Awaited<
+        ReturnType<
+          typeof lerRespostaHttp
+        >
+      > | null =
+      null;
 
     try {
       response =
@@ -1697,16 +1706,25 @@ export async function processarEventoSaidaCaptacao(
               "no-store",
           }
         );
+
+      respostaHttp =
+        await lerRespostaHttp(
+          response
+        );
     } finally {
       clearTimeout(
         timeout
       );
     }
 
-    const respostaHttp =
-      await lerRespostaHttp(
-        response
+    if (
+      !response ||
+      !respostaHttp
+    ) {
+      throw new Error(
+        "O endpoint não retornou uma resposta válida."
       );
+    }
 
     if (!response.ok) {
       const mensagem =

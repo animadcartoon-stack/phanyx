@@ -1,6 +1,8 @@
 import {
   DirecaoEventoIntegracaoCaptacaoLead,
   StatusEventoIntegracaoCaptacaoLead,
+  StatusIntegracaoCaptacaoLead,
+  TipoIntegracaoCaptacaoLead,
 } from "@prisma/client";
 
 import {
@@ -22,6 +24,8 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+export const maxDuration = 60;
+
 /*
  * Mantemos lotes pequenos porque
  * cada evento pode realizar uma
@@ -32,6 +36,15 @@ const LOTE_PADRAO =
 
 const LOTE_MAXIMO =
   25;
+
+/*
+* Deixamos margem para o último
+* webhook iniciado usar seu timeout
+* máximo de 30 segundos sem exceder
+* os 60 segundos da função.
+*/
+const LIMITE_INICIO_NOVO_EVENTO_MS =
+  25_000;
 
 /*
  * Se uma execução morrer depois do
@@ -275,7 +288,7 @@ async function recuperarProcessamentosTravados() {
   const limite =
     new Date(
       Date.now() -
-        TEMPO_PROCESSAMENTO_TRAVADO_MS
+      TEMPO_PROCESSAMENTO_TRAVADO_MS
     );
 
   const agora =
@@ -375,6 +388,48 @@ async function executarWorker(
           direcao:
             DirecaoEventoIntegracaoCaptacaoLead.SAIDA,
 
+          integracao: {
+            OR: [
+              /*
+               * Integrações ativas podem
+               * entregar normalmente.
+               */
+              {
+                tipo:
+                  TipoIntegracaoCaptacaoLead.WEBHOOK_SAIDA,
+
+                status:
+                  StatusIntegracaoCaptacaoLead.ATIVA,
+
+                ativo:
+                  true,
+              },
+
+              /*
+               * Estes casos precisam passar
+               * pelo processador uma vez para
+               * que seus eventos sejam
+               * descartados corretamente.
+               */
+              {
+                status:
+                  StatusIntegracaoCaptacaoLead.REVOGADA,
+              },
+
+              {
+                ativo:
+                  false,
+              },
+
+              {
+                tipo: {
+                  not:
+                    TipoIntegracaoCaptacaoLead.WEBHOOK_SAIDA,
+                },
+              },
+            ],
+          },
+
           status: {
             in: [
               StatusEventoIntegracaoCaptacaoLead.PENDENTE,
@@ -447,44 +502,47 @@ async function executarWorker(
       eventoId: number;
 
       instituicaoId:
-        number;
+      number;
 
       integracaoId:
-        number;
+      number;
 
       tipoEvento:
-        string;
+      string;
 
       statusAnterior:
-        string;
+      string;
 
       statusFinal:
-        string | null;
+      string | null;
 
       tentativa:
-        number | null;
+      number | null;
 
       entregue:
-        boolean;
+      boolean;
 
       descartado:
-        boolean;
+      boolean;
 
       ignorado:
-        boolean;
+      boolean;
 
       codigoHttp:
-        number | null;
+      number | null;
 
       proximaTentativaEm:
-        Date | null;
+      Date | null;
 
       mensagem:
-        string;
+      string;
 
       duracaoMs:
-        number;
+      number;
     }> = [];
+
+    let interrompidoPorTempo =
+      false;
 
     /*
      * Processamento sequencial
@@ -496,10 +554,21 @@ async function executarWorker(
      * sistemas externos e diminui
      * risco de estourar conexões.
      */
+
     for (
       const evento of
       eventos
     ) {
+      if (
+        Date.now() -
+        inicioMs >=
+        LIMITE_INICIO_NOVO_EVENTO_MS
+      ) {
+        interrompidoPorTempo =
+          true;
+
+        break;
+      }
       const inicioEvento =
         Date.now();
 
@@ -664,6 +733,8 @@ async function executarWorker(
           limite,
 
           travadosRecuperados,
+
+          interrompidoPorTempo,
 
           encontrados:
             eventos.length,

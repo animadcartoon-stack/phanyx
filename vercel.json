@@ -8,6 +8,10 @@
     {
       "path": "/api/reunioes/lembretes",
       "schedule": "0 11 * * *"
+    },
+    {
+      "path": "/api/internal/comercial/captacao/integracoes/processar-fila",
+      "schedule": "* * * * *"
     }
   ]
 }
