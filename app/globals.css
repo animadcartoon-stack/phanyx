@@ -28232,3 +28232,55 @@ html[data-theme="system"] .phanyx-prof-reunioes-entrar {
 html[data-theme="system"] .phanyx-prof-reunioes-entrar:hover {
   background: #1d4ed8 !important;
 }
+
+/* Rolagem interna do seletor de GIFs */
+.phanyx-chat-gif-panel {
+  max-height: min(280px, 42vh);
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: #64748b transparent;
+}
+
+.phanyx-chat-gif-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+/* Barra de rolagem no Chrome e Edge */
+.phanyx-chat-gif-panel::-webkit-scrollbar {
+  width: 8px;
+}
+
+.phanyx-chat-gif-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.phanyx-chat-gif-panel::-webkit-scrollbar-thumb {
+  background: #64748b;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
+}
+
+.phanyx-chat-gif-panel::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+  background-clip: padding-box;
+}
+
+/* Fundo do cabeçalho fixo durante a rolagem */
+html[data-theme="light"] .phanyx-chat-gif-header,
+html:not([data-theme]) .phanyx-chat-gif-header {
+  background: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-chat-gif-header {
+  background: #020617 !important;
+}
+
+html[data-theme="system"] .phanyx-chat-gif-header {
+  background: #262626 !important;
+}

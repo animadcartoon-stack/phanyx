@@ -32,7 +32,31 @@ type MensagemChat = {
   anexos?: any[];
 };
 
-const EMOJIS_RAPIDOS = ["😀", "😂", "😍", "😊", "👏", "👍", "🙏", "❤️", "🎉", "🎓", "📚", "✅"];
+const EMOJIS_RAPIDOS = Array.from(
+  new Set(
+    `
+    😀 😃 😄 😁 😆 😅 😂 🤣 😊 😇 🙂 🙃 😉 😌 😍 🥰 😘
+    😋 😛 😜 🤪 🤨 🧐 🤓 😎 🤩 🥳 😏 😒 😞 😔 😟 😕
+    🙁 ☹️ 😣 😖 😫 😩 🥺 😢 😭 😤 😠 😡 🤯 😳 🥵 🥶
+    😱 😨 😰 😥 😓 🤗 🤔 🤭 🤫 🫡 🫠
+
+    👍 👎 👌 🤌 ✌️ 🤞 🫰 🤟 🤘 🤙 👈 👉 👆 👇 ☝️
+    ✋ 🤚 🖐️ 🖖 👋 🤝 👏 🙌 🫶 🙏 💪
+
+    ❤️ 🧡 💛 💚 💙 💜 🖤 🤍 🤎 💔 ❣️ 💕 💞 💓
+    💗 💖 💘 💝
+
+    🎉 🎊 🎈 🎁 🎂 🥂 ✨ ⭐ 🌟 💫 🔥 ✅ ❌ ⚠️
+    💯 🚀 💡 📌 📎 📝 📚 🎓 💻 📱 📅 ⏰ 🔔 📣
+    🎵 🎬 🎨 📷
+
+    🌞 🌙 🌈 🌸 🌻 🌹 🍀 🌳 🐶 🐱 🦋 🍎 🍓 🍕
+    🍔 🍰 ☕ 🏆 🥇 ⚽ 🏀 🚗 ✈️ 🏠
+    `
+      .trim()
+      .split(/\s+/)
+  )
+);
 
 const GIFS_RAPIDOS = [
   "https://media.giphy.com/media/111ebonMs90YLu/giphy.gif",
@@ -770,19 +794,37 @@ export default function ChatGlobalWidget() {
               <div className="border-t border-slate-700 bg-slate-900 p-3">
 
                 {mostrarEmojis && (
-                  <div className="mb-2 grid grid-cols-6 gap-2 rounded-xl border border-slate-700 bg-slate-950 p-2">
-                    {EMOJIS_RAPIDOS.map((emoji) => (
-                      <button
-                        key={emoji}
-                        type="button"
-                        onClick={() => adicionarEmoji(emoji)}
-                        className="rounded-lg p-1 text-xl hover:bg-slate-800"
-                      >
-                        {emoji}
-                      </button>
-                    ))}
-                  </div>
-                )}
+  <div className="phanyx-chat-emoji-panel mb-2 rounded-xl border p-2">
+    <div className="phanyx-chat-emoji-header flex items-center justify-between gap-3 border-b pb-2">
+      <span className="phanyx-chat-emoji-title text-xs font-semibold">
+        Escolha um emoji
+      </span>
+
+      <button
+        type="button"
+        onClick={() => setMostrarEmojis(false)}
+        className="phanyx-chat-emoji-cancel rounded-lg border px-2 py-1 text-xs font-semibold"
+        title="Fechar emojis"
+      >
+        ✕ Fechar
+      </button>
+    </div>
+
+    <div className="phanyx-chat-emoji-grid mt-2 grid grid-cols-6 gap-2">
+      {EMOJIS_RAPIDOS.map((emoji) => (
+        <button
+          key={emoji}
+          type="button"
+          onClick={() => adicionarEmoji(emoji)}
+          className="phanyx-chat-emoji-opcao rounded-lg p-1 text-xl"
+          title={`Adicionar ${emoji}`}
+        >
+          {emoji}
+        </button>
+      ))}
+    </div>
+  </div>
+)}
 
                 {mostrarGifs && (
                   <div className="phanyx-chat-gif-panel mb-2 grid grid-cols-2 gap-2 rounded-xl border p-2">
