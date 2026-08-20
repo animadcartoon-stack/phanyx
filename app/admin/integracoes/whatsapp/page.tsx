@@ -1743,7 +1743,6 @@ export default function WhatsAppInstitucionalPage() {
                   }
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 font-mono text-sm text-slate-950 outline-none transition focus:border-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                 />
-
                 <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
                   Use apenas letras minúsculas, números e underline.
                   O nome precisa corresponder exatamente ao template
