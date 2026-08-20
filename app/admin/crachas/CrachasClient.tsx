@@ -485,6 +485,41 @@ export default function CrachasClient() {
     []
   );
 
+  const historicoObjetosRef =
+    useRef<
+      Map<
+        string,
+        ObjetoCracha[]
+      >
+    >(new Map());
+
+  const estadoAnteriorObjetosRef =
+    useRef<{
+      FRENTE: ObjetoCracha[];
+      VERSO: ObjetoCracha[];
+    }>({
+      FRENTE: [],
+      VERSO: [],
+    });
+
+  const alteracoesPendentesRef =
+    useRef<
+      Map<
+        string,
+        {
+          estadoAnterior: ObjetoCracha;
+          timer: ReturnType<
+            typeof setTimeout
+          >;
+        }
+      >
+    >(new Map());
+
+  const aplicandoUndoRef =
+    useRef(false);
+
+  const LIMITE_HISTORICO_OBJETO = 30;
+
   const [menuContexto, setMenuContexto] = useState<{
     aberto: boolean;
     x: number;
@@ -897,6 +932,7 @@ export default function CrachasClient() {
   }
 
   function aplicarModeloCrachaNaTela(modelo: ModeloCrachaSalvo) {
+    limparHistoricoObjetos();
     setModeloCrachaAtualId(modelo.id);
 
     setNomeModeloCracha(
@@ -1377,98 +1413,99 @@ export default function CrachasClient() {
   }
 
   async function excluirModeloCracha(
-  modeloId: number
-) {
-  try {
-    setAvisoCracha(null);
+    modeloId: number
+  ) {
+    try {
+      setAvisoCracha(null);
 
-    const res = await fetch(
-      `/api/admin/crachas/modelos?id=${modeloId}`,
-      {
-        method: "DELETE",
-        credentials: "include",
-      }
-    );
+      const res = await fetch(
+        `/api/admin/crachas/modelos?id=${modeloId}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
 
-    const data = await res
-      .json()
-      .catch(() => null);
+      const data = await res
+        .json()
+        .catch(() => null);
 
-    if (!res.ok) {
-      throw new Error(
-        data?.error ||
+      if (!res.ok) {
+        throw new Error(
+          data?.error ||
           "Erro ao excluir modelo de crachá."
+        );
+      }
+
+      const eraModeloAtual =
+        modeloCrachaAtualId === modeloId;
+
+      /*
+       * Remove imediatamente da interface,
+       * sem esperar nova consulta.
+       */
+      setModelosSalvosCracha(
+        (atuais) =>
+          atuais.filter(
+            (modelo) =>
+              modelo.id !== modeloId
+          )
+      );
+
+      setModelosCracha(
+        (atuais) =>
+          atuais.filter(
+            (modelo) =>
+              modelo.id !== modeloId
+          )
+      );
+
+      if (eraModeloAtual) {
+        /*
+         * Limpa o modelo excluído da tela.
+         */
+        novoModeloCracha();
+      }
+
+      /*
+       * Sincroniza novamente com o banco.
+       *
+       * Essa é a lista realmente usada
+       * na barra dos modelos.
+       */
+      await carregarModelosSalvosCracha(
+        tipoModeloCracha
+      );
+
+      await carregarListaModelosCracha();
+
+      setAvisoCracha({
+        tipo: "sucesso",
+        texto:
+          "Modelo de crachá excluído com sucesso.",
+      });
+
+      setTimeout(
+        () => setAvisoCracha(null),
+        4000
+      );
+    } catch (error: any) {
+      setAvisoCracha({
+        tipo: "erro",
+        texto:
+          error?.message ||
+          "Erro ao excluir modelo de crachá.",
+      });
+
+      setTimeout(
+        () => setAvisoCracha(null),
+        5000
       );
     }
-
-    const eraModeloAtual =
-      modeloCrachaAtualId === modeloId;
-
-    /*
-     * Remove imediatamente da interface,
-     * sem esperar nova consulta.
-     */
-    setModelosSalvosCracha(
-      (atuais) =>
-        atuais.filter(
-          (modelo) =>
-            modelo.id !== modeloId
-        )
-    );
-
-    setModelosCracha(
-      (atuais) =>
-        atuais.filter(
-          (modelo) =>
-            modelo.id !== modeloId
-        )
-    );
-
-    if (eraModeloAtual) {
-      /*
-       * Limpa o modelo excluído da tela.
-       */
-      novoModeloCracha();
-    }
-
-    /*
-     * Sincroniza novamente com o banco.
-     *
-     * Essa é a lista realmente usada
-     * na barra dos modelos.
-     */
-    await carregarModelosSalvosCracha(
-      tipoModeloCracha
-    );
-
-    await carregarListaModelosCracha();
-
-    setAvisoCracha({
-      tipo: "sucesso",
-      texto:
-        "Modelo de crachá excluído com sucesso.",
-    });
-
-    setTimeout(
-      () => setAvisoCracha(null),
-      4000
-    );
-  } catch (error: any) {
-    setAvisoCracha({
-      tipo: "erro",
-      texto:
-        error?.message ||
-        "Erro ao excluir modelo de crachá.",
-    });
-
-    setTimeout(
-      () => setAvisoCracha(null),
-      5000
-    );
   }
-}
 
   function novoModeloCracha() {
+    limparHistoricoObjetos();
     setModeloCrachaAtualId(null);
     setNomeModeloCracha("Novo modelo");
 
@@ -2449,6 +2486,78 @@ export default function CrachasClient() {
     }
   }
 
+  function chaveHistoricoObjeto(
+    ladoObjeto: "FRENTE" | "VERSO",
+    objetoId: number
+  ) {
+    return `${ladoObjeto}:${objetoId}`;
+  }
+
+  function clonarObjetoHistorico(
+    objeto: ObjetoCracha
+  ): ObjetoCracha {
+    return structuredClone(objeto);
+  }
+
+  function registrarEstadoHistorico(
+    ladoObjeto:
+      | "FRENTE"
+      | "VERSO",
+    objeto: ObjetoCracha
+  ) {
+    const chave =
+      chaveHistoricoObjeto(
+        ladoObjeto,
+        objeto.id
+      );
+
+    const historico =
+      historicoObjetosRef.current.get(
+        chave
+      ) || [];
+
+    const snapshot =
+      clonarObjetoHistorico(objeto);
+
+    const novoHistorico = [
+      ...historico,
+      snapshot,
+    ];
+
+    if (
+      novoHistorico.length >
+      LIMITE_HISTORICO_OBJETO
+    ) {
+      novoHistorico.splice(
+        0,
+        novoHistorico.length -
+        LIMITE_HISTORICO_OBJETO
+      );
+    }
+
+    historicoObjetosRef.current.set(
+      chave,
+      novoHistorico
+    );
+  }
+
+  function limparHistoricoObjetos() {
+    for (const pendente of
+      alteracoesPendentesRef.current.values()) {
+      clearTimeout(
+        pendente.timer
+      );
+    }
+
+    alteracoesPendentesRef.current.clear();
+    historicoObjetosRef.current.clear();
+
+    estadoAnteriorObjetosRef.current = {
+      FRENTE: [],
+      VERSO: [],
+    };
+  }
+
   function atualizarObjeto(id: number, dados: Partial<ObjetoCracha>) {
     setObjetos((atual) =>
       atual.map((obj) =>
@@ -2481,6 +2590,22 @@ export default function CrachasClient() {
       if (estaDigitando) return;
 
       const tecla = e.key.toLowerCase();
+
+      if (
+        (e.ctrlKey || e.metaKey) &&
+        tecla === "z" &&
+        !e.shiftKey
+      ) {
+        if (!objetoSelecionado) {
+          return;
+        }
+
+        e.preventDefault();
+
+        desfazerObjetoSelecionado();
+
+        return;
+      }
 
       if ((e.ctrlKey || e.metaKey) && tecla === "c") {
         if (!objetoAtual) return;
@@ -2579,6 +2704,229 @@ export default function CrachasClient() {
     modeloCrachaAtualId,
     objetoSelecionado,
   ]);
+
+  function processarAlteracoesParaHistorico(
+    ladoObjeto:
+      | "FRENTE"
+      | "VERSO",
+    objetosAtuais: ObjetoCracha[]
+  ) {
+    if (aplicandoUndoRef.current) {
+      estadoAnteriorObjetosRef.current[
+        ladoObjeto
+      ] = objetosAtuais.map(
+        clonarObjetoHistorico
+      );
+
+      aplicandoUndoRef.current =
+        false;
+
+      return;
+    }
+
+    const anteriores =
+      estadoAnteriorObjetosRef.current[
+      ladoObjeto
+      ];
+
+    const anterioresPorId =
+      new Map(
+        anteriores.map(
+          (objeto) => [
+            objeto.id,
+            objeto,
+          ]
+        )
+      );
+
+    for (const objetoAtual of objetosAtuais) {
+      const anterior =
+        anterioresPorId.get(
+          objetoAtual.id
+        );
+
+      /*
+       * Objeto recém-criado:
+       * não existe um estado anterior
+       * para desfazer ainda.
+       */
+      if (!anterior) {
+        continue;
+      }
+
+      const mudou =
+        JSON.stringify(anterior) !==
+        JSON.stringify(objetoAtual);
+
+      if (!mudou) {
+        continue;
+      }
+
+      const chave =
+        chaveHistoricoObjeto(
+          ladoObjeto,
+          objetoAtual.id
+        );
+
+      const pendente =
+        alteracoesPendentesRef.current.get(
+          chave
+        );
+
+      /*
+       * Durante arrasto/redimensionamento,
+       * o React gera várias alterações por
+       * segundo. Guardamos somente o estado
+       * ANTES de começar aquela operação.
+       */
+      if (pendente) {
+        clearTimeout(
+          pendente.timer
+        );
+
+        const timer =
+          setTimeout(() => {
+            registrarEstadoHistorico(
+              ladoObjeto,
+              pendente.estadoAnterior
+            );
+
+            alteracoesPendentesRef.current.delete(
+              chave
+            );
+          }, 180);
+
+        alteracoesPendentesRef.current.set(
+          chave,
+          {
+            ...pendente,
+            timer,
+          }
+        );
+
+        continue;
+      }
+
+      const estadoAnterior =
+        clonarObjetoHistorico(
+          anterior
+        );
+
+      const timer =
+        setTimeout(() => {
+          registrarEstadoHistorico(
+            ladoObjeto,
+            estadoAnterior
+          );
+
+          alteracoesPendentesRef.current.delete(
+            chave
+          );
+        }, 180);
+
+      alteracoesPendentesRef.current.set(
+        chave,
+        {
+          estadoAnterior,
+          timer,
+        }
+      );
+    }
+
+    estadoAnteriorObjetosRef.current[
+      ladoObjeto
+    ] = objetosAtuais.map(
+      clonarObjetoHistorico
+    );
+  }
+
+  useEffect(() => {
+    processarAlteracoesParaHistorico(
+      "FRENTE",
+      objetosFrente
+    );
+  }, [objetosFrente]);
+
+  useEffect(() => {
+    processarAlteracoesParaHistorico(
+      "VERSO",
+      objetosVerso
+    );
+  }, [objetosVerso]);
+
+  function desfazerObjetoSelecionado() {
+    if (!objetoSelecionado) {
+      return;
+    }
+
+    const chave =
+      chaveHistoricoObjeto(
+        lado,
+        objetoSelecionado
+      );
+
+    /*
+     * Se ainda houver uma alteração
+     * aguardando o debounce, registra
+     * imediatamente antes de desfazer.
+     */
+    const pendente =
+      alteracoesPendentesRef.current.get(
+        chave
+      );
+
+    if (pendente) {
+      clearTimeout(
+        pendente.timer
+      );
+
+      registrarEstadoHistorico(
+        lado,
+        pendente.estadoAnterior
+      );
+
+      alteracoesPendentesRef.current.delete(
+        chave
+      );
+    }
+
+    const historico =
+      historicoObjetosRef.current.get(
+        chave
+      );
+
+    if (
+      !historico ||
+      historico.length === 0
+    ) {
+      return;
+    }
+
+    const estadoAnterior =
+      historico[
+      historico.length - 1
+      ];
+
+    historico.pop();
+
+    historicoObjetosRef.current.set(
+      chave,
+      historico
+    );
+
+    aplicandoUndoRef.current = true;
+
+    setObjetos((atuais) =>
+      atuais.map((objeto) =>
+        objeto.id ===
+          objetoSelecionado
+          ? clonarObjetoHistorico(
+            estadoAnterior
+          )
+          : objeto
+      )
+    );
+  }
 
   function alinharCaixaTexto(alinhamentoCaixa: "left" | "center" | "right") {
     if (
@@ -3466,98 +3814,179 @@ export default function CrachasClient() {
   }
 
   function gerarPontosCruzSvg(
-    objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>
-  ) {
-    const centroX = limitarFormaSvg(objeto.cruzCentroX ?? 50, 15, 85);
-    const centroY = limitarFormaSvg(objeto.cruzCentroY ?? 50, 15, 85);
+  objeto: Extract<
+    ObjetoCracha,
+    { tipo: "FORMA" }
+  >
+) {
+  /*
+   * Posição independente das duas hastes.
+   *
+   * cruzCentroX:
+   * move SOMENTE a haste vertical.
+   *
+   * cruzCentroY:
+   * move SOMENTE a haste horizontal.
+   */
+  const posicaoVerticalX =
+    limitarFormaSvg(
+      objeto.cruzCentroX ?? 50,
+      15,
+      85
+    );
 
-    const espessuraVertical = limitarFormaSvg(
-      objeto.cruzEspessuraVertical ?? 24,
+  const posicaoHorizontalY =
+    limitarFormaSvg(
+      objeto.cruzCentroY ?? 50,
+      15,
+      85
+    );
+
+  const espessuraVertical =
+    limitarFormaSvg(
+      objeto.cruzEspessuraVertical ??
+        24,
       6,
       70
     );
 
-    const espessuraHorizontal = limitarFormaSvg(
-      objeto.cruzEspessuraHorizontal ?? 24,
+  const espessuraHorizontal =
+    limitarFormaSvg(
+      objeto.cruzEspessuraHorizontal ??
+        24,
       6,
       70
     );
 
-    const comprimentoHorizontal = limitarFormaSvg(
-      objeto.cruzComprimentoHorizontal ?? 94,
+  const comprimentoHorizontal =
+    limitarFormaSvg(
+      objeto.cruzComprimentoHorizontal ??
+        94,
       20,
       400
     );
 
-    const comprimentoVertical = limitarFormaSvg(
-      objeto.cruzComprimentoVertical ?? 94,
+  const comprimentoVertical =
+    limitarFormaSvg(
+      objeto.cruzComprimentoVertical ??
+        94,
       20,
       400
     );
 
-    const esquerdaH = limitarFormaSvg(
-      centroX - comprimentoHorizontal / 2,
+  /*
+   * IMPORTANTE:
+   *
+   * Os comprimentos das hastes continuam
+   * ancorados no centro da área da forma
+   * (50, 50).
+   *
+   * Portanto alterar X ou Y NÃO desloca
+   * a forma inteira.
+   */
+  const centroAreaX = 50;
+  const centroAreaY = 50;
+
+  /*
+   * Limites externos da haste horizontal.
+   * Permanecem fixos.
+   */
+  const esquerdaH =
+    limitarFormaSvg(
+      centroAreaX -
+        comprimentoHorizontal / 2,
       -200,
       300
     );
 
-    const direitaH = limitarFormaSvg(
-      centroX + comprimentoHorizontal / 2,
+  const direitaH =
+    limitarFormaSvg(
+      centroAreaX +
+        comprimentoHorizontal / 2,
       -200,
       300
     );
 
-    const topoH = limitarFormaSvg(
-      centroY - espessuraHorizontal / 2,
+  /*
+   * A posição vertical da haste horizontal
+   * é controlada SOMENTE por cruzCentroY.
+   */
+  const topoH =
+    limitarFormaSvg(
+      posicaoHorizontalY -
+        espessuraHorizontal / 2,
       1,
       99
     );
 
-    const baseH = limitarFormaSvg(
-      centroY + espessuraHorizontal / 2,
+  const baseH =
+    limitarFormaSvg(
+      posicaoHorizontalY +
+        espessuraHorizontal / 2,
       1,
       99
     );
 
-    const esquerdaV = limitarFormaSvg(
-      centroX - espessuraVertical / 2,
+  /*
+   * A posição horizontal da haste vertical
+   * é controlada SOMENTE por cruzCentroX.
+   */
+  const esquerdaV =
+    limitarFormaSvg(
+      posicaoVerticalX -
+        espessuraVertical / 2,
       1,
       99
     );
 
-    const direitaV = limitarFormaSvg(
-      centroX + espessuraVertical / 2,
+  const direitaV =
+    limitarFormaSvg(
+      posicaoVerticalX +
+        espessuraVertical / 2,
       1,
       99
     );
 
-    const topoV = limitarFormaSvg(
-      centroY - comprimentoVertical / 2,
+  /*
+   * Limites externos da haste vertical.
+   * Também permanecem fixos.
+   */
+  const topoV =
+    limitarFormaSvg(
+      centroAreaY -
+        comprimentoVertical / 2,
       -200,
       300
     );
 
-    const baseV = limitarFormaSvg(
-      centroY + comprimentoVertical / 2,
+  const baseV =
+    limitarFormaSvg(
+      centroAreaY +
+        comprimentoVertical / 2,
       -200,
       300
     );
 
-    return [
-      `${esquerdaV},${topoV}`,
-      `${direitaV},${topoV}`,
-      `${direitaV},${topoH}`,
-      `${direitaH},${topoH}`,
-      `${direitaH},${baseH}`,
-      `${direitaV},${baseH}`,
-      `${direitaV},${baseV}`,
-      `${esquerdaV},${baseV}`,
-      `${esquerdaV},${baseH}`,
-      `${esquerdaH},${baseH}`,
-      `${esquerdaH},${topoH}`,
-      `${esquerdaV},${topoH}`,
-    ].join(" ");
-  }
+  return [
+    `${esquerdaV},${topoV}`,
+    `${direitaV},${topoV}`,
+
+    `${direitaV},${topoH}`,
+    `${direitaH},${topoH}`,
+
+    `${direitaH},${baseH}`,
+    `${direitaV},${baseH}`,
+
+    `${direitaV},${baseV}`,
+    `${esquerdaV},${baseV}`,
+
+    `${esquerdaV},${baseH}`,
+    `${esquerdaH},${baseH}`,
+
+    `${esquerdaH},${topoH}`,
+    `${esquerdaV},${topoH}`,
+  ].join(" ");
+}
 
   function caminhoFormaLivreSvg(
     objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>
