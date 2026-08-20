@@ -527,6 +527,22 @@ export default function CrachasClient() {
   const [modeloCrachaAtualId, setModeloCrachaAtualId] =
     useState<number | null>(null);
 
+  type ModeloCrachaLista = {
+    id: number;
+    nome: string;
+    tipoPessoa: TipoModeloCracha;
+    padrao?: boolean;
+  };
+
+  const [nomeModeloCracha, setNomeModeloCracha] =
+    useState("Novo modelo");
+
+  const [modelosCracha, setModelosCracha] =
+    useState<ModeloCrachaLista[]>([]);
+
+  const [carregandoListaModelos, setCarregandoListaModelos] =
+    useState(false);
+
   const [salvandoModeloCracha, setSalvandoModeloCracha] =
     useState(false);
 
@@ -883,6 +899,11 @@ export default function CrachasClient() {
   function aplicarModeloCrachaNaTela(modelo: ModeloCrachaSalvo) {
     setModeloCrachaAtualId(modelo.id);
 
+    setNomeModeloCracha(
+      modelo.nome ||
+      `Modelo ${nomeTipoModeloCracha(tipoModeloCracha)}`
+    );
+
     setFormato((modelo.formato || "RETRATO") as any);
     setTipoFuroCracha((modelo.tipoFuro || "RASGO_HORIZONTAL") as TipoFuroCracha);
 
@@ -974,6 +995,11 @@ export default function CrachasClient() {
       }
 
       setModeloCrachaAtualId(modelo.id);
+
+      setNomeModeloCracha(
+        modelo.nome ||
+        `Modelo ${nomeTipoModeloCracha(tipoModeloCracha)}`
+      );
 
       setFormato(modelo.formato || "RETRATO");
       setTipoFuroCracha(modelo.tipoFuro || "RASGO_HORIZONTAL");
@@ -1100,6 +1126,42 @@ export default function CrachasClient() {
     }
   }
 
+  async function carregarListaModelosCracha() {
+    try {
+      setCarregandoListaModelos(true);
+
+      const res = await fetch(
+        `/api/admin/crachas/modelos?tipoPessoa=${tipoModeloCracha}`,
+        {
+          credentials: "include",
+          cache: "no-store",
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(
+          data?.error ||
+          "Erro ao carregar modelos de crachá."
+        );
+      }
+
+      setModelosCracha(
+        Array.isArray(data?.modelos)
+          ? data.modelos
+          : []
+      );
+    } catch (error) {
+      console.error(
+        "Erro ao carregar modelos:",
+        error
+      );
+    } finally {
+      setCarregandoListaModelos(false);
+    }
+  }
+
   async function salvarModeloCracha() {
     try {
       setSalvandoModeloCracha(true);
@@ -1114,11 +1176,16 @@ export default function CrachasClient() {
       const salvandoNovoModelo = !modeloCrachaAtualId;
 
       const nomeModelo =
+        nomeModeloCracha.trim() ||
         modeloSelecionado?.nome ||
-        `Modelo ${String(modelosSalvosCracha.length + 1).padStart(
+        `Modelo ${String(
+          modelosSalvosCracha.length + 1
+        ).padStart(
           2,
           "0"
-        )} - ${nomeTipoModeloCracha(tipoModeloCracha)}`;
+        )} - ${nomeTipoModeloCracha(
+          tipoModeloCracha
+        )}`;
 
       const deveSerPadrao =
         modelosSalvosCracha.length === 0
@@ -1167,6 +1234,7 @@ export default function CrachasClient() {
       const modeloSalvo = data.modelo as ModeloCrachaSalvo;
 
       setModeloCrachaAtualId(modeloSalvo?.id || null);
+      await carregarListaModelosCracha();
 
       await carregarModelosSalvosCracha(tipoModeloCracha);
 
@@ -1176,7 +1244,7 @@ export default function CrachasClient() {
 
       setAvisoCracha({
         tipo: "sucesso",
-        texto: "Modelo de crachá salvo como padrão.",
+        texto: "Modelo de crachá salvo com sucesso.",
       });
 
       setTimeout(() => setAvisoCracha(null), 4000);
@@ -1194,8 +1262,176 @@ export default function CrachasClient() {
     }
   }
 
+  async function carregarModeloCrachaPorId(
+    modeloId: number
+  ) {
+    try {
+      setCarregandoModeloCracha(true);
+      setAvisoCracha(null);
+
+      const res = await fetch(
+        `/api/admin/crachas/modelos?id=${modeloId}`,
+        {
+          credentials: "include",
+          cache: "no-store",
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(
+          data?.error ||
+          "Erro ao carregar modelo de crachá."
+        );
+      }
+
+      const modelo =
+        Array.isArray(data.modelos)
+          ? data.modelos[0]
+          : data.modelo;
+
+      if (!modelo) {
+        throw new Error(
+          "Modelo de crachá não encontrado."
+        );
+      }
+
+      setModeloCrachaAtualId(modelo.id);
+      setNomeModeloCracha(
+        modelo.nome || "Modelo sem nome"
+      );
+
+      setFormato(
+        modelo.formato || "RETRATO"
+      );
+
+      setTipoFuroCracha(
+        modelo.tipoFuro ||
+        "RASGO_HORIZONTAL"
+      );
+
+      setObjetosFrente(
+        Array.isArray(modelo.frenteJson)
+          ? modelo.frenteJson
+          : []
+      );
+
+      setObjetosVerso(
+        Array.isArray(modelo.versoJson)
+          ? modelo.versoJson
+          : []
+      );
+
+      setTipoFundoFrente(
+        modelo.tipoFundoFrente ||
+        "SOLIDO"
+      );
+
+      setCorFundoFrente(
+        modelo.corFundoFrente ||
+        "#ffffff"
+      );
+
+      setCorFundoFrenteSecundaria(
+        modelo.corFundoFrenteSecundaria ||
+        "#0f172a"
+      );
+
+      setDirecaoGradienteFrente(
+        modelo.direcaoGradienteFrente ||
+        "VERTICAL"
+      );
+
+      setTipoFundoVerso(
+        modelo.tipoFundoVerso ||
+        "SOLIDO"
+      );
+
+      setCorFundoVerso(
+        modelo.corFundoVerso ||
+        "#ffffff"
+      );
+
+      setCorFundoVersoSecundaria(
+        modelo.corFundoVersoSecundaria ||
+        "#0f172a"
+      );
+
+      setDirecaoGradienteVerso(
+        modelo.direcaoGradienteVerso ||
+        "VERTICAL"
+      );
+
+      setObjetoSelecionado(null);
+    } catch (error: any) {
+      setAvisoCracha({
+        tipo: "erro",
+        texto:
+          error?.message ||
+          "Erro ao carregar modelo de crachá.",
+      });
+    } finally {
+      setCarregandoModeloCracha(false);
+    }
+  }
+
+  async function excluirModeloCracha(
+    modeloId: number
+  ) {
+    try {
+      setAvisoCracha(null);
+
+      const res = await fetch(
+        `/api/admin/crachas/modelos?id=${modeloId}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
+
+      const data = await res
+        .json()
+        .catch(() => null);
+
+      if (!res.ok) {
+        throw new Error(
+          data?.error ||
+          "Erro ao excluir modelo de crachá."
+        );
+      }
+
+      if (
+        modeloCrachaAtualId === modeloId
+      ) {
+        novoModeloCracha();
+      }
+
+      await carregarListaModelosCracha();
+
+      setAvisoCracha({
+        tipo: "sucesso",
+        texto:
+          "Modelo de crachá excluído com sucesso.",
+      });
+
+      setTimeout(
+        () => setAvisoCracha(null),
+        4000
+      );
+    } catch (error: any) {
+      setAvisoCracha({
+        tipo: "erro",
+        texto:
+          error?.message ||
+          "Erro ao excluir modelo de crachá.",
+      });
+    }
+  }
+
   function novoModeloCracha() {
     setModeloCrachaAtualId(null);
+    setNomeModeloCracha("Novo modelo");
 
     setLado("FRENTE");
     setObjetoSelecionado(null);
@@ -2242,6 +2478,69 @@ export default function CrachasClient() {
     };
   }, [objetoSelecionado, objetoAtual, objetoCopiado, lado]);
 
+  useEffect(() => {
+    carregarListaModelosCracha();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tipoModeloCracha]);
+
+  useEffect(() => {
+    function aoPressionarTecla(
+      event: KeyboardEvent
+    ) {
+      const alvo =
+        event.target as HTMLElement | null;
+
+      const estaDigitando =
+        alvo?.tagName === "INPUT" ||
+        alvo?.tagName === "TEXTAREA" ||
+        alvo?.tagName === "SELECT" ||
+        alvo?.isContentEditable;
+
+      if (estaDigitando) {
+        return;
+      }
+
+      if (
+        event.key !== "Delete" &&
+        event.key !== "Backspace"
+      ) {
+        return;
+      }
+
+      /*
+       * Objeto selecionado tem prioridade.
+       */
+      if (objetoSelecionado !== null) {
+        return;
+      }
+
+      if (!modeloCrachaAtualId) {
+        return;
+      }
+
+      event.preventDefault();
+
+      excluirModeloCracha(
+        modeloCrachaAtualId
+      );
+    }
+
+    window.addEventListener(
+      "keydown",
+      aoPressionarTecla
+    );
+
+    return () => {
+      window.removeEventListener(
+        "keydown",
+        aoPressionarTecla
+      );
+    };
+  }, [
+    modeloCrachaAtualId,
+    objetoSelecionado,
+  ]);
+
   function alinharCaixaTexto(alinhamentoCaixa: "left" | "center" | "right") {
     if (
       !objetoAtual ||
@@ -2519,270 +2818,270 @@ export default function CrachasClient() {
   }
 
   function redimensionarForma(
-  e: React.MouseEvent<HTMLSpanElement>,
-  objeto: Extract<
-    ObjetoCracha,
-    { tipo: "FORMA" }
-  >,
-  canto: "nw" | "ne" | "sw" | "se"
-) {
-  e.preventDefault();
-  e.stopPropagation();
+    e: React.MouseEvent<HTMLSpanElement>,
+    objeto: Extract<
+      ObjetoCracha,
+      { tipo: "FORMA" }
+    >,
+    canto: "nw" | "ne" | "sw" | "se"
+  ) {
+    e.preventDefault();
+    e.stopPropagation();
 
-  setObjetoSelecionado(objeto.id);
+    setObjetoSelecionado(objeto.id);
 
-  const inicioX = e.clientX;
-  const inicioY = e.clientY;
+    const inicioX = e.clientX;
+    const inicioY = e.clientY;
 
-  const xOriginal = objeto.x;
-  const yOriginal = objeto.y;
+    const xOriginal = objeto.x;
+    const yOriginal = objeto.y;
 
-  const larguraOriginal =
-    objeto.largura;
+    const larguraOriginal =
+      objeto.largura;
 
-  const alturaOriginal =
-    objeto.altura;
+    const alturaOriginal =
+      objeto.altura;
 
-  /*
-   * Cantos opostos que devem
-   * permanecer fixos durante
-   * o redimensionamento.
-   */
-  const direitaOriginal =
-    xOriginal + larguraOriginal;
+    /*
+     * Cantos opostos que devem
+     * permanecer fixos durante
+     * o redimensionamento.
+     */
+    const direitaOriginal =
+      xOriginal + larguraOriginal;
 
-  const baixoOriginal =
-    yOriginal + alturaOriginal;
+    const baixoOriginal =
+      yOriginal + alturaOriginal;
 
-  const proporcaoOriginal =
-    alturaOriginal > 0
-      ? larguraOriginal /
+    const proporcaoOriginal =
+      alturaOriginal > 0
+        ? larguraOriginal /
         alturaOriginal
-      : 1;
+        : 1;
 
-  const tamanhoMinimo = 10;
+    const tamanhoMinimo = 10;
 
-  function mover(ev: MouseEvent) {
-    const dx =
-      ev.clientX - inicioX;
+    function mover(ev: MouseEvent) {
+      const dx =
+        ev.clientX - inicioX;
 
-    const dy =
-      ev.clientY - inicioY;
+      const dy =
+        ev.clientY - inicioY;
 
-    let novoX = xOriginal;
-    let novoY = yOriginal;
+      let novoX = xOriginal;
+      let novoY = yOriginal;
 
-    let novaLargura =
-      larguraOriginal;
-
-    let novaAltura =
-      alturaOriginal;
-
-    /*
-     * Primeiro calcula o tamanho livre,
-     * exatamente como já funcionava.
-     */
-    if (canto === "se") {
-      novaLargura =
-        larguraOriginal + dx;
-
-      novaAltura =
-        alturaOriginal + dy;
-    }
-
-    if (canto === "sw") {
-      novaLargura =
-        larguraOriginal - dx;
-
-      novaAltura =
-        alturaOriginal + dy;
-    }
-
-    if (canto === "ne") {
-      novaLargura =
-        larguraOriginal + dx;
-
-      novaAltura =
-        alturaOriginal - dy;
-    }
-
-    if (canto === "nw") {
-      novaLargura =
-        larguraOriginal - dx;
-
-      novaAltura =
-        alturaOriginal - dy;
-    }
-
-    /*
-     * SHIFT:
-     * preserva a proporção original
-     * da forma.
-     */
-    if (ev.shiftKey) {
-      const escalaLargura =
-        novaLargura /
+      let novaLargura =
         larguraOriginal;
 
-      const escalaAltura =
-        novaAltura /
+      let novaAltura =
         alturaOriginal;
 
       /*
-       * Usa o eixo que sofreu
-       * a alteração proporcional maior.
-       *
-       * Isso deixa o movimento natural
-       * tanto na horizontal quanto
-       * na vertical.
-       */
-      let escala =
-        Math.abs(
-          escalaLargura - 1
-        ) >=
-        Math.abs(
-          escalaAltura - 1
-        )
-          ? escalaLargura
-          : escalaAltura;
-
-      const escalaMinima =
-        Math.max(
-          tamanhoMinimo /
-            larguraOriginal,
-
-          tamanhoMinimo /
-            alturaOriginal
-        );
-
-      escala =
-        Math.max(
-          escalaMinima,
-          escala
-        );
-
-      novaLargura =
-        larguraOriginal * escala;
-
-      novaAltura =
-        novaLargura /
-        proporcaoOriginal;
-
-      /*
-       * Mantém o canto oposto fixo.
+       * Primeiro calcula o tamanho livre,
+       * exatamente como já funcionava.
        */
       if (canto === "se") {
-        novoX = xOriginal;
-        novoY = yOriginal;
+        novaLargura =
+          larguraOriginal + dx;
+
+        novaAltura =
+          alturaOriginal + dy;
       }
 
       if (canto === "sw") {
-        novoX =
-          direitaOriginal -
-          novaLargura;
+        novaLargura =
+          larguraOriginal - dx;
 
-        novoY = yOriginal;
+        novaAltura =
+          alturaOriginal + dy;
       }
 
       if (canto === "ne") {
-        novoX = xOriginal;
+        novaLargura =
+          larguraOriginal + dx;
 
-        novoY =
-          baixoOriginal -
-          novaAltura;
+        novaAltura =
+          alturaOriginal - dy;
       }
 
       if (canto === "nw") {
-        novoX =
-          direitaOriginal -
-          novaLargura;
+        novaLargura =
+          larguraOriginal - dx;
 
-        novoY =
-          baixoOriginal -
-          novaAltura;
+        novaAltura =
+          alturaOriginal - dy;
       }
-    } else {
-      /*
-       * Sem SHIFT:
-       * redimensionamento livre.
-       */
-      novaLargura =
-        Math.max(
-          tamanhoMinimo,
-          novaLargura
-        );
-
-      novaAltura =
-        Math.max(
-          tamanhoMinimo,
-          novaAltura
-        );
 
       /*
-       * Recalcula X/Y depois do limite
-       * mínimo para o canto oposto
-       * não se deslocar.
+       * SHIFT:
+       * preserva a proporção original
+       * da forma.
        */
-      if (canto === "sw") {
-        novoX =
-          direitaOriginal -
-          novaLargura;
+      if (ev.shiftKey) {
+        const escalaLargura =
+          novaLargura /
+          larguraOriginal;
+
+        const escalaAltura =
+          novaAltura /
+          alturaOriginal;
+
+        /*
+         * Usa o eixo que sofreu
+         * a alteração proporcional maior.
+         *
+         * Isso deixa o movimento natural
+         * tanto na horizontal quanto
+         * na vertical.
+         */
+        let escala =
+          Math.abs(
+            escalaLargura - 1
+          ) >=
+            Math.abs(
+              escalaAltura - 1
+            )
+            ? escalaLargura
+            : escalaAltura;
+
+        const escalaMinima =
+          Math.max(
+            tamanhoMinimo /
+            larguraOriginal,
+
+            tamanhoMinimo /
+            alturaOriginal
+          );
+
+        escala =
+          Math.max(
+            escalaMinima,
+            escala
+          );
+
+        novaLargura =
+          larguraOriginal * escala;
+
+        novaAltura =
+          novaLargura /
+          proporcaoOriginal;
+
+        /*
+         * Mantém o canto oposto fixo.
+         */
+        if (canto === "se") {
+          novoX = xOriginal;
+          novoY = yOriginal;
+        }
+
+        if (canto === "sw") {
+          novoX =
+            direitaOriginal -
+            novaLargura;
+
+          novoY = yOriginal;
+        }
+
+        if (canto === "ne") {
+          novoX = xOriginal;
+
+          novoY =
+            baixoOriginal -
+            novaAltura;
+        }
+
+        if (canto === "nw") {
+          novoX =
+            direitaOriginal -
+            novaLargura;
+
+          novoY =
+            baixoOriginal -
+            novaAltura;
+        }
+      } else {
+        /*
+         * Sem SHIFT:
+         * redimensionamento livre.
+         */
+        novaLargura =
+          Math.max(
+            tamanhoMinimo,
+            novaLargura
+          );
+
+        novaAltura =
+          Math.max(
+            tamanhoMinimo,
+            novaAltura
+          );
+
+        /*
+         * Recalcula X/Y depois do limite
+         * mínimo para o canto oposto
+         * não se deslocar.
+         */
+        if (canto === "sw") {
+          novoX =
+            direitaOriginal -
+            novaLargura;
+        }
+
+        if (canto === "ne") {
+          novoY =
+            baixoOriginal -
+            novaAltura;
+        }
+
+        if (canto === "nw") {
+          novoX =
+            direitaOriginal -
+            novaLargura;
+
+          novoY =
+            baixoOriginal -
+            novaAltura;
+        }
       }
 
-      if (canto === "ne") {
-        novoY =
-          baixoOriginal -
-          novaAltura;
-      }
+      atualizarObjeto(
+        objeto.id,
+        {
+          x: novoX,
+          y: novoY,
 
-      if (canto === "nw") {
-        novoX =
-          direitaOriginal -
-          novaLargura;
+          largura:
+            novaLargura,
 
-        novoY =
-          baixoOriginal -
-          novaAltura;
-      }
+          altura:
+            novaAltura,
+        }
+      );
     }
 
-    atualizarObjeto(
-      objeto.id,
-      {
-        x: novoX,
-        y: novoY,
+    function soltar() {
+      window.removeEventListener(
+        "mousemove",
+        mover
+      );
 
-        largura:
-          novaLargura,
+      window.removeEventListener(
+        "mouseup",
+        soltar
+      );
+    }
 
-        altura:
-          novaAltura,
-      }
-    );
-  }
-
-  function soltar() {
-    window.removeEventListener(
+    window.addEventListener(
       "mousemove",
       mover
     );
 
-    window.removeEventListener(
+    window.addEventListener(
       "mouseup",
       soltar
     );
   }
-
-  window.addEventListener(
-    "mousemove",
-    mover
-  );
-
-  window.addEventListener(
-    "mouseup",
-    soltar
-  );
-}
 
   function BotaoExcluirObjeto() {
     return (
@@ -4838,45 +5137,138 @@ export default function CrachasClient() {
               </button>
             </div>
 
-            <div className="flex max-w-[520px] items-center gap-2 overflow-x-auto rounded-2xl border border-slate-700/40 bg-slate-950/30 px-2 py-2">
+            <div className="w-full max-w-[320px]">
+              <label
+                className="
+      mb-1
+      block
+      text-xs
+      font-bold
+      text-slate-600
+      dark:text-slate-300
+    "
+              >
+                Nome do modelo
+              </label>
+
+              <input
+                type="text"
+                value={nomeModeloCracha}
+                onChange={(e) =>
+                  setNomeModeloCracha(
+                    e.target.value
+                  )
+                }
+                placeholder="Ex.: Crachá aluno 2026"
+                className="phanyx-crachas-input w-full"
+              />
+            </div>
+
+            <div
+              className="
+    flex
+    max-w-[620px]
+    items-center
+    gap-2
+    overflow-x-auto
+    rounded-2xl
+    border
+    border-slate-300
+    bg-slate-100
+    px-2
+    py-2
+    dark:border-slate-700
+    dark:bg-slate-900
+  "
+            >
               {carregandoModelosSalvos ? (
-                <span className="whitespace-nowrap text-xs font-semibold text-slate-400">
+                <span className="whitespace-nowrap px-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
                   Carregando...
                 </span>
               ) : modelosSalvosCracha.length === 0 ? (
-                <span className="whitespace-nowrap text-xs font-semibold text-slate-400">
-                  Sem modelos
+                <span className="whitespace-nowrap px-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                  Nenhum modelo salvo
                 </span>
               ) : (
-                modelosSalvosCracha.map((modelo, index) => {
-                  const ativo = modelo.id === modeloCrachaAtualId;
+                modelosSalvosCracha.map(
+                  (modelo) => {
+                    const ativo =
+                      modelo.id ===
+                      modeloCrachaAtualId;
 
-                  return (
-                    <button
-                      key={modelo.id}
-                      type="button"
-                      onClick={() => aplicarModeloCrachaNaTela(modelo)}
-                      className={`h-10 min-w-[76px] rounded-xl border px-2 text-center text-[11px] font-bold transition ${ativo
-                          ? "border-blue-500 bg-blue-600 text-white shadow-lg shadow-blue-900/30"
-                          : "border-slate-600 bg-slate-900 text-slate-200 hover:border-blue-400 hover:bg-slate-800"
-                        }`}
-                      title={modelo.nome}
-                    >
-                      <span className="block leading-tight">
-                        Mod. {String(index + 1).padStart(2, "0")}
-                      </span>
+                    return (
+                      <div
+                        key={modelo.id}
+                        className={[
+                          "flex shrink-0 items-stretch overflow-hidden rounded-xl border transition",
 
-                      {modelo.padrao && (
-                        <span
-                          className={`block text-[9px] leading-tight ${ativo ? "text-blue-100" : "text-yellow-300"
-                            }`}
+                          ativo
+                            ? "border-blue-600 bg-blue-600 text-white"
+                            : "border-slate-300 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-white",
+                        ].join(" ")}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => {
+                            aplicarModeloCrachaNaTela(
+                              modelo
+                            );
+                          }}
+                          className="
+                max-w-[190px]
+                truncate
+                px-3
+                py-2
+                text-left
+                text-xs
+                font-bold
+              "
+                          title={modelo.nome}
                         >
-                          padrão
-                        </span>
-                      )}
-                    </button>
-                  );
-                })
+                          <span className="block truncate">
+                            {modelo.nome}
+                          </span>
+
+                          {modelo.padrao && (
+                            <span
+                              className={[
+                                "mt-0.5 block text-[9px] font-semibold",
+
+                                ativo
+                                  ? "text-blue-100"
+                                  : "text-amber-600 dark:text-amber-300",
+                              ].join(" ")}
+                            >
+                              padrão
+                            </span>
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+
+                            excluirModeloCracha(
+                              modelo.id
+                            );
+                          }}
+                          className={[
+                            "flex w-9 items-center justify-center border-l text-base font-black transition",
+
+                            ativo
+                              ? "border-blue-500 text-white hover:bg-red-600"
+                              : "border-slate-300 text-red-600 hover:bg-red-50 dark:border-slate-700 dark:text-red-300 dark:hover:bg-red-950/40",
+                          ].join(" ")}
+                          title={`Excluir ${modelo.nome}`}
+                          aria-label={`Excluir ${modelo.nome}`}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    );
+                  }
+                )
               )}
             </div>
           </div>
@@ -4916,8 +5308,8 @@ export default function CrachasClient() {
                   limparSelecaoCracha();
                 }}
                 className={`rounded-xl px-4 py-2 font-semibold ${lado === "FRENTE"
-                    ? "bg-blue-600 text-white"
-                    : "phanyx-crachas-tab-off"
+                  ? "bg-blue-600 text-white"
+                  : "phanyx-crachas-tab-off"
                   }`}
               >
                 Frente
@@ -4930,8 +5322,8 @@ export default function CrachasClient() {
                   limparSelecaoCracha();
                 }}
                 className={`rounded-xl px-4 py-2 font-semibold ${lado === "VERSO"
-                    ? "bg-blue-600 text-white"
-                    : "phanyx-crachas-tab-off"
+                  ? "bg-blue-600 text-white"
+                  : "phanyx-crachas-tab-off"
                   }`}
               >
                 Verso
@@ -4942,344 +5334,344 @@ export default function CrachasClient() {
       </div>
 
       {modalEmissaoAberto && (
-  <div
-    className="phanyx-crachas-modal-overlay fixed inset-0 z-[99999] flex items-center justify-center px-4"
-    onMouseDown={(e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      fecharModalEmissaoCracha();
-    }}
-  >
-    <div
-      className="phanyx-crachas-modal w-full max-w-2xl rounded-3xl border p-5 shadow-2xl"
-      onMouseDown={(e) => {
-        e.stopPropagation();
-      }}
-    >
-      <div className="mb-4 flex items-start justify-between gap-4">
-        <div>
-          <h2 className="phanyx-crachas-modal-title text-lg font-black">
-            Emitir crachá
-          </h2>
-
-          <p className="phanyx-crachas-modal-subtitle mt-1 text-sm">
-            Este modelo será emitido para:
-            <strong className="ml-1">
-              {nomeTipoModeloCracha(tipoModeloCracha)}
-            </strong>
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => fecharModalEmissaoCracha()}
-          className="phanyx-crachas-modal-close flex h-9 w-9 items-center justify-center rounded-full border text-lg font-black"
-          aria-label="Fechar emissão"
+        <div
+          className="phanyx-crachas-modal-overlay fixed inset-0 z-[99999] flex items-center justify-center px-4"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            fecharModalEmissaoCracha();
+          }}
         >
-          ×
-        </button>
-      </div>
-
-      <div className="phanyx-crachas-modal-info rounded-2xl border p-4 text-sm">
-        O QR Code continuará usando apenas
-        <strong className="mx-1">
-          {"{{codigoCracha}}"}
-        </strong>
-        . Na emissão real, o PHANYX vai gerar um código único para a pessoa
-        escolhida.
-      </div>
-
-      <div className="mt-4">
-        <label className="phanyx-crachas-modal-label mb-2 block text-sm font-bold">
-          Modo de emissão
-        </label>
-
-        <div className="grid grid-cols-2 gap-2">
-          <button
-            type="button"
-            onClick={() => {
-              setModoEmissaoCracha("INDIVIDUAL");
-              setErroEmissaoCracha("");
-              setFiltroLoteEmissao("");
+          <div
+            className="phanyx-crachas-modal w-full max-w-2xl rounded-3xl border p-5 shadow-2xl"
+            onMouseDown={(e) => {
+              e.stopPropagation();
             }}
-            className={
-              modoEmissaoCracha === "INDIVIDUAL"
-                ? "phanyx-crachas-button-primary"
-                : "phanyx-crachas-button-secondary"
-            }
           >
-            Individual
-          </button>
+            <div className="mb-4 flex items-start justify-between gap-4">
+              <div>
+                <h2 className="phanyx-crachas-modal-title text-lg font-black">
+                  Emitir crachá
+                </h2>
 
-          <button
-            type="button"
-            onClick={() => {
-              setModoEmissaoCracha("LOTE");
-              setErroEmissaoCracha("");
-              setPessoaSelecionadaEmissao(null);
-            }}
-            className={
-              modoEmissaoCracha === "LOTE"
-                ? "phanyx-crachas-button-primary"
-                : "phanyx-crachas-button-secondary"
-            }
-          >
-            Em lote
-          </button>
-        </div>
-      </div>
-
-      {modoEmissaoCracha === "INDIVIDUAL" ? (
-        <>
-          <div className="mt-4">
-            <label className="phanyx-crachas-modal-label mb-2 block text-sm font-bold">
-              Buscar pessoa
-            </label>
-
-            <input
-              value={buscaPessoaEmissao}
-              onChange={(e) =>
-                setBuscaPessoaEmissao(e.target.value)
-              }
-              placeholder={placeholderBuscaEmissao(
-                tipoModeloCracha
-              )}
-              className="phanyx-crachas-input w-full"
-            />
-
-            <div className="mt-3 flex justify-end">
-              <button
-                type="button"
-                onClick={buscarPessoasParaEmissaoCracha}
-                disabled={carregandoPessoasEmissao}
-                className="phanyx-crachas-button-secondary disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {carregandoPessoasEmissao
-                  ? "Buscando..."
-                  : "Buscar pessoa"}
-              </button>
-            </div>
-          </div>
-
-          {erroEmissaoCracha && (
-            <div className="phanyx-crachas-alert-error mt-4 rounded-2xl border p-3 text-sm font-semibold">
-              {erroEmissaoCracha}
-            </div>
-          )}
-
-          <div className="phanyx-crachas-pessoas-box mt-4 rounded-2xl border border-dashed p-4 text-sm">
-            {pessoasEmissaoCracha.length > 0 ? (
-              <div className="space-y-2">
-                {pessoasEmissaoCracha.map((pessoa) => {
-                  const selecionada =
-                    pessoaSelecionadaEmissao?.id ===
-                      pessoa.id &&
-                    pessoaSelecionadaEmissao?.tipo ===
-                      pessoa.tipo;
-
-                  return (
-                    <button
-                      key={`${pessoa.tipo}-${pessoa.id}`}
-                      type="button"
-                      onClick={() => {
-                        setPessoaSelecionadaEmissao(
-                          pessoa
-                        );
-                        setErroEmissaoCracha("");
-                      }}
-                      className={[
-                        "phanyx-crachas-pessoa-item",
-                        selecionada
-                          ? "phanyx-crachas-pessoa-item-selecionada"
-                          : "",
-                      ].join(" ")}
-                    >
-                      <div className="min-w-0">
-                        <p className="phanyx-crachas-pessoa-nome font-bold">
-                          {pessoa.nome}
-                        </p>
-
-                        {pessoa.descricao && (
-                          <p className="phanyx-crachas-pessoa-descricao mt-1 text-xs">
-                            {pessoa.descricao}
-                          </p>
-                        )}
-                      </div>
-
-                      <span
-                        className={
-                          pessoa.aptoParaCracha
-                            ? "phanyx-crachas-status phanyx-crachas-status-com-foto"
-                            : "phanyx-crachas-status phanyx-crachas-status-sem-foto"
-                        }
-                      >
-                        {pessoa.aptoParaCracha
-                          ? "Com foto"
-                          : "Sem foto"}
-                      </span>
-                    </button>
-                  );
-                })}
+                <p className="phanyx-crachas-modal-subtitle mt-1 text-sm">
+                  Este modelo será emitido para:
+                  <strong className="ml-1">
+                    {nomeTipoModeloCracha(tipoModeloCracha)}
+                  </strong>
+                </p>
               </div>
-            ) : (
-              <p className="phanyx-crachas-modal-muted">
-                Busque uma pessoa para selecionar e
-                emitir o crachá.
-              </p>
-            )}
-          </div>
-        </>
-      ) : (
-        <>
-          <div className="mt-4">
-            <label className="phanyx-crachas-modal-label mb-2 block text-sm font-bold">
-              Filtro do lote
-            </label>
 
-            <select
-              value={filtroLoteEmissao}
-              onChange={(e) => {
-                setFiltroLoteEmissao(
-                  e.target.value
-                );
-                setErroEmissaoCracha("");
-              }}
-              className="phanyx-crachas-input w-full"
-            >
-              <option value="">
-                Selecione o filtro do lote
-              </option>
-
-              {opcoesLotePorTipo(
-                tipoModeloCracha
-              ).map((opcao) => (
-                <option
-                  key={opcao.valor}
-                  value={opcao.valor}
-                >
-                  {opcao.rotulo}
-                </option>
-              ))}
-            </select>
-
-            <p className="phanyx-crachas-modal-muted mt-2 text-xs">
-              A emissão em lote gerará um crachá e um QR
-              Code único para cada pessoa encontrada.
-            </p>
-
-            <div className="mt-3 flex justify-end">
               <button
                 type="button"
-                onClick={buscarPessoasParaEmissaoCracha}
-                disabled={carregandoPessoasEmissao}
-                className="phanyx-crachas-button-secondary disabled:cursor-not-allowed disabled:opacity-60"
+                onClick={() => fecharModalEmissaoCracha()}
+                className="phanyx-crachas-modal-close flex h-9 w-9 items-center justify-center rounded-full border text-lg font-black"
+                aria-label="Fechar emissão"
               >
-                {carregandoPessoasEmissao
-                  ? "Processando..."
-                  : "Pré-visualizar lote"}
+                ×
               </button>
             </div>
-          </div>
 
-          {erroEmissaoCracha && (
-            <div className="phanyx-crachas-alert-error mt-4 rounded-2xl border p-3 text-sm font-semibold">
-              {erroEmissaoCracha}
+            <div className="phanyx-crachas-modal-info rounded-2xl border p-4 text-sm">
+              O QR Code continuará usando apenas
+              <strong className="mx-1">
+                {"{{codigoCracha}}"}
+              </strong>
+              . Na emissão real, o PHANYX vai gerar um código único para a pessoa
+              escolhida.
             </div>
-          )}
 
-          <div className="phanyx-crachas-lote-box mt-4 rounded-2xl border border-dashed p-4 text-sm">
-            {resumoEmissaoCracha ? (
-              <div className="space-y-3">
-                <div className="grid gap-3 md:grid-cols-3">
-                  <div className="phanyx-crachas-resumo-card phanyx-crachas-resumo-total rounded-2xl border p-3">
-                    <p className="text-xs font-bold">
-                      Total encontrado
-                    </p>
+            <div className="mt-4">
+              <label className="phanyx-crachas-modal-label mb-2 block text-sm font-bold">
+                Modo de emissão
+              </label>
 
-                    <strong className="text-2xl">
-                      {resumoEmissaoCracha.total}
-                    </strong>
-                  </div>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setModoEmissaoCracha("INDIVIDUAL");
+                    setErroEmissaoCracha("");
+                    setFiltroLoteEmissao("");
+                  }}
+                  className={
+                    modoEmissaoCracha === "INDIVIDUAL"
+                      ? "phanyx-crachas-button-primary"
+                      : "phanyx-crachas-button-secondary"
+                  }
+                >
+                  Individual
+                </button>
 
-                  <div className="phanyx-crachas-resumo-card phanyx-crachas-resumo-apto rounded-2xl border p-3">
-                    <p className="text-xs font-bold">
-                      Aptos com foto
-                    </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setModoEmissaoCracha("LOTE");
+                    setErroEmissaoCracha("");
+                    setPessoaSelecionadaEmissao(null);
+                  }}
+                  className={
+                    modoEmissaoCracha === "LOTE"
+                      ? "phanyx-crachas-button-primary"
+                      : "phanyx-crachas-button-secondary"
+                  }
+                >
+                  Em lote
+                </button>
+              </div>
+            </div>
 
-                    <strong className="text-2xl">
-                      {resumoEmissaoCracha.aptos}
-                    </strong>
-                  </div>
+            {modoEmissaoCracha === "INDIVIDUAL" ? (
+              <>
+                <div className="mt-4">
+                  <label className="phanyx-crachas-modal-label mb-2 block text-sm font-bold">
+                    Buscar pessoa
+                  </label>
 
-                  <div className="phanyx-crachas-resumo-card phanyx-crachas-resumo-pendente rounded-2xl border p-3">
-                    <p className="text-xs font-bold">
-                      Pendentes sem foto
-                    </p>
+                  <input
+                    value={buscaPessoaEmissao}
+                    onChange={(e) =>
+                      setBuscaPessoaEmissao(e.target.value)
+                    }
+                    placeholder={placeholderBuscaEmissao(
+                      tipoModeloCracha
+                    )}
+                    className="phanyx-crachas-input w-full"
+                  />
 
-                    <strong className="text-2xl">
-                      {
-                        resumoEmissaoCracha
-                          .pendentesFoto
-                      }
-                    </strong>
+                  <div className="mt-3 flex justify-end">
+                    <button
+                      type="button"
+                      onClick={buscarPessoasParaEmissaoCracha}
+                      disabled={carregandoPessoasEmissao}
+                      className="phanyx-crachas-button-secondary disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {carregandoPessoasEmissao
+                        ? "Buscando..."
+                        : "Buscar pessoa"}
+                    </button>
                   </div>
                 </div>
 
-                {resumoEmissaoCracha.pendentesFoto >
-                  0 && (
-                  <p className="phanyx-crachas-alert-warning rounded-2xl border p-3 text-xs font-semibold">
-                    Cadastros sem foto oficial não serão
-                    emitidos agora. O PHANYX poderá gerar
-                    somente os aptos.
-                  </p>
+                {erroEmissaoCracha && (
+                  <div className="phanyx-crachas-alert-error mt-4 rounded-2xl border p-3 text-sm font-semibold">
+                    {erroEmissaoCracha}
+                  </div>
                 )}
-              </div>
+
+                <div className="phanyx-crachas-pessoas-box mt-4 rounded-2xl border border-dashed p-4 text-sm">
+                  {pessoasEmissaoCracha.length > 0 ? (
+                    <div className="space-y-2">
+                      {pessoasEmissaoCracha.map((pessoa) => {
+                        const selecionada =
+                          pessoaSelecionadaEmissao?.id ===
+                          pessoa.id &&
+                          pessoaSelecionadaEmissao?.tipo ===
+                          pessoa.tipo;
+
+                        return (
+                          <button
+                            key={`${pessoa.tipo}-${pessoa.id}`}
+                            type="button"
+                            onClick={() => {
+                              setPessoaSelecionadaEmissao(
+                                pessoa
+                              );
+                              setErroEmissaoCracha("");
+                            }}
+                            className={[
+                              "phanyx-crachas-pessoa-item",
+                              selecionada
+                                ? "phanyx-crachas-pessoa-item-selecionada"
+                                : "",
+                            ].join(" ")}
+                          >
+                            <div className="min-w-0">
+                              <p className="phanyx-crachas-pessoa-nome font-bold">
+                                {pessoa.nome}
+                              </p>
+
+                              {pessoa.descricao && (
+                                <p className="phanyx-crachas-pessoa-descricao mt-1 text-xs">
+                                  {pessoa.descricao}
+                                </p>
+                              )}
+                            </div>
+
+                            <span
+                              className={
+                                pessoa.aptoParaCracha
+                                  ? "phanyx-crachas-status phanyx-crachas-status-com-foto"
+                                  : "phanyx-crachas-status phanyx-crachas-status-sem-foto"
+                              }
+                            >
+                              {pessoa.aptoParaCracha
+                                ? "Com foto"
+                                : "Sem foto"}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="phanyx-crachas-modal-muted">
+                      Busque uma pessoa para selecionar e
+                      emitir o crachá.
+                    </p>
+                  )}
+                </div>
+              </>
             ) : (
-              <p className="phanyx-crachas-modal-muted">
-                Pré-visualize o lote para ver aptos e
-                pendentes sem foto.
-              </p>
+              <>
+                <div className="mt-4">
+                  <label className="phanyx-crachas-modal-label mb-2 block text-sm font-bold">
+                    Filtro do lote
+                  </label>
+
+                  <select
+                    value={filtroLoteEmissao}
+                    onChange={(e) => {
+                      setFiltroLoteEmissao(
+                        e.target.value
+                      );
+                      setErroEmissaoCracha("");
+                    }}
+                    className="phanyx-crachas-input w-full"
+                  >
+                    <option value="">
+                      Selecione o filtro do lote
+                    </option>
+
+                    {opcoesLotePorTipo(
+                      tipoModeloCracha
+                    ).map((opcao) => (
+                      <option
+                        key={opcao.valor}
+                        value={opcao.valor}
+                      >
+                        {opcao.rotulo}
+                      </option>
+                    ))}
+                  </select>
+
+                  <p className="phanyx-crachas-modal-muted mt-2 text-xs">
+                    A emissão em lote gerará um crachá e um QR
+                    Code único para cada pessoa encontrada.
+                  </p>
+
+                  <div className="mt-3 flex justify-end">
+                    <button
+                      type="button"
+                      onClick={buscarPessoasParaEmissaoCracha}
+                      disabled={carregandoPessoasEmissao}
+                      className="phanyx-crachas-button-secondary disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {carregandoPessoasEmissao
+                        ? "Processando..."
+                        : "Pré-visualizar lote"}
+                    </button>
+                  </div>
+                </div>
+
+                {erroEmissaoCracha && (
+                  <div className="phanyx-crachas-alert-error mt-4 rounded-2xl border p-3 text-sm font-semibold">
+                    {erroEmissaoCracha}
+                  </div>
+                )}
+
+                <div className="phanyx-crachas-lote-box mt-4 rounded-2xl border border-dashed p-4 text-sm">
+                  {resumoEmissaoCracha ? (
+                    <div className="space-y-3">
+                      <div className="grid gap-3 md:grid-cols-3">
+                        <div className="phanyx-crachas-resumo-card phanyx-crachas-resumo-total rounded-2xl border p-3">
+                          <p className="text-xs font-bold">
+                            Total encontrado
+                          </p>
+
+                          <strong className="text-2xl">
+                            {resumoEmissaoCracha.total}
+                          </strong>
+                        </div>
+
+                        <div className="phanyx-crachas-resumo-card phanyx-crachas-resumo-apto rounded-2xl border p-3">
+                          <p className="text-xs font-bold">
+                            Aptos com foto
+                          </p>
+
+                          <strong className="text-2xl">
+                            {resumoEmissaoCracha.aptos}
+                          </strong>
+                        </div>
+
+                        <div className="phanyx-crachas-resumo-card phanyx-crachas-resumo-pendente rounded-2xl border p-3">
+                          <p className="text-xs font-bold">
+                            Pendentes sem foto
+                          </p>
+
+                          <strong className="text-2xl">
+                            {
+                              resumoEmissaoCracha
+                                .pendentesFoto
+                            }
+                          </strong>
+                        </div>
+                      </div>
+
+                      {resumoEmissaoCracha.pendentesFoto >
+                        0 && (
+                          <p className="phanyx-crachas-alert-warning rounded-2xl border p-3 text-xs font-semibold">
+                            Cadastros sem foto oficial não serão
+                            emitidos agora. O PHANYX poderá gerar
+                            somente os aptos.
+                          </p>
+                        )}
+                    </div>
+                  ) : (
+                    <p className="phanyx-crachas-modal-muted">
+                      Pré-visualize o lote para ver aptos e
+                      pendentes sem foto.
+                    </p>
+                  )}
+                </div>
+              </>
             )}
+
+            <div className="mt-5 flex flex-wrap justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => fecharModalEmissaoCracha()}
+                disabled={emitindoCracha}
+                className="phanyx-crachas-button-secondary disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="button"
+                onClick={continuarEmissaoCracha}
+                disabled={
+                  emitindoCracha ||
+                  carregandoPessoasEmissao
+                }
+                className="phanyx-crachas-button-primary disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {emitindoCracha
+                  ? "Emitindo..."
+                  : modoEmissaoCracha ===
+                    "INDIVIDUAL"
+                    ? "Emitir crachá"
+                    : "Continuar"}
+              </button>
+            </div>
           </div>
-        </>
+        </div>
       )}
-
-      <div className="mt-5 flex flex-wrap justify-end gap-2">
-        <button
-          type="button"
-          onClick={() => fecharModalEmissaoCracha()}
-          disabled={emitindoCracha}
-          className="phanyx-crachas-button-secondary disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          Cancelar
-        </button>
-
-        <button
-          type="button"
-          onClick={continuarEmissaoCracha}
-          disabled={
-            emitindoCracha ||
-            carregandoPessoasEmissao
-          }
-          className="phanyx-crachas-button-primary disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {emitindoCracha
-            ? "Emitindo..."
-            : modoEmissaoCracha ===
-                "INDIVIDUAL"
-              ? "Emitir crachá"
-              : "Continuar"}
-        </button>
-      </div>
-    </div>
-  </div>
-)}
 
       {avisoCracha && (
         <div
           className={`mb-4 rounded-2xl border px-4 py-3 text-sm font-semibold ${avisoCracha.tipo === "sucesso"
-              ? "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-700 dark:bg-emerald-950 dark:text-emerald-200"
-              : "border-red-300 bg-red-50 text-red-800 dark:border-red-700 dark:bg-red-950 dark:text-red-200"
+            ? "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-700 dark:bg-emerald-950 dark:text-emerald-200"
+            : "border-red-300 bg-red-50 text-red-800 dark:border-red-700 dark:bg-red-950 dark:text-red-200"
             }`}
         >
           {avisoCracha.texto}
@@ -5287,76 +5679,76 @@ export default function CrachasClient() {
       )}
 
       {menuContexto.aberto && menuContexto.objetoId && (
-  <div
-    className="phanyx-crachas-context-menu fixed w-56 rounded-2xl border p-2 text-sm font-semibold shadow-2xl"
-    style={{
-      left: menuContexto.x,
-      top: menuContexto.y,
-      zIndex: 2147483647,
-    }}
-    onMouseDown={(e) => {
-      e.preventDefault();
-      e.stopPropagation();
-    }}
-  >
-    <div
-      onMouseDown={iniciarArrastoMenuContexto}
-      className="phanyx-crachas-context-drag mb-2 cursor-move rounded-xl border px-3 py-2 text-xs font-bold"
-    >
-      ⠿ Arrastar menu
-    </div>
+        <div
+          className="phanyx-crachas-context-menu fixed w-56 rounded-2xl border p-2 text-sm font-semibold shadow-2xl"
+          style={{
+            left: menuContexto.x,
+            top: menuContexto.y,
+            zIndex: 2147483647,
+          }}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+        >
+          <div
+            onMouseDown={iniciarArrastoMenuContexto}
+            className="phanyx-crachas-context-drag mb-2 cursor-move rounded-xl border px-3 py-2 text-xs font-bold"
+          >
+            ⠿ Arrastar menu
+          </div>
 
-    <button
-      type="button"
-      onClick={() =>
-        trazerObjetoParaFrentePorId(
-          menuContexto.objetoId!
-        )
-      }
-      className="phanyx-crachas-context-item"
-    >
-      Trazer para frente
-    </button>
+          <button
+            type="button"
+            onClick={() =>
+              trazerObjetoParaFrentePorId(
+                menuContexto.objetoId!
+              )
+            }
+            className="phanyx-crachas-context-item"
+          >
+            Trazer para frente
+          </button>
 
-    <button
-      type="button"
-      onClick={() =>
-        enviarObjetoParaTrasPorId(
-          menuContexto.objetoId!
-        )
-      }
-      className="phanyx-crachas-context-item"
-    >
-      Enviar para trás
-    </button>
+          <button
+            type="button"
+            onClick={() =>
+              enviarObjetoParaTrasPorId(
+                menuContexto.objetoId!
+              )
+            }
+            className="phanyx-crachas-context-item"
+          >
+            Enviar para trás
+          </button>
 
-    <button
-      type="button"
-      onClick={() =>
-        duplicarObjetoPorId(
-          menuContexto.objetoId!
-        )
-      }
-      className="phanyx-crachas-context-item"
-    >
-      Duplicar
-    </button>
+          <button
+            type="button"
+            onClick={() =>
+              duplicarObjetoPorId(
+                menuContexto.objetoId!
+              )
+            }
+            className="phanyx-crachas-context-item"
+          >
+            Duplicar
+          </button>
 
-    <div className="phanyx-crachas-context-divider my-1 border-t" />
+          <div className="phanyx-crachas-context-divider my-1 border-t" />
 
-    <button
-      type="button"
-      onClick={() =>
-        excluirObjetoPorId(
-          menuContexto.objetoId!
-        )
-      }
-      className="phanyx-crachas-context-item phanyx-crachas-context-delete"
-    >
-      Excluir
-    </button>
-  </div>
-)}
+          <button
+            type="button"
+            onClick={() =>
+              excluirObjetoPorId(
+                menuContexto.objetoId!
+              )
+            }
+            className="phanyx-crachas-context-item phanyx-crachas-context-delete"
+          >
+            Excluir
+          </button>
+        </div>
+      )}
 
       <div className="grid grid-cols-12 gap-4">
 
@@ -6142,8 +6534,8 @@ export default function CrachasClient() {
                             }}
                             title={`Ponto ${ponto.id}`}
                             className={`absolute z-30 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 shadow ${objeto.pontosLivresSelecionadosIds?.includes(ponto.id)
-                                ? "border-yellow-300 bg-yellow-300"
-                                : "border-white bg-blue-600"
+                              ? "border-yellow-300 bg-yellow-300"
+                              : "border-white bg-blue-600"
                               }`}
                             style={{
                               left: `${ponto.x}%`,
@@ -6349,8 +6741,8 @@ export default function CrachasClient() {
                           })
                         }
                         className={`rounded-xl border px-3 py-2 text-xs font-bold ${objetoAtual.alinhamento === alinhamento
-                            ? "border-blue-500 bg-blue-600 text-white"
-                            : "border-slate-600 bg-slate-900 text-slate-200"
+                          ? "border-blue-500 bg-blue-600 text-white"
+                          : "border-slate-600 bg-slate-900 text-slate-200"
                           }`}
                       >
                         {alinhamento === "left"
@@ -6466,8 +6858,8 @@ export default function CrachasClient() {
                         )
                       }
                       className={`h-10 w-10 rounded-xl border text-lg font-bold transition ${item.valor === "center"
-                          ? "border-slate-400"
-                          : "border-slate-400"
+                        ? "border-slate-400"
+                        : "border-slate-400"
                         } hover:bg-blue-600 hover:text-white`}
                     >
                       {item.label}
@@ -6619,8 +7011,8 @@ export default function CrachasClient() {
                           })
                         }
                         className={`rounded-xl border px-3 py-2 text-xs font-bold ${objetoAtual.alinhamento === alinhamento
-                            ? "border-blue-500 bg-blue-600 text-white"
-                            : "border-slate-600 bg-slate-900 text-slate-200"
+                          ? "border-blue-500 bg-blue-600 text-white"
+                          : "border-slate-600 bg-slate-900 text-slate-200"
                           }`}
                       >
                         {alinhamento === "left"
@@ -7687,8 +8079,8 @@ export default function CrachasClient() {
                           }
                           title={`Ponto ${ponto.posicao}%`}
                           className={`absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 shadow-lg ${pontoGradienteSelecionado === ponto.id
-                              ? "border-yellow-300 ring-4 ring-yellow-300/50"
-                              : "border-white ring-2 ring-slate-900"
+                            ? "border-yellow-300 ring-4 ring-yellow-300/50"
+                            : "border-white ring-2 ring-slate-900"
                             }`}
                           style={{
                             left: `${ponto.posicao}%`,
@@ -7715,8 +8107,8 @@ export default function CrachasClient() {
                             type="button"
                             onClick={() => setPontoGradienteFundoSelecionado(ponto.id)}
                             className={`flex items-center gap-2 rounded-xl border px-2 py-2 text-left text-[11px] font-bold ${selecionado
-                                ? "border-yellow-300 bg-yellow-400/10 text-yellow-200"
-                                : "border-slate-600 bg-slate-900 text-slate-200 hover:border-blue-400"
+                              ? "border-yellow-300 bg-yellow-400/10 text-yellow-200"
+                              : "border-slate-600 bg-slate-900 text-slate-200 hover:border-blue-400"
                               }`}
                           >
                             <span
@@ -9177,8 +9569,8 @@ export default function CrachasClient() {
                         onClick={() => setPontoGradienteFundoSelecionado(ponto.id)}
                         title={`Ponto ${ponto.posicao}%`}
                         className={`absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 shadow-lg ${pontoGradienteFundoSelecionado === ponto.id
-                            ? "border-yellow-300 ring-4 ring-yellow-300/50"
-                            : "border-white ring-2 ring-slate-900"
+                          ? "border-yellow-300 ring-4 ring-yellow-300/50"
+                          : "border-white ring-2 ring-slate-900"
                           }`}
                         style={{
                           left: `${ponto.posicao}%`,

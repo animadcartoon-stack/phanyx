@@ -100,32 +100,58 @@ export async function GET(req: NextRequest) {
     }
 
     const acessoPlano =
-  await verificarAcessoEditorCrachas(
-    user.instituicaoId
-  );
+      await verificarAcessoEditorCrachas(
+        user.instituicaoId
+      );
 
-if (!acessoPlano.permitido) {
-  return NextResponse.json(
-    {
-      error:
-        "O Editor PHANYX de Crachás está disponível a partir do Plano Profissional.",
-      codigo: "RECURSO_NAO_DISPONIVEL_NO_PLANO",
-      plano: acessoPlano.plano,
-      recurso: "CRACHAS_EDITOR",
-    },
-    { status: 403 }
-  );
-}
+    if (!acessoPlano.permitido) {
+      return NextResponse.json(
+        {
+          error:
+            "O Editor PHANYX de Crachás está disponível a partir do Plano Profissional.",
+          codigo: "RECURSO_NAO_DISPONIVEL_NO_PLANO",
+          plano: acessoPlano.plano,
+          recurso: "CRACHAS_EDITOR",
+        },
+        { status: 403 }
+      );
+    }
 
     const { searchParams } = new URL(req.url);
 
-    const tipoPessoa = limparTexto(searchParams.get("tipoPessoa")).toUpperCase();
-    const somentePadrao = searchParams.get("padrao") === "true";
+    const id = Number(
+      searchParams.get("id") || 0
+    );
+
+    const tipoPessoa = limparTexto(
+      searchParams.get("tipoPessoa")
+    ).toUpperCase();
+
+    const somentePadrao =
+      searchParams.get("padrao") === "true";
 
     const where: any = {
       instituicaoId: user.instituicaoId,
       ativo: true,
     };
+
+    if (
+      Number.isInteger(id) &&
+      id > 0
+    ) {
+      where.id = id;
+    }
+
+    if (
+      tipoPessoa &&
+      TIPOS_VALIDOS.includes(tipoPessoa)
+    ) {
+      where.tipoPessoa = tipoPessoa;
+    }
+
+    if (somentePadrao) {
+      where.padrao = true;
+    }
 
     if (tipoPessoa && TIPOS_VALIDOS.includes(tipoPessoa)) {
       where.tipoPessoa = tipoPessoa;
@@ -174,22 +200,22 @@ export async function POST(req: NextRequest) {
     }
 
     const acessoPlano =
-  await verificarAcessoEditorCrachas(
-    user.instituicaoId
-  );
+      await verificarAcessoEditorCrachas(
+        user.instituicaoId
+      );
 
-if (!acessoPlano.permitido) {
-  return NextResponse.json(
-    {
-      error:
-        "O Editor PHANYX de Crachás está disponível a partir do Plano Profissional.",
-      codigo: "RECURSO_NAO_DISPONIVEL_NO_PLANO",
-      plano: acessoPlano.plano,
-      recurso: "CRACHAS_EDITOR",
-    },
-    { status: 403 }
-  );
-}
+    if (!acessoPlano.permitido) {
+      return NextResponse.json(
+        {
+          error:
+            "O Editor PHANYX de Crachás está disponível a partir do Plano Profissional.",
+          codigo: "RECURSO_NAO_DISPONIVEL_NO_PLANO",
+          plano: acessoPlano.plano,
+          recurso: "CRACHAS_EDITOR",
+        },
+        { status: 403 }
+      );
+    }
 
     const body = await req.json();
 
@@ -215,129 +241,129 @@ if (!acessoPlano.permitido) {
     const padrao = body.padrao !== false;
 
     const dadosModelo = {
-  nome,
-  tipoPessoa,
-  formato,
+      nome,
+      tipoPessoa,
+      formato,
 
-  larguraMm,
-  alturaMm,
+      larguraMm,
+      alturaMm,
 
-  tipoFuro: limparTexto(body.tipoFuro) || "RASGO_HORIZONTAL",
+      tipoFuro: limparTexto(body.tipoFuro) || "RASGO_HORIZONTAL",
 
-  tipoFundoFrente: limparTexto(body.tipoFundoFrente) || "SOLIDO",
-  corFundoFrente: limparTexto(body.corFundoFrente) || "#ffffff",
-  corFundoFrenteSecundaria:
-    limparTexto(body.corFundoFrenteSecundaria) || null,
-  direcaoGradienteFrente:
-    limparTexto(body.direcaoGradienteFrente) || "VERTICAL",
+      tipoFundoFrente: limparTexto(body.tipoFundoFrente) || "SOLIDO",
+      corFundoFrente: limparTexto(body.corFundoFrente) || "#ffffff",
+      corFundoFrenteSecundaria:
+        limparTexto(body.corFundoFrenteSecundaria) || null,
+      direcaoGradienteFrente:
+        limparTexto(body.direcaoGradienteFrente) || "VERTICAL",
 
-    gradientePontosFundoFrente: jsonSeguro(
-  body.gradientePontosFundoFrente,
-  null
-) as any,
+      gradientePontosFundoFrente: jsonSeguro(
+        body.gradientePontosFundoFrente,
+        null
+      ) as any,
 
-gradientePontosFundoVerso: jsonSeguro(
-  body.gradientePontosFundoVerso,
-  null
-) as any,
+      gradientePontosFundoVerso: jsonSeguro(
+        body.gradientePontosFundoVerso,
+        null
+      ) as any,
 
-  tipoFundoVerso: limparTexto(body.tipoFundoVerso) || "SOLIDO",
-  corFundoVerso: limparTexto(body.corFundoVerso) || "#ffffff",
-  corFundoVersoSecundaria:
-    limparTexto(body.corFundoVersoSecundaria) || null,
-  direcaoGradienteVerso:
-    limparTexto(body.direcaoGradienteVerso) || "VERTICAL",
+      tipoFundoVerso: limparTexto(body.tipoFundoVerso) || "SOLIDO",
+      corFundoVerso: limparTexto(body.corFundoVerso) || "#ffffff",
+      corFundoVersoSecundaria:
+        limparTexto(body.corFundoVersoSecundaria) || null,
+      direcaoGradienteVerso:
+        limparTexto(body.direcaoGradienteVerso) || "VERTICAL",
 
-  frenteJson: jsonSeguro(
-    body.frenteJson ?? body.objetosFrente,
-    []
-  ) as any,
+      frenteJson: jsonSeguro(
+        body.frenteJson ?? body.objetosFrente,
+        []
+      ) as any,
 
-  versoJson: jsonSeguro(
-    body.versoJson ?? body.objetosVerso,
-    []
-  ) as any,
+      versoJson: jsonSeguro(
+        body.versoJson ?? body.objetosVerso,
+        []
+      ) as any,
 
-  padrao,
-  ativo: body.ativo !== false,
-  observacoes: limparTexto(body.observacoes) || null,
-};
+      padrao,
+      ativo: body.ativo !== false,
+      observacoes: limparTexto(body.observacoes) || null,
+    };
 
     const modelo = await prisma.$transaction(async (tx) => {
-  if (id) {
-    const modeloExistente = await tx.crachaModelo.findFirst({
-      where: {
-        id,
-        instituicaoId: user.instituicaoId!,
-      },
-    });
+      if (id) {
+        const modeloExistente = await tx.crachaModelo.findFirst({
+          where: {
+            id,
+            instituicaoId: user.instituicaoId!,
+          },
+        });
 
-    if (!modeloExistente) {
-      throw new Error("Modelo de crachá não encontrado.");
-    }
+        if (!modeloExistente) {
+          throw new Error("Modelo de crachá não encontrado.");
+        }
 
-    if (padrao) {
-      await tx.crachaModelo.updateMany({
-        where: {
-          instituicaoId: user.instituicaoId!,
-          tipoPessoa,
-          padrao: true,
-          id: { not: id },
-        },
+        if (padrao) {
+          await tx.crachaModelo.updateMany({
+            where: {
+              instituicaoId: user.instituicaoId!,
+              tipoPessoa,
+              padrao: true,
+              id: { not: id },
+            },
+            data: {
+              padrao: false,
+            },
+          });
+        }
+
+        return tx.crachaModelo.update({
+          where: { id },
+          data: dadosModelo,
+        });
+      }
+
+      const modeloPadraoExistente = padrao
+        ? await tx.crachaModelo.findFirst({
+          where: {
+            instituicaoId: user.instituicaoId!,
+            tipoPessoa,
+            padrao: true,
+            ativo: true,
+          },
+          orderBy: {
+            atualizadoEm: "desc",
+          },
+        })
+        : null;
+
+      if (modeloPadraoExistente) {
+        return tx.crachaModelo.update({
+          where: { id: modeloPadraoExistente.id },
+          data: dadosModelo,
+        });
+      }
+
+      if (padrao) {
+        await tx.crachaModelo.updateMany({
+          where: {
+            instituicaoId: user.instituicaoId!,
+            tipoPessoa,
+            padrao: true,
+          },
+          data: {
+            padrao: false,
+          },
+        });
+      }
+
+      return tx.crachaModelo.create({
         data: {
-          padrao: false,
+          instituicaoId: user.instituicaoId!,
+          criadoPorId: user.id,
+          ...dadosModelo,
         },
       });
-    }
-
-    return tx.crachaModelo.update({
-      where: { id },
-      data: dadosModelo,
     });
-  }
-
-  const modeloPadraoExistente = padrao
-    ? await tx.crachaModelo.findFirst({
-        where: {
-          instituicaoId: user.instituicaoId!,
-          tipoPessoa,
-          padrao: true,
-          ativo: true,
-        },
-        orderBy: {
-          atualizadoEm: "desc",
-        },
-      })
-    : null;
-
-  if (modeloPadraoExistente) {
-    return tx.crachaModelo.update({
-      where: { id: modeloPadraoExistente.id },
-      data: dadosModelo,
-    });
-  }
-
-  if (padrao) {
-    await tx.crachaModelo.updateMany({
-      where: {
-        instituicaoId: user.instituicaoId!,
-        tipoPessoa,
-        padrao: true,
-      },
-      data: {
-        padrao: false,
-      },
-    });
-  }
-
-  return tx.crachaModelo.create({
-    data: {
-      instituicaoId: user.instituicaoId!,
-      criadoPorId: user.id,
-      ...dadosModelo,
-    },
-  });
-});
 
     return NextResponse.json({ modelo });
   } catch (error: any) {
@@ -346,6 +372,204 @@ gradientePontosFundoVerso: jsonSeguro(
     return NextResponse.json(
       { error: error?.message || "Erro ao salvar modelo de crachá." },
       { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  req: NextRequest
+) {
+  try {
+    const user =
+      await getUserFromToken();
+
+    if (!user) {
+      return NextResponse.json(
+        {
+          error:
+            "Não autenticado",
+        },
+        {
+          status: 401,
+        }
+      );
+    }
+
+    if (!isAdminLike(user.role)) {
+      return NextResponse.json(
+        {
+          error:
+            "Sem permissão",
+        },
+        {
+          status: 403,
+        }
+      );
+    }
+
+    if (!user.instituicaoId) {
+      return NextResponse.json(
+        {
+          error:
+            "Usuário sem instituição vinculada.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const acessoPlano =
+      await verificarAcessoEditorCrachas(
+        user.instituicaoId
+      );
+
+    if (!acessoPlano.permitido) {
+      return NextResponse.json(
+        {
+          error:
+            "O Editor PHANYX de Crachás está disponível a partir do Plano Profissional.",
+          codigo:
+            "RECURSO_NAO_DISPONIVEL_NO_PLANO",
+        },
+        {
+          status: 403,
+        }
+      );
+    }
+
+    const {
+      searchParams,
+    } = new URL(req.url);
+
+    const id = Number(
+      searchParams.get("id")
+    );
+
+    if (
+      !Number.isInteger(id) ||
+      id <= 0
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Modelo de crachá inválido.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const modelo =
+      await prisma.crachaModelo.findFirst({
+        where: {
+          id,
+          instituicaoId:
+            user.instituicaoId,
+          ativo: true,
+        },
+
+        select: {
+          id: true,
+          padrao: true,
+          tipoPessoa: true,
+        },
+      });
+
+    if (!modelo) {
+      return NextResponse.json(
+        {
+          error:
+            "Modelo de crachá não encontrado.",
+        },
+        {
+          status: 404,
+        }
+      );
+    }
+
+    /*
+     * Arquivamos em vez de apagar fisicamente.
+     * Isso preserva histórico e referências.
+     */
+    await prisma.$transaction(
+      async (tx) => {
+        await tx.crachaModelo.update({
+          where: {
+            id: modelo.id,
+          },
+
+          data: {
+            ativo: false,
+            padrao: false,
+          },
+        });
+
+        /*
+         * Se o modelo removido era o padrão,
+         * promovemos outro modelo ativo
+         * do mesmo tipo.
+         */
+        if (modelo.padrao) {
+          const proximo =
+            await tx.crachaModelo.findFirst({
+              where: {
+                instituicaoId:
+                  user.instituicaoId!,
+                tipoPessoa:
+                  modelo.tipoPessoa,
+                ativo: true,
+                id: {
+                  not: modelo.id,
+                },
+              },
+
+              orderBy: {
+                atualizadoEm:
+                  "desc",
+              },
+
+              select: {
+                id: true,
+              },
+            });
+
+          if (proximo) {
+            await tx.crachaModelo.update({
+              where: {
+                id:
+                  proximo.id,
+              },
+
+              data: {
+                padrao: true,
+              },
+            });
+          }
+        }
+      }
+    );
+
+    return NextResponse.json({
+      ok: true,
+      id: modelo.id,
+    });
+  } catch (error: any) {
+    console.error(
+      "ERRO AO EXCLUIR MODELO DE CRACHÁ:",
+      error
+    );
+
+    return NextResponse.json(
+      {
+        error:
+          error?.message ||
+          "Erro ao excluir modelo de crachá.",
+      },
+      {
+        status: 500,
+      }
     );
   }
 }
