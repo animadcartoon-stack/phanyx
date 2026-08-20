@@ -460,43 +460,46 @@ dark:focus:ring-blue-900/30
         </button>
       </div>
 
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-        <h2 className="phanyx-reunioes-titulo mb-4 text-lg font-semibold">
-  Reuniões agendadas
-</h2>
+      <div className="phanyx-prof-reunioes-card rounded-3xl border p-6 shadow-sm">
+  <h2 className="phanyx-prof-reunioes-titulo mb-4 text-lg font-semibold">
+    Reuniões agendadas
+  </h2>
 
-        <div className="space-y-3">
-          {reunioes.map((reuniao) => (
-            <div key={reuniao.id} className="rounded-2xl border border-slate-200 p-4 dark:border-slate-700">
-              <h3 className="font-semibold text-slate-900 dark:text-white">
-                {reuniao.titulo}
-              </h3>
+  <div className="space-y-3">
+    {reunioes.map((reuniao) => (
+      <div
+        key={reuniao.id}
+        className="phanyx-prof-reunioes-item rounded-2xl border p-4"
+      >
+        <h3 className="phanyx-prof-reunioes-item-titulo font-semibold">
+          {reuniao.titulo}
+        </h3>
 
-              <p className="text-sm text-slate-600 dark:text-slate-300">
-                {new Date(reuniao.dataHora).toLocaleString("pt-BR")}
-              </p>
+        <p className="phanyx-prof-reunioes-data text-sm">
+          {new Date(reuniao.dataHora).toLocaleString("pt-BR")}
+        </p>
 
-              <p className="mt-1 text-xs text-blue-500">
-                {publicoLabel[reuniao.publicoTipo] || reuniao.publicoTipo}
-                {reuniao.setor ? ` • ${reuniao.setor}` : ""}
-                {reuniao.turma?.nome ? ` • ${reuniao.turma.nome}` : ""}
-                {reuniao.curso?.nome ? ` • ${reuniao.curso.nome}` : ""}
-                {" • "}
-                {reuniao.participantes?.length || 0} participante(s)
-              </p>
+        <p className="phanyx-prof-reunioes-detalhes mt-1 text-xs font-medium">
+          {publicoLabel[reuniao.publicoTipo] || reuniao.publicoTipo}
+          {reuniao.setor ? ` • ${reuniao.setor}` : ""}
+          {reuniao.turma?.nome ? ` • ${reuniao.turma.nome}` : ""}
+          {reuniao.curso?.nome ? ` • ${reuniao.curso.nome}` : ""}
+          {" • "}
+          {reuniao.participantes?.length || 0} participante(s)
+        </p>
 
-              <a
-                href={reuniao.link}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-3 inline-block rounded-xl bg-blue-600 px-4 py-2 text-white"
-              >
-                Entrar na reunião
-              </a>
-            </div>
-          ))}
-        </div>
+        <a
+          href={reuniao.link}
+          target="_blank"
+          rel="noreferrer"
+          className="phanyx-prof-reunioes-entrar mt-3 inline-block rounded-xl px-4 py-2 font-medium"
+        >
+          Entrar na reunião
+        </a>
       </div>
+    ))}
+  </div>
+</div>
     </div>
   );
 }

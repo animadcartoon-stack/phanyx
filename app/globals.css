@@ -28525,3 +28525,126 @@ html[data-theme="system"] .phanyx-chat-resize-handle:hover {
   outline: 3px solid rgba(255, 255, 255, 0.55);
   outline-offset: 2px;
 }
+
+/* =========================================================
+   PROFESSOR — REUNIÕES AGENDADAS
+   ========================================================= */
+
+.phanyx-prof-reunioes-card,
+.phanyx-prof-reunioes-item,
+.phanyx-prof-reunioes-entrar {
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+/* Tema claro */
+html[data-theme="light"] .phanyx-prof-reunioes-card,
+html:not([data-theme]) .phanyx-prof-reunioes-card {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .phanyx-prof-reunioes-titulo,
+html:not([data-theme]) .phanyx-prof-reunioes-titulo {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-prof-reunioes-item,
+html:not([data-theme]) .phanyx-prof-reunioes-item {
+  background: #f8fafc !important;
+  border-color: #64748b !important;
+}
+
+html[data-theme="light"] .phanyx-prof-reunioes-item-titulo,
+html:not([data-theme]) .phanyx-prof-reunioes-item-titulo {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-prof-reunioes-data,
+html:not([data-theme]) .phanyx-prof-reunioes-data {
+  color: #334155 !important;
+}
+
+html[data-theme="light"] .phanyx-prof-reunioes-detalhes,
+html:not([data-theme]) .phanyx-prof-reunioes-detalhes {
+  color: #1d4ed8 !important;
+}
+
+html[data-theme="light"] .phanyx-prof-reunioes-entrar,
+html:not([data-theme]) .phanyx-prof-reunioes-entrar {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .phanyx-prof-reunioes-entrar:hover,
+html:not([data-theme]) .phanyx-prof-reunioes-entrar:hover {
+  background: #1d4ed8 !important;
+}
+
+/* Tema escuro */
+html[data-theme="dark"] .phanyx-prof-reunioes-card {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="dark"] .phanyx-prof-reunioes-titulo,
+html[data-theme="dark"] .phanyx-prof-reunioes-item-titulo {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-prof-reunioes-item {
+  background: #111827 !important;
+  border-color: #475569 !important;
+}
+
+html[data-theme="dark"] .phanyx-prof-reunioes-data {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .phanyx-prof-reunioes-detalhes {
+  color: #93c5fd !important;
+}
+
+html[data-theme="dark"] .phanyx-prof-reunioes-entrar {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-prof-reunioes-entrar:hover {
+  background: #1d4ed8 !important;
+}
+
+/* Tema sistema */
+html[data-theme="system"] .phanyx-prof-reunioes-card {
+  background: #262626 !important;
+  border-color: #525252 !important;
+}
+
+html[data-theme="system"] .phanyx-prof-reunioes-titulo,
+html[data-theme="system"] .phanyx-prof-reunioes-item-titulo {
+  color: #fafafa !important;
+}
+
+html[data-theme="system"] .phanyx-prof-reunioes-item {
+  background: #303030 !important;
+  border-color: #737373 !important;
+}
+
+html[data-theme="system"] .phanyx-prof-reunioes-data {
+  color: #e5e5e5 !important;
+}
+
+html[data-theme="system"] .phanyx-prof-reunioes-detalhes {
+  color: #93c5fd !important;
+}
+
+html[data-theme="system"] .phanyx-prof-reunioes-entrar {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-prof-reunioes-entrar:hover {
+  background: #1d4ed8 !important;
+}
