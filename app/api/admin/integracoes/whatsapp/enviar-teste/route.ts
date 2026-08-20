@@ -1,15 +1,19 @@
+import { randomUUID } from "crypto";
+
 import {
   NextRequest,
   NextResponse,
 } from "next/server";
 
-import { prisma } from "@/lib/prisma";
+import {
+  TipoComunicacaoWhatsApp,
+} from "@prisma/client";
+
 import { getUserFromToken } from "@/lib/server-auth";
 
 import {
-  ErroMetaWhatsapp,
-  enviarTemplateWhatsappMeta,
-} from "@/lib/whatsapp/meta";
+  enviarComunicacaoWhatsapp,
+} from "@/lib/whatsapp/enviar-comunicacao";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +27,18 @@ function podeAdministrarWhatsapp(
     papel === "ADMIN" ||
     papel === "SUPER_ADMIN"
   );
+}
+
+function limparTexto(
+  valor: unknown
+): string | null {
+  if (typeof valor !== "string") {
+    return null;
+  }
+
+  const texto = valor.trim();
+
+  return texto || null;
 }
 
 function normalizarTelefone(
@@ -43,6 +59,56 @@ function normalizarTelefone(
   }
 
   return telefone;
+}
+
+function mensagemMotivoIgnorado(
+  motivo: string
+) {
+  const mensagens: Record<string, string> = {
+    INSTITUICAO_INVALIDA:
+      "A instituição informada é inválida.",
+
+    WHATSAPP_NAO_CONFIGURADO:
+      "O WhatsApp ainda não foi configurado para esta instituição.",
+
+    WHATSAPP_DESATIVADO:
+      "O envio de WhatsApp está desativado.",
+
+    WHATSAPP_DESCONECTADO:
+      "A integração do WhatsApp está desconectada.",
+
+    PHONE_NUMBER_ID_AUSENTE:
+      "O Phone Number ID não está configurado.",
+
+    TOKEN_AUSENTE:
+      "A credencial do WhatsApp não está configurada.",
+
+    COMUNICACAO_DESATIVADA:
+      "A comunicação de reunião criada está desativada.",
+
+    TELEFONE_AUSENTE:
+      "O telefone de destino não foi informado.",
+
+    TELEFONE_INVALIDO:
+      "O telefone de destino é inválido.",
+
+    TEMPLATE_NAO_CONFIGURADO:
+      "O template de reunião criada não está configurado.",
+
+    TEMPLATE_META_NAO_CONFIGURADO:
+      "O template não possui nome correspondente na Meta.",
+
+    TEMPLATE_NAO_APROVADO_META:
+      "O template ainda não foi aprovado pela Meta.",
+
+    COMUNICACAO_DUPLICADA:
+      "Esta mensagem de teste já foi processada.",
+  };
+
+  return (
+    mensagens[motivo] ||
+    "A mensagem de teste foi ignorada."
+  );
 }
 
 export async function POST(
@@ -80,9 +146,7 @@ export async function POST(
     }
 
     const instituicaoId =
-      Number(
-        user.instituicaoId
-      );
+      Number(user.instituicaoId);
 
     if (
       !Number.isFinite(
@@ -103,16 +167,15 @@ export async function POST(
 
     let body: {
       telefone?: string;
+      nomeDestinatario?: string;
     };
 
     try {
-      body =
-        await req.json();
+      body = await req.json();
     } catch {
       return NextResponse.json(
         {
-          error:
-            "Dados inválidos.",
+          error: "Dados inválidos.",
         },
         {
           status: 400,
@@ -137,142 +200,161 @@ export async function POST(
       );
     }
 
-    const integracao =
-      await prisma.whatsAppInstituicao.findUnique({
-        where: {
-          instituicaoId,
-        },
+    const nomeDestinatario =
+      limparTexto(
+        body.nomeDestinatario
+      ) || "Participante";
 
-        select: {
-          conectado: true,
-          phoneNumberId: true,
-          tokenAcessoCriptografado:
-            true,
-        },
-      });
-
-    if (!integracao) {
-      return NextResponse.json(
+    const dataHora =
+      new Intl.DateTimeFormat(
+        "pt-BR",
         {
-          error:
-            "O WhatsApp ainda não foi configurado para esta instituição.",
-        },
-        {
-          status: 404,
+          timeZone:
+            "America/Sao_Paulo",
+          dateStyle: "short",
+          timeStyle: "short",
         }
-      );
-    }
-
-    if (!integracao.conectado) {
-      return NextResponse.json(
-        {
-          error:
-            "A integração do WhatsApp não está conectada.",
-        },
-        {
-          status: 409,
-        }
-      );
-    }
-
-    if (
-      !integracao.phoneNumberId
-    ) {
-      return NextResponse.json(
-        {
-          error:
-            "O Phone Number ID do WhatsApp não está configurado.",
-        },
-        {
-          status: 409,
-        }
-      );
-    }
-
-    if (
-      !integracao
-        .tokenAcessoCriptografado
-    ) {
-      return NextResponse.json(
-        {
-          error:
-            "A credencial do WhatsApp não está configurada.",
-        },
-        {
-          status: 409,
-        }
-      );
-    }
+      )
+        .format(new Date())
+        .replace(",", " às");
 
     const resultado =
-      await enviarTemplateWhatsappMeta({
-        phoneNumberId:
-          integracao.phoneNumberId,
+      await enviarComunicacaoWhatsapp({
+        instituicaoId,
 
-        tokenCriptografado:
-          integracao
-            .tokenAcessoCriptografado,
+        usuarioId:
+          Number.isFinite(
+            Number(user.id)
+          )
+            ? Number(user.id)
+            : null,
 
-        telefoneDestino,
+        tipoComunicacao:
+          TipoComunicacaoWhatsApp.REUNIAO_CRIADA,
 
-        templateNome:
-          "hello_world",
+        chaveIdempotencia:
+          `whatsapp-teste:${instituicaoId}:${randomUUID()}`,
 
-        idioma:
-          "en_US",
+        telefone:
+          telefoneDestino,
+
+        nomeDestinatario,
+
+        componentes: [
+          {
+            type: "body",
+
+            parameters: [
+              {
+                type: "text",
+                text:
+                  nomeDestinatario,
+              },
+              {
+                type: "text",
+                text:
+                  "Reunião de teste PHANYX",
+              },
+              {
+                type: "text",
+                text: dataHora,
+              },
+              {
+                type: "text",
+                text:
+                  "Teste técnico — nenhuma ação é necessária.",
+              },
+            ],
+          },
+        ],
+
+        parametros: {
+          testeAdministrativo: true,
+
+          nomeDestinatario,
+
+          titulo:
+            "Reunião de teste PHANYX",
+
+          dataHora,
+
+          acesso:
+            "Teste técnico — nenhuma ação é necessária.",
+        },
+
+        modoTesteAdministrativo: true,
       });
 
-    return NextResponse.json({
-      ok: true,
+    if (resultado.enviado) {
+      return NextResponse.json({
+        ok: true,
 
-      message:
-        "Mensagem de teste enviada ao WhatsApp.",
+        message:
+          "Mensagem de teste enviada e registrada no PHANYX.",
 
-      metaMessageId:
-        resultado.metaMessageId,
+        mensagemId:
+          resultado.mensagemId,
 
-      waId:
-        resultado.waId ?? null,
+        metaMessageId:
+          resultado.metaMessageId,
+      });
+    }
 
-      statusInicial:
-        resultado.statusInicial ??
-        null,
-    });
-  } catch (error) {
-    console.error(
-      "Erro ao enviar mensagem de teste pelo WhatsApp:",
-      error
-    );
-
-    if (
-      error instanceof
-      ErroMetaWhatsapp
-    ) {
+    if (resultado.ignorado) {
       return NextResponse.json(
         {
           ok: false,
 
           error:
-            error.message,
+            mensagemMotivoIgnorado(
+              resultado.motivo
+            ),
 
-          codigoMeta:
-            error.codigoMeta ??
-            null,
-
-          subcodigoMeta:
-            error.subcodigoMeta ??
-            null,
+          motivo:
+            resultado.motivo,
         },
         {
-          status:
-            error.statusHttp >=
-              400 &&
-            error.statusHttp < 500
-              ? 400
-              : 502,
+          status: 409,
         }
       );
     }
+
+    if ("erro" in resultado) {
+  return NextResponse.json(
+    {
+      ok: false,
+
+      error:
+        resultado.erro,
+
+      motivo:
+        resultado.motivo,
+
+      mensagemId:
+        resultado.mensagemId,
+    },
+    {
+      status: 502,
+    }
+  );
+}
+
+return NextResponse.json(
+  {
+    ok: false,
+
+    error:
+      "O envio retornou um resultado inesperado.",
+  },
+  {
+    status: 500,
+  }
+);
+  } catch (error) {
+    console.error(
+      "Erro ao enviar mensagem administrativa de teste pelo WhatsApp:",
+      error
+    );
 
     return NextResponse.json(
       {

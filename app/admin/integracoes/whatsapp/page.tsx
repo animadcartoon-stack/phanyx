@@ -403,6 +403,25 @@ export default function WhatsAppInstitucionalPage() {
     setSincronizandoTemplates,
   ] = useState(false);
 
+  const [enviandoTeste, setEnviandoTeste] =
+    useState(false);
+
+  const [telefoneTeste, setTelefoneTeste] =
+    useState("");
+
+  const [
+    nomeDestinatarioTeste,
+    setNomeDestinatarioTeste,
+  ] = useState("");
+
+  const [
+    resultadoTeste,
+    setResultadoTeste,
+  ] = useState<{
+    mensagemId: number;
+    metaMessageId: string;
+  } | null>(null);
+
   const templateSelecionado =
     templatesWhatsapp[tipoTemplateSelecionado];
 
@@ -523,6 +542,67 @@ export default function WhatsAppInstitucionalPage() {
       );
     } finally {
       setSincronizandoTemplates(false);
+    }
+  }
+
+  async function enviarMensagemTeste() {
+    try {
+      setEnviandoTeste(true);
+      setErro("");
+      setSucesso("");
+      setResultadoTeste(null);
+
+      const response = await fetch(
+        "/api/admin/integracoes/whatsapp/enviar-teste",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          credentials: "include",
+
+          body: JSON.stringify({
+            telefone: telefoneTeste,
+
+            nomeDestinatario:
+              nomeDestinatarioTeste,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data?.error ||
+          "Não foi possível enviar a mensagem de teste."
+        );
+      }
+
+      setResultadoTeste({
+        mensagemId:
+          Number(data.mensagemId),
+
+        metaMessageId:
+          String(data.metaMessageId),
+      });
+
+      await carregarConfiguracao();
+
+      setSucesso(
+        data?.message ||
+        "Mensagem de teste enviada e registrada no PHANYX."
+      );
+    } catch (error) {
+      setErro(
+        error instanceof Error
+          ? error.message
+          : "Erro ao enviar a mensagem de teste."
+      );
+    } finally {
+      setEnviandoTeste(false);
     }
   }
 
@@ -1147,6 +1227,103 @@ export default function WhatsAppInstitucionalPage() {
             </div>
           </section>
         </div>
+
+        <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-950">
+          <div>
+            <h2 className="text-lg font-bold text-slate-950 dark:text-white">
+              Envio controlado de teste
+            </h2>
+
+            <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
+              Envie o modelo aprovado de reunião criada para
+              validar o envio, o registro no PHANYX e os retornos
+              do webhook. Este teste não ativa as automações.
+            </p>
+          </div>
+
+          <form
+            className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]"
+            onSubmit={(event) => {
+              event.preventDefault();
+              enviarMensagemTeste();
+            }}
+          >
+            <div>
+              <label className="mb-1.5 block text-sm font-semibold text-slate-800 dark:text-slate-200">
+                Nome do destinatário
+              </label>
+
+              <input
+                type="text"
+                value={nomeDestinatarioTeste}
+                onChange={(event) =>
+                  setNomeDestinatarioTeste(
+                    event.target.value
+                  )
+                }
+                placeholder="Ex.: Denise"
+                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-950 outline-none transition focus:border-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-sm font-semibold text-slate-800 dark:text-slate-200">
+                WhatsApp de destino
+              </label>
+
+              <input
+                type="tel"
+                value={telefoneTeste}
+                onChange={(event) =>
+                  setTelefoneTeste(
+                    event.target.value
+                  )
+                }
+                placeholder="Ex.: 55 11 99999-9999"
+                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-950 outline-none transition focus:border-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+              />
+
+              <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">
+                Informe DDI, DDD e número.
+              </p>
+            </div>
+
+            <div className="flex items-end">
+              <button
+                type="submit"
+                disabled={
+                  enviandoTeste ||
+                  !integracao.conectado ||
+                  telefoneTeste.replace(/\D/g, "")
+                    .length < 10
+                }
+                className="w-full rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 lg:w-auto"
+              >
+                {enviandoTeste
+                  ? "Enviando teste..."
+                  : "Enviar mensagem de teste"}
+              </button>
+            </div>
+          </form>
+
+          {resultadoTeste && (
+            <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
+              <p className="font-bold">
+                Mensagem aceita pela Meta
+              </p>
+
+              <p className="mt-2 break-all">
+                Registro PHANYX:{" "}
+                {resultadoTeste.mensagemId}
+              </p>
+
+              <p className="mt-1 break-all">
+                Meta Message ID:{" "}
+                {resultadoTeste.metaMessageId}
+              </p>
+            </div>
+          )}
+        </section>
 
         <section className="mt-5 rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-950">
           <div className="border-b border-slate-200 p-5 dark:border-slate-700">

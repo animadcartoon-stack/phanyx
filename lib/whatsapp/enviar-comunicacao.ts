@@ -42,6 +42,7 @@ type EnviarComunicacaoWhatsappParams = {
   componentes?: ComponenteTemplateWhatsapp[];
 
   parametros?: Record<string, unknown>;
+  modoTesteAdministrativo?: boolean;
 };
 
 export type ResultadoEnvioComunicacaoWhatsapp =
@@ -97,6 +98,7 @@ export async function enviarComunicacaoWhatsapp(
     nomeDestinatario,
     componentes = [],
     parametros,
+    modoTesteAdministrativo = false,
   } = params;
 
   /**
@@ -108,27 +110,31 @@ export async function enviarComunicacaoWhatsapp(
    * Se estiver desabilitado ou desconectado, o restante do
    * PHANYX não deve falhar.
    */
-  const permissao = await podeEnviarWhatsapp({
-    instituicaoId,
-    tipoComunicacao,
-  });
+  if (!modoTesteAdministrativo) {
+    const permissao =
+      await podeEnviarWhatsapp({
+        instituicaoId,
+        tipoComunicacao,
+      });
 
-  if (!permissao.permitido) {
-    const motivo = permissao.motivo;
+    if (!permissao.permitido) {
+      const motivo = permissao.motivo;
 
-    if (motivo === "OK") {
+      if (motivo === "OK") {
+        return {
+          enviado: false,
+          ignorado: true,
+          motivo:
+            "WHATSAPP_NAO_CONFIGURADO",
+        };
+      }
+
       return {
         enviado: false,
         ignorado: true,
-        motivo: "WHATSAPP_NAO_CONFIGURADO",
+        motivo,
       };
     }
-
-    return {
-      enviado: false,
-      ignorado: true,
-      motivo,
-    };
   }
 
   /**
@@ -142,6 +148,30 @@ export async function enviarComunicacaoWhatsapp(
       enviado: false,
       ignorado: true,
       motivo: "WHATSAPP_NAO_CONFIGURADO",
+    };
+  }
+
+  if (!integracao.conectado) {
+    return {
+      enviado: false,
+      ignorado: true,
+      motivo: "WHATSAPP_DESCONECTADO",
+    };
+  }
+
+  if (!integracao.phoneNumberId) {
+    return {
+      enviado: false,
+      ignorado: true,
+      motivo: "PHONE_NUMBER_ID_AUSENTE",
+    };
+  }
+
+  if (!integracao.tokenAcessoCriptografado) {
+    return {
+      enviado: false,
+      ignorado: true,
+      motivo: "TOKEN_AUSENTE",
     };
   }
 
@@ -231,35 +261,35 @@ export async function enviarComunicacaoWhatsapp(
   }
 
   /**
- * 5. Proteção de idempotência.
- *
- * A chave representa um evento único do PHANYX.
- * Se ele já tiver originado uma mensagem, não tentamos
- * enviá-lo novamente.
- */
-const chaveIdempotenciaNormalizada =
-  chaveIdempotencia?.trim() || null;
+  * 5. Proteção de idempotência.
+  *
+  * A chave representa um evento único do PHANYX.
+  * Se ele já tiver originado uma mensagem, não tentamos
+  * enviá-lo novamente.
+  */
+  const chaveIdempotenciaNormalizada =
+    chaveIdempotencia?.trim() || null;
 
-if (chaveIdempotenciaNormalizada) {
-  const mensagemExistente =
-    await prisma.whatsAppMensagem.findUnique({
-      where: {
-        chaveIdempotencia:
-          chaveIdempotenciaNormalizada,
-      },
-      select: {
-        id: true,
-      },
-    });
+  if (chaveIdempotenciaNormalizada) {
+    const mensagemExistente =
+      await prisma.whatsAppMensagem.findUnique({
+        where: {
+          chaveIdempotencia:
+            chaveIdempotenciaNormalizada,
+        },
+        select: {
+          id: true,
+        },
+      });
 
-  if (mensagemExistente) {
-    return {
-      enviado: false,
-      ignorado: true,
-      motivo: "COMUNICACAO_DUPLICADA",
-    };
+    if (mensagemExistente) {
+      return {
+        enviado: false,
+        ignorado: true,
+        motivo: "COMUNICACAO_DUPLICADA",
+      };
+    }
   }
-}
 
   /**
    * 5. Cria o registro antes de falar com a Meta.
@@ -268,57 +298,57 @@ if (chaveIdempotenciaNormalizada) {
    */
   let mensagem;
 
-try {
-  mensagem = await prisma.whatsAppMensagem.create({
-    data: {
-      instituicaoId,
-      whatsappInstituicaoId: integracao.id,
-      templateId: template.id,
-      usuarioId: usuarioId ?? null,
+  try {
+    mensagem = await prisma.whatsAppMensagem.create({
+      data: {
+        instituicaoId,
+        whatsappInstituicaoId: integracao.id,
+        templateId: template.id,
+        usuarioId: usuarioId ?? null,
 
-      tipoComunicacao,
+        tipoComunicacao,
 
-      chaveIdempotencia:
-        chaveIdempotenciaNormalizada,
+        chaveIdempotencia:
+          chaveIdempotenciaNormalizada,
 
-      status: StatusWhatsAppMensagem.PENDENTE,
+        status: StatusWhatsAppMensagem.PENDENTE,
 
-      telefoneDestinatario:
-        telefoneNormalizado,
+        telefoneDestinatario:
+          telefoneNormalizado,
 
-      nomeDestinatario:
-        nomeDestinatario?.trim() || null,
+        nomeDestinatario:
+          nomeDestinatario?.trim() || null,
 
-      mensagem: template.corpo,
+        mensagem: template.corpo,
 
-      parametros:
-        parametros ?? undefined,
+        parametros:
+          parametros ?? undefined,
 
-      tentativa: 0,
-    },
-  });
-} catch (error) {
-  /**
-   * Mesmo que duas execuções cheguem exatamente
-   * ao mesmo tempo, o índice UNIQUE do banco
-   * garante que apenas uma delas consiga criar
-   * a mensagem.
-   */
-  if (
-    chaveIdempotenciaNormalizada &&
-    error instanceof
+        tentativa: 0,
+      },
+    });
+  } catch (error) {
+    /**
+     * Mesmo que duas execuções cheguem exatamente
+     * ao mesmo tempo, o índice UNIQUE do banco
+     * garante que apenas uma delas consiga criar
+     * a mensagem.
+     */
+    if (
+      chaveIdempotenciaNormalizada &&
+      error instanceof
       Prisma.PrismaClientKnownRequestError &&
-    error.code === "P2002"
-  ) {
-    return {
-      enviado: false,
-      ignorado: true,
-      motivo: "COMUNICACAO_DUPLICADA",
-    };
-  }
+      error.code === "P2002"
+    ) {
+      return {
+        enviado: false,
+        ignorado: true,
+        motivo: "COMUNICACAO_DUPLICADA",
+      };
+    }
 
-  throw error;
-}
+    throw error;
+  }
 
   try {
     /**
