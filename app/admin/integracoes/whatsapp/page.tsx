@@ -51,9 +51,47 @@ type Resumo = {
   quantidadeMensagens: number;
 };
 
+type EventoMensagemWhatsapp = {
+  id: number;
+  status: string;
+  payload?: unknown;
+  recebidoEm: string;
+};
+
+type MensagemWhatsappRecente = {
+  id: number;
+
+  tipoComunicacao: string;
+  status: string;
+
+  telefoneDestinatario: string;
+  nomeDestinatario?: string | null;
+
+  metaMessageId?: string | null;
+  tentativa: number;
+
+  erroCodigo?: string | null;
+  erroMensagem?: string | null;
+
+  criadaEm: string;
+  processadaEm?: string | null;
+  enviadaEm?: string | null;
+  entregueEm?: string | null;
+  lidaEm?: string | null;
+  falhouEm?: string | null;
+
+  template?: {
+    nome: string;
+    nomeMeta: string;
+  } | null;
+
+  eventos: EventoMensagemWhatsapp[];
+};
+
 type RespostaConfiguracao = {
   integracao: Integracao;
   comunicacoes: Comunicacao[];
+  mensagensRecentes: MensagemWhatsappRecente[];
   resumo: Resumo;
 };
 
@@ -377,6 +415,9 @@ export default function WhatsAppInstitucionalPage() {
   const [comunicacoes, setComunicacoes] = useState<Comunicacao[]>([]);
   const [resumo, setResumo] = useState<Resumo>(resumoInicial);
 
+  const [mensagensRecentes, setMensagensRecentes] =
+    useState<MensagemWhatsappRecente[]>([]);
+
   const [templatesWhatsapp, setTemplatesWhatsapp] =
     useState<
       Record<TipoTemplateEditavel, TemplateWhatsapp>
@@ -637,6 +678,12 @@ export default function WhatsAppInstitucionalPage() {
         ...resumoInicial,
         ...(payload.resumo || {}),
       });
+
+      setMensagensRecentes(
+        Array.isArray(payload.mensagensRecentes)
+          ? payload.mensagensRecentes
+          : []
+      );
 
       const recebidas = Array.isArray(payload.comunicacoes)
         ? payload.comunicacoes
@@ -1321,6 +1368,206 @@ export default function WhatsAppInstitucionalPage() {
                 Meta Message ID:{" "}
                 {resultadoTeste.metaMessageId}
               </p>
+            </div>
+          )}
+        </section>
+
+        <section className="mt-5 rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-950">
+          <div className="border-b border-slate-200 p-5 dark:border-slate-700">
+            <h2 className="text-lg font-bold text-slate-950 dark:text-white">
+              Histórico de mensagens
+            </h2>
+
+            <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">
+              Acompanhe o envio, a entrega, a leitura e possíveis falhas
+              informadas pela Meta.
+            </p>
+          </div>
+
+          {mensagensRecentes.length === 0 ? (
+            <div className="p-5 text-sm text-slate-600 dark:text-slate-300">
+              Nenhuma mensagem foi registrada até o momento.
+            </div>
+          ) : (
+            <div className="divide-y divide-slate-200 dark:divide-slate-700">
+              {mensagensRecentes.map((mensagem) => (
+                <article
+                  key={mensagem.id}
+                  className="p-5"
+                >
+                  <div className="flex flex-col justify-between gap-3 lg:flex-row lg:items-start">
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="font-bold text-slate-950 dark:text-white">
+                          {mensagem.nomeDestinatario ||
+                            "Destinatário não informado"}
+                        </p>
+
+                        <span
+                          className={`rounded-full border px-2.5 py-1 text-xs font-bold ${["ENTREGUE", "LIDA"].includes(mensagem.status)
+                              ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300"
+                              : ["FALHOU", "CANCELADA"].includes(
+                                mensagem.status
+                              )
+                                ? "border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300"
+                                : mensagem.status === "ENVIADA"
+                                  ? "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-300"
+                                  : "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300"
+                            }`}
+                        >
+                          {mensagem.status === "ENVIADA"
+                            ? "ACEITA PELA META"
+                            : mensagem.status.replace(/_/g, " ")}
+                        </span>
+                      </div>
+
+                      <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                        WhatsApp: {mensagem.telefoneDestinatario}
+                      </p>
+
+                      <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                        Modelo:{" "}
+                        {mensagem.template?.nome ||
+                          mensagem.template?.nomeMeta ||
+                          mensagem.tipoComunicacao.replace(/_/g, " ")}
+                      </p>
+                    </div>
+
+                    <div className="text-sm text-slate-600 dark:text-slate-300 lg:text-right">
+                      <p className="font-semibold">
+                        Registro PHANYX: {mensagem.id}
+                      </p>
+
+                      <p className="mt-1">
+                        {new Date(mensagem.criadaEm).toLocaleString("pt-BR")}
+                      </p>
+                    </div>
+                  </div>
+
+                  {(mensagem.erroMensagem || mensagem.erroCodigo) && (
+                    <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">
+                      <p className="font-bold">
+                        Falha informada pela Meta
+                      </p>
+
+                      {mensagem.erroCodigo && (
+                        <p className="mt-2">
+                          Código: {mensagem.erroCodigo}
+                        </p>
+                      )}
+
+                      {mensagem.erroMensagem && (
+                        <p className="mt-1 whitespace-pre-wrap">
+                          {mensagem.erroMensagem}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+                      <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
+                        Registrada
+                      </p>
+                      <p className="mt-1 text-slate-900 dark:text-white">
+                        {new Date(mensagem.criadaEm).toLocaleString("pt-BR")}
+                      </p>
+                    </div>
+
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+                      <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
+                        Aceita pela Meta
+                      </p>
+                      <p className="mt-1 text-slate-900 dark:text-white">
+                        {mensagem.enviadaEm
+                          ? new Date(mensagem.enviadaEm).toLocaleString("pt-BR")
+                          : "Aguardando"}
+                      </p>
+                    </div>
+
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+                      <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
+                        Entregue
+                      </p>
+                      <p className="mt-1 text-slate-900 dark:text-white">
+                        {mensagem.entregueEm
+                          ? new Date(mensagem.entregueEm).toLocaleString("pt-BR")
+                          : "Aguardando"}
+                      </p>
+                    </div>
+
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+                      <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
+                        Lida
+                      </p>
+                      <p className="mt-1 text-slate-900 dark:text-white">
+                        {mensagem.lidaEm
+                          ? new Date(mensagem.lidaEm).toLocaleString("pt-BR")
+                          : "Aguardando"}
+                      </p>
+                    </div>
+
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+                      <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
+                        Falhou
+                      </p>
+                      <p className="mt-1 text-slate-900 dark:text-white">
+                        {mensagem.falhouEm
+                          ? new Date(mensagem.falhouEm).toLocaleString("pt-BR")
+                          : "Não"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {mensagem.metaMessageId && (
+                    <p className="mt-4 break-all text-xs text-slate-500 dark:text-slate-400">
+                      Meta Message ID: {mensagem.metaMessageId}
+                    </p>
+                  )}
+
+                  {mensagem.eventos.length > 0 && (
+                    <details className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
+                      <summary className="cursor-pointer text-sm font-bold text-slate-900 dark:text-white">
+                        Retornos recebidos pelo webhook (
+                        {mensagem.eventos.length})
+                      </summary>
+
+                      <div className="mt-4 space-y-3">
+                        {mensagem.eventos.map((evento) => (
+                          <div
+                            key={evento.id}
+                            className="rounded-lg border border-slate-200 bg-white p-3 text-sm dark:border-slate-700 dark:bg-slate-950"
+                          >
+                            <div className="flex flex-col justify-between gap-1 sm:flex-row">
+                              <span className="font-bold text-slate-900 dark:text-white">
+                                {evento.status.replace(/_/g, " ")}
+                              </span>
+
+                              <span className="text-slate-500 dark:text-slate-400">
+                                {new Date(evento.recebidoEm).toLocaleString(
+                                  "pt-BR"
+                                )}
+                              </span>
+                            </div>
+
+                            {evento.payload != null && (
+                              <details className="mt-3">
+                                <summary className="cursor-pointer text-xs font-semibold text-slate-600 dark:text-slate-300">
+                                  Ver retorno técnico
+                                </summary>
+
+                                <pre className="mt-2 max-h-72 overflow-auto whitespace-pre-wrap break-words rounded-lg bg-slate-950 p-3 text-xs text-slate-100">
+                                  {JSON.stringify(evento.payload, null, 2)}
+                                </pre>
+                              </details>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </details>
+                  )}
+                </article>
+              ))}
             </div>
           )}
         </section>
