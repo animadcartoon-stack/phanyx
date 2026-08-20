@@ -11,7 +11,7 @@
     },
     {
       "path": "/api/internal/comercial/captacao/integracoes/processar-fila",
-      "schedule": "* * * * *"
+      "schedule": "0 12 * * *"
     }
   ]
 }
