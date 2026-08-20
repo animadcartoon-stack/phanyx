@@ -28302,10 +28302,13 @@ html[data-theme="system"]
   min-width: 0;
 }
 
-.phanyx-biblioteca-item-page .bib-exemplar-actions {
+.phanyx-biblioteca-item-page
+  .bib-exemplar-row
+  .bib-exemplar-actions {
   grid-column: 1 / -1;
-  display: flex;
+  display: flex !important;
   width: 100%;
+  flex-direction: row !important;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 0.65rem;
@@ -28313,7 +28316,11 @@ html[data-theme="system"]
 }
 
 .phanyx-biblioteca-item-page
+  .bib-exemplar-row
   .bib-exemplar-actions
   .bib-button {
-  flex: 0 0 auto;
+  width: auto !important;
+  min-width: 0;
+  flex: 1 1 0;
+  white-space: nowrap;
 }
