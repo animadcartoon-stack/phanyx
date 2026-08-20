@@ -473,84 +473,90 @@ export default function CrachasClient() {
     ]);
 
   const [objetosFrente, setObjetosFrente] =
-    useState<ObjetoCracha[]>([]);
+  useState<ObjetoCracha[]>([]);
 
-  const [objetosVerso, setObjetosVerso] =
-    useState<ObjetoCracha[]>([]);
+const [objetosVerso, setObjetosVerso] =
+  useState<ObjetoCracha[]>([]);
 
-  const [objetoSelecionado, setObjetoSelecionado] =
-    useState<number | null>(null);
+const [objetoSelecionado, setObjetoSelecionado] =
+  useState<number | null>(null);
 
-  const [objetosSelecionadosIds, setObjetosSelecionadosIds] = useState<number[]>(
-    []
-  );
+const [objetosSelecionadosIds, setObjetosSelecionadosIds] =
+  useState<number[]>([]);
 
-  const historicoObjetosRef =
-    useRef<
-      Map<
-        string,
-        ObjetoCracha[]
-      >
-    >(new Map());
+const historicoObjetosRef =
+  useRef<
+    Map<
+      string,
+      ObjetoCracha[]
+    >
+  >(new Map());
 
-  const estadoAnteriorObjetosRef =
-    useRef<{
-      FRENTE: ObjetoCracha[];
-      VERSO: ObjetoCracha[];
-    }>({
-      FRENTE: [],
-      VERSO: [],
-    });
-
-  const alteracoesPendentesRef =
-    useRef<
-      Map<
-        string,
-        {
-          estadoAnterior: ObjetoCracha;
-          timer: ReturnType<
-            typeof setTimeout
-          >;
-        }
-      >
-    >(new Map());
-
-  const aplicandoUndoRef =
-    useRef(false);
-
-  const LIMITE_HISTORICO_OBJETO = 30;
-
-  const [menuContexto, setMenuContexto] = useState<{
-    aberto: boolean;
-    x: number;
-    y: number;
-    objetoId: number | null;
+const estadoAnteriorObjetosRef =
+  useRef<{
+    FRENTE: ObjetoCracha[];
+    VERSO: ObjetoCracha[];
   }>({
-    aberto: false,
-    x: 0,
-    y: 0,
-    objetoId: null,
+    FRENTE: [],
+    VERSO: [],
   });
 
-  const [pontoGradienteSelecionado, setPontoGradienteSelecionado] =
-    useState<number | null>(null);
+const alteracoesPendentesRef =
+  useRef<
+    Map<
+      string,
+      {
+        estadoAnterior: ObjetoCracha;
+        timer: ReturnType<
+          typeof setTimeout
+        >;
+      }
+    >
+  >(new Map());
 
-  const [
-    pontoGradienteFundoSelecionado,
-    setPontoGradienteFundoSelecionado,
-  ] = useState<number | null>(null);
+const aplicandoUndoRef =
+  useRef(false);
 
-  const [corGradienteFundoCopiada, setCorGradienteFundoCopiada] =
-    useState<string | null>(null);
+const LIMITE_HISTORICO_OBJETO = 30;
 
-  const [estiloFormaCopiado, setEstiloFormaCopiado] = useState<
-    Partial<Extract<ObjetoCracha, { tipo: "FORMA" }>> | null
+const [menuContexto, setMenuContexto] = useState<{
+  aberto: boolean;
+  x: number;
+  y: number;
+  objetoId: number | null;
+}>({
+  aberto: false,
+  x: 0,
+  y: 0,
+  objetoId: null,
+});
+
+const [pontoGradienteSelecionado, setPontoGradienteSelecionado] =
+  useState<number | null>(null);
+
+const [
+  pontoGradienteFundoSelecionado,
+  setPontoGradienteFundoSelecionado,
+] = useState<number | null>(null);
+
+const [corGradienteFundoCopiada, setCorGradienteFundoCopiada] =
+  useState<string | null>(null);
+
+const [estiloFormaCopiado, setEstiloFormaCopiado] =
+  useState<
+    Partial<
+      Extract<
+        ObjetoCracha,
+        { tipo: "FORMA" }
+      >
+    > | null
   >(null);
 
-  const [objetoCopiado, setObjetoCopiado] = useState<ObjetoCracha | null>(
+const [objetoCopiado, setObjetoCopiado] =
+  useState<ObjetoCracha | null>(
     null
   );
-
+  
   const inputImagemRef = useRef<HTMLInputElement | null>(null);
   const inputImagemObjetoRef = useRef<HTMLInputElement | null>(null);
 
@@ -2576,71 +2582,110 @@ export default function CrachasClient() {
     setObjetoSelecionado(null);
   }
 
-  useEffect(() => {
-    function aoPressionarTecla(e: KeyboardEvent) {
-      const alvo = e.target as HTMLElement | null;
-      const tag = alvo?.tagName?.toLowerCase();
+ useEffect(() => {
+  function aoPressionarTecla(
+    e: KeyboardEvent
+  ) {
+    const alvo =
+      e.target as HTMLElement | null;
 
-      const estaDigitando =
-        tag === "input" ||
-        tag === "textarea" ||
-        tag === "select" ||
-        alvo?.isContentEditable;
+    const tag =
+      alvo?.tagName?.toLowerCase();
 
-      if (estaDigitando) return;
+    const estaDigitando =
+      tag === "input" ||
+      tag === "textarea" ||
+      tag === "select" ||
+      alvo?.isContentEditable;
 
-      const tecla = e.key.toLowerCase();
+    const tecla =
+      e.key.toLowerCase();
 
-      if (
-        (e.ctrlKey || e.metaKey) &&
-        tecla === "z" &&
-        !e.shiftKey
-      ) {
-        if (!objetoSelecionado) {
-          return;
-        }
+    /*
+     * DESFAZER DO EDITOR
+     */
+    if (
+      (e.ctrlKey || e.metaKey) &&
+      tecla === "z" &&
+      !e.shiftKey &&
+      objetoSelecionado !== null
+    ) {
+      e.preventDefault();
+      e.stopPropagation();
 
-        e.preventDefault();
+      desfazerObjetoSelecionado();
 
-        desfazerObjetoSelecionado();
-
-        return;
-      }
-
-      if ((e.ctrlKey || e.metaKey) && tecla === "c") {
-        if (!objetoAtual) return;
-
-        e.preventDefault();
-        copiarObjetoSelecionado();
-        return;
-      }
-
-      if ((e.ctrlKey || e.metaKey) && tecla === "v") {
-        if (!objetoCopiado) return;
-
-        e.preventDefault();
-        colarObjetoCopiado();
-        return;
-      }
-
-      if (!objetoSelecionado) return;
-
-      if (e.key === "Delete" || e.key === "Backspace") {
-        e.preventDefault();
-        excluirObjetoSelecionado();
-      }
-
-      if (e.key === "Escape") {
-        setObjetoSelecionado(null);
-      }
+      return;
     }
 
-    window.addEventListener("keydown", aoPressionarTecla);
+    /*
+     * Não capturar outros atalhos
+     * enquanto o usuário digita.
+     */
+    if (estaDigitando) {
+      return;
+    }
 
-    return () => {
-      window.removeEventListener("keydown", aoPressionarTecla);
-    };
-  }, [objetoSelecionado, objetoAtual, objetoCopiado, lado]);
+    if (
+      (e.ctrlKey || e.metaKey) &&
+      tecla === "c"
+    ) {
+      if (!objetoAtual) return;
+
+      e.preventDefault();
+      copiarObjetoSelecionado();
+
+      return;
+    }
+
+    if (
+      (e.ctrlKey || e.metaKey) &&
+      tecla === "v"
+    ) {
+      if (!objetoCopiado) return;
+
+      e.preventDefault();
+      colarObjetoCopiado();
+
+      return;
+    }
+
+    if (
+      objetoSelecionado === null
+    ) {
+      return;
+    }
+
+    if (
+      e.key === "Delete" ||
+      e.key === "Backspace"
+    ) {
+      e.preventDefault();
+      excluirObjetoSelecionado();
+    }
+
+    if (e.key === "Escape") {
+      setObjetoSelecionado(null);
+    }
+  }
+
+  window.addEventListener(
+    "keydown",
+    aoPressionarTecla
+  );
+
+  return () => {
+    window.removeEventListener(
+      "keydown",
+      aoPressionarTecla
+    );
+  };
+}, [
+  objetoSelecionado,
+  objetoAtual,
+  objetoCopiado,
+  lado,
+]);
 
   useEffect(() => {
     carregarListaModelosCracha();
@@ -3814,179 +3859,179 @@ export default function CrachasClient() {
   }
 
   function gerarPontosCruzSvg(
-  objeto: Extract<
-    ObjetoCracha,
-    { tipo: "FORMA" }
-  >
-) {
-  /*
-   * Posição independente das duas hastes.
-   *
-   * cruzCentroX:
-   * move SOMENTE a haste vertical.
-   *
-   * cruzCentroY:
-   * move SOMENTE a haste horizontal.
-   */
-  const posicaoVerticalX =
-    limitarFormaSvg(
-      objeto.cruzCentroX ?? 50,
-      15,
-      85
-    );
+    objeto: Extract<
+      ObjetoCracha,
+      { tipo: "FORMA" }
+    >
+  ) {
+    /*
+     * Posição independente das duas hastes.
+     *
+     * cruzCentroX:
+     * move SOMENTE a haste vertical.
+     *
+     * cruzCentroY:
+     * move SOMENTE a haste horizontal.
+     */
+    const posicaoVerticalX =
+      limitarFormaSvg(
+        objeto.cruzCentroX ?? 50,
+        15,
+        85
+      );
 
-  const posicaoHorizontalY =
-    limitarFormaSvg(
-      objeto.cruzCentroY ?? 50,
-      15,
-      85
-    );
+    const posicaoHorizontalY =
+      limitarFormaSvg(
+        objeto.cruzCentroY ?? 50,
+        15,
+        85
+      );
 
-  const espessuraVertical =
-    limitarFormaSvg(
-      objeto.cruzEspessuraVertical ??
+    const espessuraVertical =
+      limitarFormaSvg(
+        objeto.cruzEspessuraVertical ??
         24,
-      6,
-      70
-    );
+        6,
+        70
+      );
 
-  const espessuraHorizontal =
-    limitarFormaSvg(
-      objeto.cruzEspessuraHorizontal ??
+    const espessuraHorizontal =
+      limitarFormaSvg(
+        objeto.cruzEspessuraHorizontal ??
         24,
-      6,
-      70
-    );
+        6,
+        70
+      );
 
-  const comprimentoHorizontal =
-    limitarFormaSvg(
-      objeto.cruzComprimentoHorizontal ??
+    const comprimentoHorizontal =
+      limitarFormaSvg(
+        objeto.cruzComprimentoHorizontal ??
         94,
-      20,
-      400
-    );
+        20,
+        400
+      );
 
-  const comprimentoVertical =
-    limitarFormaSvg(
-      objeto.cruzComprimentoVertical ??
+    const comprimentoVertical =
+      limitarFormaSvg(
+        objeto.cruzComprimentoVertical ??
         94,
-      20,
-      400
-    );
+        20,
+        400
+      );
 
-  /*
-   * IMPORTANTE:
-   *
-   * Os comprimentos das hastes continuam
-   * ancorados no centro da área da forma
-   * (50, 50).
-   *
-   * Portanto alterar X ou Y NÃO desloca
-   * a forma inteira.
-   */
-  const centroAreaX = 50;
-  const centroAreaY = 50;
+    /*
+     * IMPORTANTE:
+     *
+     * Os comprimentos das hastes continuam
+     * ancorados no centro da área da forma
+     * (50, 50).
+     *
+     * Portanto alterar X ou Y NÃO desloca
+     * a forma inteira.
+     */
+    const centroAreaX = 50;
+    const centroAreaY = 50;
 
-  /*
-   * Limites externos da haste horizontal.
-   * Permanecem fixos.
-   */
-  const esquerdaH =
-    limitarFormaSvg(
-      centroAreaX -
+    /*
+     * Limites externos da haste horizontal.
+     * Permanecem fixos.
+     */
+    const esquerdaH =
+      limitarFormaSvg(
+        centroAreaX -
         comprimentoHorizontal / 2,
-      -200,
-      300
-    );
+        -200,
+        300
+      );
 
-  const direitaH =
-    limitarFormaSvg(
-      centroAreaX +
+    const direitaH =
+      limitarFormaSvg(
+        centroAreaX +
         comprimentoHorizontal / 2,
-      -200,
-      300
-    );
+        -200,
+        300
+      );
 
-  /*
-   * A posição vertical da haste horizontal
-   * é controlada SOMENTE por cruzCentroY.
-   */
-  const topoH =
-    limitarFormaSvg(
-      posicaoHorizontalY -
+    /*
+     * A posição vertical da haste horizontal
+     * é controlada SOMENTE por cruzCentroY.
+     */
+    const topoH =
+      limitarFormaSvg(
+        posicaoHorizontalY -
         espessuraHorizontal / 2,
-      1,
-      99
-    );
+        1,
+        99
+      );
 
-  const baseH =
-    limitarFormaSvg(
-      posicaoHorizontalY +
+    const baseH =
+      limitarFormaSvg(
+        posicaoHorizontalY +
         espessuraHorizontal / 2,
-      1,
-      99
-    );
+        1,
+        99
+      );
 
-  /*
-   * A posição horizontal da haste vertical
-   * é controlada SOMENTE por cruzCentroX.
-   */
-  const esquerdaV =
-    limitarFormaSvg(
-      posicaoVerticalX -
+    /*
+     * A posição horizontal da haste vertical
+     * é controlada SOMENTE por cruzCentroX.
+     */
+    const esquerdaV =
+      limitarFormaSvg(
+        posicaoVerticalX -
         espessuraVertical / 2,
-      1,
-      99
-    );
+        1,
+        99
+      );
 
-  const direitaV =
-    limitarFormaSvg(
-      posicaoVerticalX +
+    const direitaV =
+      limitarFormaSvg(
+        posicaoVerticalX +
         espessuraVertical / 2,
-      1,
-      99
-    );
+        1,
+        99
+      );
 
-  /*
-   * Limites externos da haste vertical.
-   * Também permanecem fixos.
-   */
-  const topoV =
-    limitarFormaSvg(
-      centroAreaY -
+    /*
+     * Limites externos da haste vertical.
+     * Também permanecem fixos.
+     */
+    const topoV =
+      limitarFormaSvg(
+        centroAreaY -
         comprimentoVertical / 2,
-      -200,
-      300
-    );
+        -200,
+        300
+      );
 
-  const baseV =
-    limitarFormaSvg(
-      centroAreaY +
+    const baseV =
+      limitarFormaSvg(
+        centroAreaY +
         comprimentoVertical / 2,
-      -200,
-      300
-    );
+        -200,
+        300
+      );
 
-  return [
-    `${esquerdaV},${topoV}`,
-    `${direitaV},${topoV}`,
+    return [
+      `${esquerdaV},${topoV}`,
+      `${direitaV},${topoV}`,
 
-    `${direitaV},${topoH}`,
-    `${direitaH},${topoH}`,
+      `${direitaV},${topoH}`,
+      `${direitaH},${topoH}`,
 
-    `${direitaH},${baseH}`,
-    `${direitaV},${baseH}`,
+      `${direitaH},${baseH}`,
+      `${direitaV},${baseH}`,
 
-    `${direitaV},${baseV}`,
-    `${esquerdaV},${baseV}`,
+      `${direitaV},${baseV}`,
+      `${esquerdaV},${baseV}`,
 
-    `${esquerdaV},${baseH}`,
-    `${esquerdaH},${baseH}`,
+      `${esquerdaV},${baseH}`,
+      `${esquerdaH},${baseH}`,
 
-    `${esquerdaH},${topoH}`,
-    `${esquerdaV},${topoH}`,
-  ].join(" ");
-}
+      `${esquerdaH},${topoH}`,
+      `${esquerdaV},${topoH}`,
+    ].join(" ");
+  }
 
   function caminhoFormaLivreSvg(
     objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>
