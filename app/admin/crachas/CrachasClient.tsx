@@ -8678,7 +8678,7 @@ export default function CrachasClient() {
                           ],
                         });
                       }}
-                      className="mt-3 w-full rounded-xl border border-blue-500/60 px-3 py-2 text-xs font-semibold text-blue-300 hover:bg-blue-500/10"
+                      className="phanyx-crachas-gradient-add-point mt-3 w-full rounded-xl border border-blue-500/60 px-3 py-2 text-xs font-semibold text-blue-300 hover:bg-blue-500/10"
                     >
                       + Adicionar ponto de cor
                     </button>
@@ -8846,7 +8846,7 @@ export default function CrachasClient() {
 
                       setPontoGradienteSelecionado(novoPonto.id);
                     }}
-                    className="mt-4 w-full rounded-xl border border-blue-500/60 px-3 py-2 text-sm font-semibold text-blue-300 hover:bg-blue-500/10"
+                    className="phanyx-crachas-gradient-add-point mt-4 w-full rounded-xl border border-blue-500/60 px-3 py-2 text-sm font-semibold text-blue-300 hover:bg-blue-500/10"
                   >
                     + Adicionar ponto de cor
                   </button>
@@ -10123,7 +10123,7 @@ export default function CrachasClient() {
                   <button
                     type="button"
                     onClick={adicionarPontoGradienteFundo}
-                    className="mt-4 w-full rounded-xl border border-blue-500/60 px-3 py-2 text-sm font-semibold text-blue-300 hover:bg-blue-500/10"
+                    className="phanyx-crachas-gradient-add-point mt-4 w-full rounded-xl border border-blue-500/60 px-3 py-2 text-sm font-semibold text-blue-300 hover:bg-blue-500/10"
                   >
                     + Adicionar ponto de cor
                   </button>
