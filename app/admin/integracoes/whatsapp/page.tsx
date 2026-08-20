@@ -1394,11 +1394,11 @@ export default function WhatsAppInstitucionalPage() {
               Nenhuma mensagem foi registrada até o momento.
             </div>
           ) : (
-            <div className="divide-y divide-slate-300 !bg-white dark:divide-slate-700 dark:!bg-slate-950">
+            <div className="divide-y divide-slate-300 bg-white dark:divide-slate-700 dark:bg-slate-950">
               {mensagensRecentes.map((mensagem) => (
                 <article
                   key={mensagem.id}
-                  className={`border-l-4 !bg-white p-5 dark:!bg-slate-950 ${["FALHOU", "CANCELADA"].includes(mensagem.status)
+                  className={`border-l-4 bg-white p-5 dark:bg-slate-950 ${["FALHOU", "CANCELADA"].includes(mensagem.status)
                       ? "border-l-red-500"
                       : ["ENTREGUE", "LIDA"].includes(mensagem.status)
                         ? "border-l-emerald-500"
@@ -1457,19 +1457,19 @@ export default function WhatsAppInstitucionalPage() {
                   </div>
 
                   {(mensagem.erroMensagem || mensagem.erroCodigo) && (
-                    <div className="mt-4 rounded-lg border border-red-300 border-l-4 border-l-red-600 !bg-red-50 p-4 text-sm !text-red-950 dark:border-red-800 dark:border-l-red-500 dark:!bg-red-950/40 dark:!text-red-100">
-                      <p className="font-bold !text-red-950 dark:!text-red-100">
+                    <div className="mt-4 rounded-lg border border-red-300 border-l-4 border-l-red-600 bg-red-50 p-4 text-sm text-red-950 dark:border-red-800 dark:border-l-red-500 dark:bg-red-950/40 dark:text-red-100">
+                      <p className="font-bold text-red-950 dark:text-red-100">
                         Falha informada pela Meta
                       </p>
 
                       {mensagem.erroCodigo && (
-                        <p className="mt-2 !text-red-900 dark:!text-red-200">
+                        <p className="mt-2 text-red-900 dark:text-red-200">
                           Código: {mensagem.erroCodigo}
                         </p>
                       )}
 
                       {mensagem.erroMensagem && (
-                        <p className="mt-1 whitespace-pre-wrap !text-red-900 dark:!text-red-200">
+                        <p className="mt-1 whitespace-pre-wrap text-red-900 dark:text-red-200">
                           {mensagem.erroMensagem}
                         </p>
                       )}
