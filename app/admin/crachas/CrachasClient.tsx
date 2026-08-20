@@ -244,7 +244,8 @@ type DirecaoGradienteCracha =
   | "VERTICAL"
   | "HORIZONTAL"
   | "DIAGONAL_DESC"
-  | "DIAGONAL_ASC";
+  | "DIAGONAL_ASC"
+  | "CIRCULAR";
 
 type ModoEmissaoCracha = "INDIVIDUAL" | "LOTE";
 
@@ -473,90 +474,81 @@ export default function CrachasClient() {
     ]);
 
   const [objetosFrente, setObjetosFrente] =
-  useState<ObjetoCracha[]>([]);
+    useState<ObjetoCracha[]>([]);
 
-const [objetosVerso, setObjetosVerso] =
-  useState<ObjetoCracha[]>([]);
+  const [objetosVerso, setObjetosVerso] =
+    useState<ObjetoCracha[]>([]);
 
-const [objetoSelecionado, setObjetoSelecionado] =
-  useState<number | null>(null);
+  const [objetoSelecionado, setObjetoSelecionado] =
+    useState<number | null>(null);
 
-const [objetosSelecionadosIds, setObjetosSelecionadosIds] =
-  useState<number[]>([]);
+  const [objetosSelecionadosIds, setObjetosSelecionadosIds] =
+    useState<number[]>([]);
 
-const historicoObjetosRef =
-  useRef<
-    Map<
-      string,
-      ObjetoCracha[]
-    >
-  >(new Map());
+  const historicoObjetosRef =
+    useRef<
+      Map<
+        string,
+        ObjetoCracha[]
+      >
+    >(new Map());
 
-const estadoAnteriorObjetosRef =
-  useRef<{
-    FRENTE: ObjetoCracha[];
-    VERSO: ObjetoCracha[];
+  const alteracoesPendentesRef =
+    useRef<
+      Map<
+        string,
+        {
+          estadoAnterior: ObjetoCracha;
+          timer: ReturnType<
+            typeof setTimeout
+          >;
+        }
+      >
+    >(new Map());
+
+  const aplicandoUndoRef =
+    useRef(false);
+
+  const LIMITE_HISTORICO_OBJETO = 30;
+
+  const [menuContexto, setMenuContexto] = useState<{
+    aberto: boolean;
+    x: number;
+    y: number;
+    objetoId: number | null;
   }>({
-    FRENTE: [],
-    VERSO: [],
+    aberto: false,
+    x: 0,
+    y: 0,
+    objetoId: null,
   });
 
-const alteracoesPendentesRef =
-  useRef<
-    Map<
-      string,
-      {
-        estadoAnterior: ObjetoCracha;
-        timer: ReturnType<
-          typeof setTimeout
-        >;
-      }
-    >
-  >(new Map());
+  const [pontoGradienteSelecionado, setPontoGradienteSelecionado] =
+    useState<number | null>(null);
 
-const aplicandoUndoRef =
-  useRef(false);
+  const [
+    pontoGradienteFundoSelecionado,
+    setPontoGradienteFundoSelecionado,
+  ] = useState<number | null>(null);
 
-const LIMITE_HISTORICO_OBJETO = 30;
+  const [corGradienteFundoCopiada, setCorGradienteFundoCopiada] =
+    useState<string | null>(null);
 
-const [menuContexto, setMenuContexto] = useState<{
-  aberto: boolean;
-  x: number;
-  y: number;
-  objetoId: number | null;
-}>({
-  aberto: false,
-  x: 0,
-  y: 0,
-  objetoId: null,
-});
+  const [estiloFormaCopiado, setEstiloFormaCopiado] =
+    useState<
+      Partial<
+        Extract<
+          ObjetoCracha,
+          { tipo: "FORMA" }
+        >
+      > | null
+    >(null);
 
-const [pontoGradienteSelecionado, setPontoGradienteSelecionado] =
-  useState<number | null>(null);
+  const [objetoCopiado, setObjetoCopiado] =
+    useState<ObjetoCracha | null>(
+      null
+    );
 
-const [
-  pontoGradienteFundoSelecionado,
-  setPontoGradienteFundoSelecionado,
-] = useState<number | null>(null);
-
-const [corGradienteFundoCopiada, setCorGradienteFundoCopiada] =
-  useState<string | null>(null);
-
-const [estiloFormaCopiado, setEstiloFormaCopiado] =
-  useState<
-    Partial<
-      Extract<
-        ObjetoCracha,
-        { tipo: "FORMA" }
-      >
-    > | null
-  >(null);
-
-const [objetoCopiado, setObjetoCopiado] =
-  useState<ObjetoCracha | null>(
-    null
-  );
-  
   const inputImagemRef = useRef<HTMLInputElement | null>(null);
   const inputImagemObjetoRef = useRef<HTMLInputElement | null>(null);
 
@@ -2548,28 +2540,128 @@ const [objetoCopiado, setObjetoCopiado] =
   }
 
   function limparHistoricoObjetos() {
-    for (const pendente of
-      alteracoesPendentesRef.current.values()) {
+    for (
+      const pendente of
+      alteracoesPendentesRef.current.values()
+    ) {
       clearTimeout(
         pendente.timer
       );
     }
 
     alteracoesPendentesRef.current.clear();
+
     historicoObjetosRef.current.clear();
 
-    estadoAnteriorObjetosRef.current = {
-      FRENTE: [],
-      VERSO: [],
-    };
+    aplicandoUndoRef.current = false;
   }
 
-  function atualizarObjeto(id: number, dados: Partial<ObjetoCracha>) {
-    setObjetos((atual) =>
-      atual.map((obj) =>
-        obj.id === id ? ({ ...obj, ...dados } as ObjetoCracha) : obj
-      )
-    );
+  function atualizarObjeto(
+    id: number,
+    dados: Partial<ObjetoCracha>
+  ) {
+    setObjetos((atual) => {
+      const objetoAnterior =
+        atual.find(
+          (objeto) =>
+            objeto.id === id
+        );
+
+      if (!objetoAnterior) {
+        return atual;
+      }
+
+      /*
+       * Não registrar o próprio Ctrl + Z
+       * como uma nova alteração.
+       */
+      if (!aplicandoUndoRef.current) {
+        const chave =
+          chaveHistoricoObjeto(
+            lado,
+            id
+          );
+
+        const pendente =
+          alteracoesPendentesRef.current.get(
+            chave
+          );
+
+        /*
+         * Primeira alteração desta sequência:
+         * guarda exatamente o estado ANTES
+         * da alteração.
+         */
+        if (!pendente) {
+          const estadoAnterior =
+            clonarObjetoHistorico(
+              objetoAnterior
+            );
+
+          const timer =
+            setTimeout(() => {
+              registrarEstadoHistorico(
+                lado,
+                estadoAnterior
+              );
+
+              alteracoesPendentesRef.current.delete(
+                chave
+              );
+            }, 200);
+
+          alteracoesPendentesRef.current.set(
+            chave,
+            {
+              estadoAnterior,
+              timer,
+            }
+          );
+        } else {
+          /*
+           * Ainda estamos na mesma operação,
+           * como arrastar/redimensionar.
+           *
+           * Mantém o PRIMEIRO estado anterior
+           * e apenas renova o tempo.
+           */
+          clearTimeout(
+            pendente.timer
+          );
+
+          const timer =
+            setTimeout(() => {
+              registrarEstadoHistorico(
+                lado,
+                pendente.estadoAnterior
+              );
+
+              alteracoesPendentesRef.current.delete(
+                chave
+              );
+            }, 200);
+
+          alteracoesPendentesRef.current.set(
+            chave,
+            {
+              estadoAnterior:
+                pendente.estadoAnterior,
+              timer,
+            }
+          );
+        }
+      }
+
+      return atual.map(
+        (objeto) =>
+          objeto.id === id
+            ? ({
+              ...objeto,
+              ...dados,
+            } as ObjetoCracha)
+            : objeto
+      );
+    });
   }
 
   function excluirObjetoSelecionado() {
@@ -2582,110 +2674,110 @@ const [objetoCopiado, setObjetoCopiado] =
     setObjetoSelecionado(null);
   }
 
- useEffect(() => {
-  function aoPressionarTecla(
-    e: KeyboardEvent
-  ) {
-    const alvo =
-      e.target as HTMLElement | null;
-
-    const tag =
-      alvo?.tagName?.toLowerCase();
-
-    const estaDigitando =
-      tag === "input" ||
-      tag === "textarea" ||
-      tag === "select" ||
-      alvo?.isContentEditable;
-
-    const tecla =
-      e.key.toLowerCase();
-
-    /*
-     * DESFAZER DO EDITOR
-     */
-    if (
-      (e.ctrlKey || e.metaKey) &&
-      tecla === "z" &&
-      !e.shiftKey &&
-      objetoSelecionado !== null
+  useEffect(() => {
+    function aoPressionarTecla(
+      e: KeyboardEvent
     ) {
-      e.preventDefault();
-      e.stopPropagation();
+      const alvo =
+        e.target as HTMLElement | null;
 
-      desfazerObjetoSelecionado();
+      const tag =
+        alvo?.tagName?.toLowerCase();
 
-      return;
+      const estaDigitando =
+        tag === "input" ||
+        tag === "textarea" ||
+        tag === "select" ||
+        alvo?.isContentEditable;
+
+      const tecla =
+        e.key.toLowerCase();
+
+      /*
+       * DESFAZER DO EDITOR
+       */
+      if (
+        (e.ctrlKey || e.metaKey) &&
+        tecla === "z" &&
+        !e.shiftKey &&
+        objetoSelecionado !== null
+      ) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        desfazerObjetoSelecionado();
+
+        return;
+      }
+
+      /*
+       * Não capturar outros atalhos
+       * enquanto o usuário digita.
+       */
+      if (estaDigitando) {
+        return;
+      }
+
+      if (
+        (e.ctrlKey || e.metaKey) &&
+        tecla === "c"
+      ) {
+        if (!objetoAtual) return;
+
+        e.preventDefault();
+        copiarObjetoSelecionado();
+
+        return;
+      }
+
+      if (
+        (e.ctrlKey || e.metaKey) &&
+        tecla === "v"
+      ) {
+        if (!objetoCopiado) return;
+
+        e.preventDefault();
+        colarObjetoCopiado();
+
+        return;
+      }
+
+      if (
+        objetoSelecionado === null
+      ) {
+        return;
+      }
+
+      if (
+        e.key === "Delete" ||
+        e.key === "Backspace"
+      ) {
+        e.preventDefault();
+        excluirObjetoSelecionado();
+      }
+
+      if (e.key === "Escape") {
+        setObjetoSelecionado(null);
+      }
     }
 
-    /*
-     * Não capturar outros atalhos
-     * enquanto o usuário digita.
-     */
-    if (estaDigitando) {
-      return;
-    }
-
-    if (
-      (e.ctrlKey || e.metaKey) &&
-      tecla === "c"
-    ) {
-      if (!objetoAtual) return;
-
-      e.preventDefault();
-      copiarObjetoSelecionado();
-
-      return;
-    }
-
-    if (
-      (e.ctrlKey || e.metaKey) &&
-      tecla === "v"
-    ) {
-      if (!objetoCopiado) return;
-
-      e.preventDefault();
-      colarObjetoCopiado();
-
-      return;
-    }
-
-    if (
-      objetoSelecionado === null
-    ) {
-      return;
-    }
-
-    if (
-      e.key === "Delete" ||
-      e.key === "Backspace"
-    ) {
-      e.preventDefault();
-      excluirObjetoSelecionado();
-    }
-
-    if (e.key === "Escape") {
-      setObjetoSelecionado(null);
-    }
-  }
-
-  window.addEventListener(
-    "keydown",
-    aoPressionarTecla
-  );
-
-  return () => {
-    window.removeEventListener(
+    window.addEventListener(
       "keydown",
       aoPressionarTecla
     );
-  };
-}, [
-  objetoSelecionado,
-  objetoAtual,
-  objetoCopiado,
-  lado,
-]);
+
+    return () => {
+      window.removeEventListener(
+        "keydown",
+        aoPressionarTecla
+      );
+    };
+  }, [
+    objetoSelecionado,
+    objetoAtual,
+    objetoCopiado,
+    lado,
+  ]);
 
   useEffect(() => {
     carregarListaModelosCracha();
@@ -2750,157 +2842,8 @@ const [objetoCopiado, setObjetoCopiado] =
     objetoSelecionado,
   ]);
 
-  function processarAlteracoesParaHistorico(
-    ladoObjeto:
-      | "FRENTE"
-      | "VERSO",
-    objetosAtuais: ObjetoCracha[]
-  ) {
-    if (aplicandoUndoRef.current) {
-      estadoAnteriorObjetosRef.current[
-        ladoObjeto
-      ] = objetosAtuais.map(
-        clonarObjetoHistorico
-      );
-
-      aplicandoUndoRef.current =
-        false;
-
-      return;
-    }
-
-    const anteriores =
-      estadoAnteriorObjetosRef.current[
-      ladoObjeto
-      ];
-
-    const anterioresPorId =
-      new Map(
-        anteriores.map(
-          (objeto) => [
-            objeto.id,
-            objeto,
-          ]
-        )
-      );
-
-    for (const objetoAtual of objetosAtuais) {
-      const anterior =
-        anterioresPorId.get(
-          objetoAtual.id
-        );
-
-      /*
-       * Objeto recém-criado:
-       * não existe um estado anterior
-       * para desfazer ainda.
-       */
-      if (!anterior) {
-        continue;
-      }
-
-      const mudou =
-        JSON.stringify(anterior) !==
-        JSON.stringify(objetoAtual);
-
-      if (!mudou) {
-        continue;
-      }
-
-      const chave =
-        chaveHistoricoObjeto(
-          ladoObjeto,
-          objetoAtual.id
-        );
-
-      const pendente =
-        alteracoesPendentesRef.current.get(
-          chave
-        );
-
-      /*
-       * Durante arrasto/redimensionamento,
-       * o React gera várias alterações por
-       * segundo. Guardamos somente o estado
-       * ANTES de começar aquela operação.
-       */
-      if (pendente) {
-        clearTimeout(
-          pendente.timer
-        );
-
-        const timer =
-          setTimeout(() => {
-            registrarEstadoHistorico(
-              ladoObjeto,
-              pendente.estadoAnterior
-            );
-
-            alteracoesPendentesRef.current.delete(
-              chave
-            );
-          }, 180);
-
-        alteracoesPendentesRef.current.set(
-          chave,
-          {
-            ...pendente,
-            timer,
-          }
-        );
-
-        continue;
-      }
-
-      const estadoAnterior =
-        clonarObjetoHistorico(
-          anterior
-        );
-
-      const timer =
-        setTimeout(() => {
-          registrarEstadoHistorico(
-            ladoObjeto,
-            estadoAnterior
-          );
-
-          alteracoesPendentesRef.current.delete(
-            chave
-          );
-        }, 180);
-
-      alteracoesPendentesRef.current.set(
-        chave,
-        {
-          estadoAnterior,
-          timer,
-        }
-      );
-    }
-
-    estadoAnteriorObjetosRef.current[
-      ladoObjeto
-    ] = objetosAtuais.map(
-      clonarObjetoHistorico
-    );
-  }
-
-  useEffect(() => {
-    processarAlteracoesParaHistorico(
-      "FRENTE",
-      objetosFrente
-    );
-  }, [objetosFrente]);
-
-  useEffect(() => {
-    processarAlteracoesParaHistorico(
-      "VERSO",
-      objetosVerso
-    );
-  }, [objetosVerso]);
-
   function desfazerObjetoSelecionado() {
-    if (!objetoSelecionado) {
+    if (objetoSelecionado === null) {
       return;
     }
 
@@ -2911,9 +2854,11 @@ const [objetoCopiado, setObjetoCopiado] =
       );
 
     /*
-     * Se ainda houver uma alteração
-     * aguardando o debounce, registra
-     * imediatamente antes de desfazer.
+     * Pode acontecer de a pessoa apertar
+     * Ctrl+Z imediatamente após soltar
+     * o mouse, antes dos 200 ms.
+     *
+     * Nesse caso registramos agora.
      */
     const pendente =
       alteracoesPendentesRef.current.get(
@@ -2948,11 +2893,11 @@ const [objetoCopiado, setObjetoCopiado] =
     }
 
     const estadoAnterior =
-      historico[
-      historico.length - 1
-      ];
+      historico.pop();
 
-    historico.pop();
+    if (!estadoAnterior) {
+      return;
+    }
 
     historicoObjetosRef.current.set(
       chave,
@@ -2971,6 +2916,16 @@ const [objetoCopiado, setObjetoCopiado] =
           : objeto
       )
     );
+
+    /*
+     * Libera novamente o registro
+     * de alterações após o React
+     * aplicar o estado restaurado.
+     */
+    requestAnimationFrame(() => {
+      aplicandoUndoRef.current =
+        false;
+    });
   }
 
   function alinharCaixaTexto(alinhamentoCaixa: "left" | "center" | "right") {
@@ -5267,10 +5222,34 @@ const [objetoCopiado, setObjetoCopiado] =
     podeUsarEditorCrachas,
   ]);
 
-  function anguloGradienteCracha(direcao: DirecaoGradienteCracha) {
-    if (direcao === "HORIZONTAL") return "90deg";
-    if (direcao === "DIAGONAL_DESC") return "135deg";
-    if (direcao === "DIAGONAL_ASC") return "45deg";
+  function anguloGradienteCracha(
+    direcao: DirecaoGradienteCracha
+  ) {
+    /*
+     * Convenção visual do editor PHANYX:
+     *
+     * HORIZONTAL = faixas horizontais
+     *               transição de cima para baixo
+     *
+     * VERTICAL = faixas verticais
+     *             transição da esquerda para direita
+     */
+
+    if (direcao === "HORIZONTAL") {
+      return "180deg";
+    }
+
+    if (direcao === "VERTICAL") {
+      return "90deg";
+    }
+
+    if (direcao === "DIAGONAL_DESC") {
+      return "135deg";
+    }
+
+    if (direcao === "DIAGONAL_ASC") {
+      return "45deg";
+    }
 
     return "180deg";
   }
@@ -5489,18 +5468,43 @@ const [objetoCopiado, setObjetoCopiado] =
 
   function fundoCrachaCss() {
     if (tipoFundoCracha === "GRADIENTE") {
-      const pontos = pontosGradienteFundoValidos();
+      const pontos =
+        pontosGradienteFundoValidos();
 
       const cores = pontos
-        .map((ponto) => `${ponto.cor} ${ponto.posicao}%`)
+        .map(
+          (ponto) =>
+            `${ponto.cor} ${ponto.posicao}%`
+        )
         .join(", ");
 
-      return `linear-gradient(${anguloGradienteCracha(
+      /*
+       * Gradiente circular/radial:
+       * começa no centro e avança
+       * para as extremidades.
+       */
+      if (
+        direcaoGradienteCracha ===
+        "CIRCULAR"
+      ) {
+        return `radial-gradient(
+        circle at center,
+        ${cores}
+      )`;
+      }
+
+      return `linear-gradient(
+      ${anguloGradienteCracha(
         direcaoGradienteCracha
-      )}, ${cores})`;
+      )},
+      ${cores}
+    )`;
     }
 
-    return corFundoCracha || "#ffffff";
+    return (
+      corFundoCracha ||
+      "#ffffff"
+    );
   }
 
   function removerPontoGradienteFundo(id: number) {
@@ -10049,15 +10053,31 @@ const [objetoCopiado, setObjetoCopiado] =
                     value={direcaoGradienteCracha}
                     onChange={(e) =>
                       setDirecaoGradienteCracha(
-                        e.target.value as DirecaoGradienteCracha
+                        e.target
+                          .value as DirecaoGradienteCracha
                       )
                     }
                     className="phanyx-crachas-input"
                   >
-                    <option value="VERTICAL">Vertical</option>
-                    <option value="HORIZONTAL">Horizontal</option>
-                    <option value="DIAGONAL_DESC">Diagonal descendo</option>
-                    <option value="DIAGONAL_ASC">Diagonal subindo</option>
+                    <option value="VERTICAL">
+                      Vertical
+                    </option>
+
+                    <option value="HORIZONTAL">
+                      Horizontal
+                    </option>
+
+                    <option value="DIAGONAL_DESC">
+                      Diagonal descendo
+                    </option>
+
+                    <option value="DIAGONAL_ASC">
+                      Diagonal subindo
+                    </option>
+
+                    <option value="CIRCULAR">
+                      Circular
+                    </option>
                   </select>
                 </div>
 
