@@ -1666,10 +1666,28 @@ export default function IntegracaoDetalhePage() {
         );
       }
     } catch (error) {
-      mostrarErro(
+      const mensagem =
         error instanceof Error
           ? error.message
-          : "Erro ao tentar processar novamente."
+          : "Erro ao tentar processar novamente.";
+
+      await Promise.all([
+        carregarEventos(
+          paginaEventos
+        ),
+        carregarIntegracao(),
+      ]);
+
+      if (
+        eventoDetalheAberto
+      ) {
+        await abrirDetalheEvento(
+          eventoDetalheAberto
+        );
+      }
+
+      mostrarErro(
+        mensagem
       );
     } finally {
       setReprocessandoSubmissao(
@@ -3247,14 +3265,14 @@ export default function IntegracaoDetalhePage() {
 
                   <div
                     className={`ci-event-detail-result ${detalheEvento
+                      .acoes
+                      .eventoPossuiFalha
+                      ? "ci-event-detail-result-error"
+                      : detalheEvento
                         .acoes
-                        .eventoPossuiFalha
-                        ? "ci-event-detail-result-error"
-                        : detalheEvento
-                          .acoes
-                          .eventoPendente
-                          ? "ci-event-detail-result-warning"
-                          : "ci-event-detail-result-success"
+                        .eventoPendente
+                        ? "ci-event-detail-result-warning"
+                        : "ci-event-detail-result-success"
                       }`}
                   >
                     <strong>
