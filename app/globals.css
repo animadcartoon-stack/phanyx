@@ -28473,3 +28473,176 @@ html[data-theme="system"] .phanyx-chat-mensagem-minha,
 html[data-theme="system"] .phanyx-chat-mensagem-minha * {
   color: #ffffff !important;
 }
+
+/* ==================================================
+   WHATSAPP INSTITUCIONAL — CONTRASTE POR TEMA
+================================================== */
+
+html[data-theme="light"] .phanyx-whatsapp-page {
+  --wa-surface: #ffffff;
+  --wa-surface-soft: #f8fafc;
+  --wa-border: #cbd5e1;
+  --wa-text: #0f172a;
+  --wa-text-muted: #334155;
+
+  --wa-error-bg: #fff1f2;
+  --wa-error-border: #e11d48;
+  --wa-error-text: #4c0519;
+
+  --wa-warning-bg: #fffbeb;
+  --wa-warning-border: #d97706;
+  --wa-warning-text: #451a03;
+
+  --wa-security-bg: #f8fafc;
+  --wa-success: #059669;
+  --wa-success-hover: #047857;
+}
+
+html[data-theme="dark"] .phanyx-whatsapp-page {
+  --wa-surface: #0f172a;
+  --wa-surface-soft: #111827;
+  --wa-border: #475569;
+  --wa-text: #f8fafc;
+  --wa-text-muted: #cbd5e1;
+
+  --wa-error-bg: #450a0a;
+  --wa-error-border: #fb7185;
+  --wa-error-text: #fff1f2;
+
+  --wa-warning-bg: #451a03;
+  --wa-warning-border: #f59e0b;
+  --wa-warning-text: #fef3c7;
+
+  --wa-security-bg: #111827;
+  --wa-success: #059669;
+  --wa-success-hover: #047857;
+}
+
+html[data-theme="system"] .phanyx-whatsapp-page {
+  --wa-surface: #303030;
+  --wa-surface-soft: #3a3a3a;
+  --wa-border: #737373;
+  --wa-text: #ffffff;
+  --wa-text-muted: #e5e5e5;
+
+  --wa-error-bg: #4a1f24;
+  --wa-error-border: #fb7185;
+  --wa-error-text: #fff1f2;
+
+  --wa-warning-bg: #3b2f17;
+  --wa-warning-border: #f59e0b;
+  --wa-warning-text: #fef3c7;
+
+  --wa-security-bg: #3a3a3a;
+  --wa-success: #059669;
+  --wa-success-hover: #047857;
+}
+
+/* Lista e registros do histórico */
+
+.phanyx-whatsapp-page .whatsapp-history-list {
+  background: var(--wa-surface) !important;
+  color: var(--wa-text) !important;
+}
+
+.phanyx-whatsapp-page .whatsapp-history-list > article {
+  background: var(--wa-surface) !important;
+  color: var(--wa-text) !important;
+}
+
+.phanyx-whatsapp-page .whatsapp-history-list > article p {
+  color: var(--wa-text-muted) !important;
+}
+
+.phanyx-whatsapp-page
+  .whatsapp-history-list
+  > article
+  p.font-bold,
+.phanyx-whatsapp-page
+  .whatsapp-history-list
+  > article
+  p.font-semibold {
+  color: var(--wa-text) !important;
+}
+
+/* Cards de registrada, enviada, entregue, lida e falhou */
+
+.phanyx-whatsapp-page
+  .whatsapp-history-list
+  > article
+  > .grid
+  > div {
+  background: var(--wa-surface-soft) !important;
+  border-color: var(--wa-border) !important;
+  color: var(--wa-text) !important;
+}
+
+.phanyx-whatsapp-page
+  .whatsapp-history-list
+  > article
+  > .grid
+  > div
+  p {
+  color: var(--wa-text) !important;
+}
+
+/* Retornos do webhook */
+
+.phanyx-whatsapp-page
+  .whatsapp-history-list
+  > article
+  > details {
+  background: var(--wa-surface-soft) !important;
+  border-color: var(--wa-border) !important;
+  color: var(--wa-text) !important;
+}
+
+.phanyx-whatsapp-page
+  .whatsapp-history-list
+  summary {
+  color: var(--wa-text) !important;
+}
+
+/* Falha informada pela Meta */
+
+.phanyx-whatsapp-page .whatsapp-history-error {
+  background: var(--wa-error-bg) !important;
+  border-color: var(--wa-error-border) !important;
+  color: var(--wa-error-text) !important;
+}
+
+.phanyx-whatsapp-page .whatsapp-history-error p {
+  color: var(--wa-error-text) !important;
+}
+
+/* Aviso inicial de configuração */
+
+.phanyx-whatsapp-page .whatsapp-setup-warning {
+  background: var(--wa-warning-bg) !important;
+  border-color: var(--wa-warning-border) !important;
+  color: var(--wa-warning-text) !important;
+}
+
+.phanyx-whatsapp-page .whatsapp-setup-warning p {
+  color: var(--wa-warning-text) !important;
+}
+
+/* Segurança das credenciais */
+
+.phanyx-whatsapp-page .whatsapp-setup-security {
+  background: var(--wa-security-bg) !important;
+  border-color: var(--wa-border) !important;
+  color: var(--wa-text) !important;
+}
+
+/* Botão da configuração oficial da Meta */
+
+.phanyx-whatsapp-page .whatsapp-setup-link {
+  background: var(--wa-success) !important;
+  color: #ffffff !important;
+}
+
+.phanyx-whatsapp-page .whatsapp-setup-link:hover {
+  background: var(--wa-success-hover) !important;
+  color: #ffffff !important;
+}

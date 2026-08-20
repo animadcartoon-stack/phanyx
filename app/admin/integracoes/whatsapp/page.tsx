@@ -1394,7 +1394,7 @@ export default function WhatsAppInstitucionalPage() {
               Nenhuma mensagem foi registrada até o momento.
             </div>
           ) : (
-            <div className="divide-y divide-slate-300 bg-white dark:divide-slate-700 dark:bg-slate-950">
+            <div className="whatsapp-history-list divide-y divide-slate-300">
               {mensagensRecentes.map((mensagem) => (
                 <article
                   key={mensagem.id}
@@ -1457,7 +1457,7 @@ export default function WhatsAppInstitucionalPage() {
                   </div>
 
                   {(mensagem.erroMensagem || mensagem.erroCodigo) && (
-                    <div className="mt-4 rounded-lg border border-red-300 border-l-4 border-l-red-600 bg-red-50 p-4 text-sm text-red-950 dark:border-red-800 dark:border-l-red-500 dark:bg-red-950/40 dark:text-red-100">
+                    <div className="whatsapp-history-error mt-4 rounded-lg border border-l-4 p-4 text-sm">
                       <p className="font-bold text-red-950 dark:text-red-100">
                         Falha informada pela Meta
                       </p>
@@ -2040,7 +2040,7 @@ export default function WhatsAppInstitucionalPage() {
             </div>
 
             <div className="space-y-5 p-5">
-              <div className="rounded-xl border-2 !border-amber-500 !bg-amber-50 p-4 text-sm leading-6 !text-amber-950 shadow-sm dark:!border-amber-600 dark:!bg-amber-950/60 dark:!text-amber-100">
+              <div className="whatsapp-setup-warning rounded-xl border-2 p-4 text-sm leading-6 shadow-sm">
                 <p className="font-bold !text-amber-950 dark:!text-amber-100">
                   O aplicativo WhatsApp Business no celular não é
                   suficiente para esta integração.
@@ -2086,7 +2086,7 @@ export default function WhatsAppInstitucionalPage() {
                 </ul>
               </div>
 
-              <div className="rounded-xl border border-slate-300 bg-slate-100 p-4 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
+              <div className="whatsapp-setup-security rounded-xl border p-4 text-sm">
                 As credenciais serão vinculadas somente à instituição
                 autenticada. O token será criptografado e não será exibido
                 novamente depois da conexão.
@@ -2110,7 +2110,7 @@ export default function WhatsAppInstitucionalPage() {
                 target="_blank"
                 rel="noreferrer"
                 onClick={() => setModalOrientacaoAberto(false)}
-                className="rounded-xl !bg-emerald-600 px-5 py-2.5 text-center text-sm font-bold !text-white transition hover:!bg-emerald-700"
+                className="whatsapp-setup-link rounded-xl px-5 py-2.5 text-center text-sm font-bold transition"
               >
                 Ir para a página de configuração
               </a>
