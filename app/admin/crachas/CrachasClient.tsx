@@ -1377,57 +1377,96 @@ export default function CrachasClient() {
   }
 
   async function excluirModeloCracha(
-    modeloId: number
-  ) {
-    try {
-      setAvisoCracha(null);
+  modeloId: number
+) {
+  try {
+    setAvisoCracha(null);
 
-      const res = await fetch(
-        `/api/admin/crachas/modelos?id=${modeloId}`,
-        {
-          method: "DELETE",
-          credentials: "include",
-        }
-      );
+    const res = await fetch(
+      `/api/admin/crachas/modelos?id=${modeloId}`,
+      {
+        method: "DELETE",
+        credentials: "include",
+      }
+    );
 
-      const data = await res
-        .json()
-        .catch(() => null);
+    const data = await res
+      .json()
+      .catch(() => null);
 
-      if (!res.ok) {
-        throw new Error(
-          data?.error ||
+    if (!res.ok) {
+      throw new Error(
+        data?.error ||
           "Erro ao excluir modelo de crachá."
-        );
-      }
-
-      if (
-        modeloCrachaAtualId === modeloId
-      ) {
-        novoModeloCracha();
-      }
-
-      await carregarListaModelosCracha();
-
-      setAvisoCracha({
-        tipo: "sucesso",
-        texto:
-          "Modelo de crachá excluído com sucesso.",
-      });
-
-      setTimeout(
-        () => setAvisoCracha(null),
-        4000
       );
-    } catch (error: any) {
-      setAvisoCracha({
-        tipo: "erro",
-        texto:
-          error?.message ||
-          "Erro ao excluir modelo de crachá.",
-      });
     }
+
+    const eraModeloAtual =
+      modeloCrachaAtualId === modeloId;
+
+    /*
+     * Remove imediatamente da interface,
+     * sem esperar nova consulta.
+     */
+    setModelosSalvosCracha(
+      (atuais) =>
+        atuais.filter(
+          (modelo) =>
+            modelo.id !== modeloId
+        )
+    );
+
+    setModelosCracha(
+      (atuais) =>
+        atuais.filter(
+          (modelo) =>
+            modelo.id !== modeloId
+        )
+    );
+
+    if (eraModeloAtual) {
+      /*
+       * Limpa o modelo excluído da tela.
+       */
+      novoModeloCracha();
+    }
+
+    /*
+     * Sincroniza novamente com o banco.
+     *
+     * Essa é a lista realmente usada
+     * na barra dos modelos.
+     */
+    await carregarModelosSalvosCracha(
+      tipoModeloCracha
+    );
+
+    await carregarListaModelosCracha();
+
+    setAvisoCracha({
+      tipo: "sucesso",
+      texto:
+        "Modelo de crachá excluído com sucesso.",
+    });
+
+    setTimeout(
+      () => setAvisoCracha(null),
+      4000
+    );
+  } catch (error: any) {
+    setAvisoCracha({
+      tipo: "erro",
+      texto:
+        error?.message ||
+        "Erro ao excluir modelo de crachá.",
+    });
+
+    setTimeout(
+      () => setAvisoCracha(null),
+      5000
+    );
   }
+}
 
   function novoModeloCracha() {
     setModeloCrachaAtualId(null);
