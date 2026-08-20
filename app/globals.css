@@ -28437,3 +28437,25 @@ html[data-theme="system"] .phanyx-chat-emoji-opcao {
 html[data-theme="system"] .phanyx-chat-emoji-opcao:hover {
   background: #404040 !important;
 }
+
+/* Textos das mensagens do Chat PHANYX */
+.phanyx-chat-mensagem-minha,
+.phanyx-chat-mensagem-minha p,
+.phanyx-chat-mensagem-minha span,
+.phanyx-chat-mensagem-minha a {
+  color: #ffffff !important;
+}
+
+.phanyx-chat-mensagem-recebida,
+.phanyx-chat-mensagem-recebida p,
+.phanyx-chat-mensagem-recebida span,
+.phanyx-chat-mensagem-recebida a {
+  color: #f8fafc !important;
+}
+
+/* O título do cabeçalho também deve permanecer branco */
+.phanyx-chat-cabecalho,
+.phanyx-chat-cabecalho p,
+.phanyx-chat-cabecalho span {
+  color: #ffffff !important;
+}
