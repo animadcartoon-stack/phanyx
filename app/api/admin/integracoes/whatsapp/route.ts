@@ -68,7 +68,9 @@ export async function GET() {
             configuracoes,
             quantidadeTemplates,
             quantidadeMensagens,
+            mensagensRecentes,
         ] = await Promise.all([
+
             prisma.whatsAppInstituicao.findUnique({
                 where: {
                     instituicaoId,
@@ -138,6 +140,63 @@ export async function GET() {
                     instituicaoId,
                 },
             }),
+
+            prisma.whatsAppMensagem.findMany({
+                where: {
+                    instituicaoId,
+                },
+
+                orderBy: {
+                    criadaEm: "desc",
+                },
+
+                take: 20,
+
+                select: {
+                    id: true,
+
+                    tipoComunicacao: true,
+                    status: true,
+
+                    telefoneDestinatario: true,
+                    nomeDestinatario: true,
+
+                    metaMessageId: true,
+                    tentativa: true,
+
+                    erroCodigo: true,
+                    erroMensagem: true,
+
+                    criadaEm: true,
+                    processadaEm: true,
+                    enviadaEm: true,
+                    entregueEm: true,
+                    lidaEm: true,
+                    falhouEm: true,
+
+                    template: {
+                        select: {
+                            nome: true,
+                            nomeMeta: true,
+                        },
+                    },
+
+                    eventos: {
+                        orderBy: {
+                            recebidoEm: "desc",
+                        },
+
+                        take: 10,
+
+                        select: {
+                            id: true,
+                            status: true,
+                            payload: true,
+                            recebidoEm: true,
+                        },
+                    },
+                },
+            }),
         ]);
 
         const mapaConfiguracoes = new Map<
@@ -198,6 +257,8 @@ export async function GET() {
                 },
 
             comunicacoes,
+
+            mensagensRecentes,
 
             resumo: {
                 quantidadeTemplates,
