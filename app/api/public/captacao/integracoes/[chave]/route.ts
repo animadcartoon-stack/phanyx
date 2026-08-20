@@ -442,7 +442,7 @@ function responderErro(
 
         error:
           error.statusFinal ===
-          StatusSubmissaoCaptacaoLead.REJEITADA
+            StatusSubmissaoCaptacaoLead.REJEITADA
             ? error.message
             : "O evento foi recebido, mas não pôde ser processado.",
 
@@ -487,11 +487,11 @@ export async function POST(
 ) {
   let eventoId:
     number | null =
-      null;
+    null;
 
   let integracaoId:
     number | null =
-      null;
+    null;
 
   try {
     const chavePublica =
@@ -520,7 +520,7 @@ export async function POST(
         contentLength
       ) &&
       contentLength >
-        LIMITE_BODY_BYTES
+      LIMITE_BODY_BYTES
     ) {
       throw new ErroHttp(
         413,
@@ -1032,25 +1032,25 @@ export async function POST(
                 versaoConsentimento:
                   consentimentoLgpd
                     ? (
-                        textoOuNull(
-                          body.versaoConsentimento,
-                          200
-                        ) ??
-                        integracao
-                          .formulario
-                          ?.versaoConsentimento ??
-                        null
-                      )
+                      textoOuNull(
+                        body.versaoConsentimento,
+                        200
+                      ) ??
+                      integracao
+                        .formulario
+                        ?.versaoConsentimento ??
+                      null
+                    )
                     : null,
 
                 textoConsentimentoSnapshot:
                   consentimentoLgpd
                     ? (
-                        integracao
-                          .formulario
-                          ?.textoConsentimento ??
-                        null
-                      )
+                      integracao
+                        .formulario
+                        ?.textoConsentimento ??
+                      null
+                    )
                     : null,
               },
 
@@ -1152,12 +1152,6 @@ export async function POST(
           data: {
             ultimoSucessoEm:
               agora,
-
-            ultimoErro:
-              null,
-
-            ultimoErroEm:
-              null,
           },
         }),
       ]);
@@ -1206,6 +1200,13 @@ export async function POST(
           ? error.message
           : "Erro desconhecido no processamento.";
 
+      const codigoHttp =
+        error instanceof ErroProcessamentoCaptacao &&
+          error.statusFinal ===
+          StatusSubmissaoCaptacaoLead.REJEITADA
+          ? 422
+          : 500;
+
       try {
         await prisma.$transaction([
           prisma.eventoIntegracaoCaptacaoLead.update({
@@ -1221,8 +1222,7 @@ export async function POST(
               processadoEm:
                 agora,
 
-              codigoHttp:
-                500,
+              codigoHttp,
 
               mensagemErro:
                 mensagem,
@@ -1252,7 +1252,7 @@ export async function POST(
           }),
         ]);
       } catch (
-        erroAuditoria
+      erroAuditoria
       ) {
         console.error(
           "Erro ao registrar falha do evento de integração:",
@@ -1280,7 +1280,7 @@ export async function POST(
 
     if (
       error instanceof
-        Prisma.PrismaClientKnownRequestError &&
+      Prisma.PrismaClientKnownRequestError &&
       error.code === "P2002"
     ) {
       /*

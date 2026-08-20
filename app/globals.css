@@ -26500,7 +26500,8 @@ html[data-theme="system"] .ci-event-error {
   .ci-copy-row:not(.ci-copy-row-column)
   code {
   white-space: nowrap;
-  overflow-x: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
   overflow-wrap: normal;
 }
 
@@ -27767,3 +27768,4 @@ html[data-theme="system"]
   border-color: #93c5fd !important;
   color: #ffffff !important;
 }
+

@@ -775,6 +775,28 @@ export default function BibliotecaItemPage() {
   ] = useState(false);
 
   const [
+    exemplarParaDevolucao,
+    setExemplarParaDevolucao,
+  ] = useState<ExemplarItem | null>(
+    null
+  );
+
+  const [
+    condicaoDevolucao,
+    setCondicaoDevolucao,
+  ] = useState("NORMAL");
+
+  const [
+    observacaoDevolucao,
+    setObservacaoDevolucao,
+  ] = useState("");
+
+  const [
+    devolvendoExemplar,
+    setDevolvendoExemplar,
+  ] = useState(false);
+
+  const [
     carregandoExemplares,
     setCarregandoExemplares,
   ] = useState(false);
@@ -2515,6 +2537,142 @@ export default function BibliotecaItemPage() {
     }
   }
 
+  function abrirDevolucao(
+    exemplar: ExemplarItem
+  ) {
+    if (
+      !podeGerenciarEmprestimos ||
+      impersonacao ||
+      exemplar.tipo !== "FISICO" ||
+      exemplar.status !== "EMPRESTADO" ||
+      exemplar.baixadoEm
+    ) {
+      return;
+    }
+
+    setExemplarParaDevolucao(
+      exemplar
+    );
+
+    setCondicaoDevolucao(
+      "NORMAL"
+    );
+
+    setObservacaoDevolucao(
+      ""
+    );
+  }
+
+  function fecharDevolucao() {
+    if (devolvendoExemplar) {
+      return;
+    }
+
+    setExemplarParaDevolucao(
+      null
+    );
+
+    setCondicaoDevolucao(
+      "NORMAL"
+    );
+
+    setObservacaoDevolucao(
+      ""
+    );
+  }
+
+  async function registrarDevolucao() {
+    if (
+      !exemplarParaDevolucao ||
+      devolvendoExemplar ||
+      !podeGerenciarEmprestimos ||
+      impersonacao
+    ) {
+      return;
+    }
+
+    setDevolvendoExemplar(
+      true
+    );
+
+    try {
+      const resposta =
+        await fetch(
+          `/api/admin/biblioteca/exemplares/${exemplarParaDevolucao.id}/devolver`,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body: JSON.stringify({
+              condicao:
+                condicaoDevolucao,
+
+              observacaoDevolucao:
+                observacaoDevolucao
+                  .trim() ||
+                null,
+            }),
+          }
+        );
+
+      const resultado =
+        (await resposta.json()) as {
+          ok?: boolean;
+          mensagem?: string;
+          error?: string;
+        };
+
+      if (!resposta.ok) {
+        throw new Error(
+          resultado.error ||
+          resultado.mensagem ||
+          "Não foi possível registrar a devolução."
+        );
+      }
+
+      setExemplarParaDevolucao(
+        null
+      );
+
+      setCondicaoDevolucao(
+        "NORMAL"
+      );
+
+      setObservacaoDevolucao(
+        ""
+      );
+
+      setToast({
+        tipo: "sucesso",
+
+        mensagem:
+          resultado.mensagem ||
+          "Devolução registrada com sucesso.",
+      });
+
+      setAtualizacao(
+        (valor) => valor + 1
+      );
+    } catch (falha) {
+      setToast({
+        tipo: "erro",
+
+        mensagem:
+          falha instanceof Error
+            ? falha.message
+            : "Não foi possível registrar a devolução.",
+      });
+    } finally {
+      setDevolvendoExemplar(
+        false
+      );
+    }
+  }
+
   return (
     <main className="phanyx-biblioteca-acervo-page phanyx-biblioteca-item-page">
       <div className="bib-page-shell">
@@ -3627,23 +3785,43 @@ export default function BibliotecaItemPage() {
                           </button>
                         ) : null}
 
+                        {podeGerenciarEmprestimos &&
+                          !impersonacao &&
+                          exemplar.tipo ===
+                          "FISICO" &&
+                          exemplar.status ===
+                          "EMPRESTADO" &&
+                          !exemplar.baixadoEm ? (
+                          <button
+                            type="button"
+                            className="bib-button bib-button-primary"
+                            onClick={() =>
+                              abrirDevolucao(
+                                exemplar
+                              )
+                            }
+                          >
+                            📥 Registrar devolução
+                          </button>
+                        ) : null}
+
                         {podeBaixarExemplares &&
                           !impersonacao &&
                           !exemplar.baixadoEm &&
                           exemplar.status !== "EMPRESTADO" &&
                           exemplar.status !== "RESERVADO" ? (
-                            <button
-                              type="button"
-                              className="bib-button bib-button-danger"
-                              onClick={() =>
-                                abrirBaixaExemplar(
-                                  exemplar
-                                )
-                              }
-                            >
-                              ⬇ Dar baixa
-                            </button>
-                          ) : null}
+                          <button
+                            type="button"
+                            className="bib-button bib-button-danger"
+                            onClick={() =>
+                              abrirBaixaExemplar(
+                                exemplar
+                              )
+                            }
+                          >
+                            ⬇ Dar baixa
+                          </button>
+                        ) : null}
                       </div>
                     )
                   )}
@@ -4543,6 +4721,271 @@ export default function BibliotecaItemPage() {
                   : "📤 Registrar empréstimo"}
               </button>
             </footer>
+          </section>
+        </div>
+      ) : null}
+
+      {exemplarParaDevolucao ? (
+        <div
+          className="bib-modal-backdrop"
+          role="presentation"
+        >
+          <section
+            className="bib-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="titulo-devolucao-biblioteca"
+          >
+            <header className="bib-modal-header">
+              <div>
+                <span className="bib-modal-kicker">
+                  Biblioteca Virtual
+                </span>
+
+                <h2
+                  id="titulo-devolucao-biblioteca"
+                >
+                  Registrar devolução
+                </h2>
+
+                <p>
+                  Informe como o exemplar
+                  retornou à biblioteca.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="bib-modal-close"
+                onClick={
+                  fecharDevolucao
+                }
+                disabled={
+                  devolvendoExemplar
+                }
+                aria-label="Fechar"
+              >
+                ×
+              </button>
+            </header>
+
+            <form
+              onSubmit={(evento) => {
+                evento.preventDefault();
+
+                void registrarDevolucao();
+              }}
+            >
+              <div className="bib-modal-body">
+                <div className="bib-feedback">
+                  <div>
+                    <strong>
+                      {
+                        exemplarParaDevolucao
+                          .codigoInterno
+                      }
+                    </strong>
+
+                    <p>
+                      {item.titulo}
+
+                      {exemplarParaDevolucao
+                        .numeroTombo
+                        ? ` · Tombo ${exemplarParaDevolucao.numeroTombo}`
+                        : ""}
+                    </p>
+                  </div>
+                </div>
+
+                <label className="bib-field">
+                  <span>
+                    Condição na devolução{" "}
+                    <b>*</b>
+                  </span>
+
+                  <select
+                    className="bib-input"
+                    value={
+                      condicaoDevolucao
+                    }
+                    onChange={(evento) =>
+                      setCondicaoDevolucao(
+                        evento.target.value
+                      )
+                    }
+                    disabled={
+                      devolvendoExemplar
+                    }
+                  >
+                    <option value="NORMAL">
+                      Normal
+                    </option>
+
+                    <option value="DESGASTE">
+                      Desgaste de uso
+                    </option>
+
+                    <option value="DANIFICADO">
+                      Danificado
+                    </option>
+
+                    <option value="INCOMPLETO">
+                      Incompleto
+                    </option>
+
+                    <option value="PERDIDO">
+                      Perdido
+                    </option>
+                  </select>
+
+                  <small>
+                    A condição informada define
+                    se o exemplar voltará à
+                    circulação.
+                  </small>
+                </label>
+
+                {condicaoDevolucao ===
+                  "NORMAL" ? (
+                  <div className="bib-feedback bib-feedback-success">
+                    <div>
+                      <strong>
+                        Voltará a ficar disponível
+                      </strong>
+
+                      <p>
+                        O exemplar poderá ser
+                        emprestado novamente.
+                      </p>
+                    </div>
+                  </div>
+                ) : null}
+
+                {condicaoDevolucao ===
+                  "DESGASTE" ? (
+                  <div className="bib-feedback bib-feedback-warning">
+                    <div>
+                      <strong>
+                        Desgaste registrado
+                      </strong>
+
+                      <p>
+                        O exemplar continuará
+                        disponível para circulação.
+                      </p>
+                    </div>
+                  </div>
+                ) : null}
+
+                {condicaoDevolucao ===
+                  "DANIFICADO" ? (
+                  <div className="bib-feedback bib-feedback-warning">
+                    <div>
+                      <strong>
+                        Exemplar será marcado como
+                        danificado
+                      </strong>
+
+                      <p>
+                        Ele não ficará disponível
+                        para novo empréstimo.
+                      </p>
+                    </div>
+                  </div>
+                ) : null}
+
+                {condicaoDevolucao ===
+                  "INCOMPLETO" ? (
+                  <div className="bib-feedback bib-feedback-warning">
+                    <div>
+                      <strong>
+                        Exemplar ficará indisponível
+                      </strong>
+
+                      <p>
+                        Será necessária análise
+                        antes de retornar à
+                        circulação.
+                      </p>
+                    </div>
+                  </div>
+                ) : null}
+
+                {condicaoDevolucao ===
+                  "PERDIDO" ? (
+                  <div className="bib-feedback bib-feedback-danger">
+                    <div>
+                      <strong>
+                        Exemplar será marcado como
+                        extraviado
+                      </strong>
+
+                      <p>
+                        O empréstimo será encerrado
+                        como perdido e o exemplar
+                        sairá da circulação.
+                      </p>
+                    </div>
+                  </div>
+                ) : null}
+
+                <label className="bib-field">
+                  <span>
+                    Observação da devolução
+                  </span>
+
+                  <textarea
+                    className="bib-input bib-textarea"
+                    value={
+                      observacaoDevolucao
+                    }
+                    onChange={(evento) =>
+                      setObservacaoDevolucao(
+                        evento.target.value
+                      )
+                    }
+                    maxLength={5_000}
+                    disabled={
+                      devolvendoExemplar
+                    }
+                    placeholder="Ex.: exemplar devolvido em bom estado."
+                  />
+
+                  <small>
+                    Campo opcional. A informação
+                    ficará registrada no histórico
+                    do empréstimo.
+                  </small>
+                </label>
+              </div>
+
+              <footer className="bib-modal-footer">
+                <button
+                  type="button"
+                  className="bib-button bib-button-secondary"
+                  onClick={
+                    fecharDevolucao
+                  }
+                  disabled={
+                    devolvendoExemplar
+                  }
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="submit"
+                  className="bib-button bib-button-primary"
+                  disabled={
+                    devolvendoExemplar
+                  }
+                >
+                  {devolvendoExemplar
+                    ? "Registrando..."
+                    : "📥 Registrar devolução"}
+                </button>
+              </footer>
+            </form>
           </section>
         </div>
       ) : null}
