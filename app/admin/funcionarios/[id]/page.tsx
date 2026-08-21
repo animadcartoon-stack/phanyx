@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import withAuth from "@/components/auth/withAuth";
@@ -453,6 +453,15 @@ function FuncionarioFichaPage() {
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
   const [enviandoFotoPerfil, setEnviandoFotoPerfil] = useState(false);
+
+  const inputFotoRef =
+    useRef<HTMLInputElement | null>(null);
+
+  const [erroFoto, setErroFoto] = useState<{
+    titulo: string;
+    mensagem: string;
+  } | null>(null);
+
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
   const [buscaBanco, setBuscaBanco] = useState("");
@@ -1011,8 +1020,13 @@ function FuncionarioFichaPage() {
     }
   }
 
-  async function enviarFotoOficialFuncionario(arquivo: File | null) {
+  async function enviarFotoOficialFuncionario(
+    arquivo: File | null
+  ) {
     if (!arquivo) return;
+
+    setErro("");
+    setErroFoto(null);
 
     const formatosPermitidos = [
       "image/png",
@@ -1021,19 +1035,46 @@ function FuncionarioFichaPage() {
       "image/webp",
     ];
 
+    const extensao =
+      arquivo.name
+        .split(".")
+        .pop()
+        ?.toUpperCase() || "desconhecido";
+
     if (!formatosPermitidos.includes(arquivo.type)) {
-      setErro("Formato inválido. Envie uma foto em JPG, JPEG, PNG ou WEBP.");
+      setErroFoto({
+        titulo: "Formato de foto não aceito",
+        mensagem:
+          `A foto selecionada está no formato ${extensao}. ` +
+          "Escolha outra foto em JPG, JPEG, PNG ou WEBP.",
+      });
+
       return;
     }
 
-    if (arquivo.size > 2 * 1024 * 1024) {
-      setErro("Foto muito grande. Envie uma foto com no máximo 2 MB.");
+    const limiteBytes = 2 * 1024 * 1024;
+
+    if (arquivo.size > limiteBytes) {
+      const tamanhoMb = (
+        arquivo.size /
+        (1024 * 1024)
+      )
+        .toFixed(2)
+        .replace(".", ",");
+
+      setErroFoto({
+        titulo: "A foto está muito grande",
+        mensagem:
+          `A foto selecionada possui ${tamanhoMb} MB, ` +
+          "mas o tamanho máximo permitido é 2 MB. " +
+          "Diminua ou comprima a foto e tente novamente.",
+      });
+
       return;
     }
 
     try {
       setEnviandoFotoPerfil(true);
-      setErro("");
       setSucesso("");
 
       const formData = new FormData();
@@ -1045,10 +1086,14 @@ function FuncionarioFichaPage() {
         body: formData,
       });
 
-      const data = await res.json().catch(() => null);
+      const data =
+        await res.json().catch(() => null);
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao enviar foto.");
+        throw new Error(
+          data?.error ||
+          `Falha no envio da foto. Código ${res.status}.`
+        );
       }
 
       const url =
@@ -1058,17 +1103,30 @@ function FuncionarioFichaPage() {
         data?.publicUrl;
 
       if (!url) {
-        throw new Error("Upload realizado, mas a URL da foto não retornou.");
+        throw new Error(
+          "O envio terminou, mas o servidor não retornou o endereço da foto."
+        );
       }
 
-      setFormGeral((p) => ({
-        ...p,
+      setFormGeral((anterior) => ({
+        ...anterior,
         fotoPerfil: url,
       }));
 
-      setSucesso("Foto oficial do funcionário enviada. Clique em Salvar para gravar.");
+      setSucesso(
+        "Foto oficial enviada. Clique em Salvar para gravar no cadastro."
+      );
     } catch (e: any) {
-      setErro(e.message || "Erro ao enviar foto oficial do funcionário.");
+      const motivo =
+        e?.message ||
+        "O servidor não conseguiu receber a foto.";
+
+      setErroFoto({
+        titulo: "Não foi possível enviar a foto",
+        mensagem:
+          `${motivo} ` +
+          "Verifique a imagem ou escolha outra foto e tente novamente.",
+      });
     } finally {
       setEnviandoFotoPerfil(false);
     }
@@ -1346,6 +1404,7 @@ function FuncionarioFichaPage() {
 
     if (
       formGeral.departamentoId &&
+      cargosDepartamento.length > 0 &&
       !formGeral.cargoId
     ) {
       setErro(
@@ -2035,12 +2094,20 @@ p-6
                           <label className="cursor-pointer rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-100">
                             {enviandoFotoPerfil ? "Enviando..." : "Enviar foto"}
                             <input
+                              ref={inputFotoRef}
                               type="file"
                               accept="image/png,image/jpeg,image/jpg,image/webp"
                               disabled={enviandoFotoPerfil}
-                              onChange={(e) =>
-                                enviarFotoOficialFuncionario(e.target.files?.[0] || null)
-                              }
+                              onChange={(e) => {
+                                const arquivo =
+                                  e.currentTarget.files?.[0] || null;
+
+                                e.currentTarget.value = "";
+
+                                void enviarFotoOficialFuncionario(
+                                  arquivo
+                                );
+                              }}
                               className="hidden"
                             />
                           </label>
@@ -2876,6 +2943,56 @@ text-slate-900 dark:text-white
             Área central do Departamento Pessoal. Primeiro módulo ativo: benefícios vinculados ao funcionário.
           </p>
         </div>
+
+        {erroFoto && (
+          <div
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="titulo-erro-foto"
+          >
+            <div className="w-full max-w-md rounded-3xl border border-red-200 bg-white p-6 shadow-2xl dark:border-red-900 dark:bg-slate-900">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-2xl dark:bg-red-950">
+                🖼️
+              </div>
+
+              <h2
+                id="titulo-erro-foto"
+                className="mt-4 text-xl font-bold text-slate-950 dark:text-white"
+              >
+                {erroFoto.titulo}
+              </h2>
+
+              <p className="mt-3 text-sm leading-6 text-slate-700 dark:text-slate-200">
+                {erroFoto.mensagem}
+              </p>
+
+              <div className="mt-6 flex flex-wrap justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setErroFoto(null)}
+                  className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-800 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                >
+                  Fechar
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setErroFoto(null);
+
+                    window.setTimeout(() => {
+                      inputFotoRef.current?.click();
+                    }, 0);
+                  }}
+                  className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-500"
+                >
+                  Escolher outra foto
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {erro && (
           <PhanyxToast

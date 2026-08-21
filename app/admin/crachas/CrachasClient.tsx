@@ -1731,6 +1731,10 @@ export default function CrachasClient() {
       params.set("tipo", tipoModeloCracha);
       params.set("modo", modoEmissaoCracha);
 
+      if (modoEmissaoCracha === "LOTE") {
+        params.set("limite", "1000");
+      }
+
       if (buscaPessoaEmissao.trim()) {
         params.set("busca", buscaPessoaEmissao.trim());
       }
@@ -1887,16 +1891,218 @@ export default function CrachasClient() {
         return;
       }
 
-      if (resumoEmissaoCracha.aptos <= 0) {
+      const pessoasAptas =
+        pessoasEmissaoCracha.filter(
+          (pessoa) =>
+            pessoa.aptoParaCracha === true
+        );
+
+      if (pessoasAptas.length === 0) {
         setErroEmissaoCracha(
           "Nenhuma pessoa apta para emissão. Todos os cadastros encontrados estão sem foto oficial."
         );
         return;
       }
 
-      setErroEmissaoCracha(
-        "A emissão real em lote será implementada na próxima etapa. Nenhum crachá foi emitido agora."
-      );
+      const abaPdf = window.open("", "_blank");
+
+      if (abaPdf) {
+        abaPdf.document.title =
+          "Gerando PDF do lote";
+
+        abaPdf.document.body.innerHTML = `
+      <div style="
+        min-height:100vh;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        padding:32px;
+        font-family:Arial,sans-serif;
+        background:#f8fafc;
+        color:#0f172a;
+        text-align:center;
+      ">
+        <div>
+          <h1 style="font-size:22px;margin:0 0 12px;">
+            Gerando PDF do lote
+          </h1>
+          <p style="font-size:15px;margin:0;">
+            Processando ${pessoasAptas.length} crachás.
+            Esta aba será atualizada automaticamente.
+          </p>
+        </div>
+      </div>
+    `;
+      }
+
+      try {
+        setEmitindoCracha(true);
+
+        const respostaEmissao = await fetch(
+          "/api/admin/crachas/emitir-lote",
+          {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              tipoPessoa: tipoModeloCracha,
+              pessoaIds: pessoasAptas.map(
+                (pessoa) => pessoa.id
+              ),
+              modeloId:
+                modeloCrachaAtualId ||
+                undefined,
+            }),
+          }
+        );
+
+        const dadosEmissao =
+          await respostaEmissao.json();
+
+        if (!respostaEmissao.ok) {
+          throw new Error(
+            dadosEmissao.error ||
+            "Erro ao emitir o lote de crachás."
+          );
+        }
+
+        const crachaIds = Array.isArray(
+          dadosEmissao?.crachaIds
+        )
+          ? dadosEmissao.crachaIds
+            .map((id: unknown) => Number(id))
+            .filter(
+              (id: number) =>
+                Number.isInteger(id) && id > 0
+            )
+          : [];
+
+        if (crachaIds.length === 0) {
+          throw new Error(
+            "O lote foi processado, mas nenhum identificador de crachá retornou."
+          );
+        }
+
+        const respostaPdf = await fetch(
+          "/api/admin/crachas/emitidos/lote/pdf",
+          {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              crachaIds,
+            }),
+          }
+        );
+
+        if (!respostaPdf.ok) {
+          const tipoConteudo =
+            respostaPdf.headers.get(
+              "content-type"
+            ) || "";
+
+          const erroPdf =
+            tipoConteudo.includes(
+              "application/json"
+            )
+              ? await respostaPdf.json()
+              : null;
+
+          throw new Error(
+            erroPdf?.error ||
+            "Os crachás foram emitidos, mas não foi possível gerar o PDF do lote."
+          );
+        }
+
+        const pdfBlob = await respostaPdf.blob();
+
+        const disposicao =
+          respostaPdf.headers.get(
+            "content-disposition"
+          ) || "";
+
+        const resultadoNome =
+          disposicao.match(
+            /filename="?([^";]+)"?/i
+          );
+
+        const nomeArquivo =
+          resultadoNome?.[1] ||
+          `lote-${crachaIds.length}-crachas.pdf`;
+
+        const arquivoPdf = new File(
+          [pdfBlob],
+          nomeArquivo,
+          {
+            type: "application/pdf",
+          }
+        );
+
+        const urlPdf =
+          URL.createObjectURL(arquivoPdf);
+
+        if (abaPdf && !abaPdf.closed) {
+          abaPdf.location.href = urlPdf;
+        } else {
+          const link =
+            document.createElement("a");
+
+          link.href = urlPdf;
+          link.download = nomeArquivo;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+        }
+
+        setTimeout(() => {
+          URL.revokeObjectURL(urlPdf);
+        }, 300000);
+
+        const totalEmitido = Number(
+          dadosEmissao?.resumo?.totalEmitido ||
+          crachaIds.length
+        );
+
+        const totalIgnorado = Number(
+          dadosEmissao?.resumo?.totalIgnorado ||
+          0
+        );
+
+        fecharModalEmissaoCracha(true);
+
+        setAvisoCracha({
+          tipo: "sucesso",
+          texto:
+            totalIgnorado > 0
+              ? `${totalEmitido} crachás emitidos em um único PDF. ${totalIgnorado} cadastro(s) foram ignorados por falta de foto ou indisponibilidade.`
+              : `${totalEmitido} crachás emitidos em um único PDF.`,
+        });
+
+        setTimeout(
+          () => setAvisoCracha(null),
+          8000
+        );
+      } catch (error: any) {
+        abaPdf?.close();
+
+        console.error(
+          "ERRO AO EMITIR LOTE DE CRACHÁS:",
+          error
+        );
+
+        setErroEmissaoCracha(
+          error?.message ||
+          "Não foi possível emitir o lote de crachás."
+        );
+      } finally {
+        setEmitindoCracha(false);
+      }
+
+      return;
     }
   }
 
