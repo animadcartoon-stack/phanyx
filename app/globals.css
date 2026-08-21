@@ -28545,61 +28545,41 @@ html[data-theme="system"] .phanyx-whatsapp-page {
   color: var(--wa-text) !important;
 }
 
-.phanyx-whatsapp-page .whatsapp-history-list > article {
+.phanyx-whatsapp-page .whatsapp-history-list>article {
   background: var(--wa-surface) !important;
   color: var(--wa-text) !important;
 }
 
-.phanyx-whatsapp-page .whatsapp-history-list > article p {
+.phanyx-whatsapp-page .whatsapp-history-list>article p {
   color: var(--wa-text-muted) !important;
 }
 
-.phanyx-whatsapp-page
-  .whatsapp-history-list
-  > article
-  p.font-bold,
-.phanyx-whatsapp-page
-  .whatsapp-history-list
-  > article
-  p.font-semibold {
+.phanyx-whatsapp-page .whatsapp-history-list>article p.font-bold,
+.phanyx-whatsapp-page .whatsapp-history-list>article p.font-semibold {
   color: var(--wa-text) !important;
 }
 
 /* Cards de registrada, enviada, entregue, lida e falhou */
 
-.phanyx-whatsapp-page
-  .whatsapp-history-list
-  > article
-  > .grid
-  > div {
+.phanyx-whatsapp-page .whatsapp-history-list>article>.grid>div {
   background: var(--wa-surface-soft) !important;
   border-color: var(--wa-border) !important;
   color: var(--wa-text) !important;
 }
 
-.phanyx-whatsapp-page
-  .whatsapp-history-list
-  > article
-  > .grid
-  > div
-  p {
+.phanyx-whatsapp-page .whatsapp-history-list>article>.grid>div p {
   color: var(--wa-text) !important;
 }
 
 /* Retornos do webhook */
 
-.phanyx-whatsapp-page
-  .whatsapp-history-list
-  > article
-  > details {
+.phanyx-whatsapp-page .whatsapp-history-list>article>details {
   background: var(--wa-surface-soft) !important;
   border-color: var(--wa-border) !important;
   color: var(--wa-text) !important;
 }
 
-.phanyx-whatsapp-page
-  .whatsapp-history-list
-  summary {
+.phanyx-whatsapp-page .whatsapp-history-list summary {
   color: var(--wa-text) !important;
 }
 
@@ -28640,11 +28620,13 @@ html[data-theme="system"] .phanyx-whatsapp-page {
 .phanyx-whatsapp-page .whatsapp-setup-link {
   background: var(--wa-success) !important;
   color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }
 
 .phanyx-whatsapp-page .whatsapp-setup-link:hover {
   background: var(--wa-success-hover) !important;
   color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }
 
 /* =========================================================
@@ -28653,39 +28635,29 @@ html[data-theme="system"] .phanyx-whatsapp-page {
    ========================================================= */
 
 /* Tema claro */
-html[data-theme="light"]
-  div:has(> #titulo-erro-foto-professor),
-html:not([data-theme])
-  div:has(> #titulo-erro-foto-professor) {
+html[data-theme="light"] div:has(> #titulo-erro-foto-professor),
+html:not([data-theme]) div:has(> #titulo-erro-foto-professor) {
   background: #ffffff !important;
   border-color: #fecaca !important;
   color: #0f172a !important;
 }
 
-html[data-theme="light"]
-  #titulo-erro-foto-professor,
-html:not([data-theme])
-  #titulo-erro-foto-professor {
+html[data-theme="light"] #titulo-erro-foto-professor,
+html:not([data-theme]) #titulo-erro-foto-professor {
   color: #0f172a !important;
   -webkit-text-fill-color: #0f172a !important;
   opacity: 1 !important;
 }
 
-html[data-theme="light"]
-  #titulo-erro-foto-professor + p,
-html:not([data-theme])
-  #titulo-erro-foto-professor + p {
+html[data-theme="light"] #titulo-erro-foto-professor+p,
+html:not([data-theme]) #titulo-erro-foto-professor+p {
   color: #334155 !important;
   -webkit-text-fill-color: #334155 !important;
   opacity: 1 !important;
 }
 
-html[data-theme="light"]
-  #titulo-erro-foto-professor ~ div
-  > button:first-child,
-html:not([data-theme])
-  #titulo-erro-foto-professor ~ div
-  > button:first-child {
+html[data-theme="light"] #titulo-erro-foto-professor~div>button:first-child,
+html:not([data-theme]) #titulo-erro-foto-professor~div>button:first-child {
   background: #ffffff !important;
   border-color: #64748b !important;
   color: #0f172a !important;
@@ -28694,39 +28666,29 @@ html:not([data-theme])
 }
 
 /* Tema escuro e sistema */
-html[data-theme="dark"]
-  div:has(> #titulo-erro-foto-professor),
-html[data-theme="system"]
-  div:has(> #titulo-erro-foto-professor) {
+html[data-theme="dark"] div:has(> #titulo-erro-foto-professor),
+html[data-theme="system"] div:has(> #titulo-erro-foto-professor) {
   background: #0f172a !important;
   border-color: #7f1d1d !important;
   color: #f8fafc !important;
 }
 
-html[data-theme="dark"]
-  #titulo-erro-foto-professor,
-html[data-theme="system"]
-  #titulo-erro-foto-professor {
+html[data-theme="dark"] #titulo-erro-foto-professor,
+html[data-theme="system"] #titulo-erro-foto-professor {
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
   opacity: 1 !important;
 }
 
-html[data-theme="dark"]
-  #titulo-erro-foto-professor + p,
-html[data-theme="system"]
-  #titulo-erro-foto-professor + p {
+html[data-theme="dark"] #titulo-erro-foto-professor+p,
+html[data-theme="system"] #titulo-erro-foto-professor+p {
   color: #cbd5e1 !important;
   -webkit-text-fill-color: #cbd5e1 !important;
   opacity: 1 !important;
 }
 
-html[data-theme="dark"]
-  #titulo-erro-foto-professor ~ div
-  > button:first-child,
-html[data-theme="system"]
-  #titulo-erro-foto-professor ~ div
-  > button:first-child {
+html[data-theme="dark"] #titulo-erro-foto-professor~div>button:first-child,
+html[data-theme="system"] #titulo-erro-foto-professor~div>button:first-child {
   background: #1e293b !important;
   border-color: #64748b !important;
   color: #ffffff !important;
