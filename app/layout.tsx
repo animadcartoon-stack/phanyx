@@ -1,5 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+
+import { NextIntlClientProvider } from "next-intl";
+import {
+  getLocale,
+  getMessages,
+} from "next-intl/server";
+
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 import GoogleAnalyticsPHANYX from "@/components/google/GoogleAnalyticsPHANYX";
@@ -83,8 +90,11 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
 
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="pt-BR">
+    <html lang={locale}>
       <head>
         <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Montserrat&family=Roboto&family=Open+Sans&family=Lato&family=Playfair+Display&family=Merriweather&family=Libre+Baskerville&family=Dancing+Script&family=Great+Vibes&family=Pacifico&family=Satisfy&family=Allura&family=Alex+Brush&family=Sacramento&family=Indie+Flower&family=Caveat&display=swap" rel="stylesheet" />
         <meta name="google-site-verification" content="NwoAwG25GlnNtcQGaQ2PAIe0EXXGQl6VrogGfBj563A" />
@@ -102,14 +112,19 @@ export default async function RootLayout({
       >
         <PhanyxThemeBoot />
         <PWARegister />
-        <AuthProvider>
-          <GoogleAnalyticsPHANYX />
-          <GoogleTagManagerInstituicao />
-          <GoogleAdsPHANYX />
-          <SearchConsolePHANYX />
-          <PhanyxThemeGuard />
-          {children}
-        </AuthProvider>
+        <NextIntlClientProvider
+          locale={locale}
+          messages={messages}
+        >
+          <AuthProvider>
+            <GoogleAnalyticsPHANYX />
+            <GoogleTagManagerInstituicao />
+            <GoogleAdsPHANYX />
+            <SearchConsolePHANYX />
+            <PhanyxThemeGuard />
+            {children}
+          </AuthProvider>
+        </NextIntlClientProvider>
 
       </body>
     </html>

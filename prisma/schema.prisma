@@ -320,6 +320,7 @@ model User {
   atividadesPublicadas    Atividade[]           @relation("AtividadePublicadaPor")
   anexosAtividadeCriados  AtividadeAnexo[]      @relation("AtividadeAnexoCriadoPor")
   crachaModelosCriados    CrachaModelo[]        @relation("CrachaModeloCriadoPor")
+  crachasLotesCriados     CrachaLoteEmissao[]   @relation("CrachaLoteCriadoPor")
 
   feriasRHCriadas                  FeriasRH[]               @relation("FeriasRHCriadoPor")
   feriasRHArquivadas               FeriasRH[]               @relation("FeriasRHArquivadaPor")
@@ -3939,32 +3940,123 @@ model PreferenciaAgendaOperacional {
 }
 
 model CrachaLoteEmissao {
-  id            Int @id @default(autoincrement())
+  id            Int  @id @default(autoincrement())
   instituicaoId Int
   modeloId      Int
+  criadoPorId   Int?
 
-  tipoPessoa  String
-  filtrosJson Json?
+  chaveIdempotencia String  @unique
+  nome              String?
+  tipoPessoa        String
+  filtrosJson       Json?
 
-  status      String @default("PENDENTE") // PENDENTE | PROCESSANDO | CONCLUIDO | ERRO | CANCELADO
-  total       Int    @default(0)
-  processados Int    @default(0)
-  erros       Int    @default(0)
+  status String @default("PENDENTE") // PENDENTE | PREPARANDO | PROCESSANDO | CONCLUIDO | CONCLUIDO_PARCIAL | ERRO | CANCELADO
 
-  arquivoZipUrl String?
-  arquivoPdfUrl String?
+  total       Int @default(0)
+  aptos       Int @default(0)
+  semFoto     Int @default(0)
+  processados Int @default(0)
+  erros       Int @default(0)
+
+  tamanhoArquivo     Int @default(500)
+  totalArquivos      Int @default(0)
+  arquivosConcluidos Int @default(0)
+
+  cancelamentoSolicitado Boolean @default(false)
+  erroMensagem           String? @db.Text
+
+  arquivoZipUrl      String?
+  arquivoZipPathname String?
+  arquivoPdfUrl      String?
 
   criadoEm     DateTime  @default(now())
   atualizadoEm DateTime  @updatedAt
   iniciadoEm   DateTime?
   finalizadoEm DateTime?
 
-  instituicao Instituicao  @relation(fields: [instituicaoId], references: [id])
-  modelo      CrachaModelo @relation(fields: [modeloId], references: [id])
+  instituicao Instituicao  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  modelo      CrachaModelo @relation(fields: [modeloId], references: [id], onDelete: Restrict)
+  criadoPor   User?        @relation("CrachaLoteCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+
+  arquivos CrachaLoteArquivo[]
+  itens    CrachaLoteItem[]
 
   @@index([instituicaoId])
   @@index([modeloId])
-  @@index([status])
+  @@index([criadoPorId])
+  @@index([instituicaoId, status])
+  @@index([status, criadoEm])
+}
+
+model CrachaLoteArquivo {
+  id     Int @id @default(autoincrement())
+  loteId Int
+  numero Int
+
+  status String @default("PENDENTE") // PENDENTE | PROCESSANDO | CONCLUIDO | ERRO | CANCELADO
+
+  total       Int @default(0)
+  processados Int @default(0)
+  erros       Int @default(0)
+  tentativas  Int @default(0)
+
+  primeiraOrdem Int
+  ultimaOrdem   Int
+
+  pdfUrl       String?
+  pdfPathname  String?
+  tamanhoBytes BigInt?
+
+  erroMensagem String? @db.Text
+
+  criadoEm     DateTime  @default(now())
+  atualizadoEm DateTime  @updatedAt
+  iniciadoEm   DateTime?
+  finalizadoEm DateTime?
+
+  lote  CrachaLoteEmissao @relation(fields: [loteId], references: [id], onDelete: Cascade)
+  itens CrachaLoteItem[]
+
+  @@unique([loteId, numero])
+  @@index([loteId, status])
+  @@index([status, criadoEm])
+}
+
+model CrachaLoteItem {
+  id        Int  @id @default(autoincrement())
+  loteId    Int
+  arquivoId Int?
+
+  ordem      Int
+  pessoaId   Int
+  tipoPessoa String
+
+  status String @default("PENDENTE") // PENDENTE | PROCESSANDO | EMITIDO | SEM_FOTO | ERRO | IGNORADO | CANCELADO
+
+  nomeSnapshot          String?
+  identificacaoSnapshot String?
+  fotoUrlSnapshot       String?
+
+  codigoCracha    String?
+  crachaEmitidoId Int?    @unique
+
+  erroMensagem String? @db.Text
+
+  criadoEm     DateTime  @default(now())
+  atualizadoEm DateTime  @updatedAt
+  processadoEm DateTime?
+
+  lote CrachaLoteEmissao @relation(fields: [loteId], references: [id], onDelete: Cascade)
+
+  arquivo CrachaLoteArquivo? @relation(fields: [arquivoId], references: [id], onDelete: SetNull)
+
+  crachaEmitido CrachaEmitido? @relation(fields: [crachaEmitidoId], references: [id], onDelete: SetNull)
+
+  @@unique([loteId, pessoaId])
+  @@unique([loteId, ordem])
+  @@index([arquivoId, status])
+  @@index([loteId, status])
+  @@index([tipoPessoa, pessoaId])
 }
 
 model CrachaModelo {
@@ -4032,8 +4124,9 @@ model CrachaEmitido {
   emitidoEm    DateTime @default(now())
   emitidoPorId Int?
 
-  instituicao Instituicao  @relation(fields: [instituicaoId], references: [id])
-  modelo      CrachaModelo @relation(fields: [modeloId], references: [id])
+  instituicao Instituicao     @relation(fields: [instituicaoId], references: [id])
+  modelo      CrachaModelo    @relation(fields: [modeloId], references: [id])
+  itemLote    CrachaLoteItem?
 
   @@index([instituicaoId])
   @@index([modeloId])

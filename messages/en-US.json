@@ -1,0 +1,9 @@
+{
+    "Common":  {
+                   "cancel":  "Cancel",
+                   "save":  "Save",
+                   "loading":  "Loading...",
+                   "language":  "Language",
+                   "close":  "Close"
+               }
+}

@@ -868,6 +868,59 @@ export default function BibliotecaItemPage() {
   ] = useState(false);
 
   const [
+    exemplarParaConclusaoManutencao,
+    setExemplarParaConclusaoManutencao,
+  ] = useState<ExemplarItem | null>(
+    null
+  );
+
+  const [
+    resultadoManutencao,
+    setResultadoManutencao,
+  ] = useState<
+    "REPARADO" | "IRRECUPERAVEL"
+  >("REPARADO");
+
+  const [
+    observacaoConclusaoManutencao,
+    setObservacaoConclusaoManutencao,
+  ] = useState("");
+
+  const [
+    custoFinalManutencao,
+    setCustoFinalManutencao,
+  ] = useState("");
+
+  const [
+    concluindoManutencao,
+    setConcluindoManutencao,
+  ] = useState(false);
+
+  const [
+    exemplarParaCancelamentoManutencao,
+    setExemplarParaCancelamentoManutencao,
+  ] = useState<ExemplarItem | null>(
+    null
+  );
+
+  const [
+    motivoCancelamentoManutencao,
+    setMotivoCancelamentoManutencao,
+  ] = useState("");
+
+  const [
+    statusRetornoCancelamentoManutencao,
+    setStatusRetornoCancelamentoManutencao,
+  ] = useState<
+    "DANIFICADO" | "INDISPONIVEL"
+  >("DANIFICADO");
+
+  const [
+    cancelandoManutencao,
+    setCancelandoManutencao,
+  ] = useState(false);
+
+  const [
     carregandoExemplares,
     setCarregandoExemplares,
   ] = useState(false);
@@ -2931,6 +2984,298 @@ export default function BibliotecaItemPage() {
     }
   }
 
+  function abrirConclusaoManutencao(
+    exemplar: ExemplarItem
+  ) {
+    if (!exemplar.manutencaoAberta) {
+      setToast({
+        tipo: "erro",
+        mensagem:
+          "Não foi encontrada uma manutenção aberta para este exemplar.",
+      });
+
+      return;
+    }
+
+    setExemplarParaConclusaoManutencao(
+      exemplar
+    );
+
+    setResultadoManutencao("REPARADO");
+    setObservacaoConclusaoManutencao(
+      ""
+    );
+    setCustoFinalManutencao("");
+  }
+
+  function fecharConclusaoManutencao() {
+    if (concluindoManutencao) {
+      return;
+    }
+
+    setExemplarParaConclusaoManutencao(
+      null
+    );
+
+    setResultadoManutencao("REPARADO");
+    setObservacaoConclusaoManutencao(
+      ""
+    );
+    setCustoFinalManutencao("");
+  }
+
+  async function concluirManutencao() {
+    const manutencao =
+      exemplarParaConclusaoManutencao
+        ?.manutencaoAberta;
+
+    if (
+      !exemplarParaConclusaoManutencao ||
+      !manutencao ||
+      concluindoManutencao ||
+      !podeGerenciarManutencao ||
+      impersonacao
+    ) {
+      return;
+    }
+
+    if (
+      resultadoManutencao ===
+      "IRRECUPERAVEL" &&
+      !observacaoConclusaoManutencao.trim()
+    ) {
+      setToast({
+        tipo: "erro",
+        mensagem:
+          "Descreva por que o exemplar foi considerado irrecuperável.",
+      });
+
+      return;
+    }
+
+    setConcluindoManutencao(true);
+
+    try {
+      const resposta = await fetch(
+        `/api/admin/biblioteca/manutencoes/${manutencao.id}/concluir`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            resultado:
+              resultadoManutencao,
+
+            observacaoConclusao:
+              observacaoConclusaoManutencao
+                .trim() ||
+              null,
+
+            custoFinal:
+              custoFinalManutencao
+                .trim() ||
+              null,
+          }),
+        }
+      );
+
+      const dados =
+        (await resposta.json()) as {
+          ok?: boolean;
+          mensagem?: string;
+          error?: string;
+        };
+
+      if (!resposta.ok) {
+        throw new Error(
+          dados.error ||
+          dados.mensagem ||
+          "Não foi possível concluir a manutenção."
+        );
+      }
+
+      setExemplarParaConclusaoManutencao(
+        null
+      );
+
+      setResultadoManutencao("REPARADO");
+      setObservacaoConclusaoManutencao(
+        ""
+      );
+      setCustoFinalManutencao("");
+
+      setToast({
+        tipo: "sucesso",
+        mensagem:
+          dados.mensagem ||
+          "Manutenção concluída com sucesso.",
+      });
+
+      setAtualizacao(
+        (valor) => valor + 1
+      );
+    } catch (falha) {
+      setToast({
+        tipo: "erro",
+        mensagem:
+          falha instanceof Error
+            ? falha.message
+            : "Não foi possível concluir a manutenção.",
+      });
+    } finally {
+      setConcluindoManutencao(false);
+    }
+  }
+
+  function abrirCancelamentoManutencao(
+    exemplar: ExemplarItem
+  ) {
+    if (!exemplar.manutencaoAberta) {
+      setToast({
+        tipo: "erro",
+        mensagem:
+          "Não foi encontrada uma manutenção aberta para este exemplar.",
+      });
+
+      return;
+    }
+
+    setExemplarParaCancelamentoManutencao(
+      exemplar
+    );
+
+    setMotivoCancelamentoManutencao(
+      ""
+    );
+
+    setStatusRetornoCancelamentoManutencao(
+      "DANIFICADO"
+    );
+  }
+
+  function fecharCancelamentoManutencao() {
+    if (cancelandoManutencao) {
+      return;
+    }
+
+    setExemplarParaCancelamentoManutencao(
+      null
+    );
+
+    setMotivoCancelamentoManutencao(
+      ""
+    );
+
+    setStatusRetornoCancelamentoManutencao(
+      "DANIFICADO"
+    );
+  }
+
+  async function cancelarManutencao() {
+    const manutencao =
+      exemplarParaCancelamentoManutencao
+        ?.manutencaoAberta;
+
+    if (
+      !exemplarParaCancelamentoManutencao ||
+      !manutencao ||
+      cancelandoManutencao ||
+      !podeGerenciarManutencao ||
+      impersonacao
+    ) {
+      return;
+    }
+
+    if (
+      !motivoCancelamentoManutencao.trim()
+    ) {
+      setToast({
+        tipo: "erro",
+        mensagem:
+          "Informe o motivo do cancelamento da manutenção.",
+      });
+
+      return;
+    }
+
+    setCancelandoManutencao(true);
+
+    try {
+      const resposta = await fetch(
+        `/api/admin/biblioteca/manutencoes/${manutencao.id}/cancelar`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            motivoCancelamento:
+              motivoCancelamentoManutencao
+                .trim(),
+
+            statusRetorno:
+              statusRetornoCancelamentoManutencao,
+          }),
+        }
+      );
+
+      const dados =
+        (await resposta.json()) as {
+          ok?: boolean;
+          mensagem?: string;
+          error?: string;
+        };
+
+      if (!resposta.ok) {
+        throw new Error(
+          dados.error ||
+          dados.mensagem ||
+          "Não foi possível cancelar a manutenção."
+        );
+      }
+
+      setExemplarParaCancelamentoManutencao(
+        null
+      );
+
+      setMotivoCancelamentoManutencao(
+        ""
+      );
+
+      setStatusRetornoCancelamentoManutencao(
+        "DANIFICADO"
+      );
+
+      setToast({
+        tipo: "sucesso",
+        mensagem:
+          dados.mensagem ||
+          "Manutenção cancelada com sucesso.",
+      });
+
+      setAtualizacao(
+        (valor) => valor + 1
+      );
+    } catch (falha) {
+      setToast({
+        tipo: "erro",
+        mensagem:
+          falha instanceof Error
+            ? falha.message
+            : "Não foi possível cancelar a manutenção.",
+      });
+    } finally {
+      setCancelandoManutencao(false);
+    }
+  }
+
   return (
     <main className="phanyx-biblioteca-acervo-page phanyx-biblioteca-item-page">
       <div className="bib-page-shell">
@@ -4023,6 +4368,42 @@ export default function BibliotecaItemPage() {
                               }
                             >
                               ✏️ Editar
+                            </button>
+                          ) : null}
+
+                          {podeGerenciarManutencao &&
+                            !impersonacao &&
+                            exemplar.tipo === "FISICO" &&
+                            exemplar.status === "MANUTENCAO" &&
+                            exemplar.manutencaoAberta ? (
+                            <button
+                              type="button"
+                              className="bib-button bib-button-primary"
+                              onClick={() =>
+                                abrirConclusaoManutencao(
+                                  exemplar
+                                )
+                              }
+                            >
+                              🛠️ Concluir manutenção
+                            </button>
+                          ) : null}
+
+                          {podeGerenciarManutencao &&
+                            !impersonacao &&
+                            exemplar.tipo === "FISICO" &&
+                            exemplar.status === "MANUTENCAO" &&
+                            exemplar.manutencaoAberta ? (
+                            <button
+                              type="button"
+                              className="bib-button bib-button-secondary bib-button-maintenance"
+                              onClick={() =>
+                                abrirCancelamentoManutencao(
+                                  exemplar
+                                )
+                              }
+                            >
+                              ✕ Cancelar manutenção
                             </button>
                           ) : null}
 
@@ -5275,6 +5656,428 @@ export default function BibliotecaItemPage() {
                   {devolvendoExemplar
                     ? "Registrando..."
                     : "📥 Registrar devolução"}
+                </button>
+              </footer>
+            </form>
+          </section>
+        </div>
+      ) : null}
+
+      {exemplarParaCancelamentoManutencao &&
+        exemplarParaCancelamentoManutencao
+          .manutencaoAberta ? (
+        <div
+          className="bib-modal-backdrop"
+          role="presentation"
+        >
+          <section
+            className="bib-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="titulo-cancelamento-manutencao"
+          >
+            <header className="bib-modal-header">
+              <div>
+                <span className="bib-modal-kicker">
+                  Biblioteca Virtual
+                </span>
+
+                <h2 id="titulo-cancelamento-manutencao">
+                  Cancelar manutenção
+                </h2>
+
+                <p>
+                  Informe por que o serviço de
+                  manutenção foi cancelado.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="bib-modal-close"
+                onClick={
+                  fecharCancelamentoManutencao
+                }
+                disabled={cancelandoManutencao}
+                aria-label="Fechar"
+              >
+                ×
+              </button>
+            </header>
+
+            <form
+              onSubmit={(evento) => {
+                evento.preventDefault();
+                void cancelarManutencao();
+              }}
+            >
+              <div className="bib-modal-body">
+                <div className="bib-feedback">
+                  <div>
+                    <strong>
+                      {
+                        exemplarParaCancelamentoManutencao
+                          .codigoInterno
+                      }
+                    </strong>
+
+                    <p>
+                      {item.titulo}
+
+                      {exemplarParaCancelamentoManutencao
+                        .numeroTombo
+                        ? ` · Tombo ${exemplarParaCancelamentoManutencao.numeroTombo}`
+                        : ""}
+                    </p>
+
+                    <p>
+                      Manutenção atual:{" "}
+                      {
+                        exemplarParaCancelamentoManutencao
+                          .manutencaoAberta.motivo
+                      }
+                    </p>
+                  </div>
+                </div>
+
+                <label className="bib-field">
+                  <span>
+                    Motivo do cancelamento{" "}
+                    <b aria-hidden="true">*</b>
+                  </span>
+
+                  <textarea
+                    className="bib-input bib-textarea"
+                    value={
+                      motivoCancelamentoManutencao
+                    }
+                    onChange={(evento) =>
+                      setMotivoCancelamentoManutencao(
+                        evento.target.value
+                      )
+                    }
+                    placeholder="Ex.: serviço não autorizado, fornecedor indisponível ou registro aberto por engano."
+                    maxLength={5000}
+                    required
+                    autoFocus
+                    disabled={cancelandoManutencao}
+                  />
+                </label>
+
+                <label className="bib-field">
+                  <span>
+                    Situação do exemplar após o
+                    cancelamento{" "}
+                    <b aria-hidden="true">*</b>
+                  </span>
+
+                  <select
+                    className="bib-input"
+                    value={
+                      statusRetornoCancelamentoManutencao
+                    }
+                    onChange={(evento) =>
+                      setStatusRetornoCancelamentoManutencao(
+                        evento.target.value as
+                        | "DANIFICADO"
+                        | "INDISPONIVEL"
+                      )
+                    }
+                    disabled={cancelandoManutencao}
+                  >
+                    <option value="DANIFICADO">
+                      Danificado
+                    </option>
+
+                    <option value="INDISPONIVEL">
+                      Indisponível
+                    </option>
+                  </select>
+
+                  <small>
+                    O exemplar não voltará
+                    automaticamente a ficar disponível.
+                  </small>
+                </label>
+
+                <div className="bib-feedback bib-feedback-warning">
+                  <div>
+                    <strong>
+                      O exemplar continuará fora de
+                      circulação
+                    </strong>
+
+                    <p>
+                      Depois do cancelamento, será
+                      necessária uma nova avaliação antes
+                      que ele possa ser emprestado.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <footer className="bib-modal-footer">
+                <button
+                  type="button"
+                  className="bib-button bib-button-secondary"
+                  onClick={
+                    fecharCancelamentoManutencao
+                  }
+                  disabled={cancelandoManutencao}
+                >
+                  Voltar
+                </button>
+
+                <button
+                  type="submit"
+                  className="bib-button bib-button-danger"
+                  disabled={
+                    cancelandoManutencao ||
+                    !motivoCancelamentoManutencao.trim()
+                  }
+                >
+                  {cancelandoManutencao
+                    ? "Cancelando..."
+                    : "✕ Cancelar manutenção"}
+                </button>
+              </footer>
+            </form>
+          </section>
+        </div>
+      ) : null}
+
+      {exemplarParaConclusaoManutencao &&
+        exemplarParaConclusaoManutencao
+          .manutencaoAberta ? (
+        <div
+          className="bib-modal-backdrop"
+          role="presentation"
+        >
+          <section
+            className="bib-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="titulo-conclusao-manutencao"
+          >
+            <header className="bib-modal-header">
+              <div>
+                <span className="bib-modal-kicker">
+                  Biblioteca Virtual
+                </span>
+
+                <h2 id="titulo-conclusao-manutencao">
+                  Concluir manutenção
+                </h2>
+
+                <p>
+                  Informe o resultado do serviço
+                  realizado no exemplar.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="bib-modal-close"
+                onClick={
+                  fecharConclusaoManutencao
+                }
+                disabled={concluindoManutencao}
+                aria-label="Fechar"
+              >
+                ×
+              </button>
+            </header>
+
+            <form
+              onSubmit={(evento) => {
+                evento.preventDefault();
+                void concluirManutencao();
+              }}
+            >
+              <div className="bib-modal-body">
+                <div className="bib-feedback">
+                  <div>
+                    <strong>
+                      {
+                        exemplarParaConclusaoManutencao
+                          .codigoInterno
+                      }
+                    </strong>
+
+                    <p>
+                      {item.titulo}
+
+                      {exemplarParaConclusaoManutencao
+                        .numeroTombo
+                        ? ` · Tombo ${exemplarParaConclusaoManutencao.numeroTombo}`
+                        : ""}
+                    </p>
+
+                    <p>
+                      Motivo da manutenção:{" "}
+                      {
+                        exemplarParaConclusaoManutencao
+                          .manutencaoAberta.motivo
+                      }
+                    </p>
+                  </div>
+                </div>
+
+                <label className="bib-field">
+                  <span>
+                    Resultado da manutenção{" "}
+                    <b aria-hidden="true">*</b>
+                  </span>
+
+                  <select
+                    className="bib-input"
+                    value={resultadoManutencao}
+                    onChange={(evento) =>
+                      setResultadoManutencao(
+                        evento.target.value as
+                        | "REPARADO"
+                        | "IRRECUPERAVEL"
+                      )
+                    }
+                    disabled={
+                      concluindoManutencao
+                    }
+                  >
+                    <option value="REPARADO">
+                      Reparado
+                    </option>
+
+                    <option value="IRRECUPERAVEL">
+                      Irrecuperável
+                    </option>
+                  </select>
+
+                  <small>
+                    O resultado definirá se o exemplar
+                    poderá voltar à circulação.
+                  </small>
+                </label>
+
+                {resultadoManutencao ===
+                  "REPARADO" ? (
+                  <div className="bib-feedback bib-feedback-success">
+                    <div>
+                      <strong>
+                        Voltará a ficar disponível
+                      </strong>
+
+                      <p>
+                        O exemplar poderá ser
+                        emprestado novamente.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bib-feedback bib-feedback-danger">
+                    <div>
+                      <strong>
+                        Permanecerá fora de circulação
+                      </strong>
+
+                      <p>
+                        O exemplar será marcado como
+                        danificado e não poderá ser
+                        emprestado.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                <label className="bib-field">
+                  <span>
+                    Observação da conclusão
+
+                    {resultadoManutencao ===
+                      "IRRECUPERAVEL" ? (
+                      <> <b aria-hidden="true">*</b></>
+                    ) : null}
+                  </span>
+
+                  <textarea
+                    className="bib-input bib-textarea"
+                    value={
+                      observacaoConclusaoManutencao
+                    }
+                    onChange={(evento) =>
+                      setObservacaoConclusaoManutencao(
+                        evento.target.value
+                      )
+                    }
+                    placeholder={
+                      resultadoManutencao ===
+                        "IRRECUPERAVEL"
+                        ? "Descreva por que o exemplar não pôde ser recuperado."
+                        : "Ex.: capa restaurada e páginas novamente fixadas."
+                    }
+                    maxLength={5000}
+                    required={
+                      resultadoManutencao ===
+                      "IRRECUPERAVEL"
+                    }
+                    disabled={
+                      concluindoManutencao
+                    }
+                  />
+                </label>
+
+                <label className="bib-field">
+                  <span>Custo final</span>
+
+                  <input
+                    className="bib-input"
+                    type="text"
+                    inputMode="decimal"
+                    value={custoFinalManutencao}
+                    onChange={(evento) =>
+                      setCustoFinalManutencao(
+                        evento.target.value
+                      )
+                    }
+                    placeholder="0,00"
+                    disabled={
+                      concluindoManutencao
+                    }
+                  />
+                </label>
+              </div>
+
+              <footer className="bib-modal-footer">
+                <button
+                  type="button"
+                  className="bib-button bib-button-secondary"
+                  onClick={
+                    fecharConclusaoManutencao
+                  }
+                  disabled={concluindoManutencao}
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="submit"
+                  className={`bib-button ${resultadoManutencao ===
+                    "IRRECUPERAVEL"
+                    ? "bib-button-danger"
+                    : "bib-button-primary"
+                    }`}
+                  disabled={
+                    concluindoManutencao ||
+                    (resultadoManutencao ===
+                      "IRRECUPERAVEL" &&
+                      !observacaoConclusaoManutencao.trim())
+                  }
+                >
+                  {concluindoManutencao
+                    ? "Concluindo..."
+                    : resultadoManutencao ===
+                      "IRRECUPERAVEL"
+                      ? "⚠️ Declarar irrecuperável"
+                      : "🛠️ Concluir como reparado"}
                 </button>
               </footer>
             </form>
