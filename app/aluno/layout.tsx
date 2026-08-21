@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { getTranslations } from "next-intl/server";
 import jwt from "jsonwebtoken";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -10,12 +11,17 @@ import InstallPromptPHANYX from "@/components/pwa/InstallPromptPHANYX";
 import PhanyxThemeToggle from "@/components/theme/PhanyxThemeToggle";
 import { paginaVisivel } from "@/lib/portal-config";
 import ImpersonacaoBanner from "@/components/suporte/ImpersonacaoBanner";
+import SeletorIdioma from "@/components/internacionalizacao/SeletorIdioma";
 
 export default async function AlunoLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const tAluno =
+    await getTranslations(
+      "StudentLayout"
+    );
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
 
@@ -53,12 +59,12 @@ export default async function AlunoLayout({
       instituicaoId: decoded.instituicaoId,
     },
     select: {
-  id: true,
-  nome: true,
-  fotoPerfil: true,
-  statusAluno: true,
-  instituicaoId: true,
-},
+      id: true,
+      nome: true,
+      fotoPerfil: true,
+      statusAluno: true,
+      instituicaoId: true,
+    },
   });
 
   if (!aluno) {
@@ -80,167 +86,193 @@ export default async function AlunoLayout({
   );
 
   if (
-  bloqueioFinanceiroAtivo &&
-  aluno.statusAluno === "INADIMPLENTE"
-) {
-  return (
-    <>
-      <ImpersonacaoBanner />
+    bloqueioFinanceiroAtivo &&
+    aluno.statusAluno === "INADIMPLENTE"
+  ) {
+    return (
+      <>
+        <ImpersonacaoBanner />
 
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-amber-50 flex items-center justify-center p-6">
-        <div className="w-full max-w-3xl bg-white border border-red-100 rounded-3xl shadow-xl overflow-hidden">
-          <div className="bg-gradient-to-r from-red-600 to-amber-500 px-8 py-8 text-white">
-            <div className="flex items-center gap-4">
-              <div className="h-16 w-16 rounded-2xl bg-white/15 flex items-center justify-center text-3xl">
-                🚫
+        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-red-50 via-white to-amber-50 p-6 dark:from-slate-950 dark:via-slate-900 dark:to-red-950">
+          <div className="w-full max-w-3xl overflow-hidden rounded-3xl border border-red-200 bg-white shadow-xl dark:border-red-900 dark:bg-slate-900">
+            <div className="bg-gradient-to-r from-red-600 to-amber-500 px-8 py-8 text-white">
+              <div className="flex items-center gap-4">
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/15 text-3xl">
+                  🚫
+                </div>
+
+                <div>
+                  <p className="text-sm uppercase tracking-[0.2em] text-white/90">
+                    {tAluno(
+                      "academicAccessBlocked"
+                    )}
+                  </p>
+
+                  <h1 className="text-2xl font-bold text-white md:text-3xl">
+                    {tAluno(
+                      "financialRegularizationRequired"
+                    )}
+                  </h1>
+                </div>
               </div>
+            </div>
 
-              <div>
-                <p className="text-sm uppercase tracking-[0.2em] text-white/80">
-                  Acesso acadêmico bloqueado
+            <div className="space-y-6 p-8 md:p-10">
+              <div className="space-y-3">
+                <p className="text-lg text-slate-900 dark:text-white">
+                  {tAluno("greeting", {
+                    name: aluno.nome,
+                  })}
                 </p>
-                <h1 className="text-2xl md:text-3xl font-bold">
-                  Regularização financeira necessária
-                </h1>
+
+                <p className="leading-7 text-slate-700 dark:text-slate-200">
+                  {tAluno(
+                    "blockedDescription"
+                  )}
+                </p>
               </div>
-            </div>
-          </div>
 
-          <div className="p-8 md:p-10 space-y-6">
-            <div className="space-y-3">
-              <p className="text-gray-700 text-lg">
-                Olá, <strong>{aluno.nome}</strong>.
-              </p>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="rounded-2xl border border-red-200 bg-red-50 p-5 dark:border-red-800 dark:bg-red-950/40">
+                  <h2 className="mb-2 font-semibold text-red-900 dark:text-red-100">
+                    {tAluno(
+                      "meaningTitle"
+                    )}
+                  </h2>
 
-              <p className="text-gray-600 leading-7">
-                Seu acesso ao ambiente acadêmico está temporariamente bloqueado
-                por pendência financeira registrada pela instituição.
-              </p>
-            </div>
+                  <p className="text-sm leading-6 text-red-800 dark:text-red-200">
+                    {tAluno(
+                      "meaningDescription"
+                    )}
+                  </p>
+                </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="rounded-2xl border border-red-200 bg-red-50 p-5">
-                <h2 className="font-semibold text-red-800 mb-2">
-                  O que isso significa
+                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 dark:border-amber-800 dark:bg-amber-950/40">
+                  <h2 className="mb-2 font-semibold text-amber-900 dark:text-amber-100">
+                    {tAluno(
+                      "unlockTitle"
+                    )}
+                  </h2>
+
+                  <p className="text-sm leading-6 text-amber-800 dark:text-amber-200">
+                    {tAluno(
+                      "unlockDescription"
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-700 dark:bg-slate-800">
+                <h2 className="mb-2 font-semibold text-slate-950 dark:text-white">
+                  {tAluno(
+                    "importantTitle"
+                  )}
                 </h2>
-                <p className="text-sm text-red-700 leading-6">
-                  Enquanto a pendência estiver em aberto, o acesso às áreas
-                  acadêmicas poderá permanecer indisponível.
+
+                <p className="text-sm leading-6 text-slate-700 dark:text-slate-200">
+                  {tAluno(
+                    "importantDescription"
+                  )}
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
-                <h2 className="font-semibold text-amber-800 mb-2">
-                  Como liberar o acesso
-                </h2>
-                <p className="text-sm text-amber-700 leading-6">
-                  Entre em contato com o setor financeiro ou secretaria da sua
-                  instituição para regularizar a situação.
-                </p>
-              </div>
-            </div>
-
-            <div className="rounded-2xl border bg-gray-50 p-5">
-              <h2 className="font-semibold text-gray-900 mb-2">Importante</h2>
-              <p className="text-sm text-gray-600 leading-6">
-                Após a baixa do pagamento no sistema, o acesso poderá ser
-                restabelecido automaticamente, de acordo com as regras da
-                instituição.
-              </p>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-3 pt-2">
-              <a
-                href="/login?portal=aluno"
-                className="inline-flex items-center justify-center rounded-xl px-5 py-3 bg-gray-900 text-white font-medium hover:bg-black transition"
-              >
-                Voltar para o login
-              </a>
-
-              <form action="/api/auth/logout-aluno" method="post">
-                <button
-                  type="submit"
-                  className="rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-600 shadow-sm transition hover:bg-red-50"
+              <div className="flex flex-col gap-3 pt-2 sm:flex-row">
+                <a
+                  href="/login?portal=aluno"
+                  className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-5 py-3 font-medium text-white transition hover:bg-black dark:bg-blue-600 dark:hover:bg-blue-700"
                 >
-                  Sair
-                </button>
-              </form>
-            </div>
+                  {tAluno(
+                    "backToLogin"
+                  )}
+                </a>
 
-            <div className="pt-2 text-xs text-gray-400">
-              PHANYX • Controle acadêmico e financeiro
+                <form
+                  action="/api/auth/logout-aluno"
+                  method="post"
+                >
+                  <button
+                    type="submit"
+                    className="rounded-xl border border-red-300 bg-white px-4 py-3 text-sm font-semibold text-red-700 shadow-sm transition hover:bg-red-50 dark:border-red-700 dark:bg-slate-900 dark:text-red-300 dark:hover:bg-red-950/40"
+                  >
+                    {tAluno("logout")}
+                  </button>
+                </form>
+              </div>
+
+              <div className="pt-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+                {tAluno("footer")}
+              </div>
             </div>
           </div>
         </div>
-      </div>
       </>
     );
   }
 
   const configuracaoManualRematricula =
-  await prisma.configuracaoPortalInstituicao.findFirst({
+    await prisma.configuracaoPortalInstituicao.findFirst({
+      where: {
+        instituicaoId: aluno.instituicaoId,
+        portal: "ALUNO",
+        chavePagina: "aluno.rematricula",
+      },
+      select: {
+        visivel: true,
+        modoVisibilidade: true,
+      },
+    });
+
+  const matriculaAtual = await prisma.matricula.findFirst({
     where: {
+      alunoId: aluno.id,
       instituicaoId: aluno.instituicaoId,
-      portal: "ALUNO",
-      chavePagina: "aluno.rematricula",
+      cursoId: {
+        not: null,
+      },
+      OR: [
+        {
+          status: "ATIVA",
+        },
+        {
+          status: "A_INICIAR",
+        },
+      ],
     },
+    orderBy: [
+      {
+        updatedAt: "desc",
+      },
+      {
+        createdAt: "desc",
+      },
+    ],
     select: {
-      visivel: true,
-      modoVisibilidade: true,
+      id: true,
+      cursoId: true,
+      semestre: true,
+      cursoSemestre: {
+        select: {
+          numero: true,
+        },
+      },
     },
   });
 
-const matriculaAtual = await prisma.matricula.findFirst({
-  where: {
-    alunoId: aluno.id,
-    instituicaoId: aluno.instituicaoId,
-    cursoId: {
-      not: null,
-    },
-    OR: [
-      {
-        status: "ATIVA",
-      },
-      {
-        status: "A_INICIAR",
-      },
-    ],
-  },
-  orderBy: [
-    {
-      updatedAt: "desc",
-    },
-    {
-      createdAt: "desc",
-    },
-  ],
-  select: {
-    id: true,
-    cursoId: true,
-    semestre: true,
-    cursoSemestre: {
-      select: {
-        numero: true,
-      },
-    },
-  },
-});
+  const semestreAtual =
+    matriculaAtual?.cursoSemestre?.numero ??
+    matriculaAtual?.semestre ??
+    null;
 
-const semestreAtual =
-  matriculaAtual?.cursoSemestre?.numero ??
-  matriculaAtual?.semestre ??
-  null;
+  const proximoSemestreNumero =
+    semestreAtual !== null
+      ? semestreAtual + 1
+      : null;
 
-const proximoSemestreNumero =
-  semestreAtual !== null
-    ? semestreAtual + 1
-    : null;
+  const agora = new Date();
 
-const agora = new Date();
-
-const periodoRematriculaAberto =
-  matriculaAtual?.cursoId
-    ? await prisma.periodoMatricula.findFirst({
+  const periodoRematriculaAberto =
+    matriculaAtual?.cursoId
+      ? await prisma.periodoMatricula.findFirst({
         where: {
           instituicaoId: aluno.instituicaoId,
           tipo: "REMATRICULA",
@@ -263,9 +295,9 @@ const periodoRematriculaAberto =
           ],
           ...(proximoSemestreNumero !== null
             ? {
-                semestreNumero:
-                  proximoSemestreNumero,
-              }
+              semestreNumero:
+                proximoSemestreNumero,
+            }
             : {}),
         },
         select: {
@@ -275,182 +307,278 @@ const periodoRematriculaAberto =
           dataFim: true,
         },
       })
-    : null;
+      : null;
 
-const modoVisibilidadeRematricula = String(
-  configuracaoManualRematricula?.modoVisibilidade ||
+  const modoVisibilidadeRematricula = String(
+    configuracaoManualRematricula?.modoVisibilidade ||
     (configuracaoManualRematricula?.visivel
       ? "SEMPRE_VISIVEL"
       : "AUTOMATICO"),
-).toUpperCase();
+  ).toUpperCase();
 
-const mostrarRematricula =
-  modoVisibilidadeRematricula === "OCULTO"
-    ? false
-    : modoVisibilidadeRematricula === "SEMPRE_VISIVEL"
-      ? true
-      : periodoRematriculaAberto !== null;
+  const mostrarRematricula =
+    modoVisibilidadeRematricula === "OCULTO"
+      ? false
+      : modoVisibilidadeRematricula === "SEMPRE_VISIVEL"
+        ? true
+        : periodoRematriculaAberto !== null;
 
   const visibilidadeAluno = {
-  painel: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.painel"),
-  rematricula: mostrarRematricula,
-  disciplinas: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.disciplinas"),
-  progresso: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.progresso"),
-  trabalhos: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.trabalhos"),
-  presenca: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.presenca"),
-  boletim: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.boletim"),
-  certificados: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.certificados"),
-  reunioes: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.reunioes"),
-  dados: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.dados"),
-};
+    painel: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.painel"),
+    rematricula: mostrarRematricula,
+    disciplinas: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.disciplinas"),
+    progresso: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.progresso"),
+    trabalhos: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.trabalhos"),
+    presenca: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.presenca"),
+    boletim: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.boletim"),
+    certificados: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.certificados"),
+    reunioes: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.reunioes"),
+    dados: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.dados"),
+  };
 
   return (
-  <>
-    <ImpersonacaoBanner />
+    <>
+      <ImpersonacaoBanner />
 
-    <AlunoProvider>
-      <InstallPromptPHANYX />
-      <Header />
-      <div className="flex bg-gray-100 min-h-[calc(100vh-56px)]">
-  <div className="hidden lg:block">
-    <AlunoSidebar
-  aluno={aluno}
-  visibilidade={{
-    painel: visibilidadeAluno.painel,
-    rematricula: visibilidadeAluno.rematricula,
-    disciplinas: visibilidadeAluno.disciplinas,
-    progresso: visibilidadeAluno.progresso,
-    trabalhos: visibilidadeAluno.trabalhos,
-    presenca: visibilidadeAluno.presenca,
-    boletim: visibilidadeAluno.boletim,
-    historico: await paginaVisivel(
-      aluno.instituicaoId,
-      "ALUNO",
-      "aluno.historico"
-    ),
-    reunioes: visibilidadeAluno.reunioes,
-    certificados: visibilidadeAluno.certificados,
-    ouvidoria: await paginaVisivel(
-      aluno.instituicaoId,
-      "ALUNO",
-      "aluno.ouvidoria"
-    ),
-  }}
-/>
-  </div>
+      <AlunoProvider>
+        <InstallPromptPHANYX />
+        <Header />
+        <div className="flex min-h-[calc(100vh-56px)] bg-slate-100 dark:bg-slate-950">
+          <div className="hidden lg:block">
+            <AlunoSidebar
+              aluno={aluno}
+              visibilidade={{
+                painel: visibilidadeAluno.painel,
+                rematricula: visibilidadeAluno.rematricula,
+                disciplinas: visibilidadeAluno.disciplinas,
+                progresso: visibilidadeAluno.progresso,
+                trabalhos: visibilidadeAluno.trabalhos,
+                presenca: visibilidadeAluno.presenca,
+                boletim: visibilidadeAluno.boletim,
+                historico: await paginaVisivel(
+                  aluno.instituicaoId,
+                  "ALUNO",
+                  "aluno.historico"
+                ),
+                reunioes: visibilidadeAluno.reunioes,
+                certificados: visibilidadeAluno.certificados,
+                ouvidoria: await paginaVisivel(
+                  aluno.instituicaoId,
+                  "ALUNO",
+                  "aluno.ouvidoria"
+                ),
+              }}
+            />
+          </div>
 
-<nav className="fixed bottom-0 left-0 right-0 z-[70] overflow-x-auto border-t border-slate-200 bg-white/95 px-1 py-2 shadow-[0_-8px_25px_rgba(15,23,42,0.12)] backdrop-blur lg:hidden">
-  <div className="grid w-max auto-cols-[72px] grid-flow-col gap-1 text-[9px] font-semibold text-slate-600">
-    
-    {visibilidadeAluno.painel && (
-  <a href="/aluno" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
-    <span className="text-lg">📊</span>
-    Painel
-  </a>
-)}
+          <nav className="fixed bottom-0 left-0 right-0 z-[70] overflow-x-auto border-t border-slate-200 bg-white/95 px-1 py-2 shadow-[0_-8px_25px_rgba(15,23,42,0.12)] backdrop-blur dark:border-slate-700 dark:bg-slate-950/95 lg:hidden">
+            <div className="grid w-max auto-cols-[78px] grid-flow-col gap-1 text-[9px] font-semibold text-slate-700 dark:text-slate-200">
+              {visibilidadeAluno.painel && (
+                <a
+                  href="/aluno"
+                  className="flex flex-col items-center justify-center rounded-xl px-1 py-2 transition hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-950/50 dark:hover:text-blue-300"
+                >
+                  <span
+                    className="text-lg"
+                    aria-hidden="true"
+                  >
+                    📊
+                  </span>
 
-{visibilidadeAluno.rematricula && (
-  <a
-    href="/aluno/rematricula"
-    className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700"
-  >
-    <span className="text-lg">🔄</span>
-    Rematr.
-  </a>
-)}
+                  {tAluno("dashboard")}
+                </a>
+              )}
 
- {visibilidadeAluno.disciplinas && (
-    <a href="/aluno/disciplinas" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
-      <span className="text-lg">📘</span>
-      Disciplinas
-    </a>
-)}
-{visibilidadeAluno.progresso && (
-    <a href="/aluno/progresso" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
-      <span className="text-lg">📈</span>
-      Progresso
-    </a>
-)}
-{visibilidadeAluno.trabalhos && (
-    <a href="/aluno/trabalhos" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
-      <span className="text-lg">📄</span>
-      Trabalhos
-    </a>
-)}
-{visibilidadeAluno.presenca && (
-    <a href="/aluno/presencas" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
-      <span className="text-lg">🗓️</span>
-      Presença
-    </a>
-)}
-{visibilidadeAluno.boletim && (
-    <a href="/aluno/boletim" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
-      <span className="text-lg">📋</span>
-      Boletim
-    </a>
-)}
-{visibilidadeAluno.certificados && (
-    <a href="/aluno/certificados" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
-      <span className="text-lg">🏅</span>
-      Certificados
-    </a>
-)}
-{visibilidadeAluno.reunioes && (
-    <a href="/aluno/reunioes" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
-  <span className="text-lg">📅</span>
-  Reuniões
-</a>
-)}
-  </div>
-</nav>
+              {visibilidadeAluno.rematricula && (
+                <a
+                  href="/aluno/rematricula"
+                  className="flex flex-col items-center justify-center rounded-xl px-1 py-2 transition hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-950/50 dark:hover:text-blue-300"
+                >
+                  <span
+                    className="text-lg"
+                    aria-hidden="true"
+                  >
+                    🔄
+                  </span>
 
-        <form
-  action="/api/auth/logout-aluno"
-  method="post"
-  className="hidden lg:fixed lg:right-20 lg:top-4 lg:z-[80] lg:block"
->
-  <button
-    type="submit"
-    className="rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-600 shadow-sm transition hover:bg-red-50"
-  >
-    Sair
-  </button>
-</form>
-        
-        <main className="flex-1 w-full px-3 py-4 pb-24 lg:ml-64 lg:p-8">
-  <PhanyxFeriadoAviso />
+                  {tAluno(
+                    "reenrollmentShort"
+                  )}
+                </a>
+              )}
 
-<div className="mb-4 flex justify-end">
-  <PhanyxThemeToggle />
-</div>
+              {visibilidadeAluno.disciplinas && (
+                <a
+                  href="/aluno/disciplinas"
+                  className="flex flex-col items-center justify-center rounded-xl px-1 py-2 transition hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-950/50 dark:hover:text-blue-300"
+                >
+                  <span
+                    className="text-lg"
+                    aria-hidden="true"
+                  >
+                    📘
+                  </span>
 
-  {visibilidadeAluno.dados && (
-  <div className="mb-5 rounded-2xl border border-blue-100 bg-white p-4 shadow-sm">
-    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <div>
-        <h2 className="text-sm font-bold text-slate-900">
-          Dados cadastrais
-        </h2>
-        <p className="text-xs text-slate-500">
-          Mantenha seus dados atualizados para contratos, documentos e registros acadêmicos.
-        </p>
-      </div>
+                  {tAluno("subjects")}
+                </a>
+              )}
 
-      <a
-        href="/aluno/completar-cadastro"
-        className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-      >
-        Atualizar meus dados
-      </a>
-    </div>
-  </div>
-)}
-  
+              {visibilidadeAluno.progresso && (
+                <a
+                  href="/aluno/progresso"
+                  className="flex flex-col items-center justify-center rounded-xl px-1 py-2 transition hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-950/50 dark:hover:text-blue-300"
+                >
+                  <span
+                    className="text-lg"
+                    aria-hidden="true"
+                  >
+                    📈
+                  </span>
 
-  {children}
-</main>
-      </div>
-        </AlunoProvider>
-  </>
-);
+                  {tAluno("progress")}
+                </a>
+              )}
+
+              {visibilidadeAluno.trabalhos && (
+                <a
+                  href="/aluno/trabalhos"
+                  className="flex flex-col items-center justify-center rounded-xl px-1 py-2 transition hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-950/50 dark:hover:text-blue-300"
+                >
+                  <span
+                    className="text-lg"
+                    aria-hidden="true"
+                  >
+                    📄
+                  </span>
+
+                  {tAluno("assignments")}
+                </a>
+              )}
+
+              {visibilidadeAluno.presenca && (
+                <a
+                  href="/aluno/presencas"
+                  className="flex flex-col items-center justify-center rounded-xl px-1 py-2 transition hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-950/50 dark:hover:text-blue-300"
+                >
+                  <span
+                    className="text-lg"
+                    aria-hidden="true"
+                  >
+                    🗓️
+                  </span>
+
+                  {tAluno("attendance")}
+                </a>
+              )}
+
+              {visibilidadeAluno.boletim && (
+                <a
+                  href="/aluno/boletim"
+                  className="flex flex-col items-center justify-center rounded-xl px-1 py-2 transition hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-950/50 dark:hover:text-blue-300"
+                >
+                  <span
+                    className="text-lg"
+                    aria-hidden="true"
+                  >
+                    📋
+                  </span>
+
+                  {tAluno("grades")}
+                </a>
+              )}
+
+              {visibilidadeAluno.certificados && (
+                <a
+                  href="/aluno/certificados"
+                  className="flex flex-col items-center justify-center rounded-xl px-1 py-2 transition hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-950/50 dark:hover:text-blue-300"
+                >
+                  <span
+                    className="text-lg"
+                    aria-hidden="true"
+                  >
+                    🏅
+                  </span>
+
+                  {tAluno(
+                    "certificates"
+                  )}
+                </a>
+              )}
+
+              {visibilidadeAluno.reunioes && (
+                <a
+                  href="/aluno/reunioes"
+                  className="flex flex-col items-center justify-center rounded-xl px-1 py-2 transition hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-950/50 dark:hover:text-blue-300"
+                >
+                  <span
+                    className="text-lg"
+                    aria-hidden="true"
+                  >
+                    📅
+                  </span>
+
+                  {tAluno("meetings")}
+                </a>
+              )}
+            </div>
+          </nav>
+
+          <form
+            action="/api/auth/logout-aluno"
+            method="post"
+            className="hidden lg:fixed lg:right-20 lg:top-4 lg:z-[80] lg:block"
+          >
+            <button
+              type="submit"
+              className="rounded-xl border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-700 shadow-sm transition hover:bg-red-50 dark:border-red-700 dark:bg-slate-900 dark:text-red-300 dark:hover:bg-red-950/40"
+            >
+              {tAluno("logout")}
+            </button>
+          </form>
+
+          <main className="flex-1 w-full px-3 py-4 pb-24 lg:ml-64 lg:p-8">
+            <PhanyxFeriadoAviso />
+
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-end">
+              <SeletorIdioma className="phanyx-aluno-seletor-idioma w-full sm:w-64" />
+
+              <PhanyxThemeToggle />
+            </div>
+
+            {visibilidadeAluno.dados && (
+              <div className="phanyx-aluno-dados-cadastrais mb-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                  <div>
+                    <h2 className="text-sm font-bold text-slate-950 dark:text-white">
+                      {tAluno(
+                        "registrationData"
+                      )}
+                    </h2>
+
+                    <p className="text-xs leading-5 text-slate-600 dark:text-slate-300">
+                      {tAluno(
+                        "registrationDescription"
+                      )}
+                    </p>
+                  </div>
+
+                  <a
+                    href="/aluno/completar-cadastro"
+                    className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+                  >
+                    {tAluno(
+                      "updateMyData"
+                    )}
+                  </a>
+                </div>
+              </div>
+            )}
+
+
+            {children}
+          </main>
+        </div>
+      </AlunoProvider>
+    </>
+  );
 }

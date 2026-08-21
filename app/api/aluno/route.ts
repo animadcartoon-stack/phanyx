@@ -4,6 +4,10 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { getUserFromToken, isAdminLike } from "@/lib/server-auth";
 import { enviarEmailPrimeiroAcessoInstitucional } from "@/lib/email";
+import {
+  normalizarTelefoneE164,
+  telefoneValidoInternacional,
+} from "@/lib/internacionalizacao/telefone";
 
 function limparTexto(valor: unknown) {
   return String(valor ?? "").trim();
@@ -69,7 +73,7 @@ function camposResponsavelPendentes(
     );
 
   const telefoneResponsavel =
-    limparSomenteNumeros(
+    limparTexto(
       body.telefoneResponsavel
     );
 
@@ -96,7 +100,11 @@ function camposResponsavelPendentes(
   }
 
   if (
-    telefoneResponsavel.length < 10
+    !telefoneResponsavel ||
+    !telefoneValidoInternacional(
+      telefoneResponsavel,
+      "BR"
+    )
   ) {
     pendentes.push(
       "telefone do responsável"
@@ -402,13 +410,77 @@ export async function POST(request: Request) {
     const matriculaInformada = limparTexto(body.matricula);
     const cpf = limparSomenteNumeros(body.cpf);
     const rg = limparTexto(body.rg);
-    const telefone = limparTexto(body.telefone);
+    const telefoneInformado =
+      limparTexto(body.telefone);
+
+    const telefone =
+      telefoneInformado
+        ? normalizarTelefoneE164(
+          telefoneInformado,
+          "BR"
+        )
+        : "";
+
+    const telefoneResponsavelInformado =
+      limparTexto(
+        body.telefoneResponsavel
+      );
+
+    const telefoneResponsavel =
+      telefoneResponsavelInformado
+        ? normalizarTelefoneE164(
+          telefoneResponsavelInformado,
+          "BR"
+        )
+        : "";
     const poloId =
       body.poloId !== undefined &&
         body.poloId !== null &&
         String(body.poloId).trim() !== ""
         ? Number(body.poloId)
         : null;
+
+    if (
+      telefoneInformado &&
+      !telefoneValidoInternacional(
+        telefoneInformado,
+        "BR"
+      )
+    ) {
+      return NextResponse.json(
+        {
+          codigo:
+            "TELEFONE_ALUNO_INVALIDO",
+
+          error:
+            "O telefone do aluno não é válido.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    if (
+      telefoneResponsavelInformado &&
+      !telefoneValidoInternacional(
+        telefoneResponsavelInformado,
+        "BR"
+      )
+    ) {
+      return NextResponse.json(
+        {
+          codigo:
+            "TELEFONE_RESPONSAVEL_INVALIDO",
+
+          error:
+            "O telefone do responsável não é válido.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
 
     if (!nome) {
       return NextResponse.json(
@@ -698,7 +770,8 @@ export async function POST(request: Request) {
           fotoPerfil: limparTexto(body.fotoPerfil) || null,
           nomeResponsavel: limparTexto(body.nomeResponsavel) || null,
           cpfResponsavel: limparSomenteNumeros(body.cpfResponsavel) || null,
-          telefoneResponsavel: limparTexto(body.telefoneResponsavel) || null,
+          telefoneResponsavel:
+            telefoneResponsavel || null,
           emailResponsavel:
             limparTexto(body.emailResponsavel).toLowerCase() || null,
           parentescoResponsavel:

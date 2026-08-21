@@ -6,6 +6,18 @@ import {
   useSearchParams,
 } from "next/navigation";
 import withAuth from "@/components/auth/withAuth";
+import type {
+  CountryCode,
+} from "libphonenumber-js";
+import CampoTelefoneInternacional from "@/components/internacionalizacao/CampoTelefoneInternacional";
+import {
+  normalizarTelefoneE164,
+  prepararTelefoneParaFormulario,
+  telefoneValidoInternacional,
+} from "@/lib/internacionalizacao/telefone";
+import {
+  useTranslations,
+} from "next-intl";
 
 type StatusAluno =
   | "ATIVO"
@@ -141,6 +153,10 @@ type LeadParaConversao = {
 };
 
 function AdminAlunosPage() {
+  const tTelefone =
+    useTranslations(
+      "InternationalPhone"
+    );
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -231,6 +247,12 @@ function AdminAlunosPage() {
   const [cpf, setCpf] = useState("");
   const [rg, setRg] = useState("");
   const [telefone, setTelefone] = useState("");
+
+  const [
+    paisTelefone,
+    setPaisTelefone,
+  ] = useState<CountryCode>("BR");
+
   const [dataNascimento, setDataNascimento] = useState("");
   const [cep, setCep] = useState("");
   const [endereco, setEndereco] = useState("");
@@ -252,6 +274,12 @@ function AdminAlunosPage() {
   const [nomeResponsavel, setNomeResponsavel] = useState("");
   const [cpfResponsavel, setCpfResponsavel] = useState("");
   const [telefoneResponsavel, setTelefoneResponsavel] = useState("");
+
+  const [
+    paisTelefoneResponsavel,
+    setPaisTelefoneResponsavel,
+  ] = useState<CountryCode>("BR");
+
   const [emailResponsavel, setEmailResponsavel] = useState("");
   const [parentescoResponsavel, setParentescoResponsavel] = useState("");
   const [statusAluno, setStatusAluno] = useState<StatusAluno>("ATIVO");
@@ -272,6 +300,12 @@ function AdminAlunosPage() {
   const [editCpf, setEditCpf] = useState("");
   const [editRg, setEditRg] = useState("");
   const [editTelefone, setEditTelefone] = useState("");
+
+  const [
+    editPaisTelefone,
+    setEditPaisTelefone,
+  ] = useState<CountryCode>("BR");
+
   const [editDataNascimento, setEditDataNascimento] = useState("");
   const [editCep, setEditCep] = useState("");
   const [editEndereco, setEditEndereco] = useState("");
@@ -286,6 +320,12 @@ function AdminAlunosPage() {
   const [editNomeResponsavel, setEditNomeResponsavel] = useState("");
   const [editCpfResponsavel, setEditCpfResponsavel] = useState("");
   const [editTelefoneResponsavel, setEditTelefoneResponsavel] = useState("");
+
+  const [
+    editPaisTelefoneResponsavel,
+    setEditPaisTelefoneResponsavel,
+  ] = useState<CountryCode>("BR");
+
   const [editEmailResponsavel, setEditEmailResponsavel] = useState("");
   const [editParentescoResponsavel, setEditParentescoResponsavel] =
     useState("");
@@ -405,7 +445,19 @@ function AdminAlunosPage() {
 
         setNome(lead.nome);
         setEmail(lead.email);
-        setTelefone(lead.telefone || "");
+        const telefoneLead =
+          prepararTelefoneParaFormulario(
+            lead.telefone,
+            "BR"
+          );
+
+        setTelefone(
+          telefoneLead.valor
+        );
+
+        setPaisTelefone(
+          telefoneLead.pais
+        );
 
         setAlunoExistenteConversao(null);
         setConfirmacaoMenorCadastro(null);
@@ -528,12 +580,6 @@ function AdminAlunosPage() {
         ""
       );
 
-    const telefoneLimpo =
-      telefoneResponsavel.replace(
-        /\D/g,
-        ""
-      );
-
     if (!nomeResponsavel.trim()) {
       pendentes.push(
         "Nome do responsável"
@@ -546,9 +592,17 @@ function AdminAlunosPage() {
       );
     }
 
-    if (telefoneLimpo.length < 10) {
+    if (
+      !telefoneResponsavel.trim() ||
+      !telefoneValidoInternacional(
+        telefoneResponsavel,
+        paisTelefoneResponsavel
+      )
+    ) {
       pendentes.push(
-        "Telefone do responsável"
+        tTelefone(
+          "guardianInvalid"
+        )
       );
     }
 
@@ -949,6 +1003,7 @@ function AdminAlunosPage() {
     setCpf("");
     setRg("");
     setTelefone("");
+    setPaisTelefone("BR");
     setDataNascimento("");
     setCep("");
     setEndereco("");
@@ -962,6 +1017,9 @@ function AdminAlunosPage() {
     setNomeResponsavel("");
     setCpfResponsavel("");
     setTelefoneResponsavel("");
+    setPaisTelefoneResponsavel(
+      "BR"
+    );
     setEmailResponsavel("");
     setParentescoResponsavel("");
     setStatusAluno("ATIVO");
@@ -1050,6 +1108,55 @@ function AdminAlunosPage() {
   async function executarCriacaoAluno(
     confirmacaoMenorCadastroAceita: boolean
   ) {
+    if (
+      telefone.trim() &&
+      !telefoneValidoInternacional(
+        telefone,
+        paisTelefone
+      )
+    ) {
+      abrirModalAviso(
+        "erro",
+        tTelefone("invalidTitle"),
+        tTelefone("studentInvalid")
+      );
+
+      return;
+    }
+
+    if (
+      telefoneResponsavel.trim() &&
+      !telefoneValidoInternacional(
+        telefoneResponsavel,
+        paisTelefoneResponsavel
+      )
+    ) {
+      abrirModalAviso(
+        "erro",
+        tTelefone("invalidTitle"),
+        tTelefone(
+          "guardianInvalid"
+        )
+      );
+
+      return;
+    }
+
+    const telefoneE164 =
+      telefone.trim()
+        ? normalizarTelefoneE164(
+          telefone,
+          paisTelefone
+        )
+        : "";
+
+    const telefoneResponsavelE164 =
+      telefoneResponsavel.trim()
+        ? normalizarTelefoneE164(
+          telefoneResponsavel,
+          paisTelefoneResponsavel
+        )
+        : "";
     try {
       setCriando(true);
 
@@ -1069,7 +1176,7 @@ function AdminAlunosPage() {
           genero,
           cpf,
           rg,
-          telefone,
+          telefone: telefoneE164,
           dataNascimento: dataNascimento || null,
           cep,
           endereco,
@@ -1082,7 +1189,8 @@ function AdminAlunosPage() {
           fotoPerfil: fotoPerfil || null,
           nomeResponsavel,
           cpfResponsavel,
-          telefoneResponsavel,
+          telefoneResponsavel:
+            telefoneResponsavelE164,
           emailResponsavel,
           parentescoResponsavel,
           statusAluno,
@@ -1344,7 +1452,19 @@ function AdminAlunosPage() {
     setEditEmail(aluno.user?.email || "");
     setEditCpf(aluno.cpf || "");
     setEditRg(aluno.rg || "");
-    setEditTelefone(aluno.telefone || "");
+    const telefoneAluno =
+      prepararTelefoneParaFormulario(
+        aluno.telefone,
+        "BR"
+      );
+
+    setEditTelefone(
+      telefoneAluno.valor
+    );
+
+    setEditPaisTelefone(
+      telefoneAluno.pais
+    );
     setEditDataNascimento(
       aluno.dataNascimento
         ? new Date(aluno.dataNascimento).toISOString().slice(0, 10)
@@ -1361,7 +1481,19 @@ function AdminAlunosPage() {
     setEditFotoPerfil(aluno.fotoPerfil || "");
     setEditNomeResponsavel(aluno.nomeResponsavel || "");
     setEditCpfResponsavel(aluno.cpfResponsavel || "");
-    setEditTelefoneResponsavel(aluno.telefoneResponsavel || "");
+    const telefoneDoResponsavel =
+      prepararTelefoneParaFormulario(
+        aluno.telefoneResponsavel,
+        "BR"
+      );
+
+    setEditTelefoneResponsavel(
+      telefoneDoResponsavel.valor
+    );
+
+    setEditPaisTelefoneResponsavel(
+      telefoneDoResponsavel.pais
+    );
     setEditEmailResponsavel(aluno.emailResponsavel || "");
     setEditParentescoResponsavel(aluno.parentescoResponsavel || "");
     setEditStatusAluno(aluno.statusAluno || "ATIVO");
@@ -1380,6 +1512,55 @@ function AdminAlunosPage() {
   }
 
   async function salvarEdicao(id: number) {
+    if (
+      editTelefone.trim() &&
+      !telefoneValidoInternacional(
+        editTelefone,
+        editPaisTelefone
+      )
+    ) {
+      abrirModalAviso(
+        "erro",
+        tTelefone("invalidTitle"),
+        tTelefone("studentInvalid")
+      );
+
+      return;
+    }
+
+    if (
+      editTelefoneResponsavel.trim() &&
+      !telefoneValidoInternacional(
+        editTelefoneResponsavel,
+        editPaisTelefoneResponsavel
+      )
+    ) {
+      abrirModalAviso(
+        "erro",
+        tTelefone("invalidTitle"),
+        tTelefone(
+          "guardianInvalid"
+        )
+      );
+
+      return;
+    }
+
+    const editTelefoneE164 =
+      editTelefone.trim()
+        ? normalizarTelefoneE164(
+          editTelefone,
+          editPaisTelefone
+        )
+        : "";
+
+    const editTelefoneResponsavelE164 =
+      editTelefoneResponsavel.trim()
+        ? normalizarTelefoneE164(
+          editTelefoneResponsavel,
+          editPaisTelefoneResponsavel
+        )
+        : "";
     try {
       setSalvandoId(id);
 
@@ -1394,7 +1575,8 @@ function AdminAlunosPage() {
           genero: editGenero,
           cpf: editCpf,
           rg: editRg,
-          telefone: editTelefone,
+          telefone:
+            editTelefoneE164,
           dataNascimento: editDataNascimento || null,
           cep: editCep,
           endereco: editEndereco,
@@ -1407,7 +1589,8 @@ function AdminAlunosPage() {
           fotoPerfil: editFotoPerfil || null,
           nomeResponsavel: editNomeResponsavel,
           cpfResponsavel: editCpfResponsavel,
-          telefoneResponsavel: editTelefoneResponsavel,
+          telefoneResponsavel:
+            editTelefoneResponsavelE164,
           emailResponsavel: editEmailResponsavel,
           parentescoResponsavel: editParentescoResponsavel,
           statusAluno: editStatusAluno,
@@ -1433,7 +1616,9 @@ function AdminAlunosPage() {
         genero: data?.genero ?? editGenero,
         cpf: data?.cpf ?? editCpf,
         rg: data?.rg ?? editRg,
-        telefone: data?.telefone ?? editTelefone,
+        telefone:
+          data?.telefone ??
+          editTelefoneE164,
         dataNascimento: data?.dataNascimento ?? editDataNascimento,
         cep: data?.cep ?? editCep,
         endereco: data?.endereco ?? editEndereco,
@@ -1446,7 +1631,9 @@ function AdminAlunosPage() {
         fotoPerfil: data?.fotoPerfil ?? editFotoPerfil,
         nomeResponsavel: data?.nomeResponsavel ?? editNomeResponsavel,
         cpfResponsavel: data?.cpfResponsavel ?? editCpfResponsavel,
-        telefoneResponsavel: data?.telefoneResponsavel ?? editTelefoneResponsavel,
+        telefoneResponsavel:
+          data?.telefoneResponsavel ??
+          editTelefoneResponsavelE164,
         emailResponsavel: data?.emailResponsavel ?? editEmailResponsavel,
         parentescoResponsavel: data?.parentescoResponsavel ?? editParentescoResponsavel,
         statusAluno: data?.statusAluno ?? editStatusAluno,
@@ -2349,8 +2536,8 @@ function AdminAlunosPage() {
                     leadParaConversao
                   )}
                   className={`w-full rounded-xl border p-2.5 ${leadParaConversao
-                      ? "cursor-not-allowed bg-slate-100 font-semibold text-slate-900 dark:bg-slate-800 dark:text-white"
-                      : ""
+                    ? "cursor-not-allowed bg-slate-100 font-semibold text-slate-900 dark:bg-slate-800 dark:text-white"
+                    : ""
                     }`}
                   required
                 />
@@ -2408,11 +2595,23 @@ function AdminAlunosPage() {
                   className="w-full rounded-xl border p-2.5"
                 />
 
-                <input
-                  placeholder="Telefone"
+                <CampoTelefoneInternacional
+                  id="telefone-aluno"
+                  name="telefone"
                   value={telefone}
-                  onChange={(e) => setTelefone(e.target.value)}
-                  className="w-full rounded-xl border p-2.5"
+                  pais={paisTelefone}
+                  onChange={(
+                    novoTelefone,
+                    novoPais
+                  ) => {
+                    setTelefone(
+                      novoTelefone
+                    );
+
+                    setPaisTelefone(
+                      novoPais
+                    );
+                  }}
                 />
 
                 <input
@@ -2614,11 +2813,25 @@ function AdminAlunosPage() {
                     className="w-full rounded-xl border p-2.5"
                   />
 
-                  <input
-                    placeholder="Telefone do responsável"
+                  <CampoTelefoneInternacional
+                    id="telefone-responsavel"
+                    name="telefoneResponsavel"
                     value={telefoneResponsavel}
-                    onChange={(e) => setTelefoneResponsavel(e.target.value)}
-                    className="w-full rounded-xl border p-2.5"
+                    pais={
+                      paisTelefoneResponsavel
+                    }
+                    onChange={(
+                      novoTelefone,
+                      novoPais
+                    ) => {
+                      setTelefoneResponsavel(
+                        novoTelefone
+                      );
+
+                      setPaisTelefoneResponsavel(
+                        novoPais
+                      );
+                    }}
                   />
 
                   <input
@@ -3132,11 +3345,23 @@ function AdminAlunosPage() {
                           className="rounded-xl border p-2.5"
                           placeholder="RG"
                         />
-                        <input
+                        <CampoTelefoneInternacional
+                          id="edit-telefone-aluno"
+                          name="editTelefone"
                           value={editTelefone}
-                          onChange={(e) => setEditTelefone(e.target.value)}
-                          className="rounded-xl border p-2.5"
-                          placeholder="Telefone"
+                          pais={editPaisTelefone}
+                          onChange={(
+                            novoTelefone,
+                            novoPais
+                          ) => {
+                            setEditTelefone(
+                              novoTelefone
+                            );
+
+                            setEditPaisTelefone(
+                              novoPais
+                            );
+                          }}
                         />
                         <input
                           type="date"
@@ -3297,13 +3522,27 @@ function AdminAlunosPage() {
                             className="rounded-xl border p-2.5"
                             placeholder="CPF do responsável"
                           />
-                          <input
-                            value={editTelefoneResponsavel}
-                            onChange={(e) =>
-                              setEditTelefoneResponsavel(e.target.value)
+                          <CampoTelefoneInternacional
+                            id="edit-telefone-responsavel"
+                            name="editTelefoneResponsavel"
+                            value={
+                              editTelefoneResponsavel
                             }
-                            className="rounded-xl border p-2.5"
-                            placeholder="Telefone do responsável"
+                            pais={
+                              editPaisTelefoneResponsavel
+                            }
+                            onChange={(
+                              novoTelefone,
+                              novoPais
+                            ) => {
+                              setEditTelefoneResponsavel(
+                                novoTelefone
+                              );
+
+                              setEditPaisTelefoneResponsavel(
+                                novoPais
+                              );
+                            }}
                           />
                           <input
                             value={editEmailResponsavel}

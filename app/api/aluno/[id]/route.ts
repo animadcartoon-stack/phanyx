@@ -1,6 +1,10 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { getUserFromToken, isAdminLike } from "@/lib/server-auth";
+import {
+  normalizarTelefoneE164,
+  telefoneValidoInternacional,
+} from "@/lib/internacionalizacao/telefone";
 
 function limparTexto(valor: unknown) {
   return String(valor ?? "").trim();
@@ -75,8 +79,8 @@ export async function PATCH(
     }
 
     if (!isAdminLike(user.role)) {
-  return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
-}
+      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+    }
 
     if (!user.instituicaoId) {
       return NextResponse.json(
@@ -398,31 +402,31 @@ export async function DELETE(
 
     const pendencias: string[] = [];
 
-if (contratos.length > 0) pendencias.push(`${contratos.length} contrato(s)`);
-if (documentos.length > 0) pendencias.push(`${documentos.length} documento(s) do aluno`);
-if (documentosGerados.length > 0) pendencias.push(`${documentosGerados.length} documento(s) gerado(s)`);
-if (certificados.length > 0) pendencias.push(`${certificados.length} certificado(s)`);
-if (lancamentos.length > 0) pendencias.push(`${lancamentos.length} lançamento(s) financeiro(s)`);
-if (pagamentos.length > 0) pendencias.push(`${pagamentos.length} pagamento(s)`);
-if (notas.length > 0) pendencias.push(`${notas.length} nota(s)`);
-if (presencas.length > 0) pendencias.push(`${presencas.length} presença(s)`);
-if (progresso.length > 0) pendencias.push(`${progresso.length} registro(s) de progresso`);
-if (tentativas.length > 0) pendencias.push(`${tentativas.length} tentativa(s) de prova`);
-if (respostas.length > 0) pendencias.push(`${respostas.length} resposta(s) de prova`);
-if (resultadosFinais.length > 0) pendencias.push(`${resultadosFinais.length} resultado(s) final(is)`);
-if (entregas.length > 0) pendencias.push(`${entregas.length} entrega(s) de atividade`);
-if (atestados.length > 0) pendencias.push(`${atestados.length} atestado(s) médico(s)`);
-if (cobrancas.length > 0) pendencias.push(`${cobrancas.length} cobrança(s)`);
-if (movimentosCaixa.length > 0) pendencias.push(`${movimentosCaixa.length} movimento(s) de caixa`);
+    if (contratos.length > 0) pendencias.push(`${contratos.length} contrato(s)`);
+    if (documentos.length > 0) pendencias.push(`${documentos.length} documento(s) do aluno`);
+    if (documentosGerados.length > 0) pendencias.push(`${documentosGerados.length} documento(s) gerado(s)`);
+    if (certificados.length > 0) pendencias.push(`${certificados.length} certificado(s)`);
+    if (lancamentos.length > 0) pendencias.push(`${lancamentos.length} lançamento(s) financeiro(s)`);
+    if (pagamentos.length > 0) pendencias.push(`${pagamentos.length} pagamento(s)`);
+    if (notas.length > 0) pendencias.push(`${notas.length} nota(s)`);
+    if (presencas.length > 0) pendencias.push(`${presencas.length} presença(s)`);
+    if (progresso.length > 0) pendencias.push(`${progresso.length} registro(s) de progresso`);
+    if (tentativas.length > 0) pendencias.push(`${tentativas.length} tentativa(s) de prova`);
+    if (respostas.length > 0) pendencias.push(`${respostas.length} resposta(s) de prova`);
+    if (resultadosFinais.length > 0) pendencias.push(`${resultadosFinais.length} resultado(s) final(is)`);
+    if (entregas.length > 0) pendencias.push(`${entregas.length} entrega(s) de atividade`);
+    if (atestados.length > 0) pendencias.push(`${atestados.length} atestado(s) médico(s)`);
+    if (cobrancas.length > 0) pendencias.push(`${cobrancas.length} cobrança(s)`);
+    if (movimentosCaixa.length > 0) pendencias.push(`${movimentosCaixa.length} movimento(s) de caixa`);
 
-if (pendencias.length > 0) {
-  return NextResponse.json(
-    {
-      error: `Aluno não pode ser excluído porque ainda possui vínculos: ${pendencias.join(", ")}.`,
-    },
-    { status: 400 }
-  );
-}
+    if (pendencias.length > 0) {
+      return NextResponse.json(
+        {
+          error: `Aluno não pode ser excluído porque ainda possui vínculos: ${pendencias.join(", ")}.`,
+        },
+        { status: 400 }
+      );
+    }
 
     await prisma.$transaction(async (tx) => {
       await tx.aluno.delete({
@@ -511,6 +515,72 @@ export async function PUT(
     const cpfNormalizado = limparSomenteNumeros(body.cpf);
     const matriculaNormalizada = limparTexto(body.matricula);
 
+    const telefoneInformado =
+      limparTexto(body.telefone);
+
+    const telefoneNormalizado =
+      telefoneInformado
+        ? normalizarTelefoneE164(
+          telefoneInformado,
+          "BR"
+        )
+        : "";
+
+    const telefoneResponsavelInformado =
+      limparTexto(
+        body.telefoneResponsavel
+      );
+
+    const telefoneResponsavelNormalizado =
+      telefoneResponsavelInformado
+        ? normalizarTelefoneE164(
+          telefoneResponsavelInformado,
+          "BR"
+        )
+        : "";
+
+    if (
+      telefoneInformado &&
+      !telefoneValidoInternacional(
+        telefoneInformado,
+        "BR"
+      )
+    ) {
+      return NextResponse.json(
+        {
+          codigo:
+            "TELEFONE_ALUNO_INVALIDO",
+
+          error:
+            "O telefone do aluno não é válido.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    if (
+      telefoneResponsavelInformado &&
+      !telefoneValidoInternacional(
+        telefoneResponsavelInformado,
+        "BR"
+      )
+    ) {
+      return NextResponse.json(
+        {
+          codigo:
+            "TELEFONE_RESPONSAVEL_INVALIDO",
+
+          error:
+            "O telefone do responsável não é válido.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
     if (!limparTexto(body.nome)) {
       return NextResponse.json(
         { error: "O nome do aluno é obrigatório." },
@@ -597,7 +667,8 @@ export async function PUT(
         matricula: matriculaNormalizada || null,
         cpf: cpfNormalizado || null,
         rg: limparTexto(body.rg) || null,
-        telefone: limparTexto(body.telefone) || null,
+        telefone:
+          telefoneNormalizado || null,
         dataNascimento: parseDataSegura(body.dataNascimento),
         cep: limparTexto(body.cep) || null,
         endereco: limparTexto(body.endereco) || null,
@@ -610,7 +681,9 @@ export async function PUT(
         fotoPerfil: limparTexto(body.fotoPerfil) || null,
         nomeResponsavel: limparTexto(body.nomeResponsavel) || null,
         cpfResponsavel: limparSomenteNumeros(body.cpfResponsavel) || null,
-        telefoneResponsavel: limparTexto(body.telefoneResponsavel) || null,
+        telefoneResponsavel:
+          telefoneResponsavelNormalizado ||
+          null,
         emailResponsavel: limparTexto(body.emailResponsavel).toLowerCase() || null,
         parentescoResponsavel: limparTexto(body.parentescoResponsavel) || null,
         statusAluno: limparTexto(body.statusAluno) || "ATIVO",

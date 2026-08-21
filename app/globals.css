@@ -28746,3 +28746,141 @@ html[data-theme="system"] #titulo-erro-foto-professor~div>button:first-child {
     grid-column: auto !important;
   }
 }
+
+/* =====================================================
+   PORTAL DO ALUNO — CONTRASTE DEFINITIVO NO TEMA CLARO
+===================================================== */
+
+/* Menu selecionado: fundo azul e texto branco */
+html[data-theme="light"]
+  .phanyx-aluno-menu-item.phanyx-aluno-menu-item-ativo {
+  background-color: #1d4ed8 !important;
+  border-color: #1d4ed8 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(29, 78, 216, 0.22) !important;
+}
+
+html[data-theme="light"]
+  .phanyx-aluno-menu-item.phanyx-aluno-menu-item-ativo
+  .phanyx-aluno-menu-texto,
+html[data-theme="light"]
+  .phanyx-aluno-menu-item.phanyx-aluno-menu-item-ativo
+  span {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* Menu não selecionado */
+html[data-theme="light"]
+  .phanyx-aluno-menu-item:not(.phanyx-aluno-menu-item-ativo) {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-aluno-menu-item:not(.phanyx-aluno-menu-item-ativo)
+  .phanyx-aluno-menu-texto {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+/* Seletor de idioma */
+html[data-theme="light"]
+  .phanyx-aluno-seletor-idioma
+  label {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+/* Card de dados cadastrais */
+html[data-theme="light"]
+  .phanyx-aluno-dados-cadastrais {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-aluno-dados-cadastrais
+  h2 {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-aluno-dados-cadastrais
+  p {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+/* Portal do aluno — menu selecionado sem conflito com Tailwind */
+
+html[data-theme="light"]
+  body
+  aside
+  a.phanyx-aluno-menu-selecionado,
+html[data-theme-choice="light"]
+  body
+  aside
+  a.phanyx-aluno-menu-selecionado {
+  background: #1d4ed8 !important;
+  background-color: #1d4ed8 !important;
+  border-color: #1d4ed8 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="light"]
+  body
+  aside
+  a.phanyx-aluno-menu-selecionado
+  .phanyx-aluno-menu-texto,
+html[data-theme-choice="light"]
+  body
+  aside
+  a.phanyx-aluno-menu-selecionado
+  .phanyx-aluno-menu-texto {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* Mantém o emoji com suas cores originais */
+html[data-theme="light"]
+  body
+  aside
+  a.phanyx-aluno-menu-selecionado
+  span:first-child,
+html[data-theme-choice="light"]
+  body
+  aside
+  a.phanyx-aluno-menu-selecionado
+  span:first-child {
+  -webkit-text-fill-color: initial !important;
+  opacity: 1 !important;
+}
+
+/* Portal do aluno — identificação do perfil */
+
+html[data-theme="light"]
+  .phanyx-aluno-perfil-tipo,
+html[data-theme-choice="light"]
+  .phanyx-aluno-perfil-tipo {
+  color: #1e3a8a !important;
+  -webkit-text-fill-color: #1e3a8a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-aluno-perfil-tipo,
+html[data-theme="system"]
+  .phanyx-aluno-perfil-tipo {
+  color: #bfdbfe !important;
+  -webkit-text-fill-color: #bfdbfe !important;
+  opacity: 1 !important;
+}
