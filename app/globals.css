@@ -28695,3 +28695,54 @@ html[data-theme="system"] #titulo-erro-foto-professor~div>button:first-child {
   -webkit-text-fill-color: #ffffff !important;
   opacity: 1 !important;
 }
+
+/* Biblioteca: organização dos botões de cada exemplar */
+.phanyx-biblioteca-item-page
+  .bib-exemplar-row
+  .bib-exemplar-actions {
+  grid-column: 1 / -1;
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  grid-auto-flow: row !important;
+  gap: 8px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  padding-top: 0.25rem;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-exemplar-row
+  .bib-exemplar-actions
+  .bib-button {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  flex: none !important;
+  justify-content: center !important;
+  text-align: center !important;
+  white-space: normal !important;
+  line-height: 1.25 !important;
+}
+
+.phanyx-biblioteca-item-page
+  .bib-exemplar-row
+  .bib-exemplar-actions
+  .bib-button-maintenance {
+  grid-column: 1 / -1 !important;
+  order: 10 !important;
+}
+
+@media (max-width: 640px) {
+  .phanyx-biblioteca-item-page
+    .bib-exemplar-row
+    .bib-exemplar-actions {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .phanyx-biblioteca-item-page
+    .bib-exemplar-row
+    .bib-exemplar-actions
+    .bib-button-maintenance {
+    grid-column: auto !important;
+  }
+}

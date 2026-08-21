@@ -121,6 +121,31 @@ type ArmazenamentoBiblioteca = {
   disponivelBytes: string;
 };
 
+type ManutencaoAbertaExemplar = {
+  id: number;
+
+  status: "ABERTA";
+  resultado: string | null;
+
+  motivo: string;
+  observacaoEntrada: string | null;
+
+  fornecedor: string | null;
+  custoEstimado: string | null;
+  custoFinal: string | null;
+
+  iniciadaEm: string;
+  previsaoRetornoEm: string | null;
+  concluidaEm: string | null;
+  canceladaEm: string | null;
+
+  observacaoConclusao: string | null;
+
+  iniciadoPorId: number | null;
+  concluidoPorId: number | null;
+  canceladoPorId: number | null;
+};
+
 type ExemplarItem = {
   id: number;
 
@@ -149,6 +174,9 @@ type ExemplarItem = {
 
   baixadoEm: string | null;
   motivoBaixa: string | null;
+  manutencaoAberta?:
+  | ManutencaoAbertaExemplar
+  | null;
 
   criadoEm: string;
   atualizadoEm: string;
@@ -193,6 +221,7 @@ type RespostaExemplares = {
   permissoes?: {
     podeGerenciar: boolean;
     podeBaixar: boolean;
+    podeGerenciarManutencao: boolean;
     impersonacao: boolean;
   };
 
@@ -716,6 +745,11 @@ export default function BibliotecaItemPage() {
   ] = useState(false);
 
   const [
+    podeGerenciarManutencao,
+    setPodeGerenciarManutencao,
+  ] = useState(false);
+
+  const [
     podeGerenciarEmprestimos,
     setPodeGerenciarEmprestimos,
   ] = useState(false);
@@ -794,6 +828,43 @@ export default function BibliotecaItemPage() {
   const [
     devolvendoExemplar,
     setDevolvendoExemplar,
+  ] = useState(false);
+
+  const [
+    exemplarParaManutencao,
+    setExemplarParaManutencao,
+  ] = useState<ExemplarItem | null>(
+    null
+  );
+
+  const [
+    motivoManutencao,
+    setMotivoManutencao,
+  ] = useState("");
+
+  const [
+    observacaoEntradaManutencao,
+    setObservacaoEntradaManutencao,
+  ] = useState("");
+
+  const [
+    fornecedorManutencao,
+    setFornecedorManutencao,
+  ] = useState("");
+
+  const [
+    custoEstimadoManutencao,
+    setCustoEstimadoManutencao,
+  ] = useState("");
+
+  const [
+    previsaoRetornoManutencao,
+    setPrevisaoRetornoManutencao,
+  ] = useState("");
+
+  const [
+    enviandoParaManutencao,
+    setEnviandoParaManutencao,
   ] = useState(false);
 
   const [
@@ -989,6 +1060,11 @@ export default function BibliotecaItemPage() {
             resultado.permissoes
               ?.podeBaixar === true
           );
+          setPodeGerenciarManutencao(
+            resultado.permissoes
+              ?.podeGerenciarManutencao ===
+            true
+          );
         } catch (falha) {
           if (
             falha instanceof
@@ -1006,6 +1082,10 @@ export default function BibliotecaItemPage() {
           );
 
           setPodeBaixarExemplares(
+            false
+          );
+
+          setPodeGerenciarManutencao(
             false
           );
 
@@ -2673,6 +2753,184 @@ export default function BibliotecaItemPage() {
     }
   }
 
+  function abrirManutencao(
+    exemplar: ExemplarItem
+  ) {
+    if (
+      !podeGerenciarManutencao ||
+      impersonacao ||
+      exemplar.tipo !== "FISICO" ||
+      (
+        exemplar.status !==
+        "DANIFICADO" &&
+        exemplar.status !==
+        "INDISPONIVEL"
+      ) ||
+      exemplar.baixadoEm ||
+      exemplar.manutencaoAberta
+    ) {
+      return;
+    }
+
+    setExemplarParaManutencao(
+      exemplar
+    );
+
+    setMotivoManutencao("");
+    setObservacaoEntradaManutencao(
+      ""
+    );
+    setFornecedorManutencao("");
+    setCustoEstimadoManutencao(
+      ""
+    );
+    setPrevisaoRetornoManutencao(
+      ""
+    );
+  }
+
+  function fecharManutencao() {
+    if (enviandoParaManutencao) {
+      return;
+    }
+
+    setExemplarParaManutencao(
+      null
+    );
+
+    setMotivoManutencao("");
+    setObservacaoEntradaManutencao(
+      ""
+    );
+    setFornecedorManutencao("");
+    setCustoEstimadoManutencao(
+      ""
+    );
+    setPrevisaoRetornoManutencao(
+      ""
+    );
+  }
+
+  async function iniciarManutencao() {
+    if (
+      !exemplarParaManutencao ||
+      enviandoParaManutencao ||
+      !podeGerenciarManutencao ||
+      impersonacao
+    ) {
+      return;
+    }
+
+    if (!motivoManutencao.trim()) {
+      setToast({
+        tipo: "erro",
+        mensagem:
+          "Informe o motivo da manutenção.",
+      });
+
+      return;
+    }
+
+    setEnviandoParaManutencao(
+      true
+    );
+
+    try {
+      const resposta =
+        await fetch(
+          `/api/admin/biblioteca/exemplares/${exemplarParaManutencao.id}/manutencoes`,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body: JSON.stringify({
+              motivo:
+                motivoManutencao.trim(),
+
+              observacaoEntrada:
+                observacaoEntradaManutencao
+                  .trim() ||
+                null,
+
+              fornecedor:
+                fornecedorManutencao
+                  .trim() ||
+                null,
+
+              custoEstimado:
+                custoEstimadoManutencao
+                  .trim() ||
+                null,
+
+              previsaoRetornoEm:
+                previsaoRetornoManutencao ||
+                null,
+            }),
+          }
+        );
+
+      const resultado =
+        (await resposta.json()) as {
+          ok?: boolean;
+          mensagem?: string;
+          error?: string;
+        };
+
+      if (!resposta.ok) {
+        throw new Error(
+          resultado.error ||
+          resultado.mensagem ||
+          "Não foi possível enviar o exemplar para manutenção."
+        );
+      }
+
+      setExemplarParaManutencao(
+        null
+      );
+
+      setMotivoManutencao("");
+      setObservacaoEntradaManutencao(
+        ""
+      );
+      setFornecedorManutencao("");
+      setCustoEstimadoManutencao(
+        ""
+      );
+      setPrevisaoRetornoManutencao(
+        ""
+      );
+
+      setToast({
+        tipo: "sucesso",
+
+        mensagem:
+          resultado.mensagem ||
+          "Exemplar enviado para manutenção com sucesso.",
+      });
+
+      setAtualizacao(
+        (valor) => valor + 1
+      );
+    } catch (falha) {
+      setToast({
+        tipo: "erro",
+
+        mensagem:
+          falha instanceof Error
+            ? falha.message
+            : "Não foi possível enviar o exemplar para manutenção.",
+      });
+    } finally {
+      setEnviandoParaManutencao(
+        false
+      );
+    }
+  }
+
   return (
     <main className="phanyx-biblioteca-acervo-page phanyx-biblioteca-item-page">
       <div className="bib-page-shell">
@@ -3809,11 +4067,38 @@ export default function BibliotecaItemPage() {
                             </button>
                           ) : null}
 
+                          {podeGerenciarManutencao &&
+                            !impersonacao &&
+                            exemplar.tipo ===
+                            "FISICO" &&
+                            (
+                              exemplar.status ===
+                              "DANIFICADO" ||
+                              exemplar.status ===
+                              "INDISPONIVEL"
+                            ) &&
+                            !exemplar.baixadoEm &&
+                            !exemplar
+                              .manutencaoAberta ? (
+                            <button
+                              type="button"
+                              className="bib-button bib-button-secondary bib-button-maintenance"
+                              onClick={() =>
+                                abrirManutencao(
+                                  exemplar
+                                )
+                              }
+                            >
+                              🔧 Enviar para manutenção
+                            </button>
+                          ) : null}
+
                           {podeBaixarExemplares &&
                             !impersonacao &&
                             !exemplar.baixadoEm &&
                             exemplar.status !== "EMPRESTADO" &&
-                            exemplar.status !== "RESERVADO" ? (
+                            exemplar.status !== "RESERVADO" &&
+                            exemplar.status !== "MANUTENCAO" ? (
                             <button
                               type="button"
                               className="bib-button bib-button-danger"
@@ -4990,6 +5275,201 @@ export default function BibliotecaItemPage() {
                   {devolvendoExemplar
                     ? "Registrando..."
                     : "📥 Registrar devolução"}
+                </button>
+              </footer>
+            </form>
+          </section>
+        </div>
+      ) : null}
+
+      {exemplarParaManutencao ? (
+        <div className="bib-modal-backdrop">
+          <section
+            className="bib-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="titulo-manutencao-biblioteca"
+          >
+            <header className="bib-modal-header">
+              <div>
+                <span>Biblioteca Virtual</span>
+
+                <h2 id="titulo-manutencao-biblioteca">
+                  Enviar para manutenção
+                </h2>
+
+                <p>
+                  Registre o motivo e os dados de entrada
+                  do exemplar.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="bib-modal-close"
+                aria-label="Fechar"
+                onClick={fecharManutencao}
+                disabled={enviandoParaManutencao}
+              >
+                ×
+              </button>
+            </header>
+
+            <form
+              onSubmit={(evento) => {
+                evento.preventDefault();
+                void iniciarManutencao();
+              }}
+            >
+              <div className="bib-modal-body">
+                <div className="bib-feedback">
+                  <div>
+                    <strong>
+                      {
+                        exemplarParaManutencao.codigoInterno
+                      }
+                    </strong>
+
+                    <p>
+                      {item.titulo}
+
+                      {exemplarParaManutencao.numeroTombo
+                        ? ` · Tombo ${exemplarParaManutencao.numeroTombo}`
+                        : ""}
+                    </p>
+
+                    <p>
+                      Situação atual:{" "}
+                      {rotuloEnum(
+                        exemplarParaManutencao.status
+                      )}
+                    </p>
+                  </div>
+                </div>
+
+                <label className="bib-field">
+                  <span>
+                    Motivo da manutenção{" "}
+                    <b aria-hidden="true">*</b>
+                  </span>
+
+                  <textarea
+                    className="bib-input bib-textarea"
+                    value={motivoManutencao}
+                    onChange={(evento) =>
+                      setMotivoManutencao(
+                        evento.target.value
+                      )
+                    }
+                    placeholder="Ex.: capa danificada, páginas soltas ou necessidade de restauração."
+                    maxLength={1000}
+                    autoFocus
+                    required
+                  />
+                </label>
+
+                <label className="bib-field">
+                  <span>Observação de entrada</span>
+
+                  <textarea
+                    className="bib-input bib-textarea"
+                    value={
+                      observacaoEntradaManutencao
+                    }
+                    onChange={(evento) =>
+                      setObservacaoEntradaManutencao(
+                        evento.target.value
+                      )
+                    }
+                    placeholder="Descreva o estado atual do exemplar."
+                    maxLength={5000}
+                  />
+                </label>
+
+                <label className="bib-field">
+                  <span>Fornecedor ou responsável</span>
+
+                  <input
+                    className="bib-input"
+                    type="text"
+                    value={fornecedorManutencao}
+                    onChange={(evento) =>
+                      setFornecedorManutencao(
+                        evento.target.value
+                      )
+                    }
+                    placeholder="Ex.: Encadernadora Central"
+                    maxLength={200}
+                  />
+                </label>
+
+                <label className="bib-field">
+                  <span>Custo estimado</span>
+
+                  <input
+                    className="bib-input"
+                    type="text"
+                    inputMode="decimal"
+                    value={custoEstimadoManutencao}
+                    onChange={(evento) =>
+                      setCustoEstimadoManutencao(
+                        evento.target.value
+                      )
+                    }
+                    placeholder="0,00"
+                  />
+                </label>
+
+                <label className="bib-field">
+                  <span>Previsão de retorno</span>
+
+                  <input
+                    className="bib-input"
+                    type="date"
+                    value={previsaoRetornoManutencao}
+                    onChange={(evento) =>
+                      setPrevisaoRetornoManutencao(
+                        evento.target.value
+                      )
+                    }
+                  />
+                </label>
+
+                <div className="bib-feedback bib-feedback-warning">
+                  <div>
+                    <strong>
+                      O exemplar ficará em manutenção
+                    </strong>
+
+                    <p>
+                      Durante esse período, ele não poderá
+                      ser emprestado.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <footer className="bib-modal-footer">
+                <button
+                  type="button"
+                  className="bib-button bib-button-secondary"
+                  onClick={fecharManutencao}
+                  disabled={enviandoParaManutencao}
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="submit"
+                  className="bib-button bib-button-primary"
+                  disabled={
+                    enviandoParaManutencao ||
+                    !motivoManutencao.trim()
+                  }
+                >
+                  {enviandoParaManutencao
+                    ? "Enviando..."
+                    : "🔧 Enviar para manutenção"}
                 </button>
               </footer>
             </form>

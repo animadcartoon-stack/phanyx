@@ -230,18 +230,19 @@ model Instituicao {
   restricoesRematricula          RestricaoRematriculaAluno[]
   historicosRestricaoRematricula RestricaoRematriculaHistorico[]
 
-  modulosAdicionais      ModuloAdicionalInstituicao[]
-  bibliotecaConfiguracao BibliotecaConfiguracao?
-  bibliotecaOperadores   BibliotecaOperador[]
-  bibliotecaConsumos     BibliotecaConsumoArmazenamento[]
-  bibliotecaAuditorias   BibliotecaAuditoria[]
-  bibliotecaItens        BibliotecaItem[]
-  bibliotecaAutores      BibliotecaAutor[]
-  bibliotecaEditoras     BibliotecaEditora[]
-  bibliotecaCategorias   BibliotecaCategoria[]
-  bibliotecaArquivos     BibliotecaArquivo[]
-  bibliotecaLicencas     BibliotecaLicenca[]
-  bibliotecaExemplares   BibliotecaExemplar[]
+  modulosAdicionais               ModuloAdicionalInstituicao[]
+  bibliotecaConfiguracao          BibliotecaConfiguracao?
+  bibliotecaOperadores            BibliotecaOperador[]
+  bibliotecaConsumos              BibliotecaConsumoArmazenamento[]
+  bibliotecaAuditorias            BibliotecaAuditoria[]
+  bibliotecaItens                 BibliotecaItem[]
+  bibliotecaAutores               BibliotecaAutor[]
+  bibliotecaEditoras              BibliotecaEditora[]
+  bibliotecaCategorias            BibliotecaCategoria[]
+  bibliotecaArquivos              BibliotecaArquivo[]
+  bibliotecaLicencas              BibliotecaLicenca[]
+  bibliotecaExemplares            BibliotecaExemplar[]
+  bibliotecaManutencoesExemplares BibliotecaManutencaoExemplar[]
 
   bibliotecaEmprestimos BibliotecaEmprestimo[]
   bibliotecaRenovacoes  BibliotecaRenovacao[]
@@ -458,6 +459,9 @@ model User {
   bibliotecaLicencasAtualizadas          BibliotecaLicenca[]              @relation("BibliotecaLicencaAtualizadaPor")
   bibliotecaExemplaresCriados            BibliotecaExemplar[]             @relation("BibliotecaExemplarCriadoPor")
   bibliotecaExemplaresAtualizados        BibliotecaExemplar[]             @relation("BibliotecaExemplarAtualizadoPor")
+  bibliotecaManutencoesIniciadas         BibliotecaManutencaoExemplar[]   @relation("BibliotecaManutencaoIniciadaPor")
+  bibliotecaManutencoesConcluidas        BibliotecaManutencaoExemplar[]   @relation("BibliotecaManutencaoConcluidaPor")
+  bibliotecaManutencoesCanceladas        BibliotecaManutencaoExemplar[]   @relation("BibliotecaManutencaoCanceladaPor")
   bibliotecaEmprestimos                  BibliotecaEmprestimo[]           @relation("BibliotecaEmprestimoUsuario")
   bibliotecaEmprestimosRegistrados       BibliotecaEmprestimo[]           @relation("BibliotecaEmprestimoRegistradoPor")
   bibliotecaDevolucoesRegistradas        BibliotecaEmprestimo[]           @relation("BibliotecaEmprestimoDevolvidoPor")
@@ -6135,6 +6139,7 @@ model BibliotecaExemplar {
 
   emprestimos BibliotecaEmprestimo[]
   reservas    BibliotecaReserva[]
+  manutencoes BibliotecaManutencaoExemplar[]
 
   @@unique([id, instituicaoId])
   @@unique([instituicaoId, codigoInterno])
@@ -6145,6 +6150,55 @@ model BibliotecaExemplar {
   @@index([itemId])
   @@index([licencaId])
   @@index([tipo])
+}
+
+model BibliotecaManutencaoExemplar {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+  exemplarId    Int
+
+  status    StatusManutencaoExemplarBiblioteca     @default(ABERTA)
+  resultado ResultadoManutencaoExemplarBiblioteca?
+
+  motivo            String  @db.Text
+  observacaoEntrada String? @db.Text
+
+  fornecedor    String?
+  custoEstimado Decimal? @db.Decimal(12, 2)
+  custoFinal    Decimal? @db.Decimal(12, 2)
+
+  iniciadaEm        DateTime  @default(now())
+  previsaoRetornoEm DateTime?
+  concluidaEm       DateTime?
+  canceladaEm       DateTime?
+
+  observacaoConclusao String? @db.Text
+
+  iniciadoPorId  Int?
+  concluidoPorId Int?
+  canceladoPorId Int?
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  exemplar BibliotecaExemplar @relation(fields: [exemplarId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  iniciadoPor User? @relation("BibliotecaManutencaoIniciadaPor", fields: [iniciadoPorId], references: [id], onDelete: SetNull)
+
+  concluidoPor User? @relation("BibliotecaManutencaoConcluidaPor", fields: [concluidoPorId], references: [id], onDelete: SetNull)
+
+  canceladoPor User? @relation("BibliotecaManutencaoCanceladaPor", fields: [canceladoPorId], references: [id], onDelete: SetNull)
+
+  @@unique([id, instituicaoId])
+  @@index([instituicaoId])
+  @@index([instituicaoId, status])
+  @@index([exemplarId])
+  @@index([exemplarId, status])
+  @@index([iniciadoPorId])
+  @@index([concluidoPorId])
+  @@index([canceladoPorId])
 }
 
 model FunilComercial {
@@ -7913,6 +7967,9 @@ enum AcaoAuditoriaBiblioteca {
   RENOVAR
   RESERVAR
   DEVOLVER
+  INICIAR_MANUTENCAO
+  CONCLUIR_MANUTENCAO
+  CANCELAR_MANUTENCAO
   CANCELAR
   CONFIGURAR
   CONCEDER_ACESSO
@@ -8028,6 +8085,17 @@ enum StatusExemplarBiblioteca {
   EXTRAVIADO
   INDISPONIVEL
   BAIXADO
+}
+
+enum StatusManutencaoExemplarBiblioteca {
+  ABERTA
+  CONCLUIDA
+  CANCELADA
+}
+
+enum ResultadoManutencaoExemplarBiblioteca {
+  REPARADO
+  IRRECUPERAVEL
 }
 
 enum TipoCanalCaptacaoLead {

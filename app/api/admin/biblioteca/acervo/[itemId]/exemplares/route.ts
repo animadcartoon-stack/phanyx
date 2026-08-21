@@ -2,6 +2,7 @@ import {
     AcaoAuditoriaBiblioteca,
     Prisma,
     StatusExemplarBiblioteca,
+    StatusManutencaoExemplarBiblioteca,
     TipoExemplarBiblioteca,
 } from "@prisma/client";
 
@@ -74,6 +75,43 @@ const EXEMPLAR_SELECT = {
 
     baixadoEm: true,
     motivoBaixa: true,
+
+    manutencoes: {
+        where: {
+            status:
+                StatusManutencaoExemplarBiblioteca.ABERTA,
+        },
+
+        orderBy: {
+            iniciadaEm: "desc",
+        },
+
+        take: 1,
+
+        select: {
+            id: true,
+            status: true,
+            resultado: true,
+
+            motivo: true,
+            observacaoEntrada: true,
+
+            fornecedor: true,
+            custoEstimado: true,
+            custoFinal: true,
+
+            iniciadaEm: true,
+            previsaoRetornoEm: true,
+            concluidaEm: true,
+            canceladaEm: true,
+
+            observacaoConclusao: true,
+
+            iniciadoPorId: true,
+            concluidoPorId: true,
+            canceladoPorId: true,
+        },
+    },
 } satisfies Prisma.BibliotecaExemplarSelect;
 
 function responder(
@@ -518,6 +556,21 @@ export async function GET(
             }
         }
 
+        let podeGerenciarManutencao =
+            !usuario.impersonacao;
+
+        if (podeGerenciarManutencao) {
+            try {
+                exigirPermissaoBiblioteca(
+                    usuario,
+                    contexto,
+                    "biblioteca.exemplares.manutencao"
+                );
+            } catch {
+                podeGerenciarManutencao = false;
+            }
+        }
+
         const exemplares =
             await prisma.bibliotecaExemplar.findMany(
                 {
@@ -538,6 +591,20 @@ export async function GET(
                 }
             );
 
+        const exemplaresComManutencao =
+            exemplares.map(
+                ({
+                    manutencoes,
+                    ...exemplar
+                }) => ({
+                    ...exemplar,
+
+                    manutencaoAberta:
+                        manutencoes[0] ??
+                        null,
+                })
+            );
+
         return responder({
             ok: true,
 
@@ -546,14 +613,16 @@ export async function GET(
                 titulo: item.titulo,
             },
 
-            exemplares,
+            exemplares:
+                exemplaresComManutencao,
 
             total:
-                exemplares.length,
+                exemplaresComManutencao.length,
 
             permissoes: {
                 podeGerenciar,
                 podeBaixar,
+                podeGerenciarManutencao,
 
                 impersonacao:
                     usuario.impersonacao,

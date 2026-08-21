@@ -145,6 +145,12 @@ export const PERMISSOES_PHANYX = [
     descricao:
       "Permite realizar a baixa de exemplares do acervo com motivo e auditoria.",
   },
+  {
+  chave: "biblioteca.exemplares.manutencao",
+  nome: "Biblioteca Virtual - Gerenciar manutenção de exemplares",
+  descricao:
+    "Permite enviar exemplares para manutenção, registrar a conclusão, declarar exemplares irrecuperáveis e cancelar manutenções.",
+},
 
   // ARQUIVOS E ARMAZENAMENTO
   {

@@ -118,6 +118,7 @@ function operadorPossuiPermissao(
     case "biblioteca.catalogo.criar":
     case "biblioteca.catalogo.editar":
     case "biblioteca.exemplares.gerenciar":
+    case "biblioteca.exemplares.manutencao":
     case "biblioteca.arquivos.upload":
     case "biblioteca.arquivos.gerenciar":
       return operador.podeCatalogar;
