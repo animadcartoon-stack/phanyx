@@ -28646,3 +28646,90 @@ html[data-theme="system"] .phanyx-whatsapp-page {
   background: var(--wa-success-hover) !important;
   color: #ffffff !important;
 }
+
+/* =========================================================
+   MODAL DE ERRO DA FOTO DO PROFESSOR
+   CONTRASTE POR TEMA
+   ========================================================= */
+
+/* Tema claro */
+html[data-theme="light"]
+  div:has(> #titulo-erro-foto-professor),
+html:not([data-theme])
+  div:has(> #titulo-erro-foto-professor) {
+  background: #ffffff !important;
+  border-color: #fecaca !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  #titulo-erro-foto-professor,
+html:not([data-theme])
+  #titulo-erro-foto-professor {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  #titulo-erro-foto-professor + p,
+html:not([data-theme])
+  #titulo-erro-foto-professor + p {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  #titulo-erro-foto-professor ~ div
+  > button:first-child,
+html:not([data-theme])
+  #titulo-erro-foto-professor ~ div
+  > button:first-child {
+  background: #ffffff !important;
+  border-color: #64748b !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+/* Tema escuro e sistema */
+html[data-theme="dark"]
+  div:has(> #titulo-erro-foto-professor),
+html[data-theme="system"]
+  div:has(> #titulo-erro-foto-professor) {
+  background: #0f172a !important;
+  border-color: #7f1d1d !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"]
+  #titulo-erro-foto-professor,
+html[data-theme="system"]
+  #titulo-erro-foto-professor {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"]
+  #titulo-erro-foto-professor + p,
+html[data-theme="system"]
+  #titulo-erro-foto-professor + p {
+  color: #cbd5e1 !important;
+  -webkit-text-fill-color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"]
+  #titulo-erro-foto-professor ~ div
+  > button:first-child,
+html[data-theme="system"]
+  #titulo-erro-foto-professor ~ div
+  > button:first-child {
+  background: #1e293b !important;
+  border-color: #64748b !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
