@@ -1,6 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useSearchParams } from "next/navigation";
 import withAuth from "@/components/auth/withAuth";
 import BuscaBanco from "@/components/rh/BuscaBanco";
@@ -490,6 +495,22 @@ function AdminProfessoresPage() {
   const [fotoPerfil, setFotoPerfil] = useState("");
   const [documentoUrl, setDocumentoUrl] = useState("");
   const [enviandoFotoPerfil, setEnviandoFotoPerfil] = useState(false);
+
+  const inputFotoProfessorRef =
+    useRef<HTMLInputElement | null>(null);
+
+  const inputEditFotoProfessorRef =
+    useRef<HTMLInputElement | null>(null);
+
+  const [
+    erroFotoProfessor,
+    setErroFotoProfessor,
+  ] = useState<{
+    titulo: string;
+    mensagem: string;
+    modo: "CRIACAO" | "EDICAO";
+  } | null>(null);
+
   const [slug, setSlug] = useState("");
   const [poloId, setPoloId] = useState("");
 
@@ -621,29 +642,60 @@ function AdminProfessoresPage() {
   const TAMANHO_MAXIMO_FOTO_PROFESSOR_BYTES =
     TAMANHO_MAXIMO_FOTO_PROFESSOR_MB * 1024 * 1024;
 
-  function validarFotoOficialProfessor(arquivo: File) {
-    if (!FORMATOS_FOTO_PROFESSOR_ACEITOS.includes(arquivo.type)) {
-      throw new Error(
-        "Formato inválido. Envie uma foto em JPG, JPEG, PNG ou WEBP."
-      );
-    }
-
-    if (arquivo.size > TAMANHO_MAXIMO_FOTO_PROFESSOR_BYTES) {
-      throw new Error(
-        `Foto muito grande. Envie uma foto com no máximo ${TAMANHO_MAXIMO_FOTO_PROFESSOR_MB} MB. Recomendado: imagem quadrada, no mínimo 600x600 px, com rosto centralizado.`
-      );
-    }
-  }
-
   async function enviarFotoOficialProfessor(
     arquivo: File | null,
     modo: "CRIACAO" | "EDICAO"
   ) {
     if (!arquivo) return;
 
-    try {
-      validarFotoOficialProfessor(arquivo);
+    setErroFotoProfessor(null);
 
+    const extensao =
+      arquivo.name
+        .split(".")
+        .pop()
+        ?.toUpperCase() || "desconhecido";
+
+    if (
+      !FORMATOS_FOTO_PROFESSOR_ACEITOS.includes(
+        arquivo.type
+      )
+    ) {
+      setErroFotoProfessor({
+        titulo: "Formato de foto não aceito",
+        mensagem:
+          `A foto selecionada está no formato ${extensao}. ` +
+          "Escolha outra foto em JPG, JPEG, PNG ou WEBP.",
+        modo,
+      });
+
+      return;
+    }
+
+    if (
+      arquivo.size >
+      TAMANHO_MAXIMO_FOTO_PROFESSOR_BYTES
+    ) {
+      const tamanhoMb = (
+        arquivo.size /
+        (1024 * 1024)
+      )
+        .toFixed(2)
+        .replace(".", ",");
+
+      setErroFotoProfessor({
+        titulo: "A foto está muito grande",
+        mensagem:
+          `A foto selecionada possui ${tamanhoMb} MB, ` +
+          `mas o tamanho máximo permitido é ${TAMANHO_MAXIMO_FOTO_PROFESSOR_MB} MB. ` +
+          "Diminua ou comprima a foto e tente novamente.",
+        modo,
+      });
+
+      return;
+    }
+
+    try {
       if (modo === "CRIACAO") {
         setEnviandoFotoPerfil(true);
       } else {
@@ -659,10 +711,14 @@ function AdminProfessoresPage() {
         body: formData,
       });
 
-      const data = await res.json().catch(() => null);
+      const data =
+        await res.json().catch(() => null);
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao enviar foto.");
+        throw new Error(
+          data?.error ||
+          `Falha no envio da foto. Código ${res.status}.`
+        );
       }
 
       const url =
@@ -672,7 +728,9 @@ function AdminProfessoresPage() {
         data?.publicUrl;
 
       if (!url) {
-        throw new Error("Upload realizado, mas a URL da foto não retornou.");
+        throw new Error(
+          "O envio terminou, mas o servidor não retornou o endereço da foto."
+        );
       }
 
       if (modo === "CRIACAO") {
@@ -681,13 +739,22 @@ function AdminProfessoresPage() {
         setEditFotoPerfil(url);
       }
 
-      mostrarFeedback("sucesso", "Foto oficial do professor enviada com sucesso.");
-    } catch (error: any) {
       mostrarFeedback(
-        "erro",
-        error?.message ||
-        "Não foi possível enviar a foto. Verifique o formato e o tamanho do arquivo."
+        "sucesso",
+        "Foto oficial do professor enviada com sucesso."
       );
+    } catch (error: any) {
+      const motivo =
+        error?.message ||
+        "O servidor não conseguiu receber a foto.";
+
+      setErroFotoProfessor({
+        titulo: "Não foi possível enviar a foto",
+        mensagem:
+          `${motivo} ` +
+          "Verifique a imagem ou escolha outra foto e tente novamente.",
+        modo,
+      });
     } finally {
       setEnviandoFotoPerfil(false);
       setEditEnviandoFotoPerfil(false);
@@ -716,61 +783,61 @@ function AdminProfessoresPage() {
   }
 
   async function carregarPolos() {
-  try {
-    const res = await fetch("/api/admin/polos", {
-      credentials: "include",
-      cache: "no-store",
-    });
+    try {
+      const res = await fetch("/api/admin/polos", {
+        credentials: "include",
+        cache: "no-store",
+      });
 
-    const data = await res.json().catch(() => null);
+      const data = await res.json().catch(() => null);
 
-    if (!res.ok) {
-      console.error(
-        "Erro ao buscar polos:",
-        data?.error || res.statusText
-      );
+      if (!res.ok) {
+        console.error(
+          "Erro ao buscar polos:",
+          data?.error || res.statusText
+        );
 
+        setPolos([]);
+        return;
+      }
+
+      /*
+       * A API atual retorna:
+       * {
+       *   polos: [...],
+       *   gestao: {...}
+       * }
+       *
+       * Mantemos também compatibilidade caso alguma versão
+       * antiga da API retorne o array diretamente.
+       */
+      const polosRecebidos = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.polos)
+          ? data.polos
+          : [];
+
+      const listaPolos: Polo[] = polosRecebidos
+        .map((polo: any) => ({
+          id: Number(polo?.id),
+          nome: String(polo?.nome || "").trim(),
+          codigo: polo?.codigo
+            ? String(polo.codigo)
+            : null,
+        }))
+        .filter(
+          (polo: Polo) =>
+            Number.isInteger(polo.id) &&
+            polo.id > 0 &&
+            polo.nome.length > 0
+        );
+
+      setPolos(listaPolos);
+    } catch (error) {
+      console.error("Erro ao carregar polos:", error);
       setPolos([]);
-      return;
     }
-
-    /*
-     * A API atual retorna:
-     * {
-     *   polos: [...],
-     *   gestao: {...}
-     * }
-     *
-     * Mantemos também compatibilidade caso alguma versão
-     * antiga da API retorne o array diretamente.
-     */
-    const polosRecebidos = Array.isArray(data)
-      ? data
-      : Array.isArray(data?.polos)
-        ? data.polos
-        : [];
-
-    const listaPolos: Polo[] = polosRecebidos
-      .map((polo: any) => ({
-        id: Number(polo?.id),
-        nome: String(polo?.nome || "").trim(),
-        codigo: polo?.codigo
-          ? String(polo.codigo)
-          : null,
-      }))
-      .filter(
-        (polo: Polo) =>
-          Number.isInteger(polo.id) &&
-          polo.id > 0 &&
-          polo.nome.length > 0
-      );
-
-    setPolos(listaPolos);
-  } catch (error) {
-    console.error("Erro ao carregar polos:", error);
-    setPolos([]);
   }
-}
 
   async function carregarDepartamentos() {
     try {
@@ -1530,8 +1597,8 @@ function AdminProfessoresPage() {
         {feedback && (
           <div
             className={`rounded-2xl border px-4 py-3 text-sm shadow-sm ${feedbackTipo === "sucesso"
-                ? "border-green-200 bg-green-50 text-green-700"
-                : "border-red-200 bg-red-50 text-red-700"
+              ? "border-green-200 bg-green-50 text-green-700"
+              : "border-red-200 bg-red-50 text-red-700"
               }`}
           >
             {feedback}
@@ -2374,12 +2441,21 @@ function AdminProfessoresPage() {
                     <label className="phanyx-foto-oficial-botao">
                       {enviandoFotoPerfil ? "Enviando..." : "Enviar foto"}
                       <input
+                        ref={inputFotoProfessorRef}
                         type="file"
                         accept="image/png,image/jpeg,image/jpg,image/webp"
                         disabled={enviandoFotoPerfil}
-                        onChange={(e) =>
-                          enviarFotoOficialProfessor(e.target.files?.[0] || null, "CRIACAO")
-                        }
+                        onChange={(e) => {
+                          const arquivo =
+                            e.currentTarget.files?.[0] || null;
+
+                          e.currentTarget.value = "";
+
+                          void enviarFotoOficialProfessor(
+                            arquivo,
+                            "CRIACAO"
+                          );
+                        }}
                         className="hidden"
                       />
                     </label>
@@ -3399,12 +3475,21 @@ function AdminProfessoresPage() {
                               <label className="phanyx-foto-oficial-botao">
                                 {editEnviandoFotoPerfil ? "Enviando..." : "Trocar foto"}
                                 <input
+                                  ref={inputEditFotoProfessorRef}
                                   type="file"
                                   accept="image/png,image/jpeg,image/jpg,image/webp"
                                   disabled={editEnviandoFotoPerfil}
-                                  onChange={(e) =>
-                                    enviarFotoOficialProfessor(e.target.files?.[0] || null, "EDICAO")
-                                  }
+                                  onChange={(e) => {
+                                    const arquivo =
+                                      e.currentTarget.files?.[0] || null;
+
+                                    e.currentTarget.value = "";
+
+                                    void enviarFotoOficialProfessor(
+                                      arquivo,
+                                      "EDICAO"
+                                    );
+                                  }}
                                   className="hidden"
                                 />
                               </label>
@@ -3726,6 +3811,65 @@ function AdminProfessoresPage() {
           )}
         </div>
       </div>
+
+      {erroFotoProfessor && (
+        <div
+          className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="titulo-erro-foto-professor"
+        >
+          <div className="w-full max-w-md rounded-3xl border border-red-200 bg-white p-6 shadow-2xl dark:border-red-900 dark:bg-slate-900">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-2xl dark:bg-red-950">
+              🖼️
+            </div>
+
+            <h2
+              id="titulo-erro-foto-professor"
+              className="mt-4 text-xl font-bold text-slate-950 dark:text-white"
+            >
+              {erroFotoProfessor.titulo}
+            </h2>
+
+            <p className="mt-3 text-sm leading-6 text-slate-700 dark:text-slate-200">
+              {erroFotoProfessor.mensagem}
+            </p>
+
+            <div className="mt-6 flex flex-wrap justify-end gap-3">
+              <button
+                type="button"
+                onClick={() =>
+                  setErroFotoProfessor(null)
+                }
+                className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-800 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+              >
+                Fechar
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const modo =
+                    erroFotoProfessor.modo;
+
+                  setErroFotoProfessor(null);
+
+                  window.setTimeout(() => {
+                    if (modo === "EDICAO") {
+                      inputEditFotoProfessorRef.current?.click();
+                    } else {
+                      inputFotoProfessorRef.current?.click();
+                    }
+                  }, 0);
+                }}
+                className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-500"
+              >
+                Escolher outra foto
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {professorParaExcluir && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 p-4">
