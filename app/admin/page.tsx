@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import PhanyxTour from "@/components/tutorial/PhanyxTour";
 import CentralAvisosPhanyx from "@/components/phanyx/CentralAvisosPhanyx";
+import { useTranslations } from "next-intl";
 
 interface Stats {
   alunos: number;
@@ -17,12 +18,12 @@ type ItemBusca = {
   id: number;
   nome: string;
   tipo:
-    | "Aluno"
-    | "Professor"
-    | "Curso"
-    | "Disciplina"
-    | "Turma"
-    | "Matrícula";
+  | "Aluno"
+  | "Professor"
+  | "Curso"
+  | "Disciplina"
+  | "Turma"
+  | "Matrícula";
   href: string;
 };
 
@@ -37,69 +38,6 @@ type TourStep = {
 };
 
 const TOUR_STORAGE_KEY = "phanyx_admin_tour_oculto_v2";
-
-const tourSteps: TourStep[] = [
-  {
-    id: "painel",
-    selector: '[data-tour="menu-painel"]',
-    titulo: "Painel administrativo",
-    descricao:
-      "Aqui é a visão geral da sua operação. Sempre que quiser voltar ao início, clique aqui.",
-    mascoteSrc: "/images/formix-bemvindo.png",
-    mascoteAlt: "Formix dando boas-vindas",
-    destaque: "Vamos começar pelo painel principal.",
-  },
-  {
-    id: "configuracoes",
-    selector: '[data-tour="menu-configuracoes"]',
-    titulo: "Configurações da instituição",
-    descricao:
-      "Comece por aqui. É onde você configura logo, dados institucionais, identidade visual e informações principais.",
-    mascoteSrc: "/images/formix.png",
-    mascoteAlt: "Formix guiando configurações",
-    destaque: "Primeiro ajuste a identidade da sua instituição.",
-  },
-  {
-    id: "departamentos",
-    selector: '[data-tour="menu-departamentos"]',
-    titulo: "Setores / departamentos",
-    descricao:
-      "Depois organize a instituição em setores, como secretaria, financeiro, acadêmico e coordenação.",
-    mascoteSrc: "/images/formix-bemvindo.png",
-    mascoteAlt: "Formix organizando setores",
-    destaque: "Agora vamos estruturar a operação interna.",
-  },
-  {
-    id: "professores",
-    selector: '[data-tour="menu-professores"]',
-    titulo: "Cadastro de professores",
-    descricao:
-      "Aqui você cadastra os professores que vão operar a parte acadêmica e acessar o sistema.",
-    mascoteSrc: "/images/formix.png",
-    mascoteAlt: "Formix mostrando professores",
-    destaque: "Hora de montar a equipe docente.",
-  },
-  {
-    id: "alunos",
-    selector: '[data-tour="menu-alunos"]',
-    titulo: "Cadastro de alunos",
-    descricao:
-      "Depois você registra seus alunos e prepara a base para matrículas e acompanhamento acadêmico.",
-    mascoteSrc: "/images/formix-bemvindo.png",
-    mascoteAlt: "Formix recebendo alunos",
-    destaque: "Agora vamos preparar sua base de alunos.",
-  },
-  {
-    id: "matriculas",
-    selector: '[data-tour="menu-matriculas"]',
-    titulo: "Matrículas",
-    descricao:
-      "Aqui você conecta alunos, cursos e turmas para iniciar a operação real da instituição.",
-    mascoteSrc: "/images/formix.png",
-    mascoteAlt: "Formix celebrando matrículas",
-    destaque: "Quase pronto: aqui começa a operação real.",
-  },
-];
 
 function getRectFromSelector(selector: string) {
   const elemento = document.querySelector(selector);
@@ -122,6 +60,68 @@ function AdminTour({
   aberto: boolean;
   onClose: (naoMostrarNovamente?: boolean) => void;
 }) {
+  const t = useTranslations("AdminDashboard");
+  const tCommon = useTranslations("Common");
+
+  const tourSteps = useMemo<TourStep[]>(
+    () => [
+      {
+        id: "painel",
+        selector: '[data-tour="menu-painel"]',
+        titulo: t("tourDashboardTitle"),
+        descricao: t("tourDashboardDescription"),
+        mascoteSrc: "/images/formix-bemvindo.png",
+        mascoteAlt: t("tourMascotAlt"),
+        destaque: t("tourDashboardHighlight"),
+      },
+      {
+        id: "configuracoes",
+        selector: '[data-tour="menu-configuracoes"]',
+        titulo: t("tourSettingsTitle"),
+        descricao: t("tourSettingsDescription"),
+        mascoteSrc: "/images/formix.png",
+        mascoteAlt: t("tourMascotAlt"),
+        destaque: t("tourSettingsHighlight"),
+      },
+      {
+        id: "departamentos",
+        selector: '[data-tour="menu-departamentos"]',
+        titulo: t("tourDepartmentsTitle"),
+        descricao: t("tourDepartmentsDescription"),
+        mascoteSrc: "/images/formix-bemvindo.png",
+        mascoteAlt: t("tourMascotAlt"),
+        destaque: t("tourDepartmentsHighlight"),
+      },
+      {
+        id: "professores",
+        selector: '[data-tour="menu-professores"]',
+        titulo: t("tourTeachersTitle"),
+        descricao: t("tourTeachersDescription"),
+        mascoteSrc: "/images/formix.png",
+        mascoteAlt: t("tourMascotAlt"),
+        destaque: t("tourTeachersHighlight"),
+      },
+      {
+        id: "alunos",
+        selector: '[data-tour="menu-alunos"]',
+        titulo: t("tourStudentsTitle"),
+        descricao: t("tourStudentsDescription"),
+        mascoteSrc: "/images/formix-bemvindo.png",
+        mascoteAlt: t("tourMascotAlt"),
+        destaque: t("tourStudentsHighlight"),
+      },
+      {
+        id: "matriculas",
+        selector: '[data-tour="menu-matriculas"]',
+        titulo: t("tourEnrollmentsTitle"),
+        descricao: t("tourEnrollmentsDescription"),
+        mascoteSrc: "/images/formix.png",
+        mascoteAlt: t("tourMascotAlt"),
+        destaque: t("tourEnrollmentsHighlight"),
+      },
+    ],
+    [t]
+  );
   const [stepIndex, setStepIndex] = useState(0);
   const [tourConcluido, setTourConcluido] = useState(false);
   const [targetRect, setTargetRect] = useState<{
@@ -133,76 +133,76 @@ function AdminTour({
 
   const bubbleRef = useRef<HTMLDivElement | null>(null);
 
-const [bubbleSize, setBubbleSize] = useState({
-  width: 420,
-  height: 290,
-});
+  const [bubbleSize, setBubbleSize] = useState({
+    width: 420,
+    height: 290,
+  });
 
   const step = tourSteps[stepIndex];
 
   useEffect(() => {
-  if (!aberto) return;
+    if (!aberto) return;
 
-  setTargetRect(null);
+    setTargetRect(null);
 
-  function atualizarPosicao() {
-    const rect = getRectFromSelector(step.selector);
-    setTargetRect(rect);
-  }
+    function atualizarPosicao() {
+      const rect = getRectFromSelector(step.selector);
+      setTargetRect(rect);
+    }
 
-  const detalheTour = {
-    selector: step.selector,
-  };
+    const detalheTour = {
+      selector: step.selector,
+    };
 
-  if (step.id === "configuracoes") {
-    window.dispatchEvent(
-      new CustomEvent("phanyx:abrir-menu-configuracoes", {
-        detail: detalheTour,
-      })
-    );
-  } else if (
-    step.id === "departamentos" ||
-    step.id === "professores" ||
-    step.id === "alunos" ||
-    step.id === "matriculas"
-  ) {
-    window.dispatchEvent(
-      new CustomEvent("phanyx:abrir-menu-academico", {
-        detail: detalheTour,
-      })
-    );
-  } else {
-    window.dispatchEvent(
-      new CustomEvent("phanyx:resetar-menu-tour")
-    );
-  }
+    if (step.id === "configuracoes") {
+      window.dispatchEvent(
+        new CustomEvent("phanyx:abrir-menu-configuracoes", {
+          detail: detalheTour,
+        })
+      );
+    } else if (
+      step.id === "departamentos" ||
+      step.id === "professores" ||
+      step.id === "alunos" ||
+      step.id === "matriculas"
+    ) {
+      window.dispatchEvent(
+        new CustomEvent("phanyx:abrir-menu-academico", {
+          detail: detalheTour,
+        })
+      );
+    } else {
+      window.dispatchEvent(
+        new CustomEvent("phanyx:resetar-menu-tour")
+      );
+    }
 
-  /*
-   * Primeira leitura: depois que o React abrir o grupo do menu.
-   * Segunda leitura: depois que a rolagem suave da sidebar terminar.
-   */
-  const timerInicial = window.setTimeout(atualizarPosicao, 150);
-  const timerFinal = window.setTimeout(atualizarPosicao, 750);
+    /*
+     * Primeira leitura: depois que o React abrir o grupo do menu.
+     * Segunda leitura: depois que a rolagem suave da sidebar terminar.
+     */
+    const timerInicial = window.setTimeout(atualizarPosicao, 150);
+    const timerFinal = window.setTimeout(atualizarPosicao, 750);
 
-  window.addEventListener("resize", atualizarPosicao);
-  window.addEventListener("scroll", atualizarPosicao, true);
-  window.addEventListener(
-    "phanyx:reposicionar-tour",
-    atualizarPosicao as EventListener
-  );
-
-  return () => {
-    window.clearTimeout(timerInicial);
-    window.clearTimeout(timerFinal);
-
-    window.removeEventListener("resize", atualizarPosicao);
-    window.removeEventListener("scroll", atualizarPosicao, true);
-    window.removeEventListener(
+    window.addEventListener("resize", atualizarPosicao);
+    window.addEventListener("scroll", atualizarPosicao, true);
+    window.addEventListener(
       "phanyx:reposicionar-tour",
       atualizarPosicao as EventListener
     );
-  };
-}, [aberto, step]);
+
+    return () => {
+      window.clearTimeout(timerInicial);
+      window.clearTimeout(timerFinal);
+
+      window.removeEventListener("resize", atualizarPosicao);
+      window.removeEventListener("scroll", atualizarPosicao, true);
+      window.removeEventListener(
+        "phanyx:reposicionar-tour",
+        atualizarPosicao as EventListener
+      );
+    };
+  }, [aberto, step]);
 
   useEffect(() => {
     if (!aberto) {
@@ -213,45 +213,45 @@ const [bubbleSize, setBubbleSize] = useState({
   }, [aberto]);
 
   useEffect(() => {
-  if (!aberto) return;
+    if (!aberto) return;
 
-  const elemento = bubbleRef.current;
+    const elemento = bubbleRef.current;
 
-  if (!elemento) return;
+    if (!elemento) return;
 
-  function medirBalao() {
-    const rect = elemento.getBoundingClientRect();
+    function medirBalao() {
+      const rect = elemento.getBoundingClientRect();
 
-    const width = Math.ceil(rect.width);
-    const height = Math.ceil(rect.height);
+      const width = Math.ceil(rect.width);
+      const height = Math.ceil(rect.height);
 
-    setBubbleSize((atual) => {
-      if (
-        atual.width === width &&
-        atual.height === height
-      ) {
-        return atual;
-      }
+      setBubbleSize((atual) => {
+        if (
+          atual.width === width &&
+          atual.height === height
+        ) {
+          return atual;
+        }
 
-      return {
-        width,
-        height,
-      };
-    });
-  }
+        return {
+          width,
+          height,
+        };
+      });
+    }
 
-  const frame = window.requestAnimationFrame(medirBalao);
-  const observer = new ResizeObserver(medirBalao);
+    const frame = window.requestAnimationFrame(medirBalao);
+    const observer = new ResizeObserver(medirBalao);
 
-  observer.observe(elemento);
-  window.addEventListener("resize", medirBalao);
+    observer.observe(elemento);
+    window.addEventListener("resize", medirBalao);
 
-  return () => {
-    window.cancelAnimationFrame(frame);
-    observer.disconnect();
-    window.removeEventListener("resize", medirBalao);
-  };
-}, [aberto, stepIndex, tourConcluido]);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      observer.disconnect();
+      window.removeEventListener("resize", medirBalao);
+    };
+  }, [aberto, stepIndex, tourConcluido]);
 
   if (!aberto) return null;
 
@@ -260,47 +260,47 @@ const [bubbleSize, setBubbleSize] = useState({
   const spotlight =
     !tourConcluido && targetRect
       ? {
-          top: Math.max(targetRect.top - spotlightPadding, 8),
-          left: Math.max(targetRect.left - spotlightPadding, 8),
-          width: targetRect.width + spotlightPadding * 2,
-          height: targetRect.height + spotlightPadding * 2,
-        }
+        top: Math.max(targetRect.top - spotlightPadding, 8),
+        left: Math.max(targetRect.left - spotlightPadding, 8),
+        width: targetRect.width + spotlightPadding * 2,
+        height: targetRect.height + spotlightPadding * 2,
+      }
       : null;
 
   const bubbleWidth = bubbleSize.width;
-const bubbleHeight = bubbleSize.height;
+  const bubbleHeight = bubbleSize.height;
 
   const bubbleStyle = spotlight
     ? (() => {
-        const isMenuLateral = spotlight.left < 320;
+      const isMenuLateral = spotlight.left < 320;
 
-        let top = spotlight.top + spotlight.height + 18;
-        let left = spotlight.left;
+      let top = spotlight.top + spotlight.height + 18;
+      let left = spotlight.left;
 
-        if (isMenuLateral) {
-          left = spotlight.left + spotlight.width + 18;
-          top = spotlight.top + spotlight.height / 2 - bubbleHeight / 2;
-        }
+      if (isMenuLateral) {
+        left = spotlight.left + spotlight.width + 18;
+        top = spotlight.top + spotlight.height / 2 - bubbleHeight / 2;
+      }
 
-        top = Math.max(
-          16,
-          Math.min(top, window.innerHeight - bubbleHeight - 16)
-        );
-        left = Math.max(
-          16,
-          Math.min(left, window.innerWidth - bubbleWidth - 16)
-        );
+      top = Math.max(
+        16,
+        Math.min(top, window.innerHeight - bubbleHeight - 16)
+      );
+      left = Math.max(
+        16,
+        Math.min(left, window.innerWidth - bubbleWidth - 16)
+      );
 
-        return {
-          top: `${top}px`,
-          left: `${left}px`,
-        };
-      })()
-    : {
-        top: "120px",
-        left: "50%",
-        transform: "translateX(-50%)",
+      return {
+        top: `${top}px`,
+        left: `${left}px`,
       };
+    })()
+    : {
+      top: "120px",
+      left: "50%",
+      transform: "translateX(-50%)",
+    };
 
   return (
     <div className="fixed inset-0 z-[9999]">
@@ -319,27 +319,27 @@ const bubbleHeight = bubbleSize.height;
       )}
 
       <div
-  ref={bubbleRef}
-  className="absolute max-h-[calc(100vh-32px)] w-[min(420px,calc(100vw-32px))] overflow-y-auto rounded-[28px] border border-slate-200 bg-white px-5 py-4 shadow-2xl transition-all duration-300"
+        ref={bubbleRef}
+        className="absolute max-h-[calc(100vh-32px)] w-[min(420px,calc(100vw-32px))] overflow-y-auto rounded-[28px] border border-slate-200 bg-white px-5 py-4 shadow-2xl transition-all duration-300"
         style={
           tourConcluido
             ? {
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-              }
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+            }
             : bubbleStyle
         }
       >
         {!tourConcluido &&
           (spotlight && spotlight.left < 320 ? (
             <div
-  className="absolute h-3 w-3 -translate-y-1/2 rotate-45 border border-gray-200 bg-white shadow-sm"
-  style={{
-    left: "-6px",
-    top: "50%",
-  }}
-/>
+              className="absolute h-3 w-3 -translate-y-1/2 rotate-45 border border-gray-200 bg-white shadow-sm"
+              style={{
+                left: "-6px",
+                top: "50%",
+              }}
+            />
           ) : (
             <div
               className="absolute h-3 w-3 rotate-45 border border-gray-200 bg-white shadow-sm"
@@ -361,7 +361,7 @@ const bubbleHeight = bubbleSize.height;
 
               <div className="min-w-0">
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue-700">
-                  Tutorial guiado
+                  {t("guidedTutorial")}
                 </p>
 
                 <h3 className="mt-1 text-xl font-bold text-slate-900">
@@ -382,7 +382,10 @@ const bubbleHeight = bubbleSize.height;
 
             <div className="mt-5 flex items-center justify-between gap-3">
               <div className="text-sm text-slate-500">
-                Etapa {stepIndex + 1} de {tourSteps.length}
+                {t("tourStepProgress", {
+                  current: stepIndex + 1,
+                  total: tourSteps.length,
+                })}
               </div>
 
               <div className="flex flex-wrap justify-end gap-2">
@@ -391,7 +394,7 @@ const bubbleHeight = bubbleSize.height;
                   onClick={() => onClose(false)}
                   className="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-medium text-slate-700 backdrop-blur hover:bg-slate-100"
                 >
-                  Fechar
+                  {tCommon("close")}
                 </button>
 
                 <button
@@ -399,7 +402,7 @@ const bubbleHeight = bubbleSize.height;
                   onClick={() => onClose(true)}
                   className="rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-700 hover:bg-amber-100"
                 >
-                  Não mostrar mais
+                  {t("dontShowAgain")}
                 </button>
 
                 {stepIndex > 0 && (
@@ -408,7 +411,7 @@ const bubbleHeight = bubbleSize.height;
                     onClick={() => setStepIndex((prev) => prev - 1)}
                     className="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-medium text-slate-700 backdrop-blur hover:bg-slate-100"
                   >
-                    Anterior
+                    {t("previous")}
                   </button>
                 )}
 
@@ -418,7 +421,7 @@ const bubbleHeight = bubbleSize.height;
                     onClick={() => setStepIndex((prev) => prev + 1)}
                     className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
                   >
-                    Próximo
+                    {t("next")}
                   </button>
                 ) : (
                   <button
@@ -426,7 +429,7 @@ const bubbleHeight = bubbleSize.height;
                     onClick={() => setTourConcluido(true)}
                     className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
                   >
-                    Concluir tour
+                    {t("completeTour")}
                   </button>
                 )}
               </div>
@@ -436,34 +439,33 @@ const bubbleHeight = bubbleSize.height;
           <div className="text-center">
             <img
               src="/images/formix-bemvindo.png"
-              alt="Formix comemorando"
+              alt={t("tourCelebratingAlt")}
               className="mx-auto h-28 w-28 object-contain drop-shadow-lg animate-mascote"
             />
 
             <p className="mt-3 text-xs font-semibold uppercase tracking-[0.22em] text-emerald-600">
-              Tour concluído com sucesso
+              {t("tourCompleted")}
             </p>
 
             <h3 className="mt-2 text-2xl font-bold text-slate-900">
-              Parabéns! Sua instituição já pode começar 🚀
+              {t("tourCongratulations")}
             </h3>
 
             <p className="mt-3 text-sm leading-7 text-slate-600">
-              Você concluiu o tour inicial do PHANYX. Agora sua equipe já pode
-              seguir a implantação com muito mais segurança.
+              {t("tourCompletedDescription")}
             </p>
 
             <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left">
               <p className="text-sm font-semibold text-slate-900">
-                Próximos passos recomendados
+                {t("recommendedNextSteps")}
               </p>
 
               <ul className="mt-3 space-y-2 text-sm text-slate-600">
-                <li>✅ Configurar os dados da instituição</li>
-                <li>✅ Organizar setores e departamentos</li>
-                <li>✅ Cadastrar professores</li>
-                <li>✅ Cadastrar alunos</li>
-                <li>✅ Iniciar matrículas</li>
+                <li>✅ {t("configureInstitutionData")}</li>
+                <li>✅ {t("organizeDepartments")}</li>
+                <li>✅ {t("registerTeachers")}</li>
+                <li>✅ {t("registerStudents")}</li>
+                <li>✅ {t("startEnrollments")}</li>
               </ul>
             </div>
 
@@ -473,7 +475,7 @@ const bubbleHeight = bubbleSize.height;
                 onClick={() => onClose(false)}
                 className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
               >
-                Começar pelas configurações
+                {t("startWithSettings")}
               </Link>
 
               <button
@@ -481,7 +483,7 @@ const bubbleHeight = bubbleSize.height;
                 onClick={() => onClose(true)}
                 className="rounded-xl border border-slate-200 bg-white/90 px-4 py-2 text-sm font-medium text-slate-700 backdrop-blur hover:bg-slate-100"
               >
-                Encerrar e não mostrar mais
+                {t("finishAndHide")}
               </button>
 
               <button
@@ -489,7 +491,7 @@ const bubbleHeight = bubbleSize.height;
                 onClick={() => onClose(false)}
                 className="rounded-xl border border-slate-200 bg-white/90 px-4 py-2 text-sm font-medium text-slate-700 backdrop-blur hover:bg-slate-100"
               >
-                Continuar no painel
+                {t("continueDashboard")}
               </button>
             </div>
           </div>
@@ -499,29 +501,43 @@ const bubbleHeight = bubbleSize.height;
   );
 }
 
-function extrairNomeMatricula(item: any) {
+function extrairNomeMatricula(item: any, tipoTraduzido: string) {
   return (
     item?.aluno?.nome ||
     item?.nomeAluno ||
     item?.matricula ||
-    `Matrícula #${String(item?.id ?? "")}`
+    `${tipoTraduzido} #${String(item?.id ?? "")}`
   );
 }
 
-function extrairNomeTurma(item: any) {
+function extrairNomeTurma(item: any, tipoTraduzido: string) {
   return (
     item?.nome ||
     item?.titulo ||
     item?.codigo ||
-    `Turma #${String(item?.id ?? "")}`
+    `${tipoTraduzido} #${String(item?.id ?? "")}`
   );
 }
 
-function extrairNomeDisciplina(item: any) {
-  return item?.nome || item?.titulo || `Disciplina #${String(item?.id ?? "")}`;
+function extrairNomeDisciplina(item: any, tipoTraduzido: string) {
+  return (
+    item?.nome ||
+    item?.titulo ||
+    `${tipoTraduzido} #${String(item?.id ?? "")}`
+  );
 }
 
 export default function AdminDashboardPage() {
+  const t = useTranslations("AdminDashboard");
+  const tCommon = useTranslations("Common");
+  const tiposResultado: Record<ItemBusca["tipo"], string> = {
+    Aluno: t("studentResult"),
+    Professor: t("teacherResult"),
+    Curso: t("courseResult"),
+    Disciplina: t("subjectResult"),
+    Turma: t("classResult"),
+    Matrícula: t("enrollmentResult"),
+  };
   const [stats, setStats] = useState<Stats>({
     alunos: 0,
     professores: 0,
@@ -544,77 +560,77 @@ export default function AdminDashboardPage() {
   const [turmasLista, setTurmasLista] = useState<ItemBusca[]>([]);
   const [matriculasLista, setMatriculasLista] = useState<ItemBusca[]>([]);
 
-async function carregarPerfilAdmin() {
-  try {
-    const res = await fetch("/api/admin/funcionarios/me", {
-      credentials: "include",
-      cache: "no-store",
-    });
+  async function carregarPerfilAdmin() {
+    try {
+      const res = await fetch("/api/admin/funcionarios/me", {
+        credentials: "include",
+        cache: "no-store",
+      });
 
-    const json = await res.json();
+      const json = await res.json();
 
-    if (res.ok) {
-      setPerfilAdmin(json);
+      if (res.ok) {
+        setPerfilAdmin(json);
+      }
+    } catch {
+      setPerfilAdmin(null);
     }
-  } catch {
-    setPerfilAdmin(null);
   }
-}
 
-async function alterarFotoFuncionario(file: File | null) {
-  if (!file) return;
+  async function alterarFotoFuncionario(file: File | null) {
+    if (!file) return;
 
-  try {
-    setEnviandoFoto(true);
+    try {
+      setEnviandoFoto(true);
 
-    const formData = new FormData();
-    formData.append("file", file);
+      const formData = new FormData();
+      formData.append("file", file);
 
-    const resUpload = await fetch("/api/upload", {
-      method: "POST",
-      credentials: "include",
-      body: formData,
-    });
+      const resUpload = await fetch("/api/upload", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
 
-    const jsonUpload = await resUpload.json();
+      const jsonUpload = await resUpload.json();
 
-    if (!resUpload.ok) {
-      throw new Error(jsonUpload?.error || "Erro ao enviar imagem.");
-    }
+      if (!resUpload.ok) {
+        throw new Error(jsonUpload?.error || "Erro ao enviar imagem.");
+      }
 
-    const fotoUrl = jsonUpload?.url || jsonUpload?.arquivo?.url;
+      const fotoUrl = jsonUpload?.url || jsonUpload?.arquivo?.url;
 
-    if (!fotoUrl) {
-      throw new Error("Upload feito, mas a URL da imagem não foi retornada.");
-    }
+      if (!fotoUrl) {
+        throw new Error("Upload feito, mas a URL da imagem não foi retornada.");
+      }
 
-    const resSalvar = await fetch("/api/funcionario/foto-perfil", {
-      method: "PUT",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+      const resSalvar = await fetch("/api/funcionario/foto-perfil", {
+        method: "PUT",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fotoPerfil: fotoUrl,
+        }),
+      });
+
+      const jsonSalvar = await resSalvar.json();
+
+      if (!resSalvar.ok) {
+        throw new Error(jsonSalvar?.error || "Erro ao salvar foto.");
+      }
+
+      setPerfilAdmin((prev: any) => ({
+        ...prev,
         fotoPerfil: fotoUrl,
-      }),
-    });
-
-    const jsonSalvar = await resSalvar.json();
-
-    if (!resSalvar.ok) {
-      throw new Error(jsonSalvar?.error || "Erro ao salvar foto.");
+      }));
+    } catch (e: any) {
+      console.error(e);
+    } finally {
+      setEnviandoFoto(false);
     }
-
-    setPerfilAdmin((prev: any) => ({
-      ...prev,
-      fotoPerfil: fotoUrl,
-    }));
-  } catch (e: any) {
-    console.error(e);
-  } finally {
-    setEnviandoFoto(false);
   }
-}
 
   async function carregarStats() {
     try {
@@ -628,9 +644,9 @@ async function alterarFotoFuncionario(file: File | null) {
         matriculasRes,
       ] = await Promise.all([
         fetch("/api/aluno?page=1&limit=1", {
-  credentials: "include",
-  cache: "no-store",
-}),
+          credentials: "include",
+          cache: "no-store",
+        }),
         fetch("/api/professor", { credentials: "include" }),
         fetch("/api/admin/cursos", { credentials: "include" }),
         fetch("/api/disciplina", { credentials: "include" }),
@@ -669,93 +685,102 @@ async function alterarFotoFuncionario(file: File | null) {
         matriculasRes.json(),
       ]);
 
-const alunosArray = Array.isArray(alunos)
-  ? alunos
-  : Array.isArray(alunos?.data)
-  ? alunos.data
-  : [];
+      const alunosArray = Array.isArray(alunos)
+        ? alunos
+        : Array.isArray(alunos?.data)
+          ? alunos.data
+          : [];
 
-const totalAlunos = Number(
-  alunos?.meta?.total ?? alunos?.total ?? alunosArray.length
-);
+      const totalAlunos = Number(
+        alunos?.meta?.total ?? alunos?.total ?? alunosArray.length
+      );
 
       setAlunosLista(
-  alunosArray.map((item: any) => ({
-              id: Number(item.id),
-              nome: String(item.nome ?? "Sem nome"),
-              tipo: "Aluno" as const,
-              href: `/admin/alunos?busca=${encodeURIComponent(
-                String(item.nome ?? "")
-              )}`,
-            }))
-          
+        alunosArray.map((item: any) => ({
+          id: Number(item.id),
+          nome: String(item.nome ?? t("unnamed")),
+          tipo: "Aluno" as const,
+          href: `/admin/alunos?busca=${encodeURIComponent(
+            String(item.nome ?? "")
+          )}`,
+        }))
+
       );
 
       setProfessoresLista(
         Array.isArray(professores)
           ? professores.map((item: any) => ({
-              id: Number(item.id),
-              nome: String(item.nome ?? "Sem nome"),
-              tipo: "Professor" as const,
-              href: `/admin/professores?busca=${encodeURIComponent(
-                String(item.nome ?? "")
-              )}`,
-            }))
+            id: Number(item.id),
+            nome: String(item.nome ?? t("unnamed")),
+            tipo: "Professor" as const,
+            href: `/admin/professores?busca=${encodeURIComponent(
+              String(item.nome ?? "")
+            )}`,
+          }))
           : []
       );
 
       setCursosLista(
         Array.isArray(cursos)
           ? cursos.map((item: any) => ({
-              id: Number(item.id),
-              nome: String(item.nome ?? "Sem nome"),
-              tipo: "Curso" as const,
-              href: `/admin/cursos?busca=${encodeURIComponent(
-                String(item.nome ?? "")
-              )}`,
-            }))
+            id: Number(item.id),
+            nome: String(item.nome ?? t("unnamed")),
+            tipo: "Curso" as const,
+            href: `/admin/cursos?busca=${encodeURIComponent(
+              String(item.nome ?? "")
+            )}`,
+          }))
           : []
       );
 
       setDisciplinasLista(
         Array.isArray(disciplinas)
           ? disciplinas.map((item: any) => {
-              const nome = String(extrairNomeDisciplina(item));
-              return {
-                id: Number(item.id),
-                nome,
-                tipo: "Disciplina" as const,
-                href: `/admin/disciplinas?busca=${encodeURIComponent(nome)}`,
-              };
-            })
+            const nome = String(
+              extrairNomeDisciplina(item, t("subjectResult"))
+            );
+
+            return {
+              id: Number(item.id),
+              nome,
+              tipo: "Disciplina" as const,
+              href: `/admin/disciplinas?busca=${encodeURIComponent(nome)}`,
+            };
+          })
           : []
       );
 
       setTurmasLista(
         Array.isArray(turmas)
           ? turmas.map((item: any) => {
-              const nome = String(extrairNomeTurma(item));
-              return {
-                id: Number(item.id),
-                nome,
-                tipo: "Turma" as const,
-                href: `/admin/turmas?busca=${encodeURIComponent(nome)}`,
-              };
-            })
+            const nome = String(
+              extrairNomeTurma(item, t("classResult"))
+            );
+
+            return {
+              id: Number(item.id),
+              nome,
+              tipo: "Turma" as const,
+              href: `/admin/turmas?busca=${encodeURIComponent(nome)}`,
+            };
+          })
           : []
       );
 
       setMatriculasLista(
         Array.isArray(matriculas)
           ? matriculas.map((item: any) => {
-              const nome = String(extrairNomeMatricula(item));
-              return {
-                id: Number(item.id),
-                nome,
-                tipo: "Matrícula" as const,
-                href: `/admin/matriculas?busca=${encodeURIComponent(nome)}`,
-              };
-            })
+            const nome = String(
+              extrairNomeMatricula(item, t("enrollmentResult"))
+            );
+
+            return {
+              id: Number(item.id),
+              nome,
+              tipo: "Matrícula" as const,
+              href: `/admin/matriculas?busca=${encodeURIComponent(nome)}`,
+            };
+          })
           : []
       );
 
@@ -774,9 +799,9 @@ const totalAlunos = Number(
   }
 
   useEffect(() => {
-  carregarStats();
-  carregarPerfilAdmin();
-}, []);
+    carregarStats();
+    carregarPerfilAdmin();
+  }, []);
 
   useEffect(() => {
     try {
@@ -807,7 +832,7 @@ const totalAlunos = Number(
     if (naoMostrarNovamente) {
       try {
         localStorage.setItem(TOUR_STORAGE_KEY, "true");
-      } catch {}
+      } catch { }
     }
 
     setTourAberto(false);
@@ -842,27 +867,27 @@ const totalAlunos = Number(
 
   const cards = [
     {
-      titulo: "Alunos",
+      titulo: t("students"),
       valor: stats.alunos,
       link: "/admin/alunos",
     },
     {
-      titulo: "Professores",
+      titulo: t("teachers"),
       valor: stats.professores,
       link: "/admin/professores",
     },
     {
-      titulo: "Cursos",
+      titulo: t("courses"),
       valor: stats.cursos,
       link: "/admin/cursos",
     },
     {
-      titulo: "Disciplinas",
+      titulo: t("subjects"),
       valor: stats.disciplinas,
       link: "/admin/disciplinas",
     },
     {
-      titulo: "Certificados",
+      titulo: t("certificates"),
       valor: stats.certificados,
       link: "/admin/certificados",
     },
@@ -871,91 +896,91 @@ const totalAlunos = Number(
   const resumoOperacao = useMemo(
     () => [
       {
-        titulo: "Alunos",
+        titulo: t("students"),
         valor: stats.alunos,
-        descricao: "Total de alunos cadastrados na instituição.",
+        descricao: t("studentsDescription"),
       },
       {
-        titulo: "Professores",
+        titulo: t("teachers"),
         valor: stats.professores,
-        descricao: "Equipe docente cadastrada no sistema.",
+        descricao: t("teachersDescription"),
       },
       {
-        titulo: "Cursos",
+        titulo: t("courses"),
         valor: stats.cursos,
-        descricao: "Catálogo acadêmico criado até agora.",
+        descricao: t("coursesDescription"),
       },
       {
-        titulo: "Disciplinas",
+        titulo: t("subjects"),
         valor: stats.disciplinas,
-        descricao: "Estrutura curricular cadastrada.",
+        descricao: t("subjectsDescription"),
       },
       {
-        titulo: "Certificados",
+        titulo: t("certificates"),
         valor: stats.certificados,
-        descricao: "Certificados emitidos/registrados na base.",
+        descricao: t("certificatesDescription"),
       },
     ],
-    [stats]
+    [stats, t]
   );
 
-async function alterarFoto(file: File | null) {
-  if (!file) return;
+  async function alterarFoto(file: File | null) {
+    if (!file) return;
 
-  try {
-    setEnviandoFoto(true);
+    try {
+      setEnviandoFoto(true);
 
-    const formData = new FormData();
-    formData.append("file", file);
+      const formData = new FormData();
+      formData.append("file", file);
 
-    const upload = await fetch("/api/upload", {
-      method: "POST",
-      credentials: "include",
-      body: formData,
-    });
+      const upload = await fetch("/api/upload", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
 
-    const uploadJson = await upload.json();
+      const uploadJson = await upload.json();
 
-    if (!upload.ok) {
-      console.error("Erro upload:", uploadJson);
-      return;
+      if (!upload.ok) {
+        console.error("Erro upload:", uploadJson);
+        return;
+      }
+
+      const fotoUrl = uploadJson?.url || uploadJson?.arquivo?.url;
+
+      if (!fotoUrl) {
+        console.error("Upload sem URL:", uploadJson);
+        return;
+      }
+
+      const salvar = await fetch("/api/admin/funcionarios/me", {
+        method: "PUT",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nome: perfilAdmin?.nome || "Administrador",
+          telefone: perfilAdmin?.telefone || "",
+          cargo: perfilAdmin?.cargo || "Administrativo",
+          fotoPerfil: fotoUrl,
+        }),
+      });
+
+      const salvarJson = await salvar.json();
+
+      if (!salvar.ok) {
+        console.error("Erro ao salvar foto:", salvarJson);
+        return;
+      }
+
+      setPerfilAdmin(salvarJson);
+    } catch (e) {
+      console.error("Erro ao alterar foto:", e);
+    } finally {
+      setEnviandoFoto(false);
     }
-
-    const fotoUrl = uploadJson?.url || uploadJson?.arquivo?.url;
-
-    if (!fotoUrl) {
-      console.error("Upload sem URL:", uploadJson);
-      return;
-    }
-
-    const salvar = await fetch("/api/admin/funcionarios/me", {
-      method: "PUT",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        nome: perfilAdmin?.nome || "Administrador",
-        telefone: perfilAdmin?.telefone || "",
-        cargo: perfilAdmin?.cargo || "Administrativo",
-        fotoPerfil: fotoUrl,
-      }),
-    });
-
-    const salvarJson = await salvar.json();
-
-    if (!salvar.ok) {
-      console.error("Erro ao salvar foto:", salvarJson);
-      return;
-    }
-
-    setPerfilAdmin(salvarJson);
-  } catch (e) {
-    console.error("Erro ao alterar foto:", e);
-  } finally {
-    setEnviandoFoto(false);
   }
-}
 
   return (
     <>
@@ -965,82 +990,81 @@ async function alterarFoto(file: File | null) {
           <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
             <div className="max-w-3xl">
 
-<div className="mb-6 rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
-  <button
-    type="button"
-    onClick={() => setPerfilAberto((atual) => !atual)}
-    className="flex w-full items-center justify-between gap-4 text-left"
-  >
-    <div>
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">
-        Perfil administrativo
-      </p>
+              <div className="mb-6 rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
+                <button
+                  type="button"
+                  onClick={() => setPerfilAberto((atual) => !atual)}
+                  className="flex w-full items-center justify-between gap-4 text-left"
+                >
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">
+                      {t("profile")}
+                    </p>
 
-      {perfilAberto && (
-  <h2 className="text-xl font-bold text-slate-900">
-    {perfilAdmin?.nome || "Administrador"}
-  </h2>
-)}
-    </div>
+                    {perfilAberto && (
+                      <h2 className="text-xl font-bold text-slate-900">
+                        {perfilAdmin?.nome || t("administratorFallback")}
+                      </h2>
+                    )}
+                  </div>
 
-    <span className="text-2xl font-black text-slate-500">
-      {perfilAberto ? "▾" : "▸"}
-    </span>
-  </button>
+                  <span className="text-2xl font-black text-slate-500">
+                    {perfilAberto ? "▾" : "▸"}
+                  </span>
+                </button>
 
-  {perfilAberto && (
-    <div className="mt-4 flex items-center gap-4">
-      <div className="h-16 w-16 overflow-hidden rounded-2xl border bg-slate-100">
-        {perfilAdmin?.fotoPerfil ? (
-          <img
-            src={perfilAdmin.fotoPerfil}
-            alt={perfilAdmin?.nome || "Funcionário"}
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-slate-700">
-            {perfilAdmin?.nome?.charAt(0)?.toUpperCase() || "A"}
-          </div>
-        )}
-      </div>
+                {perfilAberto && (
+                  <div className="mt-4 flex items-center gap-4">
+                    <div className="h-16 w-16 overflow-hidden rounded-2xl border bg-slate-100">
+                      {perfilAdmin?.fotoPerfil ? (
+                        <img
+                          src={perfilAdmin.fotoPerfil}
+                          alt={perfilAdmin?.nome || t("employeePhotoAlt")}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-slate-700">
+                          {perfilAdmin?.nome?.charAt(0)?.toUpperCase() || "A"}
+                        </div>
+                      )}
+                    </div>
 
-      <div>
-        <input
-          ref={inputFotoRef}
-          type="file"
-          accept="image/png,image/jpeg,image/jpg,image/webp"
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0] || null;
-            alterarFoto(file);
-            e.target.value = "";
-          }}
-        />
+                    <div>
+                      <input
+                        ref={inputFotoRef}
+                        type="file"
+                        accept="image/png,image/jpeg,image/jpg,image/webp"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0] || null;
+                          alterarFoto(file);
+                          e.target.value = "";
+                        }}
+                      />
 
-        <button
-          type="button"
-          onClick={() => inputFotoRef.current?.click()}
-          disabled={enviandoFoto}
-          className="rounded-xl border bg-white px-4 py-2 text-sm font-medium hover:bg-slate-50 disabled:opacity-60"
-        >
-          {enviandoFoto ? "Enviando..." : "Alterar foto"}
-        </button>
-      </div>
-    </div>
-  )}
-</div>
+                      <button
+                        type="button"
+                        onClick={() => inputFotoRef.current?.click()}
+                        disabled={enviandoFoto}
+                        className="rounded-xl border bg-white px-4 py-2 text-sm font-medium hover:bg-slate-50 disabled:opacity-60"
+                      >
+                        {enviandoFoto ? t("uploadingPhoto") : t("changePhoto")}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
 
               <p className="text-sm font-semibold uppercase tracking-[0.22em] text-blue-700">
-                Painel da instituição
+                {t("institutionPanel")}
               </p>
 
               <h1 className="mt-3 text-4xl font-bold text-slate-900">
-                Painel Administrativo
+                {t("title")}
               </h1>
 
               <p className="mt-4 text-lg leading-8 text-slate-600">
-                Controle acadêmico, financeiro, documental e operacional da sua
-                instituição em um só lugar.
+                {t("description")}
               </p>
 
               <div className="mt-6 flex items-center gap-4">
@@ -1049,7 +1073,7 @@ async function alterarFoto(file: File | null) {
                     type="text"
                     value={busca}
                     onChange={(e) => setBusca(e.target.value)}
-                    placeholder="Buscar alunos, professores, cursos, disciplinas, turmas ou matrículas..."
+                    placeholder={t("searchPlaceholder")}
                     className="w-full rounded-2xl border border-slate-200 bg-white/95 py-3.5 pl-20 pr-5 text-sm text-slate-700 shadow-sm backdrop-blur transition placeholder:text-slate-400 focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-100"
                   />
 
@@ -1088,7 +1112,7 @@ async function alterarFoto(file: File | null) {
                           <div className="space-y-2">
                             {resultadosBusca.map((item, index) => (
                               <Link
-                                key={`${item.tipo}-${item.id}-${index}`}
+                                key={`${tiposResultado[item.tipo]}-${item.id}-${index}`}
                                 href={item.href}
                                 className="block rounded-xl border border-slate-100 px-3 py-3 transition hover:border-blue-200 hover:bg-blue-50/60"
                               >
@@ -1098,7 +1122,7 @@ async function alterarFoto(file: File | null) {
                                       {item.nome}
                                     </p>
                                     <p className="mt-1 text-xs text-slate-500">
-                                      {item.tipo}
+                                      {tiposResultado[item.tipo]}
                                     </p>
                                   </div>
 
@@ -1112,10 +1136,10 @@ async function alterarFoto(file: File | null) {
                         ) : (
                           <div className="rounded-xl border border-dashed border-slate-200 px-4 py-6 text-center">
                             <p className="text-sm font-medium text-slate-700">
-                              Nenhum resultado encontrado
+                              {t("noResults")}
                             </p>
                             <p className="mt-1 text-xs text-slate-500">
-                              Tente buscar por nome, código ou identificação.
+                              {t("searchSuggestion")}
                             </p>
                           </div>
                         )}
@@ -1136,16 +1160,15 @@ async function alterarFoto(file: File | null) {
 
                 <div>
                   <span className="text-xs font-semibold tracking-widest text-blue-600">
-                    TUTORIAL GUIADO
+                    {t("guidedTutorial").toUpperCase()}
                   </span>
 
                   <h3 className="text-lg font-bold text-slate-900">
-                    Primeiros passos
+                    {t("firstSteps")}
                   </h3>
 
                   <p className="mt-1 text-sm text-slate-600">
-                    Use o tutorial guiado para conhecer rapidamente as áreas
-                    principais do PHANYX.
+                    {t("tutorialDescription")}
                   </p>
                 </div>
               </div>
@@ -1155,7 +1178,7 @@ async function alterarFoto(file: File | null) {
                 onClick={() => setTourAberto(true)}
                 className="mt-3 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
               >
-                Ver tour agora
+                {t("viewTour")}
               </button>
             </div>
           </div>
@@ -1165,10 +1188,10 @@ async function alterarFoto(file: File | null) {
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <h2 className="text-xl font-bold text-slate-900">
-                Ações rápidas
+                {t("quickActions")}
               </h2>
               <p className="mt-1 text-sm text-slate-500">
-                Atalhos para acelerar a implantação da sua instituição.
+                {t("quickActionsDescription")}
               </p>
             </div>
           </div>
@@ -1178,35 +1201,35 @@ async function alterarFoto(file: File | null) {
               href="/admin/alunos"
               className="rounded-xl bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
             >
-              + Novo Aluno
+              + {t("newStudent")}
             </Link>
 
             <Link
               href="/admin/professores"
               className="rounded-xl bg-green-600 px-4 py-2 text-white transition hover:bg-green-700"
             >
-              + Novo Professor
+              + {t("newTeacher")}
             </Link>
 
             <Link
               href="/admin/cursos"
               className="rounded-xl bg-purple-600 px-4 py-2 text-white transition hover:bg-purple-700"
             >
-              + Novo Curso
+              + {t("newCourse")}
             </Link>
 
             <Link
               href="/admin/departamentos"
               className="rounded-xl bg-orange-500 px-4 py-2 text-white transition hover:bg-orange-600"
             >
-              + Novo Setor
+              + {t("newDepartment")}
             </Link>
 
             <Link
               href="/admin/matriculas"
               className="rounded-xl bg-gray-800 px-4 py-2 text-white transition hover:bg-gray-900"
             >
-              Gerenciar Matrículas
+              {t("manageEnrollments")}
             </Link>
           </div>
         </section>
@@ -1215,16 +1238,16 @@ async function alterarFoto(file: File | null) {
           <div className="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <h2 className="text-xl font-bold text-slate-900">
-                Visão da operação
+                {t("operationOverview")}
               </h2>
               <p className="mt-1 text-sm text-slate-500">
-                Resumo dos principais números acadêmicos já cadastrados.
+                {t("operationOverviewDescription")}
               </p>
             </div>
           </div>
 
           {loading ? (
-            <p className="mt-6 text-gray-500">Carregando estatísticas...</p>
+            <p className="mt-6 text-gray-500">{t("loadingStatistics")}</p>
           ) : (
             <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
               {resumoOperacao.map((item) => (
@@ -1250,10 +1273,10 @@ async function alterarFoto(file: File | null) {
         {!loading && (
           <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="text-xl font-bold text-slate-900">
-              Acessos principais
+              {t("mainAccess")}
             </h2>
             <p className="mt-1 text-sm text-slate-500">
-              Entradas rápidas para os módulos mais usados da implantação.
+              {t("mainAccessDescription")}
             </p>
 
             <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -1269,7 +1292,7 @@ async function alterarFoto(file: File | null) {
                   <p className="mt-3 text-4xl font-bold text-blue-700">
                     {item.valor}
                   </p>
-                  <p className="mt-2 text-sm text-slate-500">Abrir módulo</p>
+                  <p className="mt-2 text-sm text-slate-500">{t("openModule")}</p>
                 </Link>
               ))}
             </div>
@@ -1278,6 +1301,6 @@ async function alterarFoto(file: File | null) {
       </div>
 
       <AdminTour aberto={tourAberto} onClose={fecharTour} />
-        </>
+    </>
   );
 }

@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 type Tema = "light" | "dark" | "system";
 
 function aplicarTema(tema: Tema) {
   const root = document.documentElement;
-
   const rotaAtual = window.location.pathname;
 
   const rotaComTemaPrivado =
@@ -15,36 +15,50 @@ function aplicarTema(tema: Tema) {
     rotaAtual.startsWith("/aluno");
 
   if (!rotaComTemaPrivado) {
-  root.removeAttribute("data-theme");
-  root.dataset.themeChoice = "public";
-  root.classList.remove("dark");
-  return;
-}
+    root.removeAttribute("data-theme");
+    root.dataset.themeChoice = "public";
+    root.classList.remove("dark");
+    return;
+  }
 
   const prefereEscuro = window.matchMedia(
     "(prefers-color-scheme: dark)"
   ).matches;
 
-  const usarEscuro = tema === "dark" || (tema === "system" && prefereEscuro);
+  const usarEscuro =
+    tema === "dark" ||
+    (tema === "system" && prefereEscuro);
 
-  root.dataset.theme = tema === "system" ? "system" : usarEscuro ? "dark" : "light";
+  root.dataset.theme =
+    tema === "system"
+      ? "system"
+      : usarEscuro
+        ? "dark"
+        : "light";
+
   root.dataset.themeChoice = tema;
-
   root.classList.toggle("dark", usarEscuro);
 }
 
 export default function PhanyxThemeToggle() {
+  const t = useTranslations("Common");
   const [tema, setTema] = useState<Tema>("light");
 
   useEffect(() => {
-    const salvo = (localStorage.getItem("phanyx_tema") as Tema) || "light";
+    const salvo =
+      (localStorage.getItem("phanyx_tema") as Tema) ||
+      "light";
+
     setTema(salvo);
     aplicarTema(salvo);
   }, []);
 
   function alterarTema(novoTema: Tema) {
     setTema(novoTema);
-    localStorage.setItem("phanyx_tema", novoTema);
+    localStorage.setItem(
+      "phanyx_tema",
+      novoTema
+    );
     aplicarTema(novoTema);
   }
 
@@ -53,37 +67,40 @@ export default function PhanyxThemeToggle() {
       <button
         type="button"
         onClick={() => alterarTema("light")}
+        aria-pressed={tema === "light"}
         className={`rounded-xl px-3 py-1.5 text-xs font-bold transition ${
           tema === "light"
             ? "ativo-tema bg-blue-600 text-white"
             : "text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
         }`}
       >
-        Claro
+        {t("lightTheme")}
       </button>
 
       <button
         type="button"
         onClick={() => alterarTema("dark")}
+        aria-pressed={tema === "dark"}
         className={`rounded-xl px-3 py-1.5 text-xs font-bold transition ${
           tema === "dark"
             ? "ativo-tema bg-blue-600 text-white"
             : "text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
         }`}
       >
-        Escuro
+        {t("darkTheme")}
       </button>
 
       <button
         type="button"
         onClick={() => alterarTema("system")}
+        aria-pressed={tema === "system"}
         className={`rounded-xl px-3 py-1.5 text-xs font-bold transition ${
           tema === "system"
             ? "ativo-tema bg-blue-600 text-white"
             : "text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
         }`}
       >
-        Sistema
+        {t("systemTheme")}
       </button>
     </div>
   );

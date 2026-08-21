@@ -2,6 +2,7 @@ import {
   AcaoAuditoriaBiblioteca,
   StatusEmprestimoBiblioteca,
   StatusExemplarBiblioteca,
+  StatusManutencaoExemplarBiblioteca,
   StatusReservaBiblioteca,
 } from "@prisma/client";
 
@@ -253,13 +254,46 @@ export async function POST(
 
           if (
             exemplar.status ===
-              StatusExemplarBiblioteca.BAIXADO ||
+            StatusExemplarBiblioteca.BAIXADO ||
             exemplar.baixadoEm
           ) {
             falhar(
               409,
               "Este exemplar já foi baixado do acervo.",
               "EXEMPLAR_JA_BAIXADO"
+            );
+          }
+
+          const manutencaoAberta =
+            await transacao
+              .bibliotecaManutencaoExemplar
+              .findFirst({
+                where: {
+                  instituicaoId:
+                    contexto.instituicaoId,
+
+                  exemplarId,
+
+                  status:
+                    StatusManutencaoExemplarBiblioteca.ABERTA,
+                },
+
+                select: {
+                  id: true,
+                  motivo: true,
+                  iniciadaEm: true,
+                },
+              });
+
+          if (
+            exemplar.status ===
+            StatusExemplarBiblioteca.MANUTENCAO ||
+            manutencaoAberta
+          ) {
+            falhar(
+              409,
+              "Não é possível dar baixa neste exemplar enquanto existe uma manutenção em andamento. Conclua ou cancele a manutenção antes da baixa.",
+              "EXEMPLAR_EM_MANUTENCAO"
             );
           }
 

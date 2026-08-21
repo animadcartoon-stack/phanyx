@@ -7,7 +7,9 @@ import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 import PhanyxFeriadoAviso from "@/components/ui/PhanyxFeriadoAviso";
 import InstallPromptPHANYX from "@/components/pwa/InstallPromptPHANYX";
 import PhanyxThemeToggle from "@/components/theme/PhanyxThemeToggle";
+import SeletorIdioma from "@/components/internacionalizacao/SeletorIdioma";
 import ChatGlobalWidget from "@/components/chat/ChatGlobalWidget";
+import { useTranslations } from "next-intl";
 
 type UsuarioLogado = {
   id?: number;
@@ -31,6 +33,17 @@ export default function AdminShell({
   usuarioInicial?: UsuarioLogado | null;
   permissoesIniciais?: string[];
 }) {
+  const tNav = useTranslations("AdminNavigation");
+  const tCommon = useTranslations("Common");
+  const titulosMenuMobile: Record<string, string> = {
+    Acadêmico: tNav("academic"),
+    Comercial: tNav("commercial"),
+    Financeiro: tNav("financial"),
+    RH: tNav("humanResources"),
+    Documentos: tNav("documents"),
+    Comunicação: tNav("communication"),
+    Configurações: tNav("settings"),
+  };
   const router = useRouter();
   const pathname = usePathname();
   const sidebarDesktopRef = useRef<HTMLElement | null>(null);
@@ -458,93 +471,93 @@ export default function AdminShell({
   );
 
   const podeVerCentralCaptacao = podeAcessar(
-  "comercial.captacao.ver",
+    "comercial.captacao.ver",
 
-  "comercial.captacao.canais.ver",
-  "comercial.captacao.canais.gerenciar",
+    "comercial.captacao.canais.ver",
+    "comercial.captacao.canais.gerenciar",
 
-  "comercial.captacao.campanhas.ver",
-  "comercial.captacao.campanhas.gerenciar",
+    "comercial.captacao.campanhas.ver",
+    "comercial.captacao.campanhas.gerenciar",
 
-  "comercial.captacao.formularios.ver",
-  "comercial.captacao.formularios.gerenciar",
+    "comercial.captacao.formularios.ver",
+    "comercial.captacao.formularios.gerenciar",
 
-  "comercial.captacao.submissoes.ver",
-  "comercial.captacao.submissoes.reprocessar",
+    "comercial.captacao.submissoes.ver",
+    "comercial.captacao.submissoes.reprocessar",
 
-  "comercial.captacao.distribuicao.ver",
-  "comercial.captacao.distribuicao.gerenciar",
+    "comercial.captacao.distribuicao.ver",
+    "comercial.captacao.distribuicao.gerenciar",
 
-  "comercial.captacao.integracoes.ver",
-  "comercial.captacao.integracoes.gerenciar",
+    "comercial.captacao.integracoes.ver",
+    "comercial.captacao.integracoes.gerenciar",
 
-  "comercial.captacao.auditoria.ver"
-);
-
-const podeVerVisaoGeralComercial =
-  podeAcessar(
-    "comercial.ver",
-    "comercial.dashboard.ver"
+    "comercial.captacao.auditoria.ver"
   );
+
+  const podeVerVisaoGeralComercial =
+    podeAcessar(
+      "comercial.ver",
+      "comercial.dashboard.ver"
+    );
 
   const podeVerComercialInstituicao =
-  podeVerCentralCaptacao ||
-  podeAcessar(
-    "comercial.ver",
-    "comercial.dashboard.ver",
-    "comercial.funis.ver",
-    "comercial.funis.gerenciar",
-    "comercial.leads.ver",
-    "comercial.leads.criar",
-    "comercial.leads.editar",
-    "comercial.leads.excluir",
-    "comercial.leads.atribuir",
-    "comercial.leads.converter",
-    "comercial.leads.ver_todos",
-    "comercial.leads.movimentar",
-    "comercial.leads.registrar_perda",
-    "comercial.leads.transferir",
-    "comercial.leads.arquivar",
-    "comercial.leads.restaurar",
-    "comercial.leads.historico.ver",
-    "comercial.tarefas.ver",
-    "comercial.tarefas.ver_todas",
-    "comercial.tarefas.criar",
-    "comercial.tarefas.editar",
-    "comercial.tarefas.atribuir",
-    "comercial.tarefas.concluir",
-    "comercial.tarefas.cancelar",
-    "comercial.vendedores.ver",
-    "comercial.vendedores.gerenciar",
-    "comercial.equipes.ver",
-    "comercial.equipes.criar",
-    "comercial.equipes.editar",
-    "comercial.equipes.excluir",
-    "comercial.metas.ver",
-    "comercial.metas.criar",
-    "comercial.metas.editar",
-    "comercial.metas.excluir",
-    "comercial.vendas.ver",
-    "comercial.vendas.criar",
-    "comercial.vendas.editar",
-    "comercial.vendas.cancelar",
-    "comercial.vendas.aprovar",
-    "comercial.matriculas.vincular_vendedor",
-    "comercial.comissoes.ver",
-    "comercial.comissoes.calcular",
-    "comercial.comissoes.aprovar",
-    "comercial.comissoes.enviar_rh",
-    "comercial.relatorios.ver",
-    "comercial.relatorios.exportar",
-    "comercial.configuracoes.gerenciar",
-    "comercial.tarefas.ver",
-    "comercial.tarefas.ver_todas",
-    "comercial.tarefas.criar",
-    "comercial.tarefas.editar",
-    "comercial.tarefas.atribuir",
-    "comercial.tarefas.concluir",
-    "comercial.tarefas.cancelar",
-  );
+    podeVerCentralCaptacao ||
+    podeAcessar(
+      "comercial.ver",
+      "comercial.dashboard.ver",
+      "comercial.funis.ver",
+      "comercial.funis.gerenciar",
+      "comercial.leads.ver",
+      "comercial.leads.criar",
+      "comercial.leads.editar",
+      "comercial.leads.excluir",
+      "comercial.leads.atribuir",
+      "comercial.leads.converter",
+      "comercial.leads.ver_todos",
+      "comercial.leads.movimentar",
+      "comercial.leads.registrar_perda",
+      "comercial.leads.transferir",
+      "comercial.leads.arquivar",
+      "comercial.leads.restaurar",
+      "comercial.leads.historico.ver",
+      "comercial.tarefas.ver",
+      "comercial.tarefas.ver_todas",
+      "comercial.tarefas.criar",
+      "comercial.tarefas.editar",
+      "comercial.tarefas.atribuir",
+      "comercial.tarefas.concluir",
+      "comercial.tarefas.cancelar",
+      "comercial.vendedores.ver",
+      "comercial.vendedores.gerenciar",
+      "comercial.equipes.ver",
+      "comercial.equipes.criar",
+      "comercial.equipes.editar",
+      "comercial.equipes.excluir",
+      "comercial.metas.ver",
+      "comercial.metas.criar",
+      "comercial.metas.editar",
+      "comercial.metas.excluir",
+      "comercial.vendas.ver",
+      "comercial.vendas.criar",
+      "comercial.vendas.editar",
+      "comercial.vendas.cancelar",
+      "comercial.vendas.aprovar",
+      "comercial.matriculas.vincular_vendedor",
+      "comercial.comissoes.ver",
+      "comercial.comissoes.calcular",
+      "comercial.comissoes.aprovar",
+      "comercial.comissoes.enviar_rh",
+      "comercial.relatorios.ver",
+      "comercial.relatorios.exportar",
+      "comercial.configuracoes.gerenciar",
+      "comercial.tarefas.ver",
+      "comercial.tarefas.ver_todas",
+      "comercial.tarefas.criar",
+      "comercial.tarefas.editar",
+      "comercial.tarefas.atribuir",
+      "comercial.tarefas.concluir",
+      "comercial.tarefas.cancelar",
+    );
 
   const podeVerFunisComerciais = podeAcessar(
     "comercial.funis.ver",
@@ -704,7 +717,7 @@ const podeVerVisaoGeralComercial =
                 <h2 className="text-xl font-semibold">
                   PHANYX
                   <span className="block text-sm text-gray-500 font-normal">
-                    Painel Administrativo
+                    {tNav("adminPanel")}
                   </span>
                 </h2>
 
@@ -713,11 +726,15 @@ const podeVerVisaoGeralComercial =
                   onClick={abrirTourAdmin}
                   className="mt-4 w-full rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100"
                 >
-                  ✨ Abrir tutorial guiado
+                  ✨ {tNav("openGuidedTutorial")}
                 </button>
 
                 <div className="mt-4">
                   <PhanyxThemeToggle />
+                </div>
+
+                <div className="mt-3">
+                  <SeletorIdioma />
                 </div>
 
               </div>
@@ -728,7 +745,7 @@ const podeVerVisaoGeralComercial =
                     {funcionario?.fotoPerfil ? (
                       <img
                         src={funcionario.fotoPerfil}
-                        alt={funcionario.nome || "Funcionário"}
+                        alt={funcionario.nome || tNav("employee")}
                         className="h-full w-full object-cover"
                       />
                     ) : (
@@ -740,11 +757,11 @@ const podeVerVisaoGeralComercial =
 
                   <div className="min-w-0">
                     <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
-                      Administrativo
+                      {tNav("administrative")}
                     </p>
 
                     <p className="truncate text-sm font-bold text-slate-800">
-                      {funcionario?.nome || usuario?.nome || "Administrador"}
+                      {funcionario?.nome || usuario?.nome || tNav("administrator")}
                     </p>
                   </div>
                 </div>
@@ -756,20 +773,20 @@ const podeVerVisaoGeralComercial =
                   className={getLinkClass("/admin")}
                   data-tour="menu-painel"
                 >
-                  📊 Painel Administrativo
+                  📊 {tNav("dashboard")}
                 </Link>
                 <Link
                   href="/admin/perfil"
                   className={getLinkClass("/admin/perfil")}
                 >
-                  👤 Meu Perfil
+                  👤 {tNav("myProfile")}
                 </Link>
                 {podeVerAssinaturaPhanyx && (
                   <Link
                     href="/admin/assinatura"
                     className={getLinkClass("/admin/assinatura")}
                   >
-                    💳 Assinatura PHANYX
+                    💳 {tNav("subscription")}
                   </Link>
                 )}
                 {podeVerPainelMaster && (
@@ -779,7 +796,7 @@ const podeVerVisaoGeralComercial =
                       onClick={() => toggleMenu("master")}
                       className={buttonClass}
                     >
-                      <span className={sectionTitleClass}>🔥 Master PHANYX</span>
+                      <span className={sectionTitleClass}>🔥 {tNav("master")} </span>
                       <span>{menuAberto === "master" ? "▾" : "▸"}</span>
                     </button>
 
@@ -789,28 +806,28 @@ const podeVerVisaoGeralComercial =
                           href="/master"
                           className={getLinkClass("/master")}
                         >
-                          🚀 Painel Master
+                          🚀 {tNav("masterDashboard")}
                         </Link>
 
                         <Link
                           href="/master#suporte-usuario"
                           className="flex items-center gap-2 rounded p-2 text-sm font-semibold text-amber-700 transition hover:bg-amber-50"
                         >
-                          🛠️ Entrar como usuário
+                          🛠️ {tNav("signInAsUser")}
                         </Link>
 
                         <Link
                           href="/master/plataforma"
                           className={getLinkClass("/master/plataforma")}
                         >
-                          🧠 Plataforma PHANYX
+                          🧠 {tNav("phanyxPlatform")}
                         </Link>
 
                         <Link
                           href="/master/boletos-ibe"
                           className={getLinkClass("/master/boletos-ibe")}
                         >
-                          🧾 Gerar boleto IBE
+                          🧾 {tNav("generateIbeInvoice")}
                         </Link>
 
                       </div>
@@ -823,7 +840,7 @@ const podeVerVisaoGeralComercial =
                     onClick={() => toggleMenu("acesso")}
                     className={buttonClass}
                   >
-                    <span className={sectionTitleClass}>🚪 Controle de Acesso</span>
+                    <span className={sectionTitleClass}>🚪 {tNav("accessControl")} </span>
                     <span>{menuAberto === "acesso" ? "▾" : "▸"}</span>
                   </button>
 
@@ -833,7 +850,7 @@ const podeVerVisaoGeralComercial =
                         href="/admin/visitantes"
                         className={getLinkClass("/admin/visitantes")}
                       >
-                        🪪 Visitantes
+                        🪪 {tNav("visitors")}
                       </Link>
                     </div>
                   )}
@@ -848,7 +865,7 @@ const podeVerVisaoGeralComercial =
                       className={buttonClass}
                     >
                       <span className={sectionTitleClass}>
-                        💼 Comercial PHANYX
+                        💼 {tNav("commercialPhanyx")}
                       </span>
                       <span>
                         {menuAberto === "comercial-phanyx" ? "▾" : "▸"}
@@ -861,7 +878,7 @@ const podeVerVisaoGeralComercial =
                           href="/admin/leads"
                           className={getLinkClass("/admin/leads")}
                         >
-                          📈 Leads PHANYX
+                          📈 {tNav("phanyxLeads")}
                         </Link>
                       </div>
                     )}
@@ -876,7 +893,7 @@ const podeVerVisaoGeralComercial =
                       className={buttonClass}
                     >
                       <span className={sectionTitleClass}>
-                        📈 Comercial
+                        📈 {tNav("commercial")}
                       </span>
 
                       <span>
@@ -884,29 +901,29 @@ const podeVerVisaoGeralComercial =
                       </span>
                     </button>
 
-{menuAberto === "comercial" && (
-  <div className="ml-3 mt-2 flex flex-col space-y-1">
-    {podeVerVisaoGeralComercial && (
-      <Link
-        href="/admin/comercial"
-        className={getLinkClass(
-          "/admin/comercial"
-        )}
-      >
-        📊 Visão Geral
-      </Link>
-    )}
+                    {menuAberto === "comercial" && (
+                      <div className="ml-3 mt-2 flex flex-col space-y-1">
+                        {podeVerVisaoGeralComercial && (
+                          <Link
+                            href="/admin/comercial"
+                            className={getLinkClass(
+                              "/admin/comercial"
+                            )}
+                          >
+                            📊 {tNav("overview")}
+                          </Link>
+                        )}
 
-    {podeVerCentralCaptacao && (
-      <Link
-        href="/admin/comercial/captacao"
-        className={getLinkClass(
-          "/admin/comercial/captacao"
-        )}
-      >
-        🎯 Central de Captação
-      </Link>
-    )}
+                        {podeVerCentralCaptacao && (
+                          <Link
+                            href="/admin/comercial/captacao"
+                            className={getLinkClass(
+                              "/admin/comercial/captacao"
+                            )}
+                          >
+                            🎯 {tNav("leadGenerationCenter")}
+                          </Link>
+                        )}
 
                         {podeVerFunisComerciais && (
                           <Link
@@ -915,7 +932,7 @@ const podeVerVisaoGeralComercial =
                               "/admin/comercial/funis"
                             )}
                           >
-                            🧭 Funis comerciais
+                            🧭 {tNav("salesFunnels")}
                           </Link>
                         )}
 
@@ -926,7 +943,7 @@ const podeVerVisaoGeralComercial =
                               "/admin/comercial/pipeline"
                             )}
                           >
-                            🗂️ Pipeline comercial
+                            🗂️ {tNav("salesPipeline")}
                           </Link>
                         )}
 
@@ -935,7 +952,7 @@ const podeVerVisaoGeralComercial =
                             href="/admin/comercial/agenda"
                             className={getLinkClass("/admin/comercial/agenda")}
                           >
-                            📅 Agenda comercial
+                            📅 {tNav("salesAgenda")}
                           </Link>
                         )}
 
@@ -944,7 +961,7 @@ const podeVerVisaoGeralComercial =
                             href="/admin/leads"
                             className={getLinkClass("/admin/leads")}
                           >
-                            🎯 Leads e oportunidades
+                            🎯 {tNav("leadsAndOpportunities")}
                           </Link>
                         )}
 
@@ -955,7 +972,7 @@ const podeVerVisaoGeralComercial =
                               "/admin/comercial/equipes"
                             )}
                           >
-                            👥 Equipes comerciais
+                            👥 {tNav("salesTeams")}
                           </Link>
                         )}
 
@@ -966,7 +983,7 @@ const podeVerVisaoGeralComercial =
                               "/admin/comercial/metas"
                             )}
                           >
-                            📈 Metas comerciais
+                            📈 {tNav("salesTargets")}
                           </Link>
                         )}
 
@@ -977,7 +994,7 @@ const podeVerVisaoGeralComercial =
                               "/admin/comercial/relatorios"
                             )}
                           >
-                            📈 Relatórios
+                            📈 {tNav("reports")}
                           </Link>
                         )}
 
@@ -988,7 +1005,7 @@ const podeVerVisaoGeralComercial =
                               "/admin/comercial/configuracoes"
                             )}
                           >
-                            ⚙️ Planos de comissão
+                            ⚙️ {tNav("commissionPlans")}
                           </Link>
                         )}
 
@@ -1003,7 +1020,9 @@ const podeVerVisaoGeralComercial =
                     onClick={() => toggleMenu("academico")}
                     className={buttonClass}
                   >
-                    <span className={sectionTitleClass}>🎓 Acadêmico</span>
+                    <span className={sectionTitleClass}>
+                      🎓 {tNav("academic")}
+                    </span>
                     <span>{menuAberto === "academico" ? "▾" : "▸"}</span>
                   </button>
 
@@ -1014,7 +1033,7 @@ const podeVerVisaoGeralComercial =
                         className={getLinkClass("/admin/alunos")}
                         data-tour="menu-alunos"
                       >
-                        👨‍🎓 Alunos
+                        👨‍🎓 {tNav("students")}
                       </Link>
 
                       <Link
@@ -1022,21 +1041,21 @@ const podeVerVisaoGeralComercial =
                         className={getLinkClass("/admin/professores")}
                         data-tour="menu-professores"
                       >
-                        👨‍🏫 Professores
+                        👨‍🏫 {tNav("teachers")}
                       </Link>
 
                       <Link
                         href="/admin/substituicoes-docentes"
                         className={getLinkClass("/admin/substituicoes-docentes")}
                       >
-                        🔁 Substituições Docentes
+                        🔁 {tNav("teacherSubstitutions")}
                       </Link>
 
                       <Link
                         href="/admin/funcionarios"
                         className={getLinkClass("/admin/funcionarios")}
                       >
-                        🧑‍💼 Funcionários
+                        🧑‍💼 {tNav("employees")}
                       </Link>
 
                       <Link
@@ -1044,14 +1063,14 @@ const podeVerVisaoGeralComercial =
                         className={getLinkClass("/admin/departamentos")}
                         data-tour="menu-departamentos"
                       >
-                        🏢 Departamentos
+                        🏢 {tNav("departments")}
                       </Link>
 
                       <Link
                         href="/admin/disciplinas"
                         className={getLinkClass("/admin/disciplinas")}
                       >
-                        📚 Disciplinas
+                        📚 {tNav("subjects")}
                       </Link>
 
                       <Link
@@ -1059,7 +1078,7 @@ const podeVerVisaoGeralComercial =
                         className={getLinkClass("/admin/matriculas")}
                         data-tour="menu-matriculas"
                       >
-                        📝 Matrículas
+                        📝 {tNav("enrollments")}
                       </Link>
 
                       {podeGerenciarRematriculasSemestrais && (
@@ -1069,7 +1088,7 @@ const podeVerVisaoGeralComercial =
                             "/admin/rematriculas-semestrais"
                           )}
                         >
-                          🔄 Rematrículas semestrais
+                          🔄 {tNav("semesterReenrollments")}
                         </Link>
                       )}
 
@@ -1077,14 +1096,14 @@ const podeVerVisaoGeralComercial =
                         href="/admin/turmas"
                         className={getLinkClass("/admin/turmas")}
                       >
-                        🏫 Turmas
+                        🏫 {tNav("classes")}
                       </Link>
 
                       <Link
                         href="/admin/agenda-operacional"
                         className={getLinkClass("/admin/agenda-operacional")}
                       >
-                        🗓️ Agenda / Escala
+                        🗓️ {tNav("operationalSchedule")}
                       </Link>
 
                       {podeVerPublicacoesAcademicas && (
@@ -1092,7 +1111,7 @@ const podeVerVisaoGeralComercial =
                           href="/admin/academico/publicacoes"
                           className={getLinkClass("/admin/academico/publicacoes")}
                         >
-                          📤 Publicações Acadêmicas
+                          📤 {tNav("academicPublications")}
                         </Link>
                       )}
 
@@ -1101,44 +1120,44 @@ const podeVerVisaoGeralComercial =
                 </div>
 
                 {podeVerBiblioteca && (
-  <div className="mt-2 border-t pt-2">
-    <button
-      type="button"
-      onClick={() => toggleMenu("biblioteca")}
-      className={buttonClass}
-    >
-      <span className={sectionTitleClass}>
-        📚 Biblioteca Virtual
-      </span>
+                  <div className="mt-2 border-t pt-2">
+                    <button
+                      type="button"
+                      onClick={() => toggleMenu("biblioteca")}
+                      className={buttonClass}
+                    >
+                      <span className={sectionTitleClass}>
+                        📚 {tNav("virtualLibrary")}
+                      </span>
 
-      <span>
-        {menuAberto === "biblioteca" ? "▾" : "▸"}
-      </span>
-    </button>
+                      <span>
+                        {menuAberto === "biblioteca" ? "▾" : "▸"}
+                      </span>
+                    </button>
 
-    {menuAberto === "biblioteca" && (
-      <div className="ml-3 mt-2 flex flex-col space-y-1">
-        <Link
-          href="/admin/biblioteca"
-          className={getLinkClass("/admin/biblioteca")}
-        >
-          📊 Visão geral
-        </Link>
+                    {menuAberto === "biblioteca" && (
+                      <div className="ml-3 mt-2 flex flex-col space-y-1">
+                        <Link
+                          href="/admin/biblioteca"
+                          className={getLinkClass("/admin/biblioteca")}
+                        >
+                          📊 {tNav("overview")}
+                        </Link>
 
-        {podeVerAcervoBiblioteca && (
-          <Link
-            href="/admin/biblioteca/acervo"
-            className={getLinkClass(
-              "/admin/biblioteca/acervo"
-            )}
-          >
-            📚 Acervo
-          </Link>
-        )}
-      </div>
-    )}
-  </div>
-)}
+                        {podeVerAcervoBiblioteca && (
+                          <Link
+                            href="/admin/biblioteca/acervo"
+                            className={getLinkClass(
+                              "/admin/biblioteca/acervo"
+                            )}
+                          >
+                            📚 {tNav("collection")}
+                          </Link>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 <div className="border-t pt-2 mt-2">
                   <button
@@ -1146,7 +1165,7 @@ const podeVerVisaoGeralComercial =
                     onClick={() => toggleMenu("financeiro")}
                     className={buttonClass}
                   >
-                    <span className={sectionTitleClass}>💰 Financeiro</span>
+                    <span className={sectionTitleClass}>💰 {tNav("financial")}</span>
                     <span>{menuAberto === "financeiro" ? "▾" : "▸"}</span>
                   </button>
 
@@ -1154,7 +1173,7 @@ const podeVerVisaoGeralComercial =
                     <div className="ml-3 mt-2 flex flex-col space-y-1">
                       {temPermissao("financeiro.ver") && (
                         <Link href="/admin/financeiro" className={getLinkClass("/admin/financeiro")}>
-                          💰 Visão Geral
+                          💰 {tNav("overview")}
                         </Link>
                       )}
 
@@ -1204,7 +1223,7 @@ const podeVerVisaoGeralComercial =
                           href="/admin/financeiro/configuracoes"
                           className={getLinkClass("/admin/financeiro/configuracoes")}
                         >
-                          ⚙️ Configurações
+                          ⚙️ {tNav("settings")}
                         </Link>
                       )}
                     </div>
@@ -1216,7 +1235,7 @@ const podeVerVisaoGeralComercial =
                       onClick={() => toggleMenu("rh")}
                       className={buttonClass}
                     >
-                      <span className={sectionTitleClass}>👥 PESSOAL / RH</span>
+                      <span className={sectionTitleClass}>👥 {tNav("humanResources")}</span>
                       <span>{menuAberto === "rh" ? "▾" : "▸"}</span>
                     </button>
 
@@ -1224,14 +1243,14 @@ const podeVerVisaoGeralComercial =
                       <div className="ml-3 mt-2 flex flex-col space-y-1">
 
                         <Link href="/admin/rh" className={getLinkClass("/admin/rh")}>
-                          👥 Visão Geral
+                          👥 {tNav("overview")}
                         </Link>
 
                         <Link
                           href="/admin/funcionarios"
                           className={getLinkClass("/admin/funcionarios")}
                         >
-                          👤 Funcionários
+                          👤 {tNav("employees")}
                         </Link>
 
                         {podeVerProfessoresRH && (
@@ -1241,7 +1260,7 @@ const podeVerVisaoGeralComercial =
                               "/admin/rh/professores"
                             )}
                           >
-                            👨‍🏫 Professores
+                            👨‍🏫 {tNav("teachers")}
                           </Link>
                         )}
 
@@ -1249,7 +1268,7 @@ const podeVerVisaoGeralComercial =
                           href="/admin/departamentos"
                           className={getLinkClass("/admin/departamentos")}
                         >
-                          🏢 Departamentos
+                          🏢 {tNav("departments")}
                         </Link>
 
                         {podeVerRemuneracaoVariavelRH && (
@@ -1259,7 +1278,7 @@ const podeVerVisaoGeralComercial =
                               "/admin/rh/remuneracao-variavel"
                             )}
                           >
-                            💰 Remuneração Variável
+                            🏢 {tNav("departments")}
                           </Link>
                         )}
 
@@ -1270,7 +1289,7 @@ const podeVerVisaoGeralComercial =
                               "/admin/rh/comissoes"
                             )}
                           >
-                            💵 Comissões comerciais
+                            💵 {tNav("salesCommissions")}
                           </Link>
                         )}
 
@@ -1278,7 +1297,7 @@ const podeVerVisaoGeralComercial =
                           href="/admin/rh/ponto"
                           className={getLinkClass("/admin/rh/ponto")}
                         >
-                          ⏱️ Ponto
+                          ⏱️ {tNav("timeTracking")}
                         </Link>
 
 
@@ -1287,7 +1306,7 @@ const podeVerVisaoGeralComercial =
                           href="/admin/rh/ponto/configuracoes"
                           className={getLinkClass("/admin/rh/ponto/configuracoes")}
                         >
-                          ⚙️ Configurações de Ponto
+                          ⚙️ {tNav("timeTrackingSettings")}
                         </Link>
 
                         {podeVerPontoMobile && (
@@ -1295,7 +1314,7 @@ const podeVerVisaoGeralComercial =
                             href="/admin/rh/ponto/mobile"
                             className={getLinkClass("/admin/rh/ponto/mobile")}
                           >
-                            📱 Ponto Mobile
+                            📱 {tNav("mobileTimeTracking")}
                           </Link>
                         )}
 
@@ -1303,91 +1322,91 @@ const podeVerVisaoGeralComercial =
                           href="/admin/rh/ponto/importacao-afd"
                           className={getLinkClass("/admin/rh/ponto/importacao-afd")}
                         >
-                          📥 Importação AFD
+                          📥 {tNav("afdImport")}
                         </Link>
 
                         <Link
                           href="/admin/rh/banco-horas"
                           className={getLinkClass("/admin/rh/banco-horas")}
                         >
-                          📊 Banco de Horas
+                          📊 {tNav("timeBank")}
                         </Link>
 
                         <Link
                           href="/admin/rh/holerites"
                           className={getLinkClass("/admin/rh/holerites")}
                         >
-                          💵 Holerites
+                          💵 {tNav("payslips")}
                         </Link>
 
                         <Link
                           href="/admin/rh/eventos-folha"
                           className={getLinkClass("/admin/rh/eventos-folha")}
                         >
-                          🧾 Eventos da Folha
+                          🧾 {tNav("payrollEvents")}
                         </Link>
 
                         <Link
                           href="/admin/rh/beneficios"
                           className={getLinkClass("/admin/rh/beneficios")}
                         >
-                          🎁 Benefícios
+                          🎁 {tNav("benefits")}
                         </Link>
 
                         <Link
                           href="/admin/rh/ferias"
                           className={getLinkClass("/admin/rh/ferias")}
                         >
-                          🏖️ Férias
+                          🏖️ {tNav("vacation")}
                         </Link>
 
                         <Link
                           href="/admin/rh/exames"
                           className={getLinkClass("/admin/rh/exames")}
                         >
-                          🩺 Exames Médicos
+                          🩺 {tNav("medicalExams")}
                         </Link>
 
                         <Link
                           href="/admin/rh/rescisoes"
                           className={getLinkClass("/admin/rh/rescisoes")}
                         >
-                          🚪 Rescisões
+                          🚪 {tNav("terminations")}
                         </Link>
 
                         <Link
                           href="/admin/rh/historico"
                           className={getLinkClass("/admin/rh/historico")}
                         >
-                          🕒 Histórico Funcional
+                          🕒 {tNav("employmentHistory")}
                         </Link>
 
                         <Link
                           href="/admin/rh/arquivados"
                           className={getLinkClass("/admin/rh/arquivados")}
                         >
-                          🗄️ Arquivados RH
+                          🗄️ {tNav("archivedHR")}
                         </Link>
 
                         <Link
                           href="/admin/rh/ocorrencias"
                           className={getLinkClass("/admin/rh/ocorrencias")}
                         >
-                          ⚠️ Ocorrências
+                          ⚠️ {tNav("occurrences")}
                         </Link>
 
                         <Link
                           href="/admin/rh/contabilidade"
                           className={getLinkClass("/admin/rh/contabilidade")}
                         >
-                          📊 Relatórios Contábeis
+                          📊 {tNav("accountingReports")}
                         </Link>
 
                         <Link
                           href="/admin/rh/documentos"
                           className={getLinkClass("/admin/rh/documentos")}
                         >
-                          📄 Documentos RH
+                          📄 {tNav("hrDocuments")}
                         </Link>
 
                       </div>
@@ -1402,7 +1421,7 @@ const podeVerVisaoGeralComercial =
                     onClick={() => toggleMenu("documentos")}
                     className={buttonClass}
                   >
-                    <span className={sectionTitleClass}>📄 Documentos</span>
+                    <span className={sectionTitleClass}>📄 {tNav("documents")}</span>
                     <span>{menuAberto === "documentos" ? "▾" : "▸"}</span>
                   </button>
 
@@ -1412,35 +1431,35 @@ const podeVerVisaoGeralComercial =
                         href="/admin/contratos"
                         className={getLinkClass("/admin/contratos")}
                       >
-                        📄 Contratos
+                        📄 {tNav("contracts")}
                       </Link>
 
                       <Link
                         href="/admin/documentos/gerados"
                         className={getLinkClass("/admin/documentos/gerados")}
                       >
-                        📚 Gerados
+                        📚 {tNav("generatedDocuments")}
                       </Link>
 
                       <Link
                         href="/admin/documentos/gerar"
                         className={getLinkClass("/admin/documentos/gerar")}
                       >
-                        ⚡ Gerar
+                        ⚡ {tNav("generateDocument")}
                       </Link>
 
                       <Link
                         href="/admin/validacoes"
                         className={getLinkClass("/admin/validacoes")}
                       >
-                        🔐 Validação
+                        🔐 {tNav("validation")}
                       </Link>
 
                       <Link
                         href="/admin/crachas"
                         className={getLinkClass("/admin/crachas")}
                       >
-                        🪪 Crachás
+                        🪪 {tNav("badges")}
                       </Link>
                     </div>
                   )}
@@ -1451,7 +1470,7 @@ const podeVerVisaoGeralComercial =
                     onClick={() => toggleMenu("comunicacao")}
                     className={buttonClass}
                   >
-                    <span className={sectionTitleClass}>💬 Comunicação</span>
+                    <span className={sectionTitleClass}>💬 {tNav("communication")}</span>
                     <span>{menuAberto === "comunicacao" ? "▾" : "▸"}</span>
                   </button>
 
@@ -1461,21 +1480,21 @@ const podeVerVisaoGeralComercial =
                         href="/admin/reunioes"
                         className={getLinkClass("/admin/reunioes")}
                       >
-                        📅 Reuniões
+                        📅 {tNav("meetings")}
                       </Link>
 
                       <Link
                         href="/admin/aniversariantes"
                         className={getLinkClass("/admin/aniversariantes")}
                       >
-                        🎂 Aniversariantes
+                        🎂 {tNav("birthdays")}
                       </Link>
 
                       <Link
                         href="/admin/ouvidoria"
                         className={getLinkClass("/admin/ouvidoria")}
                       >
-                        🧠 Ouvidoria
+                        🧠 {tNav("ombudsman")}
                       </Link>
                     </div>
                   )}
@@ -1487,7 +1506,7 @@ const podeVerVisaoGeralComercial =
                     onClick={() => toggleMenu("configuracoes")}
                     className={buttonClass}
                   >
-                    <span className={sectionTitleClass}>⚙️ Configurações</span>
+                    <span className={sectionTitleClass}>⚙️ {tNav("settings")}</span>
                     <span>{menuAberto === "configuracoes" ? "▾" : "▸"}</span>
                   </button>
 
@@ -1500,7 +1519,7 @@ const podeVerVisaoGeralComercial =
                         )}
                         data-tour="menu-configuracoes"
                       >
-                        ⚙️ Instituição
+                        ⚙️ {tNav("institution")}
                       </Link>
 
                       <Link
@@ -1509,7 +1528,7 @@ const podeVerVisaoGeralComercial =
                           "/admin/configuracoes/logos"
                         )}
                       >
-                        🖼️ Logos institucionais
+                        🖼️ {tNav("institutionalLogos")}
                       </Link>
 
                       {podeGerenciarEmailInstitucional && (
@@ -1519,7 +1538,7 @@ const podeVerVisaoGeralComercial =
                             "/admin/integracoes/email"
                           )}
                         >
-                          📧 E-mail institucional
+                          📧 {tNav("institutionalEmail")}
                         </Link>
                       )}
 
@@ -1528,7 +1547,7 @@ const podeVerVisaoGeralComercial =
                           href="/admin/integracoes/whatsapp"
                           className={getLinkClass("/admin/integracoes/whatsapp")}
                         >
-                          💬 WhatsApp institucional
+                          💬 {tNav("institutionalWhatsapp")}
                         </Link>
                       )}
 
@@ -1537,7 +1556,7 @@ const podeVerVisaoGeralComercial =
                           href="/admin/polos"
                           className={getLinkClass("/admin/polos")}
                         >
-                          🏢 Polos e unidades
+                          🏢 {tNav("campusesAndUnits")}
                         </Link>
                       )}
 
@@ -1545,28 +1564,28 @@ const podeVerVisaoGeralComercial =
                         href="/admin/departamentos"
                         className={getLinkClass("/admin/departamentos")}
                       >
-                        🔐 Permissões por setor
+                        🔐 {tNav("departmentPermissions")}
                       </Link>
 
                       <Link
                         href="/admin/configuracoes/documentos"
                         className={getLinkClass("/admin/configuracoes/documentos")}
                       >
-                        📄 Documentos institucionais
+                        📄 {tNav("institutionalDocuments")}
                       </Link>
 
                       <Link
                         href="/admin/configuracoes/portais"
                         className={getLinkClass("/admin/configuracoes/portais")}
                       >
-                        👁️ Visibilidade dos Portais
+                        👁️ {tNav("portalVisibility")}
                       </Link>
 
                       <Link
                         href="/admin/certificados"
                         className={getLinkClass("/admin/certificados")}
                       >
-                        🏅 Gestão de Certificados
+                        🏅 {tNav("certificateManagement")}
                       </Link>
                       <Link
                         href="/admin/configuracoes/certificado"
@@ -1574,7 +1593,7 @@ const podeVerVisaoGeralComercial =
                           "/admin/configuracoes/certificado"
                         )}
                       >
-                        🏅 Certificados
+                        🎨 {tNav("certificateEditor")}
                       </Link>
 
                     </div>
@@ -1589,7 +1608,7 @@ const podeVerVisaoGeralComercial =
                   onClick={handleLogout}
                   className="w-full bg-red-500 text-white py-3 rounded-xl font-semibold hover:bg-red-600 transition"
                 >
-                  Sair
+                  {tNav("logout")}
                 </button>
               </div>
             </div>
@@ -1602,7 +1621,7 @@ const podeVerVisaoGeralComercial =
               <div className="fixed bottom-[74px] left-3 right-3 z-[75] rounded-3xl border border-slate-200 bg-white p-3 shadow-2xl lg:hidden">
                 <div className="mb-2 flex items-center justify-between">
                   <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-500">
-                    {menuMobileAberto}
+                    {titulosMenuMobile[menuMobileAberto] ?? menuMobileAberto}
                   </p>
 
                   <button
@@ -1610,65 +1629,65 @@ const podeVerVisaoGeralComercial =
                     onClick={() => setMenuMobileAberto(null)}
                     className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600"
                   >
-                    Fechar
+                    {tCommon("close")}
                   </button>
                 </div>
 
                 {menuMobileAberto === "Acadêmico" && (
                   <div className="grid grid-cols-2 gap-2">
                     <Link href="/admin/alunos" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
-                      👨‍🎓 Alunos
+                      🎓 {tNav("students")}
                     </Link>
                     <Link href="/admin/professores" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
-                      👨‍🏫 Professores
+                      👩‍🏫 {tNav("teachers")}
                     </Link>
                     <Link
                       href="/admin/substituicoes-docentes"
                       className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                     >
-                      🔁 Substituições Docentes
+                      🔄 {tNav("teacherSubstitutions")}
                     </Link>
                     <Link href="/admin/funcionarios" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
-                      🧑‍💼 Funcionários
+                      🧑‍💼 {tNav("employees")}
                     </Link>
                     <Link
                       href="/admin/visitantes"
                       className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                     >
-                      🪪 Visitantes
+                      🪪 {tNav("visitors")}
                     </Link>
                     <Link href="/admin/departamentos" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
-                      🏢 Departamentos
+                      🏢 {tNav("departments")}
                     </Link>
                     <Link href="/admin/disciplinas" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
-                      📚 Disciplinas
+                      📚 {tNav("subjects")}
                     </Link>
                     <Link href="/admin/matriculas" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
-                      📝 Matrículas
+                      📝 {tNav("enrollments")}
                     </Link>
                     {podeGerenciarRematriculasSemestrais && (
                       <Link
                         href="/admin/rematriculas-semestrais"
                         className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                       >
-                        🔄 Rematrículas
+                        🔄 {tNav("semesterReenrollments")}
                       </Link>
                     )}
                     <Link href="/admin/turmas" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
-                      🏫 Turmas
+                      🏫 {tNav("classes")}
                     </Link>
                     <Link
                       href="/admin/agenda-operacional"
                       className={getLinkClass("/admin/agenda-operacional")}
                     >
-                      🗓️ Agenda / Escala
+                      🗓️ {tNav("operationalSchedule")}
                     </Link>
                     {podeVerPublicacoesAcademicas && (
                       <Link
                         href="/admin/academico/publicacoes"
                         className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                       >
-                        📤 Publicações Acadêmicas
+                        📚 {tNav("academicPublications")}
                       </Link>
                     )}
                     {podeVerBiblioteca && (
@@ -1676,7 +1695,7 @@ const podeVerVisaoGeralComercial =
                         href="/admin/biblioteca"
                         className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                       >
-                        📚 Biblioteca Virtual
+                        📚 {tNav("virtualLibrary")}
                       </Link>
                     )}
                   </div>
@@ -1686,29 +1705,29 @@ const podeVerVisaoGeralComercial =
                   podeVerComercialInstituicao && (
                     <div className="grid grid-cols-2 gap-2">
                       {podeVerVisaoGeralComercial && (
-  <Link
-    href="/admin/comercial"
-    className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-  >
-    📊 Visão Geral
-  </Link>
-)}
+                        <Link
+                          href="/admin/comercial"
+                          className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+                        >
+                          📊 {tNav("overview")}
+                        </Link>
+                      )}
 
-{podeVerCentralCaptacao && (
-  <Link
-    href="/admin/comercial/captacao"
-    className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-  >
-    🎯 Central de Captação
-  </Link>
-)}
+                      {podeVerCentralCaptacao && (
+                        <Link
+                          href="/admin/comercial/captacao"
+                          className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+                        >
+                          🎯 {tNav("leadGenerationCenter")}
+                        </Link>
+                      )}
 
                       {podeVerFunisComerciais && (
                         <Link
                           href="/admin/comercial/funis"
                           className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                         >
-                          🧭 Funis comerciais
+                          🧭 {tNav("salesFunnels")}
                         </Link>
                       )}
 
@@ -1717,7 +1736,7 @@ const podeVerVisaoGeralComercial =
                           href="/admin/comercial/pipeline"
                           className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                         >
-                          🗂️ Pipeline comercial
+                          🗂️ {tNav("salesPipeline")}
                         </Link>
                       )}
 
@@ -1726,7 +1745,7 @@ const podeVerVisaoGeralComercial =
                           href="/admin/comercial/agenda"
                           className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                         >
-                          📅 Agenda comercial
+                          📅 {tNav("salesAgenda")}
                         </Link>
                       )}
 
@@ -1735,7 +1754,7 @@ const podeVerVisaoGeralComercial =
                           href="/admin/leads"
                           className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                         >
-                          🎯 Leads e oportunidades
+                          🎯 {tNav("leadsAndOpportunities")}
                         </Link>
                       )}
 
@@ -1744,7 +1763,7 @@ const podeVerVisaoGeralComercial =
                           href="/admin/comercial/equipes"
                           className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                         >
-                          👥 Equipes comerciais
+                          👥 {tNav("salesTeams")}
                         </Link>
                       )}
 
@@ -1753,7 +1772,7 @@ const podeVerVisaoGeralComercial =
                           href="/admin/comercial/metas"
                           className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                         >
-                          📈 Metas comerciais
+                          📈 {tNav("salesTargets")}
                         </Link>
                       )}
 
@@ -1762,7 +1781,7 @@ const podeVerVisaoGeralComercial =
                           href="/admin/comercial/relatorios"
                           className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                         >
-                          📈 Relatórios
+                          📈 {tNav("reports")}
                         </Link>
                       )}
 
@@ -1771,7 +1790,7 @@ const podeVerVisaoGeralComercial =
                           href="/admin/comercial/configuracoes"
                           className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                         >
-                          ⚙️ Planos de comissão
+                          ⚙️ {tNav("commissionPlans")}
                         </Link>
                       )}
                     </div>
@@ -1780,36 +1799,36 @@ const podeVerVisaoGeralComercial =
                 {menuMobileAberto === "Financeiro" && (
                   <div className="grid grid-cols-2 gap-2">
                     <Link href="/admin/financeiro" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
-                      💰 Visão Geral
+                      💰 {tNav("overview")}
                     </Link>
                     <Link href="/admin/financeiro/recebimentos" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
-                      💵 Recebimentos
+                      💵 {tNav("receipts")}
                     </Link>
                     <Link href="/admin/financeiro/caixa" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
-                      🏦 Caixa
+                      🏦 {tNav("cashRegister")}
                     </Link>
                     <Link href="/admin/financeiro/relatorios" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
-                      📊 Relatórios
+                      📊 {tNav("reports")}
                     </Link>
                     <Link href="/admin/financeiro/inadimplentes" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
-                      🚨 Inadimplentes
+                      🚨 {tNav("overdueAccounts")}
                     </Link>
                     <Link href="/admin/financeiro/fechamento-geral" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
-                      📦 Fechamento
+                      📦 {tNav("generalClosing")}
                     </Link>
                     {ehIbePolos && (
                       <Link
                         href="/admin/financeiro/boletos-ibe"
                         className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                       >
-                        🧾 Gerar boleto
+                        🧾 {tNav("generateInvoiceForProspect")}
                       </Link>
                     )}
                     <Link
                       href="/admin/financeiro/configuracoes"
                       className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                     >
-                      ⚙️ Configurações
+                      ⚙️ {tNav("settings")}
                     </Link>
                   </div>
                 )}
@@ -1820,14 +1839,14 @@ const podeVerVisaoGeralComercial =
                       href="/admin/rh"
                       className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                     >
-                      👥 Visão Geral
+                      👥 {tNav("overview")}
                     </Link>
 
                     <Link
                       href="/admin/funcionarios"
                       className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                     >
-                      👤 Funcionários
+                      👤 {tNav("employees")}
                     </Link>
 
                     {podeVerProfessoresRH && (
@@ -1835,7 +1854,7 @@ const podeVerVisaoGeralComercial =
                         href="/admin/rh/professores"
                         className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                       >
-                        👨‍🏫 Professores
+                        👨‍🏫 {tNav("teachers")}
                       </Link>
                     )}
 
@@ -1844,7 +1863,7 @@ const podeVerVisaoGeralComercial =
                         href="/admin/rh/remuneracao-variavel"
                         className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                       >
-                        💰 Remuneração Variável
+                        💰 {tNav("variableCompensation")}
                       </Link>
                     )}
 
@@ -1853,7 +1872,7 @@ const podeVerVisaoGeralComercial =
                         href="/admin/rh/comissoes"
                         className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                       >
-                        💵 Comissões comerciais
+                        💵 {tNav("salesCommissions")}
                       </Link>
                     )}
 
@@ -1861,14 +1880,14 @@ const podeVerVisaoGeralComercial =
                       href="/admin/rh/ponto"
                       className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                     >
-                      ⏱️ Ponto
+                      ⏱️ {tNav("timeTracking")}
                     </Link>
 
                     <Link
                       href="/admin/rh/ponto/configuracoes"
                       className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                     >
-                      ⚙️ Configurações de Ponto
+                      ⚙️ {tNav("timeTrackingSettings")}
                     </Link>
 
                     {podeVerPontoMobile && (
@@ -1876,7 +1895,7 @@ const podeVerVisaoGeralComercial =
                         href="/admin/rh/ponto/mobile"
                         className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                       >
-                        📱 Ponto Mobile
+                        📱 {tNav("mobileTimeTracking")}
                       </Link>
                     )}
 
@@ -1884,21 +1903,21 @@ const podeVerVisaoGeralComercial =
                       href="/admin/rh/ponto/importacao-afd"
                       className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                     >
-                      📥 Importação AFD
+                      📥 {tNav("afdImport")}
                     </Link>
 
                     <Link
                       href="/admin/rh/banco-horas"
                       className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                     >
-                      📊 Banco de Horas
+                      📊 {tNav("timeBank")}
                     </Link>
 
                     <Link
                       href="/admin/rh/holerites"
                       className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                     >
-                      💵 Holerites
+                      💵 {tNav("payslips")}
                     </Link>
                   </div>
                 )}
@@ -1909,21 +1928,21 @@ const podeVerVisaoGeralComercial =
                       href="/admin/reunioes"
                       className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                     >
-                      📅 Reuniões
+                      📅 {tNav("meetings")}
                     </Link>
 
                     <Link
                       href="/admin/aniversariantes"
                       className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                     >
-                      🎂 Aniversariantes
+                      🎂 {tNav("birthdays")}
                     </Link>
 
                     <Link
                       href="/admin/ouvidoria"
                       className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                     >
-                      🧠 Ouvidoria
+                      🧠 {tNav("ombudsman")}
                     </Link>
                   </div>
                 )}
@@ -1931,22 +1950,22 @@ const podeVerVisaoGeralComercial =
                 {menuMobileAberto === "Documentos" && (
                   <div className="grid grid-cols-2 gap-2">
                     <Link href="/admin/contratos" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
-                      📄 Contratos
+                      📄 {tNav("contracts")}
                     </Link>
                     <Link href="/admin/documentos/gerados" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
-                      📚 Gerados
+                      📚 {tNav("generatedDocuments")}
                     </Link>
                     <Link href="/admin/documentos/gerar" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
-                      ⚡ Gerar
+                      ⚡ {tNav("generateDocument")}
                     </Link>
                     <Link href="/admin/validacoes" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
-                      🔐 Validação
+                      🔐 {tNav("validation")}
                     </Link>
                     <Link
                       href="/admin/crachas"
                       className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                     >
-                      🪪 Crachás
+                      🪪 {tNav("badges")}
                     </Link>
                   </div>
                 )}
@@ -1954,20 +1973,20 @@ const podeVerVisaoGeralComercial =
                 {menuMobileAberto === "Configurações" && (
                   <div className="grid grid-cols-1 gap-2">
                     <Link href="/admin/configuracoes/instituicao" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
-                      ⚙️ Instituição
+                      ⚙️ {tNav("institution")}
                     </Link>
                     <Link
                       href="/admin/configuracoes/logos"
                       className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
                     >
-                      🖼️ Logos institucionais
+                      🖼️ {tNav("institutionalLogos")}
                     </Link>
                     {podeGerenciarEmailInstitucional && (
                       <Link
                         href="/admin/integracoes/email"
                         className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
                       >
-                        📧 E-mail institucional
+                        📧 {tNav("institutionalEmail")}
                       </Link>
                     )}
                     {podeGerenciarWhatsappInstitucional && (
@@ -1975,7 +1994,7 @@ const podeVerVisaoGeralComercial =
                         href="/admin/integracoes/whatsapp"
                         className={getLinkClass("/admin/integracoes/whatsapp")}
                       >
-                        💬 WhatsApp institucional
+                        💬 {tNav("institutionalWhatsapp")}
                       </Link>
                     )}
                     {podeGerenciarPolos && (
@@ -1983,40 +2002,41 @@ const podeVerVisaoGeralComercial =
                         href="/admin/polos"
                         className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
                       >
-                        🏢 Polos e unidades
+                        🏢 {tNav("campusesAndUnits")}
                       </Link>
                     )}
                     <Link
                       href="/admin/assinatura"
                       className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                     >
-                      💳 Assinatura PHANYX
+                      💳 {tNav("subscription")}
                     </Link>
                     <Link href="/admin/configuracoes/documentos" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
-                      📄 Documentos institucionais
+                      📄 {tNav("institutionalDocuments")}
                     </Link>
                     <Link
                       href="/admin/configuracoes/portais"
                       className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                     >
-                      👁️ Visibilidade dos Portais
+                      👁️ {tNav("portalVisibility")}
                     </Link>
                     <Link href="/admin/certificados" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
-                      🏅 Gestão de Certificados
+                      🏅 {tNav("certificateManagement")}
                     </Link>
                     <Link href="/admin/configuracoes/certificado" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
-                      🎨 Editor de Certificado
+                      🎨 {tNav("certificateEditor")}
                     </Link>
                     <Link href="/admin/ouvidoria" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
-                      🧠 Ouvidoria
+                      🧠 {tNav("ombudsman")}
                     </Link>
                   </div>
                 )}
               </div>
             )}
 
-            <div className="fixed right-3 top-20 z-[80] lg:hidden">
+            <div className="fixed right-3 top-20 z-[80] flex w-60 flex-col gap-2 lg:hidden">
               <PhanyxThemeToggle />
+              <SeletorIdioma exibirRotulo={false} />
             </div>
 
             <nav className="fixed bottom-0 left-0 right-0 z-[70] border-t border-slate-200 bg-white/95 px-2 py-2 shadow-[0_-8px_25px_rgba(15,23,42,0.12)] backdrop-blur lg:hidden">
@@ -2031,12 +2051,12 @@ const podeVerVisaoGeralComercial =
 
                 <Link href="/admin" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
                   <span className="text-lg">📊</span>
-                  Painel
+                  {tNav("dashboardShort")}
                 </Link>
 
                 <button type="button" onClick={() => setMenuMobileAberto(menuMobileAberto === "Acadêmico" ? null : "Acadêmico")} className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
                   <span className="text-lg">🎓</span>
-                  Acad.
+                  {tNav("academicShort")}
                 </button>
 
                 {podeVerComercialInstituicao && (
@@ -2057,13 +2077,13 @@ const podeVerVisaoGeralComercial =
                     ].join(" ")}
                   >
                     <span className="text-lg">📈</span>
-                    Comerc.
+                    {tNav("commercialShort")}
                   </button>
                 )}
 
                 <button type="button" onClick={() => setMenuMobileAberto(menuMobileAberto === "Financeiro" ? null : "Financeiro")} className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
                   <span className="text-lg">💰</span>
-                  Financ.
+                  {tNav("financialShort")}
                 </button>
 
                 <button
@@ -2076,17 +2096,17 @@ const podeVerVisaoGeralComercial =
                   className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700"
                 >
                   <span className="text-lg">👥</span>
-                  RH
+                  {tNav("hrShort")}
                 </button>
 
                 <button type="button" onClick={() => setMenuMobileAberto(menuMobileAberto === "Documentos" ? null : "Documentos")} className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
                   <span className="text-lg">📄</span>
-                  Docs
+                  {tNav("documentsShort")}
                 </button>
 
                 <button type="button" onClick={() => setMenuMobileAberto(menuMobileAberto === "Configurações" ? null : "Configurações")} className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
                   <span className="text-lg">⚙️</span>
-                  Config.
+                  {tNav("settingsShort")}
                 </button>
 
                 <button
@@ -2099,7 +2119,7 @@ const podeVerVisaoGeralComercial =
                   className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700"
                 >
                   <span className="text-lg">💬</span>
-                  Comun.
+                  {tNav("communicationShort")}
                 </button>
               </div>
             </nav>
@@ -2136,11 +2156,11 @@ const podeVerVisaoGeralComercial =
                   <div className="absolute right-0 z-[9999] mt-3 w-80 overflow-hidden rounded-2xl border border-white/10 bg-slate-950 shadow-2xl">
                     <div className="border-b border-white/10 px-4 py-3">
                       <p className="text-sm font-black text-white">
-                        Notificações
+                        {tNav("notifications")}
                       </p>
 
                       <p className="text-xs text-slate-400">
-                        Atualizações importantes do PHANYX
+                        {tNav("notificationsDescription")}
                       </p>
                     </div>
 
@@ -2175,7 +2195,7 @@ const podeVerVisaoGeralComercial =
                         }}
                         className="w-full rounded-xl border border-blue-500 bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
                       >
-                        Ver todas as notificações →
+                        {tNav("viewAllNotifications")} →
                       </button>
                     </div>
                   </div>
@@ -2187,14 +2207,11 @@ const podeVerVisaoGeralComercial =
           {rotaPolosBloqueada ? (
             <div className="mx-auto max-w-3xl rounded-2xl border border-amber-300 bg-amber-50 p-6 shadow-sm dark:border-amber-800 dark:bg-amber-950/30">
               <h1 className="text-xl font-bold text-amber-950 dark:text-amber-100">
-                Gestão de polos não habilitada
+                {tNav("campusManagementDisabled")}
               </h1>
 
               <p className="mt-3 text-sm leading-6 text-amber-900 dark:text-amber-200">
-                Este ID institucional não possui
-                autorização para criar ou gerenciar
-                polos. Essa permissão é controlada pela
-                instituição contratante da rede.
+                {tNav("campusManagementDisabledDescription")}
               </p>
 
               <button
@@ -2204,7 +2221,7 @@ const podeVerVisaoGeralComercial =
                 }
                 className="mt-5 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
               >
-                Voltar ao painel
+                {tNav("backToDashboard")}
               </button>
             </div>
           ) : (
@@ -2216,10 +2233,10 @@ const podeVerVisaoGeralComercial =
 
         <PhanyxConfirmModal
           aberto={sessaoExpirada}
-          titulo="Sessão encerrada"
-          mensagem="Sua sessão foi encerrada por segurança devido à inatividade. Você será redirecionado para o login."
-          textoConfirmar="Ir para o login"
-          textoCancelar="Fechar"
+          titulo={tCommon("sessionExpired")}
+          mensagem={tCommon("sessionExpiredDescription")}
+          textoConfirmar={tCommon("goToLogin")}
+          textoCancelar={tCommon("close")}
           onConfirmar={() => {
             window.location.href = "/login?portal=admin";
           }}
