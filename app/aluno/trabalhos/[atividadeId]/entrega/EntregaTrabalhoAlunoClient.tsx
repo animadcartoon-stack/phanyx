@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 type AtividadeDetalhe = {
   id: number;
@@ -30,9 +31,9 @@ type AtividadeDetalhe = {
   }[];
 };
 
-function formatarData(data?: string | null) {
-  if (!data) return "Sem prazo";
-  return new Date(data).toLocaleString("pt-BR", {
+function formatarData(data: string | null | undefined, locale: string, semPrazo: string) {
+  if (!data) return semPrazo;
+  return new Date(data).toLocaleString(locale, {
     dateStyle: "short",
     timeStyle: "short",
   });
@@ -45,15 +46,24 @@ function formatarBytes(bytes?: number | null) {
   return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
 
-function calcularPrazo(prazo?: string | null) {
-  if (!prazo) return { encerrado: false, texto: "Sem prazo definido", classe: "text-slate-600 dark:text-slate-300" };
+function calcularPrazo(
+  prazo: string | null | undefined,
+  mensagens: {
+    semPrazo: string;
+    encerrado: string;
+    dias: (count: number) => string;
+    horas: (count: number) => string;
+    menosDeUmaHora: string;
+  }
+) {
+  if (!prazo) return { encerrado: false, texto: mensagens.semPrazo, classe: "text-slate-600 dark:text-slate-300" };
 
   const agora = new Date();
   const fim = new Date(prazo);
   const diff = fim.getTime() - agora.getTime();
 
   if (diff < 0) {
-    return { encerrado: true, texto: "❌ Prazo encerrado", classe: "text-red-700 dark:text-red-300" };
+    return { encerrado: true, texto: mensagens.encerrado, classe: "text-red-700 dark:text-red-300" };
   }
 
   const horas = Math.floor(diff / 1000 / 60 / 60);
@@ -62,7 +72,7 @@ function calcularPrazo(prazo?: string | null) {
   if (dias >= 1) {
     return {
       encerrado: false,
-      texto: `🟢 Restam ${dias} dia${dias > 1 ? "s" : ""}`,
+      texto: mensagens.dias(dias),
       classe: "text-green-700 dark:text-green-300",
     };
   }
@@ -70,25 +80,25 @@ function calcularPrazo(prazo?: string | null) {
   if (horas >= 1) {
     return {
       encerrado: false,
-      texto: `🟠 Restam ${horas} hora${horas > 1 ? "s" : ""}`,
+      texto: mensagens.horas(horas),
       classe: "text-amber-700 dark:text-amber-300",
     };
   }
 
   return {
     encerrado: false,
-    texto: "⚠️ Vence em menos de 1 hora",
+    texto: mensagens.menosDeUmaHora,
     classe: "text-amber-700 dark:text-amber-300",
   };
 }
 
-function nomeArquivoUrl(url?: string | null) {
-  if (!url) return "Arquivo enviado";
+function nomeArquivoUrl(url: string | null | undefined, fallback: string) {
+  if (!url) return fallback;
   try {
     const limpa = decodeURIComponent(url.split("?")[0]);
-    return limpa.split("/").pop() || "Arquivo enviado";
+    return limpa.split("/").pop() || fallback;
   } catch {
-    return "Arquivo enviado";
+    return fallback;
   }
 }
 
@@ -98,6 +108,8 @@ export default function EntregaTrabalhoAlunoClient({
   atividadeId: string;
 }) {
   const router = useRouter();
+  const locale = useLocale();
+  const t = useTranslations("StudentAssignmentSubmission");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [texto, setTexto] = useState("");
@@ -110,7 +122,17 @@ export default function EntregaTrabalhoAlunoClient({
   const [loading, setLoading] = useState(true);
 
   const entrega = atividade?.entregas?.[0] || null;
-  const prazoInfo = useMemo(() => calcularPrazo(atividade?.prazo), [atividade?.prazo]);
+  const prazoInfo = useMemo(
+    () =>
+      calcularPrazo(atividade?.prazo, {
+        semPrazo: t("deadline.undefined"),
+        encerrado: t("deadline.closed"),
+        dias: (count) => t("deadline.daysRemaining", { count }),
+        horas: (count) => t("deadline.hoursRemaining", { count }),
+        menosDeUmaHora: t("deadline.lessThanHour"),
+      }),
+    [atividade?.prazo, t]
+  );
   const prazoEncerrado = prazoInfo.encerrado;
 
   async function carregarAtividade() {
@@ -126,14 +148,14 @@ export default function EntregaTrabalhoAlunoClient({
       const json = await res.json();
 
       if (!res.ok) {
-        throw new Error(json?.error || "Erro ao carregar atividade.");
+        throw new Error(json?.error || t("errors.load"));
       }
 
       setAtividade(json);
       setTexto(json?.entregas?.[0]?.texto || "");
       setLink(json?.entregas?.[0]?.link || "");
     } catch (e: any) {
-      setErro(e?.message || "Erro ao carregar atividade.");
+      setErro(e?.message || t("errors.load"));
     } finally {
       setLoading(false);
     }
@@ -153,7 +175,9 @@ export default function EntregaTrabalhoAlunoClient({
 
       if (arquivo) {
         if (arquivo.size > 500 * 1024 * 1024) {
-          throw new Error("O arquivo excede o limite de 500 MB.");
+          throw new Error(
+            t("errors.fileTooLarge", { size: formatarBytes(arquivo.size) })
+          );
         }
 
         const resUploadUrl = await fetch(
@@ -173,7 +197,7 @@ export default function EntregaTrabalhoAlunoClient({
         const jsonUploadUrl = await resUploadUrl.json();
 
         if (!resUploadUrl.ok || !jsonUploadUrl?.uploadUrl) {
-          throw new Error(jsonUploadUrl?.error || "Erro ao preparar upload.");
+          throw new Error(jsonUploadUrl?.error || t("errors.prepareUpload"));
         }
 
         const resUploadDireto = await fetch(jsonUploadUrl.uploadUrl, {
@@ -183,7 +207,7 @@ export default function EntregaTrabalhoAlunoClient({
         });
 
         if (!resUploadDireto.ok) {
-          throw new Error("Erro ao enviar arquivo.");
+          throw new Error(t("errors.upload"));
         }
 
         arquivoUrl = jsonUploadUrl.arquivoUrl;
@@ -202,17 +226,17 @@ export default function EntregaTrabalhoAlunoClient({
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Erro ao enviar atividade.");
+        throw new Error(data.error || t("errors.submit"));
       }
 
-      setMensagem("Atividade enviada com sucesso.");
+      setMensagem(t("success"));
       setTexto("");
       setLink("");
       setArquivo(null);
 
       router.push(`/aluno/trabalhos/${atividadeId}?entrega=sucesso`);
     } catch (error: any) {
-      setErro(error.message || "Erro ao enviar atividade.");
+      setErro(error.message || t("errors.submit"));
     } finally {
       setSalvando(false);
     }
@@ -223,7 +247,7 @@ export default function EntregaTrabalhoAlunoClient({
       <div className="mx-auto max-w-6xl p-6">
         <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <p className="text-slate-600 dark:text-slate-300">
-            Carregando atividade...
+            {t("loading")}
           </p>
         </div>
       </div>
@@ -238,11 +262,11 @@ export default function EntregaTrabalhoAlunoClient({
             href={`/aluno/trabalhos/${atividadeId}`}
             className="text-sm font-black text-blue-700 hover:text-blue-800 dark:text-blue-300"
           >
-            ← Voltar para detalhes
+            ← {t("back")}
           </a>
 
           <h1 className="mt-4 text-3xl font-black text-slate-900 dark:text-white">
-            Enviar atividade
+            {t("title")}
           </h1>
         </div>
 
@@ -251,7 +275,7 @@ export default function EntregaTrabalhoAlunoClient({
             <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.2em] text-blue-700 dark:text-blue-300">
-                  Atividade
+                  {t("activity.label")}
                 </p>
 
                 <h2 className="mt-2 text-3xl font-black text-slate-900 dark:text-white">
@@ -259,18 +283,18 @@ export default function EntregaTrabalhoAlunoClient({
                 </h2>
 
                 <p className="mt-3 text-sm font-bold text-slate-700 dark:text-slate-300">
-                  {atividade.disciplina?.nome || "Disciplina não informada"} • Turma{" "}
-                  {atividade.turma?.nome || "-"}
+                  {atividade.disciplina?.nome || t("activity.subjectUnknown")} •{" "}
+                  {t("activity.class")} {atividade.turma?.nome || t("common.notProvided")}
                 </p>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2 lg:min-w-[360px]">
                 <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
                   <p className="text-xs font-black uppercase text-slate-500 dark:text-slate-400">
-                    Prazo
+                    {t("deadline.label")}
                   </p>
                   <p className="mt-1 font-black text-slate-900 dark:text-white">
-                    {formatarData(atividade.prazo)}
+                    {formatarData(atividade.prazo, locale, t("deadline.noDeadline"))}
                   </p>
                   <p className={`mt-1 text-sm font-black ${prazoInfo.classe}`}>
                     {prazoInfo.texto}
@@ -279,13 +303,13 @@ export default function EntregaTrabalhoAlunoClient({
 
                 <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
                   <p className="text-xs font-black uppercase text-slate-500 dark:text-slate-400">
-                    Valor
+                    {t("score.label")}
                   </p>
                   <p className="mt-1 text-2xl font-black text-slate-900 dark:text-white">
                     {atividade.notaMaxima || 10}
                   </p>
                   <p className="text-xs font-bold text-slate-500 dark:text-slate-400">
-                    pontos
+                    {t("score.points")}
                   </p>
                 </div>
               </div>
@@ -295,30 +319,39 @@ export default function EntregaTrabalhoAlunoClient({
 
         <section className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-950">
           <p className="text-xs font-black uppercase tracking-[0.2em] text-blue-700 dark:text-blue-300">
-            Status da entrega
+            {t("status.label")}
           </p>
 
           {entrega ? (
             <div className="mt-4 rounded-2xl border border-green-200 bg-green-50 p-5 text-sm text-green-800 dark:border-green-900/60 dark:bg-green-950/40 dark:text-green-200">
               <p className="text-xl font-black">
-                {entrega.nota != null ? "⭐ Corrigida" : "✅ Entregue"}
+                {entrega.nota != null
+                  ? t("status.graded")
+                  : t("status.submitted")}
               </p>
 
               <p className="mt-2 font-bold">
-                Enviada em:{" "}
-                {entrega.entregueEm ? formatarData(entrega.entregueEm) : "-"}
+                {t("status.submittedAt", {
+                  date: entrega.entregueEm
+                    ? formatarData(
+                        entrega.entregueEm,
+                        locale,
+                        t("common.notProvided")
+                      )
+                    : t("common.notProvided"),
+                })}
               </p>
 
               <p className="mt-1">
                 {entrega.nota != null
-                  ? "O professor já avaliou esta atividade."
-                  : "Sua resposta foi enviada e está aguardando correção."}
+                  ? t("status.evaluated")
+                  : t("status.awaitingReview")}
               </p>
 
               {entrega.nota != null && (
                 <div className="mt-4 rounded-2xl border border-yellow-200 bg-yellow-50 p-4 text-yellow-800 dark:border-yellow-900/60 dark:bg-yellow-950/30 dark:text-yellow-200">
                   <p className="text-xs font-black uppercase tracking-[0.2em]">
-                    Avaliação
+                    {t("status.evaluation")}
                   </p>
                   <p className="mt-2 text-3xl font-black">
                     ⭐ {entrega.nota} / {atividade?.notaMaxima || 10}
@@ -328,7 +361,7 @@ export default function EntregaTrabalhoAlunoClient({
 
               {entrega.feedback && (
                 <div className="mt-4 rounded-2xl border border-green-200 bg-white/70 p-4 dark:border-green-900 dark:bg-slate-950/60">
-                  <p className="font-black">💬 Feedback do professor</p>
+                  <p className="font-black">💬 {t("status.feedback")}</p>
                   <p className="mt-2 whitespace-pre-line leading-7">
                     {entrega.feedback}
                   </p>
@@ -337,11 +370,11 @@ export default function EntregaTrabalhoAlunoClient({
             </div>
           ) : prazoEncerrado ? (
             <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 p-5 text-sm font-bold text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-200">
-              ❌ Prazo encerrado. Não é possível enviar esta atividade.
+              {t("status.closed")}
             </div>
           ) : (
             <div className="mt-4 rounded-2xl border border-blue-200 bg-blue-50 p-5 text-sm font-bold text-blue-700 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-200">
-              📤 Ainda não enviada. Você pode enviar texto, link ou arquivo.
+              {t("status.notSubmitted")}
             </div>
           )}
         </section>
@@ -349,7 +382,7 @@ export default function EntregaTrabalhoAlunoClient({
         {atividade?.descricao && (
           <section className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-950">
             <h3 className="text-xl font-black text-slate-900 dark:text-white">
-              Orientações
+              {t("instructions")}
             </h3>
 
             <div className="mt-4 whitespace-pre-line rounded-2xl border border-slate-200 bg-slate-50 p-5 text-sm leading-7 text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">
@@ -361,7 +394,7 @@ export default function EntregaTrabalhoAlunoClient({
         {atividade?.anexos && atividade.anexos.length > 0 && (
           <section className="rounded-3xl border border-blue-200 bg-blue-50 p-5 dark:border-blue-900/50 dark:bg-blue-950/40">
             <h3 className="text-xl font-black text-blue-800 dark:text-blue-200">
-              📎 Arquivos da atividade ({atividade.anexos.length})
+              {t("attachments.title", { count: atividade.anexos.length })}
             </h3>
 
             <div className="mt-4 grid gap-3">
@@ -375,7 +408,7 @@ export default function EntregaTrabalhoAlunoClient({
                 >
                   <span>📄 {anexo.arquivoNome || anexo.titulo}</span>
                   <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                    {anexo.mimeType || "Arquivo"}{" "}
+                    {anexo.mimeType || t("attachments.file")}{" "}
                     {anexo.tamanho ? `• ${formatarBytes(anexo.tamanho)}` : ""}
                   </span>
                 </a>
@@ -387,13 +420,13 @@ export default function EntregaTrabalhoAlunoClient({
         {entrega && (
           <section className="rounded-3xl border border-green-200 bg-green-50 p-5 dark:border-green-900/60 dark:bg-green-950/30">
             <h3 className="text-xl font-black text-green-800 dark:text-green-200">
-              Minha última entrega
+              {t("previous.title")}
             </h3>
 
             <div className="mt-4 space-y-3 text-sm text-green-900 dark:text-green-100">
               {entrega.texto && (
                 <div className="rounded-2xl border border-green-200 bg-white/70 p-4 dark:border-green-900 dark:bg-slate-950/50">
-                  <p className="font-black">Texto enviado</p>
+                  <p className="font-black">{t("previous.text")}</p>
                   <p className="mt-2 whitespace-pre-line leading-7">
                     {entrega.texto}
                   </p>
@@ -402,7 +435,7 @@ export default function EntregaTrabalhoAlunoClient({
 
               {entrega.link && (
                 <div className="rounded-2xl border border-green-200 bg-white/70 p-4 dark:border-green-900 dark:bg-slate-950/50">
-                  <p className="font-black">Link enviado</p>
+                  <p className="font-black">{t("previous.link")}</p>
                   <a
                     href={entrega.link}
                     target="_blank"
@@ -416,14 +449,19 @@ export default function EntregaTrabalhoAlunoClient({
 
               {entrega.arquivoUrl && (
                 <div className="rounded-2xl border border-green-200 bg-white/70 p-4 dark:border-green-900 dark:bg-slate-950/50">
-                  <p className="font-black">Arquivo enviado</p>
+                  <p className="font-black">{t("previous.file")}</p>
                   <a
                     href={entrega.arquivoUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="mt-2 inline-flex rounded-xl bg-green-700 px-4 py-2 font-black text-white hover:bg-green-800"
                   >
-                    📎 Abrir {nomeArquivoUrl(entrega.arquivoUrl)}
+                    📎 {t("previous.openFile", {
+                      name: nomeArquivoUrl(
+                        entrega.arquivoUrl,
+                        t("attachments.file")
+                      ),
+                    })}
                   </a>
                 </div>
               )}
@@ -445,12 +483,12 @@ export default function EntregaTrabalhoAlunoClient({
 
         <section className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-950">
           <h3 className="text-xl font-black text-slate-900 dark:text-white">
-            Sua resposta
+            {t("form.title")}
           </h3>
 
           <div className="mt-5">
             <label className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-200">
-              Texto da resposta
+              {t("form.textLabel")}
             </label>
 
             <textarea
@@ -458,20 +496,20 @@ export default function EntregaTrabalhoAlunoClient({
               onChange={(e) => setTexto(e.target.value)}
               rows={9}
               disabled={Boolean(prazoEncerrado)}
-              placeholder="Escreva aqui sua resposta ao professor..."
+              placeholder={t("form.textPlaceholder")}
               className="w-full rounded-2xl border border-slate-300 bg-white p-4 text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
             />
           </div>
 
           <div className="mt-4">
             <label className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-200">
-              Link externo
+              {t("form.linkLabel")}
             </label>
 
             <input
               value={link}
               onChange={(e) => setLink(e.target.value)}
-              placeholder="Cole aqui um link do Google Drive, OneDrive, YouTube ou outro material online."
+              placeholder={t("form.linkPlaceholder")}
               disabled={Boolean(prazoEncerrado)}
               className="w-full rounded-2xl border border-slate-300 bg-white p-4 text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
             />
@@ -479,7 +517,7 @@ export default function EntregaTrabalhoAlunoClient({
 
           <div className="mt-5">
             <label className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-200">
-              Arquivo
+              {t("form.fileLabel")}
             </label>
 
             <input
@@ -497,10 +535,10 @@ export default function EntregaTrabalhoAlunoClient({
               className="w-full rounded-3xl border-2 border-dashed border-slate-300 bg-slate-50 p-6 text-left transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800"
             >
               <span className="block text-lg font-black text-slate-900 dark:text-white">
-                📎 Selecionar arquivo
+                📎 {t("form.selectFile")}
               </span>
               <span className="mt-1 block text-sm text-slate-600 dark:text-slate-300">
-                Envie PDF, imagem, documento, planilha, vídeo ou arquivo compactado.
+                {t("form.fileHelp")}
               </span>
             </button>
 
@@ -518,14 +556,14 @@ export default function EntregaTrabalhoAlunoClient({
                   onClick={() => setArquivo(null)}
                   className="rounded-xl border border-slate-300 px-3 py-2 text-xs font-black text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
                 >
-                  Remover
+                  {t("form.remove")}
                 </button>
               </div>
             )}
           </div>
 
           <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs leading-6 text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
-            Ao enviar esta atividade, você confirma que o conteúdo apresentado é de sua autoria e está ciente das normas acadêmicas da instituição.
+            {t("form.declaration")}
           </div>
 
           <div className="mt-6">
@@ -536,10 +574,10 @@ export default function EntregaTrabalhoAlunoClient({
               className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-8 py-4 text-base font-black text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {salvando
-                ? "Enviando..."
+                ? t("form.sending")
                 : entrega
-                ? "📤 Atualizar entrega"
-                : "📤 Enviar atividade"}
+                ? t("form.update")
+                : t("form.submit")}
             </button>
           </div>
         </section>
