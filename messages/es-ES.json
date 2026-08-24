@@ -792,5 +792,45 @@
       "attention": "Atención",
       "low": "Bajo rendimiento"
     }
+  },
+  "StudentAcademicHistory": {
+    "common": {
+      "notProvided": "No informado"
+    },
+    "official": {
+      "title": "Expediente Académico Oficial",
+      "description": "Consulta e imprime tu expediente académico actualizado.",
+      "generate": "Generar expediente académico",
+      "generating": "Generando...",
+      "print": "Imprimir expediente",
+      "fileName": "expediente-academico.pdf"
+    },
+    "errors": {
+      "generateUnavailable": "No se puede generar el expediente académico ahora. Comprueba que exista una plantilla de Expediente activa.",
+      "generateFailed": "Error al generar el expediente académico. Inténtalo de nuevo en unos instantes."
+    },
+    "examHistory": {
+      "title": "Historial de Evaluaciones"
+    },
+    "average": "Promedio general: {value}",
+    "chart": {
+      "title": "Rendimiento por Asignatura",
+      "grade": "Nota"
+    },
+    "exam": {
+      "subjectId": "Asignatura ID {id}",
+      "gradeLabel": "Nota",
+      "approved": "Aprobado 🎉",
+      "failed": "Suspenso ❌",
+      "dateLabel": "Fecha",
+      "durationLabel": "Tiempo",
+      "duration": "{minutes, plural, =0 {0 min} one {# min} other {# min}} {seconds, plural, =0 {0 s} one {# s} other {# s}}",
+      "viewDetails": "Ver detalles"
+    },
+    "modal": {
+      "eyebrow": "Aviso PHANYX",
+      "title": "Expediente académico",
+      "understood": "Entendido"
+    }
   }
 }

@@ -792,5 +792,45 @@
       "attention": "Needs attention",
       "low": "Low performance"
     }
+  },
+  "StudentAcademicHistory": {
+    "common": {
+      "notProvided": "Not provided"
+    },
+    "official": {
+      "title": "Official Academic Record",
+      "description": "View and print your up-to-date academic record.",
+      "generate": "Generate academic record",
+      "generating": "Generating...",
+      "print": "Print academic record",
+      "fileName": "academic-record.pdf"
+    },
+    "errors": {
+      "generateUnavailable": "The academic record cannot be generated right now. Check whether an active Academic Record template exists.",
+      "generateFailed": "Unable to generate the academic record. Please try again shortly."
+    },
+    "examHistory": {
+      "title": "Assessment History"
+    },
+    "average": "Overall average: {value}",
+    "chart": {
+      "title": "Performance by Subject",
+      "grade": "Grade"
+    },
+    "exam": {
+      "subjectId": "Subject ID {id}",
+      "gradeLabel": "Grade",
+      "approved": "Passed 🎉",
+      "failed": "Failed ❌",
+      "dateLabel": "Date",
+      "durationLabel": "Time",
+      "duration": "{minutes, plural, =0 {0 min} one {# min} other {# min}} {seconds, plural, =0 {0 sec} one {# sec} other {# sec}}",
+      "viewDetails": "View details"
+    },
+    "modal": {
+      "eyebrow": "PHANYX notice",
+      "title": "Academic record",
+      "understood": "Got it"
+    }
   }
 }

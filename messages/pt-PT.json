@@ -792,5 +792,45 @@
       "attention": "Atenção",
       "low": "Baixo desempenho"
     }
+  },
+  "StudentAcademicHistory": {
+    "common": {
+      "notProvided": "Não informado"
+    },
+    "official": {
+      "title": "Histórico Académico Oficial",
+      "description": "Consulte e imprima o seu histórico académico atualizado.",
+      "generate": "Gerar histórico académico",
+      "generating": "A gerar...",
+      "print": "Imprimir histórico",
+      "fileName": "historico-academico.pdf"
+    },
+    "errors": {
+      "generateUnavailable": "Não foi possível gerar o histórico académico. Verifique se existe um modelo de Histórico ativo.",
+      "generateFailed": "Erro ao gerar o histórico académico. Tente novamente dentro de instantes."
+    },
+    "examHistory": {
+      "title": "Histórico de Provas"
+    },
+    "average": "Média geral: {value}",
+    "chart": {
+      "title": "Desempenho por disciplina",
+      "grade": "Nota"
+    },
+    "exam": {
+      "subjectId": "Disciplina ID {id}",
+      "gradeLabel": "Nota",
+      "approved": "Aprovado 🎉",
+      "failed": "Reprovado ❌",
+      "dateLabel": "Data",
+      "durationLabel": "Duração",
+      "duration": "{minutes, plural, =0 {0 min} one {# min} other {# min}} {seconds, plural, =0 {0 s} one {# s} other {# s}}",
+      "viewDetails": "Ver detalhes"
+    },
+    "modal": {
+      "eyebrow": "Aviso PHANYX",
+      "title": "Histórico académico",
+      "understood": "Compreendi"
+    }
   }
 }

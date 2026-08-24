@@ -792,5 +792,45 @@
       "attention": "Attention",
       "low": "Résultat insuffisant"
     }
+  },
+  "StudentAcademicHistory": {
+    "common": {
+      "notProvided": "Non renseigné"
+    },
+    "official": {
+      "title": "Relevé Scolaire Officiel",
+      "description": "Consultez et imprimez votre relevé scolaire à jour.",
+      "generate": "Générer le relevé scolaire",
+      "generating": "Génération...",
+      "print": "Imprimer le relevé",
+      "fileName": "releve-scolaire.pdf"
+    },
+    "errors": {
+      "generateUnavailable": "Le relevé scolaire ne peut pas être généré pour le moment. Vérifiez qu’un modèle de relevé actif existe.",
+      "generateFailed": "Erreur lors de la génération du relevé scolaire. Veuillez réessayer dans quelques instants."
+    },
+    "examHistory": {
+      "title": "Historique des Évaluations"
+    },
+    "average": "Moyenne générale : {value}",
+    "chart": {
+      "title": "Résultats par Matière",
+      "grade": "Note"
+    },
+    "exam": {
+      "subjectId": "Matière ID {id}",
+      "gradeLabel": "Note",
+      "approved": "Admis 🎉",
+      "failed": "Non admis ❌",
+      "dateLabel": "Date",
+      "durationLabel": "Durée",
+      "duration": "{minutes, plural, =0 {0 min} one {# min} other {# min}} {seconds, plural, =0 {0 s} one {# s} other {# s}}",
+      "viewDetails": "Voir les détails"
+    },
+    "modal": {
+      "eyebrow": "Avis PHANYX",
+      "title": "Relevé scolaire",
+      "understood": "J’ai compris"
+    }
   }
 }
