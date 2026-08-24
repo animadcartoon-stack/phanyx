@@ -28884,3 +28884,87 @@ html[data-theme="system"]
   -webkit-text-fill-color: #bfdbfe !important;
   opacity: 1 !important;
 }
+
+/* =========================================================
+   PHANYX — legibilidade do formulário Completar cadastro
+   ========================================================= */
+
+html:not(.dark) .phanyx-completar-cadastro label {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark) .phanyx-completar-cadastro section > h2 {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+/* Título do cabeçalho azul */
+html:not(.dark) .phanyx-completar-cadastro > .bg-blue-600 h1 {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html:not(.dark) .phanyx-completar-cadastro > .bg-blue-600 p {
+  color: #eff6ff !important;
+  -webkit-text-fill-color: #eff6ff !important;
+  opacity: 1 !important;
+}
+
+/* Campos de preenchimento */
+html:not(.dark) .phanyx-completar-cadastro input:not([type="checkbox"]),
+html:not(.dark) .phanyx-completar-cadastro select,
+html:not(.dark) .phanyx-completar-cadastro textarea {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+/* Placeholders */
+html:not(.dark) .phanyx-completar-cadastro input::placeholder,
+html:not(.dark) .phanyx-completar-cadastro textarea::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+/* Campo desabilitado, como o nome oficial */
+html:not(.dark)
+  .phanyx-completar-cadastro
+  input:disabled:not([type="checkbox"]) {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+/* Textos auxiliares abaixo dos campos */
+html:not(.dark) .phanyx-completar-cadastro section p.text-slate-600,
+html:not(.dark) .phanyx-completar-cadastro section p.text-slate-500 {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+/* Seletor internacional de telefone */
+html:not(.dark)
+  .phanyx-completar-cadastro
+  button[aria-haspopup="listbox"],
+html:not(.dark)
+  .phanyx-completar-cadastro
+  button[aria-haspopup="listbox"]
+  span {
+  color: #1e293b !important;
+  -webkit-text-fill-color: #1e293b !important;
+  opacity: 1 !important;
+}
+
+/* Lista de países do telefone */
+html:not(.dark)
+  .phanyx-completar-cadastro
+  [role="listbox"]
+  [role="option"] {
+  color: #1e293b !important;
+  -webkit-text-fill-color: #1e293b !important;
+}

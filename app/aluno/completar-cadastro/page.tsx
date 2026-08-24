@@ -364,7 +364,7 @@ export default function CompletarCadastroAlunoPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl p-4 sm:p-6">
+    <div className="phanyx-completar-cadastro mx-auto max-w-5xl p-4 sm:p-6">
       <div className="mb-6 rounded-3xl bg-blue-600 p-6 text-white shadow dark:bg-blue-700">
         <h1 className="text-2xl font-bold">{t("title")}</h1>
         <p className="mt-2 text-sm text-blue-50">{t("description")}</p>
