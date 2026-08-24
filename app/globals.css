@@ -29377,3 +29377,21 @@ html:not(.dark)
   font-weight: 700 !important;
   opacity: 1 !important;
 }
+
+/* PHANYX — botão de selecionar arquivo nos trabalhos */
+html:not(.dark)
+  .phanyx-aluno-conteudo
+  .phanyx-botao-arquivo-aluno {
+  background-color: #1d4ed8 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-aluno-conteudo
+  .phanyx-botao-arquivo-aluno
+  * {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
