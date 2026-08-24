@@ -29271,3 +29271,89 @@ html:not(.dark)
   -webkit-text-fill-color: #0f172a !important;
   opacity: 1 !important;
 }
+
+/* PHANYX — botão Selecionar arquivo legível no tema claro */
+html:not(.dark)
+  .phanyx-aluno-conteudo
+  input[type="file"]::file-selector-button {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border: 0 !important;
+  border-radius: 0.75rem !important;
+  padding: 0.625rem 1rem !important;
+  margin-right: 0.75rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-aluno-conteudo
+  input[type="file"]::-webkit-file-upload-button {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border: 0 !important;
+  border-radius: 0.75rem !important;
+  padding: 0.625rem 1rem !important;
+  margin-right: 0.75rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-aluno-conteudo
+  input[type="file"]::file-selector-button:hover {
+  background-color: #1d4ed8 !important;
+}
+
+/* PHANYX — entrega de trabalho no tema claro */
+html:not(.dark)
+  .phanyx-entrega-trabalho
+  [class~="bg-white/70"] {
+  background-color: #f0fdf4 !important;
+  border-color: #86efac !important;
+  color: #14532d !important;
+  -webkit-text-fill-color: #14532d !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-entrega-trabalho
+  [class~="bg-white/70"]
+  :is(h1, h2, h3, p, span, strong) {
+  color: #14532d !important;
+  -webkit-text-fill-color: #14532d !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-entrega-trabalho
+  [class~="bg-white/70"]
+  [class~="bg-green-700"] {
+  background-color: #047857 !important;
+  border-color: #047857 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-entrega-trabalho
+  :is(button, a)[class~="bg-blue-600"] {
+  background-color: #1d4ed8 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-entrega-trabalho
+  button:disabled {
+  background-color: #64748b !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
