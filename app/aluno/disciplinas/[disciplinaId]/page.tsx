@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useAluno } from "@/app/context/AlunoContext";
 
 declare global {
@@ -112,20 +113,38 @@ function formatarTamanhoArquivo(bytes?: number | null) {
   return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
 }
 
-function getMaterialLabel(tipo?: string | null) {
+type MaterialTranslationKey =
+  | "materialVideo"
+  | "materialLink"
+  | "materialFile"
+  | "materialGeneric";
+
+function getMaterialTranslationKey(
+  tipo?: string | null
+): MaterialTranslationKey {
   const valor = String(tipo || "").toUpperCase();
 
-  if (valor === "VIDEO") return "Vídeo";
-  if (valor === "LINK") return "Link";
-  if (valor === "ARQUIVO") return "Arquivo";
-  return "Material";
+  if (valor === "VIDEO") {
+    return "materialVideo";
+  }
+
+  if (valor === "LINK") {
+    return "materialLink";
+  }
+
+  if (valor === "ARQUIVO") {
+    return "materialFile";
+  }
+
+  return "materialGeneric";
 }
 
 export default function DisciplinaAlunoPage() {
+  const t = useTranslations("StudentSubjectDetail");
   const router = useRouter();
   const params = useParams<{ disciplinaId: string }>();
   const disciplinaId = Number(params.disciplinaId);
-   
+
   const searchParams = useSearchParams();
   const turmaId = Number(searchParams.get("turmaId"));
 
@@ -137,12 +156,12 @@ export default function DisciplinaAlunoPage() {
   const [erroDisciplina, setErroDisciplina] = useState<string | null>(null);
   const [aulaAtualId, setAulaAtualId] = useState<number | null>(null);
   const [aulasConcluidasBanco, setAulasConcluidasBanco] = useState<number[]>([]);
-  
+
   const [provaPublicada, setProvaPublicada] =
-  useState<ProvaPublicadaApi | null>(null);
-const [loadingProva, setLoadingProva] = useState(true);
-const [jaFinalizouProva, setJaFinalizouProva] = useState(false);
-const [loadingStatusProva, setLoadingStatusProva] = useState(false);
+    useState<ProvaPublicadaApi | null>(null);
+  const [loadingProva, setLoadingProva] = useState(true);
+  const [jaFinalizouProva, setJaFinalizouProva] = useState(false);
+  const [loadingStatusProva, setLoadingStatusProva] = useState(false);
   const [plano, setPlano] = useState<string>("ESSENCIAL");
   const [loadingPlano, setLoadingPlano] = useState(true);
   const [tempoAssistidoSegundos, setTempoAssistidoSegundos] = useState(0);
@@ -150,23 +169,23 @@ const [loadingStatusProva, setLoadingStatusProva] = useState(false);
   const [youtubePronto, setYoutubePronto] = useState(false);
   const [concluindoAula, setConcluindoAula] = useState(false);
   const [toast, setToast] = useState<{
-  tipo: "sucesso" | "erro" | "aviso";
-  mensagem: string;
-} | null>(null);
+    tipo: "sucesso" | "erro" | "aviso";
+    mensagem: string;
+  } | null>(null);
 
-function mostrarToast(tipo: "sucesso" | "erro" | "aviso", mensagem: string) {
-  setToast({ tipo, mensagem });
+  function mostrarToast(tipo: "sucesso" | "erro" | "aviso", mensagem: string) {
+    setToast({ tipo, mensagem });
 
-  setTimeout(() => {
-    setToast(null);
-  }, 3000);
-}
+    setTimeout(() => {
+      setToast(null);
+    }, 3000);
+  }
 
   const playerRef = useRef<any>(null);
-const intervaloRef = useRef<ReturnType<typeof setInterval> | null>(null);
-const ultimoTempoRef = useRef(0);
-const ultimoTempoValidoRef = useRef(0);
-const ultimoAlertaPuloRef = useRef(0);
+  const intervaloRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const ultimoTempoRef = useRef(0);
+  const ultimoTempoValidoRef = useRef(0);
+  const ultimoAlertaPuloRef = useRef(0);
 
   const notaDaDisciplina = useMemo(() => {
     return notas.find(
@@ -190,26 +209,26 @@ const ultimoAlertaPuloRef = useRef(0);
 
   const totalAulas = aulasOrdenadas.length;
   const totalConcluidasBanco = aulasOrdenadas.filter((aula) =>
-  aulasConcluidasBanco.includes(aula.id)
-).length;
+    aulasConcluidasBanco.includes(aula.id)
+  ).length;
 
-const progresso =
-  totalAulas > 0
-    ? Math.round((totalConcluidasBanco / totalAulas) * 100)
-    : progressoDisciplina(disciplinaId, totalAulas);
+  const progresso =
+    totalAulas > 0
+      ? Math.round((totalConcluidasBanco / totalAulas) * 100)
+      : progressoDisciplina(disciplinaId, totalAulas);
 
-const concluida = aulaAtual
-  ? aulaConcluida(disciplinaId, aulaAtual.id) ||
+  const concluida = aulaAtual
+    ? aulaConcluida(disciplinaId, aulaAtual.id) ||
     aulasConcluidasBanco.includes(aulaAtual.id)
-  : false;
+    : false;
   const tempoMinimoSegundos = (aulaAtual?.duracaoMin ?? 0) * 60;
 
   const porcentagemAssistida =
     tempoMinimoSegundos > 0
       ? Math.min(
-          100,
-          Math.round((tempoAssistidoSegundos / tempoMinimoSegundos) * 100)
-        )
+        100,
+        Math.round((tempoAssistidoSegundos / tempoMinimoSegundos) * 100)
+      )
       : 100;
 
   function pararContagem() {
@@ -236,86 +255,86 @@ const concluida = aulaAtual
   }
 
   function iniciarContagem() {
-  if (intervaloRef.current || concluida) return;
+    if (intervaloRef.current || concluida) return;
 
-  intervaloRef.current = setInterval(() => {
-    monitorarAvancoIndevido();
+    intervaloRef.current = setInterval(() => {
+      monitorarAvancoIndevido();
 
-    if (
-      tempoMinimoSegundos > 0 &&
-      ultimoTempoValidoRef.current >= tempoMinimoSegundos
-    ) {
-      pararContagem();
-    }
-  }, 1000);
-}
-
-function monitorarAvancoIndevido() {
-  if (!playerRef.current || typeof playerRef.current.getCurrentTime !== "function") {
-    return;
+      if (
+        tempoMinimoSegundos > 0 &&
+        ultimoTempoValidoRef.current >= tempoMinimoSegundos
+      ) {
+        pararContagem();
+      }
+    }, 1000);
   }
 
-  try {
-    const tempoAtual = Number(playerRef.current.getCurrentTime() || 0);
-    const ultimoTempo = ultimoTempoRef.current || 0;
-    const ultimoTempoValido = ultimoTempoValidoRef.current || 0;
-
-    // primeira leitura
-    if (ultimoTempo === 0 && tempoAtual >= 0) {
-      ultimoTempoRef.current = tempoAtual;
-
-      if (tempoAtual <= ultimoTempoValido + 1.5) {
-        ultimoTempoValidoRef.current = Math.max(ultimoTempoValido, tempoAtual);
-        setTempoAssistidoSegundos(Math.floor(ultimoTempoValidoRef.current));
-      }
-
+  function monitorarAvancoIndevido() {
+    if (!playerRef.current || typeof playerRef.current.getCurrentTime !== "function") {
       return;
     }
 
-    const delta = tempoAtual - ultimoTempo;
+    try {
+      const tempoAtual = Number(playerRef.current.getCurrentTime() || 0);
+      const ultimoTempo = ultimoTempoRef.current || 0;
+      const ultimoTempoValido = ultimoTempoValidoRef.current || 0;
 
-    // voltou para trás: não soma nada
-    if (delta < 0) {
-      ultimoTempoRef.current = tempoAtual;
-      return;
-    }
+      // primeira leitura
+      if (ultimoTempo === 0 && tempoAtual >= 0) {
+        ultimoTempoRef.current = tempoAtual;
 
-    // pulou para frente: bloqueia
-    if (delta > 1.5 || tempoAtual > ultimoTempoValido + 1.5) {
-      pararContagem();
-
-      try {
-        if (typeof playerRef.current.seekTo === "function") {
-          playerRef.current.seekTo(ultimoTempoValido, true);
+        if (tempoAtual <= ultimoTempoValido + 1.5) {
+          ultimoTempoValidoRef.current = Math.max(ultimoTempoValido, tempoAtual);
+          setTempoAssistidoSegundos(Math.floor(ultimoTempoValidoRef.current));
         }
-      } catch {}
 
-      pausarVideoSeEstiverTocando();
-      ultimoTempoRef.current = ultimoTempoValido;
-
-      const agora = Date.now();
-      if (agora - ultimoAlertaPuloRef.current > 1500) {
-        ultimoAlertaPuloRef.current = agora;
-        mostrarToast("aviso", "Não é permitido avançar a aula.");
+        return;
       }
 
-      return;
-    }
+      const delta = tempoAtual - ultimoTempo;
 
-    // avanço natural
-    ultimoTempoRef.current = tempoAtual;
-    ultimoTempoValidoRef.current = Math.max(ultimoTempoValido, tempoAtual);
-    setTempoAssistidoSegundos(Math.floor(ultimoTempoValidoRef.current));
-  } catch (error) {
-    console.error("ERRO AO MONITORAR AVANÇO DO VÍDEO:", error);
+      // voltou para trás: não soma nada
+      if (delta < 0) {
+        ultimoTempoRef.current = tempoAtual;
+        return;
+      }
+
+      // pulou para frente: bloqueia
+      if (delta > 1.5 || tempoAtual > ultimoTempoValido + 1.5) {
+        pararContagem();
+
+        try {
+          if (typeof playerRef.current.seekTo === "function") {
+            playerRef.current.seekTo(ultimoTempoValido, true);
+          }
+        } catch { }
+
+        pausarVideoSeEstiverTocando();
+        ultimoTempoRef.current = ultimoTempoValido;
+
+        const agora = Date.now();
+        if (agora - ultimoAlertaPuloRef.current > 1500) {
+          ultimoAlertaPuloRef.current = agora;
+          mostrarToast("aviso", t("seekBlocked"));
+        }
+
+        return;
+      }
+
+      // avanço natural
+      ultimoTempoRef.current = tempoAtual;
+      ultimoTempoValidoRef.current = Math.max(ultimoTempoValido, tempoAtual);
+      setTempoAssistidoSegundos(Math.floor(ultimoTempoValidoRef.current));
+    } catch (error) {
+      console.error("ERRO AO MONITORAR AVANÇO DO VÍDEO:", error);
+    }
   }
-}
 
   async function concluirAulaAtual() {
     if (!aulaAtual || concluindoAula) return;
 
     if (!podeConcluir && !concluida) {
-      mostrarToast("aviso", "Assista o tempo mínimo para concluir a aula.");
+      mostrarToast("aviso", t("watchMinimumWarning"));
       return;
     }
 
@@ -329,9 +348,9 @@ function monitorarAvancoIndevido() {
         tempoMinimoSegundos,
       });
 
-setAulasConcluidasBanco((prev) =>
-  prev.includes(aulaAtual.id) ? prev : [...prev, aulaAtual.id]
-);
+      setAulasConcluidasBanco((prev) =>
+        prev.includes(aulaAtual.id) ? prev : [...prev, aulaAtual.id]
+      );
 
       const proxima = aulasOrdenadas.find(
         (a) => !aulaConcluida(disciplinaId, a.id) && a.id !== aulaAtual.id
@@ -339,7 +358,10 @@ setAulasConcluidasBanco((prev) =>
 
       if (proxima) setAulaAtualId(proxima.id);
     } catch (error: any) {
-      mostrarToast("erro", error?.message || "Erro ao concluir aula");
+      mostrarToast(
+        "erro",
+        error?.message || t("completeError")
+      );
     } finally {
       setConcluindoAula(false);
     }
@@ -352,7 +374,7 @@ setAulasConcluidasBanco((prev) =>
       if (!Number.isFinite(disciplinaId) || disciplinaId <= 0) {
         if (mounted) {
           setDisciplina(null);
-          setErroDisciplina("ID inválido.");
+          setErroDisciplina(t("invalidId"));
           setLoading(false);
         }
         return;
@@ -363,11 +385,11 @@ setAulasConcluidasBanco((prev) =>
 
       try {
         const res = await fetch(
-  `/api/aluno/disciplinas/${disciplinaId}?turmaId=${turmaId}`,
-  {
-          credentials: "include",
-          cache: "no-store",
-        });
+          `/api/aluno/disciplinas/${disciplinaId}?turmaId=${turmaId}`,
+          {
+            credentials: "include",
+            cache: "no-store",
+          });
 
         const data = await res.json();
 
@@ -375,31 +397,31 @@ setAulasConcluidasBanco((prev) =>
 
         if (!res.ok) {
           setDisciplina(null);
-          setErroDisciplina(data?.error || "Não foi possível carregar a disciplina.");
+          setErroDisciplina(t("loadError"));
           setLoading(false);
           return;
         }
 
         setDisciplina(data);
 
-const resProgresso = await fetch("/api/aluno/progresso", {
-  credentials: "include",
-  cache: "no-store",
-});
+        const resProgresso = await fetch("/api/aluno/progresso", {
+          credentials: "include",
+          cache: "no-store",
+        });
 
-let idsConcluidas: number[] = [];
+        let idsConcluidas: number[] = [];
 
-if (resProgresso.ok) {
-  const progressoData = await resProgresso.json();
+        if (resProgresso.ok) {
+          const progressoData = await resProgresso.json();
 
-  idsConcluidas = Array.isArray(progressoData?.progresso)
-    ? progressoData.progresso
-        .filter((item: any) => item.concluida === true)
-        .map((item: any) => Number(item.aulaId))
-    : [];
+          idsConcluidas = Array.isArray(progressoData?.progresso)
+            ? progressoData.progresso
+              .filter((item: any) => item.concluida === true)
+              .map((item: any) => Number(item.aulaId))
+            : [];
 
-  setAulasConcluidasBanco(idsConcluidas);
-}
+          setAulasConcluidasBanco(idsConcluidas);
+        }
 
         const aulas = (data?.aulas ?? []).slice().sort((a: AulaApi, b: AulaApi) => {
           const ao = a.ordem ?? 999999;
@@ -409,17 +431,17 @@ if (resProgresso.ok) {
         });
 
         const primeiraNaoConcluida = aulas.find(
-  (a: AulaApi) =>
-    !aulaConcluida(disciplinaId, a.id) &&
-    !idsConcluidas.includes(a.id)
-);
+          (a: AulaApi) =>
+            !aulaConcluida(disciplinaId, a.id) &&
+            !idsConcluidas.includes(a.id)
+        );
 
         setAulaAtualId((primeiraNaoConcluida ?? aulas[0])?.id ?? null);
       } catch (error) {
         console.error("ERRO AO CARREGAR DISCIPLINA:", error);
         if (!mounted) return;
         setDisciplina(null);
-        setErroDisciplina("Erro ao carregar disciplina.");
+        setErroDisciplina(t("loadError"));
       } finally {
         if (mounted) setLoading(false);
       }
@@ -430,7 +452,7 @@ if (resProgresso.ok) {
     return () => {
       mounted = false;
     };
-    }, [disciplinaId]);
+  }, [disciplinaId]);
 
   useEffect(() => {
     let mounted = true;
@@ -511,54 +533,54 @@ if (resProgresso.ok) {
     };
   }, [disciplinaId]);
 
-useEffect(() => {
-  let mounted = true;
+  useEffect(() => {
+    let mounted = true;
 
-  async function carregarStatusProva() {
-    if (!provaPublicada?.id) {
-      if (mounted) {
-        setJaFinalizouProva(false);
-        setLoadingStatusProva(false);
-      }
-      return;
-    }
-
-    try {
-      setLoadingStatusProva(true);
-
-      const res = await fetch(
-        `/api/aluno/provas/${provaPublicada.id}/status`,
-        {
-          credentials: "include",
-          cache: "no-store",
+    async function carregarStatusProva() {
+      if (!provaPublicada?.id) {
+        if (mounted) {
+          setJaFinalizouProva(false);
+          setLoadingStatusProva(false);
         }
-      );
-
-      if (!mounted) return;
-
-      if (!res.ok) {
-        setJaFinalizouProva(false);
-        setLoadingStatusProva(false);
         return;
       }
 
-      const data: StatusProvaAlunoApi = await res.json();
-      setJaFinalizouProva(Boolean(data?.jaFinalizou));
-    } catch (error) {
-      console.error("ERRO AO CARREGAR STATUS DA PROVA:", error);
-      if (!mounted) return;
-      setJaFinalizouProva(false);
-    } finally {
-      if (mounted) setLoadingStatusProva(false);
+      try {
+        setLoadingStatusProva(true);
+
+        const res = await fetch(
+          `/api/aluno/provas/${provaPublicada.id}/status`,
+          {
+            credentials: "include",
+            cache: "no-store",
+          }
+        );
+
+        if (!mounted) return;
+
+        if (!res.ok) {
+          setJaFinalizouProva(false);
+          setLoadingStatusProva(false);
+          return;
+        }
+
+        const data: StatusProvaAlunoApi = await res.json();
+        setJaFinalizouProva(Boolean(data?.jaFinalizou));
+      } catch (error) {
+        console.error("ERRO AO CARREGAR STATUS DA PROVA:", error);
+        if (!mounted) return;
+        setJaFinalizouProva(false);
+      } finally {
+        if (mounted) setLoadingStatusProva(false);
+      }
     }
-  }
 
-  carregarStatusProva();
+    carregarStatusProva();
 
-  return () => {
-    mounted = false;
-  };
-}, [provaPublicada?.id]);
+    return () => {
+      mounted = false;
+    };
+  }, [provaPublicada?.id]);
 
   useEffect(() => {
     if (concluida) {
@@ -644,9 +666,9 @@ useEffect(() => {
     }
 
     setTempoAssistidoSegundos(0);
-ultimoTempoRef.current = 0;
-ultimoTempoValidoRef.current = 0;
-ultimoAlertaPuloRef.current = 0;
+    ultimoTempoRef.current = 0;
+    ultimoTempoValidoRef.current = 0;
+    ultimoAlertaPuloRef.current = 0;
 
     if (!aulaAtual?.videoUrl) return;
     if (!youtubePronto) return;
@@ -666,56 +688,56 @@ ultimoAlertaPuloRef.current = 0;
         },
         events: {
           onStateChange: (event: any) => {
-  const estado = event.data;
+            const estado = event.data;
 
-  if (estado === window.YT.PlayerState.PLAYING) {
-  try {
-    if (typeof playerRef.current?.getCurrentTime === "function") {
-      const tempoAtual = Number(playerRef.current.getCurrentTime() || 0);
+            if (estado === window.YT.PlayerState.PLAYING) {
+              try {
+                if (typeof playerRef.current?.getCurrentTime === "function") {
+                  const tempoAtual = Number(playerRef.current.getCurrentTime() || 0);
 
-      // Se tentou começar muito à frente do último ponto válido, bloqueia na hora
-      if (tempoAtual > ultimoTempoValidoRef.current + 1.5) {
-        pararContagem();
+                  // Se tentou começar muito à frente do último ponto válido, bloqueia na hora
+                  if (tempoAtual > ultimoTempoValidoRef.current + 1.5) {
+                    pararContagem();
 
-        try {
-          if (typeof playerRef.current.seekTo === "function") {
-            playerRef.current.seekTo(ultimoTempoValidoRef.current, true);
-          }
-        } catch {}
+                    try {
+                      if (typeof playerRef.current.seekTo === "function") {
+                        playerRef.current.seekTo(ultimoTempoValidoRef.current, true);
+                      }
+                    } catch { }
 
-        pausarVideoSeEstiverTocando();
+                    pausarVideoSeEstiverTocando();
 
-        const agora = Date.now();
-        if (agora - ultimoAlertaPuloRef.current > 1500) {
-          ultimoAlertaPuloRef.current = agora;
-          mostrarToast("aviso", "Não é permitido avançar a aula.");
-        }
+                    const agora = Date.now();
+                    if (agora - ultimoAlertaPuloRef.current > 1500) {
+                      ultimoAlertaPuloRef.current = agora;
+                      mostrarToast("aviso", t("seekBlocked"));
+                    }
 
-        ultimoTempoRef.current = ultimoTempoValidoRef.current;
-        return;
-      }
+                    ultimoTempoRef.current = ultimoTempoValidoRef.current;
+                    return;
+                  }
 
-      ultimoTempoRef.current = tempoAtual;
-    }
-  } catch {}
+                  ultimoTempoRef.current = tempoAtual;
+                }
+              } catch { }
 
-  if (!document.hidden && document.hasFocus()) {
-    iniciarContagem();
-  } else {
-    pararContagem();
-    pausarVideoSeEstiverTocando();
-  }
-}
- else {
-    pararContagem();
+              if (!document.hidden && document.hasFocus()) {
+                iniciarContagem();
+              } else {
+                pararContagem();
+                pausarVideoSeEstiverTocando();
+              }
+            }
+            else {
+              pararContagem();
 
-    try {
-      if (typeof playerRef.current?.getCurrentTime === "function") {
-        ultimoTempoRef.current = Number(playerRef.current.getCurrentTime() || 0);
-      }
-    } catch {}
-  }
-},
+              try {
+                if (typeof playerRef.current?.getCurrentTime === "function") {
+                  ultimoTempoRef.current = Number(playerRef.current.getCurrentTime() || 0);
+                }
+              } catch { }
+            }
+          },
         },
       });
     };
@@ -738,360 +760,401 @@ ultimoAlertaPuloRef.current = 0;
   }, [aulaAtual?.id, aulaAtual?.videoUrl, youtubePronto]);
 
   if (loading) {
-    return <div className="p-8">Carregando disciplina...</div>;
+    return (
+      <div className="p-8">
+        {t("loadingDiscipline")}
+      </div>
+    );
   }
 
   if (!disciplina) {
-  return <div className="p-8">{erroDisciplina || "Disciplina não encontrada."}</div>;
-}
+    return (
+      <div className="p-8">
+        {erroDisciplina || t("notFound")}
+      </div>
+    );
+  }
 
-return (
-  <>
-    {toast && (
-      <div className="fixed right-6 top-6 z-50">
-        <div
-          className={`rounded-xl px-5 py-3 text-sm font-medium shadow-lg ${
-            toast.tipo === "sucesso"
+  return (
+    <>
+      {toast && (
+        <div className="fixed right-6 top-6 z-50">
+          <div
+            className={`rounded-xl px-5 py-3 text-sm font-medium shadow-lg ${toast.tipo === "sucesso"
               ? "bg-green-600 text-white"
               : toast.tipo === "erro"
-              ? "bg-red-600 text-white"
-              : "bg-yellow-400 text-black"
-          }`}
-        >
-          {toast.mensagem}
-        </div>
-      </div>
-    )}
-
-    <div className="min-h-[calc(100vh-64px)] grid grid-cols-1 lg:grid-cols-[360px_1fr]">
-      <aside className="border-r bg-white">
-        <div className="border-b p-6">
-          <h1 className="text-xl font-bold">{disciplina.nome}</h1>
-
-          {disciplina.descricao && (
-            <p className="mt-2 text-sm text-gray-600">{disciplina.descricao}</p>
-          )}
-
-          <div className="mt-4">
-            <div className="mb-2 flex items-center justify-between text-sm text-gray-600">
-              <span>Progresso</span>
-              <span className="font-semibold">{progresso}%</span>
-            </div>
-
-            <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
-              <div className="h-2 bg-blue-600" style={{ width: `${progresso}%` }} />
-            </div>
-
-            <p className="mt-2 text-xs text-gray-500">{totalAulas} aulas</p>
+                ? "bg-red-600 text-white"
+                : "bg-yellow-400 text-black"
+              }`}
+          >
+            {toast.mensagem}
           </div>
         </div>
+      )}
 
-        <div className="space-y-2 p-3">
-          {aulasOrdenadas.map((aula, idx) => {
-            const done =
-  aulaConcluida(disciplinaId, aula.id) ||
-  aulasConcluidasBanco.includes(aula.id);
-            const active = aula.id === aulaAtualId;
+      <div className="min-h-[calc(100vh-64px)] grid grid-cols-1 lg:grid-cols-[360px_1fr]">
+        <aside className="border-r bg-white">
+          <div className="border-b p-6">
+            <h1 className="text-xl font-bold">{disciplina.nome}</h1>
 
-            return (
-              <button
-                key={aula.id}
-                onClick={() => setAulaAtualId(aula.id)}
-                className={[
-                  "w-full rounded-xl border p-4 text-left transition",
-                  active
-                    ? "border-blue-600 bg-blue-50"
-                    : "border-gray-200 hover:border-blue-400",
-                ].join(" ")}
-              >
-                <div className="flex items-start gap-3">
-                  <div
-                    className={[
-                      "mt-1 flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold",
-                      done ? "bg-green-600 text-white" : "bg-gray-200 text-gray-700",
-                    ].join(" ")}
-                  >
-                    {done ? "✓" : idx + 1}
-                  </div>
+            {disciplina.descricao && (
+              <p className="mt-2 text-sm text-gray-600">{disciplina.descricao}</p>
+            )}
 
-                  <div className="flex-1">
-                    <p className="font-semibold">{aula.titulo}</p>
-                    <p className="mt-1 text-xs text-gray-500">
-                      {aula.duracaoMin ? `${aula.duracaoMin} min` : "—"}
-                    </p>
-                  </div>
-                </div>
-              </button>
-            );
-          })}
-        </div>
+            <div className="mt-4">
+              <div className="mb-2 flex items-center justify-between text-sm text-gray-600">
+                <span>{t("progress")}</span>
+                <span className="font-semibold">{progresso}%</span>
+              </div>
 
-        <div className="space-y-2 border-t p-3">
-          <button
-            onClick={() => router.push(`/aluno/disciplinas/${disciplinaId}/atividades`)}
-            className="w-full rounded-xl bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-          >
-            Atividades
-          </button>
+              <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
+                <div className="h-2 bg-blue-600" style={{ width: `${progresso}%` }} />
+              </div>
 
-          {loadingPlano ? (
-  <button
-    disabled
-    className="w-full cursor-not-allowed rounded-xl bg-gray-300 px-4 py-2 text-white"
-  >
-    Carregando plano...
-  </button>
-) : plano === "ESSENCIAL" ? (
-  <div className="rounded-xl border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
-    Provas disponíveis apenas nos planos Profissional e Enterprise.
-  </div>
-) : loadingProva || loadingStatusProva ? (
-  <button
-    disabled
-    className="w-full cursor-not-allowed rounded-xl bg-gray-300 px-4 py-2 text-white"
-  >
-    Carregando prova...
-  </button>
-) : !provaPublicada ? (
-  <button
-    disabled
-    className="w-full cursor-not-allowed rounded-xl bg-gray-400 px-4 py-2 text-white"
-  >
-    Prova indisponível
-  </button>
-) : jaFinalizouProva ? (
-  <button
-    disabled
-    className="w-full cursor-not-allowed rounded-xl bg-slate-500 px-4 py-2 text-white"
-  >
-    Você já fez essa prova
-  </button>
-) : progresso === 100 ? (
-  <button
-    onClick={() =>
-      router.push(
-        `/aluno/disciplinas/${disciplinaId}/prova/${provaPublicada.id}`
-      )
-    }
-    className="w-full rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700"
-  >
-    Fazer prova
-  </button>
-) : (
-  <button
-    disabled
-    className="w-full cursor-not-allowed rounded-xl bg-gray-400 px-4 py-2 text-white"
-  >
-    Prova bloqueada — conclua todas as aulas
-  </button>
-)}
-        </div>
-      </aside>
-
-      <main className="bg-gray-50">
-        <div className="max-w-5xl p-6 lg:p-10">
-          {notaDaDisciplina && (
-            <div className="mb-6 rounded-2xl border bg-white p-6 shadow-sm">
-              <h2 className="mb-3 text-lg font-semibold">📊 Resultado Final</h2>
-              <p className="text-2xl font-bold">Nota: {notaDaDisciplina.nota}</p>
-              <p
-                className={`mt-2 font-semibold ${
-                  notaDaDisciplina.aprovado ? "text-green-600" : "text-red-600"
-                }`}
-              >
-                {notaDaDisciplina.aprovado ? "Aprovado 🎉" : "Reprovado ❌"}
+              <p className="mt-2 text-xs text-gray-500">
+                {t("classCount", {
+                  count: totalAulas,
+                })}
               </p>
             </div>
-          )}
+          </div>
 
-          {aulaAtual ? (
-            <>
-              <div className="rounded-2xl border bg-white p-6 shadow-sm">
-                <div className="flex items-start justify-between gap-6">
-                  <div>
-                    <h2 className="text-2xl font-bold">{aulaAtual.titulo}</h2>
+          <div className="space-y-2 p-3">
+            {aulasOrdenadas.map((aula, idx) => {
+              const done =
+                aulaConcluida(disciplinaId, aula.id) ||
+                aulasConcluidasBanco.includes(aula.id);
+              const active = aula.id === aulaAtualId;
 
-                    {aulaAtual.descricao && (
-                      <p className="mt-3 text-gray-600">{aulaAtual.descricao}</p>
-                    )}
+              return (
+                <button
+                  key={aula.id}
+                  onClick={() => setAulaAtualId(aula.id)}
+                  className={[
+                    "w-full rounded-xl border p-4 text-left transition",
+                    active
+                      ? "border-blue-600 bg-blue-50"
+                      : "border-gray-200 hover:border-blue-400",
+                  ].join(" ")}
+                >
+                  <div className="flex items-start gap-3">
+                    <div
+                      className={[
+                        "mt-1 flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold",
+                        done ? "bg-green-600 text-white" : "bg-gray-200 text-gray-700",
+                      ].join(" ")}
+                    >
+                      {done ? "✓" : idx + 1}
+                    </div>
 
-                    <div className="mt-4 max-w-md">
-                      <div className="mb-2 flex items-center justify-between text-sm text-gray-600">
-                        <span>Tempo assistido</span>
-                        <span className="font-semibold">
-                          {formatarTempo(tempoAssistidoSegundos)} /{" "}
-                          {formatarTempo(tempoMinimoSegundos)}
-                        </span>
-                      </div>
-
-                      <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
-                        <div
-                          className="h-2 bg-blue-600 transition-all"
-                          style={{ width: `${porcentagemAssistida}%` }}
-                        />
-                      </div>
-
-                      <p className="mt-2 text-xs text-gray-500">
-                        {concluida
-                          ? "Aula já concluída."
-                          : aulaAtual.videoUrl
-                          ? `Assista pelo menos ${aulaAtual.duracaoMin ?? 0} minuto(s) para liberar a conclusão.`
-                          : "Esta aula não possui vídeo. A conclusão está liberada."}
+                    <div className="flex-1">
+                      <p className="font-semibold">{aula.titulo}</p>
+                      <p className="mt-1 text-xs text-gray-500">
+                        {aula.duracaoMin
+                          ? t("durationMinutes", {
+                            minutes: aula.duracaoMin,
+                          })
+                          : "—"}
                       </p>
                     </div>
                   </div>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="space-y-2 border-t p-3">
+            <button
+              onClick={() => router.push(`/aluno/disciplinas/${disciplinaId}/atividades`)}
+              className="w-full rounded-xl bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+            >
+              {t("activities")}
+            </button>
+
+            {loadingPlano ? (
+              <button
+                disabled
+                className="w-full cursor-not-allowed rounded-xl bg-gray-300 px-4 py-2 text-white"
+              >
+                {t("loadingPlan")}
+              </button>
+            ) : plano === "ESSENCIAL" ? (
+              <div className="rounded-xl border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
+                {t("examPlanRequired")}
+              </div>
+            ) : loadingProva || loadingStatusProva ? (
+              <button
+                disabled
+                className="w-full cursor-not-allowed rounded-xl bg-gray-300 px-4 py-2 text-white"
+              >
+                {t("loadingExam")}
+              </button>
+            ) : !provaPublicada ? (
+              <button
+                disabled
+                className="w-full cursor-not-allowed rounded-xl bg-gray-400 px-4 py-2 text-white"
+              >
+                {t("examUnavailable")}
+              </button>
+            ) : jaFinalizouProva ? (
+              <button
+                disabled
+                className="w-full cursor-not-allowed rounded-xl bg-slate-500 px-4 py-2 text-white"
+              >
+                {t("examAlreadyCompleted")}
+              </button>
+            ) : progresso === 100 ? (
+              <button
+                onClick={() =>
+                  router.push(
+                    `/aluno/disciplinas/${disciplinaId}/prova/${provaPublicada.id}`
+                  )
+                }
+                className="w-full rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+              >
+                {t("takeExam")}
+              </button>
+            ) : (
+              <button
+                disabled
+                className="w-full cursor-not-allowed rounded-xl bg-gray-400 px-4 py-2 text-white"
+              >
+                {t("examLocked")}
+              </button>
+            )}
+          </div>
+        </aside>
+
+        <main className="bg-gray-50">
+          <div className="max-w-5xl p-6 lg:p-10">
+            {notaDaDisciplina && (
+              <div className="mb-6 rounded-2xl border bg-white p-6 shadow-sm">
+                <h2 className="mb-3 text-lg font-semibold">
+                  📊 {t("finalResult")}
+                </h2>
+
+                <p className="text-2xl font-bold">
+                  {t("grade", {
+                    grade: notaDaDisciplina.nota,
+                  })}
+                </p>
+                <p
+                  className={`mt-2 font-semibold ${notaDaDisciplina.aprovado ? "text-green-600" : "text-red-600"
+                    }`}
+                >
+                  {notaDaDisciplina.aprovado
+                    ? t("approved")
+                    : t("failed")}
+                </p>
+              </div>
+            )}
+
+            {aulaAtual ? (
+              <>
+                <div className="rounded-2xl border bg-white p-6 shadow-sm">
+                  <div className="flex items-start justify-between gap-6">
+                    <div>
+                      <h2 className="text-2xl font-bold">{aulaAtual.titulo}</h2>
+
+                      {aulaAtual.descricao && (
+                        <p className="mt-3 text-gray-600">{aulaAtual.descricao}</p>
+                      )}
+
+                      <div className="mt-4 max-w-md">
+                        <div className="mb-2 flex items-center justify-between text-sm text-gray-600">
+                          <span>{t("watchedTime")}</span>
+                          <span className="font-semibold">
+                            {formatarTempo(tempoAssistidoSegundos)} /{" "}
+                            {formatarTempo(tempoMinimoSegundos)}
+                          </span>
+                        </div>
+
+                        <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
+                          <div
+                            className="h-2 bg-blue-600 transition-all"
+                            style={{ width: `${porcentagemAssistida}%` }}
+                          />
+                        </div>
+
+                        <p className="mt-2 text-xs text-gray-500">
+                          {concluida
+                            ? t("lessonCompleted")
+                            : aulaAtual.videoUrl
+                              ? t("minimumWatchHint", {
+                                minutes: aulaAtual.duracaoMin ?? 0,
+                              })
+                              : t("noVideoHint")}
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={concluirAulaAtual}
+                      disabled={concluida || !podeConcluir || concluindoAula}
+                      className={[
+                        "rounded-xl px-4 py-2 font-semibold transition",
+                        concluida
+                          ? "cursor-not-allowed bg-green-600 text-white opacity-90"
+                          : podeConcluir
+                            ? "bg-blue-600 text-white hover:bg-blue-700"
+                            : "cursor-not-allowed bg-gray-400 text-white opacity-90",
+                      ].join(" ")}
+                    >
+                      {concluida
+                        ? t("completedButton")
+                        : concluindoAula
+                          ? t("saving")
+                          : podeConcluir
+                            ? t("markCompleted")
+                            : t("watchToComplete", {
+                              minutes: aulaAtual.duracaoMin ?? 0,
+                            })}
+                    </button>
+                  </div>
+
+                  <div className="mt-6">
+                    {aulaAtual.videoUrl ? (
+                      <div className="aspect-video w-full overflow-hidden rounded-xl border bg-black">
+                        <div id="youtube-player" className="h-full w-full" />
+                      </div>
+                    ) : (
+                      <div className="flex aspect-video w-full items-center justify-center rounded-xl border bg-gray-100 text-gray-600">
+                        {t("noVideoPlayer")}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {aulaAtual.materiais && aulaAtual.materiais.length > 0 && (
+                  <div className="mt-6 rounded-2xl border bg-white p-5 shadow-sm">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {t("materialsTitle")}
+                    </h3>
+
+                    <p className="mt-1 text-sm text-gray-500">
+                      {t("materialsDescription")}
+                    </p>
+
+                    <div className="mt-4 space-y-3">
+                      {aulaAtual.materiais.map((material) => {
+                        const tipoLabel = t(
+                          getMaterialTranslationKey(material.tipo)
+                        );
+
+                        const nomeArquivo =
+                          material.arquivoNome ||
+                          material.titulo ||
+                          t("materialGeneric");
+                        const tamanho = formatarTamanhoArquivo(material.tamanho);
+
+                        const ehArquivo =
+                          String(material.tipo || "").toUpperCase() === "ARQUIVO";
+                        const ehLink =
+                          String(material.tipo || "").toUpperCase() === "LINK";
+                        const ehVideo =
+                          String(material.tipo || "").toUpperCase() === "VIDEO";
+
+                        return (
+
+                          <div
+                            key={material.id}
+                            className="flex flex-col gap-3 rounded-xl border p-4 md:flex-row md:items-center md:justify-between"
+                          >
+                            <div className="min-w-0">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">
+                                  {tipoLabel}
+                                </span>
+
+                                {tamanho && (
+                                  <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
+                                    {tamanho}
+                                  </span>
+                                )}
+                              </div>
+
+                              <p className="mt-2 font-semibold text-gray-900">
+                                {material.titulo || nomeArquivo}
+                              </p>
+
+                              {material.arquivoNome && material.arquivoNome !== material.titulo && (
+                                <p className="mt-1 text-sm text-gray-500">
+                                  {t("fileName", {
+                                    name: material.arquivoNome,
+                                  })}
+                                </p>
+                              )}
+                            </div>
+
+                            <div className="flex flex-wrap gap-2">
+                              {material.url && (
+                                <>
+                                  <a
+                                    href={material.url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="rounded-lg border px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                                  >
+                                    {ehVideo
+                                      ? t("openVideo")
+                                      : ehLink
+                                        ? t("openLink")
+                                        : t("openMaterial")}
+                                  </a>
+
+                                  {ehArquivo && (
+                                    <a
+                                      href={material.url}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      download={nomeArquivo}
+                                      className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                                    >
+                                      {t("downloadMaterial")}
+                                    </a>
+                                  )}
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                <div className="mt-6 flex items-center justify-between">
+                  <button
+                    className="rounded-xl border bg-white px-4 py-2 transition hover:border-blue-400"
+                    onClick={() => {
+                      const idx = aulasOrdenadas.findIndex((a) => a.id === aulaAtual.id);
+                      const prev = aulasOrdenadas[idx - 1];
+                      if (prev) setAulaAtualId(prev.id);
+                    }}
+                  >
+                    ← {t("previousLesson")}
+                  </button>
 
                   <button
-                    onClick={concluirAulaAtual}
-                    disabled={concluida || !podeConcluir || concluindoAula}
-                    className={[
-                      "rounded-xl px-4 py-2 font-semibold transition",
-                      concluida
-                        ? "cursor-not-allowed bg-green-600 text-white opacity-90"
-                        : podeConcluir
-                        ? "bg-blue-600 text-white hover:bg-blue-700"
-                        : "cursor-not-allowed bg-gray-400 text-white opacity-90",
-                    ].join(" ")}
+                    className="rounded-xl border bg-white px-4 py-2 transition hover:border-blue-400"
+                    onClick={() => {
+                      const idx = aulasOrdenadas.findIndex((a) => a.id === aulaAtual.id);
+                      const next = aulasOrdenadas[idx + 1];
+                      if (next) setAulaAtualId(next.id);
+                    }}
                   >
-                    {concluida
-                      ? "✅ Concluída"
-                      : concluindoAula
-                      ? "Salvando..."
-                      : podeConcluir
-                      ? "Marcar como concluída"
-                      : `Assista ${aulaAtual.duracaoMin ?? 0} min para concluir`}
+                    {t("nextLesson")} →
                   </button>
                 </div>
-
-                <div className="mt-6">
-                  {aulaAtual.videoUrl ? (
-                    <div className="aspect-video w-full overflow-hidden rounded-xl border bg-black">
-                      <div id="youtube-player" className="h-full w-full" />
-                    </div>
-                  ) : (
-                    <div className="flex aspect-video w-full items-center justify-center rounded-xl border bg-gray-100 text-gray-600">
-                      (player de vídeo aqui)
-                    </div>
-                  )}
-                </div>
+              </>
+            ) : (
+              <div className="rounded-2xl border bg-white p-6">
+                {t("noLessons")}
               </div>
-
-{aulaAtual.materiais && aulaAtual.materiais.length > 0 && (
-  <div className="mt-6 rounded-2xl border bg-white p-5 shadow-sm">
-    <h3 className="text-lg font-semibold text-gray-900">Materiais da aula</h3>
-    <p className="mt-1 text-sm text-gray-500">
-      Arquivos, links e conteúdos de apoio disponibilizados pelo professor.
-    </p>
-
-    <div className="mt-4 space-y-3">
-      {aulaAtual.materiais.map((material) => {
-        const tipoLabel = getMaterialLabel(material.tipo);
-        const nomeArquivo =
-          material.arquivoNome || material.titulo || "Material";
-        const tamanho = formatarTamanhoArquivo(material.tamanho);
-
-        const ehArquivo =
-          String(material.tipo || "").toUpperCase() === "ARQUIVO";
-        const ehLink =
-          String(material.tipo || "").toUpperCase() === "LINK";
-        const ehVideo =
-          String(material.tipo || "").toUpperCase() === "VIDEO";
-
-        return (
-          
-          <div
-            key={material.id}
-            className="flex flex-col gap-3 rounded-xl border p-4 md:flex-row md:items-center md:justify-between"
-          >
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">
-                  {tipoLabel}
-                </span>
-
-                {tamanho && (
-                  <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
-                    {tamanho}
-                  </span>
-                )}
-              </div>
-
-              <p className="mt-2 font-semibold text-gray-900">
-                {material.titulo || nomeArquivo}
-              </p>
-
-              {material.arquivoNome && material.arquivoNome !== material.titulo && (
-                <p className="mt-1 text-sm text-gray-500">
-                  Arquivo: {material.arquivoNome}
-                </p>
-              )}
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              {material.url && (
-                <>
-                  <a
-                    href={material.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="rounded-lg border px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    {ehVideo ? "Abrir vídeo" : ehLink ? "Abrir link" : "Abrir"}
-                  </a>
-
-                  {ehArquivo && (
-                    <a
-                      href={material.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      download={nomeArquivo}
-                      className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
-                    >
-                      Baixar material
-                    </a>
-                  )}
-                </>
-              )}
-            </div>
+            )}
           </div>
-        );
-      })}
-    </div>
-  </div>
-)}
-
-              <div className="mt-6 flex items-center justify-between">
-                <button
-                  className="rounded-xl border bg-white px-4 py-2 transition hover:border-blue-400"
-                  onClick={() => {
-                    const idx = aulasOrdenadas.findIndex((a) => a.id === aulaAtual.id);
-                    const prev = aulasOrdenadas[idx - 1];
-                    if (prev) setAulaAtualId(prev.id);
-                  }}
-                >
-                  ← Aula anterior
-                </button>
-
-                <button
-                  className="rounded-xl border bg-white px-4 py-2 transition hover:border-blue-400"
-                  onClick={() => {
-                    const idx = aulasOrdenadas.findIndex((a) => a.id === aulaAtual.id);
-                    const next = aulasOrdenadas[idx + 1];
-                    if (next) setAulaAtualId(next.id);
-                  }}
-                >
-                  Próxima aula →
-                </button>
-              </div>
-            </>
-          ) : (
-            <div className="rounded-2xl border bg-white p-6">
-              Nenhuma aula encontrada.
-            </div>
-          )}
-        </div>
-      </main>
-        </div>
-  </>
+        </main>
+      </div>
+    </>
   );
 }

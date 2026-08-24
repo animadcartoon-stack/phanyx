@@ -2,9 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import PhanyxToast from "@/components/ui/PhanyxToast";
 
-type Alternativa = { id: number; texto: string };
+type Alternativa = {
+  id: number;
+  texto: string;
+};
+
 type Questao = {
   id: number;
   pergunta: string;
@@ -29,9 +34,19 @@ type ResultadoFinal = {
   aprovado?: boolean;
 };
 
+type RespostaQuestao = {
+  alternativaId?: number;
+  respostaTexto?: string;
+};
+
+function questaoEhMultiplaEscolha(questao: Questao) {
+  return String(questao.tipo || "").toUpperCase() === "MULTIPLA_ESCOLHA";
+}
+
 export default function ExecutarProvaPage() {
   const params = useParams<{ disciplinaId: string; provaId: string }>();
   const router = useRouter();
+  const t = useTranslations("StudentExamExecution");
 
   const disciplinaId = Number(params.disciplinaId);
   const provaId = Number(params.provaId);
@@ -42,83 +57,212 @@ export default function ExecutarProvaPage() {
   const [tentativaId, setTentativaId] = useState<number | null>(null);
   const [resultado, setResultado] = useState<ResultadoFinal | null>(null);
   const [erro, setErro] = useState("");
-
+  const [erroCarregamento, setErroCarregamento] = useState("");
+  const [salvandoQuestaoId, setSalvandoQuestaoId] = useState<number | null>(
+    null
+  );
+  const [ultimaQuestaoSalvaId, setUltimaQuestaoSalvaId] = useState<
+    number | null
+  >(null);
   const [respostas, setRespostas] = useState<
-    Record<number, { alternativaId?: number; respostaTexto?: string }>
+    Record<number, RespostaQuestao>
   >({});
 
   useEffect(() => {
-    async function boot() {
+    let mounted = true;
+
+    async function iniciarPaginaDaProva() {
+      if (!Number.isFinite(provaId) || provaId <= 0) {
+        if (mounted) {
+          setErroCarregamento(t("invalidExam"));
+          setLoading(false);
+        }
+        return;
+      }
+
       setLoading(true);
+      setErroCarregamento("");
 
       try {
-        const r1 = await fetch(`/api/aluno/provas/${provaId}`, {
+        const respostaProva = await fetch(`/api/aluno/provas/${provaId}`, {
           credentials: "include",
           cache: "no-store",
         });
 
-        const text1 = await r1.text();
-const provaData = text1 ? JSON.parse(text1) : null;
+        const provaData = await respostaProva.json().catch(() => null);
 
-        if (!r1.ok) {
+        if (!respostaProva.ok || !provaData?.id) {
+          if (!mounted) {
+            return;
+          }
+
           setProva(null);
+          setErroCarregamento(
+            respostaProva.status === 401
+              ? t("authenticationRequired")
+              : respostaProva.status === 403
+                ? t("accessUnavailable")
+                : t("examNotFound")
+          );
           return;
         }
 
-        setProva(provaData);
+        const respostaTentativa = await fetch(
+          `/api/aluno/provas/${provaId}/iniciar`,
+          {
+            method: "POST",
+            credentials: "include",
+          }
+        );
 
-        const r2 = await fetch(`/api/aluno/provas/${provaId}/iniciar`, {
-          method: "POST",
-          credentials: "include",
-        });
+        const tentativaData = await respostaTentativa.json().catch(() => null);
 
-        const text2 = await r2.text();
-const t = text2 ? JSON.parse(text2) : null;
+        if (!respostaTentativa.ok) {
+          if (!mounted) {
+            return;
+          }
 
-        if (!r2.ok) {
-          throw new Error(t?.error || "Erro ao iniciar prova");
+          setProva(null);
+          setTentativaId(null);
+          setErroCarregamento(
+            respostaTentativa.status === 401
+              ? t("authenticationRequired")
+              : respostaTentativa.status === 409
+                ? t("attemptUnavailable")
+                : respostaTentativa.status === 403
+                  ? t("accessUnavailable")
+                  : t("loadError")
+          );
+          return;
         }
 
-        setTentativaId(t?.tentativaId ?? t?.tentativa?.id ?? null);
-      } catch (e: any) {
-        setErro(e?.message || "Erro ao carregar prova.");
+        const idTentativa = Number(
+          tentativaData?.tentativaId ?? tentativaData?.tentativa?.id
+        );
+
+        if (!Number.isFinite(idTentativa) || idTentativa <= 0) {
+          throw new Error("Invalid attempt identifier");
+        }
+
+        if (!mounted) {
+          return;
+        }
+
+        setProva(provaData as Prova);
+        setTentativaId(idTentativa);
+      } catch (error) {
+        console.error("Failed to load exam:", error);
+
+        if (!mounted) {
+          return;
+        }
+
         setProva(null);
+        setTentativaId(null);
+        setErroCarregamento(t("loadError"));
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     }
 
-    if (Number.isFinite(provaId) && provaId > 0) {
-      boot();
-    }
-  }, [provaId]);
+    iniciarPaginaDaProva();
+
+    return () => {
+      mounted = false;
+    };
+  }, [provaId, t]);
 
   const questoes = useMemo(() => prova?.questoes ?? [], [prova]);
 
-  async function salvarQuestao(questaoId: number) {
-    if (!tentativaId) return;
+  function questaoEstaRespondida(questao: Questao) {
+    const resposta = respostas[questao.id];
 
-    const payload = respostas[questaoId] ?? {};
+    if (questaoEhMultiplaEscolha(questao)) {
+      return Number.isFinite(Number(resposta?.alternativaId));
+    }
 
-    await fetch(`/api/aluno/provas/tentativas/${tentativaId}/responder`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ questaoId, ...payload }),
-    });
+    return Boolean(resposta?.respostaTexto?.trim());
+  }
+
+  async function enviarResposta(questao: Questao) {
+    if (!tentativaId) {
+      throw new Error("Missing attempt identifier");
+    }
+
+    const resposta = respostas[questao.id] ?? {};
+
+    const response = await fetch(
+      `/api/aluno/provas/tentativas/${tentativaId}/responder`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          questaoId: questao.id,
+          alternativaId: questaoEhMultiplaEscolha(questao)
+            ? resposta.alternativaId ?? null
+            : null,
+          respostaTexto: questaoEhMultiplaEscolha(questao)
+            ? null
+            : resposta.respostaTexto?.trim() ?? "",
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Unable to save answer");
+    }
+  }
+
+  async function salvarQuestao(questao: Questao) {
+    if (salvandoQuestaoId || finalizando) {
+      return;
+    }
+
+    if (!questaoEstaRespondida(questao)) {
+      setErro(t("answerRequired"));
+      return;
+    }
+
+    try {
+      setErro("");
+      setSalvandoQuestaoId(questao.id);
+      setUltimaQuestaoSalvaId(null);
+
+      await enviarResposta(questao);
+      setUltimaQuestaoSalvaId(questao.id);
+    } catch (error) {
+      console.error("Failed to save answer:", error);
+      setErro(t("saveAnswerError"));
+    } finally {
+      setSalvandoQuestaoId(null);
+    }
   }
 
   async function finalizar() {
-    if (!tentativaId || finalizando) return;
+    if (!tentativaId || finalizando) {
+      return;
+    }
+
+    if (questoes.some((questao) => !questaoEstaRespondida(questao))) {
+      setErro(t("answerAllQuestions"));
+      return;
+    }
 
     try {
+      setErro("");
       setFinalizando(true);
+      setUltimaQuestaoSalvaId(null);
 
-      for (const q of questoes) {
-        await salvarQuestao(q.id);
+      for (const questao of questoes) {
+        await enviarResposta(questao);
       }
 
-      const res = await fetch(
+      const response = await fetch(
         `/api/aluno/provas/tentativas/${tentativaId}/finalizar`,
         {
           method: "POST",
@@ -126,63 +270,120 @@ const t = text2 ? JSON.parse(text2) : null;
         }
       );
 
-      const data = await res.json();
+      const data = await response.json().catch(() => null);
 
-      if (!res.ok) {
-        throw new Error(data?.error || data?.mensagem || "Erro ao finalizar prova");
+      if (!response.ok) {
+        if (response.status === 401) {
+          setErro(t("authenticationRequired"));
+        } else if (response.status === 403) {
+          setErro(t("accessUnavailable"));
+        } else if (response.status === 409 || response.status === 400) {
+          setErro(t("attemptUnavailable"));
+        } else {
+          setErro(t("finishError"));
+        }
+
+        return;
       }
 
-      setResultado(data);
-    } catch (e: any) {
-      setErro(e?.message || "Erro ao finalizar prova.");
+      setResultado(data as ResultadoFinal);
+    } catch (error) {
+      console.error("Failed to finish exam:", error);
+      setErro(t("finishError"));
     } finally {
       setFinalizando(false);
     }
   }
 
   const notaExibida = Number(resultado?.notaFinal ?? resultado?.nota ?? 0);
-const notaMaximaExibida = Number(resultado?.notaMaxima ?? prova?.notaMaxima ?? 10);
+  const notaMaximaExibida = Number(
+    resultado?.notaMaxima ?? prova?.notaMaxima ?? 10
+  );
+  const possuiQuestoesDiscursivas = questoes.some(
+    (questao) => !questaoEhMultiplaEscolha(questao)
+  );
 
-const aprovado =
-  typeof resultado?.aprovado === "boolean"
-    ? resultado.aprovado
-    : notaMaximaExibida > 0
-      ? notaExibida >= notaMaximaExibida * 0.6
-      : false;
+  const aprovado = resultado
+    ? possuiQuestoesDiscursivas
+      ? null
+      : typeof resultado.aprovado === "boolean"
+        ? resultado.aprovado
+        : notaMaximaExibida > 0
+          ? notaExibida >= notaMaximaExibida * 0.6
+          : false
+    : null;
 
-  if (loading) return <div className="p-8">Carregando prova...</div>;
-  if (!prova) return <div className="p-8">Prova não encontrada.</div>;
+  if (loading) {
+    return (
+      <div className="rounded-2xl border border-slate-200 bg-white p-8 text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
+        {t("loadingExam")}
+      </div>
+    );
+  }
+
+  if (!prova) {
+    return (
+      <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-8 text-slate-900 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-white">
+        <p>{erroCarregamento || t("examNotFound")}</p>
+
+        <button
+          type="button"
+          onClick={() => router.push(`/aluno/disciplinas/${disciplinaId}`)}
+          className="rounded-xl bg-blue-600 px-4 py-2 font-semibold text-white transition hover:bg-blue-700"
+        >
+          {t("backToSubject")}
+        </button>
+      </div>
+    );
+  }
 
   if (resultado) {
     return (
-      <div className="p-6 max-w-3xl space-y-6">
-        <div className="bg-white border rounded-2xl p-8">
-          <h1 className="text-2xl font-bold">📊 Resultado da prova</h1>
+      <div className="max-w-3xl space-y-6 p-6">
+        <div className="rounded-2xl border border-slate-200 bg-white p-8 text-slate-900 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-white">
+          <h1 className="text-2xl font-bold">
+            📊 {possuiQuestoesDiscursivas
+              ? t("partialResultTitle")
+              : t("resultTitle")}
+          </h1>
 
-          <p className="text-gray-600 mt-2">
-            {resultado?.mensagem || "Prova finalizada com sucesso!"}
+          <p className="mt-2 text-slate-600 dark:text-slate-300">
+            {possuiQuestoesDiscursivas
+              ? t("awaitingTeacherCorrection")
+              : t("completedSuccessfully")}
           </p>
 
           <div className="mt-6 space-y-3">
             <p className="text-3xl font-bold">
-              Nota: {notaExibida} / {notaMaximaExibida}
+              {t("grade")}: {notaExibida} / {notaMaximaExibida}
             </p>
 
-            <p
-              className={`text-lg font-semibold ${
-                aprovado ? "text-green-600" : "text-red-600"
-              }`}
-            >
-              {aprovado ? "Aprovado ✅" : "Reprovado ❌"}
-            </p>
+            {aprovado === null ? (
+              <p className="text-lg font-semibold text-amber-700 dark:text-amber-300">
+                {t("resultPending")}
+              </p>
+            ) : (
+              <p
+                className={`text-lg font-semibold ${
+                  aprovado
+                    ? "text-green-700 dark:text-green-300"
+                    : "text-red-700 dark:text-red-300"
+                }`}
+              >
+                {aprovado ? t("passed") : t("failed")}
+              </p>
+            )}
           </div>
 
           <div className="mt-8">
             <button
-              onClick={() => router.push(`/aluno/disciplinas/${disciplinaId}`)}
-              className="px-5 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
+              type="button"
+              onClick={() =>
+                router.push(`/aluno/disciplinas/${disciplinaId}`)
+              }
+              className="rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700"
             >
-              Voltar para disciplina
+              {t("backToSubject")}
             </button>
           </div>
         </div>
@@ -191,76 +392,103 @@ const aprovado =
   }
 
   return (
-    <div className="p-6 max-w-4xl space-y-6">
+    <div className="max-w-4xl space-y-6 p-6 text-slate-900 dark:text-white">
       {erro && (
-  <PhanyxToast
-    tipo="erro"
-    titulo="Não foi possível concluir"
-    mensagem={erro}
-    onClose={() => setErro("")}
-  />
-)}
-      <div className="bg-white border rounded-2xl p-6">
+        <PhanyxToast
+          tipo="erro"
+          titulo={t("errorTitle")}
+          mensagem={erro}
+          onClose={() => setErro("")}
+        />
+      )}
+
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
         <h1 className="text-2xl font-bold">{prova.titulo}</h1>
-        <p className="text-gray-600 mt-1">Responda e finalize para enviar.</p>
+        <p className="mt-1 text-slate-600 dark:text-slate-300">
+          {t("instructions")}
+        </p>
       </div>
 
       <div className="space-y-4">
-        {questoes.map((q, idx) => (
-          <div key={q.id} className="bg-white border rounded-2xl p-6">
-            <div className="flex items-start justify-between gap-4">
+        {questoes.map((questao, index) => (
+          <div
+            key={questao.id}
+            className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900"
+          >
+            <div className="flex flex-col items-start justify-between gap-4 sm:flex-row">
               <div>
-                <p className="text-sm text-gray-500">
-                  Questão {idx + 1} • {q.valor} pts
+                <p className="text-sm text-slate-600 dark:text-slate-300">
+                  {t("questionMeta", {
+                    number: index + 1,
+                    points: questao.valor,
+                  })}
                 </p>
-                <p className="font-semibold text-lg mt-1">{q.pergunta}</p>
+                <p className="mt-1 text-lg font-semibold">
+                  {questao.pergunta}
+                </p>
               </div>
 
               <button
-                onClick={() => salvarQuestao(q.id)}
-                className="px-3 py-2 rounded-xl border bg-white hover:border-blue-400 transition"
+                type="button"
+                onClick={() => salvarQuestao(questao)}
+                disabled={Boolean(salvandoQuestaoId) || finalizando}
+                className="rounded-xl border border-slate-300 bg-white px-3 py-2 font-semibold text-slate-800 transition hover:border-blue-400 disabled:cursor-wait disabled:opacity-60 dark:border-slate-600 dark:bg-slate-950 dark:text-white"
               >
-                Salvar
+                {salvandoQuestaoId === questao.id
+                  ? t("saving")
+                  : ultimaQuestaoSalvaId === questao.id
+                    ? t("saved")
+                    : t("save")}
               </button>
             </div>
 
-            {q.tipo === "multipla_escolha" ? (
+            {questaoEhMultiplaEscolha(questao) ? (
               <div className="mt-4 space-y-2">
-                {q.alternativas.map((a) => (
+                {(questao.alternativas ?? []).map((alternativa) => (
                   <label
-                    key={a.id}
-                    className="flex items-center gap-3 p-3 border rounded-xl hover:border-blue-300 cursor-pointer"
+                    key={alternativa.id}
+                    className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 p-3 text-slate-800 transition hover:border-blue-300 hover:bg-blue-50 dark:border-slate-700 dark:text-slate-100 dark:hover:border-blue-700 dark:hover:bg-blue-950/40"
                   >
                     <input
                       type="radio"
-                      name={`q-${q.id}`}
-                      checked={respostas[q.id]?.alternativaId === a.id}
-                      onChange={() =>
-                        setRespostas((prev) => ({
-                          ...prev,
-                          [q.id]: { ...prev[q.id], alternativaId: a.id },
-                        }))
+                      name={`q-${questao.id}`}
+                      checked={
+                        respostas[questao.id]?.alternativaId === alternativa.id
                       }
+                      onChange={() => {
+                        setUltimaQuestaoSalvaId(null);
+                        setRespostas((anteriores) => ({
+                          ...anteriores,
+                          [questao.id]: {
+                            alternativaId: alternativa.id,
+                          },
+                        }));
+                      }}
+                      className="h-4 w-4 accent-blue-600"
                     />
-                    <span>{a.texto}</span>
+                    <span>{alternativa.texto}</span>
                   </label>
                 ))}
               </div>
             ) : (
               <div className="mt-4">
                 <textarea
-                  value={respostas[q.id]?.respostaTexto ?? ""}
-                  onChange={(e) =>
-                    setRespostas((prev) => ({
-                      ...prev,
-                      [q.id]: { ...prev[q.id], respostaTexto: e.target.value },
-                    }))
-                  }
-                  className="w-full min-h-[120px] border rounded-xl p-3 outline-none focus:ring-2 focus:ring-blue-200"
-                  placeholder="Digite sua resposta..."
+                  value={respostas[questao.id]?.respostaTexto ?? ""}
+                  onChange={(event) => {
+                    setUltimaQuestaoSalvaId(null);
+                    setRespostas((anteriores) => ({
+                      ...anteriores,
+                      [questao.id]: {
+                        respostaTexto: event.target.value,
+                      },
+                    }));
+                  }}
+                  maxLength={20000}
+                  className="min-h-[120px] w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-slate-600 dark:bg-slate-950 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-950"
+                  placeholder={t("answerPlaceholder")}
                 />
-                <p className="text-xs text-gray-500 mt-2">
-                  Questão discursiva será corrigida pelo professor.
+                <p className="mt-2 text-xs text-slate-600 dark:text-slate-300">
+                  {t("essayCorrectionInformation")}
                 </p>
               </div>
             )}
@@ -268,20 +496,23 @@ const aprovado =
         ))}
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <button
+          type="button"
           onClick={() => router.push(`/aluno/disciplinas/${disciplinaId}`)}
-          className="px-4 py-2 rounded-xl border bg-white hover:border-blue-400 transition"
+          disabled={finalizando}
+          className="rounded-xl border border-slate-300 bg-white px-4 py-2 font-semibold text-slate-800 transition hover:border-blue-400 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-white"
         >
-          ← Voltar
+          ← {t("back")}
         </button>
 
         <button
+          type="button"
           onClick={finalizar}
-          disabled={finalizando}
-          className="px-5 py-3 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition disabled:opacity-50"
+          disabled={finalizando || Boolean(salvandoQuestaoId)}
+          className="rounded-xl bg-green-600 px-5 py-3 font-semibold text-white transition hover:bg-green-700 disabled:cursor-wait disabled:opacity-60"
         >
-          {finalizando ? "Finalizando..." : "Finalizar prova"}
+          {finalizando ? t("finishingExam") : t("finishExam")}
         </button>
       </div>
     </div>

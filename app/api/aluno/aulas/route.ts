@@ -38,38 +38,38 @@ export async function GET() {
       include: {
         curso: true,
         itens: {
-  where: {
-    instituicaoId: user.instituicaoId,
-  },
-  include: {
-    disciplina: true,
-    turma: {
-  include: {
-    aulas: {
-      where: {
-        instituicaoId: user.instituicaoId,
-        publicada: true,
-        
-      },
-      include: {
-        presencas: {
           where: {
-            alunoId: aluno.id,
             instituicaoId: user.instituicaoId,
           },
+          include: {
+            disciplina: true,
+            turma: {
+              include: {
+                aulas: {
+                  where: {
+                    instituicaoId: user.instituicaoId,
+                    publicada: true,
+
+                  },
+                  include: {
+                    presencas: {
+                      where: {
+                        alunoId: aluno.id,
+                        instituicaoId: user.instituicaoId,
+                      },
+                    },
+                  },
+                  orderBy: {
+                    id: "asc",
+                  },
+                },
+              },
+            },
+          },
+          orderBy: {
+            id: "asc",
+          },
         },
-      },
-      orderBy: {
-        id: "asc",
-      },
-    },
-  },
-},
-  },
-  orderBy: {
-    id: "asc",
-  },
-},
       },
       orderBy: {
         createdAt: "desc",
@@ -78,23 +78,23 @@ export async function GET() {
 
     const todosItens = matriculas.flatMap((matricula) => matricula.itens || []);
 
-const disciplinas =
+    const disciplinas =
       todosItens
         ?.map((item) => {
           const turma = item.turma;
           const disciplina = item.disciplina;
-if (!turma || !disciplina) return null;
+          if (!turma || !disciplina) return null;
 
           const aulasDaDisciplina = turma.aulas.filter(
-  (aula) => aula.disciplinaId === disciplina.id
-);
+            (aula) => aula.disciplinaId === disciplina.id
+          );
 
-const totalAulas = aulasDaDisciplina.length;
-const totalPresencas = aulasDaDisciplina.filter(
-  (aula) => (aula.presencas?.length || 0) > 0
-).length;
+          const totalAulas = aulasDaDisciplina.length;
+          const totalPresencas = aulasDaDisciplina.filter(
+            (aula) => (aula.presencas?.length || 0) > 0
+          ).length;
 
-const bloqueadaPorAulas = totalAulas === 0;
+          const bloqueadaPorAulas = totalAulas === 0;
 
           return {
             id: disciplina.id,
@@ -104,18 +104,21 @@ const bloqueadaPorAulas = totalAulas === 0;
             totalAulas,
             totalPresencas,
             bloqueadaPorAulas,
-            mensagemBloqueio: bloqueadaPorAulas
-  ? "Aula disponível em breve. Assim que a instituição publicar o conteúdo, esta disciplina será desbloqueada automaticamente."
-  : null,
+            codigoBloqueio: bloqueadaPorAulas
+              ? "AULAS_NAO_PUBLICADAS"
+              : null,
+
+            // Mantido temporariamente para compatibilidade com as páginas atuais.
+            mensagemBloqueio: null,
             aulas: aulasDaDisciplina.map((aula) => ({
               id: aula.id,
               titulo: aula.titulo,
               presenca: aula.presencas?.[0]
                 ? {
-                    id: aula.presencas[0].id,
-                    status: aula.presencas[0].status,
-                    observacao: aula.presencas[0].observacao,
-                  }
+                  id: aula.presencas[0].id,
+                  status: aula.presencas[0].status,
+                  observacao: aula.presencas[0].observacao,
+                }
                 : null,
             })),
           };

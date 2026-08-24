@@ -4,6 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { useAluno } from "@/app/context/AlunoContext";
 import { useAuth } from "@/lib/auth-context";
+import {
+  useLocale,
+  useTranslations,
+} from "next-intl";
 
 type AtividadeAlunoApi = {
   id: number | string;
@@ -16,17 +20,59 @@ type AtividadeAlunoApi = {
 
 type FeedbackTipo = "sucesso" | "erro" | "aviso";
 
-function formatarData(data?: string | null) {
-  if (!data) return "Prazo não informado";
+function formatarData(
+  data: string | null | undefined,
+  locale: string,
+  prazoNaoInformado: string
+) {
+  if (!data) {
+    return prazoNaoInformado;
+  }
 
-  try {
-    return new Date(data).toLocaleString("pt-BR");
-  } catch {
+  const dataConvertida = new Date(data);
+
+  if (Number.isNaN(dataConvertida.getTime())) {
     return data;
+  }
+
+  return new Intl.DateTimeFormat(locale, {
+    dateStyle: "short",
+    timeStyle: "short",
+  }).format(dataConvertida);
+}
+
+type StatusTranslationKey =
+  | "statusDraft"
+  | "statusAwaitingPublication"
+  | "statusPublished"
+  | "statusClosed"
+  | "statusActive";
+
+function obterChaveStatus(
+  status?: string | null
+): StatusTranslationKey {
+  switch (String(status || "").toUpperCase()) {
+    case "RASCUNHO":
+      return "statusDraft";
+
+    case "AGUARDANDO_PUBLICACAO":
+      return "statusAwaitingPublication";
+
+    case "PUBLICADA":
+      return "statusPublished";
+
+    case "ENCERRADA":
+      return "statusClosed";
+
+    default:
+      return "statusActive";
   }
 }
 
 export default function AtividadesAlunoPage() {
+  const t = useTranslations("StudentAssignments");
+  const locale = useLocale();
+
   const { disciplinaId } = useParams();
   const id = Number(disciplinaId);
 
@@ -60,7 +106,7 @@ export default function AtividadesAlunoPage() {
     async function carregarAtividades() {
       if (!Number.isFinite(id) || id <= 0) {
         if (mounted) {
-          setErro("Disciplina inválida.");
+          setErro(t("invalidSubject"));
           setLoading(false);
         }
         return;
@@ -79,6 +125,7 @@ export default function AtividadesAlunoPage() {
 
         if (!res.ok) {
           setAtividades([]);
+          setErro(t("loadError"));
           setLoading(false);
           return;
         }
@@ -87,7 +134,9 @@ export default function AtividadesAlunoPage() {
         setAtividades(Array.isArray(json) ? json : []);
       } catch {
         if (!mounted) return;
+
         setAtividades([]);
+        setErro(t("loadError"));
       } finally {
         if (mounted) setLoading(false);
       }
@@ -111,17 +160,17 @@ export default function AtividadesAlunoPage() {
 
   async function enviarResposta() {
     if (!atividadeSelecionada) {
-      mostrarToast("aviso", "Selecione uma atividade para enviar.");
+      mostrarToast("aviso", t("selectActivityWarning"));
       return;
     }
 
     if (!arquivo) {
-      mostrarToast("aviso", "Escolha um arquivo antes de enviar.");
+      mostrarToast("aviso", t("chooseFileWarning"));
       return;
     }
 
     if (!user?.email) {
-      mostrarToast("erro", "Não foi possível identificar o aluno logado.");
+      mostrarToast("erro", t("unidentifiedStudent"));
       return;
     }
 
@@ -135,11 +184,14 @@ export default function AtividadesAlunoPage() {
         arquivoNome: arquivo.name,
       });
 
-      mostrarToast("sucesso", "Resposta enviada com sucesso.");
+      mostrarToast("sucesso", t("sendSuccess"));
       setArquivo(null);
       setAtividadeSelecionada(null);
     } catch (error: any) {
-      mostrarToast("erro", error?.message || "Não foi possível enviar a atividade.");
+      mostrarToast(
+        "erro",
+        error?.message || t("sendError")
+      );
     } finally {
       setEnviando(false);
     }
@@ -150,13 +202,12 @@ export default function AtividadesAlunoPage() {
       {toast && (
         <div className="fixed right-6 top-6 z-50">
           <div
-            className={`rounded-xl px-5 py-3 text-sm font-medium shadow-lg ${
-              toast.tipo === "sucesso"
-                ? "bg-green-600 text-white"
-                : toast.tipo === "erro"
+            className={`rounded-xl px-5 py-3 text-sm font-medium shadow-lg ${toast.tipo === "sucesso"
+              ? "bg-green-600 text-white"
+              : toast.tipo === "erro"
                 ? "bg-red-600 text-white"
                 : "bg-yellow-400 text-black"
-            }`}
+              }`}
           >
             {toast.mensagem}
           </div>
@@ -165,22 +216,21 @@ export default function AtividadesAlunoPage() {
 
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <p className="text-sm font-medium uppercase tracking-[0.18em] text-blue-600">
-          Disciplina
+          {t("eyebrow")}
         </p>
 
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
-          Atividades da disciplina
+          {t("title")}
         </h1>
 
         <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600">
-          Consulte as atividades publicadas pelo professor e envie seus arquivos
-          dentro do prazo disponível.
+          {t("description")}
         </p>
       </div>
 
       {loading && (
         <div className="rounded-3xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
-          Carregando atividades...
+          {t("loading")}
         </div>
       )}
 
@@ -196,15 +246,17 @@ export default function AtividadesAlunoPage() {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h2 className="text-xl font-semibold text-slate-900">
-                  Atividades disponíveis
+                  {t("availableTitle")}
                 </h2>
                 <p className="text-sm text-slate-500">
-                  Selecione uma atividade para visualizar os detalhes e enviar sua resposta.
+                  {t("availableDescription")}
                 </p>
               </div>
 
               <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
-                {atividades.length} atividade(s)
+                {t("count", {
+                  count: atividades.length,
+                })}
               </span>
             </div>
 
@@ -212,11 +264,10 @@ export default function AtividadesAlunoPage() {
               {atividades.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
                   <p className="text-lg font-bold text-slate-900">
-                    Nenhuma atividade disponível no momento
+                    {t("emptyTitle")}
                   </p>
                   <p className="mt-2 text-sm text-slate-600">
-                    Quando o professor publicar atividades para esta disciplina,
-                    elas aparecerão aqui para envio e acompanhamento.
+                    {t("emptyDescription")}
                   </p>
                 </div>
               ) : (
@@ -228,11 +279,10 @@ export default function AtividadesAlunoPage() {
                       key={atividade.id}
                       type="button"
                       onClick={() => setAtividadeSelecionada(String(atividade.id))}
-                      className={`w-full rounded-2xl border p-5 text-left transition ${
-                        selecionada
-                          ? "border-blue-600 bg-blue-50 shadow-sm"
-                          : "border-slate-200 bg-white hover:border-blue-300 hover:shadow-sm"
-                      }`}
+                      className={`w-full rounded-2xl border p-5 text-left transition ${selecionada
+                        ? "border-blue-600 bg-blue-50 shadow-sm"
+                        : "border-slate-200 bg-white hover:border-blue-300 hover:shadow-sm"
+                        }`}
                     >
                       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                         <div>
@@ -250,18 +300,26 @@ export default function AtividadesAlunoPage() {
                         <div className="flex flex-wrap gap-2">
                           {atividade.notaMaxima != null && (
                             <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                              Nota máxima: {atividade.notaMaxima}
+                              {t("maximumGrade", {
+                                grade: atividade.notaMaxima,
+                              })}
                             </span>
                           )}
 
                           <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                            {atividade.status || "Ativa"}
+                            {t(obterChaveStatus(atividade.status))}
                           </span>
                         </div>
                       </div>
 
                       <p className="mt-3 text-xs font-medium uppercase tracking-[0.14em] text-slate-500">
-                        Prazo: {formatarData(atividade.prazo)}
+                        {t("deadline", {
+                          date: formatarData(
+                            atividade.prazo,
+                            locale,
+                            t("deadlineNotProvided")
+                          ),
+                        })}
                       </p>
                     </button>
                   );
@@ -272,16 +330,16 @@ export default function AtividadesAlunoPage() {
 
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="text-xl font-semibold text-slate-900">
-              Enviar atividade
+              {t("sendTitle")}
             </h2>
 
             {!atividadeAtiva ? (
               <div className="mt-6 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center">
                 <p className="text-sm font-semibold text-slate-900">
-                  Selecione uma atividade
+                  {t("selectTitle")}
                 </p>
                 <p className="mt-2 text-sm text-slate-600">
-                  Ao selecionar uma atividade disponível, o envio do arquivo será liberado aqui.
+                  {t("selectDescription")}
                 </p>
               </div>
             ) : (
@@ -291,13 +349,19 @@ export default function AtividadesAlunoPage() {
                     {atividadeAtiva.titulo}
                   </p>
                   <p className="mt-2 text-sm text-slate-600">
-                    Prazo: {formatarData(atividadeAtiva.prazo)}
+                    {t("deadline", {
+                      date: formatarData(
+                        atividadeAtiva.prazo,
+                        locale,
+                        t("deadlineNotProvided")
+                      ),
+                    })}
                   </p>
                 </div>
 
                 <div>
                   <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Arquivo da resposta
+                    {t("responseFile")}
                   </label>
 
                   <input
@@ -307,13 +371,15 @@ export default function AtividadesAlunoPage() {
                   />
 
                   <p className="mt-2 text-xs text-slate-500">
-                    Envie o arquivo final da atividade. O nome selecionado será registrado na sua resposta.
+                    {t("fileHelp")}
                   </p>
                 </div>
 
                 {arquivo && (
                   <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800">
-                    Arquivo selecionado: <strong>{arquivo.name}</strong>
+                    {t("selectedFile", {
+                      name: arquivo.name,
+                    })}
                   </div>
                 )}
 
@@ -323,7 +389,9 @@ export default function AtividadesAlunoPage() {
                   disabled={enviando}
                   className="w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {enviando ? "Enviando..." : "Enviar resposta"}
+                  {enviando
+                    ? t("sending")
+                    : t("sendResponse")}
                 </button>
               </div>
             )}

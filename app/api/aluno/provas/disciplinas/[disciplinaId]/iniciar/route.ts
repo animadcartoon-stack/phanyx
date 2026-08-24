@@ -1,7 +1,10 @@
-import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+
+import { prisma } from "@/lib/prisma";
+import { podeUsarProvas } from "@/lib/permissoesPlano";
 import { getUserFromToken } from "@/lib/server-auth";
 
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(
@@ -11,8 +14,22 @@ export async function POST(
   try {
     const user = await getUserFromToken();
 
-    if (!user || String(user.role || "").toUpperCase() !== "ALUNO") {
+    if (!user) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
+    if (String(user.role || "").toUpperCase() !== "ALUNO") {
       return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+    }
+
+    if (!podeUsarProvas(user.plano || "ESSENCIAL")) {
+      return NextResponse.json(
+        {
+          error:
+            "Recurso disponível apenas nos planos Profissional e Enterprise",
+        },
+        { status: 403 }
+      );
     }
 
     const disciplinaId = Number(params.disciplinaId);
@@ -28,9 +45,11 @@ export async function POST(
       where: {
         userId: user.id,
         instituicaoId: user.instituicaoId,
+        ativo: true,
       },
       select: {
         id: true,
+        statusAluno: true,
       },
     });
 
@@ -41,23 +60,40 @@ export async function POST(
       );
     }
 
+    if (
+      [
+        "TRANCADO",
+        "TRANSFERIDO",
+        "DESLIGADO",
+        "FORMADO",
+        "CANCELADO",
+        "SUSPENSO",
+      ].includes(
+        String(aluno.statusAluno || "").toUpperCase()
+      )
+    ) {
+      return NextResponse.json(
+        { error: "Seu status acadêmico não permite iniciar novas provas." },
+        { status: 403 }
+      );
+    }
+
     const itemMatricula = await prisma.itemMatricula.findFirst({
-  where: {
-    instituicaoId: user.instituicaoId,
-    disciplinaId,
-    status: {
-      in: ["A_CURSAR", "EM_CURSO"] as any,
-    },
-    matricula: {
-      alunoId: aluno.id,
-      instituicaoId: user.instituicaoId,
-    },
-  },
-  select: {
-    turmaId: true,
-    disciplinaId: true,
-  },
-});
+      where: {
+        instituicaoId: user.instituicaoId,
+        disciplinaId,
+        status: {
+          in: ["A_CURSAR", "EM_CURSO"] as any,
+        },
+        matricula: {
+          alunoId: aluno.id,
+          instituicaoId: user.instituicaoId,
+        },
+      },
+      select: {
+        turmaId: true,
+      },
+    });
 
     if (!itemMatricula) {
       return NextResponse.json(
@@ -122,15 +158,28 @@ export async function POST(
           },
         ],
       },
-      include: {
+      select: {
+        id: true,
+        titulo: true,
+        notaMaxima: true,
+        tempoMin: true,
+        tentativasMax: true,
+        exigirAulasConcluidas: true,
+        turmaId: true,
         questoes: {
-          orderBy: {
-            ordem: "asc",
-          },
-          include: {
+          orderBy: [{ ordem: "asc" }, { id: "asc" }],
+          select: {
+            id: true,
+            enunciado: true,
+            tipo: true,
+            valor: true,
+            ordem: true,
             alternativas: {
-              orderBy: {
-                ordem: "asc",
+              orderBy: [{ ordem: "asc" }, { id: "asc" }],
+              select: {
+                id: true,
+                texto: true,
+                ordem: true,
               },
             },
           },
@@ -145,6 +194,13 @@ export async function POST(
       return NextResponse.json(
         { error: "Prova ainda não disponível" },
         { status: 404 }
+      );
+    }
+
+    if (prova.questoes.length === 0) {
+      return NextResponse.json(
+        { error: "Esta prova ainda não possui questões." },
+        { status: 403 }
       );
     }
 
@@ -187,6 +243,28 @@ export async function POST(
       }
     }
 
+    const provaPublica = {
+      id: prova.id,
+      titulo: prova.titulo,
+      notaMaxima: prova.notaMaxima,
+      tempoMin: prova.tempoMin,
+      questoes: prova.questoes.map((questao) => ({
+        id: questao.id,
+        enunciado: questao.enunciado,
+        tipo: questao.tipo,
+        valor: questao.valor,
+        ordem: questao.ordem,
+        alternativas:
+          String(questao.tipo).toUpperCase() === "MULTIPLA_ESCOLHA"
+            ? questao.alternativas.map((alternativa) => ({
+                id: alternativa.id,
+                texto: alternativa.texto,
+                ordem: alternativa.ordem,
+              }))
+            : [],
+      })),
+    };
+
     const tentativaExistente = await prisma.tentativaProva.findFirst({
       where: {
         alunoId: aluno.id,
@@ -197,12 +275,35 @@ export async function POST(
       orderBy: {
         createdAt: "desc",
       },
+      select: {
+        id: true,
+        expiraEm: true,
+      },
     });
 
     if (tentativaExistente) {
-      return NextResponse.json({
-        tentativaId: tentativaExistente.id,
-        prova,
+      const tentativaExpirou =
+        tentativaExistente.expiraEm !== null &&
+        tentativaExistente.expiraEm <= agora;
+
+      if (!tentativaExpirou) {
+        return NextResponse.json({
+          tentativaId: tentativaExistente.id,
+          prova: provaPublica,
+        });
+      }
+
+      await prisma.tentativaProva.updateMany({
+        where: {
+          id: tentativaExistente.id,
+          alunoId: aluno.id,
+          provaId: prova.id,
+          instituicaoId: user.instituicaoId,
+          status: "EM_ANDAMENTO" as any,
+        },
+        data: {
+          status: "EXPIRADA" as any,
+        },
       });
     }
 
@@ -217,7 +318,7 @@ export async function POST(
     if (quantidadeTentativas >= Number(prova.tentativasMax || 1)) {
       return NextResponse.json(
         { error: "Limite de tentativas atingido para esta prova." },
-        { status: 403 }
+        { status: 409 }
       );
     }
 
@@ -227,21 +328,26 @@ export async function POST(
         provaId: prova.id,
         instituicaoId: user.instituicaoId,
         tentativaNumero: quantidadeTentativas + 1,
-        expiraEm: prova.tempoMin
-          ? new Date(Date.now() + Number(prova.tempoMin) * 60 * 1000)
-          : null,
+        status: "EM_ANDAMENTO" as any,
+        expiraEm:
+          prova.tempoMin && Number(prova.tempoMin) > 0
+            ? new Date(agora.getTime() + Number(prova.tempoMin) * 60 * 1000)
+            : null,
+      },
+      select: {
+        id: true,
       },
     });
 
     return NextResponse.json({
       tentativaId: tentativa.id,
-      prova,
+      prova: provaPublica,
     });
-  } catch (e: any) {
-    console.error("ERRO INICIAR PROVA ALUNO:", e);
+  } catch (error: unknown) {
+    console.error("ERRO INICIAR PROVA ALUNO:", error);
 
     return NextResponse.json(
-      { error: e?.message || "Erro ao iniciar prova" },
+      { error: "Erro ao iniciar prova" },
       { status: 500 }
     );
   }

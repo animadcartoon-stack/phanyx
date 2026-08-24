@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useAluno } from "@/app/context/AlunoContext";
 import PhanyxToast from "@/components/ui/PhanyxToast";
 
@@ -35,102 +36,136 @@ type IniciarResponse = {
   prova: ProvaApi;
 };
 
+type ResultadoProva = {
+  nota: number;
+  aprovado: boolean | null;
+  tempo: number;
+  possuiDiscursivas: boolean;
+};
+
 export default function ProvaPage() {
   const router = useRouter();
   const params = useParams<{ disciplinaId: string }>();
+  const t = useTranslations("StudentExam");
 
   const disciplinaId = Number(params.disciplinaId);
+  const { salvarNota, notas } = useAluno();
 
-  const { salvarNota, gerarCertificado, notas } = useAluno();
-
-  // bloqueio: se já tem nota nessa disciplina, volta
   const notaDaDisciplina = useMemo(() => {
-    return notas.find((n) => n.disciplinaId === disciplinaId);
+    return notas.find((nota) => nota.disciplinaId === disciplinaId);
   }, [notas, disciplinaId]);
 
-  const [inicioProva] = useState(() => Date.now());
+  const inicioProvaRef = useRef(Date.now());
+  const finalizouNestaSessaoRef = useRef(false);
 
   const [loading, setLoading] = useState(true);
   const [prova, setProva] = useState<ProvaApi | null>(null);
   const [tentativaId, setTentativaId] = useState<number | null>(null);
-
-  // respostas:
-  // - MULTIPLA_ESCOLHA: guarda alternativaId (number)
-  // - DISCURSIVA: guarda string
-  const [respostas, setRespostas] = useState<Record<number, number | string>>({});
-
+  const [respostas, setRespostas] = useState<Record<number, number | string>>(
+    {}
+  );
   const [erro, setErro] = useState("");
+  const [erroCarregamento, setErroCarregamento] = useState("");
+  const [finalizando, setFinalizando] = useState(false);
+  const [resultado, setResultado] = useState<ResultadoProva | null>(null);
 
-  const [resultado, setResultado] = useState<{
-    nota: number;
-    aprovado: boolean;
-    tempo: number;
-  } | null>(null);
-
-  // 🔒 BLOQUEIO PROFISSIONAL
   useEffect(() => {
-    if (notaDaDisciplina) {
+    if (notaDaDisciplina && !finalizouNestaSessaoRef.current) {
       router.replace(`/aluno/disciplinas/${disciplinaId}`);
     }
   }, [notaDaDisciplina, router, disciplinaId]);
 
-  // 1) Carregar prova real e iniciar tentativa
   useEffect(() => {
     let mounted = true;
 
     async function carregarEIniciar() {
-      if (!Number.isFinite(disciplinaId) || disciplinaId <= 0) return;
+      if (!Number.isFinite(disciplinaId) || disciplinaId <= 0) {
+        if (mounted) {
+          setErroCarregamento(t("invalidSubject"));
+          setLoading(false);
+        }
+        return;
+      }
 
       setLoading(true);
+      setErroCarregamento("");
+
       try {
-        // ✅ Inicia tentativa e já devolve prova completa
-        const res = await fetch(`/api/aluno/provas/disciplinas/${disciplinaId}/iniciar`, {
-          method: "POST",
-          credentials: "include",
-        });
+        const res = await fetch(
+          `/api/aluno/provas/disciplinas/${disciplinaId}/iniciar`,
+          {
+            method: "POST",
+            credentials: "include",
+          }
+        );
 
-        const data = (await res.json()) as IniciarResponse;
+        const data = (await res.json().catch(() => null)) as
+          | IniciarResponse
+          | null;
 
-        if (!mounted) return;
-
-        if (!res.ok) {
-          setProva(null);
-          setTentativaId(null);
+        if (!mounted) {
           return;
         }
 
-        // ordenação determinística
-        const questoesOrdenadas = (data.prova.questoes ?? []).slice().sort((a, b) => {
-          const ao = a.ordem ?? 0;
-          const bo = b.ordem ?? 0;
-          if (ao !== bo) return ao - bo;
-          return a.id - b.id;
-        });
+        if (!res.ok || !data?.prova || !data?.tentativaId) {
+          setProva(null);
+          setTentativaId(null);
+          setErroCarregamento(
+            res.status === 403 ? t("accessUnavailable") : t("examUnavailable")
+          );
+          return;
+        }
+
+        const questoesOrdenadas = (data.prova.questoes ?? [])
+          .slice()
+          .sort((a, b) => {
+            const ordemA = a.ordem ?? 0;
+            const ordemB = b.ordem ?? 0;
+
+            if (ordemA !== ordemB) {
+              return ordemA - ordemB;
+            }
+
+            return a.id - b.id;
+          });
 
         const provaNormalizada: ProvaApi = {
           ...data.prova,
-          questoes: questoesOrdenadas.map((q) => ({
-            ...q,
+          questoes: questoesOrdenadas.map((questao) => ({
+            ...questao,
             alternativas:
-              q.tipo === "MULTIPLA_ESCOLHA"
-                ? (q.alternativas ?? []).slice().sort((a, b) => {
-                    const ao = a.ordem ?? 0;
-                    const bo = b.ordem ?? 0;
-                    if (ao !== bo) return ao - bo;
+              questao.tipo === "MULTIPLA_ESCOLHA"
+                ? (questao.alternativas ?? []).slice().sort((a, b) => {
+                    const ordemA = a.ordem ?? 0;
+                    const ordemB = b.ordem ?? 0;
+
+                    if (ordemA !== ordemB) {
+                      return ordemA - ordemB;
+                    }
+
                     return a.id - b.id;
                   })
                 : [],
           })),
         };
 
+        inicioProvaRef.current = Date.now();
         setProva(provaNormalizada);
         setTentativaId(data.tentativaId);
-      } catch {
-        if (!mounted) return;
+      } catch (error) {
+        console.error("Failed to start exam:", error);
+
+        if (!mounted) {
+          return;
+        }
+
         setProva(null);
         setTentativaId(null);
+        setErroCarregamento(t("loadError"));
       } finally {
-        if (mounted) setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     }
 
@@ -139,253 +174,354 @@ export default function ProvaPage() {
     return () => {
       mounted = false;
     };
-  }, [disciplinaId]);
+  }, [disciplinaId, t]);
 
-  // helper: lista de questões
   const questoes = prova?.questoes ?? [];
 
-  // 2) marcar resposta (salvar em tempo real)
-  async function responderQuestao(questao: QuestaoApi, value: number | string) {
-  setRespostas((prev) => ({ ...prev, [questao.id]: value }));
-
-  if (!tentativaId) return;
-
-  // Múltipla escolha salva imediatamente.
-  // Discursiva fica só no navegador e será enviada ao finalizar.
-  if (questao.tipo !== "MULTIPLA_ESCOLHA") return;
-
-  await fetch(`/api/aluno/provas/tentativas/${tentativaId}/responder`, {
-    method: "POST",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      questaoId: questao.id,
-      alternativaId: typeof value === "number" ? value : null,
-      respostaTexto: null,
-    }),
-  });
-}
-
-  // 3) finalizar prova (autocorreção objetiva)
-  async function finalizarProva() {
-    if (!prova || !tentativaId) return;
-    if (questoes.length === 0) return;
-
-    // valida se respondeu tudo
-    const faltando = questoes.some((q) => {
-      const v = respostas[q.id];
-      if (q.tipo === "MULTIPLA_ESCOLHA") return typeof v !== "number";
-      return typeof v !== "string" || v.trim().length === 0;
-    });
-
-    if (faltando) {
-      setErro("Responda todas as perguntas antes de finalizar a prova.");
-      return;
+  async function salvarRespostaNoServidor(
+    questao: QuestaoApi,
+    valor: number | string
+  ) {
+    if (!tentativaId) {
+      throw new Error("Missing attempt identifier");
     }
 
-    const questoesDiscursivas = questoes.filter((q) => q.tipo === "DISCURSIVA");
+    const respostaTexto =
+      questao.tipo === "DISCURSIVA" ? String(valor).trim() : null;
 
-for (const questao of questoesDiscursivas) {
-  const respostaTexto = String(respostas[questao.id] || "").trim();
+    const alternativaId =
+      questao.tipo === "MULTIPLA_ESCOLHA" && typeof valor === "number"
+        ? valor
+        : null;
 
-  await fetch(`/api/aluno/provas/tentativas/${tentativaId}/responder`, {
-    method: "POST",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      questaoId: questao.id,
-      alternativaId: null,
-      respostaTexto,
-    }),
-  });
-}
-
-    const res = await fetch(`/api/aluno/provas/tentativas/${tentativaId}/finalizar`, {
-      method: "POST",
-      credentials: "include",
-    });
-
-    const data = await res.json();
+    const res = await fetch(
+      `/api/aluno/provas/tentativas/${tentativaId}/responder`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          questaoId: questao.id,
+          alternativaId,
+          respostaTexto,
+        }),
+      }
+    );
 
     if (!res.ok) {
-      setErro(data?.error ?? "Erro ao finalizar prova.");
+      throw new Error("Unable to save answer");
+    }
+  }
+
+  async function responderQuestao(
+    questao: QuestaoApi,
+    valor: number | string
+  ) {
+    setRespostas((anteriores) => ({
+      ...anteriores,
+      [questao.id]: valor,
+    }));
+
+    setErro("");
+
+    if (!tentativaId || questao.tipo !== "MULTIPLA_ESCOLHA") {
       return;
     }
 
-    // nota vem do backend (objetivas). discursivas ficam pendentes de correção se existirem.
-    const notaFinalBackend = Number(data?.nota ?? 0);
-
-    // normaliza para 0..10 caso seu backend use soma de valores
-    // se você já definiu notaMaxima=10 e valor por questão soma até 10, mantém.
-    // se soma passa de 10, você pode ajustar aqui (mas ideal é ajustar no backend).
-    const notaFinal = Number(notaFinalBackend.toFixed(1));
-
-    const tempoFinal = Date.now();
-    const tempoEmSegundos = Math.floor((tempoFinal - inicioProva) / 1000);
-
-    const aprovado = notaFinal >= NOTA_MINIMA;
-
-    // ✅ mantém compatibilidade com seu painel de notas/certificados
-    await salvarNota(disciplinaId, notaFinal, aprovado, tempoEmSegundos, []);
-
-setResultado({ nota: notaFinal, aprovado, tempo: tempoEmSegundos });
+    try {
+      await salvarRespostaNoServidor(questao, valor);
+    } catch (error) {
+      console.error("Failed to save answer:", error);
+      setErro(t("saveAnswerError"));
+    }
   }
 
-  // ====== UI STATES ======
+  async function finalizarProva() {
+    if (!prova || !tentativaId || questoes.length === 0 || finalizando) {
+      return;
+    }
+
+    const possuiRespostaPendente = questoes.some((questao) => {
+      const resposta = respostas[questao.id];
+
+      if (questao.tipo === "MULTIPLA_ESCOLHA") {
+        return typeof resposta !== "number";
+      }
+
+      return typeof resposta !== "string" || resposta.trim().length === 0;
+    });
+
+    if (possuiRespostaPendente) {
+      setErro(t("answerAllQuestions"));
+      return;
+    }
+
+    try {
+      setFinalizando(true);
+      setErro("");
+
+      for (const questao of questoes) {
+        await salvarRespostaNoServidor(questao, respostas[questao.id]);
+      }
+
+      const res = await fetch(
+        `/api/aluno/provas/tentativas/${tentativaId}/finalizar`,
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
+
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          setErro(t("authenticationRequired"));
+        } else if (res.status === 403) {
+          setErro(t("accessUnavailable"));
+        } else if (res.status === 409) {
+          setErro(t("attemptUnavailable"));
+        } else {
+          setErro(t("finishError"));
+        }
+
+        return;
+      }
+
+      const notaRecebida = Number(data?.notaFinal ?? data?.nota ?? 0);
+      const notaFinal = Number(notaRecebida.toFixed(1));
+      const tempoEmSegundos = Math.floor(
+        (Date.now() - inicioProvaRef.current) / 1000
+      );
+      const possuiDiscursivas = questoes.some(
+        (questao) => questao.tipo === "DISCURSIVA"
+      );
+      const aprovado = possuiDiscursivas ? null : notaFinal >= NOTA_MINIMA;
+
+      if (!possuiDiscursivas) {
+        finalizouNestaSessaoRef.current = true;
+
+        await salvarNota(
+          disciplinaId,
+          notaFinal,
+          Boolean(aprovado),
+          tempoEmSegundos,
+          []
+        );
+      }
+
+      setResultado({
+        nota: notaFinal,
+        aprovado,
+        tempo: tempoEmSegundos,
+        possuiDiscursivas,
+      });
+    } catch (error) {
+      console.error("Failed to finish exam:", error);
+      setErro(t("finishError"));
+    } finally {
+      setFinalizando(false);
+    }
+  }
 
   if (loading) {
     return (
-      <main className="p-8 bg-white text-gray-900 min-h-screen">
-        <p>Carregando prova...</p>
+      <main className="min-h-screen bg-white p-8 text-slate-700 dark:bg-slate-950 dark:text-slate-300">
+        <p>{t("loadingExam")}</p>
       </main>
     );
   }
 
   if (!prova || questoes.length === 0) {
     return (
-      <main className="p-8">
-        <p>Prova ainda não disponível.</p>
-        <button
-          onClick={() => router.push(`/aluno/disciplinas/${disciplinaId}`)}
-          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded"
-        >
-          Voltar
-        </button>
+      <main className="min-h-screen bg-white p-8 text-slate-900 dark:bg-slate-950 dark:text-white">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+          <p>{erroCarregamento || t("examUnavailable")}</p>
+
+          <button
+            type="button"
+            onClick={() =>
+              router.push(`/aluno/disciplinas/${disciplinaId}`)
+            }
+            className="mt-4 rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white transition hover:bg-blue-700"
+          >
+            {t("back")}
+          </button>
+        </div>
       </main>
     );
   }
 
-  // ====== RESULTADO + REVISÃO ======
   if (resultado) {
     return (
-      <main className="p-8 bg-white text-gray-900 min-h-screen space-y-6">
+      <main className="min-h-screen space-y-6 bg-white p-8 text-slate-900 dark:bg-slate-950 dark:text-white">
         {erro && (
-  <PhanyxToast
-    tipo="erro"
-    titulo="Não foi possível finalizar"
-    mensagem={erro}
-    onClose={() => setErro("")}
-  />
-)}
-        <h1 className="text-3xl font-bold">Resultado da Prova</h1>
+          <PhanyxToast
+            tipo="erro"
+            titulo={t("errorTitle")}
+            mensagem={erro}
+            onClose={() => setErro("")}
+          />
+        )}
 
-        <div className="bg-white border rounded-lg p-6 space-y-3">
+        <h1 className="text-3xl font-bold">
+          {resultado.possuiDiscursivas
+            ? t("partialResultTitle")
+            : t("resultTitle")}
+        </h1>
+
+        <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
           <p className="text-xl">
-            Nota: <strong>{resultado.nota}</strong>
+            {t("grade")}: <strong>{resultado.nota}</strong>
           </p>
 
-          <p
-            className={`text-lg font-semibold ${
-              resultado.aprovado ? "text-green-600" : "text-red-600"
-            }`}
-          >
-            {resultado.aprovado ? "Aprovado 🎉" : "Reprovado ❌"}
-          </p>
+          {resultado.aprovado === null ? (
+            <p className="text-lg font-semibold text-amber-700 dark:text-amber-300">
+              {t("awaitingTeacherCorrection")}
+            </p>
+          ) : (
+            <p
+              className={`text-lg font-semibold ${
+                resultado.aprovado
+                  ? "text-green-700 dark:text-green-300"
+                  : "text-red-700 dark:text-red-300"
+              }`}
+            >
+              {resultado.aprovado ? t("passed") : t("failed")}
+            </p>
+          )}
 
           <div className="mt-6 space-y-4">
-            <h2 className="text-xl font-semibold">📋 Revisão da prova</h2>
+            <h2 className="text-xl font-semibold">📋 {t("reviewTitle")}</h2>
 
-            {questoes.map((q, index) => {
-              if (q.tipo === "DISCURSIVA") {
-                const texto = String(respostas[q.id] ?? "");
-                return (
-                  <div key={q.id} className="border rounded-lg p-4 space-y-2">
-                    <p className="font-medium">
-                      {index + 1}. {q.enunciado}
-                    </p>
-                    <p className="text-sm text-gray-600">Questão discursiva (correção do professor).</p>
-                    <p>
-                      Sua resposta: <strong>{texto || "—"}</strong>
-                    </p>
-                  </div>
-                );
-              }
-
-              const escolhidaId = respostas[q.id] as number;
-              const altEscolhida = q.alternativas?.find((a) => a.id === escolhidaId);
-              const altCorreta = q.alternativas?.find((a) => (a as any).correta === true);
-
-              const acertou = altCorreta && altEscolhida ? altCorreta.id === altEscolhida.id : false;
+            {questoes.map((questao, index) => {
+              const resposta = respostas[questao.id];
 
               return (
-                <div key={q.id} className="border rounded-lg p-4 space-y-2">
+                <div
+                  key={questao.id}
+                  className="space-y-2 rounded-xl border border-slate-200 p-4 dark:border-slate-700"
+                >
                   <p className="font-medium">
-                    {index + 1}. {q.enunciado}
+                    {index + 1}. {questao.enunciado}
                   </p>
 
-                  <p>
-                    Sua resposta: <strong>{altEscolhida?.texto ?? "—"}</strong>
-                  </p>
-
-                  {!acertou && altCorreta && (
-                    <p className="text-green-600">Resposta correta: {altCorreta.texto}</p>
+                  {questao.tipo === "DISCURSIVA" ? (
+                    <>
+                      <p className="text-sm text-slate-600 dark:text-slate-300">
+                        {t("essayPending")}
+                      </p>
+                      <p>
+                        {t("yourAnswer")}: {" "}
+                        <strong>{String(resposta ?? "") || "—"}</strong>
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p>
+                        {t("yourAnswer")}: {" "}
+                        <strong>
+                          {questao.alternativas?.find(
+                            (alternativa) => alternativa.id === resposta
+                          )?.texto ?? "—"}
+                        </strong>
+                      </p>
+                      <p className="font-semibold text-blue-700 dark:text-blue-300">
+                        {t("objectiveProcessed")}
+                      </p>
+                    </>
                   )}
-
-                  <p className={`font-semibold ${acertou ? "text-green-600" : "text-red-600"}`}>
-                    {acertou ? "✔ Acertou" : "❌ Errou"}
-                  </p>
                 </div>
               );
             })}
           </div>
 
-          <p className="text-sm text-gray-600">
-            ⏱ Tempo gasto: {Math.floor(resultado.tempo / 60)} min {resultado.tempo % 60} seg
+          <p className="text-sm text-slate-600 dark:text-slate-300">
+            ⏱ {t("timeSpent", {
+              minutes: Math.floor(resultado.tempo / 60),
+              seconds: resultado.tempo % 60,
+            })}
           </p>
 
-          {resultado.aprovado && (
-  <p className="text-green-700 font-medium">
-    🎉 Você foi aprovado nesta prova. A liberação do certificado depende das regras da sua instituição.
-  </p>
-)}
+          {resultado.aprovado === true && (
+            <p className="font-medium text-green-700 dark:text-green-300">
+              🎉 {t("certificateInformation")}
+            </p>
+          )}
         </div>
 
         <button
+          type="button"
           onClick={() => router.push(`/aluno/disciplinas/${disciplinaId}`)}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg"
+          className="rounded-lg bg-blue-600 px-6 py-2 font-semibold text-white transition hover:bg-blue-700"
         >
-          Voltar para disciplina
+          {t("backToSubject")}
         </button>
       </main>
     );
   }
 
-  // ====== PROVA (RESPONDER) ======
   return (
-    <main className="p-8 bg-white text-gray-900 min-h-screen space-y-6">
+    <main className="min-h-screen space-y-6 bg-white p-8 text-slate-900 dark:bg-slate-950 dark:text-white">
+      {erro && (
+        <PhanyxToast
+          tipo="erro"
+          titulo={t("errorTitle")}
+          mensagem={erro}
+          onClose={() => setErro("")}
+        />
+      )}
+
       <h1 className="text-3xl font-bold">📝 {prova.titulo}</h1>
 
       <div className="space-y-6">
-        {questoes.map((q, idx) => (
-          <div key={q.id} className="bg-white border rounded-lg p-6 space-y-3">
+        {questoes.map((questao, index) => (
+          <div
+            key={questao.id}
+            className="space-y-3 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900"
+          >
             <h2 className="font-semibold">
-              {idx + 1}. {q.enunciado}
+              {index + 1}. {questao.enunciado}
             </h2>
 
-            {q.tipo === "MULTIPLA_ESCOLHA" ? (
+            {questao.tipo === "MULTIPLA_ESCOLHA" ? (
               <div className="space-y-2">
-                {(q.alternativas ?? []).map((alt) => (
-                  <label key={alt.id} className="flex items-center gap-2 cursor-pointer">
+                {(questao.alternativas ?? []).map((alternativa) => (
+                  <label
+                    key={alternativa.id}
+                    className="flex cursor-pointer items-center gap-3 rounded-lg border border-transparent p-2 text-slate-800 transition hover:border-blue-200 hover:bg-blue-50 dark:text-slate-100 dark:hover:border-blue-800 dark:hover:bg-blue-950/40"
+                  >
                     <input
                       type="radio"
-                      name={`questao-${q.id}`}
-                      checked={respostas[q.id] === alt.id}
-                      onChange={() => responderQuestao(q, alt.id)}
+                      name={`questao-${questao.id}`}
+                      checked={respostas[questao.id] === alternativa.id}
+                      onChange={() =>
+                        responderQuestao(questao, alternativa.id)
+                      }
+                      className="h-4 w-4 accent-blue-600"
                     />
-                    {alt.texto}
+                    <span>{alternativa.texto}</span>
                   </label>
                 ))}
               </div>
             ) : (
               <div className="space-y-2">
                 <textarea
-                  className="w-full border rounded-lg p-3 min-h-[120px]"
-                  placeholder="Digite sua resposta..."
-                  value={typeof respostas[q.id] === "string" ? (respostas[q.id] as string) : ""}
-                  onChange={(e) => responderQuestao(q, e.target.value)}
+                  className="min-h-[120px] w-full rounded-lg border border-slate-300 bg-white p-3 text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-slate-600 dark:bg-slate-950 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-950"
+                  placeholder={t("answerPlaceholder")}
+                  value={
+                    typeof respostas[questao.id] === "string"
+                      ? String(respostas[questao.id])
+                      : ""
+                  }
+                  onChange={(event) =>
+                    responderQuestao(questao, event.target.value)
+                  }
                 />
-                <p className="text-xs text-gray-500">
-                  Questão discursiva: será corrigida pelo professor.
+                <p className="text-xs text-slate-600 dark:text-slate-300">
+                  {t("essayCorrectionInformation")}
                 </p>
               </div>
             )}
@@ -394,10 +530,12 @@ setResultado({ nota: notaFinal, aprovado, tempo: tempoEmSegundos });
       </div>
 
       <button
+        type="button"
         onClick={finalizarProva}
-        className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700"
+        disabled={finalizando}
+        className="rounded-lg bg-green-600 px-6 py-3 font-semibold text-white transition hover:bg-green-700 disabled:cursor-wait disabled:opacity-70"
       >
-        Finalizar prova
+        {finalizando ? t("finishingExam") : t("finishExam")}
       </button>
     </main>
   );
