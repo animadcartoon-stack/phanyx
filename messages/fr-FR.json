@@ -580,5 +580,21 @@
                                  "back":  "Retour",
                                  "finishingExam":  "Envoi...",
                                  "finishExam":  "Rendre l\u0027épreuve"
-                             }
+                             },
+    "StudentProgress":  {
+                            "title":  "Progression académique",
+                            "description":  "Suivez votre progression dans chaque matière selon les cours enregistrés et les données académiques associées à votre profil.",
+                            "loading":  "Chargement de la progression...",
+                            "loadError":  "Impossible de charger votre progression académique. Vérifiez votre connexion et réessayez.",
+                            "retry":  "Réessayer",
+                            "empty":  "Aucune progression académique n\u0027est disponible pour le moment.",
+                            "classLabel":  "Classe",
+                            "notInformed":  "Non renseignée",
+                            "totalLessons":  "Nombre total de cours",
+                            "attendanceRecords":  "Présences enregistrées",
+                            "completed":  "Terminé",
+                            "inProgress":  "En cours",
+                            "progressPercentage":  "Pourcentage de progression",
+                            "completedMessage":  "Progression de la matière terminée."
+                        }
 }

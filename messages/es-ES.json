@@ -580,5 +580,21 @@
                                  "back":  "Volver",
                                  "finishingExam":  "Entregando...",
                                  "finishExam":  "Entregar examen"
-                             }
+                             },
+    "StudentProgress":  {
+                            "title":  "Progreso académico",
+                            "description":  "Consulta tu progreso en cada asignatura según las clases registradas y los datos académicos vinculados a tu perfil.",
+                            "loading":  "Cargando el progreso...",
+                            "loadError":  "No se ha podido cargar tu progreso académico. Comprueba tu conexión e inténtalo de nuevo.",
+                            "retry":  "Intentar de nuevo",
+                            "empty":  "No hay progreso académico disponible en este momento.",
+                            "classLabel":  "Clase",
+                            "notInformed":  "No indicada",
+                            "totalLessons":  "Total de clases",
+                            "attendanceRecords":  "Asistencias registradas",
+                            "completed":  "Completado",
+                            "inProgress":  "En curso",
+                            "progressPercentage":  "Porcentaje de seguimiento",
+                            "completedMessage":  "Seguimiento de la asignatura completado."
+                        }
 }

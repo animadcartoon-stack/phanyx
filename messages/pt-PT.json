@@ -580,5 +580,21 @@
                                  "back":  "Voltar",
                                  "finishingExam":  "A concluir...",
                                  "finishExam":  "Concluir prova"
-                             }
+                             },
+    "StudentProgress":  {
+                            "title":  "Progresso académico",
+                            "description":  "Acompanhe o seu progresso por disciplina com base nas aulas registadas e nos registos académicos associados ao seu perfil.",
+                            "loading":  "A carregar o progresso...",
+                            "loadError":  "Não foi possível carregar o seu progresso académico. Verifique a sua ligação e tente novamente.",
+                            "retry":  "Tentar novamente",
+                            "empty":  "Não existe progresso académico disponível neste momento.",
+                            "classLabel":  "Turma",
+                            "notInformed":  "Não indicada",
+                            "totalLessons":  "Total de aulas",
+                            "attendanceRecords":  "Presenças registadas",
+                            "completed":  "Concluído",
+                            "inProgress":  "Em curso",
+                            "progressPercentage":  "Percentagem de acompanhamento",
+                            "completedMessage":  "Disciplina com acompanhamento concluído."
+                        }
 }

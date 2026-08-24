@@ -580,5 +580,21 @@
                                  "back":  "Back",
                                  "finishingExam":  "Submitting...",
                                  "finishExam":  "Submit exam"
-                             }
+                             },
+    "StudentProgress":  {
+                            "title":  "Academic Progress",
+                            "description":  "Track your progress in each subject based on available lessons and the academic records linked to your profile.",
+                            "loading":  "Loading progress...",
+                            "loadError":  "We could not load your academic progress. Check your connection and try again.",
+                            "retry":  "Try again",
+                            "empty":  "No academic progress is currently available.",
+                            "classLabel":  "Class",
+                            "notInformed":  "Not provided",
+                            "totalLessons":  "Total lessons",
+                            "attendanceRecords":  "Attendance records",
+                            "completed":  "Completed",
+                            "inProgress":  "In progress",
+                            "progressPercentage":  "Completion percentage",
+                            "completedMessage":  "Subject progress completed."
+                        }
 }

@@ -580,5 +580,21 @@
                                  "back":  "Voltar",
                                  "finishingExam":  "Finalizando...",
                                  "finishExam":  "Finalizar prova"
-                             }
+                             },
+    "StudentProgress":  {
+                            "title":  "Progresso Acadêmico",
+                            "description":  "Acompanhe seu avanço por disciplina com base nas aulas cadastradas e nos registros acadêmicos vinculados ao seu perfil.",
+                            "loading":  "Carregando progresso...",
+                            "loadError":  "Não foi possível carregar seu progresso acadêmico. Verifique sua conexão e tente novamente.",
+                            "retry":  "Tentar novamente",
+                            "empty":  "Nenhum progresso acadêmico disponível no momento.",
+                            "classLabel":  "Turma",
+                            "notInformed":  "Não informada",
+                            "totalLessons":  "Total de aulas",
+                            "attendanceRecords":  "Chamadas registradas",
+                            "completed":  "Concluído",
+                            "inProgress":  "Em andamento",
+                            "progressPercentage":  "Percentual de acompanhamento",
+                            "completedMessage":  "Disciplina com acompanhamento completo."
+                        }
 }
