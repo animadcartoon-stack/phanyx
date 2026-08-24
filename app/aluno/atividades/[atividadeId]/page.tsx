@@ -1,7 +1,9 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 
 type AtividadeDetalhe = {
   id: number;
@@ -15,8 +17,11 @@ type AtividadeDetalhe = {
 };
 
 export default function AlunoAtividadeDetalhePage() {
-  const params = useParams();
-  const atividadeId = params.atividadeId as string;
+  const params = useParams<{ atividadeId: string }>();
+  const locale = useLocale();
+  const t = useTranslations("StudentActivityDetail");
+
+  const atividadeId = params.atividadeId;
 
   const [atividade, setAtividade] = useState<AtividadeDetalhe | null>(null);
   const [loading, setLoading] = useState(true);
@@ -29,40 +34,51 @@ export default function AlunoAtividadeDetalhePage() {
   const [salvando, setSalvando] = useState(false);
   const [mensagem, setMensagem] = useState("");
 
-  async function carregarAtividade() {
-    try {
-      setLoading(true);
-      setErro("");
-
-      const res = await fetch("/api/aluno/atividades");
-      const json = await res.json();
-
-      if (!res.ok) {
-        throw new Error(json.error || "Erro ao carregar atividade");
-      }
-
-      const encontrada = (json.items || []).find(
-        (item: any) => String(item.id) === String(atividadeId)
-      );
-
-      if (!encontrada) {
-        throw new Error("Atividade não encontrada");
-      }
-
-      setAtividade(encontrada);
-    } catch (e: any) {
-      setErro(e.message || "Erro ao carregar atividade");
-    } finally {
-      setLoading(false);
-    }
-  }
-
   useEffect(() => {
-    carregarAtividade();
-  }, [atividadeId]);
+    async function carregarAtividade() {
+      try {
+        setLoading(true);
+        setErro("");
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
+        const res = await fetch("/api/aluno/atividades", {
+          credentials: "include",
+          cache: "no-store",
+        });
+
+        const json = await res.json();
+
+        if (!res.ok) {
+          console.error("Erro da API ao carregar atividade:", json?.error);
+          throw new Error(t("errors.load"));
+        }
+
+        const encontrada = (json.items || []).find(
+          (item: AtividadeDetalhe) =>
+            String(item.id) === String(atividadeId)
+        );
+
+        if (!encontrada) {
+          throw new Error(t("errors.notFound"));
+        }
+
+        setAtividade(encontrada);
+      } catch (error) {
+        console.error("Erro ao carregar atividade:", error);
+        setErro(
+          error instanceof Error ? error.message : t("errors.load")
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (atividadeId) {
+      carregarAtividade();
+    }
+  }, [atividadeId, t]);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
 
     try {
       setSalvando(true);
@@ -76,6 +92,7 @@ export default function AlunoAtividadeDetalhePage() {
           headers: {
             "Content-Type": "application/json",
           },
+          credentials: "include",
           body: JSON.stringify({
             texto,
             link,
@@ -87,87 +104,99 @@ export default function AlunoAtividadeDetalhePage() {
       const json = await res.json();
 
       if (!res.ok) {
-        throw new Error(json.error || "Erro ao enviar atividade");
+        console.error("Erro da API ao enviar atividade:", json?.error);
+        throw new Error(t("errors.submit"));
       }
 
-      setMensagem("Entrega enviada com sucesso.");
-    } catch (e: any) {
-      setErro(e.message || "Erro ao enviar atividade");
+      setMensagem(t("submission.success"));
+    } catch (error) {
+      console.error("Erro ao enviar atividade:", error);
+      setErro(
+        error instanceof Error ? error.message : t("errors.submit")
+      );
     } finally {
       setSalvando(false);
     }
   }
 
   function formatarData(data?: string | null) {
-    if (!data) return "Sem prazo";
+    if (!data) return t("noDeadline");
 
-    try {
-      return new Date(data).toLocaleString("pt-BR");
-    } catch {
+    const dataConvertida = new Date(data);
+
+    if (Number.isNaN(dataConvertida.getTime())) {
       return data;
     }
+
+    return new Intl.DateTimeFormat(locale, {
+      dateStyle: "medium",
+      timeStyle: "short",
+    }).format(dataConvertida);
   }
 
   return (
-    <div className="p-6">
+    <main className="min-h-screen bg-slate-100 p-6 text-slate-900 dark:bg-slate-950 dark:text-white">
       <div className="mx-auto max-w-4xl space-y-6">
-        <div className="rounded-2xl border bg-white p-6 shadow-sm">
-          <a
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+          <Link
             href="/aluno/atividades"
-            className="inline-block text-sm font-medium text-gray-500 hover:text-gray-700"
+            className="inline-flex text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
           >
-            ← Voltar para atividades
-          </a>
+            ← {t("back")}
+          </Link>
         </div>
 
         {loading && (
-          <div className="rounded-2xl border bg-white p-6 text-sm text-gray-500 shadow-sm">
-            Carregando atividade...
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
+            {t("loading")}
           </div>
         )}
 
-        {!loading && erro && (
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 shadow-sm">
+        {!loading && erro && !atividade && (
+          <div
+            role="alert"
+            className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800 shadow-sm dark:border-red-800 dark:bg-red-950/40 dark:text-red-200"
+          >
             {erro}
           </div>
         )}
 
-        {!loading && !erro && atividade && (
+        {!loading && atividade && (
           <>
-            <div className="rounded-2xl border bg-white p-6 shadow-sm">
+            <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
               <div className="space-y-3">
-                <h1 className="text-2xl font-bold text-gray-900">
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
                   {atividade.titulo}
                 </h1>
 
-                <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-gray-500">
+                <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-slate-600 dark:text-slate-300">
                   {atividade.disciplinaNome && (
                     <span>
-                      <strong className="font-medium text-gray-700">
-                        Disciplina:
+                      <strong className="font-medium text-slate-800 dark:text-slate-100">
+                        {t("labels.subject")}:
                       </strong>{" "}
                       {atividade.disciplinaNome}
                     </span>
                   )}
 
                   <span>
-                    <strong className="font-medium text-gray-700">
-                      Prazo:
+                    <strong className="font-medium text-slate-800 dark:text-slate-100">
+                      {t("labels.deadline")}:
                     </strong>{" "}
                     {formatarData(atividade.prazo)}
                   </span>
 
                   <span>
-                    <strong className="font-medium text-gray-700">
-                      Nota máxima:
+                    <strong className="font-medium text-slate-800 dark:text-slate-100">
+                      {t("labels.maximumScore")}:
                     </strong>{" "}
                     {atividade.notaMaxima}
                   </span>
 
                   {atividade.turmaNome && (
                     <span>
-                      <strong className="font-medium text-gray-700">
-                        Turma:
+                      <strong className="font-medium text-slate-800 dark:text-slate-100">
+                        {t("labels.class")}:
                       </strong>{" "}
                       {atividade.turmaNome}
                     </span>
@@ -175,74 +204,92 @@ export default function AlunoAtividadeDetalhePage() {
                 </div>
 
                 {atividade.descricao && (
-                  <p className="text-sm leading-6 text-gray-700">
+                  <p className="whitespace-pre-line text-sm leading-6 text-slate-700 dark:text-slate-300">
                     {atividade.descricao}
                   </p>
                 )}
               </div>
-            </div>
+            </section>
 
             <form
               onSubmit={handleSubmit}
-              className="space-y-6 rounded-2xl border bg-white p-6 shadow-sm"
+              className="space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900"
             >
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Enviar atividade
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+                  {t("submission.title")}
                 </h2>
-                <p className="mt-1 text-sm text-gray-500">
-                  Você pode enviar texto, link e arquivoUrl.
+                <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                  {t("submission.description")}
                 </p>
               </div>
 
               {mensagem && (
-                <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
+                <div
+                  role="status"
+                  className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm font-medium text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200"
+                >
                   {mensagem}
                 </div>
               )}
 
               {erro && (
-                <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                <div
+                  role="alert"
+                  className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-medium text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200"
+                >
                   {erro}
                 </div>
               )}
 
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Texto da entrega
+                <label
+                  htmlFor="texto-entrega"
+                  className="block text-sm font-medium text-slate-700 dark:text-slate-200"
+                >
+                  {t("submission.textLabel")}
                 </label>
                 <textarea
+                  id="texto-entrega"
                   value={texto}
-                  onChange={(e) => setTexto(e.target.value)}
+                  onChange={(event) => setTexto(event.target.value)}
                   rows={6}
-                  placeholder="Escreva sua resposta ou observações"
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
+                  placeholder={t("submission.textPlaceholder")}
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-slate-600 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 dark:focus:ring-blue-950"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Link
+                <label
+                  htmlFor="link-entrega"
+                  className="block text-sm font-medium text-slate-700 dark:text-slate-200"
+                >
+                  {t("submission.linkLabel")}
                 </label>
                 <input
+                  id="link-entrega"
                   type="url"
                   value={link}
-                  onChange={(e) => setLink(e.target.value)}
+                  onChange={(event) => setLink(event.target.value)}
                   placeholder="https://..."
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-slate-600 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 dark:focus:ring-blue-950"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  URL do arquivo
+                <label
+                  htmlFor="arquivo-entrega"
+                  className="block text-sm font-medium text-slate-700 dark:text-slate-200"
+                >
+                  {t("submission.fileUrlLabel")}
                 </label>
                 <input
+                  id="arquivo-entrega"
                   type="url"
                   value={arquivoUrl}
-                  onChange={(e) => setArquivoUrl(e.target.value)}
-                  placeholder="https://arquivo..."
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
+                  onChange={(event) => setArquivoUrl(event.target.value)}
+                  placeholder={t("submission.fileUrlPlaceholder")}
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-slate-600 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 dark:focus:ring-blue-950"
                 />
               </div>
 
@@ -250,15 +297,17 @@ export default function AlunoAtividadeDetalhePage() {
                 <button
                   type="submit"
                   disabled={salvando}
-                  className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                  className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-wait disabled:opacity-60"
                 >
-                  {salvando ? "Enviando..." : "Enviar atividade"}
+                  {salvando
+                    ? t("submission.submitting")
+                    : t("submission.submit")}
                 </button>
               </div>
             </form>
           </>
         )}
       </div>
-    </div>
+    </main>
   );
 }

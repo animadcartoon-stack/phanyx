@@ -845,5 +845,226 @@
     "errors": {
       "load": "Unable to load meetings."
     }
+  },
+  "StudentNotes": {
+    "title": "My Grades",
+    "empty": "No grades have been posted yet.",
+    "labels": {
+      "grade": "Grade",
+      "status": "Status",
+      "feedback": "Feedback"
+    },
+    "situations": {
+      "approved": "Passed",
+      "recovery": "Remedial assessment",
+      "failed": "Failed"
+    }
+  },
+  "StudentCertificates": {
+    "common": {
+      "notProvided": "Not provided"
+    },
+    "title": "My Certificates",
+    "description": "Certificates are generated automatically after you successfully complete a subject.",
+    "loading": "Loading certificates...",
+    "empty": "You do not have any certificates available yet.",
+    "subjectFallback": "Subject",
+    "code": "Code",
+    "issuedOn": "Issued on",
+    "download": "Download certificate",
+    "validate": "Validate",
+    "errors": {
+      "load": "Unable to load your certificates."
+    }
+  },
+  "StudentCertificateDetail": {
+    "title": "Certificate of Completion",
+    "certifyThat": "This is to certify that",
+    "completedSubject": "has successfully completed the subject",
+    "workload": "Workload: {hours, plural, one {# hour} other {# hours}}",
+    "completionDate": "Completion date: {date}",
+    "registrationNumber": "Registration no. {number}",
+    "printOrSave": "Print / Save as PDF",
+    "backToCertificates": "Back to certificates",
+    "notFound": "Certificate not found.",
+    "back": "Back",
+    "notProvided": "Not provided"
+  },
+  "StudentFinancialBlock": {
+    "title": "Access blocked due to an outstanding balance",
+    "greeting": "Hello, {name}.",
+    "studentFallback": "student",
+    "pendingDescription": "Your academic access is temporarily blocked because there is an outstanding financial balance.",
+    "releaseDescription": "Access will be restored automatically after the payment is settled and your financial status is updated.",
+    "goToLogin": "Go to login",
+    "tryAgain": "Try again"
+  },
+  "StudentLessonPage": {
+    "common": {
+      "unavailable": "unavailable"
+    },
+    "enrollmentStatus": {
+      "active": "Active",
+      "pending": "Pending",
+      "overdue": "Overdue",
+      "suspended": "Suspended",
+      "cancelled": "Cancelled",
+      "completed": "Completed"
+    },
+    "blocked": {
+      "title": "Lesson access unavailable",
+      "statusPrefix": "Your enrollment status is",
+      "reason": "Access to this lesson’s content is temporarily blocked.",
+      "availableResources": "You can still access the student portal to view your status, grades and other academic information."
+    },
+    "lessonTitle": "Lesson {id}",
+    "description": "View the materials and follow the lesson content.",
+    "noMainMaterial": "No material is available for this lesson.",
+    "materialsTitle": "Lesson materials",
+    "noMaterials": "No materials have been added.",
+    "typeLabel": "Type",
+    "open": "Open",
+    "materialTypes": {
+      "video": "Video",
+      "audio": "Audio",
+      "document": "Document",
+      "image": "Image",
+      "link": "Link",
+      "file": "File"
+    },
+    "progress": {
+      "title": "Progress",
+      "completed": "{percent}% complete"
+    },
+    "nextSteps": {
+      "title": "Next steps",
+      "watchMain": "Watch the main content",
+      "openSupplementary": "Open the supplementary materials",
+      "markCompleted": "Mark the lesson as complete"
+    }
+  },
+  "StudentActivityDetail": {
+    "back": "Back to assignments",
+    "loading": "Loading assignment...",
+    "noDeadline": "No deadline",
+    "labels": {
+      "subject": "Subject",
+      "deadline": "Deadline",
+      "maximumScore": "Maximum score",
+      "class": "Class"
+    },
+    "submission": {
+      "title": "Submit assignment",
+      "description": "You can submit a written response, a link and a file URL.",
+      "textLabel": "Submission text",
+      "textPlaceholder": "Write your response or comments",
+      "linkLabel": "Link",
+      "fileUrlLabel": "File URL",
+      "fileUrlPlaceholder": "https://file...",
+      "submitting": "Submitting...",
+      "submit": "Submit assignment",
+      "success": "Assignment submitted successfully."
+    },
+    "errors": {
+      "load": "The assignment could not be loaded.",
+      "notFound": "Assignment not found.",
+      "submit": "The assignment could not be submitted. Please try again."
+    }
+  },
+  "StudentProfileCompletion": {
+    "title": "Complete your profile",
+    "description": "Keep your documents, contracts and academic records accurate with information valid for your country.",
+    "loading": "Loading profile...",
+    "saving": "Saving...",
+    "save": "Save profile",
+    "success": "Profile updated successfully.",
+    "common": {
+      "select": "Select"
+    },
+    "modal": {
+      "title": "We could not complete your profile",
+      "close": "Close",
+      "help": "Review the reported problem, correct the corresponding field and try again.",
+      "understood": "Got it"
+    },
+    "personal": {
+      "title": "Personal information",
+      "officialName": "Official full name",
+      "officialNameHelp": "Contact the administration office to change your official name.",
+      "socialName": "Preferred name",
+      "socialNamePlaceholder": "Enter your preferred name, if applicable",
+      "gender": "Gender",
+      "birthDate": "Date of birth",
+      "birthCountry": "Country of birth",
+      "nationality": "Nationality",
+      "nationalityPlaceholder": "E.g. American",
+      "documentType": "Document type",
+      "documentNumber": "Document number",
+      "documentNumberPlaceholder": "Enter a document issued by your country",
+      "phone": "Phone / WhatsApp"
+    },
+    "gender": {
+      "female": "Female",
+      "male": "Male",
+      "notInform": "Prefer not to say",
+      "other": "Other"
+    },
+    "address": {
+      "title": "Address",
+      "country": "Country of residence",
+      "postalCode": "Postal / ZIP code",
+      "postalCodePlaceholder": "Enter the postal code",
+      "street": "Street address",
+      "number": "Number",
+      "complement": "Address line 2",
+      "district": "District / Neighborhood",
+      "city": "City",
+      "region": "State / Province / Region",
+      "regionPlaceholder": "Enter the state, province or region"
+    },
+    "guardian": {
+      "title": "Parent or guardian",
+      "name": "Parent or guardian name",
+      "relationship": "Relationship",
+      "documentType": "Parent or guardian document type",
+      "documentNumber": "Parent or guardian document number",
+      "phone": "Parent or guardian phone",
+      "email": "Parent or guardian email"
+    },
+    "accessibility": {
+      "title": "Accessibility",
+      "hasNeed": "I have a disability or accessibility requirement",
+      "description": "Description of the accessibility requirement",
+      "notes": "Accessibility notes"
+    },
+    "documents": {
+      "CPF": "Brazilian CPF",
+      "RG": "Brazilian RG",
+      "NIF": "NIF",
+      "CARTAO_CIDADAO": "Citizen Card",
+      "SSN": "SSN",
+      "STATE_ID": "State ID",
+      "DNI": "DNI",
+      "NIE": "NIE",
+      "CNI": "National identity card",
+      "PASSPORT": "Passport",
+      "NATIONAL_ID": "National identity document",
+      "TAX_ID": "Tax identification document",
+      "RESIDENCE_PERMIT": "Residence permit",
+      "OTHER": "Other document"
+    },
+    "errors": {
+      "forbidden": "You do not have permission to change this profile.",
+      "studentNotFound": "The student profile was not found.",
+      "required": "Enter the document type and number, phone number and date of birth.",
+      "invalidPhone": "The phone number is not valid for the selected country.",
+      "invalidGuardianPhone": "The parent or guardian phone number is not valid for the selected country.",
+      "invalidPostalCode": "The postal code does not match the selected country format.",
+      "invalidDate": "The date of birth is invalid.",
+      "invalidCountry": "Select a valid country.",
+      "load": "We could not load your profile.",
+      "save": "We could not save your profile.",
+      "generic": "An unexpected problem occurred. Please try again."
+    }
   }
 }

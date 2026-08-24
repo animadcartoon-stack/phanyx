@@ -845,5 +845,226 @@
     "errors": {
       "load": "Erro ao carregar reuniões."
     }
+  },
+  "StudentNotes": {
+    "title": "Minhas notas",
+    "empty": "Nenhuma nota lançada até o momento.",
+    "labels": {
+      "grade": "Nota",
+      "status": "Situação",
+      "feedback": "Feedback"
+    },
+    "situations": {
+      "approved": "Aprovado",
+      "recovery": "Recuperação",
+      "failed": "Reprovado"
+    }
+  },
+  "StudentCertificates": {
+    "common": {
+      "notProvided": "Não informado"
+    },
+    "title": "Meus Certificados",
+    "description": "Aqui ficam os certificados gerados automaticamente após sua aprovação.",
+    "loading": "Carregando certificados...",
+    "empty": "Você ainda não possui certificados disponíveis.",
+    "subjectFallback": "Disciplina",
+    "code": "Código",
+    "issuedOn": "Emitido em",
+    "download": "Baixar certificado",
+    "validate": "Validar",
+    "errors": {
+      "load": "Não foi possível carregar seus certificados."
+    }
+  },
+  "StudentCertificateDetail": {
+    "title": "Certificado de Conclusão",
+    "certifyThat": "Certificamos que",
+    "completedSubject": "concluiu com aprovação a disciplina",
+    "workload": "Carga horária: {hours, plural, one {# hora} other {# horas}}",
+    "completionDate": "Data de conclusão: {date}",
+    "registrationNumber": "Registro nº {number}",
+    "printOrSave": "Imprimir / Salvar PDF",
+    "backToCertificates": "Voltar para certificados",
+    "notFound": "Certificado não encontrado.",
+    "back": "Voltar",
+    "notProvided": "Não informada"
+  },
+  "StudentFinancialBlock": {
+    "title": "Acesso bloqueado por inadimplência",
+    "greeting": "Olá, {name}.",
+    "studentFallback": "aluno",
+    "pendingDescription": "Seu acesso acadêmico está temporariamente bloqueado porque existem pendências financeiras em aberto.",
+    "releaseDescription": "Assim que o pagamento for regularizado e o status financeiro for atualizado, o acesso será liberado automaticamente.",
+    "goToLogin": "Ir para login",
+    "tryAgain": "Tentar novamente"
+  },
+  "StudentLessonPage": {
+    "common": {
+      "unavailable": "indisponível"
+    },
+    "enrollmentStatus": {
+      "active": "Ativa",
+      "pending": "Pendente",
+      "overdue": "Inadimplente",
+      "suspended": "Trancada",
+      "cancelled": "Cancelada",
+      "completed": "Concluída"
+    },
+    "blocked": {
+      "title": "Acesso à aula indisponível",
+      "statusPrefix": "Sua matrícula está com status",
+      "reason": "Por isso, o acesso ao conteúdo da aula está temporariamente bloqueado.",
+      "availableResources": "Você ainda pode acessar a área do aluno, consultar status, boletim e demais informações acadêmicas."
+    },
+    "lessonTitle": "Aula {id}",
+    "description": "Visualize os materiais e acompanhe o conteúdo da aula.",
+    "noMainMaterial": "Nenhum material disponível para esta aula.",
+    "materialsTitle": "Materiais da aula",
+    "noMaterials": "Nenhum material cadastrado.",
+    "typeLabel": "Tipo",
+    "open": "Abrir",
+    "materialTypes": {
+      "video": "Vídeo",
+      "audio": "Áudio",
+      "document": "Documento",
+      "image": "Imagem",
+      "link": "Link",
+      "file": "Arquivo"
+    },
+    "progress": {
+      "title": "Progresso",
+      "completed": "{percent}% concluído"
+    },
+    "nextSteps": {
+      "title": "Próximos passos",
+      "watchMain": "Assistir ao conteúdo principal",
+      "openSupplementary": "Abrir os materiais complementares",
+      "markCompleted": "Marcar aula como concluída"
+    }
+  },
+  "StudentActivityDetail": {
+    "back": "Voltar para atividades",
+    "loading": "Carregando atividade...",
+    "noDeadline": "Sem prazo",
+    "labels": {
+      "subject": "Disciplina",
+      "deadline": "Prazo",
+      "maximumScore": "Nota máxima",
+      "class": "Turma"
+    },
+    "submission": {
+      "title": "Enviar atividade",
+      "description": "Você pode enviar uma resposta em texto, um link e a URL de um arquivo.",
+      "textLabel": "Texto da entrega",
+      "textPlaceholder": "Escreva sua resposta ou suas observações",
+      "linkLabel": "Link",
+      "fileUrlLabel": "URL do arquivo",
+      "fileUrlPlaceholder": "https://arquivo...",
+      "submitting": "Enviando...",
+      "submit": "Enviar atividade",
+      "success": "Entrega enviada com sucesso."
+    },
+    "errors": {
+      "load": "Não foi possível carregar a atividade.",
+      "notFound": "Atividade não encontrada.",
+      "submit": "Não foi possível enviar a atividade. Tente novamente."
+    }
+  },
+  "StudentProfileCompletion": {
+    "title": "Complete seu cadastro",
+    "description": "Mantenha seus documentos, contratos e registros acadêmicos corretos com dados válidos para o seu país.",
+    "loading": "Carregando cadastro...",
+    "saving": "Salvando...",
+    "save": "Salvar cadastro",
+    "success": "Cadastro atualizado com sucesso.",
+    "common": {
+      "select": "Selecione"
+    },
+    "modal": {
+      "title": "Não foi possível concluir o cadastro",
+      "close": "Fechar",
+      "help": "Confira o problema informado, corrija o campo correspondente e tente novamente.",
+      "understood": "Entendi"
+    },
+    "personal": {
+      "title": "Dados pessoais",
+      "officialName": "Nome completo oficial",
+      "officialNameHelp": "Para alterar o nome oficial, fale com a secretaria.",
+      "socialName": "Nome social",
+      "socialNamePlaceholder": "Informe seu nome social, se desejar",
+      "gender": "Gênero",
+      "birthDate": "Data de nascimento",
+      "birthCountry": "País de nascimento",
+      "nationality": "Nacionalidade",
+      "nationalityPlaceholder": "Ex.: brasileira",
+      "documentType": "Tipo de documento",
+      "documentNumber": "Número do documento",
+      "documentNumberPlaceholder": "Informe o documento emitido pelo seu país",
+      "phone": "Telefone / WhatsApp"
+    },
+    "gender": {
+      "female": "Feminino",
+      "male": "Masculino",
+      "notInform": "Prefiro não informar",
+      "other": "Outro"
+    },
+    "address": {
+      "title": "Endereço",
+      "country": "País de residência",
+      "postalCode": "Código postal / CEP",
+      "postalCodePlaceholder": "Informe o código postal",
+      "street": "Endereço",
+      "number": "Número",
+      "complement": "Complemento",
+      "district": "Bairro / Distrito",
+      "city": "Cidade",
+      "region": "Estado / Província / Região",
+      "regionPlaceholder": "Informe o estado, província ou região"
+    },
+    "guardian": {
+      "title": "Responsável",
+      "name": "Nome do responsável",
+      "relationship": "Parentesco / vínculo",
+      "documentType": "Tipo de documento do responsável",
+      "documentNumber": "Número do documento do responsável",
+      "phone": "Telefone do responsável",
+      "email": "E-mail do responsável"
+    },
+    "accessibility": {
+      "title": "Acessibilidade",
+      "hasNeed": "Possuo necessidade especial ou necessidade de acessibilidade",
+      "description": "Descrição da necessidade especial",
+      "notes": "Observações de acessibilidade"
+    },
+    "documents": {
+      "CPF": "CPF",
+      "RG": "RG",
+      "NIF": "NIF",
+      "CARTAO_CIDADAO": "Cartão de Cidadão",
+      "SSN": "SSN",
+      "STATE_ID": "Documento estadual",
+      "DNI": "DNI",
+      "NIE": "NIE",
+      "CNI": "Carteira nacional de identidade",
+      "PASSPORT": "Passaporte",
+      "NATIONAL_ID": "Documento nacional de identidade",
+      "TAX_ID": "Documento fiscal",
+      "RESIDENCE_PERMIT": "Autorização de residência",
+      "OTHER": "Outro documento"
+    },
+    "errors": {
+      "forbidden": "Você não possui permissão para alterar este cadastro.",
+      "studentNotFound": "O cadastro do aluno não foi encontrado.",
+      "required": "Preencha o tipo e o número do documento, o telefone e a data de nascimento.",
+      "invalidPhone": "O telefone informado não é válido para o país selecionado.",
+      "invalidGuardianPhone": "O telefone do responsável não é válido para o país selecionado.",
+      "invalidPostalCode": "O código postal não corresponde ao formato do país de residência selecionado.",
+      "invalidDate": "A data de nascimento informada não é válida.",
+      "invalidCountry": "Selecione um país válido.",
+      "load": "Não foi possível carregar o cadastro.",
+      "save": "Não foi possível salvar o cadastro.",
+      "generic": "Ocorreu um problema inesperado. Tente novamente."
+    }
   }
 }

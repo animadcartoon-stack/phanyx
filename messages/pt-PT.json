@@ -845,5 +845,226 @@
     "errors": {
       "load": "Erro ao carregar as reuniões."
     }
+  },
+  "StudentNotes": {
+    "title": "As minhas notas",
+    "empty": "Ainda não foi lançada nenhuma nota.",
+    "labels": {
+      "grade": "Nota",
+      "status": "Situação",
+      "feedback": "Comentário"
+    },
+    "situations": {
+      "approved": "Aprovado",
+      "recovery": "Recuperação",
+      "failed": "Reprovado"
+    }
+  },
+  "StudentCertificates": {
+    "common": {
+      "notProvided": "Não informado"
+    },
+    "title": "Os meus certificados",
+    "description": "Aqui encontra os certificados gerados automaticamente após a sua aprovação.",
+    "loading": "A carregar certificados...",
+    "empty": "Ainda não possui certificados disponíveis.",
+    "subjectFallback": "Disciplina",
+    "code": "Código",
+    "issuedOn": "Emitido em",
+    "download": "Descarregar certificado",
+    "validate": "Validar",
+    "errors": {
+      "load": "Não foi possível carregar os seus certificados."
+    }
+  },
+  "StudentCertificateDetail": {
+    "title": "Certificado de Conclusão",
+    "certifyThat": "Certificamos que",
+    "completedSubject": "concluiu com aprovação a disciplina",
+    "workload": "Carga horária: {hours, plural, one {# hora} other {# horas}}",
+    "completionDate": "Data de conclusão: {date}",
+    "registrationNumber": "Registo n.º {number}",
+    "printOrSave": "Imprimir / Guardar PDF",
+    "backToCertificates": "Voltar aos certificados",
+    "notFound": "Certificado não encontrado.",
+    "back": "Voltar",
+    "notProvided": "Não informada"
+  },
+  "StudentFinancialBlock": {
+    "title": "Acesso bloqueado por incumprimento de pagamento",
+    "greeting": "Olá, {name}.",
+    "studentFallback": "aluno",
+    "pendingDescription": "O seu acesso académico está temporariamente bloqueado porque existem pagamentos pendentes.",
+    "releaseDescription": "Assim que o pagamento for regularizado e o estado financeiro for atualizado, o acesso será libertado automaticamente.",
+    "goToLogin": "Ir para o início de sessão",
+    "tryAgain": "Tentar novamente"
+  },
+  "StudentLessonPage": {
+    "common": {
+      "unavailable": "indisponível"
+    },
+    "enrollmentStatus": {
+      "active": "Ativa",
+      "pending": "Pendente",
+      "overdue": "Pagamento em atraso",
+      "suspended": "Suspensa",
+      "cancelled": "Cancelada",
+      "completed": "Concluída"
+    },
+    "blocked": {
+      "title": "Acesso à aula indisponível",
+      "statusPrefix": "A sua matrícula está com o estado",
+      "reason": "Por este motivo, o acesso ao conteúdo da aula está temporariamente bloqueado.",
+      "availableResources": "Ainda pode aceder à área do aluno, consultar o estado, as notas e outras informações académicas."
+    },
+    "lessonTitle": "Aula {id}",
+    "description": "Consulte os materiais e acompanhe o conteúdo da aula.",
+    "noMainMaterial": "Não existem materiais disponíveis para esta aula.",
+    "materialsTitle": "Materiais da aula",
+    "noMaterials": "Não existem materiais registados.",
+    "typeLabel": "Tipo",
+    "open": "Abrir",
+    "materialTypes": {
+      "video": "Vídeo",
+      "audio": "Áudio",
+      "document": "Documento",
+      "image": "Imagem",
+      "link": "Ligação",
+      "file": "Ficheiro"
+    },
+    "progress": {
+      "title": "Progresso",
+      "completed": "{percent}% concluído"
+    },
+    "nextSteps": {
+      "title": "Próximos passos",
+      "watchMain": "Ver o conteúdo principal",
+      "openSupplementary": "Abrir os materiais complementares",
+      "markCompleted": "Marcar a aula como concluída"
+    }
+  },
+  "StudentActivityDetail": {
+    "back": "Voltar às atividades",
+    "loading": "A carregar a atividade...",
+    "noDeadline": "Sem prazo",
+    "labels": {
+      "subject": "Disciplina",
+      "deadline": "Prazo",
+      "maximumScore": "Nota máxima",
+      "class": "Turma"
+    },
+    "submission": {
+      "title": "Enviar atividade",
+      "description": "Pode enviar uma resposta em texto, uma ligação e o URL de um ficheiro.",
+      "textLabel": "Texto da entrega",
+      "textPlaceholder": "Escreva a sua resposta ou as suas observações",
+      "linkLabel": "Ligação",
+      "fileUrlLabel": "URL do ficheiro",
+      "fileUrlPlaceholder": "https://ficheiro...",
+      "submitting": "A enviar...",
+      "submit": "Enviar atividade",
+      "success": "Entrega enviada com sucesso."
+    },
+    "errors": {
+      "load": "Não foi possível carregar a atividade.",
+      "notFound": "Atividade não encontrada.",
+      "submit": "Não foi possível enviar a atividade. Tente novamente."
+    }
+  },
+  "StudentProfileCompletion": {
+    "title": "Complete o seu registo",
+    "description": "Mantenha os seus documentos, contratos e registos académicos corretos com dados válidos para o seu país.",
+    "loading": "A carregar o registo...",
+    "saving": "A guardar...",
+    "save": "Guardar registo",
+    "success": "Registo atualizado com sucesso.",
+    "common": {
+      "select": "Selecione"
+    },
+    "modal": {
+      "title": "Não foi possível concluir o registo",
+      "close": "Fechar",
+      "help": "Verifique o problema indicado, corrija o campo correspondente e tente novamente.",
+      "understood": "Compreendi"
+    },
+    "personal": {
+      "title": "Dados pessoais",
+      "officialName": "Nome completo oficial",
+      "officialNameHelp": "Para alterar o nome oficial, contacte a secretaria.",
+      "socialName": "Nome social",
+      "socialNamePlaceholder": "Indique o seu nome social, se desejar",
+      "gender": "Género",
+      "birthDate": "Data de nascimento",
+      "birthCountry": "País de nascimento",
+      "nationality": "Nacionalidade",
+      "nationalityPlaceholder": "Ex.: portuguesa",
+      "documentType": "Tipo de documento",
+      "documentNumber": "Número do documento",
+      "documentNumberPlaceholder": "Indique o documento emitido pelo seu país",
+      "phone": "Telefone / WhatsApp"
+    },
+    "gender": {
+      "female": "Feminino",
+      "male": "Masculino",
+      "notInform": "Prefiro não indicar",
+      "other": "Outro"
+    },
+    "address": {
+      "title": "Morada",
+      "country": "País de residência",
+      "postalCode": "Código postal",
+      "postalCodePlaceholder": "Indique o código postal",
+      "street": "Morada",
+      "number": "Número",
+      "complement": "Complemento",
+      "district": "Freguesia / Distrito",
+      "city": "Localidade",
+      "region": "Distrito / Região",
+      "regionPlaceholder": "Indique o distrito ou região"
+    },
+    "guardian": {
+      "title": "Responsável",
+      "name": "Nome do responsável",
+      "relationship": "Parentesco / vínculo",
+      "documentType": "Tipo de documento do responsável",
+      "documentNumber": "Número do documento do responsável",
+      "phone": "Telefone do responsável",
+      "email": "E-mail do responsável"
+    },
+    "accessibility": {
+      "title": "Acessibilidade",
+      "hasNeed": "Tenho necessidades especiais ou necessidades de acessibilidade",
+      "description": "Descrição da necessidade especial",
+      "notes": "Observações de acessibilidade"
+    },
+    "documents": {
+      "CPF": "CPF",
+      "RG": "RG",
+      "NIF": "NIF",
+      "CARTAO_CIDADAO": "Cartão de Cidadão",
+      "SSN": "SSN",
+      "STATE_ID": "Documento estadual",
+      "DNI": "DNI",
+      "NIE": "NIE",
+      "CNI": "Cartão nacional de identidade",
+      "PASSPORT": "Passaporte",
+      "NATIONAL_ID": "Documento nacional de identidade",
+      "TAX_ID": "Documento fiscal",
+      "RESIDENCE_PERMIT": "Título de residência",
+      "OTHER": "Outro documento"
+    },
+    "errors": {
+      "forbidden": "Não tem permissão para alterar este registo.",
+      "studentNotFound": "O registo do aluno não foi encontrado.",
+      "required": "Preencha o tipo e o número do documento, o telefone e a data de nascimento.",
+      "invalidPhone": "O telefone indicado não é válido para o país selecionado.",
+      "invalidGuardianPhone": "O telefone do responsável não é válido para o país selecionado.",
+      "invalidPostalCode": "O código postal não corresponde ao formato do país de residência selecionado.",
+      "invalidDate": "A data de nascimento indicada não é válida.",
+      "invalidCountry": "Selecione um país válido.",
+      "load": "Não foi possível carregar o registo.",
+      "save": "Não foi possível guardar o registo.",
+      "generic": "Ocorreu um problema inesperado. Tente novamente."
+    }
   }
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 type Nota = {
   alunoId: string;
@@ -12,7 +13,9 @@ type Nota = {
 };
 
 export default function NotasAlunoPage() {
-  // 🔹 SIMULAÇÃO: aluno logado
+  const t = useTranslations("StudentNotes");
+
+  // Simulação existente: aluno logado.
   const alunoId = "1";
 
   const [notas, setNotas] = useState<Nota[]>([]);
@@ -23,15 +26,24 @@ export default function NotasAlunoPage() {
     for (let i = 0; i < localStorage.length; i++) {
       const chave = localStorage.key(i);
 
-      if (chave?.startsWith("nota-")) {
-        const item = localStorage.getItem(chave);
-        if (item) {
-          const nota = JSON.parse(item);
+      if (!chave?.startsWith("nota-")) {
+        continue;
+      }
 
-          if (nota.alunoId === alunoId) {
-            todasNotas.push(nota);
-          }
+      const item = localStorage.getItem(chave);
+
+      if (!item) {
+        continue;
+      }
+
+      try {
+        const nota = JSON.parse(item) as Nota;
+
+        if (nota.alunoId === alunoId) {
+          todasNotas.push(nota);
         }
+      } catch (error) {
+        console.error(`Nota inválida armazenada em ${chave}:`, error);
       }
     }
 
@@ -39,47 +51,49 @@ export default function NotasAlunoPage() {
   }, []);
 
   function situacao(nota: number) {
-    if (nota >= 7) return "✅ Aprovado";
-    if (nota >= 5) return "⚠️ Recuperação";
-    return "❌ Reprovado";
+    if (nota >= 7) {
+      return `✅ ${t("situations.approved")}`;
+    }
+
+    if (nota >= 5) {
+      return `⚠️ ${t("situations.recovery")}`;
+    }
+
+    return `❌ ${t("situations.failed")}`;
   }
 
   return (
-    <main className="p-8 bg-white text-gray-900 min-h-screen space-y-6">
-      <h1 className="text-3xl font-bold">
-        📊 Minhas Notas
-      </h1>
+    <main className="min-h-screen space-y-6 bg-white p-8 text-slate-900 dark:bg-slate-950 dark:text-white">
+      <h1 className="text-3xl font-bold">📊 {t("title")}</h1>
 
       {notas.length === 0 ? (
-        <p className="text-gray-600">
-          Nenhuma nota lançada até o momento.
-        </p>
+        <p className="text-slate-600 dark:text-slate-300">{t("empty")}</p>
       ) : (
         <div className="space-y-4">
           {notas.map((nota, index) => (
             <div
-              key={index}
-              className="border rounded-lg p-6 space-y-2"
+              key={`${nota.disciplina}-${index}`}
+              className="space-y-2 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900"
             >
-              <h2 className="text-xl font-semibold">
+              <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
                 📘 {nota.disciplina}
               </h2>
 
-              <p>
-                <strong>Nota:</strong>{" "}
-                <span className="text-blue-600 font-bold">
+              <p className="text-slate-700 dark:text-slate-200">
+                <strong>{t("labels.grade")}:</strong>{" "}
+                <span className="font-bold text-blue-600 dark:text-blue-400">
                   {nota.nota}
                 </span>
               </p>
 
-              <p>
-                <strong>Situação:</strong>{" "}
+              <p className="text-slate-700 dark:text-slate-200">
+                <strong>{t("labels.status")}:</strong>{" "}
                 {situacao(Number(nota.nota))}
               </p>
 
               {nota.feedback && (
-                <p className="text-gray-700">
-                  <strong>Feedback:</strong>{" "}
+                <p className="text-slate-700 dark:text-slate-200">
+                  <strong>{t("labels.feedback")}:</strong>{" "}
                   {nota.feedback}
                 </p>
               )}

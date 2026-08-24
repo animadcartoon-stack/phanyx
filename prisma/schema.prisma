@@ -578,6 +578,15 @@ model Aluno {
   rg                           String?
   slug                         String?
   telefone                     String?
+  nacionalidade                String?
+  paisNascimento               String?
+  paisResidencia               String?
+  tipoDocumento                String?
+  numeroDocumento              String?
+  paisTelefone                 String?
+  tipoDocumentoResponsavel     String?
+  numeroDocumentoResponsavel   String?
+  paisTelefoneResponsavel      String?
   cpfResponsavel               String?
   emailResponsavel             String?
   nomeResponsavel              String?

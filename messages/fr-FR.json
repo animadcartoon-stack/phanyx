@@ -845,5 +845,226 @@
     "errors": {
       "load": "Erreur lors du chargement des réunions."
     }
+  },
+  "StudentNotes": {
+    "title": "Mes notes",
+    "empty": "Aucune note n’a encore été publiée.",
+    "labels": {
+      "grade": "Note",
+      "status": "Statut",
+      "feedback": "Commentaire"
+    },
+    "situations": {
+      "approved": "Admis",
+      "recovery": "Rattrapage",
+      "failed": "Non admis"
+    }
+  },
+  "StudentCertificates": {
+    "common": {
+      "notProvided": "Non renseigné"
+    },
+    "title": "Mes certificats",
+    "description": "Vous trouverez ici les certificats générés automatiquement après votre réussite.",
+    "loading": "Chargement des certificats...",
+    "empty": "Vous n’avez pas encore de certificat disponible.",
+    "subjectFallback": "Matière",
+    "code": "Code",
+    "issuedOn": "Délivré le",
+    "download": "Télécharger le certificat",
+    "validate": "Valider",
+    "errors": {
+      "load": "Impossible de charger vos certificats."
+    }
+  },
+  "StudentCertificateDetail": {
+    "title": "Certificat de réussite",
+    "certifyThat": "Nous certifions que",
+    "completedSubject": "a validé avec succès la matière",
+    "workload": "Volume horaire : {hours, plural, one {# heure} other {# heures}}",
+    "completionDate": "Date de fin : {date}",
+    "registrationNumber": "Nº d’enregistrement {number}",
+    "printOrSave": "Imprimer / Enregistrer en PDF",
+    "backToCertificates": "Retour aux certificats",
+    "notFound": "Certificat introuvable.",
+    "back": "Retour",
+    "notProvided": "Non renseignée"
+  },
+  "StudentFinancialBlock": {
+    "title": "Accès bloqué en raison d’un solde impayé",
+    "greeting": "Bonjour, {name}.",
+    "studentFallback": "étudiant",
+    "pendingDescription": "Votre accès académique est temporairement bloqué en raison de paiements en attente.",
+    "releaseDescription": "L’accès sera rétabli automatiquement après la régularisation du paiement et la mise à jour de votre situation financière.",
+    "goToLogin": "Accéder à la connexion",
+    "tryAgain": "Réessayer"
+  },
+  "StudentLessonPage": {
+    "common": {
+      "unavailable": "indisponible"
+    },
+    "enrollmentStatus": {
+      "active": "Active",
+      "pending": "En attente",
+      "overdue": "Paiement en retard",
+      "suspended": "Suspendue",
+      "cancelled": "Annulée",
+      "completed": "Terminée"
+    },
+    "blocked": {
+      "title": "Accès au cours indisponible",
+      "statusPrefix": "Le statut de votre inscription est",
+      "reason": "L’accès au contenu de ce cours est donc temporairement bloqué.",
+      "availableResources": "Vous pouvez toujours accéder à l’espace étudiant pour consulter votre statut, vos notes et les autres informations académiques."
+    },
+    "lessonTitle": "Cours {id}",
+    "description": "Consultez les ressources et suivez le contenu du cours.",
+    "noMainMaterial": "Aucune ressource n’est disponible pour ce cours.",
+    "materialsTitle": "Ressources du cours",
+    "noMaterials": "Aucune ressource n’a été ajoutée.",
+    "typeLabel": "Type",
+    "open": "Ouvrir",
+    "materialTypes": {
+      "video": "Vidéo",
+      "audio": "Audio",
+      "document": "Document",
+      "image": "Image",
+      "link": "Lien",
+      "file": "Fichier"
+    },
+    "progress": {
+      "title": "Progression",
+      "completed": "{percent}% terminé"
+    },
+    "nextSteps": {
+      "title": "Prochaines étapes",
+      "watchMain": "Consulter le contenu principal",
+      "openSupplementary": "Ouvrir les ressources complémentaires",
+      "markCompleted": "Marquer le cours comme terminé"
+    }
+  },
+  "StudentActivityDetail": {
+    "back": "Retour aux devoirs",
+    "loading": "Chargement du devoir...",
+    "noDeadline": "Sans date limite",
+    "labels": {
+      "subject": "Matière",
+      "deadline": "Date limite",
+      "maximumScore": "Note maximale",
+      "class": "Classe"
+    },
+    "submission": {
+      "title": "Remettre le devoir",
+      "description": "Vous pouvez envoyer une réponse écrite, un lien et l'URL d'un fichier.",
+      "textLabel": "Texte de la remise",
+      "textPlaceholder": "Rédigez votre réponse ou vos observations",
+      "linkLabel": "Lien",
+      "fileUrlLabel": "URL du fichier",
+      "fileUrlPlaceholder": "https://fichier...",
+      "submitting": "Envoi en cours...",
+      "submit": "Remettre le devoir",
+      "success": "Devoir remis avec succès."
+    },
+    "errors": {
+      "load": "Impossible de charger le devoir.",
+      "notFound": "Devoir introuvable.",
+      "submit": "Impossible de remettre le devoir. Veuillez réessayer."
+    }
+  },
+  "StudentProfileCompletion": {
+    "title": "Complétez votre profil",
+    "description": "Maintenez vos documents, contrats et dossiers académiques à jour avec des données valables dans votre pays.",
+    "loading": "Chargement du profil...",
+    "saving": "Enregistrement...",
+    "save": "Enregistrer le profil",
+    "success": "Profil mis à jour avec succès.",
+    "common": {
+      "select": "Sélectionnez"
+    },
+    "modal": {
+      "title": "Impossible de compléter le profil",
+      "close": "Fermer",
+      "help": "Consultez le problème indiqué, corrigez le champ correspondant puis réessayez.",
+      "understood": "Compris"
+    },
+    "personal": {
+      "title": "Informations personnelles",
+      "officialName": "Nom complet officiel",
+      "officialNameHelp": "Pour modifier votre nom officiel, contactez le secrétariat.",
+      "socialName": "Nom d'usage",
+      "socialNamePlaceholder": "Indiquez votre nom d'usage, si nécessaire",
+      "gender": "Genre",
+      "birthDate": "Date de naissance",
+      "birthCountry": "Pays de naissance",
+      "nationality": "Nationalité",
+      "nationalityPlaceholder": "Ex. : française",
+      "documentType": "Type de document",
+      "documentNumber": "Numéro du document",
+      "documentNumberPlaceholder": "Indiquez un document délivré par votre pays",
+      "phone": "Téléphone / WhatsApp"
+    },
+    "gender": {
+      "female": "Féminin",
+      "male": "Masculin",
+      "notInform": "Je préfère ne pas répondre",
+      "other": "Autre"
+    },
+    "address": {
+      "title": "Adresse",
+      "country": "Pays de résidence",
+      "postalCode": "Code postal",
+      "postalCodePlaceholder": "Indiquez le code postal",
+      "street": "Adresse",
+      "number": "Numéro",
+      "complement": "Complément d'adresse",
+      "district": "Quartier / District",
+      "city": "Ville",
+      "region": "État / Province / Région",
+      "regionPlaceholder": "Indiquez l'État, la province ou la région"
+    },
+    "guardian": {
+      "title": "Responsable légal",
+      "name": "Nom du responsable",
+      "relationship": "Lien de parenté",
+      "documentType": "Type de document du responsable",
+      "documentNumber": "Numéro du document du responsable",
+      "phone": "Téléphone du responsable",
+      "email": "E-mail du responsable"
+    },
+    "accessibility": {
+      "title": "Accessibilité",
+      "hasNeed": "J'ai un besoin particulier ou un besoin d'accessibilité",
+      "description": "Description du besoin particulier",
+      "notes": "Remarques sur l'accessibilité"
+    },
+    "documents": {
+      "CPF": "CPF brésilien",
+      "RG": "RG brésilien",
+      "NIF": "NIF",
+      "CARTAO_CIDADAO": "Carte de citoyen",
+      "SSN": "SSN",
+      "STATE_ID": "Document d'État",
+      "DNI": "DNI",
+      "NIE": "NIE",
+      "CNI": "Carte nationale d'identité",
+      "PASSPORT": "Passeport",
+      "NATIONAL_ID": "Document national d'identité",
+      "TAX_ID": "Document fiscal",
+      "RESIDENCE_PERMIT": "Titre de séjour",
+      "OTHER": "Autre document"
+    },
+    "errors": {
+      "forbidden": "Vous n'êtes pas autorisé à modifier ce profil.",
+      "studentNotFound": "Le profil de l'étudiant est introuvable.",
+      "required": "Indiquez le type et le numéro du document, le téléphone et la date de naissance.",
+      "invalidPhone": "Le téléphone n'est pas valable pour le pays sélectionné.",
+      "invalidGuardianPhone": "Le téléphone du responsable n'est pas valable pour le pays sélectionné.",
+      "invalidPostalCode": "Le code postal ne correspond pas au format du pays sélectionné.",
+      "invalidDate": "La date de naissance n'est pas valable.",
+      "invalidCountry": "Sélectionnez un pays valable.",
+      "load": "Impossible de charger le profil.",
+      "save": "Impossible d'enregistrer le profil.",
+      "generic": "Un problème inattendu s'est produit. Réessayez."
+    }
   }
 }
