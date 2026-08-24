@@ -29251,3 +29251,23 @@ html:not(.dark)
   color: #dbeafe !important;
   -webkit-text-fill-color: #dbeafe !important;
 }
+
+/* PHANYX — corrige o card Total da página de presenças */
+html:not(.dark)
+  .phanyx-aluno-conteudo
+  .bg-slate-50 {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-aluno-conteudo
+  .bg-slate-50
+  :is(p, span, strong) {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
