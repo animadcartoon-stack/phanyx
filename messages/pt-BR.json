@@ -694,5 +694,45 @@
       "upload": "Erro ao enviar arquivo.",
       "submit": "Erro ao enviar atividade."
     }
+  },
+  "StudentAttendance": {
+    "common": {
+      "notProvided": "Não informado"
+    },
+    "title": "Minha Presença",
+    "subtitle": "Acompanhe sua frequência por aula e veja seu resumo de presença.",
+    "loading": "Carregando seus registros de frequência...",
+    "emptyData": "Nenhum dado de presença disponível.",
+    "errors": {
+      "load": "Erro ao carregar presenças"
+    },
+    "summary": {
+      "total": "Total",
+      "present": "Presentes",
+      "absences": "Faltas",
+      "excused": "Justificadas",
+      "medicalCertificates": "Atestados"
+    },
+    "frequency": {
+      "title": "Frequência",
+      "description": "Considerando presenças, justificadas e atestados como frequência válida."
+    },
+    "history": {
+      "title": "Histórico de presença",
+      "records": "{count, plural, =0 {Nenhum registro} one {# registro} other {# registros}}",
+      "empty": "Nenhum registro de presença encontrado."
+    },
+    "statuses": {
+      "present": "Presente",
+      "absent": "Falta",
+      "excused": "Justificada",
+      "medicalCertificate": "Atestado"
+    },
+    "item": {
+      "lessonUnknown": "Aula não informada",
+      "classLabel": "Turma",
+      "dateLabel": "Data",
+      "observation": "Observação"
+    }
   }
 }
