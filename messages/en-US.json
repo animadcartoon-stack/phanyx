@@ -734,5 +734,63 @@
       "dateLabel": "Date",
       "observation": "Note"
     }
+  },
+  "StudentGradebook": {
+    "common": {
+      "notProvided": "Not provided"
+    },
+    "hero": {
+      "eyebrow": "Academic gradebook",
+      "title": "Track your grades, averages and performance by subject",
+      "description": "View your completed assessments, subject averages and overall academic progress in a clear, organized and professional environment."
+    },
+    "actions": {
+      "backToDashboard": "Back to dashboard",
+      "refreshGradebook": "Refresh gradebook"
+    },
+    "metrics": {
+      "subjects": {
+        "title": "Subjects",
+        "heroDescription": "Total subjects in your gradebook.",
+        "cardDescription": "Number of subjects with recorded grades."
+      },
+      "exams": {
+        "title": "Recorded assessments",
+        "cardDescription": "Total assessments linked to your current academic history."
+      },
+      "overallAverage": {
+        "title": "Overall average",
+        "heroDescription": "Consolidated average based on recorded subjects.",
+        "cardDescription": "Consolidated overview of your academic performance."
+      }
+    },
+    "loading": "Loading gradebook...",
+    "errors": {
+      "load": "Unable to load gradebook"
+    },
+    "empty": {
+      "title": "No grades found",
+      "description": "Your completed assessments will appear here once they are available."
+    },
+    "subject": {
+      "examCount": "{count, plural, =0 {No assessments recorded} one {# assessment recorded} other {# assessments recorded}}",
+      "average": "Average: {value}"
+    },
+    "exam": {
+      "gradeLabel": "Grade",
+      "gradeNotReleased": "Grade not released yet",
+      "statusLabel": "Status",
+      "status": {
+        "finished": "Completed",
+        "inProgress": "In progress"
+      },
+      "finishedAtLabel": "Completed",
+      "awaitingRelease": "Awaiting release"
+    },
+    "performance": {
+      "good": "Good performance",
+      "attention": "Needs attention",
+      "low": "Low performance"
+    }
   }
 }

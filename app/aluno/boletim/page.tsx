@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 type ProvaBoletim = {
   tentativaId: number;
@@ -32,35 +33,34 @@ type BoletimResponse = {
   boletim: DisciplinaBoletim[];
 };
 
-function formatarData(data?: string | null) {
-  if (!data) return "-";
-
-  try {
-    return new Date(data).toLocaleString("pt-BR");
-  } catch {
-    return data;
-  }
-}
-
 function getMediaClass(media: number) {
-  if (media >= 7) return "text-emerald-700 bg-emerald-100";
-  if (media >= 5) return "text-amber-700 bg-amber-100";
-  return "text-red-700 bg-red-100";
+  if (media >= 7) {
+    return "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-200";
+  }
+
+  if (media >= 5) {
+    return "bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-200";
+  }
+
+  return "bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-200";
 }
 
 function getDesempenhoClass(nota: number) {
-  if (nota >= 7) return "bg-emerald-100 text-emerald-700";
-  if (nota >= 5) return "bg-amber-100 text-amber-700";
-  return "bg-red-100 text-red-700";
-}
+  if (nota >= 7) {
+    return "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-200";
+  }
 
-function getDesempenhoLabel(nota: number) {
-  if (nota >= 7) return "Bom desempenho";
-  if (nota >= 5) return "Atenção";
-  return "Baixo desempenho";
+  if (nota >= 5) {
+    return "bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-200";
+  }
+
+  return "bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-200";
 }
 
 export default function AlunoBoletimPage() {
+  const locale = useLocale();
+  const t = useTranslations("StudentGradebook");
+
   const [data, setData] = useState<BoletimResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
@@ -78,12 +78,12 @@ export default function AlunoBoletimPage() {
       const json = await res.json();
 
       if (!res.ok) {
-        throw new Error(json.error || "Erro ao carregar boletim");
+        throw new Error(json.error || t("errors.load"));
       }
 
       setData(json);
-    } catch (e: any) {
-      setErro(e.message || "Erro ao carregar boletim");
+    } catch (e: unknown) {
+      setErro(e instanceof Error ? e.message : t("errors.load"));
     } finally {
       setLoading(false);
     }
@@ -91,24 +91,26 @@ export default function AlunoBoletimPage() {
 
   useEffect(() => {
     carregarBoletim();
+    // A consulta deve ser refeita somente quando a página for aberta.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const mediaGeral = useMemo(() => {
-  if (!data || data.boletim.length === 0) return 0;
+    if (!data || data.boletim.length === 0) return 0;
 
-  const disciplinasComNota = data.boletim.filter((item) =>
-    item.provas.some((prova) => prova.notaLiberada && prova.nota !== null)
-  );
+    const disciplinasComNota = data.boletim.filter((item) =>
+      item.provas.some((prova) => prova.notaLiberada && prova.nota !== null)
+    );
 
-  if (disciplinasComNota.length === 0) return 0;
+    if (disciplinasComNota.length === 0) return 0;
 
-  const soma = disciplinasComNota.reduce(
-    (acc, item) => acc + Number(item.media || 0),
-    0
-  );
+    const soma = disciplinasComNota.reduce(
+      (acc, item) => acc + Number(item.media || 0),
+      0
+    );
 
-  return Number((soma / disciplinasComNota.length).toFixed(1));
-}, [data]);
+    return Number((soma / disciplinasComNota.length).toFixed(1));
+  }, [data]);
 
   const totalProvas = useMemo(() => {
     if (!data) return 0;
@@ -116,23 +118,49 @@ export default function AlunoBoletimPage() {
     return data.boletim.reduce((acc, item) => acc + item.provas.length, 0);
   }, [data]);
 
+  function formatarData(valor?: string | null) {
+    if (!valor) return t("common.notProvided");
+
+    const dataFormatada = new Date(valor);
+
+    if (Number.isNaN(dataFormatada.getTime())) {
+      return valor;
+    }
+
+    return new Intl.DateTimeFormat(locale, {
+      dateStyle: "short",
+      timeStyle: "short",
+    }).format(dataFormatada);
+  }
+
+  function formatarNumero(valor: number | null | undefined) {
+    return new Intl.NumberFormat(locale, {
+      maximumFractionDigits: 2,
+    }).format(Number(valor ?? 0));
+  }
+
+  function getDesempenhoLabel(nota: number) {
+    if (nota >= 7) return t("performance.good");
+    if (nota >= 5) return t("performance.attention");
+    return t("performance.low");
+  }
+
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <div className="mx-auto max-w-6xl space-y-6 p-6">
-        <section className="aluno-boletim-hero overflow-hidden rounded-[28px] border border-slate-200 bg-gradient-to-r from-slate-950 via-blue-950 to-slate-900 text-white shadow-sm">
+        <section className="aluno-boletim-hero overflow-hidden rounded-[28px] border border-slate-200 bg-gradient-to-r from-slate-950 via-blue-950 to-slate-900 text-white shadow-sm dark:border-slate-700">
           <div className="grid gap-8 px-6 py-8 md:px-8 lg:grid-cols-[1.3fr_0.8fr] lg:items-center">
             <div>
               <p className="text-sm font-medium uppercase tracking-[0.18em] text-blue-200">
-                Boletim acadêmico
+                {t("hero.eyebrow")}
               </p>
 
               <h1 className="mt-3 text-3xl font-bold leading-tight md:text-4xl">
-                Acompanhe suas notas, médias e desempenho por disciplina
+                {t("hero.title")}
               </h1>
 
               <p className="mt-4 max-w-3xl text-sm leading-7 text-blue-100 md:text-base">
-                Visualize suas provas concluídas, sua média por disciplina e seu
-                panorama acadêmico em um ambiente claro, organizado e profissional.
+                {t("hero.description")}
               </p>
 
               <div className="mt-6 flex flex-wrap gap-3">
@@ -140,14 +168,14 @@ export default function AlunoBoletimPage() {
                   href="/aluno"
                   className="inline-flex items-center justify-center rounded-xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
                 >
-                  Voltar ao painel
+                  {t("actions.backToDashboard")}
                 </a>
 
                 <a
                   href="/aluno/boletim"
                   className="inline-flex items-center justify-center rounded-xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/15"
                 >
-                  Atualizar boletim
+                  {t("actions.refreshGradebook")}
                 </a>
               </div>
             </div>
@@ -155,25 +183,25 @@ export default function AlunoBoletimPage() {
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
               <div className="rounded-2xl border border-white/10 bg-white/10 p-5 backdrop-blur">
                 <p className="text-xs uppercase tracking-[0.18em] text-blue-200">
-                  Disciplinas
+                  {t("metrics.subjects.title")}
                 </p>
                 <p className="mt-2 text-2xl font-bold text-white">
                   {loading ? "..." : data?.totalDisciplinas ?? 0}
                 </p>
                 <p className="mt-2 text-sm text-blue-100">
-                  Total de disciplinas no seu boletim.
+                  {t("metrics.subjects.heroDescription")}
                 </p>
               </div>
 
               <div className="rounded-2xl border border-white/10 bg-white/10 p-5 backdrop-blur">
                 <p className="text-xs uppercase tracking-[0.18em] text-blue-200">
-                  Média geral
+                  {t("metrics.overallAverage.title")}
                 </p>
                 <p className="mt-2 text-2xl font-bold text-white">
-                  {loading ? "..." : mediaGeral}
+                  {loading ? "..." : formatarNumero(mediaGeral)}
                 </p>
                 <p className="mt-2 text-sm text-blue-100">
-                  Média consolidada com base nas disciplinas registradas.
+                  {t("metrics.overallAverage.heroDescription")}
                 </p>
               </div>
             </div>
@@ -181,13 +209,13 @@ export default function AlunoBoletimPage() {
         </section>
 
         {loading && (
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
-            Carregando boletim...
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
+            {t("loading")}
           </div>
         )}
 
         {!loading && erro && (
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700 shadow-sm">
+          <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700 shadow-sm dark:border-red-800 dark:bg-red-950/40 dark:text-red-200">
             {erro}
           </div>
         )}
@@ -195,51 +223,50 @@ export default function AlunoBoletimPage() {
         {!loading && !erro && data && (
           <>
             <section className="grid gap-4 md:grid-cols-3">
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
-                  Disciplinas
+              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                <p className="text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-300">
+                  {t("metrics.subjects.title")}
                 </p>
-                <p className="mt-2 text-2xl font-bold text-slate-900">
+                <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
                   {data.totalDisciplinas}
                 </p>
-                <p className="mt-2 text-sm text-slate-500">
-                  Quantidade de disciplinas com notas registradas.
+                <p className="mt-2 text-sm text-slate-500 dark:text-slate-300">
+                  {t("metrics.subjects.cardDescription")}
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
-                  Provas registradas
+              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                <p className="text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-300">
+                  {t("metrics.exams.title")}
                 </p>
-                <p className="mt-2 text-2xl font-bold text-slate-900">
+                <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
                   {totalProvas}
                 </p>
-                <p className="mt-2 text-sm text-slate-500">
-                  Total de provas vinculadas ao seu histórico atual.
+                <p className="mt-2 text-sm text-slate-500 dark:text-slate-300">
+                  {t("metrics.exams.cardDescription")}
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
-                  Média geral
+              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                <p className="text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-300">
+                  {t("metrics.overallAverage.title")}
                 </p>
-                <p className="mt-2 text-2xl font-bold text-slate-900">
-                  {mediaGeral}
+                <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
+                  {formatarNumero(mediaGeral)}
                 </p>
-                <p className="mt-2 text-sm text-slate-500">
-                  Panorama consolidado do seu desempenho acadêmico.
+                <p className="mt-2 text-sm text-slate-500 dark:text-slate-300">
+                  {t("metrics.overallAverage.cardDescription")}
                 </p>
               </div>
             </section>
 
             {data.boletim.length === 0 && (
-              <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-                <h2 className="text-lg font-semibold text-slate-900">
-                  Nenhuma nota encontrada
+              <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+                  {t("empty.title")}
                 </h2>
-                <p className="mt-2 text-sm text-slate-500">
-                  Assim que você concluir provas, elas aparecerão aqui no seu
-                  boletim.
+                <p className="mt-2 text-sm text-slate-500 dark:text-slate-300">
+                  {t("empty.description")}
                 </p>
               </div>
             )}
@@ -248,15 +275,17 @@ export default function AlunoBoletimPage() {
               {data.boletim.map((disciplina) => (
                 <div
                   key={disciplina.disciplinaId}
-                  className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+                  className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900"
                 >
-                  <div className="flex flex-col gap-4 border-b border-slate-200 px-6 py-5 md:flex-row md:items-center md:justify-between">
+                  <div className="flex flex-col gap-4 border-b border-slate-200 px-6 py-5 dark:border-slate-700 md:flex-row md:items-center md:justify-between">
                     <div>
-                      <h2 className="text-lg font-semibold text-slate-900">
+                      <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
                         {disciplina.disciplinaNome}
                       </h2>
-                      <p className="text-sm text-slate-500">
-                        {disciplina.provas.length} prova(s) registrada(s)
+                      <p className="text-sm text-slate-500 dark:text-slate-300">
+                        {t("subject.examCount", {
+                          count: disciplina.provas.length,
+                        })}
                       </p>
                     </div>
 
@@ -265,50 +294,53 @@ export default function AlunoBoletimPage() {
                         disciplina.media
                       )}`}
                     >
-                      Média: {disciplina.media}
+                      {t("subject.average", {
+                        value: formatarNumero(disciplina.media),
+                      })}
                     </span>
                   </div>
 
-                  <div className="divide-y divide-slate-200">
+                  <div className="divide-y divide-slate-200 dark:divide-slate-700">
                     {disciplina.provas.map((prova) => (
                       <div
                         key={prova.tentativaId}
                         className="flex flex-col gap-4 px-6 py-5 md:flex-row md:items-center md:justify-between"
                       >
                         <div className="space-y-2">
-                          <h3 className="font-medium text-slate-900">
+                          <h3 className="font-medium text-slate-900 dark:text-white">
                             {prova.titulo}
                           </h3>
 
-                          <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-500">
+                          <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-500 dark:text-slate-300">
                             <span>
-                              <strong className="font-medium text-slate-700">
-  Nota:
-</strong>{" "}
+                              <strong className="font-medium text-slate-700 dark:text-slate-100">
+                                {t("exam.gradeLabel")}:
+                              </strong>{" "}
 
-{prova.notaLiberada ? (
-  <>
-    {prova.nota} / {prova.notaMaxima}
-  </>
-) : (
-  <span className="font-medium text-amber-600">
-    Nota ainda não liberada
-  </span>
-)}
+                              {prova.notaLiberada ? (
+                                <>
+                                  {formatarNumero(prova.nota)} /{" "}
+                                  {formatarNumero(prova.notaMaxima)}
+                                </>
+                              ) : (
+                                <span className="font-medium text-amber-600 dark:text-amber-300">
+                                  {t("exam.gradeNotReleased")}
+                                </span>
+                              )}
                             </span>
 
                             <span>
-                              <strong className="font-medium text-slate-700">
-                                Status:
+                              <strong className="font-medium text-slate-700 dark:text-slate-100">
+                                {t("exam.statusLabel")}:
                               </strong>{" "}
                               {prova.status === "FINALIZADA"
-                                ? "Finalizada"
-                                : "Em andamento"}
+                                ? t("exam.status.finished")
+                                : t("exam.status.inProgress")}
                             </span>
 
                             <span>
-                              <strong className="font-medium text-slate-700">
-                                Finalização:
+                              <strong className="font-medium text-slate-700 dark:text-slate-100">
+                                {t("exam.finishedAtLabel")}:
                               </strong>{" "}
                               {formatarData(prova.finishedAt)}
                             </span>
@@ -316,20 +348,20 @@ export default function AlunoBoletimPage() {
                         </div>
 
                         <div>
-  {prova.notaLiberada ? (
-    <span
-      className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getDesempenhoClass(
-        Number(prova.nota)
-      )}`}
-    >
-      {getDesempenhoLabel(Number(prova.nota))}
-    </span>
-  ) : (
-    <span className="inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
-      Aguardando liberação
-    </span>
-  )}
-</div>
+                          {prova.notaLiberada ? (
+                            <span
+                              className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getDesempenhoClass(
+                                Number(prova.nota)
+                              )}`}
+                            >
+                              {getDesempenhoLabel(Number(prova.nota))}
+                            </span>
+                          ) : (
+                            <span className="inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-950/50 dark:text-amber-200">
+                              {t("exam.awaitingRelease")}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>

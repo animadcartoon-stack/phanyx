@@ -734,5 +734,63 @@
       "dateLabel": "Fecha",
       "observation": "Observación"
     }
+  },
+  "StudentGradebook": {
+    "common": {
+      "notProvided": "No informado"
+    },
+    "hero": {
+      "eyebrow": "Boletín académico",
+      "title": "Consulta tus notas, promedios y rendimiento por asignatura",
+      "description": "Consulta las evaluaciones completadas, tu promedio por asignatura y tu panorama académico en un entorno claro, organizado y profesional."
+    },
+    "actions": {
+      "backToDashboard": "Volver al panel",
+      "refreshGradebook": "Actualizar boletín"
+    },
+    "metrics": {
+      "subjects": {
+        "title": "Asignaturas",
+        "heroDescription": "Total de asignaturas en tu boletín.",
+        "cardDescription": "Cantidad de asignaturas con notas registradas."
+      },
+      "exams": {
+        "title": "Evaluaciones registradas",
+        "cardDescription": "Total de evaluaciones vinculadas a tu historial actual."
+      },
+      "overallAverage": {
+        "title": "Promedio general",
+        "heroDescription": "Promedio consolidado de las asignaturas registradas.",
+        "cardDescription": "Resumen consolidado de tu rendimiento académico."
+      }
+    },
+    "loading": "Cargando boletín...",
+    "errors": {
+      "load": "Error al cargar el boletín"
+    },
+    "empty": {
+      "title": "No se encontraron notas",
+      "description": "Cuando completes evaluaciones, aparecerán aquí en tu boletín."
+    },
+    "subject": {
+      "examCount": "{count, plural, =0 {Ninguna evaluación registrada} one {# evaluación registrada} other {# evaluaciones registradas}}",
+      "average": "Promedio: {value}"
+    },
+    "exam": {
+      "gradeLabel": "Nota",
+      "gradeNotReleased": "Nota aún no publicada",
+      "statusLabel": "Estado",
+      "status": {
+        "finished": "Finalizada",
+        "inProgress": "En curso"
+      },
+      "finishedAtLabel": "Finalización",
+      "awaitingRelease": "Pendiente de publicación"
+    },
+    "performance": {
+      "good": "Buen rendimiento",
+      "attention": "Atención",
+      "low": "Bajo rendimiento"
+    }
   }
 }

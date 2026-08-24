@@ -734,5 +734,63 @@
       "dateLabel": "Data",
       "observation": "Observação"
     }
+  },
+  "StudentGradebook": {
+    "common": {
+      "notProvided": "Não informado"
+    },
+    "hero": {
+      "eyebrow": "Pauta académica",
+      "title": "Acompanhe as suas notas, médias e desempenho por disciplina",
+      "description": "Consulte as provas concluídas, a média por disciplina e o seu panorama académico num ambiente claro, organizado e profissional."
+    },
+    "actions": {
+      "backToDashboard": "Voltar ao painel",
+      "refreshGradebook": "Atualizar pauta"
+    },
+    "metrics": {
+      "subjects": {
+        "title": "Disciplinas",
+        "heroDescription": "Total de disciplinas na sua pauta.",
+        "cardDescription": "Quantidade de disciplinas com notas registadas."
+      },
+      "exams": {
+        "title": "Provas registadas",
+        "cardDescription": "Total de provas associadas ao seu histórico atual."
+      },
+      "overallAverage": {
+        "title": "Média geral",
+        "heroDescription": "Média consolidada com base nas disciplinas registadas.",
+        "cardDescription": "Panorama consolidado do seu desempenho académico."
+      }
+    },
+    "loading": "A carregar a pauta...",
+    "errors": {
+      "load": "Erro ao carregar a pauta"
+    },
+    "empty": {
+      "title": "Nenhuma nota encontrada",
+      "description": "Assim que concluir provas, estas aparecerão aqui na sua pauta."
+    },
+    "subject": {
+      "examCount": "{count, plural, =0 {Nenhuma prova registada} one {# prova registada} other {# provas registadas}}",
+      "average": "Média: {value}"
+    },
+    "exam": {
+      "gradeLabel": "Nota",
+      "gradeNotReleased": "Nota ainda não disponibilizada",
+      "statusLabel": "Estado",
+      "status": {
+        "finished": "Concluída",
+        "inProgress": "Em curso"
+      },
+      "finishedAtLabel": "Conclusão",
+      "awaitingRelease": "A aguardar disponibilização"
+    },
+    "performance": {
+      "good": "Bom desempenho",
+      "attention": "Atenção",
+      "low": "Baixo desempenho"
+    }
   }
 }

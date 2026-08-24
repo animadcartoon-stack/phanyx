@@ -734,5 +734,63 @@
       "dateLabel": "Date",
       "observation": "Observation"
     }
+  },
+  "StudentGradebook": {
+    "common": {
+      "notProvided": "Non renseigné"
+    },
+    "hero": {
+      "eyebrow": "Bulletin scolaire",
+      "title": "Suivez vos notes, moyennes et résultats par matière",
+      "description": "Consultez vos évaluations terminées, votre moyenne par matière et votre bilan scolaire dans un espace clair, organisé et professionnel."
+    },
+    "actions": {
+      "backToDashboard": "Retour au tableau de bord",
+      "refreshGradebook": "Actualiser le bulletin"
+    },
+    "metrics": {
+      "subjects": {
+        "title": "Matières",
+        "heroDescription": "Nombre total de matières dans votre bulletin.",
+        "cardDescription": "Nombre de matières comportant des notes enregistrées."
+      },
+      "exams": {
+        "title": "Évaluations enregistrées",
+        "cardDescription": "Nombre total d’évaluations associées à votre parcours actuel."
+      },
+      "overallAverage": {
+        "title": "Moyenne générale",
+        "heroDescription": "Moyenne consolidée calculée à partir des matières enregistrées.",
+        "cardDescription": "Vue d’ensemble consolidée de vos résultats scolaires."
+      }
+    },
+    "loading": "Chargement du bulletin...",
+    "errors": {
+      "load": "Erreur lors du chargement du bulletin"
+    },
+    "empty": {
+      "title": "Aucune note trouvée",
+      "description": "Vos évaluations terminées apparaîtront ici dès qu’elles seront disponibles."
+    },
+    "subject": {
+      "examCount": "{count, plural, =0 {Aucune évaluation enregistrée} one {# évaluation enregistrée} other {# évaluations enregistrées}}",
+      "average": "Moyenne : {value}"
+    },
+    "exam": {
+      "gradeLabel": "Note",
+      "gradeNotReleased": "Note pas encore publiée",
+      "statusLabel": "Statut",
+      "status": {
+        "finished": "Terminée",
+        "inProgress": "En cours"
+      },
+      "finishedAtLabel": "Date de fin",
+      "awaitingRelease": "En attente de publication"
+    },
+    "performance": {
+      "good": "Bon résultat",
+      "attention": "Attention",
+      "low": "Résultat insuffisant"
+    }
   }
 }
