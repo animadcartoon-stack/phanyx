@@ -832,5 +832,18 @@
       "title": "Academic record",
       "understood": "Got it"
     }
+  },
+  "StudentMeetings": {
+    "common": {
+      "notProvided": "Not provided"
+    },
+    "title": "My Meetings",
+    "description": "View the meetings you have been invited to attend.",
+    "loading": "Loading meetings...",
+    "empty": "No meetings are available right now.",
+    "join": "Join meeting",
+    "errors": {
+      "load": "Unable to load meetings."
+    }
   }
 }

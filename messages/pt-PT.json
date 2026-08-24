@@ -832,5 +832,18 @@
       "title": "Histórico académico",
       "understood": "Compreendi"
     }
+  },
+  "StudentMeetings": {
+    "common": {
+      "notProvided": "Não informado"
+    },
+    "title": "As minhas reuniões",
+    "description": "Acompanhe as reuniões para as quais foi convidado.",
+    "loading": "A carregar reuniões...",
+    "empty": "Não existem reuniões disponíveis neste momento.",
+    "join": "Entrar na reunião",
+    "errors": {
+      "load": "Erro ao carregar as reuniões."
+    }
   }
 }

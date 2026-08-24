@@ -832,5 +832,18 @@
       "title": "Expediente académico",
       "understood": "Entendido"
     }
+  },
+  "StudentMeetings": {
+    "common": {
+      "notProvided": "No informado"
+    },
+    "title": "Mis reuniones",
+    "description": "Consulta las reuniones a las que has sido invitado.",
+    "loading": "Cargando reuniones...",
+    "empty": "No hay reuniones disponibles en este momento.",
+    "join": "Entrar en la reunión",
+    "errors": {
+      "load": "Error al cargar las reuniones."
+    }
   }
 }

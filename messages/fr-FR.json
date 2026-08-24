@@ -832,5 +832,18 @@
       "title": "Relevé scolaire",
       "understood": "J’ai compris"
     }
+  },
+  "StudentMeetings": {
+    "common": {
+      "notProvided": "Non renseigné"
+    },
+    "title": "Mes réunions",
+    "description": "Consultez les réunions auxquelles vous avez été invité.",
+    "loading": "Chargement des réunions...",
+    "empty": "Aucune réunion n’est disponible pour le moment.",
+    "join": "Rejoindre la réunion",
+    "errors": {
+      "load": "Erreur lors du chargement des réunions."
+    }
   }
 }

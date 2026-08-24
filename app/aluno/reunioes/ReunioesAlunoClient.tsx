@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 type Reuniao = {
   id: number;
@@ -13,6 +14,9 @@ type Reuniao = {
 };
 
 export default function ReunioesAlunoClient() {
+  const locale = useLocale();
+  const t = useTranslations("StudentMeetings");
+
   const [reunioes, setReunioes] = useState<Reuniao[]>([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
@@ -22,16 +26,20 @@ export default function ReunioesAlunoClient() {
       setLoading(true);
       setErro("");
 
-      const res = await fetch("/api/reunioes", { cache: "no-store" });
+      const res = await fetch("/api/reunioes", {
+        cache: "no-store",
+      });
+
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao carregar reuniões.");
+        console.error("Erro retornado pela API de reuniões:", data?.error);
+        throw new Error(t("errors.load"));
       }
 
       setReunioes(Array.isArray(data) ? data : []);
-    } catch (error: any) {
-      setErro(error?.message || "Erro ao carregar reuniões.");
+    } catch (error: unknown) {
+      setErro(error instanceof Error ? error.message : t("errors.load"));
     } finally {
       setLoading(false);
     }
@@ -39,30 +47,50 @@ export default function ReunioesAlunoClient() {
 
   useEffect(() => {
     carregarReunioes();
+    // A consulta deve ser executada somente quando a página for aberta.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  function formatarData(dataHora: string) {
+    const data = new Date(dataHora);
+
+    if (Number.isNaN(data.getTime())) {
+      return dataHora || t("common.notProvided");
+    }
+
+    return new Intl.DateTimeFormat(locale, {
+      dateStyle: "long",
+      timeStyle: "short",
+    }).format(data);
+  }
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 p-6">
       <div className="aluno-reunioes-fix">
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-          📅 Minhas reuniões
+          📅 {t("title")}
         </h1>
         <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-          Acompanhe as reuniões para as quais você foi convidado.
+          {t("description")}
         </p>
       </div>
 
       {erro && (
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-800">
+        <div
+          role="alert"
+          className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200"
+        >
           {erro}
         </div>
       )}
 
       {loading ? (
-<div className="aluno-reunioes-card rounded-3xl border border-slate-200 bg-white p-6 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-900">          Carregando reuniões...
+        <div className="aluno-reunioes-card rounded-3xl border border-slate-200 bg-white p-6 text-sm text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
+          {t("loading")}
         </div>
       ) : reunioes.length === 0 ? (
-<div className="aluno-reunioes-card rounded-3xl border border-slate-200 bg-white p-6 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-900">          Nenhuma reunião disponível no momento.
+        <div className="aluno-reunioes-card rounded-3xl border border-slate-200 bg-white p-6 text-sm text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
+          {t("empty")}
         </div>
       ) : (
         <div className="grid gap-4">
@@ -78,7 +106,7 @@ export default function ReunioesAlunoClient() {
                   </h2>
 
                   <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                    {new Date(reuniao.dataHora).toLocaleString("pt-BR")}
+                    {formatarData(reuniao.dataHora)}
                   </p>
 
                   {reuniao.descricao && (
@@ -92,9 +120,9 @@ export default function ReunioesAlunoClient() {
                   href={reuniao.link}
                   target="_blank"
                   rel="noreferrer"
-                  className="rounded-xl bg-blue-600 px-5 py-3 text-center text-sm font-semibold text-white hover:bg-blue-700"
+                  className="rounded-xl bg-blue-600 px-5 py-3 text-center text-sm font-semibold text-white transition hover:bg-blue-700"
                 >
-                  Entrar na reunião
+                  {t("join")}
                 </a>
               </div>
             </div>
