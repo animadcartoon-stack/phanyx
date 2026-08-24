@@ -1,16 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import withAuth from "@/components/auth/withAuth";
 import CentralAvisosPhanyx from "@/components/phanyx/CentralAvisosPhanyx";
 
 type DashboardAlunoResponse = {
   aluno: {
-  id: number;
-  userId: number;
-  nome?: string;
-  fotoPerfil?: string | null;
-};
+    id: number;
+    userId: number;
+    nome?: string;
+    fotoPerfil?: string | null;
+  };
   resumo: {
     totalDisciplinas: number;
     totalProvasConcluidas: number;
@@ -37,6 +38,8 @@ type AuthMeResponse = {
 };
 
 function AlunoDashboardPage() {
+  const t = useTranslations("StudentDashboard");
+  const locale = useLocale();
   const [data, setData] = useState<DashboardAlunoResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
@@ -58,68 +61,68 @@ function AlunoDashboardPage() {
     carregarAulas();
   }, []);
 
-async function alterarFotoPerfil(file: File | null) {
-  if (!file) return;
+  async function alterarFotoPerfil(file: File | null) {
+    if (!file) return;
 
-  try {
-    setEnviandoFoto(true);
-    setErro("");
+    try {
+      setEnviandoFoto(true);
+      setErro("");
 
-    const formData = new FormData();
-    formData.append("file", file);
+      const formData = new FormData();
+      formData.append("file", file);
 
-    const resUpload = await fetch("/api/upload", {
-      method: "POST",
-      credentials: "include",
-      body: formData,
-    });
+      const resUpload = await fetch("/api/upload", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
 
-    const jsonUpload = await resUpload.json();
+      const jsonUpload = await resUpload.json();
 
-    if (!resUpload.ok) {
-      throw new Error(jsonUpload?.error || "Erro ao enviar imagem.");
-    }
+      if (!resUpload.ok) {
+        throw new Error(jsonUpload?.error || t("errors.imageUpload"));
+      }
 
-    const fotoUrl = jsonUpload?.url || jsonUpload?.arquivo?.url;
+      const fotoUrl = jsonUpload?.url || jsonUpload?.arquivo?.url;
 
-    if (!fotoUrl) {
-      throw new Error("Upload feito, mas a URL da imagem não foi retornada.");
-    }
+      if (!fotoUrl) {
+        throw new Error(t("errors.missingImageUrl"));
+      }
 
-    const resSalvar = await fetch("/api/aluno/foto-perfil", {
-      method: "PUT",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        fotoPerfil: fotoUrl,
-      }),
-    });
+      const resSalvar = await fetch("/api/aluno/foto-perfil", {
+        method: "PUT",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fotoPerfil: fotoUrl,
+        }),
+      });
 
-    const jsonSalvar = await resSalvar.json();
+      const jsonSalvar = await resSalvar.json();
 
-    if (!resSalvar.ok) {
-      throw new Error(jsonSalvar?.error || "Erro ao salvar foto do perfil.");
-    }
+      if (!resSalvar.ok) {
+        throw new Error(jsonSalvar?.error || t("errors.savePhoto"));
+      }
 
-    setData((prev) =>
-      prev
-        ? {
+      setData((prev) =>
+        prev
+          ? {
             ...prev,
             aluno: {
               ...prev.aluno,
               fotoPerfil: fotoUrl,
             },
           }
-        : prev
-    );
-  } catch (e: any) {
-    setErro(e?.message || "Erro ao alterar foto.");
-  } finally {
-    setEnviandoFoto(false);
+          : prev
+      );
+    } catch (e: any) {
+      setErro(e?.message || t("errors.changePhoto"));
+    } finally {
+      setEnviandoFoto(false);
+    }
   }
-}
 
   async function carregarDashboard() {
     try {
@@ -134,17 +137,17 @@ async function alterarFotoPerfil(file: File | null) {
 
       if (!res.ok) {
         if (json?.error === "INADIMPLENTE") {
-          setErro(json.message || "Acesso bloqueado por inadimplência.");
+          setErro(json.message || t("errors.paymentBlocked"));
           setData(null);
           return;
         }
 
-        throw new Error(json.error || "Erro ao carregar dashboard");
+        throw new Error(json.error || t("errors.loadDashboard"));
       }
 
       setData(json);
     } catch (e: any) {
-      setErro(e.message || "Erro ao carregar dashboard");
+      setErro(e.message || t("errors.loadDashboard"));
     } finally {
       setLoading(false);
     }
@@ -162,7 +165,7 @@ async function alterarFotoPerfil(file: File | null) {
       if (res.ok) {
         setDisciplinas(json.disciplinas || []);
       }
-    } catch {}
+    } catch { }
   }
 
   async function carregarMatricula() {
@@ -177,7 +180,7 @@ async function alterarFotoPerfil(file: File | null) {
       if (res.ok) {
         setMatricula(json.matricula);
       }
-    } catch {}
+    } catch { }
   }
 
   async function carregarDisciplinasMatriculadas() {
@@ -195,10 +198,10 @@ async function alterarFotoPerfil(file: File | null) {
       }
 
       const total = json.reduce((acc: number, matricula: any) => {
-  return acc + (matricula.itens?.length || 0);
-}, 0);
+        return acc + (matricula.itens?.length || 0);
+      }, 0);
 
-setTotalDisciplinasMatriculadas(total);
+      setTotalDisciplinasMatriculadas(total);
     } catch {
       setTotalDisciplinasMatriculadas(0);
     }
@@ -228,7 +231,7 @@ setTotalDisciplinasMatriculadas(total);
     if (!data) return "-";
 
     try {
-      return new Date(data).toLocaleString("pt-BR");
+      return new Date(data).toLocaleString(locale);
     } catch {
       return data;
     }
@@ -246,20 +249,63 @@ setTotalDisciplinasMatriculadas(total);
     return "bg-red-50 text-red-700 border-red-200";
   }
 
+  function traduzirStatusMatricula(status?: string | null) {
+    const statusNormalizado = String(status || "")
+      .trim()
+      .toUpperCase();
+
+    switch (statusNormalizado) {
+      case "ATIVA":
+      case "ATIVO":
+      case "REGULAR":
+      case "CURSANDO":
+        return t("enrollmentStatuses.active");
+
+      case "PENDENTE":
+        return t("enrollmentStatuses.pending");
+
+      case "TRANCADA":
+      case "TRANCADO":
+        return t("enrollmentStatuses.locked");
+
+      case "CANCELADA":
+      case "CANCELADO":
+        return t("enrollmentStatuses.cancelled");
+
+      case "CONCLUIDA":
+      case "CONCLUÍDA":
+      case "CONCLUIDO":
+      case "CONCLUÍDO":
+        return t("enrollmentStatuses.completed");
+
+      case "INATIVA":
+      case "INATIVO":
+        return t("enrollmentStatuses.inactive");
+
+      case "SUSPENSA":
+      case "SUSPENSO":
+        return t("enrollmentStatuses.suspended");
+
+      default:
+        return status || t("hero.notInformed");
+    }
+  }
+
   const mediaGeral = data?.resumo?.mediaGeral ?? 0;
   const totalProvas = data?.resumo?.totalProvasConcluidas ?? 0;
 
   const saudacao = useMemo(() => {
     const hora = new Date().getHours();
 
-    if (hora < 12) return "Bom dia";
-    if (hora < 18) return "Boa tarde";
-    return "Boa noite";
-  }, []);
+    if (hora < 12) return t("greetings.morning");
+    if (hora < 18) return t("greetings.afternoon");
+
+    return t("greetings.evening");
+  }, [t]);
 
   const disciplinaPrincipal = useMemo(() => {
-  return disciplinas?.find((disc: any) => !disc.bloqueadaPorAulas) || null;
-}, [disciplinas]);
+    return disciplinas?.find((disc: any) => !disc.bloqueadaPorAulas) || null;
+  }, [disciplinas]);
 
   const ultimaProva = useMemo(() => {
     return data?.ultimasProvas?.[0] || null;
@@ -271,124 +317,130 @@ setTotalDisciplinasMatriculadas(total);
   }, [mediaGeral]);
 
   const mensagemDesempenho = useMemo(() => {
-    if (mediaGeral >= 8) return "Excelente desempenho. Continue nesse ritmo.";
-    if (mediaGeral >= 7) return "Você está indo muito bem na sua jornada.";
-    if (mediaGeral >= 5) return "Bom progresso. Vale revisar os conteúdos recentes.";
-    return "Hora de reforçar os estudos e retomar o ritmo.";
-  }, [mediaGeral]);
+    if (mediaGeral >= 8) {
+      return t("performance.excellent");
+    }
+
+    if (mediaGeral >= 7) {
+      return t("performance.veryGood");
+    }
+
+    if (mediaGeral >= 5) {
+      return t("performance.good");
+    }
+
+    return t("performance.needsImprovement");
+  }, [mediaGeral, t]);
 
   const proximoPasso = useMemo(() => {
     if (erro) {
       return {
-        titulo: "Regularizar acesso",
-        descricao:
-          "Seu painel acadêmico está com acesso restrito no momento. Regularize sua situação para continuar normalmente.",
+        titulo: t("nextStep.regularizeTitle"),
+        descricao: t("nextStep.regularizeDescription"),
         href: "/suporte",
-        label: "Abrir suporte",
+        label: t("nextStep.openSupport"),
       };
     }
 
     if (disciplinaPrincipal) {
       return {
-        titulo: "Continuar estudos",
-        descricao:
-          "Retome sua rotina acadêmica acessando sua disciplina disponível no momento.",
+        titulo: t("nextStep.continueTitle"),
+        descricao: t("nextStep.continueDescription"),
         href: `/aluno/disciplinas/${disciplinaPrincipal.id}`,
-        label: "Abrir disciplina",
+        label: t("nextStep.openSubject"),
       };
     }
 
     if (ultimaProva) {
       return {
-        titulo: "Revisar resultados",
-        descricao:
-          "Consulte seu desempenho mais recente e acompanhe sua evolução acadêmica.",
+        titulo: t("nextStep.reviewTitle"),
+        descricao: t("nextStep.reviewDescription"),
         href: "/aluno/boletim",
-        label: "Ver boletim",
+        label: t("nextStep.viewGrades"),
       };
     }
 
     return {
-      titulo: "Explorar painel",
-      descricao:
-        "Acompanhe seus indicadores acadêmicos e mantenha sua rotina organizada.",
+      titulo: t("nextStep.exploreTitle"),
+      descricao: t("nextStep.exploreDescription"),
       href: "/aluno",
-      label: "Atualizar painel",
+      label: t("nextStep.refreshDashboard"),
     };
-  }, [erro, disciplinaPrincipal, ultimaProva]);
+  }, [erro, disciplinaPrincipal, ultimaProva, t]);
 
   return (
     <div className="min-h-screen bg-slate-50">
       <input
-  ref={inputFotoRef}
-  type="file"
-  accept="image/png,image/jpeg,image/jpg,image/webp"
-  className="hidden"
-  onChange={(e) => {
-    const file = e.target.files?.[0] || null;
-    alterarFotoPerfil(file);
-    e.target.value = "";
-  }}
-/>
+        ref={inputFotoRef}
+        type="file"
+        accept="image/png,image/jpeg,image/jpg,image/webp"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0] || null;
+          alterarFotoPerfil(file);
+          e.target.value = "";
+        }}
+      />
       <div className="mx-auto max-w-7xl space-y-4 px-2 py-3 sm:space-y-6 sm:p-6">
         <CentralAvisosPhanyx />
         <section className="aluno-dashboard-hero overflow-hidden rounded-[30px] border border-slate-800 bg-gradient-to-r from-slate-950 via-blue-950 to-slate-900 text-white shadow-sm">
           <div className="grid gap-6 px-4 py-6 sm:px-6 sm:py-8 md:px-8 lg:grid-cols-[1.45fr_0.95fr] lg:items-center">
             <div>
               <p className="text-sm font-medium uppercase tracking-[0.18em] text-blue-700 dark:text-blue-700 dark:text-blue-200">
-                Painel acadêmico do aluno
+                {t("hero.eyebrow")}
               </p>
 
-<div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-center">
-  <div className="h-20 w-20 overflow-hidden rounded-2xl border-2 border-white/20 bg-white/10">
-    {data?.aluno?.fotoPerfil ? (
-      <img
-        src={data.aluno.fotoPerfil}
-        alt={data.aluno.nome || "Aluno"}
-        className="h-full w-full object-cover"
-      />
-    ) : (
-      <div className="flex h-full w-full items-center justify-center text-3xl font-bold text-slate-900 dark:text-slate-900 dark:text-white">
-        {data?.aluno?.nome?.charAt(0)?.toUpperCase() || "A"}
-      </div>
-    )}
-  </div>
+              <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-center">
+                <div className="h-20 w-20 overflow-hidden rounded-2xl border-2 border-white/20 bg-white/10">
+                  {data?.aluno?.fotoPerfil ? (
+                    <img
+                      src={data.aluno.fotoPerfil}
+                      alt={data.aluno.nome || t("hero.student")}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-3xl font-bold text-slate-900 dark:text-slate-900 dark:text-white">
+                      {data?.aluno?.nome?.charAt(0)?.toUpperCase() || "A"}
+                    </div>
+                  )}
+                </div>
 
-  <div>
-    <p className="text-xs uppercase tracking-[0.18em] text-blue-700 dark:text-blue-200">
-      Aluno
-    </p>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.18em] text-blue-700 dark:text-blue-200">
+                    {t("hero.student")}
+                  </p>
 
-    <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-      {data?.aluno?.nome || "Aluno"}
-    </h2>
-    <button
-  type="button"
-  onClick={() => inputFotoRef.current?.click()}
-  disabled={enviandoFoto}
-  className="mt-2 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-slate-900 dark:text-white transition hover:bg-white/20 disabled:opacity-60"
->
-  {enviandoFoto ? "Enviando..." : "Alterar foto"}
-</button>
-<button
-  type="button"
-  onClick={() => setModalDicaFotoAberto(true)}
-  className="mt-2 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-slate-900 dark:text-white transition hover:bg-white/20"
->
-  ℹ️ Dicas da foto
-</button>
-  </div>
-</div>
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+                    {data?.aluno?.nome || t("hero.student")}
+                  </h2>
+                  <button
+                    type="button"
+                    onClick={() => inputFotoRef.current?.click()}
+                    disabled={enviandoFoto}
+                    className="mt-2 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-slate-900 dark:text-white transition hover:bg-white/20 disabled:opacity-60"
+                  >
+                    {enviandoFoto
+                      ? t("hero.sendingPhoto")
+                      : t("hero.changePhoto")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setModalDicaFotoAberto(true)}
+                    className="mt-2 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-slate-900 dark:text-white transition hover:bg-white/20"
+                  >
+                    ℹ️ {t("hero.photoTips")}
+                  </button>
+                </div>
+              </div>
 
               <h1 className="mt-4 text-2xl font-bold leading-tight sm:text-3xl md:text-4xl">
-                {saudacao}, acompanhe sua jornada acadêmica com clareza,
-                desempenho e foco
+                {t("hero.heading", {
+                  greeting: saudacao,
+                })}
               </h1>
 
               <p className="mt-4 max-w-3xl text-sm leading-7 text-blue-700 dark:text-blue-100 md:text-base">
-                Veja seu curso, seu desempenho, suas disciplinas e seus próximos
-                passos em um painel pensado para uma experiência acadêmica
-                moderna, organizada e profissional.
+                {t("hero.description")}
               </p>
 
               <div className="mt-6 grid gap-3 sm:flex sm:flex-wrap">
@@ -400,21 +452,23 @@ setTotalDisciplinasMatriculadas(total);
                   }
                   className="inline-flex items-center justify-center rounded-xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
                 >
-                  {disciplinaPrincipal ? "Continuar estudos" : "Ver boletim"}
+                  {disciplinaPrincipal
+                    ? t("hero.continueStudies")
+                    : t("hero.viewGrades")}
                 </a>
 
                 <a
-  href="/aluno/boletim"
-  className="aluno-botao-secundario block rounded-xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
->
-  Abrir boletim
-</a>
+                  href="/aluno/boletim"
+                  className="aluno-botao-secundario block rounded-xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                >
+                  {t("hero.openGrades")}
+                </a>
 
                 <a
                   href="/aluno"
                   className="inline-flex items-center justify-center rounded-xl border border-white/20 bg-transparent px-5 py-3 text-sm font-semibold text-slate-900 dark:text-white transition hover:bg-white/10"
                 >
-                  Atualizar painel
+                  {t("hero.refreshDashboard")}
                 </a>
               </div>
             </div>
@@ -422,19 +476,20 @@ setTotalDisciplinasMatriculadas(total);
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-white/10 dark:bg-white/10 dark:backdrop-blur">
                 <p className="text-xs uppercase tracking-[0.18em] text-blue-700 dark:text-blue-200">
-                  Curso atual
+                  {t("hero.currentCourse")}
                 </p>
                 <p className="mt-2 text-lg font-semibold text-slate-900 dark:text-white">
-                  {matricula?.curso?.nome || "Curso não identificado"}
+                  {matricula?.curso?.nome || t("hero.unknownCourse")}
                 </p>
                 <p className="mt-2 text-sm text-blue-700 dark:text-blue-100">
-                  Status: {matricula?.status || "Não informado"}
+                  {t("hero.status")}:{" "}
+                  {traduzirStatusMatricula(matricula?.status)}
                 </p>
               </div>
 
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-white/10 dark:bg-white/10 dark:backdrop-blur">
                 <p className="text-xs uppercase tracking-[0.18em] text-blue-700 dark:text-blue-200">
-                  Aproveitamento atual
+                  {t("hero.currentPerformance")}
                 </p>
                 <p className="mt-2 text-lg font-semibold text-slate-900 dark:text-white">
                   {progressoAproveitamento}%
@@ -448,7 +503,7 @@ setTotalDisciplinasMatriculadas(total);
                 </div>
 
                 <p className="mt-3 text-sm text-blue-700 dark:text-blue-100">
-                  Baseado na sua média geral atual.
+                  {t("hero.performanceBasis")}
                 </p>
               </div>
             </div>
@@ -457,7 +512,7 @@ setTotalDisciplinasMatriculadas(total);
 
         {loading && (
           <div className="rounded-2xl border border-slate-200 bg-white phanyx-theme-card p-6 text-sm text-slate-500 shadow-sm">
-            Carregando dashboard...
+            {t("hero.loading")}
           </div>
         )}
 
@@ -466,11 +521,11 @@ setTotalDisciplinasMatriculadas(total);
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-red-500">
-                  Acesso restrito
+                  {t("restricted.eyebrow")}
                 </p>
 
                 <h2 className="mt-2 text-2xl font-bold text-red-700">
-                  Seu acesso está temporariamente bloqueado
+                  {t("restricted.title")}
                 </h2>
 
                 <p className="mt-3 max-w-3xl text-sm leading-6 text-red-600">
@@ -478,8 +533,7 @@ setTotalDisciplinasMatriculadas(total);
                 </p>
 
                 <p className="mt-3 text-xs text-red-500">
-                  Entre em contato com a instituição para regularizar sua
-                  situação financeira e liberar novamente o ambiente acadêmico.
+                  {t("restricted.institutionInstruction")}
                 </p>
               </div>
 
@@ -488,14 +542,14 @@ setTotalDisciplinasMatriculadas(total);
                   href="/suporte"
                   className="inline-flex items-center justify-center rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-slate-900 dark:text-slate-700 dark:text-white/90 transition hover:bg-red-700"
                 >
-                  Falar com suporte
+                  {t("restricted.contactSupport")}
                 </a>
 
                 <a
                   href="/aluno"
                   className="inline-flex items-center justify-center rounded-xl border border-red-300 bg-white px-5 py-3 text-sm font-semibold text-red-700 transition hover:bg-red-50"
                 >
-                  Atualizar painel
+                  {t("restricted.refreshDashboard")}
                 </a>
               </div>
             </div>
@@ -507,51 +561,53 @@ setTotalDisciplinasMatriculadas(total);
             <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               <div className="rounded-2xl border border-slate-200 bg-white phanyx-theme-card p-5 shadow-sm">
                 <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
-                  Disciplinas matriculadas
+                  {t("stats.enrolledSubjects")}
                 </p>
                 <p className="mt-3 text-3xl font-bold text-slate-900">
                   {totalDisciplinasMatriculadas}
                 </p>
                 <p className="mt-2 text-sm text-slate-500">
-                  Total atual de disciplinas vinculadas à sua matrícula.
+                  {t("stats.enrolledSubjectsDescription")}
                 </p>
               </div>
 
               <div className="rounded-2xl border border-slate-200 bg-white phanyx-theme-card p-5 shadow-sm">
                 <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
-                  Média geral
+                  {t("stats.overallAverage")}
                 </p>
                 <p className={`mt-3 text-3xl font-bold ${getMediaClass(mediaGeral)}`}>
                   {mediaGeral}
                 </p>
                 <p className="mt-2 text-sm text-slate-500">
-                  Desempenho acadêmico consolidado até o momento.
+                  {t("stats.overallAverageDescription")}
                 </p>
               </div>
 
               <div className="rounded-2xl border border-slate-200 bg-white phanyx-theme-card p-5 shadow-sm">
                 <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
-                  Provas concluídas
+                  {t("stats.completedExams")}
                 </p>
                 <p className="mt-3 text-3xl font-bold text-slate-900">
                   {!loadingPlano && plano !== "ESSENCIAL" ? totalProvas : "—"}
                 </p>
                 <p className="mt-2 text-sm text-slate-500">
                   {!loadingPlano && plano !== "ESSENCIAL"
-                    ? "Quantidade de avaliações já finalizadas."
-                    : "Disponível em planos superiores."}
+                    ? t("stats.completedExamsDescription")
+                    : t("stats.higherPlans")}
                 </p>
               </div>
 
               <div className="rounded-2xl border border-slate-200 bg-white phanyx-theme-card p-5 shadow-sm">
                 <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
-                  Status da matrícula
+                  {t("stats.enrollmentStatus")}
                 </p>
                 <p className="mt-3 text-3xl font-bold text-slate-900">
-                  {matricula?.status || "—"}
+                  {matricula?.status
+                    ? traduzirStatusMatricula(matricula.status)
+                    : "—"}
                 </p>
                 <p className="mt-2 text-sm text-slate-500">
-                  Situação acadêmica atual do seu vínculo institucional.
+                  {t("stats.enrollmentStatusDescription")}
                 </p>
               </div>
             </section>
@@ -562,22 +618,24 @@ setTotalDisciplinasMatriculadas(total);
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <h2 className="text-xl font-semibold text-slate-900">
-                        Suas disciplinas
+                        {t("subjects.title")}
                       </h2>
                       <p className="text-sm text-slate-500">
-                        Acesse rapidamente os conteúdos, materiais e atividades.
+                        {t("subjects.description")}
                       </p>
                     </div>
 
                     <span className="aluno-pill-legivel inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
-  {disciplinas.length} disciplina(s)
-</span>
+                      {t("subjects.count", {
+                        count: disciplinas.length,
+                      })}
+                    </span>
                   </div>
 
                   <div className="mt-6 grid gap-4 md:grid-cols-2">
                     {disciplinas.length === 0 ? (
                       <div className="rounded-xl border border-dashed border-slate-300 p-6 text-sm text-slate-500 md:col-span-2">
-                        Nenhuma disciplina disponível no momento.
+                        {t("subjects.empty")}
                       </div>
                     ) : (
                       disciplinas.map((disc: any) => (
@@ -590,28 +648,27 @@ setTotalDisciplinasMatriculadas(total);
                           </h3>
 
                           <p className="mt-2 text-sm leading-6 text-slate-500">
-                            Acesse os conteúdos disponíveis e acompanhe suas
-                            atividades acadêmicas.
+                            {t("subjects.cardDescription")}
                           </p>
 
                           {disc.bloqueadaPorAulas ? (
-  <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3">
-    <p className="text-sm font-semibold text-amber-800">
-      Aula disponível em breve
-    </p>
-    <p className="mt-1 text-xs leading-5 text-amber-700">
-      {disc.mensagemBloqueio ||
-        "Assim que a instituição publicar o conteúdo, esta disciplina será desbloqueada automaticamente."}
-    </p>
-  </div>
-) : (
-  <a
-    href={`/aluno/disciplinas/${disc.id}`}
-    className="mt-4 inline-flex items-center text-sm font-semibold text-blue-600 hover:text-blue-700"
-  >
-    Acessar disciplina →
-  </a>
-)}
+                            <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3">
+                              <p className="text-sm font-semibold text-amber-800">
+                                {t("subjects.availableSoon")}
+                              </p>
+                              <p className="mt-1 text-xs leading-5 text-amber-700">
+                                {disc.mensagemBloqueio ||
+                                  t("subjects.blockedDefault")}
+                              </p>
+                            </div>
+                          ) : (
+                            <a
+                              href={`/aluno/disciplinas/${disc.id}`}
+                              className="mt-4 inline-flex items-center text-sm font-semibold text-blue-600 hover:text-blue-700"
+                            >
+                              {t("subjects.access")} →
+                            </a>
+                          )}
                         </div>
                       ))
                     )}
@@ -622,31 +679,30 @@ setTotalDisciplinasMatriculadas(total);
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <h2 className="text-xl font-semibold text-slate-900">
-                        Últimas provas
+                        {t("exams.title")}
                       </h2>
                       <p className="text-sm text-slate-500">
-                        Suas avaliações concluídas mais recentes.
+                        {t("exams.description")}
                       </p>
                     </div>
 
                     <a
-  href="/aluno/boletim"
-  className="aluno-botao-secundario inline-flex items-center justify-center rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
->
-  Ver boletim
-</a>
+                      href="/aluno/boletim"
+                      className="aluno-botao-secundario inline-flex items-center justify-center rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                    >
+                      {t("exams.viewGrades")}
+                    </a>
                   </div>
 
                   {!loadingPlano && plano === "ESSENCIAL" ? (
                     <div className="mt-6 rounded-xl border border-dashed border-slate-300 p-6 text-sm text-slate-500">
-                      O detalhamento de provas concluídas está disponível em
-                      planos superiores.
+                      {t("exams.higherPlans")}
                     </div>
                   ) : (
                     <div className="mt-6 space-y-4">
                       {data.ultimasProvas.length === 0 ? (
                         <div className="rounded-xl border border-dashed border-slate-300 p-6 text-sm text-slate-500">
-                          Você ainda não possui provas concluídas.
+                          {t("exams.empty")}
                         </div>
                       ) : (
                         data.ultimasProvas.map((prova) => (
@@ -663,14 +719,14 @@ setTotalDisciplinasMatriculadas(total);
                                 <div className="mt-2 flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-500">
                                   <span>
                                     <strong className="font-medium text-slate-700">
-                                      Disciplina:
+                                      {t("exams.subject")}:
                                     </strong>{" "}
                                     {prova.disciplinaNome}
                                   </span>
 
                                   <span>
                                     <strong className="font-medium text-slate-700">
-                                      Finalização:
+                                      {t("exams.completedAt")}:
                                     </strong>{" "}
                                     {formatarData(prova.finishedAt)}
                                   </span>
@@ -682,7 +738,7 @@ setTotalDisciplinasMatriculadas(total);
                                   prova.nota
                                 )}`}
                               >
-                                Nota: {prova.nota} / {prova.notaMaxima}
+                                {t("exams.grade")}: {prova.nota} / {prova.notaMaxima}
                               </span>
                             </div>
                           </div>
@@ -696,7 +752,7 @@ setTotalDisciplinasMatriculadas(total);
               <div className="space-y-6">
                 <div className="rounded-2xl border border-slate-200 bg-white phanyx-theme-card p-6 shadow-sm">
                   <h2 className="text-lg font-semibold text-slate-900">
-                    Próximo passo
+                    {t("side.nextStep")}
                   </h2>
 
                   <div className="mt-4 rounded-2xl bg-slate-50 p-4">
@@ -718,13 +774,13 @@ setTotalDisciplinasMatriculadas(total);
 
                 <div className="rounded-2xl border border-slate-200 bg-white phanyx-theme-card p-6 shadow-sm">
                   <h2 className="text-lg font-semibold text-slate-900">
-                    Progresso visual
+                    {t("side.visualProgress")}
                   </h2>
 
                   <div className="mt-4">
                     <div className="flex items-center justify-between text-sm">
                       <span className="font-medium text-slate-700">
-                        Aproveitamento atual
+                        {t("hero.currentPerformance")}
                       </span>
                       <span className="font-semibold text-slate-900">
                         {progressoAproveitamento}%
@@ -746,7 +802,7 @@ setTotalDisciplinasMatriculadas(total);
 
                 <div className="rounded-2xl border border-slate-200 bg-white phanyx-theme-card p-6 shadow-sm">
                   <h2 className="text-lg font-semibold text-slate-900">
-                    Atalhos rápidos
+                    {t("side.quickLinks")}
                   </h2>
 
                   <div className="mt-4 space-y-3">
@@ -759,71 +815,77 @@ setTotalDisciplinasMatriculadas(total);
                       className="block rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-slate-900 dark:text-white transition hover:bg-blue-700"
                     >
                       {disciplinaPrincipal
-                        ? "Continuar estudos"
-                        : "Atualizar dashboard"}
+                        ? t("side.continueStudies")
+                        : t("side.refreshDashboard")}
                     </a>
 
                     <a
                       href="/aluno/boletim"
                       className="aluno-botao-secundario block rounded-xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
                     >
-                      Abrir boletim
+                      {t("side.openGrades")}
                     </a>
                   </div>
                 </div>
 
                 <div className="rounded-2xl border border-slate-200 bg-white phanyx-theme-card p-6 shadow-sm">
                   <h2 className="text-lg font-semibold text-slate-900">
-                    Resumo acadêmico
+                    {t("side.academicSummary")}
                   </h2>
 
                   <div className="mt-4 space-y-3 text-sm leading-6 text-slate-600">
                     <p>
-                      Você possui <strong>{totalDisciplinasMatriculadas}</strong>{" "}
-                      disciplina(s) matriculada(s).
+                      {t("side.enrolledSubjects", {
+                        count: totalDisciplinasMatriculadas,
+                      })}
                     </p>
 
                     {!loadingPlano && plano !== "ESSENCIAL" && (
                       <p>
-                        Já concluiu <strong>{totalProvas}</strong> prova(s).
+                        {t("side.completedExams", {
+                          count: totalProvas,
+                        })}
                       </p>
                     )}
 
                     <p>
-                      Sua média geral atual é <strong>{mediaGeral}</strong>.
+                      {t("side.currentAverage", {
+                        average: mediaGeral,
+                      })}
                     </p>
 
                     <p>
-                      Curso atual:{" "}
-                      <strong>
-                        {matricula?.curso?.nome || "Não identificado"}
-                      </strong>
-                      .
+                      {t("side.currentCourse", {
+                        course:
+                          matricula?.curso?.nome ||
+                          t("side.unknownCourse"),
+                      })}
                     </p>
 
                     <p>
-                      Status da matrícula:{" "}
-                      <strong>{matricula?.status || "Não informado"}</strong>.
+                      {t("side.enrollmentStatus", {
+                        status: traduzirStatusMatricula(
+                          matricula?.status
+                        ),
+                      })}
                     </p>
                   </div>
                 </div>
 
                 <div className="rounded-2xl border border-slate-200 bg-white phanyx-theme-card p-6 shadow-sm">
                   <h2 className="text-lg font-semibold text-slate-900">
-                    Situação institucional
+                    {t("side.institutionalSituation")}
                   </h2>
 
                   <div className="mt-4 rounded-xl bg-slate-50 p-4 text-sm leading-6 text-slate-600">
-                    Seu ambiente acadêmico está vinculado ao curso e à matrícula
-                    ativos no sistema. Sempre que necessário, acompanhe seu
-                    boletim, disciplinas e atualizações por este painel.
+                    {t("side.institutionalDescription")}
                   </div>
                 </div>
               </div>
             </section>
           </>
         )}
-            </div>
+      </div>
 
       {modalDicaFotoAberto && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/60 px-4 backdrop-blur-sm">
@@ -831,28 +893,29 @@ setTotalDisciplinasMatriculadas(total);
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-700">
-                  Dica PHANYX
+                  {t("photoModal.eyebrow")}
                 </p>
 
-                <h2 className="mt-2 text-xl font-black text-slate-900">
-                  Foto de perfil ideal
+                <h2 className="mt-2 text-xl font-black text-slate-900 dark:text-white">
+                  {t("photoModal.title")}
                 </h2>
               </div>
 
               <button
                 type="button"
+                aria-label={t("photoModal.closeAria")}
                 onClick={() => setModalDicaFotoAberto(false)}
-                className="rounded-full bg-slate-100 px-3 py-1 text-sm font-bold text-slate-600"
+                className="rounded-full bg-slate-100 px-3 py-1 text-sm font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-200"
               >
                 ✕
               </button>
             </div>
 
-            <div className="mt-5 space-y-3 text-sm leading-6 text-slate-600">
-              <p>• Use uma imagem quadrada, no formato 1:1.</p>
-              <p>• Recomendado: 500x500px ou maior.</p>
-              <p>• Formatos aceitos: PNG, JPG, JPEG e WEBP.</p>
-              <p>• Tamanho máximo: 5MB.</p>
+            <div className="mt-5 space-y-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
+              <p>• {t("photoModal.square")}</p>
+              <p>• {t("photoModal.resolution")}</p>
+              <p>• {t("photoModal.formats")}</p>
+              <p>• {t("photoModal.size")}</p>
             </div>
 
             <button
@@ -860,7 +923,7 @@ setTotalDisciplinasMatriculadas(total);
               onClick={() => setModalDicaFotoAberto(false)}
               className="mt-6 w-full rounded-2xl bg-blue-600 px-4 py-3 text-sm font-bold text-slate-900 dark:text-white"
             >
-              Entendi
+              {t("photoModal.understood")}
             </button>
           </div>
         </div>

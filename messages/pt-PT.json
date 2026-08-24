@@ -266,5 +266,135 @@
                            "meetings":  "Reuniões",
                            "certificates":  "Certificados",
                            "ombudsman":  "Provedoria"
-                       }
+                       },
+    "StudentDashboard":  {
+                             "errors":  {
+                                            "imageUpload":  "Erro ao enviar a imagem.",
+                                            "missingImageUrl":  "O envio foi concluído, mas o endereço da imagem não foi devolvido.",
+                                            "savePhoto":  "Erro ao guardar a fotografia do perfil.",
+                                            "changePhoto":  "Erro ao alterar a fotografia.",
+                                            "paymentBlocked":  "Acesso bloqueado por incumprimento de pagamento.",
+                                            "loadDashboard":  "Erro ao carregar o painel."
+                                        },
+                             "greetings":  {
+                                               "morning":  "Bom dia",
+                                               "afternoon":  "Boa tarde",
+                                               "evening":  "Boa noite"
+                                           },
+                             "performance":  {
+                                                 "excellent":  "Excelente desempenho. Continue neste ritmo.",
+                                                 "veryGood":  "Está a progredir muito bem no seu percurso.",
+                                                 "good":  "Bom progresso. Recomendamos rever os conteúdos recentes.",
+                                                 "needsImprovement":  "É altura de reforçar o estudo e recuperar o ritmo."
+                                             },
+                             "nextStep":  {
+                                              "regularizeTitle":  "Regularizar acesso",
+                                              "regularizeDescription":  "O seu painel académico está com acesso restrito. Regularize a sua situação para continuar normalmente.",
+                                              "openSupport":  "Abrir suporte",
+                                              "continueTitle":  "Continuar estudos",
+                                              "continueDescription":  "Retome a sua rotina académica através da disciplina atualmente disponível.",
+                                              "openSubject":  "Abrir disciplina",
+                                              "reviewTitle":  "Rever resultados",
+                                              "reviewDescription":  "Consulte o seu desempenho mais recente e acompanhe a sua evolução académica.",
+                                              "viewGrades":  "Ver avaliações",
+                                              "exploreTitle":  "Explorar painel",
+                                              "exploreDescription":  "Acompanhe os seus indicadores académicos e mantenha a sua rotina organizada.",
+                                              "refreshDashboard":  "Atualizar painel"
+                                          },
+                             "hero":  {
+                                          "eyebrow":  "Painel académico do aluno",
+                                          "student":  "Aluno",
+                                          "sendingPhoto":  "A enviar...",
+                                          "changePhoto":  "Alterar fotografia",
+                                          "photoTips":  "Dicas para a fotografia",
+                                          "heading":  "{greeting}, acompanhe o seu percurso académico com clareza, desempenho e foco",
+                                          "description":  "Consulte o seu curso, desempenho, disciplinas e próximos passos num painel concebido para uma experiência académica moderna, organizada e profissional.",
+                                          "continueStudies":  "Continuar estudos",
+                                          "viewGrades":  "Ver avaliações",
+                                          "openGrades":  "Abrir avaliações",
+                                          "refreshDashboard":  "Atualizar painel",
+                                          "currentCourse":  "Curso atual",
+                                          "unknownCourse":  "Curso não identificado",
+                                          "status":  "Estado",
+                                          "notInformed":  "Não informado",
+                                          "currentPerformance":  "Aproveitamento atual",
+                                          "performanceBasis":  "Com base na sua média geral atual.",
+                                          "loading":  "A carregar o painel..."
+                                      },
+                             "restricted":  {
+                                                "eyebrow":  "Acesso restrito",
+                                                "title":  "O seu acesso está temporariamente bloqueado",
+                                                "institutionInstruction":  "Contacte a instituição para regularizar a sua situação financeira e voltar a aceder ao ambiente académico.",
+                                                "contactSupport":  "Contactar suporte",
+                                                "refreshDashboard":  "Atualizar painel"
+                                            },
+                             "stats":  {
+                                           "enrolledSubjects":  "Disciplinas inscritas",
+                                           "enrolledSubjectsDescription":  "Total atual de disciplinas associadas à sua matrícula.",
+                                           "overallAverage":  "Média geral",
+                                           "overallAverageDescription":  "Desempenho académico consolidado até ao momento.",
+                                           "completedExams":  "Avaliações concluídas",
+                                           "completedExamsDescription":  "Quantidade de avaliações já concluídas.",
+                                           "higherPlans":  "Disponível nos planos superiores.",
+                                           "enrollmentStatus":  "Estado da matrícula",
+                                           "enrollmentStatusDescription":  "Situação académica atual do seu vínculo institucional."
+                                       },
+                             "enrollmentStatuses":  {
+                                                        "active":  "Ativa",
+                                                        "pending":  "Pendente",
+                                                        "locked":  "Suspensa",
+                                                        "cancelled":  "Cancelada",
+                                                        "completed":  "Concluída",
+                                                        "inactive":  "Inativa",
+                                                        "suspended":  "Suspensa"
+                                                    },
+                             "subjects":  {
+                                              "title":  "As suas disciplinas",
+                                              "description":  "Aceda rapidamente aos conteúdos, materiais e atividades.",
+                                              "count":  "{count, plural, =0 {Nenhuma disciplina} one {# disciplina} other {# disciplinas}}",
+                                              "empty":  "Nenhuma disciplina disponível neste momento.",
+                                              "cardDescription":  "Aceda aos conteúdos disponíveis e acompanhe as suas atividades académicas.",
+                                              "availableSoon":  "Aula disponível em breve",
+                                              "blockedDefault":  "Assim que a instituição publicar o conteúdo, esta disciplina será desbloqueada automaticamente.",
+                                              "access":  "Aceder à disciplina"
+                                          },
+                             "exams":  {
+                                           "title":  "Últimas avaliações",
+                                           "description":  "As suas avaliações concluídas mais recentes.",
+                                           "viewGrades":  "Ver avaliações",
+                                           "higherPlans":  "Os detalhes das avaliações concluídas estão disponíveis nos planos superiores.",
+                                           "empty":  "Ainda não possui avaliações concluídas.",
+                                           "subject":  "Disciplina",
+                                           "completedAt":  "Conclusão",
+                                           "grade":  "Nota"
+                                       },
+                             "side":  {
+                                          "nextStep":  "Próximo passo",
+                                          "visualProgress":  "Progresso visual",
+                                          "currentPerformance":  "Aproveitamento atual",
+                                          "quickLinks":  "Atalhos rápidos",
+                                          "continueStudies":  "Continuar estudos",
+                                          "refreshDashboard":  "Atualizar painel",
+                                          "openGrades":  "Abrir avaliações",
+                                          "academicSummary":  "Resumo académico",
+                                          "enrolledSubjects":  "{count, plural, =0 {Não possui disciplinas inscritas.} one {Possui # disciplina inscrita.} other {Possui # disciplinas inscritas.}}",
+                                          "completedExams":  "{count, plural, =0 {Ainda não concluiu avaliações.} one {Já concluiu # avaliação.} other {Já concluiu # avaliações.}}",
+                                          "currentAverage":  "A sua média geral atual é {average}.",
+                                          "currentCourse":  "Curso atual: {course}.",
+                                          "unknownCourse":  "Não identificado",
+                                          "enrollmentStatus":  "Estado da matrícula: {status}.",
+                                          "institutionalSituation":  "Situação institucional",
+                                          "institutionalDescription":  "O seu ambiente académico está associado ao curso e à matrícula ativos no sistema. Acompanhe as suas avaliações, disciplinas e atualizações através deste painel."
+                                      },
+                             "photoModal":  {
+                                                "eyebrow":  "Dica PHANYX",
+                                                "title":  "Fotografia de perfil ideal",
+                                                "closeAria":  "Fechar dicas da fotografia",
+                                                "square":  "Utilize uma imagem quadrada, no formato 1:1.",
+                                                "resolution":  "Recomendado: 500x500 px ou superior.",
+                                                "formats":  "Formatos aceites: PNG, JPG, JPEG e WEBP.",
+                                                "size":  "Tamanho máximo: 5 MB.",
+                                                "understood":  "Entendi"
+                                            }
+                         }
 }

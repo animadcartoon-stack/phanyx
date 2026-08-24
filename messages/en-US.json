@@ -266,5 +266,135 @@
                            "meetings":  "Meetings",
                            "certificates":  "Certificates",
                            "ombudsman":  "Ombudsman"
-                       }
+                       },
+    "StudentDashboard":  {
+                             "errors":  {
+                                            "imageUpload":  "Unable to upload the image.",
+                                            "missingImageUrl":  "The upload was completed, but the image URL was not returned.",
+                                            "savePhoto":  "Unable to save the profile photo.",
+                                            "changePhoto":  "Unable to change the photo.",
+                                            "paymentBlocked":  "Access blocked due to an outstanding payment.",
+                                            "loadDashboard":  "Unable to load the dashboard."
+                                        },
+                             "greetings":  {
+                                               "morning":  "Good morning",
+                                               "afternoon":  "Good afternoon",
+                                               "evening":  "Good evening"
+                                           },
+                             "performance":  {
+                                                 "excellent":  "Excellent performance. Keep up the great work.",
+                                                 "veryGood":  "You are making very good progress on your journey.",
+                                                 "good":  "Good progress. Consider reviewing the latest content.",
+                                                 "needsImprovement":  "It is time to strengthen your studies and regain momentum."
+                                             },
+                             "nextStep":  {
+                                              "regularizeTitle":  "Restore access",
+                                              "regularizeDescription":  "Access to your academic dashboard is currently restricted. Resolve the issue to continue normally.",
+                                              "openSupport":  "Open support",
+                                              "continueTitle":  "Continue studying",
+                                              "continueDescription":  "Resume your academic routine by opening the subject currently available.",
+                                              "openSubject":  "Open subject",
+                                              "reviewTitle":  "Review results",
+                                              "reviewDescription":  "View your latest performance and monitor your academic progress.",
+                                              "viewGrades":  "View grades",
+                                              "exploreTitle":  "Explore dashboard",
+                                              "exploreDescription":  "Monitor your academic indicators and keep your routine organized.",
+                                              "refreshDashboard":  "Refresh dashboard"
+                                          },
+                             "hero":  {
+                                          "eyebrow":  "Student academic dashboard",
+                                          "student":  "Student",
+                                          "sendingPhoto":  "Uploading...",
+                                          "changePhoto":  "Change photo",
+                                          "photoTips":  "Photo tips",
+                                          "heading":  "{greeting}, follow your academic journey with clarity, performance and focus",
+                                          "description":  "View your course, performance, subjects and next steps in a dashboard designed for a modern, organized and professional academic experience.",
+                                          "continueStudies":  "Continue studying",
+                                          "viewGrades":  "View grades",
+                                          "openGrades":  "Open grades",
+                                          "refreshDashboard":  "Refresh dashboard",
+                                          "currentCourse":  "Current course",
+                                          "unknownCourse":  "Course not identified",
+                                          "status":  "Status",
+                                          "notInformed":  "Not provided",
+                                          "currentPerformance":  "Current performance",
+                                          "performanceBasis":  "Based on your current overall average.",
+                                          "loading":  "Loading dashboard..."
+                                      },
+                             "restricted":  {
+                                                "eyebrow":  "Restricted access",
+                                                "title":  "Your access is temporarily blocked",
+                                                "institutionInstruction":  "Contact your institution to resolve the outstanding financial issue and restore access to the academic environment.",
+                                                "contactSupport":  "Contact support",
+                                                "refreshDashboard":  "Refresh dashboard"
+                                            },
+                             "stats":  {
+                                           "enrolledSubjects":  "Enrolled subjects",
+                                           "enrolledSubjectsDescription":  "Current number of subjects associated with your enrollment.",
+                                           "overallAverage":  "Overall average",
+                                           "overallAverageDescription":  "Your consolidated academic performance to date.",
+                                           "completedExams":  "Completed assessments",
+                                           "completedExamsDescription":  "Number of assessments already completed.",
+                                           "higherPlans":  "Available on higher-tier plans.",
+                                           "enrollmentStatus":  "Enrollment status",
+                                           "enrollmentStatusDescription":  "Current academic status of your institutional enrollment."
+                                       },
+                             "enrollmentStatuses":  {
+                                                        "active":  "Active",
+                                                        "pending":  "Pending",
+                                                        "locked":  "On hold",
+                                                        "cancelled":  "Cancelled",
+                                                        "completed":  "Completed",
+                                                        "inactive":  "Inactive",
+                                                        "suspended":  "Suspended"
+                                                    },
+                             "subjects":  {
+                                              "title":  "Your subjects",
+                                              "description":  "Quickly access content, materials and assignments.",
+                                              "count":  "{count, plural, =0 {No subjects} one {# subject} other {# subjects}}",
+                                              "empty":  "No subjects are currently available.",
+                                              "cardDescription":  "Access the available content and follow your academic activities.",
+                                              "availableSoon":  "Class available soon",
+                                              "blockedDefault":  "This subject will be unlocked automatically as soon as the institution publishes its content.",
+                                              "access":  "Open subject"
+                                          },
+                             "exams":  {
+                                           "title":  "Latest assessments",
+                                           "description":  "Your most recently completed assessments.",
+                                           "viewGrades":  "View grades",
+                                           "higherPlans":  "Details of completed assessments are available on higher-tier plans.",
+                                           "empty":  "You have not completed any assessments yet.",
+                                           "subject":  "Subject",
+                                           "completedAt":  "Completed",
+                                           "grade":  "Grade"
+                                       },
+                             "side":  {
+                                          "nextStep":  "Next step",
+                                          "visualProgress":  "Visual progress",
+                                          "currentPerformance":  "Current performance",
+                                          "quickLinks":  "Quick links",
+                                          "continueStudies":  "Continue studying",
+                                          "refreshDashboard":  "Refresh dashboard",
+                                          "openGrades":  "Open grades",
+                                          "academicSummary":  "Academic summary",
+                                          "enrolledSubjects":  "{count, plural, =0 {You are not enrolled in any subjects.} one {You are enrolled in # subject.} other {You are enrolled in # subjects.}}",
+                                          "completedExams":  "{count, plural, =0 {You have not completed any assessments yet.} one {You have completed # assessment.} other {You have completed # assessments.}}",
+                                          "currentAverage":  "Your current overall average is {average}.",
+                                          "currentCourse":  "Current course: {course}.",
+                                          "unknownCourse":  "Not identified",
+                                          "enrollmentStatus":  "Enrollment status: {status}.",
+                                          "institutionalSituation":  "Institutional status",
+                                          "institutionalDescription":  "Your academic environment is linked to the active course and enrollment registered in the system. Use this dashboard to monitor your grades, subjects and updates."
+                                      },
+                             "photoModal":  {
+                                                "eyebrow":  "PHANYX tip",
+                                                "title":  "Ideal profile photo",
+                                                "closeAria":  "Close photo tips",
+                                                "square":  "Use a square image with a 1:1 aspect ratio.",
+                                                "resolution":  "Recommended: 500x500 px or larger.",
+                                                "formats":  "Accepted formats: PNG, JPG, JPEG and WEBP.",
+                                                "size":  "Maximum size: 5 MB.",
+                                                "understood":  "Got it"
+                                            }
+                         }
 }

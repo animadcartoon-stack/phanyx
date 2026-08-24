@@ -266,5 +266,135 @@
                            "meetings":  "Reuniões",
                            "certificates":  "Certificados",
                            "ombudsman":  "Ouvidoria"
-                       }
+                       },
+    "StudentDashboard":  {
+                             "errors":  {
+                                            "imageUpload":  "Erro ao enviar imagem.",
+                                            "missingImageUrl":  "Upload concluído, mas a URL da imagem não foi retornada.",
+                                            "savePhoto":  "Erro ao salvar foto do perfil.",
+                                            "changePhoto":  "Erro ao alterar foto.",
+                                            "paymentBlocked":  "Acesso bloqueado por inadimplência.",
+                                            "loadDashboard":  "Erro ao carregar o painel."
+                                        },
+                             "greetings":  {
+                                               "morning":  "Bom dia",
+                                               "afternoon":  "Boa tarde",
+                                               "evening":  "Boa noite"
+                                           },
+                             "performance":  {
+                                                 "excellent":  "Excelente desempenho. Continue nesse ritmo.",
+                                                 "veryGood":  "Você está indo muito bem na sua jornada.",
+                                                 "good":  "Bom progresso. Vale revisar os conteúdos recentes.",
+                                                 "needsImprovement":  "Hora de reforçar os estudos e retomar o ritmo."
+                                             },
+                             "nextStep":  {
+                                              "regularizeTitle":  "Regularizar acesso",
+                                              "regularizeDescription":  "Seu painel acadêmico está com acesso restrito no momento. Regularize sua situação para continuar normalmente.",
+                                              "openSupport":  "Abrir suporte",
+                                              "continueTitle":  "Continuar estudos",
+                                              "continueDescription":  "Retome sua rotina acadêmica acessando sua disciplina disponível no momento.",
+                                              "openSubject":  "Abrir disciplina",
+                                              "reviewTitle":  "Revisar resultados",
+                                              "reviewDescription":  "Consulte seu desempenho mais recente e acompanhe sua evolução acadêmica.",
+                                              "viewGrades":  "Ver boletim",
+                                              "exploreTitle":  "Explorar painel",
+                                              "exploreDescription":  "Acompanhe seus indicadores acadêmicos e mantenha sua rotina organizada.",
+                                              "refreshDashboard":  "Atualizar painel"
+                                          },
+                             "hero":  {
+                                          "eyebrow":  "Painel acadêmico do aluno",
+                                          "student":  "Aluno",
+                                          "sendingPhoto":  "Enviando...",
+                                          "changePhoto":  "Alterar foto",
+                                          "photoTips":  "Dicas da foto",
+                                          "heading":  "{greeting}, acompanhe sua jornada acadêmica com clareza, desempenho e foco",
+                                          "description":  "Veja seu curso, seu desempenho, suas disciplinas e seus próximos passos em um painel pensado para uma experiência acadêmica moderna, organizada e profissional.",
+                                          "continueStudies":  "Continuar estudos",
+                                          "viewGrades":  "Ver boletim",
+                                          "openGrades":  "Abrir boletim",
+                                          "refreshDashboard":  "Atualizar painel",
+                                          "currentCourse":  "Curso atual",
+                                          "unknownCourse":  "Curso não identificado",
+                                          "status":  "Status",
+                                          "notInformed":  "Não informado",
+                                          "currentPerformance":  "Aproveitamento atual",
+                                          "performanceBasis":  "Baseado na sua média geral atual.",
+                                          "loading":  "Carregando painel..."
+                                      },
+                             "restricted":  {
+                                                "eyebrow":  "Acesso restrito",
+                                                "title":  "Seu acesso está temporariamente bloqueado",
+                                                "institutionInstruction":  "Entre em contato com a instituição para regularizar sua situação financeira e liberar novamente o ambiente acadêmico.",
+                                                "contactSupport":  "Falar com suporte",
+                                                "refreshDashboard":  "Atualizar painel"
+                                            },
+                             "stats":  {
+                                           "enrolledSubjects":  "Disciplinas matriculadas",
+                                           "enrolledSubjectsDescription":  "Total atual de disciplinas vinculadas à sua matrícula.",
+                                           "overallAverage":  "Média geral",
+                                           "overallAverageDescription":  "Desempenho acadêmico consolidado até o momento.",
+                                           "completedExams":  "Provas concluídas",
+                                           "completedExamsDescription":  "Quantidade de avaliações já finalizadas.",
+                                           "higherPlans":  "Disponível em planos superiores.",
+                                           "enrollmentStatus":  "Status da matrícula",
+                                           "enrollmentStatusDescription":  "Situação acadêmica atual do seu vínculo institucional."
+                                       },
+                             "enrollmentStatuses":  {
+                                                        "active":  "Ativa",
+                                                        "pending":  "Pendente",
+                                                        "locked":  "Trancada",
+                                                        "cancelled":  "Cancelada",
+                                                        "completed":  "Concluída",
+                                                        "inactive":  "Inativa",
+                                                        "suspended":  "Suspensa"
+                                                    },
+                             "subjects":  {
+                                              "title":  "Suas disciplinas",
+                                              "description":  "Acesse rapidamente os conteúdos, materiais e atividades.",
+                                              "count":  "{count, plural, =0 {Nenhuma disciplina} one {# disciplina} other {# disciplinas}}",
+                                              "empty":  "Nenhuma disciplina disponível no momento.",
+                                              "cardDescription":  "Acesse os conteúdos disponíveis e acompanhe suas atividades acadêmicas.",
+                                              "availableSoon":  "Aula disponível em breve",
+                                              "blockedDefault":  "Assim que a instituição publicar o conteúdo, esta disciplina será desbloqueada automaticamente.",
+                                              "access":  "Acessar disciplina"
+                                          },
+                             "exams":  {
+                                           "title":  "Últimas provas",
+                                           "description":  "Suas avaliações concluídas mais recentes.",
+                                           "viewGrades":  "Ver boletim",
+                                           "higherPlans":  "O detalhamento de provas concluídas está disponível em planos superiores.",
+                                           "empty":  "Você ainda não possui provas concluídas.",
+                                           "subject":  "Disciplina",
+                                           "completedAt":  "Finalização",
+                                           "grade":  "Nota"
+                                       },
+                             "side":  {
+                                          "nextStep":  "Próximo passo",
+                                          "visualProgress":  "Progresso visual",
+                                          "currentPerformance":  "Aproveitamento atual",
+                                          "quickLinks":  "Atalhos rápidos",
+                                          "continueStudies":  "Continuar estudos",
+                                          "refreshDashboard":  "Atualizar painel",
+                                          "openGrades":  "Abrir boletim",
+                                          "academicSummary":  "Resumo acadêmico",
+                                          "enrolledSubjects":  "{count, plural, =0 {Você não possui disciplinas matriculadas.} one {Você possui # disciplina matriculada.} other {Você possui # disciplinas matriculadas.}}",
+                                          "completedExams":  "{count, plural, =0 {Você ainda não concluiu provas.} one {Você já concluiu # prova.} other {Você já concluiu # provas.}}",
+                                          "currentAverage":  "Sua média geral atual é {average}.",
+                                          "currentCourse":  "Curso atual: {course}.",
+                                          "unknownCourse":  "Não identificado",
+                                          "enrollmentStatus":  "Status da matrícula: {status}.",
+                                          "institutionalSituation":  "Situação institucional",
+                                          "institutionalDescription":  "Seu ambiente acadêmico está vinculado ao curso e à matrícula ativos no sistema. Sempre que necessário, acompanhe seu boletim, disciplinas e atualizações por este painel."
+                                      },
+                             "photoModal":  {
+                                                "eyebrow":  "Dica PHANYX",
+                                                "title":  "Foto de perfil ideal",
+                                                "closeAria":  "Fechar dicas da foto",
+                                                "square":  "Use uma imagem quadrada, no formato 1:1.",
+                                                "resolution":  "Recomendado: 500x500 px ou maior.",
+                                                "formats":  "Formatos aceitos: PNG, JPG, JPEG e WEBP.",
+                                                "size":  "Tamanho máximo: 5 MB.",
+                                                "understood":  "Entendi"
+                                            }
+                         }
 }

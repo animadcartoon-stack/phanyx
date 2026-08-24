@@ -266,5 +266,135 @@
                            "meetings":  "Réunions",
                            "certificates":  "Certificats",
                            "ombudsman":  "Médiation"
-                       }
+                       },
+    "StudentDashboard":  {
+                             "errors":  {
+                                            "imageUpload":  "Impossible d\u0027envoyer l\u0027image.",
+                                            "missingImageUrl":  "L\u0027envoi est terminé, mais l\u0027adresse de l\u0027image n\u0027a pas été renvoyée.",
+                                            "savePhoto":  "Impossible d\u0027enregistrer la photo de profil.",
+                                            "changePhoto":  "Impossible de modifier la photo.",
+                                            "paymentBlocked":  "Accès bloqué en raison d\u0027un paiement en attente.",
+                                            "loadDashboard":  "Impossible de charger le tableau de bord."
+                                        },
+                             "greetings":  {
+                                               "morning":  "Bonjour",
+                                               "afternoon":  "Bon après-midi",
+                                               "evening":  "Bonsoir"
+                                           },
+                             "performance":  {
+                                                 "excellent":  "Excellents résultats. Continuez ainsi.",
+                                                 "veryGood":  "Vous progressez très bien dans votre parcours.",
+                                                 "good":  "Bonne progression. Pensez à revoir les contenus récents.",
+                                                 "needsImprovement":  "Il est temps de renforcer vos études et de reprendre le rythme."
+                                             },
+                             "nextStep":  {
+                                              "regularizeTitle":  "Rétablir l\u0027accès",
+                                              "regularizeDescription":  "L\u0027accès à votre tableau de bord académique est actuellement restreint. Régularisez votre situation pour continuer.",
+                                              "openSupport":  "Ouvrir l\u0027assistance",
+                                              "continueTitle":  "Continuer les études",
+                                              "continueDescription":  "Reprenez votre parcours académique en ouvrant la matière actuellement disponible.",
+                                              "openSubject":  "Ouvrir la matière",
+                                              "reviewTitle":  "Consulter les résultats",
+                                              "reviewDescription":  "Consultez vos derniers résultats et suivez votre progression académique.",
+                                              "viewGrades":  "Voir les notes",
+                                              "exploreTitle":  "Explorer le tableau de bord",
+                                              "exploreDescription":  "Suivez vos indicateurs académiques et organisez votre routine.",
+                                              "refreshDashboard":  "Actualiser le tableau de bord"
+                                          },
+                             "hero":  {
+                                          "eyebrow":  "Tableau de bord académique de l\u0027étudiant",
+                                          "student":  "Étudiant",
+                                          "sendingPhoto":  "Envoi en cours...",
+                                          "changePhoto":  "Modifier la photo",
+                                          "photoTips":  "Conseils pour la photo",
+                                          "heading":  "{greeting}, suivez votre parcours académique avec clarté, performance et concentration",
+                                          "description":  "Consultez votre formation, vos résultats, vos matières et vos prochaines étapes dans un tableau de bord moderne, organisé et professionnel.",
+                                          "continueStudies":  "Continuer les études",
+                                          "viewGrades":  "Voir les notes",
+                                          "openGrades":  "Ouvrir les notes",
+                                          "refreshDashboard":  "Actualiser le tableau de bord",
+                                          "currentCourse":  "Formation actuelle",
+                                          "unknownCourse":  "Formation non identifiée",
+                                          "status":  "Statut",
+                                          "notInformed":  "Non renseigné",
+                                          "currentPerformance":  "Progression actuelle",
+                                          "performanceBasis":  "Calculé à partir de votre moyenne générale actuelle.",
+                                          "loading":  "Chargement du tableau de bord..."
+                                      },
+                             "restricted":  {
+                                                "eyebrow":  "Accès restreint",
+                                                "title":  "Votre accès est temporairement bloqué",
+                                                "institutionInstruction":  "Contactez votre établissement pour régulariser votre situation financière et rétablir l\u0027accès à l\u0027environnement académique.",
+                                                "contactSupport":  "Contacter l\u0027assistance",
+                                                "refreshDashboard":  "Actualiser le tableau de bord"
+                                            },
+                             "stats":  {
+                                           "enrolledSubjects":  "Matières suivies",
+                                           "enrolledSubjectsDescription":  "Nombre actuel de matières associées à votre inscription.",
+                                           "overallAverage":  "Moyenne générale",
+                                           "overallAverageDescription":  "Résultats académiques consolidés à ce jour.",
+                                           "completedExams":  "Évaluations terminées",
+                                           "completedExamsDescription":  "Nombre d\u0027évaluations déjà terminées.",
+                                           "higherPlans":  "Disponible avec les offres supérieures.",
+                                           "enrollmentStatus":  "Statut de l\u0027inscription",
+                                           "enrollmentStatusDescription":  "Situation académique actuelle de votre inscription dans l\u0027établissement."
+                                       },
+                             "enrollmentStatuses":  {
+                                                        "active":  "Active",
+                                                        "pending":  "En attente",
+                                                        "locked":  "Suspendue",
+                                                        "cancelled":  "Annulée",
+                                                        "completed":  "Terminée",
+                                                        "inactive":  "Inactive",
+                                                        "suspended":  "Suspendue"
+                                                    },
+                             "subjects":  {
+                                              "title":  "Vos matières",
+                                              "description":  "Accédez rapidement aux contenus, supports et activités.",
+                                              "count":  "{count, plural, =0 {Aucune matière} one {# matière} other {# matières}}",
+                                              "empty":  "Aucune matière n\u0027est actuellement disponible.",
+                                              "cardDescription":  "Accédez aux contenus disponibles et suivez vos activités académiques.",
+                                              "availableSoon":  "Cours bientôt disponible",
+                                              "blockedDefault":  "Cette matière sera automatiquement débloquée lorsque l\u0027établissement publiera son contenu.",
+                                              "access":  "Ouvrir la matière"
+                                          },
+                             "exams":  {
+                                           "title":  "Dernières évaluations",
+                                           "description":  "Vos évaluations terminées les plus récentes.",
+                                           "viewGrades":  "Voir les notes",
+                                           "higherPlans":  "Le détail des évaluations terminées est disponible avec les offres supérieures.",
+                                           "empty":  "Vous n\u0027avez encore terminé aucune évaluation.",
+                                           "subject":  "Matière",
+                                           "completedAt":  "Terminé le",
+                                           "grade":  "Note"
+                                       },
+                             "side":  {
+                                          "nextStep":  "Prochaine étape",
+                                          "visualProgress":  "Progression visuelle",
+                                          "currentPerformance":  "Progression actuelle",
+                                          "quickLinks":  "Accès rapides",
+                                          "continueStudies":  "Continuer les études",
+                                          "refreshDashboard":  "Actualiser le tableau de bord",
+                                          "openGrades":  "Ouvrir les notes",
+                                          "academicSummary":  "Résumé académique",
+                                          "enrolledSubjects":  "{count, plural, =0 {Vous ne suivez aucune matière.} one {Vous suivez # matière.} other {Vous suivez # matières.}}",
+                                          "completedExams":  "{count, plural, =0 {Vous n\u0027avez encore terminé aucune évaluation.} one {Vous avez terminé # évaluation.} other {Vous avez terminé # évaluations.}}",
+                                          "currentAverage":  "Votre moyenne générale actuelle est de {average}.",
+                                          "currentCourse":  "Formation actuelle : {course}.",
+                                          "unknownCourse":  "Non identifiée",
+                                          "enrollmentStatus":  "Statut de l\u0027inscription : {status}.",
+                                          "institutionalSituation":  "Situation institutionnelle",
+                                          "institutionalDescription":  "Votre environnement académique est associé à la formation et à l\u0027inscription actives dans le système. Utilisez ce tableau de bord pour suivre vos notes, matières et actualités."
+                                      },
+                             "photoModal":  {
+                                                "eyebrow":  "Conseil PHANYX",
+                                                "title":  "Photo de profil idéale",
+                                                "closeAria":  "Fermer les conseils pour la photo",
+                                                "square":  "Utilisez une image carrée au format 1:1.",
+                                                "resolution":  "Recommandé : 500x500 px ou plus.",
+                                                "formats":  "Formats acceptés : PNG, JPG, JPEG et WEBP.",
+                                                "size":  "Taille maximale : 5 MB.",
+                                                "understood":  "Compris"
+                                            }
+                         }
 }

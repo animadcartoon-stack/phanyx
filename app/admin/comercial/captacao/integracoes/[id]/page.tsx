@@ -1776,6 +1776,10 @@ export default function IntegracaoDetalhePage() {
     integracao.status ===
     "ATIVA";
 
+  const integracaoSaida =
+    integracao.tipo ===
+    "WEBHOOK_SAIDA";
+
   return (
     <div className="captacao-integracao-detalhe-page">
       {toast && (
@@ -1982,7 +1986,9 @@ export default function IntegracaoDetalhePage() {
                   </h2>
 
                   <p>
-                    Estas informações organizam como os contatos entram no PHANYX.
+                    {integracaoSaida
+                      ? "Configure como o PHANYX enviará os dados para o sistema externo."
+                      : "Estas informações organizam como os contatos entram no PHANYX."}
                   </p>
                 </div>
               </div>
@@ -2733,11 +2739,15 @@ export default function IntegracaoDetalhePage() {
               </span>
 
               <h2>
-                Conexão com o PHANYX
+                {integracaoSaida
+                  ? "Autenticação do envio"
+                  : "Conexão com o PHANYX"}
               </h2>
 
               <p className="ci-section-description">
-                Use estas informações para conectar o sistema externo.
+                {integracaoSaida
+                  ? "Use estas informações para identificar e autenticar os dados enviados pelo PHANYX."
+                  : "Use estas informações para conectar o sistema externo ao PHANYX."}
               </p>
 
               <div className="ci-credential-block">
@@ -2766,7 +2776,7 @@ export default function IntegracaoDetalhePage() {
                 </div>
               </div>
 
-              {endpointRecebimento && (
+              {!integracaoSaida && endpointRecebimento && (
                 <div className="ci-credential-block">
                   <label>
                     Endereço para receber dados
