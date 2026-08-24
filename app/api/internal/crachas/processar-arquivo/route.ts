@@ -73,7 +73,7 @@ function normalizarMensagem(
   };
 }
 
-export const POST = handleCallback(
+const processarCallback = handleCallback(
   async (message, metadata) => {
     const mensagem =
       normalizarMensagem(message);
@@ -131,3 +131,9 @@ export const POST = handleCallback(
     },
   }
 );
+
+export async function POST(
+  request: Request
+): Promise<Response> {
+  return processarCallback(request);
+}
