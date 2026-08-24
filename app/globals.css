@@ -28968,3 +28968,286 @@ html:not(.dark)
   color: #1e293b !important;
   -webkit-text-fill-color: #1e293b !important;
 }
+
+/* =========================================================
+   PHANYX — CONTRASTE DO PORTAL DO ALUNO NO TEMA CLARO
+   Progresso, trabalhos, presenças, boletim e histórico
+   ========================================================= */
+
+html:not(.dark) .phanyx-aluno-conteudo {
+  color: #0f172a;
+}
+
+/* Títulos fora dos cards, como Histórico de Provas */
+html:not(.dark) .phanyx-aluno-conteudo > main > h1 {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+/* Textos principais */
+html:not(.dark)
+  .phanyx-aluno-conteudo
+  :is(
+    .text-slate-950,
+    .text-slate-900,
+    .text-gray-950,
+    .text-gray-900
+  ) {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-aluno-conteudo
+  :is(
+    .text-slate-800,
+    .text-gray-800
+  ) {
+  color: #1e293b !important;
+  -webkit-text-fill-color: #1e293b !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-aluno-conteudo
+  :is(
+    .text-slate-700,
+    .text-gray-700
+  ) {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-aluno-conteudo
+  :is(
+    .text-slate-600,
+    .text-slate-500,
+    .text-gray-600,
+    .text-gray-500,
+    .text-gray-400
+  ) {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+/* Campos de formulário */
+html:not(.dark)
+  .phanyx-aluno-conteudo
+  :is(input, select, textarea) {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark) .phanyx-aluno-conteudo label {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark)
+  .phanyx-aluno-conteudo
+  :is(input, textarea)::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+/* Cards claros */
+html:not(.dark)
+  .phanyx-aluno-conteudo
+  :is(.bg-white, .bg-slate-50, .bg-gray-50) {
+  --phanyx-texto-card: #0f172a;
+}
+
+html:not(.dark)
+  .phanyx-aluno-conteudo
+  :is(.bg-white, .bg-slate-50, .bg-gray-50)
+  :is(h1, h2, h3, h4) {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+/* =========================================================
+   CHIPS E CARDS DE STATUS
+   ========================================================= */
+
+/* Status positivo */
+html:not(.dark)
+  .phanyx-aluno-conteudo
+  :is(.bg-emerald-50, .bg-emerald-100, .bg-green-50, .bg-green-100) {
+  background-color: #d1fae5 !important;
+  color: #065f46 !important;
+  -webkit-text-fill-color: #065f46 !important;
+  opacity: 1 !important;
+}
+
+/* Status de atenção */
+html:not(.dark)
+  .phanyx-aluno-conteudo
+  :is(.bg-amber-50, .bg-amber-100, .bg-yellow-50, .bg-yellow-100) {
+  background-color: #fef3c7 !important;
+  color: #92400e !important;
+  -webkit-text-fill-color: #92400e !important;
+  opacity: 1 !important;
+}
+
+/* Status de erro/reprovação */
+html:not(.dark)
+  .phanyx-aluno-conteudo
+  :is(.bg-red-50, .bg-red-100) {
+  background-color: #fee2e2 !important;
+  color: #991b1b !important;
+  -webkit-text-fill-color: #991b1b !important;
+  opacity: 1 !important;
+}
+
+/* Status informativo/em andamento */
+html:not(.dark)
+  .phanyx-aluno-conteudo
+  :is(.bg-blue-50, .bg-blue-100) {
+  background-color: #dbeafe !important;
+  color: #1e3a8a !important;
+  -webkit-text-fill-color: #1e3a8a !important;
+  opacity: 1 !important;
+}
+
+/* Status neutro */
+html:not(.dark)
+  .phanyx-aluno-conteudo
+  :is(.bg-slate-100, .bg-gray-100) {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+/* Classes de texto usadas dentro dos chips */
+html:not(.dark)
+  .phanyx-aluno-conteudo
+  :is(
+    .text-emerald-700,
+    .text-emerald-800,
+    .text-emerald-900,
+    .text-green-700,
+    .text-green-800
+  ) {
+  color: #065f46 !important;
+  -webkit-text-fill-color: #065f46 !important;
+}
+
+html:not(.dark)
+  .phanyx-aluno-conteudo
+  :is(
+    .text-amber-600,
+    .text-amber-700,
+    .text-amber-800,
+    .text-yellow-700,
+    .text-yellow-800
+  ) {
+  color: #92400e !important;
+  -webkit-text-fill-color: #92400e !important;
+}
+
+html:not(.dark)
+  .phanyx-aluno-conteudo
+  :is(
+    .text-red-600,
+    .text-red-700,
+    .text-red-800,
+    .text-red-900,
+    .text-red-950
+  ) {
+  color: #991b1b !important;
+  -webkit-text-fill-color: #991b1b !important;
+}
+
+html:not(.dark)
+  .phanyx-aluno-conteudo
+  :is(
+    .text-blue-600,
+    .text-blue-700,
+    .text-blue-800,
+    .text-blue-900,
+    .text-blue-950
+  ) {
+  color: #1e40af !important;
+  -webkit-text-fill-color: #1e40af !important;
+}
+
+/* Chip específico da página de progresso */
+html:not(.dark)
+  .phanyx-aluno-conteudo
+  .aluno-status-progresso-pill {
+  font-weight: 700 !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+/* Links de anexos da página de trabalhos */
+html:not(.dark)
+  .phanyx-aluno-conteudo
+  .aluno-link-anexo-contraste {
+  background-color: #dbeafe !important;
+  color: #1e3a8a !important;
+  -webkit-text-fill-color: #1e3a8a !important;
+  border-color: #93c5fd !important;
+  opacity: 1 !important;
+}
+
+/* Histórico Acadêmico Oficial */
+html:not(.dark)
+  .phanyx-aluno-conteudo
+  .border-blue-200.bg-blue-50
+  > h2 {
+  color: #172554 !important;
+  -webkit-text-fill-color: #172554 !important;
+}
+
+html:not(.dark)
+  .phanyx-aluno-conteudo
+  .border-blue-200.bg-blue-50
+  > p {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+}
+
+/* Mantém textos dos botões sólidos brancos */
+html:not(.dark)
+  .phanyx-aluno-conteudo
+  :is(
+    button.bg-blue-600,
+    a.bg-blue-600,
+    button.bg-green-600,
+    a.bg-green-600,
+    button.bg-emerald-600,
+    a.bg-emerald-600,
+    button.bg-red-600,
+    a.bg-red-600
+  ) {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* Preserva o hero escuro do boletim */
+html:not(.dark)
+  .phanyx-aluno-conteudo
+  .aluno-boletim-hero
+  :is(h1, h2, h3, .text-white) {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html:not(.dark)
+  .phanyx-aluno-conteudo
+  .aluno-boletim-hero
+  :is(.text-blue-100, .text-blue-200) {
+  color: #dbeafe !important;
+  -webkit-text-fill-color: #dbeafe !important;
+}

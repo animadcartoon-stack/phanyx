@@ -536,7 +536,7 @@ export default async function AlunoLayout({
             </button>
           </form>
 
-          <main className="flex-1 w-full px-3 py-4 pb-24 lg:ml-64 lg:p-8">
+          <main className="phanyx-aluno-conteudo flex-1 w-full px-3 py-4 pb-24 lg:ml-64 lg:p-8">
             <PhanyxFeriadoAviso />
 
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-end">
