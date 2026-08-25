@@ -29395,3 +29395,39 @@ html:not(.dark)
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
 }
+
+/* PHANYX — contraste do card principal do painel do aluno */
+html:not(.dark)
+  .aluno-dashboard-hero
+  > div
+  > div:first-child,
+html:not(.dark)
+  .aluno-dashboard-hero
+  > div
+  > div:first-child
+  * {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* Botão branco principal precisa continuar com texto escuro */
+html:not(.dark)
+  .aluno-dashboard-hero
+  > div
+  > div:first-child
+  a.bg-white {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+/* Reforça os botões secundários sobre o fundo escuro */
+html:not(.dark)
+  .aluno-dashboard-hero
+  .aluno-botao-secundario,
+html:not(.dark)
+  .aluno-dashboard-hero
+  a[href="/aluno"] {
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}

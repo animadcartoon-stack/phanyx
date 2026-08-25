@@ -189,6 +189,7 @@ type ObjetoCracha =
     arredondamentoPontas?: number;
     arredondamentoReentrancias?: number;
     circularidadePontas?: number;
+    circularidadeReentrancias?: number;
     lados?: number;
     cruzCentroX?: number;
     cruzCentroY?: number;
@@ -833,42 +834,39 @@ export default function CrachasClient() {
     );
 
     function mover(
-      ev: MouseEvent
-    ) {
-      const deslocamentoX =
-        ev.clientX -
-        inicioX;
+  ev: MouseEvent
+) {
+  const deslocamentoX =
+    ev.clientX -
+    inicioX;
 
-      const deslocamentoY =
-        ev.clientY -
-        inicioY;
+  const deslocamentoY =
+    ev.clientY -
+    inicioY;
 
-      idsMovidos.forEach(
-        (id) => {
-          const posicaoOriginal =
-            posicoesOriginais.get(
-              id
-            );
+  setObjetos((atuais) =>
+    atuais.map((item) => {
+      const posicaoOriginal =
+        posicoesOriginais.get(
+          item.id
+        );
 
-          if (!posicaoOriginal) {
-            return;
-          }
+      if (!posicaoOriginal) {
+        return item;
+      }
 
-          atualizarObjeto(
-            id,
-            {
-              x:
-                posicaoOriginal.x +
-                deslocamentoX,
-
-              y:
-                posicaoOriginal.y +
-                deslocamentoY,
-            }
-          );
-        }
-      );
-    }
+      return {
+        ...item,
+        x:
+          posicaoOriginal.x +
+          deslocamentoX,
+        y:
+          posicaoOriginal.y +
+          deslocamentoY,
+      } as ObjetoCracha;
+    })
+  );
+}
 
     function soltar() {
       window.removeEventListener(
