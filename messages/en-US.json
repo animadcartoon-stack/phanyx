@@ -1101,6 +1101,7 @@
   },
   "StudentReenrollment": {
     "loading": "Loading reenrollment...",
+    "pendingPrerequisite": "Pending prerequisite: {subjects}.",
     "errorTitle": "Unable to load reenrollment",
     "academic": "Academic",
     "title": "Semester reenrollment",

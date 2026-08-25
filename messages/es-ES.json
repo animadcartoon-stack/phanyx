@@ -1101,6 +1101,7 @@
   },
   "StudentReenrollment": {
     "loading": "Cargando la rematrícula...",
+    "pendingPrerequisite": "Prerrequisito pendiente: {subjects}.",
     "errorTitle": "No se pudo cargar la rematrícula",
     "academic": "Académico",
     "title": "Rematrícula semestral",

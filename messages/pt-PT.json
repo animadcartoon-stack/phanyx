@@ -1101,6 +1101,7 @@
   },
   "StudentReenrollment": {
     "loading": "A carregar a renovação da matrícula...",
+    "pendingPrerequisite": "Pré-requisito em falta: {subjects}.",
     "errorTitle": "Não foi possível carregar a renovação da matrícula",
     "academic": "Académico",
     "title": "Renovação semestral da matrícula",

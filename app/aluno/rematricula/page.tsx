@@ -336,14 +336,14 @@ function formatarHorarios(horarios: HorarioTurma[], t: TradutorRematricula) {
 
       return horario.horaFim
         ? t("schedule.range", {
-            day: dia,
-            start: horario.horaInicio,
-            end: horario.horaFim,
-          })
+          day: dia,
+          start: horario.horaInicio,
+          end: horario.horaFim,
+        })
         : t("schedule.start", {
-            day: dia,
-            start: horario.horaInicio,
-          });
+          day: dia,
+          start: horario.horaInicio,
+        });
     })
     .join(" · ");
 }
@@ -864,13 +864,12 @@ export default function RematriculaAlunoPage() {
 
         {mensagem && (
           <div
-            className={`rounded-2xl border p-4 text-sm font-semibold ${
-              mensagem.tipo === "erro"
+            className={`rounded-2xl border p-4 text-sm font-semibold ${mensagem.tipo === "erro"
                 ? "border-red-300 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200"
                 : mensagem.tipo === "sucesso"
                   ? "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200"
                   : "border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200"
-            }`}
+              }`}
           >
             {mensagem.texto}
           </div>
@@ -997,8 +996,8 @@ export default function RematriculaAlunoPage() {
                     cargaMaxima === null
                       ? t("selectionSummary.noLimit")
                       : t("common.hoursValue", {
-                          hours: cargaMaxima,
-                        })
+                        hours: cargaMaxima,
+                      })
                   }
                 />
               </div>
@@ -1009,11 +1008,11 @@ export default function RematriculaAlunoPage() {
                   <span>
                     {cargaMinima > 0
                       ? Math.min(
-                          Math.round(
-                            (cargaSelecionadaMinima / cargaMinima) * 100,
-                          ),
-                          100,
-                        )
+                        Math.round(
+                          (cargaSelecionadaMinima / cargaMinima) * 100,
+                        ),
+                        100,
+                      )
                       : 100}
                     %
                   </span>
@@ -1021,18 +1020,16 @@ export default function RematriculaAlunoPage() {
 
                 <div className="mt-2 h-3 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
                   <div
-                    className={`h-full rounded-full transition-all ${
-                      atingiuCargaMinima ? "bg-emerald-500" : "bg-blue-600"
-                    }`}
+                    className={`h-full rounded-full transition-all ${atingiuCargaMinima ? "bg-emerald-500" : "bg-blue-600"
+                      }`}
                     style={{
-                      width: `${
-                        cargaMinima > 0
+                      width: `${cargaMinima > 0
                           ? Math.min(
-                              (cargaSelecionadaMinima / cargaMinima) * 100,
-                              100,
-                            )
+                            (cargaSelecionadaMinima / cargaMinima) * 100,
+                            100,
+                          )
                           : 100
-                      }%`,
+                        }%`,
                     }}
                   />
                 </div>
@@ -1131,7 +1128,7 @@ export default function RematriculaAlunoPage() {
               </p>
 
               {dados.gradeCurricular?.pdfDisponivel &&
-              dados.gradeCurricular.pdfUrl ? (
+                dados.gradeCurricular.pdfUrl ? (
                 <a
                   href={dados.gradeCurricular.pdfUrl}
                   target="_blank"
@@ -1164,13 +1161,13 @@ export default function RematriculaAlunoPage() {
         mensagem={
           dados.periodo.exigeAprovacao
             ? t("confirmation.reviewMessage", {
-                count: disciplinasSelecionadas.length,
-                hours: cargaSelecionadaMaxima,
-              })
+              count: disciplinasSelecionadas.length,
+              hours: cargaSelecionadaMaxima,
+            })
             : t("confirmation.confirmMessage", {
-                count: disciplinasSelecionadas.length,
-                hours: cargaSelecionadaMaxima,
-              })
+              count: disciplinasSelecionadas.length,
+              hours: cargaSelecionadaMaxima,
+            })
         }
         textoConfirmar={
           processandoAcao === "ENVIAR"
@@ -1261,9 +1258,8 @@ function GrupoDisciplinas({
             return (
               <article
                 key={disciplina.disciplinaId}
-                className={`phanyx-rematricula-disciplina-item p-5 transition ${
-                  selecionada ? "phanyx-rematricula-disciplina-selecionada" : ""
-                }`}
+                className={`phanyx-rematricula-disciplina-item p-5 transition ${selecionada ? "phanyx-rematricula-disciplina-selecionada" : ""
+                  }`}
               >
                 <div className="flex items-start gap-4">
                   <input
@@ -1302,8 +1298,8 @@ function GrupoDisciplinas({
                       })}
                       {disciplina.semestreOrigemNumero
                         ? ` · ${t("common.semesterNumber", {
-                            number: disciplina.semestreOrigemNumero,
-                          })}`
+                          number: disciplina.semestreOrigemNumero,
+                        })}`
                         : ""}
                     </p>
 
@@ -1318,11 +1314,10 @@ function GrupoDisciplinas({
                         {disciplina.preRequisitos.map((requisito) => (
                           <span
                             key={requisito.disciplinaId}
-                            className={`rounded-full border px-2 py-1 text-[10px] font-bold ${
-                              requisito.cumprido
+                            className={`rounded-full border px-2 py-1 text-[10px] font-bold ${requisito.cumprido
                                 ? "border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-300"
                                 : "phanyx-rematricula-prerequisito-pendente"
-                            }`}
+                              }`}
                           >
                             {requisito.cumprido ? "✓" : "✕"} {requisito.nome}
                           </span>
@@ -1332,9 +1327,26 @@ function GrupoDisciplinas({
 
                     {disciplina.bloqueada && (
                       <div className="phanyx-rematricula-alerta-bloqueio mt-3 rounded-xl border p-3 text-xs font-semibold">
-                        {disciplina.motivosBloqueio.map((motivo) => (
-                          <p key={motivo}>{motivo}</p>
-                        ))}
+                        {disciplina.preRequisitosPendentes.length > 0 && (
+                          <p>
+                            {t("errors.pendingPrerequisite", {
+                              subjects: disciplina.preRequisitosPendentes
+                                .map((requisito) => requisito.nome)
+                                .join(", "),
+                            })}
+                          </p>
+                        )}
+
+                        {disciplina.opcoesTurma.length === 0 && (
+                          <p>{t("errors.noAvailableClass")}</p>
+                        )}
+
+                        {disciplina.opcoesTurma.length > 0 &&
+                          disciplina.opcoesTurma.every(
+                            (turma) => turma.semVagas
+                          ) && (
+                            <p>{t("errors.noAvailableClass")}</p>
+                          )}
                       </div>
                     )}
 
@@ -1394,11 +1406,11 @@ function GrupoDisciplinas({
                                 titulo={t("classInfo.seats")}
                                 valor={
                                   turma.vagasDisponiveis === null ||
-                                  turma.vagasDisponiveis === undefined
+                                    turma.vagasDisponiveis === undefined
                                     ? t("classInfo.noLimitInformed")
                                     : t("classInfo.availableSeats", {
-                                        count: turma.vagasDisponiveis,
-                                      })
+                                      count: turma.vagasDisponiveis,
+                                    })
                                 }
                               />
 

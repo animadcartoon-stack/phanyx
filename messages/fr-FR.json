@@ -1101,6 +1101,7 @@
   },
   "StudentReenrollment": {
     "loading": "Chargement de la réinscription...",
+    "pendingPrerequisite": "Prérequis requis : {subjects}.",
     "errorTitle": "Impossible de charger la réinscription",
     "academic": "Scolarité",
     "title": "Réinscription semestrielle",
