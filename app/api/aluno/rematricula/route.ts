@@ -21,7 +21,7 @@ type TipoDisciplinaRematricula =
   | "PENDENCIA_ANTERIOR"
   | "EXTRACURRICULAR";
 
-  type AcaoRematriculaAluno =
+type AcaoRematriculaAluno =
   | "SALVAR_RASCUNHO"
   | "ENVIAR";
 
@@ -225,48 +225,48 @@ export async function GET() {
     const agora = new Date();
 
     const configuracaoManual =
-  await prisma.configuracaoPortalInstituicao.findFirst({
-    where: {
-      instituicaoId: aluno.instituicaoId,
-      portal: "ALUNO",
-      chavePagina: "aluno.rematricula",
-    },
-    select: {
-      visivel: true,
-      modoVisibilidade: true,
-    },
-  });
+      await prisma.configuracaoPortalInstituicao.findFirst({
+        where: {
+          instituicaoId: aluno.instituicaoId,
+          portal: "ALUNO",
+          chavePagina: "aluno.rematricula",
+        },
+        select: {
+          visivel: true,
+          modoVisibilidade: true,
+        },
+      });
 
-  const modoVisibilidade = String(
-  configuracaoManual?.modoVisibilidade ||
-    (configuracaoManual?.visivel
-      ? "SEMPRE_VISIVEL"
-      : "AUTOMATICO"),
-).toUpperCase();
+    const modoVisibilidade = String(
+      configuracaoManual?.modoVisibilidade ||
+      (configuracaoManual?.visivel
+        ? "SEMPRE_VISIVEL"
+        : "AUTOMATICO"),
+    ).toUpperCase();
 
-const visibilidadeManual =
-  modoVisibilidade === "SEMPRE_VISIVEL";
+    const visibilidadeManual =
+      modoVisibilidade === "SEMPRE_VISIVEL";
 
-const ocultoTemporariamente =
-  modoVisibilidade === "OCULTO";
+    const ocultoTemporariamente =
+      modoVisibilidade === "OCULTO";
 
-if (ocultoTemporariamente) {
-  return NextResponse.json({
-    mostrarPagina: false,
-    visibilidadeManual: false,
-    modoVisibilidade,
-    periodoAberto: false,
-    motivoIndisponibilidade:
-      "OCULTO_PELA_INSTITUICAO",
-    mensagem:
-      "A página de rematrícula foi temporariamente ocultada pela instituição.",
-    aluno,
-    matriculaAtual: null,
-    periodo: null,
-    disciplinas: [],
-    rematricula: null,
-  });
-}
+    if (ocultoTemporariamente) {
+      return NextResponse.json({
+        mostrarPagina: false,
+        visibilidadeManual: false,
+        modoVisibilidade,
+        periodoAberto: false,
+        motivoIndisponibilidade:
+          "OCULTO_PELA_INSTITUICAO",
+        mensagem:
+          "A página de rematrícula foi temporariamente ocultada pela instituição.",
+        aluno,
+        matriculaAtual: null,
+        periodo: null,
+        disciplinas: [],
+        rematricula: null,
+      });
+    }
 
     const matriculaAtual =
       await prisma.matricula.findFirst({
@@ -415,6 +415,11 @@ if (ocultoTemporariamente) {
               },
             },
           },
+          turmasParticipantes: {
+            select: {
+              turmaId: true,
+            },
+          },
         },
       });
 
@@ -483,6 +488,11 @@ if (ocultoTemporariamente) {
         },
       );
     }
+
+    const turmaIdsParticipantes =
+      periodo.turmasParticipantes.map(
+        (item) => item.turmaId,
+      );
 
     const [
       semestresAnteriores,
@@ -693,7 +703,7 @@ if (ocultoTemporariamente) {
       if (
         !existente ||
         extra.cursoSemestreId ===
-          cursoSemestreDestino.id
+        cursoSemestreDestino.id
       ) {
         extrasPorDisciplina.set(
           extra.disciplinaId,
@@ -742,131 +752,135 @@ if (ocultoTemporariamente) {
     const [preRequisitos, ofertas] =
       disciplinaIds.length > 0
         ? await Promise.all([
-            prisma.disciplinaPreRequisito.findMany(
-              {
-                where: {
-                  instituicaoId:
-                    aluno.instituicaoId,
-                  disciplinaId: {
-                    in: disciplinaIds,
-                  },
-                },
-                select: {
-                  disciplinaId: true,
-                  prerequisitoId: true,
-                  prerequisito: {
-                    select: {
-                      id: true,
-                      nome: true,
-                      codigo: true,
-                    },
-                  },
-                },
-              },
-            ),
-
-            prisma.turmaDisciplina.findMany({
+          prisma.disciplinaPreRequisito.findMany(
+            {
               where: {
                 instituicaoId:
                   aluno.instituicaoId,
                 disciplinaId: {
                   in: disciplinaIds,
                 },
-                AND: [
-                  {
-                    turma: {
-                      ativa: true,
-                      periodoLetivo:
-                        periodo.periodoLetivo,
-                      statusTurma: {
-                        in: [
-                          "AGUARDANDO",
-                          "A_INICIAR",
-                          "ATIVA",
-                        ],
-                      },
-                    },
-                  },
-                  ...(aluno.poloId
-                    ? [
-                        {
-                          OR: [
-                            {
-                              turma: {
-                                poloId:
-                                  aluno.poloId,
-                              },
-                            },
-                            {
-                              turma: {
-                                poloId: null,
-                              },
-                            },
-                          ],
-                        },
-                      ]
-                    : []),
-                ],
               },
               select: {
-                id: true,
                 disciplinaId: true,
-                dataInicio: true,
-                dataFim: true,
-                status: true,
-                professor: {
-                  select: {
-                    id: true,
-                    nome: true,
-                  },
-                },
-                turmaSemestre: {
-                  select: {
-                    id: true,
-                    numero: true,
-                    dataInicio: true,
-                    dataFim: true,
-                    status: true,
-                  },
-                },
-                turma: {
+                prerequisitoId: true,
+                prerequisito: {
                   select: {
                     id: true,
                     nome: true,
                     codigo: true,
-                    periodoLetivo: true,
-                    predio: true,
-                    ala: true,
-                    andar: true,
-                    sala: true,
-                    capacidadeMaxima: true,
-                    capacidadeMinima: true,
-                    dataInicio: true,
-                    dataFim: true,
-                    statusTurma: true,
-                    poloId: true,
-                    polo: {
-                      select: {
-                        id: true,
-                        nome: true,
-                      },
-                    },
-                  },
-                },
-                horarios: {
-                  where: {
-                    ativo: true,
-                  },
-                  select: {
-                    id: true,
-                    diaSemana: true,
-                    horaInicio: true,
-                    horaFim: true,
                   },
                 },
               },
-            }),
-          ])
+            },
+          ),
+
+          prisma.turmaDisciplina.findMany({
+            where: {
+              instituicaoId:
+                aluno.instituicaoId,
+              disciplinaId: {
+                in: disciplinaIds,
+              },
+              turmaId: {
+                in: turmaIdsParticipantes,
+              },
+
+              AND: [
+                {
+                  turma: {
+                    ativa: true,
+                    periodoLetivo:
+                      periodo.periodoLetivo,
+                    statusTurma: {
+                      in: [
+                        "AGUARDANDO",
+                        "A_INICIAR",
+                        "ATIVA",
+                      ],
+                    },
+                  },
+                },
+                ...(aluno.poloId
+                  ? [
+                    {
+                      OR: [
+                        {
+                          turma: {
+                            poloId:
+                              aluno.poloId,
+                          },
+                        },
+                        {
+                          turma: {
+                            poloId: null,
+                          },
+                        },
+                      ],
+                    },
+                  ]
+                  : []),
+              ],
+            },
+            select: {
+              id: true,
+              disciplinaId: true,
+              dataInicio: true,
+              dataFim: true,
+              status: true,
+              professor: {
+                select: {
+                  id: true,
+                  nome: true,
+                },
+              },
+              turmaSemestre: {
+                select: {
+                  id: true,
+                  numero: true,
+                  dataInicio: true,
+                  dataFim: true,
+                  status: true,
+                },
+              },
+              turma: {
+                select: {
+                  id: true,
+                  nome: true,
+                  codigo: true,
+                  periodoLetivo: true,
+                  predio: true,
+                  ala: true,
+                  andar: true,
+                  sala: true,
+                  capacidadeMaxima: true,
+                  capacidadeMinima: true,
+                  dataInicio: true,
+                  dataFim: true,
+                  statusTurma: true,
+                  poloId: true,
+                  polo: {
+                    select: {
+                      id: true,
+                      nome: true,
+                    },
+                  },
+                },
+              },
+              horarios: {
+                where: {
+                  ativo: true,
+                },
+                select: {
+                  id: true,
+                  diaSemana: true,
+                  horaInicio: true,
+                  horaFim: true,
+                },
+              },
+            },
+          }),
+        ])
         : [[], []];
 
     const turmaIds = Array.from(
@@ -880,28 +894,28 @@ if (ocultoTemporariamente) {
     const ocupacoes =
       turmaIds.length > 0
         ? await prisma.itemMatricula.findMany({
-            where: {
-              instituicaoId:
-                aluno.instituicaoId,
-              turmaId: {
-                in: turmaIds,
-              },
-              status: {
-                in: [
-                  "A_CURSAR",
-                  "EM_CURSO",
-                ],
-              },
+          where: {
+            instituicaoId:
+              aluno.instituicaoId,
+            turmaId: {
+              in: turmaIds,
             },
-            select: {
-              turmaId: true,
-              matriculaId: true,
+            status: {
+              in: [
+                "A_CURSAR",
+                "EM_CURSO",
+              ],
             },
-            distinct: [
-              "turmaId",
-              "matriculaId",
-            ],
-          })
+          },
+          select: {
+            turmaId: true,
+            matriculaId: true,
+          },
+          distinct: [
+            "turmaId",
+            "matriculaId",
+          ],
+        })
         : [];
 
     const ocupacaoPorTurma =
@@ -999,9 +1013,9 @@ if (ocultoTemporariamente) {
             capacidade === null
               ? null
               : Math.max(
-                  capacidade - ocupacao,
-                  0,
-                );
+                capacidade - ocupacao,
+                0,
+              );
 
           return {
             turmaDisciplinaId: oferta.id,
@@ -1141,38 +1155,38 @@ if (ocultoTemporariamente) {
         },
       );
 
-      const disciplinasJaSalvas =
-  new Set<number>(
-    rematriculaExistente?.itens.map(
-      (item) => item.disciplinaId,
-    ) ?? [],
-  );
+    const disciplinasJaSalvas =
+      new Set<number>(
+        rematriculaExistente?.itens.map(
+          (item) => item.disciplinaId,
+        ) ?? [],
+      );
 
-/*
- * O aluno deve visualizar apenas disciplinas
- * realmente ofertadas neste período.
- *
- * Mantemos uma disciplina já salva anteriormente
- * para preservar o histórico da rematrícula caso
- * a oferta seja retirada depois do envio.
- */
-const disciplinasVisiveis =
-  disciplinas.filter(
-    (disciplina) =>
-      disciplina.opcoesTurma.length > 0 ||
-      disciplinasJaSalvas.has(
-        disciplina.disciplinaId,
-      ),
-  );
+    /*
+     * O aluno deve visualizar apenas disciplinas
+     * realmente ofertadas neste período.
+     *
+     * Mantemos uma disciplina já salva anteriormente
+     * para preservar o histórico da rematrícula caso
+     * a oferta seja retirada depois do envio.
+     */
+    const disciplinasVisiveis =
+      disciplinas.filter(
+        (disciplina) =>
+          disciplina.opcoesTurma.length > 0 ||
+          disciplinasJaSalvas.has(
+            disciplina.disciplinaId,
+          ),
+      );
 
-const quantidadeSemOfertaOcultada =
-  disciplinas.filter(
-    (disciplina) =>
-      disciplina.opcoesTurma.length === 0 &&
-      !disciplinasJaSalvas.has(
-        disciplina.disciplinaId,
-      ),
-  ).length;
+    const quantidadeSemOfertaOcultada =
+      disciplinas.filter(
+        (disciplina) =>
+          disciplina.opcoesTurma.length === 0 &&
+          !disciplinasJaSalvas.has(
+            disciplina.disciplinaId,
+          ),
+      ).length;
 
     const cargaMinima =
       periodo.cargaMinimaOverride ??
@@ -1266,12 +1280,12 @@ const quantidadeSemOfertaOcultada =
       },
 
       disciplinas:
-  disciplinasVisiveis,
+        disciplinasVisiveis,
 
-resumoOfertas: {
-  disciplinasSemOfertaOcultadas:
-    quantidadeSemOfertaOcultada,
-},
+      resumoOfertas: {
+        disciplinasSemOfertaOcultadas:
+          quantidadeSemOfertaOcultada,
+      },
 
       rematricula: rematriculaExistente,
 
@@ -1524,6 +1538,11 @@ export async function POST(
                 cargaMaxima: true,
               },
             },
+            turmasParticipantes: {
+              select: {
+                turmaId: true,
+              },
+            },
           },
         },
       );
@@ -1533,6 +1552,30 @@ export async function POST(
         {
           error:
             "O período de rematrícula não está aberto ou publicado.",
+        },
+        {
+          status: 409,
+        },
+      );
+    }
+
+    const turmaIdsParticipantes =
+      periodo.turmasParticipantes.map(
+        (item) => item.turmaId,
+      );
+
+    const turmaIdsParticipantesSet =
+      new Set(
+        turmaIdsParticipantes,
+      );
+
+    if (
+      turmaIdsParticipantes.length === 0
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Este período de rematrícula não possui turmas participantes configuradas.",
         },
         {
           status: 409,
@@ -1558,7 +1601,7 @@ export async function POST(
     if (
       periodo.bloqueiaInadimplente &&
       aluno.statusAluno ===
-        "INADIMPLENTE"
+      "INADIMPLENTE"
     ) {
       return NextResponse.json(
         {
@@ -1625,7 +1668,7 @@ export async function POST(
     if (
       periodo.cursoId !== null &&
       periodo.cursoId !==
-        matriculaAtual.cursoId
+      matriculaAtual.cursoId
     ) {
       return NextResponse.json(
         {
@@ -1662,7 +1705,7 @@ export async function POST(
     if (
       periodo.semestreNumero !== null &&
       periodo.semestreNumero !==
-        proximoSemestreNumero
+      proximoSemestreNumero
     ) {
       return NextResponse.json(
         {
@@ -1714,11 +1757,11 @@ export async function POST(
         {
           where: {
             alunoId_periodoMatriculaId:
-              {
-                alunoId: aluno.id,
-                periodoMatriculaId:
-                  periodo.id,
-              },
+            {
+              alunoId: aluno.id,
+              periodoMatriculaId:
+                periodo.id,
+            },
           },
           select: {
             id: true,
@@ -1768,218 +1811,224 @@ export async function POST(
     ] = await Promise.all([
       disciplinaIds.length > 0
         ? prisma.cursoSemestreDisciplina.findMany(
-            {
-              where: {
-                instituicaoId:
-                  aluno.instituicaoId,
-                cursoSemestreId:
-                  cursoSemestreDestino.id,
-                disciplinaId: {
-                  in: disciplinaIds,
-                },
+          {
+            where: {
+              instituicaoId:
+                aluno.instituicaoId,
+              cursoSemestreId:
+                cursoSemestreDestino.id,
+              disciplinaId: {
+                in: disciplinaIds,
               },
-              include: {
-                disciplina: {
-                  select: {
-                    id: true,
-                    nome: true,
-                    cargaHoraria: true,
-                    ativo: true,
-                  },
+            },
+            include: {
+              disciplina: {
+                select: {
+                  id: true,
+                  nome: true,
+                  cargaHoraria: true,
+                  ativo: true,
                 },
               },
             },
-          )
+          },
+        )
         : [],
 
       disciplinaIds.length > 0
         ? prisma.cursoSemestreDisciplina.findMany(
-            {
-              where: {
-                instituicaoId:
-                  aluno.instituicaoId,
-                disciplinaId: {
-                  in: disciplinaIds,
-                },
-                cursoSemestre: {
-                  cursoId:
-                    matriculaAtual.cursoId,
-                  numero: {
-                    lt:
-                      cursoSemestreDestino.numero,
-                  },
-                },
+          {
+            where: {
+              instituicaoId:
+                aluno.instituicaoId,
+              disciplinaId: {
+                in: disciplinaIds,
               },
-              include: {
-                cursoSemestre: {
-                  select: {
-                    numero: true,
-                  },
-                },
-                disciplina: {
-                  select: {
-                    id: true,
-                    nome: true,
-                    cargaHoraria: true,
-                    ativo: true,
-                  },
+              cursoSemestre: {
+                cursoId:
+                  matriculaAtual.cursoId,
+                numero: {
+                  lt:
+                    cursoSemestreDestino.numero,
                 },
               },
             },
-          )
+            include: {
+              cursoSemestre: {
+                select: {
+                  numero: true,
+                },
+              },
+              disciplina: {
+                select: {
+                  id: true,
+                  nome: true,
+                  cargaHoraria: true,
+                  ativo: true,
+                },
+              },
+            },
+          },
+        )
         : [],
 
       disciplinaIds.length > 0
         ? prisma.cursoDisciplinaExtraPermitida.findMany(
-            {
-              where: {
-                instituicaoId:
-                  aluno.instituicaoId,
-                cursoId:
-                  matriculaAtual.cursoId,
-                disciplinaId: {
-                  in: disciplinaIds,
-                },
-                ativa: true,
-                OR: [
-                  {
-                    cursoSemestreId:
-                      null,
-                  },
-                  {
-                    cursoSemestreId:
-                      cursoSemestreDestino.id,
-                  },
-                ],
+          {
+            where: {
+              instituicaoId:
+                aluno.instituicaoId,
+              cursoId:
+                matriculaAtual.cursoId,
+              disciplinaId: {
+                in: disciplinaIds,
               },
-              include: {
-                disciplina: {
-                  select: {
-                    id: true,
-                    nome: true,
-                    cargaHoraria: true,
-                    ativo: true,
-                  },
+              ativa: true,
+              OR: [
+                {
+                  cursoSemestreId:
+                    null,
+                },
+                {
+                  cursoSemestreId:
+                    cursoSemestreDestino.id,
+                },
+              ],
+            },
+            include: {
+              disciplina: {
+                select: {
+                  id: true,
+                  nome: true,
+                  cargaHoraria: true,
+                  ativo: true,
                 },
               },
             },
-          )
+          },
+        )
         : [],
 
       disciplinaIds.length > 0
         ? prisma.resultadoFinal.findMany(
-            {
-              where: {
-                instituicaoId:
-                  aluno.instituicaoId,
-                alunoId: aluno.id,
-                disciplinaId: {
-                  in: disciplinaIds,
-                },
-                situacao:
-                  "APROVADO",
+          {
+            where: {
+              instituicaoId:
+                aluno.instituicaoId,
+              alunoId: aluno.id,
+              disciplinaId: {
+                in: disciplinaIds,
               },
-              select: {
-                disciplinaId: true,
-              },
+              situacao:
+                "APROVADO",
             },
-          )
+            select: {
+              disciplinaId: true,
+            },
+          },
+        )
         : [],
 
       disciplinaIds.length > 0
         ? prisma.itemMatricula.findMany(
-            {
-              where: {
-                instituicaoId:
-                  aluno.instituicaoId,
-                disciplinaId: {
-                  in: disciplinaIds,
-                },
-                matricula: {
-                  alunoId: aluno.id,
-                },
-                status: {
-                  in: [
-                    "A_CURSAR",
-                    "EM_CURSO",
-                    "CONCLUIDO",
-                  ],
-                },
+          {
+            where: {
+              instituicaoId:
+                aluno.instituicaoId,
+              disciplinaId: {
+                in: disciplinaIds,
               },
-              select: {
-                disciplinaId: true,
-                status: true,
+              matricula: {
+                alunoId: aluno.id,
+              },
+              status: {
+                in: [
+                  "A_CURSAR",
+                  "EM_CURSO",
+                  "CONCLUIDO",
+                ],
               },
             },
-          )
+            select: {
+              disciplinaId: true,
+              status: true,
+            },
+          },
+        )
         : [],
 
       disciplinaIds.length > 0
         ? prisma.disciplinaPreRequisito.findMany(
-            {
-              where: {
-                instituicaoId:
-                  aluno.instituicaoId,
-                disciplinaId: {
-                  in: disciplinaIds,
-                },
+          {
+            where: {
+              instituicaoId:
+                aluno.instituicaoId,
+              disciplinaId: {
+                in: disciplinaIds,
               },
-              include: {
-                prerequisito: {
-                  select: {
-                    id: true,
-                    nome: true,
-                  },
+            },
+            include: {
+              prerequisito: {
+                select: {
+                  id: true,
+                  nome: true,
                 },
               },
             },
-          )
+          },
+        )
         : [],
 
       turmaDisciplinaIds.length > 0
         ? prisma.turmaDisciplina.findMany(
-            {
-              where: {
-                instituicaoId:
-                  aluno.instituicaoId,
-                id: {
-                  in:
-                    turmaDisciplinaIds,
+          {
+            where: {
+              instituicaoId:
+                aluno.instituicaoId,
+
+              id: {
+                in:
+                  turmaDisciplinaIds,
+              },
+
+              turmaId: {
+                in:
+                  turmaIdsParticipantes,
+              },
+            },
+            include: {
+              disciplina: {
+                select: {
+                  id: true,
+                  nome: true,
                 },
               },
-              include: {
-                disciplina: {
-                  select: {
-                    id: true,
-                    nome: true,
-                  },
+              turma: {
+                select: {
+                  id: true,
+                  nome: true,
+                  ativa: true,
+                  periodoLetivo: true,
+                  poloId: true,
+                  capacidadeMaxima:
+                    true,
+                  statusTurma: true,
                 },
-                turma: {
-                  select: {
-                    id: true,
-                    nome: true,
-                    ativa: true,
-                    periodoLetivo: true,
-                    poloId: true,
-                    capacidadeMaxima:
-                      true,
-                    statusTurma: true,
-                  },
+              },
+              horarios: {
+                where: {
+                  ativo: true,
                 },
-                horarios: {
-                  where: {
-                    ativo: true,
-                  },
-                  select: {
-                    id: true,
-                    diaSemana: true,
-                    horaInicio: true,
-                    horaFim: true,
-                  },
+                select: {
+                  id: true,
+                  diaSemana: true,
+                  horaInicio: true,
+                  horaFim: true,
                 },
               },
             },
-          )
+          },
+        )
         : [],
     ]);
 
@@ -2012,17 +2061,17 @@ export async function POST(
     }
 
     const destinoPorDisciplina = new Map<
-  number,
-  (typeof vinculosDestino)[number]
->(
-  vinculosDestino.map(
-    (vinculo) =>
-      [
-        vinculo.disciplinaId,
-        vinculo,
-      ] as const,
-  ),
-);
+      number,
+      (typeof vinculosDestino)[number]
+    >(
+      vinculosDestino.map(
+        (vinculo) =>
+          [
+            vinculo.disciplinaId,
+            vinculo,
+          ] as const,
+      ),
+    );
 
     const anteriorPorDisciplina =
       new Map<number, (typeof vinculosAnteriores)[number]>();
@@ -2036,7 +2085,7 @@ export async function POST(
       if (
         !atual ||
         vinculo.cursoSemestre.numero >
-          atual.cursoSemestre.numero
+        atual.cursoSemestre.numero
       ) {
         anteriorPorDisciplina.set(
           vinculo.disciplinaId,
@@ -2060,7 +2109,7 @@ export async function POST(
       if (
         !atual ||
         extra.cursoSemestreId ===
-          cursoSemestreDestino.id
+        cursoSemestreDestino.id
       ) {
         extrasPorDisciplina.set(
           extra.disciplinaId,
@@ -2259,17 +2308,17 @@ export async function POST(
     }
 
     const ofertaPorId = new Map<
-  number,
-  (typeof ofertas)[number]
->(
-  ofertas.map(
-    (oferta) =>
-      [
-        oferta.id,
-        oferta,
-      ] as const,
-  ),
-);
+      number,
+      (typeof ofertas)[number]
+    >(
+      ofertas.map(
+        (oferta) =>
+          [
+            oferta.id,
+            oferta,
+          ] as const,
+      ),
+    );
 
     for (const item of itensValidados) {
       const oferta =
@@ -2285,6 +2334,21 @@ export async function POST(
           },
           {
             status: 409,
+          },
+        );
+      }
+
+      if (
+        !turmaIdsParticipantesSet.has(
+          oferta.turma.id,
+        )
+      ) {
+        return NextResponse.json(
+          {
+            error: `A turma ${oferta.turma.nome} não foi disponibilizada para este período de rematrícula.`,
+          },
+          {
+            status: 403,
           },
         );
       }
@@ -2342,7 +2406,7 @@ export async function POST(
         aluno.poloId !== null &&
         oferta.turma.poloId !== null &&
         oferta.turma.poloId !==
-          aluno.poloId
+        aluno.poloId
       ) {
         return NextResponse.json(
           {
@@ -2350,6 +2414,93 @@ export async function POST(
           },
           {
             status: 403,
+          },
+        );
+      }
+    }
+
+    const turmaIdsSelecionados =
+      Array.from(
+        new Set(
+          ofertas.map(
+            (oferta) =>
+              oferta.turma.id,
+          ),
+        ),
+      );
+
+    const ocupacoesSelecionadas =
+      turmaIdsSelecionados.length > 0
+        ? await prisma.itemMatricula.findMany(
+          {
+            where: {
+              instituicaoId:
+                aluno.instituicaoId,
+
+              turmaId: {
+                in:
+                  turmaIdsSelecionados,
+              },
+
+              status: {
+                in: [
+                  "A_CURSAR",
+                  "EM_CURSO",
+                ],
+              },
+            },
+
+            select: {
+              turmaId: true,
+              matriculaId: true,
+            },
+
+            distinct: [
+              "turmaId",
+              "matriculaId",
+            ],
+          },
+        )
+        : [];
+
+    const ocupacaoPorTurmaSelecionada =
+      new Map<number, number>();
+
+    for (
+      const ocupacao of
+      ocupacoesSelecionadas
+    ) {
+      ocupacaoPorTurmaSelecionada.set(
+        ocupacao.turmaId,
+
+        (
+          ocupacaoPorTurmaSelecionada.get(
+            ocupacao.turmaId,
+          ) ?? 0
+        ) + 1,
+      );
+    }
+
+    for (const oferta of ofertas) {
+      const capacidade =
+        oferta.turma.capacidadeMaxima;
+
+      if (capacidade === null) {
+        continue;
+      }
+
+      const ocupacao =
+        ocupacaoPorTurmaSelecionada.get(
+          oferta.turma.id,
+        ) ?? 0;
+
+      if (ocupacao >= capacidade) {
+        return NextResponse.json(
+          {
+            error: `A turma ${oferta.turma.nome} não possui mais vagas disponíveis.`,
+          },
+          {
+            status: 409,
           },
         );
       }
@@ -2428,7 +2579,7 @@ export async function POST(
     if (
       cargaMaxima !== null &&
       cargaSelecionadaMaxima >
-        cargaMaxima
+      cargaMaxima
     ) {
       return NextResponse.json(
         {
@@ -2443,7 +2594,7 @@ export async function POST(
     if (
       acao === "ENVIAR" &&
       cargaSelecionadaMinima <
-        cargaMinima
+      cargaMinima
     ) {
       return NextResponse.json(
         {
@@ -2529,7 +2680,7 @@ export async function POST(
                     observacoes:
                       String(
                         body?.observacoes ??
-                          "",
+                        "",
                       ).trim() ||
                       null,
                   },
@@ -2569,7 +2720,7 @@ export async function POST(
                     observacoes:
                       String(
                         body?.observacoes ??
-                          "",
+                        "",
                       ).trim() ||
                       null,
                   },
