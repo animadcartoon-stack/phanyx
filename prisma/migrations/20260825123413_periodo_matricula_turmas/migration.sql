@@ -1,4 +1,4 @@
-﻿CREATE TABLE "PeriodoMatriculaTurma" (
+CREATE TABLE "PeriodoMatriculaTurma" (
     "id" SERIAL NOT NULL,
     "instituicaoId" INTEGER NOT NULL,
     "periodoMatriculaId" INTEGER NOT NULL,

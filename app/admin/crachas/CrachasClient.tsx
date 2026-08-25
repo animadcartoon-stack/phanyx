@@ -38,6 +38,7 @@ type ObjetoCracha =
     alinhamento: "left" | "center" | "right";
     largura: number;
     altura: number;
+    rotacao?: number;
     sombraAtiva?: boolean;
     sombraX?: number;
     sombraY?: number;
@@ -60,6 +61,8 @@ type ObjetoCracha =
     largura: number;
     altura: number;
 
+    rotacao?: number;
+
     sombraAtiva?: boolean;
     sombraX?: number;
     sombraY?: number;
@@ -79,6 +82,7 @@ type ObjetoCracha =
     y: number;
     largura: number;
     altura: number;
+    rotacao?: number;
     raioBorda: number;
     ajusteImagem: "cover" | "contain";
     sombraAtiva?: boolean;
@@ -98,6 +102,7 @@ type ObjetoCracha =
     y: number;
     largura: number;
     altura: number;
+    rotacao?: number;
     cor: string;
     corFundo: string;
     mostrarFundo: boolean;
@@ -120,6 +125,7 @@ type ObjetoCracha =
     y: number;
     largura: number;
     altura: number;
+    rotacao?: number;
     cor: string;
     corFundo: string;
     mostrarFundo: boolean;
@@ -1247,6 +1253,222 @@ export default function CrachasClient() {
     window.addEventListener(
       "mouseup",
       soltar
+    );
+  }
+
+  function iniciarRotacaoObjeto(
+    e: React.MouseEvent<HTMLButtonElement>,
+    objeto: ObjetoCracha
+  ) {
+    if (e.button !== 0) {
+      return;
+    }
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const elemento =
+      e.currentTarget.parentElement;
+
+    if (!elemento) {
+      return;
+    }
+
+    const rect =
+      elemento.getBoundingClientRect();
+
+    const centroX =
+      rect.left +
+      rect.width / 2;
+
+    const centroY =
+      rect.top +
+      rect.height / 2;
+
+    /*
+     * Guarda o estado anterior
+     * para Ctrl + Z.
+     */
+    registrarEstadoHistorico(
+      lado,
+      objeto
+    );
+
+    function normalizarAngulo(
+      valor: number
+    ) {
+      let resultado =
+        valor % 360;
+
+      if (resultado > 180) {
+        resultado -= 360;
+      }
+
+      if (resultado < -180) {
+        resultado += 360;
+      }
+
+      return resultado;
+    }
+
+    function mover(
+      ev: MouseEvent
+    ) {
+      const dx =
+        ev.clientX -
+        centroX;
+
+      const dy =
+        ev.clientY -
+        centroY;
+
+      /*
+       * O +90 faz a posição de cima
+       * corresponder a 0 graus.
+       */
+      let angulo =
+        Math.atan2(
+          dy,
+          dx
+        ) *
+        (180 / Math.PI) +
+        90;
+
+      /*
+       * Segurar Shift encaixa
+       * de 15 em 15 graus.
+       */
+      if (ev.shiftKey) {
+        angulo =
+          Math.round(
+            angulo / 15
+          ) * 15;
+      }
+
+      angulo =
+        normalizarAngulo(
+          angulo
+        );
+
+      atualizarObjeto(
+        objeto.id,
+        {
+          rotacao:
+            Math.round(
+              angulo * 10
+            ) / 10,
+        }
+      );
+    }
+
+    function soltar() {
+      window.removeEventListener(
+        "mousemove",
+        mover
+      );
+
+      window.removeEventListener(
+        "mouseup",
+        soltar
+      );
+    }
+
+    window.addEventListener(
+      "mousemove",
+      mover
+    );
+
+    window.addEventListener(
+      "mouseup",
+      soltar
+    );
+  }
+
+  function AlcaRotacaoObjeto({
+    objeto,
+  }: {
+    objeto: ObjetoCracha;
+  }) {
+    if (
+      !mostrarControlesIndividuais(
+        objeto
+      )
+    ) {
+      return null;
+    }
+
+    return (
+      <>
+        <span
+          style={{
+            position: "absolute",
+            left: "50%",
+            top: -25,
+            width: 2,
+            height: 21,
+            background:
+              "#2563eb",
+            transform:
+              "translateX(-50%)",
+            pointerEvents:
+              "none",
+            zIndex: 40,
+          }}
+        />
+
+        <button
+          type="button"
+          onMouseDown={(e) =>
+            iniciarRotacaoObjeto(
+              e,
+              objeto
+            )
+          }
+          title="Arraste para girar. Segure Shift para encaixar em 15°."
+          style={{
+            position: "absolute",
+            left: "50%",
+            top: -39,
+
+            width: 20,
+            height: 20,
+
+            transform:
+              "translateX(-50%)",
+
+            display: "flex",
+            alignItems: "center",
+            justifyContent:
+              "center",
+
+            borderRadius:
+              9999,
+
+            border:
+              "2px solid #2563eb",
+
+            background:
+              "#ffffff",
+
+            color:
+              "#2563eb",
+
+            fontSize: 13,
+            fontWeight: 900,
+
+            cursor: "grab",
+
+            padding: 0,
+
+            zIndex: 50,
+
+            boxShadow:
+              "0 1px 4px rgba(0,0,0,.25)",
+          }}
+        >
+          ↻
+        </button>
+      </>
     );
   }
 
@@ -3910,35 +4132,44 @@ export default function CrachasClient() {
   }
 
   function excluirObjetoSelecionado() {
-    if (
-      objetoSelecionado === null
-    ) {
-      return;
-    }
+  const idsParaExcluir =
+    objetosSelecionadosIds.length > 0
+      ? objetosSelecionadosIds
+      : objetoSelecionado !== null
+        ? idsDoGrupoDoObjeto(
+            objetoSelecionado
+          )
+        : [];
 
-    const idsRelacionados =
-      idsDoGrupoDoObjeto(
-        objetoSelecionado
-      );
-
-    setObjetos(
-      (atuais) =>
-        atuais.filter(
-          (objeto) =>
-            !idsRelacionados.includes(
-              objeto.id
-            )
-        )
-    );
-
-    setObjetoSelecionado(
-      null
-    );
-
-    setObjetosSelecionadosIds(
-      []
-    );
+  if (
+    idsParaExcluir.length === 0
+  ) {
+    return;
   }
+
+  const idsSet =
+    new Set(
+      idsParaExcluir
+    );
+
+  setObjetos(
+    (atuais) =>
+      atuais.filter(
+        (objeto) =>
+          !idsSet.has(
+            objeto.id
+          )
+      )
+  );
+
+  setObjetoSelecionado(
+    null
+  );
+
+  setObjetosSelecionadosIds(
+    []
+  );
+}
 
   useEffect(() => {
     function aoPressionarTecla(
@@ -4040,6 +4271,7 @@ export default function CrachasClient() {
     };
   }, [
     objetoSelecionado,
+    objetosSelecionadosIds,
     objetoAtual,
     objetoCopiado,
     lado,
@@ -8681,6 +8913,13 @@ export default function CrachasClient() {
                         top: objeto.y,
                         width: objeto.largura,
                         height: objeto.altura,
+
+                        transform:
+                          `rotate(${objeto.rotacao ?? 0}deg)`,
+
+                        transformOrigin:
+                          "center center",
+
                         fontSize: objeto.fonte,
                         fontFamily: fonteCssCracha(objeto.fonteFamilia),
                         color: objeto.cor || "#000000",
@@ -8735,6 +8974,10 @@ export default function CrachasClient() {
                         <BotaoExcluirObjeto />
                       )}
 
+                      <AlcaRotacaoObjeto
+                        objeto={objeto}
+                      />
+
                       {mostrarControlesIndividuais(objeto) && (
                         <>
                           <span
@@ -8783,6 +9026,13 @@ export default function CrachasClient() {
                         top: objeto.y,
                         width: objeto.largura,
                         height: objeto.altura,
+
+                        transform:
+                          `rotate(${objeto.rotacao ?? 0}deg)`,
+
+                        transformOrigin:
+                          "center center",
+
                         fontSize: objeto.fonte,
                         fontFamily: fonteCssCracha(objeto.fonteFamilia),
                         color: objeto.cor || "#000000",
@@ -8833,6 +9083,9 @@ export default function CrachasClient() {
                       </span>
 
                       {mostrarControlesIndividuais(objeto) && <BotaoExcluirObjeto />}
+                      <AlcaRotacaoObjeto
+                        objeto={objeto}
+                      />
                     </div>
                   );
                 }
@@ -8854,6 +9107,13 @@ export default function CrachasClient() {
                         top: objeto.y,
                         width: objeto.largura,
                         height: objeto.altura,
+
+                        transform:
+                          `rotate(${objeto.rotacao ?? 0}deg)`,
+
+                        transformOrigin:
+                          "center center",
+
                         cursor: "move",
                         overflow: "visible",
                         border:
@@ -8907,6 +9167,10 @@ export default function CrachasClient() {
                         <BotaoExcluirObjeto />
                       )}
 
+                      <AlcaRotacaoObjeto
+                        objeto={objeto}
+                      />
+
                       {mostrarControlesIndividuais(objeto) && (
                         <>
                           <span
@@ -8955,6 +9219,13 @@ export default function CrachasClient() {
                         top: objeto.y,
                         width: objeto.largura,
                         height: objeto.altura,
+
+                        transform:
+                          `rotate(${objeto.rotacao ?? 0}deg)`,
+
+                        transformOrigin:
+                          "center center",
+
                         cursor: "move",
                         overflow: "visible",
                         border:
@@ -8994,6 +9265,10 @@ export default function CrachasClient() {
                       {mostrarControlesIndividuais(objeto) && (
                         <BotaoExcluirObjeto />
                       )}
+
+                      <AlcaRotacaoObjeto
+                        objeto={objeto}
+                      />
 
                       {mostrarControlesIndividuais(objeto) && (
                         <>
@@ -9043,6 +9318,13 @@ export default function CrachasClient() {
                         top: objeto.y,
                         width: objeto.largura,
                         height: objeto.altura,
+
+                        transform:
+                          `rotate(${objeto.rotacao ?? 0}deg)`,
+
+                        transformOrigin:
+                          "center center",
+
                         cursor: "move",
                         overflow: "visible",
                         border:
@@ -9081,6 +9363,9 @@ export default function CrachasClient() {
                       </div>
 
                       {mostrarControlesIndividuais(objeto) && <BotaoExcluirObjeto />}
+                      <AlcaRotacaoObjeto
+                        objeto={objeto}
+                      />
                     </div>
                   );
                 }
@@ -9103,6 +9388,13 @@ export default function CrachasClient() {
                         top: objeto.y,
                         width: objeto.largura,
                         height: objeto.altura,
+
+                        transform:
+                          `rotate(${objeto.rotacao ?? 0}deg)`,
+
+                        transformOrigin:
+                          "center center",
+
                         zIndex: zIndexObjetoCracha(objeto),
                         cursor: "move",
                         overflow: "visible",
@@ -9127,8 +9419,6 @@ export default function CrachasClient() {
                           opacity: objeto.opacidade / 100,
                           pointerEvents: "none",
                           filter: filtroAcabamentoForma(objeto),
-                          transform: `rotate(${objeto.rotacao ?? 0}deg)`,
-                          transformOrigin: "center center",
                         }}
                       >
                         <defs>{renderGradienteForma(objeto)}</defs>
@@ -9266,6 +9556,10 @@ export default function CrachasClient() {
                       {mostrarControlesIndividuais(objeto) && (
                         <BotaoExcluirObjeto />
                       )}
+
+                      <AlcaRotacaoObjeto
+                        objeto={objeto}
+                      />
 
                       {mostrarControlesIndividuais(objeto) && (
                         <>

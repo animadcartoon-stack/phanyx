@@ -25,6 +25,39 @@ type CursoOption = {
   semestres: CursoSemestreOption[];
 };
 
+type TurmaOption = {
+  id: number;
+  nome: string;
+  codigo?: string | null;
+  cursoId?: number | null;
+  semestre: string;
+  periodoLetivo?: string | null;
+  turno?: string | null;
+  modalidade?: string | null;
+  capacidadeMaxima?: number | null;
+  statusTurma?: string | null;
+
+  polo?: {
+    id: number;
+    nome: string;
+  } | null;
+
+  semestres: {
+    id: number;
+    numero: number;
+  }[];
+
+  _count: {
+    disciplinas: number;
+  };
+};
+
+type PeriodoMatriculaTurma = {
+  id: number;
+  turmaId: number;
+  turma: TurmaOption;
+};
+
 type PeriodoRematricula = {
   id: number;
   cursoId?: number | null;
@@ -57,15 +90,18 @@ type PeriodoRematricula = {
     cargaMinima?: number | null;
     cargaMaxima?: number | null;
   } | null;
+  turmasParticipantes?: PeriodoMatriculaTurma[];
   _count: {
     matriculas: number;
     rematriculas: number;
+    turmasParticipantes?: PeriodoMatriculaTurma[];
   };
 };
 
 type RespostaApi = {
   periodos?: PeriodoRematricula[];
   cursos?: CursoOption[];
+  turmas?: TurmaOption[];
   error?: string;
   message?: string;
 };
@@ -611,6 +647,15 @@ function pontuarDisciplinaNaBusca(
 
 export default function RematriculasSemestraisPage() {
   const [cursos, setCursos] = useState<CursoOption[]>([]);
+
+  const [turmas, setTurmas] =
+    useState<TurmaOption[]>([]);
+
+  const [
+    turmaIdsSelecionadas,
+    setTurmaIdsSelecionadas,
+  ] = useState<number[]>([]);
+
   const [periodos, setPeriodos] = useState<PeriodoRematricula[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
@@ -618,44 +663,44 @@ export default function RematriculasSemestraisPage() {
   const [formulario, setFormulario] = useState(FORMULARIO_INICIAL);
 
   const [escopoExtras, setEscopoExtras] =
-  useState<EscopoExtracurricular>(
-    "SEMESTRE_ESPECIFICO",
-  );
+    useState<EscopoExtracurricular>(
+      "SEMESTRE_ESPECIFICO",
+    );
 
-const [
-  disciplinasExtrasDisponiveis,
-  setDisciplinasExtrasDisponiveis,
-] = useState<DisciplinaExtraOption[]>([]);
+  const [
+    disciplinasExtrasDisponiveis,
+    setDisciplinasExtrasDisponiveis,
+  ] = useState<DisciplinaExtraOption[]>([]);
 
-const [itensExtras, setItensExtras] =
-  useState<ItemExtraSelecionado[]>([]);
+  const [itensExtras, setItensExtras] =
+    useState<ItemExtraSelecionado[]>([]);
 
-const [buscaExtra, setBuscaExtra] =
-  useState("");
+  const [buscaExtra, setBuscaExtra] =
+    useState("");
 
-const [
-  filtroCursoOrigemExtra,
-  setFiltroCursoOrigemExtra,
-] = useState("");
+  const [
+    filtroCursoOrigemExtra,
+    setFiltroCursoOrigemExtra,
+  ] = useState("");
 
-const [
-  carregandoExtras,
-  setCarregandoExtras,
-] = useState(false);
+  const [
+    carregandoExtras,
+    setCarregandoExtras,
+  ] = useState(false);
 
-const [
-  salvandoExtras,
-  setSalvandoExtras,
-] = useState(false);
+  const [
+    salvandoExtras,
+    setSalvandoExtras,
+  ] = useState(false);
 
   const [periodoEmEdicaoId, setPeriodoEmEdicaoId] = useState<number | null>(
-  null,
-);
+    null,
+  );
 
-const [confirmacaoPeriodo, setConfirmacaoPeriodo] =
-  useState<ConfirmacaoPeriodo>(null);
+  const [confirmacaoPeriodo, setConfirmacaoPeriodo] =
+    useState<ConfirmacaoPeriodo>(null);
 
-const [executandoAcao, setExecutandoAcao] = useState(false);
+  const [executandoAcao, setExecutandoAcao] = useState(false);
 
   const carregarDados = useCallback(async () => {
     setCarregando(true);
@@ -673,6 +718,7 @@ const [executandoAcao, setExecutandoAcao] = useState(false);
       }
 
       setCursos(dados.cursos || []);
+      setTurmas(dados.turmas || []);
       setPeriodos(dados.periodos || []);
     } catch (error) {
       setMensagem({
@@ -692,107 +738,107 @@ const [executandoAcao, setExecutandoAcao] = useState(false);
   }, [carregarDados]);
 
   const carregarExtracurriculares =
-  useCallback(async () => {
-    const cursoId = Number(
-      formulario.cursoId,
-    );
-
-    const cursoSemestreId = Number(
-      formulario.cursoSemestreId,
-    );
-
-    if (
-      !cursoId ||
-      (escopoExtras ===
-        "SEMESTRE_ESPECIFICO" &&
-        !cursoSemestreId)
-    ) {
-      setDisciplinasExtrasDisponiveis(
-        [],
+    useCallback(async () => {
+      const cursoId = Number(
+        formulario.cursoId,
       );
 
-      setItensExtras([]);
-
-      return;
-    }
-
-    setCarregandoExtras(true);
-
-    try {
-      const parametros =
-        new URLSearchParams({
-          cursoId: String(cursoId),
-        });
+      const cursoSemestreId = Number(
+        formulario.cursoSemestreId,
+      );
 
       if (
-        escopoExtras ===
-        "SEMESTRE_ESPECIFICO"
+        !cursoId ||
+        (escopoExtras ===
+          "SEMESTRE_ESPECIFICO" &&
+          !cursoSemestreId)
       ) {
-        parametros.set(
-          "cursoSemestreId",
-          String(cursoSemestreId),
+        setDisciplinasExtrasDisponiveis(
+          [],
         );
+
+        setItensExtras([]);
+
+        return;
       }
 
-      const resposta = await fetch(
-        `/api/admin/rematriculas-semestrais/extracurriculares?${parametros.toString()}`,
-        {
-          method: "GET",
-          cache: "no-store",
-        },
-      );
+      setCarregandoExtras(true);
 
-      const dados =
-        (await resposta.json()) as RespostaExtracurriculares;
+      try {
+        const parametros =
+          new URLSearchParams({
+            cursoId: String(cursoId),
+          });
 
-      if (!resposta.ok) {
-        throw new Error(
-          dados.error ||
+        if (
+          escopoExtras ===
+          "SEMESTRE_ESPECIFICO"
+        ) {
+          parametros.set(
+            "cursoSemestreId",
+            String(cursoSemestreId),
+          );
+        }
+
+        const resposta = await fetch(
+          `/api/admin/rematriculas-semestrais/extracurriculares?${parametros.toString()}`,
+          {
+            method: "GET",
+            cache: "no-store",
+          },
+        );
+
+        const dados =
+          (await resposta.json()) as RespostaExtracurriculares;
+
+        if (!resposta.ok) {
+          throw new Error(
+            dados.error ||
             "Não foi possível carregar as disciplinas extracurriculares.",
+          );
+        }
+
+        setDisciplinasExtrasDisponiveis(
+          dados.disciplinas || [],
         );
+
+        setItensExtras(
+          (dados.configuracoes || [])
+            .filter(
+              (configuracao) =>
+                configuracao.ativa,
+            )
+            .map((configuracao) => ({
+              disciplinaId:
+                configuracao.disciplinaId,
+              obrigatoria:
+                configuracao.obrigatoria,
+              contaCargaMinima:
+                configuracao.contaCargaMinima,
+              contaCargaMaxima:
+                configuracao.contaCargaMaxima,
+            })),
+        );
+      } catch (error) {
+        setMensagem({
+          tipo: "erro",
+          texto:
+            error instanceof Error
+              ? error.message
+              : "Não foi possível carregar as disciplinas extracurriculares.",
+        });
+      } finally {
+        setCarregandoExtras(false);
       }
+    }, [
+      formulario.cursoId,
+      formulario.cursoSemestreId,
+      escopoExtras,
+    ]);
 
-      setDisciplinasExtrasDisponiveis(
-        dados.disciplinas || [],
-      );
-
-      setItensExtras(
-        (dados.configuracoes || [])
-          .filter(
-            (configuracao) =>
-              configuracao.ativa,
-          )
-          .map((configuracao) => ({
-            disciplinaId:
-              configuracao.disciplinaId,
-            obrigatoria:
-              configuracao.obrigatoria,
-            contaCargaMinima:
-              configuracao.contaCargaMinima,
-            contaCargaMaxima:
-              configuracao.contaCargaMaxima,
-          })),
-      );
-    } catch (error) {
-      setMensagem({
-        tipo: "erro",
-        texto:
-          error instanceof Error
-            ? error.message
-            : "Não foi possível carregar as disciplinas extracurriculares.",
-      });
-    } finally {
-      setCarregandoExtras(false);
-    }
-  }, [
-    formulario.cursoId,
-    formulario.cursoSemestreId,
-    escopoExtras,
-  ]);
-
-useEffect(() => {
-  carregarExtracurriculares();
-}, [carregarExtracurriculares]);
+  useEffect(() => {
+    carregarExtracurriculares();
+  }, [carregarExtracurriculares]);
 
   const cursoSelecionado = useMemo(() => {
     const cursoId = Number(formulario.cursoId);
@@ -801,149 +847,266 @@ useEffect(() => {
   }, [cursos, formulario.cursoId]);
 
   const semestreSelecionado = useMemo(() => {
-  const semestreId = Number(
-    formulario.cursoSemestreId,
-  );
-
-  return (
-    cursoSelecionado?.semestres.find(
-      (semestre) =>
-        semestre.id === semestreId,
-    ) || null
-  );
-}, [
-  cursoSelecionado,
-  formulario.cursoSemestreId,
-]);
-
-const extrasPorDisciplina = useMemo(
-  () =>
-    new Map<
-      number,
-      ItemExtraSelecionado
-    >(
-      itensExtras.map(
-        (item) =>
-          [
-            item.disciplinaId,
-            item,
-          ] as const,
-      ),
-    ),
-  [itensExtras],
-);
-
-const cursosOrigemExtras = useMemo(() => {
-  const mapa = new Map<
-    number,
-    {
-      id: number;
-      nome: string;
-      codigo?: string | null;
-    }
-  >();
-
-  for (
-    const disciplina of
-    disciplinasExtrasDisponiveis
-  ) {
-    if (disciplina.curso) {
-      mapa.set(
-        disciplina.curso.id,
-        disciplina.curso,
-      );
-    }
-  }
-
-  return Array.from(
-    mapa.values(),
-  ).sort((a, b) =>
-    a.nome.localeCompare(
-      b.nome,
-      "pt-BR",
-    ),
-  );
-}, [disciplinasExtrasDisponiveis]);
-
-const disciplinasExtrasFiltradas =
-  useMemo(() => {
-    const cursoOrigemId = Number(
-      filtroCursoOrigemExtra,
+    const semestreId = Number(
+      formulario.cursoSemestreId,
     );
 
-    const disciplinasDoFiltro =
-      disciplinasExtrasDisponiveis.filter(
-        (disciplina) => {
-          if (
-            cursoOrigemId &&
-            (
-              disciplina.cursoId ??
-              disciplina.curso?.id
-            ) !== cursoOrigemId
-          ) {
-            return false;
-          }
+    return (
+      cursoSelecionado?.semestres.find(
+        (semestre) =>
+          semestre.id === semestreId,
+      ) || null
+    );
+  }, [
+    cursoSelecionado,
+    formulario.cursoSemestreId,
+  ]);
 
+  const turmasDisponiveis = useMemo(() => {
+    if (
+      !cursoSelecionado ||
+      !semestreSelecionado
+    ) {
+      return [];
+    }
+
+    return turmas
+      .filter((turma) => {
+        if (
+          turma.cursoId !==
+          cursoSelecionado.id
+        ) {
+          return false;
+        }
+
+        if (
+          turma.semestres &&
+          turma.semestres.length > 0
+        ) {
+          return turma.semestres.some(
+            (semestre) =>
+              semestre.numero ===
+              semestreSelecionado.numero,
+          );
+        }
+
+        const correspondencia =
+          String(
+            turma.semestre || "",
+          ).match(/\d+/);
+
+        if (!correspondencia) {
           return true;
-        },
-      );
+        }
 
-    const buscaNormalizada =
-      normalizarTextoBusca(
-        buscaExtra,
-      );
-
-    if (!buscaNormalizada) {
-      return [
-        ...disciplinasDoFiltro,
-      ].sort((a, b) =>
+        return (
+          Number(correspondencia[0]) ===
+          semestreSelecionado.numero
+        );
+      })
+      .sort((a, b) =>
         a.nome.localeCompare(
           b.nome,
           "pt-BR",
         ),
       );
-    }
+  }, [
+    turmas,
+    cursoSelecionado,
+    semestreSelecionado,
+  ]);
 
-    const termos =
-      tokenizarBuscaInteligente(
-        buscaExtra,
+  const todasTurmasSelecionadas =
+    turmasDisponiveis.length > 0 &&
+    turmasDisponiveis.every((turma) =>
+      turmaIdsSelecionadas.includes(
+        turma.id,
+      ),
+    );
+
+  function alternarTurma(
+    turmaId: number,
+    marcada: boolean,
+  ) {
+    setTurmaIdsSelecionadas(
+      (atuais) => {
+        if (marcada) {
+          return Array.from(
+            new Set([
+              ...atuais,
+              turmaId,
+            ]),
+          );
+        }
+
+        return atuais.filter(
+          (id) => id !== turmaId,
+        );
+      },
+    );
+  }
+
+  function alternarTodasTurmas() {
+    if (todasTurmasSelecionadas) {
+      const idsVisiveis =
+        new Set(
+          turmasDisponiveis.map(
+            (turma) => turma.id,
+          ),
+        );
+
+      setTurmaIdsSelecionadas(
+        (atuais) =>
+          atuais.filter(
+            (id) =>
+              !idsVisiveis.has(id),
+          ),
       );
 
-    if (termos.length === 0) {
-      return [];
+      return;
     }
 
-    return disciplinasDoFiltro
-      .map((disciplina) => ({
-        disciplina,
-        pontuacao:
-          pontuarDisciplinaNaBusca(
-            disciplina,
-            buscaExtra,
-          ),
-      }))
-      .filter(
-        (resultado) =>
-          resultado.pontuacao > 0,
-      )
-      .sort(
-        (a, b) =>
-          b.pontuacao -
-            a.pontuacao ||
-          a.disciplina.nome.localeCompare(
-            b.disciplina.nome,
+    setTurmaIdsSelecionadas(
+      (atuais) =>
+        Array.from(
+          new Set([
+            ...atuais,
+            ...turmasDisponiveis.map(
+              (turma) => turma.id,
+            ),
+          ]),
+        ),
+    );
+  }
+
+  const extrasPorDisciplina = useMemo(
+    () =>
+      new Map<
+        number,
+        ItemExtraSelecionado
+      >(
+        itensExtras.map(
+          (item) =>
+            [
+              item.disciplinaId,
+              item,
+            ] as const,
+        ),
+      ),
+    [itensExtras],
+  );
+
+  const cursosOrigemExtras = useMemo(() => {
+    const mapa = new Map<
+      number,
+      {
+        id: number;
+        nome: string;
+        codigo?: string | null;
+      }
+    >();
+
+    for (
+      const disciplina of
+      disciplinasExtrasDisponiveis
+    ) {
+      if (disciplina.curso) {
+        mapa.set(
+          disciplina.curso.id,
+          disciplina.curso,
+        );
+      }
+    }
+
+    return Array.from(
+      mapa.values(),
+    ).sort((a, b) =>
+      a.nome.localeCompare(
+        b.nome,
+        "pt-BR",
+      ),
+    );
+  }, [disciplinasExtrasDisponiveis]);
+
+  const disciplinasExtrasFiltradas =
+    useMemo(() => {
+      const cursoOrigemId = Number(
+        filtroCursoOrigemExtra,
+      );
+
+      const disciplinasDoFiltro =
+        disciplinasExtrasDisponiveis.filter(
+          (disciplina) => {
+            if (
+              cursoOrigemId &&
+              (
+                disciplina.cursoId ??
+                disciplina.curso?.id
+              ) !== cursoOrigemId
+            ) {
+              return false;
+            }
+
+            return true;
+          },
+        );
+
+      const buscaNormalizada =
+        normalizarTextoBusca(
+          buscaExtra,
+        );
+
+      if (!buscaNormalizada) {
+        return [
+          ...disciplinasDoFiltro,
+        ].sort((a, b) =>
+          a.nome.localeCompare(
+            b.nome,
             "pt-BR",
           ),
-      )
-      .map(
-        (resultado) =>
-          resultado.disciplina,
-      );
-  }, [
-    disciplinasExtrasDisponiveis,
-    buscaExtra,
-    filtroCursoOrigemExtra,
-  ]);
+        );
+      }
+
+      const termos =
+        tokenizarBuscaInteligente(
+          buscaExtra,
+        );
+
+      if (termos.length === 0) {
+        return [];
+      }
+
+      return disciplinasDoFiltro
+        .map((disciplina) => ({
+          disciplina,
+          pontuacao:
+            pontuarDisciplinaNaBusca(
+              disciplina,
+              buscaExtra,
+            ),
+        }))
+        .filter(
+          (resultado) =>
+            resultado.pontuacao > 0,
+        )
+        .sort(
+          (a, b) =>
+            b.pontuacao -
+            a.pontuacao ||
+            a.disciplina.nome.localeCompare(
+              b.disciplina.nome,
+              "pt-BR",
+            ),
+        )
+        .map(
+          (resultado) =>
+            resultado.disciplina,
+        );
+    }, [
+      disciplinasExtrasDisponiveis,
+      buscaExtra,
+      filtroCursoOrigemExtra,
+    ]);
 
   function alterarCurso(cursoId: string) {
     setFormulario((atual) => ({
@@ -954,455 +1117,482 @@ const disciplinasExtrasFiltradas =
       cargaMaximaOverride: "",
     }));
 
+    setTurmaIdsSelecionadas([]);
+
     setItensExtras([]);
-setDisciplinasExtrasDisponiveis([]);
-setBuscaExtra("");
-setFiltroCursoOrigemExtra("");
+    setDisciplinasExtrasDisponiveis([]);
+    setBuscaExtra("");
+    setFiltroCursoOrigemExtra("");
   }
 
   function alterarSemestre(cursoSemestreId: string) {
     const semestre = cursoSelecionado?.semestres.find(
       (item) => item.id === Number(cursoSemestreId),
     );
-
+    setTurmaIdsSelecionadas([]);
     setFormulario((atual) => ({
       ...atual,
       cursoSemestreId,
       cargaMinimaOverride:
         semestre?.cargaMinima !== null &&
-        semestre?.cargaMinima !== undefined
+          semestre?.cargaMinima !== undefined
           ? String(semestre.cargaMinima)
           : "",
       cargaMaximaOverride:
         semestre?.cargaMaxima !== null &&
-        semestre?.cargaMaxima !== undefined
+          semestre?.cargaMaxima !== undefined
           ? String(semestre.cargaMaxima)
           : "",
     }));
   }
 
   function alternarDisciplinaExtra(
-  disciplinaId: number,
-  selecionada: boolean,
-) {
-  setItensExtras((atuais) => {
-    if (!selecionada) {
-      return atuais.filter(
-        (item) =>
-          item.disciplinaId !==
+    disciplinaId: number,
+    selecionada: boolean,
+  ) {
+    setItensExtras((atuais) => {
+      if (!selecionada) {
+        return atuais.filter(
+          (item) =>
+            item.disciplinaId !==
+            disciplinaId,
+        );
+      }
+
+      if (
+        atuais.some(
+          (item) =>
+            item.disciplinaId ===
+            disciplinaId,
+        )
+      ) {
+        return atuais;
+      }
+
+      return [
+        ...atuais,
+        {
           disciplinaId,
-      );
-    }
-
-    if (
-      atuais.some(
-        (item) =>
-          item.disciplinaId ===
-          disciplinaId,
-      )
-    ) {
-      return atuais;
-    }
-
-    return [
-      ...atuais,
-      {
-        disciplinaId,
-        obrigatoria: false,
-        contaCargaMinima: true,
-        contaCargaMaxima: true,
-      },
-    ];
-  });
-}
-
-function alterarRegraExtra(
-  disciplinaId: number,
-  campo:
-    | "obrigatoria"
-    | "contaCargaMinima"
-    | "contaCargaMaxima",
-  valor: boolean,
-) {
-  setItensExtras((atuais) =>
-    atuais.map((item) =>
-      item.disciplinaId ===
-      disciplinaId
-        ? {
-            ...item,
-            [campo]: valor,
-          }
-        : item,
-    ),
-  );
-}
-
-function selecionarTodasExtrasFiltradas() {
-  setItensExtras((atuais) => {
-    const mapa = new Map(
-      atuais.map((item) => [
-        item.disciplinaId,
-        item,
-      ]),
-    );
-
-    for (const disciplina of disciplinasExtrasFiltradas) {
-      if (!mapa.has(disciplina.id)) {
-        mapa.set(disciplina.id, {
-          disciplinaId:
-            disciplina.id,
           obrigatoria: false,
           contaCargaMinima: true,
           contaCargaMaxima: true,
-        });
-      }
-    }
-
-    return Array.from(
-      mapa.values(),
-    );
-  });
-}
-
-function removerExtrasFiltradas() {
-  const idsVisiveis = new Set(
-    disciplinasExtrasFiltradas.map(
-      (disciplina) =>
-        disciplina.id,
-    ),
-  );
-
-  setItensExtras((atuais) =>
-    atuais.filter(
-      (item) =>
-        !idsVisiveis.has(
-          item.disciplinaId,
-        ),
-    ),
-  );
-}
-
-async function salvarExtracurriculares() {
-  setMensagem(null);
-
-  const cursoId = Number(
-    formulario.cursoId,
-  );
-
-  const cursoSemestreId = Number(
-    formulario.cursoSemestreId,
-  );
-
-  if (!cursoId) {
-    setMensagem({
-      tipo: "erro",
-      texto:
-        "Selecione o curso de destino.",
-    });
-
-    return;
-  }
-
-  if (
-    escopoExtras ===
-      "SEMESTRE_ESPECIFICO" &&
-    !cursoSemestreId
-  ) {
-    setMensagem({
-      tipo: "erro",
-      texto:
-        "Selecione o semestre de destino.",
-    });
-
-    return;
-  }
-
-  setSalvandoExtras(true);
-
-  try {
-    const resposta = await fetch(
-      "/api/admin/rematriculas-semestrais/extracurriculares",
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type":
-            "application/json",
         },
-        body: JSON.stringify({
-          cursoId,
-          cursoSemestreId:
-            escopoExtras ===
-            "SEMESTRE_ESPECIFICO"
-              ? cursoSemestreId
-              : null,
-          itens: itensExtras,
-        }),
-      },
+      ];
+    });
+  }
+
+  function alterarRegraExtra(
+    disciplinaId: number,
+    campo:
+      | "obrigatoria"
+      | "contaCargaMinima"
+      | "contaCargaMaxima",
+    valor: boolean,
+  ) {
+    setItensExtras((atuais) =>
+      atuais.map((item) =>
+        item.disciplinaId ===
+          disciplinaId
+          ? {
+            ...item,
+            [campo]: valor,
+          }
+          : item,
+      ),
+    );
+  }
+
+  function selecionarTodasExtrasFiltradas() {
+    setItensExtras((atuais) => {
+      const mapa = new Map(
+        atuais.map((item) => [
+          item.disciplinaId,
+          item,
+        ]),
+      );
+
+      for (const disciplina of disciplinasExtrasFiltradas) {
+        if (!mapa.has(disciplina.id)) {
+          mapa.set(disciplina.id, {
+            disciplinaId:
+              disciplina.id,
+            obrigatoria: false,
+            contaCargaMinima: true,
+            contaCargaMaxima: true,
+          });
+        }
+      }
+
+      return Array.from(
+        mapa.values(),
+      );
+    });
+  }
+
+  function removerExtrasFiltradas() {
+    const idsVisiveis = new Set(
+      disciplinasExtrasFiltradas.map(
+        (disciplina) =>
+          disciplina.id,
+      ),
     );
 
-    const dados =
-      (await resposta.json()) as RespostaExtracurriculares;
+    setItensExtras((atuais) =>
+      atuais.filter(
+        (item) =>
+          !idsVisiveis.has(
+            item.disciplinaId,
+          ),
+      ),
+    );
+  }
 
-    if (!resposta.ok) {
-      throw new Error(
-        dados.error ||
-          "Não foi possível salvar as disciplinas extracurriculares.",
-      );
+  async function salvarExtracurriculares() {
+    setMensagem(null);
+
+    const cursoId = Number(
+      formulario.cursoId,
+    );
+
+    const cursoSemestreId = Number(
+      formulario.cursoSemestreId,
+    );
+
+    if (!cursoId) {
+      setMensagem({
+        tipo: "erro",
+        texto:
+          "Selecione o curso de destino.",
+      });
+
+      return;
     }
 
-    setMensagem({
-      tipo: "sucesso",
-      texto:
-        dados.message ||
-        "Disciplinas extracurriculares salvas.",
-    });
+    if (
+      escopoExtras ===
+      "SEMESTRE_ESPECIFICO" &&
+      !cursoSemestreId
+    ) {
+      setMensagem({
+        tipo: "erro",
+        texto:
+          "Selecione o semestre de destino.",
+      });
 
-    await carregarExtracurriculares();
-  } catch (error) {
-    setMensagem({
-      tipo: "erro",
-      texto:
-        error instanceof Error
-          ? error.message
-          : "Não foi possível salvar as disciplinas extracurriculares.",
-    });
-  } finally {
-    setSalvandoExtras(false);
+      return;
+    }
+
+    setSalvandoExtras(true);
+
+    try {
+      const resposta = await fetch(
+        "/api/admin/rematriculas-semestrais/extracurriculares",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify({
+            cursoId,
+            cursoSemestreId:
+              escopoExtras ===
+                "SEMESTRE_ESPECIFICO"
+                ? cursoSemestreId
+                : null,
+            itens: itensExtras,
+          }),
+        },
+      );
+
+      const dados =
+        (await resposta.json()) as RespostaExtracurriculares;
+
+      if (!resposta.ok) {
+        throw new Error(
+          dados.error ||
+          "Não foi possível salvar as disciplinas extracurriculares.",
+        );
+      }
+
+      setMensagem({
+        tipo: "sucesso",
+        texto:
+          dados.message ||
+          "Disciplinas extracurriculares salvas.",
+      });
+
+      await carregarExtracurriculares();
+    } catch (error) {
+      setMensagem({
+        tipo: "erro",
+        texto:
+          error instanceof Error
+            ? error.message
+            : "Não foi possível salvar as disciplinas extracurriculares.",
+      });
+    } finally {
+      setSalvandoExtras(false);
+    }
   }
-}
 
   function editarPeriodo(periodo: PeriodoRematricula) {
-  setPeriodoEmEdicaoId(periodo.id);
+    setPeriodoEmEdicaoId(periodo.id);
 
-  setFormulario({
-    cursoId: String(periodo.cursoId || periodo.curso?.id || ""),
-    cursoSemestreId: String(
-      periodo.cursoSemestreId || periodo.cursoSemestre?.id || "",
-    ),
-    periodoLetivo: periodo.periodoLetivo || "",
-    titulo: periodo.titulo || "",
-    dataInicio: converterIsoParaDataLocal(periodo.dataInicio),
-    dataFim: converterIsoParaDataLocal(periodo.dataFim),
-    dataInicioAulas: converterIsoParaDataLocal(periodo.dataInicioAulas),
-    cargaMinimaOverride:
-      periodo.cargaMinimaOverride !== null &&
-      periodo.cargaMinimaOverride !== undefined
-        ? String(periodo.cargaMinimaOverride)
-        : "",
-    cargaMaximaOverride:
-      periodo.cargaMaximaOverride !== null &&
-      periodo.cargaMaximaOverride !== undefined
-        ? String(periodo.cargaMaximaOverride)
-        : "",
-    instrucoes: periodo.instrucoes || "",
-    exigeAprovacao: Boolean(periodo.exigeAprovacao),
-    permiteRascunho:
-      typeof periodo.permiteRascunho === "boolean"
-        ? periodo.permiteRascunho
-        : true,
-    bloqueiaInadimplente: Boolean(periodo.bloqueiaInadimplente),
-  });
+    setTurmaIdsSelecionadas(
+      (
+        periodo.turmasParticipantes ||
+        []
+      ).map(
+        (item) => item.turmaId,
+      ),
+    );
 
-  setMensagem(null);
+    setFormulario({
+      cursoId: String(periodo.cursoId || periodo.curso?.id || ""),
+      cursoSemestreId: String(
+        periodo.cursoSemestreId || periodo.cursoSemestre?.id || "",
+      ),
+      periodoLetivo: periodo.periodoLetivo || "",
+      titulo: periodo.titulo || "",
+      dataInicio: converterIsoParaDataLocal(periodo.dataInicio),
+      dataFim: converterIsoParaDataLocal(periodo.dataFim),
+      dataInicioAulas: converterIsoParaDataLocal(periodo.dataInicioAulas),
+      cargaMinimaOverride:
+        periodo.cargaMinimaOverride !== null &&
+          periodo.cargaMinimaOverride !== undefined
+          ? String(periodo.cargaMinimaOverride)
+          : "",
+      cargaMaximaOverride:
+        periodo.cargaMaximaOverride !== null &&
+          periodo.cargaMaximaOverride !== undefined
+          ? String(periodo.cargaMaximaOverride)
+          : "",
+      instrucoes: periodo.instrucoes || "",
+      exigeAprovacao: Boolean(periodo.exigeAprovacao),
+      permiteRascunho:
+        typeof periodo.permiteRascunho === "boolean"
+          ? periodo.permiteRascunho
+          : true,
+      bloqueiaInadimplente: Boolean(periodo.bloqueiaInadimplente),
+    });
 
-  window.setTimeout(() => {
-    document
-      .querySelector('[data-form-rematricula="true"]')
-      ?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-  }, 50);
-}
+    setMensagem(null);
 
-function cancelarEdicao() {
-  setPeriodoEmEdicaoId(null);
-  setFormulario(FORMULARIO_INICIAL);
-  setMensagem(null);
-}
+    window.setTimeout(() => {
+      document
+        .querySelector('[data-form-rematricula="true"]')
+        ?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+    }, 50);
+  }
+
+  function cancelarEdicao() {
+    setPeriodoEmEdicaoId(null);
+    setFormulario(FORMULARIO_INICIAL);
+    setMensagem(null);
+    setTurmaIdsSelecionadas([]);
+  }
 
   async function salvarPeriodo(status: StatusSalvamento) {
-  setMensagem(null);
+    setMensagem(null);
 
-  if (!formulario.cursoId) {
-    setMensagem({
-      tipo: "erro",
-      texto: "Selecione o curso.",
-    });
-    return;
-  }
+    if (!formulario.cursoId) {
+      setMensagem({
+        tipo: "erro",
+        texto: "Selecione o curso.",
+      });
+      return;
+    }
 
-  if (!formulario.cursoSemestreId) {
-    setMensagem({
-      tipo: "erro",
-      texto: "Selecione o semestre de destino.",
-    });
-    return;
-  }
+    if (!formulario.cursoSemestreId) {
+      setMensagem({
+        tipo: "erro",
+        texto: "Selecione o semestre de destino.",
+      });
+      return;
+    }
 
-  if (
-    !formulario.periodoLetivo.trim() ||
-    !formulario.dataInicio ||
-    !formulario.dataFim
-  ) {
-    setMensagem({
-      tipo: "erro",
-      texto:
-        "Informe o período letivo, a abertura e o encerramento da rematrícula.",
-    });
-    return;
-  }
+    if (
+      !formulario.periodoLetivo.trim() ||
+      !formulario.dataInicio ||
+      !formulario.dataFim
+    ) {
+      setMensagem({
+        tipo: "erro",
+        texto:
+          "Informe o período letivo, a abertura e o encerramento da rematrícula.",
+      });
+      return;
+    }
 
-  setSalvando(true);
+    if (
+      status === "PUBLICADO" &&
+      turmaIdsSelecionadas.length === 0
+    ) {
+      setMensagem({
+        tipo: "erro",
+        texto:
+          "Selecione pelo menos uma turma participante antes de publicar.",
+      });
 
-  try {
-    const editando = periodoEmEdicaoId !== null;
+      return;
+    }
 
-    const resposta = await fetch(
-      editando
-        ? `/api/admin/rematriculas-semestrais/${periodoEmEdicaoId}`
-        : "/api/admin/rematriculas-semestrais",
-      {
-        method: editando ? "PATCH" : "POST",
-        headers: {
-          "Content-Type": "application/json",
+    setSalvando(true);
+
+    try {
+      const editando = periodoEmEdicaoId !== null;
+
+      const resposta = await fetch(
+        editando
+          ? `/api/admin/rematriculas-semestrais/${periodoEmEdicaoId}`
+          : "/api/admin/rematriculas-semestrais",
+        {
+          method: editando ? "PATCH" : "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            acao:
+              editando && status === "PUBLICADO"
+                ? "PUBLICAR"
+                : editando
+                  ? "SALVAR"
+                  : undefined,
+            cursoId: Number(formulario.cursoId),
+            cursoSemestreId: Number(formulario.cursoSemestreId),
+            turmaIds: turmaIdsSelecionadas,
+            periodoLetivo: formulario.periodoLetivo.trim(),
+            titulo: formulario.titulo.trim(),
+            dataInicio: converterParaIso(formulario.dataInicio),
+            dataFim: converterParaIso(formulario.dataFim),
+            dataInicioAulas: converterParaIso(formulario.dataInicioAulas),
+            cargaMinimaOverride:
+              formulario.cargaMinimaOverride === ""
+                ? null
+                : Number(formulario.cargaMinimaOverride),
+            cargaMaximaOverride:
+              formulario.cargaMaximaOverride === ""
+                ? null
+                : Number(formulario.cargaMaximaOverride),
+            instrucoes: formulario.instrucoes.trim(),
+            exigeAprovacao: formulario.exigeAprovacao,
+            permiteRascunho: formulario.permiteRascunho,
+            bloqueiaInadimplente: formulario.bloqueiaInadimplente,
+            status,
+          }),
         },
-        body: JSON.stringify({
-          acao:
-            editando && status === "PUBLICADO"
-              ? "PUBLICAR"
-              : editando
-                ? "SALVAR"
-                : undefined,
-          cursoId: Number(formulario.cursoId),
-          cursoSemestreId: Number(formulario.cursoSemestreId),
-          periodoLetivo: formulario.periodoLetivo.trim(),
-          titulo: formulario.titulo.trim(),
-          dataInicio: converterParaIso(formulario.dataInicio),
-          dataFim: converterParaIso(formulario.dataFim),
-          dataInicioAulas: converterParaIso(formulario.dataInicioAulas),
-          cargaMinimaOverride:
-            formulario.cargaMinimaOverride === ""
-              ? null
-              : Number(formulario.cargaMinimaOverride),
-          cargaMaximaOverride:
-            formulario.cargaMaximaOverride === ""
-              ? null
-              : Number(formulario.cargaMaximaOverride),
-          instrucoes: formulario.instrucoes.trim(),
-          exigeAprovacao: formulario.exigeAprovacao,
-          permiteRascunho: formulario.permiteRascunho,
-          bloqueiaInadimplente: formulario.bloqueiaInadimplente,
-          status,
-        }),
-      },
-    );
-
-    const dados = (await resposta.json()) as RespostaApi;
-
-    if (!resposta.ok) {
-      throw new Error(
-        dados.error || "Não foi possível salvar o período de rematrícula.",
       );
+
+      const dados = (await resposta.json()) as RespostaApi;
+
+      if (!resposta.ok) {
+        throw new Error(
+          dados.error || "Não foi possível salvar o período de rematrícula.",
+        );
+      }
+
+      setFormulario(FORMULARIO_INICIAL);
+      setPeriodoEmEdicaoId(null);
+      setTurmaIdsSelecionadas([]);
+
+      setMensagem({
+        tipo: "sucesso",
+        texto:
+          dados.message ||
+          (editando
+            ? "O período foi atualizado corretamente."
+            : "O período de rematrícula foi criado."),
+      });
+
+      await carregarDados();
+    } catch (error) {
+      setMensagem({
+        tipo: "erro",
+        texto:
+          error instanceof Error
+            ? error.message
+            : "Não foi possível salvar o período de rematrícula.",
+      });
+    } finally {
+      setSalvando(false);
+    }
+  }
+
+  async function executarAcaoPeriodo() {
+    if (!confirmacaoPeriodo) {
+      return;
     }
 
-    setFormulario(FORMULARIO_INICIAL);
-    setPeriodoEmEdicaoId(null);
+    const { acao, periodo } = confirmacaoPeriodo;
 
-    setMensagem({
-      tipo: "sucesso",
-      texto:
-        dados.message ||
-        (editando
-          ? "O período foi atualizado corretamente."
-          : "O período de rematrícula foi criado."),
-    });
+    setExecutandoAcao(true);
+    setMensagem(null);
 
-    await carregarDados();
-  } catch (error) {
-    setMensagem({
-      tipo: "erro",
-      texto:
-        error instanceof Error
-          ? error.message
-          : "Não foi possível salvar o período de rematrícula.",
-    });
-  } finally {
-    setSalvando(false);
-  }
-}
+    try {
+      const corpo: Record<string, unknown> = {
+        acao,
+      };
 
-async function executarAcaoPeriodo() {
-  if (!confirmacaoPeriodo) {
-    return;
-  }
+      if (acao === "PUBLICAR") {
+        corpo.cursoId = periodo.cursoId || periodo.curso?.id;
+        corpo.cursoSemestreId =
+          periodo.cursoSemestreId || periodo.cursoSemestre?.id;
+        corpo.periodoLetivo = periodo.periodoLetivo;
+        corpo.titulo = periodo.titulo;
+        corpo.dataInicio = periodo.dataInicio;
+        corpo.dataFim = periodo.dataFim;
+        corpo.dataInicioAulas = periodo.dataInicioAulas;
+        corpo.cargaMinimaOverride = periodo.cargaMinimaOverride;
+        corpo.cargaMaximaOverride = periodo.cargaMaximaOverride;
+        corpo.instrucoes = periodo.instrucoes;
+        corpo.exigeAprovacao = periodo.exigeAprovacao;
+        corpo.permiteRascunho = periodo.permiteRascunho;
+        corpo.bloqueiaInadimplente = periodo.bloqueiaInadimplente;
+      }
 
-  const { acao, periodo } = confirmacaoPeriodo;
-
-  setExecutandoAcao(true);
-  setMensagem(null);
-
-  try {
-    const corpo: Record<string, unknown> = {
-      acao,
-    };
-
-    if (acao === "PUBLICAR") {
-      corpo.cursoId = periodo.cursoId || periodo.curso?.id;
-      corpo.cursoSemestreId =
-        periodo.cursoSemestreId || periodo.cursoSemestre?.id;
-      corpo.periodoLetivo = periodo.periodoLetivo;
-      corpo.titulo = periodo.titulo;
-      corpo.dataInicio = periodo.dataInicio;
-      corpo.dataFim = periodo.dataFim;
-      corpo.dataInicioAulas = periodo.dataInicioAulas;
-      corpo.cargaMinimaOverride = periodo.cargaMinimaOverride;
-      corpo.cargaMaximaOverride = periodo.cargaMaximaOverride;
-      corpo.instrucoes = periodo.instrucoes;
-      corpo.exigeAprovacao = periodo.exigeAprovacao;
-      corpo.permiteRascunho = periodo.permiteRascunho;
-      corpo.bloqueiaInadimplente = periodo.bloqueiaInadimplente;
-    }
-
-    const resposta = await fetch(
-      `/api/admin/rematriculas-semestrais/${periodo.id}`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
+      const resposta = await fetch(
+        `/api/admin/rematriculas-semestrais/${periodo.id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(corpo),
         },
-        body: JSON.stringify(corpo),
-      },
-    );
-
-    const dados = (await resposta.json()) as RespostaApi;
-
-    if (!resposta.ok) {
-      throw new Error(
-        dados.error || "Não foi possível executar esta ação.",
       );
+
+      const dados = (await resposta.json()) as RespostaApi;
+
+      if (!resposta.ok) {
+        throw new Error(
+          dados.error || "Não foi possível executar esta ação.",
+        );
+      }
+
+      setConfirmacaoPeriodo(null);
+
+      setMensagem({
+        tipo: "sucesso",
+        texto: dados.message || "Ação realizada corretamente.",
+      });
+
+      await carregarDados();
+    } catch (error) {
+      setMensagem({
+        tipo: "erro",
+        texto:
+          error instanceof Error
+            ? error.message
+            : "Não foi possível executar esta ação.",
+      });
+    } finally {
+      setExecutandoAcao(false);
     }
-
-    setConfirmacaoPeriodo(null);
-
-    setMensagem({
-      tipo: "sucesso",
-      texto: dados.message || "Ação realizada corretamente.",
-    });
-
-    await carregarDados();
-  } catch (error) {
-    setMensagem({
-      tipo: "erro",
-      texto:
-        error instanceof Error
-          ? error.message
-          : "Não foi possível executar esta ação.",
-    });
-  } finally {
-    setExecutandoAcao(false);
   }
-}
 
   return (
     <main className="phanyx-rematriculas-semestrais min-h-screen bg-slate-50 px-4 py-6 text-slate-900 dark:bg-slate-950 dark:text-slate-100 sm:px-6 lg:px-8">
@@ -1424,36 +1614,35 @@ async function executarAcaoPeriodo() {
 
         {mensagem && (
           <div
-            className={`rounded-xl border px-4 py-3 text-sm ${
-              mensagem.tipo === "sucesso"
-                ? "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200"
-                : "border-red-300 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200"
-            }`}
+            className={`rounded-xl border px-4 py-3 text-sm ${mensagem.tipo === "sucesso"
+              ? "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200"
+              : "border-red-300 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200"
+              }`}
           >
             {mensagem.texto}
           </div>
         )}
 
         <form
-  data-form-rematricula="true"
-  onSubmit={(evento) => {
-    evento.preventDefault();
-    salvarPeriodo("RASCUNHO");
-  }}
+          data-form-rematricula="true"
+          onSubmit={(evento) => {
+            evento.preventDefault();
+            salvarPeriodo("RASCUNHO");
+          }}
           className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6"
         >
           <div className="mb-6">
             <h2 className="text-lg font-bold">
-  {periodoEmEdicaoId
-    ? "Editar período de rematrícula"
-    : "Configurar novo período"}
-</h2>
+              {periodoEmEdicaoId
+                ? "Editar período de rematrícula"
+                : "Configurar novo período"}
+            </h2>
 
             <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-  {periodoEmEdicaoId
-    ? "Atualize as datas, regras e configurações deste período."
-    : "O aluno somente visualizará a rematrícula dentro das datas estabelecidas."}
-</p>
+              {periodoEmEdicaoId
+                ? "Atualize as datas, regras e configurações deste período."
+                : "O aluno somente visualizará a rematrícula dentro das datas estabelecidas."}
+            </p>
           </div>
 
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
@@ -1499,6 +1688,138 @@ async function executarAcaoPeriodo() {
                 ))}
               </select>
             </label>
+
+            <div className="space-y-3 md:col-span-2 xl:col-span-3">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <span className="text-sm font-semibold">
+                    Turmas participantes
+                  </span>
+
+                  <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+                    Selecione uma ou várias turmas que participarão
+                    deste período de rematrícula. As disciplinas
+                    oferecidas ao aluno serão obtidas dessas turmas.
+                  </p>
+                </div>
+
+                {turmasDisponiveis.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={alternarTodasTurmas}
+                    className="self-start rounded-lg border border-blue-300 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-200"
+                  >
+                    {todasTurmasSelecionadas
+                      ? "Desmarcar todas"
+                      : "Selecionar todas"}
+                  </button>
+                )}
+              </div>
+
+              {!formulario.cursoId ? (
+                <div className="rounded-xl border border-dashed border-slate-300 px-4 py-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                  Selecione primeiro o curso.
+                </div>
+              ) : !formulario.cursoSemestreId ? (
+                <div className="rounded-xl border border-dashed border-slate-300 px-4 py-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                  Selecione o semestre de destino.
+                </div>
+              ) : turmasDisponiveis.length === 0 ? (
+                <div className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-4 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+                  Nenhuma turma ativa foi encontrada para este curso
+                  e semestre. Cadastre ou configure uma turma antes
+                  de publicar a rematrícula.
+                </div>
+              ) : (
+                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                  {turmasDisponiveis.map((turma) => {
+                    const selecionada =
+                      turmaIdsSelecionadas.includes(
+                        turma.id,
+                      );
+
+                    return (
+                      <label
+                        key={turma.id}
+                        className={`cursor-pointer rounded-xl border p-4 transition ${selecionada
+                          ? "border-blue-500 bg-blue-50 dark:border-blue-700 dark:bg-blue-950/30"
+                          : "border-slate-200 bg-white hover:border-slate-300 dark:border-slate-700 dark:bg-slate-950"
+                          }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <input
+                            type="checkbox"
+                            checked={selecionada}
+                            onChange={(evento) =>
+                              alternarTurma(
+                                turma.id,
+                                evento.target.checked,
+                              )
+                            }
+                            className="mt-1 h-4 w-4"
+                          />
+
+                          <div className="min-w-0 flex-1">
+                            <strong className="block text-sm">
+                              {turma.nome}
+                            </strong>
+
+                            <div className="mt-1 flex flex-wrap gap-x-2 gap-y-1 text-xs text-slate-600 dark:text-slate-400">
+                              {turma.codigo && (
+                                <span>
+                                  Código: {turma.codigo}
+                                </span>
+                              )}
+
+                              {turma.turno && (
+                                <span>
+                                  · {turma.turno}
+                                </span>
+                              )}
+
+                              {turma.modalidade && (
+                                <span>
+                                  · {turma.modalidade}
+                                </span>
+                              )}
+
+                              {turma.polo?.nome && (
+                                <span>
+                                  · {turma.polo.nome}
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="mt-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+                              {turma._count.disciplinas} disciplina
+                              {turma._count.disciplinas === 1
+                                ? ""
+                                : "s"}
+                              {turma.periodoLetivo
+                                ? ` · ${turma.periodoLetivo}`
+                                : ""}
+                            </div>
+                          </div>
+                        </div>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+
+              {turmaIdsSelecionadas.length > 0 && (
+                <p className="text-xs font-semibold text-blue-700 dark:text-blue-300">
+                  {turmaIdsSelecionadas.length} turma
+                  {turmaIdsSelecionadas.length === 1
+                    ? ""
+                    : "s"}{" "}
+                  selecionada
+                  {turmaIdsSelecionadas.length === 1
+                    ? ""
+                    : "s"}.
+                </p>
+              )}
+            </div>
 
             <label className="space-y-2">
               <span className="text-sm font-semibold">
@@ -1607,7 +1928,7 @@ async function executarAcaoPeriodo() {
                 }
                 placeholder={
                   semestreSelecionado?.cargaMinima !== null &&
-                  semestreSelecionado?.cargaMinima !== undefined
+                    semestreSelecionado?.cargaMinima !== undefined
                     ? String(semestreSelecionado.cargaMinima)
                     : "Não definida"
                 }
@@ -1632,7 +1953,7 @@ async function executarAcaoPeriodo() {
                 }
                 placeholder={
                   semestreSelecionado?.cargaMaxima !== null &&
-                  semestreSelecionado?.cargaMaxima !== undefined
+                    semestreSelecionado?.cargaMaxima !== undefined
                     ? String(semestreSelecionado.cargaMaxima)
                     : "Não definida"
                 }
@@ -1735,467 +2056,464 @@ async function executarAcaoPeriodo() {
           </div>
 
           <section className="phanyx-extras-painel mt-6 overflow-hidden rounded-2xl border">
-  <div className="phanyx-extras-cabecalho border-b px-5 py-4">
-    <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-      <div>
-        <h3 className="font-bold">
-          Disciplinas extracurriculares permitidas
-        </h3>
+            <div className="phanyx-extras-cabecalho border-b px-5 py-4">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                  <h3 className="font-bold">
+                    Disciplinas extracurriculares permitidas
+                  </h3>
 
-        <p className="mt-1 max-w-3xl text-sm text-slate-600 dark:text-slate-400">
-          Escolha disciplinas de qualquer curso da instituição que poderão
-          complementar a grade dos alunos deste curso.
-        </p>
-      </div>
+                  <p className="mt-1 max-w-3xl text-sm text-slate-600 dark:text-slate-400">
+                    Escolha disciplinas de qualquer curso da instituição que poderão
+                    complementar a grade dos alunos deste curso.
+                  </p>
+                </div>
 
-      <div className="phanyx-extras-contador rounded-xl border px-3 py-2 text-xs">
-        {itensExtras.length} disciplina
-        {itensExtras.length === 1
-          ? ""
-          : "s"}{" "}
-        selecionada
-        {itensExtras.length === 1
-          ? ""
-          : "s"}
-      </div>
-    </div>
-  </div>
-
-  {!formulario.cursoId ? (
-    <div className="phanyx-extras-estado-vazio p-5 text-sm">
-  Selecione primeiro o curso de destino.
-</div>
-  ) : (
-    <div className="space-y-5 p-5">
-      <div className="grid gap-3 md:grid-cols-2">
-        <button
-          type="button"
-          onClick={() => {
-            setEscopoExtras(
-              "SEMESTRE_ESPECIFICO",
-            );
-
-            setItensExtras([]);
-          }}
-          className={`phanyx-extras-escopo rounded-xl border p-4 text-left transition ${
-  escopoExtras === "SEMESTRE_ESPECIFICO"
-    ? "phanyx-extras-escopo-semestre-ativo"
-    : ""
-}`}
-        >
-          <strong className="block text-sm">
-            Somente neste semestre
-          </strong>
-
-          <span className="mt-1 block text-xs">
-            As disciplinas serão oferecidas apenas para o semestre selecionado.
-          </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            setEscopoExtras(
-              "TODOS_OS_SEMESTRES",
-            );
-
-            setItensExtras([]);
-          }}
-          className={`phanyx-extras-escopo rounded-xl border p-4 text-left transition ${
-  escopoExtras === "TODOS_OS_SEMESTRES"
-    ? "phanyx-extras-escopo-curso-ativo"
-    : ""
-}`}
-        >
-          <strong className="block text-sm">
-            Todos os semestres do curso
-          </strong>
-
-          <span className="mt-1 block text-xs">
-            As disciplinas poderão ser oferecidas em qualquer semestre deste curso.
-          </span>
-        </button>
-      </div>
-
-      {escopoExtras ===
-        "SEMESTRE_ESPECIFICO" &&
-      !formulario.cursoSemestreId ? (
-        <div className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
-          Selecione o semestre de destino para configurar as disciplinas.
-        </div>
-      ) : (
-        <>
-          <div className="grid gap-3 md:grid-cols-2">
-            <label className="space-y-2">
-              <span className="text-sm font-semibold">
-                Buscar disciplina
-              </span>
-
-              <input
-                value={buscaExtra}
-                onChange={(evento) =>
-                  setBuscaExtra(
-                    evento.target.value,
-                  )
-                }
-                placeholder="Ex.: ética, aconselhamento, gestão, missões..."
-                className="phanyx-extras-campo h-11 w-full rounded-xl border px-3 text-sm outline-none transition focus:ring-2 focus:ring-blue-500/20"
-              />
-              {buscaExtra.trim() &&
-  tokenizarBuscaInteligente(
-    buscaExtra,
-  ).length === 0 && (
-    <span className="mt-1 block text-xs font-medium text-amber-700 dark:text-amber-300">
-      Digite pelo menos 3 letras para realizar uma busca mais precisa.
-    </span>
-  )}
-            </label>
-
-            <label className="space-y-2">
-              <span className="text-sm font-semibold">
-                Curso de origem
-              </span>
-
-              <select
-                value={
-                  filtroCursoOrigemExtra
-                }
-                onChange={(evento) =>
-                  setFiltroCursoOrigemExtra(
-                    evento.target.value,
-                  )
-                }
-                className="phanyx-extras-campo h-11 w-full rounded-xl border px-3 text-sm outline-none"
-              >
-                <option value="">
-                  Todos os cursos
-                </option>
-
-                {cursosOrigemExtras.map(
-                  (curso) => (
-                    <option
-                      key={curso.id}
-                      value={curso.id}
-                    >
-                      {curso.nome}
-                      {curso.codigo
-                        ? ` — ${curso.codigo}`
-                        : ""}
-                    </option>
-                  ),
-                )}
-              </select>
-            </label>
-          </div>
-
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <span className="phanyx-extras-contagem text-xs">
-              {
-                disciplinasExtrasFiltradas.length
-              }{" "}
-              disciplina
-              {disciplinasExtrasFiltradas.length ===
-              1
-                ? ""
-                : "s"}{" "}
-              encontrada
-              {disciplinasExtrasFiltradas.length ===
-              1
-                ? ""
-                : "s"}
-            </span>
-
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={
-                  selecionarTodasExtrasFiltradas
-                }
-                disabled={
-                  disciplinasExtrasFiltradas.length ===
-                  0
-                }
-                className="phanyx-rematricula-selecionar-exibidas rounded-lg border border-blue-300 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-200"
-              >
-                Selecionar todas exibidas
-              </button>
-
-              <button
-                type="button"
-                onClick={
-                  removerExtrasFiltradas
-                }
-                disabled={
-                  disciplinasExtrasFiltradas.length ===
-                  0
-                }
-                className="phanyx-rematricula-remover-exibidas rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200"
-              >
-                Remover exibidas
-              </button>
+                <div className="phanyx-extras-contador rounded-xl border px-3 py-2 text-xs">
+                  {itensExtras.length} disciplina
+                  {itensExtras.length === 1
+                    ? ""
+                    : "s"}{" "}
+                  selecionada
+                  {itensExtras.length === 1
+                    ? ""
+                    : "s"}
+                </div>
+              </div>
             </div>
-          </div>
 
-          {carregandoExtras ? (
-            <div className="rounded-xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
-              Carregando disciplinas...
-            </div>
-          ) : disciplinasExtrasFiltradas.length ===
-            0 ? (
-            <div className="rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
-              Nenhuma disciplina encontrada.
-            </div>
-          ) : (
-            <div className="phanyx-extras-lista max-h-[560px] space-y-3 overflow-y-auto pr-1">
-              {disciplinasExtrasFiltradas.map(
-                (disciplina) => {
-                  const configuracao =
-                    extrasPorDisciplina.get(
-                      disciplina.id,
-                    );
+            {!formulario.cursoId ? (
+              <div className="phanyx-extras-estado-vazio p-5 text-sm">
+                Selecione primeiro o curso de destino.
+              </div>
+            ) : (
+              <div className="space-y-5 p-5">
+                <div className="grid gap-3 md:grid-cols-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEscopoExtras(
+                        "SEMESTRE_ESPECIFICO",
+                      );
 
-                  const selecionada =
-                    Boolean(configuracao);
+                      setItensExtras([]);
+                    }}
+                    className={`phanyx-extras-escopo rounded-xl border p-4 text-left transition ${escopoExtras === "SEMESTRE_ESPECIFICO"
+                      ? "phanyx-extras-escopo-semestre-ativo"
+                      : ""
+                      }`}
+                  >
+                    <strong className="block text-sm">
+                      Somente neste semestre
+                    </strong>
 
-                  return (
-                    <article
-                      key={
-                        disciplina.id
-                      }
-                      className={`phanyx-extras-disciplina rounded-xl border p-4 transition ${
-  selecionada
-    ? "phanyx-extras-disciplina-selecionada"
-    : ""
-}`}
-                    >
-                      <div className="flex items-start gap-3">
+                    <span className="mt-1 block text-xs">
+                      As disciplinas serão oferecidas apenas para o semestre selecionado.
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEscopoExtras(
+                        "TODOS_OS_SEMESTRES",
+                      );
+
+                      setItensExtras([]);
+                    }}
+                    className={`phanyx-extras-escopo rounded-xl border p-4 text-left transition ${escopoExtras === "TODOS_OS_SEMESTRES"
+                      ? "phanyx-extras-escopo-curso-ativo"
+                      : ""
+                      }`}
+                  >
+                    <strong className="block text-sm">
+                      Todos os semestres do curso
+                    </strong>
+
+                    <span className="mt-1 block text-xs">
+                      As disciplinas poderão ser oferecidas em qualquer semestre deste curso.
+                    </span>
+                  </button>
+                </div>
+
+                {escopoExtras ===
+                  "SEMESTRE_ESPECIFICO" &&
+                  !formulario.cursoSemestreId ? (
+                  <div className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+                    Selecione o semestre de destino para configurar as disciplinas.
+                  </div>
+                ) : (
+                  <>
+                    <div className="grid gap-3 md:grid-cols-2">
+                      <label className="space-y-2">
+                        <span className="text-sm font-semibold">
+                          Buscar disciplina
+                        </span>
+
                         <input
-                          type="checkbox"
-                          checked={
-                            selecionada
-                          }
-                          onChange={(
-                            evento,
-                          ) =>
-                            alternarDisciplinaExtra(
-                              disciplina.id,
-                              evento.target
-                                .checked,
+                          value={buscaExtra}
+                          onChange={(evento) =>
+                            setBuscaExtra(
+                              evento.target.value,
                             )
                           }
-                          className="mt-1 h-4 w-4"
+                          placeholder="Ex.: ética, aconselhamento, gestão, missões..."
+                          className="phanyx-extras-campo h-11 w-full rounded-xl border px-3 text-sm outline-none transition focus:ring-2 focus:ring-blue-500/20"
                         />
-
-                        <div className="min-w-0 flex-1">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <strong className="phanyx-extras-disciplina-titulo text-sm">
-                              {
-                                disciplina.nome
-                              }
-                            </strong>
-
-                            {disciplina.codigo && (
-                              <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[11px] font-semibold text-slate-700 dark:bg-slate-700 dark:text-slate-200">
-                                {
-                                  disciplina.codigo
-                                }
-                              </span>
-                            )}
-                          </div>
-
-                          <p className="phanyx-extras-disciplina-meta mt-1 text-xs">
-                            Curso de origem:{" "}
-                            {disciplina
-                              .curso
-                              ?.nome ||
-                              "Disciplina institucional"}
-                            {" · "}
-                            {
-                              disciplina.cargaHoraria ??
-                              0
-                            }
-                            h
-                          </p>
-
-                          {disciplina.descricao && (
-                            <p className="phanyx-extras-disciplina-descricao mt-2 text-xs">
-                              {
-                                disciplina.descricao
-                              }
-                            </p>
+                        {buscaExtra.trim() &&
+                          tokenizarBuscaInteligente(
+                            buscaExtra,
+                          ).length === 0 && (
+                            <span className="mt-1 block text-xs font-medium text-amber-700 dark:text-amber-300">
+                              Digite pelo menos 3 letras para realizar uma busca mais precisa.
+                            </span>
                           )}
-                        </div>
+                      </label>
+
+                      <label className="space-y-2">
+                        <span className="text-sm font-semibold">
+                          Curso de origem
+                        </span>
+
+                        <select
+                          value={
+                            filtroCursoOrigemExtra
+                          }
+                          onChange={(evento) =>
+                            setFiltroCursoOrigemExtra(
+                              evento.target.value,
+                            )
+                          }
+                          className="phanyx-extras-campo h-11 w-full rounded-xl border px-3 text-sm outline-none"
+                        >
+                          <option value="">
+                            Todos os cursos
+                          </option>
+
+                          {cursosOrigemExtras.map(
+                            (curso) => (
+                              <option
+                                key={curso.id}
+                                value={curso.id}
+                              >
+                                {curso.nome}
+                                {curso.codigo
+                                  ? ` — ${curso.codigo}`
+                                  : ""}
+                              </option>
+                            ),
+                          )}
+                        </select>
+                      </label>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <span className="phanyx-extras-contagem text-xs">
+                        {
+                          disciplinasExtrasFiltradas.length
+                        }{" "}
+                        disciplina
+                        {disciplinasExtrasFiltradas.length ===
+                          1
+                          ? ""
+                          : "s"}{" "}
+                        encontrada
+                        {disciplinasExtrasFiltradas.length ===
+                          1
+                          ? ""
+                          : "s"}
+                      </span>
+
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={
+                            selecionarTodasExtrasFiltradas
+                          }
+                          disabled={
+                            disciplinasExtrasFiltradas.length ===
+                            0
+                          }
+                          className="phanyx-rematricula-selecionar-exibidas rounded-lg border border-blue-300 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-200"
+                        >
+                          Selecionar todas exibidas
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={
+                            removerExtrasFiltradas
+                          }
+                          disabled={
+                            disciplinasExtrasFiltradas.length ===
+                            0
+                          }
+                          className="phanyx-rematricula-remover-exibidas rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200"
+                        >
+                          Remover exibidas
+                        </button>
                       </div>
+                    </div>
 
-                      {selecionada &&
-                        configuracao && (
-                          <div className="mt-4 grid gap-3 border-t border-blue-200 pt-4 md:grid-cols-3 dark:border-blue-900">
-                            <label className="flex cursor-pointer items-start gap-2 text-xs">
-                              <input
-                                type="checkbox"
-                                checked={
-                                  configuracao.obrigatoria
+                    {carregandoExtras ? (
+                      <div className="rounded-xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
+                        Carregando disciplinas...
+                      </div>
+                    ) : disciplinasExtrasFiltradas.length ===
+                      0 ? (
+                      <div className="rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
+                        Nenhuma disciplina encontrada.
+                      </div>
+                    ) : (
+                      <div className="phanyx-extras-lista max-h-[560px] space-y-3 overflow-y-auto pr-1">
+                        {disciplinasExtrasFiltradas.map(
+                          (disciplina) => {
+                            const configuracao =
+                              extrasPorDisciplina.get(
+                                disciplina.id,
+                              );
+
+                            const selecionada =
+                              Boolean(configuracao);
+
+                            return (
+                              <article
+                                key={
+                                  disciplina.id
                                 }
-                                onChange={(
-                                  evento,
-                                ) =>
-                                  alterarRegraExtra(
-                                    disciplina.id,
-                                    "obrigatoria",
-                                    evento
-                                      .target
-                                      .checked,
-                                  )
-                                }
-                                className="mt-0.5 h-4 w-4"
-                              />
+                                className={`phanyx-extras-disciplina rounded-xl border p-4 transition ${selecionada
+                                  ? "phanyx-extras-disciplina-selecionada"
+                                  : ""
+                                  }`}
+                              >
+                                <div className="flex items-start gap-3">
+                                  <input
+                                    type="checkbox"
+                                    checked={
+                                      selecionada
+                                    }
+                                    onChange={(
+                                      evento,
+                                    ) =>
+                                      alternarDisciplinaExtra(
+                                        disciplina.id,
+                                        evento.target
+                                          .checked,
+                                      )
+                                    }
+                                    className="mt-1 h-4 w-4"
+                                  />
 
-                              <span>
-                                <strong className="block">
-                                  Obrigatória
-                                </strong>
+                                  <div className="min-w-0 flex-1">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                      <strong className="phanyx-extras-disciplina-titulo text-sm">
+                                        {
+                                          disciplina.nome
+                                        }
+                                      </strong>
 
-                                <span className="text-slate-600 dark:text-slate-400">
-                                  O aluno deverá selecioná-la.
-                                </span>
-                              </span>
-                            </label>
+                                      {disciplina.codigo && (
+                                        <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[11px] font-semibold text-slate-700 dark:bg-slate-700 dark:text-slate-200">
+                                          {
+                                            disciplina.codigo
+                                          }
+                                        </span>
+                                      )}
+                                    </div>
 
-                            <label className="flex cursor-pointer items-start gap-2 text-xs">
-                              <input
-                                type="checkbox"
-                                checked={
-                                  configuracao.contaCargaMinima
-                                }
-                                onChange={(
-                                  evento,
-                                ) =>
-                                  alterarRegraExtra(
-                                    disciplina.id,
-                                    "contaCargaMinima",
-                                    evento
-                                      .target
-                                      .checked,
-                                  )
-                                }
-                                className="mt-0.5 h-4 w-4"
-                              />
+                                    <p className="phanyx-extras-disciplina-meta mt-1 text-xs">
+                                      Curso de origem:{" "}
+                                      {disciplina
+                                        .curso
+                                        ?.nome ||
+                                        "Disciplina institucional"}
+                                      {" · "}
+                                      {
+                                        disciplina.cargaHoraria ??
+                                        0
+                                      }
+                                      h
+                                    </p>
 
-                              <span>
-                                <strong className="block">
-                                  Contar na carga mínima
-                                </strong>
+                                    {disciplina.descricao && (
+                                      <p className="phanyx-extras-disciplina-descricao mt-2 text-xs">
+                                        {
+                                          disciplina.descricao
+                                        }
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
 
-                                <span className="text-slate-600 dark:text-slate-400">
-                                  Soma para atingir o mínimo.
-                                </span>
-                              </span>
-                            </label>
+                                {selecionada &&
+                                  configuracao && (
+                                    <div className="mt-4 grid gap-3 border-t border-blue-200 pt-4 md:grid-cols-3 dark:border-blue-900">
+                                      <label className="flex cursor-pointer items-start gap-2 text-xs">
+                                        <input
+                                          type="checkbox"
+                                          checked={
+                                            configuracao.obrigatoria
+                                          }
+                                          onChange={(
+                                            evento,
+                                          ) =>
+                                            alterarRegraExtra(
+                                              disciplina.id,
+                                              "obrigatoria",
+                                              evento
+                                                .target
+                                                .checked,
+                                            )
+                                          }
+                                          className="mt-0.5 h-4 w-4"
+                                        />
 
-                            <label className="flex cursor-pointer items-start gap-2 text-xs">
-                              <input
-                                type="checkbox"
-                                checked={
-                                  configuracao.contaCargaMaxima
-                                }
-                                onChange={(
-                                  evento,
-                                ) =>
-                                  alterarRegraExtra(
-                                    disciplina.id,
-                                    "contaCargaMaxima",
-                                    evento
-                                      .target
-                                      .checked,
-                                  )
-                                }
-                                className="mt-0.5 h-4 w-4"
-                              />
+                                        <span>
+                                          <strong className="block">
+                                            Obrigatória
+                                          </strong>
 
-                              <span>
-                                <strong className="block">
-                                  Contar na carga máxima
-                                </strong>
+                                          <span className="text-slate-600 dark:text-slate-400">
+                                            O aluno deverá selecioná-la.
+                                          </span>
+                                        </span>
+                                      </label>
 
-                                <span className="text-slate-600 dark:text-slate-400">
-                                  Soma para o limite máximo.
-                                </span>
-                              </span>
-                            </label>
-                          </div>
+                                      <label className="flex cursor-pointer items-start gap-2 text-xs">
+                                        <input
+                                          type="checkbox"
+                                          checked={
+                                            configuracao.contaCargaMinima
+                                          }
+                                          onChange={(
+                                            evento,
+                                          ) =>
+                                            alterarRegraExtra(
+                                              disciplina.id,
+                                              "contaCargaMinima",
+                                              evento
+                                                .target
+                                                .checked,
+                                            )
+                                          }
+                                          className="mt-0.5 h-4 w-4"
+                                        />
+
+                                        <span>
+                                          <strong className="block">
+                                            Contar na carga mínima
+                                          </strong>
+
+                                          <span className="text-slate-600 dark:text-slate-400">
+                                            Soma para atingir o mínimo.
+                                          </span>
+                                        </span>
+                                      </label>
+
+                                      <label className="flex cursor-pointer items-start gap-2 text-xs">
+                                        <input
+                                          type="checkbox"
+                                          checked={
+                                            configuracao.contaCargaMaxima
+                                          }
+                                          onChange={(
+                                            evento,
+                                          ) =>
+                                            alterarRegraExtra(
+                                              disciplina.id,
+                                              "contaCargaMaxima",
+                                              evento
+                                                .target
+                                                .checked,
+                                            )
+                                          }
+                                          className="mt-0.5 h-4 w-4"
+                                        />
+
+                                        <span>
+                                          <strong className="block">
+                                            Contar na carga máxima
+                                          </strong>
+
+                                          <span className="text-slate-600 dark:text-slate-400">
+                                            Soma para o limite máximo.
+                                          </span>
+                                        </span>
+                                      </label>
+                                    </div>
+                                  )}
+                              </article>
+                            );
+                          },
                         )}
-                    </article>
-                  );
-                },
-              )}
-            </div>
-          )}
+                      </div>
+                    )}
 
-          <div className="flex flex-col gap-3 border-t border-slate-200 pt-4 dark:border-slate-700 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs text-slate-600 dark:text-slate-400">
-              Esta configuração é independente das disciplinas obrigatórias da grade regular.
-            </p>
+                    <div className="flex flex-col gap-3 border-t border-slate-200 pt-4 dark:border-slate-700 sm:flex-row sm:items-center sm:justify-between">
+                      <p className="text-xs text-slate-600 dark:text-slate-400">
+                        Esta configuração é independente das disciplinas obrigatórias da grade regular.
+                      </p>
+
+                      <button
+                        type="button"
+                        onClick={
+                          salvarExtracurriculares
+                        }
+                        disabled={
+                          salvandoExtras ||
+                          carregandoExtras
+                        }
+                        className="h-11 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {salvandoExtras
+                          ? "Salvando..."
+                          : "Salvar extracurriculares"}
+                      </button>
+                    </div>
+                  </>
+                )}
+
+              </div>
+            )}
+          </section>
+
+          <div className="mt-6 flex flex-col-reverse gap-3 border-t border-slate-200 pt-5 dark:border-slate-800 sm:flex-row sm:justify-end">
+            {periodoEmEdicaoId && (
+              <button
+                type="button"
+                disabled={salvando}
+                onClick={cancelarEdicao}
+                className="h-11 rounded-xl border border-red-300 bg-white px-5 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Cancelar edição
+              </button>
+            )}
+
+            <button
+              type="submit"
+              disabled={salvando}
+              className="phanyx-rematricula-botao-rascunho h-11 rounded-xl border px-5 text-sm font-semibold transition disabled:cursor-not-allowed"
+            >
+              {salvando
+                ? "Salvando..."
+                : periodoEmEdicaoId
+                  ? "Salvar alterações"
+                  : "Salvar rascunho"}
+            </button>
 
             <button
               type="button"
-              onClick={
-                salvarExtracurriculares
-              }
-              disabled={
-                salvandoExtras ||
-                carregandoExtras
-              }
-              className="h-11 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={salvando}
+              onClick={() => salvarPeriodo("PUBLICADO")}
+              className="h-11 rounded-xl bg-blue-600 px-5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {salvandoExtras
-                ? "Salvando..."
-                : "Salvar extracurriculares"}
+              {salvando
+                ? "Publicando..."
+                : periodoEmEdicaoId
+                  ? "Salvar e publicar"
+                  : "Criar e publicar"}
             </button>
           </div>
-        </>
-      )}
-
-    </div>
-  )}
-</section>
-
-          <div className="mt-6 flex flex-col-reverse gap-3 border-t border-slate-200 pt-5 dark:border-slate-800 sm:flex-row sm:justify-end">
-  {periodoEmEdicaoId && (
-    <button
-      type="button"
-      disabled={salvando}
-      onClick={cancelarEdicao}
-      className="h-11 rounded-xl border border-red-300 bg-white px-5 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
-    >
-      Cancelar edição
-    </button>
-  )}
-
-  <button
-    type="submit"
-    disabled={salvando}
-    className="phanyx-rematricula-botao-rascunho h-11 rounded-xl border px-5 text-sm font-semibold transition disabled:cursor-not-allowed"
-  >
-    {salvando
-      ? "Salvando..."
-      : periodoEmEdicaoId
-        ? "Salvar alterações"
-        : "Salvar rascunho"}
-  </button>
-
-  <button
-    type="button"
-    disabled={salvando}
-    onClick={() => salvarPeriodo("PUBLICADO")}
-    className="h-11 rounded-xl bg-blue-600 px-5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-  >
-    {salvando
-      ? "Publicando..."
-      : periodoEmEdicaoId
-        ? "Salvar e publicar"
-        : "Criar e publicar"}
-  </button>
-</div>
         </form>
 
         <section className="phanyx-rematriculas-lista rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
@@ -2227,9 +2545,9 @@ async function executarAcaoPeriodo() {
             <div className="divide-y divide-slate-200 dark:divide-slate-800">
               {periodos.map((periodo) => (
                 <article
-  key={periodo.id}
-  className="phanyx-rematricula-periodo-card grid gap-4 p-5 lg:grid-cols-[minmax(0,1fr)_auto]"
->
+                  key={periodo.id}
+                  className="phanyx-rematricula-periodo-card grid gap-4 p-5 lg:grid-cols-[minmax(0,1fr)_auto]"
+                >
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
                       <h3 className="font-bold">
@@ -2301,88 +2619,88 @@ async function executarAcaoPeriodo() {
                   </div>
 
                   <div className="flex min-w-48 flex-col gap-3 lg:items-end lg:justify-center">
-  <div className="phanyx-rematricula-contador rounded-xl px-4 py-3 text-center">
-    <span className="block text-xl font-bold">
-      {periodo._count.rematriculas}
-    </span>
+                    <div className="phanyx-rematricula-contador rounded-xl px-4 py-3 text-center">
+                      <span className="block text-xl font-bold">
+                        {periodo._count.rematriculas}
+                      </span>
 
-    <span className="text-xs">
-      rematrículas
-    </span>
-  </div>
+                      <span className="text-xs">
+                        rematrículas
+                      </span>
+                    </div>
 
-  <div className="flex flex-wrap justify-end gap-2">
-  <Link
-    href={`/admin/rematriculas-semestrais/${periodo.id}`}
-    className="phanyx-rematricula-alunos-restricoes rounded-lg border px-3 py-2 text-xs font-semibold transition"
-  >
-    Alunos e restrições
-  </Link>
+                    <div className="flex flex-wrap justify-end gap-2">
+                      <Link
+                        href={`/admin/rematriculas-semestrais/${periodo.id}`}
+                        className="phanyx-rematricula-alunos-restricoes rounded-lg border px-3 py-2 text-xs font-semibold transition"
+                      >
+                        Alunos e restrições
+                      </Link>
 
-  {(periodo.status === "RASCUNHO" ||
-    periodo.status === "PUBLICADO") && (
-    <button
-      type="button"
-      onClick={() => editarPeriodo(periodo)}
-      className="phanyx-rematricula-botao-editar rounded-lg border px-3 py-2 text-xs font-semibold transition"
-    >
-      Editar
-    </button>
-  )}
+                      {(periodo.status === "RASCUNHO" ||
+                        periodo.status === "PUBLICADO") && (
+                          <button
+                            type="button"
+                            onClick={() => editarPeriodo(periodo)}
+                            className="phanyx-rematricula-botao-editar rounded-lg border px-3 py-2 text-xs font-semibold transition"
+                          >
+                            Editar
+                          </button>
+                        )}
 
-    {periodo.status === "RASCUNHO" && (
-      <button
-        type="button"
-        onClick={() =>
-          setConfirmacaoPeriodo({
-            acao: "PUBLICAR",
-            periodo,
-          })
-        }
-        className="rounded-lg border border-blue-600 bg-blue-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-blue-700"
-      >
-        Publicar
-      </button>
-    )}
+                      {periodo.status === "RASCUNHO" && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setConfirmacaoPeriodo({
+                              acao: "PUBLICAR",
+                              periodo,
+                            })
+                          }
+                          className="rounded-lg border border-blue-600 bg-blue-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-blue-700"
+                        >
+                          Publicar
+                        </button>
+                      )}
 
-    {periodo.status === "PUBLICADO" && (
-      <button
-        type="button"
-        onClick={() =>
-          setConfirmacaoPeriodo({
-            acao: "ENCERRAR",
-            periodo,
-          })
-        }
-        className="rounded-lg border border-amber-500 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800 transition hover:bg-amber-100"
-      >
-        Encerrar
-      </button>
-    )}
+                      {periodo.status === "PUBLICADO" && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setConfirmacaoPeriodo({
+                              acao: "ENCERRAR",
+                              periodo,
+                            })
+                          }
+                          className="rounded-lg border border-amber-500 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800 transition hover:bg-amber-100"
+                        >
+                          Encerrar
+                        </button>
+                      )}
 
-    {(periodo.status === "RASCUNHO" ||
-      periodo.status === "PUBLICADO") && (
-      <button
-        type="button"
-        onClick={() =>
-          setConfirmacaoPeriodo({
-            acao: "CANCELAR",
-            periodo,
-          })
-        }
-        className="rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100"
-      >
-        Cancelar
-      </button>
-    )}
-  </div>
+                      {(periodo.status === "RASCUNHO" ||
+                        periodo.status === "PUBLICADO") && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setConfirmacaoPeriodo({
+                                acao: "CANCELAR",
+                                periodo,
+                              })
+                            }
+                            className="rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100"
+                          >
+                            Cancelar
+                          </button>
+                        )}
+                    </div>
 
-  {periodo.exigeAprovacao && (
-    <span className="text-xs font-semibold text-amber-700 dark:text-amber-300">
-      Exige aprovação
-    </span>
-  )}
-</div>
+                    {periodo.exigeAprovacao && (
+                      <span className="text-xs font-semibold text-amber-700 dark:text-amber-300">
+                        Exige aprovação
+                      </span>
+                    )}
+                  </div>
                 </article>
               ))}
             </div>
@@ -2390,39 +2708,39 @@ async function executarAcaoPeriodo() {
         </section>
       </div>
 
-<PhanyxConfirmModal
-  aberto={confirmacaoPeriodo !== null}
-  titulo={
-    confirmacaoPeriodo?.acao === "PUBLICAR"
-      ? "Publicar período"
-      : confirmacaoPeriodo?.acao === "ENCERRAR"
-        ? "Encerrar período"
-        : "Cancelar período"
-  }
-  mensagem={
-    confirmacaoPeriodo?.acao === "PUBLICAR"
-      ? "Ao publicar, o período ficará disponível aos alunos elegíveis dentro das datas configuradas."
-      : confirmacaoPeriodo?.acao === "ENCERRAR"
-        ? "Ao encerrar, os alunos não poderão mais iniciar ou enviar rematrículas neste período."
-        : "O período será cancelado e deixará de ficar disponível aos alunos. Os registros existentes serão preservados."
-  }
-  textoConfirmar={
-    executandoAcao
-      ? "Processando..."
-      : confirmacaoPeriodo?.acao === "PUBLICAR"
-        ? "Publicar"
-        : confirmacaoPeriodo?.acao === "ENCERRAR"
-          ? "Encerrar"
-          : "Cancelar período"
-  }
-  textoCancelar="Voltar"
-  onConfirmar={executarAcaoPeriodo}
-  onCancelar={() => {
-    if (!executandoAcao) {
-      setConfirmacaoPeriodo(null);
-    }
-  }}
-/>
+      <PhanyxConfirmModal
+        aberto={confirmacaoPeriodo !== null}
+        titulo={
+          confirmacaoPeriodo?.acao === "PUBLICAR"
+            ? "Publicar período"
+            : confirmacaoPeriodo?.acao === "ENCERRAR"
+              ? "Encerrar período"
+              : "Cancelar período"
+        }
+        mensagem={
+          confirmacaoPeriodo?.acao === "PUBLICAR"
+            ? "Ao publicar, o período ficará disponível aos alunos elegíveis dentro das datas configuradas."
+            : confirmacaoPeriodo?.acao === "ENCERRAR"
+              ? "Ao encerrar, os alunos não poderão mais iniciar ou enviar rematrículas neste período."
+              : "O período será cancelado e deixará de ficar disponível aos alunos. Os registros existentes serão preservados."
+        }
+        textoConfirmar={
+          executandoAcao
+            ? "Processando..."
+            : confirmacaoPeriodo?.acao === "PUBLICAR"
+              ? "Publicar"
+              : confirmacaoPeriodo?.acao === "ENCERRAR"
+                ? "Encerrar"
+                : "Cancelar período"
+        }
+        textoCancelar="Voltar"
+        onConfirmar={executarAcaoPeriodo}
+        onCancelar={() => {
+          if (!executandoAcao) {
+            setConfirmacaoPeriodo(null);
+          }
+        }}
+      />
 
     </main>
   );
