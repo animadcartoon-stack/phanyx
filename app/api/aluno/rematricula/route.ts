@@ -790,8 +790,6 @@ export async function GET() {
                 {
                   turma: {
                     ativa: true,
-                    periodoLetivo:
-                      periodo.periodoLetivo,
                     statusTurma: {
                       in: [
                         "AGUARDANDO",
@@ -2381,20 +2379,6 @@ export async function POST(
         return NextResponse.json(
           {
             error: `A turma ${oferta.turma.nome} não está disponível.`,
-          },
-          {
-            status: 409,
-          },
-        );
-      }
-
-      if (
-        oferta.turma.periodoLetivo !==
-        periodo.periodoLetivo
-      ) {
-        return NextResponse.json(
-          {
-            error: `A turma ${oferta.turma.nome} não pertence ao período letivo da rematrícula.`,
           },
           {
             status: 409,
