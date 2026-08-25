@@ -4220,22 +4220,6 @@ function AdminMatriculasPage() {
                 </div>
               )}
 
-            <div className="matriculas-multiselect-neutro mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
-              <MultiSelectDisciplinas
-                titulo="Disciplinas contratadas"
-                disciplinas={disciplinasDoSemestreEdicao}
-                selecionadas={disciplinasEdicaoSelecionadas}
-                setSelecionadas={setDisciplinasEdicaoSelecionadas}
-              />
-
-              <MultiSelectDisciplinas
-                titulo="Disciplinas extras contratadas"
-                disciplinas={disciplinasExtrasEdicaoDisponiveis}
-                selecionadas={disciplinasExtrasEdicaoSelecionadas}
-                setSelecionadas={setDisciplinasExtrasEdicaoSelecionadas}
-              />
-            </div>
-
             <div className="flex gap-2 mt-6">
               <button
                 type="button"
