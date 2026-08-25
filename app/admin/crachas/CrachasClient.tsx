@@ -495,6 +495,23 @@ export default function CrachasClient() {
   const [objetosSelecionadosIds, setObjetosSelecionadosIds] =
     useState<number[]>([]);
 
+  const [
+    selecaoPorArea,
+    setSelecaoPorArea,
+  ] = useState<{
+    ativo: boolean;
+    x: number;
+    y: number;
+    largura: number;
+    altura: number;
+  }>({
+    ativo: false,
+    x: 0,
+    y: 0,
+    largura: 0,
+    altura: 0,
+  });
+
   const historicoObjetosRef =
     useRef<
       Map<
@@ -730,6 +747,509 @@ export default function CrachasClient() {
       );
   }
 
+  function caixaDoGrupoSelecionado() {
+    if (!objetoAtual) {
+      return null;
+    }
+
+    if (
+      objetoAtual.grupoId ===
+      undefined
+    ) {
+      return null;
+    }
+
+    const itensGrupo =
+      objetos.filter(
+        (item) =>
+          item.grupoId ===
+          objetoAtual.grupoId
+      );
+
+    if (
+      itensGrupo.length < 2
+    ) {
+      return null;
+    }
+
+    const minX =
+      Math.min(
+        ...itensGrupo.map(
+          (item) =>
+            item.x
+        )
+      );
+
+    const minY =
+      Math.min(
+        ...itensGrupo.map(
+          (item) =>
+            item.y
+        )
+      );
+
+    const maxX =
+      Math.max(
+        ...itensGrupo.map(
+          (item) =>
+            item.x +
+            item.largura
+        )
+      );
+
+    const maxY =
+      Math.max(
+        ...itensGrupo.map(
+          (item) =>
+            item.y +
+            item.altura
+        )
+      );
+
+    return {
+      x: minX,
+      y: minY,
+      largura:
+        maxX - minX,
+      altura:
+        maxY - minY,
+      grupoId:
+        objetoAtual.grupoId,
+      ids:
+        itensGrupo.map(
+          (item) =>
+            item.id
+        ),
+    };
+  }
+
+  function iniciarRedimensionamentoGrupo(
+    e: React.MouseEvent<HTMLSpanElement>,
+    caixa: {
+      x: number;
+      y: number;
+      largura: number;
+      altura: number;
+      grupoId: number;
+      ids: number[];
+    }
+  ) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const inicioMouseX =
+      e.clientX;
+
+    const inicioMouseY =
+      e.clientY;
+
+    const larguraOriginalGrupo =
+      caixa.largura;
+
+    const alturaOriginalGrupo =
+      caixa.altura;
+
+    const diagonalQuadrado =
+      Math.max(
+        1,
+        larguraOriginalGrupo *
+        larguraOriginalGrupo +
+        alturaOriginalGrupo *
+        alturaOriginalGrupo
+      );
+
+    const objetosOriginais =
+      new Map<
+        number,
+        ObjetoCracha
+      >();
+
+    objetos.forEach(
+      (item) => {
+        if (
+          caixa.ids.includes(
+            item.id
+          )
+        ) {
+          objetosOriginais.set(
+            item.id,
+            structuredClone(
+              item
+            )
+          );
+        }
+      }
+    );
+
+    let houveAlteracao =
+      false;
+
+    function arredondar(
+      valor: number
+    ) {
+      return (
+        Math.round(
+          valor * 100
+        ) / 100
+      );
+    }
+
+    function mover(
+      ev: MouseEvent
+    ) {
+      const dx =
+        ev.clientX -
+        inicioMouseX;
+
+      const dy =
+        ev.clientY -
+        inicioMouseY;
+
+      /*
+       * Projeta o movimento do mouse
+       * sobre a diagonal original.
+       *
+       * Assim largura e altura crescem
+       * proporcionalmente.
+       */
+      const vetorX =
+        larguraOriginalGrupo +
+        dx;
+
+      const vetorY =
+        alturaOriginalGrupo +
+        dy;
+
+      let escala =
+        (
+          vetorX *
+          larguraOriginalGrupo +
+          vetorY *
+          alturaOriginalGrupo
+        ) /
+        diagonalQuadrado;
+
+      /*
+       * Evita inverter ou desaparecer
+       * completamente o grupo.
+       */
+      escala =
+        Math.max(
+          0.1,
+          Math.min(
+            10,
+            escala
+          )
+        );
+
+      houveAlteracao =
+        true;
+
+      setObjetos(
+        (atuais) =>
+          atuais.map(
+            (item) => {
+              const original =
+                objetosOriginais.get(
+                  item.id
+                );
+
+              if (!original) {
+                return item;
+              }
+
+              const novoX =
+                caixa.x +
+                (
+                  original.x -
+                  caixa.x
+                ) *
+                escala;
+
+              const novoY =
+                caixa.y +
+                (
+                  original.y -
+                  caixa.y
+                ) *
+                escala;
+
+              const novaLargura =
+                Math.max(
+                  4,
+                  original.largura *
+                  escala
+                );
+
+              const novaAltura =
+                Math.max(
+                  4,
+                  original.altura *
+                  escala
+                );
+
+              const base = {
+                ...original,
+
+                x:
+                  arredondar(
+                    novoX
+                  ),
+
+                y:
+                  arredondar(
+                    novoY
+                  ),
+
+                largura:
+                  arredondar(
+                    novaLargura
+                  ),
+
+                altura:
+                  arredondar(
+                    novaAltura
+                  ),
+              };
+
+              /*
+               * TEXTO
+               */
+              if (
+                original.tipo ===
+                "TEXTO"
+              ) {
+                return {
+                  ...base,
+
+                  fonte:
+                    arredondar(
+                      Math.max(
+                        6,
+                        original.fonte *
+                        escala
+                      )
+                    ),
+
+                  sombraX:
+                    original.sombraX ===
+                      undefined
+                      ? undefined
+                      : arredondar(
+                        original.sombraX *
+                        escala
+                      ),
+
+                  sombraY:
+                    original.sombraY ===
+                      undefined
+                      ? undefined
+                      : arredondar(
+                        original.sombraY *
+                        escala
+                      ),
+
+                  sombraBlur:
+                    original.sombraBlur ===
+                      undefined
+                      ? undefined
+                      : arredondar(
+                        Math.max(
+                          0,
+                          original.sombraBlur *
+                          escala
+                        )
+                      ),
+                } as ObjetoCracha;
+              }
+
+              /*
+               * CAMPO
+               */
+              if (
+                original.tipo ===
+                "CAMPO"
+              ) {
+                return {
+                  ...base,
+
+                  fonte:
+                    arredondar(
+                      Math.max(
+                        6,
+                        original.fonte *
+                        escala
+                      )
+                    ),
+
+                  sombraX:
+                    original.sombraX ===
+                      undefined
+                      ? undefined
+                      : arredondar(
+                        original.sombraX *
+                        escala
+                      ),
+
+                  sombraY:
+                    original.sombraY ===
+                      undefined
+                      ? undefined
+                      : arredondar(
+                        original.sombraY *
+                        escala
+                      ),
+
+                  sombraBlur:
+                    original.sombraBlur ===
+                      undefined
+                      ? undefined
+                      : arredondar(
+                        Math.max(
+                          0,
+                          original.sombraBlur *
+                          escala
+                        )
+                      ),
+                } as ObjetoCracha;
+              }
+
+              /*
+               * IMAGEM
+               */
+              if (
+                original.tipo ===
+                "IMAGEM"
+              ) {
+                return {
+                  ...base,
+
+                  raioBorda:
+                    arredondar(
+                      original.raioBorda *
+                      escala
+                    ),
+                } as ObjetoCracha;
+              }
+
+              /*
+               * QR CODE
+               */
+              if (
+                original.tipo ===
+                "QRCODE"
+              ) {
+                return {
+                  ...base,
+
+                  margem:
+                    arredondar(
+                      original.margem *
+                      escala
+                    ),
+
+                  raioBorda:
+                    arredondar(
+                      original.raioBorda *
+                      escala
+                    ),
+                } as ObjetoCracha;
+              }
+
+              /*
+               * CÓDIGO DE BARRAS
+               */
+              if (
+                original.tipo ===
+                "CODIGO_BARRAS"
+              ) {
+                return {
+                  ...base,
+
+                  raioBorda:
+                    arredondar(
+                      original.raioBorda *
+                      escala
+                    ),
+                } as ObjetoCracha;
+              }
+
+              /*
+               * FORMA
+               */
+              if (
+                original.tipo ===
+                "FORMA"
+              ) {
+                return {
+                  ...base,
+
+                  espessuraBorda:
+                    arredondar(
+                      Math.max(
+                        0,
+                        original.espessuraBorda *
+                        escala
+                      )
+                    ),
+
+                  raioBorda:
+                    arredondar(
+                      Math.max(
+                        0,
+                        original.raioBorda *
+                        escala
+                      )
+                    ),
+                } as ObjetoCracha;
+              }
+
+              return base as ObjetoCracha;
+            }
+          )
+      );
+    }
+
+    function soltar() {
+      window.removeEventListener(
+        "mousemove",
+        mover
+      );
+
+      window.removeEventListener(
+        "mouseup",
+        soltar
+      );
+
+      /*
+       * Guarda os estados anteriores
+       * para o Ctrl + Z.
+       */
+      if (
+        houveAlteracao
+      ) {
+        objetosOriginais.forEach(
+          (original) => {
+            registrarEstadoHistorico(
+              lado,
+              original
+            );
+          }
+        );
+      }
+    }
+
+    window.addEventListener(
+      "mousemove",
+      mover
+    );
+
+    window.addEventListener(
+      "mouseup",
+      soltar
+    );
+  }
+
   function selecionarObjetoCracha(
     e: React.MouseEvent<HTMLElement>,
     objetoId: number
@@ -787,6 +1307,18 @@ export default function CrachasClient() {
     e: React.MouseEvent<HTMLDivElement>,
     objeto: ObjetoCracha
   ) {
+    /*
+     * Arrasto e seleção normal
+     * somente com botão esquerdo.
+     *
+     * O botão direito deve chegar
+     * intacto ao onContextMenu para
+     * preservar a seleção múltipla.
+     */
+    if (e.button !== 0) {
+      return;
+    }
+
     e.preventDefault();
     e.stopPropagation();
 
@@ -794,7 +1326,6 @@ export default function CrachasClient() {
       e,
       objeto.id
     );
-
     const inicioX =
       e.clientX;
 
@@ -834,39 +1365,39 @@ export default function CrachasClient() {
     );
 
     function mover(
-  ev: MouseEvent
-) {
-  const deslocamentoX =
-    ev.clientX -
-    inicioX;
+      ev: MouseEvent
+    ) {
+      const deslocamentoX =
+        ev.clientX -
+        inicioX;
 
-  const deslocamentoY =
-    ev.clientY -
-    inicioY;
+      const deslocamentoY =
+        ev.clientY -
+        inicioY;
 
-  setObjetos((atuais) =>
-    atuais.map((item) => {
-      const posicaoOriginal =
-        posicoesOriginais.get(
-          item.id
-        );
+      setObjetos((atuais) =>
+        atuais.map((item) => {
+          const posicaoOriginal =
+            posicoesOriginais.get(
+              item.id
+            );
 
-      if (!posicaoOriginal) {
-        return item;
-      }
+          if (!posicaoOriginal) {
+            return item;
+          }
 
-      return {
-        ...item,
-        x:
-          posicaoOriginal.x +
-          deslocamentoX,
-        y:
-          posicaoOriginal.y +
-          deslocamentoY,
-      } as ObjetoCracha;
-    })
-  );
-}
+          return {
+            ...item,
+            x:
+              posicaoOriginal.x +
+              deslocamentoX,
+            y:
+              posicaoOriginal.y +
+              deslocamentoY,
+          } as ObjetoCracha;
+        })
+      );
+    }
 
     function soltar() {
       window.removeEventListener(
@@ -897,9 +1428,342 @@ export default function CrachasClient() {
     );
   }
 
+  function objetoEstaEmGrupo(
+    objeto: ObjetoCracha
+  ) {
+    if (
+      objeto.grupoId ===
+      undefined
+    ) {
+      return false;
+    }
+
+    return objetos.some(
+      (item) =>
+        item.id !== objeto.id &&
+        item.grupoId ===
+        objeto.grupoId
+    );
+  }
+
+  function mostrarControlesIndividuais(
+    objeto: ObjetoCracha
+  ) {
+    return (
+      objetoEstaSelecionado(
+        objeto.id
+      ) &&
+      !objetoEstaEmGrupo(
+        objeto
+      )
+    );
+  }
+
   function limparSelecaoCracha() {
     setObjetoSelecionado(null);
     setObjetosSelecionadosIds([]);
+  }
+
+  function iniciarSelecaoPorArea(
+    e: React.MouseEvent<HTMLDivElement>
+  ) {
+    /*
+     * Somente botão esquerdo.
+     */
+    if (e.button !== 0) {
+      return;
+    }
+
+    const area =
+      crachaAreaRef.current;
+
+    if (!area) {
+      return;
+    }
+
+    e.preventDefault();
+
+    const rect =
+      area.getBoundingClientRect();
+
+    /*
+     * Ponto inicial dentro do crachá.
+     */
+    const inicioX =
+      Math.max(
+        0,
+        Math.min(
+          rect.width,
+          e.clientX -
+          rect.left
+        )
+      );
+
+    const inicioY =
+      Math.max(
+        0,
+        Math.min(
+          rect.height,
+          e.clientY -
+          rect.top
+        )
+      );
+
+    /*
+     * Shift permite acrescentar
+     * elementos à seleção atual.
+     */
+    const selecaoAnterior =
+      e.shiftKey
+        ? [
+          ...objetosSelecionadosIds,
+        ]
+        : [];
+
+    let houveArrasto =
+      false;
+
+    function mover(
+      ev: MouseEvent
+    ) {
+      const atualX =
+        Math.max(
+          0,
+          Math.min(
+            rect.width,
+            ev.clientX -
+            rect.left
+          )
+        );
+
+      const atualY =
+        Math.max(
+          0,
+          Math.min(
+            rect.height,
+            ev.clientY -
+            rect.top
+          )
+        );
+
+      const x =
+        Math.min(
+          inicioX,
+          atualX
+        );
+
+      const y =
+        Math.min(
+          inicioY,
+          atualY
+        );
+
+      const largura =
+        Math.abs(
+          atualX -
+          inicioX
+        );
+
+      const altura =
+        Math.abs(
+          atualY -
+          inicioY
+        );
+
+      if (
+        largura > 3 ||
+        altura > 3
+      ) {
+        houveArrasto =
+          true;
+      }
+
+      setSelecaoPorArea({
+        ativo:
+          houveArrasto,
+        x,
+        y,
+        largura,
+        altura,
+      });
+    }
+
+    function soltar(
+      ev: MouseEvent
+    ) {
+      window.removeEventListener(
+        "mousemove",
+        mover
+      );
+
+      window.removeEventListener(
+        "mouseup",
+        soltar
+      );
+
+      const fimX =
+        Math.max(
+          0,
+          Math.min(
+            rect.width,
+            ev.clientX -
+            rect.left
+          )
+        );
+
+      const fimY =
+        Math.max(
+          0,
+          Math.min(
+            rect.height,
+            ev.clientY -
+            rect.top
+          )
+        );
+
+      const selecaoX =
+        Math.min(
+          inicioX,
+          fimX
+        );
+
+      const selecaoY =
+        Math.min(
+          inicioY,
+          fimY
+        );
+
+      const selecaoDireita =
+        Math.max(
+          inicioX,
+          fimX
+        );
+
+      const selecaoBase =
+        Math.max(
+          inicioY,
+          fimY
+        );
+
+      /*
+       * Clique simples no vazio:
+       * limpa a seleção.
+       */
+      if (!houveArrasto) {
+        if (
+          selecaoAnterior.length ===
+          0
+        ) {
+          limparSelecaoCracha();
+        }
+
+        setSelecaoPorArea({
+          ativo: false,
+          x: 0,
+          y: 0,
+          largura: 0,
+          altura: 0,
+        });
+
+        return;
+      }
+
+      /*
+ * Entra na seleção quando o
+ * retângulo arrastado tocar
+ * qualquer parte do objeto.
+ *
+ * Isso é importante para objetos
+ * sobrepostos, como texto sobre
+ * uma forma.
+ */
+      const idsEncontrados =
+        objetos
+          .filter(
+            (objeto) => {
+              const esquerda =
+                objeto.x;
+
+              const topo =
+                objeto.y;
+
+              const direita =
+                objeto.x +
+                objeto.largura;
+
+              const base =
+                objeto.y +
+                objeto.altura;
+
+              /*
+ * Seleciona quando houver
+ * qualquer interseção entre
+ * o objeto e a área arrastada.
+ */
+              return !(
+                direita <
+                selecaoX ||
+                esquerda >
+                selecaoDireita ||
+                base <
+                selecaoY ||
+                topo >
+                selecaoBase
+              );
+            }
+          )
+          .flatMap(
+            (objeto) =>
+              idsDoGrupoDoObjeto(
+                objeto.id
+              )
+          );
+
+      /*
+       * Remove IDs repetidos.
+       * Isso também faz grupos já
+       * existentes serem selecionados
+       * como uma unidade.
+       */
+      const novosIds =
+        Array.from(
+          new Set([
+            ...selecaoAnterior,
+            ...idsEncontrados,
+          ])
+        );
+
+      setObjetosSelecionadosIds(
+        novosIds
+      );
+
+      setObjetoSelecionado(
+        novosIds.length > 0
+          ? novosIds[
+          novosIds.length -
+          1
+          ]
+          : null
+      );
+
+      setSelecaoPorArea({
+        ativo: false,
+        x: 0,
+        y: 0,
+        largura: 0,
+        altura: 0,
+      });
+    }
+
+    window.addEventListener(
+      "mousemove",
+      mover
+    );
+
+    window.addEventListener(
+      "mouseup",
+      soltar
+    );
   }
 
   function alinharObjetoSelecionadoComReferencia(
@@ -4559,236 +5423,249 @@ export default function CrachasClient() {
     raioInterno: number,
     arredondamentoPontas = 0,
     arredondamentoReentrancias = 0,
-    circularidadePontas = 0
+    circularidadePontas = 0,
+    circularidadeReentrancias = 0
   ) {
     const cx = 50;
     const cy = 50;
 
-    const totalPontas = Math.max(
-      3,
-      Math.min(20, pontas)
-    );
-
-    const vertices: {
-      x: number;
-      y: number;
-      angulo: number;
-      externo: boolean;
-    }[] = [];
-
-    for (
-      let indice = 0;
-      indice < totalPontas * 2;
-      indice++
-    ) {
-      const angulo =
-        -Math.PI / 2 +
-        (indice * Math.PI) /
-        totalPontas;
-
-      const externo =
-        indice % 2 === 0;
-
-      const raio =
-        externo
-          ? raioExterno
-          : raioInterno;
-
-      vertices.push({
-        x:
-          cx +
-          Math.cos(angulo) *
-          raio,
-
-        y:
-          cy +
-          Math.sin(angulo) *
-          raio,
-
-        angulo,
-        externo,
-      });
-    }
+    const totalPontas =
+      Math.max(
+        3,
+        Math.min(
+          20,
+          pontas
+        )
+      );
 
     function limitarPercentual(
       valor: number
     ) {
       return Math.max(
         0,
-        Math.min(100, valor)
+        Math.min(
+          100,
+          Number(valor) || 0
+        )
       );
     }
 
-    function aproximarPonto(
-      origem: { x: number; y: number },
-      destino: { x: number; y: number },
-      proporcao: number
-    ) {
-      return {
-        x:
-          origem.x +
-          (destino.x - origem.x) *
-          proporcao,
-
-        y:
-          origem.y +
-          (destino.y - origem.y) *
-          proporcao,
-      };
-    }
-
-    const nivelArredondamentoPontas =
-      limitarPercentual(
-        arredondamentoPontas
-      ) / 100;
-
-    const nivelArredondamentoReentrancias =
-      limitarPercentual(
-        arredondamentoReentrancias
-      ) / 100;
-
-    const nivelCircularidadePontas =
-      limitarPercentual(
-        circularidadePontas
-      ) / 100;
-
     /*
-     * Sem circularidade, mantém
-     * exatamente o arredondamento atual.
+     * O editor de certificado trabalha
+     * com tangentes simétricas ao redor
+     * de cada vértice.
      *
-     * Com circularidade, a curva externa
-     * ocupa uma parte maior das arestas,
-     * formando pétalas mais largas.
+     * Arredondamento:
+     * suavização moderada.
+     *
+     * Circularidade:
+     * aumenta bastante a tangente,
+     * permitindo chegar ao efeito
+     * de pétala/círculo.
      */
-    let proporcaoPontas =
-      nivelArredondamentoPontas *
-      (
-        0.5 +
-        nivelCircularidadePontas *
-        0.45
+    const intensidadePontas =
+      Math.min(
+        42,
+        limitarPercentual(
+          arredondamentoPontas
+        ) *
+        0.18 +
+        limitarPercentual(
+          circularidadePontas
+        ) *
+        0.40
       );
 
-    let proporcaoReentrancias =
-      nivelArredondamentoReentrancias *
-      0.5;
+    const intensidadeReentrancias =
+      Math.min(
+        38,
+        limitarPercentual(
+          arredondamentoReentrancias
+        ) *
+        0.18 +
+        limitarPercentual(
+          circularidadeReentrancias
+        ) *
+        0.36
+      );
+
+    type VerticeEstrela = {
+      x: number;
+      y: number;
+
+      externo: boolean;
+
+      curvo: boolean;
+
+      inX: number;
+      inY: number;
+
+      outX: number;
+      outY: number;
+    };
+
+    const vertices:
+      VerticeEstrela[] = [];
+
+    for (
+      let indice = 0;
+      indice <
+      totalPontas * 2;
+      indice++
+    ) {
+      const externo =
+        indice % 2 === 0;
+
+      const angulo =
+        -Math.PI / 2 +
+        (
+          indice *
+          Math.PI
+        ) /
+        totalPontas;
+
+      const raio =
+        externo
+          ? raioExterno
+          : raioInterno;
+
+      const x =
+        cx +
+        Math.cos(
+          angulo
+        ) *
+        raio;
+
+      const y =
+        cy +
+        Math.sin(
+          angulo
+        ) *
+        raio;
+
+      const intensidade =
+        externo
+          ? intensidadePontas
+          : intensidadeReentrancias;
+
+      /*
+       * Tangente perpendicular
+       * ao raio do vértice.
+       *
+       * É a mesma ideia usada no
+       * editor de certificado.
+       */
+      const anguloTangente =
+        angulo +
+        Math.PI / 2;
+
+      const dx =
+        Math.cos(
+          anguloTangente
+        ) *
+        intensidade;
+
+      const dy =
+        Math.sin(
+          anguloTangente
+        ) *
+        intensidade;
+
+      vertices.push({
+        x,
+        y,
+
+        externo,
+
+        curvo:
+          intensidade > 0.001,
+
+        inX:
+          x - dx,
+
+        inY:
+          y - dy,
+
+        outX:
+          x + dx,
+
+        outY:
+          y + dy,
+      });
+    }
+
+    if (
+      vertices.length === 0
+    ) {
+      return "";
+    }
+
+    let caminho =
+      `M ${vertices[0].x} ${vertices[0].y}`;
 
     /*
-     * Impede que as curvas externas e
-     * internas se cruzem na mesma aresta.
+     * Liga cada vértice ao próximo.
+     *
+     * Se qualquer um dos dois possui
+     * arredondamento, usa Bézier cúbica.
      */
-    const somaProporcoes =
-      proporcaoPontas +
-      proporcaoReentrancias;
+    for (
+      let indice = 1;
+      indice <
+      vertices.length;
+      indice++
+    ) {
+      const anterior =
+        vertices[
+        indice - 1
+        ];
 
-    if (somaProporcoes > 0.98) {
-      const escala =
-        0.98 /
-        somaProporcoes;
+      const atual =
+        vertices[
+        indice
+        ];
 
-      proporcaoPontas *= escala;
-      proporcaoReentrancias *= escala;
+      if (
+        anterior.curvo ||
+        atual.curvo
+      ) {
+        caminho +=
+          ` C ` +
+          `${anterior.outX} ${anterior.outY} ` +
+          `${atual.inX} ${atual.inY} ` +
+          `${atual.x} ${atual.y}`;
+      } else {
+        caminho +=
+          ` L ${atual.x} ${atual.y}`;
+      }
     }
 
     /*
-     * Empurra o controle da curva externa
-     * para preservar o volume circular
-     * das pétalas.
+     * Fecha a última aresta
+     * exatamente com a mesma lógica.
      */
-    const aumentoControlePontas =
-      Math.max(
-        0,
-        raioExterno - raioInterno
-      ) *
-      nivelCircularidadePontas *
-      nivelArredondamentoPontas *
-      0.95;
+    const ultimo =
+      vertices[
+      vertices.length - 1
+      ];
 
-    const partes: string[] = [];
+    const primeiro =
+      vertices[0];
 
-    vertices.forEach(
-      (vertice, indice) => {
-        const anterior =
-          vertices[
-          (
-            indice -
-            1 +
-            vertices.length
-          ) %
-          vertices.length
-          ];
+    if (
+      ultimo.curvo ||
+      primeiro.curvo
+    ) {
+      caminho +=
+        ` C ` +
+        `${ultimo.outX} ${ultimo.outY} ` +
+        `${primeiro.inX} ${primeiro.inY} ` +
+        `${primeiro.x} ${primeiro.y}`;
+    }
 
-        const proximo =
-          vertices[
-          (indice + 1) %
-          vertices.length
-          ];
+    caminho += " Z";
 
-        const proporcao =
-          vertice.externo
-            ? proporcaoPontas
-            : proporcaoReentrancias;
-
-        const entrada =
-          aproximarPonto(
-            vertice,
-            anterior,
-            proporcao
-          );
-
-        const saida =
-          aproximarPonto(
-            vertice,
-            proximo,
-            proporcao
-          );
-
-        const pontoControle =
-          vertice.externo
-            ? {
-              x:
-                cx +
-                Math.cos(
-                  vertice.angulo
-                ) *
-                (
-                  raioExterno +
-                  aumentoControlePontas
-                ),
-
-              y:
-                cy +
-                Math.sin(
-                  vertice.angulo
-                ) *
-                (
-                  raioExterno +
-                  aumentoControlePontas
-                ),
-            }
-            : {
-              x: vertice.x,
-              y: vertice.y,
-            };
-
-        if (indice === 0) {
-          partes.push(
-            `M ${entrada.x} ${entrada.y}`
-          );
-        } else {
-          partes.push(
-            `L ${entrada.x} ${entrada.y}`
-          );
-        }
-
-        partes.push(
-          `Q ${pontoControle.x} ${pontoControle.y} ${saida.x} ${saida.y}`
-        );
-      }
-    );
-
-    partes.push("Z");
-
-    return partes.join(" ");
+    return caminho;
   }
 
   function gerarPontosPoligonoSvg(lados: number) {
@@ -5179,7 +6056,8 @@ export default function CrachasClient() {
             objeto.raioInterno ?? 22,
             objeto.arredondamentoPontas ?? 0,
             objeto.arredondamentoReentrancias ?? 0,
-            objeto.circularidadePontas ?? 0
+            objeto.circularidadePontas ?? 0,
+            objeto.circularidadeReentrancias ?? 0
           )}
           {...comum}
         />
@@ -5928,9 +6806,12 @@ export default function CrachasClient() {
       | "base"
       | "centro-total"
   ) {
-    if (!objetoAtual) return;
+    if (!objetoAtual) {
+      return;
+    }
 
-    const area = crachaAreaRef.current;
+    const area =
+      crachaAreaRef.current;
 
     const larguraCracha =
       area?.clientWidth ||
@@ -5948,52 +6829,210 @@ export default function CrachasClient() {
           ? 380
           : 260);
 
-    const { largura, altura } =
-      tamanhoObjetoCracha(objetoAtual);
+    /*
+     * Descobre se o objeto faz parte
+     * de um grupo.
+     *
+     * idsDoGrupoDoObjeto já retorna
+     * somente o próprio objeto quando
+     * ele não está agrupado.
+     */
+    const idsAlvo =
+      idsDoGrupoDoObjeto(
+        objetoAtual.id
+      );
 
-    const atualizacao: any = {};
+    const objetosAlvo =
+      objetos.filter(
+        (item) =>
+          idsAlvo.includes(
+            item.id
+          )
+      );
 
-    if (alinhamento === "esquerda") {
-      atualizacao.x = 0;
+    if (
+      objetosAlvo.length === 0
+    ) {
+      return;
+    }
+
+    /*
+     * Calcula a caixa externa de TODOS
+     * os objetos do grupo.
+     */
+    const minX =
+      Math.min(
+        ...objetosAlvo.map(
+          (item) =>
+            item.x
+        )
+      );
+
+    const minY =
+      Math.min(
+        ...objetosAlvo.map(
+          (item) =>
+            item.y
+        )
+      );
+
+    const maxX =
+      Math.max(
+        ...objetosAlvo.map(
+          (item) =>
+            item.x +
+            item.largura
+        )
+      );
+
+    const maxY =
+      Math.max(
+        ...objetosAlvo.map(
+          (item) =>
+            item.y +
+            item.altura
+        )
+      );
+
+    const larguraConjunto =
+      maxX - minX;
+
+    const alturaConjunto =
+      maxY - minY;
+
+    /*
+     * Primeiro calculamos PARA ONDE
+     * a caixa inteira deve ir.
+     */
+    let destinoX =
+      minX;
+
+    let destinoY =
+      minY;
+
+    if (
+      alinhamento ===
+      "esquerda"
+    ) {
+      destinoX = 0;
     }
 
     if (
-      alinhamento === "centro-horizontal" ||
-      alinhamento === "centro-total"
+      alinhamento ===
+      "centro-horizontal" ||
+      alinhamento ===
+      "centro-total"
     ) {
-      atualizacao.x = Math.round(
-        (larguraCracha - largura) / 2
-      );
-    }
-
-    if (alinhamento === "direita") {
-      atualizacao.x = Math.round(
-        larguraCracha - largura
-      );
-    }
-
-    if (alinhamento === "topo") {
-      atualizacao.y = 0;
+      destinoX =
+        (
+          larguraCracha -
+          larguraConjunto
+        ) / 2;
     }
 
     if (
-      alinhamento === "centro-vertical" ||
-      alinhamento === "centro-total"
+      alinhamento ===
+      "direita"
     ) {
-      atualizacao.y = Math.round(
-        (alturaCracha - altura) / 2
-      );
+      destinoX =
+        larguraCracha -
+        larguraConjunto;
     }
 
-    if (alinhamento === "base") {
-      atualizacao.y = Math.round(
-        alturaCracha - altura
-      );
+    if (
+      alinhamento ===
+      "topo"
+    ) {
+      destinoY = 0;
     }
 
-    atualizarObjeto(
-      objetoAtual.id,
-      atualizacao
+    if (
+      alinhamento ===
+      "centro-vertical" ||
+      alinhamento ===
+      "centro-total"
+    ) {
+      destinoY =
+        (
+          alturaCracha -
+          alturaConjunto
+        ) / 2;
+    }
+
+    if (
+      alinhamento ===
+      "base"
+    ) {
+      destinoY =
+        alturaCracha -
+        alturaConjunto;
+    }
+
+    /*
+     * O segredo está aqui:
+     *
+     * NÃO centralizamos cada objeto.
+     * Calculamos apenas o deslocamento
+     * necessário para a caixa do grupo.
+     */
+    const deslocamentoX =
+      destinoX - minX;
+
+    const deslocamentoY =
+      destinoY - minY;
+
+    objetosAlvo.forEach(
+      (item) => {
+        const atualizacao:
+          Partial<ObjetoCracha> = {};
+
+        /*
+         * Só altera X quando aquela
+         * ação trabalha no eixo X.
+         */
+        if (
+          alinhamento ===
+          "esquerda" ||
+          alinhamento ===
+          "centro-horizontal" ||
+          alinhamento ===
+          "direita" ||
+          alinhamento ===
+          "centro-total"
+        ) {
+          atualizacao.x =
+            Math.round(
+              item.x +
+              deslocamentoX
+            );
+        }
+
+        /*
+         * Só altera Y quando aquela
+         * ação trabalha no eixo Y.
+         */
+        if (
+          alinhamento ===
+          "topo" ||
+          alinhamento ===
+          "centro-vertical" ||
+          alinhamento ===
+          "base" ||
+          alinhamento ===
+          "centro-total"
+        ) {
+          atualizacao.y =
+            Math.round(
+              item.y +
+              deslocamentoY
+            );
+        }
+
+        atualizarObjeto(
+          item.id,
+          atualizacao
+        );
+      }
     );
   }
 
@@ -7426,6 +8465,9 @@ export default function CrachasClient() {
         <div className="phanyx-crachas-card phanyx-crachas-canvas-area col-span-7 flex items-center justify-center p-8">
           <div
             ref={crachaAreaRef}
+            onMouseDown={
+              iniciarSelecaoPorArea
+            }
             className="phanyx-cracha-paper relative overflow-hidden shadow-xl"
             style={{
               ["--cor-fundo-cracha" as any]: fundoCrachaCss(),
@@ -7453,9 +8495,172 @@ export default function CrachasClient() {
             }}
           >
 
+            {selecaoPorArea.ativo && (
+              <div
+                style={{
+                  position:
+                    "absolute",
+
+                  left:
+                    selecaoPorArea.x,
+
+                  top:
+                    selecaoPorArea.y,
+
+                  width:
+                    selecaoPorArea.largura,
+
+                  height:
+                    selecaoPorArea.altura,
+
+                  border:
+                    "1.5px solid #2563eb",
+
+                  background:
+                    "rgba(37, 99, 235, 0.12)",
+
+                  pointerEvents:
+                    "none",
+
+                  zIndex:
+                    999998,
+
+                  boxSizing:
+                    "border-box",
+                }}
+              />
+            )}
+
             {renderFuroCracha()}
 
+            {(() => {
+              const caixa =
+                caixaDoGrupoSelecionado();
+
+              if (!caixa) {
+                return null;
+              }
+
+              return (
+                <div
+                  style={{
+                    position:
+                      "absolute",
+
+                    left:
+                      caixa.x - 4,
+
+                    top:
+                      caixa.y - 4,
+
+                    width:
+                      caixa.largura + 8,
+
+                    height:
+                      caixa.altura + 8,
+
+                    border:
+                      "2px dashed #2563eb",
+
+                    borderRadius:
+                      6,
+
+                    pointerEvents:
+                      "none",
+
+                    zIndex:
+                      999999,
+                  }}
+                >
+                  <div
+                    style={{
+                      position:
+                        "absolute",
+
+                      left:
+                        "50%",
+
+                      top:
+                        -24,
+
+                      transform:
+                        "translateX(-50%)",
+
+                      padding:
+                        "2px 7px",
+
+                      borderRadius:
+                        6,
+
+                      background:
+                        "#2563eb",
+
+                      color:
+                        "#ffffff",
+
+                      fontSize:
+                        10,
+
+                      fontWeight:
+                        700,
+
+                      whiteSpace:
+                        "nowrap",
+                    }}
+                  >
+                    Grupo
+                  </div>
+                  <span
+                    onMouseDown={(e) =>
+                      iniciarRedimensionamentoGrupo(
+                        e,
+                        caixa
+                      )
+                    }
+                    style={{
+                      position:
+                        "absolute",
+
+                      right:
+                        -7,
+
+                      bottom:
+                        -7,
+
+                      width:
+                        14,
+
+                      height:
+                        14,
+
+                      borderRadius:
+                        9999,
+
+                      border:
+                        "2px solid #2563eb",
+
+                      background:
+                        "#ffffff",
+
+                      cursor:
+                        "nwse-resize",
+
+                      pointerEvents:
+                        "auto",
+
+                      boxSizing:
+                        "border-box",
+
+                      zIndex:
+                        1000000,
+                    }}
+                  />
+                </div>
+              );
+            })()}
+
             {[...objetos]
+
               .sort((a, b) => (a.ordem || 0) - (b.ordem || 0))
               .map((objeto) => {
 
@@ -7499,7 +8704,9 @@ export default function CrachasClient() {
                         overflow: "visible",
                         boxSizing: "border-box",
                         border:
-                          objetoEstaSelecionado(objeto.id)
+                          mostrarControlesIndividuais(
+                            objeto
+                          )
                             ? "1px dashed #2563eb"
                             : "1px solid transparent",
                         zIndex: zIndexObjetoCracha(objeto),
@@ -7524,9 +8731,11 @@ export default function CrachasClient() {
                         {objeto.texto}
                       </span>
 
-                      {objetoEstaSelecionado(objeto.id) && <BotaoExcluirObjeto />}
+                      {mostrarControlesIndividuais(objeto) && (
+                        <BotaoExcluirObjeto />
+                      )}
 
-                      {objetoEstaSelecionado(objeto.id) && (
+                      {mostrarControlesIndividuais(objeto) && (
                         <>
                           <span
                             onMouseDown={(e) => redimensionarTexto(e, objeto, "nw")}
@@ -7623,7 +8832,7 @@ export default function CrachasClient() {
                         {objeto.campo}
                       </span>
 
-                      {objetoEstaSelecionado(objeto.id) && <BotaoExcluirObjeto />}
+                      {mostrarControlesIndividuais(objeto) && <BotaoExcluirObjeto />}
                     </div>
                   );
                 }
@@ -7648,7 +8857,7 @@ export default function CrachasClient() {
                         cursor: "move",
                         overflow: "visible",
                         border:
-                          objetoEstaSelecionado(objeto.id)
+                          mostrarControlesIndividuais(objeto)
                             ? "1px dashed #2563eb"
                             : objeto.url
                               ? "1px solid transparent"
@@ -7694,8 +8903,11 @@ export default function CrachasClient() {
                         )}
                       </div>
 
-                      {objetoEstaSelecionado(objeto.id) && <BotaoExcluirObjeto />}
-                      {objetoEstaSelecionado(objeto.id) && (
+                      {mostrarControlesIndividuais(objeto) && (
+                        <BotaoExcluirObjeto />
+                      )}
+
+                      {mostrarControlesIndividuais(objeto) && (
                         <>
                           <span
                             onMouseDown={(e) => redimensionarImagem(e, objeto, "nw")}
@@ -7746,7 +8958,9 @@ export default function CrachasClient() {
                         cursor: "move",
                         overflow: "visible",
                         border:
-                          objetoEstaSelecionado(objeto.id)
+                          mostrarControlesIndividuais(
+                            objeto
+                          )
                             ? "1px dashed #2563eb"
                             : "1px solid transparent",
                         borderRadius: objeto.raioBorda,
@@ -7777,9 +8991,11 @@ export default function CrachasClient() {
                         />
                       </div>
 
-                      {objetoEstaSelecionado(objeto.id) && <BotaoExcluirObjeto />}
+                      {mostrarControlesIndividuais(objeto) && (
+                        <BotaoExcluirObjeto />
+                      )}
 
-                      {objetoEstaSelecionado(objeto.id) && (
+                      {mostrarControlesIndividuais(objeto) && (
                         <>
                           <span
                             onMouseDown={(e) => redimensionarQrCode(e, objeto, "nw")}
@@ -7864,7 +9080,7 @@ export default function CrachasClient() {
                         />
                       </div>
 
-                      {objetoEstaSelecionado(objeto.id) && <BotaoExcluirObjeto />}
+                      {mostrarControlesIndividuais(objeto) && <BotaoExcluirObjeto />}
                     </div>
                   );
                 }
@@ -7895,7 +9111,7 @@ export default function CrachasClient() {
                         opacity: 1,
                         boxSizing: "border-box",
                         outline:
-                          objetoEstaSelecionado(objeto.id)
+                          mostrarControlesIndividuais(objeto)
                             ? "1px dashed #2563eb"
                             : "none",
                       }}
@@ -7919,7 +9135,7 @@ export default function CrachasClient() {
                         {renderFormaSvg(objeto)}
                       </svg>
 
-                      {objetoSelecionado === objeto.id &&
+                      {mostrarControlesIndividuais(objeto) &&
                         objeto.forma === "FORMA_LIVRE" && (
                           <svg
                             viewBox="0 0 100 100"
@@ -7960,7 +9176,7 @@ export default function CrachasClient() {
                           </svg>
                         )}
 
-                      {objetoSelecionado === objeto.id &&
+                      {mostrarControlesIndividuais(objeto) &&
                         objeto.forma === "FORMA_LIVRE" &&
                         pontosLivresForma(objeto).map((ponto) => (
                           <button
@@ -7995,7 +9211,7 @@ export default function CrachasClient() {
                           />
                         ))}
 
-                      {objetoSelecionado === objeto.id &&
+                      {mostrarControlesIndividuais(objeto) &&
                         objeto.forma === "FORMA_LIVRE" &&
                         pontosLivresForma(objeto).map((ponto) => (
                           <div key={`alca-botoes-${ponto.id}`}>
@@ -8047,9 +9263,11 @@ export default function CrachasClient() {
                           </div>
                         ))}
 
-                      {objetoEstaSelecionado(objeto.id) && <BotaoExcluirObjeto />}
+                      {mostrarControlesIndividuais(objeto) && (
+                        <BotaoExcluirObjeto />
+                      )}
 
-                      {objetoEstaSelecionado(objeto.id) && (
+                      {mostrarControlesIndividuais(objeto) && (
                         <>
                           <span
                             onMouseDown={(e) => redimensionarForma(e, objeto, "nw")}
@@ -9207,6 +10425,7 @@ export default function CrachasClient() {
                         arredondamentoPontas: 0,
                         arredondamentoReentrancias: 0,
                         circularidadePontas: 0,
+                        circularidadeReentrancias: 0,
                       },
 
                       FORMA_LIVRE: {
@@ -9984,6 +11203,39 @@ export default function CrachasClient() {
                       Use junto com o arredondamento
                       das pontas para criar pétalas
                       mais largas e circulares.
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl border border-slate-300 p-3 dark:border-slate-700">
+                    <label className="mb-2 block text-xs font-semibold">
+                      Circularidade das reentrâncias:{" "}
+                      {objetoAtual.circularidadeReentrancias ?? 0}%
+                    </label>
+
+                    <input
+                      type="range"
+                      min={0}
+                      max={100}
+                      step={1}
+                      value={
+                        objetoAtual.circularidadeReentrancias ?? 0
+                      }
+                      onChange={(e) =>
+                        atualizarObjeto(
+                          objetoAtual.id,
+                          {
+                            circularidadeReentrancias:
+                              Number(e.target.value),
+                          }
+                        )
+                      }
+                      className="w-full accent-blue-600"
+                    />
+
+                    <p className="mt-2 text-[11px] text-slate-600 dark:text-slate-400">
+                      Use junto com o arredondamento
+                      das reentrâncias para criar vales
+                      internos mais suaves e circulares.
                     </p>
                   </div>
 

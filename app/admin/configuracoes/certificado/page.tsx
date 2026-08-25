@@ -63,16 +63,16 @@ type CampoCertificado = {
   filter?: string | null;
 
   forma?:
-    | "RETANGULO"
-    | "QUADRADO"
-    | "CIRCULO"
-    | "LINHA"
-    | "ESTRELA"
-    | "TRIANGULO"
-    | "SETA"
-    | "LOSANGO"
-    | "LIVRE"
-    | null;
+  | "RETANGULO"
+  | "QUADRADO"
+  | "CIRCULO"
+  | "LINHA"
+  | "ESTRELA"
+  | "TRIANGULO"
+  | "SETA"
+  | "LOSANGO"
+  | "LIVRE"
+  | null;
 
   raioBorda?: number | null;
   pontasEstrela?: number | null;
@@ -104,17 +104,17 @@ type CampoCertificado = {
   sombraAngulo?: number | null;
   sombraDistancia?: number | null;
   pontosForma?:
-    | {
-        id: string;
-        x: number;
-        y: number;
-        tipo?: "reto" | "curvo";
-        inX?: number;
-        inY?: number;
-        outX?: number;
-        outY?: number;
-      }[]
-    | null;
+  | {
+    id: string;
+    x: number;
+    y: number;
+    tipo?: "reto" | "curvo";
+    inX?: number;
+    inY?: number;
+    outX?: number;
+    outY?: number;
+  }[]
+  | null;
 
   array?: {
     ativo: boolean;
@@ -162,33 +162,33 @@ const MODALIDADES_CERTIFICADO: {
   valor: ModalidadeCertificadoValor;
   label: string;
 }[] = [
-  { valor: "GERAL", label: "Geral" },
-  { valor: "BACHARELADO", label: "Bacharelado" },
-  { valor: "LICENCIATURA", label: "Licenciatura" },
-  { valor: "TECNOLOGO", label: "Tecnólogo" },
-  { valor: "POS_GRADUACAO", label: "Pós-graduação" },
-  { valor: "MBA", label: "MBA" },
-  { valor: "MESTRADO", label: "Mestrado" },
-  { valor: "DOUTORADO", label: "Doutorado" },
-  { valor: "TECNICO", label: "Curso Técnico" },
-  { valor: "CURSO_LIVRE", label: "Curso Livre" },
-  { valor: "OFICINA", label: "Oficina" },
-  { valor: "ENSINO_MEDIO", label: "Ensino Médio" },
-  {
-    valor: "ENSINO_FUNDAMENTAL",
-    label: "Ensino Fundamental",
-  },
-  {
-    valor: "EDUCACAO_INFANTIL",
-    label: "Educação Infantil",
-  },
-  { valor: "PRE_ESCOLA", label: "Pré-escola" },
-  { valor: "EXTENSAO", label: "Extensão" },
-  { valor: "CAPACITACAO", label: "Capacitação" },
-  { valor: "TREINAMENTO", label: "Treinamento" },
-  { valor: "EJA", label: "EJA" },
-  { valor: "OUTRO", label: "Outro" },
-];
+    { valor: "GERAL", label: "Geral" },
+    { valor: "BACHARELADO", label: "Bacharelado" },
+    { valor: "LICENCIATURA", label: "Licenciatura" },
+    { valor: "TECNOLOGO", label: "Tecnólogo" },
+    { valor: "POS_GRADUACAO", label: "Pós-graduação" },
+    { valor: "MBA", label: "MBA" },
+    { valor: "MESTRADO", label: "Mestrado" },
+    { valor: "DOUTORADO", label: "Doutorado" },
+    { valor: "TECNICO", label: "Curso Técnico" },
+    { valor: "CURSO_LIVRE", label: "Curso Livre" },
+    { valor: "OFICINA", label: "Oficina" },
+    { valor: "ENSINO_MEDIO", label: "Ensino Médio" },
+    {
+      valor: "ENSINO_FUNDAMENTAL",
+      label: "Ensino Fundamental",
+    },
+    {
+      valor: "EDUCACAO_INFANTIL",
+      label: "Educação Infantil",
+    },
+    { valor: "PRE_ESCOLA", label: "Pré-escola" },
+    { valor: "EXTENSAO", label: "Extensão" },
+    { valor: "CAPACITACAO", label: "Capacitação" },
+    { valor: "TREINAMENTO", label: "Treinamento" },
+    { valor: "EJA", label: "EJA" },
+    { valor: "OUTRO", label: "Outro" },
+  ];
 
 const FONTES = [
   // Padrão
@@ -758,6 +758,11 @@ export default function ConfiguracaoCertificadoPage() {
     x: 260,
     y: 150,
   });
+
+  const [
+    barraSelecaoMinimizada,
+    setBarraSelecaoMinimizada,
+  ] = useState(false);
 
   const [arrayJanelaPos, setArrayJanelaPos] = useState({
     x: 180,
@@ -1831,8 +1836,8 @@ export default function ConfiguracaoCertificadoPage() {
 
     const coordenadorNome = String(
       configuracao?.coordenadorNome ??
-        configuracao?.certificadoCoordenadorNome ??
-        "",
+      configuracao?.certificadoCoordenadorNome ??
+      "",
     );
 
     const cidade = String(
@@ -1856,8 +1861,8 @@ export default function ConfiguracaoCertificadoPage() {
 
     const corFundoRecebida = String(
       configuracao?.corFundoPagina ??
-        configuracao?.certificadoCorFundoPagina ??
-        "#ffffff",
+      configuracao?.certificadoCorFundoPagina ??
+      "#ffffff",
     ).trim();
 
     setCorFundoPagina(
@@ -1866,8 +1871,8 @@ export default function ConfiguracaoCertificadoPage() {
 
     const tamanhoPapelRecebido = String(
       configuracao?.tamanhoPapel ??
-        configuracao?.certificadoTamanhoPapel ??
-        "A4",
+      configuracao?.certificadoTamanhoPapel ??
+      "A4",
     ).toUpperCase();
 
     setTamanhoPapel(
@@ -1878,8 +1883,8 @@ export default function ConfiguracaoCertificadoPage() {
 
     const orientacaoRecebida = String(
       configuracao?.orientacao ??
-        configuracao?.certificadoOrientacao ??
-        "paisagem",
+      configuracao?.certificadoOrientacao ??
+      "paisagem",
     ).toLowerCase();
 
     setOrientacao(orientacaoRecebida === "retrato" ? "retrato" : "paisagem");
@@ -1887,19 +1892,19 @@ export default function ConfiguracaoCertificadoPage() {
     setCertificadoAssinaturaUrl(
       String(
         configuracao?.assinaturaUrl ??
-          configuracao?.certificadoAssinaturaUrl ??
-          dataInstituicao?.certificadoAssinaturaUrl ??
-          dataInstituicao?.configuracaoInstituicao?.certificadoAssinaturaUrl ??
-          "",
+        configuracao?.certificadoAssinaturaUrl ??
+        dataInstituicao?.certificadoAssinaturaUrl ??
+        dataInstituicao?.configuracaoInstituicao?.certificadoAssinaturaUrl ??
+        "",
       ),
     );
 
     setNomeDiretorInstituicao(
       String(
         dataInstituicao?.responsavelNome ??
-          configuracao?.coordenadorNome ??
-          configuracao?.certificadoCoordenadorNome ??
-          "",
+        configuracao?.coordenadorNome ??
+        configuracao?.certificadoCoordenadorNome ??
+        "",
       ),
     );
   }
@@ -1908,15 +1913,15 @@ export default function ConfiguracaoCertificadoPage() {
     setCampos(
       Array.isArray(dataCampos?.campos)
         ? dataCampos.campos.map((campo: any) => {
-            const dados = campo.dadosJson || {};
+          const dados = campo.dadosJson || {};
 
-            return {
-              ...dados,
-              ...campo,
-              bancoId: campo.id,
-              id: campo.id,
-            };
-          })
+          return {
+            ...dados,
+            ...campo,
+            bancoId: campo.id,
+            id: campo.id,
+          };
+        })
         : [],
     );
 
@@ -1937,8 +1942,8 @@ export default function ConfiguracaoCertificadoPage() {
     if (!resposta.ok) {
       throw new Error(
         dados?.detalhe ||
-          dados?.error ||
-          "Erro ao atualizar a lista de modelos.",
+        dados?.error ||
+        "Erro ao atualizar a lista de modelos.",
       );
     }
 
@@ -2027,16 +2032,16 @@ export default function ConfiguracaoCertificadoPage() {
       if (!respostaRascunho.ok) {
         throw new Error(
           dadosRascunho?.detalhe ||
-            dadosRascunho?.error ||
-            "Erro ao abrir o rascunho do modelo.",
+          dadosRascunho?.error ||
+          "Erro ao abrir o rascunho do modelo.",
         );
       }
 
       if (!respostaCampos.ok) {
         throw new Error(
           dadosCampos?.detalhe ||
-            dadosCampos?.error ||
-            "Erro ao abrir os elementos do modelo.",
+          dadosCampos?.error ||
+          "Erro ao abrir os elementos do modelo.",
         );
       }
 
@@ -2118,8 +2123,8 @@ export default function ConfiguracaoCertificadoPage() {
       if (!resposta.ok) {
         throw new Error(
           dados?.detalhe ||
-            dados?.error ||
-            "Erro ao criar o modelo de certificado.",
+          dados?.error ||
+          "Erro ao criar o modelo de certificado.",
         );
       }
 
@@ -2218,8 +2223,8 @@ export default function ConfiguracaoCertificadoPage() {
       if (!resposta.ok) {
         throw new Error(
           dados?.detalhe ||
-            dados?.error ||
-            "Erro ao atualizar os dados do modelo.",
+          dados?.error ||
+          "Erro ao atualizar os dados do modelo.",
         );
       }
 
@@ -2283,8 +2288,8 @@ export default function ConfiguracaoCertificadoPage() {
       if (!resposta.ok) {
         throw new Error(
           dados?.detalhe ||
-            dados?.error ||
-            "Erro ao definir o modelo como padrão geral.",
+          dados?.error ||
+          "Erro ao definir o modelo como padrão geral.",
         );
       }
 
@@ -2467,8 +2472,8 @@ export default function ConfiguracaoCertificadoPage() {
         if (!resModelos.ok) {
           throw new Error(
             dataModelos?.detalhe ||
-              dataModelos?.error ||
-              "Erro ao buscar modelos de certificado.",
+            dataModelos?.error ||
+            "Erro ao buscar modelos de certificado.",
           );
         }
 
@@ -2492,7 +2497,7 @@ export default function ConfiguracaoCertificadoPage() {
 
           limite:
             dataModelos?.resumo?.ilimitado === true ||
-            dataModelos?.resumo?.limite === null
+              dataModelos?.resumo?.limite === null
               ? null
               : Number(dataModelos?.resumo?.limite ?? 1),
 
@@ -2504,7 +2509,7 @@ export default function ConfiguracaoCertificadoPage() {
 
           restantes:
             dataModelos?.resumo?.ilimitado === true ||
-            dataModelos?.resumo?.restantes === null
+              dataModelos?.resumo?.restantes === null
               ? null
               : Number(dataModelos?.resumo?.restantes ?? 0),
 
@@ -2546,16 +2551,16 @@ export default function ConfiguracaoCertificadoPage() {
           if (!resRascunho.ok) {
             throw new Error(
               dataRascunho?.detalhe ||
-                dataRascunho?.error ||
-                "Erro ao buscar o rascunho do modelo.",
+              dataRascunho?.error ||
+              "Erro ao buscar o rascunho do modelo.",
             );
           }
 
           if (!resCampos.ok) {
             throw new Error(
               dataCampos?.detalhe ||
-                dataCampos?.error ||
-                "Erro ao buscar os campos do rascunho.",
+              dataCampos?.error ||
+              "Erro ao buscar os campos do rascunho.",
             );
           }
 
@@ -2601,16 +2606,16 @@ export default function ConfiguracaoCertificadoPage() {
         if (!resConfig.ok) {
           throw new Error(
             dataConfig?.detalhe ||
-              dataConfig?.error ||
-              "Erro ao buscar configuração legada.",
+            dataConfig?.error ||
+            "Erro ao buscar configuração legada.",
           );
         }
 
         if (!resCampos.ok) {
           throw new Error(
             dataCampos?.detalhe ||
-              dataCampos?.error ||
-              "Erro ao buscar campos legados.",
+            dataCampos?.error ||
+            "Erro ao buscar campos legados.",
           );
         }
 
@@ -2713,13 +2718,13 @@ export default function ConfiguracaoCertificadoPage() {
             prev.map((campo) =>
               campo.id === pontoFormaSelecionado.campoId
                 ? {
-                    ...campo,
+                  ...campo,
+                  pontosForma: novosPontos,
+                  dadosJson: {
+                    ...((campo as any).dadosJson || {}),
                     pontosForma: novosPontos,
-                    dadosJson: {
-                      ...((campo as any).dadosJson || {}),
-                      pontosForma: novosPontos,
-                    },
-                  }
+                  },
+                }
                 : campo,
             ),
           );
@@ -3243,11 +3248,11 @@ export default function ConfiguracaoCertificadoPage() {
           dadosJson:
             tipo === "DISCIPLINAS_CONCLUIDAS"
               ? {
-                  quantidadeDisciplinas: 3,
-                  colunasDisciplinas: 1,
-                  espacoColunasDisciplinas: 12,
-                  lineHeight: 1.35,
-                }
+                quantidadeDisciplinas: 3,
+                colunasDisciplinas: 1,
+                espacoColunasDisciplinas: 12,
+                lineHeight: 1.35,
+              }
               : undefined,
         }),
       });
@@ -3328,10 +3333,10 @@ export default function ConfiguracaoCertificadoPage() {
         prev.map((c) =>
           c.id === id
             ? {
-                ...c,
-                ...data,
-                ...payload,
-              }
+              ...c,
+              ...data,
+              ...payload,
+            }
             : c,
         ),
       );
@@ -3550,7 +3555,7 @@ export default function ConfiguracaoCertificadoPage() {
           opacity: Math.max(
             0.05,
             Number((base as any).opacity || 1) *
-              Math.pow(opacidadePorCopia, passo),
+            Math.pow(opacidadePorCopia, passo),
           ),
           grupoId: novoGrupoId,
         };
@@ -3673,16 +3678,16 @@ export default function ConfiguracaoCertificadoPage() {
       prev.map((campo) =>
         campo.id === campoBase.id
           ? ({
-              ...campo,
+            ...campo,
+            arrayAtivo: true,
+            arrayConfig,
+            nomeCamada: campo.nomeCamada || "Array",
+            dadosJson: {
+              ...((campo as any).dadosJson || {}),
               arrayAtivo: true,
               arrayConfig,
-              nomeCamada: campo.nomeCamada || "Array",
-              dadosJson: {
-                ...((campo as any).dadosJson || {}),
-                arrayAtivo: true,
-                arrayConfig,
-              },
-            } as any)
+            },
+          } as any)
           : campo,
       ),
     );
@@ -4016,7 +4021,7 @@ export default function ConfiguracaoCertificadoPage() {
         tamanho: Number(campo.tamanho || 18),
         contornoEspessura:
           campo.contornoEspessura !== null &&
-          campo.contornoEspessura !== undefined
+            campo.contornoEspessura !== undefined
             ? Number(campo.contornoEspessura)
             : null,
         sombraBlur:
@@ -4347,9 +4352,9 @@ export default function ConfiguracaoCertificadoPage() {
 
       const itensDaUnidade = grupoId
         ? campos.filter(
-            (item) =>
-              (item as any).grupoId === grupoId && !(item as any).arrayPreview,
-          )
+          (item) =>
+            (item as any).grupoId === grupoId && !(item as any).arrayPreview,
+        )
         : [campo];
 
       const atuais = mapa.get(chave) || [];
@@ -4792,17 +4797,17 @@ export default function ConfiguracaoCertificadoPage() {
         const novosDados =
           direcao === "HORIZONTAL"
             ? {
-                x: temGrupo
-                  ? Math.round(minX + larguraGrupo - (x - minX) - largura)
-                  : x,
-                flipX: !(campo as any).flipX,
-              }
+              x: temGrupo
+                ? Math.round(minX + larguraGrupo - (x - minX) - largura)
+                : x,
+              flipX: !(campo as any).flipX,
+            }
             : {
-                y: temGrupo
-                  ? Math.round(minY + alturaGrupo - (y - minY) - altura)
-                  : y,
-                flipY: !(campo as any).flipY,
-              };
+              y: temGrupo
+                ? Math.round(minY + alturaGrupo - (y - minY) - altura)
+                : y,
+              flipY: !(campo as any).flipY,
+            };
 
         return {
           ...campo,
@@ -4963,10 +4968,10 @@ export default function ConfiguracaoCertificadoPage() {
       prev.map((campo) =>
         campo.id === campoId
           ? {
-              ...campo,
-              texto: editor.innerText,
-              textoHtml: editor.innerHTML,
-            }
+            ...campo,
+            texto: editor.innerText,
+            textoHtml: editor.innerHTML,
+          }
           : campo,
       ),
     );
@@ -5246,10 +5251,10 @@ export default function ConfiguracaoCertificadoPage() {
 
     const idsDoGrupo = campo.grupoId
       ? campos
-          .filter((item) => item.grupoId === campo.grupoId)
-          .map((item) => item.id)
+        .filter((item) => item.grupoId === campo.grupoId)
+        .map((item) => item.id)
       : camposSelecionadosIds.length > 1 &&
-          camposSelecionadosIds.includes(campo.id)
+        camposSelecionadosIds.includes(campo.id)
         ? camposSelecionadosIds
         : [campo.id];
 
@@ -5474,18 +5479,18 @@ export default function ConfiguracaoCertificadoPage() {
         prev.map((item) =>
           item.id === campo.id
             ? {
-                ...item,
-                x: Math.round(xInicial + delta),
-                y: Math.round(yInicial + delta),
-                largura: Math.max(40, Math.round(larguraInicial - delta * 2)),
-                altura: Math.max(40, Math.round(alturaInicial - delta * 2)),
-                crop: {
-                  top: Math.max(0, cropInicial.top + delta),
-                  bottom: Math.max(0, cropInicial.bottom + delta),
-                  left: Math.max(0, cropInicial.left + delta),
-                  right: Math.max(0, cropInicial.right + delta),
-                },
-              }
+              ...item,
+              x: Math.round(xInicial + delta),
+              y: Math.round(yInicial + delta),
+              largura: Math.max(40, Math.round(larguraInicial - delta * 2)),
+              altura: Math.max(40, Math.round(alturaInicial - delta * 2)),
+              crop: {
+                top: Math.max(0, cropInicial.top + delta),
+                bottom: Math.max(0, cropInicial.bottom + delta),
+                left: Math.max(0, cropInicial.left + delta),
+                right: Math.max(0, cropInicial.right + delta),
+              },
+            }
             : item,
         ),
       );
@@ -5522,9 +5527,9 @@ export default function ConfiguracaoCertificadoPage() {
         prev.map((item) =>
           item.id === campo.id
             ? {
-                ...item,
-                rotate: Math.round(angulo + 90),
-              }
+              ...item,
+              rotate: Math.round(angulo + 90),
+            }
             : item,
         ),
       );
@@ -5752,8 +5757,8 @@ export default function ConfiguracaoCertificadoPage() {
       if (!resConfig.ok) {
         throw new Error(
           dataConfig?.detalhe ||
-            dataConfig?.error ||
-            "Erro ao salvar as configurações do rascunho.",
+          dataConfig?.error ||
+          "Erro ao salvar as configurações do rascunho.",
         );
       }
 
@@ -5813,8 +5818,8 @@ export default function ConfiguracaoCertificadoPage() {
       if (!resCampos.ok) {
         throw new Error(
           dataCampos?.detalhe ||
-            dataCampos?.error ||
-            "Erro ao salvar os campos do rascunho.",
+          dataCampos?.error ||
+          "Erro ao salvar os campos do rascunho.",
         );
       }
 
@@ -5993,15 +5998,15 @@ export default function ConfiguracaoCertificadoPage() {
       prev.map((campo) =>
         ids.includes(campo.id)
           ? {
-              ...campo,
-              contornoTextoAtivo: !campo.contornoTextoAtivo,
-              contornoTextoCor:
-                campo.contornoTextoCor || corContornoTexto || "#000000",
-              contornoTextoEspessura:
-                campo.contornoTextoEspessura ?? espessuraContornoTexto ?? 1,
-              contornoTextoTipo:
-                campo.contornoTextoTipo || tipoContornoTexto || "externo",
-            }
+            ...campo,
+            contornoTextoAtivo: !campo.contornoTextoAtivo,
+            contornoTextoCor:
+              campo.contornoTextoCor || corContornoTexto || "#000000",
+            contornoTextoEspessura:
+              campo.contornoTextoEspessura ?? espessuraContornoTexto ?? 1,
+            contornoTextoTipo:
+              campo.contornoTextoTipo || tipoContornoTexto || "externo",
+          }
           : campo,
       ),
     );
@@ -6018,10 +6023,10 @@ export default function ConfiguracaoCertificadoPage() {
       prev.map((campo) =>
         ids.includes(campo.id)
           ? {
-              ...campo,
-              ...patch,
-              contornoTextoAtivo: true,
-            }
+            ...campo,
+            ...patch,
+            contornoTextoAtivo: true,
+          }
           : campo,
       ),
     );
@@ -6313,9 +6318,8 @@ export default function ConfiguracaoCertificadoPage() {
                   aria-hidden="true"
                   viewBox="0 0 20 20"
                   fill="currentColor"
-                  className={`h-5 w-5 shrink-0 transition ${
-                    menuModelosAberto ? "rotate-180" : ""
-                  }`}
+                  className={`h-5 w-5 shrink-0 transition ${menuModelosAberto ? "rotate-180" : ""
+                    }`}
                 >
                   <path
                     fillRule="evenodd"
@@ -6342,9 +6346,8 @@ export default function ConfiguracaoCertificadoPage() {
                             void abrirModeloCertificado(Number(modelo.id));
                           }
                         }}
-                        className={`phanyx-cert-modelo-opcao flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 text-left text-sm font-semibold transition ${
-                          selecionado ? "is-active" : ""
-                        }`}
+                        className={`phanyx-cert-modelo-opcao flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 text-left text-sm font-semibold transition ${selecionado ? "is-active" : ""
+                          }`}
                       >
                         <span className="truncate">{modelo.nome}</span>
 
@@ -6396,11 +6399,10 @@ export default function ConfiguracaoCertificadoPage() {
                 )}
 
                 <span
-                  className={`rounded-full px-3 py-1 text-xs font-bold ${
-                    modeloAtivo?.publicadoEm
-                      ? "bg-green-100 text-green-800"
-                      : "bg-amber-100 text-amber-800"
-                  }`}
+                  className={`rounded-full px-3 py-1 text-xs font-bold ${modeloAtivo?.publicadoEm
+                    ? "bg-green-100 text-green-800"
+                    : "bg-amber-100 text-amber-800"
+                    }`}
                 >
                   {modeloAtivo?.publicadoEm ? "Publicado" : "Somente rascunho"}
                 </span>
@@ -6439,11 +6441,10 @@ export default function ConfiguracaoCertificadoPage() {
                     publicando ||
                     trocandoModelo
                   }
-                  className={`inline-flex min-h-9 items-center justify-center rounded-lg px-3 py-2 text-xs font-bold text-white transition disabled:cursor-not-allowed disabled:opacity-60 ${
-                    modeloAtivo.padraoGeral
-                      ? "bg-slate-500"
-                      : "bg-blue-600 hover:bg-blue-700"
-                  }`}
+                  className={`inline-flex min-h-9 items-center justify-center rounded-lg px-3 py-2 text-xs font-bold text-white transition disabled:cursor-not-allowed disabled:opacity-60 ${modeloAtivo.padraoGeral
+                    ? "bg-slate-500"
+                    : "bg-blue-600 hover:bg-blue-700"
+                    }`}
                 >
                   {definindoPadraoModelo
                     ? "Definindo..."
@@ -6489,11 +6490,10 @@ export default function ConfiguracaoCertificadoPage() {
                 <button
                   type="button"
                   onClick={() => setFiltroSituacaoModelos("TODOS")}
-                  className={`rounded-lg border px-3 py-2 text-xs font-bold transition ${
-                    filtroSituacaoModelos === "TODOS"
-                      ? "border-blue-600 bg-blue-600 text-white"
-                      : "border-slate-300 bg-white text-slate-700 hover:border-blue-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
-                  }`}
+                  className={`rounded-lg border px-3 py-2 text-xs font-bold transition ${filtroSituacaoModelos === "TODOS"
+                    ? "border-blue-600 bg-blue-600 text-white"
+                    : "border-slate-300 bg-white text-slate-700 hover:border-blue-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+                    }`}
                 >
                   Todos ({modelosCertificado.length})
                 </button>
@@ -6501,11 +6501,10 @@ export default function ConfiguracaoCertificadoPage() {
                 <button
                   type="button"
                   onClick={() => setFiltroSituacaoModelos("RASCUNHOS")}
-                  className={`rounded-lg border px-3 py-2 text-xs font-bold transition ${
-                    filtroSituacaoModelos === "RASCUNHOS"
-                      ? "border-amber-500 bg-amber-500 text-white"
-                      : "border-slate-300 bg-white text-slate-700 hover:border-amber-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
-                  }`}
+                  className={`rounded-lg border px-3 py-2 text-xs font-bold transition ${filtroSituacaoModelos === "RASCUNHOS"
+                    ? "border-amber-500 bg-amber-500 text-white"
+                    : "border-slate-300 bg-white text-slate-700 hover:border-amber-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+                    }`}
                 >
                   Rascunhos ({totalModelosRascunho})
                 </button>
@@ -6513,11 +6512,10 @@ export default function ConfiguracaoCertificadoPage() {
                 <button
                   type="button"
                   onClick={() => setFiltroSituacaoModelos("PUBLICADOS")}
-                  className={`rounded-lg border px-3 py-2 text-xs font-bold transition ${
-                    filtroSituacaoModelos === "PUBLICADOS"
-                      ? "border-emerald-600 bg-emerald-600 text-white"
-                      : "border-slate-300 bg-white text-slate-700 hover:border-emerald-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
-                  }`}
+                  className={`rounded-lg border px-3 py-2 text-xs font-bold transition ${filtroSituacaoModelos === "PUBLICADOS"
+                    ? "border-emerald-600 bg-emerald-600 text-white"
+                    : "border-slate-300 bg-white text-slate-700 hover:border-emerald-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+                    }`}
                 >
                   Publicados ({totalModelosPublicados})
                 </button>
@@ -6562,15 +6560,15 @@ export default function ConfiguracaoCertificadoPage() {
                 const ultimaAlteracao =
                   Number(modelo?._ultimaAlteracaoTimestamp || 0) > 0
                     ? new Date(modelo._ultimaAlteracaoTimestamp).toLocaleString(
-                        "pt-BR",
-                        {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        },
-                      )
+                      "pt-BR",
+                      {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      },
+                    )
                     : "Data não disponível";
 
                 return (
@@ -6583,11 +6581,10 @@ export default function ConfiguracaoCertificadoPage() {
                         void abrirModeloCertificado(Number(modelo.id));
                       }
                     }}
-                    className={`grid w-full gap-3 px-4 py-4 text-left transition disabled:cursor-not-allowed disabled:opacity-60 md:grid-cols-[minmax(0,1.5fr)_minmax(150px,0.8fr)_minmax(190px,0.7fr)] md:items-center md:gap-4 ${
-                      selecionado
-                        ? "bg-blue-50 dark:bg-blue-950/30"
-                        : "bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800"
-                    }`}
+                    className={`grid w-full gap-3 px-4 py-4 text-left transition disabled:cursor-not-allowed disabled:opacity-60 md:grid-cols-[minmax(0,1.5fr)_minmax(150px,0.8fr)_minmax(190px,0.7fr)] md:items-center md:gap-4 ${selecionado
+                      ? "bg-blue-50 dark:bg-blue-950/30"
+                      : "bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800"
+                      }`}
                   >
                     <span className="min-w-0">
                       <span className="flex flex-wrap items-center gap-2">
@@ -6596,11 +6593,10 @@ export default function ConfiguracaoCertificadoPage() {
                         </span>
 
                         <span
-                          className={`rounded-full px-2 py-0.5 text-[10px] font-black uppercase ${
-                            modelo._publicado
-                              ? "bg-emerald-100 text-emerald-800"
-                              : "bg-amber-100 text-amber-800"
-                          }`}
+                          className={`rounded-full px-2 py-0.5 text-[10px] font-black uppercase ${modelo._publicado
+                            ? "bg-emerald-100 text-emerald-800"
+                            : "bg-amber-100 text-amber-800"
+                            }`}
                         >
                           {modelo._publicado ? "Publicado" : "Rascunho"}
                         </span>
@@ -6886,11 +6882,10 @@ export default function ConfiguracaoCertificadoPage() {
             <button
               type="button"
               onClick={() => setTamanhoPapel("A5")}
-              className={`rounded-lg px-3 py-1 text-sm ${
-                tamanhoPapel === "A5"
-                  ? "bg-white text-blue-700"
-                  : "bg-white/20 text-white hover:bg-white/30"
-              }`}
+              className={`rounded-lg px-3 py-1 text-sm ${tamanhoPapel === "A5"
+                ? "bg-white text-blue-700"
+                : "bg-white/20 text-white hover:bg-white/30"
+                }`}
             >
               A5
             </button>
@@ -6898,11 +6893,10 @@ export default function ConfiguracaoCertificadoPage() {
             <button
               type="button"
               onClick={() => setTamanhoPapel("A4")}
-              className={`rounded-lg px-3 py-1 text-sm ${
-                tamanhoPapel === "A4"
-                  ? "bg-white text-blue-700"
-                  : "bg-white/20 text-white hover:bg-white/30"
-              }`}
+              className={`rounded-lg px-3 py-1 text-sm ${tamanhoPapel === "A4"
+                ? "bg-white text-blue-700"
+                : "bg-white/20 text-white hover:bg-white/30"
+                }`}
             >
               A4
             </button>
@@ -6910,22 +6904,20 @@ export default function ConfiguracaoCertificadoPage() {
             <button
               type="button"
               onClick={() => setTamanhoPapel("A3")}
-              className={`rounded-lg px-3 py-1 text-sm ${
-                tamanhoPapel === "A3"
-                  ? "bg-white text-blue-700"
-                  : "bg-white/20 text-white hover:bg-white/30"
-              }`}
+              className={`rounded-lg px-3 py-1 text-sm ${tamanhoPapel === "A3"
+                ? "bg-white text-blue-700"
+                : "bg-white/20 text-white hover:bg-white/30"
+                }`}
             >
               A3
             </button>
             <button
               type="button"
               onClick={() => setOrientacao("paisagem")}
-              className={`rounded-lg px-3 py-1 text-sm ${
-                orientacao === "paisagem"
-                  ? "bg-white text-blue-700"
-                  : "bg-white/20 text-white hover:bg-white/30"
-              }`}
+              className={`rounded-lg px-3 py-1 text-sm ${orientacao === "paisagem"
+                ? "bg-white text-blue-700"
+                : "bg-white/20 text-white hover:bg-white/30"
+                }`}
             >
               Paisagem
             </button>
@@ -6933,11 +6925,10 @@ export default function ConfiguracaoCertificadoPage() {
             <button
               type="button"
               onClick={() => setOrientacao("retrato")}
-              className={`rounded-lg px-3 py-1 text-sm ${
-                orientacao === "retrato"
-                  ? "bg-white text-blue-700"
-                  : "bg-white/20 text-white hover:bg-white/30"
-              }`}
+              className={`rounded-lg px-3 py-1 text-sm ${orientacao === "retrato"
+                ? "bg-white text-blue-700"
+                : "bg-white/20 text-white hover:bg-white/30"
+                }`}
             >
               Retrato
             </button>
@@ -6950,11 +6941,10 @@ export default function ConfiguracaoCertificadoPage() {
 
                 atualizarCampoLocal("bloqueado", !campoSelecionado.bloqueado);
               }}
-              className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
-                campoSelecionado?.bloqueado
-                  ? "bg-yellow-300 text-slate-900"
-                  : "bg-white/20 text-white border border-white/30 hover:bg-white/30"
-              }`}
+              className={`rounded-lg px-3 py-2 text-sm font-medium transition ${campoSelecionado?.bloqueado
+                ? "bg-yellow-300 text-slate-900"
+                : "bg-white/20 text-white border border-white/30 hover:bg-white/30"
+                }`}
             >
               {campoSelecionado?.bloqueado ? "🔒 Bloqueado" : "🔓 Livre"}
             </button>
@@ -6962,11 +6952,10 @@ export default function ConfiguracaoCertificadoPage() {
             <button
               type="button"
               onClick={() => setModoMao((prev) => !prev)}
-              className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
-                modoMao
-                  ? "bg-white text-blue-700"
-                  : "bg-white/20 text-white border border-white/30 hover:bg-white/30"
-              }`}
+              className={`rounded-lg px-3 py-2 text-sm font-medium transition ${modoMao
+                ? "bg-white text-blue-700"
+                : "bg-white/20 text-white border border-white/30 hover:bg-white/30"
+                }`}
               title="Ferramenta mãozinha (atalho: espaço)"
             >
               ✋ Mão
@@ -7071,11 +7060,10 @@ export default function ConfiguracaoCertificadoPage() {
         </div>
 
         <div
-          className={`grid h-[620px] min-h-[620px] grid-cols-1 ${
-            mostrarPainelCampos
-              ? "lg:grid-cols-[320px_minmax(0,1fr)_300px]"
-              : "lg:grid-cols-[minmax(0,1fr)_300px]"
-          }`}
+          className={`grid h-[620px] min-h-[620px] grid-cols-1 ${mostrarPainelCampos
+            ? "lg:grid-cols-[320px_minmax(0,1fr)_300px]"
+            : "lg:grid-cols-[minmax(0,1fr)_300px]"
+            }`}
         >
           {mostrarPainelCampos && !modoAmplo && (
             <aside className="max-h-[calc(100vh-360px)] overflow-y-auto border-b border-slate-200 bg-slate-50 p-5 lg:border-b-0 lg:border-r">
@@ -7181,11 +7169,10 @@ export default function ConfiguracaoCertificadoPage() {
                             campoId: campo.id,
                           });
                         }}
-                        className={`flex h-7 cursor-pointer items-center gap-2 border-b border-slate-200 px-2 text-xs ${
-                          camposSelecionadosIds.includes(campo.id)
-                            ? "bg-blue-100 text-blue-700"
-                            : "bg-white text-slate-700 hover:bg-slate-100"
-                        }`}
+                        className={`flex h-7 cursor-pointer items-center gap-2 border-b border-slate-200 px-2 text-xs ${camposSelecionadosIds.includes(campo.id)
+                          ? "bg-blue-100 text-blue-700"
+                          : "bg-white text-slate-700 hover:bg-slate-100"
+                          }`}
                       >
                         <span className="cursor-grab text-[10px] text-slate-400">
                           ☰
@@ -7249,11 +7236,10 @@ export default function ConfiguracaoCertificadoPage() {
                   <button
                     type="button"
                     onClick={() => setModoFundo("modelo")}
-                    className={`rounded-xl border px-3 py-2 text-xs font-bold ${
-                      modoFundo === "modelo"
-                        ? "border-blue-600 bg-blue-600 text-white"
-                        : "bg-white text-slate-700"
-                    }`}
+                    className={`rounded-xl border px-3 py-2 text-xs font-bold ${modoFundo === "modelo"
+                      ? "border-blue-600 bg-blue-600 text-white"
+                      : "bg-white text-slate-700"
+                      }`}
                   >
                     Usar modelo
                   </button>
@@ -7261,11 +7247,10 @@ export default function ConfiguracaoCertificadoPage() {
                   <button
                     type="button"
                     onClick={() => setModoFundo("phanyx")}
-                    className={`rounded-xl border px-3 py-2 text-xs font-bold ${
-                      modoFundo === "phanyx"
-                        ? "border-blue-600 bg-blue-600 text-white"
-                        : "bg-white text-slate-700"
-                    }`}
+                    className={`rounded-xl border px-3 py-2 text-xs font-bold ${modoFundo === "phanyx"
+                      ? "border-blue-600 bg-blue-600 text-white"
+                      : "bg-white text-slate-700"
+                      }`}
                   >
                     Criar do zero
                   </button>
@@ -8067,220 +8052,299 @@ export default function ConfiguracaoCertificadoPage() {
 
           {(camposSelecionadosIds.length >= 1 ||
             campoSelecionadoId !== null) && (
-            <div
-              data-barra-selecao-certificado="true"
-              onMouseDown={(e) => {
-                e.stopPropagation();
-                trazerPainelFlutuanteParaFrente("barraSelecao");
-              }}
-              className="phanyx-certificado-selecao-toolbar fixed w-[min(920px,calc(100vw-32px))] rounded-2xl border p-3 shadow-2xl backdrop-blur"
-              style={{
-                left: `${barraSelecaoPosicao.x}px`,
-                top: `${barraSelecaoPosicao.y}px`,
-                zIndex: Math.max(zIndexFlutuante.barraSelecao, 10000020),
-              }}
-            >
-              <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+              <div
+                data-barra-selecao-certificado="true"
+                onMouseDown={(e) => {
+                  e.stopPropagation();
+
+                  trazerPainelFlutuanteParaFrente(
+                    "barraSelecao"
+                  );
+                }}
+                className={[
+                  "fixed rounded-2xl border border-blue-500/40",
+                  "bg-slate-950/95 text-white shadow-2xl backdrop-blur",
+                  "transition-[width,padding] duration-150",
+
+                  barraSelecaoMinimizada
+                    ? "w-[min(360px,calc(100vw-32px))] p-2"
+                    : "w-[min(920px,calc(100vw-32px))] p-3",
+                ].join(" ")}
+                style={{
+                  left:
+                    `${barraSelecaoPosicao.x}px`,
+
+                  top:
+                    `${barraSelecaoPosicao.y}px`,
+
+                  zIndex:
+                    Math.max(
+                      zIndexFlutuante.barraSelecao,
+                      10000020
+                    ),
+                }}
+              >
                 <div
-                  onMouseDown={iniciarArrasteBarraSelecao}
-                  className="cursor-move select-none rounded-lg px-2 py-1 hover:bg-white/10"
-                  title="Arraste para mover esta barra"
+                  className={[
+                    "flex items-center gap-2",
+                    barraSelecaoMinimizada
+                      ? ""
+                      : "mb-2",
+                  ].join(" ")}
                 >
-                  <p className="text-sm font-bold">
-                    ↕ Alinhar elementos selecionados
-                  </p>
-                  <p className="text-xs text-slate-300">
-                    Arraste esta área para mover a barra. Referência: último
-                    elemento ativo selecionado.
-                  </p>
+                  <div
+                    onMouseDown={
+                      iniciarArrasteBarraSelecao
+                    }
+                    className="min-w-0 flex-1 cursor-move select-none rounded-lg px-2 py-1 hover:bg-white/10"
+                    title="Arraste para mover esta barra"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm">
+                        ↕
+                      </span>
+
+                      <p className="truncate text-sm font-bold !text-white">
+                        {barraSelecaoMinimizada
+                          ? "Ferramentas da seleção"
+                          : "Alinhar elementos selecionados"}
+                      </p>
+                    </div>
+
+                    {!barraSelecaoMinimizada && (
+                      <p className="text-xs !text-slate-300">
+                        Arraste esta área para mover a
+                        barra. Referência: último
+                        elemento ativo selecionado.
+                      </p>
+                    )}
+                  </div>
+
+                  <span className="shrink-0 rounded-full bg-blue-600 px-3 py-1 text-xs font-bold">
+                    {camposSelecionadosIds.length ||
+                      (campoSelecionadoId !== null
+                        ? 1
+                        : 0)}
+                    {" "}
+                    selecionados
+                  </span>
+
+                  <button
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+
+                      setBarraSelecaoMinimizada(
+                        (valor) => !valor
+                      );
+                    }}
+                    className="flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-lg border border-white/30 bg-white px-3 text-sm font-bold !text-slate-950 shadow hover:bg-slate-100"
+                    title={
+                      barraSelecaoMinimizada
+                        ? "Maximizar ferramentas"
+                        : "Minimizar ferramentas"
+                    }
+                  >
+                    <span>
+                      {barraSelecaoMinimizada
+                        ? "□"
+                        : "−"}
+                    </span>
+
+                    <span>
+                      {barraSelecaoMinimizada
+                        ? "Abrir"
+                        : "Minimizar"}
+                    </span>
+                  </button>
                 </div>
 
-                <span className="rounded-full bg-blue-600 px-3 py-1 text-xs font-bold">
-                  {camposSelecionadosIds.length} selecionados
-                </span>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => alinharSelecionados("ESQUERDA")}
+                    className="rounded-xl bg-white/10 px-3 py-2 text-xs font-bold hover:bg-white/20"
+                  >
+                    Esquerda
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => alinharSelecionados("CENTRO_HORIZONTAL")}
+                    className="rounded-xl bg-white/10 px-3 py-2 text-xs font-bold hover:bg-white/20"
+                  >
+                    Centro X
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => alinharSelecionados("DIREITA")}
+                    className="rounded-xl bg-white/10 px-3 py-2 text-xs font-bold hover:bg-white/20"
+                  >
+                    Direita
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => alinharSelecionados("TOPO")}
+                    className="rounded-xl bg-white/10 px-3 py-2 text-xs font-bold hover:bg-white/20"
+                  >
+                    Mesmo topo
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => alinharSelecionados("CENTRO_VERTICAL")}
+                    className="rounded-xl bg-white/10 px-3 py-2 text-xs font-bold hover:bg-white/20"
+                  >
+                    Centro Y
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => alinharSelecionados("BAIXO")}
+                    className="rounded-xl bg-white/10 px-3 py-2 text-xs font-bold hover:bg-white/20"
+                  >
+                    Mesmo baixo
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => centralizarSelecaoNaCena("X")}
+                    className="rounded-xl bg-purple-600 px-3 py-2 text-xs font-bold text-white hover:bg-purple-500"
+                  >
+                    Centro página X
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => centralizarSelecaoNaCena("Y")}
+                    className="rounded-xl bg-purple-600 px-3 py-2 text-xs font-bold text-white hover:bg-purple-500"
+                  >
+                    Centro página Y
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => centralizarSelecaoNaCena("XY")}
+                    className="rounded-xl bg-purple-700 px-3 py-2 text-xs font-bold text-white hover:bg-purple-600"
+                  >
+                    Centro da página
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => duplicarSelecaoNoOposto("X")}
+                    className="rounded-xl bg-cyan-700 px-3 py-2 text-xs font-bold text-white hover:bg-cyan-600"
+                  >
+                    Duplicar oposto X
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => duplicarSelecaoNoOposto("Y")}
+                    className="rounded-xl bg-cyan-700 px-3 py-2 text-xs font-bold text-white hover:bg-cyan-600"
+                  >
+                    Duplicar oposto Y
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => duplicarSelecaoNoOposto("XY")}
+                    className="rounded-xl bg-cyan-800 px-3 py-2 text-xs font-bold text-white hover:bg-cyan-700"
+                  >
+                    Duplicar oposto X/Y
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => alinharSelecionados("MESMA_LARGURA")}
+                    className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold hover:bg-emerald-500"
+                  >
+                    Mesma largura
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => alinharSelecionados("MESMA_ALTURA")}
+                    className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold hover:bg-emerald-500"
+                  >
+                    Mesma altura
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => alinharSelecionados("MESMO_TAMANHO")}
+                    className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold hover:bg-emerald-500"
+                  >
+                    Mesmo tamanho
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => virarSelecionados("HORIZONTAL")}
+                    className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-500"
+                  >
+                    ↔ Virar H
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => virarSelecionados("VERTICAL")}
+                    className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-500"
+                  >
+                    ↕ Virar V
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => agruparCamposSelecionados()}
+                    disabled={camposSelecionadosIds.length < 2}
+                    className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-70 disabled:!bg-slate-700 disabled:!text-slate-300"
+                  >
+                    🔗 Agrupar
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => desagruparCampoSelecionado()}
+                    disabled={!campoSelecionado?.grupoId}
+                    className="rounded-xl bg-orange-600 px-3 py-2 text-xs font-bold text-white hover:bg-orange-500 disabled:cursor-not-allowed disabled:opacity-70 disabled:!bg-slate-700 disabled:!text-slate-300"
+                  >
+                    🔓 Desagrupar
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={abrirMenuFerramentasSelecao}
+                    className="rounded-xl bg-slate-700 px-3 py-2 text-xs font-bold text-white hover:bg-slate-600"
+                  >
+                    ☰ Ferramentas
+                  </button>
+
+                  <button
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+
+                      setCamposSelecionadosIds([]);
+                      setCampoSelecionadoId(null);
+                    }}
+                    className="ml-auto rounded-xl bg-red-600 px-3 py-2 text-xs font-bold hover:bg-red-500"
+                  >
+                    Fechar seleção
+                  </button>
+                </div>
               </div>
-
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => alinharSelecionados("ESQUERDA")}
-                  className="rounded-xl bg-white/10 px-3 py-2 text-xs font-bold hover:bg-white/20"
-                >
-                  Esquerda
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => alinharSelecionados("CENTRO_HORIZONTAL")}
-                  className="rounded-xl bg-white/10 px-3 py-2 text-xs font-bold hover:bg-white/20"
-                >
-                  Centro X
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => alinharSelecionados("DIREITA")}
-                  className="rounded-xl bg-white/10 px-3 py-2 text-xs font-bold hover:bg-white/20"
-                >
-                  Direita
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => alinharSelecionados("TOPO")}
-                  className="rounded-xl bg-white/10 px-3 py-2 text-xs font-bold hover:bg-white/20"
-                >
-                  Mesmo topo
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => alinharSelecionados("CENTRO_VERTICAL")}
-                  className="rounded-xl bg-white/10 px-3 py-2 text-xs font-bold hover:bg-white/20"
-                >
-                  Centro Y
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => alinharSelecionados("BAIXO")}
-                  className="rounded-xl bg-white/10 px-3 py-2 text-xs font-bold hover:bg-white/20"
-                >
-                  Mesmo baixo
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => centralizarSelecaoNaCena("X")}
-                  className="rounded-xl bg-purple-600 px-3 py-2 text-xs font-bold text-white hover:bg-purple-500"
-                >
-                  Centro página X
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => centralizarSelecaoNaCena("Y")}
-                  className="rounded-xl bg-purple-600 px-3 py-2 text-xs font-bold text-white hover:bg-purple-500"
-                >
-                  Centro página Y
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => centralizarSelecaoNaCena("XY")}
-                  className="rounded-xl bg-purple-700 px-3 py-2 text-xs font-bold text-white hover:bg-purple-600"
-                >
-                  Centro da página
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => duplicarSelecaoNoOposto("X")}
-                  className="rounded-xl bg-cyan-700 px-3 py-2 text-xs font-bold text-white hover:bg-cyan-600"
-                >
-                  Duplicar oposto X
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => duplicarSelecaoNoOposto("Y")}
-                  className="rounded-xl bg-cyan-700 px-3 py-2 text-xs font-bold text-white hover:bg-cyan-600"
-                >
-                  Duplicar oposto Y
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => duplicarSelecaoNoOposto("XY")}
-                  className="rounded-xl bg-cyan-800 px-3 py-2 text-xs font-bold text-white hover:bg-cyan-700"
-                >
-                  Duplicar oposto X/Y
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => alinharSelecionados("MESMA_LARGURA")}
-                  className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold hover:bg-emerald-500"
-                >
-                  Mesma largura
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => alinharSelecionados("MESMA_ALTURA")}
-                  className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold hover:bg-emerald-500"
-                >
-                  Mesma altura
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => alinharSelecionados("MESMO_TAMANHO")}
-                  className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold hover:bg-emerald-500"
-                >
-                  Mesmo tamanho
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => virarSelecionados("HORIZONTAL")}
-                  className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-500"
-                >
-                  ↔ Virar H
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => virarSelecionados("VERTICAL")}
-                  className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-500"
-                >
-                  ↕ Virar V
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => agruparCamposSelecionados()}
-                  disabled={camposSelecionadosIds.length < 2}
-                  className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  🔗 Agrupar
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => desagruparCampoSelecionado()}
-                  disabled={!campoSelecionado?.grupoId}
-                  className="rounded-xl bg-orange-600 px-3 py-2 text-xs font-bold text-white hover:bg-orange-500 disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  🔓 Desagrupar
-                </button>
-
-                <button
-                  type="button"
-                  onClick={abrirMenuFerramentasSelecao}
-                  className="rounded-xl bg-slate-700 px-3 py-2 text-xs font-bold text-white hover:bg-slate-600"
-                >
-                  ☰ Ferramentas
-                </button>
-
-                <button
-                  type="button"
-                  onMouseDown={(e) => {
-                    e.stopPropagation();
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-
-                    setCamposSelecionadosIds([]);
-                    setCampoSelecionadoId(null);
-                  }}
-                  className="ml-auto rounded-xl bg-red-600 px-3 py-2 text-xs font-bold hover:bg-red-500"
-                >
-                  Fechar seleção
-                </button>
-              </div>
-            </div>
-          )}
+            )}
 
           <main className="flex h-full min-h-0 flex-col bg-white">
             <div className="border-b border-slate-200 bg-white px-5 py-3 text-sm text-slate-500">
@@ -8493,7 +8557,7 @@ export default function ConfiguracaoCertificadoPage() {
                             opacity: Math.max(
                               0.05,
                               Number(campo.opacity || 1) *
-                                Math.pow(opacidade, passo),
+                              Math.pow(opacidade, passo),
                             ),
                           };
                         },
@@ -8603,9 +8667,8 @@ export default function ConfiguracaoCertificadoPage() {
                               style={{
                                 backgroundImage: `url(${(c as any).imagemUrl})`,
                                 backgroundRepeat: "no-repeat",
-                                backgroundSize: `${(c as any).cropBaseW || c.largura || 150}px ${
-                                  (c as any).cropBaseH || c.altura || 150
-                                }px`,
+                                backgroundSize: `${(c as any).cropBaseW || c.largura || 150}px ${(c as any).cropBaseH || c.altura || 150
+                                  }px`,
                                 backgroundPosition: `-${c.crop?.left || 0}px -${c.crop?.top || 0}px`,
                                 opacity: c.opacity || 1,
                                 filter: (c as any).filter || "none",
@@ -8707,32 +8770,32 @@ export default function ConfiguracaoCertificadoPage() {
                                       const novoH = ev.shiftKey
                                         ? Math.max(40, novoW / proporcao)
                                         : Math.max(
-                                            40,
-                                            startH + ev.clientY - startY,
-                                          );
+                                          40,
+                                          startH + ev.clientY - startY,
+                                        );
 
                                       setCampos((prev) =>
                                         prev.map((item) =>
                                           item.id === c.id
                                             ? {
-                                                ...item,
-                                                largura: novoW,
-                                                altura: novoH,
-                                                crop: item.crop || {
-                                                  top: 0,
-                                                  left: 0,
-                                                  right: 0,
-                                                  bottom: 0,
-                                                },
-                                                cropBaseW:
-                                                  novoW +
-                                                  (item.crop?.left || 0) +
-                                                  (item.crop?.right || 0),
-                                                cropBaseH:
-                                                  novoH +
-                                                  (item.crop?.top || 0) +
-                                                  (item.crop?.bottom || 0),
-                                              }
+                                              ...item,
+                                              largura: novoW,
+                                              altura: novoH,
+                                              crop: item.crop || {
+                                                top: 0,
+                                                left: 0,
+                                                right: 0,
+                                                bottom: 0,
+                                              },
+                                              cropBaseW:
+                                                novoW +
+                                                (item.crop?.left || 0) +
+                                                (item.crop?.right || 0),
+                                              cropBaseH:
+                                                novoH +
+                                                (item.crop?.top || 0) +
+                                                (item.crop?.bottom || 0),
+                                            }
                                             : item,
                                         ),
                                       );
@@ -8794,11 +8857,10 @@ export default function ConfiguracaoCertificadoPage() {
                                 campoId: c.id,
                               });
                             }}
-                            className={`absolute z-20 select-none overflow-visible ${
-                              (c as any).arrayPreview
-                                ? "pointer-events-none opacity-60"
-                                : ""
-                            }`}
+                            className={`absolute z-20 select-none overflow-visible ${(c as any).arrayPreview
+                              ? "pointer-events-none opacity-60"
+                              : ""
+                              }`}
                             style={{
                               left: `${c.x}px`,
                               top: `${c.y}px`,
@@ -8847,7 +8909,7 @@ export default function ConfiguracaoCertificadoPage() {
                                     Math.min(
                                       100,
                                       ((e.clientX - rect.left) / rect.width) *
-                                        100,
+                                      100,
                                     ),
                                   ),
                                 );
@@ -8882,47 +8944,47 @@ export default function ConfiguracaoCertificadoPage() {
                                       : (c as any).usarGradiente
                                         ? (c as any).degradeTipo === "radial"
                                           ? `radial-gradient(circle, ${(
-                                              (c as any).degradeStops || [
-                                                {
-                                                  cor: c.cor || "#1d4ed8",
-                                                  posicao: 0,
-                                                },
-                                                {
-                                                  cor:
-                                                    (c as any).cor2 ||
-                                                    "#60a5fa",
-                                                  posicao: 100,
-                                                },
-                                              ]
+                                            (c as any).degradeStops || [
+                                              {
+                                                cor: c.cor || "#1d4ed8",
+                                                posicao: 0,
+                                              },
+                                              {
+                                                cor:
+                                                  (c as any).cor2 ||
+                                                  "#60a5fa",
+                                                posicao: 100,
+                                              },
+                                            ]
+                                          )
+                                            .map(
+                                              (stop: any) =>
+                                                `${stop.cor} ${stop.posicao}%`,
                                             )
-                                              .map(
-                                                (stop: any) =>
-                                                  `${stop.cor} ${stop.posicao}%`,
-                                              )
-                                              .join(", ")})`
+                                            .join(", ")})`
                                           : `linear-gradient(${(c as any).degradeAngulo ?? 90}deg, ${(
-                                              (c as any).degradeStops || [
-                                                {
-                                                  cor: c.cor || "#1d4ed8",
-                                                  posicao: 0,
-                                                },
-                                                {
-                                                  cor:
-                                                    (c as any).cor2 ||
-                                                    "#60a5fa",
-                                                  posicao: 100,
-                                                },
-                                              ]
+                                            (c as any).degradeStops || [
+                                              {
+                                                cor: c.cor || "#1d4ed8",
+                                                posicao: 0,
+                                              },
+                                              {
+                                                cor:
+                                                  (c as any).cor2 ||
+                                                  "#60a5fa",
+                                                posicao: 100,
+                                              },
+                                            ]
+                                          )
+                                            .map(
+                                              (stop: any) =>
+                                                `${hexToRgba(stop.cor, c.opacity || 1)} ${stop.posicao}%`,
                                             )
-                                              .map(
-                                                (stop: any) =>
-                                                  `${hexToRgba(stop.cor, c.opacity || 1)} ${stop.posicao}%`,
-                                              )
-                                              .join(", ")})`
+                                            .join(", ")})`
                                         : hexToRgba(
-                                            c.cor || "#1d4ed8",
-                                            c.opacity || 1,
-                                          ),
+                                          c.cor || "#1d4ed8",
+                                          c.opacity || 1,
+                                        ),
 
                                 border:
                                   c.pontosForma && c.pontosForma.length > 0
@@ -8984,9 +9046,9 @@ export default function ConfiguracaoCertificadoPage() {
                                         setPontoFormaSelecionado(
                                           pontoId
                                             ? {
-                                                campoId: c.id,
-                                                pontoId,
-                                              }
+                                              campoId: c.id,
+                                              pontoId,
+                                            }
                                             : null,
                                         );
                                       }}
@@ -8997,9 +9059,9 @@ export default function ConfiguracaoCertificadoPage() {
                                           prev.map((item) =>
                                             item.id === c.id
                                               ? ({
-                                                  ...item,
-                                                  ...campoAtualizado,
-                                                } as any)
+                                                ...item,
+                                                ...campoAtualizado,
+                                              } as any)
                                               : item,
                                           ),
                                         );
@@ -9073,7 +9135,7 @@ export default function ConfiguracaoCertificadoPage() {
                                               100,
                                               ((ev.clientX - rect.left) /
                                                 rect.width) *
-                                                100,
+                                              100,
                                             ),
                                           );
 
@@ -9084,17 +9146,17 @@ export default function ConfiguracaoCertificadoPage() {
                                               const stops = [
                                                 ...(((item as any)
                                                   .degradeStops || [
-                                                  {
-                                                    cor: item.cor || "#1d4ed8",
-                                                    posicao: 0,
-                                                  },
-                                                  {
-                                                    cor:
-                                                      (item as any).cor2 ||
-                                                      "#60a5fa",
-                                                    posicao: 100,
-                                                  },
-                                                ]) as any[]),
+                                                    {
+                                                      cor: item.cor || "#1d4ed8",
+                                                      posicao: 0,
+                                                    },
+                                                    {
+                                                      cor:
+                                                        (item as any).cor2 ||
+                                                        "#60a5fa",
+                                                      posicao: 100,
+                                                    },
+                                                  ]) as any[]),
                                               ];
 
                                               stops[index] = {
@@ -9197,36 +9259,36 @@ export default function ConfiguracaoCertificadoPage() {
                                           prev.map((item) =>
                                             item.id === c.id
                                               ? {
-                                                  ...item,
-                                                  largura: ev.shiftKey
-                                                    ? Math.max(
-                                                        20,
-                                                        startW +
-                                                          ev.clientX -
-                                                          startX,
-                                                      )
-                                                    : Math.max(
-                                                        20,
-                                                        startW +
-                                                          ev.clientX -
-                                                          startX,
-                                                      ),
+                                                ...item,
+                                                largura: ev.shiftKey
+                                                  ? Math.max(
+                                                    20,
+                                                    startW +
+                                                    ev.clientX -
+                                                    startX,
+                                                  )
+                                                  : Math.max(
+                                                    20,
+                                                    startW +
+                                                    ev.clientX -
+                                                    startX,
+                                                  ),
 
-                                                  altura: ev.shiftKey
-                                                    ? Math.max(
-                                                        4,
-                                                        (startW +
-                                                          ev.clientX -
-                                                          startX) /
-                                                          proporcao,
-                                                      )
-                                                    : Math.max(
-                                                        4,
-                                                        startH +
-                                                          ev.clientY -
-                                                          startY,
-                                                      ),
-                                                }
+                                                altura: ev.shiftKey
+                                                  ? Math.max(
+                                                    4,
+                                                    (startW +
+                                                      ev.clientX -
+                                                      startX) /
+                                                    proporcao,
+                                                  )
+                                                  : Math.max(
+                                                    4,
+                                                    startH +
+                                                    ev.clientY -
+                                                    startY,
+                                                  ),
+                                              }
                                               : item,
                                           ),
                                         );
@@ -9268,14 +9330,14 @@ export default function ConfiguracaoCertificadoPage() {
                                           prev.map((item) =>
                                             item.id === c.id
                                               ? {
-                                                  ...item,
-                                                  largura: Math.max(
-                                                    20,
-                                                    startW +
-                                                      ev.clientX -
-                                                      startX,
-                                                  ),
-                                                }
+                                                ...item,
+                                                largura: Math.max(
+                                                  20,
+                                                  startW +
+                                                  ev.clientX -
+                                                  startX,
+                                                ),
+                                              }
                                               : item,
                                           ),
                                         );
@@ -9317,14 +9379,14 @@ export default function ConfiguracaoCertificadoPage() {
                                           prev.map((item) =>
                                             item.id === c.id
                                               ? {
-                                                  ...item,
-                                                  altura: Math.max(
-                                                    4,
-                                                    startH +
-                                                      ev.clientY -
-                                                      startY,
-                                                  ),
-                                                }
+                                                ...item,
+                                                altura: Math.max(
+                                                  4,
+                                                  startH +
+                                                  ev.clientY -
+                                                  startY,
+                                                ),
+                                              }
                                               : item,
                                           ),
                                         );
@@ -9411,12 +9473,12 @@ export default function ConfiguracaoCertificadoPage() {
                                               prev.map((item) =>
                                                 item.id === c.id
                                                   ? {
-                                                      ...item,
-                                                      largura:
-                                                        Math.round(novaLargura),
-                                                      altura:
-                                                        Math.round(novaAltura),
-                                                    }
+                                                    ...item,
+                                                    largura:
+                                                      Math.round(novaLargura),
+                                                    altura:
+                                                      Math.round(novaAltura),
+                                                  }
                                                   : item,
                                               ),
                                             );
@@ -9468,20 +9530,20 @@ export default function ConfiguracaoCertificadoPage() {
                                               prev.map((item) =>
                                                 item.id === c.id
                                                   ? {
-                                                      ...item,
-                                                      x:
-                                                        startLeft +
-                                                        (ev.clientX - startX),
-                                                      y:
-                                                        startTop +
-                                                        (ev.clientY - startY),
-                                                      largura:
-                                                        startW -
-                                                        (ev.clientX - startX),
-                                                      altura:
-                                                        startH -
-                                                        (ev.clientY - startY),
-                                                    }
+                                                    ...item,
+                                                    x:
+                                                      startLeft +
+                                                      (ev.clientX - startX),
+                                                    y:
+                                                      startTop +
+                                                      (ev.clientY - startY),
+                                                    largura:
+                                                      startW -
+                                                      (ev.clientX - startX),
+                                                    altura:
+                                                      startH -
+                                                      (ev.clientY - startY),
+                                                  }
                                                   : item,
                                               ),
                                             );
@@ -9527,18 +9589,18 @@ export default function ConfiguracaoCertificadoPage() {
                                               prev.map((item) =>
                                                 item.id === c.id
                                                   ? {
-                                                      ...item,
-                                                      largura: Math.max(
-                                                        2,
-                                                        startW +
-                                                          (ev.clientX - startX),
-                                                      ),
-                                                      altura: Math.max(
-                                                        2,
-                                                        startH +
-                                                          (ev.clientY - startY),
-                                                      ),
-                                                    }
+                                                    ...item,
+                                                    largura: Math.max(
+                                                      2,
+                                                      startW +
+                                                      (ev.clientX - startX),
+                                                    ),
+                                                    altura: Math.max(
+                                                      2,
+                                                      startH +
+                                                      (ev.clientY - startY),
+                                                    ),
+                                                  }
                                                   : item,
                                               ),
                                             );
@@ -9824,10 +9886,10 @@ export default function ConfiguracaoCertificadoPage() {
                                   prev.map((item) =>
                                     item.id === c.id
                                       ? {
-                                          ...item,
-                                          texto,
-                                          textoHtml,
-                                        }
+                                        ...item,
+                                        texto,
+                                        textoHtml,
+                                      }
                                       : item,
                                   ),
                                 );
@@ -9890,11 +9952,10 @@ export default function ConfiguracaoCertificadoPage() {
                                     .cloneRange();
                                 }
                               }}
-                              className={`h-full w-full overflow-hidden rounded-md px-2 py-1 outline-none ${
-                                selecionadoTexto
-                                  ? "border-2 border-blue-600 bg-blue-50/10"
-                                  : "border border-blue-400/60 bg-transparent"
-                              }`}
+                              className={`h-full w-full overflow-hidden rounded-md px-2 py-1 outline-none ${selecionadoTexto
+                                ? "border-2 border-blue-600 bg-blue-50/10"
+                                : "border border-blue-400/60 bg-transparent"
+                                }`}
                               style={{
                                 fontFamily: c.fonte || "Arial",
                                 fontSize: `${c.tamanho || 18}px`,
@@ -9968,24 +10029,24 @@ export default function ConfiguracaoCertificadoPage() {
                                       prev.map((item) =>
                                         item.id === c.id
                                           ? {
-                                              ...item,
-                                              largura: Math.max(
-                                                80,
-                                                Math.round(
-                                                  larguraInicial +
-                                                    (ev.clientX - startX) /
-                                                      escala,
-                                                ),
+                                            ...item,
+                                            largura: Math.max(
+                                              80,
+                                              Math.round(
+                                                larguraInicial +
+                                                (ev.clientX - startX) /
+                                                escala,
                                               ),
-                                              altura: Math.max(
-                                                40,
-                                                Math.round(
-                                                  alturaInicial +
-                                                    (ev.clientY - startY) /
-                                                      escala,
-                                                ),
+                                            ),
+                                            altura: Math.max(
+                                              40,
+                                              Math.round(
+                                                alturaInicial +
+                                                (ev.clientY - startY) /
+                                                escala,
                                               ),
-                                            }
+                                            ),
+                                          }
                                           : item,
                                       ),
                                     );
@@ -10051,14 +10112,13 @@ export default function ConfiguracaoCertificadoPage() {
                               campoId: c.id,
                             });
                           }}
-                          className={`absolute z-20 select-none rounded-md border px-1 py-0 text-[10px] ${
-                            camposSelecionadosIds.includes(c.id)
-                              ? c.tipo === "ASSINATURA" ||
-                                c.tipo === "LOGO_INSTITUICAO"
-                                ? "border-blue-600 bg-transparent text-blue-900"
-                                : "border-blue-600 bg-blue-600/90 text-white"
-                              : "border-blue-300 bg-transparent text-blue-900"
-                          }`}
+                          className={`absolute z-20 select-none rounded-md border px-1 py-0 text-[10px] ${camposSelecionadosIds.includes(c.id)
+                            ? c.tipo === "ASSINATURA" ||
+                              c.tipo === "LOGO_INSTITUICAO"
+                              ? "border-blue-600 bg-transparent text-blue-900"
+                              : "border-blue-600 bg-blue-600/90 text-white"
+                            : "border-blue-300 bg-transparent text-blue-900"
+                            }`}
                           style={{
                             left: `${c.x}px`,
                             top: `${c.y}px`,
@@ -10202,7 +10262,7 @@ export default function ConfiguracaoCertificadoPage() {
                                         40,
                                         Math.round(
                                           startW +
-                                            (ev.clientX - startX) / escala,
+                                          (ev.clientX - startX) / escala,
                                         ),
                                       );
 
@@ -10210,7 +10270,7 @@ export default function ConfiguracaoCertificadoPage() {
                                         18,
                                         Math.round(
                                           startH +
-                                            (ev.clientY - startY) / escala,
+                                          (ev.clientY - startY) / escala,
                                         ),
                                       );
 
@@ -10218,10 +10278,10 @@ export default function ConfiguracaoCertificadoPage() {
                                         prev.map((item) =>
                                           item.id === c.id
                                             ? {
-                                                ...item,
-                                                largura: novaLargura,
-                                                altura: novaAltura,
-                                              }
+                                              ...item,
+                                              largura: novaLargura,
+                                              altura: novaAltura,
+                                            }
                                             : item,
                                         ),
                                       );
@@ -10265,7 +10325,7 @@ export default function ConfiguracaoCertificadoPage() {
                                         40,
                                         Math.round(
                                           startW +
-                                            (ev.clientX - startX) / escala,
+                                          (ev.clientX - startX) / escala,
                                         ),
                                       );
 
@@ -10273,9 +10333,9 @@ export default function ConfiguracaoCertificadoPage() {
                                         prev.map((item) =>
                                           item.id === c.id
                                             ? {
-                                                ...item,
-                                                largura: novaLargura,
-                                              }
+                                              ...item,
+                                              largura: novaLargura,
+                                            }
                                             : item,
                                         ),
                                       );
@@ -10318,7 +10378,7 @@ export default function ConfiguracaoCertificadoPage() {
                                         18,
                                         Math.round(
                                           startH +
-                                            (ev.clientY - startY) / escala,
+                                          (ev.clientY - startY) / escala,
                                         ),
                                       );
 
@@ -10326,9 +10386,9 @@ export default function ConfiguracaoCertificadoPage() {
                                         prev.map((item) =>
                                           item.id === c.id
                                             ? {
-                                                ...item,
-                                                altura: novaAltura,
-                                              }
+                                              ...item,
+                                              altura: novaAltura,
+                                            }
                                             : item,
                                         ),
                                       );
@@ -10519,13 +10579,13 @@ export default function ConfiguracaoCertificadoPage() {
                               setEditorCorGradiente((prev) =>
                                 prev
                                   ? {
-                                      ...prev,
-                                      cor: rgbToHex(
-                                        novoRgb.r,
-                                        novoRgb.g,
-                                        novoRgb.b,
-                                      ),
-                                    }
+                                    ...prev,
+                                    cor: rgbToHex(
+                                      novoRgb.r,
+                                      novoRgb.g,
+                                      novoRgb.b,
+                                    ),
+                                  }
                                   : prev,
                               );
                             }}
@@ -11464,7 +11524,7 @@ export default function ConfiguracaoCertificadoPage() {
 
                                         if (
                                           campoSelecionado?.tipo ===
-                                            "TEXTO_LIVRE" &&
+                                          "TEXTO_LIVRE" &&
                                           temSelecaoTextoLivreSalva()
                                         ) {
                                           aplicarEstiloTextoSelecionado({
@@ -11527,11 +11587,10 @@ export default function ConfiguracaoCertificadoPage() {
                                           "externo",
                                         );
                                       }}
-                                      className={`rounded-lg px-3 py-2 text-xs font-bold ${
-                                        tipoContornoTexto === "externo"
-                                          ? "bg-blue-600 text-white"
-                                          : "border"
-                                      }`}
+                                      className={`rounded-lg px-3 py-2 text-xs font-bold ${tipoContornoTexto === "externo"
+                                        ? "bg-blue-600 text-white"
+                                        : "border"
+                                        }`}
                                     >
                                       Externo
                                     </button>
@@ -11548,11 +11607,10 @@ export default function ConfiguracaoCertificadoPage() {
                                           "interno",
                                         );
                                       }}
-                                      className={`rounded-lg px-3 py-2 text-xs font-bold ${
-                                        tipoContornoTexto === "interno"
-                                          ? "bg-blue-600 text-white"
-                                          : "border"
-                                      }`}
+                                      className={`rounded-lg px-3 py-2 text-xs font-bold ${tipoContornoTexto === "interno"
+                                        ? "bg-blue-600 text-white"
+                                        : "border"
+                                        }`}
                                     >
                                       Interno
                                     </button>
@@ -11800,11 +11858,10 @@ export default function ConfiguracaoCertificadoPage() {
                               },
                             )
                           }
-                          className={`px-3 py-1 rounded border text-sm ${
-                            campoSelecionado.negrito
-                              ? "bg-blue-600 text-white"
-                              : "bg-white text-gray-700"
-                          }`}
+                          className={`px-3 py-1 rounded border text-sm ${campoSelecionado.negrito
+                            ? "bg-blue-600 text-white"
+                            : "bg-white text-gray-700"
+                            }`}
                         >
                           B
                         </button>
@@ -11821,11 +11878,10 @@ export default function ConfiguracaoCertificadoPage() {
                               },
                             )
                           }
-                          className={`px-3 py-1 rounded border text-sm italic ${
-                            campoSelecionado.italico
-                              ? "bg-blue-600 text-white"
-                              : "bg-white text-gray-700"
-                          }`}
+                          className={`px-3 py-1 rounded border text-sm italic ${campoSelecionado.italico
+                            ? "bg-blue-600 text-white"
+                            : "bg-white text-gray-700"
+                            }`}
                         >
                           I
                         </button>
@@ -11842,11 +11898,10 @@ export default function ConfiguracaoCertificadoPage() {
                               },
                             )
                           }
-                          className={`px-3 py-1 rounded border text-sm underline ${
-                            campoSelecionado.sublinhado
-                              ? "bg-blue-600 text-white"
-                              : "bg-white text-gray-700"
-                          }`}
+                          className={`px-3 py-1 rounded border text-sm underline ${campoSelecionado.sublinhado
+                            ? "bg-blue-600 text-white"
+                            : "bg-white text-gray-700"
+                            }`}
                         >
                           U
                         </button>
@@ -12129,7 +12184,7 @@ export default function ConfiguracaoCertificadoPage() {
                                             0.8,
                                             Number(
                                               campoSelecionado?.lineHeight ||
-                                                1.3,
+                                              1.3,
                                             ) - 0.1,
                                           ),
                                         )
@@ -12147,7 +12202,7 @@ export default function ConfiguracaoCertificadoPage() {
                                             3,
                                             Number(
                                               campoSelecionado?.lineHeight ||
-                                                1.3,
+                                              1.3,
                                             ) + 0.1,
                                           ),
                                         )
@@ -12969,12 +13024,11 @@ export default function ConfiguracaoCertificadoPage() {
                       atualizarCamposAlvo("alinhamento", "left");
                       setMenuContexto(null);
                     }}
-                    className={`rounded-lg border px-2 py-1 text-xs font-bold ${
-                      campoSelecionado.alinhamento === "left" ||
+                    className={`rounded-lg border px-2 py-1 text-xs font-bold ${campoSelecionado.alinhamento === "left" ||
                       !campoSelecionado.alinhamento
-                        ? "border-blue-600 bg-blue-600 text-white"
-                        : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
-                    }`}
+                      ? "border-blue-600 bg-blue-600 text-white"
+                      : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+                      }`}
                   >
                     ⬅ Esquerda
                   </button>
@@ -12985,11 +13039,10 @@ export default function ConfiguracaoCertificadoPage() {
                       atualizarCamposAlvo("alinhamento", "center");
                       setMenuContexto(null);
                     }}
-                    className={`rounded-lg border px-2 py-1 text-xs font-bold ${
-                      campoSelecionado.alinhamento === "center"
-                        ? "border-blue-600 bg-blue-600 text-white"
-                        : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
-                    }`}
+                    className={`rounded-lg border px-2 py-1 text-xs font-bold ${campoSelecionado.alinhamento === "center"
+                      ? "border-blue-600 bg-blue-600 text-white"
+                      : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+                      }`}
                   >
                     ↔ Centro
                   </button>
@@ -13000,11 +13053,10 @@ export default function ConfiguracaoCertificadoPage() {
                       atualizarCamposAlvo("alinhamento", "right");
                       setMenuContexto(null);
                     }}
-                    className={`rounded-lg border px-2 py-1 text-xs font-bold ${
-                      campoSelecionado.alinhamento === "right"
-                        ? "border-blue-600 bg-blue-600 text-white"
-                        : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
-                    }`}
+                    className={`rounded-lg border px-2 py-1 text-xs font-bold ${campoSelecionado.alinhamento === "right"
+                      ? "border-blue-600 bg-blue-600 text-white"
+                      : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+                      }`}
                   >
                     Direita ➡
                   </button>
@@ -13086,7 +13138,7 @@ export default function ConfiguracaoCertificadoPage() {
               setMenuContexto(null);
             }}
             disabled={camposSelecionadosIds.length < 2}
-            className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+            className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-70 disabled:!bg-slate-700 disabled:!text-slate-300"
           >
             🔗 Agrupar seleção
           </button>
@@ -13098,7 +13150,7 @@ export default function ConfiguracaoCertificadoPage() {
               setMenuContexto(null);
             }}
             disabled={!campoSelecionado?.grupoId}
-            className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+            className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-70 disabled:!bg-slate-700 disabled:!text-slate-300"
           >
             🔓 Desagrupar
           </button>
@@ -13230,16 +13282,16 @@ export default function ConfiguracaoCertificadoPage() {
                     prev.map((campo) =>
                       ids.includes(campo.id)
                         ? {
-                            ...campo,
-                            sombraAtiva: !campo.sombraAtiva,
-                            sombraAngulo: campo.sombraAngulo ?? 45,
-                            sombraDistancia: campo.sombraDistancia ?? 8,
-                            sombraX: campo.sombraX ?? 6,
-                            sombraY: campo.sombraY ?? 6,
-                            sombraBlur: campo.sombraBlur ?? 10,
-                            sombraCor: campo.sombraCor || "#000000",
-                            sombraOpacidade: campo.sombraOpacidade ?? 45,
-                          }
+                          ...campo,
+                          sombraAtiva: !campo.sombraAtiva,
+                          sombraAngulo: campo.sombraAngulo ?? 45,
+                          sombraDistancia: campo.sombraDistancia ?? 8,
+                          sombraX: campo.sombraX ?? 6,
+                          sombraY: campo.sombraY ?? 6,
+                          sombraBlur: campo.sombraBlur ?? 10,
+                          sombraCor: campo.sombraCor || "#000000",
+                          sombraOpacidade: campo.sombraOpacidade ?? 45,
+                        }
                         : campo,
                     ),
                   );
@@ -13363,11 +13415,10 @@ export default function ConfiguracaoCertificadoPage() {
                   );
                 }
               }}
-              className={`rounded-lg px-3 py-2 text-xs font-bold ${
-                tipoContornoTexto === "externo"
-                  ? "bg-blue-600 text-white"
-                  : "border border-slate-600 text-slate-200"
-              }`}
+              className={`rounded-lg px-3 py-2 text-xs font-bold ${tipoContornoTexto === "externo"
+                ? "bg-blue-600 text-white"
+                : "border border-slate-600 text-slate-200"
+                }`}
             >
               Externo
             </button>
@@ -13391,11 +13442,10 @@ export default function ConfiguracaoCertificadoPage() {
                   );
                 }
               }}
-              className={`rounded-lg px-3 py-2 text-xs font-bold ${
-                tipoContornoTexto === "interno"
-                  ? "bg-blue-600 text-white"
-                  : "border border-slate-600 text-slate-200"
-              }`}
+              className={`rounded-lg px-3 py-2 text-xs font-bold ${tipoContornoTexto === "interno"
+                ? "bg-blue-600 text-white"
+                : "border border-slate-600 text-slate-200"
+                }`}
             >
               Interno
             </button>
@@ -13682,11 +13732,10 @@ export default function ConfiguracaoCertificadoPage() {
               </div>
 
               <label
-                className={`flex items-start gap-3 rounded-xl border p-4 transition ${
-                  modalidadeModeloEditando === "GERAL"
-                    ? "cursor-not-allowed border-slate-700 bg-slate-800/60 opacity-60"
-                    : "cursor-pointer border-slate-600 bg-slate-950"
-                }`}
+                className={`flex items-start gap-3 rounded-xl border p-4 transition ${modalidadeModeloEditando === "GERAL"
+                  ? "cursor-not-allowed border-slate-700 bg-slate-800/60 opacity-60"
+                  : "cursor-pointer border-slate-600 bg-slate-950"
+                  }`}
               >
                 <input
                   type="checkbox"

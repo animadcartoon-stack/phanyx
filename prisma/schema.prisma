@@ -120,6 +120,7 @@ model Instituicao {
   certificadoCampos              CertificadoCampo[]
   certificadoModelos             CertificadoModelo[]
   periodosMatricula              PeriodoMatricula[]
+  periodosMatriculaTurmas        PeriodoMatriculaTurma[]
   disciplinaPreRequisitos        DisciplinaPreRequisito[]
   cursosDisciplinasExtras        CursoDisciplinaExtraPermitida[]
   impersonacoesSuporte           ImpersonacaoSuporte[]
@@ -964,6 +965,7 @@ model Turma {
   professor                       Professor?                      @relation(fields: [professorId], references: [id])
   disciplinas                     TurmaDisciplina[]
   semestres                       TurmaSemestre[]
+  periodosMatriculaParticipantes PeriodoMatriculaTurma[]
   poloId                          Int?
   polo                            Polo?                           @relation(fields: [poloId], references: [id])
   reunioes                        Reuniao[]
@@ -2442,6 +2444,7 @@ model PeriodoMatricula {
   rematriculas          RematriculaSemestral[]
   restricoesRematricula RestricaoRematriculaAluno[]
   historicosRestricao   RestricaoRematriculaHistorico[]
+  turmasParticipantes PeriodoMatriculaTurma[]
 
   @@index([instituicaoId])
   @@index([cursoId])
@@ -2450,6 +2453,28 @@ model PeriodoMatricula {
   @@index([dataInicio, dataFim])
   @@index([cursoSemestreId])
   @@index([status])
+}
+
+model PeriodoMatriculaTurma {
+  id Int @id @default(autoincrement())
+
+  instituicaoId       Int
+  periodoMatriculaId  Int
+  turmaId             Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  periodoMatricula PeriodoMatricula @relation(fields: [periodoMatriculaId], references: [id], onDelete: Cascade)
+
+  turma Turma @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+
+  @@unique([periodoMatriculaId, turmaId])
+  @@index([instituicaoId])
+  @@index([periodoMatriculaId])
+  @@index([turmaId])
 }
 
 model Polo {
