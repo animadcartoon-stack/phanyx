@@ -1696,7 +1696,7 @@ export default function RematriculasSemestraisPage() {
                     Turmas participantes
                   </span>
 
-                  <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+                  <p className="mt-1 text-xs text-slate-700 dark:text-slate-300">
                     Selecione uma ou várias turmas que participarão
                     deste período de rematrícula. As disciplinas
                     oferecidas ao aluno serão obtidas dessas turmas.
@@ -1742,8 +1742,8 @@ export default function RematriculasSemestraisPage() {
                       <label
                         key={turma.id}
                         className={`cursor-pointer rounded-xl border p-4 transition ${selecionada
-                          ? "border-blue-500 bg-blue-50 dark:border-blue-700 dark:bg-blue-950/30"
-                          : "border-slate-200 bg-white hover:border-slate-300 dark:border-slate-700 dark:bg-slate-950"
+                            ? "border-blue-600 bg-blue-50 shadow-sm dark:border-blue-600 dark:bg-blue-950/30"
+                            : "border-slate-300 bg-white hover:border-slate-400 dark:border-slate-700 dark:bg-slate-950"
                           }`}
                       >
                         <div className="flex items-start gap-3">
@@ -1760,11 +1760,21 @@ export default function RematriculasSemestraisPage() {
                           />
 
                           <div className="min-w-0 flex-1">
-                            <strong className="block text-sm">
+                            <strong
+                              className={`block text-sm font-bold ${selecionada
+                                  ? "text-blue-950 dark:text-blue-100"
+                                  : "text-slate-900 dark:text-slate-100"
+                                }`}
+                            >
                               {turma.nome}
                             </strong>
 
-                            <div className="mt-1 flex flex-wrap gap-x-2 gap-y-1 text-xs text-slate-600 dark:text-slate-400">
+                            <div
+                              className={`mt-1 flex flex-wrap gap-x-2 gap-y-1 text-xs font-semibold ${selecionada
+                                  ? "text-blue-900 dark:text-blue-200"
+                                  : "text-slate-700 dark:text-slate-300"
+                                }`}
+                            >
                               {turma.codigo && (
                                 <span>
                                   Código: {turma.codigo}
@@ -1790,11 +1800,17 @@ export default function RematriculasSemestraisPage() {
                               )}
                             </div>
 
-                            <div className="mt-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+                            <div
+                              className={`mt-2 text-xs font-bold ${selecionada
+                                  ? "text-blue-800 dark:text-blue-200"
+                                  : "text-slate-800 dark:text-slate-300"
+                                }`}
+                            >
                               {turma._count.disciplinas} disciplina
                               {turma._count.disciplinas === 1
                                 ? ""
                                 : "s"}
+
                               {turma.periodoLetivo
                                 ? ` · ${turma.periodoLetivo}`
                                 : ""}
