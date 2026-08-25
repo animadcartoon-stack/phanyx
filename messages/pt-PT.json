@@ -1,1102 +1,1269 @@
 {
-    "Common":  {
-                   "cancel":  "Cancelar",
-                   "save":  "Guardar",
-                   "loading":  "A carregar...",
-                   "language":  "Idioma",
-                   "close":  "Fechar",
-                   "changingLanguage":  "A alterar o idioma...",
-                   "languageChangeError":  "Não foi possível alterar o idioma. Tente novamente.",
-                   "theme":  "Tema",
-                   "lightTheme":  "Claro",
-                   "darkTheme":  "Escuro",
-                   "systemTheme":  "Sistema",
-                   "sessionExpired":  "Sessão terminada",
-                   "sessionExpiredDescription":  "A sua sessão foi terminada por segurança devido à inatividade. Será redirecionado para o início de sessão.",
-                   "goToLogin":  "Ir para o início de sessão"
-               },
-    "AdminDashboard":  {
-                           "profile":  "Perfil administrativo",
-                           "institutionPanel":  "Painel da instituição",
-                           "title":  "Painel Administrativo",
-                           "description":  "Controlo académico, financeiro, documental e operacional da sua instituição num só lugar.",
-                           "searchPlaceholder":  "Pesquisar alunos, professores, cursos, disciplinas, turmas ou matrículas...",
-                           "guidedTutorial":  "Tutorial guiado",
-                           "firstSteps":  "Primeiros passos",
-                           "tutorialDescription":  "Utilize o tutorial guiado para conhecer rapidamente as principais áreas do PHANYX.",
-                           "viewTour":  "Ver tutorial agora",
-                           "quickActions":  "Ações rápidas",
-                           "quickActionsDescription":  "Atalhos para acelerar a implementação da sua instituição.",
-                           "newStudent":  "Novo Aluno",
-                           "newTeacher":  "Novo Professor",
-                           "newCourse":  "Novo Curso",
-                           "newDepartment":  "Novo Setor",
-                           "manageEnrollments":  "Gerir Matrículas",
-                           "operationOverview":  "Visão da operação",
-                           "operationOverviewDescription":  "Resumo dos principais números académicos já registados.",
-                           "loadingStatistics":  "A carregar estatísticas...",
-                           "students":  "Alunos",
-                           "studentsDescription":  "Total de alunos registados na instituição.",
-                           "teachers":  "Professores",
-                           "teachersDescription":  "Equipa docente registada no sistema.",
-                           "courses":  "Cursos",
-                           "coursesDescription":  "Catálogo académico criado até ao momento.",
-                           "subjects":  "Disciplinas",
-                           "subjectsDescription":  "Estrutura curricular registada.",
-                           "certificates":  "Certificados",
-                           "certificatesDescription":  "Certificados emitidos ou registados na base.",
-                           "mainAccess":  "Acessos principais",
-                           "mainAccessDescription":  "Entradas rápidas para os módulos mais utilizados.",
-                           "openModule":  "Abrir módulo",
-                           "noResults":  "Nenhum resultado encontrado",
-                           "searchSuggestion":  "Tente pesquisar por nome, código ou identificação.",
-                           "studentResult":  "Aluno",
-                           "teacherResult":  "Professor",
-                           "courseResult":  "Curso",
-                           "subjectResult":  "Disciplina",
-                           "classResult":  "Turma",
-                           "enrollmentResult":  "Inscrição",
-                           "tourMascotAlt":  "Mascote Formix a orientar o tutorial",
-                           "tourDashboardTitle":  "Painel administrativo",
-                           "tourDashboardDescription":  "Esta é a visão geral da sua operação. Sempre que pretender regressar ao início, clique aqui.",
-                           "tourDashboardHighlight":  "Vamos começar pelo painel principal.",
-                           "tourSettingsTitle":  "Configurações da instituição",
-                           "tourSettingsDescription":  "Comece por aqui. É aqui que configura o logótipo, os dados institucionais, a identidade visual e as informações principais.",
-                           "tourSettingsHighlight":  "Primeiro, ajuste a identidade da sua instituição.",
-                           "tourDepartmentsTitle":  "Setores e departamentos",
-                           "tourDepartmentsDescription":  "Em seguida, organize a instituição em setores, como secretaria, financeiro, académico e coordenação.",
-                           "tourDepartmentsHighlight":  "Agora vamos estruturar a operação interna.",
-                           "tourTeachersTitle":  "Registo de professores",
-                           "tourTeachersDescription":  "Aqui regista os professores que irão trabalhar na área académica e aceder ao sistema.",
-                           "tourTeachersHighlight":  "Está na hora de formar a equipa docente.",
-                           "tourStudentsTitle":  "Registo de alunos",
-                           "tourStudentsDescription":  "Em seguida, regista os alunos e prepara a base para inscrições e acompanhamento académico.",
-                           "tourStudentsHighlight":  "Agora vamos preparar a sua base de alunos.",
-                           "tourEnrollmentsTitle":  "Inscrições",
-                           "tourEnrollmentsDescription":  "Aqui associa alunos, cursos e turmas para iniciar a operação real da instituição.",
-                           "tourEnrollmentsHighlight":  "Quase concluído: é aqui que começa a operação real.",
-                           "tourStepProgress":  "Etapa {current} de {total}",
-                           "dontShowAgain":  "Não voltar a mostrar",
-                           "previous":  "Anterior",
-                           "next":  "Seguinte",
-                           "completeTour":  "Concluir tutorial",
-                           "tourCelebratingAlt":  "Mascote Formix a celebrar",
-                           "tourCompleted":  "Tutorial concluído com sucesso",
-                           "tourCongratulations":  "Parabéns! A sua instituição já pode começar 🚀",
-                           "tourCompletedDescription":  "Concluiu o tutorial inicial do PHANYX. A sua equipa já pode continuar a implementação com muito mais segurança.",
-                           "recommendedNextSteps":  "Próximos passos recomendados",
-                           "configureInstitutionData":  "Configurar os dados da instituição",
-                           "organizeDepartments":  "Organizar setores e departamentos",
-                           "registerTeachers":  "Registar professores",
-                           "registerStudents":  "Registar alunos",
-                           "startEnrollments":  "Iniciar inscrições",
-                           "startWithSettings":  "Começar pelas configurações",
-                           "finishAndHide":  "Terminar e não voltar a mostrar",
-                           "continueDashboard":  "Continuar no painel",
-                           "administratorFallback":  "Administrador",
-                           "employeePhotoAlt":  "Funcionário",
-                           "uploadingPhoto":  "A enviar...",
-                           "changePhoto":  "Alterar fotografia",
-                           "unnamed":  "Sem nome"
-                       },
-    "AdminNavigation":  {
-                            "adminPanel":  "Painel de Administração",
-                            "openGuidedTutorial":  "Abrir tutorial guiado",
-                            "administrative":  "Administrativo",
-                            "administrator":  "Administrador",
-                            "employee":  "Funcionário",
-                            "dashboard":  "Painel de Administração",
-                            "myProfile":  "O meu perfil",
-                            "subscription":  "Subscrição PHANYX",
-                            "master":  "Master PHANYX",
-                            "accessControl":  "Controlo de Acesso",
-                            "commercialPhanyx":  "Comercial PHANYX",
-                            "commercial":  "Comercial",
-                            "academic":  "Académico",
-                            "virtualLibrary":  "Biblioteca Virtual",
-                            "financial":  "Financeiro",
-                            "humanResources":  "Pessoal / RH",
-                            "documents":  "Documentos",
-                            "communication":  "Comunicação",
-                            "settings":  "Configurações",
-                            "students":  "Alunos",
-                            "teachers":  "Professores",
-                            "teacherSubstitutions":  "Substituições de Docentes",
-                            "employees":  "Funcionários",
-                            "departments":  "Departamentos",
-                            "subjects":  "Disciplinas",
-                            "enrollments":  "Matrículas",
-                            "semesterReenrollments":  "Renovações semestrais",
-                            "classes":  "Turmas",
-                            "operationalSchedule":  "Agenda / Escala",
-                            "academicPublications":  "Publicações Académicas",
-                            "visitors":  "Visitantes",
-                            "overview":  "Visão geral",
-                            "collection":  "Acervo",
-                            "receipts":  "Recebimentos",
-                            "cashRegister":  "Caixa",
-                            "reports":  "Relatórios",
-                            "overdueAccounts":  "Pagamentos em atraso",
-                            "generalClosing":  "Fecho Geral",
-                            "generateInvoiceForProspect":  "Gerar boleto para interessado",
-                            "variableCompensation":  "Remuneração Variável",
-                            "salesCommissions":  "Comissões comerciais",
-                            "timeTracking":  "Registo de Ponto",
-                            "timeTrackingSettings":  "Configurações do Ponto",
-                            "mobileTimeTracking":  "Ponto Móvel",
-                            "afdImport":  "Importação AFD",
-                            "timeBank":  "Banco de Horas",
-                            "payslips":  "Recibos de Vencimento",
-                            "payrollEvents":  "Eventos de Processamento Salarial",
-                            "benefits":  "Benefícios",
-                            "vacation":  "Férias",
-                            "medicalExams":  "Exames Médicos",
-                            "terminations":  "Rescisões",
-                            "employmentHistory":  "Histórico Profissional",
-                            "archivedHR":  "Arquivados de RH",
-                            "occurrences":  "Ocorrências",
-                            "accountingReports":  "Relatórios Contabilísticos",
-                            "hrDocuments":  "Documentos de RH",
-                            "contracts":  "Contratos",
-                            "generatedDocuments":  "Documentos Gerados",
-                            "generateDocument":  "Gerar Documento",
-                            "validation":  "Validação",
-                            "badges":  "Cartões de Identificação",
-                            "meetings":  "Reuniões",
-                            "birthdays":  "Aniversariantes",
-                            "ombudsman":  "Provedoria",
-                            "institution":  "Instituição",
-                            "institutionalLogos":  "Logótipos institucionais",
-                            "institutionalEmail":  "E-mail institucional",
-                            "institutionalWhatsapp":  "WhatsApp institucional",
-                            "campusesAndUnits":  "Polos e unidades",
-                            "departmentPermissions":  "Permissões por setor",
-                            "institutionalDocuments":  "Documentos institucionais",
-                            "portalVisibility":  "Visibilidade dos Portais",
-                            "certificateManagement":  "Gestão de Certificados",
-                            "certificateEditor":  "Editor de Certificado",
-                            "logout":  "Sair",
-                            "phanyxLeads":  "Leads PHANYX",
-                            "leadGenerationCenter":  "Central de Captação",
-                            "salesFunnels":  "Funis comerciais",
-                            "salesPipeline":  "Pipeline comercial",
-                            "salesAgenda":  "Agenda comercial",
-                            "leadsAndOpportunities":  "Leads e oportunidades",
-                            "salesTeams":  "Equipas comerciais",
-                            "salesTargets":  "Metas comerciais",
-                            "commissionPlans":  "Planos de comissão",
-                            "dashboardShort":  "Painel",
-                            "academicShort":  "Acad.",
-                            "commercialShort":  "Comerc.",
-                            "financialShort":  "Financ.",
-                            "hrShort":  "RH",
-                            "documentsShort":  "Docs",
-                            "settingsShort":  "Config.",
-                            "communicationShort":  "Comun.",
-                            "notifications":  "Notificações",
-                            "notificationsDescription":  "Atualizações importantes do PHANYX",
-                            "viewAllNotifications":  "Ver todas as notificações",
-                            "masterDashboard":  "Painel Master",
-                            "signInAsUser":  "Entrar como utilizador",
-                            "phanyxPlatform":  "Plataforma PHANYX",
-                            "generateIbeInvoice":  "Gerar referência de pagamento IBE",
-                            "campusManagementDisabled":  "Gestão de polos não ativada",
-                            "campusManagementDisabledDescription":  "Este ID institucional não tem autorização para criar ou gerir polos. Esta permissão é controlada pela instituição contratante da rede.",
-                            "backToDashboard":  "Voltar ao painel"
-                        },
-    "MonthlyCampaign":  {
-                            "origin":  "Campanha mensal",
-                            "genericTitle":  "{month} — Saúde e bem-estar",
-                            "genericDescription":  "Campanha mensal de sensibilização para a saúde e o bem-estar.",
-                            "genericPhrase":  "Informação, prevenção e cuidado fazem a diferença todos os dias.",
-                            "health":  "Saúde",
-                            "upcomingHoliday":  "Feriado próximo",
-                            "monthlyCampaign":  "Campanha do mês"
-                        },
-    "InternationalPhone":  {
-                               "selectCountry":  "Selecionar o país do telefone",
-                               "searchCountry":  "Pesquisar país ou indicativo",
-                               "noCountryFound":  "Nenhum país encontrado.",
-                               "placeholder":  "Introduza o número de telefone",
-                               "required":  "Introduza o número de telefone.",
-                               "invalid":  "Introduza um telefone válido para o país selecionado.",
-                               "invalidTitle":  "Telefone inválido",
-                               "studentInvalid":  "O telefone do aluno não é válido para o país selecionado. Corrija o número ou selecione outro país.",
-                               "guardianInvalid":  "O telefone do responsável não é válido para o país selecionado. Corrija o número ou selecione outro país."
-                           },
-    "StudentLayout":  {
-                          "academicAccessBlocked":  "Acesso académico bloqueado",
-                          "financialRegularizationRequired":  "Regularização financeira necessária",
-                          "greeting":  "Olá, {name}.",
-                          "blockedDescription":  "O seu acesso ao ambiente académico está temporariamente bloqueado devido a uma pendência financeira registada pela instituição.",
-                          "meaningTitle":  "O que isto significa",
-                          "meaningDescription":  "Enquanto a pendência permanecer em aberto, o acesso às áreas académicas poderá continuar indisponível.",
-                          "unlockTitle":  "Como desbloquear o acesso",
-                          "unlockDescription":  "Contacte o setor financeiro ou a secretaria da sua instituição para regularizar a situação.",
-                          "importantTitle":  "Importante",
-                          "importantDescription":  "Após o registo do pagamento no sistema, o acesso poderá ser restabelecido automaticamente, de acordo com as regras da instituição.",
-                          "backToLogin":  "Voltar ao início de sessão",
-                          "logout":  "Terminar sessão",
-                          "footer":  "PHANYX • Gestão académica e financeira",
-                          "dashboard":  "Painel",
-                          "reenrollmentShort":  "Renovação",
-                          "subjects":  "Disciplinas",
-                          "progress":  "Progresso",
-                          "assignments":  "Trabalhos",
-                          "attendance":  "Presenças",
-                          "grades":  "Notas",
-                          "certificates":  "Certificados",
-                          "meetings":  "Reuniões",
-                          "registrationData":  "Dados de registo",
-                          "registrationDescription":  "Mantenha os seus dados atualizados para contratos, documentos e registos académicos.",
-                          "updateMyData":  "Atualizar os meus dados"
-                      },
-    "StudentSidebar":  {
-                           "areaTitle":  "Área do Aluno",
-                           "student":  "Aluno",
-                           "profilePhoto":  "Fotografia de perfil de {name}",
-                           "academicDashboard":  "Painel académico",
-                           "semesterReenrollment":  "Renovação semestral",
-                           "subjects":  "Disciplinas",
-                           "progress":  "Progresso",
-                           "assignments":  "Trabalhos",
-                           "attendance":  "Presenças",
-                           "grades":  "Notas",
-                           "academicHistory":  "Histórico académico",
-                           "meetings":  "Reuniões",
-                           "certificates":  "Certificados",
-                           "ombudsman":  "Provedoria"
-                       },
-    "StudentDashboard":  {
-                             "errors":  {
-                                            "imageUpload":  "Erro ao enviar a imagem.",
-                                            "missingImageUrl":  "O envio foi concluído, mas o endereço da imagem não foi devolvido.",
-                                            "savePhoto":  "Erro ao guardar a fotografia do perfil.",
-                                            "changePhoto":  "Erro ao alterar a fotografia.",
-                                            "paymentBlocked":  "Acesso bloqueado por incumprimento de pagamento.",
-                                            "loadDashboard":  "Erro ao carregar o painel."
-                                        },
-                             "greetings":  {
-                                               "morning":  "Bom dia",
-                                               "afternoon":  "Boa tarde",
-                                               "evening":  "Boa noite"
-                                           },
-                             "performance":  {
-                                                 "excellent":  "Excelente desempenho. Continue neste ritmo.",
-                                                 "veryGood":  "Está a progredir muito bem no seu percurso.",
-                                                 "good":  "Bom progresso. Recomendamos rever os conteúdos recentes.",
-                                                 "needsImprovement":  "É altura de reforçar o estudo e recuperar o ritmo."
-                                             },
-                             "nextStep":  {
-                                              "regularizeTitle":  "Regularizar acesso",
-                                              "regularizeDescription":  "O seu painel académico está com acesso restrito. Regularize a sua situação para continuar normalmente.",
-                                              "openSupport":  "Abrir suporte",
-                                              "continueTitle":  "Continuar estudos",
-                                              "continueDescription":  "Retome a sua rotina académica através da disciplina atualmente disponível.",
-                                              "openSubject":  "Abrir disciplina",
-                                              "reviewTitle":  "Rever resultados",
-                                              "reviewDescription":  "Consulte o seu desempenho mais recente e acompanhe a sua evolução académica.",
-                                              "viewGrades":  "Ver avaliações",
-                                              "exploreTitle":  "Explorar painel",
-                                              "exploreDescription":  "Acompanhe os seus indicadores académicos e mantenha a sua rotina organizada.",
-                                              "refreshDashboard":  "Atualizar painel"
-                                          },
-                             "hero":  {
-                                          "eyebrow":  "Painel académico do aluno",
-                                          "student":  "Aluno",
-                                          "sendingPhoto":  "A enviar...",
-                                          "changePhoto":  "Alterar fotografia",
-                                          "photoTips":  "Dicas para a fotografia",
-                                          "heading":  "{greeting}, acompanhe o seu percurso académico com clareza, desempenho e foco",
-                                          "description":  "Consulte o seu curso, desempenho, disciplinas e próximos passos num painel concebido para uma experiência académica moderna, organizada e profissional.",
-                                          "continueStudies":  "Continuar estudos",
-                                          "viewGrades":  "Ver avaliações",
-                                          "openGrades":  "Abrir avaliações",
-                                          "refreshDashboard":  "Atualizar painel",
-                                          "currentCourse":  "Curso atual",
-                                          "unknownCourse":  "Curso não identificado",
-                                          "status":  "Estado",
-                                          "notInformed":  "Não informado",
-                                          "currentPerformance":  "Aproveitamento atual",
-                                          "performanceBasis":  "Com base na sua média geral atual.",
-                                          "loading":  "A carregar o painel..."
-                                      },
-                             "restricted":  {
-                                                "eyebrow":  "Acesso restrito",
-                                                "title":  "O seu acesso está temporariamente bloqueado",
-                                                "institutionInstruction":  "Contacte a instituição para regularizar a sua situação financeira e voltar a aceder ao ambiente académico.",
-                                                "contactSupport":  "Contactar suporte",
-                                                "refreshDashboard":  "Atualizar painel"
-                                            },
-                             "stats":  {
-                                           "enrolledSubjects":  "Disciplinas inscritas",
-                                           "enrolledSubjectsDescription":  "Total atual de disciplinas associadas à sua matrícula.",
-                                           "overallAverage":  "Média geral",
-                                           "overallAverageDescription":  "Desempenho académico consolidado até ao momento.",
-                                           "completedExams":  "Avaliações concluídas",
-                                           "completedExamsDescription":  "Quantidade de avaliações já concluídas.",
-                                           "higherPlans":  "Disponível nos planos superiores.",
-                                           "enrollmentStatus":  "Estado da matrícula",
-                                           "enrollmentStatusDescription":  "Situação académica atual do seu vínculo institucional."
-                                       },
-                             "enrollmentStatuses":  {
-                                                        "active":  "Ativa",
-                                                        "pending":  "Pendente",
-                                                        "locked":  "Suspensa",
-                                                        "cancelled":  "Cancelada",
-                                                        "completed":  "Concluída",
-                                                        "inactive":  "Inativa",
-                                                        "suspended":  "Suspensa"
-                                                    },
-                             "subjects":  {
-                                              "title":  "As suas disciplinas",
-                                              "description":  "Aceda rapidamente aos conteúdos, materiais e atividades.",
-                                              "count":  "{count, plural, =0 {Nenhuma disciplina} one {# disciplina} other {# disciplinas}}",
-                                              "empty":  "Nenhuma disciplina disponível neste momento.",
-                                              "cardDescription":  "Aceda aos conteúdos disponíveis e acompanhe as suas atividades académicas.",
-                                              "availableSoon":  "Aula disponível em breve",
-                                              "blockedDefault":  "Assim que a instituição publicar o conteúdo, esta disciplina será desbloqueada automaticamente.",
-                                              "access":  "Aceder à disciplina"
-                                          },
-                             "exams":  {
-                                           "title":  "Últimas avaliações",
-                                           "description":  "As suas avaliações concluídas mais recentes.",
-                                           "viewGrades":  "Ver avaliações",
-                                           "higherPlans":  "Os detalhes das avaliações concluídas estão disponíveis nos planos superiores.",
-                                           "empty":  "Ainda não possui avaliações concluídas.",
-                                           "subject":  "Disciplina",
-                                           "completedAt":  "Conclusão",
-                                           "grade":  "Nota"
-                                       },
-                             "side":  {
-                                          "nextStep":  "Próximo passo",
-                                          "visualProgress":  "Progresso visual",
-                                          "currentPerformance":  "Aproveitamento atual",
-                                          "quickLinks":  "Atalhos rápidos",
-                                          "continueStudies":  "Continuar estudos",
-                                          "refreshDashboard":  "Atualizar painel",
-                                          "openGrades":  "Abrir avaliações",
-                                          "academicSummary":  "Resumo académico",
-                                          "enrolledSubjects":  "{count, plural, =0 {Não possui disciplinas inscritas.} one {Possui # disciplina inscrita.} other {Possui # disciplinas inscritas.}}",
-                                          "completedExams":  "{count, plural, =0 {Ainda não concluiu avaliações.} one {Já concluiu # avaliação.} other {Já concluiu # avaliações.}}",
-                                          "currentAverage":  "A sua média geral atual é {average}.",
-                                          "currentCourse":  "Curso atual: {course}.",
-                                          "unknownCourse":  "Não identificado",
-                                          "enrollmentStatus":  "Estado da matrícula: {status}.",
-                                          "institutionalSituation":  "Situação institucional",
-                                          "institutionalDescription":  "O seu ambiente académico está associado ao curso e à matrícula ativos no sistema. Acompanhe as suas avaliações, disciplinas e atualizações através deste painel."
-                                      },
-                             "photoModal":  {
-                                                "eyebrow":  "Dica PHANYX",
-                                                "title":  "Fotografia de perfil ideal",
-                                                "closeAria":  "Fechar dicas da fotografia",
-                                                "square":  "Utilize uma imagem quadrada, no formato 1:1.",
-                                                "resolution":  "Recomendado: 500x500 px ou superior.",
-                                                "formats":  "Formatos aceites: PNG, JPG, JPEG e WEBP.",
-                                                "size":  "Tamanho máximo: 5 MB.",
-                                                "understood":  "Entendi"
-                                            }
-                         },
-    "StudentSubjects":  {
-                            "title":  "As Minhas Disciplinas",
-                            "description":  "Consulte as suas disciplinas, acompanhe as aulas registadas e veja o histórico de presenças.",
-                            "loading":  "A carregar...",
-                            "count":  "{count, plural, one {# disciplina} other {# disciplinas}}",
-                            "searchPlaceholder":  "Pesquisar disciplina ou turma...",
-                            "loadingList":  "A carregar disciplinas...",
-                            "empty":  "Ainda não está inscrito em nenhuma disciplina.",
-                            "noResults":  "Não foi encontrada nenhuma disciplina para esta pesquisa.",
-                            "classesCount":  "{count, plural, one {# aula} other {# aulas}}",
-                            "attendanceRecorded":  "Presenças registadas:",
-                            "classGroup":  "Turma:",
-                            "notInformed":  "Não indicada",
-                            "blockedDefault":  "Assim que a aula for publicada, o acesso será disponibilizado automaticamente.",
-                            "access":  "Aceder à disciplina"
-                        },
-    "StudentSubjectDetail":  {
-                                 "loadingDiscipline":  "A carregar disciplina...",
-                                 "invalidId":  "A disciplina indicada é inválida.",
-                                 "loadError":  "Não foi possível carregar a disciplina.",
-                                 "notFound":  "Disciplina não encontrada.",
-                                 "seekBlocked":  "Não é permitido avançar no conteúdo da aula.",
-                                 "watchMinimumWarning":  "Assista durante o tempo mínimo para concluir a aula.",
-                                 "completeError":  "Não foi possível concluir a aula.",
-                                 "progress":  "Progresso",
-                                 "classCount":  "{count, plural, one {# aula} other {# aulas}}",
-                                 "durationMinutes":  "{minutes} min",
-                                 "activities":  "Atividades",
-                                 "loadingPlan":  "A carregar plano...",
-                                 "examPlanRequired":  "As provas estão disponíveis apenas nos planos Profissional e Enterprise.",
-                                 "loadingExam":  "A carregar prova...",
-                                 "examUnavailable":  "Prova indisponível",
-                                 "examAlreadyCompleted":  "Já realizou esta prova",
-                                 "takeExam":  "Realizar prova",
-                                 "examLocked":  "Prova bloqueada — conclua todas as aulas",
-                                 "finalResult":  "Resultado final",
-                                 "grade":  "Nota: {grade}",
-                                 "approved":  "Aprovado 🎉",
-                                 "failed":  "Reprovado ❌",
-                                 "watchedTime":  "Tempo visualizado",
-                                 "lessonCompleted":  "Aula já concluída.",
-                                 "minimumWatchHint":  "{minutes, plural, one {Assista durante pelo menos # minuto para disponibilizar a conclusão.} other {Assista durante pelo menos # minutos para disponibilizar a conclusão.}}",
-                                 "noVideoHint":  "Esta aula não possui vídeo. A conclusão está disponível.",
-                                 "completedButton":  "✅ Concluída",
-                                 "saving":  "A guardar...",
-                                 "markCompleted":  "Marcar como concluída",
-                                 "watchToComplete":  "{minutes, plural, one {Assista # min para concluir} other {Assista # min para concluir}}",
-                                 "noVideoPlayer":  "Esta aula não possui vídeo.",
-                                 "materialsTitle":  "Materiais da aula",
-                                 "materialsDescription":  "Ficheiros, ligações e conteúdos de apoio disponibilizados pelo professor.",
-                                 "materialVideo":  "Vídeo",
-                                 "materialLink":  "Ligação",
-                                 "materialFile":  "Ficheiro",
-                                 "materialGeneric":  "Material",
-                                 "fileName":  "Ficheiro: {name}",
-                                 "openVideo":  "Abrir vídeo",
-                                 "openLink":  "Abrir ligação",
-                                 "openMaterial":  "Abrir",
-                                 "downloadMaterial":  "Descarregar material",
-                                 "previousLesson":  "Aula anterior",
-                                 "nextLesson":  "Próxima aula",
-                                 "noLessons":  "Nenhuma aula encontrada."
-                             },
-    "StudentLesson":  {
-                          "subjectNotFound":  "Disciplina não encontrada.",
-                          "lessonNotFound":  "Aula não encontrada.",
-                          "loadingEnrollmentStatus":  "A carregar o estado da matrícula...",
-                          "accessUnavailableTitle":  "Acesso à aula indisponível",
-                          "accessUnavailableStatus":  "A sua matrícula encontra-se com o estado {status}.",
-                          "accessUnavailableDescription":  "Por esse motivo, o acesso às aulas está temporariamente bloqueado. Pode continuar a aceder à sua área de aluno, acompanhar o seu estado e consultar informações académicas.",
-                          "contactOffice":  "Para regularizar a situação, contacte a secretaria.",
-                          "videoUnavailable":  "O vídeo desta aula ainda não está disponível.",
-                          "savingProgress":  "A guardar o progresso...",
-                          "markCompleted":  "Marcar como concluída",
-                          "saveProgressError":  "Não foi possível guardar o progresso da aula. Tente novamente.",
-                          "lessonCompleted":  "Aula concluída",
-                          "status":  {
-                                         "active":  "Ativa",
-                                         "locked":  "Trancada",
-                                         "cancelled":  "Cancelada",
-                                         "completed":  "Concluída",
-                                         "notStarted":  "Por iniciar",
-                                         "suspended":  "Suspensa",
-                                         "unavailable":  "Indisponível"
-                                     }
-                      },
-    "StudentExam":  {
-                        "invalidSubject":  "Disciplina inválida.",
-                        "loadingExam":  "A carregar a prova...",
-                        "loadError":  "Não foi possível carregar a prova. Tente novamente.",
-                        "examUnavailable":  "A prova ainda não está disponível.",
-                        "accessUnavailable":  "O acesso a esta prova não está disponível. Verifique as aulas obrigatórias, o período e o limite de tentativas.",
-                        "authenticationRequired":  "A sua sessão expirou. Inicie sessão novamente para continuar.",
-                        "attemptUnavailable":  "Esta tentativa já não está disponível ou já foi concluída.",
-                        "saveAnswerError":  "Não foi possível guardar a resposta. Verifique a sua ligação antes de concluir.",
-                        "finishError":  "Não foi possível concluir a prova. Tente novamente.",
-                        "answerAllQuestions":  "Responda a todas as perguntas antes de concluir a prova.",
-                        "back":  "Voltar",
-                        "errorTitle":  "Não foi possível concluir a prova",
-                        "resultTitle":  "Resultado da prova",
-                        "partialResultTitle":  "Resultado parcial da prova",
-                        "grade":  "Nota",
-                        "passed":  "Aprovado 🎉",
-                        "failed":  "Reprovado ❌",
-                        "awaitingTeacherCorrection":  "A aguardar a correção das questões de desenvolvimento pelo professor.",
-                        "reviewTitle":  "Revisão da prova",
-                        "essayPending":  "Questão de desenvolvimento a aguardar correção do professor.",
-                        "yourAnswer":  "A sua resposta",
-                        "objectiveProcessed":  "Resposta objetiva processada no resultado da prova.",
-                        "timeSpent":  "Tempo utilizado: {minutes} min {seconds} s",
-                        "certificateInformation":  "Foi aprovado nesta prova. A disponibilização do certificado depende das regras da sua instituição.",
-                        "backToSubject":  "Voltar à disciplina",
-                        "answerPlaceholder":  "Escreva a sua resposta...",
-                        "essayCorrectionInformation":  "Questão de desenvolvimento: será corrigida pelo professor.",
-                        "finishingExam":  "A concluir a prova...",
-                        "finishExam":  "Concluir prova"
-                    },
-    "StudentExamExecution":  {
-                                 "invalidExam":  "Prova inválida.",
-                                 "loadingExam":  "A carregar a prova...",
-                                 "loadError":  "Não foi possível carregar a prova. Tente novamente.",
-                                 "examNotFound":  "Prova não encontrada.",
-                                 "accessUnavailable":  "O acesso a esta prova não está disponível. Verifique o período, as aulas obrigatórias e o seu limite de tentativas.",
-                                 "authenticationRequired":  "A sua sessão expirou. Inicie sessão novamente para continuar.",
-                                 "attemptUnavailable":  "Esta tentativa já não está disponível ou o limite de tentativas foi atingido.",
-                                 "answerRequired":  "Responda a esta questão antes de a guardar.",
-                                 "answerAllQuestions":  "Responda a todas as questões antes de concluir a prova.",
-                                 "saveAnswerError":  "Não foi possível guardar a resposta. Verifique a sua ligação e tente novamente.",
-                                 "finishError":  "Não foi possível concluir a prova. Tente novamente.",
-                                 "errorTitle":  "Não foi possível concluir",
-                                 "resultTitle":  "Resultado da prova",
-                                 "partialResultTitle":  "Resultado parcial da prova",
-                                 "completedSuccessfully":  "Prova concluída com sucesso!",
-                                 "awaitingTeacherCorrection":  "As questões de desenvolvimento ainda serão corrigidas pelo professor.",
-                                 "resultPending":  "Resultado final a aguardar correção do professor.",
-                                 "grade":  "Nota",
-                                 "passed":  "Aprovado ✅",
-                                 "failed":  "Reprovado ❌",
-                                 "backToSubject":  "Voltar à disciplina",
-                                 "instructions":  "Responda a todas as questões e conclua para enviar a prova.",
-                                 "questionMeta":  "Questão {number} • {points} pts",
-                                 "save":  "Guardar",
-                                 "saving":  "A guardar...",
-                                 "saved":  "Guardado ✓",
-                                 "answerPlaceholder":  "Escreva a sua resposta...",
-                                 "essayCorrectionInformation":  "A questão de desenvolvimento será corrigida pelo professor.",
-                                 "back":  "Voltar",
-                                 "finishingExam":  "A concluir...",
-                                 "finishExam":  "Concluir prova"
-                             },
-    "StudentProgress":  {
-                            "title":  "Progresso académico",
-                            "description":  "Acompanhe o seu progresso por disciplina com base nas aulas registadas e nos registos académicos associados ao seu perfil.",
-                            "loading":  "A carregar o progresso...",
-                            "loadError":  "Não foi possível carregar o seu progresso académico. Verifique a sua ligação e tente novamente.",
-                            "retry":  "Tentar novamente",
-                            "empty":  "Não existe progresso académico disponível neste momento.",
-                            "classLabel":  "Turma",
-                            "notInformed":  "Não indicada",
-                            "totalLessons":  "Total de aulas",
-                            "attendanceRecords":  "Presenças registadas",
-                            "completed":  "Concluído",
-                            "inProgress":  "Em curso",
-                            "progressPercentage":  "Percentagem de acompanhamento",
-                            "completedMessage":  "Disciplina com acompanhamento concluído."
-                        },
-    "StudentAssignments":  {
-                               "title":  "Trabalhos e atividades",
-                               "description":  "Consulte as atividades publicadas e envie a sua entrega com texto, ligação ou ficheiro.",
-                               "loading":  "A carregar atividades...",
-                               "retry":  "Tentar novamente",
-                               "publishedAssignments":  "Atividades publicadas",
-                               "assignmentCount":  "{count, plural, =0 {Nenhuma atividade} one {# atividade} other {# atividades}}",
-                               "empty":  "Não existem atividades publicadas neste momento.",
-                               "subject":  "Disciplina",
-                               "classLabel":  "Turma",
-                               "deadline":  "Prazo",
-                               "noDeadline":  "Sem prazo",
-                               "notInformed":  "Não indicado",
-                               "deadlineClosed":  "Prazo terminado",
-                               "dueToday":  "Termina hoje",
-                               "daysRemaining":  "{count, plural, one {Falta # dia} other {Faltam # dias}}",
-                               "maximumGrade":  "Nota máxima",
-                               "delivered":  "Atividade entregue",
-                               "awaitingSubmission":  "A aguardar envio",
-                               "viewSubmission":  "Ver entrega",
-                               "viewAssignment":  "Ver atividade",
-                               "answerAssignment":  "Responder à atividade",
-                               "attachmentCount":  "{count, plural, one {# anexo} other {# anexos}}",
-                               "assignmentFiles":  "Ficheiros da atividade",
-                               "sendSubmission":  "Enviar entrega",
-                               "sendDescription":  "Selecione uma atividade e envie a sua resposta.",
-                               "assignment":  "Atividade",
-                               "selectAssignment":  "Selecione uma atividade",
-                               "alreadySubmitted":  "Já enviou esta atividade.",
-                               "textLabel":  "Texto",
-                               "linkLabel":  "Ligação",
-                               "fileLabel":  "Ficheiro",
-                               "viewSubmittedFile":  "Ver ficheiro enviado",
-                               "statusLabel":  "Estado",
-                               "corrected":  "Corrigido",
-                               "submitted":  "Entregue",
-                               "gradeLabel":  "Nota",
-                               "teacherFeedback":  "Comentário do professor",
-                               "closedEditMessage":  "O prazo terminou. Não é possível editar esta entrega.",
-                               "textPlaceholder":  "Escreva aqui a sua resposta, observações ou conteúdo complementar",
-                               "selectFile":  "Selecionar ficheiro",
-                               "selectedFile":  "Ficheiro selecionado: {name}",
-                               "fileLimit":  "Tamanho máximo: 500 MB.",
-                               "sending":  "A enviar...",
-                               "updateSubmission":  "Atualizar entrega",
-                               "sendAssignment":  "Enviar trabalho",
-                               "success":  "Trabalho enviado com sucesso!",
-                               "errors":  {
-                                              "load":  "Não foi possível carregar as atividades. Verifique a sua ligação e tente novamente.",
-                                              "selectAssignment":  "Selecione uma atividade.",
-                                              "answerRequired":  "Envie pelo menos um texto, ligação ou ficheiro.",
-                                              "fileTooLarge":  "O ficheiro excede o limite de 500 MB. Escolha um ficheiro menor.",
-                                              "prepareUpload":  "Não foi possível preparar o envio do ficheiro. Tente novamente.",
-                                              "upload":  "Não foi possível enviar o ficheiro (código {status}).",
-                                              "submit":  "Não foi possível enviar a atividade. Tente novamente."
-                                          }
-                           },
-    "StudentAssignmentSubmission":  {
-                                        "common":  {
-                                                       "notProvided":  "Não indicado",
-                                                       "retry":  "Tentar novamente"
-                                                   },
-                                        "loading":  "A carregar atividade...",
-                                        "back":  "Voltar aos detalhes",
-                                        "title":  "Enviar atividade",
-                                        "success":  "Atividade enviada com sucesso.",
-                                        "activity":  {
-                                                         "label":  "Atividade",
-                                                         "subjectUnknown":  "Disciplina não indicada",
-                                                         "class":  "Turma"
-                                                     },
-                                        "deadline":  {
-                                                         "label":  "Prazo",
-                                                         "noDeadline":  "Sem prazo",
-                                                         "undefined":  "Sem prazo definido",
-                                                         "closed":  "❌ Prazo terminado",
-                                                         "daysRemaining":  "🟢 Restam {count, plural, one {# dia} other {# dias}}",
-                                                         "hoursRemaining":  "🟠 Restam {count, plural, one {# hora} other {# horas}}",
-                                                         "lessThanHour":  "⚠️ Termina em menos de 1 hora"
-                                                     },
-                                        "score":  {
-                                                      "label":  "Valor",
-                                                      "points":  "pontos"
-                                                  },
-                                        "status":  {
-                                                       "label":  "Estado da entrega",
-                                                       "graded":  "⭐ Corrigida",
-                                                       "submitted":  "✅ Entregue",
-                                                       "submittedAt":  "Enviada em: {date}",
-                                                       "evaluated":  "O professor já avaliou esta atividade.",
-                                                       "awaitingReview":  "A sua resposta foi enviada e aguarda correção.",
-                                                       "evaluation":  "Avaliação",
-                                                       "feedback":  "Feedback do professor",
-                                                       "closed":  "❌ O prazo terminou. Não é possível enviar esta atividade.",
-                                                       "notSubmitted":  "📤 Ainda não enviada. Pode enviar texto, ligação ou ficheiro."
-                                                   },
-                                        "instructions":  "Orientações",
-                                        "attachments":  {
-                                                            "title":  "📎 Ficheiros da atividade ({count})",
-                                                            "file":  "Ficheiro"
-                                                        },
-                                        "previous":  {
-                                                         "title":  "A minha última entrega",
-                                                         "text":  "Texto enviado",
-                                                         "link":  "Ligação enviada",
-                                                         "file":  "Ficheiro enviado",
-                                                         "openFile":  "Abrir {name}"
-                                                     },
-                                        "form":  {
-                                                     "title":  "A sua resposta",
-                                                     "textLabel":  "Texto da resposta",
-                                                     "textPlaceholder":  "Escreva aqui a sua resposta ao professor...",
-                                                     "linkLabel":  "Ligação externa",
-                                                     "linkPlaceholder":  "Cole aqui uma ligação do Google Drive, OneDrive, YouTube ou outro material online.",
-                                                     "fileLabel":  "Ficheiro",
-                                                     "selectFile":  "Selecionar ficheiro",
-                                                     "fileHelp":  "Envie PDF, imagem, documento, folha de cálculo, vídeo ou ficheiro comprimido. Limite: 500 MB.",
-                                                     "remove":  "Remover",
-                                                     "declaration":  "Ao enviar esta atividade, confirma que o conteúdo apresentado é da sua autoria e que conhece as normas académicas da instituição.",
-                                                     "sending":  "A enviar...",
-                                                     "update":  "📤 Atualizar entrega",
-                                                     "submit":  "📤 Enviar atividade"
-                                                 },
-                                        "errors":  {
-                                                       "load":  "Erro ao carregar a atividade.",
-                                                       "notFound":  "Atividade não encontrada.",
-                                                       "fileTooLarge":  "O ficheiro selecionado tem {size}, mas o limite é 500 MB.",
-                                                       "prepareUpload":  "Erro ao preparar o envio.",
-                                                       "upload":  "Erro ao enviar o ficheiro.",
-                                                       "submit":  "Erro ao enviar a atividade."
-                                                   }
-                                    },
-    "StudentAttendance":  {
-                              "common":  {
-                                             "notProvided":  "Não informado"
-                                         },
-                              "title":  "A minha presença",
-                              "subtitle":  "Acompanhe a sua assiduidade por aula e consulte o resumo de presenças.",
-                              "loading":  "A carregar os seus registos de assiduidade...",
-                              "emptyData":  "Não existem dados de presença disponíveis.",
-                              "errors":  {
-                                             "load":  "Erro ao carregar as presenças"
-                                         },
-                              "summary":  {
-                                              "total":  "Total",
-                                              "present":  "Presenças",
-                                              "absences":  "Faltas",
-                                              "excused":  "Justificadas",
-                                              "medicalCertificates":  "Atestados"
-                                          },
-                              "frequency":  {
-                                                "title":  "Assiduidade",
-                                                "description":  "As presenças, faltas justificadas e atestados são considerados assiduidade válida."
-                                            },
-                              "history":  {
-                                              "title":  "Histórico de presenças",
-                                              "records":  "{count, plural, =0 {Nenhum registo} one {# registo} other {# registos}}",
-                                              "empty":  "Não foi encontrado nenhum registo de presença."
-                                          },
-                              "statuses":  {
-                                               "present":  "Presente",
-                                               "absent":  "Falta",
-                                               "excused":  "Justificada",
-                                               "medicalCertificate":  "Atestado"
-                                           },
-                              "item":  {
-                                           "lessonUnknown":  "Aula não informada",
-                                           "classLabel":  "Turma",
-                                           "dateLabel":  "Data",
-                                           "observation":  "Observação"
-                                       }
-                          },
-    "StudentGradebook":  {
-                             "common":  {
-                                            "notProvided":  "Não informado"
-                                        },
-                             "hero":  {
-                                          "eyebrow":  "Pauta académica",
-                                          "title":  "Acompanhe as suas notas, médias e desempenho por disciplina",
-                                          "description":  "Consulte as provas concluídas, a média por disciplina e o seu panorama académico num ambiente claro, organizado e profissional."
-                                      },
-                             "actions":  {
-                                             "backToDashboard":  "Voltar ao painel",
-                                             "refreshGradebook":  "Atualizar pauta"
-                                         },
-                             "metrics":  {
-                                             "subjects":  {
-                                                              "title":  "Disciplinas",
-                                                              "heroDescription":  "Total de disciplinas na sua pauta.",
-                                                              "cardDescription":  "Quantidade de disciplinas com notas registadas."
-                                                          },
-                                             "exams":  {
-                                                           "title":  "Provas registadas",
-                                                           "cardDescription":  "Total de provas associadas ao seu histórico atual."
-                                                       },
-                                             "overallAverage":  {
-                                                                    "title":  "Média geral",
-                                                                    "heroDescription":  "Média consolidada com base nas disciplinas registadas.",
-                                                                    "cardDescription":  "Panorama consolidado do seu desempenho académico."
-                                                                }
-                                         },
-                             "loading":  "A carregar a pauta...",
-                             "errors":  {
-                                            "load":  "Erro ao carregar a pauta"
-                                        },
-                             "empty":  {
-                                           "title":  "Nenhuma nota encontrada",
-                                           "description":  "Assim que concluir provas, estas aparecerão aqui na sua pauta."
-                                       },
-                             "subject":  {
-                                             "examCount":  "{count, plural, =0 {Nenhuma prova registada} one {# prova registada} other {# provas registadas}}",
-                                             "average":  "Média: {value}"
-                                         },
-                             "exam":  {
-                                          "gradeLabel":  "Nota",
-                                          "gradeNotReleased":  "Nota ainda não disponibilizada",
-                                          "statusLabel":  "Estado",
-                                          "status":  {
-                                                         "finished":  "Concluída",
-                                                         "inProgress":  "Em curso"
-                                                     },
-                                          "finishedAtLabel":  "Conclusão",
-                                          "awaitingRelease":  "A aguardar disponibilização"
-                                      },
-                             "performance":  {
-                                                 "good":  "Bom desempenho",
-                                                 "attention":  "Atenção",
-                                                 "low":  "Baixo desempenho"
-                                             }
-                         },
-    "StudentAcademicHistory":  {
-                                   "common":  {
-                                                  "notProvided":  "Não informado"
-                                              },
-                                   "official":  {
-                                                    "title":  "Histórico Académico Oficial",
-                                                    "description":  "Consulte e imprima o seu histórico académico atualizado.",
-                                                    "generate":  "Gerar histórico académico",
-                                                    "generating":  "A gerar...",
-                                                    "print":  "Imprimir histórico",
-                                                    "fileName":  "historico-academico.pdf"
-                                                },
-                                   "errors":  {
-                                                  "generateUnavailable":  "Não foi possível gerar o histórico académico. Verifique se existe um modelo de Histórico ativo.",
-                                                  "generateFailed":  "Erro ao gerar o histórico académico. Tente novamente dentro de instantes."
-                                              },
-                                   "examHistory":  {
-                                                       "title":  "Histórico de Provas"
-                                                   },
-                                   "average":  "Média geral: {value}",
-                                   "chart":  {
-                                                 "title":  "Desempenho por disciplina",
-                                                 "grade":  "Nota"
-                                             },
-                                   "exam":  {
-                                                "subjectId":  "Disciplina ID {id}",
-                                                "gradeLabel":  "Nota",
-                                                "approved":  "Aprovado 🎉",
-                                                "failed":  "Reprovado ❌",
-                                                "dateLabel":  "Data",
-                                                "durationLabel":  "Duração",
-                                                "duration":  "{minutes, plural, =0 {0 min} one {# min} other {# min}} {seconds, plural, =0 {0 s} one {# s} other {# s}}",
-                                                "viewDetails":  "Ver detalhes"
-                                            },
-                                   "modal":  {
-                                                 "eyebrow":  "Aviso PHANYX",
-                                                 "title":  "Histórico académico",
-                                                 "understood":  "Compreendi"
-                                             }
-                               },
-    "StudentMeetings":  {
-                            "common":  {
-                                           "notProvided":  "Não informado"
-                                       },
-                            "title":  "As minhas reuniões",
-                            "description":  "Acompanhe as reuniões para as quais foi convidado.",
-                            "loading":  "A carregar reuniões...",
-                            "empty":  "Não existem reuniões disponíveis neste momento.",
-                            "join":  "Entrar na reunião",
-                            "errors":  {
-                                           "load":  "Erro ao carregar as reuniões."
-                                       }
-                        },
-    "StudentNotes":  {
-                         "title":  "As minhas notas",
-                         "empty":  "Ainda não foi lançada nenhuma nota.",
-                         "labels":  {
-                                        "grade":  "Nota",
-                                        "status":  "Situação",
-                                        "feedback":  "Comentário"
-                                    },
-                         "situations":  {
-                                            "approved":  "Aprovado",
-                                            "recovery":  "Recuperação",
-                                            "failed":  "Reprovado"
-                                        }
-                     },
-    "StudentCertificates":  {
-                                "common":  {
-                                               "notProvided":  "Não informado"
-                                           },
-                                "title":  "Os meus certificados",
-                                "description":  "Aqui encontra os certificados gerados automaticamente após a sua aprovação.",
-                                "loading":  "A carregar certificados...",
-                                "empty":  "Ainda não possui certificados disponíveis.",
-                                "subjectFallback":  "Disciplina",
-                                "code":  "Código",
-                                "issuedOn":  "Emitido em",
-                                "download":  "Descarregar certificado",
-                                "validate":  "Validar",
-                                "errors":  {
-                                               "load":  "Não foi possível carregar os seus certificados."
-                                           }
-                            },
-    "StudentCertificateDetail":  {
-                                     "title":  "Certificado de Conclusão",
-                                     "certifyThat":  "Certificamos que",
-                                     "completedSubject":  "concluiu com aprovação a disciplina",
-                                     "workload":  "Carga horária: {hours, plural, one {# hora} other {# horas}}",
-                                     "completionDate":  "Data de conclusão: {date}",
-                                     "registrationNumber":  "Registo n.º {number}",
-                                     "printOrSave":  "Imprimir / Guardar PDF",
-                                     "backToCertificates":  "Voltar aos certificados",
-                                     "notFound":  "Certificado não encontrado.",
-                                     "back":  "Voltar",
-                                     "notProvided":  "Não informada"
-                                 },
-    "StudentFinancialBlock":  {
-                                  "title":  "Acesso bloqueado por incumprimento de pagamento",
-                                  "greeting":  "Olá, {name}.",
-                                  "studentFallback":  "aluno",
-                                  "pendingDescription":  "O seu acesso académico está temporariamente bloqueado porque existem pagamentos pendentes.",
-                                  "releaseDescription":  "Assim que o pagamento for regularizado e o estado financeiro for atualizado, o acesso será libertado automaticamente.",
-                                  "goToLogin":  "Ir para o início de sessão",
-                                  "tryAgain":  "Tentar novamente"
-                              },
-    "StudentLessonPage":  {
-                              "common":  {
-                                             "unavailable":  "indisponível"
-                                         },
-                              "enrollmentStatus":  {
-                                                       "active":  "Ativa",
-                                                       "pending":  "Pendente",
-                                                       "overdue":  "Pagamento em atraso",
-                                                       "suspended":  "Suspensa",
-                                                       "cancelled":  "Cancelada",
-                                                       "completed":  "Concluída"
-                                                   },
-                              "blocked":  {
-                                              "title":  "Acesso à aula indisponível",
-                                              "statusPrefix":  "A sua matrícula está com o estado",
-                                              "reason":  "Por este motivo, o acesso ao conteúdo da aula está temporariamente bloqueado.",
-                                              "availableResources":  "Ainda pode aceder à área do aluno, consultar o estado, as notas e outras informações académicas."
-                                          },
-                              "lessonTitle":  "Aula {id}",
-                              "description":  "Consulte os materiais e acompanhe o conteúdo da aula.",
-                              "noMainMaterial":  "Não existem materiais disponíveis para esta aula.",
-                              "materialsTitle":  "Materiais da aula",
-                              "noMaterials":  "Não existem materiais registados.",
-                              "typeLabel":  "Tipo",
-                              "open":  "Abrir",
-                              "materialTypes":  {
-                                                    "video":  "Vídeo",
-                                                    "audio":  "Áudio",
-                                                    "document":  "Documento",
-                                                    "image":  "Imagem",
-                                                    "link":  "Ligação",
-                                                    "file":  "Ficheiro"
-                                                },
-                              "progress":  {
-                                               "title":  "Progresso",
-                                               "completed":  "{percent}% concluído"
-                                           },
-                              "nextSteps":  {
-                                                "title":  "Próximos passos",
-                                                "watchMain":  "Ver o conteúdo principal",
-                                                "openSupplementary":  "Abrir os materiais complementares",
-                                                "markCompleted":  "Marcar a aula como concluída"
-                                            }
-                          },
-    "StudentActivityDetail":  {
-                                  "back":  "Voltar às atividades",
-                                  "loading":  "A carregar a atividade...",
-                                  "noDeadline":  "Sem prazo",
-                                  "labels":  {
-                                                 "subject":  "Disciplina",
-                                                 "deadline":  "Prazo",
-                                                 "maximumScore":  "Nota máxima",
-                                                 "class":  "Turma"
-                                             },
-                                  "submission":  {
-                                                     "title":  "Enviar atividade",
-                                                     "description":  "Pode enviar uma resposta em texto, uma ligação e o URL de um ficheiro.",
-                                                     "textLabel":  "Texto da entrega",
-                                                     "textPlaceholder":  "Escreva a sua resposta ou as suas observações",
-                                                     "linkLabel":  "Ligação",
-                                                     "fileUrlLabel":  "URL do ficheiro",
-                                                     "fileUrlPlaceholder":  "https://ficheiro...",
-                                                     "submitting":  "A enviar...",
-                                                     "submit":  "Enviar atividade",
-                                                     "success":  "Entrega enviada com sucesso."
-                                                 },
-                                  "errors":  {
-                                                 "load":  "Não foi possível carregar a atividade.",
-                                                 "notFound":  "Atividade não encontrada.",
-                                                 "submit":  "Não foi possível enviar a atividade. Tente novamente."
-                                             }
-                              },
-    "StudentProfileCompletion":  {
-                                     "title":  "Complete o seu registo",
-                                     "description":  "Mantenha os seus documentos, contratos e registos académicos corretos com dados válidos para o seu país.",
-                                     "loading":  "A carregar o registo...",
-                                     "saving":  "A guardar...",
-                                     "save":  "Guardar registo",
-                                     "success":  "Registo atualizado com sucesso.",
-                                     "common":  {
-                                                    "select":  "Selecione"
-                                                },
-                                     "modal":  {
-                                                   "title":  "Não foi possível concluir o registo",
-                                                   "close":  "Fechar",
-                                                   "help":  "Verifique o problema indicado, corrija o campo correspondente e tente novamente.",
-                                                   "understood":  "Compreendi"
-                                               },
-                                     "personal":  {
-                                                      "title":  "Dados pessoais",
-                                                      "officialName":  "Nome completo oficial",
-                                                      "officialNameHelp":  "Para alterar o nome oficial, contacte a secretaria.",
-                                                      "socialName":  "Nome social",
-                                                      "socialNamePlaceholder":  "Indique o seu nome social, se desejar",
-                                                      "gender":  "Género",
-                                                      "birthDate":  "Data de nascimento",
-                                                      "birthCountry":  "País de nascimento",
-                                                      "nationality":  "Nacionalidade",
-                                                      "nationalityPlaceholder":  "Ex.: portuguesa",
-                                                      "documentType":  "Tipo de documento",
-                                                      "documentNumber":  "Número do documento",
-                                                      "documentNumberPlaceholder":  "Indique o documento emitido pelo seu país",
-                                                      "phone":  "Telefone / WhatsApp"
-                                                  },
-                                     "gender":  {
-                                                    "female":  "Feminino",
-                                                    "male":  "Masculino",
-                                                    "notInform":  "Prefiro não indicar",
-                                                    "other":  "Outro"
-                                                },
-                                     "address":  {
-                                                     "title":  "Morada",
-                                                     "country":  "País de residência",
-                                                     "postalCode":  "Código postal",
-                                                     "postalCodePlaceholder":  "Indique o código postal",
-                                                     "street":  "Morada",
-                                                     "number":  "Número",
-                                                     "complement":  "Complemento",
-                                                     "district":  "Freguesia / Distrito",
-                                                     "city":  "Localidade",
-                                                     "region":  "Distrito / Região",
-                                                     "regionPlaceholder":  "Indique o distrito ou região"
-                                                 },
-                                     "guardian":  {
-                                                      "title":  "Responsável",
-                                                      "name":  "Nome do responsável",
-                                                      "relationship":  "Parentesco / vínculo",
-                                                      "documentType":  "Tipo de documento do responsável",
-                                                      "documentNumber":  "Número do documento do responsável",
-                                                      "phone":  "Telefone do responsável",
-                                                      "email":  "E-mail do responsável"
-                                                  },
-                                     "accessibility":  {
-                                                           "title":  "Acessibilidade",
-                                                           "hasNeed":  "Tenho necessidades especiais ou necessidades de acessibilidade",
-                                                           "description":  "Descrição da necessidade especial",
-                                                           "notes":  "Observações de acessibilidade"
-                                                       },
-                                     "documents":  {
-                                                       "CPF":  "CPF",
-                                                       "RG":  "RG",
-                                                       "NIF":  "NIF",
-                                                       "CARTAO_CIDADAO":  "Cartão de Cidadão",
-                                                       "SSN":  "SSN",
-                                                       "STATE_ID":  "Documento estadual",
-                                                       "DNI":  "DNI",
-                                                       "NIE":  "NIE",
-                                                       "CNI":  "Cartão nacional de identidade",
-                                                       "PASSPORT":  "Passaporte",
-                                                       "NATIONAL_ID":  "Documento nacional de identidade",
-                                                       "TAX_ID":  "Documento fiscal",
-                                                       "RESIDENCE_PERMIT":  "Título de residência",
-                                                       "OTHER":  "Outro documento"
-                                                   },
-                                     "errors":  {
-                                                    "forbidden":  "Não tem permissão para alterar este registo.",
-                                                    "studentNotFound":  "O registo do aluno não foi encontrado.",
-                                                    "required":  "Preencha o tipo e o número do documento, o telefone e a data de nascimento.",
-                                                    "invalidPhone":  "O telefone indicado não é válido para o país selecionado.",
-                                                    "invalidGuardianPhone":  "O telefone do responsável não é válido para o país selecionado.",
-                                                    "invalidPostalCode":  "O código postal não corresponde ao formato do país de residência selecionado.",
-                                                    "invalidDate":  "A data de nascimento indicada não é válida.",
-                                                    "invalidCountry":  "Selecione um país válido.",
-                                                    "load":  "Não foi possível carregar o registo.",
-                                                    "save":  "Não foi possível guardar o registo.",
-                                                    "generic":  "Ocorreu um problema inesperado. Tente novamente."
-                                                }
-                                 },
-    "StudentOmbudsman":  {
-                             "eyebrow":  "CANAL DE COMUNICAÇÃO",
-                             "title":  "Provedoria",
-                             "description":  "Utilize este espaço para enviar sugestões, elogios, reclamações ou relatar situações relacionadas com as suas aulas, atendimento, secretaria, área financeira ou qualquer experiência com a instituição.",
-                             "form":  {
-                                          "typeLabel":  "Tipo de manifestação",
-                                          "messageLabel":  "Mensagem",
-                                          "messagePlaceholder":  "Descreva a sua sugestão, elogio, reclamação ou relato...",
-                                          "submitting":  "A enviar...",
-                                          "submit":  "Enviar manifestação"
-                                      },
-                             "types":  {
-                                           "suggestion":  "Sugestão",
-                                           "complaint":  "Reclamação",
-                                           "compliment":  "Elogio",
-                                           "report":  "Relato"
-                                       },
-                             "validation":  {
-                                                "messageRequired":  "Escreva a sua mensagem antes de enviar."
-                                            },
-                             "errors":  {
-                                            "submit":  "Não foi possível enviar a sua manifestação."
-                                        },
-                             "success":  "A sua manifestação foi enviada com sucesso.",
-                             "howItWorks":  {
-                                                "title":  "Como funciona?",
-                                                "forwarded":  "A sua manifestação será encaminhada para o setor responsável.",
-                                                "tracking":  "Poderá acompanhar o andamento futuramente nesta área.",
-                                                "suggestions":  "As sugestões ajudam a melhorar a experiência dos alunos.",
-                                                "analysis":  "As reclamações e os relatos serão analisados pela instituição."
-                                            }
-                         }
+  "Common": {
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "loading": "A carregar...",
+    "language": "Idioma",
+    "close": "Fechar",
+    "changingLanguage": "A alterar o idioma...",
+    "languageChangeError": "Não foi possível alterar o idioma. Tente novamente.",
+    "theme": "Tema",
+    "lightTheme": "Claro",
+    "darkTheme": "Escuro",
+    "systemTheme": "Sistema",
+    "sessionExpired": "Sessão terminada",
+    "sessionExpiredDescription": "A sua sessão foi terminada por segurança devido à inatividade. Será redirecionado para o início de sessão.",
+    "goToLogin": "Ir para o início de sessão"
+  },
+  "AdminDashboard": {
+    "profile": "Perfil administrativo",
+    "institutionPanel": "Painel da instituição",
+    "title": "Painel Administrativo",
+    "description": "Controlo académico, financeiro, documental e operacional da sua instituição num só lugar.",
+    "searchPlaceholder": "Pesquisar alunos, professores, cursos, disciplinas, turmas ou matrículas...",
+    "guidedTutorial": "Tutorial guiado",
+    "firstSteps": "Primeiros passos",
+    "tutorialDescription": "Utilize o tutorial guiado para conhecer rapidamente as principais áreas do PHANYX.",
+    "viewTour": "Ver tutorial agora",
+    "quickActions": "Ações rápidas",
+    "quickActionsDescription": "Atalhos para acelerar a implementação da sua instituição.",
+    "newStudent": "Novo Aluno",
+    "newTeacher": "Novo Professor",
+    "newCourse": "Novo Curso",
+    "newDepartment": "Novo Setor",
+    "manageEnrollments": "Gerir Matrículas",
+    "operationOverview": "Visão da operação",
+    "operationOverviewDescription": "Resumo dos principais números académicos já registados.",
+    "loadingStatistics": "A carregar estatísticas...",
+    "students": "Alunos",
+    "studentsDescription": "Total de alunos registados na instituição.",
+    "teachers": "Professores",
+    "teachersDescription": "Equipa docente registada no sistema.",
+    "courses": "Cursos",
+    "coursesDescription": "Catálogo académico criado até ao momento.",
+    "subjects": "Disciplinas",
+    "subjectsDescription": "Estrutura curricular registada.",
+    "certificates": "Certificados",
+    "certificatesDescription": "Certificados emitidos ou registados na base.",
+    "mainAccess": "Acessos principais",
+    "mainAccessDescription": "Entradas rápidas para os módulos mais utilizados.",
+    "openModule": "Abrir módulo",
+    "noResults": "Nenhum resultado encontrado",
+    "searchSuggestion": "Tente pesquisar por nome, código ou identificação.",
+    "studentResult": "Aluno",
+    "teacherResult": "Professor",
+    "courseResult": "Curso",
+    "subjectResult": "Disciplina",
+    "classResult": "Turma",
+    "enrollmentResult": "Inscrição",
+    "tourMascotAlt": "Mascote Formix a orientar o tutorial",
+    "tourDashboardTitle": "Painel administrativo",
+    "tourDashboardDescription": "Esta é a visão geral da sua operação. Sempre que pretender regressar ao início, clique aqui.",
+    "tourDashboardHighlight": "Vamos começar pelo painel principal.",
+    "tourSettingsTitle": "Configurações da instituição",
+    "tourSettingsDescription": "Comece por aqui. É aqui que configura o logótipo, os dados institucionais, a identidade visual e as informações principais.",
+    "tourSettingsHighlight": "Primeiro, ajuste a identidade da sua instituição.",
+    "tourDepartmentsTitle": "Setores e departamentos",
+    "tourDepartmentsDescription": "Em seguida, organize a instituição em setores, como secretaria, financeiro, académico e coordenação.",
+    "tourDepartmentsHighlight": "Agora vamos estruturar a operação interna.",
+    "tourTeachersTitle": "Registo de professores",
+    "tourTeachersDescription": "Aqui regista os professores que irão trabalhar na área académica e aceder ao sistema.",
+    "tourTeachersHighlight": "Está na hora de formar a equipa docente.",
+    "tourStudentsTitle": "Registo de alunos",
+    "tourStudentsDescription": "Em seguida, regista os alunos e prepara a base para inscrições e acompanhamento académico.",
+    "tourStudentsHighlight": "Agora vamos preparar a sua base de alunos.",
+    "tourEnrollmentsTitle": "Inscrições",
+    "tourEnrollmentsDescription": "Aqui associa alunos, cursos e turmas para iniciar a operação real da instituição.",
+    "tourEnrollmentsHighlight": "Quase concluído: é aqui que começa a operação real.",
+    "tourStepProgress": "Etapa {current} de {total}",
+    "dontShowAgain": "Não voltar a mostrar",
+    "previous": "Anterior",
+    "next": "Seguinte",
+    "completeTour": "Concluir tutorial",
+    "tourCelebratingAlt": "Mascote Formix a celebrar",
+    "tourCompleted": "Tutorial concluído com sucesso",
+    "tourCongratulations": "Parabéns! A sua instituição já pode começar 🚀",
+    "tourCompletedDescription": "Concluiu o tutorial inicial do PHANYX. A sua equipa já pode continuar a implementação com muito mais segurança.",
+    "recommendedNextSteps": "Próximos passos recomendados",
+    "configureInstitutionData": "Configurar os dados da instituição",
+    "organizeDepartments": "Organizar setores e departamentos",
+    "registerTeachers": "Registar professores",
+    "registerStudents": "Registar alunos",
+    "startEnrollments": "Iniciar inscrições",
+    "startWithSettings": "Começar pelas configurações",
+    "finishAndHide": "Terminar e não voltar a mostrar",
+    "continueDashboard": "Continuar no painel",
+    "administratorFallback": "Administrador",
+    "employeePhotoAlt": "Funcionário",
+    "uploadingPhoto": "A enviar...",
+    "changePhoto": "Alterar fotografia",
+    "unnamed": "Sem nome"
+  },
+  "AdminNavigation": {
+    "adminPanel": "Painel de Administração",
+    "openGuidedTutorial": "Abrir tutorial guiado",
+    "administrative": "Administrativo",
+    "administrator": "Administrador",
+    "employee": "Funcionário",
+    "dashboard": "Painel de Administração",
+    "myProfile": "O meu perfil",
+    "subscription": "Subscrição PHANYX",
+    "master": "Master PHANYX",
+    "accessControl": "Controlo de Acesso",
+    "commercialPhanyx": "Comercial PHANYX",
+    "commercial": "Comercial",
+    "academic": "Académico",
+    "virtualLibrary": "Biblioteca Virtual",
+    "financial": "Financeiro",
+    "humanResources": "Pessoal / RH",
+    "documents": "Documentos",
+    "communication": "Comunicação",
+    "settings": "Configurações",
+    "students": "Alunos",
+    "teachers": "Professores",
+    "teacherSubstitutions": "Substituições de Docentes",
+    "employees": "Funcionários",
+    "departments": "Departamentos",
+    "subjects": "Disciplinas",
+    "enrollments": "Matrículas",
+    "semesterReenrollments": "Renovações semestrais",
+    "classes": "Turmas",
+    "operationalSchedule": "Agenda / Escala",
+    "academicPublications": "Publicações Académicas",
+    "visitors": "Visitantes",
+    "overview": "Visão geral",
+    "collection": "Acervo",
+    "receipts": "Recebimentos",
+    "cashRegister": "Caixa",
+    "reports": "Relatórios",
+    "overdueAccounts": "Pagamentos em atraso",
+    "generalClosing": "Fecho Geral",
+    "generateInvoiceForProspect": "Gerar boleto para interessado",
+    "variableCompensation": "Remuneração Variável",
+    "salesCommissions": "Comissões comerciais",
+    "timeTracking": "Registo de Ponto",
+    "timeTrackingSettings": "Configurações do Ponto",
+    "mobileTimeTracking": "Ponto Móvel",
+    "afdImport": "Importação AFD",
+    "timeBank": "Banco de Horas",
+    "payslips": "Recibos de Vencimento",
+    "payrollEvents": "Eventos de Processamento Salarial",
+    "benefits": "Benefícios",
+    "vacation": "Férias",
+    "medicalExams": "Exames Médicos",
+    "terminations": "Rescisões",
+    "employmentHistory": "Histórico Profissional",
+    "archivedHR": "Arquivados de RH",
+    "occurrences": "Ocorrências",
+    "accountingReports": "Relatórios Contabilísticos",
+    "hrDocuments": "Documentos de RH",
+    "contracts": "Contratos",
+    "generatedDocuments": "Documentos Gerados",
+    "generateDocument": "Gerar Documento",
+    "validation": "Validação",
+    "badges": "Cartões de Identificação",
+    "meetings": "Reuniões",
+    "birthdays": "Aniversariantes",
+    "ombudsman": "Provedoria",
+    "institution": "Instituição",
+    "institutionalLogos": "Logótipos institucionais",
+    "institutionalEmail": "E-mail institucional",
+    "institutionalWhatsapp": "WhatsApp institucional",
+    "campusesAndUnits": "Polos e unidades",
+    "departmentPermissions": "Permissões por setor",
+    "institutionalDocuments": "Documentos institucionais",
+    "portalVisibility": "Visibilidade dos Portais",
+    "certificateManagement": "Gestão de Certificados",
+    "certificateEditor": "Editor de Certificado",
+    "logout": "Sair",
+    "phanyxLeads": "Leads PHANYX",
+    "leadGenerationCenter": "Central de Captação",
+    "salesFunnels": "Funis comerciais",
+    "salesPipeline": "Pipeline comercial",
+    "salesAgenda": "Agenda comercial",
+    "leadsAndOpportunities": "Leads e oportunidades",
+    "salesTeams": "Equipas comerciais",
+    "salesTargets": "Metas comerciais",
+    "commissionPlans": "Planos de comissão",
+    "dashboardShort": "Painel",
+    "academicShort": "Acad.",
+    "commercialShort": "Comerc.",
+    "financialShort": "Financ.",
+    "hrShort": "RH",
+    "documentsShort": "Docs",
+    "settingsShort": "Config.",
+    "communicationShort": "Comun.",
+    "notifications": "Notificações",
+    "notificationsDescription": "Atualizações importantes do PHANYX",
+    "viewAllNotifications": "Ver todas as notificações",
+    "masterDashboard": "Painel Master",
+    "signInAsUser": "Entrar como utilizador",
+    "phanyxPlatform": "Plataforma PHANYX",
+    "generateIbeInvoice": "Gerar referência de pagamento IBE",
+    "campusManagementDisabled": "Gestão de polos não ativada",
+    "campusManagementDisabledDescription": "Este ID institucional não tem autorização para criar ou gerir polos. Esta permissão é controlada pela instituição contratante da rede.",
+    "backToDashboard": "Voltar ao painel"
+  },
+  "MonthlyCampaign": {
+    "origin": "Campanha mensal",
+    "genericTitle": "{month} — Saúde e bem-estar",
+    "genericDescription": "Campanha mensal de sensibilização para a saúde e o bem-estar.",
+    "genericPhrase": "Informação, prevenção e cuidado fazem a diferença todos os dias.",
+    "health": "Saúde",
+    "upcomingHoliday": "Feriado próximo",
+    "monthlyCampaign": "Campanha do mês"
+  },
+  "InternationalPhone": {
+    "selectCountry": "Selecionar o país do telefone",
+    "searchCountry": "Pesquisar país ou indicativo",
+    "noCountryFound": "Nenhum país encontrado.",
+    "placeholder": "Introduza o número de telefone",
+    "required": "Introduza o número de telefone.",
+    "invalid": "Introduza um telefone válido para o país selecionado.",
+    "invalidTitle": "Telefone inválido",
+    "studentInvalid": "O telefone do aluno não é válido para o país selecionado. Corrija o número ou selecione outro país.",
+    "guardianInvalid": "O telefone do responsável não é válido para o país selecionado. Corrija o número ou selecione outro país."
+  },
+  "StudentLayout": {
+    "academicAccessBlocked": "Acesso académico bloqueado",
+    "financialRegularizationRequired": "Regularização financeira necessária",
+    "greeting": "Olá, {name}.",
+    "blockedDescription": "O seu acesso ao ambiente académico está temporariamente bloqueado devido a uma pendência financeira registada pela instituição.",
+    "meaningTitle": "O que isto significa",
+    "meaningDescription": "Enquanto a pendência permanecer em aberto, o acesso às áreas académicas poderá continuar indisponível.",
+    "unlockTitle": "Como desbloquear o acesso",
+    "unlockDescription": "Contacte o setor financeiro ou a secretaria da sua instituição para regularizar a situação.",
+    "importantTitle": "Importante",
+    "importantDescription": "Após o registo do pagamento no sistema, o acesso poderá ser restabelecido automaticamente, de acordo com as regras da instituição.",
+    "backToLogin": "Voltar ao início de sessão",
+    "logout": "Terminar sessão",
+    "footer": "PHANYX • Gestão académica e financeira",
+    "dashboard": "Painel",
+    "reenrollmentShort": "Renovação",
+    "subjects": "Disciplinas",
+    "progress": "Progresso",
+    "assignments": "Trabalhos",
+    "attendance": "Presenças",
+    "grades": "Notas",
+    "certificates": "Certificados",
+    "meetings": "Reuniões",
+    "registrationData": "Dados de registo",
+    "registrationDescription": "Mantenha os seus dados atualizados para contratos, documentos e registos académicos.",
+    "updateMyData": "Atualizar os meus dados"
+  },
+  "StudentSidebar": {
+    "areaTitle": "Área do Aluno",
+    "student": "Aluno",
+    "profilePhoto": "Fotografia de perfil de {name}",
+    "academicDashboard": "Painel académico",
+    "semesterReenrollment": "Renovação semestral",
+    "subjects": "Disciplinas",
+    "progress": "Progresso",
+    "assignments": "Trabalhos",
+    "attendance": "Presenças",
+    "grades": "Notas",
+    "academicHistory": "Histórico académico",
+    "meetings": "Reuniões",
+    "certificates": "Certificados",
+    "ombudsman": "Provedoria"
+  },
+  "StudentDashboard": {
+    "errors": {
+      "imageUpload": "Erro ao enviar a imagem.",
+      "missingImageUrl": "O envio foi concluído, mas o endereço da imagem não foi devolvido.",
+      "savePhoto": "Erro ao guardar a fotografia do perfil.",
+      "changePhoto": "Erro ao alterar a fotografia.",
+      "paymentBlocked": "Acesso bloqueado por incumprimento de pagamento.",
+      "loadDashboard": "Erro ao carregar o painel."
+    },
+    "greetings": {
+      "morning": "Bom dia",
+      "afternoon": "Boa tarde",
+      "evening": "Boa noite"
+    },
+    "performance": {
+      "excellent": "Excelente desempenho. Continue neste ritmo.",
+      "veryGood": "Está a progredir muito bem no seu percurso.",
+      "good": "Bom progresso. Recomendamos rever os conteúdos recentes.",
+      "needsImprovement": "É altura de reforçar o estudo e recuperar o ritmo."
+    },
+    "nextStep": {
+      "regularizeTitle": "Regularizar acesso",
+      "regularizeDescription": "O seu painel académico está com acesso restrito. Regularize a sua situação para continuar normalmente.",
+      "openSupport": "Abrir suporte",
+      "continueTitle": "Continuar estudos",
+      "continueDescription": "Retome a sua rotina académica através da disciplina atualmente disponível.",
+      "openSubject": "Abrir disciplina",
+      "reviewTitle": "Rever resultados",
+      "reviewDescription": "Consulte o seu desempenho mais recente e acompanhe a sua evolução académica.",
+      "viewGrades": "Ver avaliações",
+      "exploreTitle": "Explorar painel",
+      "exploreDescription": "Acompanhe os seus indicadores académicos e mantenha a sua rotina organizada.",
+      "refreshDashboard": "Atualizar painel"
+    },
+    "hero": {
+      "eyebrow": "Painel académico do aluno",
+      "student": "Aluno",
+      "sendingPhoto": "A enviar...",
+      "changePhoto": "Alterar fotografia",
+      "photoTips": "Dicas para a fotografia",
+      "heading": "{greeting}, acompanhe o seu percurso académico com clareza, desempenho e foco",
+      "description": "Consulte o seu curso, desempenho, disciplinas e próximos passos num painel concebido para uma experiência académica moderna, organizada e profissional.",
+      "continueStudies": "Continuar estudos",
+      "viewGrades": "Ver avaliações",
+      "openGrades": "Abrir avaliações",
+      "refreshDashboard": "Atualizar painel",
+      "currentCourse": "Curso atual",
+      "unknownCourse": "Curso não identificado",
+      "status": "Estado",
+      "notInformed": "Não informado",
+      "currentPerformance": "Aproveitamento atual",
+      "performanceBasis": "Com base na sua média geral atual.",
+      "loading": "A carregar o painel..."
+    },
+    "restricted": {
+      "eyebrow": "Acesso restrito",
+      "title": "O seu acesso está temporariamente bloqueado",
+      "institutionInstruction": "Contacte a instituição para regularizar a sua situação financeira e voltar a aceder ao ambiente académico.",
+      "contactSupport": "Contactar suporte",
+      "refreshDashboard": "Atualizar painel"
+    },
+    "stats": {
+      "enrolledSubjects": "Disciplinas inscritas",
+      "enrolledSubjectsDescription": "Total atual de disciplinas associadas à sua matrícula.",
+      "overallAverage": "Média geral",
+      "overallAverageDescription": "Desempenho académico consolidado até ao momento.",
+      "completedExams": "Avaliações concluídas",
+      "completedExamsDescription": "Quantidade de avaliações já concluídas.",
+      "higherPlans": "Disponível nos planos superiores.",
+      "enrollmentStatus": "Estado da matrícula",
+      "enrollmentStatusDescription": "Situação académica atual do seu vínculo institucional."
+    },
+    "enrollmentStatuses": {
+      "active": "Ativa",
+      "pending": "Pendente",
+      "locked": "Suspensa",
+      "cancelled": "Cancelada",
+      "completed": "Concluída",
+      "inactive": "Inativa",
+      "suspended": "Suspensa"
+    },
+    "subjects": {
+      "title": "As suas disciplinas",
+      "description": "Aceda rapidamente aos conteúdos, materiais e atividades.",
+      "count": "{count, plural, =0 {Nenhuma disciplina} one {# disciplina} other {# disciplinas}}",
+      "empty": "Nenhuma disciplina disponível neste momento.",
+      "cardDescription": "Aceda aos conteúdos disponíveis e acompanhe as suas atividades académicas.",
+      "availableSoon": "Aula disponível em breve",
+      "blockedDefault": "Assim que a instituição publicar o conteúdo, esta disciplina será desbloqueada automaticamente.",
+      "access": "Aceder à disciplina"
+    },
+    "exams": {
+      "title": "Últimas avaliações",
+      "description": "As suas avaliações concluídas mais recentes.",
+      "viewGrades": "Ver avaliações",
+      "higherPlans": "Os detalhes das avaliações concluídas estão disponíveis nos planos superiores.",
+      "empty": "Ainda não possui avaliações concluídas.",
+      "subject": "Disciplina",
+      "completedAt": "Conclusão",
+      "grade": "Nota"
+    },
+    "side": {
+      "nextStep": "Próximo passo",
+      "visualProgress": "Progresso visual",
+      "currentPerformance": "Aproveitamento atual",
+      "quickLinks": "Atalhos rápidos",
+      "continueStudies": "Continuar estudos",
+      "refreshDashboard": "Atualizar painel",
+      "openGrades": "Abrir avaliações",
+      "academicSummary": "Resumo académico",
+      "enrolledSubjects": "{count, plural, =0 {Não possui disciplinas inscritas.} one {Possui # disciplina inscrita.} other {Possui # disciplinas inscritas.}}",
+      "completedExams": "{count, plural, =0 {Ainda não concluiu avaliações.} one {Já concluiu # avaliação.} other {Já concluiu # avaliações.}}",
+      "currentAverage": "A sua média geral atual é {average}.",
+      "currentCourse": "Curso atual: {course}.",
+      "unknownCourse": "Não identificado",
+      "enrollmentStatus": "Estado da matrícula: {status}.",
+      "institutionalSituation": "Situação institucional",
+      "institutionalDescription": "O seu ambiente académico está associado ao curso e à matrícula ativos no sistema. Acompanhe as suas avaliações, disciplinas e atualizações através deste painel."
+    },
+    "photoModal": {
+      "eyebrow": "Dica PHANYX",
+      "title": "Fotografia de perfil ideal",
+      "closeAria": "Fechar dicas da fotografia",
+      "square": "Utilize uma imagem quadrada, no formato 1:1.",
+      "resolution": "Recomendado: 500x500 px ou superior.",
+      "formats": "Formatos aceites: PNG, JPG, JPEG e WEBP.",
+      "size": "Tamanho máximo: 5 MB.",
+      "understood": "Entendi"
+    }
+  },
+  "StudentSubjects": {
+    "title": "As Minhas Disciplinas",
+    "description": "Consulte as suas disciplinas, acompanhe as aulas registadas e veja o histórico de presenças.",
+    "loading": "A carregar...",
+    "count": "{count, plural, one {# disciplina} other {# disciplinas}}",
+    "searchPlaceholder": "Pesquisar disciplina ou turma...",
+    "loadingList": "A carregar disciplinas...",
+    "empty": "Ainda não está inscrito em nenhuma disciplina.",
+    "noResults": "Não foi encontrada nenhuma disciplina para esta pesquisa.",
+    "classesCount": "{count, plural, one {# aula} other {# aulas}}",
+    "attendanceRecorded": "Presenças registadas:",
+    "classGroup": "Turma:",
+    "notInformed": "Não indicada",
+    "blockedDefault": "Assim que a aula for publicada, o acesso será disponibilizado automaticamente.",
+    "access": "Aceder à disciplina"
+  },
+  "StudentSubjectDetail": {
+    "loadingDiscipline": "A carregar disciplina...",
+    "invalidId": "A disciplina indicada é inválida.",
+    "loadError": "Não foi possível carregar a disciplina.",
+    "notFound": "Disciplina não encontrada.",
+    "seekBlocked": "Não é permitido avançar no conteúdo da aula.",
+    "watchMinimumWarning": "Assista durante o tempo mínimo para concluir a aula.",
+    "completeError": "Não foi possível concluir a aula.",
+    "progress": "Progresso",
+    "classCount": "{count, plural, one {# aula} other {# aulas}}",
+    "durationMinutes": "{minutes} min",
+    "activities": "Atividades",
+    "loadingPlan": "A carregar plano...",
+    "examPlanRequired": "As provas estão disponíveis apenas nos planos Profissional e Enterprise.",
+    "loadingExam": "A carregar prova...",
+    "examUnavailable": "Prova indisponível",
+    "examAlreadyCompleted": "Já realizou esta prova",
+    "takeExam": "Realizar prova",
+    "examLocked": "Prova bloqueada — conclua todas as aulas",
+    "finalResult": "Resultado final",
+    "grade": "Nota: {grade}",
+    "approved": "Aprovado 🎉",
+    "failed": "Reprovado ❌",
+    "watchedTime": "Tempo visualizado",
+    "lessonCompleted": "Aula já concluída.",
+    "minimumWatchHint": "{minutes, plural, one {Assista durante pelo menos # minuto para disponibilizar a conclusão.} other {Assista durante pelo menos # minutos para disponibilizar a conclusão.}}",
+    "noVideoHint": "Esta aula não possui vídeo. A conclusão está disponível.",
+    "completedButton": "✅ Concluída",
+    "saving": "A guardar...",
+    "markCompleted": "Marcar como concluída",
+    "watchToComplete": "{minutes, plural, one {Assista # min para concluir} other {Assista # min para concluir}}",
+    "noVideoPlayer": "Esta aula não possui vídeo.",
+    "materialsTitle": "Materiais da aula",
+    "materialsDescription": "Ficheiros, ligações e conteúdos de apoio disponibilizados pelo professor.",
+    "materialVideo": "Vídeo",
+    "materialLink": "Ligação",
+    "materialFile": "Ficheiro",
+    "materialGeneric": "Material",
+    "fileName": "Ficheiro: {name}",
+    "openVideo": "Abrir vídeo",
+    "openLink": "Abrir ligação",
+    "openMaterial": "Abrir",
+    "downloadMaterial": "Descarregar material",
+    "previousLesson": "Aula anterior",
+    "nextLesson": "Próxima aula",
+    "noLessons": "Nenhuma aula encontrada."
+  },
+  "StudentLesson": {
+    "subjectNotFound": "Disciplina não encontrada.",
+    "lessonNotFound": "Aula não encontrada.",
+    "loadingEnrollmentStatus": "A carregar o estado da matrícula...",
+    "accessUnavailableTitle": "Acesso à aula indisponível",
+    "accessUnavailableStatus": "A sua matrícula encontra-se com o estado {status}.",
+    "accessUnavailableDescription": "Por esse motivo, o acesso às aulas está temporariamente bloqueado. Pode continuar a aceder à sua área de aluno, acompanhar o seu estado e consultar informações académicas.",
+    "contactOffice": "Para regularizar a situação, contacte a secretaria.",
+    "videoUnavailable": "O vídeo desta aula ainda não está disponível.",
+    "savingProgress": "A guardar o progresso...",
+    "markCompleted": "Marcar como concluída",
+    "saveProgressError": "Não foi possível guardar o progresso da aula. Tente novamente.",
+    "lessonCompleted": "Aula concluída",
+    "status": {
+      "active": "Ativa",
+      "locked": "Trancada",
+      "cancelled": "Cancelada",
+      "completed": "Concluída",
+      "notStarted": "Por iniciar",
+      "suspended": "Suspensa",
+      "unavailable": "Indisponível"
+    }
+  },
+  "StudentExam": {
+    "invalidSubject": "Disciplina inválida.",
+    "loadingExam": "A carregar a prova...",
+    "loadError": "Não foi possível carregar a prova. Tente novamente.",
+    "examUnavailable": "A prova ainda não está disponível.",
+    "accessUnavailable": "O acesso a esta prova não está disponível. Verifique as aulas obrigatórias, o período e o limite de tentativas.",
+    "authenticationRequired": "A sua sessão expirou. Inicie sessão novamente para continuar.",
+    "attemptUnavailable": "Esta tentativa já não está disponível ou já foi concluída.",
+    "saveAnswerError": "Não foi possível guardar a resposta. Verifique a sua ligação antes de concluir.",
+    "finishError": "Não foi possível concluir a prova. Tente novamente.",
+    "answerAllQuestions": "Responda a todas as perguntas antes de concluir a prova.",
+    "back": "Voltar",
+    "errorTitle": "Não foi possível concluir a prova",
+    "resultTitle": "Resultado da prova",
+    "partialResultTitle": "Resultado parcial da prova",
+    "grade": "Nota",
+    "passed": "Aprovado 🎉",
+    "failed": "Reprovado ❌",
+    "awaitingTeacherCorrection": "A aguardar a correção das questões de desenvolvimento pelo professor.",
+    "reviewTitle": "Revisão da prova",
+    "essayPending": "Questão de desenvolvimento a aguardar correção do professor.",
+    "yourAnswer": "A sua resposta",
+    "objectiveProcessed": "Resposta objetiva processada no resultado da prova.",
+    "timeSpent": "Tempo utilizado: {minutes} min {seconds} s",
+    "certificateInformation": "Foi aprovado nesta prova. A disponibilização do certificado depende das regras da sua instituição.",
+    "backToSubject": "Voltar à disciplina",
+    "answerPlaceholder": "Escreva a sua resposta...",
+    "essayCorrectionInformation": "Questão de desenvolvimento: será corrigida pelo professor.",
+    "finishingExam": "A concluir a prova...",
+    "finishExam": "Concluir prova"
+  },
+  "StudentExamExecution": {
+    "invalidExam": "Prova inválida.",
+    "loadingExam": "A carregar a prova...",
+    "loadError": "Não foi possível carregar a prova. Tente novamente.",
+    "examNotFound": "Prova não encontrada.",
+    "accessUnavailable": "O acesso a esta prova não está disponível. Verifique o período, as aulas obrigatórias e o seu limite de tentativas.",
+    "authenticationRequired": "A sua sessão expirou. Inicie sessão novamente para continuar.",
+    "attemptUnavailable": "Esta tentativa já não está disponível ou o limite de tentativas foi atingido.",
+    "answerRequired": "Responda a esta questão antes de a guardar.",
+    "answerAllQuestions": "Responda a todas as questões antes de concluir a prova.",
+    "saveAnswerError": "Não foi possível guardar a resposta. Verifique a sua ligação e tente novamente.",
+    "finishError": "Não foi possível concluir a prova. Tente novamente.",
+    "errorTitle": "Não foi possível concluir",
+    "resultTitle": "Resultado da prova",
+    "partialResultTitle": "Resultado parcial da prova",
+    "completedSuccessfully": "Prova concluída com sucesso!",
+    "awaitingTeacherCorrection": "As questões de desenvolvimento ainda serão corrigidas pelo professor.",
+    "resultPending": "Resultado final a aguardar correção do professor.",
+    "grade": "Nota",
+    "passed": "Aprovado ✅",
+    "failed": "Reprovado ❌",
+    "backToSubject": "Voltar à disciplina",
+    "instructions": "Responda a todas as questões e conclua para enviar a prova.",
+    "questionMeta": "Questão {number} • {points} pts",
+    "save": "Guardar",
+    "saving": "A guardar...",
+    "saved": "Guardado ✓",
+    "answerPlaceholder": "Escreva a sua resposta...",
+    "essayCorrectionInformation": "A questão de desenvolvimento será corrigida pelo professor.",
+    "back": "Voltar",
+    "finishingExam": "A concluir...",
+    "finishExam": "Concluir prova"
+  },
+  "StudentProgress": {
+    "title": "Progresso académico",
+    "description": "Acompanhe o seu progresso por disciplina com base nas aulas registadas e nos registos académicos associados ao seu perfil.",
+    "loading": "A carregar o progresso...",
+    "loadError": "Não foi possível carregar o seu progresso académico. Verifique a sua ligação e tente novamente.",
+    "retry": "Tentar novamente",
+    "empty": "Não existe progresso académico disponível neste momento.",
+    "classLabel": "Turma",
+    "notInformed": "Não indicada",
+    "totalLessons": "Total de aulas",
+    "attendanceRecords": "Presenças registadas",
+    "completed": "Concluído",
+    "inProgress": "Em curso",
+    "progressPercentage": "Percentagem de acompanhamento",
+    "completedMessage": "Disciplina com acompanhamento concluído."
+  },
+  "StudentAssignments": {
+    "title": "Trabalhos e atividades",
+    "description": "Consulte as atividades publicadas e envie a sua entrega com texto, ligação ou ficheiro.",
+    "loading": "A carregar atividades...",
+    "retry": "Tentar novamente",
+    "publishedAssignments": "Atividades publicadas",
+    "assignmentCount": "{count, plural, =0 {Nenhuma atividade} one {# atividade} other {# atividades}}",
+    "empty": "Não existem atividades publicadas neste momento.",
+    "subject": "Disciplina",
+    "classLabel": "Turma",
+    "deadline": "Prazo",
+    "noDeadline": "Sem prazo",
+    "notInformed": "Não indicado",
+    "deadlineClosed": "Prazo terminado",
+    "dueToday": "Termina hoje",
+    "daysRemaining": "{count, plural, one {Falta # dia} other {Faltam # dias}}",
+    "maximumGrade": "Nota máxima",
+    "delivered": "Atividade entregue",
+    "awaitingSubmission": "A aguardar envio",
+    "viewSubmission": "Ver entrega",
+    "viewAssignment": "Ver atividade",
+    "answerAssignment": "Responder à atividade",
+    "attachmentCount": "{count, plural, one {# anexo} other {# anexos}}",
+    "assignmentFiles": "Ficheiros da atividade",
+    "sendSubmission": "Enviar entrega",
+    "sendDescription": "Selecione uma atividade e envie a sua resposta.",
+    "assignment": "Atividade",
+    "selectAssignment": "Selecione uma atividade",
+    "alreadySubmitted": "Já enviou esta atividade.",
+    "textLabel": "Texto",
+    "linkLabel": "Ligação",
+    "fileLabel": "Ficheiro",
+    "viewSubmittedFile": "Ver ficheiro enviado",
+    "statusLabel": "Estado",
+    "corrected": "Corrigido",
+    "submitted": "Entregue",
+    "gradeLabel": "Nota",
+    "teacherFeedback": "Comentário do professor",
+    "closedEditMessage": "O prazo terminou. Não é possível editar esta entrega.",
+    "textPlaceholder": "Escreva aqui a sua resposta, observações ou conteúdo complementar",
+    "selectFile": "Selecionar ficheiro",
+    "selectedFile": "Ficheiro selecionado: {name}",
+    "fileLimit": "Tamanho máximo: 500 MB.",
+    "sending": "A enviar...",
+    "updateSubmission": "Atualizar entrega",
+    "sendAssignment": "Enviar trabalho",
+    "success": "Trabalho enviado com sucesso!",
+    "errors": {
+      "load": "Não foi possível carregar as atividades. Verifique a sua ligação e tente novamente.",
+      "selectAssignment": "Selecione uma atividade.",
+      "answerRequired": "Envie pelo menos um texto, ligação ou ficheiro.",
+      "fileTooLarge": "O ficheiro excede o limite de 500 MB. Escolha um ficheiro menor.",
+      "prepareUpload": "Não foi possível preparar o envio do ficheiro. Tente novamente.",
+      "upload": "Não foi possível enviar o ficheiro (código {status}).",
+      "submit": "Não foi possível enviar a atividade. Tente novamente."
+    }
+  },
+  "StudentAssignmentSubmission": {
+    "common": {
+      "notProvided": "Não indicado",
+      "retry": "Tentar novamente"
+    },
+    "loading": "A carregar atividade...",
+    "back": "Voltar aos detalhes",
+    "title": "Enviar atividade",
+    "success": "Atividade enviada com sucesso.",
+    "activity": {
+      "label": "Atividade",
+      "subjectUnknown": "Disciplina não indicada",
+      "class": "Turma"
+    },
+    "deadline": {
+      "label": "Prazo",
+      "noDeadline": "Sem prazo",
+      "undefined": "Sem prazo definido",
+      "closed": "❌ Prazo terminado",
+      "daysRemaining": "🟢 Restam {count, plural, one {# dia} other {# dias}}",
+      "hoursRemaining": "🟠 Restam {count, plural, one {# hora} other {# horas}}",
+      "lessThanHour": "⚠️ Termina em menos de 1 hora"
+    },
+    "score": {
+      "label": "Valor",
+      "points": "pontos"
+    },
+    "status": {
+      "label": "Estado da entrega",
+      "graded": "⭐ Corrigida",
+      "submitted": "✅ Entregue",
+      "submittedAt": "Enviada em: {date}",
+      "evaluated": "O professor já avaliou esta atividade.",
+      "awaitingReview": "A sua resposta foi enviada e aguarda correção.",
+      "evaluation": "Avaliação",
+      "feedback": "Feedback do professor",
+      "closed": "❌ O prazo terminou. Não é possível enviar esta atividade.",
+      "notSubmitted": "📤 Ainda não enviada. Pode enviar texto, ligação ou ficheiro."
+    },
+    "instructions": "Orientações",
+    "attachments": {
+      "title": "📎 Ficheiros da atividade ({count})",
+      "file": "Ficheiro"
+    },
+    "previous": {
+      "title": "A minha última entrega",
+      "text": "Texto enviado",
+      "link": "Ligação enviada",
+      "file": "Ficheiro enviado",
+      "openFile": "Abrir {name}"
+    },
+    "form": {
+      "title": "A sua resposta",
+      "textLabel": "Texto da resposta",
+      "textPlaceholder": "Escreva aqui a sua resposta ao professor...",
+      "linkLabel": "Ligação externa",
+      "linkPlaceholder": "Cole aqui uma ligação do Google Drive, OneDrive, YouTube ou outro material online.",
+      "fileLabel": "Ficheiro",
+      "selectFile": "Selecionar ficheiro",
+      "fileHelp": "Envie PDF, imagem, documento, folha de cálculo, vídeo ou ficheiro comprimido. Limite: 500 MB.",
+      "remove": "Remover",
+      "declaration": "Ao enviar esta atividade, confirma que o conteúdo apresentado é da sua autoria e que conhece as normas académicas da instituição.",
+      "sending": "A enviar...",
+      "update": "📤 Atualizar entrega",
+      "submit": "📤 Enviar atividade"
+    },
+    "errors": {
+      "load": "Erro ao carregar a atividade.",
+      "notFound": "Atividade não encontrada.",
+      "fileTooLarge": "O ficheiro selecionado tem {size}, mas o limite é 500 MB.",
+      "prepareUpload": "Erro ao preparar o envio.",
+      "upload": "Erro ao enviar o ficheiro.",
+      "submit": "Erro ao enviar a atividade."
+    }
+  },
+  "StudentAttendance": {
+    "common": {
+      "notProvided": "Não informado"
+    },
+    "title": "A minha presença",
+    "subtitle": "Acompanhe a sua assiduidade por aula e consulte o resumo de presenças.",
+    "loading": "A carregar os seus registos de assiduidade...",
+    "emptyData": "Não existem dados de presença disponíveis.",
+    "errors": {
+      "load": "Erro ao carregar as presenças"
+    },
+    "summary": {
+      "total": "Total",
+      "present": "Presenças",
+      "absences": "Faltas",
+      "excused": "Justificadas",
+      "medicalCertificates": "Atestados"
+    },
+    "frequency": {
+      "title": "Assiduidade",
+      "description": "As presenças, faltas justificadas e atestados são considerados assiduidade válida."
+    },
+    "history": {
+      "title": "Histórico de presenças",
+      "records": "{count, plural, =0 {Nenhum registo} one {# registo} other {# registos}}",
+      "empty": "Não foi encontrado nenhum registo de presença."
+    },
+    "statuses": {
+      "present": "Presente",
+      "absent": "Falta",
+      "excused": "Justificada",
+      "medicalCertificate": "Atestado"
+    },
+    "item": {
+      "lessonUnknown": "Aula não informada",
+      "classLabel": "Turma",
+      "dateLabel": "Data",
+      "observation": "Observação"
+    }
+  },
+  "StudentGradebook": {
+    "common": {
+      "notProvided": "Não informado"
+    },
+    "hero": {
+      "eyebrow": "Pauta académica",
+      "title": "Acompanhe as suas notas, médias e desempenho por disciplina",
+      "description": "Consulte as provas concluídas, a média por disciplina e o seu panorama académico num ambiente claro, organizado e profissional."
+    },
+    "actions": {
+      "backToDashboard": "Voltar ao painel",
+      "refreshGradebook": "Atualizar pauta"
+    },
+    "metrics": {
+      "subjects": {
+        "title": "Disciplinas",
+        "heroDescription": "Total de disciplinas na sua pauta.",
+        "cardDescription": "Quantidade de disciplinas com notas registadas."
+      },
+      "exams": {
+        "title": "Provas registadas",
+        "cardDescription": "Total de provas associadas ao seu histórico atual."
+      },
+      "overallAverage": {
+        "title": "Média geral",
+        "heroDescription": "Média consolidada com base nas disciplinas registadas.",
+        "cardDescription": "Panorama consolidado do seu desempenho académico."
+      }
+    },
+    "loading": "A carregar a pauta...",
+    "errors": {
+      "load": "Erro ao carregar a pauta"
+    },
+    "empty": {
+      "title": "Nenhuma nota encontrada",
+      "description": "Assim que concluir provas, estas aparecerão aqui na sua pauta."
+    },
+    "subject": {
+      "examCount": "{count, plural, =0 {Nenhuma prova registada} one {# prova registada} other {# provas registadas}}",
+      "average": "Média: {value}"
+    },
+    "exam": {
+      "gradeLabel": "Nota",
+      "gradeNotReleased": "Nota ainda não disponibilizada",
+      "statusLabel": "Estado",
+      "status": {
+        "finished": "Concluída",
+        "inProgress": "Em curso"
+      },
+      "finishedAtLabel": "Conclusão",
+      "awaitingRelease": "A aguardar disponibilização"
+    },
+    "performance": {
+      "good": "Bom desempenho",
+      "attention": "Atenção",
+      "low": "Baixo desempenho"
+    }
+  },
+  "StudentAcademicHistory": {
+    "common": {
+      "notProvided": "Não informado"
+    },
+    "official": {
+      "title": "Histórico Académico Oficial",
+      "description": "Consulte e imprima o seu histórico académico atualizado.",
+      "generate": "Gerar histórico académico",
+      "generating": "A gerar...",
+      "print": "Imprimir histórico",
+      "fileName": "historico-academico.pdf"
+    },
+    "errors": {
+      "generateUnavailable": "Não foi possível gerar o histórico académico. Verifique se existe um modelo de Histórico ativo.",
+      "generateFailed": "Erro ao gerar o histórico académico. Tente novamente dentro de instantes."
+    },
+    "examHistory": {
+      "title": "Histórico de Provas"
+    },
+    "average": "Média geral: {value}",
+    "chart": {
+      "title": "Desempenho por disciplina",
+      "grade": "Nota"
+    },
+    "exam": {
+      "subjectId": "Disciplina ID {id}",
+      "gradeLabel": "Nota",
+      "approved": "Aprovado 🎉",
+      "failed": "Reprovado ❌",
+      "dateLabel": "Data",
+      "durationLabel": "Duração",
+      "duration": "{minutes, plural, =0 {0 min} one {# min} other {# min}} {seconds, plural, =0 {0 s} one {# s} other {# s}}",
+      "viewDetails": "Ver detalhes"
+    },
+    "modal": {
+      "eyebrow": "Aviso PHANYX",
+      "title": "Histórico académico",
+      "understood": "Compreendi"
+    }
+  },
+  "StudentMeetings": {
+    "common": {
+      "notProvided": "Não informado"
+    },
+    "title": "As minhas reuniões",
+    "description": "Acompanhe as reuniões para as quais foi convidado.",
+    "loading": "A carregar reuniões...",
+    "empty": "Não existem reuniões disponíveis neste momento.",
+    "join": "Entrar na reunião",
+    "errors": {
+      "load": "Erro ao carregar as reuniões."
+    }
+  },
+  "StudentNotes": {
+    "title": "As minhas notas",
+    "empty": "Ainda não foi lançada nenhuma nota.",
+    "labels": {
+      "grade": "Nota",
+      "status": "Situação",
+      "feedback": "Comentário"
+    },
+    "situations": {
+      "approved": "Aprovado",
+      "recovery": "Recuperação",
+      "failed": "Reprovado"
+    }
+  },
+  "StudentCertificates": {
+    "common": {
+      "notProvided": "Não informado"
+    },
+    "title": "Os meus certificados",
+    "description": "Aqui encontra os certificados gerados automaticamente após a sua aprovação.",
+    "loading": "A carregar certificados...",
+    "empty": "Ainda não possui certificados disponíveis.",
+    "subjectFallback": "Disciplina",
+    "code": "Código",
+    "issuedOn": "Emitido em",
+    "download": "Descarregar certificado",
+    "validate": "Validar",
+    "errors": {
+      "load": "Não foi possível carregar os seus certificados."
+    }
+  },
+  "StudentCertificateDetail": {
+    "title": "Certificado de Conclusão",
+    "certifyThat": "Certificamos que",
+    "completedSubject": "concluiu com aprovação a disciplina",
+    "workload": "Carga horária: {hours, plural, one {# hora} other {# horas}}",
+    "completionDate": "Data de conclusão: {date}",
+    "registrationNumber": "Registo n.º {number}",
+    "printOrSave": "Imprimir / Guardar PDF",
+    "backToCertificates": "Voltar aos certificados",
+    "notFound": "Certificado não encontrado.",
+    "back": "Voltar",
+    "notProvided": "Não informada"
+  },
+  "StudentFinancialBlock": {
+    "title": "Acesso bloqueado por incumprimento de pagamento",
+    "greeting": "Olá, {name}.",
+    "studentFallback": "aluno",
+    "pendingDescription": "O seu acesso académico está temporariamente bloqueado porque existem pagamentos pendentes.",
+    "releaseDescription": "Assim que o pagamento for regularizado e o estado financeiro for atualizado, o acesso será libertado automaticamente.",
+    "goToLogin": "Ir para o início de sessão",
+    "tryAgain": "Tentar novamente"
+  },
+  "StudentLessonPage": {
+    "common": {
+      "unavailable": "indisponível"
+    },
+    "enrollmentStatus": {
+      "active": "Ativa",
+      "pending": "Pendente",
+      "overdue": "Pagamento em atraso",
+      "suspended": "Suspensa",
+      "cancelled": "Cancelada",
+      "completed": "Concluída"
+    },
+    "blocked": {
+      "title": "Acesso à aula indisponível",
+      "statusPrefix": "A sua matrícula está com o estado",
+      "reason": "Por este motivo, o acesso ao conteúdo da aula está temporariamente bloqueado.",
+      "availableResources": "Ainda pode aceder à área do aluno, consultar o estado, as notas e outras informações académicas."
+    },
+    "lessonTitle": "Aula {id}",
+    "description": "Consulte os materiais e acompanhe o conteúdo da aula.",
+    "noMainMaterial": "Não existem materiais disponíveis para esta aula.",
+    "materialsTitle": "Materiais da aula",
+    "noMaterials": "Não existem materiais registados.",
+    "typeLabel": "Tipo",
+    "open": "Abrir",
+    "materialTypes": {
+      "video": "Vídeo",
+      "audio": "Áudio",
+      "document": "Documento",
+      "image": "Imagem",
+      "link": "Ligação",
+      "file": "Ficheiro"
+    },
+    "progress": {
+      "title": "Progresso",
+      "completed": "{percent}% concluído"
+    },
+    "nextSteps": {
+      "title": "Próximos passos",
+      "watchMain": "Ver o conteúdo principal",
+      "openSupplementary": "Abrir os materiais complementares",
+      "markCompleted": "Marcar a aula como concluída"
+    }
+  },
+  "StudentActivityDetail": {
+    "back": "Voltar às atividades",
+    "loading": "A carregar a atividade...",
+    "noDeadline": "Sem prazo",
+    "labels": {
+      "subject": "Disciplina",
+      "deadline": "Prazo",
+      "maximumScore": "Nota máxima",
+      "class": "Turma"
+    },
+    "submission": {
+      "title": "Enviar atividade",
+      "description": "Pode enviar uma resposta em texto, uma ligação e o URL de um ficheiro.",
+      "textLabel": "Texto da entrega",
+      "textPlaceholder": "Escreva a sua resposta ou as suas observações",
+      "linkLabel": "Ligação",
+      "fileUrlLabel": "URL do ficheiro",
+      "fileUrlPlaceholder": "https://ficheiro...",
+      "submitting": "A enviar...",
+      "submit": "Enviar atividade",
+      "success": "Entrega enviada com sucesso."
+    },
+    "errors": {
+      "load": "Não foi possível carregar a atividade.",
+      "notFound": "Atividade não encontrada.",
+      "submit": "Não foi possível enviar a atividade. Tente novamente."
+    }
+  },
+  "StudentProfileCompletion": {
+    "title": "Complete o seu registo",
+    "description": "Mantenha os seus documentos, contratos e registos académicos corretos com dados válidos para o seu país.",
+    "loading": "A carregar o registo...",
+    "saving": "A guardar...",
+    "save": "Guardar registo",
+    "success": "Registo atualizado com sucesso.",
+    "common": {
+      "select": "Selecione"
+    },
+    "modal": {
+      "title": "Não foi possível concluir o registo",
+      "close": "Fechar",
+      "help": "Verifique o problema indicado, corrija o campo correspondente e tente novamente.",
+      "understood": "Compreendi"
+    },
+    "personal": {
+      "title": "Dados pessoais",
+      "officialName": "Nome completo oficial",
+      "officialNameHelp": "Para alterar o nome oficial, contacte a secretaria.",
+      "socialName": "Nome social",
+      "socialNamePlaceholder": "Indique o seu nome social, se desejar",
+      "gender": "Género",
+      "birthDate": "Data de nascimento",
+      "birthCountry": "País de nascimento",
+      "nationality": "Nacionalidade",
+      "nationalityPlaceholder": "Ex.: portuguesa",
+      "documentType": "Tipo de documento",
+      "documentNumber": "Número do documento",
+      "documentNumberPlaceholder": "Indique o documento emitido pelo seu país",
+      "phone": "Telefone / WhatsApp"
+    },
+    "gender": {
+      "female": "Feminino",
+      "male": "Masculino",
+      "notInform": "Prefiro não indicar",
+      "other": "Outro"
+    },
+    "address": {
+      "title": "Morada",
+      "country": "País de residência",
+      "postalCode": "Código postal",
+      "postalCodePlaceholder": "Indique o código postal",
+      "street": "Morada",
+      "number": "Número",
+      "complement": "Complemento",
+      "district": "Freguesia / Distrito",
+      "city": "Localidade",
+      "region": "Distrito / Região",
+      "regionPlaceholder": "Indique o distrito ou região"
+    },
+    "guardian": {
+      "title": "Responsável",
+      "name": "Nome do responsável",
+      "relationship": "Parentesco / vínculo",
+      "documentType": "Tipo de documento do responsável",
+      "documentNumber": "Número do documento do responsável",
+      "phone": "Telefone do responsável",
+      "email": "E-mail do responsável"
+    },
+    "accessibility": {
+      "title": "Acessibilidade",
+      "hasNeed": "Tenho necessidades especiais ou necessidades de acessibilidade",
+      "description": "Descrição da necessidade especial",
+      "notes": "Observações de acessibilidade"
+    },
+    "documents": {
+      "CPF": "CPF",
+      "RG": "RG",
+      "NIF": "NIF",
+      "CARTAO_CIDADAO": "Cartão de Cidadão",
+      "SSN": "SSN",
+      "STATE_ID": "Documento estadual",
+      "DNI": "DNI",
+      "NIE": "NIE",
+      "CNI": "Cartão nacional de identidade",
+      "PASSPORT": "Passaporte",
+      "NATIONAL_ID": "Documento nacional de identidade",
+      "TAX_ID": "Documento fiscal",
+      "RESIDENCE_PERMIT": "Título de residência",
+      "OTHER": "Outro documento"
+    },
+    "errors": {
+      "forbidden": "Não tem permissão para alterar este registo.",
+      "studentNotFound": "O registo do aluno não foi encontrado.",
+      "required": "Preencha o tipo e o número do documento, o telefone e a data de nascimento.",
+      "invalidPhone": "O telefone indicado não é válido para o país selecionado.",
+      "invalidGuardianPhone": "O telefone do responsável não é válido para o país selecionado.",
+      "invalidPostalCode": "O código postal não corresponde ao formato do país de residência selecionado.",
+      "invalidDate": "A data de nascimento indicada não é válida.",
+      "invalidCountry": "Selecione um país válido.",
+      "load": "Não foi possível carregar o registo.",
+      "save": "Não foi possível guardar o registo.",
+      "generic": "Ocorreu um problema inesperado. Tente novamente."
+    }
+  },
+  "StudentOmbudsman": {
+    "eyebrow": "CANAL DE COMUNICAÇÃO",
+    "title": "Provedoria",
+    "description": "Utilize este espaço para enviar sugestões, elogios, reclamações ou relatar situações relacionadas com as suas aulas, atendimento, secretaria, área financeira ou qualquer experiência com a instituição.",
+    "form": {
+      "typeLabel": "Tipo de manifestação",
+      "messageLabel": "Mensagem",
+      "messagePlaceholder": "Descreva a sua sugestão, elogio, reclamação ou relato...",
+      "submitting": "A enviar...",
+      "submit": "Enviar manifestação"
+    },
+    "types": {
+      "suggestion": "Sugestão",
+      "complaint": "Reclamação",
+      "compliment": "Elogio",
+      "report": "Relato"
+    },
+    "validation": {
+      "messageRequired": "Escreva a sua mensagem antes de enviar."
+    },
+    "errors": {
+      "submit": "Não foi possível enviar a sua manifestação."
+    },
+    "success": "A sua manifestação foi enviada com sucesso.",
+    "howItWorks": {
+      "title": "Como funciona?",
+      "forwarded": "A sua manifestação será encaminhada para o setor responsável.",
+      "tracking": "Poderá acompanhar o andamento futuramente nesta área.",
+      "suggestions": "As sugestões ajudam a melhorar a experiência dos alunos.",
+      "analysis": "As reclamações e os relatos serão analisados pela instituição."
+    }
+  },
+  "StudentReenrollment": {
+    "loading": "A carregar a renovação da matrícula...",
+    "errorTitle": "Não foi possível carregar a renovação da matrícula",
+    "academic": "Académico",
+    "title": "Renovação semestral da matrícula",
+    "unavailable": {
+      "title": "Renovação da matrícula indisponível",
+      "description": "A renovação da matrícula não está disponível para este aluno."
+    },
+    "closed": {
+      "title": "Período de renovação da matrícula encerrado",
+      "description": "Não existe um período de renovação da matrícula aberto neste momento."
+    },
+    "hero": {
+      "available": "Renovação da matrícula disponível",
+      "description": "Selecione as disciplinas e as turmas que pretende frequentar no {semester}.º semestre.",
+      "deadline": "Prazo final"
+    },
+    "blocked": {
+      "title": "Renovação da matrícula bloqueada"
+    },
+    "common": {
+      "notInformed": "Não indicado",
+      "invalidDate": "Data inválida",
+      "semesterNumber": "{number}.º semestre",
+      "hoursValue": "{hours} h",
+      "hoursLong": "{hours} horas"
+    },
+    "summary": {
+      "course": "Curso",
+      "destinationSemester": "Semestre de destino",
+      "classStart": "Início das aulas",
+      "status": "Estado"
+    },
+    "institutionInstructions": {
+      "title": "Orientações da instituição"
+    },
+    "groups": {
+      "nextSemester": {
+        "title": "Disciplinas do {semester}.º semestre",
+        "description": "Disciplinas previstas para a sua progressão académica."
+      },
+      "pending": {
+        "title": "Pendências de semestres anteriores",
+        "description": "Disciplinas ainda não concluídas ou sem aprovação."
+      },
+      "extras": {
+        "title": "Disciplinas extracurriculares",
+        "description": "Opções adicionais autorizadas para o seu curso e semestre."
+      }
+    },
+    "selectionSummary": {
+      "title": "Resumo da seleção",
+      "subjects": "Disciplinas",
+      "selectedLoad": "Carga selecionada",
+      "minimumLoad": "Carga mínima",
+      "maximumLoad": "Carga máxima",
+      "noLimit": "Sem limite definido",
+      "minimumProgress": "Progresso da carga mínima",
+      "needMore": "Selecione mais {hours} h para atingir a carga mínima.",
+      "maximumExceeded": "A seleção ultrapassa a carga máxima permitida."
+    },
+    "declaration": "Declaro que verifiquei as disciplinas, turmas, horários e regras desta renovação de matrícula.",
+    "afterSendNotice": "Após o envio, a seleção não poderá ser alterada até que a instituição a devolva para correção.",
+    "curriculum": {
+      "title": "Plano curricular",
+      "description": "Consulte turmas, docentes, salas e horários antes de confirmar.",
+      "openPdf": "Abrir PDF do plano",
+      "pdfPreparing": "PDF em preparação"
+    },
+    "actions": {
+      "retry": "Tentar novamente",
+      "savingDraft": "A guardar rascunho...",
+      "updateDraft": "Atualizar rascunho",
+      "saveDraft": "Guardar rascunho",
+      "sending": "A enviar...",
+      "sendForReview": "Enviar para análise",
+      "confirm": "Confirmar renovação",
+      "back": "Voltar"
+    },
+    "tooltips": {
+      "selectOneSubject": "Selecione pelo menos uma disciplina.",
+      "minimumNotReached": "A carga mínima ainda não foi atingida.",
+      "maximumExceeded": "A carga máxima foi ultrapassada.",
+      "acceptDeclaration": "Aceite a declaração para enviar.",
+      "send": "Enviar renovação da matrícula."
+    },
+    "confirmation": {
+      "reviewTitle": "Enviar renovação para análise",
+      "confirmTitle": "Confirmar renovação da matrícula",
+      "reviewMessage": "Disciplinas selecionadas: {count}. Carga: {hours} horas. Após o envio, a seleção será analisada pela instituição.",
+      "confirmMessage": "Disciplinas selecionadas: {count}. Carga: {hours} horas. Confirme para concluir a renovação."
+    },
+    "subjects": {
+      "emptyCategory": "Nenhuma disciplina disponível nesta categoria.",
+      "required": "Obrigatória",
+      "class": "Turma",
+      "noSeats": "Sem vagas"
+    },
+    "classInfo": {
+      "teacher": "Docente",
+      "seats": "Vagas",
+      "schedule": "Horário",
+      "location": "Local",
+      "noLimitInformed": "Sem limite indicado",
+      "availableSeats": "Vagas disponíveis: {count}"
+    },
+    "disciplineTypes": {
+      "nextSemester": "Próximo semestre",
+      "previousPending": "Pendência anterior",
+      "extracurricular": "Extracurricular"
+    },
+    "status": {
+      "draft": "Rascunho",
+      "sent": "Enviada",
+      "underReview": "Em análise",
+      "approved": "Aprovada",
+      "returned": "Devolvida para correção",
+      "rejected": "Rejeitada",
+      "cancelled": "Cancelada",
+      "expired": "Expirada",
+      "notStarted": "Não iniciada"
+    },
+    "days": {
+      "sunday": "domingo",
+      "monday": "segunda-feira",
+      "tuesday": "terça-feira",
+      "wednesday": "quarta-feira",
+      "thursday": "quinta-feira",
+      "friday": "sexta-feira",
+      "saturday": "sábado",
+      "fallback": "dia {number}"
+    },
+    "schedule": {
+      "notInformed": "Horário não indicado",
+      "range": "{day}, das {start} às {end}",
+      "start": "{day}, {start}"
+    },
+    "location": {
+      "floor": "{floor}.º piso",
+      "room": "Sala {room}",
+      "notInformed": "Local não indicado"
+    },
+    "conflicts": {
+      "slot": "{day} às {time}"
+    },
+    "errors": {
+      "load": "Não foi possível carregar a renovação da matrícula.",
+      "noAvailableClass": "Não existe uma turma com vaga disponível para esta disciplina.",
+      "wouldExceedMaximum": "Esta disciplina ultrapassaria a carga máxima de {hours} h.",
+      "scheduleConflict": "Conflito de horário com {subject}: {schedule}.",
+      "selectedClassFull": "A turma selecionada não possui vagas disponíveis.",
+      "periodNotFound": "Período de renovação da matrícula não encontrado.",
+      "editNotAllowed": "Esta renovação não pode ser alterada agora.",
+      "draftNotAllowed": "Este período não permite guardar rascunho.",
+      "selectOneSubject": "Selecione pelo menos uma disciplina.",
+      "minimumLoad": "A carga mínima de {hours} h ainda não foi atingida.",
+      "maximumLoadExceeded": "A carga máxima permitida foi ultrapassada.",
+      "acceptDeclaration": "Aceite a declaração antes de enviar.",
+      "save": "Não foi possível guardar a renovação da matrícula."
+    },
+    "success": {
+      "sent": "Renovação da matrícula enviada com sucesso.",
+      "sentForReview": "Renovação da matrícula enviada para análise da instituição.",
+      "draftSaved": "Rascunho guardado com sucesso."
+    }
+  }
 }

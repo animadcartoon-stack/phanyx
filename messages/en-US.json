@@ -1,1102 +1,1269 @@
 {
-    "Common":  {
-                   "cancel":  "Cancel",
-                   "save":  "Save",
-                   "loading":  "Loading...",
-                   "language":  "Language",
-                   "close":  "Close",
-                   "changingLanguage":  "Changing language...",
-                   "languageChangeError":  "Could not change the language. Please try again.",
-                   "theme":  "Theme",
-                   "lightTheme":  "Light",
-                   "darkTheme":  "Dark",
-                   "systemTheme":  "System",
-                   "sessionExpired":  "Session ended",
-                   "sessionExpiredDescription":  "Your session was ended for security reasons due to inactivity. You will be redirected to the sign-in page.",
-                   "goToLogin":  "Go to sign in"
-               },
-    "AdminDashboard":  {
-                           "profile":  "Administrative profile",
-                           "institutionPanel":  "Institution dashboard",
-                           "title":  "Administrative Dashboard",
-                           "description":  "Manage your institution\u0027s academic, financial, document and operational activities in one place.",
-                           "searchPlaceholder":  "Search students, teachers, courses, subjects, classes or enrollments...",
-                           "guidedTutorial":  "Guided tutorial",
-                           "firstSteps":  "Getting started",
-                           "tutorialDescription":  "Use the guided tutorial to quickly learn about the main PHANYX areas.",
-                           "viewTour":  "Start tour",
-                           "quickActions":  "Quick Actions",
-                           "quickActionsDescription":  "Shortcuts to speed up your institution\u0027s setup.",
-                           "newStudent":  "New Student",
-                           "newTeacher":  "New Teacher",
-                           "newCourse":  "New Course",
-                           "newDepartment":  "New Department",
-                           "manageEnrollments":  "Manage Enrollments",
-                           "operationOverview":  "Operations Overview",
-                           "operationOverviewDescription":  "Summary of the main academic records currently registered.",
-                           "loadingStatistics":  "Loading statistics...",
-                           "students":  "Students",
-                           "studentsDescription":  "Total students registered at the institution.",
-                           "teachers":  "Teachers",
-                           "teachersDescription":  "Teaching staff registered in the system.",
-                           "courses":  "Courses",
-                           "coursesDescription":  "Academic catalog created so far.",
-                           "subjects":  "Subjects",
-                           "subjectsDescription":  "Registered curriculum structure.",
-                           "certificates":  "Certificates",
-                           "certificatesDescription":  "Certificates issued or registered in the database.",
-                           "mainAccess":  "Main Access",
-                           "mainAccessDescription":  "Quick access to the most frequently used setup modules.",
-                           "openModule":  "Open Module",
-                           "noResults":  "No results found",
-                           "searchSuggestion":  "Try searching by name, code or ID.",
-                           "studentResult":  "Student",
-                           "teacherResult":  "Teacher",
-                           "courseResult":  "Course",
-                           "subjectResult":  "Subject",
-                           "classResult":  "Class",
-                           "enrollmentResult":  "Enrollment",
-                           "tourMascotAlt":  "Formix mascot guiding the tutorial",
-                           "tourDashboardTitle":  "Administrative dashboard",
-                           "tourDashboardDescription":  "This is an overview of your operation. Whenever you want to return to the beginning, click here.",
-                           "tourDashboardHighlight":  "Let\u0027s start with the main dashboard.",
-                           "tourSettingsTitle":  "Institution settings",
-                           "tourSettingsDescription":  "Start here. This is where you configure the logo, institution details, visual identity and essential information.",
-                           "tourSettingsHighlight":  "First, set up your institution\u0027s identity.",
-                           "tourDepartmentsTitle":  "Departments and teams",
-                           "tourDepartmentsDescription":  "Next, organize the institution into departments such as administration, finance, academics and coordination.",
-                           "tourDepartmentsHighlight":  "Now let\u0027s structure the internal operation.",
-                           "tourTeachersTitle":  "Teacher registration",
-                           "tourTeachersDescription":  "Add the teachers who will manage academic activities and access the system.",
-                           "tourTeachersHighlight":  "It\u0027s time to build your teaching team.",
-                           "tourStudentsTitle":  "Student registration",
-                           "tourStudentsDescription":  "Next, register your students and prepare the foundation for enrollments and academic monitoring.",
-                           "tourStudentsHighlight":  "Now let\u0027s prepare your student records.",
-                           "tourEnrollmentsTitle":  "Enrollments",
-                           "tourEnrollmentsDescription":  "Connect students, courses and classes here to begin your institution\u0027s real operation.",
-                           "tourEnrollmentsHighlight":  "Almost ready: this is where the real operation begins.",
-                           "tourStepProgress":  "Step {current} of {total}",
-                           "dontShowAgain":  "Don\u0027t show again",
-                           "previous":  "Previous",
-                           "next":  "Next",
-                           "completeTour":  "Complete tour",
-                           "tourCelebratingAlt":  "Formix mascot celebrating",
-                           "tourCompleted":  "Tour completed successfully",
-                           "tourCongratulations":  "Congratulations! Your institution is ready to get started 🚀",
-                           "tourCompletedDescription":  "You have completed the initial PHANYX tour. Your team can now continue the setup with greater confidence.",
-                           "recommendedNextSteps":  "Recommended next steps",
-                           "configureInstitutionData":  "Configure institution details",
-                           "organizeDepartments":  "Organize departments and teams",
-                           "registerTeachers":  "Register teachers",
-                           "registerStudents":  "Register students",
-                           "startEnrollments":  "Start enrollments",
-                           "startWithSettings":  "Start with settings",
-                           "finishAndHide":  "Finish and don\u0027t show again",
-                           "continueDashboard":  "Continue to dashboard",
-                           "administratorFallback":  "Administrator",
-                           "employeePhotoAlt":  "Employee",
-                           "uploadingPhoto":  "Uploading...",
-                           "changePhoto":  "Change photo",
-                           "unnamed":  "No name"
-                       },
-    "AdminNavigation":  {
-                            "adminPanel":  "Administrative Dashboard",
-                            "openGuidedTutorial":  "Open guided tutorial",
-                            "administrative":  "Administrative",
-                            "administrator":  "Administrator",
-                            "employee":  "Employee",
-                            "dashboard":  "Dashboard",
-                            "myProfile":  "My Profile",
-                            "subscription":  "PHANYX Subscription",
-                            "master":  "PHANYX Master",
-                            "accessControl":  "Access Control",
-                            "commercialPhanyx":  "PHANYX Sales",
-                            "commercial":  "Sales",
-                            "academic":  "Academic",
-                            "virtualLibrary":  "Digital Library",
-                            "financial":  "Finance",
-                            "humanResources":  "Staff / HR",
-                            "documents":  "Documents",
-                            "communication":  "Communication",
-                            "settings":  "Settings",
-                            "students":  "Students",
-                            "teachers":  "Teachers",
-                            "teacherSubstitutions":  "Teacher Substitutions",
-                            "employees":  "Employees",
-                            "departments":  "Departments",
-                            "subjects":  "Subjects",
-                            "enrollments":  "Enrollments",
-                            "semesterReenrollments":  "Semester Re-enrollments",
-                            "classes":  "Classes",
-                            "operationalSchedule":  "Schedule / Roster",
-                            "academicPublications":  "Academic Publications",
-                            "visitors":  "Visitors",
-                            "overview":  "Overview",
-                            "collection":  "Collection",
-                            "receipts":  "Receipts",
-                            "cashRegister":  "Cash Register",
-                            "reports":  "Reports",
-                            "overdueAccounts":  "Overdue Accounts",
-                            "generalClosing":  "General Closing",
-                            "generateInvoiceForProspect":  "Generate payment slip for prospect",
-                            "variableCompensation":  "Variable Compensation",
-                            "salesCommissions":  "Sales Commissions",
-                            "timeTracking":  "Time Tracking",
-                            "timeTrackingSettings":  "Time Tracking Settings",
-                            "mobileTimeTracking":  "Mobile Time Tracking",
-                            "afdImport":  "AFD Import",
-                            "timeBank":  "Time Bank",
-                            "payslips":  "Pay Statements",
-                            "payrollEvents":  "Payroll Events",
-                            "benefits":  "Benefits",
-                            "vacation":  "Vacation",
-                            "medicalExams":  "Medical Exams",
-                            "terminations":  "Terminations",
-                            "employmentHistory":  "Employment History",
-                            "archivedHR":  "Archived HR Records",
-                            "occurrences":  "Occurrences",
-                            "accountingReports":  "Accounting Reports",
-                            "hrDocuments":  "HR Documents",
-                            "contracts":  "Contracts",
-                            "generatedDocuments":  "Generated Documents",
-                            "generateDocument":  "Generate Document",
-                            "validation":  "Validation",
-                            "badges":  "ID Badges",
-                            "meetings":  "Meetings",
-                            "birthdays":  "Birthdays",
-                            "ombudsman":  "Ombudsman",
-                            "institution":  "Institution",
-                            "institutionalLogos":  "Institutional Logos",
-                            "institutionalEmail":  "Institutional Email",
-                            "institutionalWhatsapp":  "Institutional WhatsApp",
-                            "campusesAndUnits":  "Campuses and Units",
-                            "departmentPermissions":  "Department Permissions",
-                            "institutionalDocuments":  "Institutional Documents",
-                            "portalVisibility":  "Portal Visibility",
-                            "certificateManagement":  "Certificate Management",
-                            "certificateEditor":  "Certificate Editor",
-                            "logout":  "Log Out",
-                            "phanyxLeads":  "PHANYX Leads",
-                            "leadGenerationCenter":  "Lead Generation Center",
-                            "salesFunnels":  "Sales Funnels",
-                            "salesPipeline":  "Sales Pipeline",
-                            "salesAgenda":  "Sales Schedule",
-                            "leadsAndOpportunities":  "Leads and Opportunities",
-                            "salesTeams":  "Sales Teams",
-                            "salesTargets":  "Sales Targets",
-                            "commissionPlans":  "Commission Plans",
-                            "dashboardShort":  "Home",
-                            "academicShort":  "Acad.",
-                            "commercialShort":  "Sales",
-                            "financialShort":  "Finance",
-                            "hrShort":  "HR",
-                            "documentsShort":  "Docs",
-                            "settingsShort":  "Settings",
-                            "communicationShort":  "Comm.",
-                            "notifications":  "Notifications",
-                            "notificationsDescription":  "Important PHANYX updates",
-                            "viewAllNotifications":  "View all notifications",
-                            "masterDashboard":  "Master Dashboard",
-                            "signInAsUser":  "Sign in as user",
-                            "phanyxPlatform":  "PHANYX Platform",
-                            "generateIbeInvoice":  "Generate IBE payment slip",
-                            "campusManagementDisabled":  "Campus and unit management is unavailable",
-                            "campusManagementDisabledDescription":  "This institution ID is not authorized to create or manage campuses or units. This permission is controlled by the network\u0027s contracting institution.",
-                            "backToDashboard":  "Back to dashboard"
-                        },
-    "MonthlyCampaign":  {
-                            "origin":  "Monthly Awareness Campaign",
-                            "genericTitle":  "{month} — Health and well-being",
-                            "genericDescription":  "Monthly health and well-being awareness campaign.",
-                            "genericPhrase":  "Information, prevention and care make a difference every day.",
-                            "health":  "Health",
-                            "upcomingHoliday":  "Upcoming holiday",
-                            "monthlyCampaign":  "Monthly campaign"
-                        },
-    "InternationalPhone":  {
-                               "selectCountry":  "Select phone country",
-                               "searchCountry":  "Search country or calling code",
-                               "noCountryFound":  "No country found.",
-                               "placeholder":  "Enter phone number",
-                               "required":  "Enter the phone number.",
-                               "invalid":  "Enter a valid phone number for the selected country.",
-                               "invalidTitle":  "Invalid phone number",
-                               "studentInvalid":  "The student\u0027s phone number is not valid for the selected country. Correct the number or select another country.",
-                               "guardianInvalid":  "The guardian\u0027s phone number is not valid for the selected country. Correct the number or select another country."
-                           },
-    "StudentLayout":  {
-                          "academicAccessBlocked":  "Academic access blocked",
-                          "financialRegularizationRequired":  "Financial regularization required",
-                          "greeting":  "Hello, {name}.",
-                          "blockedDescription":  "Your access to the academic portal is temporarily blocked because of an outstanding financial balance registered by the institution.",
-                          "meaningTitle":  "What this means",
-                          "meaningDescription":  "While the balance remains outstanding, access to academic areas may remain unavailable.",
-                          "unlockTitle":  "How to restore access",
-                          "unlockDescription":  "Contact your institution\u0027s finance department or administration office to resolve the situation.",
-                          "importantTitle":  "Important",
-                          "importantDescription":  "After the payment is recorded in the system, access may be restored automatically according to the institution\u0027s rules.",
-                          "backToLogin":  "Back to login",
-                          "logout":  "Log out",
-                          "footer":  "PHANYX • Academic and financial management",
-                          "dashboard":  "Dashboard",
-                          "reenrollmentShort":  "Re-enroll",
-                          "subjects":  "Subjects",
-                          "progress":  "Progress",
-                          "assignments":  "Assignments",
-                          "attendance":  "Attendance",
-                          "grades":  "Grades",
-                          "certificates":  "Certificates",
-                          "meetings":  "Meetings",
-                          "registrationData":  "Registration details",
-                          "registrationDescription":  "Keep your information updated for contracts, documents and academic records.",
-                          "updateMyData":  "Update my information"
-                      },
-    "StudentSidebar":  {
-                           "areaTitle":  "Student Portal",
-                           "student":  "Student",
-                           "profilePhoto":  "Profile photo of {name}",
-                           "academicDashboard":  "Academic Dashboard",
-                           "semesterReenrollment":  "Semester Re-enrollment",
-                           "subjects":  "Subjects",
-                           "progress":  "Progress",
-                           "assignments":  "Assignments",
-                           "attendance":  "Attendance",
-                           "grades":  "Grades",
-                           "academicHistory":  "Academic Record",
-                           "meetings":  "Meetings",
-                           "certificates":  "Certificates",
-                           "ombudsman":  "Ombudsman"
-                       },
-    "StudentDashboard":  {
-                             "errors":  {
-                                            "imageUpload":  "Unable to upload the image.",
-                                            "missingImageUrl":  "The upload was completed, but the image URL was not returned.",
-                                            "savePhoto":  "Unable to save the profile photo.",
-                                            "changePhoto":  "Unable to change the photo.",
-                                            "paymentBlocked":  "Access blocked due to an outstanding payment.",
-                                            "loadDashboard":  "Unable to load the dashboard."
-                                        },
-                             "greetings":  {
-                                               "morning":  "Good morning",
-                                               "afternoon":  "Good afternoon",
-                                               "evening":  "Good evening"
-                                           },
-                             "performance":  {
-                                                 "excellent":  "Excellent performance. Keep up the great work.",
-                                                 "veryGood":  "You are making very good progress on your journey.",
-                                                 "good":  "Good progress. Consider reviewing the latest content.",
-                                                 "needsImprovement":  "It is time to strengthen your studies and regain momentum."
-                                             },
-                             "nextStep":  {
-                                              "regularizeTitle":  "Restore access",
-                                              "regularizeDescription":  "Access to your academic dashboard is currently restricted. Resolve the issue to continue normally.",
-                                              "openSupport":  "Open support",
-                                              "continueTitle":  "Continue studying",
-                                              "continueDescription":  "Resume your academic routine by opening the subject currently available.",
-                                              "openSubject":  "Open subject",
-                                              "reviewTitle":  "Review results",
-                                              "reviewDescription":  "View your latest performance and monitor your academic progress.",
-                                              "viewGrades":  "View grades",
-                                              "exploreTitle":  "Explore dashboard",
-                                              "exploreDescription":  "Monitor your academic indicators and keep your routine organized.",
-                                              "refreshDashboard":  "Refresh dashboard"
-                                          },
-                             "hero":  {
-                                          "eyebrow":  "Student academic dashboard",
-                                          "student":  "Student",
-                                          "sendingPhoto":  "Uploading...",
-                                          "changePhoto":  "Change photo",
-                                          "photoTips":  "Photo tips",
-                                          "heading":  "{greeting}, follow your academic journey with clarity, performance and focus",
-                                          "description":  "View your course, performance, subjects and next steps in a dashboard designed for a modern, organized and professional academic experience.",
-                                          "continueStudies":  "Continue studying",
-                                          "viewGrades":  "View grades",
-                                          "openGrades":  "Open grades",
-                                          "refreshDashboard":  "Refresh dashboard",
-                                          "currentCourse":  "Current course",
-                                          "unknownCourse":  "Course not identified",
-                                          "status":  "Status",
-                                          "notInformed":  "Not provided",
-                                          "currentPerformance":  "Current performance",
-                                          "performanceBasis":  "Based on your current overall average.",
-                                          "loading":  "Loading dashboard..."
-                                      },
-                             "restricted":  {
-                                                "eyebrow":  "Restricted access",
-                                                "title":  "Your access is temporarily blocked",
-                                                "institutionInstruction":  "Contact your institution to resolve the outstanding financial issue and restore access to the academic environment.",
-                                                "contactSupport":  "Contact support",
-                                                "refreshDashboard":  "Refresh dashboard"
-                                            },
-                             "stats":  {
-                                           "enrolledSubjects":  "Enrolled subjects",
-                                           "enrolledSubjectsDescription":  "Current number of subjects associated with your enrollment.",
-                                           "overallAverage":  "Overall average",
-                                           "overallAverageDescription":  "Your consolidated academic performance to date.",
-                                           "completedExams":  "Completed assessments",
-                                           "completedExamsDescription":  "Number of assessments already completed.",
-                                           "higherPlans":  "Available on higher-tier plans.",
-                                           "enrollmentStatus":  "Enrollment status",
-                                           "enrollmentStatusDescription":  "Current academic status of your institutional enrollment."
-                                       },
-                             "enrollmentStatuses":  {
-                                                        "active":  "Active",
-                                                        "pending":  "Pending",
-                                                        "locked":  "On hold",
-                                                        "cancelled":  "Cancelled",
-                                                        "completed":  "Completed",
-                                                        "inactive":  "Inactive",
-                                                        "suspended":  "Suspended"
-                                                    },
-                             "subjects":  {
-                                              "title":  "Your subjects",
-                                              "description":  "Quickly access content, materials and assignments.",
-                                              "count":  "{count, plural, =0 {No subjects} one {# subject} other {# subjects}}",
-                                              "empty":  "No subjects are currently available.",
-                                              "cardDescription":  "Access the available content and follow your academic activities.",
-                                              "availableSoon":  "Class available soon",
-                                              "blockedDefault":  "This subject will be unlocked automatically as soon as the institution publishes its content.",
-                                              "access":  "Open subject"
-                                          },
-                             "exams":  {
-                                           "title":  "Latest assessments",
-                                           "description":  "Your most recently completed assessments.",
-                                           "viewGrades":  "View grades",
-                                           "higherPlans":  "Details of completed assessments are available on higher-tier plans.",
-                                           "empty":  "You have not completed any assessments yet.",
-                                           "subject":  "Subject",
-                                           "completedAt":  "Completed",
-                                           "grade":  "Grade"
-                                       },
-                             "side":  {
-                                          "nextStep":  "Next step",
-                                          "visualProgress":  "Visual progress",
-                                          "currentPerformance":  "Current performance",
-                                          "quickLinks":  "Quick links",
-                                          "continueStudies":  "Continue studying",
-                                          "refreshDashboard":  "Refresh dashboard",
-                                          "openGrades":  "Open grades",
-                                          "academicSummary":  "Academic summary",
-                                          "enrolledSubjects":  "{count, plural, =0 {You are not enrolled in any subjects.} one {You are enrolled in # subject.} other {You are enrolled in # subjects.}}",
-                                          "completedExams":  "{count, plural, =0 {You have not completed any assessments yet.} one {You have completed # assessment.} other {You have completed # assessments.}}",
-                                          "currentAverage":  "Your current overall average is {average}.",
-                                          "currentCourse":  "Current course: {course}.",
-                                          "unknownCourse":  "Not identified",
-                                          "enrollmentStatus":  "Enrollment status: {status}.",
-                                          "institutionalSituation":  "Institutional status",
-                                          "institutionalDescription":  "Your academic environment is linked to the active course and enrollment registered in the system. Use this dashboard to monitor your grades, subjects and updates."
-                                      },
-                             "photoModal":  {
-                                                "eyebrow":  "PHANYX tip",
-                                                "title":  "Ideal profile photo",
-                                                "closeAria":  "Close photo tips",
-                                                "square":  "Use a square image with a 1:1 aspect ratio.",
-                                                "resolution":  "Recommended: 500x500 px or larger.",
-                                                "formats":  "Accepted formats: PNG, JPG, JPEG and WEBP.",
-                                                "size":  "Maximum size: 5 MB.",
-                                                "understood":  "Got it"
-                                            }
-                         },
-    "StudentSubjects":  {
-                            "title":  "My Subjects",
-                            "description":  "View your subjects, follow published classes and review the attendance records.",
-                            "loading":  "Loading...",
-                            "count":  "{count, plural, one {# subject} other {# subjects}}",
-                            "searchPlaceholder":  "Search by subject or class...",
-                            "loadingList":  "Loading subjects...",
-                            "empty":  "You are not enrolled in any subjects yet.",
-                            "noResults":  "No subjects were found for this search.",
-                            "classesCount":  "{count, plural, one {# class} other {# classes}}",
-                            "attendanceRecorded":  "Attendance records:",
-                            "classGroup":  "Class:",
-                            "notInformed":  "Not provided",
-                            "blockedDefault":  "Access will be released automatically as soon as the class is published.",
-                            "access":  "Open subject"
-                        },
-    "StudentSubjectDetail":  {
-                                 "loadingDiscipline":  "Loading subject...",
-                                 "invalidId":  "The selected subject is invalid.",
-                                 "loadError":  "The subject could not be loaded.",
-                                 "notFound":  "Subject not found.",
-                                 "seekBlocked":  "Skipping ahead in the class is not allowed.",
-                                 "watchMinimumWarning":  "Watch the minimum required time to complete the class.",
-                                 "completeError":  "The class could not be completed.",
-                                 "progress":  "Progress",
-                                 "classCount":  "{count, plural, one {# class} other {# classes}}",
-                                 "durationMinutes":  "{minutes} min",
-                                 "activities":  "Assignments",
-                                 "loadingPlan":  "Loading plan...",
-                                 "examPlanRequired":  "Assessments are available only with Professional and Enterprise plans.",
-                                 "loadingExam":  "Loading assessment...",
-                                 "examUnavailable":  "Assessment unavailable",
-                                 "examAlreadyCompleted":  "You have already completed this assessment",
-                                 "takeExam":  "Take assessment",
-                                 "examLocked":  "Assessment locked — complete all classes",
-                                 "finalResult":  "Final Result",
-                                 "grade":  "Grade: {grade}",
-                                 "approved":  "Passed 🎉",
-                                 "failed":  "Failed ❌",
-                                 "watchedTime":  "Watch time",
-                                 "lessonCompleted":  "Class already completed.",
-                                 "minimumWatchHint":  "{minutes, plural, one {Watch at least # minute to unlock completion.} other {Watch at least # minutes to unlock completion.}}",
-                                 "noVideoHint":  "This class has no video. Completion is available.",
-                                 "completedButton":  "✅ Completed",
-                                 "saving":  "Saving...",
-                                 "markCompleted":  "Mark as completed",
-                                 "watchToComplete":  "{minutes, plural, one {Watch # min to complete} other {Watch # min to complete}}",
-                                 "noVideoPlayer":  "This class has no video.",
-                                 "materialsTitle":  "Class materials",
-                                 "materialsDescription":  "Files, links and supporting content provided by the teacher.",
-                                 "materialVideo":  "Video",
-                                 "materialLink":  "Link",
-                                 "materialFile":  "File",
-                                 "materialGeneric":  "Material",
-                                 "fileName":  "File: {name}",
-                                 "openVideo":  "Open video",
-                                 "openLink":  "Open link",
-                                 "openMaterial":  "Open",
-                                 "downloadMaterial":  "Download material",
-                                 "previousLesson":  "Previous class",
-                                 "nextLesson":  "Next class",
-                                 "noLessons":  "No classes were found."
-                             },
-    "StudentLesson":  {
-                          "subjectNotFound":  "Subject not found.",
-                          "lessonNotFound":  "Lesson not found.",
-                          "loadingEnrollmentStatus":  "Loading enrollment status...",
-                          "accessUnavailableTitle":  "Lesson access unavailable",
-                          "accessUnavailableStatus":  "Your enrollment status is {status}.",
-                          "accessUnavailableDescription":  "As a result, access to lessons is temporarily blocked. You can still access the student portal, monitor your status and view academic information.",
-                          "contactOffice":  "Please contact the registrar\u0027s office to resolve this situation.",
-                          "videoUnavailable":  "The video for this lesson is not available yet.",
-                          "savingProgress":  "Saving progress...",
-                          "markCompleted":  "Mark as completed",
-                          "saveProgressError":  "We could not save your lesson progress. Please try again.",
-                          "lessonCompleted":  "Lesson completed",
-                          "status":  {
-                                         "active":  "Active",
-                                         "locked":  "On hold",
-                                         "cancelled":  "Cancelled",
-                                         "completed":  "Completed",
-                                         "notStarted":  "Not started",
-                                         "suspended":  "Suspended",
-                                         "unavailable":  "Unavailable"
-                                     }
-                      },
-    "StudentExam":  {
-                        "invalidSubject":  "Invalid subject.",
-                        "loadingExam":  "Loading exam...",
-                        "loadError":  "We could not load the exam. Please try again.",
-                        "examUnavailable":  "The exam is not available yet.",
-                        "accessUnavailable":  "Access to this exam is unavailable. Check the required lessons, availability period and attempt limit.",
-                        "authenticationRequired":  "Your session has expired. Sign in again to continue.",
-                        "attemptUnavailable":  "This attempt is no longer available or has already been completed.",
-                        "saveAnswerError":  "We could not save your answer. Check your connection before submitting the exam.",
-                        "finishError":  "We could not submit the exam. Please try again.",
-                        "answerAllQuestions":  "Answer every question before submitting the exam.",
-                        "back":  "Back",
-                        "errorTitle":  "Unable to complete the exam",
-                        "resultTitle":  "Exam result",
-                        "partialResultTitle":  "Partial exam result",
-                        "grade":  "Grade",
-                        "passed":  "Passed 🎉",
-                        "failed":  "Failed ❌",
-                        "awaitingTeacherCorrection":  "Waiting for the teacher to grade the written-response questions.",
-                        "reviewTitle":  "Exam review",
-                        "essayPending":  "Written-response question awaiting teacher grading.",
-                        "yourAnswer":  "Your answer",
-                        "objectiveProcessed":  "The multiple-choice answer was processed in the exam result.",
-                        "timeSpent":  "Time spent: {minutes} min {seconds} sec",
-                        "certificateInformation":  "You passed this exam. Certificate availability depends on your institution\u0027s rules.",
-                        "backToSubject":  "Back to subject",
-                        "answerPlaceholder":  "Enter your answer...",
-                        "essayCorrectionInformation":  "Written-response question: it will be graded by the teacher.",
-                        "finishingExam":  "Submitting exam...",
-                        "finishExam":  "Submit exam"
-                    },
-    "StudentExamExecution":  {
-                                 "invalidExam":  "Invalid exam.",
-                                 "loadingExam":  "Loading exam...",
-                                 "loadError":  "We could not load the exam. Please try again.",
-                                 "examNotFound":  "Exam not found.",
-                                 "accessUnavailable":  "Access to this exam is unavailable. Check the availability period, required lessons and your attempt limit.",
-                                 "authenticationRequired":  "Your session has expired. Sign in again to continue.",
-                                 "attemptUnavailable":  "This attempt is no longer available or the attempt limit has been reached.",
-                                 "answerRequired":  "Answer this question before saving it.",
-                                 "answerAllQuestions":  "Answer every question before submitting the exam.",
-                                 "saveAnswerError":  "We could not save the answer. Check your connection and try again.",
-                                 "finishError":  "We could not submit the exam. Please try again.",
-                                 "errorTitle":  "Unable to complete",
-                                 "resultTitle":  "Exam result",
-                                 "partialResultTitle":  "Partial exam result",
-                                 "completedSuccessfully":  "Exam submitted successfully!",
-                                 "awaitingTeacherCorrection":  "The written-response questions still need to be graded by the teacher.",
-                                 "resultPending":  "Final result awaiting teacher grading.",
-                                 "grade":  "Grade",
-                                 "passed":  "Passed ✅",
-                                 "failed":  "Failed ❌",
-                                 "backToSubject":  "Back to subject",
-                                 "instructions":  "Answer every question and submit the exam when you are finished.",
-                                 "questionMeta":  "Question {number} • {points} pts",
-                                 "save":  "Save",
-                                 "saving":  "Saving...",
-                                 "saved":  "Saved ✓",
-                                 "answerPlaceholder":  "Enter your answer...",
-                                 "essayCorrectionInformation":  "The written-response question will be graded by the teacher.",
-                                 "back":  "Back",
-                                 "finishingExam":  "Submitting...",
-                                 "finishExam":  "Submit exam"
-                             },
-    "StudentProgress":  {
-                            "title":  "Academic Progress",
-                            "description":  "Track your progress in each subject based on available lessons and the academic records linked to your profile.",
-                            "loading":  "Loading progress...",
-                            "loadError":  "We could not load your academic progress. Check your connection and try again.",
-                            "retry":  "Try again",
-                            "empty":  "No academic progress is currently available.",
-                            "classLabel":  "Class",
-                            "notInformed":  "Not provided",
-                            "totalLessons":  "Total lessons",
-                            "attendanceRecords":  "Attendance records",
-                            "completed":  "Completed",
-                            "inProgress":  "In progress",
-                            "progressPercentage":  "Completion percentage",
-                            "completedMessage":  "Subject progress completed."
-                        },
-    "StudentAssignments":  {
-                               "title":  "Assignments and activities",
-                               "description":  "Review published assignments and submit your work as text, a link or a file.",
-                               "loading":  "Loading assignments...",
-                               "retry":  "Try again",
-                               "publishedAssignments":  "Published assignments",
-                               "assignmentCount":  "{count, plural, =0 {No assignments} one {# assignment} other {# assignments}}",
-                               "empty":  "No assignments are currently available.",
-                               "subject":  "Subject",
-                               "classLabel":  "Class",
-                               "deadline":  "Deadline",
-                               "noDeadline":  "No deadline",
-                               "notInformed":  "Not provided",
-                               "deadlineClosed":  "Deadline closed",
-                               "dueToday":  "Due today",
-                               "daysRemaining":  "{count, plural, one {# day remaining} other {# days remaining}}",
-                               "maximumGrade":  "Maximum grade",
-                               "delivered":  "Assignment submitted",
-                               "awaitingSubmission":  "Awaiting submission",
-                               "viewSubmission":  "View submission",
-                               "viewAssignment":  "View assignment",
-                               "answerAssignment":  "Submit answer",
-                               "attachmentCount":  "{count, plural, one {# attachment} other {# attachments}}",
-                               "assignmentFiles":  "Assignment files",
-                               "sendSubmission":  "Send submission",
-                               "sendDescription":  "Select an assignment and submit your answer.",
-                               "assignment":  "Assignment",
-                               "selectAssignment":  "Select an assignment",
-                               "alreadySubmitted":  "You have already submitted this assignment.",
-                               "textLabel":  "Text",
-                               "linkLabel":  "Link",
-                               "fileLabel":  "File",
-                               "viewSubmittedFile":  "View submitted file",
-                               "statusLabel":  "Status",
-                               "corrected":  "Graded",
-                               "submitted":  "Submitted",
-                               "gradeLabel":  "Grade",
-                               "teacherFeedback":  "Teacher feedback",
-                               "closedEditMessage":  "The deadline has passed. This submission can no longer be edited.",
-                               "textPlaceholder":  "Enter your answer, notes or additional content here",
-                               "selectFile":  "Select file",
-                               "selectedFile":  "Selected file: {name}",
-                               "fileLimit":  "Maximum size: 500 MB.",
-                               "sending":  "Sending...",
-                               "updateSubmission":  "Update submission",
-                               "sendAssignment":  "Submit assignment",
-                               "success":  "Assignment submitted successfully!",
-                               "errors":  {
-                                              "load":  "We could not load the assignments. Check your connection and try again.",
-                                              "selectAssignment":  "Select an assignment.",
-                                              "answerRequired":  "Provide at least text, a link or a file.",
-                                              "fileTooLarge":  "The file exceeds the 500 MB limit. Choose a smaller file.",
-                                              "prepareUpload":  "We could not prepare the file upload. Try again.",
-                                              "upload":  "We could not upload the file (code {status}).",
-                                              "submit":  "We could not submit the assignment. Try again."
-                                          }
-                           },
-    "StudentAssignmentSubmission":  {
-                                        "common":  {
-                                                       "notProvided":  "Not provided",
-                                                       "retry":  "Try again"
-                                                   },
-                                        "loading":  "Loading assignment...",
-                                        "back":  "Back to details",
-                                        "title":  "Submit assignment",
-                                        "success":  "Assignment submitted successfully.",
-                                        "activity":  {
-                                                         "label":  "Assignment",
-                                                         "subjectUnknown":  "Subject not provided",
-                                                         "class":  "Class"
-                                                     },
-                                        "deadline":  {
-                                                         "label":  "Deadline",
-                                                         "noDeadline":  "No deadline",
-                                                         "undefined":  "No deadline set",
-                                                         "closed":  "❌ Deadline closed",
-                                                         "daysRemaining":  "🟢 {count, plural, one {# day} other {# days}} remaining",
-                                                         "hoursRemaining":  "🟠 {count, plural, one {# hour} other {# hours}} remaining",
-                                                         "lessThanHour":  "⚠️ Due in less than 1 hour"
-                                                     },
-                                        "score":  {
-                                                      "label":  "Value",
-                                                      "points":  "points"
-                                                  },
-                                        "status":  {
-                                                       "label":  "Submission status",
-                                                       "graded":  "⭐ Graded",
-                                                       "submitted":  "✅ Submitted",
-                                                       "submittedAt":  "Submitted on: {date}",
-                                                       "evaluated":  "The teacher has graded this assignment.",
-                                                       "awaitingReview":  "Your response was submitted and is awaiting review.",
-                                                       "evaluation":  "Assessment",
-                                                       "feedback":  "Teacher feedback",
-                                                       "closed":  "❌ The deadline has closed. This assignment can no longer be submitted.",
-                                                       "notSubmitted":  "📤 Not submitted yet. You can submit text, a link, or a file."
-                                                   },
-                                        "instructions":  "Instructions",
-                                        "attachments":  {
-                                                            "title":  "📎 Assignment files ({count})",
-                                                            "file":  "File"
-                                                        },
-                                        "previous":  {
-                                                         "title":  "My latest submission",
-                                                         "text":  "Submitted text",
-                                                         "link":  "Submitted link",
-                                                         "file":  "Submitted file",
-                                                         "openFile":  "Open {name}"
-                                                     },
-                                        "form":  {
-                                                     "title":  "Your response",
-                                                     "textLabel":  "Response text",
-                                                     "textPlaceholder":  "Write your response to the teacher here...",
-                                                     "linkLabel":  "External link",
-                                                     "linkPlaceholder":  "Paste a Google Drive, OneDrive, YouTube, or other online resource link.",
-                                                     "fileLabel":  "File",
-                                                     "selectFile":  "Select file",
-                                                     "fileHelp":  "Upload a PDF, image, document, spreadsheet, video, or compressed file. Limit: 500 MB.",
-                                                     "remove":  "Remove",
-                                                     "declaration":  "By submitting this assignment, you confirm that the content is your own work and that you understand the institution\u0027s academic policies.",
-                                                     "sending":  "Submitting...",
-                                                     "update":  "📤 Update submission",
-                                                     "submit":  "📤 Submit assignment"
-                                                 },
-                                        "errors":  {
-                                                       "load":  "Unable to load assignment.",
-                                                       "notFound":  "Assignment not found.",
-                                                       "fileTooLarge":  "The selected file is {size}, but the limit is 500 MB.",
-                                                       "prepareUpload":  "Unable to prepare the upload.",
-                                                       "upload":  "Unable to upload the file.",
-                                                       "submit":  "Unable to submit the assignment."
-                                                   }
-                                    },
-    "StudentAttendance":  {
-                              "common":  {
-                                             "notProvided":  "Not provided"
-                                         },
-                              "title":  "My Attendance",
-                              "subtitle":  "Track your attendance by lesson and view your attendance summary.",
-                              "loading":  "Loading your attendance records...",
-                              "emptyData":  "No attendance data is available.",
-                              "errors":  {
-                                             "load":  "Unable to load attendance records"
-                                         },
-                              "summary":  {
-                                              "total":  "Total",
-                                              "present":  "Present",
-                                              "absences":  "Absences",
-                                              "excused":  "Excused",
-                                              "medicalCertificates":  "Medical certificates"
-                                          },
-                              "frequency":  {
-                                                "title":  "Attendance rate",
-                                                "description":  "Present, excused and medical-certificate records count as valid attendance."
-                                            },
-                              "history":  {
-                                              "title":  "Attendance history",
-                                              "records":  "{count, plural, =0 {No records} one {# record} other {# records}}",
-                                              "empty":  "No attendance records were found."
-                                          },
-                              "statuses":  {
-                                               "present":  "Present",
-                                               "absent":  "Absent",
-                                               "excused":  "Excused",
-                                               "medicalCertificate":  "Medical certificate"
-                                           },
-                              "item":  {
-                                           "lessonUnknown":  "Lesson not provided",
-                                           "classLabel":  "Class",
-                                           "dateLabel":  "Date",
-                                           "observation":  "Note"
-                                       }
-                          },
-    "StudentGradebook":  {
-                             "common":  {
-                                            "notProvided":  "Not provided"
-                                        },
-                             "hero":  {
-                                          "eyebrow":  "Academic gradebook",
-                                          "title":  "Track your grades, averages and performance by subject",
-                                          "description":  "View your completed assessments, subject averages and overall academic progress in a clear, organized and professional environment."
-                                      },
-                             "actions":  {
-                                             "backToDashboard":  "Back to dashboard",
-                                             "refreshGradebook":  "Refresh gradebook"
-                                         },
-                             "metrics":  {
-                                             "subjects":  {
-                                                              "title":  "Subjects",
-                                                              "heroDescription":  "Total subjects in your gradebook.",
-                                                              "cardDescription":  "Number of subjects with recorded grades."
-                                                          },
-                                             "exams":  {
-                                                           "title":  "Recorded assessments",
-                                                           "cardDescription":  "Total assessments linked to your current academic history."
-                                                       },
-                                             "overallAverage":  {
-                                                                    "title":  "Overall average",
-                                                                    "heroDescription":  "Consolidated average based on recorded subjects.",
-                                                                    "cardDescription":  "Consolidated overview of your academic performance."
-                                                                }
-                                         },
-                             "loading":  "Loading gradebook...",
-                             "errors":  {
-                                            "load":  "Unable to load gradebook"
-                                        },
-                             "empty":  {
-                                           "title":  "No grades found",
-                                           "description":  "Your completed assessments will appear here once they are available."
-                                       },
-                             "subject":  {
-                                             "examCount":  "{count, plural, =0 {No assessments recorded} one {# assessment recorded} other {# assessments recorded}}",
-                                             "average":  "Average: {value}"
-                                         },
-                             "exam":  {
-                                          "gradeLabel":  "Grade",
-                                          "gradeNotReleased":  "Grade not released yet",
-                                          "statusLabel":  "Status",
-                                          "status":  {
-                                                         "finished":  "Completed",
-                                                         "inProgress":  "In progress"
-                                                     },
-                                          "finishedAtLabel":  "Completed",
-                                          "awaitingRelease":  "Awaiting release"
-                                      },
-                             "performance":  {
-                                                 "good":  "Good performance",
-                                                 "attention":  "Needs attention",
-                                                 "low":  "Low performance"
-                                             }
-                         },
-    "StudentAcademicHistory":  {
-                                   "common":  {
-                                                  "notProvided":  "Not provided"
-                                              },
-                                   "official":  {
-                                                    "title":  "Official Academic Record",
-                                                    "description":  "View and print your up-to-date academic record.",
-                                                    "generate":  "Generate academic record",
-                                                    "generating":  "Generating...",
-                                                    "print":  "Print academic record",
-                                                    "fileName":  "academic-record.pdf"
-                                                },
-                                   "errors":  {
-                                                  "generateUnavailable":  "The academic record cannot be generated right now. Check whether an active Academic Record template exists.",
-                                                  "generateFailed":  "Unable to generate the academic record. Please try again shortly."
-                                              },
-                                   "examHistory":  {
-                                                       "title":  "Assessment History"
-                                                   },
-                                   "average":  "Overall average: {value}",
-                                   "chart":  {
-                                                 "title":  "Performance by Subject",
-                                                 "grade":  "Grade"
-                                             },
-                                   "exam":  {
-                                                "subjectId":  "Subject ID {id}",
-                                                "gradeLabel":  "Grade",
-                                                "approved":  "Passed 🎉",
-                                                "failed":  "Failed ❌",
-                                                "dateLabel":  "Date",
-                                                "durationLabel":  "Time",
-                                                "duration":  "{minutes, plural, =0 {0 min} one {# min} other {# min}} {seconds, plural, =0 {0 sec} one {# sec} other {# sec}}",
-                                                "viewDetails":  "View details"
-                                            },
-                                   "modal":  {
-                                                 "eyebrow":  "PHANYX notice",
-                                                 "title":  "Academic record",
-                                                 "understood":  "Got it"
-                                             }
-                               },
-    "StudentMeetings":  {
-                            "common":  {
-                                           "notProvided":  "Not provided"
-                                       },
-                            "title":  "My Meetings",
-                            "description":  "View the meetings you have been invited to attend.",
-                            "loading":  "Loading meetings...",
-                            "empty":  "No meetings are available right now.",
-                            "join":  "Join meeting",
-                            "errors":  {
-                                           "load":  "Unable to load meetings."
-                                       }
-                        },
-    "StudentNotes":  {
-                         "title":  "My Grades",
-                         "empty":  "No grades have been posted yet.",
-                         "labels":  {
-                                        "grade":  "Grade",
-                                        "status":  "Status",
-                                        "feedback":  "Feedback"
-                                    },
-                         "situations":  {
-                                            "approved":  "Passed",
-                                            "recovery":  "Remedial assessment",
-                                            "failed":  "Failed"
-                                        }
-                     },
-    "StudentCertificates":  {
-                                "common":  {
-                                               "notProvided":  "Not provided"
-                                           },
-                                "title":  "My Certificates",
-                                "description":  "Certificates are generated automatically after you successfully complete a subject.",
-                                "loading":  "Loading certificates...",
-                                "empty":  "You do not have any certificates available yet.",
-                                "subjectFallback":  "Subject",
-                                "code":  "Code",
-                                "issuedOn":  "Issued on",
-                                "download":  "Download certificate",
-                                "validate":  "Validate",
-                                "errors":  {
-                                               "load":  "Unable to load your certificates."
-                                           }
-                            },
-    "StudentCertificateDetail":  {
-                                     "title":  "Certificate of Completion",
-                                     "certifyThat":  "This is to certify that",
-                                     "completedSubject":  "has successfully completed the subject",
-                                     "workload":  "Workload: {hours, plural, one {# hour} other {# hours}}",
-                                     "completionDate":  "Completion date: {date}",
-                                     "registrationNumber":  "Registration no. {number}",
-                                     "printOrSave":  "Print / Save as PDF",
-                                     "backToCertificates":  "Back to certificates",
-                                     "notFound":  "Certificate not found.",
-                                     "back":  "Back",
-                                     "notProvided":  "Not provided"
-                                 },
-    "StudentFinancialBlock":  {
-                                  "title":  "Access blocked due to an outstanding balance",
-                                  "greeting":  "Hello, {name}.",
-                                  "studentFallback":  "student",
-                                  "pendingDescription":  "Your academic access is temporarily blocked because there is an outstanding financial balance.",
-                                  "releaseDescription":  "Access will be restored automatically after the payment is settled and your financial status is updated.",
-                                  "goToLogin":  "Go to login",
-                                  "tryAgain":  "Try again"
-                              },
-    "StudentLessonPage":  {
-                              "common":  {
-                                             "unavailable":  "unavailable"
-                                         },
-                              "enrollmentStatus":  {
-                                                       "active":  "Active",
-                                                       "pending":  "Pending",
-                                                       "overdue":  "Overdue",
-                                                       "suspended":  "Suspended",
-                                                       "cancelled":  "Cancelled",
-                                                       "completed":  "Completed"
-                                                   },
-                              "blocked":  {
-                                              "title":  "Lesson access unavailable",
-                                              "statusPrefix":  "Your enrollment status is",
-                                              "reason":  "Access to this lesson’s content is temporarily blocked.",
-                                              "availableResources":  "You can still access the student portal to view your status, grades and other academic information."
-                                          },
-                              "lessonTitle":  "Lesson {id}",
-                              "description":  "View the materials and follow the lesson content.",
-                              "noMainMaterial":  "No material is available for this lesson.",
-                              "materialsTitle":  "Lesson materials",
-                              "noMaterials":  "No materials have been added.",
-                              "typeLabel":  "Type",
-                              "open":  "Open",
-                              "materialTypes":  {
-                                                    "video":  "Video",
-                                                    "audio":  "Audio",
-                                                    "document":  "Document",
-                                                    "image":  "Image",
-                                                    "link":  "Link",
-                                                    "file":  "File"
-                                                },
-                              "progress":  {
-                                               "title":  "Progress",
-                                               "completed":  "{percent}% complete"
-                                           },
-                              "nextSteps":  {
-                                                "title":  "Next steps",
-                                                "watchMain":  "Watch the main content",
-                                                "openSupplementary":  "Open the supplementary materials",
-                                                "markCompleted":  "Mark the lesson as complete"
-                                            }
-                          },
-    "StudentActivityDetail":  {
-                                  "back":  "Back to assignments",
-                                  "loading":  "Loading assignment...",
-                                  "noDeadline":  "No deadline",
-                                  "labels":  {
-                                                 "subject":  "Subject",
-                                                 "deadline":  "Deadline",
-                                                 "maximumScore":  "Maximum score",
-                                                 "class":  "Class"
-                                             },
-                                  "submission":  {
-                                                     "title":  "Submit assignment",
-                                                     "description":  "You can submit a written response, a link and a file URL.",
-                                                     "textLabel":  "Submission text",
-                                                     "textPlaceholder":  "Write your response or comments",
-                                                     "linkLabel":  "Link",
-                                                     "fileUrlLabel":  "File URL",
-                                                     "fileUrlPlaceholder":  "https://file...",
-                                                     "submitting":  "Submitting...",
-                                                     "submit":  "Submit assignment",
-                                                     "success":  "Assignment submitted successfully."
-                                                 },
-                                  "errors":  {
-                                                 "load":  "The assignment could not be loaded.",
-                                                 "notFound":  "Assignment not found.",
-                                                 "submit":  "The assignment could not be submitted. Please try again."
-                                             }
-                              },
-    "StudentProfileCompletion":  {
-                                     "title":  "Complete your profile",
-                                     "description":  "Keep your documents, contracts and academic records accurate with information valid for your country.",
-                                     "loading":  "Loading profile...",
-                                     "saving":  "Saving...",
-                                     "save":  "Save profile",
-                                     "success":  "Profile updated successfully.",
-                                     "common":  {
-                                                    "select":  "Select"
-                                                },
-                                     "modal":  {
-                                                   "title":  "We could not complete your profile",
-                                                   "close":  "Close",
-                                                   "help":  "Review the reported problem, correct the corresponding field and try again.",
-                                                   "understood":  "Got it"
-                                               },
-                                     "personal":  {
-                                                      "title":  "Personal information",
-                                                      "officialName":  "Official full name",
-                                                      "officialNameHelp":  "Contact the administration office to change your official name.",
-                                                      "socialName":  "Preferred name",
-                                                      "socialNamePlaceholder":  "Enter your preferred name, if applicable",
-                                                      "gender":  "Gender",
-                                                      "birthDate":  "Date of birth",
-                                                      "birthCountry":  "Country of birth",
-                                                      "nationality":  "Nationality",
-                                                      "nationalityPlaceholder":  "E.g. American",
-                                                      "documentType":  "Document type",
-                                                      "documentNumber":  "Document number",
-                                                      "documentNumberPlaceholder":  "Enter a document issued by your country",
-                                                      "phone":  "Phone / WhatsApp"
-                                                  },
-                                     "gender":  {
-                                                    "female":  "Female",
-                                                    "male":  "Male",
-                                                    "notInform":  "Prefer not to say",
-                                                    "other":  "Other"
-                                                },
-                                     "address":  {
-                                                     "title":  "Address",
-                                                     "country":  "Country of residence",
-                                                     "postalCode":  "Postal / ZIP code",
-                                                     "postalCodePlaceholder":  "Enter the postal code",
-                                                     "street":  "Street address",
-                                                     "number":  "Number",
-                                                     "complement":  "Address line 2",
-                                                     "district":  "District / Neighborhood",
-                                                     "city":  "City",
-                                                     "region":  "State / Province / Region",
-                                                     "regionPlaceholder":  "Enter the state, province or region"
-                                                 },
-                                     "guardian":  {
-                                                      "title":  "Parent or guardian",
-                                                      "name":  "Parent or guardian name",
-                                                      "relationship":  "Relationship",
-                                                      "documentType":  "Parent or guardian document type",
-                                                      "documentNumber":  "Parent or guardian document number",
-                                                      "phone":  "Parent or guardian phone",
-                                                      "email":  "Parent or guardian email"
-                                                  },
-                                     "accessibility":  {
-                                                           "title":  "Accessibility",
-                                                           "hasNeed":  "I have a disability or accessibility requirement",
-                                                           "description":  "Description of the accessibility requirement",
-                                                           "notes":  "Accessibility notes"
-                                                       },
-                                     "documents":  {
-                                                       "CPF":  "Brazilian CPF",
-                                                       "RG":  "Brazilian RG",
-                                                       "NIF":  "NIF",
-                                                       "CARTAO_CIDADAO":  "Citizen Card",
-                                                       "SSN":  "SSN",
-                                                       "STATE_ID":  "State ID",
-                                                       "DNI":  "DNI",
-                                                       "NIE":  "NIE",
-                                                       "CNI":  "National identity card",
-                                                       "PASSPORT":  "Passport",
-                                                       "NATIONAL_ID":  "National identity document",
-                                                       "TAX_ID":  "Tax identification document",
-                                                       "RESIDENCE_PERMIT":  "Residence permit",
-                                                       "OTHER":  "Other document"
-                                                   },
-                                     "errors":  {
-                                                    "forbidden":  "You do not have permission to change this profile.",
-                                                    "studentNotFound":  "The student profile was not found.",
-                                                    "required":  "Enter the document type and number, phone number and date of birth.",
-                                                    "invalidPhone":  "The phone number is not valid for the selected country.",
-                                                    "invalidGuardianPhone":  "The parent or guardian phone number is not valid for the selected country.",
-                                                    "invalidPostalCode":  "The postal code does not match the selected country format.",
-                                                    "invalidDate":  "The date of birth is invalid.",
-                                                    "invalidCountry":  "Select a valid country.",
-                                                    "load":  "We could not load your profile.",
-                                                    "save":  "We could not save your profile.",
-                                                    "generic":  "An unexpected problem occurred. Please try again."
-                                                }
-                                 },
-    "StudentOmbudsman":  {
-                             "eyebrow":  "COMMUNICATION CHANNEL",
-                             "title":  "Ombudsman",
-                             "description":  "Use this space to submit suggestions, compliments, complaints or reports concerning your classes, support, administration, finance or any other experience with the institution.",
-                             "form":  {
-                                          "typeLabel":  "Submission type",
-                                          "messageLabel":  "Message",
-                                          "messagePlaceholder":  "Describe your suggestion, compliment, complaint or report...",
-                                          "submitting":  "Submitting...",
-                                          "submit":  "Submit message"
-                                      },
-                             "types":  {
-                                           "suggestion":  "Suggestion",
-                                           "complaint":  "Complaint",
-                                           "compliment":  "Compliment",
-                                           "report":  "Report"
-                                       },
-                             "validation":  {
-                                                "messageRequired":  "Write your message before submitting."
-                                            },
-                             "errors":  {
-                                            "submit":  "Your message could not be submitted."
-                                        },
-                             "success":  "Your message was submitted successfully.",
-                             "howItWorks":  {
-                                                "title":  "How does it work?",
-                                                "forwarded":  "Your message will be forwarded to the responsible department.",
-                                                "tracking":  "You will be able to track its progress in this area.",
-                                                "suggestions":  "Suggestions help improve the student experience.",
-                                                "analysis":  "Complaints and reports will be reviewed by the institution."
-                                            }
-                         }
+  "Common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "loading": "Loading...",
+    "language": "Language",
+    "close": "Close",
+    "changingLanguage": "Changing language...",
+    "languageChangeError": "Could not change the language. Please try again.",
+    "theme": "Theme",
+    "lightTheme": "Light",
+    "darkTheme": "Dark",
+    "systemTheme": "System",
+    "sessionExpired": "Session ended",
+    "sessionExpiredDescription": "Your session was ended for security reasons due to inactivity. You will be redirected to the sign-in page.",
+    "goToLogin": "Go to sign in"
+  },
+  "AdminDashboard": {
+    "profile": "Administrative profile",
+    "institutionPanel": "Institution dashboard",
+    "title": "Administrative Dashboard",
+    "description": "Manage your institution's academic, financial, document and operational activities in one place.",
+    "searchPlaceholder": "Search students, teachers, courses, subjects, classes or enrollments...",
+    "guidedTutorial": "Guided tutorial",
+    "firstSteps": "Getting started",
+    "tutorialDescription": "Use the guided tutorial to quickly learn about the main PHANYX areas.",
+    "viewTour": "Start tour",
+    "quickActions": "Quick Actions",
+    "quickActionsDescription": "Shortcuts to speed up your institution's setup.",
+    "newStudent": "New Student",
+    "newTeacher": "New Teacher",
+    "newCourse": "New Course",
+    "newDepartment": "New Department",
+    "manageEnrollments": "Manage Enrollments",
+    "operationOverview": "Operations Overview",
+    "operationOverviewDescription": "Summary of the main academic records currently registered.",
+    "loadingStatistics": "Loading statistics...",
+    "students": "Students",
+    "studentsDescription": "Total students registered at the institution.",
+    "teachers": "Teachers",
+    "teachersDescription": "Teaching staff registered in the system.",
+    "courses": "Courses",
+    "coursesDescription": "Academic catalog created so far.",
+    "subjects": "Subjects",
+    "subjectsDescription": "Registered curriculum structure.",
+    "certificates": "Certificates",
+    "certificatesDescription": "Certificates issued or registered in the database.",
+    "mainAccess": "Main Access",
+    "mainAccessDescription": "Quick access to the most frequently used setup modules.",
+    "openModule": "Open Module",
+    "noResults": "No results found",
+    "searchSuggestion": "Try searching by name, code or ID.",
+    "studentResult": "Student",
+    "teacherResult": "Teacher",
+    "courseResult": "Course",
+    "subjectResult": "Subject",
+    "classResult": "Class",
+    "enrollmentResult": "Enrollment",
+    "tourMascotAlt": "Formix mascot guiding the tutorial",
+    "tourDashboardTitle": "Administrative dashboard",
+    "tourDashboardDescription": "This is an overview of your operation. Whenever you want to return to the beginning, click here.",
+    "tourDashboardHighlight": "Let's start with the main dashboard.",
+    "tourSettingsTitle": "Institution settings",
+    "tourSettingsDescription": "Start here. This is where you configure the logo, institution details, visual identity and essential information.",
+    "tourSettingsHighlight": "First, set up your institution's identity.",
+    "tourDepartmentsTitle": "Departments and teams",
+    "tourDepartmentsDescription": "Next, organize the institution into departments such as administration, finance, academics and coordination.",
+    "tourDepartmentsHighlight": "Now let's structure the internal operation.",
+    "tourTeachersTitle": "Teacher registration",
+    "tourTeachersDescription": "Add the teachers who will manage academic activities and access the system.",
+    "tourTeachersHighlight": "It's time to build your teaching team.",
+    "tourStudentsTitle": "Student registration",
+    "tourStudentsDescription": "Next, register your students and prepare the foundation for enrollments and academic monitoring.",
+    "tourStudentsHighlight": "Now let's prepare your student records.",
+    "tourEnrollmentsTitle": "Enrollments",
+    "tourEnrollmentsDescription": "Connect students, courses and classes here to begin your institution's real operation.",
+    "tourEnrollmentsHighlight": "Almost ready: this is where the real operation begins.",
+    "tourStepProgress": "Step {current} of {total}",
+    "dontShowAgain": "Don't show again",
+    "previous": "Previous",
+    "next": "Next",
+    "completeTour": "Complete tour",
+    "tourCelebratingAlt": "Formix mascot celebrating",
+    "tourCompleted": "Tour completed successfully",
+    "tourCongratulations": "Congratulations! Your institution is ready to get started 🚀",
+    "tourCompletedDescription": "You have completed the initial PHANYX tour. Your team can now continue the setup with greater confidence.",
+    "recommendedNextSteps": "Recommended next steps",
+    "configureInstitutionData": "Configure institution details",
+    "organizeDepartments": "Organize departments and teams",
+    "registerTeachers": "Register teachers",
+    "registerStudents": "Register students",
+    "startEnrollments": "Start enrollments",
+    "startWithSettings": "Start with settings",
+    "finishAndHide": "Finish and don't show again",
+    "continueDashboard": "Continue to dashboard",
+    "administratorFallback": "Administrator",
+    "employeePhotoAlt": "Employee",
+    "uploadingPhoto": "Uploading...",
+    "changePhoto": "Change photo",
+    "unnamed": "No name"
+  },
+  "AdminNavigation": {
+    "adminPanel": "Administrative Dashboard",
+    "openGuidedTutorial": "Open guided tutorial",
+    "administrative": "Administrative",
+    "administrator": "Administrator",
+    "employee": "Employee",
+    "dashboard": "Dashboard",
+    "myProfile": "My Profile",
+    "subscription": "PHANYX Subscription",
+    "master": "PHANYX Master",
+    "accessControl": "Access Control",
+    "commercialPhanyx": "PHANYX Sales",
+    "commercial": "Sales",
+    "academic": "Academic",
+    "virtualLibrary": "Digital Library",
+    "financial": "Finance",
+    "humanResources": "Staff / HR",
+    "documents": "Documents",
+    "communication": "Communication",
+    "settings": "Settings",
+    "students": "Students",
+    "teachers": "Teachers",
+    "teacherSubstitutions": "Teacher Substitutions",
+    "employees": "Employees",
+    "departments": "Departments",
+    "subjects": "Subjects",
+    "enrollments": "Enrollments",
+    "semesterReenrollments": "Semester Re-enrollments",
+    "classes": "Classes",
+    "operationalSchedule": "Schedule / Roster",
+    "academicPublications": "Academic Publications",
+    "visitors": "Visitors",
+    "overview": "Overview",
+    "collection": "Collection",
+    "receipts": "Receipts",
+    "cashRegister": "Cash Register",
+    "reports": "Reports",
+    "overdueAccounts": "Overdue Accounts",
+    "generalClosing": "General Closing",
+    "generateInvoiceForProspect": "Generate payment slip for prospect",
+    "variableCompensation": "Variable Compensation",
+    "salesCommissions": "Sales Commissions",
+    "timeTracking": "Time Tracking",
+    "timeTrackingSettings": "Time Tracking Settings",
+    "mobileTimeTracking": "Mobile Time Tracking",
+    "afdImport": "AFD Import",
+    "timeBank": "Time Bank",
+    "payslips": "Pay Statements",
+    "payrollEvents": "Payroll Events",
+    "benefits": "Benefits",
+    "vacation": "Vacation",
+    "medicalExams": "Medical Exams",
+    "terminations": "Terminations",
+    "employmentHistory": "Employment History",
+    "archivedHR": "Archived HR Records",
+    "occurrences": "Occurrences",
+    "accountingReports": "Accounting Reports",
+    "hrDocuments": "HR Documents",
+    "contracts": "Contracts",
+    "generatedDocuments": "Generated Documents",
+    "generateDocument": "Generate Document",
+    "validation": "Validation",
+    "badges": "ID Badges",
+    "meetings": "Meetings",
+    "birthdays": "Birthdays",
+    "ombudsman": "Ombudsman",
+    "institution": "Institution",
+    "institutionalLogos": "Institutional Logos",
+    "institutionalEmail": "Institutional Email",
+    "institutionalWhatsapp": "Institutional WhatsApp",
+    "campusesAndUnits": "Campuses and Units",
+    "departmentPermissions": "Department Permissions",
+    "institutionalDocuments": "Institutional Documents",
+    "portalVisibility": "Portal Visibility",
+    "certificateManagement": "Certificate Management",
+    "certificateEditor": "Certificate Editor",
+    "logout": "Log Out",
+    "phanyxLeads": "PHANYX Leads",
+    "leadGenerationCenter": "Lead Generation Center",
+    "salesFunnels": "Sales Funnels",
+    "salesPipeline": "Sales Pipeline",
+    "salesAgenda": "Sales Schedule",
+    "leadsAndOpportunities": "Leads and Opportunities",
+    "salesTeams": "Sales Teams",
+    "salesTargets": "Sales Targets",
+    "commissionPlans": "Commission Plans",
+    "dashboardShort": "Home",
+    "academicShort": "Acad.",
+    "commercialShort": "Sales",
+    "financialShort": "Finance",
+    "hrShort": "HR",
+    "documentsShort": "Docs",
+    "settingsShort": "Settings",
+    "communicationShort": "Comm.",
+    "notifications": "Notifications",
+    "notificationsDescription": "Important PHANYX updates",
+    "viewAllNotifications": "View all notifications",
+    "masterDashboard": "Master Dashboard",
+    "signInAsUser": "Sign in as user",
+    "phanyxPlatform": "PHANYX Platform",
+    "generateIbeInvoice": "Generate IBE payment slip",
+    "campusManagementDisabled": "Campus and unit management is unavailable",
+    "campusManagementDisabledDescription": "This institution ID is not authorized to create or manage campuses or units. This permission is controlled by the network's contracting institution.",
+    "backToDashboard": "Back to dashboard"
+  },
+  "MonthlyCampaign": {
+    "origin": "Monthly Awareness Campaign",
+    "genericTitle": "{month} — Health and well-being",
+    "genericDescription": "Monthly health and well-being awareness campaign.",
+    "genericPhrase": "Information, prevention and care make a difference every day.",
+    "health": "Health",
+    "upcomingHoliday": "Upcoming holiday",
+    "monthlyCampaign": "Monthly campaign"
+  },
+  "InternationalPhone": {
+    "selectCountry": "Select phone country",
+    "searchCountry": "Search country or calling code",
+    "noCountryFound": "No country found.",
+    "placeholder": "Enter phone number",
+    "required": "Enter the phone number.",
+    "invalid": "Enter a valid phone number for the selected country.",
+    "invalidTitle": "Invalid phone number",
+    "studentInvalid": "The student's phone number is not valid for the selected country. Correct the number or select another country.",
+    "guardianInvalid": "The guardian's phone number is not valid for the selected country. Correct the number or select another country."
+  },
+  "StudentLayout": {
+    "academicAccessBlocked": "Academic access blocked",
+    "financialRegularizationRequired": "Financial regularization required",
+    "greeting": "Hello, {name}.",
+    "blockedDescription": "Your access to the academic portal is temporarily blocked because of an outstanding financial balance registered by the institution.",
+    "meaningTitle": "What this means",
+    "meaningDescription": "While the balance remains outstanding, access to academic areas may remain unavailable.",
+    "unlockTitle": "How to restore access",
+    "unlockDescription": "Contact your institution's finance department or administration office to resolve the situation.",
+    "importantTitle": "Important",
+    "importantDescription": "After the payment is recorded in the system, access may be restored automatically according to the institution's rules.",
+    "backToLogin": "Back to login",
+    "logout": "Log out",
+    "footer": "PHANYX • Academic and financial management",
+    "dashboard": "Dashboard",
+    "reenrollmentShort": "Re-enroll",
+    "subjects": "Subjects",
+    "progress": "Progress",
+    "assignments": "Assignments",
+    "attendance": "Attendance",
+    "grades": "Grades",
+    "certificates": "Certificates",
+    "meetings": "Meetings",
+    "registrationData": "Registration details",
+    "registrationDescription": "Keep your information updated for contracts, documents and academic records.",
+    "updateMyData": "Update my information"
+  },
+  "StudentSidebar": {
+    "areaTitle": "Student Portal",
+    "student": "Student",
+    "profilePhoto": "Profile photo of {name}",
+    "academicDashboard": "Academic Dashboard",
+    "semesterReenrollment": "Semester Re-enrollment",
+    "subjects": "Subjects",
+    "progress": "Progress",
+    "assignments": "Assignments",
+    "attendance": "Attendance",
+    "grades": "Grades",
+    "academicHistory": "Academic Record",
+    "meetings": "Meetings",
+    "certificates": "Certificates",
+    "ombudsman": "Ombudsman"
+  },
+  "StudentDashboard": {
+    "errors": {
+      "imageUpload": "Unable to upload the image.",
+      "missingImageUrl": "The upload was completed, but the image URL was not returned.",
+      "savePhoto": "Unable to save the profile photo.",
+      "changePhoto": "Unable to change the photo.",
+      "paymentBlocked": "Access blocked due to an outstanding payment.",
+      "loadDashboard": "Unable to load the dashboard."
+    },
+    "greetings": {
+      "morning": "Good morning",
+      "afternoon": "Good afternoon",
+      "evening": "Good evening"
+    },
+    "performance": {
+      "excellent": "Excellent performance. Keep up the great work.",
+      "veryGood": "You are making very good progress on your journey.",
+      "good": "Good progress. Consider reviewing the latest content.",
+      "needsImprovement": "It is time to strengthen your studies and regain momentum."
+    },
+    "nextStep": {
+      "regularizeTitle": "Restore access",
+      "regularizeDescription": "Access to your academic dashboard is currently restricted. Resolve the issue to continue normally.",
+      "openSupport": "Open support",
+      "continueTitle": "Continue studying",
+      "continueDescription": "Resume your academic routine by opening the subject currently available.",
+      "openSubject": "Open subject",
+      "reviewTitle": "Review results",
+      "reviewDescription": "View your latest performance and monitor your academic progress.",
+      "viewGrades": "View grades",
+      "exploreTitle": "Explore dashboard",
+      "exploreDescription": "Monitor your academic indicators and keep your routine organized.",
+      "refreshDashboard": "Refresh dashboard"
+    },
+    "hero": {
+      "eyebrow": "Student academic dashboard",
+      "student": "Student",
+      "sendingPhoto": "Uploading...",
+      "changePhoto": "Change photo",
+      "photoTips": "Photo tips",
+      "heading": "{greeting}, follow your academic journey with clarity, performance and focus",
+      "description": "View your course, performance, subjects and next steps in a dashboard designed for a modern, organized and professional academic experience.",
+      "continueStudies": "Continue studying",
+      "viewGrades": "View grades",
+      "openGrades": "Open grades",
+      "refreshDashboard": "Refresh dashboard",
+      "currentCourse": "Current course",
+      "unknownCourse": "Course not identified",
+      "status": "Status",
+      "notInformed": "Not provided",
+      "currentPerformance": "Current performance",
+      "performanceBasis": "Based on your current overall average.",
+      "loading": "Loading dashboard..."
+    },
+    "restricted": {
+      "eyebrow": "Restricted access",
+      "title": "Your access is temporarily blocked",
+      "institutionInstruction": "Contact your institution to resolve the outstanding financial issue and restore access to the academic environment.",
+      "contactSupport": "Contact support",
+      "refreshDashboard": "Refresh dashboard"
+    },
+    "stats": {
+      "enrolledSubjects": "Enrolled subjects",
+      "enrolledSubjectsDescription": "Current number of subjects associated with your enrollment.",
+      "overallAverage": "Overall average",
+      "overallAverageDescription": "Your consolidated academic performance to date.",
+      "completedExams": "Completed assessments",
+      "completedExamsDescription": "Number of assessments already completed.",
+      "higherPlans": "Available on higher-tier plans.",
+      "enrollmentStatus": "Enrollment status",
+      "enrollmentStatusDescription": "Current academic status of your institutional enrollment."
+    },
+    "enrollmentStatuses": {
+      "active": "Active",
+      "pending": "Pending",
+      "locked": "On hold",
+      "cancelled": "Cancelled",
+      "completed": "Completed",
+      "inactive": "Inactive",
+      "suspended": "Suspended"
+    },
+    "subjects": {
+      "title": "Your subjects",
+      "description": "Quickly access content, materials and assignments.",
+      "count": "{count, plural, =0 {No subjects} one {# subject} other {# subjects}}",
+      "empty": "No subjects are currently available.",
+      "cardDescription": "Access the available content and follow your academic activities.",
+      "availableSoon": "Class available soon",
+      "blockedDefault": "This subject will be unlocked automatically as soon as the institution publishes its content.",
+      "access": "Open subject"
+    },
+    "exams": {
+      "title": "Latest assessments",
+      "description": "Your most recently completed assessments.",
+      "viewGrades": "View grades",
+      "higherPlans": "Details of completed assessments are available on higher-tier plans.",
+      "empty": "You have not completed any assessments yet.",
+      "subject": "Subject",
+      "completedAt": "Completed",
+      "grade": "Grade"
+    },
+    "side": {
+      "nextStep": "Next step",
+      "visualProgress": "Visual progress",
+      "currentPerformance": "Current performance",
+      "quickLinks": "Quick links",
+      "continueStudies": "Continue studying",
+      "refreshDashboard": "Refresh dashboard",
+      "openGrades": "Open grades",
+      "academicSummary": "Academic summary",
+      "enrolledSubjects": "{count, plural, =0 {You are not enrolled in any subjects.} one {You are enrolled in # subject.} other {You are enrolled in # subjects.}}",
+      "completedExams": "{count, plural, =0 {You have not completed any assessments yet.} one {You have completed # assessment.} other {You have completed # assessments.}}",
+      "currentAverage": "Your current overall average is {average}.",
+      "currentCourse": "Current course: {course}.",
+      "unknownCourse": "Not identified",
+      "enrollmentStatus": "Enrollment status: {status}.",
+      "institutionalSituation": "Institutional status",
+      "institutionalDescription": "Your academic environment is linked to the active course and enrollment registered in the system. Use this dashboard to monitor your grades, subjects and updates."
+    },
+    "photoModal": {
+      "eyebrow": "PHANYX tip",
+      "title": "Ideal profile photo",
+      "closeAria": "Close photo tips",
+      "square": "Use a square image with a 1:1 aspect ratio.",
+      "resolution": "Recommended: 500x500 px or larger.",
+      "formats": "Accepted formats: PNG, JPG, JPEG and WEBP.",
+      "size": "Maximum size: 5 MB.",
+      "understood": "Got it"
+    }
+  },
+  "StudentSubjects": {
+    "title": "My Subjects",
+    "description": "View your subjects, follow published classes and review the attendance records.",
+    "loading": "Loading...",
+    "count": "{count, plural, one {# subject} other {# subjects}}",
+    "searchPlaceholder": "Search by subject or class...",
+    "loadingList": "Loading subjects...",
+    "empty": "You are not enrolled in any subjects yet.",
+    "noResults": "No subjects were found for this search.",
+    "classesCount": "{count, plural, one {# class} other {# classes}}",
+    "attendanceRecorded": "Attendance records:",
+    "classGroup": "Class:",
+    "notInformed": "Not provided",
+    "blockedDefault": "Access will be released automatically as soon as the class is published.",
+    "access": "Open subject"
+  },
+  "StudentSubjectDetail": {
+    "loadingDiscipline": "Loading subject...",
+    "invalidId": "The selected subject is invalid.",
+    "loadError": "The subject could not be loaded.",
+    "notFound": "Subject not found.",
+    "seekBlocked": "Skipping ahead in the class is not allowed.",
+    "watchMinimumWarning": "Watch the minimum required time to complete the class.",
+    "completeError": "The class could not be completed.",
+    "progress": "Progress",
+    "classCount": "{count, plural, one {# class} other {# classes}}",
+    "durationMinutes": "{minutes} min",
+    "activities": "Assignments",
+    "loadingPlan": "Loading plan...",
+    "examPlanRequired": "Assessments are available only with Professional and Enterprise plans.",
+    "loadingExam": "Loading assessment...",
+    "examUnavailable": "Assessment unavailable",
+    "examAlreadyCompleted": "You have already completed this assessment",
+    "takeExam": "Take assessment",
+    "examLocked": "Assessment locked — complete all classes",
+    "finalResult": "Final Result",
+    "grade": "Grade: {grade}",
+    "approved": "Passed 🎉",
+    "failed": "Failed ❌",
+    "watchedTime": "Watch time",
+    "lessonCompleted": "Class already completed.",
+    "minimumWatchHint": "{minutes, plural, one {Watch at least # minute to unlock completion.} other {Watch at least # minutes to unlock completion.}}",
+    "noVideoHint": "This class has no video. Completion is available.",
+    "completedButton": "✅ Completed",
+    "saving": "Saving...",
+    "markCompleted": "Mark as completed",
+    "watchToComplete": "{minutes, plural, one {Watch # min to complete} other {Watch # min to complete}}",
+    "noVideoPlayer": "This class has no video.",
+    "materialsTitle": "Class materials",
+    "materialsDescription": "Files, links and supporting content provided by the teacher.",
+    "materialVideo": "Video",
+    "materialLink": "Link",
+    "materialFile": "File",
+    "materialGeneric": "Material",
+    "fileName": "File: {name}",
+    "openVideo": "Open video",
+    "openLink": "Open link",
+    "openMaterial": "Open",
+    "downloadMaterial": "Download material",
+    "previousLesson": "Previous class",
+    "nextLesson": "Next class",
+    "noLessons": "No classes were found."
+  },
+  "StudentLesson": {
+    "subjectNotFound": "Subject not found.",
+    "lessonNotFound": "Lesson not found.",
+    "loadingEnrollmentStatus": "Loading enrollment status...",
+    "accessUnavailableTitle": "Lesson access unavailable",
+    "accessUnavailableStatus": "Your enrollment status is {status}.",
+    "accessUnavailableDescription": "As a result, access to lessons is temporarily blocked. You can still access the student portal, monitor your status and view academic information.",
+    "contactOffice": "Please contact the registrar's office to resolve this situation.",
+    "videoUnavailable": "The video for this lesson is not available yet.",
+    "savingProgress": "Saving progress...",
+    "markCompleted": "Mark as completed",
+    "saveProgressError": "We could not save your lesson progress. Please try again.",
+    "lessonCompleted": "Lesson completed",
+    "status": {
+      "active": "Active",
+      "locked": "On hold",
+      "cancelled": "Cancelled",
+      "completed": "Completed",
+      "notStarted": "Not started",
+      "suspended": "Suspended",
+      "unavailable": "Unavailable"
+    }
+  },
+  "StudentExam": {
+    "invalidSubject": "Invalid subject.",
+    "loadingExam": "Loading exam...",
+    "loadError": "We could not load the exam. Please try again.",
+    "examUnavailable": "The exam is not available yet.",
+    "accessUnavailable": "Access to this exam is unavailable. Check the required lessons, availability period and attempt limit.",
+    "authenticationRequired": "Your session has expired. Sign in again to continue.",
+    "attemptUnavailable": "This attempt is no longer available or has already been completed.",
+    "saveAnswerError": "We could not save your answer. Check your connection before submitting the exam.",
+    "finishError": "We could not submit the exam. Please try again.",
+    "answerAllQuestions": "Answer every question before submitting the exam.",
+    "back": "Back",
+    "errorTitle": "Unable to complete the exam",
+    "resultTitle": "Exam result",
+    "partialResultTitle": "Partial exam result",
+    "grade": "Grade",
+    "passed": "Passed 🎉",
+    "failed": "Failed ❌",
+    "awaitingTeacherCorrection": "Waiting for the teacher to grade the written-response questions.",
+    "reviewTitle": "Exam review",
+    "essayPending": "Written-response question awaiting teacher grading.",
+    "yourAnswer": "Your answer",
+    "objectiveProcessed": "The multiple-choice answer was processed in the exam result.",
+    "timeSpent": "Time spent: {minutes} min {seconds} sec",
+    "certificateInformation": "You passed this exam. Certificate availability depends on your institution's rules.",
+    "backToSubject": "Back to subject",
+    "answerPlaceholder": "Enter your answer...",
+    "essayCorrectionInformation": "Written-response question: it will be graded by the teacher.",
+    "finishingExam": "Submitting exam...",
+    "finishExam": "Submit exam"
+  },
+  "StudentExamExecution": {
+    "invalidExam": "Invalid exam.",
+    "loadingExam": "Loading exam...",
+    "loadError": "We could not load the exam. Please try again.",
+    "examNotFound": "Exam not found.",
+    "accessUnavailable": "Access to this exam is unavailable. Check the availability period, required lessons and your attempt limit.",
+    "authenticationRequired": "Your session has expired. Sign in again to continue.",
+    "attemptUnavailable": "This attempt is no longer available or the attempt limit has been reached.",
+    "answerRequired": "Answer this question before saving it.",
+    "answerAllQuestions": "Answer every question before submitting the exam.",
+    "saveAnswerError": "We could not save the answer. Check your connection and try again.",
+    "finishError": "We could not submit the exam. Please try again.",
+    "errorTitle": "Unable to complete",
+    "resultTitle": "Exam result",
+    "partialResultTitle": "Partial exam result",
+    "completedSuccessfully": "Exam submitted successfully!",
+    "awaitingTeacherCorrection": "The written-response questions still need to be graded by the teacher.",
+    "resultPending": "Final result awaiting teacher grading.",
+    "grade": "Grade",
+    "passed": "Passed ✅",
+    "failed": "Failed ❌",
+    "backToSubject": "Back to subject",
+    "instructions": "Answer every question and submit the exam when you are finished.",
+    "questionMeta": "Question {number} • {points} pts",
+    "save": "Save",
+    "saving": "Saving...",
+    "saved": "Saved ✓",
+    "answerPlaceholder": "Enter your answer...",
+    "essayCorrectionInformation": "The written-response question will be graded by the teacher.",
+    "back": "Back",
+    "finishingExam": "Submitting...",
+    "finishExam": "Submit exam"
+  },
+  "StudentProgress": {
+    "title": "Academic Progress",
+    "description": "Track your progress in each subject based on available lessons and the academic records linked to your profile.",
+    "loading": "Loading progress...",
+    "loadError": "We could not load your academic progress. Check your connection and try again.",
+    "retry": "Try again",
+    "empty": "No academic progress is currently available.",
+    "classLabel": "Class",
+    "notInformed": "Not provided",
+    "totalLessons": "Total lessons",
+    "attendanceRecords": "Attendance records",
+    "completed": "Completed",
+    "inProgress": "In progress",
+    "progressPercentage": "Completion percentage",
+    "completedMessage": "Subject progress completed."
+  },
+  "StudentAssignments": {
+    "title": "Assignments and activities",
+    "description": "Review published assignments and submit your work as text, a link or a file.",
+    "loading": "Loading assignments...",
+    "retry": "Try again",
+    "publishedAssignments": "Published assignments",
+    "assignmentCount": "{count, plural, =0 {No assignments} one {# assignment} other {# assignments}}",
+    "empty": "No assignments are currently available.",
+    "subject": "Subject",
+    "classLabel": "Class",
+    "deadline": "Deadline",
+    "noDeadline": "No deadline",
+    "notInformed": "Not provided",
+    "deadlineClosed": "Deadline closed",
+    "dueToday": "Due today",
+    "daysRemaining": "{count, plural, one {# day remaining} other {# days remaining}}",
+    "maximumGrade": "Maximum grade",
+    "delivered": "Assignment submitted",
+    "awaitingSubmission": "Awaiting submission",
+    "viewSubmission": "View submission",
+    "viewAssignment": "View assignment",
+    "answerAssignment": "Submit answer",
+    "attachmentCount": "{count, plural, one {# attachment} other {# attachments}}",
+    "assignmentFiles": "Assignment files",
+    "sendSubmission": "Send submission",
+    "sendDescription": "Select an assignment and submit your answer.",
+    "assignment": "Assignment",
+    "selectAssignment": "Select an assignment",
+    "alreadySubmitted": "You have already submitted this assignment.",
+    "textLabel": "Text",
+    "linkLabel": "Link",
+    "fileLabel": "File",
+    "viewSubmittedFile": "View submitted file",
+    "statusLabel": "Status",
+    "corrected": "Graded",
+    "submitted": "Submitted",
+    "gradeLabel": "Grade",
+    "teacherFeedback": "Teacher feedback",
+    "closedEditMessage": "The deadline has passed. This submission can no longer be edited.",
+    "textPlaceholder": "Enter your answer, notes or additional content here",
+    "selectFile": "Select file",
+    "selectedFile": "Selected file: {name}",
+    "fileLimit": "Maximum size: 500 MB.",
+    "sending": "Sending...",
+    "updateSubmission": "Update submission",
+    "sendAssignment": "Submit assignment",
+    "success": "Assignment submitted successfully!",
+    "errors": {
+      "load": "We could not load the assignments. Check your connection and try again.",
+      "selectAssignment": "Select an assignment.",
+      "answerRequired": "Provide at least text, a link or a file.",
+      "fileTooLarge": "The file exceeds the 500 MB limit. Choose a smaller file.",
+      "prepareUpload": "We could not prepare the file upload. Try again.",
+      "upload": "We could not upload the file (code {status}).",
+      "submit": "We could not submit the assignment. Try again."
+    }
+  },
+  "StudentAssignmentSubmission": {
+    "common": {
+      "notProvided": "Not provided",
+      "retry": "Try again"
+    },
+    "loading": "Loading assignment...",
+    "back": "Back to details",
+    "title": "Submit assignment",
+    "success": "Assignment submitted successfully.",
+    "activity": {
+      "label": "Assignment",
+      "subjectUnknown": "Subject not provided",
+      "class": "Class"
+    },
+    "deadline": {
+      "label": "Deadline",
+      "noDeadline": "No deadline",
+      "undefined": "No deadline set",
+      "closed": "❌ Deadline closed",
+      "daysRemaining": "🟢 {count, plural, one {# day} other {# days}} remaining",
+      "hoursRemaining": "🟠 {count, plural, one {# hour} other {# hours}} remaining",
+      "lessThanHour": "⚠️ Due in less than 1 hour"
+    },
+    "score": {
+      "label": "Value",
+      "points": "points"
+    },
+    "status": {
+      "label": "Submission status",
+      "graded": "⭐ Graded",
+      "submitted": "✅ Submitted",
+      "submittedAt": "Submitted on: {date}",
+      "evaluated": "The teacher has graded this assignment.",
+      "awaitingReview": "Your response was submitted and is awaiting review.",
+      "evaluation": "Assessment",
+      "feedback": "Teacher feedback",
+      "closed": "❌ The deadline has closed. This assignment can no longer be submitted.",
+      "notSubmitted": "📤 Not submitted yet. You can submit text, a link, or a file."
+    },
+    "instructions": "Instructions",
+    "attachments": {
+      "title": "📎 Assignment files ({count})",
+      "file": "File"
+    },
+    "previous": {
+      "title": "My latest submission",
+      "text": "Submitted text",
+      "link": "Submitted link",
+      "file": "Submitted file",
+      "openFile": "Open {name}"
+    },
+    "form": {
+      "title": "Your response",
+      "textLabel": "Response text",
+      "textPlaceholder": "Write your response to the teacher here...",
+      "linkLabel": "External link",
+      "linkPlaceholder": "Paste a Google Drive, OneDrive, YouTube, or other online resource link.",
+      "fileLabel": "File",
+      "selectFile": "Select file",
+      "fileHelp": "Upload a PDF, image, document, spreadsheet, video, or compressed file. Limit: 500 MB.",
+      "remove": "Remove",
+      "declaration": "By submitting this assignment, you confirm that the content is your own work and that you understand the institution's academic policies.",
+      "sending": "Submitting...",
+      "update": "📤 Update submission",
+      "submit": "📤 Submit assignment"
+    },
+    "errors": {
+      "load": "Unable to load assignment.",
+      "notFound": "Assignment not found.",
+      "fileTooLarge": "The selected file is {size}, but the limit is 500 MB.",
+      "prepareUpload": "Unable to prepare the upload.",
+      "upload": "Unable to upload the file.",
+      "submit": "Unable to submit the assignment."
+    }
+  },
+  "StudentAttendance": {
+    "common": {
+      "notProvided": "Not provided"
+    },
+    "title": "My Attendance",
+    "subtitle": "Track your attendance by lesson and view your attendance summary.",
+    "loading": "Loading your attendance records...",
+    "emptyData": "No attendance data is available.",
+    "errors": {
+      "load": "Unable to load attendance records"
+    },
+    "summary": {
+      "total": "Total",
+      "present": "Present",
+      "absences": "Absences",
+      "excused": "Excused",
+      "medicalCertificates": "Medical certificates"
+    },
+    "frequency": {
+      "title": "Attendance rate",
+      "description": "Present, excused and medical-certificate records count as valid attendance."
+    },
+    "history": {
+      "title": "Attendance history",
+      "records": "{count, plural, =0 {No records} one {# record} other {# records}}",
+      "empty": "No attendance records were found."
+    },
+    "statuses": {
+      "present": "Present",
+      "absent": "Absent",
+      "excused": "Excused",
+      "medicalCertificate": "Medical certificate"
+    },
+    "item": {
+      "lessonUnknown": "Lesson not provided",
+      "classLabel": "Class",
+      "dateLabel": "Date",
+      "observation": "Note"
+    }
+  },
+  "StudentGradebook": {
+    "common": {
+      "notProvided": "Not provided"
+    },
+    "hero": {
+      "eyebrow": "Academic gradebook",
+      "title": "Track your grades, averages and performance by subject",
+      "description": "View your completed assessments, subject averages and overall academic progress in a clear, organized and professional environment."
+    },
+    "actions": {
+      "backToDashboard": "Back to dashboard",
+      "refreshGradebook": "Refresh gradebook"
+    },
+    "metrics": {
+      "subjects": {
+        "title": "Subjects",
+        "heroDescription": "Total subjects in your gradebook.",
+        "cardDescription": "Number of subjects with recorded grades."
+      },
+      "exams": {
+        "title": "Recorded assessments",
+        "cardDescription": "Total assessments linked to your current academic history."
+      },
+      "overallAverage": {
+        "title": "Overall average",
+        "heroDescription": "Consolidated average based on recorded subjects.",
+        "cardDescription": "Consolidated overview of your academic performance."
+      }
+    },
+    "loading": "Loading gradebook...",
+    "errors": {
+      "load": "Unable to load gradebook"
+    },
+    "empty": {
+      "title": "No grades found",
+      "description": "Your completed assessments will appear here once they are available."
+    },
+    "subject": {
+      "examCount": "{count, plural, =0 {No assessments recorded} one {# assessment recorded} other {# assessments recorded}}",
+      "average": "Average: {value}"
+    },
+    "exam": {
+      "gradeLabel": "Grade",
+      "gradeNotReleased": "Grade not released yet",
+      "statusLabel": "Status",
+      "status": {
+        "finished": "Completed",
+        "inProgress": "In progress"
+      },
+      "finishedAtLabel": "Completed",
+      "awaitingRelease": "Awaiting release"
+    },
+    "performance": {
+      "good": "Good performance",
+      "attention": "Needs attention",
+      "low": "Low performance"
+    }
+  },
+  "StudentAcademicHistory": {
+    "common": {
+      "notProvided": "Not provided"
+    },
+    "official": {
+      "title": "Official Academic Record",
+      "description": "View and print your up-to-date academic record.",
+      "generate": "Generate academic record",
+      "generating": "Generating...",
+      "print": "Print academic record",
+      "fileName": "academic-record.pdf"
+    },
+    "errors": {
+      "generateUnavailable": "The academic record cannot be generated right now. Check whether an active Academic Record template exists.",
+      "generateFailed": "Unable to generate the academic record. Please try again shortly."
+    },
+    "examHistory": {
+      "title": "Assessment History"
+    },
+    "average": "Overall average: {value}",
+    "chart": {
+      "title": "Performance by Subject",
+      "grade": "Grade"
+    },
+    "exam": {
+      "subjectId": "Subject ID {id}",
+      "gradeLabel": "Grade",
+      "approved": "Passed 🎉",
+      "failed": "Failed ❌",
+      "dateLabel": "Date",
+      "durationLabel": "Time",
+      "duration": "{minutes, plural, =0 {0 min} one {# min} other {# min}} {seconds, plural, =0 {0 sec} one {# sec} other {# sec}}",
+      "viewDetails": "View details"
+    },
+    "modal": {
+      "eyebrow": "PHANYX notice",
+      "title": "Academic record",
+      "understood": "Got it"
+    }
+  },
+  "StudentMeetings": {
+    "common": {
+      "notProvided": "Not provided"
+    },
+    "title": "My Meetings",
+    "description": "View the meetings you have been invited to attend.",
+    "loading": "Loading meetings...",
+    "empty": "No meetings are available right now.",
+    "join": "Join meeting",
+    "errors": {
+      "load": "Unable to load meetings."
+    }
+  },
+  "StudentNotes": {
+    "title": "My Grades",
+    "empty": "No grades have been posted yet.",
+    "labels": {
+      "grade": "Grade",
+      "status": "Status",
+      "feedback": "Feedback"
+    },
+    "situations": {
+      "approved": "Passed",
+      "recovery": "Remedial assessment",
+      "failed": "Failed"
+    }
+  },
+  "StudentCertificates": {
+    "common": {
+      "notProvided": "Not provided"
+    },
+    "title": "My Certificates",
+    "description": "Certificates are generated automatically after you successfully complete a subject.",
+    "loading": "Loading certificates...",
+    "empty": "You do not have any certificates available yet.",
+    "subjectFallback": "Subject",
+    "code": "Code",
+    "issuedOn": "Issued on",
+    "download": "Download certificate",
+    "validate": "Validate",
+    "errors": {
+      "load": "Unable to load your certificates."
+    }
+  },
+  "StudentCertificateDetail": {
+    "title": "Certificate of Completion",
+    "certifyThat": "This is to certify that",
+    "completedSubject": "has successfully completed the subject",
+    "workload": "Workload: {hours, plural, one {# hour} other {# hours}}",
+    "completionDate": "Completion date: {date}",
+    "registrationNumber": "Registration no. {number}",
+    "printOrSave": "Print / Save as PDF",
+    "backToCertificates": "Back to certificates",
+    "notFound": "Certificate not found.",
+    "back": "Back",
+    "notProvided": "Not provided"
+  },
+  "StudentFinancialBlock": {
+    "title": "Access blocked due to an outstanding balance",
+    "greeting": "Hello, {name}.",
+    "studentFallback": "student",
+    "pendingDescription": "Your academic access is temporarily blocked because there is an outstanding financial balance.",
+    "releaseDescription": "Access will be restored automatically after the payment is settled and your financial status is updated.",
+    "goToLogin": "Go to login",
+    "tryAgain": "Try again"
+  },
+  "StudentLessonPage": {
+    "common": {
+      "unavailable": "unavailable"
+    },
+    "enrollmentStatus": {
+      "active": "Active",
+      "pending": "Pending",
+      "overdue": "Overdue",
+      "suspended": "Suspended",
+      "cancelled": "Cancelled",
+      "completed": "Completed"
+    },
+    "blocked": {
+      "title": "Lesson access unavailable",
+      "statusPrefix": "Your enrollment status is",
+      "reason": "Access to this lesson’s content is temporarily blocked.",
+      "availableResources": "You can still access the student portal to view your status, grades and other academic information."
+    },
+    "lessonTitle": "Lesson {id}",
+    "description": "View the materials and follow the lesson content.",
+    "noMainMaterial": "No material is available for this lesson.",
+    "materialsTitle": "Lesson materials",
+    "noMaterials": "No materials have been added.",
+    "typeLabel": "Type",
+    "open": "Open",
+    "materialTypes": {
+      "video": "Video",
+      "audio": "Audio",
+      "document": "Document",
+      "image": "Image",
+      "link": "Link",
+      "file": "File"
+    },
+    "progress": {
+      "title": "Progress",
+      "completed": "{percent}% complete"
+    },
+    "nextSteps": {
+      "title": "Next steps",
+      "watchMain": "Watch the main content",
+      "openSupplementary": "Open the supplementary materials",
+      "markCompleted": "Mark the lesson as complete"
+    }
+  },
+  "StudentActivityDetail": {
+    "back": "Back to assignments",
+    "loading": "Loading assignment...",
+    "noDeadline": "No deadline",
+    "labels": {
+      "subject": "Subject",
+      "deadline": "Deadline",
+      "maximumScore": "Maximum score",
+      "class": "Class"
+    },
+    "submission": {
+      "title": "Submit assignment",
+      "description": "You can submit a written response, a link and a file URL.",
+      "textLabel": "Submission text",
+      "textPlaceholder": "Write your response or comments",
+      "linkLabel": "Link",
+      "fileUrlLabel": "File URL",
+      "fileUrlPlaceholder": "https://file...",
+      "submitting": "Submitting...",
+      "submit": "Submit assignment",
+      "success": "Assignment submitted successfully."
+    },
+    "errors": {
+      "load": "The assignment could not be loaded.",
+      "notFound": "Assignment not found.",
+      "submit": "The assignment could not be submitted. Please try again."
+    }
+  },
+  "StudentProfileCompletion": {
+    "title": "Complete your profile",
+    "description": "Keep your documents, contracts and academic records accurate with information valid for your country.",
+    "loading": "Loading profile...",
+    "saving": "Saving...",
+    "save": "Save profile",
+    "success": "Profile updated successfully.",
+    "common": {
+      "select": "Select"
+    },
+    "modal": {
+      "title": "We could not complete your profile",
+      "close": "Close",
+      "help": "Review the reported problem, correct the corresponding field and try again.",
+      "understood": "Got it"
+    },
+    "personal": {
+      "title": "Personal information",
+      "officialName": "Official full name",
+      "officialNameHelp": "Contact the administration office to change your official name.",
+      "socialName": "Preferred name",
+      "socialNamePlaceholder": "Enter your preferred name, if applicable",
+      "gender": "Gender",
+      "birthDate": "Date of birth",
+      "birthCountry": "Country of birth",
+      "nationality": "Nationality",
+      "nationalityPlaceholder": "E.g. American",
+      "documentType": "Document type",
+      "documentNumber": "Document number",
+      "documentNumberPlaceholder": "Enter a document issued by your country",
+      "phone": "Phone / WhatsApp"
+    },
+    "gender": {
+      "female": "Female",
+      "male": "Male",
+      "notInform": "Prefer not to say",
+      "other": "Other"
+    },
+    "address": {
+      "title": "Address",
+      "country": "Country of residence",
+      "postalCode": "Postal / ZIP code",
+      "postalCodePlaceholder": "Enter the postal code",
+      "street": "Street address",
+      "number": "Number",
+      "complement": "Address line 2",
+      "district": "District / Neighborhood",
+      "city": "City",
+      "region": "State / Province / Region",
+      "regionPlaceholder": "Enter the state, province or region"
+    },
+    "guardian": {
+      "title": "Parent or guardian",
+      "name": "Parent or guardian name",
+      "relationship": "Relationship",
+      "documentType": "Parent or guardian document type",
+      "documentNumber": "Parent or guardian document number",
+      "phone": "Parent or guardian phone",
+      "email": "Parent or guardian email"
+    },
+    "accessibility": {
+      "title": "Accessibility",
+      "hasNeed": "I have a disability or accessibility requirement",
+      "description": "Description of the accessibility requirement",
+      "notes": "Accessibility notes"
+    },
+    "documents": {
+      "CPF": "Brazilian CPF",
+      "RG": "Brazilian RG",
+      "NIF": "NIF",
+      "CARTAO_CIDADAO": "Citizen Card",
+      "SSN": "SSN",
+      "STATE_ID": "State ID",
+      "DNI": "DNI",
+      "NIE": "NIE",
+      "CNI": "National identity card",
+      "PASSPORT": "Passport",
+      "NATIONAL_ID": "National identity document",
+      "TAX_ID": "Tax identification document",
+      "RESIDENCE_PERMIT": "Residence permit",
+      "OTHER": "Other document"
+    },
+    "errors": {
+      "forbidden": "You do not have permission to change this profile.",
+      "studentNotFound": "The student profile was not found.",
+      "required": "Enter the document type and number, phone number and date of birth.",
+      "invalidPhone": "The phone number is not valid for the selected country.",
+      "invalidGuardianPhone": "The parent or guardian phone number is not valid for the selected country.",
+      "invalidPostalCode": "The postal code does not match the selected country format.",
+      "invalidDate": "The date of birth is invalid.",
+      "invalidCountry": "Select a valid country.",
+      "load": "We could not load your profile.",
+      "save": "We could not save your profile.",
+      "generic": "An unexpected problem occurred. Please try again."
+    }
+  },
+  "StudentOmbudsman": {
+    "eyebrow": "COMMUNICATION CHANNEL",
+    "title": "Ombudsman",
+    "description": "Use this space to submit suggestions, compliments, complaints or reports concerning your classes, support, administration, finance or any other experience with the institution.",
+    "form": {
+      "typeLabel": "Submission type",
+      "messageLabel": "Message",
+      "messagePlaceholder": "Describe your suggestion, compliment, complaint or report...",
+      "submitting": "Submitting...",
+      "submit": "Submit message"
+    },
+    "types": {
+      "suggestion": "Suggestion",
+      "complaint": "Complaint",
+      "compliment": "Compliment",
+      "report": "Report"
+    },
+    "validation": {
+      "messageRequired": "Write your message before submitting."
+    },
+    "errors": {
+      "submit": "Your message could not be submitted."
+    },
+    "success": "Your message was submitted successfully.",
+    "howItWorks": {
+      "title": "How does it work?",
+      "forwarded": "Your message will be forwarded to the responsible department.",
+      "tracking": "You will be able to track its progress in this area.",
+      "suggestions": "Suggestions help improve the student experience.",
+      "analysis": "Complaints and reports will be reviewed by the institution."
+    }
+  },
+  "StudentReenrollment": {
+    "loading": "Loading reenrollment...",
+    "errorTitle": "Unable to load reenrollment",
+    "academic": "Academic",
+    "title": "Semester reenrollment",
+    "unavailable": {
+      "title": "Reenrollment unavailable",
+      "description": "Reenrollment is not available for this student."
+    },
+    "closed": {
+      "title": "Reenrollment period closed",
+      "description": "There is no open reenrollment period right now."
+    },
+    "hero": {
+      "available": "Reenrollment available",
+      "description": "Select the subjects and classes you want to take in semester {semester}.",
+      "deadline": "Final deadline"
+    },
+    "blocked": {
+      "title": "Reenrollment blocked"
+    },
+    "common": {
+      "notInformed": "Not provided",
+      "invalidDate": "Invalid date",
+      "semesterNumber": "Semester {number}",
+      "hoursValue": "{hours}h",
+      "hoursLong": "{hours} hours"
+    },
+    "summary": {
+      "course": "Course",
+      "destinationSemester": "Destination semester",
+      "classStart": "Classes begin",
+      "status": "Status"
+    },
+    "institutionInstructions": {
+      "title": "Institution instructions"
+    },
+    "groups": {
+      "nextSemester": {
+        "title": "Semester {semester} subjects",
+        "description": "Subjects planned for your academic progression."
+      },
+      "pending": {
+        "title": "Pending subjects from previous semesters",
+        "description": "Subjects not yet completed or previously failed."
+      },
+      "extras": {
+        "title": "Extracurricular subjects",
+        "description": "Additional options authorized for your course and semester."
+      }
+    },
+    "selectionSummary": {
+      "title": "Selection summary",
+      "subjects": "Subjects",
+      "selectedLoad": "Selected load",
+      "minimumLoad": "Minimum load",
+      "maximumLoad": "Maximum load",
+      "noLimit": "No defined limit",
+      "minimumProgress": "Minimum-load progress",
+      "needMore": "Select {hours} more hours to reach the minimum load.",
+      "maximumExceeded": "The selection exceeds the maximum allowed load."
+    },
+    "declaration": "I confirm that I have reviewed the subjects, classes, schedules and rules for this reenrollment.",
+    "afterSendNotice": "After submission, the selection cannot be changed until the institution returns it for correction.",
+    "curriculum": {
+      "title": "Curriculum",
+      "description": "Review classes, teachers, rooms and schedules before confirming.",
+      "openPdf": "Open curriculum PDF",
+      "pdfPreparing": "PDF being prepared"
+    },
+    "actions": {
+      "retry": "Try again",
+      "savingDraft": "Saving draft...",
+      "updateDraft": "Update draft",
+      "saveDraft": "Save draft",
+      "sending": "Submitting...",
+      "sendForReview": "Submit for review",
+      "confirm": "Confirm reenrollment",
+      "back": "Back"
+    },
+    "tooltips": {
+      "selectOneSubject": "Select at least one subject.",
+      "minimumNotReached": "The minimum load has not been reached yet.",
+      "maximumExceeded": "The maximum load has been exceeded.",
+      "acceptDeclaration": "Accept the declaration before submitting.",
+      "send": "Submit reenrollment."
+    },
+    "confirmation": {
+      "reviewTitle": "Submit reenrollment for review",
+      "confirmTitle": "Confirm reenrollment",
+      "reviewMessage": "Selected subjects: {count}. Load: {hours} hours. After submission, the institution will review your selection.",
+      "confirmMessage": "Selected subjects: {count}. Load: {hours} hours. Confirm to complete reenrollment."
+    },
+    "subjects": {
+      "emptyCategory": "No subjects are available in this category.",
+      "required": "Required",
+      "class": "Class",
+      "noSeats": "No seats"
+    },
+    "classInfo": {
+      "teacher": "Teacher",
+      "seats": "Seats",
+      "schedule": "Schedule",
+      "location": "Location",
+      "noLimitInformed": "No limit provided",
+      "availableSeats": "Available seats: {count}"
+    },
+    "disciplineTypes": {
+      "nextSemester": "Next semester",
+      "previousPending": "Previous pending subject",
+      "extracurricular": "Extracurricular"
+    },
+    "status": {
+      "draft": "Draft",
+      "sent": "Submitted",
+      "underReview": "Under review",
+      "approved": "Approved",
+      "returned": "Returned for correction",
+      "rejected": "Rejected",
+      "cancelled": "Cancelled",
+      "expired": "Expired",
+      "notStarted": "Not started"
+    },
+    "days": {
+      "sunday": "Sunday",
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "fallback": "day {number}"
+    },
+    "schedule": {
+      "notInformed": "Schedule not provided",
+      "range": "{day}, {start} to {end}",
+      "start": "{day}, {start}"
+    },
+    "location": {
+      "floor": "Floor {floor}",
+      "room": "Room {room}",
+      "notInformed": "Location not provided"
+    },
+    "conflicts": {
+      "slot": "{day} at {time}"
+    },
+    "errors": {
+      "load": "Unable to load reenrollment.",
+      "noAvailableClass": "No class with available seats was found for this subject.",
+      "wouldExceedMaximum": "This subject would exceed the maximum load of {hours}h.",
+      "scheduleConflict": "Schedule conflict with {subject}: {schedule}.",
+      "selectedClassFull": "The selected class has no available seats.",
+      "periodNotFound": "Reenrollment period not found.",
+      "editNotAllowed": "This reenrollment cannot be changed right now.",
+      "draftNotAllowed": "This period does not allow drafts.",
+      "selectOneSubject": "Select at least one subject.",
+      "minimumLoad": "The minimum load of {hours}h has not been reached yet.",
+      "maximumLoadExceeded": "The maximum allowed load has been exceeded.",
+      "acceptDeclaration": "Accept the declaration before submitting.",
+      "save": "Unable to save reenrollment."
+    },
+    "success": {
+      "sent": "Reenrollment submitted successfully.",
+      "sentForReview": "Reenrollment submitted for institutional review.",
+      "draftSaved": "Draft saved successfully."
+    }
+  }
 }

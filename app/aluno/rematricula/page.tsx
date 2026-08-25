@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 
 type TipoDisciplinaRematricula =
@@ -186,57 +187,65 @@ type RespostaRematricula = {
 
 type SelecaoDisciplinas = Record<number, number>;
 
-type AcaoRematriculaAluno =
-  | "SALVAR_RASCUNHO"
-  | "ENVIAR";
+type AcaoRematriculaAluno = "SALVAR_RASCUNHO" | "ENVIAR";
 
 type MensagemTela = {
   tipo: "erro" | "sucesso" | "aviso";
   texto: string;
 };
 
-const DIAS_SEMANA: Record<number, string> = {
-  0: "Domingo",
-  1: "Segunda-feira",
-  2: "Terça-feira",
-  3: "Quarta-feira",
-  4: "Quinta-feira",
-  5: "Sexta-feira",
-  6: "Sábado",
+const CHAVES_DIAS_SEMANA: Record<number, string> = {
+  0: "sunday",
+  1: "monday",
+  2: "tuesday",
+  3: "wednesday",
+  4: "thursday",
+  5: "friday",
+  6: "saturday",
 };
 
-function formatarDataHora(valor?: string | null) {
+type TradutorRematricula = (
+  chave: any,
+  valores?: Record<string, any>,
+) => string;
+
+function formatarDataHora(
+  valor: string | null | undefined,
+  locale: string,
+  t: TradutorRematricula,
+) {
   if (!valor) {
-    return "Não informado";
+    return t("common.notInformed");
   }
 
   const data = new Date(valor);
 
   if (Number.isNaN(data.getTime())) {
-    return "Data inválida";
+    return t("common.invalidDate");
   }
 
-  return new Intl.DateTimeFormat("pt-BR", {
+  return new Intl.DateTimeFormat(locale, {
     dateStyle: "short",
     timeStyle: "short",
   }).format(data);
 }
 
-function nomeTipoDisciplina(tipo: TipoDisciplinaRematricula) {
+function nomeTipoDisciplina(
+  tipo: TipoDisciplinaRematricula,
+  t: TradutorRematricula,
+) {
   if (tipo === "PROXIMO_SEMESTRE") {
-    return "Próximo semestre";
+    return t("disciplineTypes.nextSemester");
   }
 
   if (tipo === "PENDENCIA_ANTERIOR") {
-    return "Pendência anterior";
+    return t("disciplineTypes.previousPending");
   }
 
-  return "Extracurricular";
+  return t("disciplineTypes.extracurricular");
 }
 
-function classeTipoDisciplina(
-  tipo: TipoDisciplinaRematricula,
-) {
+function classeTipoDisciplina(tipo: TipoDisciplinaRematricula) {
   if (tipo === "PROXIMO_SEMESTRE") {
     return "phanyx-rematricula-badge-tipo phanyx-rematricula-badge-proximo";
   }
@@ -248,19 +257,26 @@ function classeTipoDisciplina(
   return "phanyx-rematricula-badge-tipo phanyx-rematricula-badge-extra";
 }
 
-function nomeStatusRematricula(status?: string | null) {
-  const nomes: Record<string, string> = {
-    RASCUNHO: "Rascunho",
-    ENVIADA: "Enviada",
-    EM_ANALISE: "Em análise",
-    APROVADA: "Aprovada",
-    DEVOLVIDA: "Devolvida para correção",
-    RECUSADA: "Recusada",
-    CANCELADA: "Cancelada",
-    EXPIRADA: "Expirada",
+function nomeStatusRematricula(
+  status: string | null | undefined,
+  t: TradutorRematricula,
+) {
+  const chaves: Record<string, string> = {
+    RASCUNHO: "status.draft",
+    ENVIADA: "status.sent",
+    EM_ANALISE: "status.underReview",
+    APROVADA: "status.approved",
+    DEVOLVIDA: "status.returned",
+    RECUSADA: "status.rejected",
+    CANCELADA: "status.cancelled",
+    EXPIRADA: "status.expired",
   };
 
-  return status ? nomes[status] || status : "Não iniciada";
+  return status
+    ? chaves[status]
+      ? t(chaves[status])
+      : status
+    : t("status.notStarted");
 }
 
 function minutosHorario(valor?: string | null) {
@@ -272,132 +288,101 @@ function minutosHorario(valor?: string | null) {
   const horas = Number(partes[0]);
   const minutos = Number(partes[1]);
 
-  if (
-    !Number.isFinite(horas) ||
-    !Number.isFinite(minutos)
-  ) {
+  if (!Number.isFinite(horas) || !Number.isFinite(minutos)) {
     return null;
   }
 
   return horas * 60 + minutos;
 }
 
-function horariosConflitam(
-  horarioA: HorarioTurma,
-  horarioB: HorarioTurma,
-) {
+function horariosConflitam(horarioA: HorarioTurma, horarioB: HorarioTurma) {
   if (horarioA.diaSemana !== horarioB.diaSemana) {
     return false;
   }
 
   const inicioA = minutosHorario(horarioA.horaInicio);
-  const fimA =
-    minutosHorario(horarioA.horaFim) ??
-    inicioA;
+  const fimA = minutosHorario(horarioA.horaFim) ?? inicioA;
   const inicioB = minutosHorario(horarioB.horaInicio);
-  const fimB =
-    minutosHorario(horarioB.horaFim) ??
-    inicioB;
+  const fimB = minutosHorario(horarioB.horaFim) ?? inicioB;
 
-  if (
-    inicioA === null ||
-    fimA === null ||
-    inicioB === null ||
-    fimB === null
-  ) {
+  if (inicioA === null || fimA === null || inicioB === null || fimB === null) {
     return false;
   }
 
   return inicioA < fimB && inicioB < fimA;
 }
 
-function descreverLocal(turma: OpcaoTurma) {
+function descreverLocal(turma: OpcaoTurma, t: TradutorRematricula) {
   const partes = [
     turma.predio,
     turma.ala,
-    turma.andar
-      ? `Andar ${turma.andar}`
-      : null,
-    turma.sala
-      ? `Sala ${turma.sala}`
-      : null,
+    turma.andar ? t("location.floor", { value: turma.andar }) : null,
+    turma.sala ? t("location.room", { value: turma.sala }) : null,
   ].filter(Boolean);
 
-  return partes.length > 0
-    ? partes.join(" · ")
-    : "Local não informado";
+  return partes.length > 0 ? partes.join(" · ") : t("location.notInformed");
 }
 
-function formatarHorarios(horarios: HorarioTurma[]) {
+function formatarHorarios(horarios: HorarioTurma[], t: TradutorRematricula) {
   if (horarios.length === 0) {
-    return "Horário não informado";
+    return t("schedule.notInformed");
   }
 
   return horarios
     .map((horario) => {
-      const dia =
-        DIAS_SEMANA[horario.diaSemana] ||
-        `Dia ${horario.diaSemana}`;
+      const dia = CHAVES_DIAS_SEMANA[horario.diaSemana]
+        ? t(`days.${CHAVES_DIAS_SEMANA[horario.diaSemana]}`)
+        : t("days.fallback", { number: horario.diaSemana });
 
-      return `${dia}, ${horario.horaInicio}${horario.horaFim
-        ? ` às ${horario.horaFim}`
-        : ""
-        }`;
+      return horario.horaFim
+        ? t("schedule.range", {
+            day: dia,
+            start: horario.horaInicio,
+            end: horario.horaFim,
+          })
+        : t("schedule.start", {
+            day: dia,
+            start: horario.horaInicio,
+          });
     })
     .join(" · ");
 }
 
 export default function RematriculaAlunoPage() {
-  const [dados, setDados] =
-    useState<RespostaRematricula | null>(null);
+  const t = useTranslations("StudentReenrollment");
+  const locale = useLocale();
+  const tr = t as unknown as TradutorRematricula;
+  const [dados, setDados] = useState<RespostaRematricula | null>(null);
 
-  const [carregando, setCarregando] =
-    useState(true);
+  const [carregando, setCarregando] = useState(true);
 
   const [erro, setErro] = useState("");
 
-  const [mensagem, setMensagem] =
-    useState<MensagemTela | null>(null);
+  const [mensagem, setMensagem] = useState<MensagemTela | null>(null);
 
-  const [selecionadas, setSelecionadas] =
-    useState<SelecaoDisciplinas>({});
+  const [selecionadas, setSelecionadas] = useState<SelecaoDisciplinas>({});
 
-  const [declaracaoAceita, setDeclaracaoAceita] =
-    useState(false);
+  const [declaracaoAceita, setDeclaracaoAceita] = useState(false);
 
-  const [
-    processandoAcao,
-    setProcessandoAcao,
-  ] = useState<AcaoRematriculaAluno | null>(
-    null,
-  );
+  const [processandoAcao, setProcessandoAcao] =
+    useState<AcaoRematriculaAluno | null>(null);
 
-  const [
-    confirmarEnvio,
-    setConfirmarEnvio,
-  ] = useState(false);
+  const [confirmarEnvio, setConfirmarEnvio] = useState(false);
 
   const carregar = useCallback(async () => {
     try {
       setCarregando(true);
       setErro("");
 
-      const resposta = await fetch(
-        "/api/aluno/rematricula",
-        {
-          credentials: "include",
-          cache: "no-store",
-        },
-      );
+      const resposta = await fetch("/api/aluno/rematricula", {
+        credentials: "include",
+        cache: "no-store",
+      });
 
-      const json =
-        (await resposta.json()) as RespostaRematricula;
+      const json = (await resposta.json()) as RespostaRematricula;
 
       if (!resposta.ok) {
-        throw new Error(
-          json.error ||
-          "Não foi possível carregar a rematrícula.",
-        );
+        throw new Error(json.error || t("errors.load"));
       }
 
       setDados(json);
@@ -405,27 +390,18 @@ export default function RematriculaAlunoPage() {
       const selecaoInicial: SelecaoDisciplinas = {};
 
       for (const item of json.rematricula?.itens || []) {
-        selecaoInicial[item.disciplinaId] =
-          item.turmaDisciplinaId;
+        selecaoInicial[item.disciplinaId] = item.turmaDisciplinaId;
       }
 
       setSelecionadas(selecaoInicial);
 
-      setDeclaracaoAceita(
-        Boolean(
-          json.rematricula?.declaracaoAceitaEm,
-        ),
-      );
+      setDeclaracaoAceita(Boolean(json.rematricula?.declaracaoAceitaEm));
     } catch (e) {
-      setErro(
-        e instanceof Error
-          ? e.message
-          : "Não foi possível carregar a rematrícula.",
-      );
+      setErro(e instanceof Error ? e.message : t("errors.load"));
     } finally {
       setCarregando(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     carregar();
@@ -435,19 +411,14 @@ export default function RematriculaAlunoPage() {
 
   const disciplinasSelecionadas = useMemo(() => {
     return disciplinas.filter(
-      (disciplina) =>
-        selecionadas[disciplina.disciplinaId] !==
-        undefined,
+      (disciplina) => selecionadas[disciplina.disciplinaId] !== undefined,
     );
   }, [disciplinas, selecionadas]);
 
   const cargaSelecionadaMaxima = useMemo(() => {
     return disciplinasSelecionadas.reduce(
       (total, disciplina) =>
-        total +
-        (disciplina.contaCargaMaxima
-          ? disciplina.cargaHoraria
-          : 0),
+        total + (disciplina.contaCargaMaxima ? disciplina.cargaHoraria : 0),
       0,
     );
   }, [disciplinasSelecionadas]);
@@ -455,47 +426,32 @@ export default function RematriculaAlunoPage() {
   const cargaSelecionadaMinima = useMemo(() => {
     return disciplinasSelecionadas.reduce(
       (total, disciplina) =>
-        total +
-        (disciplina.contaCargaMinima
-          ? disciplina.cargaHoraria
-          : 0),
+        total + (disciplina.contaCargaMinima ? disciplina.cargaHoraria : 0),
       0,
     );
   }, [disciplinasSelecionadas]);
 
   const cargaMinima =
-    dados?.regras?.cargaMinima ??
-    dados?.periodo?.cargaMinima ??
-    0;
+    dados?.regras?.cargaMinima ?? dados?.periodo?.cargaMinima ?? 0;
 
   const cargaMaxima =
-    dados?.regras?.cargaMaxima ??
-    dados?.periodo?.cargaMaxima ??
-    null;
+    dados?.regras?.cargaMaxima ?? dados?.periodo?.cargaMaxima ?? null;
 
-  const atingiuCargaMinima =
-    cargaSelecionadaMinima >= cargaMinima;
+  const atingiuCargaMinima = cargaSelecionadaMinima >= cargaMinima;
 
   const ultrapassouCargaMaxima =
-    cargaMaxima !== null &&
-    cargaSelecionadaMaxima > cargaMaxima;
+    cargaMaxima !== null && cargaSelecionadaMaxima > cargaMaxima;
 
   const grupos = useMemo(() => {
     return {
       proximoSemestre: disciplinas.filter(
-        (disciplina) =>
-          disciplina.tipo ===
-          "PROXIMO_SEMESTRE",
+        (disciplina) => disciplina.tipo === "PROXIMO_SEMESTRE",
       ),
       pendencias: disciplinas.filter(
-        (disciplina) =>
-          disciplina.tipo ===
-          "PENDENCIA_ANTERIOR",
+        (disciplina) => disciplina.tipo === "PENDENCIA_ANTERIOR",
       ),
       extras: disciplinas.filter(
-        (disciplina) =>
-          disciplina.tipo ===
-          "EXTRACURRICULAR",
+        (disciplina) => disciplina.tipo === "EXTRACURRICULAR",
       ),
     };
   }, [disciplinas]);
@@ -506,9 +462,7 @@ export default function RematriculaAlunoPage() {
   ) {
     return (
       disciplina.opcoesTurma.find(
-        (turma) =>
-          turma.turmaDisciplinaId ===
-          turmaDisciplinaId,
+        (turma) => turma.turmaDisciplinaId === turmaDisciplinaId,
       ) || null
     );
   }
@@ -517,27 +471,19 @@ export default function RematriculaAlunoPage() {
     disciplinaNova: DisciplinaRematricula,
     turmaNovaId: number,
   ) {
-    const turmaNova = encontrarTurma(
-      disciplinaNova,
-      turmaNovaId,
-    );
+    const turmaNova = encontrarTurma(disciplinaNova, turmaNovaId);
 
     if (!turmaNova) {
       return null;
     }
 
     for (const disciplinaSelecionada of disciplinasSelecionadas) {
-      if (
-        disciplinaSelecionada.disciplinaId ===
-        disciplinaNova.disciplinaId
-      ) {
+      if (disciplinaSelecionada.disciplinaId === disciplinaNova.disciplinaId) {
         continue;
       }
 
       const turmaSelecionadaId =
-        selecionadas[
-        disciplinaSelecionada.disciplinaId
-        ];
+        selecionadas[disciplinaSelecionada.disciplinaId];
 
       const turmaSelecionada = encontrarTurma(
         disciplinaSelecionada,
@@ -550,16 +496,15 @@ export default function RematriculaAlunoPage() {
 
       for (const horarioNovo of turmaNova.horarios) {
         for (const horarioAtual of turmaSelecionada.horarios) {
-          if (
-            horariosConflitam(
-              horarioNovo,
-              horarioAtual,
-            )
-          ) {
+          if (horariosConflitam(horarioNovo, horarioAtual)) {
             return {
-              disciplina:
-                disciplinaSelecionada.nome,
-              horario: `${DIAS_SEMANA[horarioNovo.diaSemana]} às ${horarioNovo.horaInicio}`,
+              disciplina: disciplinaSelecionada.nome,
+              horario: t("conflicts.slot", {
+                day: CHAVES_DIAS_SEMANA[horarioNovo.diaSemana]
+                  ? t(`days.${CHAVES_DIAS_SEMANA[horarioNovo.diaSemana]}`)
+                  : t("days.fallback", { number: horarioNovo.diaSemana }),
+                time: horarioNovo.horaInicio,
+              }),
             };
           }
         }
@@ -569,21 +514,14 @@ export default function RematriculaAlunoPage() {
     return null;
   }
 
-  function selecionarDisciplina(
-    disciplina: DisciplinaRematricula,
-  ) {
+  function selecionarDisciplina(disciplina: DisciplinaRematricula) {
     setMensagem(null);
 
-    if (
-      !dados?.edicaoPermitida ||
-      disciplina.bloqueada
-    ) {
+    if (!dados?.edicaoPermitida || disciplina.bloqueada) {
       return;
     }
 
-    const jaSelecionada =
-      selecionadas[disciplina.disciplinaId] !==
-      undefined;
+    const jaSelecionada = selecionadas[disciplina.disciplinaId] !== undefined;
 
     if (jaSelecionada) {
       setSelecionadas((atual) => {
@@ -595,33 +533,26 @@ export default function RematriculaAlunoPage() {
       return;
     }
 
-    const primeiraTurmaDisponivel =
-      disciplina.opcoesTurma.find(
-        (turma) => !turma.semVagas,
-      );
+    const primeiraTurmaDisponivel = disciplina.opcoesTurma.find(
+      (turma) => !turma.semVagas,
+    );
 
     if (!primeiraTurmaDisponivel) {
       setMensagem({
         tipo: "erro",
-        texto:
-          "Esta disciplina não possui turma com vaga disponível.",
+        texto: t("errors.noAvailableClass"),
       });
       return;
     }
 
     const novaCarga =
       cargaSelecionadaMaxima +
-      (disciplina.contaCargaMaxima
-        ? disciplina.cargaHoraria
-        : 0);
+      (disciplina.contaCargaMaxima ? disciplina.cargaHoraria : 0);
 
-    if (
-      cargaMaxima !== null &&
-      novaCarga > cargaMaxima
-    ) {
+    if (cargaMaxima !== null && novaCarga > cargaMaxima) {
       setMensagem({
         tipo: "erro",
-        texto: `A seleção ultrapassaria a carga máxima de ${cargaMaxima} horas.`,
+        texto: t("errors.wouldExceedMaximum", { hours: cargaMaxima }),
       });
       return;
     }
@@ -634,15 +565,17 @@ export default function RematriculaAlunoPage() {
     if (conflito) {
       setMensagem({
         tipo: "erro",
-        texto: `Existe conflito de horário com ${conflito.disciplina}: ${conflito.horario}.`,
+        texto: t("errors.scheduleConflict", {
+          subject: conflito.disciplina,
+          schedule: conflito.horario,
+        }),
       });
       return;
     }
 
     setSelecionadas((atual) => ({
       ...atual,
-      [disciplina.disciplinaId]:
-        primeiraTurmaDisponivel.turmaDisciplinaId,
+      [disciplina.disciplinaId]: primeiraTurmaDisponivel.turmaDisciplinaId,
     }));
   }
 
@@ -652,50 +585,42 @@ export default function RematriculaAlunoPage() {
   ) {
     setMensagem(null);
 
-    const turma = encontrarTurma(
-      disciplina,
-      turmaDisciplinaId,
-    );
+    const turma = encontrarTurma(disciplina, turmaDisciplinaId);
 
     if (!turma || turma.semVagas) {
       setMensagem({
         tipo: "erro",
-        texto:
-          "A turma selecionada não possui vaga disponível.",
+        texto: t("errors.selectedClassFull"),
       });
       return;
     }
 
-    const conflito = existeConflitoComSelecao(
-      disciplina,
-      turmaDisciplinaId,
-    );
+    const conflito = existeConflitoComSelecao(disciplina, turmaDisciplinaId);
 
     if (conflito) {
       setMensagem({
         tipo: "erro",
-        texto: `Existe conflito de horário com ${conflito.disciplina}: ${conflito.horario}.`,
+        texto: t("errors.scheduleConflict", {
+          subject: conflito.disciplina,
+          schedule: conflito.horario,
+        }),
       });
       return;
     }
 
     setSelecionadas((atual) => ({
       ...atual,
-      [disciplina.disciplinaId]:
-        turmaDisciplinaId,
+      [disciplina.disciplinaId]: turmaDisciplinaId,
     }));
   }
 
-  async function salvarRematricula(
-    acao: AcaoRematriculaAluno,
-  ) {
+  async function salvarRematricula(acao: AcaoRematriculaAluno) {
     setMensagem(null);
 
     if (!dados?.periodo?.id) {
       setMensagem({
         tipo: "erro",
-        texto:
-          "O período de rematrícula não foi identificado.",
+        texto: t("errors.periodNotFound"),
       });
 
       return;
@@ -704,35 +629,26 @@ export default function RematriculaAlunoPage() {
     if (!dados.edicaoPermitida) {
       setMensagem({
         tipo: "erro",
-        texto:
-          "Esta rematrícula não pode mais ser alterada.",
+        texto: t("errors.editNotAllowed"),
       });
 
       return;
     }
 
-    if (
-      acao === "SALVAR_RASCUNHO" &&
-      !dados.periodo.permiteRascunho
-    ) {
+    if (acao === "SALVAR_RASCUNHO" && !dados.periodo.permiteRascunho) {
       setMensagem({
         tipo: "erro",
-        texto:
-          "A instituição não permite salvar rascunho neste período.",
+        texto: t("errors.draftNotAllowed"),
       });
 
       return;
     }
 
     if (acao === "ENVIAR") {
-      if (
-        disciplinasSelecionadas.length ===
-        0
-      ) {
+      if (disciplinasSelecionadas.length === 0) {
         setMensagem({
           tipo: "erro",
-          texto:
-            "Selecione pelo menos uma disciplina antes de enviar.",
+          texto: t("errors.selectOneSubject"),
         });
 
         return;
@@ -741,7 +657,7 @@ export default function RematriculaAlunoPage() {
       if (!atingiuCargaMinima) {
         setMensagem({
           tipo: "erro",
-          texto: `A carga horária mínima é de ${cargaMinima} horas.`,
+          texto: t("errors.minimumLoad", { hours: cargaMinima }),
         });
 
         return;
@@ -750,8 +666,7 @@ export default function RematriculaAlunoPage() {
       if (ultrapassouCargaMaxima) {
         setMensagem({
           tipo: "erro",
-          texto:
-            "A seleção ultrapassa a carga horária máxima permitida.",
+          texto: t("errors.maximumLoadExceeded"),
         });
 
         return;
@@ -760,73 +675,57 @@ export default function RematriculaAlunoPage() {
       if (!declaracaoAceita) {
         setMensagem({
           tipo: "erro",
-          texto:
-            "Aceite a declaração antes de enviar a rematrícula.",
+          texto: t("errors.acceptDeclaration"),
         });
 
         return;
       }
     }
 
-    const itens = disciplinasSelecionadas.map(
-      (disciplina) => ({
-        disciplinaId:
-          disciplina.disciplinaId,
+    const itens = disciplinasSelecionadas.map((disciplina) => ({
+      disciplinaId: disciplina.disciplinaId,
 
-        turmaDisciplinaId:
-          selecionadas[
-          disciplina.disciplinaId
-          ],
-      }),
-    );
+      turmaDisciplinaId: selecionadas[disciplina.disciplinaId],
+    }));
 
     setProcessandoAcao(acao);
 
     try {
-      const resposta = await fetch(
-        "/api/aluno/rematricula",
-        {
-          method: "POST",
-          credentials: "include",
+      const resposta = await fetch("/api/aluno/rematricula", {
+        method: "POST",
+        credentials: "include",
 
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
-
-          body: JSON.stringify({
-            acao,
-
-            periodoMatriculaId:
-              dados.periodo.id,
-
-            itens,
-
-            declaracaoAceita,
-
-            observacoes: null,
-          }),
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
 
-      const resultado =
-        (await resposta.json()) as {
-          ok?: boolean;
-          message?: string;
-          error?: string;
+        body: JSON.stringify({
+          acao,
 
-          rematricula?: {
-            id: number;
-            protocolo?: string | null;
-            status: string;
-          } | null;
-        };
+          periodoMatriculaId: dados.periodo.id,
+
+          itens,
+
+          declaracaoAceita,
+
+          observacoes: null,
+        }),
+      });
+
+      const resultado = (await resposta.json()) as {
+        ok?: boolean;
+        message?: string;
+        error?: string;
+
+        rematricula?: {
+          id: number;
+          protocolo?: string | null;
+          status: string;
+        } | null;
+      };
 
       if (!resposta.ok) {
-        throw new Error(
-          resultado.error ||
-          "Não foi possível salvar a rematrícula.",
-        );
+        throw new Error(resultado.error || t("errors.save"));
       }
 
       setConfirmarEnvio(false);
@@ -836,18 +735,16 @@ export default function RematriculaAlunoPage() {
       setMensagem({
         tipo: "sucesso",
         texto:
-          resultado.message ||
-          (acao === "ENVIAR"
-            ? "Rematrícula enviada com sucesso."
-            : "Rascunho salvo com sucesso."),
+          acao === "ENVIAR"
+            ? dados.periodo.exigeAprovacao
+              ? t("success.sentForReview")
+              : t("success.sent")
+            : t("success.draftSaved"),
       });
     } catch (error) {
       setMensagem({
         tipo: "erro",
-        texto:
-          error instanceof Error
-            ? error.message
-            : "Não foi possível salvar a rematrícula.",
+        texto: error instanceof Error ? error.message : t("errors.save"),
       });
     } finally {
       setProcessandoAcao(null);
@@ -859,9 +756,7 @@ export default function RematriculaAlunoPage() {
       <main className="phanyx-aluno-rematricula-page min-h-screen">
         <div className="mx-auto max-w-7xl">
           <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <p className="font-semibold">
-              Carregando sua rematrícula...
-            </p>
+            <p className="font-semibold">{t("loading")}</p>
           </div>
         </div>
       </main>
@@ -873,20 +768,16 @@ export default function RematriculaAlunoPage() {
       <main className="phanyx-aluno-rematricula-page min-h-screen">
         <div className="mx-auto max-w-7xl">
           <div className="rounded-3xl border border-red-200 bg-red-50 p-8 text-red-800 shadow-sm dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">
-            <h1 className="text-xl font-black">
-              Não foi possível carregar a rematrícula
-            </h1>
+            <h1 className="text-xl font-black">{t("errorTitle")}</h1>
 
-            <p className="mt-2 text-sm">
-              {erro}
-            </p>
+            <p className="mt-2 text-sm">{erro}</p>
 
             <button
               type="button"
               onClick={carregar}
               className="mt-5 rounded-xl bg-red-600 px-5 py-3 text-sm font-bold text-white"
             >
-              Tentar novamente
+              {t("actions.retry")}
             </button>
           </div>
         </div>
@@ -902,12 +793,11 @@ export default function RematriculaAlunoPage() {
             <div className="text-4xl">🔒</div>
 
             <h1 className="mt-4 text-2xl font-black">
-              Rematrícula indisponível
+              {t("unavailable.title")}
             </h1>
 
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-              {dados.mensagem ||
-                "Esta página não está disponível no momento."}
+              {dados.mensagem || t("unavailable.description")}
             </p>
           </div>
         </div>
@@ -921,21 +811,16 @@ export default function RematriculaAlunoPage() {
         <div className="mx-auto max-w-7xl">
           <section className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <p className="text-xs font-black uppercase tracking-[0.2em] text-blue-600 dark:text-blue-300">
-              Acadêmico
+              {t("academic")}
             </p>
 
-            <h1 className="mt-2 text-3xl font-black">
-              Rematrícula semestral
-            </h1>
+            <h1 className="mt-2 text-3xl font-black">{t("title")}</h1>
 
             <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200">
-              <h2 className="font-bold">
-                Não há período aberto
-              </h2>
+              <h2 className="font-bold">{t("closed.title")}</h2>
 
               <p className="mt-1 text-sm">
-                {dados.mensagem ||
-                  "Aguarde a abertura do próximo período de rematrícula."}
+                {dados.mensagem || t("closed.description")}
               </p>
             </div>
           </section>
@@ -951,29 +836,27 @@ export default function RematriculaAlunoPage() {
           <div className="grid gap-6 p-6 md:p-8 lg:grid-cols-[1fr_auto] lg:items-center">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.22em] text-blue-200">
-                Rematrícula disponível
+                {t("hero.available")}
               </p>
 
               <h1 className="phanyx-rematricula-hero-titulo mt-2 text-3xl font-black md:text-4xl">
-                {dados.periodo.titulo ||
-                  "Rematrícula semestral"}
+                {dados.periodo.titulo || t("title")}
               </h1>
 
               <p className="mt-3 max-w-3xl text-sm leading-6 text-blue-100">
-                Selecione as disciplinas e as turmas que deseja cursar no{" "}
-                {dados.periodo.cursoSemestre.numero}º semestre.
+                {t("hero.description", {
+                  semester: dados.periodo.cursoSemestre.numero,
+                })}
               </p>
             </div>
 
             <div className="rounded-2xl border border-white/20 bg-white/10 px-5 py-4 backdrop-blur">
               <p className="text-xs uppercase tracking-wide text-blue-100">
-                Prazo final
+                {t("hero.deadline")}
               </p>
 
               <p className="mt-1 text-lg font-black">
-                {formatarDataHora(
-                  dados.periodo.dataFim,
-                )}
+                {formatarDataHora(dados.periodo.dataFim, locale, tr)}
               </p>
             </div>
           </div>
@@ -981,12 +864,13 @@ export default function RematriculaAlunoPage() {
 
         {mensagem && (
           <div
-            className={`rounded-2xl border p-4 text-sm font-semibold ${mensagem.tipo === "erro"
-              ? "border-red-300 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200"
-              : mensagem.tipo === "sucesso"
-                ? "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200"
-                : "border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200"
-              }`}
+            className={`rounded-2xl border p-4 text-sm font-semibold ${
+              mensagem.tipo === "erro"
+                ? "border-red-300 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200"
+                : mensagem.tipo === "sucesso"
+                  ? "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200"
+                  : "border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200"
+            }`}
           >
             {mensagem.texto}
           </div>
@@ -994,9 +878,7 @@ export default function RematriculaAlunoPage() {
 
         {dados.bloqueios?.inadimplencia && (
           <div className="rounded-2xl border border-red-300 bg-red-50 p-5 text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">
-            <h2 className="font-black">
-              Rematrícula bloqueada
-            </h2>
+            <h2 className="font-black">{t("blocked.title")}</h2>
 
             <p className="mt-1 text-sm">
               {dados.bloqueios.mensagemInadimplencia}
@@ -1006,31 +888,29 @@ export default function RematriculaAlunoPage() {
 
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <ResumoCard
-            titulo="Curso"
+            titulo={t("summary.course")}
             valor={
               dados.periodo.curso?.nome ||
               dados.matriculaAtual?.curso?.nome ||
-              "Não informado"
+              t("common.notInformed")
             }
           />
 
           <ResumoCard
-            titulo="Semestre de destino"
-            valor={`${dados.periodo.cursoSemestre.numero}º semestre`}
+            titulo={t("summary.destinationSemester")}
+            valor={t("common.semesterNumber", {
+              number: dados.periodo.cursoSemestre.numero,
+            })}
           />
 
           <ResumoCard
-            titulo="Início das aulas"
-            valor={formatarDataHora(
-              dados.periodo.dataInicioAulas,
-            )}
+            titulo={t("summary.classStart")}
+            valor={formatarDataHora(dados.periodo.dataInicioAulas, locale, tr)}
           />
 
           <ResumoCard
-            titulo="Status"
-            valor={nomeStatusRematricula(
-              dados.rematricula?.status,
-            )}
+            titulo={t("summary.status")}
+            valor={nomeStatusRematricula(dados.rematricula?.status, tr)}
           />
         </section>
 
@@ -1039,7 +919,7 @@ export default function RematriculaAlunoPage() {
             {dados.periodo.instrucoes && (
               <section className="rounded-3xl border border-blue-200 bg-blue-50 p-6 dark:border-blue-900 dark:bg-blue-950/30">
                 <h2 className="font-black text-blue-950 dark:text-blue-100">
-                  Orientações da instituição
+                  {t("institutionInstructions.title")}
                 </h2>
 
                 <p className="mt-2 whitespace-pre-line text-sm leading-6 text-blue-800 dark:text-blue-200">
@@ -1049,26 +929,24 @@ export default function RematriculaAlunoPage() {
             )}
 
             <GrupoDisciplinas
-              titulo={`Disciplinas do ${dados.periodo.cursoSemestre.numero}º semestre`}
-              descricao="Disciplinas previstas para sua progressão acadêmica."
+              titulo={t("groups.nextSemester.title", {
+                semester: dados.periodo.cursoSemestre.numero,
+              })}
+              descricao={t("groups.nextSemester.description")}
               disciplinas={grupos.proximoSemestre}
               selecionadas={selecionadas}
-              edicaoPermitida={Boolean(
-                dados.edicaoPermitida,
-              )}
+              edicaoPermitida={Boolean(dados.edicaoPermitida)}
               onSelecionar={selecionarDisciplina}
               onAlterarTurma={alterarTurma}
             />
 
             {grupos.pendencias.length > 0 && (
               <GrupoDisciplinas
-                titulo="Pendências de semestres anteriores"
-                descricao="Disciplinas ainda não concluídas ou reprovadas."
+                titulo={t("groups.pending.title")}
+                descricao={t("groups.pending.description")}
                 disciplinas={grupos.pendencias}
                 selecionadas={selecionadas}
-                edicaoPermitida={Boolean(
-                  dados.edicaoPermitida,
-                )}
+                edicaoPermitida={Boolean(dados.edicaoPermitida)}
                 onSelecionar={selecionarDisciplina}
                 onAlterarTurma={alterarTurma}
               />
@@ -1076,13 +954,11 @@ export default function RematriculaAlunoPage() {
 
             {grupos.extras.length > 0 && (
               <GrupoDisciplinas
-                titulo="Disciplinas extracurriculares"
-                descricao="Opções extras autorizadas para seu curso e semestre."
+                titulo={t("groups.extras.title")}
+                descricao={t("groups.extras.description")}
                 disciplinas={grupos.extras}
                 selecionadas={selecionadas}
-                edicaoPermitida={Boolean(
-                  dados.edicaoPermitida,
-                )}
+                edicaoPermitida={Boolean(dados.edicaoPermitida)}
                 onSelecionar={selecionarDisciplina}
                 onAlterarTurma={alterarTurma}
               />
@@ -1092,50 +968,52 @@ export default function RematriculaAlunoPage() {
           <aside className="space-y-5">
             <section className="sticky top-5 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
               <h2 className="text-lg font-black">
-                Resumo da seleção
+                {t("selectionSummary.title")}
               </h2>
 
               <div className="mt-5 space-y-4">
                 <ResumoLinha
-                  titulo="Disciplinas"
-                  valor={String(
-                    disciplinasSelecionadas.length,
-                  )}
+                  titulo={t("selectionSummary.subjects")}
+                  valor={String(disciplinasSelecionadas.length)}
                 />
 
                 <ResumoLinha
-                  titulo="Carga selecionada"
-                  valor={`${cargaSelecionadaMaxima}h`}
+                  titulo={t("selectionSummary.selectedLoad")}
+                  valor={t("common.hoursValue", {
+                    hours: cargaSelecionadaMaxima,
+                  })}
                 />
 
                 <ResumoLinha
-                  titulo="Carga mínima"
-                  valor={`${cargaMinima}h`}
+                  titulo={t("selectionSummary.minimumLoad")}
+                  valor={t("common.hoursValue", {
+                    hours: cargaMinima,
+                  })}
                 />
 
                 <ResumoLinha
-                  titulo="Carga máxima"
+                  titulo={t("selectionSummary.maximumLoad")}
                   valor={
                     cargaMaxima === null
-                      ? "Sem limite definido"
-                      : `${cargaMaxima}h`
+                      ? t("selectionSummary.noLimit")
+                      : t("common.hoursValue", {
+                          hours: cargaMaxima,
+                        })
                   }
                 />
               </div>
 
               <div className="mt-5">
                 <div className="flex items-center justify-between text-xs font-bold">
-                  <span>Progresso da carga mínima</span>
+                  <span>{t("selectionSummary.minimumProgress")}</span>
                   <span>
                     {cargaMinima > 0
                       ? Math.min(
-                        Math.round(
-                          (cargaSelecionadaMinima /
-                            cargaMinima) *
+                          Math.round(
+                            (cargaSelecionadaMinima / cargaMinima) * 100,
+                          ),
                           100,
-                        ),
-                        100,
-                      )
+                        )
                       : 100}
                     %
                   </span>
@@ -1143,20 +1021,18 @@ export default function RematriculaAlunoPage() {
 
                 <div className="mt-2 h-3 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
                   <div
-                    className={`h-full rounded-full transition-all ${atingiuCargaMinima
-                      ? "bg-emerald-500"
-                      : "bg-blue-600"
-                      }`}
+                    className={`h-full rounded-full transition-all ${
+                      atingiuCargaMinima ? "bg-emerald-500" : "bg-blue-600"
+                    }`}
                     style={{
-                      width: `${cargaMinima > 0
-                        ? Math.min(
-                          (cargaSelecionadaMinima /
-                            cargaMinima) *
-                          100,
-                          100,
-                        )
-                        : 100
-                        }%`,
+                      width: `${
+                        cargaMinima > 0
+                          ? Math.min(
+                              (cargaSelecionadaMinima / cargaMinima) * 100,
+                              100,
+                            )
+                          : 100
+                      }%`,
                     }}
                   />
                 </div>
@@ -1164,19 +1040,15 @@ export default function RematriculaAlunoPage() {
 
               {!atingiuCargaMinima && (
                 <p className="phanyx-rematricula-aviso-carga mt-4 rounded-xl border p-3 text-xs font-semibold">
-                  Selecione mais{" "}
-                  {Math.max(
-                    cargaMinima -
-                    cargaSelecionadaMinima,
-                    0,
-                  )}
-                  h para atingir a carga mínima.
+                  {t("selectionSummary.needMore", {
+                    hours: Math.max(cargaMinima - cargaSelecionadaMinima, 0),
+                  })}
                 </p>
               )}
 
               {ultrapassouCargaMaxima && (
                 <p className="mt-4 rounded-xl bg-red-50 p-3 text-xs font-semibold text-red-800 dark:bg-red-950/30 dark:text-red-200">
-                  A seleção ultrapassa a carga máxima permitida.
+                  {t("selectionSummary.maximumExceeded")}
                 </p>
               )}
 
@@ -1186,15 +1058,13 @@ export default function RematriculaAlunoPage() {
                   checked={declaracaoAceita}
                   disabled={!dados.edicaoPermitida}
                   onChange={(evento) =>
-                    setDeclaracaoAceita(
-                      evento.target.checked,
-                    )
+                    setDeclaracaoAceita(evento.target.checked)
                   }
                   className="mt-1 h-4 w-4"
                 />
 
                 <span className="phanyx-rematricula-declaracao-texto text-xs leading-5">
-                  Declaro que conferi as disciplinas, turmas, horários e regras desta rematrícula.
+                  {t("declaration")}
                 </span>
               </label>
 
@@ -1202,88 +1072,73 @@ export default function RematriculaAlunoPage() {
                 {dados.periodo.permiteRascunho && (
                   <button
                     type="button"
-                    onClick={() =>
-                      salvarRematricula(
-                        "SALVAR_RASCUNHO",
-                      )
-                    }
+                    onClick={() => salvarRematricula("SALVAR_RASCUNHO")}
                     disabled={
-                      processandoAcao !== null ||
-                      !dados.edicaoPermitida
+                      processandoAcao !== null || !dados.edicaoPermitida
                     }
                     className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                   >
-                    {processandoAcao ===
-                      "SALVAR_RASCUNHO"
-                      ? "Salvando rascunho..."
-                      : dados.rematricula?.status ===
-                        "RASCUNHO"
-                        ? "Atualizar rascunho"
-                        : "Salvar rascunho"}
+                    {processandoAcao === "SALVAR_RASCUNHO"
+                      ? t("actions.savingDraft")
+                      : dados.rematricula?.status === "RASCUNHO"
+                        ? t("actions.updateDraft")
+                        : t("actions.saveDraft")}
                   </button>
                 )}
 
                 <button
                   type="button"
-                  onClick={() =>
-                    setConfirmarEnvio(true)
-                  }
+                  onClick={() => setConfirmarEnvio(true)}
                   disabled={
                     processandoAcao !== null ||
                     !dados.envioPermitido ||
-                    disciplinasSelecionadas.length ===
-                    0 ||
+                    disciplinasSelecionadas.length === 0 ||
                     !atingiuCargaMinima ||
                     ultrapassouCargaMaxima ||
                     !declaracaoAceita
                   }
                   title={
-                    disciplinasSelecionadas.length ===
-                      0
-                      ? "Selecione pelo menos uma disciplina."
+                    disciplinasSelecionadas.length === 0
+                      ? t("tooltips.selectOneSubject")
                       : !atingiuCargaMinima
-                        ? "A carga mínima ainda não foi atingida."
+                        ? t("tooltips.minimumNotReached")
                         : ultrapassouCargaMaxima
-                          ? "A carga máxima foi ultrapassada."
+                          ? t("tooltips.maximumExceeded")
                           : !declaracaoAceita
-                            ? "Aceite a declaração para enviar."
-                            : "Enviar rematrícula."
+                            ? t("tooltips.acceptDeclaration")
+                            : t("tooltips.send")
                   }
                   className="rounded-xl bg-blue-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {processandoAcao === "ENVIAR"
-                    ? "Enviando..."
+                    ? t("actions.sending")
                     : dados.periodo.exigeAprovacao
-                      ? "Enviar para análise"
-                      : "Confirmar rematrícula"}
+                      ? t("actions.sendForReview")
+                      : t("actions.confirm")}
                 </button>
               </div>
 
               <p className="mt-3 text-center text-[11px] text-slate-500 dark:text-slate-400">
-                Após o envio, a seleção não poderá ser alterada até que a instituição a devolva para correção.
+                {t("afterSendNotice")}
               </p>
             </section>
 
             <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-              <h2 className="font-black">
-                Grade curricular
-              </h2>
+              <h2 className="font-black">{t("curriculum.title")}</h2>
 
               <p className="mt-2 text-xs leading-5 text-slate-600 dark:text-slate-400">
-                Consulte turmas, professores, salas e horários antes de confirmar.
+                {t("curriculum.description")}
               </p>
 
               {dados.gradeCurricular?.pdfDisponivel &&
-                dados.gradeCurricular.pdfUrl ? (
+              dados.gradeCurricular.pdfUrl ? (
                 <a
-                  href={
-                    dados.gradeCurricular.pdfUrl
-                  }
+                  href={dados.gradeCurricular.pdfUrl}
                   target="_blank"
                   rel="noreferrer"
                   className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-slate-900 px-4 py-3 text-sm font-bold text-white dark:bg-slate-700"
                 >
-                  Abrir PDF da grade
+                  {t("curriculum.openPdf")}
                 </a>
               ) : (
                 <button
@@ -1291,7 +1146,7 @@ export default function RematriculaAlunoPage() {
                   disabled
                   className="mt-4 w-full rounded-xl border border-slate-300 bg-slate-100 px-4 py-3 text-sm font-bold text-slate-500 disabled:cursor-not-allowed dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
                 >
-                  PDF em preparação
+                  {t("curriculum.pdfPreparing")}
                 </button>
               )}
             </section>
@@ -1303,29 +1158,31 @@ export default function RematriculaAlunoPage() {
         aberto={confirmarEnvio}
         titulo={
           dados.periodo.exigeAprovacao
-            ? "Enviar rematrícula para análise"
-            : "Confirmar rematrícula"
+            ? t("confirmation.reviewTitle")
+            : t("confirmation.confirmTitle")
         }
         mensagem={
           dados.periodo.exigeAprovacao
-            ? `Sua seleção possui ${disciplinasSelecionadas.length} disciplina(s) e ${cargaSelecionadaMaxima} horas. Após o envio, ela será analisada pela instituição.`
-            : `Sua seleção possui ${disciplinasSelecionadas.length} disciplina(s) e ${cargaSelecionadaMaxima} horas. Confirme para concluir a rematrícula.`
+            ? t("confirmation.reviewMessage", {
+                count: disciplinasSelecionadas.length,
+                hours: cargaSelecionadaMaxima,
+              })
+            : t("confirmation.confirmMessage", {
+                count: disciplinasSelecionadas.length,
+                hours: cargaSelecionadaMaxima,
+              })
         }
         textoConfirmar={
           processandoAcao === "ENVIAR"
-            ? "Enviando..."
+            ? t("actions.sending")
             : dados.periodo.exigeAprovacao
-              ? "Enviar para análise"
-              : "Confirmar rematrícula"
+              ? t("actions.sendForReview")
+              : t("actions.confirm")
         }
-        textoCancelar="Voltar"
-        onConfirmar={() =>
-          salvarRematricula("ENVIAR")
-        }
+        textoCancelar={t("actions.back")}
+        onConfirmar={() => salvarRematricula("ENVIAR")}
         onCancelar={() => {
-          if (
-            processandoAcao !== "ENVIAR"
-          ) {
+          if (processandoAcao !== "ENVIAR") {
             setConfirmarEnvio(false);
           }
         }}
@@ -1334,42 +1191,24 @@ export default function RematriculaAlunoPage() {
   );
 }
 
-function ResumoCard({
-  titulo,
-  valor,
-}: {
-  titulo: string;
-  valor: string;
-}) {
+function ResumoCard({ titulo, valor }: { titulo: string; valor: string }) {
   return (
     <div className="phanyx-rematricula-resumo-card rounded-2xl border p-5 shadow-sm">
       <p className="phanyx-rematricula-resumo-label text-xs font-bold uppercase tracking-wide">
         {titulo}
       </p>
 
-      <p className="phanyx-rematricula-resumo-valor mt-2 font-black">
-        {valor}
-      </p>
+      <p className="phanyx-rematricula-resumo-valor mt-2 font-black">{valor}</p>
     </div>
   );
 }
 
-function ResumoLinha({
-  titulo,
-  valor,
-}: {
-  titulo: string;
-  valor: string;
-}) {
+function ResumoLinha({ titulo, valor }: { titulo: string; valor: string }) {
   return (
     <div className="phanyx-rematricula-resumo-linha flex items-center justify-between gap-4 border-b pb-3 text-sm last:border-0">
-      <span className="phanyx-rematricula-resumo-linha-titulo">
-        {titulo}
-      </span>
+      <span className="phanyx-rematricula-resumo-linha-titulo">{titulo}</span>
 
-      <strong className="phanyx-rematricula-resumo-linha-valor">
-        {valor}
-      </strong>
+      <strong className="phanyx-rematricula-resumo-linha-valor">{valor}</strong>
     </div>
   );
 }
@@ -1388,20 +1227,19 @@ function GrupoDisciplinas({
   disciplinas: DisciplinaRematricula[];
   selecionadas: SelecaoDisciplinas;
   edicaoPermitida: boolean;
-  onSelecionar: (
-    disciplina: DisciplinaRematricula,
-  ) => void;
+  onSelecionar: (disciplina: DisciplinaRematricula) => void;
   onAlterarTurma: (
     disciplina: DisciplinaRematricula,
     turmaDisciplinaId: number,
   ) => void;
 }) {
+  const t = useTranslations("StudentReenrollment");
+  const tr = t as unknown as TradutorRematricula;
+
   return (
     <section className="rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
       <div className="border-b border-slate-200 p-5 dark:border-slate-800">
-        <h2 className="text-xl font-black">
-          {titulo}
-        </h2>
+        <h2 className="text-xl font-black">{titulo}</h2>
 
         <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
           {descricao}
@@ -1410,41 +1248,29 @@ function GrupoDisciplinas({
 
       {disciplinas.length === 0 ? (
         <div className="p-6 text-sm text-slate-500">
-          Nenhuma disciplina disponível nesta categoria.
+          {t("subjects.emptyCategory")}
         </div>
       ) : (
         <div className="divide-y divide-slate-200 dark:divide-slate-800">
           {disciplinas.map((disciplina) => {
             const selecionada =
-              selecionadas[
-              disciplina.disciplinaId
-              ] !== undefined;
+              selecionadas[disciplina.disciplinaId] !== undefined;
 
-            const turmaSelecionada =
-              selecionadas[
-              disciplina.disciplinaId
-              ];
+            const turmaSelecionada = selecionadas[disciplina.disciplinaId];
 
             return (
               <article
-  key={disciplina.disciplinaId}
-  className={`phanyx-rematricula-disciplina-item p-5 transition ${
-    selecionada
-      ? "phanyx-rematricula-disciplina-selecionada"
-      : ""
-  }`}
->
+                key={disciplina.disciplinaId}
+                className={`phanyx-rematricula-disciplina-item p-5 transition ${
+                  selecionada ? "phanyx-rematricula-disciplina-selecionada" : ""
+                }`}
+              >
                 <div className="flex items-start gap-4">
                   <input
                     type="checkbox"
                     checked={selecionada}
-                    disabled={
-                      !edicaoPermitida ||
-                      disciplina.bloqueada
-                    }
-                    onChange={() =>
-                      onSelecionar(disciplina)
-                    }
+                    disabled={!edicaoPermitida || disciplina.bloqueada}
+                    onChange={() => onSelecionar(disciplina)}
                     className="mt-1 h-5 w-5 shrink-0"
                   />
 
@@ -1459,25 +1285,25 @@ function GrupoDisciplinas({
                           disciplina.tipo,
                         )}`}
                       >
-                        {nomeTipoDisciplina(
-                          disciplina.tipo,
-                        )}
+                        {nomeTipoDisciplina(disciplina.tipo, tr)}
                       </span>
 
                       {disciplina.obrigatoria && (
                         <span className="phanyx-rematricula-badge-obrigatoria inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold">
-                          Obrigatória
+                          {t("subjects.required")}
                         </span>
                       )}
                     </div>
 
                     <p className="phanyx-rematricula-disciplina-meta mt-1 text-xs">
-                      {disciplina.codigo
-                        ? `${disciplina.codigo} · `
-                        : ""}
-                      {disciplina.cargaHoraria} horas
+                      {disciplina.codigo ? `${disciplina.codigo} · ` : ""}
+                      {t("common.hoursLong", {
+                        hours: disciplina.cargaHoraria,
+                      })}
                       {disciplina.semestreOrigemNumero
-                        ? ` · ${disciplina.semestreOrigemNumero}º semestre`
+                        ? ` · ${t("common.semesterNumber", {
+                            number: disciplina.semestreOrigemNumero,
+                          })}`
                         : ""}
                     </p>
 
@@ -1487,135 +1313,103 @@ function GrupoDisciplinas({
                       </p>
                     )}
 
-                    {disciplina.preRequisitos.length >
-                      0 && (
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          {disciplina.preRequisitos.map(
-                            (requisito) => (
-                              <span
-                                key={
-                                  requisito.disciplinaId
-                                }
-                                className={`rounded-full border px-2 py-1 text-[10px] font-bold ${requisito.cumprido
-                                  ? "border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-300"
-                                  : "phanyx-rematricula-prerequisito-pendente"
-                                  }`}
-                              >
-                                {requisito.cumprido
-                                  ? "✓"
-                                  : "✕"}{" "}
-                                {requisito.nome}
-                              </span>
-                            ),
-                          )}
-                        </div>
-                      )}
+                    {disciplina.preRequisitos.length > 0 && (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {disciplina.preRequisitos.map((requisito) => (
+                          <span
+                            key={requisito.disciplinaId}
+                            className={`rounded-full border px-2 py-1 text-[10px] font-bold ${
+                              requisito.cumprido
+                                ? "border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-300"
+                                : "phanyx-rematricula-prerequisito-pendente"
+                            }`}
+                          >
+                            {requisito.cumprido ? "✓" : "✕"} {requisito.nome}
+                          </span>
+                        ))}
+                      </div>
+                    )}
 
                     {disciplina.bloqueada && (
                       <div className="phanyx-rematricula-alerta-bloqueio mt-3 rounded-xl border p-3 text-xs font-semibold">
-                        {disciplina.motivosBloqueio.map(
-                          (motivo) => (
-                            <p key={motivo}>
-                              {motivo}
-                            </p>
-                          ),
-                        )}
+                        {disciplina.motivosBloqueio.map((motivo) => (
+                          <p key={motivo}>{motivo}</p>
+                        ))}
                       </div>
                     )}
 
                     {selecionada && (
                       <div className="mt-4">
                         <label className="text-xs font-black uppercase tracking-wide text-slate-600 dark:text-slate-300">
-                          Turma
+                          {t("subjects.class")}
                         </label>
 
                         <select
-                          value={
-                            turmaSelecionada
-                          }
+                          value={turmaSelecionada}
                           onChange={(evento) =>
                             onAlterarTurma(
                               disciplina,
-                              Number(
-                                evento.target
-                                  .value,
-                              ),
+                              Number(evento.target.value),
                             )
                           }
                           disabled={!edicaoPermitida}
                           className="mt-2 h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                         >
-                          {disciplina.opcoesTurma.map(
-                            (turma) => (
-                              <option
-                                key={
-                                  turma.turmaDisciplinaId
-                                }
-                                value={
-                                  turma.turmaDisciplinaId
-                                }
-                                disabled={
-                                  turma.semVagas
-                                }
-                              >
-                                {turma.turmaNome}
-                                {turma.turmaCodigo
-                                  ? ` — ${turma.turmaCodigo}`
-                                  : ""}
-                                {turma.semVagas
-                                  ? " — Sem vagas"
-                                  : ""}
-                              </option>
-                            ),
-                          )}
+                          {disciplina.opcoesTurma.map((turma) => (
+                            <option
+                              key={turma.turmaDisciplinaId}
+                              value={turma.turmaDisciplinaId}
+                              disabled={turma.semVagas}
+                            >
+                              {turma.turmaNome}
+                              {turma.turmaCodigo
+                                ? ` — ${turma.turmaCodigo}`
+                                : ""}
+                              {turma.semVagas
+                                ? ` — ${t("subjects.noSeats")}`
+                                : ""}
+                            </option>
+                          ))}
                         </select>
 
                         {disciplina.opcoesTurma
                           .filter(
                             (turma) =>
-                              turma.turmaDisciplinaId ===
-                              turmaSelecionada,
+                              turma.turmaDisciplinaId === turmaSelecionada,
                           )
                           .map((turma) => (
                             <div
-                              key={
-                                turma.turmaDisciplinaId
-                              }
+                              key={turma.turmaDisciplinaId}
                               className="phanyx-rematricula-turma-card mt-3 grid gap-3 rounded-2xl border p-4 text-xs sm:grid-cols-2"
                             >
                               <InformacaoTurma
-                                titulo="Professor"
+                                titulo={t("classInfo.teacher")}
                                 valor={
-                                  turma.professor
-                                    ?.nome ||
-                                  "Não informado"
+                                  turma.professor?.nome ||
+                                  t("common.notInformed")
                                 }
                               />
 
                               <InformacaoTurma
-                                titulo="Vagas"
+                                titulo={t("classInfo.seats")}
                                 valor={
-                                  turma.vagasDisponiveis ===
-                                    null ||
-                                    turma.vagasDisponiveis ===
-                                    undefined
-                                    ? "Sem limite informado"
-                                    : `${turma.vagasDisponiveis} disponível(is)`
+                                  turma.vagasDisponiveis === null ||
+                                  turma.vagasDisponiveis === undefined
+                                    ? t("classInfo.noLimitInformed")
+                                    : t("classInfo.availableSeats", {
+                                        count: turma.vagasDisponiveis,
+                                      })
                                 }
                               />
 
                               <InformacaoTurma
-                                titulo="Horário"
-                                valor={formatarHorarios(
-                                  turma.horarios,
-                                )}
+                                titulo={t("classInfo.schedule")}
+                                valor={formatarHorarios(turma.horarios, tr)}
                               />
 
                               <InformacaoTurma
-                                titulo="Local"
-                                valor={descreverLocal(
-                                  turma,
-                                )}
+                                titulo={t("classInfo.location")}
+                                valor={descreverLocal(turma, tr)}
                               />
                             </div>
                           ))}
@@ -1632,13 +1426,7 @@ function GrupoDisciplinas({
   );
 }
 
-function InformacaoTurma({
-  titulo,
-  valor,
-}: {
-  titulo: string;
-  valor: string;
-}) {
+function InformacaoTurma({ titulo, valor }: { titulo: string; valor: string }) {
   return (
     <div>
       <span className="phanyx-rematricula-turma-info-label block font-black uppercase tracking-wide">

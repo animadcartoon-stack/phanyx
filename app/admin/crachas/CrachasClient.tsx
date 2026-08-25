@@ -27,6 +27,7 @@ type GradienteDirecaoForma =
 type ObjetoCracha =
   | {
     id: number;
+    grupoId?: number;
     tipo: "TEXTO";
     texto: string;
     x: number;
@@ -46,6 +47,7 @@ type ObjetoCracha =
   }
   | {
     id: number;
+    grupoId?: number;
     tipo: "CAMPO";
     campo: string;
     rotulo: string;
@@ -68,6 +70,7 @@ type ObjetoCracha =
   }
   | {
     id: number;
+    grupoId?: number;
     tipo: "IMAGEM";
     origem: "FOTO" | "LOGO" | "UPLOAD";
     rotulo: string;
@@ -88,6 +91,7 @@ type ObjetoCracha =
   }
   | {
     id: number;
+    grupoId?: number;
     tipo: "QRCODE";
     valor: string;
     x: number;
@@ -108,6 +112,7 @@ type ObjetoCracha =
   }
   | {
     id: number;
+    grupoId?: number;
     tipo: "CODIGO_BARRAS";
     valor: string;
     rotulo: string;
@@ -129,6 +134,7 @@ type ObjetoCracha =
   }
   | {
     id: number;
+    grupoId?: number;
     tipo: "FORMA";
 
     forma:
@@ -182,6 +188,7 @@ type ObjetoCracha =
     raioExterno?: number;
     arredondamentoPontas?: number;
     arredondamentoReentrancias?: number;
+    circularidadePontas?: number;
     lados?: number;
     cruzCentroX?: number;
     cruzCentroY?: number;
@@ -694,28 +701,196 @@ export default function CrachasClient() {
 
   const crachaAreaRef = useRef<HTMLDivElement | null>(null);
 
+  function idsDoGrupoDoObjeto(
+    objetoId: number
+  ) {
+    const objeto =
+      objetos.find(
+        (item) =>
+          item.id === objetoId
+      );
+
+    if (
+      !objeto ||
+      objeto.grupoId === undefined
+    ) {
+      return [objetoId];
+    }
+
+    return objetos
+      .filter(
+        (item) =>
+          item.grupoId ===
+          objeto.grupoId
+      )
+      .map(
+        (item) =>
+          item.id
+      );
+  }
+
   function selecionarObjetoCracha(
     e: React.MouseEvent<HTMLElement>,
     objetoId: number
   ) {
+    const idsRelacionados =
+      idsDoGrupoDoObjeto(
+        objetoId
+      );
+
     if (e.shiftKey) {
-      setObjetosSelecionadosIds((atuais) => {
-        const jaSelecionado = atuais.includes(objetoId);
+      setObjetosSelecionadosIds(
+        (atuais) => {
+          const todosSelecionados =
+            idsRelacionados.every(
+              (id) =>
+                atuais.includes(id)
+            );
 
-        const novosSelecionados = jaSelecionado
-          ? atuais.filter((id) => id !== objetoId)
-          : [...atuais, objetoId];
+          const novosSelecionados =
+            todosSelecionados
+              ? atuais.filter(
+                (id) =>
+                  !idsRelacionados.includes(
+                    id
+                  )
+              )
+              : Array.from(
+                new Set([
+                  ...atuais,
+                  ...idsRelacionados,
+                ])
+              );
 
-        setObjetoSelecionado(objetoId);
+          setObjetoSelecionado(
+            objetoId
+          );
 
-        return novosSelecionados;
-      });
+          return novosSelecionados;
+        }
+      );
 
       return;
     }
 
-    setObjetoSelecionado(objetoId);
-    setObjetosSelecionadosIds([objetoId]);
+    setObjetoSelecionado(
+      objetoId
+    );
+
+    setObjetosSelecionadosIds(
+      idsRelacionados
+    );
+  }
+
+  function iniciarArrastoObjetoCracha(
+    e: React.MouseEvent<HTMLDivElement>,
+    objeto: ObjetoCracha
+  ) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    selecionarObjetoCracha(
+      e,
+      objeto.id
+    );
+
+    const inicioX =
+      e.clientX;
+
+    const inicioY =
+      e.clientY;
+
+    const idsMovidos =
+      idsDoGrupoDoObjeto(
+        objeto.id
+      );
+
+    const posicoesOriginais =
+      new Map<
+        number,
+        {
+          x: number;
+          y: number;
+        }
+      >();
+
+    objetos.forEach(
+      (item) => {
+        if (
+          idsMovidos.includes(
+            item.id
+          )
+        ) {
+          posicoesOriginais.set(
+            item.id,
+            {
+              x: item.x,
+              y: item.y,
+            }
+          );
+        }
+      }
+    );
+
+    function mover(
+      ev: MouseEvent
+    ) {
+      const deslocamentoX =
+        ev.clientX -
+        inicioX;
+
+      const deslocamentoY =
+        ev.clientY -
+        inicioY;
+
+      idsMovidos.forEach(
+        (id) => {
+          const posicaoOriginal =
+            posicoesOriginais.get(
+              id
+            );
+
+          if (!posicaoOriginal) {
+            return;
+          }
+
+          atualizarObjeto(
+            id,
+            {
+              x:
+                posicaoOriginal.x +
+                deslocamentoX,
+
+              y:
+                posicaoOriginal.y +
+                deslocamentoY,
+            }
+          );
+        }
+      );
+    }
+
+    function soltar() {
+      window.removeEventListener(
+        "mousemove",
+        mover
+      );
+
+      window.removeEventListener(
+        "mouseup",
+        soltar
+      );
+    }
+
+    window.addEventListener(
+      "mousemove",
+      mover
+    );
+
+    window.addEventListener(
+      "mouseup",
+      soltar
+    );
   }
 
   function objetoEstaSelecionado(objetoId: number) {
@@ -2873,13 +3048,34 @@ export default function CrachasClient() {
   }
 
   function excluirObjetoSelecionado() {
-    if (!objetoSelecionado) return;
+    if (
+      objetoSelecionado === null
+    ) {
+      return;
+    }
 
-    setObjetos((atual) =>
-      atual.filter((obj) => obj.id !== objetoSelecionado)
+    const idsRelacionados =
+      idsDoGrupoDoObjeto(
+        objetoSelecionado
+      );
+
+    setObjetos(
+      (atuais) =>
+        atuais.filter(
+          (objeto) =>
+            !idsRelacionados.includes(
+              objeto.id
+            )
+        )
     );
 
-    setObjetoSelecionado(null);
+    setObjetoSelecionado(
+      null
+    );
+
+    setObjetosSelecionadosIds(
+      []
+    );
   }
 
   useEffect(() => {
@@ -3787,24 +3983,23 @@ export default function CrachasClient() {
   }
 
   function trazerParaFrente() {
-    if (!objetoAtual) return;
+    if (!objetoAtual) {
+      return;
+    }
 
-    const maiorOrdem = Math.max(
-      1,
-      ...objetos.map((obj) => Math.max(1, obj.ordem || 1))
+    trazerObjetoParaFrentePorId(
+      objetoAtual.id
     );
-
-    atualizarObjeto(objetoAtual.id, {
-      ordem: maiorOrdem + 1,
-    });
   }
 
   function enviarParaTras() {
-    if (!objetoAtual) return;
+    if (!objetoAtual) {
+      return;
+    }
 
-    atualizarObjeto(objetoAtual.id, {
-      ordem: 1,
-    });
+    enviarObjetoParaTrasPorId(
+      objetoAtual.id
+    );
   }
 
   function abrirMenuContexto(
@@ -3814,25 +4009,65 @@ export default function CrachasClient() {
     e.preventDefault();
     e.stopPropagation();
 
-    setObjetoSelecionado(objetoId);
+    const clicadoJaSelecionado =
+      objetosSelecionadosIds.includes(
+        objetoId
+      );
 
-    const rect = e.currentTarget.getBoundingClientRect();
+    /*
+     * Se o clique ocorreu fora da
+     * seleção atual, seleciona apenas
+     * esse objeto ou seu grupo.
+     *
+     * Se ocorreu em um dos objetos
+     * selecionados com Shift, preserva
+     * toda a seleção para poder agrupar.
+     */
+    if (!clicadoJaSelecionado) {
+      setObjetosSelecionadosIds(
+        idsDoGrupoDoObjeto(
+          objetoId
+        )
+      );
+    }
+
+    setObjetoSelecionado(
+      objetoId
+    );
+
+    const rect =
+      e.currentTarget.getBoundingClientRect();
 
     const larguraMenu = 224;
-    const alturaMenu = 190;
+    const alturaMenu = 330;
     const margem = 12;
 
     const cabeNaDireita =
-      rect.right + larguraMenu + margem < window.innerWidth;
+      rect.right +
+      larguraMenu +
+      margem <
+      window.innerWidth;
 
-    const x = cabeNaDireita
-      ? rect.right + margem
-      : Math.max(margem, rect.left - larguraMenu - margem);
+    const x =
+      cabeNaDireita
+        ? rect.right + margem
+        : Math.max(
+          margem,
+          rect.left -
+          larguraMenu -
+          margem
+        );
 
-    const y = Math.min(
-      Math.max(margem, rect.top),
-      window.innerHeight - alturaMenu - margem
-    );
+    const y =
+      Math.min(
+        Math.max(
+          margem,
+          rect.top
+        ),
+        window.innerHeight -
+        alturaMenu -
+        margem
+      );
 
     setMenuContexto({
       aberto: true,
@@ -3851,42 +4086,388 @@ export default function CrachasClient() {
     });
   }
 
-  function trazerObjetoParaFrentePorId(objetoId: number) {
-    const maiorOrdem = Math.max(
-      1,
-      ...objetos.map((obj) => Math.max(1, obj.ordem || 1))
+  function agruparObjetosSelecionados() {
+    const idsValidos =
+      Array.from(
+        new Set(
+          objetosSelecionadosIds.filter(
+            (id) =>
+              objetos.some(
+                (objeto) =>
+                  objeto.id === id
+              )
+          )
+        )
+      );
+
+    if (idsValidos.length < 2) {
+      setAvisoCracha({
+        tipo: "erro",
+        texto:
+          "Selecione pelo menos dois elementos segurando Shift antes de agrupar.",
+      });
+
+      setTimeout(
+        () =>
+          setAvisoCracha(null),
+        3500
+      );
+
+      return;
+    }
+
+    const novoGrupoId =
+      Date.now();
+
+    setObjetos(
+      (atuais) =>
+        atuais.map(
+          (objeto) =>
+            idsValidos.includes(
+              objeto.id
+            )
+              ? {
+                ...objeto,
+                grupoId:
+                  novoGrupoId,
+              }
+              : objeto
+        )
     );
 
-    atualizarObjeto(objetoId, {
-      ordem: maiorOrdem + 1,
+    setObjetosSelecionadosIds(
+      idsValidos
+    );
+
+    setObjetoSelecionado(
+      idsValidos[
+      idsValidos.length - 1
+      ]
+    );
+
+    setAvisoCracha({
+      tipo: "sucesso",
+      texto:
+        `${idsValidos.length} elementos agrupados.`,
     });
 
+    setTimeout(
+      () =>
+        setAvisoCracha(null),
+      2500
+    );
+
     fecharMenuContexto();
   }
 
-  function enviarObjetoParaTrasPorId(objetoId: number) {
-    atualizarObjeto(objetoId, {
-      ordem: 1,
+  function desagruparObjetoPorId(
+    objetoId: number
+  ) {
+    const objeto =
+      objetos.find(
+        (item) =>
+          item.id === objetoId
+      );
+
+    if (
+      !objeto ||
+      objeto.grupoId === undefined
+    ) {
+      setAvisoCracha({
+        tipo: "erro",
+        texto:
+          "O elemento selecionado não pertence a um grupo.",
+      });
+
+      setTimeout(
+        () =>
+          setAvisoCracha(null),
+        3000
+      );
+
+      fecharMenuContexto();
+
+      return;
+    }
+
+    const grupoId =
+      objeto.grupoId;
+
+    const idsDoGrupo =
+      objetos
+        .filter(
+          (item) =>
+            item.grupoId ===
+            grupoId
+        )
+        .map(
+          (item) =>
+            item.id
+        );
+
+    setObjetos(
+      (atuais) =>
+        atuais.map(
+          (item) =>
+            item.grupoId ===
+              grupoId
+              ? {
+                ...item,
+                grupoId:
+                  undefined,
+              }
+              : item
+        )
+    );
+
+    setObjetoSelecionado(
+      objetoId
+    );
+
+    setObjetosSelecionadosIds([
+      objetoId,
+    ]);
+
+    setAvisoCracha({
+      tipo: "sucesso",
+      texto:
+        `${idsDoGrupo.length} elementos desagrupados.`,
     });
 
+    setTimeout(
+      () =>
+        setAvisoCracha(null),
+      2500
+    );
+
     fecharMenuContexto();
   }
 
-  function duplicarObjetoPorId(objetoId: number) {
-    const objeto = objetos.find((obj) => obj.id === objetoId);
+  function objetosRelacionadosAoObjeto(
+    objetoId: number
+  ) {
+    const idsRelacionados =
+      idsDoGrupoDoObjeto(
+        objetoId
+      );
 
-    if (!objeto) return;
+    return objetos
+      .filter(
+        (objeto) =>
+          idsRelacionados.includes(
+            objeto.id
+          )
+      )
+      .sort(
+        (a, b) =>
+          (a.ordem || 0) -
+          (b.ordem || 0)
+      );
+  }
 
-    const novoObjeto = clonarObjetoCracha(objeto, 12);
+  function trazerObjetoParaFrentePorId(
+    objetoId: number
+  ) {
+    const objetosRelacionados =
+      objetosRelacionadosAoObjeto(
+        objetoId
+      );
 
-    setObjetos((atual) => [...atual, novoObjeto]);
-    setObjetoSelecionado(novoObjeto.id);
+    if (
+      objetosRelacionados.length === 0
+    ) {
+      return;
+    }
+
+    const maiorOrdem =
+      Math.max(
+        1,
+        ...objetos.map(
+          (objeto) =>
+            objeto.ordem || 0
+        )
+      );
+
+    objetosRelacionados.forEach(
+      (objeto, indice) => {
+        atualizarObjeto(
+          objeto.id,
+          {
+            ordem:
+              maiorOrdem +
+              indice +
+              1,
+          }
+        );
+      }
+    );
+
     fecharMenuContexto();
   }
 
-  function excluirObjetoPorId(objetoId: number) {
-    setObjetos((atual) => atual.filter((obj) => obj.id !== objetoId));
-    setObjetoSelecionado(null);
+  function enviarObjetoParaTrasPorId(
+    objetoId: number
+  ) {
+    const objetosRelacionados =
+      objetosRelacionadosAoObjeto(
+        objetoId
+      );
+
+    if (
+      objetosRelacionados.length === 0
+    ) {
+      return;
+    }
+
+    const menorOrdem =
+      Math.min(
+        0,
+        ...objetos.map(
+          (objeto) =>
+            objeto.ordem || 0
+        )
+      );
+
+    objetosRelacionados.forEach(
+      (objeto, indice) => {
+        atualizarObjeto(
+          objeto.id,
+          {
+            ordem:
+              menorOrdem -
+              objetosRelacionados.length +
+              indice,
+          }
+        );
+      }
+    );
+
+    fecharMenuContexto();
+  }
+
+  function duplicarObjetoPorId(
+    objetoId: number
+  ) {
+    const objetosRelacionados =
+      objetosRelacionadosAoObjeto(
+        objetoId
+      );
+
+    if (
+      objetosRelacionados.length === 0
+    ) {
+      return;
+    }
+
+    const agora =
+      Date.now();
+
+    const maiorOrdem =
+      Math.max(
+        1,
+        ...objetos.map(
+          (objeto) =>
+            objeto.ordem || 0
+        )
+      );
+
+    const novoGrupoId =
+      objetosRelacionados.length >= 2
+        ? agora + 1000000
+        : undefined;
+
+    const novosObjetos =
+      objetosRelacionados.map(
+        (objeto, indice) => {
+          const clone =
+            clonarObjetoCracha(
+              objeto,
+              12
+            );
+
+          return {
+            ...clone,
+            id:
+              agora +
+              indice,
+
+            grupoId:
+              novoGrupoId,
+
+            ordem:
+              maiorOrdem +
+              indice +
+              1,
+          } as ObjetoCracha;
+        }
+      );
+
+    setObjetos(
+      (atuais) => [
+        ...atuais,
+        ...novosObjetos,
+      ]
+    );
+
+    const novosIds =
+      novosObjetos.map(
+        (objeto) =>
+          objeto.id
+      );
+
+    setObjetosSelecionadosIds(
+      novosIds
+    );
+
+    setObjetoSelecionado(
+      novosIds[
+      novosIds.length - 1
+      ]
+    );
+
+    setAvisoCracha({
+      tipo: "sucesso",
+      texto:
+        novosObjetos.length >= 2
+          ? `${novosObjetos.length} elementos duplicados em um novo grupo.`
+          : "Objeto duplicado.",
+    });
+
+    setTimeout(
+      () =>
+        setAvisoCracha(null),
+      2500
+    );
+
+    fecharMenuContexto();
+  }
+
+  function excluirObjetoPorId(
+    objetoId: number
+  ) {
+    const idsRelacionados =
+      idsDoGrupoDoObjeto(
+        objetoId
+      );
+
+    setObjetos(
+      (atuais) =>
+        atuais.filter(
+          (objeto) =>
+            !idsRelacionados.includes(
+              objeto.id
+            )
+        )
+    );
+
+    setObjetoSelecionado(
+      null
+    );
+
+    setObjetosSelecionadosIds(
+      []
+    );
+
     fecharMenuContexto();
   }
 
@@ -3979,7 +4560,8 @@ export default function CrachasClient() {
     raioExterno: number,
     raioInterno: number,
     arredondamentoPontas = 0,
-    arredondamentoReentrancias = 0
+    arredondamentoReentrancias = 0,
+    circularidadePontas = 0
   ) {
     const cx = 50;
     const cy = 50;
@@ -3992,6 +4574,7 @@ export default function CrachasClient() {
     const vertices: {
       x: number;
       y: number;
+      angulo: number;
       externo: boolean;
     }[] = [];
 
@@ -4002,7 +4585,8 @@ export default function CrachasClient() {
     ) {
       const angulo =
         -Math.PI / 2 +
-        (indice * Math.PI) / totalPontas;
+        (indice * Math.PI) /
+        totalPontas;
 
       const externo =
         indice % 2 === 0;
@@ -4013,8 +4597,17 @@ export default function CrachasClient() {
           : raioInterno;
 
       vertices.push({
-        x: cx + Math.cos(angulo) * raio,
-        y: cy + Math.sin(angulo) * raio,
+        x:
+          cx +
+          Math.cos(angulo) *
+          raio,
+
+        y:
+          cy +
+          Math.sin(angulo) *
+          raio,
+
+        angulo,
         externo,
       });
     }
@@ -4046,15 +4639,83 @@ export default function CrachasClient() {
       };
     }
 
+    const nivelArredondamentoPontas =
+      limitarPercentual(
+        arredondamentoPontas
+      ) / 100;
+
+    const nivelArredondamentoReentrancias =
+      limitarPercentual(
+        arredondamentoReentrancias
+      ) / 100;
+
+    const nivelCircularidadePontas =
+      limitarPercentual(
+        circularidadePontas
+      ) / 100;
+
+    /*
+     * Sem circularidade, mantém
+     * exatamente o arredondamento atual.
+     *
+     * Com circularidade, a curva externa
+     * ocupa uma parte maior das arestas,
+     * formando pétalas mais largas.
+     */
+    let proporcaoPontas =
+      nivelArredondamentoPontas *
+      (
+        0.5 +
+        nivelCircularidadePontas *
+        0.45
+      );
+
+    let proporcaoReentrancias =
+      nivelArredondamentoReentrancias *
+      0.5;
+
+    /*
+     * Impede que as curvas externas e
+     * internas se cruzem na mesma aresta.
+     */
+    const somaProporcoes =
+      proporcaoPontas +
+      proporcaoReentrancias;
+
+    if (somaProporcoes > 0.98) {
+      const escala =
+        0.98 /
+        somaProporcoes;
+
+      proporcaoPontas *= escala;
+      proporcaoReentrancias *= escala;
+    }
+
+    /*
+     * Empurra o controle da curva externa
+     * para preservar o volume circular
+     * das pétalas.
+     */
+    const aumentoControlePontas =
+      Math.max(
+        0,
+        raioExterno - raioInterno
+      ) *
+      nivelCircularidadePontas *
+      nivelArredondamentoPontas *
+      0.95;
+
     const partes: string[] = [];
 
     vertices.forEach(
       (vertice, indice) => {
         const anterior =
           vertices[
-          (indice -
+          (
+            indice -
             1 +
-            vertices.length) %
+            vertices.length
+          ) %
           vertices.length
           ];
 
@@ -4064,23 +4725,10 @@ export default function CrachasClient() {
           vertices.length
           ];
 
-        const arredondamento =
-          vertice.externo
-            ? limitarPercentual(
-              arredondamentoPontas
-            )
-            : limitarPercentual(
-              arredondamentoReentrancias
-            );
-
-        /*
-         * Em 100%, cada curva ocupa
-         * metade das duas arestas
-         * ligadas ao vértice.
-         */
         const proporcao =
-          (arredondamento / 100) *
-          0.5;
+          vertice.externo
+            ? proporcaoPontas
+            : proporcaoReentrancias;
 
         const entrada =
           aproximarPonto(
@@ -4096,6 +4744,34 @@ export default function CrachasClient() {
             proporcao
           );
 
+        const pontoControle =
+          vertice.externo
+            ? {
+              x:
+                cx +
+                Math.cos(
+                  vertice.angulo
+                ) *
+                (
+                  raioExterno +
+                  aumentoControlePontas
+                ),
+
+              y:
+                cy +
+                Math.sin(
+                  vertice.angulo
+                ) *
+                (
+                  raioExterno +
+                  aumentoControlePontas
+                ),
+            }
+            : {
+              x: vertice.x,
+              y: vertice.y,
+            };
+
         if (indice === 0) {
           partes.push(
             `M ${entrada.x} ${entrada.y}`
@@ -4107,7 +4783,7 @@ export default function CrachasClient() {
         }
 
         partes.push(
-          `Q ${vertice.x} ${vertice.y} ${saida.x} ${saida.y}`
+          `Q ${pontoControle.x} ${pontoControle.y} ${saida.x} ${saida.y}`
         );
       }
     );
@@ -4504,7 +5180,8 @@ export default function CrachasClient() {
             objeto.raioExterno ?? 46,
             objeto.raioInterno ?? 22,
             objeto.arredondamentoPontas ?? 0,
-            objeto.arredondamentoReentrancias ?? 0
+            objeto.arredondamentoReentrancias ?? 0,
+            objeto.circularidadePontas ?? 0
           )}
           {...comum}
         />
@@ -4742,6 +5419,9 @@ export default function CrachasClient() {
 
           arredondamentoReentrancias:
             objetoAtual.arredondamentoReentrancias,
+
+          circularidadePontas:
+            objetoAtual.circularidadePontas,
         }
         : {}),
 
@@ -5427,7 +6107,7 @@ export default function CrachasClient() {
     const menuYInicial = menuContexto.y;
 
     const larguraMenu = 224;
-    const alturaMenu = 190;
+    const alturaMenu = 330;
     const margem = 8;
 
     function limitar(valor: number, minimo: number, maximo: number) {
@@ -6609,6 +7289,45 @@ export default function CrachasClient() {
 
           <button
             type="button"
+            onClick={
+              agruparObjetosSelecionados
+            }
+            disabled={
+              objetosSelecionadosIds.length <
+              2
+            }
+            className="phanyx-crachas-context-item disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Agrupar
+            {objetosSelecionadosIds.length >=
+              2
+              ? ` (${objetosSelecionadosIds.length})`
+              : ""}
+          </button>
+
+          <button
+            type="button"
+            onClick={() =>
+              desagruparObjetoPorId(
+                menuContexto.objetoId!
+              )
+            }
+            disabled={
+              objetos.find(
+                (objeto) =>
+                  objeto.id ===
+                  menuContexto.objetoId
+              )?.grupoId === undefined
+            }
+            className="phanyx-crachas-context-item disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Desagrupar
+          </button>
+
+          <div className="phanyx-crachas-context-divider my-1 border-t" />
+
+          <button
+            type="button"
             onClick={() =>
               excluirObjetoPorId(
                 menuContexto.objetoId!
@@ -6747,35 +7466,12 @@ export default function CrachasClient() {
                     <div
                       key={objeto.id}
                       onContextMenu={(e) => abrirMenuContexto(e, objeto.id)}
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        selecionarObjetoCracha(e, objeto.id);
-
-                        const inicioX = e.clientX;
-                        const inicioY = e.clientY;
-                        const xOriginal = objeto.x;
-                        const yOriginal = objeto.y;
-
-                        function mover(ev: MouseEvent) {
-                          const novoX = xOriginal + ev.clientX - inicioX;
-                          const novoY = yOriginal + ev.clientY - inicioY;
-
-                          atualizarObjeto(objeto.id, {
-                            x: novoX,
-                            y: novoY,
-                          });
-                        }
-
-                        function soltar() {
-                          window.removeEventListener("mousemove", mover);
-                          window.removeEventListener("mouseup", soltar);
-                        }
-
-                        window.addEventListener("mousemove", mover);
-                        window.addEventListener("mouseup", soltar);
-                      }}
+                      onMouseDown={(e) =>
+                        iniciarArrastoObjetoCracha(
+                          e,
+                          objeto
+                        )
+                      }
                       style={{
                         position: "absolute",
                         left: objeto.x,
@@ -6868,35 +7564,12 @@ export default function CrachasClient() {
                     <div
                       key={objeto.id}
                       onContextMenu={(e) => abrirMenuContexto(e, objeto.id)}
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        selecionarObjetoCracha(e, objeto.id);
-
-                        const inicioX = e.clientX;
-                        const inicioY = e.clientY;
-                        const xOriginal = objeto.x;
-                        const yOriginal = objeto.y;
-
-                        function mover(ev: MouseEvent) {
-                          const novoX = xOriginal + ev.clientX - inicioX;
-                          const novoY = yOriginal + ev.clientY - inicioY;
-
-                          atualizarObjeto(objeto.id, {
-                            x: novoX,
-                            y: novoY,
-                          });
-                        }
-
-                        function soltar() {
-                          window.removeEventListener("mousemove", mover);
-                          window.removeEventListener("mouseup", soltar);
-                        }
-
-                        window.addEventListener("mousemove", mover);
-                        window.addEventListener("mouseup", soltar);
-                      }}
+                      onMouseDown={(e) =>
+                        iniciarArrastoObjetoCracha(
+                          e,
+                          objeto
+                        )
+                      }
                       style={{
                         position: "absolute",
                         left: objeto.x,
@@ -6962,35 +7635,12 @@ export default function CrachasClient() {
                     <div
                       key={objeto.id}
                       onContextMenu={(e) => abrirMenuContexto(e, objeto.id)}
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        selecionarObjetoCracha(e, objeto.id);
-
-                        const inicioX = e.clientX;
-                        const inicioY = e.clientY;
-                        const xOriginal = objeto.x;
-                        const yOriginal = objeto.y;
-
-                        function mover(ev: MouseEvent) {
-                          const novoX = xOriginal + ev.clientX - inicioX;
-                          const novoY = yOriginal + ev.clientY - inicioY;
-
-                          atualizarObjeto(objeto.id, {
-                            x: novoX,
-                            y: novoY,
-                          });
-                        }
-
-                        function soltar() {
-                          window.removeEventListener("mousemove", mover);
-                          window.removeEventListener("mouseup", soltar);
-                        }
-
-                        window.addEventListener("mousemove", mover);
-                        window.addEventListener("mouseup", soltar);
-                      }}
+                      onMouseDown={(e) =>
+                        iniciarArrastoObjetoCracha(
+                          e,
+                          objeto
+                        )
+                      }
                       style={{
                         position: "absolute",
                         left: objeto.x,
@@ -7083,35 +7733,12 @@ export default function CrachasClient() {
                     <div
                       key={objeto.id}
                       onContextMenu={(e) => abrirMenuContexto(e, objeto.id)}
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        selecionarObjetoCracha(e, objeto.id);
-
-                        const inicioX = e.clientX;
-                        const inicioY = e.clientY;
-                        const xOriginal = objeto.x;
-                        const yOriginal = objeto.y;
-
-                        function mover(ev: MouseEvent) {
-                          const novoX = xOriginal + ev.clientX - inicioX;
-                          const novoY = yOriginal + ev.clientY - inicioY;
-
-                          atualizarObjeto(objeto.id, {
-                            x: novoX,
-                            y: novoY,
-                          });
-                        }
-
-                        function soltar() {
-                          window.removeEventListener("mousemove", mover);
-                          window.removeEventListener("mouseup", soltar);
-                        }
-
-                        window.addEventListener("mousemove", mover);
-                        window.addEventListener("mouseup", soltar);
-                      }}
+                      onMouseDown={(e) =>
+                        iniciarArrastoObjetoCracha(
+                          e,
+                          objeto
+                        )
+                      }
                       style={{
                         position: "absolute",
                         left: objeto.x,
@@ -7190,35 +7817,12 @@ export default function CrachasClient() {
                     <div
                       key={objeto.id}
                       onContextMenu={(e) => abrirMenuContexto(e, objeto.id)}
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        selecionarObjetoCracha(e, objeto.id);
-
-                        const inicioX = e.clientX;
-                        const inicioY = e.clientY;
-                        const xOriginal = objeto.x;
-                        const yOriginal = objeto.y;
-
-                        function mover(ev: MouseEvent) {
-                          const novoX = xOriginal + ev.clientX - inicioX;
-                          const novoY = yOriginal + ev.clientY - inicioY;
-
-                          atualizarObjeto(objeto.id, {
-                            x: novoX,
-                            y: novoY,
-                          });
-                        }
-
-                        function soltar() {
-                          window.removeEventListener("mousemove", mover);
-                          window.removeEventListener("mouseup", soltar);
-                        }
-
-                        window.addEventListener("mousemove", mover);
-                        window.addEventListener("mouseup", soltar);
-                      }}
+                      onMouseDown={(e) =>
+                        iniciarArrastoObjetoCracha(
+                          e,
+                          objeto
+                        )
+                      }
                       style={{
                         position: "absolute",
                         left: objeto.x,
@@ -7273,35 +7877,12 @@ export default function CrachasClient() {
                       key={objeto.id}
                       data-forma-livre-area={objeto.id}
                       onContextMenu={(e) => abrirMenuContexto(e, objeto.id)}
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        selecionarObjetoCracha(e, objeto.id);
-
-                        const inicioX = e.clientX;
-                        const inicioY = e.clientY;
-                        const xOriginal = objeto.x;
-                        const yOriginal = objeto.y;
-
-                        function mover(ev: MouseEvent) {
-                          const novoX = xOriginal + ev.clientX - inicioX;
-                          const novoY = yOriginal + ev.clientY - inicioY;
-
-                          atualizarObjeto(objeto.id, {
-                            x: novoX,
-                            y: novoY,
-                          });
-                        }
-
-                        function soltar() {
-                          window.removeEventListener("mousemove", mover);
-                          window.removeEventListener("mouseup", soltar);
-                        }
-
-                        window.addEventListener("mousemove", mover);
-                        window.addEventListener("mouseup", soltar);
-                      }}
+                      onMouseDown={(e) =>
+                        iniciarArrastoObjetoCracha(
+                          e,
+                          objeto
+                        )
+                      }
                       style={{
                         position: "absolute",
                         left: objeto.x,
@@ -8627,6 +9208,7 @@ export default function CrachasClient() {
                         raioInterno: 22,
                         arredondamentoPontas: 0,
                         arredondamentoReentrancias: 0,
+                        circularidadePontas: 0,
                       },
 
                       FORMA_LIVRE: {
@@ -9366,6 +9948,44 @@ export default function CrachasClient() {
                     <p className="mt-2 text-[11px] text-slate-600 dark:text-slate-400">
                       Aumente para suavizar a parte
                       interna e criar as ondulações.
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl border border-slate-300 p-3 dark:border-slate-700">
+                    <label className="mb-2 block text-xs font-semibold">
+                      Circularidade das pontas:{" "}
+                      {objetoAtual.circularidadePontas ??
+                        0}
+                      %
+                    </label>
+
+                    <input
+                      type="range"
+                      min={0}
+                      max={100}
+                      step={1}
+                      value={
+                        objetoAtual.circularidadePontas ??
+                        0
+                      }
+                      onChange={(e) =>
+                        atualizarObjeto(
+                          objetoAtual.id,
+                          {
+                            circularidadePontas:
+                              Number(
+                                e.target.value
+                              ),
+                          }
+                        )
+                      }
+                      className="w-full accent-blue-600"
+                    />
+
+                    <p className="mt-2 text-[11px] text-slate-600 dark:text-slate-400">
+                      Use junto com o arredondamento
+                      das pontas para criar pétalas
+                      mais largas e circulares.
                     </p>
                   </div>
 
