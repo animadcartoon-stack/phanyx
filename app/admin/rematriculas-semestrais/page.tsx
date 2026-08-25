@@ -1689,7 +1689,7 @@ export default function RematriculasSemestraisPage() {
               </select>
             </label>
 
-            <div className="space-y-3 md:col-span-2 xl:col-span-3">
+            <div className="phanyx-rematricula-turmas-participantes space-y-3 md:col-span-2 xl:col-span-3">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <span className="text-sm font-semibold">
