@@ -514,8 +514,12 @@ type MatriculaBody = {
   semestre?: number | string;
   periodoLetivo?: string;
   modalidade?: string;
+
+  turmaPrincipalId?: number | string | null;
+
   turmaId?: number | string;
   turmaIds?: Array<number | string>;
+
   disciplinaIds?: Array<number | string>;
   itensMatricula?: ItemMatriculaBody[];
   valorMatricula?: number | string;
@@ -1296,6 +1300,7 @@ const includeMatricula = {
   curso: true,
   cursoSemestre: true,
   periodoMatricula: true,
+  turmaPrincipal: true,
   itens: {
     include: {
       disciplina: true,
@@ -1785,6 +1790,11 @@ export async function POST(request: Request) {
         .map((id) => Number(id))
         .filter((id) => Number.isFinite(id) && id > 0)
     );
+    const turmaPrincipalIdRecebido =
+      toPositiveNumberOrNull(
+        body.turmaPrincipalId ??
+        body.turmaId
+      );
 
     const disciplinaIdsBody = uniqueNumbers(
       Array.isArray(body.disciplinaIds)
@@ -2186,6 +2196,62 @@ export async function POST(request: Request) {
           })
         );
 
+    const turmaPrincipalIdFinal =
+      turmaPrincipalIdRecebido ??
+      itensClassificados[0]?.turmaId ??
+      null;
+
+    if (!turmaPrincipalIdFinal) {
+      return NextResponse.json(
+        {
+          error:
+            "Selecione a turma principal do aluno.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const turmaPrincipal =
+      await prisma.turma.findFirst({
+        where: {
+          id:
+            turmaPrincipalIdFinal,
+
+          instituicaoId:
+            user.instituicaoId,
+
+          ativa: true,
+
+          ...(cursoIdFinal
+            ? {
+              cursoId:
+                cursoIdFinal,
+            }
+            : {}),
+        },
+
+        select: {
+          id: true,
+          nome: true,
+          cursoId: true,
+          poloId: true,
+        },
+      });
+
+    if (!turmaPrincipal) {
+      return NextResponse.json(
+        {
+          error:
+            "A turma principal selecionada é inválida, está inativa ou não pertence ao curso.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
     const turmaIdsDaMatricula =
       uniqueNumbers(
         itensClassificados.map(
@@ -2194,6 +2260,12 @@ export async function POST(request: Request) {
         )
       );
 
+    const turmaIdsParaValidarPolo =
+      uniqueNumbers([
+        ...turmaIdsDaMatricula,
+        turmaPrincipalIdFinal,
+      ]);
+
     const turmasParaDefinirPolo =
       await prisma.turma.findMany({
         where: {
@@ -2201,7 +2273,7 @@ export async function POST(request: Request) {
             user.instituicaoId,
 
           id: {
-            in: turmaIdsDaMatricula,
+            in: turmaIdsParaValidarPolo,
           },
         },
 
@@ -2213,7 +2285,7 @@ export async function POST(request: Request) {
 
     if (
       turmasParaDefinirPolo.length !==
-      turmaIdsDaMatricula.length
+      turmaIdsParaValidarPolo.length
     ) {
       return NextResponse.json(
         {
@@ -2336,7 +2408,7 @@ export async function POST(request: Request) {
         body.modalidade || ""
       ).trim() || null;
 
-       const matricula =
+    const matricula =
       await prisma.$transaction(
         async (tx) => {
           const agoraConversao =
@@ -2362,6 +2434,9 @@ export async function POST(request: Request) {
             await tx.matricula.create({
               data: {
                 alunoId,
+
+                turmaPrincipalId:
+                  turmaPrincipalIdFinal,
 
                 leadOrigemId:
                   leadId ?? null,
@@ -2404,14 +2479,14 @@ export async function POST(request: Request) {
                 confirmacaoMenorPorUserId:
                   alunoMenorNoMomentoMatricula
                     ? usuarioConfirmador?.id ??
-                      user.id
+                    user.id
                     : null,
 
                 confirmacaoMenorPorFuncionarioId:
                   alunoMenorNoMomentoMatricula
                     ? usuarioConfirmador
-                        ?.funcionario
-                        ?.id ?? null
+                      ?.funcionario
+                      ?.id ?? null
                     : null,
 
                 confirmacaoMenorPorNomeSnapshot:
@@ -2484,34 +2559,34 @@ export async function POST(request: Request) {
                 participantesComerciais:
                   vendedorResponsavel
                     ? {
-                        create: {
-                          instituicaoId:
-                            user.instituicaoId,
+                      create: {
+                        instituicaoId:
+                          user.instituicaoId,
 
-                          funcionarioId:
-                            vendedorResponsavel.id,
+                        funcionarioId:
+                          vendedorResponsavel.id,
 
-                          criadoPorId:
-                            user.id,
+                        criadoPorId:
+                          user.id,
 
-                          papel:
-                            PapelParticipanteComercial.RESPONSAVEL,
+                        papel:
+                          PapelParticipanteComercial.RESPONSAVEL,
 
-                          percentualParticipacao:
-                            100,
+                        percentualParticipacao:
+                          100,
 
-                          funcionarioNomeSnapshot:
-                            vendedorResponsavel.nome,
+                        funcionarioNomeSnapshot:
+                          vendedorResponsavel.nome,
 
-                          funcionarioCargoSnapshot:
-                            vendedorResponsavel.cargo,
+                        funcionarioCargoSnapshot:
+                          vendedorResponsavel.cargo,
 
-                          funcionarioDepartamentoSnapshot:
-                            vendedorResponsavel
-                              .departamento?.nome ??
-                            null,
-                        },
-                      }
+                        funcionarioDepartamentoSnapshot:
+                          vendedorResponsavel
+                            .departamento?.nome ??
+                          null,
+                      },
+                    }
                     : undefined,
 
                 itens: {
@@ -2588,8 +2663,7 @@ Assinatura da instituição: ________________________________
           await tx.documentoAluno.create({
             data: {
               titulo:
-                `Contrato de matrícula - ${
-                  aluno.nome ?? "Aluno"
+                `Contrato de matrícula - ${aluno.nome ?? "Aluno"
                 }`,
 
               tipo:
@@ -2622,8 +2696,7 @@ Assinatura da instituição: ________________________________
                 tipo: "MATRICULA",
 
                 descricao:
-                  `Taxa de matrícula - ${
-                    curso?.nome || "Curso"
+                  `Taxa de matrícula - ${curso?.nome || "Curso"
                   }`,
 
                 valorOriginal:
@@ -2681,10 +2754,8 @@ Assinatura da instituição: ________________________________
                     "MENSALIDADE",
 
                   descricao:
-                    `Mensalidade ${
-                      indice + 1
-                    }/${quantidadeParcelas} - ${
-                      curso?.nome ?? "Curso"
+                    `Mensalidade ${indice + 1
+                    }/${quantidadeParcelas} - ${curso?.nome ?? "Curso"
                     }`,
 
                   valorOriginal:
@@ -2786,12 +2857,9 @@ Assinatura da instituição: ________________________________
                   "CONVERSAO",
 
                 descricao:
-                  `Lead convertido em aluno e matrícula com sucesso. Aluno: ${
-                    aluno.nome ?? "Aluno"
-                  }. Matrícula ID: ${
-                    matriculaCriada.id
-                  }. Curso: ${
-                    curso?.nome ?? "não informado"
+                  `Lead convertido em aluno e matrícula com sucesso. Aluno: ${aluno.nome ?? "Aluno"
+                  }. Matrícula ID: ${matriculaCriada.id
+                  }. Curso: ${curso?.nome ?? "não informado"
                   }.`,
 
                 usuarioNomeSnapshot:
@@ -2809,60 +2877,60 @@ Assinatura da instituição: ________________________________
         }
       );
 
-  return NextResponse.json({
-    message: "Matrícula criada com sucesso",
-    matricula,
-    financeiro: {
-      valorMatricula,
-      valorPagoMatricula,
-      valorMensalidade,
-      quantidadeParcelas,
-    },
-  });
-} catch (error: any) {
-  if (
-    error instanceof
-    Prisma.PrismaClientKnownRequestError &&
-    error.code === "P2002"
-  ) {
-    const alvo =
-      Array.isArray(
-        error.meta?.target
-      )
-        ? error.meta.target.join(
-          ","
-        )
-        : String(
-          error.meta?.target ||
-          ""
-        );
-
+    return NextResponse.json({
+      message: "Matrícula criada com sucesso",
+      matricula,
+      financeiro: {
+        valorMatricula,
+        valorPagoMatricula,
+        valorMensalidade,
+        quantidadeParcelas,
+      },
+    });
+  } catch (error: any) {
     if (
-      alvo.includes(
-        "leadOrigemId"
-      )
+      error instanceof
+      Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
     ) {
-      return NextResponse.json(
-        {
-          codigo:
-            "LEAD_JA_CONVERTIDO",
+      const alvo =
+        Array.isArray(
+          error.meta?.target
+        )
+          ? error.meta.target.join(
+            ","
+          )
+          : String(
+            error.meta?.target ||
+            ""
+          );
 
-          error:
-            "Este lead já foi convertido em outra matrícula.",
-        },
-        {
-          status: 409,
-        }
-      );
+      if (
+        alvo.includes(
+          "leadOrigemId"
+        )
+      ) {
+        return NextResponse.json(
+          {
+            codigo:
+              "LEAD_JA_CONVERTIDO",
+
+            error:
+              "Este lead já foi convertido em outra matrícula.",
+          },
+          {
+            status: 409,
+          }
+        );
+      }
     }
-  }
 
-  console.error("ERRO COMPLETO AO CRIAR MATRÍCULA:", error);
-  return NextResponse.json(
-    { error: error?.message || "Erro ao criar matrícula" },
-    { status: 500 }
-  );
-}
+    console.error("ERRO COMPLETO AO CRIAR MATRÍCULA:", error);
+    return NextResponse.json(
+      { error: error?.message || "Erro ao criar matrícula" },
+      { status: 500 }
+    );
+  }
 }
 
 export async function PATCH(request: Request) {
@@ -3099,6 +3167,37 @@ export async function PUT(request: Request) {
     const periodoMatriculaId = toPositiveNumberOrNull(body.periodoMatriculaId);
     const semestre = toPositiveNumberOrNull(body.semestre);
 
+    const turmaPrincipalFoiInformada =
+      campoFoiInformado(
+        body as Record<
+          string,
+          unknown
+        >,
+        "turmaPrincipalId"
+      );
+
+    const turmaPrincipalIdRecebido =
+      turmaPrincipalFoiInformada
+        ? toPositiveNumberOrNull(
+          body.turmaPrincipalId
+        )
+        : null;
+
+    if (
+      turmaPrincipalFoiInformada &&
+      !turmaPrincipalIdRecebido
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Selecione uma turma principal válida para o aluno.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
     const turmaIdsRaw = Array.isArray(body.turmaIds)
       ? body.turmaIds
       : body.turmaId
@@ -3291,6 +3390,13 @@ export async function PUT(request: Request) {
     const cursoIdFinal = cursoId ?? matriculaExistente.cursoId ?? null;
     const semestreFinal = semestre ?? matriculaExistente.semestre ?? null;
 
+    const turmaPrincipalIdFinal =
+      turmaPrincipalFoiInformada
+        ? turmaPrincipalIdRecebido
+        : matriculaExistente
+          .turmaPrincipalId ??
+        null;
+
     if (alunoId) {
       const alunoExiste = await prisma.aluno.findFirst({
         where: {
@@ -3336,6 +3442,44 @@ export async function PUT(request: Request) {
             status: 400,
           }
         );
+      }
+
+      if (turmaPrincipalIdFinal) {
+        const turmaPrincipal =
+          await prisma.turma.findFirst({
+            where: {
+              id:
+                turmaPrincipalIdFinal,
+
+              instituicaoId:
+                user.instituicaoId,
+
+              ativa: true,
+
+              ...(cursoIdFinal
+                ? {
+                  cursoId:
+                    cursoIdFinal,
+                }
+                : {}),
+            },
+
+            select: {
+              id: true,
+            },
+          });
+
+        if (!turmaPrincipal) {
+          return NextResponse.json(
+            {
+              error:
+                "A turma principal selecionada é inválida, está inativa ou não pertence ao curso.",
+            },
+            {
+              status: 400,
+            }
+          );
+        }
       }
 
       cursoNomeFinal =
@@ -3466,6 +3610,11 @@ export async function PUT(request: Request) {
           data: {
             alunoId: alunoIdFinal,
             cursoId: cursoIdFinal,
+
+            turmaPrincipalId:
+              turmaPrincipalFoiInformada
+                ? turmaPrincipalIdFinal
+                : undefined,
 
             cursoSemestreId:
               cursoSemestreId ??

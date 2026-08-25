@@ -118,6 +118,16 @@ type MatriculaApi = {
   } | null;
   aluno?: { id: number; nome: string; nomeSocial?: string | null; genero?: string | null } | null;
   curso?: { id: number; nome: string } | null;
+  turmaPrincipal?: {
+    id: number;
+    nome: string;
+    cursoId?: number | null;
+    semestre?: string | null;
+    professor?: {
+      id: number;
+      nome: string;
+    } | null;
+  } | null;
   itens?: Array<{
     id: number;
     status?: string;
@@ -157,7 +167,7 @@ type MatriculaEdicao = {
   cursoId: string;
   cursoSemestreId: string;
   semestre: number | "";
-  turmaIds: number[];
+  turmaPrincipalId: string;
   valorPagoMatricula: string;
   valorMensalidade: string;
   quantidadeMensalidades: string;
@@ -196,6 +206,10 @@ function AdminMatriculasPage() {
   const [disciplinasEdicaoSelecionadas, setDisciplinasEdicaoSelecionadas] = useState<number[]>([]);
   const [disciplinasExtrasEdicaoSelecionadas, setDisciplinasExtrasEdicaoSelecionadas] = useState<number[]>([]);
   const [turmaPorDisciplina, setTurmaPorDisciplina] = useState<Record<number, number>>({});
+  const [
+    turmaPorDisciplinaEdicao,
+    setTurmaPorDisciplinaEdicao,
+  ] = useState<Record<number, number>>({});
   const [matriculas, setMatriculas] = useState<MatriculaApi[]>([]);
   const [alunos, setAlunos] = useState<AlunoOption[]>([]);
   const [cursos, setCursos] = useState<CursoOption[]>([]);
@@ -659,13 +673,13 @@ function AdminMatriculasPage() {
           vendedor.id === vendedorId
       );
 
-   if (!vendedorExiste) {
-  setErro(
-    "O responsável comercial do lead não está disponível como vendedor elegível. Verifique se ele está ativo e possui o cargo de Vendedor."
-  );
+    if (!vendedorExiste) {
+      setErro(
+        "O responsável comercial do lead não está disponível como vendedor elegível. Verifique se ele está ativo e possui o cargo de Vendedor."
+      );
 
-  return;
-}
+      return;
+    }
 
     setVendedorResponsavelId(
       String(vendedorId)
@@ -767,9 +781,11 @@ function AdminMatriculasPage() {
   useEffect(() => {
     setTurmasSelecionadas([]);
 
-    setDisciplinasSelecionadas(
-      disciplinasDoSemestreIds
-    );
+    // Não marcamos automaticamente todas
+    // as disciplinas do semestre.
+    // Assim disciplinas com pré-requisito
+    // não entram silenciosamente na matrícula.
+    setDisciplinasSelecionadas([]);
 
     setDisciplinasExtrasSelecionadas([]);
     setTurmaPorDisciplina({});
@@ -1383,21 +1399,6 @@ function AdminMatriculasPage() {
     );
   }
 
-  function toggleTurmaEdicao(turmaId: number) {
-    if (!matriculaEditando) return;
-
-    setMatriculaEditando((prev) =>
-      prev
-        ? {
-          ...prev,
-          turmaIds: prev.turmaIds.includes(turmaId)
-            ? prev.turmaIds.filter((id) => id !== turmaId)
-            : [...prev.turmaIds, turmaId],
-        }
-        : prev
-    );
-  }
-
   async function criarMatricula() {
     if (!semestreSelecionado) {
       setErro("Selecione o semestre do curso antes de matricular o aluno.");
@@ -1488,7 +1489,7 @@ function AdminMatriculasPage() {
           cursoSemestreIds,
           semestre: semestresSelecionados[0]?.numero ?? null,
           semestres: semestresSelecionados.map((s) => s.numero),
-          turmaId:
+          turmaPrincipalId:
             turmasSelecionadas[0] ?? null,
 
           itensMatricula,
@@ -1782,24 +1783,100 @@ function AdminMatriculasPage() {
     }
   }
 
-  async function abrirEdicao(matricula: MatriculaApi) {
-    const cursoIdAtual = matricula.curso?.id ? String(matricula.curso.id) : "";
-    const semestreAtual = matricula.semestre || "";
-    const turmaIdsAtuais = Array.isArray(matricula.itens)
-      ? matricula.itens
-        .map((item) => item.turma?.id)
-        .filter((id): id is number => Number.isFinite(id))
-      : [];
-
-    const disciplinaIdsAtuais = Array.isArray(matricula.itens)
-      ? Array.from(
-        new Set(
-          matricula.itens
-            .map((item: any) => Number(item?.disciplina?.id))
-            .filter((id) => Number.isFinite(id) && id > 0)
+  async function abrirEdicao(
+    matricula: MatriculaApi
+  ) {
+    const cursoIdAtual =
+      matricula.curso?.id
+        ? String(
+          matricula.curso.id
         )
+        : "";
+
+    const semestreAtual =
+      matricula.semestre || "";
+
+    const itensAtivos =
+      Array.isArray(
+        matricula.itens
       )
-      : [];
+        ? matricula.itens.filter(
+          (item) =>
+            item.status !==
+            "CANCELADO"
+        )
+        : [];
+
+    const turmaPrincipalIdAtual =
+      matricula.turmaPrincipal
+        ?.id ??
+      itensAtivos
+        .map(
+          (item) =>
+            item.turma?.id
+        )
+        .find(
+          (id) =>
+            Number.isFinite(id)
+        ) ??
+      null;
+
+    const disciplinaIdsAtuais =
+      Array.from(
+        new Set(
+          itensAtivos
+            .map(
+              (item) =>
+                Number(
+                  item.disciplina?.id
+                )
+            )
+            .filter(
+              (id) =>
+                Number.isFinite(
+                  id
+                ) &&
+                id > 0
+            )
+        )
+      );
+
+    const mapaTurmaPorDisciplina:
+      Record<number, number> =
+      {};
+
+    for (
+      const item of itensAtivos
+    ) {
+      const disciplinaId =
+        Number(
+          item.disciplina?.id
+        );
+
+      const turmaId =
+        Number(
+          item.turma?.id
+        );
+
+      if (
+        Number.isFinite(
+          disciplinaId
+        ) &&
+        disciplinaId > 0 &&
+        Number.isFinite(
+          turmaId
+        ) &&
+        turmaId > 0
+      ) {
+        mapaTurmaPorDisciplina[
+          disciplinaId
+        ] = turmaId;
+      }
+    }
+
+    setTurmaPorDisciplinaEdicao(
+      mapaTurmaPorDisciplina
+    );
 
     let semestreEncontrado: any = null;
 
@@ -1844,7 +1921,12 @@ function AdminMatriculasPage() {
       cursoId: cursoIdAtual,
       cursoSemestreId: semestreEncontrado ? String(semestreEncontrado.id) : "",
       semestre: semestreAtual,
-      turmaIds: turmaIdsAtuais,
+      turmaPrincipalId:
+        turmaPrincipalIdAtual
+          ? String(
+            turmaPrincipalIdAtual
+          )
+          : "",
       valorPagoMatricula: String(matricula.valorMatricula ?? ""),
       valorMensalidade: String(matricula.valorMensalidade ?? ""),
       quantidadeMensalidades: String(matricula.quantidadeMensalidades ?? ""),
@@ -1857,38 +1939,106 @@ function AdminMatriculasPage() {
   }
 
   async function salvarEdicao() {
-    if (!matriculaEditando) return;
-
-    const disciplinasIdsEdicaoParaEnviar = Array.from(
-      new Set([
-        ...disciplinasEdicaoSelecionadas,
-        ...disciplinasExtrasEdicaoSelecionadas,
-      ])
-    );
-
-    const turmaIdsEdicaoParaEnviar = Array.from(
-      new Set(
-        matriculaEditando.turmaIds.filter(
-          (id) => Number.isFinite(Number(id)) && Number(id) > 0
-        )
-      )
-    );
-
-    if (disciplinasIdsEdicaoParaEnviar.length === 0) {
-      setConfirmTitulo("Selecione as disciplinas");
-      setConfirmMensagem("Selecione pelo menos uma disciplina antes de salvar.");
-      setConfirmAcao(null);
-      setConfirmModalAberto(true);
+    if (!matriculaEditando) {
       return;
     }
 
-    if (turmaIdsEdicaoParaEnviar.length === 0) {
-      setConfirmTitulo("Selecione a turma");
-      setConfirmMensagem(
-        "Selecione pelo menos uma turma vinculada às disciplinas antes de salvar."
+    const disciplinasIdsEdicaoParaEnviar =
+      Array.from(
+        new Set([
+          ...disciplinasEdicaoSelecionadas,
+          ...disciplinasExtrasEdicaoSelecionadas,
+        ])
       );
+
+    const turmaPrincipalId =
+      Number(
+        matriculaEditando
+          .turmaPrincipalId
+      );
+
+    if (
+      disciplinasIdsEdicaoParaEnviar
+        .length === 0
+    ) {
+      setConfirmTitulo(
+        "Selecione as disciplinas"
+      );
+
+      setConfirmMensagem(
+        "Selecione pelo menos uma disciplina antes de salvar."
+      );
+
       setConfirmAcao(null);
       setConfirmModalAberto(true);
+
+      return;
+    }
+
+    if (
+      !Number.isFinite(
+        turmaPrincipalId
+      ) ||
+      turmaPrincipalId <= 0
+    ) {
+      setConfirmTitulo(
+        "Selecione a turma"
+      );
+
+      setConfirmMensagem(
+        "Selecione a turma principal do aluno antes de salvar."
+      );
+
+      setConfirmAcao(null);
+      setConfirmModalAberto(true);
+
+      return;
+    }
+
+    const itensMatricula =
+      disciplinasIdsEdicaoParaEnviar.map(
+        (disciplinaId) => ({
+          disciplinaId,
+
+          turmaId:
+            turmaPorDisciplinaEdicao[
+            disciplinaId
+            ],
+
+          tipoItem:
+            classificarTipoItemEdicao(
+              disciplinaId
+            ),
+        })
+      );
+
+    const possuiDisciplinaSemOferta =
+      itensMatricula.some(
+        (item) =>
+          !Number.isFinite(
+            Number(
+              item.turmaId
+            )
+          ) ||
+          Number(
+            item.turmaId
+          ) <= 0
+      );
+
+    if (
+      possuiDisciplinaSemOferta
+    ) {
+      setConfirmTitulo(
+        "Selecione as ofertas"
+      );
+
+      setConfirmMensagem(
+        "Selecione a turma/oferta de todas as disciplinas contratadas antes de salvar."
+      );
+
+      setConfirmAcao(null);
+      setConfirmModalAberto(true);
+
       return;
     }
 
@@ -1896,71 +2046,161 @@ function AdminMatriculasPage() {
       setErro("");
       setSucesso("");
 
-      const res = await fetch("/api/matricula", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          id: matriculaEditando.id,
-          vendedorResponsavelId:
-            matriculaEditando.vendedorResponsavelId === ""
-              ? null
-              : Number(
-                matriculaEditando.vendedorResponsavelId
-              ),
-          alunoId:
-            matriculaEditando.alunoId === ""
-              ? null
-              : Number(matriculaEditando.alunoId),
-          cursoId:
-            matriculaEditando.cursoId === ""
-              ? null
-              : Number(matriculaEditando.cursoId),
-          cursoSemestreId:
-            matriculaEditando.cursoSemestreId === ""
-              ? null
-              : Number(matriculaEditando.cursoSemestreId),
-          semestre:
-            matriculaEditando.semestre === ""
-              ? null
-              : Number(matriculaEditando.semestre),
-          turmaIds: turmaIdsEdicaoParaEnviar,
-          turmaId: turmaIdsEdicaoParaEnviar[0] ?? null,
-          disciplinaIds: disciplinasIdsEdicaoParaEnviar,
-          valorPagoMatricula:
-            matriculaEditando.valorPagoMatricula === ""
-              ? null
-              : Number(matriculaEditando.valorPagoMatricula),
-          valorMensalidade:
-            matriculaEditando.valorMensalidade === ""
-              ? null
-              : Number(matriculaEditando.valorMensalidade),
-          quantidadeMensalidades:
-            matriculaEditando.quantidadeMensalidades === ""
-              ? null
-              : Number(matriculaEditando.quantidadeMensalidades),
-          primeiroVencimento: matriculaEditando.primeiroVencimento || null,
-          nomeSocial: matriculaEditando.nomeSocial,
-          genero: matriculaEditando.genero,
-          periodoLetivo: matriculaEditando.periodoLetivo,
-          modalidade: matriculaEditando.modalidade,
-        }),
-      });
+      const res = await fetch(
+        "/api/matricula",
+        {
+          method: "PUT",
 
-      const data = await res.json();
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          credentials:
+            "include",
+
+          body: JSON.stringify({
+            id:
+              matriculaEditando.id,
+
+            vendedorResponsavelId:
+              matriculaEditando
+                .vendedorResponsavelId ===
+                ""
+                ? null
+                : Number(
+                  matriculaEditando
+                    .vendedorResponsavelId
+                ),
+
+            alunoId:
+              matriculaEditando.alunoId ===
+                ""
+                ? null
+                : Number(
+                  matriculaEditando
+                    .alunoId
+                ),
+
+            cursoId:
+              matriculaEditando.cursoId ===
+                ""
+                ? null
+                : Number(
+                  matriculaEditando
+                    .cursoId
+                ),
+
+            cursoSemestreId:
+              matriculaEditando
+                .cursoSemestreId ===
+                ""
+                ? null
+                : Number(
+                  matriculaEditando
+                    .cursoSemestreId
+                ),
+
+            semestre:
+              matriculaEditando.semestre ===
+                ""
+                ? null
+                : Number(
+                  matriculaEditando
+                    .semestre
+                ),
+
+            turmaPrincipalId,
+
+            itensMatricula,
+
+            valorPagoMatricula:
+              matriculaEditando
+                .valorPagoMatricula ===
+                ""
+                ? null
+                : Number(
+                  matriculaEditando
+                    .valorPagoMatricula
+                ),
+
+            valorMensalidade:
+              matriculaEditando
+                .valorMensalidade ===
+                ""
+                ? null
+                : Number(
+                  matriculaEditando
+                    .valorMensalidade
+                ),
+
+            quantidadeMensalidades:
+              matriculaEditando
+                .quantidadeMensalidades ===
+                ""
+                ? null
+                : Number(
+                  matriculaEditando
+                    .quantidadeMensalidades
+                ),
+
+            primeiroVencimento:
+              matriculaEditando
+                .primeiroVencimento ||
+              null,
+
+            nomeSocial:
+              matriculaEditando
+                .nomeSocial,
+
+            genero:
+              matriculaEditando
+                .genero,
+
+            periodoLetivo:
+              matriculaEditando
+                .periodoLetivo,
+
+            modalidade:
+              matriculaEditando
+                .modalidade,
+          }),
+        }
+      );
+
+      const data =
+        await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao atualizar matrícula");
+        throw new Error(
+          data?.error ||
+          "Erro ao atualizar matrícula"
+        );
       }
 
-      setSucesso("Matrícula atualizada com sucesso.");
-      setMatriculaEditando(null);
+      setSucesso(
+        "Matrícula atualizada com sucesso."
+      );
+
+      setMatriculaEditando(
+        null
+      );
+
+      setTurmaPorDisciplinaEdicao(
+        {}
+      );
+
       await carregarTudo();
     } catch (err: any) {
-      setConfirmTitulo("Matrícula bloqueada");
-      setConfirmMensagem(
-        err?.message || "Não foi possível atualizar a matrícula."
+      setConfirmTitulo(
+        "Matrícula bloqueada"
       );
+
+      setConfirmMensagem(
+        err?.message ||
+        "Não foi possível atualizar a matrícula."
+      );
+
       setConfirmAcao(null);
       setConfirmModalAberto(true);
     }
@@ -2125,6 +2365,164 @@ function AdminMatriculasPage() {
   const disciplinasExtrasEdicaoDisponiveis = useMemo(() => {
     if (!matriculaEditando?.cursoId || !semestreEditandoSelecionado) return [];
 
+    const disciplinasIdsSelecionadasEdicao =
+      useMemo(() => {
+        return Array.from(
+          new Set([
+            ...disciplinasEdicaoSelecionadas,
+            ...disciplinasExtrasEdicaoSelecionadas,
+          ])
+        );
+      }, [
+        disciplinasEdicaoSelecionadas,
+        disciplinasExtrasEdicaoSelecionadas,
+      ]);
+
+    useEffect(() => {
+      if (!matriculaEditando) {
+        setTurmaPorDisciplinaEdicao(
+          {}
+        );
+
+        return;
+      }
+
+      setTurmaPorDisciplinaEdicao(
+        (anterior) => {
+          const novo:
+            Record<number, number> =
+            {};
+
+          const turmaPrincipalId =
+            Number(
+              matriculaEditando
+                .turmaPrincipalId
+            );
+
+          for (
+            const disciplinaId of
+            disciplinasIdsSelecionadasEdicao
+          ) {
+            const ofertas =
+              ofertasPorDisciplina.get(
+                disciplinaId
+              ) || [];
+
+            const turmaAtual =
+              anterior[
+              disciplinaId
+              ];
+
+            const turmaAtualValida =
+              ofertas.some(
+                (oferta) =>
+                  oferta.turmaId ===
+                  turmaAtual
+              );
+
+            if (
+              turmaAtualValida
+            ) {
+              novo[
+                disciplinaId
+              ] = turmaAtual;
+
+              continue;
+            }
+
+            const ofertaPreferencial =
+              ofertas.find(
+                (oferta) =>
+                  oferta.turmaId ===
+                  turmaPrincipalId
+              ) || ofertas[0];
+
+            if (
+              ofertaPreferencial
+            ) {
+              novo[
+                disciplinaId
+              ] =
+                ofertaPreferencial
+                  .turmaId;
+            }
+          }
+
+          return novo;
+        }
+      );
+    }, [
+      disciplinasIdsSelecionadasEdicao,
+      ofertasPorDisciplina,
+      matriculaEditando?.id,
+      matriculaEditando
+        ?.turmaPrincipalId,
+    ]);
+
+    function classificarTipoItemEdicao(
+      disciplinaId: number
+    ): TipoItemMatricula {
+      if (
+        disciplinasEditandoIds.includes(
+          disciplinaId
+        )
+      ) {
+        return "GRADE_PRINCIPAL";
+      }
+
+      const oferta =
+        ofertasPorDisciplina.get(
+          disciplinaId
+        )?.[0];
+
+      const mesmoCurso =
+        Number(
+          oferta?.cursoId
+        ) ===
+        Number(
+          matriculaEditando
+            ?.cursoId
+        );
+
+      const semestreDisciplina =
+        Number(
+          oferta
+            ?.disciplinaSemestre ||
+          0
+        );
+
+      const semestrePrincipal =
+        Number(
+          semestreEditandoSelecionado
+            ?.numero ||
+          0
+        );
+
+      if (
+        mesmoCurso &&
+        semestreDisciplina > 0 &&
+        semestrePrincipal > 0
+      ) {
+        if (
+          semestreDisciplina <
+          semestrePrincipal
+        ) {
+          return "DEPENDENCIA";
+        }
+
+        if (
+          semestreDisciplina >
+          semestrePrincipal
+        ) {
+          return "ADIANTAMENTO";
+        }
+      }
+
+      return mesmoCurso
+        ? "EXTRA_MESMO_CURSO"
+        : "EXTRA_OUTRO_CURSO";
+    }
+
     const idsGrade = new Set(
       semestreEditandoSelecionado.disciplinas.map((d) => Number(d.disciplinaId))
     );
@@ -2149,6 +2547,149 @@ function AdminMatriculasPage() {
       a.nome.localeCompare(b.nome, "pt-BR")
     );
   }, [matriculaEditando, semestreEditandoSelecionado, turmas]);
+
+  const disciplinasIdsSelecionadasEdicao =
+    useMemo(() => {
+      return Array.from(
+        new Set([
+          ...disciplinasEdicaoSelecionadas,
+          ...disciplinasExtrasEdicaoSelecionadas,
+        ])
+      );
+    }, [
+      disciplinasEdicaoSelecionadas,
+      disciplinasExtrasEdicaoSelecionadas,
+    ]);
+
+  useEffect(() => {
+    if (!matriculaEditando) {
+      setTurmaPorDisciplinaEdicao({});
+      return;
+    }
+
+    setTurmaPorDisciplinaEdicao(
+      (anterior) => {
+        const novo: Record<
+          number,
+          number
+        > = {};
+
+        const turmaPrincipalId =
+          Number(
+            matriculaEditando
+              .turmaPrincipalId
+          );
+
+        for (
+          const disciplinaId of
+          disciplinasIdsSelecionadasEdicao
+        ) {
+          const ofertas =
+            ofertasPorDisciplina.get(
+              disciplinaId
+            ) || [];
+
+          const turmaAtual =
+            anterior[disciplinaId];
+
+          const turmaAtualValida =
+            ofertas.some(
+              (oferta) =>
+                oferta.turmaId ===
+                turmaAtual
+            );
+
+          if (turmaAtualValida) {
+            novo[disciplinaId] =
+              turmaAtual;
+
+            continue;
+          }
+
+          const ofertaPreferencial =
+            ofertas.find(
+              (oferta) =>
+                oferta.turmaId ===
+                turmaPrincipalId
+            ) || ofertas[0];
+
+          if (ofertaPreferencial) {
+            novo[disciplinaId] =
+              ofertaPreferencial.turmaId;
+          }
+        }
+
+        return novo;
+      }
+    );
+  }, [
+    disciplinasIdsSelecionadasEdicao,
+    ofertasPorDisciplina,
+    matriculaEditando?.id,
+    matriculaEditando
+      ?.turmaPrincipalId,
+  ]);
+
+  function classificarTipoItemEdicao(
+    disciplinaId: number
+  ): TipoItemMatricula {
+    if (
+      disciplinasEditandoIds.includes(
+        disciplinaId
+      )
+    ) {
+      return "GRADE_PRINCIPAL";
+    }
+
+    const oferta =
+      ofertasPorDisciplina.get(
+        disciplinaId
+      )?.[0];
+
+    const mesmoCurso =
+      Number(oferta?.cursoId) ===
+      Number(
+        matriculaEditando
+          ?.cursoId
+      );
+
+    const semestreDisciplina =
+      Number(
+        oferta?.disciplinaSemestre ||
+        0
+      );
+
+    const semestrePrincipal =
+      Number(
+        semestreEditandoSelecionado
+          ?.numero ||
+        0
+      );
+
+    if (
+      mesmoCurso &&
+      semestreDisciplina > 0 &&
+      semestrePrincipal > 0
+    ) {
+      if (
+        semestreDisciplina <
+        semestrePrincipal
+      ) {
+        return "DEPENDENCIA";
+      }
+
+      if (
+        semestreDisciplina >
+        semestrePrincipal
+      ) {
+        return "ADIANTAMENTO";
+      }
+    }
+
+    return mesmoCurso
+      ? "EXTRA_MESMO_CURSO"
+      : "EXTRA_OUTRO_CURSO";
+  }
 
   function renderGrupoDisciplina(
     grupo: {
@@ -3424,7 +3965,7 @@ function AdminMatriculasPage() {
                           cursoId: novoCursoId,
                           cursoSemestreId: "",
                           semestre: "",
-                          turmaIds: [],
+                          turmaPrincipalId: "",
                         }
                         : prev
                     );
@@ -3458,9 +3999,20 @@ function AdminMatriculasPage() {
                           ...prev,
                           cursoSemestreId: semestreId,
                           semestre: semestreObj ? Number(semestreObj.numero) : "",
-                          turmaIds: [],
+                          turmaPrincipalId: "",
                         }
                         : prev
+                    );
+                    setDisciplinasEdicaoSelecionadas(
+                      []
+                    );
+
+                    setDisciplinasExtrasEdicaoSelecionadas(
+                      []
+                    );
+
+                    setTurmaPorDisciplinaEdicao(
+                      {}
                     );
                   }}
                   className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
@@ -3539,21 +4091,20 @@ function AdminMatriculasPage() {
                 </label>
                 <select
                   value={
-                    matriculaEditando.turmaIds[0]
-                      ? String(matriculaEditando.turmaIds[0])
-                      : ""
+                    matriculaEditando
+                      .turmaPrincipalId
                   }
                   onChange={(e) => {
-                    const turmaId = Number(e.target.value);
+                    setMatriculaEditando(
+                      (prev) =>
+                        prev
+                          ? {
+                            ...prev,
 
-                    setMatriculaEditando((prev) =>
-                      prev
-                        ? {
-                          ...prev,
-                          turmaIds:
-                            Number.isFinite(turmaId) && turmaId > 0 ? [turmaId] : [],
-                        }
-                        : prev
+                            turmaPrincipalId:
+                              e.target.value,
+                          }
+                          : prev
                     );
                   }}
                   className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
@@ -3672,64 +4223,132 @@ function AdminMatriculasPage() {
               </div>
             </div>
 
-            <div className="mt-5">
-              <label className="text-sm font-medium text-gray-700">
-                Disciplinas contratadas do semestre
-              </label>
+            <div className="matriculas-multiselect-neutro mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
+              <MultiSelectDisciplinas
+                titulo="Disciplinas contratadas"
+                disciplinas={
+                  disciplinasDoSemestreEdicao
+                }
+                selecionadas={
+                  disciplinasEdicaoSelecionadas
+                }
+                setSelecionadas={
+                  setDisciplinasEdicaoSelecionadas
+                }
+              />
 
-              <div className="mt-2 border rounded-2xl p-4 max-h-64 overflow-auto space-y-4">
-                {matriculaEditando.cursoId && matriculaEditando.cursoSemestreId ? (
-                  disciplinasBaseEdicaoAgrupadas.length > 0 ? (
-                    disciplinasBaseEdicaoAgrupadas.map((grupo) =>
-                      renderGrupoDisciplina(
-                        grupo,
-                        matriculaEditando.turmaIds,
-                        toggleTurmaEdicao
-                      )
-                    )
-                  ) : (
-                    <p className="text-sm text-slate-500 dark:text-slate-400">
-                      Nenhuma disciplina encontrada para este semestre.
-                    </p>
-                  )
-                ) : (
-                  <p className="text-sm text-slate-500 dark:text-slate-400">
-                    Selecione primeiro o curso e o semestre do curso.
-                  </p>
-                )}
-              </div>
+              <MultiSelectDisciplinas
+                titulo="Disciplinas extras contratadas"
+                disciplinas={
+                  disciplinasExtrasEdicaoDisponiveis
+                }
+                selecionadas={
+                  disciplinasExtrasEdicaoSelecionadas
+                }
+                setSelecionadas={
+                  setDisciplinasExtrasEdicaoSelecionadas
+                }
+              />
             </div>
 
-            <div className="mt-5">
-              <label className="text-sm font-medium text-gray-700">
-                Disciplinas extras contratadas
-              </label>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                Use esta área para adicionar disciplinas fora da grade padrão daquele semestre.
-              </p>
+            {disciplinasIdsSelecionadasEdicao.length >
+              0 && (
+                <div className="mt-5 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+                  <h3 className="font-bold text-slate-900 dark:text-slate-100">
+                    Oferta de cada disciplina
+                  </h3>
 
-              <div className="mt-2 border rounded-2xl p-4 max-h-64 overflow-auto space-y-4">
-                {matriculaEditando.cursoId && matriculaEditando.cursoSemestreId ? (
-                  disciplinasExtrasEdicaoAgrupadas.length > 0 ? (
-                    disciplinasExtrasEdicaoAgrupadas.map((grupo) =>
-                      renderGrupoDisciplina(
-                        grupo,
-                        matriculaEditando.turmaIds,
-                        toggleTurmaEdicao
-                      )
-                    )
-                  ) : (
-                    <p className="text-sm text-slate-500 dark:text-slate-400">
-                      Nenhuma disciplina extra encontrada para este curso.
-                    </p>
-                  )
-                ) : (
-                  <p className="text-sm text-slate-500 dark:text-slate-400">
-                    Selecione primeiro o curso e o semestre do curso.
+                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                    Escolha em qual turma o aluno
+                    cursará cada disciplina. Esta
+                    seleção é independente da turma
+                    principal do aluno.
                   </p>
-                )}
-              </div>
-            </div>
+
+                  <div className="mt-4 space-y-3">
+                    {disciplinasIdsSelecionadasEdicao.map(
+                      (disciplinaId) => {
+                        const ofertas =
+                          ofertasPorDisciplina.get(
+                            disciplinaId
+                          ) || [];
+
+                        return (
+                          <div
+                            key={disciplinaId}
+                            className="grid grid-cols-1 gap-3 rounded-xl border border-slate-200 p-3 md:grid-cols-[1fr_280px] dark:border-slate-700"
+                          >
+                            <div>
+                              <p className="font-semibold text-slate-900 dark:text-slate-100">
+                                {obterNomeDisciplina(
+                                  disciplinaId
+                                )}
+                              </p>
+
+                              <p className="mt-1 text-xs font-medium text-slate-600 dark:text-slate-400">
+                                {labelTipoItem(
+                                  classificarTipoItemEdicao(
+                                    disciplinaId
+                                  )
+                                )}
+                              </p>
+                            </div>
+
+                            <select
+                              value={
+                                turmaPorDisciplinaEdicao[
+                                disciplinaId
+                                ] || ""
+                              }
+                              onChange={(e) =>
+                                setTurmaPorDisciplinaEdicao(
+                                  (anterior) => ({
+                                    ...anterior,
+
+                                    [disciplinaId]:
+                                      Number(
+                                        e.target
+                                          .value
+                                      ),
+                                  })
+                                )
+                              }
+                              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                            >
+                              <option value="">
+                                Selecione a turma da disciplina
+                              </option>
+
+                              {ofertas.map(
+                                (oferta) => (
+                                  <option
+                                    key={`${disciplinaId}-${oferta.turmaId}`}
+                                    value={
+                                      oferta.turmaId
+                                    }
+                                  >
+                                    {
+                                      oferta.turmaNome
+                                    }
+
+                                    {oferta.turmaSemestre
+                                      ? ` — ${oferta.turmaSemestre}º semestre`
+                                      : ""}
+
+                                    {oferta.professorNome
+                                      ? ` — Prof. ${oferta.professorNome}`
+                                      : ""}
+                                  </option>
+                                )
+                              )}
+                            </select>
+                          </div>
+                        );
+                      }
+                    )}
+                  </div>
+                </div>
+              )}
 
             <div className="matriculas-multiselect-neutro mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
               <MultiSelectDisciplinas

@@ -956,6 +956,7 @@ model Turma {
   atividades                      Atividade[]
   aulas                           Aula[]
   itensMatricula                  ItemMatricula[]
+  matriculasComoPrincipal Matricula[] @relation("MatriculaTurmaPrincipal")
   modulos                         Modulo[]
   notas                           Nota[]
   provas                          Prova[]
@@ -1080,6 +1081,7 @@ model Matricula {
   cursoSemestreId     Int?
   periodoMatriculaId  Int?
   periodoLetivo       String?
+  turmaPrincipalId Int?
   realizadaPeloAluno  Boolean               @default(false)
   confirmadaEm        DateTime?
   cursoSemestre       CursoSemestre?        @relation(fields: [cursoSemestreId], references: [id])
@@ -1088,7 +1090,7 @@ model Matricula {
   curso               Curso?                @relation(fields: [cursoId], references: [id])
   instituicao         Instituicao           @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   polo                Polo?                 @relation(fields: [poloId], references: [id])
-
+  turmaPrincipal Turma? @relation("MatriculaTurmaPrincipal", fields: [turmaPrincipalId], references: [id], onDelete: SetNull)
   confirmacaoMenorPorUser        User?        @relation("MatriculaConfirmacaoMenorPorUser", fields: [confirmacaoMenorPorUserId], references: [id], onDelete: SetNull)
   confirmacaoMenorPorFuncionario Funcionario? @relation("MatriculaConfirmacaoMenorPorFuncionario", fields: [confirmacaoMenorPorFuncionarioId], references: [id], onDelete: SetNull)
 
@@ -1106,6 +1108,7 @@ model Matricula {
   @@index([confirmacaoMenorPorUserId])
   @@index([confirmacaoMenorPorFuncionarioId])
   @@index([alunoMenorNoMomentoMatricula])
+  @@index([turmaPrincipalId])
 }
 
 model ItemMatricula {
