@@ -1101,7 +1101,7 @@
   },
   "StudentReenrollment": {
     "loading": "A carregar a renovação da matrícula...",
-    "pendingPrerequisite": "Pré-requisito em falta: {subjects}.",
+    
     "errorTitle": "Não foi possível carregar a renovação da matrícula",
     "academic": "Académico",
     "title": "Renovação semestral da matrícula",
@@ -1248,6 +1248,7 @@
     },
     "errors": {
       "load": "Não foi possível carregar a renovação da matrícula.",
+      "pendingPrerequisite": "Pré-requisito em falta: {subjects}.",
       "noAvailableClass": "Não existe uma turma com vaga disponível para esta disciplina.",
       "wouldExceedMaximum": "Esta disciplina ultrapassaria a carga máxima de {hours} h.",
       "scheduleConflict": "Conflito de horário com {subject}: {schedule}.",

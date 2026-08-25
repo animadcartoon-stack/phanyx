@@ -1101,7 +1101,7 @@
   },
   "StudentReenrollment": {
     "loading": "Chargement de la réinscription...",
-    "pendingPrerequisite": "Prérequis requis : {subjects}.",
+    
     "errorTitle": "Impossible de charger la réinscription",
     "academic": "Scolarité",
     "title": "Réinscription semestrielle",
@@ -1248,6 +1248,7 @@
     },
     "errors": {
       "load": "Impossible de charger la réinscription.",
+      "pendingPrerequisite": "Prérequis requis : {subjects}.",
       "noAvailableClass": "Aucun groupe avec des places disponibles n’a été trouvé pour cette matière.",
       "wouldExceedMaximum": "Cette matière dépasserait la charge maximale de {hours} h.",
       "scheduleConflict": "Conflit d’horaire avec {subject} : {schedule}.",

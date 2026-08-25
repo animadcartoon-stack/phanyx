@@ -1248,6 +1248,7 @@
     },
     "errors": {
       "load": "Unable to load reenrollment.",
+      "pendingPrerequisite": "Pending prerequisite: {subjects}.",
       "noAvailableClass": "No class with available seats was found for this subject.",
       "wouldExceedMaximum": "This subject would exceed the maximum load of {hours}h.",
       "scheduleConflict": "Schedule conflict with {subject}: {schedule}.",

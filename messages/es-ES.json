@@ -1101,7 +1101,7 @@
   },
   "StudentReenrollment": {
     "loading": "Cargando la rematrícula...",
-    "pendingPrerequisite": "Prerrequisito pendiente: {subjects}.",
+    
     "errorTitle": "No se pudo cargar la rematrícula",
     "academic": "Académico",
     "title": "Rematrícula semestral",
@@ -1248,6 +1248,7 @@
     },
     "errors": {
       "load": "No se pudo cargar la rematrícula.",
+      "pendingPrerequisite": "Prerrequisito pendiente: {subjects}.",
       "noAvailableClass": "No hay ningún grupo con plazas disponibles para esta asignatura.",
       "wouldExceedMaximum": "Esta asignatura superaría la carga máxima de {hours} h.",
       "scheduleConflict": "Conflicto de horario con {subject}: {schedule}.",
