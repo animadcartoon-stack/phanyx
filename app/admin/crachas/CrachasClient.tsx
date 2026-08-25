@@ -180,6 +180,8 @@ type ObjetoCracha =
     pontas?: number;
     raioInterno?: number;
     raioExterno?: number;
+    arredondamentoPontas?: number;
+    arredondamentoReentrancias?: number;
     lados?: number;
     cruzCentroX?: number;
     cruzCentroY?: number;
@@ -3972,28 +3974,147 @@ export default function CrachasClient() {
     ].includes(objeto.forma);
   }
 
-  function gerarPontosEstrelaSvg(
+  function gerarCaminhoEstrelaSvg(
     pontas: number,
     raioExterno: number,
-    raioInterno: number
+    raioInterno: number,
+    arredondamentoPontas = 0,
+    arredondamentoReentrancias = 0
   ) {
     const cx = 50;
     const cy = 50;
-    const pontos: string[] = [];
 
-    const totalPontas = Math.max(3, Math.min(20, pontas));
+    const totalPontas = Math.max(
+      3,
+      Math.min(20, pontas)
+    );
 
-    for (let i = 0; i < totalPontas * 2; i++) {
-      const angulo = -Math.PI / 2 + (i * Math.PI) / totalPontas;
-      const raio = i % 2 === 0 ? raioExterno : raioInterno;
+    const vertices: {
+      x: number;
+      y: number;
+      externo: boolean;
+    }[] = [];
 
-      const x = cx + Math.cos(angulo) * raio;
-      const y = cy + Math.sin(angulo) * raio;
+    for (
+      let indice = 0;
+      indice < totalPontas * 2;
+      indice++
+    ) {
+      const angulo =
+        -Math.PI / 2 +
+        (indice * Math.PI) / totalPontas;
 
-      pontos.push(`${x},${y}`);
+      const externo =
+        indice % 2 === 0;
+
+      const raio =
+        externo
+          ? raioExterno
+          : raioInterno;
+
+      vertices.push({
+        x: cx + Math.cos(angulo) * raio,
+        y: cy + Math.sin(angulo) * raio,
+        externo,
+      });
     }
 
-    return pontos.join(" ");
+    function limitarPercentual(
+      valor: number
+    ) {
+      return Math.max(
+        0,
+        Math.min(100, valor)
+      );
+    }
+
+    function aproximarPonto(
+      origem: { x: number; y: number },
+      destino: { x: number; y: number },
+      proporcao: number
+    ) {
+      return {
+        x:
+          origem.x +
+          (destino.x - origem.x) *
+          proporcao,
+
+        y:
+          origem.y +
+          (destino.y - origem.y) *
+          proporcao,
+      };
+    }
+
+    const partes: string[] = [];
+
+    vertices.forEach(
+      (vertice, indice) => {
+        const anterior =
+          vertices[
+          (indice -
+            1 +
+            vertices.length) %
+          vertices.length
+          ];
+
+        const proximo =
+          vertices[
+          (indice + 1) %
+          vertices.length
+          ];
+
+        const arredondamento =
+          vertice.externo
+            ? limitarPercentual(
+              arredondamentoPontas
+            )
+            : limitarPercentual(
+              arredondamentoReentrancias
+            );
+
+        /*
+         * Em 100%, cada curva ocupa
+         * metade das duas arestas
+         * ligadas ao vértice.
+         */
+        const proporcao =
+          (arredondamento / 100) *
+          0.5;
+
+        const entrada =
+          aproximarPonto(
+            vertice,
+            anterior,
+            proporcao
+          );
+
+        const saida =
+          aproximarPonto(
+            vertice,
+            proximo,
+            proporcao
+          );
+
+        if (indice === 0) {
+          partes.push(
+            `M ${entrada.x} ${entrada.y}`
+          );
+        } else {
+          partes.push(
+            `L ${entrada.x} ${entrada.y}`
+          );
+        }
+
+        partes.push(
+          `Q ${vertice.x} ${vertice.y} ${saida.x} ${saida.y}`
+        );
+      }
+    );
+
+    partes.push("Z");
+
+    return partes.join(" ");
   }
 
   function gerarPontosPoligonoSvg(lados: number) {
@@ -4377,11 +4498,13 @@ export default function CrachasClient() {
 
     if (objeto.forma === "ESTRELA") {
       return (
-        <polygon
-          points={gerarPontosEstrelaSvg(
+        <path
+          d={gerarCaminhoEstrelaSvg(
             objeto.pontas ?? 5,
             objeto.raioExterno ?? 46,
-            objeto.raioInterno ?? 22
+            objeto.raioInterno ?? 22,
+            objeto.arredondamentoPontas ?? 0,
+            objeto.arredondamentoReentrancias ?? 0
           )}
           {...comum}
         />
@@ -4611,6 +4734,17 @@ export default function CrachasClient() {
       corBorda: objetoAtual.corBorda,
       espessuraBorda: objetoAtual.espessuraBorda,
       raioBorda: objetoAtual.raioBorda,
+
+      ...(objetoAtual.forma === "ESTRELA"
+        ? {
+          arredondamentoPontas:
+            objetoAtual.arredondamentoPontas,
+
+          arredondamentoReentrancias:
+            objetoAtual.arredondamentoReentrancias,
+        }
+        : {}),
+
       opacidade: objetoAtual.opacidade,
 
       sombraAtiva: objetoAtual.sombraAtiva,
@@ -5122,13 +5256,22 @@ export default function CrachasClient() {
 
     const larguraCracha =
       area?.clientWidth ||
-      (formato === "PAISAGEM" ? 380 : formato === "RETRATO" ? 240 : 260);
+      (formato === "PAISAGEM"
+        ? 380
+        : formato === "RETRATO"
+          ? 240
+          : 260);
 
     const alturaCracha =
       area?.clientHeight ||
-      (formato === "PAISAGEM" ? 240 : formato === "RETRATO" ? 380 : 260);
+      (formato === "PAISAGEM"
+        ? 240
+        : formato === "RETRATO"
+          ? 380
+          : 260);
 
-    const { largura, altura } = tamanhoObjetoCracha(objetoAtual);
+    const { largura, altura } =
+      tamanhoObjetoCracha(objetoAtual);
 
     const atualizacao: any = {};
 
@@ -5136,17 +5279,18 @@ export default function CrachasClient() {
       atualizacao.x = 0;
     }
 
-    if (alinhamento === "centro-horizontal" || alinhamento === "centro-total") {
-      atualizacao.x = Math.max(
-        0,
-        Math.round((larguraCracha - largura) / 2)
+    if (
+      alinhamento === "centro-horizontal" ||
+      alinhamento === "centro-total"
+    ) {
+      atualizacao.x = Math.round(
+        (larguraCracha - largura) / 2
       );
     }
 
     if (alinhamento === "direita") {
-      atualizacao.x = Math.max(
-        0,
-        Math.round(larguraCracha - largura)
+      atualizacao.x = Math.round(
+        larguraCracha - largura
       );
     }
 
@@ -5154,21 +5298,25 @@ export default function CrachasClient() {
       atualizacao.y = 0;
     }
 
-    if (alinhamento === "centro-vertical" || alinhamento === "centro-total") {
-      atualizacao.y = Math.max(
-        0,
-        Math.round((alturaCracha - altura) / 2)
+    if (
+      alinhamento === "centro-vertical" ||
+      alinhamento === "centro-total"
+    ) {
+      atualizacao.y = Math.round(
+        (alturaCracha - altura) / 2
       );
     }
 
     if (alinhamento === "base") {
-      atualizacao.y = Math.max(
-        0,
-        Math.round(alturaCracha - altura)
+      atualizacao.y = Math.round(
+        alturaCracha - altura
       );
     }
 
-    atualizarObjeto(objetoAtual.id, atualizacao);
+    atualizarObjeto(
+      objetoAtual.id,
+      atualizacao
+    );
   }
 
   function copiarObjetoSelecionado() {
@@ -8477,6 +8625,8 @@ export default function CrachasClient() {
                         pontas: 5,
                         raioExterno: 46,
                         raioInterno: 22,
+                        arredondamentoPontas: 0,
+                        arredondamentoReentrancias: 0,
                       },
 
                       FORMA_LIVRE: {
@@ -9061,21 +9211,31 @@ export default function CrachasClient() {
               )}
 
               {objetoAtual.forma === "ESTRELA" && (
-                <div className="space-y-3 rounded-2xl border border-slate-700/40 p-3">
-                  <p className="text-sm font-bold">Configuração da estrela</p>
+                <div className="space-y-4 rounded-2xl border border-slate-700/40 p-3">
+                  <p className="text-sm font-bold">
+                    Configuração da estrela
+                  </p>
 
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <label className="mb-2 block text-xs font-semibold">Pontas</label>
+                      <label className="mb-2 block text-xs font-semibold">
+                        Pontas
+                      </label>
+
                       <input
                         type="number"
                         min={3}
                         max={20}
                         value={objetoAtual.pontas ?? 5}
                         onChange={(e) =>
-                          atualizarObjeto(objetoAtual.id, {
-                            pontas: Number(e.target.value),
-                          })
+                          atualizarObjeto(
+                            objetoAtual.id,
+                            {
+                              pontas: Number(
+                                e.target.value
+                              ),
+                            }
+                          )
                         }
                         className="phanyx-crachas-input"
                       />
@@ -9085,14 +9245,23 @@ export default function CrachasClient() {
                       <label className="mb-2 block text-xs font-semibold">
                         Raio externo
                       </label>
+
                       <input
                         type="number"
                         min={10}
-                        value={objetoAtual.raioExterno ?? 60}
+                        value={
+                          objetoAtual.raioExterno ??
+                          46
+                        }
                         onChange={(e) =>
-                          atualizarObjeto(objetoAtual.id, {
-                            raioExterno: Number(e.target.value),
-                          })
+                          atualizarObjeto(
+                            objetoAtual.id,
+                            {
+                              raioExterno: Number(
+                                e.target.value
+                              ),
+                            }
+                          )
                         }
                         className="phanyx-crachas-input"
                       />
@@ -9103,21 +9272,106 @@ export default function CrachasClient() {
                     <label className="mb-2 block text-xs font-semibold">
                       Diâmetro do centro
                     </label>
+
                     <input
                       type="number"
                       min={10}
-                      value={(objetoAtual.raioInterno ?? 28) * 2}
+                      value={
+                        (objetoAtual.raioInterno ??
+                          22) * 2
+                      }
                       onChange={(e) =>
-                        atualizarObjeto(objetoAtual.id, {
-                          raioInterno: Number(e.target.value) / 2,
-                        })
+                        atualizarObjeto(
+                          objetoAtual.id,
+                          {
+                            raioInterno:
+                              Number(
+                                e.target.value
+                              ) / 2,
+                          }
+                        )
                       }
                       className="phanyx-crachas-input"
                     />
                   </div>
 
-                  <p className="text-xs text-slate-400">
-                    Dica: centro menor = pontas mais altas. Centro maior = pontas mais baixas.
+                  <div className="rounded-xl border border-slate-300 p-3 dark:border-slate-700">
+                    <label className="mb-2 block text-xs font-semibold">
+                      Arredondamento das pontas:{" "}
+                      {objetoAtual.arredondamentoPontas ??
+                        0}
+                      %
+                    </label>
+
+                    <input
+                      type="range"
+                      min={0}
+                      max={100}
+                      step={1}
+                      value={
+                        objetoAtual.arredondamentoPontas ??
+                        0
+                      }
+                      onChange={(e) =>
+                        atualizarObjeto(
+                          objetoAtual.id,
+                          {
+                            arredondamentoPontas:
+                              Number(
+                                e.target.value
+                              ),
+                          }
+                        )
+                      }
+                      className="w-full accent-blue-600"
+                    />
+
+                    <p className="mt-2 text-[11px] text-slate-600 dark:text-slate-400">
+                      Aumente para transformar as
+                      pontas em pétalas arredondadas.
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl border border-slate-300 p-3 dark:border-slate-700">
+                    <label className="mb-2 block text-xs font-semibold">
+                      Arredondamento das reentrâncias:{" "}
+                      {objetoAtual.arredondamentoReentrancias ??
+                        0}
+                      %
+                    </label>
+
+                    <input
+                      type="range"
+                      min={0}
+                      max={100}
+                      step={1}
+                      value={
+                        objetoAtual.arredondamentoReentrancias ??
+                        0
+                      }
+                      onChange={(e) =>
+                        atualizarObjeto(
+                          objetoAtual.id,
+                          {
+                            arredondamentoReentrancias:
+                              Number(
+                                e.target.value
+                              ),
+                          }
+                        )
+                      }
+                      className="w-full accent-blue-600"
+                    />
+
+                    <p className="mt-2 text-[11px] text-slate-600 dark:text-slate-400">
+                      Aumente para suavizar a parte
+                      interna e criar as ondulações.
+                    </p>
+                  </div>
+
+                  <p className="text-xs text-slate-600 dark:text-slate-400">
+                    Centro menor = pontas mais altas.
+                    Centro maior = pontas mais baixas.
                   </p>
                 </div>
               )}
@@ -9596,22 +9850,29 @@ export default function CrachasClient() {
                 />
               </div>
 
-              <div>
-                <label className="mb-2 block font-semibold">
-                  Arredondamento
-                </label>
+              {objetoAtual.forma !== "ESTRELA" && (
+                <div>
+                  <label className="mb-2 block font-semibold">
+                    Arredondamento
+                  </label>
 
-                <input
-                  type="number"
-                  value={objetoAtual.raioBorda}
-                  onChange={(e) =>
-                    atualizarObjeto(objetoAtual.id, {
-                      raioBorda: Number(e.target.value),
-                    })
-                  }
-                  className="phanyx-crachas-input"
-                />
-              </div>
+                  <input
+                    type="number"
+                    value={objetoAtual.raioBorda}
+                    onChange={(e) =>
+                      atualizarObjeto(
+                        objetoAtual.id,
+                        {
+                          raioBorda: Number(
+                            e.target.value
+                          ),
+                        }
+                      )
+                    }
+                    className="phanyx-crachas-input"
+                  />
+                </div>
+              )}
 
               <div>
                 <label className="mb-2 block font-semibold">
