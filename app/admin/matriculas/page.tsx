@@ -2363,190 +2363,60 @@ function AdminMatriculasPage() {
   }, [matriculaEditando, semestreEditandoSelecionado, turmas]);
 
   const disciplinasExtrasEdicaoDisponiveis = useMemo(() => {
-    if (!matriculaEditando?.cursoId || !semestreEditandoSelecionado) return [];
+  if (
+    !matriculaEditando?.cursoId ||
+    !semestreEditandoSelecionado
+  ) {
+    return [];
+  }
 
-    const disciplinasIdsSelecionadasEdicao =
-      useMemo(() => {
-        return Array.from(
-          new Set([
-            ...disciplinasEdicaoSelecionadas,
-            ...disciplinasExtrasEdicaoSelecionadas,
-          ])
-        );
-      }, [
-        disciplinasEdicaoSelecionadas,
-        disciplinasExtrasEdicaoSelecionadas,
-      ]);
+  const idsGrade = new Set(
+    semestreEditandoSelecionado.disciplinas.map(
+      (d) => Number(d.disciplinaId)
+    )
+  );
 
-    useEffect(() => {
-      if (!matriculaEditando) {
-        setTurmaPorDisciplinaEdicao(
-          {}
-        );
-
-        return;
-      }
-
-      setTurmaPorDisciplinaEdicao(
-        (anterior) => {
-          const novo:
-            Record<number, number> =
-            {};
-
-          const turmaPrincipalId =
-            Number(
-              matriculaEditando
-                .turmaPrincipalId
-            );
-
-          for (
-            const disciplinaId of
-            disciplinasIdsSelecionadasEdicao
-          ) {
-            const ofertas =
-              ofertasPorDisciplina.get(
-                disciplinaId
-              ) || [];
-
-            const turmaAtual =
-              anterior[
-              disciplinaId
-              ];
-
-            const turmaAtualValida =
-              ofertas.some(
-                (oferta) =>
-                  oferta.turmaId ===
-                  turmaAtual
-              );
-
-            if (
-              turmaAtualValida
-            ) {
-              novo[
-                disciplinaId
-              ] = turmaAtual;
-
-              continue;
-            }
-
-            const ofertaPreferencial =
-              ofertas.find(
-                (oferta) =>
-                  oferta.turmaId ===
-                  turmaPrincipalId
-              ) || ofertas[0];
-
-            if (
-              ofertaPreferencial
-            ) {
-              novo[
-                disciplinaId
-              ] =
-                ofertaPreferencial
-                  .turmaId;
-            }
-          }
-
-          return novo;
-        }
-      );
-    }, [
-      disciplinasIdsSelecionadasEdicao,
-      ofertasPorDisciplina,
-      matriculaEditando?.id,
-      matriculaEditando
-        ?.turmaPrincipalId,
-    ]);
-
-    function classificarTipoItemEdicao(
-      disciplinaId: number
-    ): TipoItemMatricula {
-      if (
-        disciplinasEditandoIds.includes(
-          disciplinaId
-        )
-      ) {
-        return "GRADE_PRINCIPAL";
-      }
-
-      const oferta =
-        ofertasPorDisciplina.get(
-          disciplinaId
-        )?.[0];
-
-      const mesmoCurso =
-        Number(
-          oferta?.cursoId
-        ) ===
-        Number(
-          matriculaEditando
-            ?.cursoId
-        );
-
-      const semestreDisciplina =
-        Number(
-          oferta
-            ?.disciplinaSemestre ||
-          0
-        );
-
-      const semestrePrincipal =
-        Number(
-          semestreEditandoSelecionado
-            ?.numero ||
-          0
-        );
-
-      if (
-        mesmoCurso &&
-        semestreDisciplina > 0 &&
-        semestrePrincipal > 0
-      ) {
-        if (
-          semestreDisciplina <
-          semestrePrincipal
-        ) {
-          return "DEPENDENCIA";
-        }
-
-        if (
-          semestreDisciplina >
-          semestrePrincipal
-        ) {
-          return "ADIANTAMENTO";
-        }
-      }
-
-      return mesmoCurso
-        ? "EXTRA_MESMO_CURSO"
-        : "EXTRA_OUTRO_CURSO";
+  const mapa = new Map<
+    number,
+    {
+      id: number;
+      nome: string;
+      cargaHoraria?: number | null;
     }
+  >();
 
-    const idsGrade = new Set(
-      semestreEditandoSelecionado.disciplinas.map((d) => Number(d.disciplinaId))
-    );
-
-    const mapa = new Map<number, { id: number; nome: string; cargaHoraria?: number | null }>();
-
-    turmas
-      .filter((t) => Number(t.cursoId) === Number(matriculaEditando.cursoId))
-      .forEach((t) => {
-        (t.disciplinas || []).forEach((d) => {
-          if (!idsGrade.has(Number(d.id))) {
-            mapa.set(Number(d.id), {
-              id: Number(d.id),
-              nome: d.nome,
-              cargaHoraria: d.cargaHoraria ?? 0,
-            });
-          }
-        });
+  turmas
+    .filter(
+      (t) =>
+        Number(t.cursoId) ===
+        Number(matriculaEditando.cursoId)
+    )
+    .forEach((t) => {
+      (t.disciplinas || []).forEach((d) => {
+        if (!idsGrade.has(Number(d.id))) {
+          mapa.set(Number(d.id), {
+            id: Number(d.id),
+            nome: d.nome,
+            cargaHoraria:
+              d.cargaHoraria ?? 0,
+          });
+        }
       });
+    });
 
-    return Array.from(mapa.values()).sort((a, b) =>
-      a.nome.localeCompare(b.nome, "pt-BR")
-    );
-  }, [matriculaEditando, semestreEditandoSelecionado, turmas]);
+  return Array.from(
+    mapa.values()
+  ).sort((a, b) =>
+    a.nome.localeCompare(
+      b.nome,
+      "pt-BR"
+    )
+  );
+}, [
+  matriculaEditando,
+  semestreEditandoSelecionado,
+  turmas,
+]);
 
   const disciplinasIdsSelecionadasEdicao =
     useMemo(() => {
