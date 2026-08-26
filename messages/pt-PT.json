@@ -1113,6 +1113,65 @@
       "analysis": "As reclamações e os relatos serão analisados pela instituição."
     }
   },
+  "ProfessorDashboard": {
+  "title": "Painel do Professor",
+  "professor": "Professor",
+  "description": "Acompanhe as suas provas, tentativas e o desempenho das turmas.",
+  "loading": "A carregar o painel...",
+  "errors": {
+    "imageUpload": "Erro ao enviar a imagem.",
+    "missingImageUrl": "O carregamento foi concluído, mas o URL da imagem não foi devolvido.",
+    "savePhoto": "Erro ao guardar a foto do perfil.",
+    "changePhoto": "Erro ao alterar a foto.",
+    "loadDashboard": "Erro ao carregar o painel."
+  },
+  "photo": {
+    "uploading": "A enviar...",
+    "change": "Alterar foto",
+    "tips": "Dicas para a foto",
+    "instructions": "Para que a sua foto fique bem centralizada no perfil, utilize uma imagem quadrada (1:1), preferencialmente com 500x500 px ou mais.",
+    "formats": "Formatos aceites: PNG, JPG, JPEG e WEBP • Tamanho máximo: 5 MB."
+  },
+  "statuses": {
+    "published": "Publicada",
+    "closed": "Encerrada",
+    "draft": "Rascunho"
+  },
+  "stats": {
+    "totalExams": "Total de provas",
+    "drafts": "Rascunhos",
+    "published": "Publicadas",
+    "closed": "Encerradas",
+    "completedAttempts": "Tentativas concluídas",
+    "approved": "Aprovados",
+    "failed": "Reprovados",
+    "overallAverage": "Média geral"
+  },
+  "recent": {
+    "title": "Provas recentes",
+    "description": "Visão rápida das provas mais recentes do professor.",
+    "viewAll": "Ver todas",
+    "empty": "Ainda não existem provas registadas.",
+    "subject": "Disciplina",
+    "attempts": "Tentativas",
+    "average": "Média",
+    "open": "Abrir",
+    "gradebook": "Pauta"
+  },
+  "shortcuts": {
+    "title": "Atalhos",
+    "newExam": "Nova prova",
+    "manageExams": "Gerir provas"
+  },
+  "summary": {
+    "title": "Resumo académico",
+    "totalExams": "{count, plural, =0 {Não possui provas registadas.} one {Possui # prova registada.} other {Possui # provas registadas.}}",
+    "publishedExams": "{count, plural, =0 {Não existem provas publicadas neste momento.} one {Existe # prova publicada neste momento.} other {Existem # provas publicadas neste momento.}}",
+    "completedAttempts": "{count, plural, =0 {Não foi registada nenhuma tentativa concluída.} one {Foi registada # tentativa concluída.} other {Foram registadas # tentativas concluídas.}}",
+    "results": "{approved, plural, one {# aluno aprovado} other {# alunos aprovados}} e {failed, plural, one {# aluno reprovado} other {# alunos reprovados}}.",
+    "overallAverage": "A média geral atual é {average}."
+  }
+},
   "Header": {
     "studentPortal": "Portal do Aluno",
     "teacherPortal": "Portal do Professor",

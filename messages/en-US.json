@@ -1113,6 +1113,65 @@
       "analysis": "Complaints and reports will be reviewed by the institution."
     }
   },
+  "ProfessorDashboard": {
+  "title": "Teacher Dashboard",
+  "professor": "Teacher",
+  "description": "Track your exams, attempts, and class performance.",
+  "loading": "Loading dashboard...",
+  "errors": {
+    "imageUpload": "Unable to upload the image.",
+    "missingImageUrl": "The upload was completed, but the image URL was not returned.",
+    "savePhoto": "Unable to save the profile photo.",
+    "changePhoto": "Unable to change the photo.",
+    "loadDashboard": "Unable to load the dashboard."
+  },
+  "photo": {
+    "uploading": "Uploading...",
+    "change": "Change photo",
+    "tips": "Photo tips",
+    "instructions": "For the best profile display, use a square image (1:1), preferably 500x500 px or larger.",
+    "formats": "Accepted formats: PNG, JPG, JPEG and WEBP • Maximum size: 5 MB."
+  },
+  "statuses": {
+    "published": "Published",
+    "closed": "Closed",
+    "draft": "Draft"
+  },
+  "stats": {
+    "totalExams": "Total exams",
+    "drafts": "Drafts",
+    "published": "Published",
+    "closed": "Closed",
+    "completedAttempts": "Completed attempts",
+    "approved": "Passed",
+    "failed": "Failed",
+    "overallAverage": "Overall average"
+  },
+  "recent": {
+    "title": "Recent exams",
+    "description": "A quick view of your most recent exams.",
+    "viewAll": "View all",
+    "empty": "No exams have been created yet.",
+    "subject": "Subject",
+    "attempts": "Attempts",
+    "average": "Average",
+    "open": "Open",
+    "gradebook": "Gradebook"
+  },
+  "shortcuts": {
+    "title": "Shortcuts",
+    "newExam": "New exam",
+    "manageExams": "Manage exams"
+  },
+  "summary": {
+    "title": "Academic summary",
+    "totalExams": "{count, plural, =0 {You have no exams registered.} one {You have # exam registered.} other {You have # exams registered.}}",
+    "publishedExams": "{count, plural, =0 {There are no published exams right now.} one {There is # published exam right now.} other {There are # published exams right now.}}",
+    "completedAttempts": "{count, plural, =0 {No completed attempts have been recorded.} one {# completed attempt has been recorded.} other {# completed attempts have been recorded.}}",
+    "results": "{approved, plural, one {# student passed} other {# students passed}} and {failed, plural, one {# student failed} other {# students failed}}.",
+    "overallAverage": "The current overall average is {average}."
+  }
+},
   "Header": {
     "studentPortal": "Student Portal",
     "teacherPortal": "Teacher Portal",

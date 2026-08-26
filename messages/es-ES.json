@@ -1113,6 +1113,65 @@
       "analysis": "Las reclamaciones y los informes serán revisados por la institución."
     }
   },
+  "ProfessorDashboard": {
+  "title": "Panel del Profesor",
+  "professor": "Profesor",
+  "description": "Consulta tus exámenes, intentos y el rendimiento de las clases.",
+  "loading": "Cargando el panel...",
+  "errors": {
+    "imageUpload": "No se ha podido subir la imagen.",
+    "missingImageUrl": "La carga se completó, pero no se devolvió la URL de la imagen.",
+    "savePhoto": "No se ha podido guardar la foto de perfil.",
+    "changePhoto": "No se ha podido cambiar la foto.",
+    "loadDashboard": "No se ha podido cargar el panel."
+  },
+  "photo": {
+    "uploading": "Subiendo...",
+    "change": "Cambiar foto",
+    "tips": "Consejos para la foto",
+    "instructions": "Para que tu foto quede bien centrada en el perfil, utiliza una imagen cuadrada (1:1), preferiblemente de 500x500 px o superior.",
+    "formats": "Formatos admitidos: PNG, JPG, JPEG y WEBP • Tamaño máximo: 5 MB."
+  },
+  "statuses": {
+    "published": "Publicado",
+    "closed": "Cerrado",
+    "draft": "Borrador"
+  },
+  "stats": {
+    "totalExams": "Total de exámenes",
+    "drafts": "Borradores",
+    "published": "Publicados",
+    "closed": "Cerrados",
+    "completedAttempts": "Intentos finalizados",
+    "approved": "Aprobados",
+    "failed": "Suspensos",
+    "overallAverage": "Media general"
+  },
+  "recent": {
+    "title": "Exámenes recientes",
+    "description": "Vista rápida de tus exámenes más recientes.",
+    "viewAll": "Ver todos",
+    "empty": "Todavía no se ha creado ningún examen.",
+    "subject": "Asignatura",
+    "attempts": "Intentos",
+    "average": "Media",
+    "open": "Abrir",
+    "gradebook": "Calificaciones"
+  },
+  "shortcuts": {
+    "title": "Accesos directos",
+    "newExam": "Nuevo examen",
+    "manageExams": "Gestionar exámenes"
+  },
+  "summary": {
+    "title": "Resumen académico",
+    "totalExams": "{count, plural, =0 {No tienes exámenes registrados.} one {Tienes # examen registrado.} other {Tienes # exámenes registrados.}}",
+    "publishedExams": "{count, plural, =0 {No hay exámenes publicados en este momento.} one {Hay # examen publicado en este momento.} other {Hay # exámenes publicados en este momento.}}",
+    "completedAttempts": "{count, plural, =0 {No se ha registrado ningún intento finalizado.} one {Se ha registrado # intento finalizado.} other {Se han registrado # intentos finalizados.}}",
+    "results": "{approved, plural, one {# alumno aprobado} other {# alumnos aprobados}} y {failed, plural, one {# alumno suspenso} other {# alumnos suspensos}}.",
+    "overallAverage": "La media general actual es {average}."
+  }
+},
   "Header": {
     "studentPortal": "Portal del Estudiante",
     "teacherPortal": "Portal del Profesor",
