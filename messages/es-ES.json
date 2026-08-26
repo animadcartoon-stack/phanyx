@@ -1178,6 +1178,27 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorLessons": {
+    "eyebrow": "Clases",
+    "title": "Mis clases",
+    "description": "Acceda a las clases vinculadas a sus grupos y gestione los materiales.",
+    "loading": "Cargando clases...",
+    "errorLoad": "Error al cargar las clases",
+    "empty": "No se encontraron clases para este profesor.",
+    "lesson": "Clase",
+    "untitled": "Clase sin título",
+    "subject": "Asignatura",
+    "class": "Clase",
+    "addMaterial": "Añadir material",
+    "addMaterialAsSubstitute": "Añadir material como profesor sustituto",
+    "substitution": {
+      "title": "Sustitución en curso",
+      "holder": "Profesor titular",
+      "period": "Período",
+      "until": "hasta",
+      "noForecast": "sin previsión"
+    }
+  },
   "ProfessorStudents": {
     "title": "Alumnos del Profesor",
     "description": "Consulte notas, asistencia, faltas, certificados médicos y rendimiento académico.",

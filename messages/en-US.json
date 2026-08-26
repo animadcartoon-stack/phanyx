@@ -1178,6 +1178,27 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorLessons": {
+    "eyebrow": "Lessons",
+    "title": "My Lessons",
+    "description": "Access the lessons linked to your classes and manage materials.",
+    "loading": "Loading lessons...",
+    "errorLoad": "Error loading lessons",
+    "empty": "No lessons found for this teacher.",
+    "lesson": "Lesson",
+    "untitled": "Untitled lesson",
+    "subject": "Subject",
+    "class": "Class",
+    "addMaterial": "Add material",
+    "addMaterialAsSubstitute": "Add material as substitute",
+    "substitution": {
+      "title": "Substitution in progress",
+      "holder": "Primary teacher",
+      "period": "Period",
+      "until": "until",
+      "noForecast": "no end date"
+    }
+  },
   "ProfessorStudents": {
     "title": "Teacher's Students",
     "description": "Track grades, attendance, absences, medical certificates, and academic performance.",

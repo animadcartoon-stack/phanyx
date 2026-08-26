@@ -1178,6 +1178,27 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorLessons": {
+    "eyebrow": "Cours",
+    "title": "Mes cours",
+    "description": "Accédez aux cours associés à vos classes et gérez les supports pédagogiques.",
+    "loading": "Chargement des cours...",
+    "errorLoad": "Erreur lors du chargement des cours",
+    "empty": "Aucun cours trouvé pour cet enseignant.",
+    "lesson": "Cours",
+    "untitled": "Cours sans titre",
+    "subject": "Matière",
+    "class": "Classe",
+    "addMaterial": "Ajouter un support",
+    "addMaterialAsSubstitute": "Ajouter un support en tant que remplaçant",
+    "substitution": {
+      "title": "Remplacement en cours",
+      "holder": "Enseignant titulaire",
+      "period": "Période",
+      "until": "jusqu’au",
+      "noForecast": "sans date de fin"
+    }
+  },
   "ProfessorStudents": {
     "title": "Étudiants de l’enseignant",
     "description": "Suivez les notes, l’assiduité, les absences, les certificats médicaux et les performances académiques.",

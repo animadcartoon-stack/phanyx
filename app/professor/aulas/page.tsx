@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 type AulaProfessor = {
   id: number;
@@ -23,7 +24,22 @@ type AulaProfessor = {
   } | null;
 };
 
+function formatarData(
+  data: string | null | undefined,
+  locale: string,
+  semPrevisao: string
+) {
+  if (!data) return semPrevisao;
+
+  return new Date(data).toLocaleDateString(locale, {
+    timeZone: "UTC",
+  });
+}
+
 export default function ProfessorAulasPage() {
+  const t = useTranslations("ProfessorLessons");
+  const locale = useLocale();
+
   const [aulas, setAulas] = useState<AulaProfessor[]>([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
@@ -42,7 +58,7 @@ export default function ProfessorAulasPage() {
         const json = await res.json();
 
         if (!res.ok) {
-          throw new Error(json?.error || "Erro ao carregar aulas");
+          throw new Error(json?.error || t("errorLoad"));
         }
 
         const lista = Array.isArray(json)
@@ -51,7 +67,7 @@ export default function ProfessorAulasPage() {
 
         setAulas(lista);
       } catch (e: any) {
-        setErro(e?.message || "Erro ao carregar aulas");
+        setErro(e?.message || t("errorLoad"));
         setAulas([]);
       } finally {
         setLoading(false);
@@ -59,32 +75,27 @@ export default function ProfessorAulasPage() {
     }
 
     carregar();
-  }, []);
-
-  function formatarData(data?: string | null) {
-  if (!data) return "sem previsão";
-  return new Date(data).toLocaleDateString("pt-BR", { timeZone: "UTC" });
-}
+  }, [t]);
 
   return (
     <main className="space-y-5 px-1 py-2 text-slate-900 sm:px-0">
       <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-700">
-          Aulas
+          {t("eyebrow")}
         </p>
 
         <h1 className="mt-2 text-2xl font-black text-slate-900">
-          Minhas Aulas
+          {t("title")}
         </h1>
 
         <p className="mt-2 text-sm leading-6 text-slate-500">
-          Acesse as aulas vinculadas às suas turmas e gerencie materiais.
+          {t("description")}
         </p>
       </section>
 
       {loading && (
         <div className="rounded-2xl border border-slate-200 bg-white p-5 text-sm text-slate-500 shadow-sm">
-          Carregando aulas...
+          {t("loading")}
         </div>
       )}
 
@@ -96,7 +107,7 @@ export default function ProfessorAulasPage() {
 
       {!loading && !erro && aulas.length === 0 && (
         <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-sm text-slate-500 shadow-sm">
-          Nenhuma aula encontrada para este professor.
+          {t("empty")}
         </div>
       )}
 
@@ -108,44 +119,54 @@ export default function ProfessorAulasPage() {
               className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"
             >
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">
-                Aula
+                {t("lesson")}
               </p>
 
               <h2 className="mt-2 text-lg font-black text-slate-900">
-                {aula.titulo || aula.nome || "Aula sem título"}
+                {aula.titulo || aula.nome || t("untitled")}
               </h2>
 
-{aula.substituicaoAtiva && (
-  <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
-    <p className="font-black">
-      🔁 Substituição em andamento
-    </p>
+              {aula.substituicaoAtiva && (
+                <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+                  <p className="font-black">
+                    🔁 {t("substitution.title")}
+                  </p>
 
-    <p className="mt-1">
-      Titular:{" "}
-      <strong>
-        {aula.substituicaoAtiva.professorTitular?.nome || "-"}
-      </strong>
-    </p>
+                  <p className="mt-1">
+                    {t("substitution.holder")}:{" "}
+                    <strong>
+                      {aula.substituicaoAtiva.professorTitular?.nome || "-"}
+                    </strong>
+                  </p>
 
-    <p>
-      Período: {formatarData(aula.substituicaoAtiva.dataInicio)} até{" "}
-      {formatarData(aula.substituicaoAtiva.dataFim)}
-    </p>
-  </div>
-)}
+                  <p>
+                    {t("substitution.period")}:{" "}
+                    {formatarData(
+                      aula.substituicaoAtiva.dataInicio,
+                      locale,
+                      t("substitution.noForecast")
+                    )}{" "}
+                    {t("substitution.until")}{" "}
+                    {formatarData(
+                      aula.substituicaoAtiva.dataFim,
+                      locale,
+                      t("substitution.noForecast")
+                    )}
+                  </p>
+                </div>
+              )}
 
               <div className="mt-4 space-y-2 text-sm leading-6 text-slate-600">
                 <p>
                   <strong className="font-semibold text-slate-800">
-                    Disciplina:
+                    {t("subject")}:
                   </strong>{" "}
                   {aula.disciplina?.nome || "-"}
                 </p>
 
                 <p>
                   <strong className="font-semibold text-slate-800">
-                    Turma:
+                    {t("class")}:
                   </strong>{" "}
                   {aula.turma?.nome || "-"}
                 </p>
@@ -155,7 +176,9 @@ export default function ProfessorAulasPage() {
                 href={`/professor/aulas/${aula.id}/materiais/novo`}
                 className="mt-5 inline-flex w-full items-center justify-center rounded-2xl bg-blue-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-blue-700"
               >
-                {aula.substituicaoAtiva ? "Adicionar material como substituto" : "Adicionar material"}
+                {aula.substituicaoAtiva
+                  ? t("addMaterialAsSubstitute")
+                  : t("addMaterial")}
               </a>
             </article>
           ))}

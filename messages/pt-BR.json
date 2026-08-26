@@ -1178,6 +1178,27 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma acadêmica SaaS"
   },
+  "ProfessorLessons": {
+    "eyebrow": "Aulas",
+    "title": "Minhas Aulas",
+    "description": "Acesse as aulas vinculadas às suas turmas e gerencie materiais.",
+    "loading": "Carregando aulas...",
+    "errorLoad": "Erro ao carregar aulas",
+    "empty": "Nenhuma aula encontrada para este professor.",
+    "lesson": "Aula",
+    "untitled": "Aula sem título",
+    "subject": "Disciplina",
+    "class": "Turma",
+    "addMaterial": "Adicionar material",
+    "addMaterialAsSubstitute": "Adicionar material como substituto",
+    "substitution": {
+      "title": "Substituição em andamento",
+      "holder": "Titular",
+      "period": "Período",
+      "until": "até",
+      "noForecast": "sem previsão"
+    }
+  },
   "ProfessorStudents": {
     "title": "Alunos do Professor",
     "description": "Acompanhe notas, frequência, faltas, atestados e desempenho acadêmico.",
