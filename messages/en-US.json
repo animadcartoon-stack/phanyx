@@ -1178,6 +1178,75 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorWorks": {
+    "eyebrow": "Assignments",
+    "title": "Assignment Evaluation",
+    "description": "Search, organize by period, semester, and class, and evaluate assignments submitted by students.",
+    "loading": "Loading assignments...",
+    "errorLoad": "Error loading assignments",
+    "empty": "No assignments found.",
+    "search": {
+      "label": "Search assignments",
+      "placeholder": "Enter student, class, semester, status, grade, or feedback..."
+    },
+    "grouping": {
+      "yearPeriod": "Year / period"
+    },
+    "fallbacks": {
+      "periodUnavailable": "Period not available",
+      "semesterUnavailable": "Semester not available",
+      "classUnavailable": "Class not available"
+    },
+    "counts": {
+      "works": "{count, plural, one {# assignment} other {# assignments}}"
+    },
+    "statuses": {
+      "sent": "Submitted",
+      "evaluated": "Evaluated",
+      "pending": "Pending"
+    },
+    "student": "Student",
+    "labels": {
+      "work": "Assignment",
+      "registration": "Registration",
+      "deliveredAt": "Submitted at"
+    },
+    "summary": {
+      "correction": "Evaluation",
+      "file": "File",
+      "link": "Link",
+      "versions": "Versions"
+    },
+    "attachments": {
+      "sent": "📎 Submitted",
+      "notSent": "Not submitted"
+    },
+    "links": {
+      "sent": "🌐 Submitted",
+      "notSent": "Not submitted"
+    },
+    "versions": {
+      "previous": "{count, plural, one {# previous} other {# previous}}",
+      "none": "No previous versions"
+    },
+    "grade": "Grade",
+    "feedback": "Feedback",
+    "noFeedback": "No feedback recorded.",
+    "correctionPending": "Evaluation pending.",
+    "history": {
+      "title": "View submission history",
+      "version": "Version {number}",
+      "sentAt": "Submitted at",
+      "openFile": "Open file from this version",
+      "openLink": "Open link from this version"
+    },
+    "actions": {
+      "openFile": "Open file",
+      "openLink": "Open link",
+      "editCorrection": "Edit evaluation",
+      "correctSubmission": "Evaluate submission"
+    }
+  },
   "ProfessorExams": {
     "title": "Exams",
     "description": "Manage exams for your subjects, publish assessments, and track student attempts.",

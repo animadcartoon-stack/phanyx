@@ -1178,6 +1178,75 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma acadêmica SaaS"
   },
+  "ProfessorWorks": {
+    "eyebrow": "Trabalhos",
+    "title": "Avaliação de Trabalhos",
+    "description": "Busque, organize por período, semestre e turma, e avalie os trabalhos enviados pelos alunos.",
+    "loading": "Carregando trabalhos...",
+    "errorLoad": "Erro ao carregar trabalhos",
+    "empty": "Nenhum trabalho encontrado.",
+    "search": {
+      "label": "Buscar trabalhos",
+      "placeholder": "Digite aluno, turma, semestre, status, nota ou feedback..."
+    },
+    "grouping": {
+      "yearPeriod": "Ano / período"
+    },
+    "fallbacks": {
+      "periodUnavailable": "Período não informado",
+      "semesterUnavailable": "Semestre não informado",
+      "classUnavailable": "Turma não informada"
+    },
+    "counts": {
+      "works": "{count, plural, one {# trabalho} other {# trabalhos}}"
+    },
+    "statuses": {
+      "sent": "Enviado",
+      "evaluated": "Avaliado",
+      "pending": "Pendente"
+    },
+    "student": "Aluno",
+    "labels": {
+      "work": "Trabalho",
+      "registration": "Matrícula",
+      "deliveredAt": "Entregue em"
+    },
+    "summary": {
+      "correction": "Correção",
+      "file": "Arquivo",
+      "link": "Link",
+      "versions": "Versões"
+    },
+    "attachments": {
+      "sent": "📎 Enviado",
+      "notSent": "Não enviado"
+    },
+    "links": {
+      "sent": "🌐 Enviado",
+      "notSent": "Não enviado"
+    },
+    "versions": {
+      "previous": "{count, plural, one {# anterior} other {# anteriores}}",
+      "none": "Sem versões anteriores"
+    },
+    "grade": "Nota",
+    "feedback": "Feedback",
+    "noFeedback": "Sem feedback registrado.",
+    "correctionPending": "Correção pendente.",
+    "history": {
+      "title": "Ver histórico de entregas",
+      "version": "Versão {number}",
+      "sentAt": "Enviada em",
+      "openFile": "Abrir arquivo desta versão",
+      "openLink": "Abrir link desta versão"
+    },
+    "actions": {
+      "openFile": "Abrir arquivo",
+      "openLink": "Abrir link",
+      "editCorrection": "Editar correção",
+      "correctSubmission": "Corrigir entrega"
+    }
+  },
   "ProfessorExams": {
     "title": "Provas",
     "description": "Gerencie as provas das suas disciplinas, publique avaliações e acompanhe tentativas.",

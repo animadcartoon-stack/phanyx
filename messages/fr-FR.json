@@ -1178,6 +1178,75 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorWorks": {
+    "eyebrow": "Travaux",
+    "title": "Évaluation des travaux",
+    "description": "Recherchez, organisez par période, semestre et classe, puis évaluez les travaux envoyés par les étudiants.",
+    "loading": "Chargement des travaux...",
+    "errorLoad": "Erreur lors du chargement des travaux",
+    "empty": "Aucun travail trouvé.",
+    "search": {
+      "label": "Rechercher des travaux",
+      "placeholder": "Saisissez un étudiant, une classe, un semestre, un statut, une note ou un feedback..."
+    },
+    "grouping": {
+      "yearPeriod": "Année / période"
+    },
+    "fallbacks": {
+      "periodUnavailable": "Période non renseignée",
+      "semesterUnavailable": "Semestre non renseigné",
+      "classUnavailable": "Classe non renseignée"
+    },
+    "counts": {
+      "works": "{count, plural, one {# travail} other {# travaux}}"
+    },
+    "statuses": {
+      "sent": "Envoyé",
+      "evaluated": "Évalué",
+      "pending": "En attente"
+    },
+    "student": "Étudiant",
+    "labels": {
+      "work": "Travail",
+      "registration": "Inscription",
+      "deliveredAt": "Envoyé le"
+    },
+    "summary": {
+      "correction": "Évaluation",
+      "file": "Fichier",
+      "link": "Lien",
+      "versions": "Versions"
+    },
+    "attachments": {
+      "sent": "📎 Envoyé",
+      "notSent": "Non envoyé"
+    },
+    "links": {
+      "sent": "🌐 Envoyé",
+      "notSent": "Non envoyé"
+    },
+    "versions": {
+      "previous": "{count, plural, one {# précédente} other {# précédentes}}",
+      "none": "Aucune version précédente"
+    },
+    "grade": "Note",
+    "feedback": "Feedback",
+    "noFeedback": "Aucun feedback enregistré.",
+    "correctionPending": "Évaluation en attente.",
+    "history": {
+      "title": "Voir l’historique des envois",
+      "version": "Version {number}",
+      "sentAt": "Envoyée le",
+      "openFile": "Ouvrir le fichier de cette version",
+      "openLink": "Ouvrir le lien de cette version"
+    },
+    "actions": {
+      "openFile": "Ouvrir le fichier",
+      "openLink": "Ouvrir le lien",
+      "editCorrection": "Modifier l’évaluation",
+      "correctSubmission": "Évaluer le travail"
+    }
+  },
   "ProfessorExams": {
     "title": "Examens",
     "description": "Gérez les examens de vos matières, publiez les évaluations et suivez les tentatives des étudiants.",

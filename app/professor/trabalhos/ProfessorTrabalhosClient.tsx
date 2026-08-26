@@ -1,7 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import {
+  useLocale,
+  useTranslations,
+} from "next-intl";
 
 type Trabalho = {
   entregaId: number;
@@ -25,223 +33,514 @@ type Trabalho = {
   corrigidaEm?: string | null;
   status: "Enviado" | "Avaliado";
   historicos?: {
-  id: number;
-  texto?: string | null;
-  link?: string | null;
-  arquivoUrl?: string | null;
-  nota?: number | null;
-  feedback?: string | null;
-  entregueEm?: string | null;
-  corrigidaEm?: string | null;
-  versao: number;
-}[];
+    id: number;
+    texto?: string | null;
+    link?: string | null;
+    arquivoUrl?: string | null;
+    nota?: number | null;
+    feedback?: string | null;
+    entregueEm?: string | null;
+    corrigidaEm?: string | null;
+    versao: number;
+  }[];
 };
 
-function normalizarTexto(valor: string) {
+function normalizarTexto(
+  valor: string
+) {
   return String(valor || "")
     .toLowerCase()
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .replace(
+      /[\u0300-\u036f]/g,
+      ""
+    )
     .trim();
 }
 
-function calcularSimilaridade(busca: string, texto: string) {
-  const b = normalizarTexto(busca);
-  const t = normalizarTexto(texto);
+function calcularSimilaridade(
+  busca: string,
+  texto: string
+) {
+  const b =
+    normalizarTexto(busca);
 
-  if (!b || !t) return 0;
-  if (t.startsWith(b)) return 100;
-  if (t.includes(b)) return 90;
+  const t =
+    normalizarTexto(texto);
 
-  let iguais = 0;
-  for (const letra of b) {
-    if (t.includes(letra)) iguais++;
+  if (!b || !t) {
+    return 0;
   }
 
-  return Math.round((iguais / Math.max(b.length, 1)) * 70);
+  if (t.startsWith(b)) {
+    return 100;
+  }
+
+  if (t.includes(b)) {
+    return 90;
+  }
+
+  let iguais = 0;
+
+  for (const letra of b) {
+    if (t.includes(letra)) {
+      iguais++;
+    }
+  }
+
+  return Math.round(
+    (iguais /
+      Math.max(
+        b.length,
+        1
+      )) *
+      70
+  );
 }
 
-function textoDoTrabalho(t: Trabalho) {
-  return [
-    t.aluno,
-    t.matricula,
-    t.turma,
-    t.curso,
-    t.semestre,
-    t.periodoLetivo,
-    t.titulo,
-    t.status,
-    String(t.nota ?? ""),
-    t.feedback || "",
-  ].join(" ");
-}
-
-function formatarData(data?: string | null) {
-  if (!data) return "-";
+function formatarData(
+  data: string | null | undefined,
+  locale: string
+) {
+  if (!data) {
+    return "-";
+  }
 
   try {
-    return new Date(data).toLocaleString("pt-BR");
+    const valor =
+      new Date(data);
+
+    if (
+      Number.isNaN(
+        valor.getTime()
+      )
+    ) {
+      return data;
+    }
+
+    return new Intl.DateTimeFormat(
+      locale,
+      {
+        dateStyle: "short",
+        timeStyle: "medium",
+      }
+    ).format(valor);
   } catch {
     return data;
   }
 }
 
 export default function ProfessorTrabalhosClient() {
-  const [trabalhos, setTrabalhos] = useState<Trabalho[]>([]);
-  const [busca, setBusca] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [erro, setErro] = useState("");
+  const t =
+    useTranslations(
+      "ProfessorWorks"
+    );
 
-  const [abertos, setAbertos] = useState<Record<string, boolean>>({});
+  const locale =
+    useLocale();
 
-  useEffect(() => {
-    carregarTrabalhos();
-  }, []);
+  const [
+    trabalhos,
+    setTrabalhos,
+  ] = useState<Trabalho[]>([]);
+
+  const [
+    busca,
+    setBusca,
+  ] = useState("");
+
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
+
+  const [
+    erro,
+    setErro,
+  ] = useState("");
+
+  const [
+    abertos,
+    setAbertos,
+  ] = useState<
+    Record<string, boolean>
+  >({});
+
+  function getStatusLabel(
+    status: Trabalho["status"]
+  ) {
+    if (
+      status === "Avaliado"
+    ) {
+      return t(
+        "statuses.evaluated"
+      );
+    }
+
+    return t(
+      "statuses.sent"
+    );
+  }
 
   async function carregarTrabalhos() {
     try {
       setLoading(true);
       setErro("");
 
-      const res = await fetch("/api/professor/trabalhos", {
-        credentials: "include",
-        cache: "no-store",
-      });
+      const res =
+        await fetch(
+          "/api/professor/trabalhos",
+          {
+            credentials:
+              "include",
+            cache: "no-store",
+          }
+        );
 
-      const json = await res.json();
+      const json =
+        (await res.json()) as {
+          error?: string;
+          trabalhos?: Trabalho[];
+        };
 
       if (!res.ok) {
-        throw new Error(json?.error || "Erro ao carregar trabalhos");
+        throw new Error(
+          t("errorLoad")
+        );
       }
 
-      setTrabalhos(Array.isArray(json.trabalhos) ? json.trabalhos : []);
-    } catch (e: any) {
-      setErro(e?.message || "Erro ao carregar trabalhos");
+      setTrabalhos(
+        Array.isArray(
+          json.trabalhos
+        )
+          ? json.trabalhos
+          : []
+      );
+    } catch (
+      error: unknown
+    ) {
+      const mensagem =
+        error instanceof Error
+          ? error.message
+          : t("errorLoad");
+
+      setErro(mensagem);
       setTrabalhos([]);
     } finally {
       setLoading(false);
     }
   }
 
-  function alternar(chave: string) {
-    setAbertos((prev) => ({
-      ...prev,
-      [chave]: !prev[chave],
-    }));
+  useEffect(() => {
+    carregarTrabalhos();
+  }, []);
+
+  function alternar(
+    chave: string
+  ) {
+    setAbertos(
+      (prev) => ({
+        ...prev,
+        [chave]:
+          !prev[chave],
+      })
+    );
   }
 
-  const sugestoes = useMemo(() => {
-    const termo = normalizarTexto(busca);
-    if (!termo) return [];
+  const sugestoes =
+    useMemo(() => {
+      const termo =
+        normalizarTexto(
+          busca
+        );
 
-    const opcoes = trabalhos
-      .flatMap((t) => [
-        t.aluno,
-        t.matricula || "",
-        t.turma,
-        t.curso || "",
-        t.semestre,
-        t.periodoLetivo,
-        t.titulo,
-        t.status,
-        String(t.nota ?? ""),
-        t.feedback || "",
-      ])
-      .filter(Boolean);
+      if (!termo) {
+        return [];
+      }
 
-    const unicas = Array.from(new Set(opcoes));
+      const opcoes =
+        trabalhos
+          .flatMap(
+            (trabalho) => [
+              trabalho.aluno,
+              trabalho.matricula ||
+                "",
+              trabalho.turma,
+              trabalho.curso ||
+                "",
+              trabalho.semestre,
+              trabalho.periodoLetivo,
+              trabalho.titulo,
+              getStatusLabel(
+                trabalho.status
+              ),
+              String(
+                trabalho.nota ??
+                  ""
+              ),
+              trabalho.feedback ||
+                "",
+            ]
+          )
+          .filter(Boolean);
 
-    return unicas
-      .map((opcao) => ({
-        texto: opcao,
-        score: calcularSimilaridade(busca, opcao),
-      }))
-      .filter((item) => item.score >= 35)
-      .sort((a, b) => {
-        if (b.score !== a.score) return b.score - a.score;
-        return a.texto.localeCompare(b.texto, "pt-BR");
-      })
-      .slice(0, 8);
-  }, [busca, trabalhos]);
+      const unicas =
+        Array.from(
+          new Set(opcoes)
+        );
 
-  const trabalhosFiltrados = useMemo(() => {
-    const termo = normalizarTexto(busca);
+      return unicas
+        .map((opcao) => ({
+          texto: opcao,
+          score:
+            calcularSimilaridade(
+              busca,
+              opcao
+            ),
+        }))
+        .filter(
+          (item) =>
+            item.score >= 35
+        )
+        .sort((a, b) => {
+          if (
+            b.score !==
+            a.score
+          ) {
+            return (
+              b.score -
+              a.score
+            );
+          }
 
-    if (!termo) return trabalhos;
+          return a.texto.localeCompare(
+            b.texto,
+            locale
+          );
+        })
+        .slice(0, 8);
+    }, [
+      busca,
+      trabalhos,
+      locale,
+      t,
+    ]);
 
-    return trabalhos
-      .map((t) => ({
-        trabalho: t,
-        score: calcularSimilaridade(busca, textoDoTrabalho(t)),
-      }))
-      .filter((item) => item.score >= 35)
-      .sort((a, b) => {
-        if (b.score !== a.score) return b.score - a.score;
-        return a.trabalho.aluno.localeCompare(b.trabalho.aluno, "pt-BR");
-      })
-      .map((item) => item.trabalho);
-  }, [busca, trabalhos]);
+  const trabalhosFiltrados =
+    useMemo(() => {
+      const termo =
+        normalizarTexto(
+          busca
+        );
 
-  const agrupado = useMemo(() => {
-    const mapa: Record<string, Record<string, Record<string, Trabalho[]>>> = {};
+      if (!termo) {
+        return trabalhos;
+      }
 
-    for (const trabalho of trabalhosFiltrados) {
-      const periodo = trabalho.periodoLetivo || "Período não informado";
-      const semestre = trabalho.semestre || "Semestre não informado";
-      const turma = trabalho.turma || "Turma não informada";
+      return trabalhos
+        .map(
+          (trabalho) => {
+            const textoBusca =
+              [
+                trabalho.aluno,
+                trabalho.matricula,
+                trabalho.turma,
+                trabalho.curso,
+                trabalho.semestre,
+                trabalho.periodoLetivo,
+                trabalho.titulo,
+                getStatusLabel(
+                  trabalho.status
+                ),
+                String(
+                  trabalho.nota ??
+                    ""
+                ),
+                trabalho.feedback ||
+                  "",
+              ].join(" ");
 
-      if (!mapa[periodo]) mapa[periodo] = {};
-      if (!mapa[periodo][semestre]) mapa[periodo][semestre] = {};
-      if (!mapa[periodo][semestre][turma]) mapa[periodo][semestre][turma] = [];
+            return {
+              trabalho,
+              score:
+                calcularSimilaridade(
+                  busca,
+                  textoBusca
+                ),
+            };
+          }
+        )
+        .filter(
+          (item) =>
+            item.score >= 35
+        )
+        .sort((a, b) => {
+          if (
+            b.score !==
+            a.score
+          ) {
+            return (
+              b.score -
+              a.score
+            );
+          }
 
-      mapa[periodo][semestre][turma].push(trabalho);
-    }
+          return a.trabalho.aluno.localeCompare(
+            b.trabalho.aluno,
+            locale
+          );
+        })
+        .map(
+          (item) =>
+            item.trabalho
+        );
+    }, [
+      busca,
+      trabalhos,
+      locale,
+      t,
+    ]);
 
-    return mapa;
-  }, [trabalhosFiltrados]);
+  const agrupado =
+    useMemo(() => {
+      const mapa: Record<
+        string,
+        Record<
+          string,
+          Record<
+            string,
+            Trabalho[]
+          >
+        >
+      > = {};
+
+      for (
+        const trabalho
+        of trabalhosFiltrados
+      ) {
+        const periodo =
+          trabalho.periodoLetivo ||
+          t(
+            "fallbacks.periodUnavailable"
+          );
+
+        const semestre =
+          trabalho.semestre ||
+          t(
+            "fallbacks.semesterUnavailable"
+          );
+
+        const turma =
+          trabalho.turma ||
+          t(
+            "fallbacks.classUnavailable"
+          );
+
+        if (!mapa[periodo]) {
+          mapa[periodo] =
+            {};
+        }
+
+        if (
+          !mapa[periodo][
+            semestre
+          ]
+        ) {
+          mapa[periodo][
+            semestre
+          ] = {};
+        }
+
+        if (
+          !mapa[periodo][
+            semestre
+          ][turma]
+        ) {
+          mapa[periodo][
+            semestre
+          ][turma] = [];
+        }
+
+        mapa[periodo][
+          semestre
+        ][turma].push(
+          trabalho
+        );
+      }
+
+      return mapa;
+    }, [
+      trabalhosFiltrados,
+      t,
+    ]);
 
   return (
     <main className="space-y-5 p-4 text-slate-900">
       <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-700">
-          Trabalhos
+          {t("eyebrow")}
         </p>
 
         <h1 className="mt-2 text-2xl font-black text-slate-900">
-          Avaliação de Trabalhos
+          {t("title")}
         </h1>
 
         <p className="mt-2 text-sm leading-6 text-slate-500">
-          Busque, organize por período, semestre e turma, e avalie os trabalhos enviados pelos alunos.
+          {t(
+            "description"
+          )}
         </p>
       </section>
 
       <section className="relative rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
         <label className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">
-          Buscar trabalhos
+          {t(
+            "search.label"
+          )}
         </label>
 
         <input
+          type="search"
           value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-          placeholder="Digite aluno, turma, semestre, status, nota ou feedback..."
+          onChange={(e) =>
+            setBusca(
+              e.target.value
+            )
+          }
+          placeholder={t(
+            "search.placeholder"
+          )}
           className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none focus:border-blue-500"
         />
 
-        {busca && sugestoes.length > 0 && (
-          <div className="absolute left-4 right-4 top-[88px] z-30 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
-            {sugestoes.map((sugestao) => (
-              <button
-                key={sugestao.texto}
-                type="button"
-                onClick={() => setBusca(sugestao.texto)}
-                className="block w-full px-4 py-3 text-left text-sm text-slate-700 hover:bg-blue-50"
-              >
-                {sugestao.texto}
-              </button>
-            ))}
-          </div>
-        )}
+        {busca &&
+          sugestoes.length >
+            0 && (
+            <div className="absolute left-4 right-4 top-[88px] z-30 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
+              {sugestoes.map(
+                (
+                  sugestao
+                ) => (
+                  <button
+                    key={
+                      sugestao.texto
+                    }
+                    type="button"
+                    onClick={() =>
+                      setBusca(
+                        sugestao.texto
+                      )
+                    }
+                    className="block w-full px-4 py-3 text-left text-sm text-slate-700 hover:bg-blue-50"
+                  >
+                    {
+                      sugestao.texto
+                    }
+                  </button>
+                )
+              )}
+            </div>
+          )}
       </section>
 
       {erro && (
@@ -252,116 +551,230 @@ export default function ProfessorTrabalhosClient() {
 
       {loading && (
         <div className="rounded-2xl border border-slate-200 bg-white p-5 text-sm text-slate-500 shadow-sm">
-          Carregando trabalhos...
-        </div>
-      )}
-
-      {!loading && trabalhosFiltrados.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-sm text-slate-500 shadow-sm">
-          Nenhum trabalho encontrado.
+          {t("loading")}
         </div>
       )}
 
       {!loading &&
-        Object.entries(agrupado).map(([periodo, semestres]) => {
-          const chavePeriodo = `periodo-${periodo}`;
-          const periodoAberto = abertos[chavePeriodo] ?? true;
+        trabalhosFiltrados.length ===
+          0 && (
+          <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-sm text-slate-500 shadow-sm">
+            {t("empty")}
+          </div>
+        )}
 
-          return (
-            <section key={periodo} className="rounded-3xl border border-slate-200 bg-white shadow-sm">
-              <button
-                type="button"
-                onClick={() => alternar(chavePeriodo)}
-                className="flex w-full items-center justify-between px-5 py-4 text-left"
+      {!loading &&
+        Object.entries(
+          agrupado
+        ).map(
+          ([
+            periodo,
+            semestres,
+          ]) => {
+            const chavePeriodo =
+              `periodo-${periodo}`;
+
+            const periodoAberto =
+              abertos[
+                chavePeriodo
+              ] ?? true;
+
+            return (
+              <section
+                key={periodo}
+                className="rounded-3xl border border-slate-200 bg-white shadow-sm"
               >
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-700">
-                    Ano / período
-                  </p>
-                  <h2 className="mt-1 text-xl font-black text-slate-900">
-                    {periodo}
-                  </h2>
-                </div>
+                <button
+                  type="button"
+                  aria-expanded={
+                    periodoAberto
+                  }
+                  onClick={() =>
+                    alternar(
+                      chavePeriodo
+                    )
+                  }
+                  className="flex w-full items-center justify-between px-5 py-4 text-left"
+                >
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-700">
+                      {t(
+                        "grouping.yearPeriod"
+                      )}
+                    </p>
 
-                <span className="text-2xl font-black text-slate-500">
-                  {periodoAberto ? "−" : "+"}
-                </span>
-              </button>
+                    <h2 className="mt-1 text-xl font-black text-slate-900">
+                      {
+                        periodo
+                      }
+                    </h2>
+                  </div>
 
-              {periodoAberto && (
-                <div className="space-y-4 border-t border-slate-100 p-4">
-                  {Object.entries(semestres).map(([semestre, turmas]) => {
-                    const chaveSemestre = `${chavePeriodo}-semestre-${semestre}`;
-                    const semestreAberto = abertos[chaveSemestre] ?? true;
+                  <span className="text-2xl font-black text-slate-500">
+                    {periodoAberto
+                      ? "−"
+                      : "+"}
+                  </span>
+                </button>
 
-                    return (
-                      <div key={semestre} className="rounded-2xl border border-slate-200 bg-slate-50">
-                        <button
-                          type="button"
-                          onClick={() => alternar(chaveSemestre)}
-                          className="flex w-full items-center justify-between px-4 py-3 text-left"
-                        >
-                          <h3 className="font-black text-slate-900">
-                            {semestre}
-                          </h3>
+                {periodoAberto && (
+                  <div className="space-y-4 border-t border-slate-100 p-4">
+                    {Object.entries(
+                      semestres
+                    ).map(
+                      ([
+                        semestre,
+                        turmas,
+                      ]) => {
+                        const chaveSemestre =
+                          `${chavePeriodo}-semestre-${semestre}`;
 
-                          <span className="text-xl font-black text-slate-500">
-                            {semestreAberto ? "−" : "+"}
-                          </span>
-                        </button>
+                        const semestreAberto =
+                          abertos[
+                            chaveSemestre
+                          ] ??
+                          true;
 
-                        {semestreAberto && (
-                          <div className="space-y-3 border-t border-slate-200 p-3">
-                            {Object.entries(turmas).map(([turma, lista]) => {
-                              const chaveTurma = `${chaveSemestre}-turma-${turma}`;
-                              const turmaAberta = abertos[chaveTurma] ?? true;
+                        return (
+                          <div
+                            key={
+                              semestre
+                            }
+                            className="rounded-2xl border border-slate-200 bg-slate-50"
+                          >
+                            <button
+                              type="button"
+                              aria-expanded={
+                                semestreAberto
+                              }
+                              onClick={() =>
+                                alternar(
+                                  chaveSemestre
+                                )
+                              }
+                              className="flex w-full items-center justify-between px-4 py-3 text-left"
+                            >
+                              <h3 className="font-black text-slate-900">
+                                {
+                                  semestre
+                                }
+                              </h3>
 
-                              return (
-                                <div key={turma} className="rounded-2xl border border-slate-200 bg-white">
-                                  <button
-                                    type="button"
-                                    onClick={() => alternar(chaveTurma)}
-                                    className="flex w-full items-center justify-between px-4 py-3 text-left"
-                                  >
-                                    <div>
-                                      <h4 className="font-black text-slate-900">
-                                        {turma}
-                                      </h4>
-                                      <p className="text-xs text-slate-500">
-                                        {lista.length} trabalho(s)
-                                      </p>
-                                    </div>
+                              <span className="text-xl font-black text-slate-500">
+                                {semestreAberto
+                                  ? "−"
+                                  : "+"}
+                              </span>
+                            </button>
 
-                                    <span className="text-xl font-black text-slate-500">
-                                      {turmaAberta ? "−" : "+"}
-                                    </span>
-                                  </button>
+                            {semestreAberto && (
+                              <div className="space-y-3 border-t border-slate-200 p-3">
+                                {Object.entries(
+                                  turmas
+                                ).map(
+                                  ([
+                                    turma,
+                                    lista,
+                                  ]) => {
+                                    const chaveTurma =
+                                      `${chaveSemestre}-turma-${turma}`;
 
-                                  {turmaAberta && (
-                                    <div className="space-y-3 border-t border-slate-100 p-3">
-                                      {lista
-                                        .sort((a, b) => a.aluno.localeCompare(b.aluno, "pt-BR"))
-                                        .map((trabalho) => (
-                                          <TrabalhoAluno
-  key={trabalho.entregaId}
-  trabalho={trabalho}
-/>
-                                        ))}
-                                    </div>
-                                  )}
-                                </div>
-                              );
-                            })}
+                                    const turmaAberta =
+                                      abertos[
+                                        chaveTurma
+                                      ] ??
+                                      true;
+
+                                    return (
+                                      <div
+                                        key={
+                                          turma
+                                        }
+                                        className="rounded-2xl border border-slate-200 bg-white"
+                                      >
+                                        <button
+                                          type="button"
+                                          aria-expanded={
+                                            turmaAberta
+                                          }
+                                          onClick={() =>
+                                            alternar(
+                                              chaveTurma
+                                            )
+                                          }
+                                          className="flex w-full items-center justify-between px-4 py-3 text-left"
+                                        >
+                                          <div>
+                                            <h4 className="font-black text-slate-900">
+                                              {
+                                                turma
+                                              }
+                                            </h4>
+
+                                            <p className="text-xs text-slate-500">
+                                              {t(
+                                                "counts.works",
+                                                {
+                                                  count:
+                                                    lista.length,
+                                                }
+                                              )}
+                                            </p>
+                                          </div>
+
+                                          <span className="text-xl font-black text-slate-500">
+                                            {turmaAberta
+                                              ? "−"
+                                              : "+"}
+                                          </span>
+                                        </button>
+
+                                        {turmaAberta && (
+                                          <div className="space-y-3 border-t border-slate-100 p-3">
+                                            {lista
+                                              .slice()
+                                              .sort(
+                                                (
+                                                  a,
+                                                  b
+                                                ) =>
+                                                  a.aluno.localeCompare(
+                                                    b.aluno,
+                                                    locale
+                                                  )
+                                              )
+                                              .map(
+                                                (
+                                                  trabalho
+                                                ) => (
+                                                  <TrabalhoAluno
+                                                    key={
+                                                      trabalho.entregaId
+                                                    }
+                                                    trabalho={
+                                                      trabalho
+                                                    }
+                                                  />
+                                                )
+                                              )}
+                                          </div>
+                                        )}
+                                      </div>
+                                    );
+                                  }
+                                )}
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </section>
-          );
-        })}
+                        );
+                      }
+                    )}
+                  </div>
+                )}
+              </section>
+            );
+          }
+        )}
     </main>
   );
 }
@@ -371,15 +784,37 @@ function TrabalhoAluno({
 }: {
   trabalho: Trabalho;
 }) {
-  const avaliado = trabalho.status === "Avaliado";
-  const qtdVersoes = trabalho.historicos?.length || 0;
+  const t =
+    useTranslations(
+      "ProfessorWorks"
+    );
+
+  const locale =
+    useLocale();
+
+  const avaliado =
+    trabalho.status ===
+    "Avaliado";
+
+  const qtdVersoes =
+    trabalho.historicos
+      ?.length || 0;
+
+  const statusLabel =
+    avaliado
+      ? t(
+          "statuses.evaluated"
+        )
+      : t(
+          "statuses.sent"
+        );
 
   return (
     <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">
-            Aluno
+            {t("student")}
           </p>
 
           <h5 className="mt-1 text-lg font-black text-slate-900">
@@ -388,20 +823,40 @@ function TrabalhoAluno({
 
           <div className="mt-3 space-y-1 text-sm leading-6 text-slate-600">
             <p>
-              <strong className="text-slate-800">Trabalho:</strong>{" "}
+              <strong className="text-slate-800">
+                {t(
+                  "labels.work"
+                )}
+                :
+              </strong>{" "}
               {trabalho.titulo}
             </p>
 
             {trabalho.matricula && (
               <p>
-                <strong className="text-slate-800">Matrícula:</strong>{" "}
-                {trabalho.matricula}
+                <strong className="text-slate-800">
+                  {t(
+                    "labels.registration"
+                  )}
+                  :
+                </strong>{" "}
+                {
+                  trabalho.matricula
+                }
               </p>
             )}
 
             <p>
-              <strong className="text-slate-800">Entregue em:</strong>{" "}
-              {formatarData(trabalho.entregueEm)}
+              <strong className="text-slate-800">
+                {t(
+                  "labels.deliveredAt"
+                )}
+                :
+              </strong>{" "}
+              {formatarData(
+                trabalho.entregueEm,
+                locale
+              )}
             </p>
           </div>
         </div>
@@ -413,7 +868,7 @@ function TrabalhoAluno({
               : "border-amber-200 bg-amber-50 text-amber-700"
           }`}
         >
-          {trabalho.status}
+          {statusLabel}
         </span>
       </div>
 
@@ -425,26 +880,67 @@ function TrabalhoAluno({
 
       <div className="mt-4 grid gap-2 border-t border-slate-100 pt-4 text-sm md:grid-cols-4">
         <ResumoItem
-          titulo="Correção"
-          valor={avaliado ? formatarData(trabalho.corrigidaEm) : "Pendente"}
+          titulo={t(
+            "summary.correction"
+          )}
+          valor={
+            avaliado
+              ? formatarData(
+                  trabalho.corrigidaEm,
+                  locale
+                )
+              : t(
+                  "statuses.pending"
+                )
+          }
         />
 
         <ResumoItem
-          titulo="Arquivo"
-          valor={trabalho.arquivoUrl ? "📎 Enviado" : "Não enviado"}
+          titulo={t(
+            "summary.file"
+          )}
+          valor={
+            trabalho.arquivoUrl
+              ? t(
+                  "attachments.sent"
+                )
+              : t(
+                  "attachments.notSent"
+                )
+          }
         />
 
         <ResumoItem
-          titulo="Link"
-          valor={trabalho.link ? "🌐 Enviado" : "Não enviado"}
+          titulo={t(
+            "summary.link"
+          )}
+          valor={
+            trabalho.link
+              ? t(
+                  "links.sent"
+                )
+              : t(
+                  "links.notSent"
+                )
+          }
         />
 
         <ResumoItem
-          titulo="Versões"
+          titulo={t(
+            "summary.versions"
+          )}
           valor={
             qtdVersoes > 0
-              ? `${qtdVersoes} anterior(es)`
-              : "Sem versões anteriores"
+              ? t(
+                  "versions.previous",
+                  {
+                    count:
+                      qtdVersoes,
+                  }
+                )
+              : t(
+                  "versions.none"
+                )
           }
         />
       </div>
@@ -453,102 +949,158 @@ function TrabalhoAluno({
         <div className="mt-4 grid gap-3 rounded-2xl border border-blue-100 bg-blue-50 p-4 md:grid-cols-[160px_1fr]">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.16em] text-blue-700">
-              Nota
+              {t("grade")}
             </p>
+
             <p className="mt-1 text-2xl font-black text-blue-900">
-              ⭐ {trabalho.nota ?? "-"} / {trabalho.notaMaxima || 10}
+              ⭐{" "}
+              {trabalho.nota ??
+                "-"}{" "}
+              /{" "}
+              {
+                trabalho.notaMaxima
+              }
             </p>
           </div>
 
           <div>
             <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">
-              Feedback
+              {t("feedback")}
             </p>
+
             <p className="mt-1 whitespace-pre-line text-sm leading-6 text-slate-700">
-              {trabalho.feedback || "Sem feedback registrado."}
+              {trabalho.feedback ||
+                t(
+                  "noFeedback"
+                )}
             </p>
           </div>
         </div>
       ) : (
         <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-bold text-amber-800">
-          Correção pendente.
+          {t(
+            "correctionPending"
+          )}
         </div>
       )}
 
-      {trabalho.historicos && trabalho.historicos.length > 0 && (
-        <details className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4">
-          <summary className="cursor-pointer text-sm font-black text-amber-900">
-            Ver histórico de entregas
-          </summary>
+      {trabalho.historicos &&
+        trabalho.historicos
+          .length > 0 && (
+          <details className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+            <summary className="cursor-pointer text-sm font-black text-amber-900">
+              {t(
+                "history.title"
+              )}
+            </summary>
 
-          <div className="mt-3 space-y-3">
-            {trabalho.historicos.map((historico) => (
-              <div
-                key={historico.id}
-                className="rounded-xl border border-amber-200 bg-white p-3 text-sm text-slate-700"
-              >
-                <p className="font-bold text-slate-900">
-                  Versão {historico.versao}
-                </p>
-
-                <p className="mt-1 text-xs text-slate-500">
-                  Enviada em: {formatarData(historico.entregueEm)}
-                </p>
-
-                {historico.texto && (
-                  <p className="mt-2 whitespace-pre-line">
-                    {historico.texto}
-                  </p>
-                )}
-
-                {historico.arquivoUrl && (
-                  <a
-                    href={historico.arquivoUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-2 inline-flex text-sm font-bold text-blue-600 hover:underline"
+            <div className="mt-3 space-y-3">
+              {trabalho.historicos.map(
+                (
+                  historico
+                ) => (
+                  <div
+                    key={
+                      historico.id
+                    }
+                    className="rounded-xl border border-amber-200 bg-white p-3 text-sm text-slate-700"
                   >
-                    Abrir arquivo desta versão
-                  </a>
-                )}
+                    <p className="font-bold text-slate-900">
+                      {t(
+                        "history.version",
+                        {
+                          number:
+                            historico.versao,
+                        }
+                      )}
+                    </p>
 
-                {historico.link && (
-                  <a
-                    href={historico.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-2 block text-sm font-bold text-blue-600 hover:underline"
-                  >
-                    Abrir link desta versão
-                  </a>
-                )}
-              </div>
-            ))}
-          </div>
-        </details>
-      )}
+                    <p className="mt-1 text-xs text-slate-500">
+                      {t(
+                        "history.sentAt"
+                      )}
+                      :{" "}
+                      {formatarData(
+                        historico.entregueEm,
+                        locale
+                      )}
+                    </p>
+
+                    {historico.texto && (
+                      <p className="mt-2 whitespace-pre-line">
+                        {
+                          historico.texto
+                        }
+                      </p>
+                    )}
+
+                    {historico.arquivoUrl && (
+                      <a
+                        href={
+                          historico.arquivoUrl
+                        }
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-2 inline-flex text-sm font-bold text-blue-600 hover:underline"
+                      >
+                        {t(
+                          "history.openFile"
+                        )}
+                      </a>
+                    )}
+
+                    {historico.link && (
+                      <a
+                        href={
+                          historico.link
+                        }
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-2 block text-sm font-bold text-blue-600 hover:underline"
+                      >
+                        {t(
+                          "history.openLink"
+                        )}
+                      </a>
+                    )}
+                  </div>
+                )
+              )}
+            </div>
+          </details>
+        )}
 
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap gap-2">
           {trabalho.arquivoUrl && (
             <a
-              href={trabalho.arquivoUrl}
+              href={
+                trabalho.arquivoUrl
+              }
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-bold text-blue-600 hover:bg-blue-50"
             >
-              📎 Abrir arquivo
+              📎{" "}
+              {t(
+                "actions.openFile"
+              )}
             </a>
           )}
 
           {trabalho.link && (
             <a
-              href={trabalho.link}
+              href={
+                trabalho.link
+              }
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-bold text-blue-600 hover:bg-blue-50"
             >
-              🌐 Abrir link
+              🌐{" "}
+              {t(
+                "actions.openLink"
+              )}
             </a>
           )}
         </div>
@@ -557,7 +1109,13 @@ function TrabalhoAluno({
           href={`/professor/trabalhos/${trabalho.entregaId}`}
           className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-blue-700"
         >
-          {avaliado ? "Editar correção" : "Corrigir entrega"}
+          {avaliado
+            ? t(
+                "actions.editCorrection"
+              )
+            : t(
+                "actions.correctSubmission"
+              )}
         </Link>
       </div>
     </article>
@@ -576,6 +1134,7 @@ function ResumoItem({
       <p className="text-[10px] font-black uppercase tracking-[0.14em] text-slate-400">
         {titulo}
       </p>
+
       <p className="mt-1 text-sm font-bold text-slate-800">
         {valor}
       </p>
