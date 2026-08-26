@@ -1,8 +1,16 @@
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { redirect } from "next/navigation";
+
 import { validarPaginaProfessor } from "@/lib/portal-guard";
 import ProfessorReunioesClient from "./ProfessorReunioesClient";
+
+type ProfessorJwtPayload = {
+  id: number;
+  role: string;
+  email: string;
+  instituicaoId: number;
+};
 
 export default async function ProfessorReunioesPage() {
   const cookieStore = await cookies();
@@ -12,29 +20,28 @@ export default async function ProfessorReunioesPage() {
     redirect("/login?portal=professor");
   }
 
-  let decoded: {
-    id: number;
-    role: string;
-    email: string;
-    instituicaoId: number;
-  };
+  let decoded: ProfessorJwtPayload;
 
   try {
-    decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
-      id: number;
-      role: string;
-      email: string;
-      instituicaoId: number;
-    };
+    decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET!
+    ) as ProfessorJwtPayload;
   } catch {
     redirect("/login?portal=professor");
   }
 
-  if (String(decoded.role).toUpperCase() !== "PROFESSOR") {
+  if (
+    String(decoded.role || "").toUpperCase() !==
+    "PROFESSOR"
+  ) {
     redirect("/login?portal=professor");
   }
 
-  await validarPaginaProfessor(decoded.instituicaoId, "professor.reunioes");
+  await validarPaginaProfessor(
+    decoded.instituicaoId,
+    "professor.reunioes"
+  );
 
   return <ProfessorReunioesClient />;
 }

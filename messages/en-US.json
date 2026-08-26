@@ -1178,6 +1178,57 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorMeetings": {
+    "title": "Meetings",
+    "description": "Schedule meetings by department, team, individual participant, class, course, or all students.",
+    "form": {
+      "title": "New meeting",
+      "meetingTitle": "Title",
+      "meetingLink": "Meeting link",
+      "dateTime": "Meeting date and time",
+      "audience": "Meeting audience",
+      "selectDepartment": "Select department",
+      "selectClass": "Select class",
+      "selectCourse": "Select course",
+      "description": "Description",
+      "creating": "Creating...",
+      "create": "Create meeting"
+    },
+    "audiences": {
+      "department": "Department",
+      "wholeTeam": "Entire team",
+      "individual": "Individual",
+      "class": "Class",
+      "course": "Course",
+      "allStudents": "All enrolled students"
+    },
+    "roles": {
+      "student": "Student",
+      "teacher": "Teacher",
+      "employee": "Employee",
+      "person": "Person"
+    },
+    "participants": {
+      "select": "Select participants",
+      "search": "Search by name, registration, email, or department",
+      "selected": "Selected",
+      "add": "Add",
+      "noneFound": "No people found."
+    },
+    "scheduled": {
+      "title": "Scheduled meetings",
+      "loading": "Loading meetings...",
+      "empty": "No meetings scheduled.",
+      "participants": "{count, plural, =0 {No participants} one {# participant} other {# participants}}",
+      "join": "Join meeting"
+    },
+    "feedback": {
+      "loadError": "Error loading meetings.",
+      "optionsError": "Error loading meeting options.",
+      "createError": "Error creating meeting.",
+      "createSuccess": "Meeting created successfully."
+    }
+  },
   "ProfessorWorks": {
     "eyebrow": "Assignments",
     "title": "Assignment Evaluation",

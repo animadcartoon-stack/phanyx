@@ -1178,6 +1178,57 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorMeetings": {
+    "title": "Réunions",
+    "description": "Planifiez des réunions par service, équipe, participant individuel, classe, cours ou avec tous les étudiants.",
+    "form": {
+      "title": "Nouvelle réunion",
+      "meetingTitle": "Titre",
+      "meetingLink": "Lien de la réunion",
+      "dateTime": "Date et heure de la réunion",
+      "audience": "Public de la réunion",
+      "selectDepartment": "Sélectionnez le service",
+      "selectClass": "Sélectionnez la classe",
+      "selectCourse": "Sélectionnez le cours",
+      "description": "Description",
+      "creating": "Création...",
+      "create": "Créer la réunion"
+    },
+    "audiences": {
+      "department": "Service",
+      "wholeTeam": "Toute l’équipe",
+      "individual": "Individuel",
+      "class": "Classe",
+      "course": "Cours",
+      "allStudents": "Tous les étudiants inscrits"
+    },
+    "roles": {
+      "student": "Étudiant",
+      "teacher": "Enseignant",
+      "employee": "Employé",
+      "person": "Personne"
+    },
+    "participants": {
+      "select": "Sélectionnez les participants",
+      "search": "Rechercher par nom, inscription, e-mail ou service",
+      "selected": "Sélectionné",
+      "add": "Ajouter",
+      "noneFound": "Aucune personne trouvée."
+    },
+    "scheduled": {
+      "title": "Réunions programmées",
+      "loading": "Chargement des réunions...",
+      "empty": "Aucune réunion programmée.",
+      "participants": "{count, plural, =0 {Aucun participant} one {# participant} other {# participants}}",
+      "join": "Rejoindre la réunion"
+    },
+    "feedback": {
+      "loadError": "Erreur lors du chargement des réunions.",
+      "optionsError": "Erreur lors du chargement des options de la réunion.",
+      "createError": "Erreur lors de la création de la réunion.",
+      "createSuccess": "Réunion créée avec succès."
+    }
+  },
   "ProfessorWorks": {
     "eyebrow": "Travaux",
     "title": "Évaluation des travaux",

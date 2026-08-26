@@ -1178,6 +1178,57 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorMeetings": {
+    "title": "Reuniões",
+    "description": "Agende reuniões por setor, equipa, participante individual, turma, curso ou todos os alunos.",
+    "form": {
+      "title": "Nova reunião",
+      "meetingTitle": "Título",
+      "meetingLink": "Ligação da reunião",
+      "dateTime": "Data e hora da reunião",
+      "audience": "Público da reunião",
+      "selectDepartment": "Selecione o setor",
+      "selectClass": "Selecione a turma",
+      "selectCourse": "Selecione o curso",
+      "description": "Descrição",
+      "creating": "A criar...",
+      "create": "Criar reunião"
+    },
+    "audiences": {
+      "department": "Setor",
+      "wholeTeam": "Toda a equipa",
+      "individual": "Individual",
+      "class": "Turma",
+      "course": "Curso",
+      "allStudents": "Todos os alunos matriculados"
+    },
+    "roles": {
+      "student": "Aluno",
+      "teacher": "Professor",
+      "employee": "Funcionário",
+      "person": "Pessoa"
+    },
+    "participants": {
+      "select": "Selecione os participantes",
+      "search": "Pesquisar por nome, matrícula, email ou setor",
+      "selected": "Selecionado",
+      "add": "Adicionar",
+      "noneFound": "Nenhuma pessoa encontrada."
+    },
+    "scheduled": {
+      "title": "Reuniões agendadas",
+      "loading": "A carregar reuniões...",
+      "empty": "Nenhuma reunião agendada.",
+      "participants": "{count, plural, =0 {Nenhum participante} one {# participante} other {# participantes}}",
+      "join": "Entrar na reunião"
+    },
+    "feedback": {
+      "loadError": "Erro ao carregar as reuniões.",
+      "optionsError": "Erro ao carregar as opções da reunião.",
+      "createError": "Erro ao criar a reunião.",
+      "createSuccess": "Reunião criada com sucesso."
+    }
+  },
   "ProfessorWorks": {
     "eyebrow": "Trabalhos",
     "title": "Avaliação de Trabalhos",

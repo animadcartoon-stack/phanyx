@@ -1178,6 +1178,57 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorMeetings": {
+    "title": "Reuniones",
+    "description": "Programe reuniones por departamento, equipo, participante individual, clase, curso o todos los alumnos.",
+    "form": {
+      "title": "Nueva reunión",
+      "meetingTitle": "Título",
+      "meetingLink": "Enlace de la reunión",
+      "dateTime": "Fecha y hora de la reunión",
+      "audience": "Público de la reunión",
+      "selectDepartment": "Seleccione el departamento",
+      "selectClass": "Seleccione la clase",
+      "selectCourse": "Seleccione el curso",
+      "description": "Descripción",
+      "creating": "Creando...",
+      "create": "Crear reunión"
+    },
+    "audiences": {
+      "department": "Departamento",
+      "wholeTeam": "Todo el equipo",
+      "individual": "Individual",
+      "class": "Clase",
+      "course": "Curso",
+      "allStudents": "Todos los alumnos matriculados"
+    },
+    "roles": {
+      "student": "Alumno",
+      "teacher": "Profesor",
+      "employee": "Empleado",
+      "person": "Persona"
+    },
+    "participants": {
+      "select": "Seleccione los participantes",
+      "search": "Buscar por nombre, matrícula, email o departamento",
+      "selected": "Seleccionado",
+      "add": "Añadir",
+      "noneFound": "No se encontraron personas."
+    },
+    "scheduled": {
+      "title": "Reuniones programadas",
+      "loading": "Cargando reuniones...",
+      "empty": "No hay reuniones programadas.",
+      "participants": "{count, plural, =0 {Ningún participante} one {# participante} other {# participantes}}",
+      "join": "Entrar en la reunión"
+    },
+    "feedback": {
+      "loadError": "Error al cargar las reuniones.",
+      "optionsError": "Error al cargar las opciones de la reunión.",
+      "createError": "Error al crear la reunión.",
+      "createSuccess": "Reunión creada correctamente."
+    }
+  },
   "ProfessorWorks": {
     "eyebrow": "Trabajos",
     "title": "Evaluación de Trabajos",
