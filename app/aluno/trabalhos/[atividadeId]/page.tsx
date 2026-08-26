@@ -4,6 +4,7 @@ import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { validarPaginaAluno } from "@/lib/portal-guard";
+import { getTranslations } from "next-intl/server";
 
 export default async function DetalheTrabalhoAlunoPage({
   params,
@@ -15,6 +16,8 @@ export default async function DetalheTrabalhoAlunoPage({
   const { atividadeId } = await params;
   const query = searchParams ? await searchParams : {};
   const entregaSucesso = query?.entrega === "sucesso";
+
+  const t = await getTranslations("StudentAssignments");
 
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
@@ -140,20 +143,20 @@ export default async function DetalheTrabalhoAlunoPage({
   return (
     <div className="phanyx-aluno-trabalho-detalhe mx-auto max-w-5xl space-y-6">
       {entregaSucesso && (
-  <div className="rounded-3xl border border-green-200 bg-green-50 p-5 text-sm font-bold text-green-700 shadow-sm dark:border-green-900/60 dark:bg-green-950/40 dark:text-green-200">
-    ✅ Atividade enviada com sucesso. Ela já está disponível para correção do professor.
-  </div>
-)}
+        <div className="rounded-3xl border border-green-200 bg-green-50 p-5 text-sm font-bold text-green-700 shadow-sm dark:border-green-900/60 dark:bg-green-950/40 dark:text-green-200">
+          ✅ Atividade enviada com sucesso. Ela já está disponível para correção do professor.
+        </div>
+      )}
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <Link
           href="/aluno/trabalhos"
           className="text-sm font-semibold text-blue-700 hover:text-blue-800 dark:text-blue-300"
         >
-          ← Voltar para trabalhos
+          {t("backToAssignments")}
         </Link>
 
         <p className="mt-5 text-xs font-bold uppercase tracking-[0.2em] text-blue-700 dark:text-blue-300">
-          Atividade
+          {t("assignment")}
         </p>
 
         <h1 className="mt-2 text-3xl font-black text-slate-900 dark:text-white">
@@ -163,28 +166,28 @@ export default async function DetalheTrabalhoAlunoPage({
         <div className="mt-4 grid gap-3 text-sm text-slate-600 dark:text-slate-300 md:grid-cols-2">
           <p>
             <strong className="text-slate-800 dark:text-slate-100">
-              Disciplina:
+              {t("subject")}:
             </strong>{" "}
-            {atividade.disciplina?.nome || "Não informada"}
+            {atividade.disciplina?.nome || t("notProvidedFeminine")}
           </p>
 
           <p>
             <strong className="text-slate-800 dark:text-slate-100">
-              Turma:
+              {t("classLabel")}:
             </strong>{" "}
-            {atividade.turma?.nome || "Não informada"}
+            {atividade.turma?.nome || t("notProvidedFeminine")}
           </p>
 
           <p>
             <strong className="text-slate-800 dark:text-slate-100">
-              Prazo:
+              {t("deadline")}:
             </strong>{" "}
             {formatarData(atividade.prazo)}
           </p>
 
           <p>
             <strong className="text-slate-800 dark:text-slate-100">
-              Nota máxima:
+              {t("maximumGrade")}:
             </strong>{" "}
             {atividade.notaMaxima}
           </p>
@@ -193,7 +196,7 @@ export default async function DetalheTrabalhoAlunoPage({
 
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <h2 className="text-xl font-black text-slate-900 dark:text-white">
-          Orientações da atividade
+          {t("guidanceTitle")}
         </h2>
 
         {atividade.descricao ? (
@@ -202,19 +205,19 @@ export default async function DetalheTrabalhoAlunoPage({
           </div>
         ) : (
           <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
-            Nenhuma orientação detalhada foi informada.
+            {t("noGuidance")}
           </p>
         )}
       </section>
 
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <h2 className="text-xl font-black text-slate-900 dark:text-white">
-          Arquivos da atividade
+          {t("assignmentFiles")}
         </h2>
 
         {atividade.anexos.length === 0 ? (
           <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
-            Nenhum arquivo foi anexado a esta atividade.
+            {t("noAttachment")}
           </p>
         ) : (
           <div className="mt-4 grid gap-3">
@@ -235,41 +238,44 @@ export default async function DetalheTrabalhoAlunoPage({
 
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <h2 className="text-xl font-black text-slate-900 dark:text-white">
-          Minha entrega
+          {t("mySubmission")}
         </h2>
 
         {entrega ? (
-  <div className="mt-4 rounded-2xl border border-green-200 bg-green-50 p-5 text-sm text-green-800 shadow-sm dark:border-green-900/60 dark:bg-green-950/40 dark:text-green-200">
-    <div className="mb-4 rounded-xl border border-green-200 bg-white/70 p-4 dark:border-green-900 dark:bg-slate-950/50">
-      <p className="text-xs font-black uppercase tracking-[0.2em] text-green-700 dark:text-green-300">
-        Status
-      </p>
+          <div className="mt-4 rounded-2xl border border-green-200 bg-green-50 p-5 text-sm text-green-800 shadow-sm dark:border-green-900/60 dark:bg-green-950/40 dark:text-green-200">
+            <div className="mb-4 rounded-xl border border-green-200 bg-white/70 p-4 dark:border-green-900 dark:bg-slate-950/50">
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-green-700 dark:text-green-300">
+                {t("statusLabel")}
+              </p>
 
-      <p className="mt-2 text-lg font-black">
-        {entrega.nota != null ? "⭐ Corrigida" : "✅ Entregue"}
-      </p>
+              <p className="mt-2 text-lg font-black">
+                {entrega.nota != null
+                  ? `⭐ ${t("corrected")}`
+                  : `✅ ${t("submitted")}`}
+              </p>
 
-      <p className="mt-1">
-        {entrega.nota != null
-          ? "O professor já avaliou esta atividade."
-          : "Sua resposta foi enviada e aguarda correção."}
-      </p>
-    </div>
-            <p className="font-bold">Você já enviou esta atividade.</p>
+              <p className="mt-1">
+                {entrega.nota != null
+                  ? t("evaluatedMessage")
+                  : t("awaitingCorrectionMessage")}
+              </p>
+            </div>
+            <p className="font-bold">{t("alreadySubmitted")}</p>
 
             <p className="mt-2">
-              <strong>Enviado em:</strong> {formatarData(entrega.entregueEm)}
+              <strong>{t("submittedAt")}:</strong>{" "}
+              {formatarData(entrega.entregueEm)}
             </p>
 
             {entrega.texto && (
               <p className="mt-2 whitespace-pre-line">
-                <strong>Texto:</strong> {entrega.texto}
+                <strong>{t("textLabel")}:</strong>
               </p>
             )}
 
             {entrega.link && (
               <p className="mt-2">
-                <strong>Link:</strong>{" "}
+                <strong>{t("linkLabel")}:</strong>{" "}
                 <a
                   href={entrega.link}
                   target="_blank"
@@ -283,52 +289,52 @@ export default async function DetalheTrabalhoAlunoPage({
 
             {entrega.arquivoUrl && (
               <p className="mt-2">
-                <strong>Arquivo enviado:</strong>{" "}
+                <strong>{t("submittedFile")}:</strong>{" "}
                 <a
                   href={entrega.arquivoUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="underline"
                 >
-                  Abrir arquivo
+                  {t("openFile")}
                 </a>
               </p>
             )}
 
             {entrega.nota != null && (
-  <div className="mt-4 rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-yellow-800 dark:border-yellow-900/60 dark:bg-yellow-950/30 dark:text-yellow-200">
-    <p className="text-xs font-black uppercase tracking-[0.2em]">
-      Avaliação
-    </p>
-    <p className="mt-2 text-2xl font-black">
-      ⭐ {entrega.nota} / {atividade.notaMaxima}
-    </p>
-  </div>
-)}
+              <div className="mt-4 rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-yellow-800 dark:border-yellow-900/60 dark:bg-yellow-950/30 dark:text-yellow-200">
+                <p className="text-xs font-black uppercase tracking-[0.2em]">
+                  {t("assessment")}
+                </p>
+                <p className="mt-2 text-2xl font-black">
+                  ⭐ {entrega.nota} / {atividade.notaMaxima}
+                </p>
+              </div>
+            )}
 
             {entrega.feedback && (
               <div className="mt-3 rounded-xl border border-green-300/70 bg-white/60 p-3 dark:bg-slate-950/40">
-                <p className="font-bold">Feedback do professor</p>
+                <p className="font-bold">{t("teacherFeedback")}</p>
                 <p className="mt-1 whitespace-pre-line">{entrega.feedback}</p>
               </div>
             )}
           </div>
         ) : (
           <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
-            Você ainda não enviou esta atividade.
+            {t("notSubmittedYet")}
           </p>
         )}
 
         <Link
-  href={`/aluno/trabalhos/${atividade.id}/entrega`}
-  className="mt-5 inline-flex rounded-2xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700"
->
-  {!entrega
-    ? "Enviar entrega"
-    : entrega.nota != null
-      ? "Enviar nova versão"
-      : "Atualizar entrega"}
-</Link>
+          href={`/aluno/trabalhos/${atividade.id}/entrega`}
+          className="mt-5 inline-flex rounded-2xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700"
+        >
+          {!entrega
+            ? t("sendSubmission")
+            : entrega.nota != null
+              ? t("sendNewVersion")
+              : t("updateSubmission")}
+        </Link>
       </section>
     </div>
   );

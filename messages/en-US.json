@@ -610,6 +610,20 @@
     "updateSubmission": "Update submission",
     "sendAssignment": "Submit assignment",
     "success": "Assignment submitted successfully!",
+    "backToAssignments": "← Back to assignments",
+    "notProvidedFeminine": "Not provided",
+    "guidanceTitle": "Assignment instructions",
+    "noGuidance": "No detailed instructions were provided.",
+    "noAttachment": "No files were attached to this assignment.",
+    "mySubmission": "My submission",
+    "evaluatedMessage": "The teacher has already graded this assignment.",
+    "awaitingCorrectionMessage": "Your response was submitted and is awaiting grading.",
+    "submittedAt": "Submitted on",
+    "submittedFile": "Submitted file",
+    "openFile": "Open file",
+    "assessment": "Assessment",
+    "notSubmittedYet": "You have not submitted this assignment yet.",
+    "sendNewVersion": "Submit new version",
     "errors": {
       "load": "We could not load the assignments. Check your connection and try again.",
       "selectAssignment": "Select an assignment.",
@@ -1100,11 +1114,11 @@
     }
   },
   "Header": {
-  "studentPortal": "Student Portal",
-  "teacherPortal": "Teacher Portal",
-  "adminArea": "Administrative Area",
-  "academicPlatform": "Academic SaaS Platform"
-},
+    "studentPortal": "Student Portal",
+    "teacherPortal": "Teacher Portal",
+    "adminArea": "Administrative Area",
+    "academicPlatform": "Academic SaaS Platform"
+  },
   "StudentReenrollment": {
     "loading": "Loading reenrollment...",
     "pendingPrerequisite": "Pending prerequisite: {subjects}.",

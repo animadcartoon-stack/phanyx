@@ -610,6 +610,20 @@
     "updateSubmission": "Actualizar entrega",
     "sendAssignment": "Enviar trabajo",
     "success": "¡Trabajo enviado correctamente!",
+    "backToAssignments": "← Volver a los trabajos",
+    "notProvidedFeminine": "No informada",
+    "guidanceTitle": "Indicaciones de la actividad",
+    "noGuidance": "No se proporcionaron indicaciones detalladas.",
+    "noAttachment": "No se adjuntó ningún archivo a esta actividad.",
+    "mySubmission": "Mi entrega",
+    "evaluatedMessage": "El profesor ya ha evaluado esta actividad.",
+    "awaitingCorrectionMessage": "Tu respuesta se ha enviado y está pendiente de corrección.",
+    "submittedAt": "Enviado el",
+    "submittedFile": "Archivo enviado",
+    "openFile": "Abrir archivo",
+    "assessment": "Evaluación",
+    "notSubmittedYet": "Aún no has enviado esta actividad.",
+    "sendNewVersion": "Enviar nueva versión",
     "errors": {
       "load": "No se han podido cargar las actividades. Comprueba tu conexión e inténtalo de nuevo.",
       "selectAssignment": "Selecciona una actividad.",
@@ -1100,14 +1114,13 @@
     }
   },
   "Header": {
-  "studentPortal": "Portal del Estudiante",
-  "teacherPortal": "Portal del Profesor",
-  "adminArea": "Área administrativa",
-  "academicPlatform": "Plataforma académica SaaS"
-},
+    "studentPortal": "Portal del Estudiante",
+    "teacherPortal": "Portal del Profesor",
+    "adminArea": "Área administrativa",
+    "academicPlatform": "Plataforma académica SaaS"
+  },
   "StudentReenrollment": {
     "loading": "Cargando la rematrícula...",
-    
     "errorTitle": "No se pudo cargar la rematrícula",
     "academic": "Académico",
     "title": "Rematrícula semestral",

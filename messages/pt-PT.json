@@ -610,6 +610,20 @@
     "updateSubmission": "Atualizar entrega",
     "sendAssignment": "Enviar trabalho",
     "success": "Trabalho enviado com sucesso!",
+    "backToAssignments": "← Voltar aos trabalhos",
+    "notProvidedFeminine": "Não informada",
+    "guidanceTitle": "Orientações da atividade",
+    "noGuidance": "Não foram fornecidas orientações detalhadas.",
+    "noAttachment": "Não foi anexado nenhum ficheiro a esta atividade.",
+    "mySubmission": "A minha entrega",
+    "evaluatedMessage": "O professor já avaliou esta atividade.",
+    "awaitingCorrectionMessage": "A sua resposta foi enviada e aguarda correção.",
+    "submittedAt": "Enviado em",
+    "submittedFile": "Ficheiro enviado",
+    "openFile": "Abrir ficheiro",
+    "assessment": "Avaliação",
+    "notSubmittedYet": "Ainda não enviou esta atividade.",
+    "sendNewVersion": "Enviar nova versão",
     "errors": {
       "load": "Não foi possível carregar as atividades. Verifique a sua ligação e tente novamente.",
       "selectAssignment": "Selecione uma atividade.",
@@ -1100,14 +1114,13 @@
     }
   },
   "Header": {
-  "studentPortal": "Portal do Aluno",
-  "teacherPortal": "Portal do Professor",
-  "adminArea": "Área administrativa",
-  "academicPlatform": "Plataforma académica SaaS"
-},
+    "studentPortal": "Portal do Aluno",
+    "teacherPortal": "Portal do Professor",
+    "adminArea": "Área administrativa",
+    "academicPlatform": "Plataforma académica SaaS"
+  },
   "StudentReenrollment": {
     "loading": "A carregar a renovação da matrícula...",
-    
     "errorTitle": "Não foi possível carregar a renovação da matrícula",
     "academic": "Académico",
     "title": "Renovação semestral da matrícula",

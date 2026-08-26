@@ -610,6 +610,20 @@
     "updateSubmission": "Mettre à jour le devoir",
     "sendAssignment": "Envoyer le devoir",
     "success": "Devoir envoyé avec succès !",
+    "backToAssignments": "← Retour aux travaux",
+    "notProvidedFeminine": "Non renseignée",
+    "guidanceTitle": "Consignes de l’activité",
+    "noGuidance": "Aucune consigne détaillée n’a été fournie.",
+    "noAttachment": "Aucun fichier n’a été joint à cette activité.",
+    "mySubmission": "Mon rendu",
+    "evaluatedMessage": "L’enseignant a déjà évalué cette activité.",
+    "awaitingCorrectionMessage": "Votre réponse a été envoyée et est en attente de correction.",
+    "submittedAt": "Envoyé le",
+    "submittedFile": "Fichier envoyé",
+    "openFile": "Ouvrir le fichier",
+    "assessment": "Évaluation",
+    "notSubmittedYet": "Vous n’avez pas encore envoyé cette activité.",
+    "sendNewVersion": "Envoyer une nouvelle version",
     "errors": {
       "load": "Impossible de charger les activités. Vérifiez votre connexion et réessayez.",
       "selectAssignment": "Sélectionnez une activité.",
@@ -1100,14 +1114,13 @@
     }
   },
   "Header": {
-  "studentPortal": "Espace étudiant",
-  "teacherPortal": "Espace enseignant",
-  "adminArea": "Espace administratif",
-  "academicPlatform": "Plateforme académique SaaS"
-},
+    "studentPortal": "Espace étudiant",
+    "teacherPortal": "Espace enseignant",
+    "adminArea": "Espace administratif",
+    "academicPlatform": "Plateforme académique SaaS"
+  },
   "StudentReenrollment": {
     "loading": "Chargement de la réinscription...",
-    
     "errorTitle": "Impossible de charger la réinscription",
     "academic": "Scolarité",
     "title": "Réinscription semestrielle",
