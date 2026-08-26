@@ -29527,3 +29527,43 @@ html[data-theme="system"]
   .phanyx-rematricula-turmas-participantes {
   color: #ffffff !important;
 }
+
+/* =====================================================
+   PROFESSOR — SIDEBAR / CONTRASTE DEFINITIVO
+===================================================== */
+
+/* Identificação DOCENTE no perfil */
+html[data-theme="light"]
+  .professor-sidebar
+  .phanyx-professor-perfil-tipo {
+  color: #1e3a8a !important;
+  -webkit-text-fill-color: #1e3a8a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"]
+  .professor-sidebar
+  .phanyx-professor-perfil-tipo,
+html[data-theme="system"]
+  .professor-sidebar
+  .phanyx-professor-perfil-tipo {
+  color: #bfdbfe !important;
+  -webkit-text-fill-color: #bfdbfe !important;
+  opacity: 1 !important;
+}
+
+/* Item selecionado do menu */
+.professor-sidebar a.phanyx-professor-menu-ativo,
+.professor-sidebar a.phanyx-professor-menu-ativo:hover {
+  background: #1d4ed8 !important;
+  background-color: #1d4ed8 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+.professor-sidebar a.phanyx-professor-menu-ativo *,
+.professor-sidebar a.phanyx-professor-menu-ativo:hover * {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}

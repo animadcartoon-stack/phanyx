@@ -49,11 +49,11 @@ export default function ProfessorSidebar({
   const menu = [
     podeVer.painel && { label: "Painel Docente", href: "/professor" },
     podeVer.turmas && { label: "Turmas", href: "/professor/turmas" },
-podeVer.substituicoes && {
-  label: "Substituições Docentes",
-  href: "/professor/substituicoes",
-},
-podeVer.alunos && { label: "Alunos", href: "/professor/alunos" },
+    podeVer.substituicoes && {
+      label: "Substituições Docentes",
+      href: "/professor/substituicoes",
+    },
+    podeVer.alunos && { label: "Alunos", href: "/professor/alunos" },
     podeVer.materiais && { label: "Materiais/Aulas", href: "/professor/aulas" },
     podeVer.atividades && { label: "Atividades", href: "/professor/atividades" },
     podeVer.provas && { label: "Avaliações", href: "/professor/provas" },
@@ -84,7 +84,7 @@ podeVer.alunos && { label: "Alunos", href: "/professor/alunos" },
             </div>
 
             <div className="min-w-0">
-              <p className="text-xs uppercase tracking-[0.18em] text-blue-100">
+              <p className="phanyx-professor-perfil-tipo text-xs uppercase tracking-[0.18em]">
                 Docente
               </p>
               <p className="truncate font-semibold text-white">
@@ -103,11 +103,10 @@ podeVer.alunos && { label: "Alunos", href: "/professor/alunos" },
               <Link
                 key={item.href}
                 href={item.href}
-                className={`block rounded px-4 py-2 font-semibold transition ${
-  ativo
-    ? "bg-blue-700 text-white dark:bg-blue-700 dark:text-white"
-    : "text-slate-900 hover:bg-blue-100 hover:text-blue-700 dark:text-white dark:hover:bg-blue-600 dark:hover:text-white"
-}`}
+                className={`block rounded px-4 py-2 font-semibold transition ${ativo
+                  ? "phanyx-professor-menu-ativo bg-blue-700 text-white dark:bg-blue-700 dark:text-white"
+                  : "text-slate-900 hover:bg-blue-100 hover:text-blue-700 dark:text-white dark:hover:bg-blue-600 dark:hover:text-white"
+                  }`}
               >
                 {item.label}
               </Link>
