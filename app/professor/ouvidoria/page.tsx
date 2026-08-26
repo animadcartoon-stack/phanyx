@@ -138,7 +138,7 @@ export default function OuvidoriaProfessorPage() {
   }
 
   return (
-    <div className="space-y-8">
+  <div className="phanyx-professor-ouvidoria space-y-8">
       <div>
         <p className="text-sm font-bold tracking-[0.25em] text-blue-700 dark:text-blue-400">
           {t("eyebrow")}

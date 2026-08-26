@@ -29606,3 +29606,80 @@ html[data-theme="system"]
   -webkit-text-fill-color: #cbd5e1 !important;
   opacity: 1 !important;
 }
+
+/* =========================================================
+   PROFESSOR > OUVIDORIA
+   Contraste correto no tema claro
+   ========================================================= */
+
+.phanyx-professor-ouvidoria > div:first-child > p:first-child {
+  color: #1d4ed8 !important;
+  -webkit-text-fill-color: #1d4ed8 !important;
+}
+
+.phanyx-professor-ouvidoria > div:first-child h1 {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+.phanyx-professor-ouvidoria > div:first-child > p:last-child {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+}
+
+.phanyx-professor-ouvidoria label {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+}
+
+.phanyx-professor-ouvidoria select,
+.phanyx-professor-ouvidoria textarea {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+.phanyx-professor-ouvidoria textarea::placeholder {
+  color: #94a3b8 !important;
+  -webkit-text-fill-color: #94a3b8 !important;
+  opacity: 1 !important;
+}
+
+.phanyx-professor-ouvidoria > div:last-child h2 {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+.phanyx-professor-ouvidoria > div:last-child li {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+}
+
+/* Tema escuro */
+.dark .phanyx-professor-ouvidoria > div:first-child > p:first-child {
+  color: #60a5fa !important;
+  -webkit-text-fill-color: #60a5fa !important;
+}
+
+.dark .phanyx-professor-ouvidoria > div:first-child h1,
+.dark .phanyx-professor-ouvidoria > div:last-child h2 {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+.dark .phanyx-professor-ouvidoria > div:first-child > p:last-child,
+.dark .phanyx-professor-ouvidoria label,
+.dark .phanyx-professor-ouvidoria > div:last-child li {
+  color: #cbd5e1 !important;
+  -webkit-text-fill-color: #cbd5e1 !important;
+}
+
+.dark .phanyx-professor-ouvidoria select,
+.dark .phanyx-professor-ouvidoria textarea {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+.dark .phanyx-professor-ouvidoria textarea::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+}
