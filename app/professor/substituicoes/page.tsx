@@ -98,11 +98,11 @@ export default function ProfessorSubstituicoesPage() {
 
       {!loading && !erro && ativas.length === 0 && (
         <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-center shadow-sm dark:border-slate-700 dark:bg-slate-950">
-          <p className="text-lg font-black text-slate-900 dark:text-white">
+          <p className="substituicao-empty-title text-lg font-black">
             {t("empty.title")}
           </p>
 
-          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+          <p className="substituicao-empty-description mt-2 text-sm">
             {t("empty.description")}
           </p>
         </div>

@@ -29567,3 +29567,42 @@ html[data-theme="system"]
   -webkit-text-fill-color: #ffffff !important;
   opacity: 1 !important;
 }
+
+/* Estado vazio — Substituições Docentes */
+html[data-theme="light"]
+  .phanyx-professor-substituicoes-page
+  .substituicao-empty-title {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-professor-substituicoes-page
+  .substituicao-empty-description {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-professor-substituicoes-page
+  .substituicao-empty-title,
+html[data-theme="system"]
+  .phanyx-professor-substituicoes-page
+  .substituicao-empty-title {
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-professor-substituicoes-page
+  .substituicao-empty-description,
+html[data-theme="system"]
+  .phanyx-professor-substituicoes-page
+  .substituicao-empty-description {
+  color: #cbd5e1 !important;
+  -webkit-text-fill-color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
