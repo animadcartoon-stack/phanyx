@@ -1178,6 +1178,62 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma acadêmica SaaS"
   },
+  "ProfessorExamDetail": {
+    "loading": "Carregando prova...",
+    "notFound": "Prova não encontrada",
+    "back": "Voltar para provas",
+    "description": "Gerencie os dados da prova e monte as questões.",
+    "statuses": {
+      "published": "Publicada",
+      "closed": "Encerrada",
+      "draft": "Rascunho"
+    },
+    "actions": {
+      "viewAttempts": "Ver tentativas",
+      "publish": "Publicar prova",
+      "publishing": "Publicando...",
+      "close": "Encerrar prova",
+      "closing": "Encerrando...",
+      "edit": "Editar"
+    },
+    "summary": {
+      "maximumGrade": "Nota máxima",
+      "time": "Tempo",
+      "minutes": "{count} min",
+      "free": "Livre",
+      "questions": "Questões",
+      "types": "Tipos",
+      "typeCounts": "{multiple} múltipla • {discursive} discursiva"
+    },
+    "questions": {
+      "title": "Questões",
+      "description": "Adicione, revise e organize as questões desta prova.",
+      "new": "Nova questão",
+      "empty": "Nenhuma questão cadastrada ainda.",
+      "number": "Questão {number}",
+      "value": "Valor {value}",
+      "alternatives": "{count, plural, one {# alternativa cadastrada} other {# alternativas cadastradas}}"
+    },
+    "questionTypes": {
+      "discursive": "Discursiva",
+      "multipleChoice": "Múltipla escolha"
+    },
+    "publishWarning": "Para publicar a prova, adicione pelo menos 1 questão.",
+    "closeModal": {
+      "title": "Confirmar encerramento",
+      "message": "Tem certeza que deseja encerrar a prova <strong>{title}</strong>?",
+      "warning": "Depois de encerrada, ela não poderá mais receber novas tentativas.",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar encerramento"
+    },
+    "feedback": {
+      "loadError": "Erro ao carregar prova",
+      "publishError": "Erro ao publicar prova",
+      "publishSuccess": "Prova publicada com sucesso",
+      "closeError": "Erro ao encerrar prova",
+      "closeSuccess": "Prova encerrada com sucesso"
+    }
+  },
   "ProfessorNewExam": {
     "back": "Voltar para provas",
     "title": "Nova prova",

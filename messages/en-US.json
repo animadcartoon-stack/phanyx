@@ -1178,6 +1178,62 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorExamDetail": {
+    "loading": "Loading exam...",
+    "notFound": "Exam not found",
+    "back": "Back to exams",
+    "description": "Manage the exam details and build the questions.",
+    "statuses": {
+      "published": "Published",
+      "closed": "Closed",
+      "draft": "Draft"
+    },
+    "actions": {
+      "viewAttempts": "View attempts",
+      "publish": "Publish exam",
+      "publishing": "Publishing...",
+      "close": "Close exam",
+      "closing": "Closing...",
+      "edit": "Edit"
+    },
+    "summary": {
+      "maximumGrade": "Maximum grade",
+      "time": "Time",
+      "minutes": "{count} min",
+      "free": "No time limit",
+      "questions": "Questions",
+      "types": "Types",
+      "typeCounts": "{multiple} multiple choice • {discursive} discursive"
+    },
+    "questions": {
+      "title": "Questions",
+      "description": "Add, review, and organize the questions for this exam.",
+      "new": "New question",
+      "empty": "No questions have been added yet.",
+      "number": "Question {number}",
+      "value": "Value {value}",
+      "alternatives": "{count, plural, one {# answer choice added} other {# answer choices added}}"
+    },
+    "questionTypes": {
+      "discursive": "Discursive",
+      "multipleChoice": "Multiple choice"
+    },
+    "publishWarning": "Add at least 1 question before publishing the exam.",
+    "closeModal": {
+      "title": "Confirm closing",
+      "message": "Are you sure you want to close the exam <strong>{title}</strong>?",
+      "warning": "Once closed, the exam will no longer accept new attempts.",
+      "cancel": "Cancel",
+      "confirm": "Confirm closing"
+    },
+    "feedback": {
+      "loadError": "Error loading exam",
+      "publishError": "Error publishing exam",
+      "publishSuccess": "Exam published successfully",
+      "closeError": "Error closing exam",
+      "closeSuccess": "Exam closed successfully"
+    }
+  },
   "ProfessorNewExam": {
     "back": "Back to exams",
     "title": "New exam",

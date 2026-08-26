@@ -1,7 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 type Alternativa = {
   id: number;
@@ -13,7 +18,9 @@ type Questao = {
   id: number;
   enunciado: string;
   pergunta?: string;
-  tipo: "MULTIPLA_ESCOLHA" | "DISCURSIVA";
+  tipo:
+    | "MULTIPLA_ESCOLHA"
+    | "DISCURSIVA";
   valor: number;
   ordem: number;
   alternativas: Alternativa[];
@@ -24,68 +31,171 @@ type Prova = {
   titulo: string;
   notaMaxima: number;
   tempoMin?: number | null;
-  status: "RASCUNHO" | "PUBLICADA" | "ENCERRADA";
+  status:
+    | "RASCUNHO"
+    | "PUBLICADA"
+    | "ENCERRADA";
   ativa?: boolean;
   questoes: Questao[];
 };
 
-type FeedbackTipo = "sucesso" | "erro" | "";
+type FeedbackTipo =
+  | "sucesso"
+  | "erro"
+  | "";
 
 export default function ProvaPage() {
   const params = useParams();
-  const provaId = params.provaId as string;
 
-  const [prova, setProva] = useState<Prova | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [erro, setErro] = useState("");
-  const [acaoLoading, setAcaoLoading] = useState<"" | "publicar" | "encerrar">("");
-  const [feedback, setFeedback] = useState("");
-  const [feedbackTipo, setFeedbackTipo] = useState<FeedbackTipo>("");
-  const [modalEncerrarAberto, setModalEncerrarAberto] = useState(false);
+  const provaId = String(
+    params?.provaId || ""
+  );
+
+  const t = useTranslations(
+    "ProfessorExamDetail"
+  );
+
+  const [
+    prova,
+    setProva,
+  ] = useState<Prova | null>(
+    null
+  );
+
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
+
+  const [
+    erro,
+    setErro,
+  ] = useState("");
+
+  const [
+    acaoLoading,
+    setAcaoLoading,
+  ] = useState<
+    | ""
+    | "publicar"
+    | "encerrar"
+  >("");
+
+  const [
+    feedback,
+    setFeedback,
+  ] = useState("");
+
+  const [
+    feedbackTipo,
+    setFeedbackTipo,
+  ] =
+    useState<FeedbackTipo>(
+      ""
+    );
+
+  const [
+    modalEncerrarAberto,
+    setModalEncerrarAberto,
+  ] = useState(false);
 
   useEffect(() => {
-    if (!feedback) return;
+    if (!feedback) {
+      return;
+    }
 
-    const timer = setTimeout(() => {
-      setFeedback("");
-      setFeedbackTipo("");
-    }, 3500);
+    const timer =
+      setTimeout(() => {
+        setFeedback("");
+        setFeedbackTipo("");
+      }, 3500);
 
-    return () => clearTimeout(timer);
+    return () =>
+      clearTimeout(timer);
   }, [feedback]);
 
-  function mostrarFeedback(tipo: Exclude<FeedbackTipo, "">, mensagem: string) {
+  function mostrarFeedback(
+    tipo: Exclude<
+      FeedbackTipo,
+      ""
+    >,
+    mensagem: string
+  ) {
     setFeedbackTipo(tipo);
     setFeedback(mensagem);
   }
 
   async function carregarProva() {
+    if (!provaId) {
+      setErro(
+        t(
+          "feedback.loadError"
+        )
+      );
+
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       setErro("");
 
-      const res = await fetch(`/api/professor/provas/${provaId}`);
-      const data = await res.json();
+      const res =
+        await fetch(
+          `/api/professor/provas/${provaId}`,
+          {
+            cache: "no-store",
+          }
+        );
+
+      const data =
+        await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Erro ao carregar prova");
+        throw new Error(
+          t(
+            "feedback.loadError"
+          )
+        );
       }
 
       setProva({
         ...data,
-        status: data.status || (data.ativa ? "PUBLICADA" : "RASCUNHO"),
-        questoes: (data.questoes || []).map((q: any) => ({
-          ...q,
-          tipo:
-            q.tipo === "discursiva"
-              ? "DISCURSIVA"
-              : q.tipo === "multipla_escolha"
-                ? "MULTIPLA_ESCOLHA"
-                : q.tipo,
-        })),
+
+        status:
+          data.status ||
+          (data.ativa
+            ? "PUBLICADA"
+            : "RASCUNHO"),
+
+        questoes:
+          (
+            data.questoes ||
+            []
+          ).map(
+            (
+              questao: any
+            ) => ({
+              ...questao,
+
+              tipo:
+                questao.tipo ===
+                "discursiva"
+                  ? "DISCURSIVA"
+                  : questao.tipo ===
+                      "multipla_escolha"
+                    ? "MULTIPLA_ESCOLHA"
+                    : questao.tipo,
+            })
+          ),
       });
-    } catch (e: any) {
-      setErro(e.message || "Erro ao carregar prova");
+    } catch {
+      setErro(
+        t(
+          "feedback.loadError"
+        )
+      );
     } finally {
       setLoading(false);
     }
@@ -93,124 +203,231 @@ export default function ProvaPage() {
 
   useEffect(() => {
     carregarProva();
-  }, []);
+  }, [provaId, t]);
 
-  const totalQuestoes = prova?.questoes?.length || 0;
+  const totalQuestoes =
+    prova?.questoes?.length ||
+    0;
 
-  const totalDiscursivas = useMemo(() => {
-    return (prova?.questoes || []).filter((q) => q.tipo === "DISCURSIVA").length;
-  }, [prova]);
+  const totalDiscursivas =
+    useMemo(() => {
+      return (
+        prova?.questoes ||
+        []
+      ).filter(
+        (questao) =>
+          questao.tipo ===
+          "DISCURSIVA"
+      ).length;
+    }, [prova]);
 
-  const totalMultiplaEscolha = useMemo(() => {
-    return (prova?.questoes || []).filter(
-      (q) => q.tipo === "MULTIPLA_ESCOLHA"
-    ).length;
-  }, [prova]);
+  const totalMultiplaEscolha =
+    useMemo(() => {
+      return (
+        prova?.questoes ||
+        []
+      ).filter(
+        (questao) =>
+          questao.tipo ===
+          "MULTIPLA_ESCOLHA"
+      ).length;
+    }, [prova]);
 
   async function publicarProva() {
-    if (!prova) return;
+    if (!prova) {
+      return;
+    }
 
     try {
-      setAcaoLoading("publicar");
+      setAcaoLoading(
+        "publicar"
+      );
 
-      const res = await fetch(`/api/professor/provas/${prova.id}/publicar`, {
-        method: "POST",
-      });
-
-      const data = await res.json();
+      const res =
+        await fetch(
+          `/api/professor/provas/${prova.id}/publicar`,
+          {
+            method: "POST",
+          }
+        );
 
       if (!res.ok) {
-        throw new Error(data.error || "Erro ao publicar prova");
+        throw new Error(
+          t(
+            "feedback.publishError"
+          )
+        );
       }
 
       await carregarProva();
-      mostrarFeedback("sucesso", "Prova publicada com sucesso");
-    } catch (e: any) {
-      mostrarFeedback("erro", e.message || "Erro ao publicar prova");
+
+      mostrarFeedback(
+        "sucesso",
+        t(
+          "feedback.publishSuccess"
+        )
+      );
+    } catch {
+      mostrarFeedback(
+        "erro",
+        t(
+          "feedback.publishError"
+        )
+      );
     } finally {
       setAcaoLoading("");
     }
   }
 
   async function encerrarProva() {
-    if (!prova) return;
+    if (!prova) {
+      return;
+    }
 
     try {
-      setAcaoLoading("encerrar");
+      setAcaoLoading(
+        "encerrar"
+      );
 
-      const res = await fetch(`/api/professor/provas/${prova.id}/encerrar`, {
-        method: "POST",
-      });
-
-      const data = await res.json();
+      const res =
+        await fetch(
+          `/api/professor/provas/${prova.id}/encerrar`,
+          {
+            method: "POST",
+          }
+        );
 
       if (!res.ok) {
-        throw new Error(data.error || "Erro ao encerrar prova");
+        throw new Error(
+          t(
+            "feedback.closeError"
+          )
+        );
       }
 
-      setModalEncerrarAberto(false);
+      setModalEncerrarAberto(
+        false
+      );
+
       await carregarProva();
-      mostrarFeedback("sucesso", "Prova encerrada com sucesso");
-    } catch (e: any) {
-      mostrarFeedback("erro", e.message || "Erro ao encerrar prova");
+
+      mostrarFeedback(
+        "sucesso",
+        t(
+          "feedback.closeSuccess"
+        )
+      );
+    } catch {
+      mostrarFeedback(
+        "erro",
+        t(
+          "feedback.closeError"
+        )
+      );
     } finally {
       setAcaoLoading("");
     }
   }
 
-  function getStatusLabel(status: Prova["status"]) {
-    if (status === "PUBLICADA") return "Publicada";
-    if (status === "ENCERRADA") return "Encerrada";
-    return "Rascunho";
+  function getStatusLabel(
+    status: Prova["status"]
+  ) {
+    if (
+      status ===
+      "PUBLICADA"
+    ) {
+      return t(
+        "statuses.published"
+      );
+    }
+
+    if (
+      status ===
+      "ENCERRADA"
+    ) {
+      return t(
+        "statuses.closed"
+      );
+    }
+
+    return t(
+      "statuses.draft"
+    );
   }
 
-  function getStatusClasses(status: Prova["status"]) {
-    if (status === "PUBLICADA") {
-      return "bg-green-100 text-green-700 border-green-200";
+  function getStatusClasses(
+    status: Prova["status"]
+  ) {
+    if (
+      status ===
+      "PUBLICADA"
+    ) {
+      return "border-green-200 bg-green-100 text-green-700 dark:border-green-800 dark:bg-green-950/40 dark:text-green-300";
     }
 
-    if (status === "ENCERRADA") {
-      return "bg-gray-100 text-gray-700 border-gray-200";
+    if (
+      status ===
+      "ENCERRADA"
+    ) {
+      return "border-slate-200 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200";
     }
 
-    return "bg-yellow-100 text-yellow-700 border-yellow-200";
+    return "border-yellow-200 bg-yellow-100 text-yellow-700 dark:border-yellow-800 dark:bg-yellow-950/40 dark:text-yellow-300";
   }
 
   if (loading) {
-    return <div className="p-6">Carregando prova...</div>;
+    return (
+      <div className="p-6 text-slate-600 dark:text-slate-300">
+        {t("loading")}
+      </div>
+    );
   }
 
   if (erro) {
-    return <div className="p-6 text-red-600">{erro}</div>;
+    return (
+      <div className="p-6 text-red-600 dark:text-red-300">
+        {erro}
+      </div>
+    );
   }
 
   if (!prova) {
-    return <div className="p-6">Prova não encontrada</div>;
+    return (
+      <div className="p-6 text-slate-600 dark:text-slate-300">
+        {t("notFound")}
+      </div>
+    );
   }
 
   return (
     <>
-      <div className="p-6">
+      <div className="phanyx-professor-prova-detalhe p-6 text-slate-900 dark:text-slate-100">
         <div className="mx-auto max-w-6xl space-y-6">
           {feedback && (
             <div
-              className={`rounded-2xl border px-4 py-3 text-sm shadow-sm ${feedbackTipo === "sucesso"
-                  ? "border-green-200 bg-green-50 text-green-700"
-                  : "border-red-200 bg-red-50 text-red-700"
-                }`}
+              aria-live="polite"
+              className={`rounded-2xl border px-4 py-3 text-sm font-medium shadow-sm ${
+                feedbackTipo ===
+                "sucesso"
+                  ? "border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-950/40 dark:text-green-300"
+                  : "border-red-200 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
+              }`}
             >
               {feedback}
             </div>
           )}
 
-          <div className="flex flex-col gap-4 rounded-2xl border bg-white p-6 shadow-sm md:flex-row md:items-start md:justify-between">
+          <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900 md:flex-row md:items-start md:justify-between">
             <div className="space-y-3">
               <div className="flex flex-wrap items-center gap-3">
                 <a
                   href="/professor/provas"
-                  className="text-sm font-medium text-gray-500 hover:text-gray-700"
+                  className="text-sm font-medium text-slate-500 transition hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
                 >
-                  ← Voltar para provas
+                  ←{" "}
+                  {t(
+                    "back"
+                  )}
                 </a>
 
                 <span
@@ -218,14 +435,21 @@ export default function ProvaPage() {
                     prova.status
                   )}`}
                 >
-                  {getStatusLabel(prova.status)}
+                  {getStatusLabel(
+                    prova.status
+                  )}
                 </span>
               </div>
 
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">{prova.titulo}</h1>
-                <p className="mt-1 text-sm text-gray-500">
-                  Gerencie os dados da prova e monte as questões
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+                  {prova.titulo}
+                </h1>
+
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">
+                  {t(
+                    "description"
+                  )}
                 </p>
               </div>
             </div>
@@ -233,178 +457,324 @@ export default function ProvaPage() {
             <div className="flex flex-wrap gap-2">
               <a
                 href={`/professor/provas/${prova.id}/tentativas`}
-                className="rounded-lg border px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
               >
-                Ver tentativas
+                {t(
+                  "actions.viewAttempts"
+                )}
               </a>
 
-              {prova.status === "RASCUNHO" && (
+              {prova.status ===
+                "RASCUNHO" && (
                 <button
-                  onClick={publicarProva}
-                  disabled={acaoLoading === "publicar"}
-                  className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
+                  type="button"
+                  onClick={
+                    publicarProva
+                  }
+                  disabled={
+                    acaoLoading ===
+                    "publicar"
+                  }
+                  className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {acaoLoading === "publicar" ? "Publicando..." : "Publicar prova"}
+                  {acaoLoading ===
+                  "publicar"
+                    ? t(
+                        "actions.publishing"
+                      )
+                    : t(
+                        "actions.publish"
+                      )}
                 </button>
               )}
 
-              {prova.status !== "ENCERRADA" && (
+              {prova.status !==
+                "ENCERRADA" && (
                 <button
-                  onClick={() => setModalEncerrarAberto(true)}
-                  disabled={acaoLoading === "encerrar"}
-                  className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-medium text-white hover:bg-amber-600 disabled:opacity-50"
+                  type="button"
+                  onClick={() =>
+                    setModalEncerrarAberto(
+                      true
+                    )
+                  }
+                  disabled={
+                    acaoLoading ===
+                    "encerrar"
+                  }
+                  className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {acaoLoading === "encerrar" ? "Encerrando..." : "Encerrar prova"}
+                  {acaoLoading ===
+                  "encerrar"
+                    ? t(
+                        "actions.closing"
+                      )
+                    : t(
+                        "actions.close"
+                      )}
                 </button>
               )}
             </div>
           </div>
 
           <div className="grid gap-4 md:grid-cols-4">
-            <div className="rounded-2xl border bg-white p-5 shadow-sm">
-              <p className="text-xs uppercase tracking-wide text-gray-500">
-                Nota máxima
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+              <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                {t(
+                  "summary.maximumGrade"
+                )}
               </p>
-              <p className="mt-2 text-2xl font-bold text-gray-900">
-                {prova.notaMaxima}
+
+              <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
+                {
+                  prova.notaMaxima
+                }
               </p>
             </div>
 
-            <div className="rounded-2xl border bg-white p-5 shadow-sm">
-              <p className="text-xs uppercase tracking-wide text-gray-500">
-                Tempo
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+              <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                {t(
+                  "summary.time"
+                )}
               </p>
-              <p className="mt-2 text-2xl font-bold text-gray-900">
-                {prova.tempoMin ? `${prova.tempoMin} min` : "Livre"}
+
+              <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
+                {prova.tempoMin
+                  ? t(
+                      "summary.minutes",
+                      {
+                        count:
+                          prova.tempoMin,
+                      }
+                    )
+                  : t(
+                      "summary.free"
+                    )}
               </p>
             </div>
 
-            <div className="rounded-2xl border bg-white p-5 shadow-sm">
-              <p className="text-xs uppercase tracking-wide text-gray-500">
-                Questões
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+              <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                {t(
+                  "summary.questions"
+                )}
               </p>
-              <p className="mt-2 text-2xl font-bold text-gray-900">
+
+              <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
                 {totalQuestoes}
               </p>
             </div>
 
-            <div className="rounded-2xl border bg-white p-5 shadow-sm">
-              <p className="text-xs uppercase tracking-wide text-gray-500">
-                Tipos
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+              <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                {t(
+                  "summary.types"
+                )}
               </p>
-              <p className="mt-2 text-sm font-medium text-gray-900">
-                {totalMultiplaEscolha} múltipla • {totalDiscursivas} discursiva
+
+              <p className="mt-2 text-sm font-medium text-slate-900 dark:text-slate-100">
+                {t(
+                  "summary.typeCounts",
+                  {
+                    multiple:
+                      totalMultiplaEscolha,
+                    discursive:
+                      totalDiscursivas,
+                  }
+                )}
               </p>
             </div>
           </div>
 
-          <div className="rounded-2xl border bg-white p-6 shadow-sm">
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">Questões</h2>
-                <p className="text-sm text-gray-500">
-                  Adicione, revise e organize as questões desta prova
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+                  {t(
+                    "questions.title"
+                  )}
+                </h2>
+
+                <p className="text-sm text-slate-500 dark:text-slate-300">
+                  {t(
+                    "questions.description"
+                  )}
                 </p>
               </div>
 
               <a
                 href={`/professor/provas/${prova.id}/questoes/nova`}
-                className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
               >
-                Nova questão
+                {t(
+                  "questions.new"
+                )}
               </a>
             </div>
 
             <div className="mt-6 space-y-4">
-              {prova.questoes.length === 0 && (
-                <div className="rounded-xl border border-dashed p-6 text-sm text-gray-500">
-                  Nenhuma questão cadastrada ainda.
+              {prova.questoes
+                .length ===
+                0 && (
+                <div className="rounded-xl border border-dashed border-slate-300 p-6 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                  {t(
+                    "questions.empty"
+                  )}
                 </div>
               )}
 
-              {prova.questoes.map((q) => (
-                <div
-                  key={q.id}
-                  className="rounded-xl border p-5 transition hover:border-gray-300"
-                >
-                  <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                    <div className="space-y-2">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-700">
-                          Questão {q.ordem}
-                        </span>
+              {prova.questoes.map(
+                (questao) => (
+                  <div
+                    key={
+                      questao.id
+                    }
+                    className="rounded-xl border border-slate-200 p-5 transition hover:border-slate-300 dark:border-slate-700 dark:hover:border-slate-600"
+                  >
+                    <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                      <div className="space-y-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                            {t(
+                              "questions.number",
+                              {
+                                number:
+                                  questao.ordem,
+                              }
+                            )}
+                          </span>
 
-                        <span
-                          className={`rounded-full px-2.5 py-1 text-xs font-semibold ${q.tipo === "DISCURSIVA"
-                              ? "bg-purple-100 text-purple-700"
-                              : "bg-blue-100 text-blue-700"
+                          <span
+                            className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                              questao.tipo ===
+                              "DISCURSIVA"
+                                ? "bg-purple-100 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300"
+                                : "bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300"
                             }`}
-                        >
-                          {q.tipo === "DISCURSIVA"
-                            ? "Discursiva"
-                            : "Múltipla escolha"}
-                        </span>
+                          >
+                            {questao.tipo ===
+                            "DISCURSIVA"
+                              ? t(
+                                  "questionTypes.discursive"
+                                )
+                              : t(
+                                  "questionTypes.multipleChoice"
+                                )}
+                          </span>
 
-                        <span className="rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-700">
-                          Valor {q.valor}
-                        </span>
+                          <span className="rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-700 dark:bg-green-950/40 dark:text-green-300">
+                            {t(
+                              "questions.value",
+                              {
+                                value:
+                                  questao.valor,
+                              }
+                            )}
+                          </span>
+                        </div>
+
+                        <p className="text-base font-medium text-slate-900 dark:text-slate-100">
+                          {
+                            questao.enunciado
+                          }
+                        </p>
+
+                        {questao.pergunta && (
+                          <p className="text-sm text-slate-500 dark:text-slate-400">
+                            {
+                              questao.pergunta
+                            }
+                          </p>
+                        )}
+
+                        {questao.tipo ===
+                          "MULTIPLA_ESCOLHA" && (
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
+                            {t(
+                              "questions.alternatives",
+                              {
+                                count:
+                                  questao
+                                    .alternativas
+                                    ?.length ||
+                                  0,
+                              }
+                            )}
+                          </p>
+                        )}
                       </div>
 
-                      <p className="text-base font-medium text-gray-900">
-                        {q.enunciado}
-                      </p>
-
-                      {q.pergunta && (
-                        <p className="text-sm text-gray-500">{q.pergunta}</p>
-                      )}
-
-                      {q.tipo === "MULTIPLA_ESCOLHA" && (
-                        <p className="text-xs text-gray-500">
-                          {q.alternativas?.length || 0} alternativa(s) cadastrada(s)
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                      <a
-                        href={`/professor/provas/${prova.id}/questoes/${q.id}`}
-                        className="rounded-lg border px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                      >
-                        Editar
-                      </a>
+                      <div className="flex flex-wrap gap-2">
+                        <a
+                          href={`/professor/provas/${prova.id}/questoes/${questao.id}`}
+                          className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                        >
+                          {t(
+                            "actions.edit"
+                          )}
+                        </a>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                )
+              )}
             </div>
           </div>
 
-          {prova.status === "RASCUNHO" && prova.questoes.length === 0 && (
-            <div className="rounded-2xl border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-800">
-              Para publicar a prova, adicione pelo menos 1 questão.
-            </div>
-          )}
+          {prova.status ===
+            "RASCUNHO" &&
+            prova.questoes
+              .length ===
+              0 && (
+              <div className="rounded-2xl border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-800 dark:border-yellow-800 dark:bg-yellow-950/40 dark:text-yellow-200">
+                {t(
+                  "publishWarning"
+                )}
+              </div>
+            )}
         </div>
       </div>
 
       {modalEncerrarAberto && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 p-4">
-          <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl">
+          <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-900">
             <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100 text-xl">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-xl dark:bg-amber-950/50">
                 ⚠️
               </div>
 
               <div className="flex-1">
-                <h2 className="text-lg font-bold text-slate-900">
-                  Confirmar encerramento
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                  {t(
+                    "closeModal.title"
+                  )}
                 </h2>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Tem certeza que deseja encerrar a prova{" "}
-                  <strong>"{prova.titulo}"</strong>?
+
+                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                  {t.rich(
+                    "closeModal.message",
+                    {
+                      title:
+                        prova.titulo,
+
+                      strong:
+                        (
+                          chunks
+                        ) => (
+                          <strong className="font-semibold text-slate-900 dark:text-white">
+                            {
+                              chunks
+                            }
+                          </strong>
+                        ),
+                    }
+                  )}
                 </p>
-                <p className="mt-2 text-sm text-slate-500">
-                  Depois de encerrada, ela não poderá mais receber novas tentativas.
+
+                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                  {t(
+                    "closeModal.warning"
+                  )}
                 </p>
               </div>
             </div>
@@ -412,22 +782,41 @@ export default function ProvaPage() {
             <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
               <button
                 type="button"
-                onClick={() => setModalEncerrarAberto(false)}
-                disabled={acaoLoading === "encerrar"}
-                className="rounded-2xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                onClick={() =>
+                  setModalEncerrarAberto(
+                    false
+                  )
+                }
+                disabled={
+                  acaoLoading ===
+                  "encerrar"
+                }
+                className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
               >
-                Cancelar
+                {t(
+                  "closeModal.cancel"
+                )}
               </button>
 
               <button
                 type="button"
-                onClick={encerrarProva}
-                disabled={acaoLoading === "encerrar"}
+                onClick={
+                  encerrarProva
+                }
+                disabled={
+                  acaoLoading ===
+                  "encerrar"
+                }
                 className="rounded-2xl bg-amber-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {acaoLoading === "encerrar"
-                  ? "Encerrando..."
-                  : "Confirmar encerramento"}
+                {acaoLoading ===
+                "encerrar"
+                  ? t(
+                      "actions.closing"
+                    )
+                  : t(
+                      "closeModal.confirm"
+                    )}
               </button>
             </div>
           </div>

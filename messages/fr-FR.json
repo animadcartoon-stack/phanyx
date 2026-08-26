@@ -1178,6 +1178,62 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorExamDetail": {
+    "loading": "Chargement de l’examen...",
+    "notFound": "Examen introuvable",
+    "back": "Retour aux examens",
+    "description": "Gérez les informations de l’examen et préparez les questions.",
+    "statuses": {
+      "published": "Publié",
+      "closed": "Clôturé",
+      "draft": "Brouillon"
+    },
+    "actions": {
+      "viewAttempts": "Voir les tentatives",
+      "publish": "Publier l’examen",
+      "publishing": "Publication...",
+      "close": "Clôturer l’examen",
+      "closing": "Clôture...",
+      "edit": "Modifier"
+    },
+    "summary": {
+      "maximumGrade": "Note maximale",
+      "time": "Durée",
+      "minutes": "{count} min",
+      "free": "Sans limite de temps",
+      "questions": "Questions",
+      "types": "Types",
+      "typeCounts": "{multiple} choix multiple • {discursive} rédactionnelle"
+    },
+    "questions": {
+      "title": "Questions",
+      "description": "Ajoutez, révisez et organisez les questions de cet examen.",
+      "new": "Nouvelle question",
+      "empty": "Aucune question n’a encore été ajoutée.",
+      "number": "Question {number}",
+      "value": "Valeur {value}",
+      "alternatives": "{count, plural, one {# réponse enregistrée} other {# réponses enregistrées}}"
+    },
+    "questionTypes": {
+      "discursive": "Rédactionnelle",
+      "multipleChoice": "Choix multiple"
+    },
+    "publishWarning": "Ajoutez au moins 1 question avant de publier l’examen.",
+    "closeModal": {
+      "title": "Confirmer la clôture",
+      "message": "Êtes-vous sûr de vouloir clôturer l’examen <strong>{title}</strong> ?",
+      "warning": "Une fois clôturé, l’examen n’acceptera plus de nouvelles tentatives.",
+      "cancel": "Annuler",
+      "confirm": "Confirmer la clôture"
+    },
+    "feedback": {
+      "loadError": "Erreur lors du chargement de l’examen",
+      "publishError": "Erreur lors de la publication de l’examen",
+      "publishSuccess": "Examen publié avec succès",
+      "closeError": "Erreur lors de la clôture de l’examen",
+      "closeSuccess": "Examen clôturé avec succès"
+    }
+  },
   "ProfessorNewExam": {
     "back": "Retour aux examens",
     "title": "Nouvel examen",

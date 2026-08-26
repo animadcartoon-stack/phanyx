@@ -1178,6 +1178,62 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorExamDetail": {
+    "loading": "Cargando examen...",
+    "notFound": "Examen no encontrado",
+    "back": "Volver a los exámenes",
+    "description": "Gestione los datos del examen y prepare las preguntas.",
+    "statuses": {
+      "published": "Publicado",
+      "closed": "Cerrado",
+      "draft": "Borrador"
+    },
+    "actions": {
+      "viewAttempts": "Ver intentos",
+      "publish": "Publicar examen",
+      "publishing": "Publicando...",
+      "close": "Cerrar examen",
+      "closing": "Cerrando...",
+      "edit": "Editar"
+    },
+    "summary": {
+      "maximumGrade": "Nota máxima",
+      "time": "Tiempo",
+      "minutes": "{count} min",
+      "free": "Sin límite de tiempo",
+      "questions": "Preguntas",
+      "types": "Tipos",
+      "typeCounts": "{multiple} opción múltiple • {discursive} discursiva"
+    },
+    "questions": {
+      "title": "Preguntas",
+      "description": "Añada, revise y organice las preguntas de este examen.",
+      "new": "Nueva pregunta",
+      "empty": "Todavía no hay preguntas registradas.",
+      "number": "Pregunta {number}",
+      "value": "Valor {value}",
+      "alternatives": "{count, plural, one {# alternativa registrada} other {# alternativas registradas}}"
+    },
+    "questionTypes": {
+      "discursive": "Discursiva",
+      "multipleChoice": "Opción múltiple"
+    },
+    "publishWarning": "Para publicar el examen, añada al menos 1 pregunta.",
+    "closeModal": {
+      "title": "Confirmar cierre",
+      "message": "¿Está seguro de que desea cerrar el examen <strong>{title}</strong>?",
+      "warning": "Una vez cerrado, el examen no podrá recibir nuevos intentos.",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar cierre"
+    },
+    "feedback": {
+      "loadError": "Error al cargar el examen",
+      "publishError": "Error al publicar el examen",
+      "publishSuccess": "Examen publicado correctamente",
+      "closeError": "Error al cerrar el examen",
+      "closeSuccess": "Examen cerrado correctamente"
+    }
+  },
   "ProfessorNewExam": {
     "back": "Volver a los exámenes",
     "title": "Nuevo examen",
