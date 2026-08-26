@@ -1178,6 +1178,82 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma acadêmica SaaS"
   },
+  "ProfessorExams": {
+    "title": "Provas",
+    "description": "Gerencie as provas das suas disciplinas, publique avaliações e acompanhe tentativas.",
+    "newExam": "Nova prova",
+    "loading": "Carregando provas...",
+    "summary": {
+      "total": "Total de provas",
+      "drafts": "Em rascunho",
+      "published": "Publicadas",
+      "closed": "Encerradas"
+    },
+    "empty": {
+      "title": "Nenhuma prova cadastrada ainda",
+      "description": "Crie sua primeira prova para começar a montar avaliações, adicionar questões e acompanhar tentativas dos alunos.",
+      "createFirst": "Criar primeira prova"
+    },
+    "list": {
+      "title": "Lista de provas",
+      "description": "Visualize o status e acesse rapidamente as principais ações."
+    },
+    "statuses": {
+      "published": "Publicada",
+      "closed": "Encerrada",
+      "draft": "Rascunho"
+    },
+    "labels": {
+      "subject": "Disciplina",
+      "class": "Turma",
+      "maximumGrade": "Nota máx.",
+      "time": "Tempo",
+      "minutes": "{count} min",
+      "free": "Livre",
+      "createdAt": "Criada em"
+    },
+    "actions": {
+      "edit": "Editar",
+      "attempts": "Tentativas",
+      "publish": "Publicar",
+      "publishing": "Publicando...",
+      "delete": "Excluir",
+      "deleting": "Excluindo...",
+      "unpublish": "Despublicar",
+      "close": "Encerrar",
+      "closing": "Encerrando...",
+      "examClosed": "Prova encerrada"
+    },
+    "confirm": {
+      "cancel": "Cancelar",
+      "close": {
+        "title": "Encerrar prova",
+        "message": "Tem certeza que deseja encerrar esta prova?",
+        "confirm": "Encerrar"
+      },
+      "delete": {
+        "title": "Excluir prova",
+        "message": "Tem certeza que deseja excluir esta prova? Esta ação não pode ser desfeita.",
+        "confirm": "Excluir"
+      },
+      "unpublish": {
+        "title": "Despublicar prova",
+        "message": "Deseja despublicar esta prova?",
+        "confirm": "Despublicar"
+      }
+    },
+    "feedback": {
+      "loadError": "Erro ao carregar provas",
+      "publishError": "Erro ao publicar prova",
+      "publishSuccess": "Prova publicada com sucesso",
+      "closeError": "Erro ao encerrar prova",
+      "closeSuccess": "Prova encerrada com sucesso",
+      "deleteError": "Erro ao excluir prova",
+      "deleteSuccess": "Prova excluída com sucesso",
+      "unpublishError": "Erro ao despublicar prova",
+      "unpublishSuccess": "Prova despublicada com sucesso"
+    }
+  },
   "ProfessorActivities": {
     "title": "Atividades",
     "description": "Gerencie atividades, prazos e entregas dos alunos.",

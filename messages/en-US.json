@@ -1178,6 +1178,82 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorExams": {
+    "title": "Exams",
+    "description": "Manage exams for your subjects, publish assessments, and track student attempts.",
+    "newExam": "New exam",
+    "loading": "Loading exams...",
+    "summary": {
+      "total": "Total exams",
+      "drafts": "Drafts",
+      "published": "Published",
+      "closed": "Closed"
+    },
+    "empty": {
+      "title": "No exams created yet",
+      "description": "Create your first exam to start building assessments, adding questions, and tracking student attempts.",
+      "createFirst": "Create first exam"
+    },
+    "list": {
+      "title": "Exam list",
+      "description": "View the status and quickly access the main actions."
+    },
+    "statuses": {
+      "published": "Published",
+      "closed": "Closed",
+      "draft": "Draft"
+    },
+    "labels": {
+      "subject": "Subject",
+      "class": "Class",
+      "maximumGrade": "Max. grade",
+      "time": "Time",
+      "minutes": "{count} min",
+      "free": "No time limit",
+      "createdAt": "Created at"
+    },
+    "actions": {
+      "edit": "Edit",
+      "attempts": "Attempts",
+      "publish": "Publish",
+      "publishing": "Publishing...",
+      "delete": "Delete",
+      "deleting": "Deleting...",
+      "unpublish": "Unpublish",
+      "close": "Close",
+      "closing": "Closing...",
+      "examClosed": "Exam closed"
+    },
+    "confirm": {
+      "cancel": "Cancel",
+      "close": {
+        "title": "Close exam",
+        "message": "Are you sure you want to close this exam?",
+        "confirm": "Close"
+      },
+      "delete": {
+        "title": "Delete exam",
+        "message": "Are you sure you want to delete this exam? This action cannot be undone.",
+        "confirm": "Delete"
+      },
+      "unpublish": {
+        "title": "Unpublish exam",
+        "message": "Do you want to unpublish this exam?",
+        "confirm": "Unpublish"
+      }
+    },
+    "feedback": {
+      "loadError": "Error loading exams",
+      "publishError": "Error publishing exam",
+      "publishSuccess": "Exam published successfully",
+      "closeError": "Error closing exam",
+      "closeSuccess": "Exam closed successfully",
+      "deleteError": "Error deleting exam",
+      "deleteSuccess": "Exam deleted successfully",
+      "unpublishError": "Error unpublishing exam",
+      "unpublishSuccess": "Exam unpublished successfully"
+    }
+  },
   "ProfessorActivities": {
     "title": "Activities",
     "description": "Manage activities, deadlines, and student submissions.",

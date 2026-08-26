@@ -1178,6 +1178,82 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorExams": {
+    "title": "Examens",
+    "description": "Gérez les examens de vos matières, publiez les évaluations et suivez les tentatives des étudiants.",
+    "newExam": "Nouvel examen",
+    "loading": "Chargement des examens...",
+    "summary": {
+      "total": "Total des examens",
+      "drafts": "Brouillons",
+      "published": "Publiés",
+      "closed": "Clôturés"
+    },
+    "empty": {
+      "title": "Aucun examen enregistré pour le moment",
+      "description": "Créez votre premier examen pour commencer à préparer des évaluations, ajouter des questions et suivre les tentatives des étudiants.",
+      "createFirst": "Créer le premier examen"
+    },
+    "list": {
+      "title": "Liste des examens",
+      "description": "Consultez le statut et accédez rapidement aux principales actions."
+    },
+    "statuses": {
+      "published": "Publié",
+      "closed": "Clôturé",
+      "draft": "Brouillon"
+    },
+    "labels": {
+      "subject": "Matière",
+      "class": "Classe",
+      "maximumGrade": "Note max.",
+      "time": "Durée",
+      "minutes": "{count} min",
+      "free": "Sans limite de temps",
+      "createdAt": "Créé le"
+    },
+    "actions": {
+      "edit": "Modifier",
+      "attempts": "Tentatives",
+      "publish": "Publier",
+      "publishing": "Publication...",
+      "delete": "Supprimer",
+      "deleting": "Suppression...",
+      "unpublish": "Dépublier",
+      "close": "Clôturer",
+      "closing": "Clôture...",
+      "examClosed": "Examen clôturé"
+    },
+    "confirm": {
+      "cancel": "Annuler",
+      "close": {
+        "title": "Clôturer l’examen",
+        "message": "Êtes-vous sûr de vouloir clôturer cet examen ?",
+        "confirm": "Clôturer"
+      },
+      "delete": {
+        "title": "Supprimer l’examen",
+        "message": "Êtes-vous sûr de vouloir supprimer cet examen ? Cette action est irréversible.",
+        "confirm": "Supprimer"
+      },
+      "unpublish": {
+        "title": "Dépublier l’examen",
+        "message": "Souhaitez-vous dépublier cet examen ?",
+        "confirm": "Dépublier"
+      }
+    },
+    "feedback": {
+      "loadError": "Erreur lors du chargement des examens",
+      "publishError": "Erreur lors de la publication de l’examen",
+      "publishSuccess": "Examen publié avec succès",
+      "closeError": "Erreur lors de la clôture de l’examen",
+      "closeSuccess": "Examen clôturé avec succès",
+      "deleteError": "Erreur lors de la suppression de l’examen",
+      "deleteSuccess": "Examen supprimé avec succès",
+      "unpublishError": "Erreur lors de la dépublication de l’examen",
+      "unpublishSuccess": "Examen dépublié avec succès"
+    }
+  },
   "ProfessorActivities": {
     "title": "Activités",
     "description": "Gérez les activités, les échéances et les travaux remis par les étudiants.",
