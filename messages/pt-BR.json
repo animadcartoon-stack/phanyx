@@ -1178,6 +1178,108 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma acadêmica SaaS"
   },
+  "ProfessorNewExam": {
+    "back": "Voltar para provas",
+    "title": "Nova prova",
+    "description": "Crie uma nova avaliação e depois adicione as questões.",
+    "draftNotice": "A prova será criada inicialmente como rascunho.",
+    "loadingForm": "Carregando formulário...",
+    "examData": {
+      "title": "Dados da prova",
+      "description": "Preencha as informações principais da avaliação."
+    },
+    "fields": {
+      "title": "Título",
+      "description": "Descrição",
+      "subject": "Disciplina",
+      "class": "Turma",
+      "maximumGrade": "Nota máxima",
+      "timeMinutes": "Tempo (minutos)",
+      "maxAttempts": "Máx. tentativas",
+      "availableAt": "Disponível em",
+      "closesAt": "Encerra em"
+    },
+    "placeholders": {
+      "title": "Ex.: Prova 1 - Introdução ao Direito",
+      "description": "Instruções da prova, conteúdo cobrado, observações...",
+      "time": "Ex.: 60"
+    },
+    "options": {
+      "selectSubject": "Selecione uma disciplina",
+      "selectClass": "Selecione uma turma"
+    },
+    "fallbacks": {
+      "subject": "Disciplina {id}",
+      "class": "Turma {id}",
+      "course": "Curso {id}"
+    },
+    "hints": {
+      "selectSubjectFirst": "Selecione uma disciplina para listar as turmas."
+    },
+    "audience": {
+      "title": "Disponibilização da prova",
+      "description": "Escolha se a prova será liberada para toda a turma ou apenas para alunos específicos.",
+      "wholeClass": "Para toda a turma",
+      "selectedStudents": "Somente alunos selecionados",
+      "requireLessons": "Exigir conclusão das aulas antes de liberar a prova"
+    },
+    "students": {
+      "title": "Alunos liberados",
+      "description": "Filtre por curso, turma, disciplina ou busque diretamente pelo aluno.",
+      "loading": "Carregando...",
+      "allCourses": "Todos os cursos",
+      "allClasses": "Todas as turmas",
+      "allSubjects": "Todas as disciplinas",
+      "search": "Buscar aluno...",
+      "noneFound": "Nenhum aluno encontrado com os filtros selecionados.",
+      "noRegistration": "Sem matrícula"
+    },
+    "gradeRelease": {
+      "title": "Liberação da nota para o aluno",
+      "description": "Defina se o aluno verá a nota ao finalizar a prova ou somente em uma data futura.",
+      "showImmediately": "Mostrar nota ao aluno assim que finalizar a prova",
+      "dateLabel": "Data e hora para liberar a nota",
+      "pendingHint": "Enquanto essa data não chegar, o aluno verá apenas “Nota ainda não liberada”."
+    },
+    "actions": {
+      "cancel": "Cancelar",
+      "creating": "Criando...",
+      "create": "Criar prova"
+    },
+    "summary": {
+      "title": "Resumo",
+      "notDefined": "Ainda não definido",
+      "noDescription": "Sem descrição",
+      "notSelected": "Não selecionada",
+      "time": "Tempo",
+      "minutes": "{value} min",
+      "noTimeLimit": "Sem limite",
+      "attempts": "Tentativas",
+      "opening": "Abertura",
+      "immediate": "Imediata",
+      "closing": "Encerramento",
+      "noDeadline": "Sem data limite",
+      "initialStatus": "Status inicial"
+    },
+    "statuses": {
+      "draft": "Rascunho"
+    },
+    "nextStep": {
+      "title": "Próximo passo",
+      "description": "Depois de criar a prova, você poderá adicionar questões, alternativas e publicar quando estiver pronta."
+    },
+    "validation": {
+      "subjectRequired": "Selecione uma disciplina.",
+      "classRequired": "Selecione uma turma.",
+      "studentRequired": "Selecione pelo menos um aluno para liberar esta prova.",
+      "invalidPeriod": "A data de encerramento deve ser maior que a data de abertura."
+    },
+    "feedback": {
+      "loadFormError": "Erro ao carregar dados do formulário.",
+      "loadStudentsError": "Erro ao carregar alunos da turma.",
+      "createError": "Erro ao criar prova."
+    }
+  },
   "ProfessorOmbudsman": {
     "eyebrow": "Canal de comunicação",
     "title": "Ouvidoria",

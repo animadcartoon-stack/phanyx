@@ -1,7 +1,16 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import {
+  FormEvent,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useRouter } from "next/navigation";
+import {
+  useLocale,
+  useTranslations,
+} from "next-intl";
 
 type Disciplina = {
   id: number;
@@ -22,73 +31,280 @@ type AlunoTurma = {
   matricula?: string | null;
 };
 
+type Curso = {
+  id: number;
+  nome?: string;
+  codigo?: string | null;
+};
+
+type TipoPublico =
+  | "TURMA"
+  | "ALUNOS_SELECIONADOS";
+
+function formatarDataResumo(
+  valor: string,
+  locale: string
+) {
+  if (!valor) {
+    return "";
+  }
+
+  try {
+    const data = new Date(valor);
+
+    if (
+      Number.isNaN(
+        data.getTime()
+      )
+    ) {
+      return valor;
+    }
+
+    return new Intl.DateTimeFormat(
+      locale,
+      {
+        dateStyle: "short",
+        timeStyle: "short",
+      }
+    ).format(data);
+  } catch {
+    return valor;
+  }
+}
+
 export default function NovaProvaPage() {
   const router = useRouter();
 
-  const [titulo, setTitulo] = useState("");
-  const [descricao, setDescricao] = useState("");
-  const [notaMaxima, setNotaMaxima] = useState("10");
-  const [tempoMin, setTempoMin] = useState("");
-  const [tentativasMax, setTentativasMax] = useState("1");
-  const [disponivelEm, setDisponivelEm] = useState("");
-  const [expiraEm, setExpiraEm] = useState("");
-  const [notaDisponivelEm, setNotaDisponivelEm] = useState("");
-  const [mostrarNotaAoFinal, setMostrarNotaAoFinal] = useState(false);
+  const t =
+    useTranslations(
+      "ProfessorNewExam"
+    );
 
-  const [tipoPublico, setTipoPublico] = useState<"TURMA" | "ALUNOS_SELECIONADOS">("TURMA");
-  const [exigirAulasConcluidas, setExigirAulasConcluidas] = useState(false);
-  const [alunosTurma, setAlunosTurma] = useState<AlunoTurma[]>([]);
-  const [alunosSelecionadosIds, setAlunosSelecionadosIds] = useState<number[]>([]);
-  const [loadingAlunos, setLoadingAlunos] = useState(false);
+  const locale =
+    useLocale();
 
-  const [disciplinaId, setDisciplinaId] = useState("");
-  const [turmaId, setTurmaId] = useState("");
+  const [
+    titulo,
+    setTitulo,
+  ] = useState("");
 
-  const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
-  const [turmas, setTurmas] = useState<Turma[]>([]);
+  const [
+    descricao,
+    setDescricao,
+  ] = useState("");
 
-  const [cursos, setCursos] = useState<any[]>([]);
+  const [
+    notaMaxima,
+    setNotaMaxima,
+  ] = useState("10");
 
-  const [cursoFiltroId, setCursoFiltroId] = useState("");
-  const [turmaFiltroId, setTurmaFiltroId] = useState("");
-  const [disciplinaFiltroId, setDisciplinaFiltroId] = useState("");
-  const [buscaAluno, setBuscaAluno] = useState("");
+  const [
+    tempoMin,
+    setTempoMin,
+  ] = useState("");
 
-  const [loading, setLoading] = useState(false);
-  const [loadingInicial, setLoadingInicial] = useState(true);
-  const [erro, setErro] = useState("");
+  const [
+    tentativasMax,
+    setTentativasMax,
+  ] = useState("1");
+
+  const [
+    disponivelEm,
+    setDisponivelEm,
+  ] = useState("");
+
+  const [
+    expiraEm,
+    setExpiraEm,
+  ] = useState("");
+
+  const [
+    notaDisponivelEm,
+    setNotaDisponivelEm,
+  ] = useState("");
+
+  const [
+    mostrarNotaAoFinal,
+    setMostrarNotaAoFinal,
+  ] = useState(false);
+
+  const [
+    tipoPublico,
+    setTipoPublico,
+  ] =
+    useState<TipoPublico>(
+      "TURMA"
+    );
+
+  const [
+    exigirAulasConcluidas,
+    setExigirAulasConcluidas,
+  ] = useState(false);
+
+  const [
+    alunosTurma,
+    setAlunosTurma,
+  ] = useState<
+    AlunoTurma[]
+  >([]);
+
+  const [
+    alunosSelecionadosIds,
+    setAlunosSelecionadosIds,
+  ] = useState<number[]>(
+    []
+  );
+
+  const [
+    loadingAlunos,
+    setLoadingAlunos,
+  ] = useState(false);
+
+  const [
+    disciplinaId,
+    setDisciplinaId,
+  ] = useState("");
+
+  const [
+    turmaId,
+    setTurmaId,
+  ] = useState("");
+
+  const [
+    disciplinas,
+    setDisciplinas,
+  ] = useState<
+    Disciplina[]
+  >([]);
+
+  const [
+    turmas,
+    setTurmas,
+  ] = useState<Turma[]>(
+    []
+  );
+
+  const [
+    cursos,
+    setCursos,
+  ] = useState<Curso[]>(
+    []
+  );
+
+  const [
+    cursoFiltroId,
+    setCursoFiltroId,
+  ] = useState("");
+
+  const [
+    turmaFiltroId,
+    setTurmaFiltroId,
+  ] = useState("");
+
+  const [
+    disciplinaFiltroId,
+    setDisciplinaFiltroId,
+  ] = useState("");
+
+  const [
+    buscaAluno,
+    setBuscaAluno,
+  ] = useState("");
+
+  const [
+    loading,
+    setLoading,
+  ] = useState(false);
+
+  const [
+    loadingInicial,
+    setLoadingInicial,
+  ] = useState(true);
+
+  const [
+    erro,
+    setErro,
+  ] = useState("");
 
   useEffect(() => {
     async function carregarDados() {
       try {
-        setLoadingInicial(true);
+        setLoadingInicial(
+          true
+        );
+
         setErro("");
 
-        const [resDisciplinas, resTurmas, resCursos] = await Promise.all([
-          fetch("/api/professor/disciplinas"),
-          fetch("/api/professor/turmas"),
-          fetch("/api/professor/cursos"),
-        ]);
+        const [
+          resDisciplinas,
+          resTurmas,
+          resCursos,
+        ] =
+          await Promise.all([
+            fetch(
+              "/api/professor/disciplinas"
+            ),
+            fetch(
+              "/api/professor/turmas"
+            ),
+            fetch(
+              "/api/professor/cursos"
+            ),
+          ]);
 
-        const disciplinasData = resDisciplinas.ok
-          ? await resDisciplinas.json()
-          : [];
+        const disciplinasData =
+          resDisciplinas.ok
+            ? await resDisciplinas.json()
+            : [];
 
-        const turmasData = resTurmas.ok ? await resTurmas.json() : [];
-        const cursosData = resCursos.ok ? await resCursos.json() : [];
+        const turmasData =
+          resTurmas.ok
+            ? await resTurmas.json()
+            : [];
 
-        setDisciplinas(Array.isArray(disciplinasData) ? disciplinasData : []);
-        setTurmas(Array.isArray(turmasData) ? turmasData : []);
-        setCursos(Array.isArray(cursosData) ? cursosData : []);
+        const cursosData =
+          resCursos.ok
+            ? await resCursos.json()
+            : [];
+
+        setDisciplinas(
+          Array.isArray(
+            disciplinasData
+          )
+            ? disciplinasData
+            : []
+        );
+
+        setTurmas(
+          Array.isArray(
+            turmasData
+          )
+            ? turmasData
+            : []
+        );
+
+        setCursos(
+          Array.isArray(
+            cursosData
+          )
+            ? cursosData
+            : []
+        );
       } catch {
-        setErro("Erro ao carregar dados do formulário");
+        setErro(
+          t(
+            "feedback.loadFormError"
+          )
+        );
       } finally {
-        setLoadingInicial(false);
+        setLoadingInicial(
+          false
+        );
       }
     }
 
     carregarDados();
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (!disciplinaId) {
@@ -96,83 +312,204 @@ export default function NovaProvaPage() {
       return;
     }
 
-    const turmaSelecionadaAindaExiste = turmas.some(
-      (turma) =>
-        String(turma.id) === String(turmaId) &&
-        String(turma.disciplinaId) === String(disciplinaId)
-    );
+    const turmaSelecionadaAindaExiste =
+      turmas.some(
+        (turma) =>
+          String(
+            turma.id
+          ) ===
+            String(
+              turmaId
+            ) &&
+          String(
+            turma.disciplinaId
+          ) ===
+            String(
+              disciplinaId
+            )
+      );
 
-    if (!turmaSelecionadaAindaExiste) {
+    if (
+      !turmaSelecionadaAindaExiste
+    ) {
       setTurmaId("");
     }
-  }, [disciplinaId, turmaId, turmas]);
+  }, [
+    disciplinaId,
+    turmaId,
+    turmas,
+  ]);
 
   useEffect(() => {
-  async function carregarAlunosDaTurma() {
-    if (!turmaId) {
-      setAlunosTurma([]);
-      setAlunosSelecionadosIds([]);
-      return;
-    }
+    setAlunosSelecionadosIds(
+      []
+    );
+  }, [turmaId]);
 
-    try {
-      setLoadingAlunos(true);
-
-      const params = new URLSearchParams();
-
-if (cursoFiltroId) params.set("cursoId", cursoFiltroId);
-if (turmaFiltroId || turmaId) params.set("turmaId", turmaFiltroId || turmaId);
-if (disciplinaFiltroId || disciplinaId) params.set("disciplinaId", disciplinaFiltroId || disciplinaId);
-if (buscaAluno.trim()) params.set("busca", buscaAluno.trim());
-
-const res = await fetch(`/api/professor/alunos?${params.toString()}`, {
-        cache: "no-store",
-        credentials: "include",
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data?.error || "Erro ao carregar alunos da turma");
+  useEffect(() => {
+    async function carregarAlunosDaTurma() {
+      if (!turmaId) {
+        setAlunosTurma([]);
+        return;
       }
 
-      setAlunosTurma(Array.isArray(data?.alunos) ? data.alunos : []);
-      setAlunosSelecionadosIds([]);
-    } catch {
-      setAlunosTurma([]);
-      setAlunosSelecionadosIds([]);
-    } finally {
-      setLoadingAlunos(false);
+      try {
+        setLoadingAlunos(
+          true
+        );
+
+        const params =
+          new URLSearchParams();
+
+        if (
+          cursoFiltroId
+        ) {
+          params.set(
+            "cursoId",
+            cursoFiltroId
+          );
+        }
+
+        if (
+          turmaFiltroId ||
+          turmaId
+        ) {
+          params.set(
+            "turmaId",
+            turmaFiltroId ||
+              turmaId
+          );
+        }
+
+        if (
+          disciplinaFiltroId ||
+          disciplinaId
+        ) {
+          params.set(
+            "disciplinaId",
+            disciplinaFiltroId ||
+              disciplinaId
+          );
+        }
+
+        if (
+          buscaAluno.trim()
+        ) {
+          params.set(
+            "busca",
+            buscaAluno.trim()
+          );
+        }
+
+        const res =
+          await fetch(
+            `/api/professor/alunos?${params.toString()}`,
+            {
+              cache:
+                "no-store",
+              credentials:
+                "include",
+            }
+          );
+
+        const data =
+          await res.json();
+
+        if (!res.ok) {
+          throw new Error(
+            t(
+              "feedback.loadStudentsError"
+            )
+          );
+        }
+
+        setAlunosTurma(
+          Array.isArray(
+            data?.alunos
+          )
+            ? data.alunos
+            : []
+        );
+      } catch {
+        setAlunosTurma(
+          []
+        );
+      } finally {
+        setLoadingAlunos(
+          false
+        );
+      }
     }
-  }
 
-  carregarAlunosDaTurma();
-}, [turmaId, cursoFiltroId, turmaFiltroId, disciplinaFiltroId, buscaAluno, disciplinaId]);
+    carregarAlunosDaTurma();
+  }, [
+    turmaId,
+    cursoFiltroId,
+    turmaFiltroId,
+    disciplinaFiltroId,
+    buscaAluno,
+    disciplinaId,
+    t,
+  ]);
 
-  async function handleSubmit(e: FormEvent) {
+  async function handleSubmit(
+    e: FormEvent
+  ) {
     e.preventDefault();
 
+    setErro("");
+
     if (!disciplinaId) {
-  setErro("Selecione uma disciplina.");
-  return;
-}
+      setErro(
+        t(
+          "validation.subjectRequired"
+        )
+      );
 
-if (!turmaId) {
-  setErro("Selecione uma turma.");
-  return;
-}
+      return;
+    }
 
-if (tipoPublico === "ALUNOS_SELECIONADOS" && alunosSelecionadosIds.length === 0) {
-  setErro("Selecione pelo menos um aluno para liberar esta prova.");
-  return;
-}
+    if (!turmaId) {
+      setErro(
+        t(
+          "validation.classRequired"
+        )
+      );
+
+      return;
+    }
+
+    if (
+      tipoPublico ===
+        "ALUNOS_SELECIONADOS" &&
+      alunosSelecionadosIds.length ===
+        0
+    ) {
+      setErro(
+        t(
+          "validation.studentRequired"
+        )
+      );
+
+      return;
+    }
 
     if (
       disponivelEm &&
       expiraEm &&
-      new Date(expiraEm).getTime() <= new Date(disponivelEm).getTime()
+      new Date(
+        expiraEm
+      ).getTime() <=
+        new Date(
+          disponivelEm
+        ).getTime()
     ) {
-      setErro("A data de encerramento deve ser maior que a data de abertura.");
+      setErro(
+        t(
+          "validation.invalidPeriod"
+        )
+      );
+
       return;
     }
 
@@ -180,177 +517,375 @@ if (tipoPublico === "ALUNOS_SELECIONADOS" && alunosSelecionadosIds.length === 0)
       setLoading(true);
       setErro("");
 
-      const res = await fetch("/api/professor/provas", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          titulo,
-          descricao: descricao || null,
-          notaMaxima: Number(notaMaxima),
-          tempoMin: tempoMin ? Number(tempoMin) : null,
-          tentativasMax: tentativasMax ? Number(tentativasMax) : 1,
-          disponivelEm: disponivelEm
-            ? new Date(disponivelEm).toISOString()
-            : null,
-          expiraEm: expiraEm ? new Date(expiraEm).toISOString() : null,
-          notaDisponivelEm: notaDisponivelEm
-            ? new Date(notaDisponivelEm).toISOString()
-          : null,
-          mostrarNotaAoFinal,
-          tipoPublico,
-          exigirAulasConcluidas,
-          alunosIds: alunosSelecionadosIds,
-          disciplinaId: Number(disciplinaId),
-          turmaId: turmaId ? Number(turmaId) : null,
-        }),
-      });
+      const res =
+        await fetch(
+          "/api/professor/provas",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+            body: JSON.stringify(
+              {
+                titulo,
+                descricao:
+                  descricao ||
+                  null,
 
-      const data = await res.json();
+                notaMaxima:
+                  Number(
+                    notaMaxima
+                  ),
+
+                tempoMin:
+                  tempoMin
+                    ? Number(
+                        tempoMin
+                      )
+                    : null,
+
+                tentativasMax:
+                  tentativasMax
+                    ? Number(
+                        tentativasMax
+                      )
+                    : 1,
+
+                disponivelEm:
+                  disponivelEm
+                    ? new Date(
+                        disponivelEm
+                      ).toISOString()
+                    : null,
+
+                expiraEm:
+                  expiraEm
+                    ? new Date(
+                        expiraEm
+                      ).toISOString()
+                    : null,
+
+                notaDisponivelEm:
+                  notaDisponivelEm
+                    ? new Date(
+                        notaDisponivelEm
+                      ).toISOString()
+                    : null,
+
+                mostrarNotaAoFinal,
+                tipoPublico,
+                exigirAulasConcluidas,
+
+                alunosIds:
+                  alunosSelecionadosIds,
+
+                disciplinaId:
+                  Number(
+                    disciplinaId
+                  ),
+
+                turmaId:
+                  Number(
+                    turmaId
+                  ),
+              }
+            ),
+          }
+        );
+
+      const data =
+        await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Erro ao criar prova");
+        throw new Error(
+          t(
+            "feedback.createError"
+          )
+        );
       }
 
-      router.push(`/professor/provas/${data.id}`);
-    } catch (e: any) {
-      setErro(e.message || "Erro ao criar prova");
+      router.push(
+        `/professor/provas/${data.id}`
+      );
+    } catch (
+      error: unknown
+    ) {
+      const mensagemErro =
+        error instanceof Error
+          ? error.message
+          : t(
+              "feedback.createError"
+            );
+
+      setErro(
+        mensagemErro
+      );
     } finally {
       setLoading(false);
     }
   }
 
-  const disciplinaSelecionada = useMemo(() => {
-    return disciplinas.find((d) => String(d.id) === String(disciplinaId));
-  }, [disciplinas, disciplinaId]);
+  const disciplinaSelecionada =
+    useMemo(() => {
+      return disciplinas.find(
+        (disciplina) =>
+          String(
+            disciplina.id
+          ) ===
+          String(
+            disciplinaId
+          )
+      );
+    }, [
+      disciplinas,
+      disciplinaId,
+    ]);
 
-  const turmasFiltradas = useMemo(() => {
-    if (!disciplinaId) return [];
-    return turmas.filter(
-      (turma) => String(turma.disciplinaId) === String(disciplinaId)
-    );
-  }, [turmas, disciplinaId]);
+  const turmasFiltradas =
+    useMemo(() => {
+      if (!disciplinaId) {
+        return [];
+      }
+
+      return turmas.filter(
+        (turma) =>
+          String(
+            turma.disciplinaId
+          ) ===
+          String(
+            disciplinaId
+          )
+      );
+    }, [
+      turmas,
+      disciplinaId,
+    ]);
 
   return (
-    <div className="p-6">
+    <div className="phanyx-professor-nova-prova p-6 text-slate-900 dark:text-slate-100">
       <div className="mx-auto max-w-6xl space-y-6">
-        <div className="flex flex-col gap-4 rounded-2xl border bg-white p-6 shadow-sm md:flex-row md:items-start md:justify-between">
+        <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900 md:flex-row md:items-start md:justify-between">
           <div className="space-y-2">
             <a
               href="/professor/provas"
-              className="inline-block text-sm font-medium text-gray-500 hover:text-gray-700"
+              className="inline-block text-sm font-medium text-slate-500 transition hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
             >
-              ← Voltar para provas
+              ← {t("back")}
             </a>
 
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Nova prova</h1>
-              <p className="mt-1 text-sm text-gray-500">
-                Crie uma nova avaliação e depois adicione as questões.
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+                {t("title")}
+              </h1>
+
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">
+                {t(
+                  "description"
+                )}
               </p>
             </div>
           </div>
 
-          <div className="rounded-xl bg-blue-50 px-4 py-3 text-sm text-blue-700">
-            A prova será criada inicialmente como <strong>Rascunho</strong>.
+          <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-800 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200">
+            {t(
+              "draftNotice"
+            )}
           </div>
         </div>
 
         {loadingInicial ? (
-          <div className="rounded-2xl border bg-white p-6 text-sm text-gray-500 shadow-sm">
-            Carregando formulário...
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
+            {t(
+              "loadingForm"
+            )}
           </div>
         ) : (
           <div className="grid gap-6 lg:grid-cols-3">
             <form
-              onSubmit={handleSubmit}
-              className="space-y-6 rounded-2xl border bg-white p-6 shadow-sm lg:col-span-2"
+              onSubmit={
+                handleSubmit
+              }
+              className="space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900 lg:col-span-2"
             >
               {erro && (
-                <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm font-semibold text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200">
                   {erro}
                 </div>
               )}
 
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Dados da prova
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+                  {t(
+                    "examData.title"
+                  )}
                 </h2>
-                <p className="text-sm text-gray-500">
-                  Preencha as informações principais da avaliação.
+
+                <p className="text-sm text-slate-500 dark:text-slate-300">
+                  {t(
+                    "examData.description"
+                  )}
                 </p>
               </div>
 
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Título
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
+                  {t(
+                    "fields.title"
+                  )}
                 </label>
+
                 <input
                   type="text"
                   value={titulo}
-                  onChange={(e) => setTitulo(e.target.value)}
-                  placeholder="Ex.: Prova 1 - Introdução ao Direito"
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
+                  onChange={(e) =>
+                    setTitulo(
+                      e.target.value
+                    )
+                  }
+                  placeholder={t(
+                    "placeholders.title"
+                  )}
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Descrição
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
+                  {t(
+                    "fields.description"
+                  )}
                 </label>
+
                 <textarea
-                  value={descricao}
-                  onChange={(e) => setDescricao(e.target.value)}
-                  placeholder="Instruções da prova, conteúdo cobrado, observações..."
+                  value={
+                    descricao
+                  }
+                  onChange={(e) =>
+                    setDescricao(
+                      e.target.value
+                    )
+                  }
+                  placeholder={t(
+                    "placeholders.description"
+                  )}
                   rows={4}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500"
                 />
               </div>
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Disciplina
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {t(
+                      "fields.subject"
+                    )}
                   </label>
+
                   <select
-  value={disciplinaId}
-  onChange={(e) => setDisciplinaId(e.target.value)}
-  className="w-full rounded-lg border border-slate-300 bg-white text-slate-900 px-3 py-2 text-sm outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-  required
->
-  <option value="">Selecione uma disciplina</option>
-  {disciplinas.map((disciplina) => (
-    <option key={disciplina.id} value={disciplina.id}>
-      {disciplina.nome ||
-        disciplina.titulo ||
-        `Disciplina ${disciplina.id}`}
-    </option>
-  ))}
-</select>
+                    value={
+                      disciplinaId
+                    }
+                    onChange={(
+                      e
+                    ) =>
+                      setDisciplinaId(
+                        e.target.value
+                      )
+                    }
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                    required
+                  >
+                    <option value="">
+                      {t(
+                        "options.selectSubject"
+                      )}
+                    </option>
+
+                    {disciplinas.map(
+                      (
+                        disciplina
+                      ) => (
+                        <option
+                          key={
+                            disciplina.id
+                          }
+                          value={
+                            disciplina.id
+                          }
+                        >
+                          {disciplina.nome ||
+                            disciplina.titulo ||
+                            t(
+                              "fallbacks.subject",
+                              {
+                                id: disciplina.id,
+                              }
+                            )}
+                        </option>
+                      )
+                    )}
+                  </select>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Turma
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {t(
+                      "fields.class"
+                    )}
                   </label>
+
                   <select
-  value={turmaId}
-  onChange={(e) => setTurmaId(e.target.value)}
-  className="w-full rounded-lg border border-slate-300 bg-white text-slate-900 px-3 py-2 text-sm outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-  disabled={!disciplinaId}
->
-  <option value="">Selecione uma turma</option>
-  {turmasFiltradas.map((turma) => (
-    <option key={turma.id} value={turma.id}>
-      {turma.nome || `Turma ${turma.id}`}
-    </option>
-  ))}
-</select>
+                    value={
+                      turmaId
+                    }
+                    onChange={(
+                      e
+                    ) =>
+                      setTurmaId(
+                        e.target.value
+                      )
+                    }
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:disabled:bg-slate-800"
+                    disabled={
+                      !disciplinaId
+                    }
+                    required
+                  >
+                    <option value="">
+                      {t(
+                        "options.selectClass"
+                      )}
+                    </option>
+
+                    {turmasFiltradas.map(
+                      (turma) => (
+                        <option
+                          key={
+                            turma.id
+                          }
+                          value={
+                            turma.id
+                          }
+                        >
+                          {turma.nome ||
+                            t(
+                              "fallbacks.class",
+                              {
+                                id: turma.id,
+                              }
+                            )}
+                        </option>
+                      )
+                    )}
+                  </select>
+
                   {!disciplinaId && (
-                    <p className="text-xs text-gray-500">
-                      Selecione uma disciplina para listar as turmas.
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      {t(
+                        "hints.selectSubjectFirst"
+                      )}
                     </p>
                   )}
                 </div>
@@ -358,44 +893,79 @@ if (tipoPublico === "ALUNOS_SELECIONADOS" && alunosSelecionadosIds.length === 0)
 
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Nota máxima
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {t(
+                      "fields.maximumGrade"
+                    )}
                   </label>
+
                   <input
                     type="number"
                     step="0.1"
                     min="0"
-                    value={notaMaxima}
-                    onChange={(e) => setNotaMaxima(e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
+                    value={
+                      notaMaxima
+                    }
+                    onChange={(
+                      e
+                    ) =>
+                      setNotaMaxima(
+                        e.target.value
+                      )
+                    }
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Tempo (minutos)
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {t(
+                      "fields.timeMinutes"
+                    )}
                   </label>
+
                   <input
                     type="number"
                     min="1"
-                    value={tempoMin}
-                    onChange={(e) => setTempoMin(e.target.value)}
-                    placeholder="Ex.: 60"
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
+                    value={
+                      tempoMin
+                    }
+                    onChange={(
+                      e
+                    ) =>
+                      setTempoMin(
+                        e.target.value
+                      )
+                    }
+                    placeholder={t(
+                      "placeholders.time"
+                    )}
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Máx. tentativas
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {t(
+                      "fields.maxAttempts"
+                    )}
                   </label>
+
                   <input
                     type="number"
                     min="1"
-                    value={tentativasMax}
-                    onChange={(e) => setTentativasMax(e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
+                    value={
+                      tentativasMax
+                    }
+                    onChange={(
+                      e
+                    ) =>
+                      setTentativasMax(
+                        e.target.value
+                      )
+                    }
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                     required
                   />
                 </div>
@@ -403,316 +973,684 @@ if (tipoPublico === "ALUNOS_SELECIONADOS" && alunosSelecionadosIds.length === 0)
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Disponível em
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {t(
+                      "fields.availableAt"
+                    )}
                   </label>
+
                   <input
                     type="datetime-local"
-                    value={disponivelEm}
-                    onChange={(e) => setDisponivelEm(e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
+                    value={
+                      disponivelEm
+                    }
+                    aria-label={t(
+                      "fields.availableAt"
+                    )}
+                    onChange={(
+                      e
+                    ) =>
+                      setDisponivelEm(
+                        e.target.value
+                      )
+                    }
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Encerra em
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {t(
+                      "fields.closesAt"
+                    )}
                   </label>
+
                   <input
                     type="datetime-local"
-                    value={expiraEm}
-                    onChange={(e) => setExpiraEm(e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
+                    value={
+                      expiraEm
+                    }
+                    aria-label={t(
+                      "fields.closesAt"
+                    )}
+                    onChange={(
+                      e
+                    ) =>
+                      setExpiraEm(
+                        e.target.value
+                      )
+                    }
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                   />
                 </div>
+              </div>
 
-<div className="nova-prova-publico-card rounded-2xl border p-4">  
-  <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-    Disponibilização da prova
-  </h3>
+              <div className="nova-prova-publico-card rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950/60">
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                  {t(
+                    "audience.title"
+                  )}
+                </h3>
 
-  <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
-    Escolha se a prova será liberada para toda a turma ou apenas para alunos específicos.
-  </p>
+                <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+                  {t(
+                    "audience.description"
+                  )}
+                </p>
 
-  <div className="mt-4 grid gap-3 md:grid-cols-2">
-    <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
-      <input
-        type="radio"
-        name="tipoPublico"
-        checked={tipoPublico === "TURMA"}
-        onChange={() => {
-          setTipoPublico("TURMA");
-          setAlunosSelecionadosIds([]);
-        }}
-      />
-      Para toda a turma
-    </label>
+                <div className="mt-4 grid gap-3 md:grid-cols-2">
+                  <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
+                    <input
+                      type="radio"
+                      name="tipoPublico"
+                      checked={
+                        tipoPublico ===
+                        "TURMA"
+                      }
+                      onChange={() => {
+                        setTipoPublico(
+                          "TURMA"
+                        );
 
-    <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
-      <input
-        type="radio"
-        name="tipoPublico"
-        checked={tipoPublico === "ALUNOS_SELECIONADOS"}
-        onChange={() => setTipoPublico("ALUNOS_SELECIONADOS")}
-      />
-      Somente alunos selecionados
-    </label>
-  </div>
+                        setAlunosSelecionadosIds(
+                          []
+                        );
+                      }}
+                    />
 
-  <label className="mt-4 flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
-    <input
-      type="checkbox"
-      checked={exigirAulasConcluidas}
-      onChange={(e) => setExigirAulasConcluidas(e.target.checked)}
-    />
-    Exigir conclusão das aulas antes de liberar a prova
-  </label>
+                    {t(
+                      "audience.wholeClass"
+                    )}
+                  </label>
 
-  {tipoPublico === "ALUNOS_SELECIONADOS" && (
-    <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-950">
-      <div className="flex items-center justify-between gap-3">
-  <div>
-    <h4 className="text-sm font-bold text-slate-900 dark:text-white">
-      Alunos liberados
-    </h4>
-    <p className="text-xs text-slate-500 dark:text-slate-400">
-      Filtre por curso, turma, disciplina ou busque diretamente pelo aluno.
-    </p>
-  </div>
+                  <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
+                    <input
+                      type="radio"
+                      name="tipoPublico"
+                      checked={
+                        tipoPublico ===
+                        "ALUNOS_SELECIONADOS"
+                      }
+                      onChange={() =>
+                        setTipoPublico(
+                          "ALUNOS_SELECIONADOS"
+                        )
+                      }
+                    />
 
-  {loadingAlunos && (
-    <span className="text-xs font-semibold text-blue-600 dark:text-sky-300">
-      Carregando...
-    </span>
-  )}
-</div>
+                    {t(
+                      "audience.selectedStudents"
+                    )}
+                  </label>
+                </div>
 
-<div className="mt-4 grid gap-3 md:grid-cols-2">
-  <select
-    value={cursoFiltroId}
-    onChange={(e) => setCursoFiltroId(e.target.value)}
-    className="w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-  >
-    <option value="">Todos os cursos</option>
-    {cursos.map((curso) => (
-      <option key={curso.id} value={curso.id}>
-        {curso.nome || `Curso ${curso.id}`}
-      </option>
-    ))}
-  </select>
+                <label className="mt-4 flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
+                  <input
+                    type="checkbox"
+                    checked={
+                      exigirAulasConcluidas
+                    }
+                    onChange={(
+                      e
+                    ) =>
+                      setExigirAulasConcluidas(
+                        e.target
+                          .checked
+                      )
+                    }
+                  />
 
-  <select
-    value={turmaFiltroId}
-    onChange={(e) => setTurmaFiltroId(e.target.value)}
-    className="w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-  >
-    <option value="">Todas as turmas</option>
-    {turmas.map((turma) => (
-      <option key={turma.id} value={turma.id}>
-        {turma.nome || `Turma ${turma.id}`}
-      </option>
-    ))}
-  </select>
+                  {t(
+                    "audience.requireLessons"
+                  )}
+                </label>
 
-  <select
-    value={disciplinaFiltroId}
-    onChange={(e) => setDisciplinaFiltroId(e.target.value)}
-    className="w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-  >
-    <option value="">Todas as disciplinas</option>
-    {disciplinas.map((disciplina) => (
-      <option key={disciplina.id} value={disciplina.id}>
-        {disciplina.nome || disciplina.titulo || `Disciplina ${disciplina.id}`}
-      </option>
-    ))}
-  </select>
+                {tipoPublico ===
+                  "ALUNOS_SELECIONADOS" && (
+                  <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-950">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                          {t(
+                            "students.title"
+                          )}
+                        </h4>
 
-  <input
-    value={buscaAluno}
-    onChange={(e) => setBuscaAluno(e.target.value)}
-    placeholder="Buscar aluno..."
-    className="w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-  />
-</div>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          {t(
+                            "students.description"
+                          )}
+                        </p>
+                      </div>
 
-{!loadingAlunos && alunosTurma.length === 0 && (
-  <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
-    Nenhum aluno encontrado com os filtros selecionados.
-  </p>
-)}
+                      {loadingAlunos && (
+                        <span className="text-xs font-semibold text-blue-600 dark:text-sky-300">
+                          {t(
+                            "students.loading"
+                          )}
+                        </span>
+                      )}
+                    </div>
 
-{alunosTurma.length > 0 && (
-  <div className="mt-4 grid max-h-72 gap-2 overflow-auto pr-1">
-    {alunosTurma.map((aluno) => {
-      const marcado = alunosSelecionadosIds.includes(aluno.alunoId);
+                    <div className="mt-4 grid gap-3 md:grid-cols-2">
+                      <select
+                        value={
+                          cursoFiltroId
+                        }
+                        onChange={(
+                          e
+                        ) =>
+                          setCursoFiltroId(
+                            e.target
+                              .value
+                          )
+                        }
+                        className="w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                      >
+                        <option value="">
+                          {t(
+                            "students.allCourses"
+                          )}
+                        </option>
 
-      return (
-        <label
-          key={aluno.alunoId}
-          className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 p-3 text-sm text-slate-700 hover:bg-blue-50 dark:border-slate-700 dark:text-slate-100 dark:hover:bg-slate-900"
-        >
-          <input
-            type="checkbox"
-            checked={marcado}
-            onChange={(e) => {
-              if (e.target.checked) {
-                setAlunosSelecionadosIds((prev) => [...prev, aluno.alunoId]);
-              } else {
-                setAlunosSelecionadosIds((prev) =>
-                  prev.filter((id) => id !== aluno.alunoId)
-                );
-              }
-            }}
-          />
+                        {cursos.map(
+                          (
+                            curso
+                          ) => (
+                            <option
+                              key={
+                                curso.id
+                              }
+                              value={
+                                curso.id
+                              }
+                            >
+                              {curso.nome ||
+                                t(
+                                  "fallbacks.course",
+                                  {
+                                    id: curso.id,
+                                  }
+                                )}
+                            </option>
+                          )
+                        )}
+                      </select>
 
-          <span>
-            <span className="block font-semibold">{aluno.nome}</span>
-            <span className="block text-xs text-slate-500 dark:text-slate-400">
-              {aluno.matricula || "Sem matrícula"}{" "}
-              {aluno.email ? `• ${aluno.email}` : ""}
-            </span>
-          </span>
-        </label>
-      );
-    })}
-  </div>
-)}
-    </div>
-  )}
-</div>
+                      <select
+                        value={
+                          turmaFiltroId
+                        }
+                        onChange={(
+                          e
+                        ) =>
+                          setTurmaFiltroId(
+                            e.target
+                              .value
+                          )
+                        }
+                        className="w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                      >
+                        <option value="">
+                          {t(
+                            "students.allClasses"
+                          )}
+                        </option>
 
-                <div className="nova-prova-nota-card rounded-2xl border p-4">
-  <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-  Liberação da nota para o aluno
-</h3>
+                        {turmas.map(
+                          (
+                            turma
+                          ) => (
+                            <option
+                              key={
+                                turma.id
+                              }
+                              value={
+                                turma.id
+                              }
+                            >
+                              {turma.nome ||
+                                t(
+                                  "fallbacks.class",
+                                  {
+                                    id: turma.id,
+                                  }
+                                )}
+                            </option>
+                          )
+                        )}
+                      </select>
 
-  <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
-  Defina se o aluno verá a nota ao finalizar a prova ou somente em uma data futura.
-</p>
+                      <select
+                        value={
+                          disciplinaFiltroId
+                        }
+                        onChange={(
+                          e
+                        ) =>
+                          setDisciplinaFiltroId(
+                            e.target
+                              .value
+                          )
+                        }
+                        className="w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                      >
+                        <option value="">
+                          {t(
+                            "students.allSubjects"
+                          )}
+                        </option>
 
-  <label className="nova-prova-nota-opcao mt-4 flex items-center gap-3 rounded-xl border p-3 text-sm font-semibold">
-    <input
-      type="checkbox"
-      checked={mostrarNotaAoFinal}
-      onChange={(e) => setMostrarNotaAoFinal(e.target.checked)}
-    />
-    Mostrar nota ao aluno assim que finalizar a prova
-  </label>
+                        {disciplinas.map(
+                          (
+                            disciplina
+                          ) => (
+                            <option
+                              key={
+                                disciplina.id
+                              }
+                              value={
+                                disciplina.id
+                              }
+                            >
+                              {disciplina.nome ||
+                                disciplina.titulo ||
+                                t(
+                                  "fallbacks.subject",
+                                  {
+                                    id: disciplina.id,
+                                  }
+                                )}
+                            </option>
+                          )
+                        )}
+                      </select>
 
-  {!mostrarNotaAoFinal && (
-    <div className="mt-4 space-y-2">
-      <label className="block text-sm font-medium text-slate-800 dark:text-slate-100">
-  Data e hora para liberar a nota
-</label>
-      <input
-        type="datetime-local"
-        value={notaDisponivelEm}
-        onChange={(e) => setNotaDisponivelEm(e.target.value)}
-        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-      />
-      <p className="text-xs text-slate-600 dark:text-slate-300">
-  Enquanto essa data não chegar, o aluno verá apenas “Nota ainda não liberada”.
-</p>
-    </div>
-  )}
-</div>
+                      <input
+                        value={
+                          buscaAluno
+                        }
+                        onChange={(
+                          e
+                        ) =>
+                          setBuscaAluno(
+                            e.target
+                              .value
+                          )
+                        }
+                        placeholder={t(
+                          "students.search"
+                        )}
+                        className="w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 outline-none placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                      />
+                    </div>
+
+                    {!loadingAlunos &&
+                      alunosTurma.length ===
+                        0 && (
+                        <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
+                          {t(
+                            "students.noneFound"
+                          )}
+                        </p>
+                      )}
+
+                    {alunosTurma.length >
+                      0 && (
+                      <div className="mt-4 grid max-h-72 gap-2 overflow-auto pr-1">
+                        {alunosTurma.map(
+                          (
+                            aluno
+                          ) => {
+                            const marcado =
+                              alunosSelecionadosIds.includes(
+                                aluno.alunoId
+                              );
+
+                            return (
+                              <label
+                                key={
+                                  aluno.alunoId
+                                }
+                                className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 p-3 text-sm text-slate-700 transition hover:bg-blue-50 dark:border-slate-700 dark:text-slate-100 dark:hover:bg-slate-900"
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={
+                                    marcado
+                                  }
+                                  onChange={(
+                                    e
+                                  ) => {
+                                    if (
+                                      e
+                                        .target
+                                        .checked
+                                    ) {
+                                      setAlunosSelecionadosIds(
+                                        (
+                                          prev
+                                        ) =>
+                                          prev.includes(
+                                            aluno.alunoId
+                                          )
+                                            ? prev
+                                            : [
+                                                ...prev,
+                                                aluno.alunoId,
+                                              ]
+                                      );
+                                    } else {
+                                      setAlunosSelecionadosIds(
+                                        (
+                                          prev
+                                        ) =>
+                                          prev.filter(
+                                            (
+                                              id
+                                            ) =>
+                                              id !==
+                                              aluno.alunoId
+                                          )
+                                      );
+                                    }
+                                  }}
+                                />
+
+                                <span>
+                                  <span className="block font-semibold">
+                                    {
+                                      aluno.nome
+                                    }
+                                  </span>
+
+                                  <span className="block text-xs text-slate-500 dark:text-slate-400">
+                                    {aluno.matricula ||
+                                      t(
+                                        "students.noRegistration"
+                                      )}
+
+                                    {aluno.email
+                                      ? ` • ${aluno.email}`
+                                      : ""}
+                                  </span>
+                                </span>
+                              </label>
+                            );
+                          }
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="nova-prova-nota-card rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950/60">
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                  {t(
+                    "gradeRelease.title"
+                  )}
+                </h3>
+
+                <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+                  {t(
+                    "gradeRelease.description"
+                  )}
+                </p>
+
+                <label className="nova-prova-nota-opcao mt-4 flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
+                  <input
+                    type="checkbox"
+                    checked={
+                      mostrarNotaAoFinal
+                    }
+                    onChange={(
+                      e
+                    ) =>
+                      setMostrarNotaAoFinal(
+                        e.target
+                          .checked
+                      )
+                    }
+                  />
+
+                  {t(
+                    "gradeRelease.showImmediately"
+                  )}
+                </label>
+
+                {!mostrarNotaAoFinal && (
+                  <div className="mt-4 space-y-2">
+                    <label className="block text-sm font-medium text-slate-800 dark:text-slate-100">
+                      {t(
+                        "gradeRelease.dateLabel"
+                      )}
+                    </label>
+
+                    <input
+                      type="datetime-local"
+                      value={
+                        notaDisponivelEm
+                      }
+                      aria-label={t(
+                        "gradeRelease.dateLabel"
+                      )}
+                      onChange={(
+                        e
+                      ) =>
+                        setNotaDisponivelEm(
+                          e.target
+                            .value
+                        )
+                      }
+                      className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                    />
+
+                    <p className="text-xs text-slate-600 dark:text-slate-300">
+                      {t(
+                        "gradeRelease.pendingHint"
+                      )}
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center justify-end gap-3">
                 <a
                   href="/professor/provas"
-                  className="rounded-lg border px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
                 >
-                  Cancelar
+                  {t(
+                    "actions.cancel"
+                  )}
                 </a>
 
                 <button
                   type="submit"
-                  disabled={loading}
-                  className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                  disabled={
+                    loading
+                  }
+                  className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {loading ? "Criando..." : "Criar prova"}
+                  {loading
+                    ? t(
+                        "actions.creating"
+                      )
+                    : t(
+                        "actions.create"
+                      )}
                 </button>
               </div>
             </form>
 
             <div className="space-y-4">
-              <div className="rounded-2xl border bg-white p-6 shadow-sm">
-                <h2 className="text-lg font-semibold text-gray-900">Resumo</h2>
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+                  {t(
+                    "summary.title"
+                  )}
+                </h2>
+
                 <div className="mt-4 space-y-3 text-sm">
                   <div>
-                    <p className="text-gray-500">Título</p>
-                    <p className="font-medium text-gray-900">
-                      {titulo || "Ainda não definido"}
+                    <p className="text-slate-500 dark:text-slate-400">
+                      {t(
+                        "fields.title"
+                      )}
+                    </p>
+
+                    <p className="font-medium text-slate-900 dark:text-slate-100">
+                      {titulo ||
+                        t(
+                          "summary.notDefined"
+                        )}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-gray-500">Descrição</p>
-                    <p className="font-medium text-gray-900">
-                      {descricao || "Sem descrição"}
+                    <p className="text-slate-500 dark:text-slate-400">
+                      {t(
+                        "fields.description"
+                      )}
+                    </p>
+
+                    <p className="font-medium text-slate-900 dark:text-slate-100">
+                      {descricao ||
+                        t(
+                          "summary.noDescription"
+                        )}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-gray-500">Disciplina</p>
-                    <p className="font-medium text-gray-900">
+                    <p className="text-slate-500 dark:text-slate-400">
+                      {t(
+                        "fields.subject"
+                      )}
+                    </p>
+
+                    <p className="font-medium text-slate-900 dark:text-slate-100">
                       {disciplinaSelecionada?.nome ||
                         disciplinaSelecionada?.titulo ||
-                        "Não selecionada"}
+                        t(
+                          "summary.notSelected"
+                        )}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-gray-500">Nota máxima</p>
-                    <p className="font-medium text-gray-900">
-                      {notaMaxima || "-"}
+                    <p className="text-slate-500 dark:text-slate-400">
+                      {t(
+                        "fields.maximumGrade"
+                      )}
+                    </p>
+
+                    <p className="font-medium text-slate-900 dark:text-slate-100">
+                      {notaMaxima ||
+                        "-"}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-gray-500">Tempo</p>
-                    <p className="font-medium text-gray-900">
-                      {tempoMin ? `${tempoMin} min` : "Sem limite"}
+                    <p className="text-slate-500 dark:text-slate-400">
+                      {t(
+                        "summary.time"
+                      )}
+                    </p>
+
+                    <p className="font-medium text-slate-900 dark:text-slate-100">
+                      {tempoMin
+                        ? t(
+                            "summary.minutes",
+                            {
+                              value:
+                                tempoMin,
+                            }
+                          )
+                        : t(
+                            "summary.noTimeLimit"
+                          )}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-gray-500">Tentativas</p>
-                    <p className="font-medium text-gray-900">
-                      {tentativasMax || "1"}
+                    <p className="text-slate-500 dark:text-slate-400">
+                      {t(
+                        "summary.attempts"
+                      )}
+                    </p>
+
+                    <p className="font-medium text-slate-900 dark:text-slate-100">
+                      {tentativasMax ||
+                        "1"}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-gray-500">Abertura</p>
-                    <p className="font-medium text-gray-900">
-                      {disponivelEm || "Imediata"}
+                    <p className="text-slate-500 dark:text-slate-400">
+                      {t(
+                        "summary.opening"
+                      )}
+                    </p>
+
+                    <p className="font-medium text-slate-900 dark:text-slate-100">
+                      {disponivelEm
+                        ? formatarDataResumo(
+                            disponivelEm,
+                            locale
+                          )
+                        : t(
+                            "summary.immediate"
+                          )}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-gray-500">Encerramento</p>
-                    <p className="font-medium text-gray-900">
-                      {expiraEm || "Sem data limite"}
+                    <p className="text-slate-500 dark:text-slate-400">
+                      {t(
+                        "summary.closing"
+                      )}
+                    </p>
+
+                    <p className="font-medium text-slate-900 dark:text-slate-100">
+                      {expiraEm
+                        ? formatarDataResumo(
+                            expiraEm,
+                            locale
+                          )
+                        : t(
+                            "summary.noDeadline"
+                          )}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-gray-500">Status inicial</p>
-                    <p className="font-medium text-yellow-700">Rascunho</p>
+                    <p className="text-slate-500 dark:text-slate-400">
+                      {t(
+                        "summary.initialStatus"
+                      )}
+                    </p>
+
+                    <p className="font-medium text-yellow-700 dark:text-yellow-300">
+                      {t(
+                        "statuses.draft"
+                      )}
+                    </p>
                   </div>
                 </div>
               </div>
 
-              <div className="rounded-2xl border bg-white p-6 shadow-sm">
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Próximo passo
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+                  {t(
+                    "nextStep.title"
+                  )}
                 </h2>
-                <p className="mt-2 text-sm text-gray-500">
-                  Depois de criar a prova, você poderá adicionar questões,
-                  alternativas e publicar quando estiver pronta.
+
+                <p className="mt-2 text-sm text-slate-500 dark:text-slate-300">
+                  {t(
+                    "nextStep.description"
+                  )}
                 </p>
               </div>
             </div>

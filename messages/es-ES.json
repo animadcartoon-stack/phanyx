@@ -1178,6 +1178,108 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorNewExam": {
+    "back": "Volver a los exámenes",
+    "title": "Nuevo examen",
+    "description": "Cree una nueva evaluación y después añada las preguntas.",
+    "draftNotice": "El examen se creará inicialmente como borrador.",
+    "loadingForm": "Cargando formulario...",
+    "examData": {
+      "title": "Datos del examen",
+      "description": "Complete la información principal de la evaluación."
+    },
+    "fields": {
+      "title": "Título",
+      "description": "Descripción",
+      "subject": "Asignatura",
+      "class": "Clase",
+      "maximumGrade": "Nota máxima",
+      "timeMinutes": "Tiempo (minutos)",
+      "maxAttempts": "Máx. intentos",
+      "availableAt": "Disponible desde",
+      "closesAt": "Finaliza el"
+    },
+    "placeholders": {
+      "title": "Ej.: Examen 1 - Introducción al Derecho",
+      "description": "Instrucciones del examen, contenido evaluado, observaciones...",
+      "time": "Ej.: 60"
+    },
+    "options": {
+      "selectSubject": "Seleccione una asignatura",
+      "selectClass": "Seleccione una clase"
+    },
+    "fallbacks": {
+      "subject": "Asignatura {id}",
+      "class": "Clase {id}",
+      "course": "Curso {id}"
+    },
+    "hints": {
+      "selectSubjectFirst": "Seleccione una asignatura para mostrar las clases."
+    },
+    "audience": {
+      "title": "Disponibilidad del examen",
+      "description": "Elija si el examen estará disponible para toda la clase o solo para alumnos específicos.",
+      "wholeClass": "Para toda la clase",
+      "selectedStudents": "Solo alumnos seleccionados",
+      "requireLessons": "Exigir la finalización de las clases antes de habilitar el examen"
+    },
+    "students": {
+      "title": "Alumnos autorizados",
+      "description": "Filtre por curso, clase, asignatura o busque directamente al alumno.",
+      "loading": "Cargando...",
+      "allCourses": "Todos los cursos",
+      "allClasses": "Todas las clases",
+      "allSubjects": "Todas las asignaturas",
+      "search": "Buscar alumno...",
+      "noneFound": "No se encontraron alumnos con los filtros seleccionados.",
+      "noRegistration": "Sin matrícula"
+    },
+    "gradeRelease": {
+      "title": "Publicación de la nota para el alumno",
+      "description": "Defina si el alumno verá la nota al finalizar el examen o solamente en una fecha futura.",
+      "showImmediately": "Mostrar la nota al alumno en cuanto finalice el examen",
+      "dateLabel": "Fecha y hora para publicar la nota",
+      "pendingHint": "Hasta que llegue esta fecha, el alumno solo verá “Nota aún no publicada”."
+    },
+    "actions": {
+      "cancel": "Cancelar",
+      "creating": "Creando...",
+      "create": "Crear examen"
+    },
+    "summary": {
+      "title": "Resumen",
+      "notDefined": "Aún no definido",
+      "noDescription": "Sin descripción",
+      "notSelected": "No seleccionada",
+      "time": "Tiempo",
+      "minutes": "{value} min",
+      "noTimeLimit": "Sin límite",
+      "attempts": "Intentos",
+      "opening": "Apertura",
+      "immediate": "Inmediata",
+      "closing": "Cierre",
+      "noDeadline": "Sin fecha límite",
+      "initialStatus": "Estado inicial"
+    },
+    "statuses": {
+      "draft": "Borrador"
+    },
+    "nextStep": {
+      "title": "Siguiente paso",
+      "description": "Después de crear el examen, podrá añadir preguntas, alternativas y publicarlo cuando esté listo."
+    },
+    "validation": {
+      "subjectRequired": "Seleccione una asignatura.",
+      "classRequired": "Seleccione una clase.",
+      "studentRequired": "Seleccione al menos un alumno para habilitar este examen.",
+      "invalidPeriod": "La fecha de cierre debe ser posterior a la fecha de apertura."
+    },
+    "feedback": {
+      "loadFormError": "Error al cargar los datos del formulario.",
+      "loadStudentsError": "Error al cargar los alumnos de la clase.",
+      "createError": "Error al crear el examen."
+    }
+  },
   "ProfessorOmbudsman": {
     "eyebrow": "Canal de comunicación",
     "title": "Defensoría",

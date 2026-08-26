@@ -1178,6 +1178,108 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorNewExam": {
+    "back": "Voltar para as provas",
+    "title": "Nova prova",
+    "description": "Crie uma nova avaliação e depois adicione as questões.",
+    "draftNotice": "A prova será criada inicialmente como rascunho.",
+    "loadingForm": "A carregar formulário...",
+    "examData": {
+      "title": "Dados da prova",
+      "description": "Preencha as principais informações da avaliação."
+    },
+    "fields": {
+      "title": "Título",
+      "description": "Descrição",
+      "subject": "Disciplina",
+      "class": "Turma",
+      "maximumGrade": "Nota máxima",
+      "timeMinutes": "Tempo (minutos)",
+      "maxAttempts": "Máx. tentativas",
+      "availableAt": "Disponível em",
+      "closesAt": "Encerra em"
+    },
+    "placeholders": {
+      "title": "Ex.: Prova 1 - Introdução ao Direito",
+      "description": "Instruções da prova, conteúdo avaliado, observações...",
+      "time": "Ex.: 60"
+    },
+    "options": {
+      "selectSubject": "Selecione uma disciplina",
+      "selectClass": "Selecione uma turma"
+    },
+    "fallbacks": {
+      "subject": "Disciplina {id}",
+      "class": "Turma {id}",
+      "course": "Curso {id}"
+    },
+    "hints": {
+      "selectSubjectFirst": "Selecione uma disciplina para listar as turmas."
+    },
+    "audience": {
+      "title": "Disponibilização da prova",
+      "description": "Escolha se a prova será disponibilizada a toda a turma ou apenas a alunos específicos.",
+      "wholeClass": "Para toda a turma",
+      "selectedStudents": "Apenas alunos selecionados",
+      "requireLessons": "Exigir a conclusão das aulas antes de disponibilizar a prova"
+    },
+    "students": {
+      "title": "Alunos autorizados",
+      "description": "Filtre por curso, turma, disciplina ou pesquise diretamente pelo aluno.",
+      "loading": "A carregar...",
+      "allCourses": "Todos os cursos",
+      "allClasses": "Todas as turmas",
+      "allSubjects": "Todas as disciplinas",
+      "search": "Pesquisar aluno...",
+      "noneFound": "Nenhum aluno encontrado com os filtros selecionados.",
+      "noRegistration": "Sem matrícula"
+    },
+    "gradeRelease": {
+      "title": "Disponibilização da nota ao aluno",
+      "description": "Defina se o aluno verá a nota ao terminar a prova ou apenas numa data futura.",
+      "showImmediately": "Mostrar a nota ao aluno assim que terminar a prova",
+      "dateLabel": "Data e hora para disponibilizar a nota",
+      "pendingHint": "Enquanto esta data não chegar, o aluno verá apenas “Nota ainda não disponível”."
+    },
+    "actions": {
+      "cancel": "Cancelar",
+      "creating": "A criar...",
+      "create": "Criar prova"
+    },
+    "summary": {
+      "title": "Resumo",
+      "notDefined": "Ainda não definido",
+      "noDescription": "Sem descrição",
+      "notSelected": "Não selecionada",
+      "time": "Tempo",
+      "minutes": "{value} min",
+      "noTimeLimit": "Sem limite",
+      "attempts": "Tentativas",
+      "opening": "Abertura",
+      "immediate": "Imediata",
+      "closing": "Encerramento",
+      "noDeadline": "Sem data limite",
+      "initialStatus": "Estado inicial"
+    },
+    "statuses": {
+      "draft": "Rascunho"
+    },
+    "nextStep": {
+      "title": "Próximo passo",
+      "description": "Depois de criar a prova, poderá adicionar questões, alternativas e publicá-la quando estiver pronta."
+    },
+    "validation": {
+      "subjectRequired": "Selecione uma disciplina.",
+      "classRequired": "Selecione uma turma.",
+      "studentRequired": "Selecione pelo menos um aluno para disponibilizar esta prova.",
+      "invalidPeriod": "A data de encerramento deve ser posterior à data de abertura."
+    },
+    "feedback": {
+      "loadFormError": "Erro ao carregar os dados do formulário.",
+      "loadStudentsError": "Erro ao carregar os alunos da turma.",
+      "createError": "Erro ao criar a prova."
+    }
+  },
   "ProfessorOmbudsman": {
     "eyebrow": "Canal de comunicação",
     "title": "Provedoria",

@@ -1178,6 +1178,108 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorNewExam": {
+    "back": "Retour aux examens",
+    "title": "Nouvel examen",
+    "description": "Créez une nouvelle évaluation, puis ajoutez les questions.",
+    "draftNotice": "L’examen sera initialement créé comme brouillon.",
+    "loadingForm": "Chargement du formulaire...",
+    "examData": {
+      "title": "Données de l’examen",
+      "description": "Renseignez les principales informations de l’évaluation."
+    },
+    "fields": {
+      "title": "Titre",
+      "description": "Description",
+      "subject": "Matière",
+      "class": "Classe",
+      "maximumGrade": "Note maximale",
+      "timeMinutes": "Durée (minutes)",
+      "maxAttempts": "Tentatives max.",
+      "availableAt": "Disponible à partir du",
+      "closesAt": "Se termine le"
+    },
+    "placeholders": {
+      "title": "Ex. : Examen 1 - Introduction au droit",
+      "description": "Consignes de l’examen, contenu évalué, observations...",
+      "time": "Ex. : 60"
+    },
+    "options": {
+      "selectSubject": "Sélectionnez une matière",
+      "selectClass": "Sélectionnez une classe"
+    },
+    "fallbacks": {
+      "subject": "Matière {id}",
+      "class": "Classe {id}",
+      "course": "Cours {id}"
+    },
+    "hints": {
+      "selectSubjectFirst": "Sélectionnez une matière pour afficher les classes."
+    },
+    "audience": {
+      "title": "Disponibilité de l’examen",
+      "description": "Choisissez si l’examen sera disponible pour toute la classe ou uniquement pour certains étudiants.",
+      "wholeClass": "Pour toute la classe",
+      "selectedStudents": "Uniquement les étudiants sélectionnés",
+      "requireLessons": "Exiger la validation des cours avant de rendre l’examen disponible"
+    },
+    "students": {
+      "title": "Étudiants autorisés",
+      "description": "Filtrez par cours, classe, matière ou recherchez directement un étudiant.",
+      "loading": "Chargement...",
+      "allCourses": "Tous les cours",
+      "allClasses": "Toutes les classes",
+      "allSubjects": "Toutes les matières",
+      "search": "Rechercher un étudiant...",
+      "noneFound": "Aucun étudiant trouvé avec les filtres sélectionnés.",
+      "noRegistration": "Sans inscription"
+    },
+    "gradeRelease": {
+      "title": "Publication de la note pour l’étudiant",
+      "description": "Définissez si l’étudiant verra sa note dès la fin de l’examen ou uniquement à une date ultérieure.",
+      "showImmediately": "Afficher la note à l’étudiant dès qu’il termine l’examen",
+      "dateLabel": "Date et heure de publication de la note",
+      "pendingHint": "Jusqu’à cette date, l’étudiant verra uniquement « Note pas encore publiée »."
+    },
+    "actions": {
+      "cancel": "Annuler",
+      "creating": "Création...",
+      "create": "Créer l’examen"
+    },
+    "summary": {
+      "title": "Résumé",
+      "notDefined": "Pas encore défini",
+      "noDescription": "Aucune description",
+      "notSelected": "Non sélectionnée",
+      "time": "Durée",
+      "minutes": "{value} min",
+      "noTimeLimit": "Sans limite",
+      "attempts": "Tentatives",
+      "opening": "Ouverture",
+      "immediate": "Immédiate",
+      "closing": "Clôture",
+      "noDeadline": "Sans date limite",
+      "initialStatus": "Statut initial"
+    },
+    "statuses": {
+      "draft": "Brouillon"
+    },
+    "nextStep": {
+      "title": "Étape suivante",
+      "description": "Après avoir créé l’examen, vous pourrez ajouter des questions et des choix de réponse, puis le publier lorsqu’il sera prêt."
+    },
+    "validation": {
+      "subjectRequired": "Sélectionnez une matière.",
+      "classRequired": "Sélectionnez une classe.",
+      "studentRequired": "Sélectionnez au moins un étudiant pour rendre cet examen disponible.",
+      "invalidPeriod": "La date de clôture doit être postérieure à la date d’ouverture."
+    },
+    "feedback": {
+      "loadFormError": "Erreur lors du chargement des données du formulaire.",
+      "loadStudentsError": "Erreur lors du chargement des étudiants de la classe.",
+      "createError": "Erreur lors de la création de l’examen."
+    }
+  },
   "ProfessorOmbudsman": {
     "eyebrow": "Canal de communication",
     "title": "Médiation",

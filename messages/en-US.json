@@ -1178,6 +1178,108 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorNewExam": {
+    "back": "Back to exams",
+    "title": "New exam",
+    "description": "Create a new assessment and then add the questions.",
+    "draftNotice": "The exam will initially be created as a draft.",
+    "loadingForm": "Loading form...",
+    "examData": {
+      "title": "Exam details",
+      "description": "Fill in the main assessment information."
+    },
+    "fields": {
+      "title": "Title",
+      "description": "Description",
+      "subject": "Subject",
+      "class": "Class",
+      "maximumGrade": "Maximum grade",
+      "timeMinutes": "Time (minutes)",
+      "maxAttempts": "Max. attempts",
+      "availableAt": "Available at",
+      "closesAt": "Closes at"
+    },
+    "placeholders": {
+      "title": "e.g. Exam 1 - Introduction to Law",
+      "description": "Exam instructions, covered content, notes...",
+      "time": "e.g. 60"
+    },
+    "options": {
+      "selectSubject": "Select a subject",
+      "selectClass": "Select a class"
+    },
+    "fallbacks": {
+      "subject": "Subject {id}",
+      "class": "Class {id}",
+      "course": "Course {id}"
+    },
+    "hints": {
+      "selectSubjectFirst": "Select a subject to list the classes."
+    },
+    "audience": {
+      "title": "Exam availability",
+      "description": "Choose whether the exam will be available to the entire class or only to specific students.",
+      "wholeClass": "Entire class",
+      "selectedStudents": "Selected students only",
+      "requireLessons": "Require completion of lessons before making the exam available"
+    },
+    "students": {
+      "title": "Authorized students",
+      "description": "Filter by course, class, subject, or search directly for a student.",
+      "loading": "Loading...",
+      "allCourses": "All courses",
+      "allClasses": "All classes",
+      "allSubjects": "All subjects",
+      "search": "Search student...",
+      "noneFound": "No students found with the selected filters.",
+      "noRegistration": "No registration"
+    },
+    "gradeRelease": {
+      "title": "Grade release to the student",
+      "description": "Choose whether the student will see the grade immediately after finishing the exam or only on a future date.",
+      "showImmediately": "Show the grade to the student as soon as the exam is finished",
+      "dateLabel": "Date and time to release the grade",
+      "pendingHint": "Until this date arrives, the student will only see “Grade not released yet”."
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "creating": "Creating...",
+      "create": "Create exam"
+    },
+    "summary": {
+      "title": "Summary",
+      "notDefined": "Not defined yet",
+      "noDescription": "No description",
+      "notSelected": "Not selected",
+      "time": "Time",
+      "minutes": "{value} min",
+      "noTimeLimit": "No time limit",
+      "attempts": "Attempts",
+      "opening": "Opening",
+      "immediate": "Immediate",
+      "closing": "Closing",
+      "noDeadline": "No deadline",
+      "initialStatus": "Initial status"
+    },
+    "statuses": {
+      "draft": "Draft"
+    },
+    "nextStep": {
+      "title": "Next step",
+      "description": "After creating the exam, you can add questions and answer choices and publish it when it is ready."
+    },
+    "validation": {
+      "subjectRequired": "Select a subject.",
+      "classRequired": "Select a class.",
+      "studentRequired": "Select at least one student to make this exam available.",
+      "invalidPeriod": "The closing date must be later than the opening date."
+    },
+    "feedback": {
+      "loadFormError": "Error loading form data.",
+      "loadStudentsError": "Error loading students from the class.",
+      "createError": "Error creating exam."
+    }
+  },
   "ProfessorOmbudsman": {
     "eyebrow": "Communication channel",
     "title": "Ombudsman",
