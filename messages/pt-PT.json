@@ -1178,6 +1178,30 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorSubstitutions": {
+    "eyebrow": "Portal do Professor",
+    "title": "Substituições de Docentes",
+    "description": "Veja as turmas e disciplinas em que está a atuar como professor substituto. Utilize sempre o seu próprio início de sessão.",
+    "loading": "A carregar substituições...",
+    "errorLoad": "Erro ao carregar as substituições.",
+    "empty": {
+      "title": "Não existem substituições ativas neste momento.",
+      "description": "Quando a instituição lhe atribuir uma substituição ativa, esta aparecerá aqui automaticamente."
+    },
+    "badge": "EM SUBSTITUIÇÃO",
+    "subjectUnavailable": "Disciplina não informada",
+    "class": "Turma {name}",
+    "courseUnavailable": "Curso não informado",
+    "holderTeacher": "Professor titular",
+    "period": "Período",
+    "until": "até",
+    "noForecast": "sem previsão",
+    "reason": "Motivo",
+    "enterSubject": "Entrar na disciplina",
+    "status": {
+      "active": "ATIVA"
+    }
+  },
   "ProfessorClasses": {
     "loading": "A carregar turmas...",
     "error": {

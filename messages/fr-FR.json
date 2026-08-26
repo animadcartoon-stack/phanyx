@@ -1178,6 +1178,30 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorSubstitutions": {
+    "eyebrow": "Portail Enseignant",
+    "title": "Remplacements d’enseignants",
+    "description": "Consultez les classes et les matières dans lesquelles vous intervenez actuellement en tant qu’enseignant remplaçant. Utilisez toujours votre propre identifiant.",
+    "loading": "Chargement des remplacements...",
+    "errorLoad": "Erreur lors du chargement des remplacements.",
+    "empty": {
+      "title": "Aucun remplacement actif pour le moment.",
+      "description": "Lorsqu’un remplacement actif vous sera attribué par l’établissement, il apparaîtra automatiquement ici."
+    },
+    "badge": "EN REMPLACEMENT",
+    "subjectUnavailable": "Matière non renseignée",
+    "class": "Classe {name}",
+    "courseUnavailable": "Formation non renseignée",
+    "holderTeacher": "Enseignant titulaire",
+    "period": "Période",
+    "until": "jusqu’au",
+    "noForecast": "sans date de fin",
+    "reason": "Motif",
+    "enterSubject": "Accéder à la matière",
+    "status": {
+      "active": "ACTIVE"
+    }
+  },
   "ProfessorClasses": {
     "loading": "Chargement des classes...",
     "error": {

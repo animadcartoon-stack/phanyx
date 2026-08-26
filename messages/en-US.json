@@ -1178,6 +1178,30 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorSubstitutions": {
+    "eyebrow": "Teacher Portal",
+    "title": "Teacher Substitutions",
+    "description": "View the classes and subjects where you are currently working as a substitute teacher. Always use your own login.",
+    "loading": "Loading substitutions...",
+    "errorLoad": "Error loading substitutions.",
+    "empty": {
+      "title": "There are no active substitutions right now.",
+      "description": "When the institution assigns an active substitution to you, it will appear here automatically."
+    },
+    "badge": "SUBSTITUTE TEACHER",
+    "subjectUnavailable": "Subject not available",
+    "class": "Class {name}",
+    "courseUnavailable": "Course not available",
+    "holderTeacher": "Primary teacher",
+    "period": "Period",
+    "until": "until",
+    "noForecast": "no end date",
+    "reason": "Reason",
+    "enterSubject": "Open subject",
+    "status": {
+      "active": "ACTIVE"
+    }
+  },
   "ProfessorClasses": {
     "loading": "Loading classes...",
     "error": {

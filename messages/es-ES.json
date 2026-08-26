@@ -1178,6 +1178,30 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorSubstitutions": {
+    "eyebrow": "Portal del Profesor",
+    "title": "Sustituciones Docentes",
+    "description": "Consulte las clases y asignaturas en las que está actuando como profesor sustituto. Utilice siempre su propio inicio de sesión.",
+    "loading": "Cargando sustituciones...",
+    "errorLoad": "Error al cargar las sustituciones.",
+    "empty": {
+      "title": "No hay sustituciones activas en este momento.",
+      "description": "Cuando la institución le asigne una sustitución activa, aparecerá aquí automáticamente."
+    },
+    "badge": "EN SUSTITUCIÓN",
+    "subjectUnavailable": "Asignatura no informada",
+    "class": "Clase {name}",
+    "courseUnavailable": "Curso no informado",
+    "holderTeacher": "Profesor titular",
+    "period": "Período",
+    "until": "hasta",
+    "noForecast": "sin previsión",
+    "reason": "Motivo",
+    "enterSubject": "Entrar en la asignatura",
+    "status": {
+      "active": "ACTIVA"
+    }
+  },
   "ProfessorClasses": {
     "loading": "Cargando clases...",
     "error": {

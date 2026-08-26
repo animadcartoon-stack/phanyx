@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 type Substituicao = {
   id: number;
@@ -13,12 +14,21 @@ type Substituicao = {
   disciplina?: { id: number; nome: string } | null;
 };
 
-function formatarData(data?: string | null) {
-  if (!data) return "sem previsão";
-  return new Date(data).toLocaleDateString("pt-BR", { timeZone: "UTC" });
+function formatarData(
+  data: string | null | undefined,
+  locale: string,
+  semPrevisao: string
+) {
+  if (!data) return semPrevisao;
+
+  return new Date(data).toLocaleDateString(locale, {
+    timeZone: "UTC",
+  });
 }
 
 export default function ProfessorSubstituicoesPage() {
+  const t = useTranslations("ProfessorSubstitutions");
+  const locale = useLocale();
   const [items, setItems] = useState<Substituicao[]>([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
@@ -36,12 +46,12 @@ export default function ProfessorSubstituicoesPage() {
       const json = await res.json();
 
       if (!res.ok) {
-        throw new Error(json?.error || "Erro ao carregar substituições.");
+        throw new Error(json?.error || t("errorLoad"));
       }
 
       setItems(Array.isArray(json.items) ? json.items : []);
     } catch (e: any) {
-      setErro(e?.message || "Erro ao carregar substituições.");
+      setErro(e?.message || t("errorLoad"));
       setItems([]);
     } finally {
       setLoading(false);
@@ -58,26 +68,25 @@ export default function ProfessorSubstituicoesPage() {
   );
 
   return (
-  <main className="phanyx-professor-substituicoes-page space-y-6 text-slate-900 dark:text-slate-100">
+    <main className="phanyx-professor-substituicoes-page space-y-6 text-slate-900 dark:text-slate-100">
 
-    <section className="substituicao-header rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-      <p className="text-xs font-black uppercase tracking-[0.2em] text-blue-700 dark:text-blue-300">
-        Portal do Professor
-      </p>
+      <section className="substituicao-header rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+        <p className="text-xs font-black uppercase tracking-[0.2em] text-blue-700 dark:text-blue-300">
+          {t("eyebrow")}
+        </p>
 
-      <h1 className="mt-2 text-4xl font-black">
-        Substituições Docentes
-      </h1>
+        <h1 className="mt-2 text-4xl font-black">
+          {t("title")}
+        </h1>
 
-      <p className="substituicao-descricao mt-2 text-sm">
-  Veja as turmas e disciplinas em que você está atuando como professor
-  substituto. Use sempre seu próprio login.
-</p>
-    </section>
+        <p className="substituicao-descricao mt-2 text-sm">
+          {t("description")}
+        </p>
+      </section>
 
       {loading && (
         <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400">
-          Carregando substituições...
+          {t("loading")}
         </div>
       )}
 
@@ -90,12 +99,11 @@ export default function ProfessorSubstituicoesPage() {
       {!loading && !erro && ativas.length === 0 && (
         <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-center shadow-sm dark:border-slate-700 dark:bg-slate-950">
           <p className="text-lg font-black text-slate-900 dark:text-white">
-            Nenhuma substituição ativa no momento.
+            {t("empty.title")}
           </p>
 
           <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-            Quando a instituição atribuir uma substituição ativa a você, ela
-            aparecerá aqui automaticamente.
+            {t("empty.description")}
           </p>
         </div>
       )}
@@ -110,28 +118,28 @@ export default function ProfessorSubstituicoesPage() {
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <span className="substituicao-selo rounded-full px-3 py-1 text-xs font-black">
-                    🔁 EM SUBSTITUIÇÃO
+                    🔁 {t("badge")}
                   </span>
 
                   <h2 className="mt-4 text-xl font-black text-slate-900 dark:text-white">
-                    {item.disciplina?.nome || "Disciplina não informada"}
+                    {item.disciplina?.nome || t("subjectUnavailable")}
                   </h2>
 
                   <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                    Turma {item.turma?.nome || "-"} •{" "}
-                    {item.turma?.curso?.nome || "Curso não informado"}
+                    {t("class", { name: item.turma?.nome || "-" })} •{" "}
+                    {item.turma?.curso?.nome || t("courseUnavailable")}
                   </p>
                 </div>
 
                 <span className="rounded-full border border-green-200 bg-green-50 px-3 py-1 text-xs font-black text-green-700 dark:border-green-900 dark:bg-green-950/40 dark:text-green-300">
-                  {item.status}
+                  {item.status === "ATIVA" ? t("status.active") : item.status}
                 </span>
               </div>
 
               <div className="mt-5 grid gap-3 md:grid-cols-2">
                 <div className="substituicao-info rounded-2xl border p-4">
                   <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
-                    Professor titular
+                    {t("holderTeacher")}
                   </p>
                   <p className="mt-1 font-black text-slate-900 dark:text-white">
                     {item.professorTitular?.nome || "-"}
@@ -140,17 +148,19 @@ export default function ProfessorSubstituicoesPage() {
 
                 <div className="substituicao-info rounded-2xl border p-4">
                   <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
-                    Período
+                    {t("period")}
                   </p>
                   <p className="mt-1 font-black text-slate-900 dark:text-white">
-                    {formatarData(item.dataInicio)} até {formatarData(item.dataFim)}
+                    {formatarData(item.dataInicio, locale, t("noForecast"))}{" "}
+                    {t("until")}{" "}
+                    {formatarData(item.dataFim, locale, t("noForecast"))}
                   </p>
                 </div>
               </div>
 
               {item.motivo && (
                 <p className="motivo mt-4 text-sm leading-6">
-                  <strong>Motivo:</strong> {item.motivo}
+                  <strong>{t("reason")}:</strong> {item.motivo}
                 </p>
               )}
 
@@ -158,7 +168,7 @@ export default function ProfessorSubstituicoesPage() {
                 href={`/professor/turmas/${item.turma?.id}/aulas?disciplinaId=${item.disciplina?.id || ""}`}
                 className="mt-5 inline-flex w-full items-center justify-center rounded-2xl bg-blue-600 px-4 py-3 text-sm font-black text-white transition hover:bg-blue-700"
               >
-                Entrar na disciplina
+                {t("enterSubject")}
               </a>
             </article>
           ))}
