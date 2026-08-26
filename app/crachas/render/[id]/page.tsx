@@ -109,10 +109,10 @@ async function buscarDadosPessoa({
     }
 
     const nomePreferencialCompleto =
-  texto(aluno.nomeSocial) || texto(aluno.nome);
+      texto(aluno.nomeSocial) || texto(aluno.nome);
 
-const nomePreferencial =
-  nomeAutomaticoParaCracha(nomePreferencialCompleto);
+    const nomePreferencial =
+      nomeAutomaticoParaCracha(nomePreferencialCompleto);
 
     return {
       fotoUrl: aluno.fotoPerfil,
@@ -448,6 +448,59 @@ export default async function CrachaRenderPage({
     instituicaoNome: crachaEmitido.instituicao.nome,
   });
 
+  const [
+    logosInstitucionais,
+    configuracaoInstituicao,
+  ] = await Promise.all([
+    prisma.instituicaoLogo.findMany({
+      where: {
+        instituicaoId:
+          crachaEmitido.instituicaoId,
+        ativa: true,
+      },
+      select: {
+        id: true,
+        tipo: true,
+        arquivoUrl: true,
+        principal: true,
+      },
+      orderBy: [
+        {
+          principal: "desc",
+        },
+        {
+          id: "asc",
+        },
+      ],
+    }),
+
+    prisma.configuracaoInstituicao.findUnique({
+      where: {
+        instituicaoId:
+          crachaEmitido.instituicaoId,
+      },
+      select: {
+        logoUrl: true,
+      },
+    }),
+  ]);
+
+  const logoPrincipal =
+    logosInstitucionais.find(
+      (logo) => logo.principal
+    ) ||
+    logosInstitucionais.find(
+      (logo) =>
+        String(logo.tipo).toUpperCase() ===
+        "PRINCIPAL"
+    ) ||
+    null;
+
+  const logoInstituicaoUrl =
+    logoPrincipal?.arquivoUrl ||
+    configuracaoInstituicao?.logoUrl ||
+    null;
+
   const modelo = crachaEmitido.modelo;
 
   const frenteJson = objetosJson(modelo.frenteJson);
@@ -533,7 +586,7 @@ export default async function CrachaRenderPage({
           )}
           dados={resultadoPessoa.dados}
           fotoUrl={resultadoPessoa.fotoUrl}
-          logoUrl={null}
+          logoUrl={logoInstituicaoUrl}
         />
 
         {possuiVerso && (
@@ -556,7 +609,7 @@ export default async function CrachaRenderPage({
             )}
             dados={resultadoPessoa.dados}
             fotoUrl={resultadoPessoa.fotoUrl}
-            logoUrl={null}
+            logoUrl={logoInstituicaoUrl}
           />
         )}
       </main>
