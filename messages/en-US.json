@@ -1178,6 +1178,36 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorOmbudsman": {
+    "eyebrow": "Communication channel",
+    "title": "Ombudsman",
+    "description": "Use this space to send suggestions, compliments, complaints, or report situations that may contribute to improving the institution.",
+    "form": {
+      "typeLabel": "Submission type",
+      "messageLabel": "Message",
+      "messagePlaceholder": "Describe your suggestion, compliment, complaint, or report...",
+      "sending": "Sending...",
+      "send": "Send submission"
+    },
+    "types": {
+      "suggestion": "Suggestion",
+      "complaint": "Complaint",
+      "praise": "Compliment",
+      "report": "Report"
+    },
+    "feedback": {
+      "messageRequired": "Write your message before sending.",
+      "sendError": "Your submission could not be sent.",
+      "sendSuccess": "Your submission was sent successfully."
+    },
+    "howItWorks": {
+      "title": "How does it work?",
+      "forwarded": "Your submission will be forwarded to the administration.",
+      "tracking": "Tracking will be available in this area in the future.",
+      "suggestions": "Suggestions help support the institution's continuous improvement.",
+      "complaints": "Complaints and reports will be reviewed with the appropriate priority."
+    }
+  },
   "ProfessorMeetings": {
     "title": "Meetings",
     "description": "Schedule meetings by department, team, individual participant, class, course, or all students.",

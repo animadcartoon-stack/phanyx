@@ -1178,6 +1178,36 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma acadêmica SaaS"
   },
+  "ProfessorOmbudsman": {
+    "eyebrow": "Canal de comunicação",
+    "title": "Ouvidoria",
+    "description": "Utilize este espaço para enviar sugestões, elogios, reclamações ou relatar situações que possam contribuir para a melhoria da instituição.",
+    "form": {
+      "typeLabel": "Tipo da manifestação",
+      "messageLabel": "Mensagem",
+      "messagePlaceholder": "Descreva sua sugestão, elogio, reclamação ou relato...",
+      "sending": "Enviando...",
+      "send": "Enviar manifestação"
+    },
+    "types": {
+      "suggestion": "Sugestão",
+      "complaint": "Reclamação",
+      "praise": "Elogio",
+      "report": "Relato"
+    },
+    "feedback": {
+      "messageRequired": "Escreva sua mensagem antes de enviar.",
+      "sendError": "Não foi possível enviar sua manifestação.",
+      "sendSuccess": "Sua manifestação foi enviada com sucesso."
+    },
+    "howItWorks": {
+      "title": "Como funciona?",
+      "forwarded": "Sua manifestação será encaminhada à administração.",
+      "tracking": "O acompanhamento ficará disponível futuramente nesta área.",
+      "suggestions": "Sugestões ajudam na evolução contínua da instituição.",
+      "complaints": "Reclamações e relatos serão analisados com prioridade adequada."
+    }
+  },
   "ProfessorMeetings": {
     "title": "Reuniões",
     "description": "Agende reuniões por setor, equipe, participante individual, turma, curso ou todos os alunos.",

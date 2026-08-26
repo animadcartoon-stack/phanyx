@@ -1178,6 +1178,36 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorOmbudsman": {
+    "eyebrow": "Canal de communication",
+    "title": "Médiation",
+    "description": "Utilisez cet espace pour envoyer des suggestions, des compliments, des réclamations ou signaler des situations pouvant contribuer à l’amélioration de l’établissement.",
+    "form": {
+      "typeLabel": "Type de demande",
+      "messageLabel": "Message",
+      "messagePlaceholder": "Décrivez votre suggestion, compliment, réclamation ou signalement...",
+      "sending": "Envoi...",
+      "send": "Envoyer la demande"
+    },
+    "types": {
+      "suggestion": "Suggestion",
+      "complaint": "Réclamation",
+      "praise": "Compliment",
+      "report": "Signalement"
+    },
+    "feedback": {
+      "messageRequired": "Écrivez votre message avant de l’envoyer.",
+      "sendError": "Votre demande n’a pas pu être envoyée.",
+      "sendSuccess": "Votre demande a été envoyée avec succès."
+    },
+    "howItWorks": {
+      "title": "Comment ça fonctionne ?",
+      "forwarded": "Votre demande sera transmise à l’administration.",
+      "tracking": "Le suivi sera disponible ultérieurement dans cet espace.",
+      "suggestions": "Les suggestions contribuent à l’amélioration continue de l’établissement.",
+      "complaints": "Les réclamations et les signalements seront analysés avec le niveau de priorité approprié."
+    }
+  },
   "ProfessorMeetings": {
     "title": "Réunions",
     "description": "Planifiez des réunions par service, équipe, participant individuel, classe, cours ou avec tous les étudiants.",
