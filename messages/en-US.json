@@ -1178,6 +1178,23 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorSidebar": {
+  "title": "Teacher",
+  "role": "Teacher",
+  "logout": "Log out",
+  "menu": {
+    "dashboard": "Teacher Dashboard",
+    "classes": "Classes",
+    "substitutions": "Teacher Substitutions",
+    "students": "Students",
+    "materials": "Materials/Lessons",
+    "activities": "Activities",
+    "assessments": "Assessments",
+    "assignments": "Assignments",
+    "meetings": "Meetings",
+    "ombudsman": "Ombudsman"
+  }
+},
   "StudentReenrollment": {
     "loading": "Loading reenrollment...",
     "pendingPrerequisite": "Pending prerequisite: {subjects}.",

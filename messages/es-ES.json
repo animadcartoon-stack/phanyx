@@ -1178,6 +1178,23 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorSidebar": {
+  "title": "Profesor",
+  "role": "DOCENTE",
+  "logout": "Cerrar sesión",
+  "menu": {
+    "dashboard": "Panel docente",
+    "classes": "Clases",
+    "substitutions": "Sustituciones docentes",
+    "students": "Alumnos",
+    "materials": "Materiales/Clases",
+    "activities": "Actividades",
+    "assessments": "Evaluaciones",
+    "assignments": "Trabajos",
+    "meetings": "Reuniones",
+    "ombudsman": "Defensoría"
+  }
+},
   "StudentReenrollment": {
     "loading": "Cargando la rematrícula...",
     "errorTitle": "No se pudo cargar la rematrícula",

@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import ChatGlobalWidget from "@/components/chat/ChatGlobalWidget";
 import PhanyxNotificationBell from "@/components/notificacoes/PhanyxNotificationBell";
+import { useTranslations } from "next-intl";
 
 type VisibilidadeProfessor = {
   painel?: boolean;
@@ -33,6 +34,8 @@ export default function ProfessorSidebar({
   const router = useRouter();
   const { logout } = useAuth();
 
+  const t = useTranslations("ProfessorSidebar");
+
   const podeVer = {
     painel: visibilidade?.painel ?? true,
     turmas: visibilidade?.turmas ?? true,
@@ -47,33 +50,62 @@ export default function ProfessorSidebar({
   };
 
   const menu = [
-    podeVer.painel && { label: "Painel Docente", href: "/professor" },
-    podeVer.turmas && { label: "Turmas", href: "/professor/turmas" },
+    podeVer.painel && {
+      label: t("menu.dashboard"),
+      href: "/professor",
+    },
+    podeVer.turmas && {
+      label: t("menu.classes"),
+      href: "/professor/turmas",
+    },
     podeVer.substituicoes && {
-      label: "Substituições Docentes",
+      label: t("menu.substitutions"),
       href: "/professor/substituicoes",
     },
-    podeVer.alunos && { label: "Alunos", href: "/professor/alunos" },
-    podeVer.materiais && { label: "Materiais/Aulas", href: "/professor/aulas" },
-    podeVer.atividades && { label: "Atividades", href: "/professor/atividades" },
-    podeVer.provas && { label: "Avaliações", href: "/professor/provas" },
-    podeVer.trabalhos && { label: "Trabalhos", href: "/professor/trabalhos" },
-    podeVer.reunioes && { label: "Reuniões", href: "/professor/reunioes" },
-    podeVer.ouvidoria && { label: "Ouvidoria", href: "/professor/ouvidoria" },
+    podeVer.alunos && {
+      label: t("menu.students"),
+      href: "/professor/alunos",
+    },
+    podeVer.materiais && {
+      label: t("menu.materials"),
+      href: "/professor/aulas",
+    },
+    podeVer.atividades && {
+      label: t("menu.activities"),
+      href: "/professor/atividades",
+    },
+    podeVer.provas && {
+      label: t("menu.assessments"),
+      href: "/professor/provas",
+    },
+    podeVer.trabalhos && {
+      label: t("menu.assignments"),
+      href: "/professor/trabalhos",
+    },
+    podeVer.reunioes && {
+      label: t("menu.meetings"),
+      href: "/professor/reunioes",
+    },
+    podeVer.ouvidoria && {
+      label: t("menu.ombudsman"),
+      href: "/professor/ouvidoria",
+    },
   ].filter(Boolean) as { label: string; href: string }[];
 
   return (
     <>
       <aside className="professor-sidebar flex min-h-screen w-64 flex-col">
         <div className="border-b border-blue-500 p-6">
-          <div className="text-xl font-bold">👨‍🏫 Professor</div>
+          <div className="text-xl font-bold">
+            👨‍🏫 {t("title")}
+          </div>
 
           <div className="mt-4 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/10 p-3">
             <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-2xl border border-white/20 bg-white/10">
               {professor?.fotoPerfil ? (
                 <img
                   src={professor.fotoPerfil}
-                  alt={professor.nome || "Professor"}
+                  alt={professor.nome || t("title")}
                   className="h-full w-full object-cover"
                 />
               ) : (
@@ -85,10 +117,10 @@ export default function ProfessorSidebar({
 
             <div className="min-w-0">
               <p className="phanyx-professor-perfil-tipo text-xs uppercase tracking-[0.18em]">
-                Docente
+                {t("role")}
               </p>
               <p className="truncate font-semibold text-white">
-                {professor?.nome || "Professor"}
+                {professor?.nome || t("title")}
               </p>
             </div>
           </div>
@@ -121,7 +153,7 @@ export default function ProfessorSidebar({
           }}
           className="m-4 rounded bg-red-600 px-4 py-2 hover:bg-red-700"
         >
-          Sair
+          {t("logout")}
         </button>
       </aside>
 

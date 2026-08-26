@@ -1178,6 +1178,23 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorSidebar": {
+  "title": "Professor",
+  "role": "Docente",
+  "logout": "Terminar sessão",
+  "menu": {
+    "dashboard": "Painel do Professor",
+    "classes": "Turmas",
+    "substitutions": "Substituições docentes",
+    "students": "Alunos",
+    "materials": "Materiais/Aulas",
+    "activities": "Atividades",
+    "assessments": "Avaliações",
+    "assignments": "Trabalhos",
+    "meetings": "Reuniões",
+    "ombudsman": "Provedoria"
+  }
+},
   "StudentReenrollment": {
     "loading": "A carregar a renovação da matrícula...",
     "errorTitle": "Não foi possível carregar a renovação da matrícula",

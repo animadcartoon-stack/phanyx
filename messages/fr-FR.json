@@ -1178,6 +1178,23 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorSidebar": {
+  "title": "Enseignant",
+  "role": "ENSEIGNANT",
+  "logout": "Se déconnecter",
+  "menu": {
+    "dashboard": "Tableau de bord",
+    "classes": "Classes",
+    "substitutions": "Remplacements d’enseignants",
+    "students": "Étudiants",
+    "materials": "Supports/Cours",
+    "activities": "Activités",
+    "assessments": "Évaluations",
+    "assignments": "Travaux",
+    "meetings": "Réunions",
+    "ombudsman": "Médiation"
+  }
+},
   "StudentReenrollment": {
     "loading": "Chargement de la réinscription...",
     "errorTitle": "Impossible de charger la réinscription",
