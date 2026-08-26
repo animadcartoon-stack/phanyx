@@ -699,7 +699,7 @@
     "common": {
       "notProvided": "Não informado"
     },
-    "title": "A minha presença",
+    "title": "As minhas presenças",
     "subtitle": "Acompanhe a sua assiduidade por aula e consulte o resumo de presenças.",
     "loading": "A carregar os seus registos de assiduidade...",
     "emptyData": "Não existem dados de presença disponíveis.",
@@ -711,11 +711,11 @@
       "present": "Presenças",
       "absences": "Faltas",
       "excused": "Justificadas",
-      "medicalCertificates": "Atestados"
+      "medicalCertificates": "Atestados médicos"
     },
     "frequency": {
       "title": "Assiduidade",
-      "description": "As presenças, faltas justificadas e atestados são considerados assiduidade válida."
+      "description": "As presenças, faltas justificadas e atestados médicos são considerados assiduidade válida."
     },
     "history": {
       "title": "Histórico de presenças",
