@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 
 type Turma = {
   id: number;
@@ -35,9 +36,10 @@ type TurmaAgrupada = {
 
 const TURNOS = ["Matutino", "Vespertino", "Noturno", "EAD / Livre"];
 
-function formatarData(data?: string | null) {
+function formatarData(data: string | null | undefined, locale: string) {
   if (!data) return "—";
-  return new Date(data).toLocaleDateString("pt-BR");
+
+  return new Date(data).toLocaleDateString(locale);
 }
 
 function diaSemanaHoje() {
@@ -237,23 +239,24 @@ function TurmaAgrupadaCard({
   router: ReturnType<typeof useRouter>;
   buscaAtiva: boolean;
 }) {
+  const t = useTranslations("ProfessorClasses");
+  const locale = useLocale();
   const [aberta, setAberta] = useState(false);
   const [periodosAbertos, setPeriodosAbertos] = useState<Record<string, boolean>>({});
 
-useEffect(() => {
-  if (buscaAtiva) {
-    setAberta(true);
-  }
-}, [buscaAtiva]);
+  useEffect(() => {
+    if (buscaAtiva) {
+      setAberta(true);
+    }
+  }, [buscaAtiva]);
 
   const todasDisciplinas = Object.values(turma.disciplinasPorTurno).flat();
   const temAulaHoje = todasDisciplinas.some((disciplina) => diaDaTurma(disciplina) === hoje);
 
   return (
     <article
-      className={`rounded-3xl border bg-white shadow-sm transition ${
-        temAulaHoje ? "border-green-300 ring-2 ring-green-100" : "border-slate-200"
-      }`}
+      className={`rounded-3xl border bg-white shadow-sm transition ${temAulaHoje ? "border-green-300 ring-2 ring-green-100" : "border-slate-200"
+        }`}
     >
       <button
         type="button"
@@ -262,34 +265,40 @@ useEffect(() => {
       >
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-xl font-black text-slate-900">Turma {turma.nome}</h3>
+            <h3 className="text-xl font-black text-slate-900">
+              {t("class", { name: turma.nome })}
+            </h3>
 
             {temAulaHoje && (
               <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-black text-green-700">
-                Aula hoje
+                {t("classToday")}
               </span>
             )}
 
             <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
-              {turma.statusDisciplina || turma.statusTurma || "Status não informado"}
+              {turma.statusDisciplina ||
+                turma.statusTurma ||
+                t("statusUnavailable")}
             </span>
           </div>
 
           <p className="mt-2 text-sm text-slate-700">
-            <strong>Curso:</strong> {turma.curso?.nome || "—"}
+            <strong>{t("course")}:</strong> {turma.curso?.nome || "—"}
           </p>
 
           <p className="mt-1 text-sm text-slate-500">
-            {todasDisciplinas.length} disciplina(s) • {turma.alunos} aluno(s)
+            {t("counts.subjects", { count: todasDisciplinas.length })} •{" "}
+            {t("counts.students", { count: turma.alunos })}
           </p>
 
           <p className="mt-1 text-xs text-slate-500">
-            Início: {formatarData(turma.dataInicio)} • Fim: {formatarData(turma.dataFim)}
+            {t("start")}: {formatarData(turma.dataInicio, locale)} •{" "}
+            {t("end")}: {formatarData(turma.dataFim, locale)}
           </p>
         </div>
 
         <span className="shrink-0 pt-1 text-sm font-bold text-blue-700">
-          {aberta ? "▲ Fechar" : "▼ Abrir"}
+          {aberta ? `▲ ${t("close")}` : `▼ ${t("open")}`}
         </span>
       </button>
 
@@ -297,117 +306,119 @@ useEffect(() => {
         <div className="border-t border-slate-100 p-5">
           {temAulaHoje && (
             <div className="mb-5 rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-semibold text-green-700">
-              Esta turma possui aula hoje. Prepare os materiais, atividades ou aulas correspondentes.
+              {t("classTodayNotice")}
             </div>
           )}
 
           <div className="space-y-4">
             {Object.keys(turma.disciplinasPorTurno).map((turno) => {
-  const disciplinas = turma.disciplinasPorTurno[turno] || [];
+              const disciplinas = turma.disciplinasPorTurno[turno] || [];
 
-  if (disciplinas.length === 0) return null;
+              if (disciplinas.length === 0) return null;
 
-  const periodoAberto = periodosAbertos[turno] ?? false;
+              const periodoAberto = periodosAbertos[turno] ?? false;
 
-  return (
-    <section
-      key={turno}
-      className="rounded-2xl border border-slate-200 bg-slate-50"
-    >
-      <button
-        type="button"
-        onClick={() =>
-          setPeriodosAbertos((prev) => ({
-            ...prev,
-            [turno]: !periodoAberto,
-          }))
-        }
-        className="flex w-full items-center justify-between gap-4 p-4 text-left"
-      >
-        <div>
-          <h4 className="font-black text-slate-800">
-            Período {turno}
-          </h4>
+              return (
+                <section
+                  key={turno}
+                  className="rounded-2xl border border-slate-200 bg-slate-50"
+                >
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setPeriodosAbertos((prev) => ({
+                        ...prev,
+                        [turno]: !periodoAberto,
+                      }))
+                    }
+                    className="flex w-full items-center justify-between gap-4 p-4 text-left"
+                  >
+                    <div>
+                      <h4 className="font-black text-slate-800">
+                        {t("period")} {turno}
+                      </h4>
 
-          <p className="text-sm text-slate-500">
-            {disciplinas.length} disciplina(s)
-          </p>
-        </div>
+                      <p className="text-sm text-slate-500">
+                        {t("counts.subjects", { count: disciplinas.length })}
+                      </p>
+                    </div>
 
-        <span className="text-sm font-black text-blue-700">
-          {periodoAberto ? "▲ Fechar" : "▼ Abrir"}
-        </span>
-      </button>
+                    <span className="text-sm font-black text-blue-700">
+                      {periodoAberto ? `▲ ${t("close")}` : `▼ ${t("open")}`}
+                    </span>
+                  </button>
 
-      {periodoAberto && (
-        <div className="space-y-3 border-t border-slate-200 p-4">
-                    {disciplinas.map((disciplina) => {
-                      const disciplinaHoje = diaDaTurma(disciplina) === hoje;
+                  {periodoAberto && (
+                    <div className="space-y-3 border-t border-slate-200 p-4">
+                      {disciplinas.map((disciplina) => {
+                        const disciplinaHoje = diaDaTurma(disciplina) === hoje;
 
-                      return (
-                        <div
-                          key={`${disciplina.turmaDisciplinaId || disciplina.id}-${disciplina.disciplina?.id}`}
-                          className={`rounded-2xl border bg-white p-4 ${
-                            disciplinaHoje ? "border-green-300" : "border-slate-200"
-                          }`}
-                        >
-                          <div className="flex flex-wrap items-start justify-between gap-3">
-                            <div>
-                              <p className="text-base font-black text-slate-900">
-                                {disciplina.disciplina?.nome || "Disciplina não informada"}
-                              </p>
+                        return (
+                          <div
+                            key={`${disciplina.turmaDisciplinaId || disciplina.id}-${disciplina.disciplina?.id}`}
+                            className={`rounded-2xl border bg-white p-4 ${disciplinaHoje ? "border-green-300" : "border-slate-200"
+                              }`}
+                          >
+                            <div className="flex flex-wrap items-start justify-between gap-3">
+                              <div>
+                                <p className="text-base font-black text-slate-900">
+                                  {disciplina.disciplina?.nome || t("subjectUnavailable")}
+                                </p>
 
-                              <p className="mt-1 text-sm text-slate-600">
-                                <strong>Período:</strong> {disciplina.periodoLetivo || "EAD / Livre"}
-                              </p>
+                                <p className="mt-1 text-sm text-slate-600">
+                                  <strong>{t("period")}:</strong>{" "}
+                                  {disciplina.periodoLetivo || t("periodUnavailable")}
+                                </p>
 
-                              <p className="mt-1 text-sm text-slate-600">
-                                <strong>Início:</strong> {formatarData(disciplina.dataInicio)}{" "}
-                                <strong className="ml-2">Fim:</strong> {formatarData(disciplina.dataFim)}
-                              </p>
+                                <p className="mt-1 text-sm text-slate-600">
+                                  <strong>{t("start")}:</strong>{" "}
+                                  {formatarData(disciplina.dataInicio, locale)}{" "}
+                                  <strong className="ml-2">{t("end")}:</strong>{" "}
+                                  {formatarData(disciplina.dataFim, locale)}
+                                </p>
+                              </div>
+
+                              {disciplinaHoje && (
+                                <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-black text-green-700">
+                                  {t("todayBadge")}
+                                </span>
+                              )}
                             </div>
 
-                            {disciplinaHoje && (
-                              <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-black text-green-700">
-                                Hoje
-                              </span>
-                            )}
-                          </div>
+                            <div className="mt-4 grid gap-2 sm:grid-cols-3">
+                              <button
+                                onClick={() => router.push(`/professor/alunos?turmaId=${disciplina.id}`)}
+                                className="rounded-xl border border-blue-200 px-3 py-2 text-sm font-bold text-blue-700 hover:bg-blue-50"
+                              >
+                                {t("actions.students")}
+                              </button>
 
-                          <div className="mt-4 grid gap-2 sm:grid-cols-3">
-                            <button
-                              onClick={() => router.push(`/professor/alunos?turmaId=${disciplina.id}`)}
-                              className="rounded-xl border border-blue-200 px-3 py-2 text-sm font-bold text-blue-700 hover:bg-blue-50"
-                            >
-                              Ver alunos
-                            </button>
+                              <button
+                                onClick={() =>
+                                  router.push(
+                                    `/professor/turmas/${disciplina.id}/aulas?disciplinaId=${disciplina.disciplina?.id}`
+                                  )
+                                }
+                                className="rounded-xl border border-indigo-200 px-3 py-2 text-sm font-bold text-indigo-700 hover:bg-indigo-50"
+                              >
+                                {t("actions.lessons")}
+                              </button>
 
-                            <button
-                              onClick={() =>
-                                router.push(
-                                  `/professor/turmas/${disciplina.id}/aulas?disciplinaId=${disciplina.disciplina?.id}`
-                                )
-                              }
-                              className="rounded-xl border border-indigo-200 px-3 py-2 text-sm font-bold text-indigo-700 hover:bg-indigo-50"
-                            >
-                              Gerenciar aulas
-                            </button>
-
-                            <button
-                              onClick={() => router.push(`/professor/turmas/${disciplina.id}/boletim`)}
-                              className="rounded-xl border border-green-200 px-3 py-2 text-sm font-bold text-green-700 hover:bg-green-50"
-                            >
-                              Ver boletim
-                            </button>
+                              <button
+                                onClick={() => router.push(`/professor/turmas/${disciplina.id}/boletim`)}
+                                className="rounded-xl border border-green-200 px-3 py-2 text-sm font-bold text-green-700 hover:bg-green-50"
+                              >
+                                {t("actions.gradebook")}
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
-                          </div>
-      )}
-    </section>
-  );
-})}
+                        );
+                      })}
+                    </div>
+                  )}
+                </section>
+              );
+            })}
           </div>
         </div>
       )}
@@ -416,21 +427,65 @@ useEffect(() => {
 }
 
 export default function TurmasProfessorPage() {
+  const t = useTranslations("ProfessorClasses");
+
   const router = useRouter();
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
   const [busca, setBusca] = useState("");
   const [abertos, setAbertos] = useState<Record<string, boolean>>({
-  "Semestre atual": false,
-  "Próximo semestre": false,
-  "Turmas concluídas": false,
-});
+    "Semestre atual": false,
+    "Próximo semestre": false,
+    "Turmas concluídas": false,
+  });
 
   const [cursosAbertos, setCursosAbertos] = useState<Record<string, boolean>>({});
 
   const hoje = diaSemanaHoje();
   const feriado = feriadoNacionalHoje();
+
+  const hojeTraduzido =
+    hoje === "Domingo"
+      ? t("weekdays.sunday")
+      : hoje === "Segunda"
+        ? t("weekdays.monday")
+        : hoje === "Terça"
+          ? t("weekdays.tuesday")
+          : hoje === "Quarta"
+            ? t("weekdays.wednesday")
+            : hoje === "Quinta"
+              ? t("weekdays.thursday")
+              : hoje === "Sexta"
+                ? t("weekdays.friday")
+                : hoje === "Sábado"
+                  ? t("weekdays.saturday")
+                  : hoje;
+
+  const feriadoTraduzido =
+    feriado === "Confraternização Universal"
+      ? t("holidays.newYear")
+      : feriado === "Tiradentes"
+        ? t("holidays.tiradentes")
+        : feriado === "Dia do Trabalhador"
+          ? t("holidays.laborDay")
+          : feriado === "Independência do Brasil"
+            ? t("holidays.independence")
+            : feriado === "Nossa Senhora Aparecida"
+              ? t("holidays.aparecida")
+              : feriado === "Finados"
+                ? t("holidays.allSouls")
+                : feriado === "Proclamação da República"
+                  ? t("holidays.republic")
+                  : feriado === "Natal"
+                    ? t("holidays.christmas")
+                    : feriado === "Carnaval"
+                      ? t("holidays.carnival")
+                      : feriado === "Sexta-feira Santa"
+                        ? t("holidays.goodFriday")
+                        : feriado === "Corpus Christi"
+                          ? t("holidays.corpusChristi")
+                          : feriado;
 
   useEffect(() => {
     async function carregarTurmas() {
@@ -445,18 +500,18 @@ export default function TurmasProfessorPage() {
         const data = await res.json();
 
         if (!res.ok) {
-          throw new Error(data?.error || "Erro ao carregar turmas");
+          throw new Error(data?.error || t("error.load"));
         }
 
         const listaTurmas = Array.isArray(data)
           ? data
           : Array.isArray(data?.turmas)
-          ? data.turmas
-          : [];
+            ? data.turmas
+            : [];
 
         setTurmas(listaTurmas);
       } catch (e: any) {
-        setErro(e?.message || "Erro ao carregar turmas");
+        setErro(e?.message || t("error.load"));
         setTurmas([]);
       } finally {
         setLoading(false);
@@ -467,26 +522,26 @@ export default function TurmasProfessorPage() {
   }, []);
 
   const turmasFiltradas = useMemo(() => {
-  const termo = normalizarTexto(busca);
+    const termo = normalizarTexto(busca);
 
-  if (!termo) return turmas;
+    if (!termo) return turmas;
 
-  return [...turmas]
-    .map((turma) => ({
-      ...turma,
-      scoreBusca: Math.max(
-        calcularPontuacaoBusca(turma.disciplina?.nome || "", busca),
-        calcularPontuacaoBusca(turma.nome || "", busca),
-        calcularPontuacaoBusca(turma.curso?.nome || "", busca),
-        calcularPontuacaoBusca(turma.periodoLetivo || "", busca),
-        calcularPontuacaoBusca(turma.semestre || "", busca),
-        calcularPontuacaoBusca(turma.statusTurma || "", busca),
-        calcularPontuacaoBusca(turma.statusDisciplina || "", busca)
-      ),
-    }))
-    .filter((turma) => turma.scoreBusca >= 45)
-    .sort((a, b) => b.scoreBusca - a.scoreBusca);
-}, [turmas, busca]);
+    return [...turmas]
+      .map((turma) => ({
+        ...turma,
+        scoreBusca: Math.max(
+          calcularPontuacaoBusca(turma.disciplina?.nome || "", busca),
+          calcularPontuacaoBusca(turma.nome || "", busca),
+          calcularPontuacaoBusca(turma.curso?.nome || "", busca),
+          calcularPontuacaoBusca(turma.periodoLetivo || "", busca),
+          calcularPontuacaoBusca(turma.semestre || "", busca),
+          calcularPontuacaoBusca(turma.statusTurma || "", busca),
+          calcularPontuacaoBusca(turma.statusDisciplina || "", busca)
+        ),
+      }))
+      .filter((turma) => turma.scoreBusca >= 45)
+      .sort((a, b) => b.scoreBusca - a.scoreBusca);
+  }, [turmas, busca]);
 
   const grupos = useMemo(() => {
     const base: Record<string, Turma[]> = {
@@ -502,84 +557,104 @@ export default function TurmasProfessorPage() {
     return base;
   }, [turmasFiltradas]);
 
-    const buscaAtiva = busca.trim().length > 0;
+  const buscaAtiva = busca.trim().length > 0;
 
-    const sugestoesBusca = useMemo(() => {
-  const termo = normalizarTexto(busca);
+  function traduzirNomeGrupo(nomeGrupo: string) {
+    if (nomeGrupo === "Semestre atual") {
+      return t("groups.currentSemester");
+    }
 
-  if (!termo) return [];
+    if (nomeGrupo === "Próximo semestre") {
+      return t("groups.nextSemester");
+    }
 
-  return [...turmas]
-    .map((turma) => {
-      const scoreDisciplina = calcularPontuacaoBusca(
-        turma.disciplina?.nome || "",
-        busca
-      );
+    if (nomeGrupo === "Turmas concluídas") {
+      return t("groups.completedClasses");
+    }
 
-      const scoreTurma = calcularPontuacaoBusca(turma.nome || "", busca);
+    return nomeGrupo;
+  }
 
-      const scoreCurso = calcularPontuacaoBusca(
-        turma.curso?.nome || "",
-        busca
-      );
+  const sugestoesBusca = useMemo(() => {
+    const termo = normalizarTexto(busca);
 
-      const scorePeriodo = calcularPontuacaoBusca(
-        turma.periodoLetivo || "",
-        busca
-      );
+    if (!termo) return [];
 
-      return {
-  chave: `${turma.turmaDisciplinaId || turma.id}-${turma.disciplina?.id || "sem-disciplina"}`,
-  turmaId: turma.id,
-  turmaDisciplinaId: turma.turmaDisciplinaId,
-  disciplinaId: turma.disciplina?.id || null,
-  turmaNome: turma.nome,
-  cursoNome: turma.curso?.nome || "Curso não informado",
-  disciplinaNome: turma.disciplina?.nome || "Disciplina não informada",
-  periodo: turma.periodoLetivo || "EAD / Livre",
-  score: Math.max(scoreDisciplina, scoreTurma, scoreCurso, scorePeriodo),
-};
-    })
-    .filter((item) => item.score >= 45)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 8);
-}, [busca, turmas]);
+    return [...turmas]
+      .map((turma) => {
+        const scoreDisciplina = calcularPontuacaoBusca(
+          turma.disciplina?.nome || "",
+          busca
+        );
+
+        const scoreTurma = calcularPontuacaoBusca(turma.nome || "", busca);
+
+        const scoreCurso = calcularPontuacaoBusca(
+          turma.curso?.nome || "",
+          busca
+        );
+
+        const scorePeriodo = calcularPontuacaoBusca(
+          turma.periodoLetivo || "",
+          busca
+        );
+
+        return {
+          chave: `${turma.turmaDisciplinaId || turma.id}-${turma.disciplina?.id || "sem-disciplina"}`,
+          turmaId: turma.id,
+          turmaDisciplinaId: turma.turmaDisciplinaId,
+          disciplinaId: turma.disciplina?.id || null,
+          turmaNome: turma.nome,
+          cursoNome: turma.curso?.nome || t("courseUnavailable"),
+          disciplinaNome: turma.disciplina?.nome || t("subjectUnavailable"),
+          periodo: turma.periodoLetivo || t("periodUnavailable"),
+          score: Math.max(scoreDisciplina, scoreTurma, scoreCurso, scorePeriodo),
+        };
+      })
+      .filter((item) => item.score >= 45)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 8);
+  }, [busca, turmas, t]);
 
   const totalTurmasAgrupadas = useMemo(() => {
     return Object.values(grupos).reduce((acc, lista) => acc + agruparPorTurma(lista).length, 0);
   }, [grupos]);
 
-const gruposPorCurso = useMemo(() => {
-  const resultado: Record<string, Record<string, Turma[]>> = {};
+  const gruposPorCurso = useMemo(() => {
+    const resultado: Record<string, Record<string, Turma[]>> = {};
 
-  for (const [nomeGrupo, lista] of Object.entries(grupos)) {
-    resultado[nomeGrupo] = {};
+    for (const [nomeGrupo, lista] of Object.entries(grupos)) {
+      resultado[nomeGrupo] = {};
 
-    for (const turma of lista) {
-      const nomeCurso = turma.curso?.nome || "Curso não informado";
+      for (const turma of lista) {
+        const nomeCurso = turma.curso?.nome || t("courseUnavailable");
 
-      if (!resultado[nomeGrupo][nomeCurso]) {
-        resultado[nomeGrupo][nomeCurso] = [];
+        if (!resultado[nomeGrupo][nomeCurso]) {
+          resultado[nomeGrupo][nomeCurso] = [];
+        }
+
+        resultado[nomeGrupo][nomeCurso].push(turma);
       }
-
-      resultado[nomeGrupo][nomeCurso].push(turma);
     }
-  }
 
-  return resultado;
-}, [grupos]);
+    return resultado;
+  }, [grupos]);
 
   if (loading) {
-    return <main className="min-h-screen bg-white p-8 text-gray-900">Carregando turmas...</main>;
+    return (
+      <main className="min-h-screen bg-white p-8 text-gray-900">
+        {t("loading")}
+      </main>
+    );
   }
 
   if (erro) {
     return (
       <main className="min-h-screen space-y-4 bg-white p-8 text-gray-900">
-        <p className="font-bold text-red-600">Erro</p>
+        <p className="font-bold text-red-600">{t("error.title")}</p>
         <p className="text-gray-700">{erro}</p>
         <button onClick={() => window.location.reload()} className="text-blue-600 hover:underline">
-          Tentar novamente
+          {t("error.retry")}
         </button>
       </main>
     );
@@ -588,70 +663,77 @@ const gruposPorCurso = useMemo(() => {
   return (
     <main className="phanyx-professor-turmas-page min-h-screen space-y-6 bg-slate-50 p-8 text-gray-900">
       <button onClick={() => router.back()} className="text-blue-600 hover:underline">
-        ← Voltar
+        ← {t("back")}
       </button>
 
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-700">
-          Agenda docente
+          {t("eyebrow")}
         </p>
 
-        <h1 className="mt-2 text-3xl font-bold">📚 Minhas Turmas</h1>
+        <h1 className="mt-2 text-3xl font-bold">
+          📚 {t("title")}
+        </h1>
 
         <p className="mt-2 text-slate-600">
-          Organização por turma, turno e disciplina para facilitar a rotina do professor.
+          {t("description")}
         </p>
 
         <div
-  className="
+          className="
     phanyx-aula-hoje-aviso
     mt-4
     rounded-2xl
     border
     p-4
   "
->
-  <p className="font-semibold text-sky-100">
-    Hoje é <strong>{hoje}</strong>.
-  </p>
+        >
+          <p className="font-semibold text-sky-100">
+            {t("today", { day: hojeTraduzido })}
+          </p>
 
-  {feriado ? (
-    <p className="mt-2 text-sky-200">
-      🎉 <strong>Bom feriado!</strong> Hoje é{" "}
-      <strong>{feriado}</strong>. Verifique se sua instituição mantém
-      aula presencial, EAD, reposição ou atividade gravada.
-    </p>
-  ) : (
-    <p className="mt-2 text-sky-200">
-      As turmas com aula hoje ficam <strong>destacadas em verde</strong> para
-      ajudar no preparo das aulas.
-    </p>
-  )}
-</div>
+          {feriado ? (
+            <div className="mt-2 text-sky-200">
+              <p>
+                🎉 <strong>{t("holiday.greeting")}</strong>
+              </p>
+
+              <p className="mt-1">
+                {t("holiday.message", {
+                  holiday: feriadoTraduzido || feriado,
+                })}
+              </p>
+            </div>
+          ) : (
+            <p className="mt-2 text-sky-200">
+              {t("todayClassesHint")}
+            </p>
+          )}
+        </div>
 
         <div className="mt-5 grid gap-3 md:grid-cols-[1fr_auto]">
           <div className="relative">
-  <input
-    value={busca}
-    onChange={(e) => {
-      const valor = e.target.value;
-      setBusca(valor);
+            <input
+              value={busca}
+              onChange={(e) => {
+                const valor = e.target.value;
+                setBusca(valor);
 
-      if (valor.trim()) {
-        setAbertos({
-          "Semestre atual": true,
-          "Próximo semestre": true,
-          "Turmas concluídas": true,
-        });
-      }
-    }}
-    placeholder="Buscar por turma, curso, disciplina, período ou status..."
-    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
-  />
+                if (valor.trim()) {
+                  setAbertos({
+                    "Semestre atual": true,
+                    "Próximo semestre": true,
+                    "Turmas concluídas": true,
+                  });
+                }
+              }}
+              placeholder={t("search.placeholder")}
+              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
+            />
 
-  {busca.trim() && (
-    <div
-  className="
+            {busca.trim() && (
+              <div
+                className="
 absolute
 left-0
 right-0
@@ -665,23 +747,23 @@ p-2
 shadow-2xl
 phanyx-busca-sugestoes
 "
->
-      {sugestoesBusca.length === 0 ? (
-        <p className="px-3 py-3 text-sm text-slate-500">
-          Nenhuma sugestão encontrada.
-        </p>
-      ) : (
-        sugestoesBusca.map((item) => (
-          <button
-            key={item.chave}
-            type="button"
-            onClick={() => {
-  setBusca("");
-  router.push(
-  `/professor/turmas/${item.turmaId}/aulas?disciplinaId=${item.disciplinaId || ""}`
-);
-}}
-            className="
+              >
+                {sugestoesBusca.length === 0 ? (
+                  <p className="px-3 py-3 text-sm text-slate-500">
+                    {t("search.noSuggestions")}
+                  </p>
+                ) : (
+                  sugestoesBusca.map((item) => (
+                    <button
+                      key={item.chave}
+                      type="button"
+                      onClick={() => {
+                        setBusca("");
+                        router.push(
+                          `/professor/turmas/${item.turmaId}/aulas?disciplinaId=${item.disciplinaId || ""}`
+                        );
+                      }}
+                      className="
 phanyx-busca-sugestao
 w-full
 rounded-xl
@@ -690,46 +772,47 @@ py-3
 text-left
 transition
 "
-          >
-            <p className="
+                    >
+                      <p className="
 text-sm
 font-black
 text-slate-900
 dark:text-white
 ">
-              {item.disciplinaNome}
-            </p>
+                        {item.disciplinaNome}
+                      </p>
 
-            <p className="
+                      <p className="
 text-xs
 text-slate-600
 dark:text-slate-300
 ">
-              Turma {item.turmaNome} • {item.periodo}
-            </p>
+                        {t("class", { name: item.turmaNome })} • {item.periodo}
+                      </p>
 
-            <p className="
+                      <p className="
 text-xs
 font-semibold
 text-blue-700
 dark:text-sky-300
 ">
-              {item.cursoNome}
-            </p>
-          </button>
-        ))
-      )}
-    </div>
-  )}
-</div>
+                        {item.cursoNome}
+                      </p>
+                    </button>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
 
           <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-700">
-            {totalTurmasAgrupadas} turma(s) • {turmasFiltradas.length} disciplina(s)
+            {t("counts.classes", { count: totalTurmasAgrupadas })} •{" "}
+            {t("counts.subjects", { count: turmasFiltradas.length })}
           </div>
         </div>
       </section>
 
-            {Object.entries(gruposPorCurso)
+      {Object.entries(gruposPorCurso)
         .filter(([nomeGrupo]) => !buscaAtiva || (grupos[nomeGrupo]?.length || 0) > 0)
         .map(([nomeGrupo, cursos]) => {
           const lista = Object.values(cursos).flat();
@@ -751,20 +834,24 @@ dark:text-sky-300
               >
                 <div>
                   <h2 className="text-2xl font-bold text-slate-900">
-                    {nomeGrupo}
+                    {traduzirNomeGrupo(nomeGrupo)}
                   </h2>
                   <p className="text-sm text-slate-500">
-                    {Object.values(cursos).reduce(
-                      (acc, listaCurso) =>
-                        acc + agruparPorTurma(listaCurso).length,
-                      0
-                    )}{" "}
-                    turma(s) • {lista.length} disciplina(s)
+                    {t("counts.classes", {
+                      count: Object.values(cursos).reduce(
+                        (acc, listaCurso) =>
+                          acc + agruparPorTurma(listaCurso).length,
+                        0
+                      ),
+                    })}{" "}
+                    • {t("counts.subjects", { count: lista.length })}
                   </p>
                 </div>
 
                 <span className="text-sm font-semibold text-slate-500">
-                  {abertos[nomeGrupo] ? "▲ Fechar" : "▼ Abrir"}
+                  {abertos[nomeGrupo]
+                    ? `▲ ${t("close")}`
+                    : `▼ ${t("open")}`}
                 </span>
               </button>
 
@@ -772,7 +859,7 @@ dark:text-sky-300
                 <div className="space-y-4 border-t border-slate-100 p-6">
                   {lista.length === 0 ? (
                     <p className="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-500">
-                      Nenhuma turma encontrada neste grupo.
+                      {t("emptyGroup")}
                     </p>
                   ) : (
                     <div className="space-y-5">
@@ -798,7 +885,7 @@ dark:text-sky-300
                             >
                               <div>
                                 <p className="text-xs font-black uppercase tracking-[0.18em] text-blue-700">
-                                  Curso
+                                  {t("course")}
                                 </p>
 
                                 <h3 className="text-xl font-black text-slate-900">
@@ -806,13 +893,15 @@ dark:text-sky-300
                                 </h3>
 
                                 <p className="text-sm text-slate-600">
-                                  {turmasAgrupadas.length} turma(s) •{" "}
-                                  {listaCurso.length} disciplina(s)
+                                  {t("counts.classes", { count: turmasAgrupadas.length })} •{" "}
+                                  {t("counts.subjects", { count: listaCurso.length })}
                                 </p>
                               </div>
 
                               <span className="text-sm font-black text-blue-700">
-                                {cursoAberto ? "▲ Fechar" : "▼ Abrir"}
+                                {cursoAberto
+                                  ? `▲ ${t("close")}`
+                                  : `▼ ${t("open")}`}
                               </span>
                             </button>
 
@@ -842,7 +931,7 @@ dark:text-sky-300
 
       {turmas.length === 0 && (
         <p className="rounded-2xl border border-slate-200 bg-white p-6 text-slate-600">
-          Nenhuma turma encontrada.
+          {t("empty")}
         </p>
       )}
     </main>

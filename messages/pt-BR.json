@@ -1114,87 +1114,162 @@
     }
   },
   "ProfessorDashboard": {
-  "title": "Dashboard do Professor",
-  "professor": "Professor",
-  "description": "Acompanhe suas provas, tentativas e o desempenho das turmas.",
-  "loading": "Carregando dashboard...",
-  "errors": {
-    "imageUpload": "Erro ao enviar imagem.",
-    "missingImageUrl": "Upload concluído, mas a URL da imagem não foi retornada.",
-    "savePhoto": "Erro ao salvar foto do perfil.",
-    "changePhoto": "Erro ao alterar foto.",
-    "loadDashboard": "Erro ao carregar dashboard."
+    "title": "Dashboard do Professor",
+    "professor": "Professor",
+    "description": "Acompanhe suas provas, tentativas e o desempenho das turmas.",
+    "loading": "Carregando dashboard...",
+    "errors": {
+      "imageUpload": "Erro ao enviar imagem.",
+      "missingImageUrl": "Upload concluído, mas a URL da imagem não foi retornada.",
+      "savePhoto": "Erro ao salvar foto do perfil.",
+      "changePhoto": "Erro ao alterar foto.",
+      "loadDashboard": "Erro ao carregar dashboard."
+    },
+    "photo": {
+      "uploading": "Enviando...",
+      "change": "Alterar foto",
+      "tips": "Dicas da foto",
+      "instructions": "Para que sua foto fique bem centralizada no perfil, utilize uma imagem quadrada (1:1), preferencialmente em 500x500 px ou maior.",
+      "formats": "Formatos aceitos: PNG, JPG, JPEG e WEBP • Tamanho máximo: 5 MB."
+    },
+    "statuses": {
+      "published": "Publicada",
+      "closed": "Encerrada",
+      "draft": "Rascunho"
+    },
+    "stats": {
+      "totalExams": "Total de provas",
+      "drafts": "Rascunhos",
+      "published": "Publicadas",
+      "closed": "Encerradas",
+      "completedAttempts": "Tentativas finalizadas",
+      "approved": "Aprovados",
+      "failed": "Reprovados",
+      "overallAverage": "Média geral"
+    },
+    "recent": {
+      "title": "Provas recentes",
+      "description": "Visão rápida das provas mais recentes do professor.",
+      "viewAll": "Ver todas",
+      "empty": "Nenhuma prova cadastrada ainda.",
+      "subject": "Disciplina",
+      "attempts": "Tentativas",
+      "average": "Média",
+      "open": "Abrir",
+      "gradebook": "Boletim"
+    },
+    "shortcuts": {
+      "title": "Atalhos",
+      "newExam": "Nova prova",
+      "manageExams": "Gerenciar provas"
+    },
+    "summary": {
+      "title": "Resumo acadêmico",
+      "totalExams": "{count, plural, =0 {Você não possui provas cadastradas.} one {Você possui # prova cadastrada.} other {Você possui # provas cadastradas.}}",
+      "publishedExams": "{count, plural, =0 {Não há provas publicadas no momento.} one {Há # prova publicada no momento.} other {Há # provas publicadas no momento.}}",
+      "completedAttempts": "{count, plural, =0 {Nenhuma tentativa finalizada foi registrada.} one {Foi registrada # tentativa finalizada.} other {Foram registradas # tentativas finalizadas.}}",
+      "results": "{approved, plural, one {# aluno aprovado} other {# alunos aprovados}} e {failed, plural, one {# aluno reprovado} other {# alunos reprovados}}.",
+      "overallAverage": "A média geral atual é {average}."
+    }
   },
-  "photo": {
-    "uploading": "Enviando...",
-    "change": "Alterar foto",
-    "tips": "Dicas da foto",
-    "instructions": "Para que sua foto fique bem centralizada no perfil, utilize uma imagem quadrada (1:1), preferencialmente em 500x500 px ou maior.",
-    "formats": "Formatos aceitos: PNG, JPG, JPEG e WEBP • Tamanho máximo: 5 MB."
-  },
-  "statuses": {
-    "published": "Publicada",
-    "closed": "Encerrada",
-    "draft": "Rascunho"
-  },
-  "stats": {
-    "totalExams": "Total de provas",
-    "drafts": "Rascunhos",
-    "published": "Publicadas",
-    "closed": "Encerradas",
-    "completedAttempts": "Tentativas finalizadas",
-    "approved": "Aprovados",
-    "failed": "Reprovados",
-    "overallAverage": "Média geral"
-  },
-  "recent": {
-    "title": "Provas recentes",
-    "description": "Visão rápida das provas mais recentes do professor.",
-    "viewAll": "Ver todas",
-    "empty": "Nenhuma prova cadastrada ainda.",
-    "subject": "Disciplina",
-    "attempts": "Tentativas",
-    "average": "Média",
-    "open": "Abrir",
-    "gradebook": "Boletim"
-  },
-  "shortcuts": {
-    "title": "Atalhos",
-    "newExam": "Nova prova",
-    "manageExams": "Gerenciar provas"
-  },
-  "summary": {
-    "title": "Resumo acadêmico",
-    "totalExams": "{count, plural, =0 {Você não possui provas cadastradas.} one {Você possui # prova cadastrada.} other {Você possui # provas cadastradas.}}",
-    "publishedExams": "{count, plural, =0 {Não há provas publicadas no momento.} one {Há # prova publicada no momento.} other {Há # provas publicadas no momento.}}",
-    "completedAttempts": "{count, plural, =0 {Nenhuma tentativa finalizada foi registrada.} one {Foi registrada # tentativa finalizada.} other {Foram registradas # tentativas finalizadas.}}",
-    "results": "{approved, plural, one {# aluno aprovado} other {# alunos aprovados}} e {failed, plural, one {# aluno reprovado} other {# alunos reprovados}}.",
-    "overallAverage": "A média geral atual é {average}."
-  }
-},
   "Header": {
     "studentPortal": "Portal do Aluno",
     "teacherPortal": "Portal do Professor",
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma acadêmica SaaS"
   },
+  "ProfessorClasses": {
+    "loading": "Carregando turmas...",
+    "error": {
+      "title": "Erro",
+      "load": "Erro ao carregar turmas",
+      "retry": "Tentar novamente"
+    },
+    "back": "Voltar",
+    "eyebrow": "Agenda docente",
+    "title": "Minhas Turmas",
+    "description": "Organização por turma, turno e disciplina para facilitar a rotina do professor.",
+    "today": "Hoje é {day}.",
+    "holiday": {
+      "greeting": "Bom feriado!",
+      "message": "Hoje é {holiday}. Verifique se sua instituição mantém aula presencial, EAD, reposição ou atividade gravada."
+    },
+    "todayClassesHint": "As turmas com aula hoje ficam destacadas em verde para ajudar no preparo das aulas.",
+    "search": {
+      "placeholder": "Buscar por turma, curso, disciplina, período ou status...",
+      "noSuggestions": "Nenhuma sugestão encontrada."
+    },
+    "groups": {
+      "currentSemester": "Semestre atual",
+      "nextSemester": "Próximo semestre",
+      "completedClasses": "Turmas concluídas"
+    },
+    "class": "Turma {name}",
+    "classToday": "Aula hoje",
+    "statusUnavailable": "Status não informado",
+    "course": "Curso",
+    "courseUnavailable": "Curso não informado",
+    "subjectUnavailable": "Disciplina não informada",
+    "period": "Período",
+    "periodUnavailable": "EAD / Livre",
+    "start": "Início",
+    "end": "Fim",
+    "todayBadge": "Hoje",
+    "open": "Abrir",
+    "close": "Fechar",
+    "classTodayNotice": "Esta turma possui aula hoje. Prepare os materiais, atividades ou aulas correspondentes.",
+    "actions": {
+      "students": "Ver alunos",
+      "lessons": "Gerenciar aulas",
+      "gradebook": "Ver boletim"
+    },
+    "emptyGroup": "Nenhuma turma encontrada neste grupo.",
+    "empty": "Nenhuma turma encontrada.",
+    "counts": {
+      "classes": "{count, plural, =0 {nenhuma turma} one {# turma} other {# turmas}}",
+      "subjects": "{count, plural, =0 {nenhuma disciplina} one {# disciplina} other {# disciplinas}}",
+      "students": "{count, plural, =0 {nenhum aluno} one {# aluno} other {# alunos}}"
+    },
+    "holidays": {
+      "newYear": "Confraternização Universal",
+      "tiradentes": "Tiradentes",
+      "laborDay": "Dia do Trabalhador",
+      "independence": "Independência do Brasil",
+      "aparecida": "Nossa Senhora Aparecida",
+      "allSouls": "Finados",
+      "republic": "Proclamação da República",
+      "christmas": "Natal",
+      "carnival": "Carnaval",
+      "goodFriday": "Sexta-feira Santa",
+      "corpusChristi": "Corpus Christi"
+    },
+    "weekdays": {
+      "sunday": "Domingo",
+      "monday": "Segunda-feira",
+      "tuesday": "Terça-feira",
+      "wednesday": "Quarta-feira",
+      "thursday": "Quinta-feira",
+      "friday": "Sexta-feira",
+      "saturday": "Sábado"
+    }
+  },
   "ProfessorSidebar": {
-  "title": "Professor",
-  "role": "Docente",
-  "logout": "Sair",
-  "menu": {
-    "dashboard": "Painel Docente",
-    "classes": "Turmas",
-    "substitutions": "Substituições Docentes",
-    "students": "Alunos",
-    "materials": "Materiais/Aulas",
-    "activities": "Atividades",
-    "assessments": "Avaliações",
-    "assignments": "Trabalhos",
-    "meetings": "Reuniões",
-    "ombudsman": "Ouvidoria"
-  }
-},
+    "title": "Professor",
+    "role": "Docente",
+    "logout": "Sair",
+    "menu": {
+      "dashboard": "Painel Docente",
+      "classes": "Turmas",
+      "substitutions": "Substituições Docentes",
+      "students": "Alunos",
+      "materials": "Materiais/Aulas",
+      "activities": "Atividades",
+      "assessments": "Avaliações",
+      "assignments": "Trabalhos",
+      "meetings": "Reuniões",
+      "ombudsman": "Ouvidoria"
+    }
+  },
   "StudentReenrollment": {
     "loading": "Carregando rematrícula...",
     "errorTitle": "Não foi possível carregar a rematrícula",

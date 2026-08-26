@@ -1114,87 +1114,162 @@
     }
   },
   "ProfessorDashboard": {
-  "title": "Panel del Profesor",
-  "professor": "Profesor",
-  "description": "Consulta tus exámenes, intentos y el rendimiento de las clases.",
-  "loading": "Cargando el panel...",
-  "errors": {
-    "imageUpload": "No se ha podido subir la imagen.",
-    "missingImageUrl": "La carga se completó, pero no se devolvió la URL de la imagen.",
-    "savePhoto": "No se ha podido guardar la foto de perfil.",
-    "changePhoto": "No se ha podido cambiar la foto.",
-    "loadDashboard": "No se ha podido cargar el panel."
+    "title": "Panel del Profesor",
+    "professor": "Profesor",
+    "description": "Consulta tus exámenes, intentos y el rendimiento de las clases.",
+    "loading": "Cargando el panel...",
+    "errors": {
+      "imageUpload": "No se ha podido subir la imagen.",
+      "missingImageUrl": "La carga se completó, pero no se devolvió la URL de la imagen.",
+      "savePhoto": "No se ha podido guardar la foto de perfil.",
+      "changePhoto": "No se ha podido cambiar la foto.",
+      "loadDashboard": "No se ha podido cargar el panel."
+    },
+    "photo": {
+      "uploading": "Subiendo...",
+      "change": "Cambiar foto",
+      "tips": "Consejos para la foto",
+      "instructions": "Para que tu foto quede bien centrada en el perfil, utiliza una imagen cuadrada (1:1), preferiblemente de 500x500 px o superior.",
+      "formats": "Formatos admitidos: PNG, JPG, JPEG y WEBP • Tamaño máximo: 5 MB."
+    },
+    "statuses": {
+      "published": "Publicado",
+      "closed": "Cerrado",
+      "draft": "Borrador"
+    },
+    "stats": {
+      "totalExams": "Total de exámenes",
+      "drafts": "Borradores",
+      "published": "Publicados",
+      "closed": "Cerrados",
+      "completedAttempts": "Intentos finalizados",
+      "approved": "Aprobados",
+      "failed": "Suspensos",
+      "overallAverage": "Media general"
+    },
+    "recent": {
+      "title": "Exámenes recientes",
+      "description": "Vista rápida de tus exámenes más recientes.",
+      "viewAll": "Ver todos",
+      "empty": "Todavía no se ha creado ningún examen.",
+      "subject": "Asignatura",
+      "attempts": "Intentos",
+      "average": "Media",
+      "open": "Abrir",
+      "gradebook": "Calificaciones"
+    },
+    "shortcuts": {
+      "title": "Accesos directos",
+      "newExam": "Nuevo examen",
+      "manageExams": "Gestionar exámenes"
+    },
+    "summary": {
+      "title": "Resumen académico",
+      "totalExams": "{count, plural, =0 {No tienes exámenes registrados.} one {Tienes # examen registrado.} other {Tienes # exámenes registrados.}}",
+      "publishedExams": "{count, plural, =0 {No hay exámenes publicados en este momento.} one {Hay # examen publicado en este momento.} other {Hay # exámenes publicados en este momento.}}",
+      "completedAttempts": "{count, plural, =0 {No se ha registrado ningún intento finalizado.} one {Se ha registrado # intento finalizado.} other {Se han registrado # intentos finalizados.}}",
+      "results": "{approved, plural, one {# alumno aprobado} other {# alumnos aprobados}} y {failed, plural, one {# alumno suspenso} other {# alumnos suspensos}}.",
+      "overallAverage": "La media general actual es {average}."
+    }
   },
-  "photo": {
-    "uploading": "Subiendo...",
-    "change": "Cambiar foto",
-    "tips": "Consejos para la foto",
-    "instructions": "Para que tu foto quede bien centrada en el perfil, utiliza una imagen cuadrada (1:1), preferiblemente de 500x500 px o superior.",
-    "formats": "Formatos admitidos: PNG, JPG, JPEG y WEBP • Tamaño máximo: 5 MB."
-  },
-  "statuses": {
-    "published": "Publicado",
-    "closed": "Cerrado",
-    "draft": "Borrador"
-  },
-  "stats": {
-    "totalExams": "Total de exámenes",
-    "drafts": "Borradores",
-    "published": "Publicados",
-    "closed": "Cerrados",
-    "completedAttempts": "Intentos finalizados",
-    "approved": "Aprobados",
-    "failed": "Suspensos",
-    "overallAverage": "Media general"
-  },
-  "recent": {
-    "title": "Exámenes recientes",
-    "description": "Vista rápida de tus exámenes más recientes.",
-    "viewAll": "Ver todos",
-    "empty": "Todavía no se ha creado ningún examen.",
-    "subject": "Asignatura",
-    "attempts": "Intentos",
-    "average": "Media",
-    "open": "Abrir",
-    "gradebook": "Calificaciones"
-  },
-  "shortcuts": {
-    "title": "Accesos directos",
-    "newExam": "Nuevo examen",
-    "manageExams": "Gestionar exámenes"
-  },
-  "summary": {
-    "title": "Resumen académico",
-    "totalExams": "{count, plural, =0 {No tienes exámenes registrados.} one {Tienes # examen registrado.} other {Tienes # exámenes registrados.}}",
-    "publishedExams": "{count, plural, =0 {No hay exámenes publicados en este momento.} one {Hay # examen publicado en este momento.} other {Hay # exámenes publicados en este momento.}}",
-    "completedAttempts": "{count, plural, =0 {No se ha registrado ningún intento finalizado.} one {Se ha registrado # intento finalizado.} other {Se han registrado # intentos finalizados.}}",
-    "results": "{approved, plural, one {# alumno aprobado} other {# alumnos aprobados}} y {failed, plural, one {# alumno suspenso} other {# alumnos suspensos}}.",
-    "overallAverage": "La media general actual es {average}."
-  }
-},
   "Header": {
     "studentPortal": "Portal del Estudiante",
     "teacherPortal": "Portal del Profesor",
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorClasses": {
+    "loading": "Cargando clases...",
+    "error": {
+      "title": "Error",
+      "load": "Error al cargar las clases",
+      "retry": "Intentar de nuevo"
+    },
+    "back": "Volver",
+    "eyebrow": "Agenda docente",
+    "title": "Mis clases",
+    "description": "Organización por clase, período y asignatura para facilitar la rutina del profesor.",
+    "today": "Hoy es {day}.",
+    "holiday": {
+      "greeting": "¡Feliz festivo!",
+      "message": "Hoy es {holiday}. Verifique si su institución mantiene clases presenciales, clases en línea, reposiciones o actividades grabadas."
+    },
+    "todayClassesHint": "Las clases programadas para hoy se destacan en verde para ayudar en la preparación.",
+    "search": {
+      "placeholder": "Buscar por clase, curso, asignatura, período o estado...",
+      "noSuggestions": "No se encontraron sugerencias."
+    },
+    "groups": {
+      "currentSemester": "Semestre actual",
+      "nextSemester": "Próximo semestre",
+      "completedClasses": "Clases finalizadas"
+    },
+    "class": "Clase {name}",
+    "classToday": "Clase hoy",
+    "statusUnavailable": "Estado no informado",
+    "course": "Curso",
+    "courseUnavailable": "Curso no informado",
+    "subjectUnavailable": "Asignatura no informada",
+    "period": "Período",
+    "periodUnavailable": "En línea / Flexible",
+    "start": "Inicio",
+    "end": "Fin",
+    "todayBadge": "Hoy",
+    "open": "Abrir",
+    "close": "Cerrar",
+    "classTodayNotice": "Esta clase tiene actividad hoy. Prepare los materiales, actividades o clases correspondientes.",
+    "actions": {
+      "students": "Ver alumnos",
+      "lessons": "Gestionar clases",
+      "gradebook": "Ver calificaciones"
+    },
+    "emptyGroup": "No se encontraron clases en este grupo.",
+    "empty": "No se encontraron clases.",
+    "counts": {
+      "classes": "{count, plural, =0 {ninguna clase} one {# clase} other {# clases}}",
+      "subjects": "{count, plural, =0 {ninguna asignatura} one {# asignatura} other {# asignaturas}}",
+      "students": "{count, plural, =0 {ningún alumno} one {# alumno} other {# alumnos}}"
+    },
+    "holidays": {
+      "newYear": "Año Nuevo",
+      "tiradentes": "Día de Tiradentes",
+      "laborDay": "Día del Trabajo",
+      "independence": "Día de la Independencia de Brasil",
+      "aparecida": "Nuestra Señora de Aparecida",
+      "allSouls": "Día de los Difuntos",
+      "republic": "Proclamación de la República",
+      "christmas": "Navidad",
+      "carnival": "Carnaval",
+      "goodFriday": "Viernes Santo",
+      "corpusChristi": "Corpus Christi"
+    },
+    "weekdays": {
+      "sunday": "Domingo",
+      "monday": "Lunes",
+      "tuesday": "Martes",
+      "wednesday": "Miércoles",
+      "thursday": "Jueves",
+      "friday": "Viernes",
+      "saturday": "Sábado"
+    }
+  },
   "ProfessorSidebar": {
-  "title": "Profesor",
-  "role": "DOCENTE",
-  "logout": "Cerrar sesión",
-  "menu": {
-    "dashboard": "Panel docente",
-    "classes": "Clases",
-    "substitutions": "Sustituciones docentes",
-    "students": "Alumnos",
-    "materials": "Materiales/Clases",
-    "activities": "Actividades",
-    "assessments": "Evaluaciones",
-    "assignments": "Trabajos",
-    "meetings": "Reuniones",
-    "ombudsman": "Defensoría"
-  }
-},
+    "title": "Profesor",
+    "role": "DOCENTE",
+    "logout": "Cerrar sesión",
+    "menu": {
+      "dashboard": "Panel docente",
+      "classes": "Clases",
+      "substitutions": "Sustituciones docentes",
+      "students": "Alumnos",
+      "materials": "Materiales/Clases",
+      "activities": "Actividades",
+      "assessments": "Evaluaciones",
+      "assignments": "Trabajos",
+      "meetings": "Reuniones",
+      "ombudsman": "Defensoría"
+    }
+  },
   "StudentReenrollment": {
     "loading": "Cargando la rematrícula...",
     "errorTitle": "No se pudo cargar la rematrícula",

@@ -1114,87 +1114,162 @@
     }
   },
   "ProfessorDashboard": {
-  "title": "Teacher Dashboard",
-  "professor": "Teacher",
-  "description": "Track your exams, attempts, and class performance.",
-  "loading": "Loading dashboard...",
-  "errors": {
-    "imageUpload": "Unable to upload the image.",
-    "missingImageUrl": "The upload was completed, but the image URL was not returned.",
-    "savePhoto": "Unable to save the profile photo.",
-    "changePhoto": "Unable to change the photo.",
-    "loadDashboard": "Unable to load the dashboard."
+    "title": "Teacher Dashboard",
+    "professor": "Teacher",
+    "description": "Track your exams, attempts, and class performance.",
+    "loading": "Loading dashboard...",
+    "errors": {
+      "imageUpload": "Unable to upload the image.",
+      "missingImageUrl": "The upload was completed, but the image URL was not returned.",
+      "savePhoto": "Unable to save the profile photo.",
+      "changePhoto": "Unable to change the photo.",
+      "loadDashboard": "Unable to load the dashboard."
+    },
+    "photo": {
+      "uploading": "Uploading...",
+      "change": "Change photo",
+      "tips": "Photo tips",
+      "instructions": "For the best profile display, use a square image (1:1), preferably 500x500 px or larger.",
+      "formats": "Accepted formats: PNG, JPG, JPEG and WEBP • Maximum size: 5 MB."
+    },
+    "statuses": {
+      "published": "Published",
+      "closed": "Closed",
+      "draft": "Draft"
+    },
+    "stats": {
+      "totalExams": "Total exams",
+      "drafts": "Drafts",
+      "published": "Published",
+      "closed": "Closed",
+      "completedAttempts": "Completed attempts",
+      "approved": "Passed",
+      "failed": "Failed",
+      "overallAverage": "Overall average"
+    },
+    "recent": {
+      "title": "Recent exams",
+      "description": "A quick view of your most recent exams.",
+      "viewAll": "View all",
+      "empty": "No exams have been created yet.",
+      "subject": "Subject",
+      "attempts": "Attempts",
+      "average": "Average",
+      "open": "Open",
+      "gradebook": "Gradebook"
+    },
+    "shortcuts": {
+      "title": "Shortcuts",
+      "newExam": "New exam",
+      "manageExams": "Manage exams"
+    },
+    "summary": {
+      "title": "Academic summary",
+      "totalExams": "{count, plural, =0 {You have no exams registered.} one {You have # exam registered.} other {You have # exams registered.}}",
+      "publishedExams": "{count, plural, =0 {There are no published exams right now.} one {There is # published exam right now.} other {There are # published exams right now.}}",
+      "completedAttempts": "{count, plural, =0 {No completed attempts have been recorded.} one {# completed attempt has been recorded.} other {# completed attempts have been recorded.}}",
+      "results": "{approved, plural, one {# student passed} other {# students passed}} and {failed, plural, one {# student failed} other {# students failed}}.",
+      "overallAverage": "The current overall average is {average}."
+    }
   },
-  "photo": {
-    "uploading": "Uploading...",
-    "change": "Change photo",
-    "tips": "Photo tips",
-    "instructions": "For the best profile display, use a square image (1:1), preferably 500x500 px or larger.",
-    "formats": "Accepted formats: PNG, JPG, JPEG and WEBP • Maximum size: 5 MB."
-  },
-  "statuses": {
-    "published": "Published",
-    "closed": "Closed",
-    "draft": "Draft"
-  },
-  "stats": {
-    "totalExams": "Total exams",
-    "drafts": "Drafts",
-    "published": "Published",
-    "closed": "Closed",
-    "completedAttempts": "Completed attempts",
-    "approved": "Passed",
-    "failed": "Failed",
-    "overallAverage": "Overall average"
-  },
-  "recent": {
-    "title": "Recent exams",
-    "description": "A quick view of your most recent exams.",
-    "viewAll": "View all",
-    "empty": "No exams have been created yet.",
-    "subject": "Subject",
-    "attempts": "Attempts",
-    "average": "Average",
-    "open": "Open",
-    "gradebook": "Gradebook"
-  },
-  "shortcuts": {
-    "title": "Shortcuts",
-    "newExam": "New exam",
-    "manageExams": "Manage exams"
-  },
-  "summary": {
-    "title": "Academic summary",
-    "totalExams": "{count, plural, =0 {You have no exams registered.} one {You have # exam registered.} other {You have # exams registered.}}",
-    "publishedExams": "{count, plural, =0 {There are no published exams right now.} one {There is # published exam right now.} other {There are # published exams right now.}}",
-    "completedAttempts": "{count, plural, =0 {No completed attempts have been recorded.} one {# completed attempt has been recorded.} other {# completed attempts have been recorded.}}",
-    "results": "{approved, plural, one {# student passed} other {# students passed}} and {failed, plural, one {# student failed} other {# students failed}}.",
-    "overallAverage": "The current overall average is {average}."
-  }
-},
   "Header": {
     "studentPortal": "Student Portal",
     "teacherPortal": "Teacher Portal",
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorClasses": {
+    "loading": "Loading classes...",
+    "error": {
+      "title": "Error",
+      "load": "Error loading classes",
+      "retry": "Try again"
+    },
+    "back": "Back",
+    "eyebrow": "Teaching schedule",
+    "title": "My Classes",
+    "description": "Organization by class, period, and subject to make the teacher's routine easier.",
+    "today": "Today is {day}.",
+    "holiday": {
+      "greeting": "Happy holiday!",
+      "message": "Today is {holiday}. Check whether your institution is holding in-person classes, online classes, make-up sessions, or recorded activities."
+    },
+    "todayClassesHint": "Classes scheduled for today are highlighted in green to help you prepare.",
+    "search": {
+      "placeholder": "Search by class, course, subject, period, or status...",
+      "noSuggestions": "No suggestions found."
+    },
+    "groups": {
+      "currentSemester": "Current semester",
+      "nextSemester": "Next semester",
+      "completedClasses": "Completed classes"
+    },
+    "class": "Class {name}",
+    "classToday": "Class today",
+    "statusUnavailable": "Status not available",
+    "course": "Course",
+    "courseUnavailable": "Course not available",
+    "subjectUnavailable": "Subject not available",
+    "period": "Period",
+    "periodUnavailable": "Online / Flexible",
+    "start": "Start",
+    "end": "End",
+    "todayBadge": "Today",
+    "open": "Open",
+    "close": "Close",
+    "classTodayNotice": "This class meets today. Prepare the corresponding materials, activities, or lessons.",
+    "actions": {
+      "students": "View students",
+      "lessons": "Manage lessons",
+      "gradebook": "View gradebook"
+    },
+    "emptyGroup": "No classes found in this group.",
+    "empty": "No classes found.",
+    "counts": {
+      "classes": "{count, plural, =0 {no classes} one {# class} other {# classes}}",
+      "subjects": "{count, plural, =0 {no subjects} one {# subject} other {# subjects}}",
+      "students": "{count, plural, =0 {no students} one {# student} other {# students}}"
+    },
+    "holidays": {
+      "newYear": "New Year's Day",
+      "tiradentes": "Tiradentes Day",
+      "laborDay": "Labor Day",
+      "independence": "Brazilian Independence Day",
+      "aparecida": "Our Lady of Aparecida",
+      "allSouls": "All Souls' Day",
+      "republic": "Proclamation of the Republic",
+      "christmas": "Christmas",
+      "carnival": "Carnival",
+      "goodFriday": "Good Friday",
+      "corpusChristi": "Corpus Christi"
+    },
+    "weekdays": {
+      "sunday": "Sunday",
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday"
+    }
+  },
   "ProfessorSidebar": {
-  "title": "Teacher",
-  "role": "Teacher",
-  "logout": "Log out",
-  "menu": {
-    "dashboard": "Teacher Dashboard",
-    "classes": "Classes",
-    "substitutions": "Teacher Substitutions",
-    "students": "Students",
-    "materials": "Materials/Lessons",
-    "activities": "Activities",
-    "assessments": "Assessments",
-    "assignments": "Assignments",
-    "meetings": "Meetings",
-    "ombudsman": "Ombudsman"
-  }
-},
+    "title": "Teacher",
+    "role": "Teacher",
+    "logout": "Log out",
+    "menu": {
+      "dashboard": "Teacher Dashboard",
+      "classes": "Classes",
+      "substitutions": "Teacher Substitutions",
+      "students": "Students",
+      "materials": "Materials/Lessons",
+      "activities": "Activities",
+      "assessments": "Assessments",
+      "assignments": "Assignments",
+      "meetings": "Meetings",
+      "ombudsman": "Ombudsman"
+    }
+  },
   "StudentReenrollment": {
     "loading": "Loading reenrollment...",
     "pendingPrerequisite": "Pending prerequisite: {subjects}.",
