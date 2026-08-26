@@ -13,12 +13,14 @@ import PhanyxThemeToggle from "@/components/theme/PhanyxThemeToggle";
 import SeletorIdioma from "@/components/internacionalizacao/SeletorIdioma";
 import { paginaVisivel } from "@/lib/portal-config";
 import ImpersonacaoBanner from "@/components/suporte/ImpersonacaoBanner";
+import { getTranslations } from "next-intl/server";
 
 export default async function ProfessorLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const t = await getTranslations("ProfessorSidebar");
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
 
@@ -221,7 +223,7 @@ export default async function ProfessorLayout({
                       type="submit"
                       className="rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-600 shadow-sm transition hover:bg-red-50"
                     >
-                      Sair
+                      {t("logout")}
                     </button>
                   </form>
                 </div>
