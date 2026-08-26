@@ -1178,6 +1178,70 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma acadêmica SaaS"
   },
+  "ProfessorActivities": {
+    "title": "Atividades",
+    "description": "Gerencie atividades, prazos e entregas dos alunos.",
+    "newActivity": "Nova atividade",
+    "loading": "Carregando atividades...",
+    "errorLoad": "Erro ao carregar atividades",
+    "search": {
+      "placeholder": "Buscar por aluno, turma, tarefa, período, prazo ou disciplina...",
+      "noSuggestions": "Nenhuma sugestão encontrada."
+    },
+    "empty": {
+      "title": "Nenhuma atividade cadastrada",
+      "description": "Crie a primeira atividade para começar a receber entregas."
+    },
+    "class": "Turma {name}",
+    "classLabel": "Turma",
+    "students": "Alunos",
+    "subject": "Disciplina",
+    "deadline": "Prazo",
+    "maximumGrade": "Nota máxima",
+    "createdAt": "Criado em",
+    "attachments": "Arquivos anexados",
+    "open": "Abrir",
+    "fallbacks": {
+      "classUnavailable": "Turma não informada",
+      "subjectUnavailable": "Disciplina não informada",
+      "notInformed": "Não informada",
+      "noDeadline": "Sem prazo",
+      "file": "Arquivo"
+    },
+    "statuses": {
+      "published": "Publicada",
+      "awaitingPublication": "Aguardando publicação",
+      "closed": "Encerrada",
+      "draft": "Rascunho"
+    },
+    "support": {
+      "sent": "Enviado para Apoio Docente",
+      "sentAt": "Enviado em",
+      "published": "Publicada pelo Apoio Docente",
+      "publishedBy": "Publicado por",
+      "publishedAt": "Publicado em"
+    },
+    "actions": {
+      "publish": "Publicar",
+      "publishing": "Publicando...",
+      "sendSupport": "Enviar para Apoio Docente",
+      "sending": "Enviando...",
+      "returnDraft": "Voltar para rascunho",
+      "returning": "Voltando...",
+      "delete": "Excluir",
+      "deleting": "Excluindo..."
+    },
+    "feedback": {
+      "publishError": "Erro ao publicar atividade",
+      "publishSuccess": "Atividade publicada com sucesso",
+      "supportError": "Erro ao enviar para apoio docente",
+      "supportSuccess": "Atividade enviada para apoio docente",
+      "returnDraftError": "Erro ao voltar para rascunho",
+      "returnDraftSuccess": "Atividade voltou para rascunho",
+      "deleteError": "Erro ao excluir atividade",
+      "deleteSuccess": "Atividade excluída com sucesso"
+    }
+  },
   "ProfessorLessons": {
     "eyebrow": "Aulas",
     "title": "Minhas Aulas",

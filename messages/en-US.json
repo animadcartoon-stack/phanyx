@@ -1178,6 +1178,70 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorActivities": {
+    "title": "Activities",
+    "description": "Manage activities, deadlines, and student submissions.",
+    "newActivity": "New activity",
+    "loading": "Loading activities...",
+    "errorLoad": "Error loading activities",
+    "search": {
+      "placeholder": "Search by student, class, assignment, period, deadline, or subject...",
+      "noSuggestions": "No suggestions found."
+    },
+    "empty": {
+      "title": "No activities registered",
+      "description": "Create the first activity to start receiving submissions."
+    },
+    "class": "Class {name}",
+    "classLabel": "Class",
+    "students": "Students",
+    "subject": "Subject",
+    "deadline": "Deadline",
+    "maximumGrade": "Maximum grade",
+    "createdAt": "Created at",
+    "attachments": "Attached files",
+    "open": "Open",
+    "fallbacks": {
+      "classUnavailable": "Class not available",
+      "subjectUnavailable": "Subject not available",
+      "notInformed": "Not available",
+      "noDeadline": "No deadline",
+      "file": "File"
+    },
+    "statuses": {
+      "published": "Published",
+      "awaitingPublication": "Awaiting publication",
+      "closed": "Closed",
+      "draft": "Draft"
+    },
+    "support": {
+      "sent": "Sent to Teaching Support",
+      "sentAt": "Sent at",
+      "published": "Published by Teaching Support",
+      "publishedBy": "Published by",
+      "publishedAt": "Published at"
+    },
+    "actions": {
+      "publish": "Publish",
+      "publishing": "Publishing...",
+      "sendSupport": "Send to Teaching Support",
+      "sending": "Sending...",
+      "returnDraft": "Return to draft",
+      "returning": "Returning...",
+      "delete": "Delete",
+      "deleting": "Deleting..."
+    },
+    "feedback": {
+      "publishError": "Error publishing activity",
+      "publishSuccess": "Activity published successfully",
+      "supportError": "Error sending activity to Teaching Support",
+      "supportSuccess": "Activity sent to Teaching Support",
+      "returnDraftError": "Error returning activity to draft",
+      "returnDraftSuccess": "Activity returned to draft",
+      "deleteError": "Error deleting activity",
+      "deleteSuccess": "Activity deleted successfully"
+    }
+  },
   "ProfessorLessons": {
     "eyebrow": "Lessons",
     "title": "My Lessons",

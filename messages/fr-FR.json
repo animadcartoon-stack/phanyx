@@ -1178,6 +1178,70 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorActivities": {
+    "title": "Activités",
+    "description": "Gérez les activités, les échéances et les travaux remis par les étudiants.",
+    "newActivity": "Nouvelle activité",
+    "loading": "Chargement des activités...",
+    "errorLoad": "Erreur lors du chargement des activités",
+    "search": {
+      "placeholder": "Rechercher par étudiant, classe, travail, période, échéance ou matière...",
+      "noSuggestions": "Aucune suggestion trouvée."
+    },
+    "empty": {
+      "title": "Aucune activité enregistrée",
+      "description": "Créez la première activité pour commencer à recevoir des travaux."
+    },
+    "class": "Classe {name}",
+    "classLabel": "Classe",
+    "students": "Étudiants",
+    "subject": "Matière",
+    "deadline": "Échéance",
+    "maximumGrade": "Note maximale",
+    "createdAt": "Créé le",
+    "attachments": "Fichiers joints",
+    "open": "Ouvrir",
+    "fallbacks": {
+      "classUnavailable": "Classe non renseignée",
+      "subjectUnavailable": "Matière non renseignée",
+      "notInformed": "Non renseignée",
+      "noDeadline": "Sans échéance",
+      "file": "Fichier"
+    },
+    "statuses": {
+      "published": "Publiée",
+      "awaitingPublication": "En attente de publication",
+      "closed": "Clôturée",
+      "draft": "Brouillon"
+    },
+    "support": {
+      "sent": "Envoyée au soutien pédagogique",
+      "sentAt": "Envoyée le",
+      "published": "Publiée par le soutien pédagogique",
+      "publishedBy": "Publiée par",
+      "publishedAt": "Publiée le"
+    },
+    "actions": {
+      "publish": "Publier",
+      "publishing": "Publication...",
+      "sendSupport": "Envoyer au soutien pédagogique",
+      "sending": "Envoi...",
+      "returnDraft": "Revenir au brouillon",
+      "returning": "Retour au brouillon...",
+      "delete": "Supprimer",
+      "deleting": "Suppression..."
+    },
+    "feedback": {
+      "publishError": "Erreur lors de la publication de l’activité",
+      "publishSuccess": "Activité publiée avec succès",
+      "supportError": "Erreur lors de l’envoi de l’activité au soutien pédagogique",
+      "supportSuccess": "Activité envoyée au soutien pédagogique",
+      "returnDraftError": "Erreur lors du retour de l’activité au brouillon",
+      "returnDraftSuccess": "L’activité est revenue au brouillon",
+      "deleteError": "Erreur lors de la suppression de l’activité",
+      "deleteSuccess": "Activité supprimée avec succès"
+    }
+  },
   "ProfessorLessons": {
     "eyebrow": "Cours",
     "title": "Mes cours",

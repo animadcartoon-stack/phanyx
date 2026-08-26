@@ -1178,6 +1178,70 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorActivities": {
+    "title": "Actividades",
+    "description": "Gestione actividades, plazos y entregas de los alumnos.",
+    "newActivity": "Nueva actividad",
+    "loading": "Cargando actividades...",
+    "errorLoad": "Error al cargar las actividades",
+    "search": {
+      "placeholder": "Buscar por alumno, clase, tarea, período, plazo o asignatura...",
+      "noSuggestions": "No se encontraron sugerencias."
+    },
+    "empty": {
+      "title": "No hay actividades registradas",
+      "description": "Cree la primera actividad para empezar a recibir entregas."
+    },
+    "class": "Clase {name}",
+    "classLabel": "Clase",
+    "students": "Alumnos",
+    "subject": "Asignatura",
+    "deadline": "Plazo",
+    "maximumGrade": "Nota máxima",
+    "createdAt": "Creado el",
+    "attachments": "Archivos adjuntos",
+    "open": "Abrir",
+    "fallbacks": {
+      "classUnavailable": "Clase no informada",
+      "subjectUnavailable": "Asignatura no informada",
+      "notInformed": "No informada",
+      "noDeadline": "Sin plazo",
+      "file": "Archivo"
+    },
+    "statuses": {
+      "published": "Publicada",
+      "awaitingPublication": "Pendiente de publicación",
+      "closed": "Cerrada",
+      "draft": "Borrador"
+    },
+    "support": {
+      "sent": "Enviado a Apoyo Docente",
+      "sentAt": "Enviado el",
+      "published": "Publicada por Apoyo Docente",
+      "publishedBy": "Publicado por",
+      "publishedAt": "Publicado el"
+    },
+    "actions": {
+      "publish": "Publicar",
+      "publishing": "Publicando...",
+      "sendSupport": "Enviar a Apoyo Docente",
+      "sending": "Enviando...",
+      "returnDraft": "Volver a borrador",
+      "returning": "Volviendo...",
+      "delete": "Eliminar",
+      "deleting": "Eliminando..."
+    },
+    "feedback": {
+      "publishError": "Error al publicar la actividad",
+      "publishSuccess": "Actividad publicada correctamente",
+      "supportError": "Error al enviar la actividad a Apoyo Docente",
+      "supportSuccess": "Actividad enviada a Apoyo Docente",
+      "returnDraftError": "Error al volver la actividad a borrador",
+      "returnDraftSuccess": "La actividad volvió a borrador",
+      "deleteError": "Error al eliminar la actividad",
+      "deleteSuccess": "Actividad eliminada correctamente"
+    }
+  },
   "ProfessorLessons": {
     "eyebrow": "Clases",
     "title": "Mis clases",
