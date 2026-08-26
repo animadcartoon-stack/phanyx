@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 type TurmaFiltro = {
   id: number;
@@ -38,47 +39,53 @@ type AlunoProfessor = {
   };
 };
 
-function labelStatusAluno(status?: string | null) {
+function labelStatusAluno(
+  status: string | null | undefined,
+  t: ReturnType<typeof useTranslations>
+) {
   switch (status) {
     case "ATIVO":
-      return "Ativo";
+      return t("studentStatuses.active");
     case "TRANCADO":
-      return "Trancado";
+      return t("studentStatuses.locked");
     case "SUSPENSO":
-      return "Suspenso";
+      return t("studentStatuses.suspended");
     case "INADIMPLENTE":
-      return "Inadimplente";
+      return t("studentStatuses.delinquent");
     case "TRANSFERIDO":
-      return "Transferido";
+      return t("studentStatuses.transferred");
     case "DESLIGADO":
-      return "Desligado";
+      return t("studentStatuses.disconnected");
     case "FORMADO":
-      return "Formado";
+      return t("studentStatuses.graduated");
     case "CANCELADO":
-      return "Cancelado";
+      return t("studentStatuses.canceled");
     case "PAUSA_MEDICA":
-      return "Pausa médica";
+      return t("studentStatuses.medicalLeave");
     case "FALTANTE":
-      return "Faltante";
+      return t("studentStatuses.missing");
     default:
       return "-";
   }
 }
 
-function labelStatusDisciplina(status?: string | null) {
+function labelStatusDisciplina(
+  status: string | null | undefined,
+  t: ReturnType<typeof useTranslations>
+) {
   switch (status) {
     case "A_CURSAR":
-      return "A cursar";
+      return t("subjectStatuses.toTake");
     case "EM_CURSO":
-      return "Em curso";
+      return t("subjectStatuses.inProgress");
     case "CONCLUIDO":
-      return "Concluído";
+      return t("subjectStatuses.completed");
     case "TRANCADO":
-      return "Trancado";
+      return t("subjectStatuses.locked");
     case "REPROVADO":
-      return "Reprovado";
+      return t("subjectStatuses.failed");
     case "CANCELADO":
-      return "Cancelado";
+      return t("subjectStatuses.canceled");
     default:
       return "-";
   }
@@ -133,7 +140,7 @@ function calcularPontuacaoBusca(texto: string, termo: string) {
 
   // Para buscas curtas como "mi", "ra", "da",
   // NÃO usamos aproximação, senão gmail.com e palavras parecidas entram errado.
-  
+
 
   let melhorScore = 0;
 
@@ -142,18 +149,18 @@ function calcularPontuacaoBusca(texto: string, termo: string) {
     const distanciaInicio = distanciaLevenshtein(pedacoInicial, normalTermo);
 
     if (
-  palavra.length >= normalTermo.length &&
-  distanciaInicio <= 1
-) {
-  melhorScore = Math.max(melhorScore, 700);
-}
+      palavra.length >= normalTermo.length &&
+      distanciaInicio <= 1
+    ) {
+      melhorScore = Math.max(melhorScore, 700);
+    }
 
     const distanciaPalavraInteira = distanciaLevenshtein(palavra, normalTermo);
 
     if (
-  normalTermo.length >= 4 &&
-  distanciaPalavraInteira <= 1
-) {
+      normalTermo.length >= 4 &&
+      distanciaPalavraInteira <= 1
+    ) {
       melhorScore = Math.max(melhorScore, 600);
     }
   }
@@ -179,6 +186,7 @@ function textoAlunoBusca(aluno: AlunoProfessor) {
 }
 
 export default function ProfessorAlunosPage() {
+  const t = useTranslations("ProfessorStudents");
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
@@ -194,7 +202,7 @@ export default function ProfessorAlunosPage() {
       setErro("");
 
       const query = new URLSearchParams();
-      
+
       if (turmaId) query.set("turmaId", turmaId);
 
       const res = await fetch(`/api/professor/alunos?${query.toString()}`, {
@@ -205,13 +213,13 @@ export default function ProfessorAlunosPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao carregar alunos");
+        throw new Error(data?.error || t("errorLoad"));
       }
 
       setAlunos(Array.isArray(data?.alunos) ? data.alunos : []);
       setTurmas(Array.isArray(data?.turmas) ? data.turmas : []);
     } catch (e: any) {
-      setErro(e?.message || "Erro ao carregar alunos");
+      setErro(e?.message || t("errorLoad"));
       setAlunos([]);
       setTurmas([]);
     } finally {
@@ -238,192 +246,196 @@ export default function ProfessorAlunosPage() {
     const mediaGeral =
       alunos.length > 0
         ? Number(
-            (
-              alunos.reduce((acc, a) => acc + Number(a.media || 0), 0) /
-              alunos.length
-            ).toFixed(2)
-          )
+          (
+            alunos.reduce((acc, a) => acc + Number(a.media || 0), 0) /
+            alunos.length
+          ).toFixed(2)
+        )
         : 0;
 
     return { total, comAtestado, comFaltas, mediaGeral };
   }, [alunos]);
 
-    const alunosFiltrados = useMemo(() => {
-  const termo = normalizarTexto(busca);
+  const alunosFiltrados = useMemo(() => {
+    const termo = normalizarTexto(busca);
 
-  if (!termo) return alunos;
+    if (!termo) return alunos;
 
-  function scoreSimilaridade(valor: string | number | null | undefined) {
-    const texto = normalizarTexto(valor);
-    if (!texto) return 0;
+    function scoreSimilaridade(valor: string | number | null | undefined) {
+      const texto = normalizarTexto(valor);
+      if (!texto) return 0;
 
-    const palavras = texto.split(/\s+/).filter(Boolean);
+      const palavras = texto.split(/\s+/).filter(Boolean);
 
-    const palavrasParaComparar =
-      termo.length <= 3 ? palavras.slice(0, 1) : palavras;
+      const palavrasParaComparar =
+        termo.length <= 3 ? palavras.slice(0, 1) : palavras;
 
-    if (texto === termo) return 10000;
-    if (texto.startsWith(termo)) return 9000;
-    if (palavrasParaComparar.some((p) => p === termo)) return 8500;
-    if (palavrasParaComparar.some((p) => p.startsWith(termo))) return 8000;
-    if (texto.includes(termo)) return 6000;
+      if (texto === termo) return 10000;
+      if (texto.startsWith(termo)) return 9000;
+      if (palavrasParaComparar.some((p) => p === termo)) return 8500;
+      if (palavrasParaComparar.some((p) => p.startsWith(termo))) return 8000;
+      if (texto.includes(termo)) return 6000;
 
-    let melhor = 0;
+      let melhor = 0;
 
-    for (const palavra of palavrasParaComparar) {
-      const inicio = palavra.slice(0, termo.length);
-      const distanciaInicio = distanciaLevenshtein(inicio, termo);
+      for (const palavra of palavrasParaComparar) {
+        const inicio = palavra.slice(0, termo.length);
+        const distanciaInicio = distanciaLevenshtein(inicio, termo);
 
-      if (distanciaInicio <= 1) {
-        melhor = Math.max(melhor, 5000 - distanciaInicio * 500);
-      }
+        if (distanciaInicio <= 1) {
+          melhor = Math.max(melhor, 5000 - distanciaInicio * 500);
+        }
 
-      if (termo.length >= 4) {
-        const distanciaPalavra = distanciaLevenshtein(palavra, termo);
+        if (termo.length >= 4) {
+          const distanciaPalavra = distanciaLevenshtein(palavra, termo);
 
-        if (distanciaPalavra <= 2) {
-          melhor = Math.max(melhor, 4000 - distanciaPalavra * 500);
+          if (distanciaPalavra <= 2) {
+            melhor = Math.max(melhor, 4000 - distanciaPalavra * 500);
+          }
         }
       }
+
+      return melhor;
     }
 
-    return melhor;
-  }
+    return [...alunos]
+      .map((aluno) => {
+        const scoreNome = scoreSimilaridade(aluno.nome);
+        const scoreMatricula = scoreSimilaridade(aluno.matricula);
+        const scoreTurma = scoreSimilaridade(aluno.turma?.nome);
+        const scoreSemestre = scoreSimilaridade(aluno.turma?.semestre);
+        const scoreDisciplina = scoreSimilaridade(aluno.disciplina?.nome);
+        const scoreEmail = termo.length >= 4 ? scoreSimilaridade(aluno.email) : 0;
 
-  return [...alunos]
-    .map((aluno) => {
-      const scoreNome = scoreSimilaridade(aluno.nome);
-      const scoreMatricula = scoreSimilaridade(aluno.matricula);
-      const scoreTurma = scoreSimilaridade(aluno.turma?.nome);
-      const scoreSemestre = scoreSimilaridade(aluno.turma?.semestre);
-      const scoreDisciplina = scoreSimilaridade(aluno.disciplina?.nome);
-      const scoreEmail = termo.length >= 4 ? scoreSimilaridade(aluno.email) : 0;
+        return {
+          ...aluno,
+          scoreBusca:
+            scoreNome * 1000000 +
+            scoreMatricula * 10000 +
+            scoreTurma * 100 +
+            scoreSemestre * 10 +
+            scoreDisciplina +
+            scoreEmail,
+        };
+      })
+      .filter((aluno) => aluno.scoreBusca > 0)
+      .sort((a, b) => {
+        if (b.scoreBusca !== a.scoreBusca) {
+          return b.scoreBusca - a.scoreBusca;
+        }
 
-      return {
-  ...aluno,
-  scoreBusca:
-    scoreNome * 1000000 +
-    scoreMatricula * 10000 +
-    scoreTurma * 100 +
-    scoreSemestre * 10 +
-    scoreDisciplina +
-    scoreEmail,
-};
-    })
-    .filter((aluno) => aluno.scoreBusca > 0)
-    .sort((a, b) => {
-  if (b.scoreBusca !== a.scoreBusca) {
-    return b.scoreBusca - a.scoreBusca;
-  }
-
-  return a.nome.localeCompare(b.nome);
-});
-}, [alunos, busca]);
+        return a.nome.localeCompare(b.nome);
+      });
+  }, [alunos, busca]);
 
   const sugestoesBusca = useMemo(() => {
-  const termo = normalizarTexto(busca);
+    const termo = normalizarTexto(busca);
 
-  if (!termo) return [];
+    if (!termo) return [];
 
-  return alunosFiltrados
-    .slice(0, 8)
-    .map((aluno) => ({
-      chave: String(aluno.itemMatriculaId),
-      alunoNome: aluno.nome,
-      turmaNome: aluno.turma?.nome || "Turma não informada",
-      disciplinaNome: aluno.disciplina?.nome || "Disciplina não informada",
-      semestre: aluno.turma?.semestre || "Período não informado",
-    }));
-}, [busca, alunosFiltrados]);
+    return alunosFiltrados
+      .slice(0, 8)
+      .map((aluno) => ({
+        chave: String(aluno.itemMatriculaId),
+        alunoNome: aluno.nome,
+        turmaNome: aluno.turma?.nome || t("fallbacks.classUnavailable"),
+        disciplinaNome:
+          aluno.disciplina?.nome || t("fallbacks.subjectUnavailable"),
+        semestre:
+          aluno.turma?.semestre || t("fallbacks.periodUnavailable"),
+      }));
+  }, [busca, alunosFiltrados, t]);
   return (
     <div className="space-y-6 max-w-7xl">
       <div>
-        <h1 className="text-2xl font-bold">👨‍🎓 Alunos do Professor</h1>
+        <h1 className="text-2xl font-bold">
+          👨‍🎓 {t("title")}
+        </h1>
         <p className="text-gray-600 mt-1">
-          Acompanhe notas, frequência, faltas, atestados e desempenho acadêmico.
+          {t("description")}
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white border rounded-xl p-4">
-          <p className="text-sm text-gray-500">Alunos</p>
+          <p className="text-sm text-gray-500">{t("summary.students")}</p>
           <p className="text-2xl font-bold">{resumo.total}</p>
         </div>
         <div className="bg-white border rounded-xl p-4">
-          <p className="text-sm text-gray-500">Com faltas</p>
+          <p className="text-sm text-gray-500">{t("summary.withAbsences")}</p>
           <p className="text-2xl font-bold">{resumo.comFaltas}</p>
         </div>
         <div className="bg-white border rounded-xl p-4">
-          <p className="text-sm text-gray-500">Com atestado</p>
+          <p className="text-sm text-gray-500">{t("summary.withMedicalCertificates")}</p>
           <p className="text-2xl font-bold">{resumo.comAtestado}</p>
         </div>
         <div className="bg-white border rounded-xl p-4">
-          <p className="text-sm text-gray-500">Média geral</p>
+          <p className="text-sm text-gray-500">{t("summary.overallAverage")}</p>
           <p className="text-2xl font-bold">{resumo.mediaGeral}</p>
         </div>
       </div>
 
-     <div className="bg-white border rounded-xl p-4 flex flex-col md:flex-row gap-3">
-  <div className="relative flex-1">
-    <input
-      type="text"
-      placeholder="Buscar por aluno, turma, tarefa, período ou disciplina"
-      value={busca}
-      onChange={(e) => {
-  setBusca(e.target.value);
-  setSugestoesAbertas(true);
-}}
-      className="w-full border rounded-lg p-2"
-    />
+      <div className="bg-white border rounded-xl p-4 flex flex-col md:flex-row gap-3">
+        <div className="relative flex-1">
+          <input
+            type="text"
+            placeholder={t("search.placeholder")}
+            value={busca}
+            onChange={(e) => {
+              setBusca(e.target.value);
+              setSugestoesAbertas(true);
+            }}
+            className="w-full border rounded-lg p-2"
+          />
 
-    {busca.trim() && sugestoesAbertas && (
-      <div className="absolute left-0 right-0 top-[46px] z-50 max-h-80 overflow-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl">
-        {sugestoesBusca.length === 0 ? (
-          <p className="px-3 py-3 text-sm text-slate-500">
-            Nenhuma sugestão encontrada.
-          </p>
-        ) : (
-          sugestoesBusca.map((item) => (
-            <button
-              key={item.chave}
-              type="button"
-              onClick={() => {
-  setBusca(item.alunoNome);
-  setSugestoesAbertas(false);
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}}
-              className="w-full rounded-xl px-3 py-3 text-left hover:bg-blue-50"
-            >
-              <p className="text-sm font-black text-slate-900">
-                {item.alunoNome}
-              </p>
-              <p className="text-xs text-slate-600">
-                Turma {item.turmaNome} • {item.semestre}
-              </p>
-              <p className="text-xs font-semibold text-blue-700">
-                {item.disciplinaNome}
-              </p>
-            </button>
-          ))
-        )}
+          {busca.trim() && sugestoesAbertas && (
+            <div className="absolute left-0 right-0 top-[46px] z-50 max-h-80 overflow-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl">
+              {sugestoesBusca.length === 0 ? (
+                <p className="px-3 py-3 text-sm text-slate-500">
+                  {t("search.noSuggestions")}
+                </p>
+              ) : (
+                sugestoesBusca.map((item) => (
+                  <button
+                    key={item.chave}
+                    type="button"
+                    onClick={() => {
+                      setBusca(item.alunoNome);
+                      setSugestoesAbertas(false);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    className="w-full rounded-xl px-3 py-3 text-left hover:bg-blue-50"
+                  >
+                    <p className="text-sm font-black text-slate-900">
+                      {item.alunoNome}
+                    </p>
+                    <p className="text-xs text-slate-600">
+                      {t("class", { name: item.turmaNome })} • {item.semestre}
+                    </p>
+                    <p className="text-xs font-semibold text-blue-700">
+                      {item.disciplinaNome}
+                    </p>
+                  </button>
+                ))
+              )}
+            </div>
+          )}
+        </div>
+
+        <select
+          value={turmaId}
+          onChange={(e) => setTurmaId(e.target.value)}
+          className="w-full md:w-80 border rounded-lg p-2 bg-white"
+        >
+          <option value="">{t("search.allClasses")}</option>
+          {turmas.map((turma) => (
+            <option key={turma.id} value={String(turma.id)}>
+              {turma.nome}
+              {turma.disciplinaNome ? ` — ${turma.disciplinaNome}` : ""}
+            </option>
+          ))}
+        </select>
       </div>
-    )}
-  </div>
-
-  <select
-    value={turmaId}
-    onChange={(e) => setTurmaId(e.target.value)}
-    className="w-full md:w-80 border rounded-lg p-2 bg-white"
-  >
-    <option value="">Todas as turmas</option>
-    {turmas.map((turma) => (
-      <option key={turma.id} value={String(turma.id)}>
-        {turma.nome}
-        {turma.disciplinaNome ? ` — ${turma.disciplinaNome}` : ""}
-      </option>
-    ))}
-  </select>
-</div>
 
       {erro && (
         <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
@@ -433,11 +445,11 @@ export default function ProfessorAlunosPage() {
 
       {loading ? (
         <div className="bg-white border rounded-xl p-6 text-gray-600">
-          Carregando alunos...
+          {t("loading")}
         </div>
       ) : alunosFiltrados.length === 0 ? (
         <div className="bg-white border rounded-xl p-6 text-gray-600">
-          Nenhum aluno encontrado.
+          {t("empty")}
         </div>
       ) : (
         <div className="space-y-4">
@@ -448,56 +460,73 @@ export default function ProfessorAlunosPage() {
                   <p className="font-semibold text-lg">{aluno.nome}</p>
                   <p className="text-sm text-gray-600">{aluno.email || "-"}</p>
                   <p className="text-sm text-gray-600">
-                    Matrícula: {aluno.matricula || "-"}
+                    {t("registration")}: {aluno.matricula || "-"}
                   </p>
                 </div>
 
                 <div className="text-sm text-gray-700 space-y-1">
-                  <p>Status aluno: {labelStatusAluno(aluno.statusAluno)}</p>
-                  <p>Status disciplina: {labelStatusDisciplina(aluno.statusDisciplina)}</p>
-                  <p>Turma: {aluno.turma?.nome || "-"}</p>
-                  <p>Disciplina: {aluno.disciplina?.nome || "-"}</p>
-                  <p>Semestre: {aluno.turma?.semestre || "-"}</p>
+                  <p>
+                    {t("studentStatus")}: {labelStatusAluno(aluno.statusAluno, t)}
+                  </p>
+                  <p>
+                    {t("subjectStatus")}: {labelStatusDisciplina(aluno.statusDisciplina, t)}
+                  </p>
+                  <p>
+                    {t("classLabel")}: {aluno.turma?.nome || "-"}
+                  </p>
+                  <p>
+                    {t("subject")}: {aluno.disciplina?.nome || "-"}
+                  </p>
+                  <p>
+                    {t("semester")}: {aluno.turma?.semestre || "-"}
+                  </p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                 <div className="border rounded-lg p-4">
-                  <p className="text-sm text-gray-500">Notas</p>
+                  <p className="text-sm text-gray-500">{t("grades.title")}</p>
                   <p className="mt-2 text-sm text-gray-700">
-                    Lançadas: {aluno.notas.length}
+                    {t("grades.entered")}: {aluno.notas.length}
                   </p>
                   <p className="text-sm text-gray-700">
-                    Média: {aluno.media ?? "-"}
+                    {t("grades.average")}: {aluno.media ?? "-"}
                   </p>
                   <p className="text-sm text-gray-700">
-                    Valores: {aluno.notas.length > 0 ? aluno.notas.join(", ") : "-"}
+                    {t("grades.values")}:{" "}
+                    {aluno.notas.length > 0 ? aluno.notas.join(", ") : "-"}
                   </p>
                 </div>
 
                 <div className="border rounded-lg p-4">
-                  <p className="text-sm text-gray-500">Frequência</p>
+                  <p className="text-sm text-gray-500">{t("attendance.title")}</p>
                   <p className="mt-2 text-sm text-gray-700">
-                    Percentual: {aluno.frequencia.percentual ?? "-"}%
+                    {t("attendance.percentage")}:{" "}
+                    {aluno.frequencia.percentual ?? "-"}%
                   </p>
                   <p className="text-sm text-gray-700">
-                    Presenças: {aluno.frequencia.presente}
+                    {t("attendance.presences")}: {aluno.frequencia.presente}
                   </p>
                   <p className="text-sm text-gray-700">
-                    Faltas: {aluno.frequencia.falta}
+                    {t("attendance.absences")}: {aluno.frequencia.falta}
                   </p>
                 </div>
 
                 <div className="border rounded-lg p-4">
-                  <p className="text-sm text-gray-500">Justificativas</p>
+                  <p className="text-sm text-gray-500">
+                    {t("justifications.title")}
+                  </p>
                   <p className="mt-2 text-sm text-gray-700">
-                    Justificadas: {aluno.frequencia.justificada}
+                    {t("justifications.justified")}:{" "}
+                    {aluno.frequencia.justificada}
                   </p>
                   <p className="text-sm text-gray-700">
-                    Atestados: {aluno.frequencia.atestado}
+                    {t("justifications.medicalCertificates")}:{" "}
+                    {aluno.frequencia.atestado}
                   </p>
                   <p className="text-sm text-gray-700">
-                    Total de registros: {aluno.frequencia.total}
+                    {t("justifications.totalRecords")}:{" "}
+                    {aluno.frequencia.total}
                   </p>
                 </div>
               </div>

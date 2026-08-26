@@ -1178,6 +1178,74 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorStudents": {
+    "title": "Étudiants de l’enseignant",
+    "description": "Suivez les notes, l’assiduité, les absences, les certificats médicaux et les performances académiques.",
+    "loading": "Chargement des étudiants...",
+    "errorLoad": "Erreur lors du chargement des étudiants",
+    "empty": "Aucun étudiant trouvé.",
+    "summary": {
+      "students": "Étudiants",
+      "withAbsences": "Avec absences",
+      "withMedicalCertificates": "Avec certificat médical",
+      "overallAverage": "Moyenne générale"
+    },
+    "search": {
+      "placeholder": "Rechercher par étudiant, classe, travail, période ou matière",
+      "noSuggestions": "Aucune suggestion trouvée.",
+      "allClasses": "Toutes les classes"
+    },
+    "fallbacks": {
+      "classUnavailable": "Classe non renseignée",
+      "subjectUnavailable": "Matière non renseignée",
+      "periodUnavailable": "Période non renseignée"
+    },
+    "class": "Classe {name}",
+    "registration": "Inscription",
+    "studentStatus": "Statut de l’étudiant",
+    "subjectStatus": "Statut de la matière",
+    "classLabel": "Classe",
+    "subject": "Matière",
+    "semester": "Semestre",
+    "grades": {
+      "title": "Notes",
+      "entered": "Saisies",
+      "average": "Moyenne",
+      "values": "Valeurs"
+    },
+    "attendance": {
+      "title": "Assiduité",
+      "percentage": "Pourcentage",
+      "presences": "Présences",
+      "absences": "Absences"
+    },
+    "justifications": {
+      "title": "Justifications",
+      "justified": "Justifiées",
+      "medicalCertificates": "Certificats médicaux",
+      "totalRecords": "Total des enregistrements"
+    },
+    "studentStatuses": {
+      "active": "Actif",
+      "locked": "Suspendu temporairement",
+      "suspended": "Suspendu",
+      "delinquent": "En défaut de paiement",
+      "transferred": "Transféré",
+      "disconnected": "Désinscrit",
+      "graduated": "Diplômé",
+      "canceled": "Annulé",
+      "medicalLeave": "Congé médical",
+      "missing": "Absent"
+    },
+    "subjectStatuses": {
+      "toTake": "À suivre",
+      "inProgress": "En cours",
+      "completed": "Terminée",
+      "locked": "Suspendue temporairement",
+      "failed": "Échouée",
+      "canceled": "Annulée"
+    }
+  },
   "ProfessorSubstitutions": {
     "eyebrow": "Portail Enseignant",
     "title": "Remplacements d’enseignants",

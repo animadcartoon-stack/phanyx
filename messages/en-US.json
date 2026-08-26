@@ -1178,6 +1178,74 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorStudents": {
+    "title": "Teacher's Students",
+    "description": "Track grades, attendance, absences, medical certificates, and academic performance.",
+    "loading": "Loading students...",
+    "errorLoad": "Error loading students",
+    "empty": "No students found.",
+    "summary": {
+      "students": "Students",
+      "withAbsences": "With absences",
+      "withMedicalCertificates": "With medical certificates",
+      "overallAverage": "Overall average"
+    },
+    "search": {
+      "placeholder": "Search by student, class, assignment, period, or subject",
+      "noSuggestions": "No suggestions found.",
+      "allClasses": "All classes"
+    },
+    "fallbacks": {
+      "classUnavailable": "Class not available",
+      "subjectUnavailable": "Subject not available",
+      "periodUnavailable": "Period not available"
+    },
+    "class": "Class {name}",
+    "registration": "Registration",
+    "studentStatus": "Student status",
+    "subjectStatus": "Subject status",
+    "classLabel": "Class",
+    "subject": "Subject",
+    "semester": "Semester",
+    "grades": {
+      "title": "Grades",
+      "entered": "Entered",
+      "average": "Average",
+      "values": "Values"
+    },
+    "attendance": {
+      "title": "Attendance",
+      "percentage": "Percentage",
+      "presences": "Present",
+      "absences": "Absences"
+    },
+    "justifications": {
+      "title": "Justifications",
+      "justified": "Justified",
+      "medicalCertificates": "Medical certificates",
+      "totalRecords": "Total records"
+    },
+    "studentStatuses": {
+      "active": "Active",
+      "locked": "On hold",
+      "suspended": "Suspended",
+      "delinquent": "Delinquent",
+      "transferred": "Transferred",
+      "disconnected": "Withdrawn",
+      "graduated": "Graduated",
+      "canceled": "Canceled",
+      "medicalLeave": "Medical leave",
+      "missing": "Missing"
+    },
+    "subjectStatuses": {
+      "toTake": "To take",
+      "inProgress": "In progress",
+      "completed": "Completed",
+      "locked": "On hold",
+      "failed": "Failed",
+      "canceled": "Canceled"
+    }
+  },
   "ProfessorSubstitutions": {
     "eyebrow": "Teacher Portal",
     "title": "Teacher Substitutions",

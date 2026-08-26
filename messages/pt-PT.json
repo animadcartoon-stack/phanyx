@@ -1178,6 +1178,74 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorStudents": {
+    "title": "Alunos do Professor",
+    "description": "Acompanhe notas, assiduidade, faltas, atestados e desempenho académico.",
+    "loading": "A carregar alunos...",
+    "errorLoad": "Erro ao carregar os alunos",
+    "empty": "Nenhum aluno encontrado.",
+    "summary": {
+      "students": "Alunos",
+      "withAbsences": "Com faltas",
+      "withMedicalCertificates": "Com atestado",
+      "overallAverage": "Média geral"
+    },
+    "search": {
+      "placeholder": "Pesquisar por aluno, turma, tarefa, período ou disciplina",
+      "noSuggestions": "Nenhuma sugestão encontrada.",
+      "allClasses": "Todas as turmas"
+    },
+    "fallbacks": {
+      "classUnavailable": "Turma não informada",
+      "subjectUnavailable": "Disciplina não informada",
+      "periodUnavailable": "Período não informado"
+    },
+    "class": "Turma {name}",
+    "registration": "Matrícula",
+    "studentStatus": "Estado do aluno",
+    "subjectStatus": "Estado da disciplina",
+    "classLabel": "Turma",
+    "subject": "Disciplina",
+    "semester": "Semestre",
+    "grades": {
+      "title": "Notas",
+      "entered": "Lançadas",
+      "average": "Média",
+      "values": "Valores"
+    },
+    "attendance": {
+      "title": "Assiduidade",
+      "percentage": "Percentagem",
+      "presences": "Presenças",
+      "absences": "Faltas"
+    },
+    "justifications": {
+      "title": "Justificações",
+      "justified": "Justificadas",
+      "medicalCertificates": "Atestados",
+      "totalRecords": "Total de registos"
+    },
+    "studentStatuses": {
+      "active": "Ativo",
+      "locked": "Trancado",
+      "suspended": "Suspenso",
+      "delinquent": "Inadimplente",
+      "transferred": "Transferido",
+      "disconnected": "Desligado",
+      "graduated": "Formado",
+      "canceled": "Cancelado",
+      "medicalLeave": "Pausa médica",
+      "missing": "Faltante"
+    },
+    "subjectStatuses": {
+      "toTake": "Por frequentar",
+      "inProgress": "Em curso",
+      "completed": "Concluído",
+      "locked": "Trancado",
+      "failed": "Reprovado",
+      "canceled": "Cancelado"
+    }
+  },
   "ProfessorSubstitutions": {
     "eyebrow": "Portal do Professor",
     "title": "Substituições de Docentes",

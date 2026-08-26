@@ -1178,6 +1178,74 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorStudents": {
+    "title": "Alumnos del Profesor",
+    "description": "Consulte notas, asistencia, faltas, certificados médicos y rendimiento académico.",
+    "loading": "Cargando alumnos...",
+    "errorLoad": "Error al cargar los alumnos",
+    "empty": "No se encontraron alumnos.",
+    "summary": {
+      "students": "Alumnos",
+      "withAbsences": "Con faltas",
+      "withMedicalCertificates": "Con certificado médico",
+      "overallAverage": "Media general"
+    },
+    "search": {
+      "placeholder": "Buscar por alumno, clase, tarea, período o asignatura",
+      "noSuggestions": "No se encontraron sugerencias.",
+      "allClasses": "Todas las clases"
+    },
+    "fallbacks": {
+      "classUnavailable": "Clase no informada",
+      "subjectUnavailable": "Asignatura no informada",
+      "periodUnavailable": "Período no informado"
+    },
+    "class": "Clase {name}",
+    "registration": "Matrícula",
+    "studentStatus": "Estado del alumno",
+    "subjectStatus": "Estado de la asignatura",
+    "classLabel": "Clase",
+    "subject": "Asignatura",
+    "semester": "Semestre",
+    "grades": {
+      "title": "Calificaciones",
+      "entered": "Registradas",
+      "average": "Media",
+      "values": "Valores"
+    },
+    "attendance": {
+      "title": "Asistencia",
+      "percentage": "Porcentaje",
+      "presences": "Presencias",
+      "absences": "Faltas"
+    },
+    "justifications": {
+      "title": "Justificaciones",
+      "justified": "Justificadas",
+      "medicalCertificates": "Certificados médicos",
+      "totalRecords": "Total de registros"
+    },
+    "studentStatuses": {
+      "active": "Activo",
+      "locked": "Suspendido temporalmente",
+      "suspended": "Suspendido",
+      "delinquent": "Moroso",
+      "transferred": "Transferido",
+      "disconnected": "Desvinculado",
+      "graduated": "Graduado",
+      "canceled": "Cancelado",
+      "medicalLeave": "Baja médica",
+      "missing": "Ausente"
+    },
+    "subjectStatuses": {
+      "toTake": "Pendiente",
+      "inProgress": "En curso",
+      "completed": "Finalizada",
+      "locked": "Suspendida temporalmente",
+      "failed": "Suspensa",
+      "canceled": "Cancelada"
+    }
+  },
   "ProfessorSubstitutions": {
     "eyebrow": "Portal del Profesor",
     "title": "Sustituciones Docentes",
