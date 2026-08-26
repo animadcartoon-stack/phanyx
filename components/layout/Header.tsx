@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 const navItems = [
   { label: "Planos", href: "/planos" },
@@ -11,6 +12,7 @@ const navItems = [
 
 export default function Header() {
   const pathname = usePathname();
+  const t = useTranslations("Header");
   const isHome = pathname === "/";
 
   const isAluno = pathname.startsWith("/aluno");
@@ -21,20 +23,18 @@ export default function Header() {
 
   return (
     <header
-      className={`sticky top-0 z-50 transition-all duration-300 ${
-        isHome
-          ? "border-b border-white/5 bg-gradient-to-b from-black/60 via-black/35 to-transparent backdrop-blur-2xl"
-          : "border-b border-slate-200/80 bg-white/90 backdrop-blur-xl"
-      }`}
+      className={`sticky top-0 z-50 transition-all duration-300 ${isHome
+        ? "border-b border-white/5 bg-gradient-to-b from-black/60 via-black/35 to-transparent backdrop-blur-2xl"
+        : "border-b border-slate-200/80 bg-white/90 backdrop-blur-xl"
+        }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2.5 md:px-10 lg:px-12">
         <Link href="/" className="flex min-w-0 items-center gap-3">
           <div
-            className={`relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border shadow-sm ${
-              isHome
-                ? "border-white/15 bg-white/10"
-                : "border-slate-200 bg-white"
-            }`}
+            className={`relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border shadow-sm ${isHome
+              ? "border-white/15 bg-white/10"
+              : "border-slate-200 bg-white"
+              }`}
           >
             <Image
               src="/icon.png"
@@ -46,25 +46,23 @@ export default function Header() {
 
           <div className="min-w-0">
             <div
-              className={`truncate text-[14px] font-bold tracking-[0.16em] sm:text-[15px] ${
-                isHome ? "text-white" : "text-slate-900"
-              }`}
+              className={`truncate text-[14px] font-bold tracking-[0.16em] sm:text-[15px] ${isHome ? "text-white" : "text-slate-900"
+                }`}
             >
               PHANYX
             </div>
 
             <div
-              className={`truncate text-[10px] sm:text-[11px] ${
-                isHome ? "text-blue-100/80" : "text-slate-500"
-              }`}
+              className={`truncate text-[10px] sm:text-[11px] ${isHome ? "text-blue-100/80" : "text-slate-500"
+                }`}
             >
               {isAluno
-                ? "Portal do Aluno"
+                ? t("studentPortal")
                 : isProfessor
-                ? "Portal do Professor"
-                : isAdmin
-                ? "Área administrativa"
-                : "Plataforma acadêmica SaaS"}
+                  ? t("teacherPortal")
+                  : isAdmin
+                    ? t("adminArea")
+                    : t("academicPlatform")}
             </div>
           </div>
         </Link>
@@ -82,15 +80,14 @@ export default function Header() {
                   href={item.href}
                   target={abrirNovaAba ? "_blank" : undefined}
                   rel={abrirNovaAba ? "noopener noreferrer" : undefined}
-                  className={`relative text-sm font-medium transition ${
-                    isHome
-                      ? active
-                        ? "text-white"
-                        : "text-white/80 hover:text-white"
-                      : active
+                  className={`relative text-sm font-medium transition ${isHome
+                    ? active
+                      ? "text-white"
+                      : "text-white/80 hover:text-white"
+                    : active
                       ? "text-slate-900"
                       : "text-slate-600 hover:text-slate-900"
-                  }`}
+                    }`}
                 >
                   {item.label}
                 </Link>
@@ -106,11 +103,10 @@ export default function Header() {
                 href="https://wa.me/5548988101240?text=Olá!%20Quero%20saber%20mais%20sobre%20o%20PHANYX."
                 target="_blank"
                 rel="noreferrer"
-                className={`hidden rounded-xl px-4 py-2 text-sm font-medium shadow-sm transition md:inline-flex ${
-                  isHome
-                    ? "border border-white/15 bg-white/10 text-white hover:bg-white/15"
-                    : "border border-slate-300 bg-white text-slate-700 hover:border-slate-400 hover:bg-slate-50"
-                }`}
+                className={`hidden rounded-xl px-4 py-2 text-sm font-medium shadow-sm transition md:inline-flex ${isHome
+                  ? "border border-white/15 bg-white/10 text-white hover:bg-white/15"
+                  : "border border-slate-300 bg-white text-slate-700 hover:border-slate-400 hover:bg-slate-50"
+                  }`}
               >
                 Falar com comercial
               </a>
@@ -118,11 +114,10 @@ export default function Header() {
 
             <Link
               href="/suporte"
-              className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
-                isHome
-                  ? "border border-blue-300/20 bg-blue-400/10 text-blue-100 hover:bg-blue-400/20"
-                  : "border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
-              }`}
+              className={`rounded-xl px-4 py-2 text-sm font-medium transition ${isHome
+                ? "border border-blue-300/20 bg-blue-400/10 text-blue-100 hover:bg-blue-400/20"
+                : "border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
+                }`}
             >
               Suporte
             </Link>
@@ -130,11 +125,10 @@ export default function Header() {
             {!isAdmin && (
               <Link
                 href="/login"
-                className={`rounded-xl px-4 py-2 text-sm font-semibold shadow-sm transition ${
-                  isHome
-                    ? "bg-white text-slate-950 hover:bg-blue-50"
-                    : "bg-slate-950 text-white hover:bg-slate-800"
-                }`}
+                className={`rounded-xl px-4 py-2 text-sm font-semibold shadow-sm transition ${isHome
+                  ? "bg-white text-slate-950 hover:bg-blue-50"
+                  : "bg-slate-950 text-white hover:bg-slate-800"
+                  }`}
               >
                 Área administrativa
               </Link>

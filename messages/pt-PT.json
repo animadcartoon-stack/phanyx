@@ -1099,6 +1099,12 @@
       "analysis": "As reclamações e os relatos serão analisados pela instituição."
     }
   },
+  "Header": {
+  "studentPortal": "Portal do Aluno",
+  "teacherPortal": "Portal do Professor",
+  "adminArea": "Área administrativa",
+  "academicPlatform": "Plataforma académica SaaS"
+},
   "StudentReenrollment": {
     "loading": "A carregar a renovação da matrícula...",
     
