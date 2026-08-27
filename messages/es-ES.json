@@ -1178,6 +1178,46 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorEditAlternative": {
+    "loading": "Cargando alternativa...",
+    "notFound": "Alternativa no encontrada",
+    "title": "Editar alternativa",
+    "description": "Actualice el texto y defina si esta es la alternativa correcta.",
+    "back": "Volver a la pregunta",
+    "fields": {
+      "text": "Texto de la alternativa",
+      "placeholder": "Introduzca el texto de la alternativa",
+      "correct": "Marcar como alternativa correcta"
+    },
+    "actions": {
+      "retry": "Intentar de nuevo",
+      "save": "Guardar alternativa",
+      "saving": "Guardando...",
+      "delete": "Eliminar alternativa",
+      "deleting": "Eliminando..."
+    },
+    "deleteModal": {
+      "title": "Confirmar eliminación",
+      "message": "¿Está seguro de que desea eliminar esta alternativa?",
+      "warning": "Esta acción no se puede deshacer.",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar eliminación"
+    },
+    "validation": {
+      "textRequired": "Introduzca el texto de la alternativa."
+    },
+    "feedback": {
+      "examLoadError": "Error al cargar el examen.",
+      "invalidResponse": "No se han podido interpretar los datos del examen.",
+      "questionNotFound": "Pregunta no encontrada.",
+      "notFound": "Alternativa no encontrada.",
+      "loadError": "Error al cargar la alternativa.",
+      "saveError": "Error al guardar la alternativa.",
+      "saveSuccess": "Alternativa actualizada correctamente.",
+      "deleteError": "Error al eliminar la alternativa.",
+      "deleteSuccess": "Alternativa eliminada correctamente."
+    }
+  },
   "ProfessorAttemptDetail": {
     "loading": "Cargando intento...",
     "notFound": "Intento no encontrado",

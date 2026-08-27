@@ -1178,6 +1178,46 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorEditAlternative": {
+    "loading": "Loading answer choice...",
+    "notFound": "Answer choice not found",
+    "title": "Edit answer choice",
+    "description": "Update the text and define whether this is the correct answer choice.",
+    "back": "Back to the question",
+    "fields": {
+      "text": "Answer choice text",
+      "placeholder": "Enter the answer choice text",
+      "correct": "Mark as the correct answer choice"
+    },
+    "actions": {
+      "retry": "Try again",
+      "save": "Save answer choice",
+      "saving": "Saving...",
+      "delete": "Delete answer choice",
+      "deleting": "Deleting..."
+    },
+    "deleteModal": {
+      "title": "Confirm deletion",
+      "message": "Are you sure you want to delete this answer choice?",
+      "warning": "This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Confirm deletion"
+    },
+    "validation": {
+      "textRequired": "Enter the answer choice text."
+    },
+    "feedback": {
+      "examLoadError": "Error loading the exam.",
+      "invalidResponse": "The exam data could not be interpreted.",
+      "questionNotFound": "Question not found.",
+      "notFound": "Answer choice not found.",
+      "loadError": "Error loading the answer choice.",
+      "saveError": "Error saving the answer choice.",
+      "saveSuccess": "Answer choice updated successfully.",
+      "deleteError": "Error deleting the answer choice.",
+      "deleteSuccess": "Answer choice deleted successfully."
+    }
+  },
   "ProfessorAttemptDetail": {
     "loading": "Loading attempt...",
     "notFound": "Attempt not found",

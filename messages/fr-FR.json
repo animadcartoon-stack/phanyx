@@ -1178,6 +1178,46 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorEditAlternative": {
+    "loading": "Chargement de la réponse...",
+    "notFound": "Réponse introuvable",
+    "title": "Modifier la réponse",
+    "description": "Modifiez le texte et indiquez s’il s’agit de la réponse correcte.",
+    "back": "Retour à la question",
+    "fields": {
+      "text": "Texte de la réponse",
+      "placeholder": "Saisissez le texte de la réponse",
+      "correct": "Marquer comme réponse correcte"
+    },
+    "actions": {
+      "retry": "Réessayer",
+      "save": "Enregistrer la réponse",
+      "saving": "Enregistrement...",
+      "delete": "Supprimer la réponse",
+      "deleting": "Suppression..."
+    },
+    "deleteModal": {
+      "title": "Confirmer la suppression",
+      "message": "Êtes-vous sûr de vouloir supprimer cette réponse ?",
+      "warning": "Cette action est irréversible.",
+      "cancel": "Annuler",
+      "confirm": "Confirmer la suppression"
+    },
+    "validation": {
+      "textRequired": "Saisissez le texte de la réponse."
+    },
+    "feedback": {
+      "examLoadError": "Erreur lors du chargement de l’examen.",
+      "invalidResponse": "Les données de l’examen n’ont pas pu être interprétées.",
+      "questionNotFound": "Question introuvable.",
+      "notFound": "Réponse introuvable.",
+      "loadError": "Erreur lors du chargement de la réponse.",
+      "saveError": "Erreur lors de l’enregistrement de la réponse.",
+      "saveSuccess": "Réponse mise à jour avec succès.",
+      "deleteError": "Erreur lors de la suppression de la réponse.",
+      "deleteSuccess": "Réponse supprimée avec succès."
+    }
+  },
   "ProfessorAttemptDetail": {
     "loading": "Chargement de la tentative...",
     "notFound": "Tentative introuvable",

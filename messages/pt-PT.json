@@ -1178,6 +1178,46 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorEditAlternative": {
+    "loading": "A carregar alternativa...",
+    "notFound": "Alternativa não encontrada",
+    "title": "Editar alternativa",
+    "description": "Atualize o texto e defina se esta é a alternativa correta.",
+    "back": "Voltar para a questão",
+    "fields": {
+      "text": "Texto da alternativa",
+      "placeholder": "Introduza o texto da alternativa",
+      "correct": "Assinalar como alternativa correta"
+    },
+    "actions": {
+      "retry": "Tentar novamente",
+      "save": "Guardar alternativa",
+      "saving": "A guardar...",
+      "delete": "Eliminar alternativa",
+      "deleting": "A eliminar..."
+    },
+    "deleteModal": {
+      "title": "Confirmar eliminação",
+      "message": "Tem a certeza de que pretende eliminar esta alternativa?",
+      "warning": "Esta ação não pode ser anulada.",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar eliminação"
+    },
+    "validation": {
+      "textRequired": "Introduza o texto da alternativa."
+    },
+    "feedback": {
+      "examLoadError": "Erro ao carregar a prova.",
+      "invalidResponse": "Não foi possível interpretar os dados da prova.",
+      "questionNotFound": "Questão não encontrada.",
+      "notFound": "Alternativa não encontrada.",
+      "loadError": "Erro ao carregar a alternativa.",
+      "saveError": "Erro ao guardar a alternativa.",
+      "saveSuccess": "Alternativa atualizada com sucesso.",
+      "deleteError": "Erro ao eliminar a alternativa.",
+      "deleteSuccess": "Alternativa eliminada com sucesso."
+    }
+  },
   "ProfessorAttemptDetail": {
     "loading": "A carregar tentativa...",
     "notFound": "Tentativa não encontrada",
