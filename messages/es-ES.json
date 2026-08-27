@@ -1178,6 +1178,60 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorActivityDetail": {
+    "loading": "Cargando actividad...",
+    "back": "← Volver a actividades",
+    "closedMessage": "Actividad cerrada",
+    "studentFallback": "Alumno {id}",
+    "studentUnknown": "Alumno no identificado",
+    "dates": {
+      "noDate": "Sin fecha"
+    },
+    "status": {
+      "published": "Publicada",
+      "closed": "Cerrada",
+      "draft": "Borrador",
+      "unknown": "Estado no identificado"
+    },
+    "details": {
+      "subject": "Asignatura:",
+      "deadline": "Fecha límite:",
+      "maximumGrade": "Calificación máxima:",
+      "class": "Clase:",
+      "notProvided": "No informada"
+    },
+    "submissions": {
+      "title": "Entregas",
+      "description": "Lista de entregas enviadas por los alumnos.",
+      "empty": "Todavía no se han registrado entregas.",
+      "submittedAt": "Entregado el:",
+      "grade": "Calificación:",
+      "text": "Texto:",
+      "feedback": "Comentarios:"
+    },
+    "actions": {
+      "retry": "Intentar de nuevo",
+      "publish": "Publicar",
+      "publishing": "Publicando...",
+      "unpublish": "Retirar publicación",
+      "unpublishing": "Retirando publicación...",
+      "close": "Cerrar",
+      "closing": "Cerrando...",
+      "openLink": "Abrir enlace",
+      "openFile": "Abrir archivo",
+      "gradeSubmission": "Corregir entrega"
+    },
+    "feedback": {
+      "loadError": "Error al cargar la actividad.",
+      "invalidResponse": "No se han podido interpretar los datos de la actividad.",
+      "publishError": "Error al publicar la actividad.",
+      "publishSuccess": "Actividad publicada correctamente.",
+      "unpublishError": "Error al devolver la actividad al estado de borrador.",
+      "unpublishSuccess": "La actividad volvió al estado de borrador correctamente.",
+      "closeError": "Error al cerrar la actividad.",
+      "closeSuccess": "Actividad cerrada correctamente."
+    }
+  },
   "ProfessorNewActivity": {
     "loading": "Cargando datos...",
     "back": "← Volver a actividades",

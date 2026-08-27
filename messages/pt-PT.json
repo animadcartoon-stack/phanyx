@@ -1178,6 +1178,60 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorActivityDetail": {
+    "loading": "A carregar atividade...",
+    "back": "← Voltar para atividades",
+    "closedMessage": "Atividade encerrada",
+    "studentFallback": "Aluno {id}",
+    "studentUnknown": "Aluno não identificado",
+    "dates": {
+      "noDate": "Sem data"
+    },
+    "status": {
+      "published": "Publicada",
+      "closed": "Encerrada",
+      "draft": "Rascunho",
+      "unknown": "Estado não identificado"
+    },
+    "details": {
+      "subject": "Disciplina:",
+      "deadline": "Prazo:",
+      "maximumGrade": "Nota máxima:",
+      "class": "Turma:",
+      "notProvided": "Não informada"
+    },
+    "submissions": {
+      "title": "Entregas",
+      "description": "Lista de entregas enviadas pelos alunos.",
+      "empty": "Ainda não existem entregas registadas.",
+      "submittedAt": "Entregue em:",
+      "grade": "Classificação:",
+      "text": "Texto:",
+      "feedback": "Feedback:"
+    },
+    "actions": {
+      "retry": "Tentar novamente",
+      "publish": "Publicar",
+      "publishing": "A publicar...",
+      "unpublish": "Retirar publicação",
+      "unpublishing": "A retirar publicação...",
+      "close": "Encerrar",
+      "closing": "A encerrar...",
+      "openLink": "Abrir ligação",
+      "openFile": "Abrir ficheiro",
+      "gradeSubmission": "Corrigir entrega"
+    },
+    "feedback": {
+      "loadError": "Erro ao carregar a atividade.",
+      "invalidResponse": "Não foi possível interpretar os dados da atividade.",
+      "publishError": "Erro ao publicar a atividade.",
+      "publishSuccess": "Atividade publicada com sucesso.",
+      "unpublishError": "Erro ao voltar a atividade para rascunho.",
+      "unpublishSuccess": "A atividade voltou para rascunho com sucesso.",
+      "closeError": "Erro ao encerrar a atividade.",
+      "closeSuccess": "Atividade encerrada com sucesso."
+    }
+  },
   "ProfessorNewActivity": {
     "loading": "A carregar dados...",
     "back": "← Voltar para atividades",

@@ -1178,6 +1178,60 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorActivityDetail": {
+    "loading": "Loading activity...",
+    "back": "← Back to activities",
+    "closedMessage": "Activity closed",
+    "studentFallback": "Student {id}",
+    "studentUnknown": "Unidentified student",
+    "dates": {
+      "noDate": "No date"
+    },
+    "status": {
+      "published": "Published",
+      "closed": "Closed",
+      "draft": "Draft",
+      "unknown": "Unknown status"
+    },
+    "details": {
+      "subject": "Subject:",
+      "deadline": "Deadline:",
+      "maximumGrade": "Maximum grade:",
+      "class": "Class:",
+      "notProvided": "Not provided"
+    },
+    "submissions": {
+      "title": "Submissions",
+      "description": "List of submissions sent by students.",
+      "empty": "No submissions have been recorded yet.",
+      "submittedAt": "Submitted at:",
+      "grade": "Grade:",
+      "text": "Text:",
+      "feedback": "Feedback:"
+    },
+    "actions": {
+      "retry": "Try again",
+      "publish": "Publish",
+      "publishing": "Publishing...",
+      "unpublish": "Unpublish",
+      "unpublishing": "Unpublishing...",
+      "close": "Close",
+      "closing": "Closing...",
+      "openLink": "Open link",
+      "openFile": "Open file",
+      "gradeSubmission": "Grade submission"
+    },
+    "feedback": {
+      "loadError": "Error loading the activity.",
+      "invalidResponse": "The activity data could not be interpreted.",
+      "publishError": "Error publishing the activity.",
+      "publishSuccess": "Activity published successfully.",
+      "unpublishError": "Error returning the activity to draft.",
+      "unpublishSuccess": "Activity returned to draft successfully.",
+      "closeError": "Error closing the activity.",
+      "closeSuccess": "Activity closed successfully."
+    }
+  },
   "ProfessorNewActivity": {
     "loading": "Loading data...",
     "back": "← Back to activities",

@@ -1178,6 +1178,60 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorActivityDetail": {
+    "loading": "Chargement de l’activité...",
+    "back": "← Retour aux activités",
+    "closedMessage": "Activité terminée",
+    "studentFallback": "Élève {id}",
+    "studentUnknown": "Élève non identifié",
+    "dates": {
+      "noDate": "Aucune date"
+    },
+    "status": {
+      "published": "Publiée",
+      "closed": "Terminée",
+      "draft": "Brouillon",
+      "unknown": "Statut non identifié"
+    },
+    "details": {
+      "subject": "Matière :",
+      "deadline": "Date limite :",
+      "maximumGrade": "Note maximale :",
+      "class": "Classe :",
+      "notProvided": "Non renseignée"
+    },
+    "submissions": {
+      "title": "Remises",
+      "description": "Liste des travaux remis par les élèves.",
+      "empty": "Aucune remise n’a encore été enregistrée.",
+      "submittedAt": "Remis le :",
+      "grade": "Note :",
+      "text": "Texte :",
+      "feedback": "Commentaire :"
+    },
+    "actions": {
+      "retry": "Réessayer",
+      "publish": "Publier",
+      "publishing": "Publication...",
+      "unpublish": "Retirer la publication",
+      "unpublishing": "Retrait de la publication...",
+      "close": "Terminer",
+      "closing": "Clôture...",
+      "openLink": "Ouvrir le lien",
+      "openFile": "Ouvrir le fichier",
+      "gradeSubmission": "Corriger la remise"
+    },
+    "feedback": {
+      "loadError": "Erreur lors du chargement de l’activité.",
+      "invalidResponse": "Les données de l’activité n’ont pas pu être interprétées.",
+      "publishError": "Erreur lors de la publication de l’activité.",
+      "publishSuccess": "Activité publiée avec succès.",
+      "unpublishError": "Erreur lors du retour de l’activité au statut de brouillon.",
+      "unpublishSuccess": "L’activité a été remise en brouillon avec succès.",
+      "closeError": "Erreur lors de la clôture de l’activité.",
+      "closeSuccess": "Activité terminée avec succès."
+    }
+  },
   "ProfessorNewActivity": {
     "loading": "Chargement des données...",
     "back": "← Retour aux activités",

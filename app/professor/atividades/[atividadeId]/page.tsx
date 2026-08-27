@@ -1,7 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
+import {
+  useLocale,
+  useTranslations,
+} from "next-intl";
 
 type EntregaItem = {
   id: number;
@@ -37,386 +47,865 @@ type AtividadeDetalhe = {
   entregas?: EntregaItem[];
 };
 
+type AcaoAtividade =
+  | "publicar"
+  | "rascunho"
+  | "encerrar"
+  | null;
+
 export default function ProfessorAtividadeDetalhePage() {
   const params = useParams();
-  const atividadeId = params.atividadeId as string;
 
-  const [atividade, setAtividade] = useState<AtividadeDetalhe | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [erro, setErro] = useState("");
-  const [mensagem, setMensagem] = useState("");
-  const [acaoLoading, setAcaoLoading] = useState<
-    "publicar" | "encerrar" | null
-  >(null);
+  const atividadeId = String(
+    params?.atividadeId || ""
+  );
 
-  async function carregarAtividade() {
-    try {
-      setLoading(true);
-      setErro("");
+  const t = useTranslations(
+    "ProfessorActivityDetail"
+  );
 
-      const res = await fetch(`/api/professor/atividades/${atividadeId}`);
-      const json = await res.json();
+  const locale = useLocale();
 
-      if (!res.ok) {
-        throw new Error(json.error || "Erro ao carregar atividade");
-      }
-
-      setAtividade(json);
-    } catch (e: any) {
-      setErro(e.message || "Erro ao carregar atividade");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    carregarAtividade();
-  }, [atividadeId]);
-
-async function voltarParaRascunho() {
-  try {
-    setAcaoLoading("publicar");
-    setMensagem("");
-    setErro("");
-
-    const res = await fetch(
-      `/api/professor/atividades/${atividadeId}/rascunho`,
-      {
-        method: "POST",
-      }
+  const [
+    atividade,
+    setAtividade,
+  ] =
+    useState<AtividadeDetalhe | null>(
+      null
     );
 
-    const json = await res.json();
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
 
-    if (!res.ok) {
-      throw new Error(json.error || "Erro ao voltar atividade para rascunho");
+  const [
+    erro,
+    setErro,
+  ] = useState("");
+
+  const [
+    mensagem,
+    setMensagem,
+  ] = useState("");
+
+  const [
+    acaoLoading,
+    setAcaoLoading,
+  ] =
+    useState<AcaoAtividade>(
+      null
+    );
+
+  const formatadorData =
+    useMemo(
+      () =>
+        new Intl.DateTimeFormat(
+          locale,
+          {
+            dateStyle: "medium",
+            timeStyle: "short",
+          }
+        ),
+      [locale]
+    );
+
+  const formatadorNumero =
+    useMemo(
+      () =>
+        new Intl.NumberFormat(
+          locale,
+          {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2,
+          }
+        ),
+      [locale]
+    );
+
+  const carregarAtividade =
+    useCallback(
+      async () => {
+        if (!atividadeId) {
+          setAtividade(null);
+          setErro(
+            t(
+              "feedback.loadError"
+            )
+          );
+          setLoading(false);
+          return;
+        }
+
+        try {
+          setLoading(true);
+          setErro("");
+
+          const res =
+            await fetch(
+              `/api/professor/atividades/${atividadeId}`,
+              {
+                credentials:
+                  "include",
+                cache:
+                  "no-store",
+              }
+            );
+
+          if (!res.ok) {
+            throw new Error(
+              t(
+                "feedback.loadError"
+              )
+            );
+          }
+
+          const json =
+            await res.json();
+
+          if (
+            !json ||
+            typeof json !==
+              "object" ||
+            !json.id
+          ) {
+            throw new Error(
+              t(
+                "feedback.invalidResponse"
+              )
+            );
+          }
+
+          const atividadeRecebida =
+            json as AtividadeDetalhe;
+
+          setAtividade({
+            ...atividadeRecebida,
+            entregas:
+              Array.isArray(
+                atividadeRecebida.entregas
+              )
+                ? atividadeRecebida.entregas
+                : [],
+          });
+        } catch (
+          error: unknown
+        ) {
+          const mensagemErro =
+            error instanceof Error
+              ? error.message
+              : t(
+                  "feedback.loadError"
+                );
+
+          setAtividade(null);
+          setErro(
+            mensagemErro
+          );
+        } finally {
+          setLoading(false);
+        }
+      },
+      [atividadeId, t]
+    );
+
+  useEffect(() => {
+    void carregarAtividade();
+  }, [carregarAtividade]);
+
+  useEffect(() => {
+    if (!mensagem) {
+      return;
     }
 
-    setMensagem("Atividade voltou para rascunho com sucesso.");
-    await carregarAtividade();
-  } catch (e: any) {
-    setErro(e.message || "Erro ao voltar atividade para rascunho");
-  } finally {
-    setAcaoLoading(null);
-  }
-}
+    const timer =
+      setTimeout(() => {
+        setMensagem("");
+      }, 3500);
 
-  async function publicarAtividade() {
+    return () =>
+      clearTimeout(timer);
+  }, [mensagem]);
+
+  function formatarData(
+    valor?: string | null
+  ) {
+    if (!valor) {
+      return t(
+        "dates.noDate"
+      );
+    }
+
+    const data =
+      new Date(valor);
+
+    if (
+      Number.isNaN(
+        data.getTime()
+      )
+    ) {
+      return t(
+        "dates.noDate"
+      );
+    }
+
+    return formatadorData.format(
+      data
+    );
+  }
+
+  function formatarNumero(
+    valor:
+      | number
+      | null
+      | undefined
+  ) {
+    if (
+      valor === null ||
+      valor === undefined
+    ) {
+      return "—";
+    }
+
+    return formatadorNumero.format(
+      valor
+    );
+  }
+
+  function getStatusBadge(
+    status: string
+  ) {
+    const valor = String(
+      status || ""
+    )
+      .trim()
+      .toUpperCase();
+
+    if (
+      valor === "PUBLICADA"
+    ) {
+      return "bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-300";
+    }
+
+    if (
+      valor === "ENCERRADA"
+    ) {
+      return "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200";
+    }
+
+    return "bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300";
+  }
+
+  function getStatusLabel(
+    status: string
+  ) {
+    const valor = String(
+      status || ""
+    )
+      .trim()
+      .toUpperCase();
+
+    if (
+      valor === "PUBLICADA"
+    ) {
+      return t(
+        "status.published"
+      );
+    }
+
+    if (
+      valor === "ENCERRADA"
+    ) {
+      return t(
+        "status.closed"
+      );
+    }
+
+    if (
+      valor === "RASCUNHO"
+    ) {
+      return t(
+        "status.draft"
+      );
+    }
+
+    return t(
+      "status.unknown"
+    );
+  }
+
+  function nomeAluno(
+    entrega: EntregaItem
+  ) {
+    const nome =
+      entrega.aluno?.nome?.trim();
+
+    if (nome) {
+      return nome;
+    }
+
+    if (
+      entrega.aluno?.id !==
+      undefined &&
+      entrega.aluno?.id !==
+      null
+    ) {
+      return t(
+        "studentFallback",
+        {
+          id:
+            entrega.aluno.id,
+        }
+      );
+    }
+
+    return t(
+      "studentUnknown"
+    );
+  }
+
+  async function voltarParaRascunho() {
     try {
-      setAcaoLoading("publicar");
+      setAcaoLoading(
+        "rascunho"
+      );
       setMensagem("");
       setErro("");
 
-      const res = await fetch(
-        `/api/professor/atividades/${atividadeId}/publicar`,
-        {
-          method: "POST",
-        }
-      );
-
-      const json = await res.json();
+      const res =
+        await fetch(
+          `/api/professor/atividades/${atividadeId}/rascunho`,
+          {
+            method: "POST",
+            credentials:
+              "include",
+          }
+        );
 
       if (!res.ok) {
-        throw new Error(json.error || "Erro ao publicar atividade");
+        throw new Error(
+          t(
+            "feedback.unpublishError"
+          )
+        );
       }
 
-      setMensagem("Ação de publicar executada.");
+      setMensagem(
+        t(
+          "feedback.unpublishSuccess"
+        )
+      );
+
       await carregarAtividade();
-    } catch (e: any) {
-      setErro(e.message || "Erro ao publicar atividade");
+    } catch (
+      error: unknown
+    ) {
+      const mensagemErro =
+        error instanceof Error
+          ? error.message
+          : t(
+              "feedback.unpublishError"
+            );
+
+      setErro(
+        mensagemErro
+      );
     } finally {
-      setAcaoLoading(null);
+      setAcaoLoading(
+        null
+      );
+    }
+  }
+
+  async function publicarAtividade() {
+    try {
+      setAcaoLoading(
+        "publicar"
+      );
+      setMensagem("");
+      setErro("");
+
+      const res =
+        await fetch(
+          `/api/professor/atividades/${atividadeId}/publicar`,
+          {
+            method: "POST",
+            credentials:
+              "include",
+          }
+        );
+
+      if (!res.ok) {
+        throw new Error(
+          t(
+            "feedback.publishError"
+          )
+        );
+      }
+
+      setMensagem(
+        t(
+          "feedback.publishSuccess"
+        )
+      );
+
+      await carregarAtividade();
+    } catch (
+      error: unknown
+    ) {
+      const mensagemErro =
+        error instanceof Error
+          ? error.message
+          : t(
+              "feedback.publishError"
+            );
+
+      setErro(
+        mensagemErro
+      );
+    } finally {
+      setAcaoLoading(
+        null
+      );
     }
   }
 
   async function encerrarAtividade() {
     try {
-      setAcaoLoading("encerrar");
+      setAcaoLoading(
+        "encerrar"
+      );
       setMensagem("");
       setErro("");
 
-      const res = await fetch(
-        `/api/professor/atividades/${atividadeId}/encerrar`,
-        {
-          method: "POST",
-        }
-      );
-
-      const json = await res.json();
+      const res =
+        await fetch(
+          `/api/professor/atividades/${atividadeId}/encerrar`,
+          {
+            method: "POST",
+            credentials:
+              "include",
+          }
+        );
 
       if (!res.ok) {
-        throw new Error(json.error || "Erro ao encerrar atividade");
+        throw new Error(
+          t(
+            "feedback.closeError"
+          )
+        );
       }
 
-      setMensagem("Ação de encerrar executada.");
+      setMensagem(
+        t(
+          "feedback.closeSuccess"
+        )
+      );
+
       await carregarAtividade();
-    } catch (e: any) {
-      setErro(e.message || "Erro ao encerrar atividade");
+    } catch (
+      error: unknown
+    ) {
+      const mensagemErro =
+        error instanceof Error
+          ? error.message
+          : t(
+              "feedback.closeError"
+            );
+
+      setErro(
+        mensagemErro
+      );
     } finally {
-      setAcaoLoading(null);
+      setAcaoLoading(
+        null
+      );
     }
-  }
-
-  function formatarData(data?: string | null) {
-    if (!data) return "Sem data";
-
-    try {
-      return new Date(data).toLocaleString("pt-BR");
-    } catch {
-      return data;
-    }
-  }
-
-  function getStatusBadge(status: string) {
-    if (status === "PUBLICADA") {
-      return "bg-green-100 text-green-700";
-    }
-
-    if (status === "ENCERRADA") {
-      return "bg-gray-100 text-gray-700";
-    }
-
-    return "bg-yellow-100 text-yellow-700";
-  }
-
-  function getStatusLabel(status: string) {
-    if (status === "PUBLICADA") return "Publicada";
-    if (status === "ENCERRADA") return "Encerrada";
-    return "Rascunho";
   }
 
   return (
-    <div className="p-6">
+    <div className="phanyx-professor-atividade-detalhe p-6 text-slate-900 dark:text-slate-100">
       <div className="mx-auto max-w-6xl space-y-6">
-        <div className="rounded-2xl border bg-white p-6 shadow-sm">
-          <a
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+          <Link
             href="/professor/atividades"
-            className="inline-block text-sm font-medium text-gray-500 hover:text-gray-700"
+            className="inline-block text-sm font-medium text-slate-500 transition hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
           >
-            ← Voltar para atividades
-          </a>
+            {t("back")}
+          </Link>
         </div>
 
         {loading && (
-          <div className="rounded-2xl border bg-white p-6 text-sm text-gray-500 shadow-sm">
-            Carregando atividade...
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
+            {t("loading")}
           </div>
         )}
 
-        {!loading && erro && (
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 shadow-sm">
-            {erro}
-          </div>
-        )}
+        {!loading &&
+          erro &&
+          !atividade && (
+            <div className="rounded-2xl border border-red-200 bg-red-50 p-4 shadow-sm dark:border-red-800 dark:bg-red-950/40">
+              <p className="text-sm font-medium text-red-700 dark:text-red-300">
+                {erro}
+              </p>
 
-        {!loading && !erro && atividade && (
-          <>
-            <div className="rounded-2xl border bg-white p-6 shadow-sm">
-              <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                <div className="space-y-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h1 className="text-2xl font-bold text-gray-900">
-                      {atividade.titulo}
-                    </h1>
+              <button
+                type="button"
+                onClick={() =>
+                  void carregarAtividade()
+                }
+                className="mt-3 rounded-lg border border-red-300 bg-white px-3 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-50 dark:border-red-800 dark:bg-slate-900 dark:text-red-300 dark:hover:bg-red-950/40"
+              >
+                {t(
+                  "actions.retry"
+                )}
+              </button>
+            </div>
+          )}
 
-                    <span
-                      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${getStatusBadge(
-                        atividade.status
-                      )}`}
-                    >
-                      {getStatusLabel(atividade.status)}
-                    </span>
-                  </div>
+        {!loading &&
+          atividade && (
+            <>
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+                        {
+                          atividade.titulo
+                        }
+                      </h1>
 
-                  <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-gray-500">
-                    <span>
-                      <strong className="font-medium text-gray-700">
-                        Disciplina:
-                      </strong>{" "}
-                      {atividade.disciplina?.nome ||
-                        atividade.disciplina?.titulo ||
-                        "Não informada"}
-                    </span>
-
-                    <span>
-                      <strong className="font-medium text-gray-700">
-                        Prazo:
-                      </strong>{" "}
-                      {formatarData(atividade.prazo)}
-                    </span>
-
-                    <span>
-                      <strong className="font-medium text-gray-700">
-                        Nota máxima:
-                      </strong>{" "}
-                      {atividade.notaMaxima}
-                    </span>
-
-                    {atividade.turma?.nome && (
-                      <span>
-                        <strong className="font-medium text-gray-700">
-                          Turma:
-                        </strong>{" "}
-                        {atividade.turma.nome}
+                      <span
+                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${getStatusBadge(
+                          atividade.status
+                        )}`}
+                      >
+                        {getStatusLabel(
+                          atividade.status
+                        )}
                       </span>
+                    </div>
+
+                    <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-slate-500 dark:text-slate-400">
+                      <span>
+                        <strong className="font-medium text-slate-700 dark:text-slate-200">
+                          {t(
+                            "details.subject"
+                          )}
+                        </strong>{" "}
+                        {atividade
+                          .disciplina
+                          ?.nome ||
+                          atividade
+                            .disciplina
+                            ?.titulo ||
+                          t(
+                            "details.notProvided"
+                          )}
+                      </span>
+
+                      <span>
+                        <strong className="font-medium text-slate-700 dark:text-slate-200">
+                          {t(
+                            "details.deadline"
+                          )}
+                        </strong>{" "}
+                        {formatarData(
+                          atividade.prazo
+                        )}
+                      </span>
+
+                      <span>
+                        <strong className="font-medium text-slate-700 dark:text-slate-200">
+                          {t(
+                            "details.maximumGrade"
+                          )}
+                        </strong>{" "}
+                        {formatarNumero(
+                          atividade.notaMaxima
+                        )}
+                      </span>
+
+                      {atividade
+                        .turma
+                        ?.nome && (
+                        <span>
+                          <strong className="font-medium text-slate-700 dark:text-slate-200">
+                            {t(
+                              "details.class"
+                            )}
+                          </strong>{" "}
+                          {
+                            atividade
+                              .turma
+                              .nome
+                          }
+                        </span>
+                      )}
+                    </div>
+
+                    {atividade.descricao && (
+                      <p className="whitespace-pre-wrap text-sm leading-6 text-slate-700 dark:text-slate-300">
+                        {
+                          atividade.descricao
+                        }
+                      </p>
                     )}
                   </div>
 
-                  {atividade.descricao && (
-                    <p className="text-sm leading-6 text-gray-700">
-                      {atividade.descricao}
-                    </p>
-                  )}
-                </div>
+                  <div className="flex flex-wrap gap-2">
+                    {atividade.status ===
+                      "RASCUNHO" && (
+                      <button
+                        type="button"
+                        onClick={
+                          publicarAtividade
+                        }
+                        disabled={
+                          acaoLoading !==
+                          null
+                        }
+                        className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {acaoLoading ===
+                        "publicar"
+                          ? t(
+                              "actions.publishing"
+                            )
+                          : t(
+                              "actions.publish"
+                            )}
+                      </button>
+                    )}
 
-                <div className="flex flex-wrap gap-2">
-  {atividade.status === "RASCUNHO" && (
-    <button
-      type="button"
-      onClick={publicarAtividade}
-      disabled={acaoLoading !== null}
-      className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
-    >
-      {acaoLoading === "publicar" ? "Publicando..." : "Publicar"}
-    </button>
-  )}
+                    {atividade.status ===
+                      "PUBLICADA" && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={
+                            voltarParaRascunho
+                          }
+                          disabled={
+                            acaoLoading !==
+                            null
+                          }
+                          className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {acaoLoading ===
+                          "rascunho"
+                            ? t(
+                                "actions.unpublishing"
+                              )
+                            : t(
+                                "actions.unpublish"
+                              )}
+                        </button>
 
-  {atividade.status === "PUBLICADA" && (
-    <>
-      <button
-        type="button"
-        onClick={voltarParaRascunho}
-        disabled={acaoLoading !== null}
-        className="rounded-lg bg-yellow-500 px-4 py-2 text-sm font-medium text-white hover:bg-yellow-600"
-      >
-        Despublicar
-      </button>
+                        <button
+                          type="button"
+                          onClick={
+                            encerrarAtividade
+                          }
+                          disabled={
+                            acaoLoading !==
+                            null
+                          }
+                          className="rounded-lg bg-slate-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {acaoLoading ===
+                          "encerrar"
+                            ? t(
+                                "actions.closing"
+                              )
+                            : t(
+                                "actions.close"
+                              )}
+                        </button>
+                      </>
+                    )}
 
-      <button
-        type="button"
-        onClick={encerrarAtividade}
-        disabled={acaoLoading !== null}
-        className="rounded-lg bg-gray-700 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
-      >
-        Encerrar
-      </button>
-    </>
-  )}
-
-  {atividade.status === "ENCERRADA" && (
-    <span className="text-gray-500 font-medium">
-      Atividade encerrada
-    </span>
-  )}
-</div>
-              </div>
-            </div>
-
-            {mensagem && (
-              <div className="rounded-2xl border border-green-200 bg-green-50 p-4 text-sm text-green-700 shadow-sm">
-                {mensagem}
-              </div>
-            )}
-
-            <div className="rounded-2xl border bg-white shadow-sm">
-              <div className="border-b px-6 py-4">
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Entregas
-                </h2>
-                <p className="text-sm text-gray-500">
-                  Lista de entregas enviadas pelos alunos
-                </p>
-              </div>
-
-              {!atividade.entregas || atividade.entregas.length === 0 ? (
-                <div className="px-6 py-8 text-sm text-gray-500">
-                  Nenhuma entrega registrada até o momento.
-                </div>
-              ) : (
-                <div className="divide-y">
-                  {atividade.entregas.map((entrega) => (
-                    
-                    <div
-                      key={entrega.id}
-                      className="space-y-3 px-6 py-5"
-                    >
-                      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                        <div className="space-y-2">
-                          <h3 className="font-medium text-gray-900">
-                            {entrega.aluno?.nome || `Aluno ${entrega.aluno?.id ?? ""}`}
-                          </h3>
-
-                          <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500">
-                            <span>
-                              <strong className="font-medium text-gray-700">
-                                Entregue em:
-                              </strong>{" "}
-                              {formatarData(entrega.entregueEm)}
-                            </span>
-
-                            <span>
-                              <strong className="font-medium text-gray-700">
-                                Nota:
-                              </strong>{" "}
-                              {entrega.nota ?? "-"}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {entrega.texto && (
-                        <div className="rounded-lg bg-gray-50 p-3 text-sm text-gray-700">
-                          <strong className="font-medium text-gray-800">
-                            Texto:
-                          </strong>{" "}
-                          {entrega.texto}
-                        </div>
-                      )}
-
-                      <div className="flex flex-wrap gap-3 text-sm">
-                        {entrega.link && (
-                          <a
-                            href={entrega.link}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="rounded-lg border px-3 py-2 font-medium text-gray-700 hover:bg-gray-50"
-                          >
-                            Abrir link
-                          </a>
+                    {atividade.status ===
+                      "ENCERRADA" && (
+                      <span className="inline-flex items-center text-sm font-medium text-slate-500 dark:text-slate-400">
+                        {t(
+                          "closedMessage"
                         )}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
 
-                        {entrega.arquivoUrl && (
-  <a
-    href={entrega.arquivoUrl}
-    target="_blank"
-    rel="noreferrer"
-    className="rounded-lg border px-3 py-2 font-medium text-gray-700 hover:bg-gray-50"
-  >
-    Abrir arquivo
-  </a>
-)}
-
-<a
-  href={`/professor/entregas/${entrega.id}`}
-  className="rounded-lg border px-3 py-2 font-medium text-gray-700 hover:bg-gray-50"
->
-  Corrigir entrega
-</a>
-                      </div>
-
-                      {entrega.feedback && (
-                        <div className="rounded-lg border border-blue-100 bg-blue-50 p-3 text-sm text-blue-800">
-                          <strong className="font-medium">Feedback:</strong>{" "}
-                          {entrega.feedback}
-                        </div>
-                      )}
-                    </div>
-                  ))}
+              {mensagem && (
+                <div
+                  aria-live="polite"
+                  className="rounded-2xl border border-green-200 bg-green-50 p-4 text-sm font-medium text-green-700 shadow-sm dark:border-green-800 dark:bg-green-950/40 dark:text-green-300"
+                >
+                  {
+                    mensagem
+                  }
                 </div>
               )}
-            </div>
-          </>
-        )}
+
+              {erro && (
+                <div
+                  aria-live="assertive"
+                  className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700 shadow-sm dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
+                >
+                  {erro}
+                </div>
+              )}
+
+              <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                <div className="border-b border-slate-200 px-6 py-4 dark:border-slate-700">
+                  <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+                    {t(
+                      "submissions.title"
+                    )}
+                  </h2>
+
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                    {t(
+                      "submissions.description"
+                    )}
+                  </p>
+                </div>
+
+                {!atividade.entregas ||
+                atividade.entregas
+                  .length ===
+                  0 ? (
+                  <div className="px-6 py-8 text-sm text-slate-500 dark:text-slate-400">
+                    {t(
+                      "submissions.empty"
+                    )}
+                  </div>
+                ) : (
+                  <div className="divide-y divide-slate-200 dark:divide-slate-700">
+                    {atividade.entregas.map(
+                      (
+                        entrega
+                      ) => (
+                        <div
+                          key={
+                            entrega.id
+                          }
+                          className="space-y-3 px-6 py-5"
+                        >
+                          <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                            <div className="space-y-2">
+                              <h3 className="font-medium text-slate-900 dark:text-white">
+                                {nomeAluno(
+                                  entrega
+                                )}
+                              </h3>
+
+                              <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-500 dark:text-slate-400">
+                                <span>
+                                  <strong className="font-medium text-slate-700 dark:text-slate-200">
+                                    {t(
+                                      "submissions.submittedAt"
+                                    )}
+                                  </strong>{" "}
+                                  {formatarData(
+                                    entrega.entregueEm
+                                  )}
+                                </span>
+
+                                <span>
+                                  <strong className="font-medium text-slate-700 dark:text-slate-200">
+                                    {t(
+                                      "submissions.grade"
+                                    )}
+                                  </strong>{" "}
+                                  {formatarNumero(
+                                    entrega.nota
+                                  )}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {entrega.texto && (
+                            <div className="rounded-lg bg-slate-50 p-3 text-sm text-slate-700 dark:bg-slate-950 dark:text-slate-300">
+                              <strong className="font-medium text-slate-800 dark:text-slate-100">
+                                {t(
+                                  "submissions.text"
+                                )}
+                              </strong>{" "}
+                              <span className="whitespace-pre-wrap">
+                                {
+                                  entrega.texto
+                                }
+                              </span>
+                            </div>
+                          )}
+
+                          <div className="flex flex-wrap gap-3 text-sm">
+                            {entrega.link && (
+                              <a
+                                href={
+                                  entrega.link
+                                }
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="rounded-lg border border-slate-300 bg-white px-3 py-2 font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                              >
+                                {t(
+                                  "actions.openLink"
+                                )}
+                              </a>
+                            )}
+
+                            {entrega.arquivoUrl && (
+                              <a
+                                href={
+                                  entrega.arquivoUrl
+                                }
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="rounded-lg border border-slate-300 bg-white px-3 py-2 font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                              >
+                                {t(
+                                  "actions.openFile"
+                                )}
+                              </a>
+                            )}
+
+                            <Link
+                              href={`/professor/entregas/${entrega.id}`}
+                              className="rounded-lg border border-slate-300 bg-white px-3 py-2 font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                            >
+                              {t(
+                                "actions.gradeSubmission"
+                              )}
+                            </Link>
+                          </div>
+
+                          {entrega.feedback && (
+                            <div className="rounded-lg border border-blue-100 bg-blue-50 p-3 text-sm text-blue-800 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-300">
+                              <strong className="font-medium">
+                                {t(
+                                  "submissions.feedback"
+                                )}
+                              </strong>{" "}
+                              <span className="whitespace-pre-wrap">
+                                {
+                                  entrega.feedback
+                                }
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    )}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
       </div>
     </div>
   );
