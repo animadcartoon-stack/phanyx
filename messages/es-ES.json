@@ -1178,6 +1178,48 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorDisciplineExam": {
+    "eyebrow": "Evaluación",
+    "title": "Examen — {discipline}",
+    "description": "Cree y edite las preguntas del examen vinculado a esta disciplina.",
+    "notFound": {
+      "title": "Disciplina no encontrada",
+      "description": "No se ha podido localizar esta disciplina."
+    },
+    "empty": {
+      "title": "No se han añadido preguntas",
+      "description": "Añada la primera pregunta para empezar a preparar el examen."
+    },
+    "question": {
+      "number": "Pregunta {number}",
+      "title": "Pregunta",
+      "alternative": "Opción {number}",
+      "markCorrect": "Marcar la opción {number} como correcta",
+      "correct": "Correcta"
+    },
+    "fields": {
+      "statement": "Enunciado",
+      "statementPlaceholder": "Introduzca el enunciado de la pregunta",
+      "alternatives": "Opciones"
+    },
+    "actions": {
+      "back": "← Volver",
+      "addQuestion": "+ Añadir pregunta",
+      "removeQuestion": "Eliminar pregunta",
+      "save": "Guardar examen",
+      "saving": "Guardando..."
+    },
+    "validation": {
+      "questionRequired": "Añada al menos una pregunta al examen.",
+      "statementRequired": "Introduzca el enunciado de la pregunta {number}.",
+      "alternativesRequired": "La pregunta {number} debe tener al menos dos opciones.",
+      "emptyAlternative": "Complete todas las opciones de la pregunta {number}.",
+      "correctAlternativeRequired": "Seleccione una opción correcta para la pregunta {number}."
+    },
+    "feedback": {
+      "saveError": "No se ha podido guardar el examen."
+    }
+  },
   "ProfessorDisciplineLessonDetail": {
     "eyebrow": "Clase",
     "notFound": {

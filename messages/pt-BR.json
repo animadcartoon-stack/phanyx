@@ -1178,6 +1178,48 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma acadêmica SaaS"
   },
+  "ProfessorDisciplineExam": {
+    "eyebrow": "Avaliação",
+    "title": "Prova — {discipline}",
+    "description": "Crie e edite as perguntas da prova vinculada a esta disciplina.",
+    "notFound": {
+      "title": "Disciplina não encontrada",
+      "description": "Não foi possível localizar esta disciplina."
+    },
+    "empty": {
+      "title": "Nenhuma pergunta adicionada",
+      "description": "Adicione a primeira pergunta para começar a montar a prova."
+    },
+    "question": {
+      "number": "Questão {number}",
+      "title": "Pergunta",
+      "alternative": "Alternativa {number}",
+      "markCorrect": "Marcar a alternativa {number} como correta",
+      "correct": "Correta"
+    },
+    "fields": {
+      "statement": "Enunciado",
+      "statementPlaceholder": "Digite o enunciado da pergunta",
+      "alternatives": "Alternativas"
+    },
+    "actions": {
+      "back": "← Voltar",
+      "addQuestion": "+ Adicionar pergunta",
+      "removeQuestion": "Remover pergunta",
+      "save": "Salvar prova",
+      "saving": "Salvando..."
+    },
+    "validation": {
+      "questionRequired": "Adicione pelo menos uma pergunta à prova.",
+      "statementRequired": "Informe o enunciado da questão {number}.",
+      "alternativesRequired": "A questão {number} precisa ter pelo menos duas alternativas.",
+      "emptyAlternative": "Preencha todas as alternativas da questão {number}.",
+      "correctAlternativeRequired": "Selecione uma alternativa correta para a questão {number}."
+    },
+    "feedback": {
+      "saveError": "Não foi possível salvar a prova."
+    }
+  },
   "ProfessorDisciplineLessonDetail": {
     "eyebrow": "Aula",
     "notFound": {

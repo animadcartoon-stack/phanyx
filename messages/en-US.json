@@ -1178,6 +1178,48 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorDisciplineExam": {
+    "eyebrow": "Evaluation",
+    "title": "Exam — {discipline}",
+    "description": "Create and edit the questions for the exam linked to this discipline.",
+    "notFound": {
+      "title": "Discipline not found",
+      "description": "This discipline could not be found."
+    },
+    "empty": {
+      "title": "No questions added",
+      "description": "Add the first question to start building the exam."
+    },
+    "question": {
+      "number": "Question {number}",
+      "title": "Question",
+      "alternative": "Option {number}",
+      "markCorrect": "Mark option {number} as correct",
+      "correct": "Correct"
+    },
+    "fields": {
+      "statement": "Question text",
+      "statementPlaceholder": "Enter the question text",
+      "alternatives": "Options"
+    },
+    "actions": {
+      "back": "← Back",
+      "addQuestion": "+ Add question",
+      "removeQuestion": "Remove question",
+      "save": "Save exam",
+      "saving": "Saving..."
+    },
+    "validation": {
+      "questionRequired": "Add at least one question to the exam.",
+      "statementRequired": "Enter the text for question {number}.",
+      "alternativesRequired": "Question {number} must have at least two options.",
+      "emptyAlternative": "Fill in all options for question {number}.",
+      "correctAlternativeRequired": "Select a correct option for question {number}."
+    },
+    "feedback": {
+      "saveError": "The exam could not be saved."
+    }
+  },
   "ProfessorDisciplineLessonDetail": {
     "eyebrow": "Lesson",
     "notFound": {
