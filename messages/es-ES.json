@@ -1178,6 +1178,55 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorDisciplineLessons": {
+    "eyebrow": "Disciplina",
+    "title": "Clases de la disciplina",
+    "description": "Cree y gestione las clases de esta disciplina.",
+    "newLesson": {
+      "eyebrow": "Nueva clase",
+      "title": "Crear clase",
+      "description": "Introduzca los datos de la clase que se vinculará a esta disciplina."
+    },
+    "fields": {
+      "title": "Título",
+      "titlePlaceholder": "Ej.: Introducción a la disciplina",
+      "description": "Descripción",
+      "descriptionPlaceholder": "Resumen u orientaciones de la clase",
+      "duration": "Duración (min)",
+      "durationPlaceholder": "Ej.: 60",
+      "videoUrl": "URL del vídeo",
+      "videoUrlPlaceholder": "https://...",
+      "videoUrlHelp": "Opcional. Introduzca un enlace válido que comience por http:// o https://."
+    },
+    "actions": {
+      "create": "Crear clase",
+      "saving": "Guardando...",
+      "openVideo": "Abrir vídeo"
+    },
+    "validation": {
+      "titleRequired": "Introduzca el título de la clase.",
+      "invalidDuration": "Introduzca una duración válida mayor que cero.",
+      "invalidVideoUrl": "Introduzca una URL válida que comience por http:// o https://."
+    },
+    "feedback": {
+      "invalidDiscipline": "Disciplina no válida.",
+      "loadError": "Error al cargar las clases.",
+      "invalidResponse": "No se ha podido interpretar la lista de clases.",
+      "createError": "Error al crear la clase.",
+      "createSuccess": "Clase creada correctamente."
+    },
+    "lessonList": {
+      "eyebrow": "Contenido",
+      "title": "Clases creadas",
+      "loading": "Cargando clases...",
+      "emptyTitle": "No hay clases creadas",
+      "emptyDescription": "Cree la primera clase de esta disciplina.",
+      "duration": "Duración: {minutes} min",
+      "durationNotProvided": "Duración no indicada",
+      "videoAvailable": "Vídeo disponible",
+      "videoUnavailable": "Sin vídeo"
+    }
+  },
   "ProfessorDisciplineActivities": {
     "eyebrow": "Disciplina",
     "title": "Actividades de la disciplina",

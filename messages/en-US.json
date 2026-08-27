@@ -1178,6 +1178,55 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorDisciplineLessons": {
+    "eyebrow": "Discipline",
+    "title": "Discipline lessons",
+    "description": "Create and manage the lessons for this discipline.",
+    "newLesson": {
+      "eyebrow": "New lesson",
+      "title": "Create lesson",
+      "description": "Enter the details of the lesson that will be linked to this discipline."
+    },
+    "fields": {
+      "title": "Title",
+      "titlePlaceholder": "Example: Introduction to the discipline",
+      "description": "Description",
+      "descriptionPlaceholder": "Lesson summary or instructions",
+      "duration": "Duration (min)",
+      "durationPlaceholder": "Example: 60",
+      "videoUrl": "Video URL",
+      "videoUrlPlaceholder": "https://...",
+      "videoUrlHelp": "Optional. Enter a valid link starting with http:// or https://."
+    },
+    "actions": {
+      "create": "Create lesson",
+      "saving": "Saving...",
+      "openVideo": "Open video"
+    },
+    "validation": {
+      "titleRequired": "Enter the lesson title.",
+      "invalidDuration": "Enter a valid duration greater than zero.",
+      "invalidVideoUrl": "Enter a valid URL starting with http:// or https://."
+    },
+    "feedback": {
+      "invalidDiscipline": "Invalid discipline.",
+      "loadError": "Error loading lessons.",
+      "invalidResponse": "The lesson list could not be interpreted.",
+      "createError": "Error creating the lesson.",
+      "createSuccess": "Lesson created successfully."
+    },
+    "lessonList": {
+      "eyebrow": "Content",
+      "title": "Created lessons",
+      "loading": "Loading lessons...",
+      "emptyTitle": "No lessons created",
+      "emptyDescription": "Create the first lesson for this discipline.",
+      "duration": "Duration: {minutes} min",
+      "durationNotProvided": "Duration not provided",
+      "videoAvailable": "Video available",
+      "videoUnavailable": "No video"
+    }
+  },
   "ProfessorDisciplineActivities": {
     "eyebrow": "Discipline",
     "title": "Discipline activities",

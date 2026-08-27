@@ -1178,6 +1178,55 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorDisciplineLessons": {
+    "eyebrow": "Discipline",
+    "title": "Cours de la discipline",
+    "description": "Créez et gérez les cours de cette discipline.",
+    "newLesson": {
+      "eyebrow": "Nouveau cours",
+      "title": "Créer un cours",
+      "description": "Saisissez les informations du cours qui sera associé à cette discipline."
+    },
+    "fields": {
+      "title": "Titre",
+      "titlePlaceholder": "Ex. : Introduction à la discipline",
+      "description": "Description",
+      "descriptionPlaceholder": "Résumé ou consignes du cours",
+      "duration": "Durée (min)",
+      "durationPlaceholder": "Ex. : 60",
+      "videoUrl": "URL de la vidéo",
+      "videoUrlPlaceholder": "https://...",
+      "videoUrlHelp": "Facultatif. Saisissez un lien valide commençant par http:// ou https://."
+    },
+    "actions": {
+      "create": "Créer le cours",
+      "saving": "Enregistrement...",
+      "openVideo": "Ouvrir la vidéo"
+    },
+    "validation": {
+      "titleRequired": "Saisissez le titre du cours.",
+      "invalidDuration": "Saisissez une durée valide supérieure à zéro.",
+      "invalidVideoUrl": "Saisissez une URL valide commençant par http:// ou https://."
+    },
+    "feedback": {
+      "invalidDiscipline": "Discipline non valide.",
+      "loadError": "Erreur lors du chargement des cours.",
+      "invalidResponse": "La liste des cours n’a pas pu être interprétée.",
+      "createError": "Erreur lors de la création du cours.",
+      "createSuccess": "Cours créé avec succès."
+    },
+    "lessonList": {
+      "eyebrow": "Contenu",
+      "title": "Cours créés",
+      "loading": "Chargement des cours...",
+      "emptyTitle": "Aucun cours créé",
+      "emptyDescription": "Créez le premier cours de cette discipline.",
+      "duration": "Durée : {minutes} min",
+      "durationNotProvided": "Durée non renseignée",
+      "videoAvailable": "Vidéo disponible",
+      "videoUnavailable": "Sans vidéo"
+    }
+  },
   "ProfessorDisciplineActivities": {
     "eyebrow": "Discipline",
     "title": "Activités de la discipline",
