@@ -1178,6 +1178,34 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorEvaluationsResults": {
+    "eyebrow": "Evaluations",
+    "title": "Exam results",
+    "description": "Track the attempts submitted by students and view the answers for each evaluation.",
+    "loading": "Loading evaluations...",
+    "empty": "No results found.",
+    "fields": {
+      "student": "Student",
+      "exam": "Exam",
+      "grade": "Grade"
+    },
+    "grade": {
+      "empty": "-"
+    },
+    "status": {
+      "approved": "Passed",
+      "failed": "Failed",
+      "pending": "Pending"
+    },
+    "actions": {
+      "retry": "Try again",
+      "viewAnswers": "View answers →"
+    },
+    "feedback": {
+      "loadError": "Error loading evaluations.",
+      "invalidResponse": "The evaluation results could not be interpreted."
+    }
+  },
   "ProfessorLessonMaterials": {
     "back": "← Back",
     "title": "Lesson materials",

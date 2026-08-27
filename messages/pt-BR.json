@@ -1178,6 +1178,34 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma acadêmica SaaS"
   },
+  "ProfessorEvaluationsResults": {
+    "eyebrow": "Avaliações",
+    "title": "Resultados das provas",
+    "description": "Acompanhe as tentativas enviadas pelos alunos e veja as respostas de cada avaliação.",
+    "loading": "Carregando avaliações...",
+    "empty": "Nenhum resultado encontrado.",
+    "fields": {
+      "student": "Aluno",
+      "exam": "Prova",
+      "grade": "Nota"
+    },
+    "grade": {
+      "empty": "-"
+    },
+    "status": {
+      "approved": "Aprovado",
+      "failed": "Reprovado",
+      "pending": "Pendente"
+    },
+    "actions": {
+      "retry": "Tentar novamente",
+      "viewAnswers": "Ver respostas →"
+    },
+    "feedback": {
+      "loadError": "Erro ao carregar avaliações.",
+      "invalidResponse": "Não foi possível interpretar os resultados das avaliações."
+    }
+  },
   "ProfessorLessonMaterials": {
     "back": "← Voltar",
     "title": "Materiais da aula",
