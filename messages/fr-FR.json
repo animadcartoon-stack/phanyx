@@ -1178,6 +1178,49 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorExamGradebook": {
+    "loading": "Chargement du relevé...",
+    "back": "← Retour à l’examen",
+    "title": "Relevé de l’examen",
+    "description": "Consultez les performances des élèves pour cette évaluation.",
+    "examSummary": "Note maximale : {max} • Statut : {status}",
+    "summary": {
+      "students": "Élèves avec une tentative",
+      "average": "Moyenne de la classe",
+      "performance": "Niveau de performance"
+    },
+    "performance": {
+      "good": "Bon niveau",
+      "attention": "À surveiller",
+      "low": "Faible performance"
+    },
+    "attemptStatus": {
+      "finished": "Terminée",
+      "inProgress": "En cours"
+    },
+    "examStatus": {
+      "draft": "Brouillon",
+      "published": "Publiée",
+      "closed": "Terminée",
+      "cancelled": "Annulée"
+    },
+    "students": {
+      "title": "Performance des élèves",
+      "description": "Liste des élèves ayant une tentative enregistrée pour cet examen.",
+      "empty": "Aucune tentative trouvée.",
+      "status": "Statut :",
+      "finishedAt": "Fin :",
+      "grade": "Note : {grade}"
+    },
+    "actions": {
+      "retry": "Réessayer",
+      "viewAttempt": "Voir la tentative"
+    },
+    "feedback": {
+      "loadError": "Erreur lors du chargement du relevé de l’examen.",
+      "invalidResponse": "Les données du relevé n’ont pas pu être interprétées."
+    }
+  },
   "ProfessorEditAlternative": {
     "loading": "Chargement de la réponse...",
     "notFound": "Réponse introuvable",

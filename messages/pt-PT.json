@@ -1178,6 +1178,49 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorExamGradebook": {
+    "loading": "A carregar boletim...",
+    "back": "← Voltar para a prova",
+    "title": "Boletim da prova",
+    "description": "Consulte o desempenho dos alunos nesta avaliação.",
+    "examSummary": "Nota máxima: {max} • Estado: {status}",
+    "summary": {
+      "students": "Alunos com tentativa",
+      "average": "Média da turma",
+      "performance": "Nível de desempenho"
+    },
+    "performance": {
+      "good": "Bom desempenho",
+      "attention": "Atenção",
+      "low": "Baixo desempenho"
+    },
+    "attemptStatus": {
+      "finished": "Finalizada",
+      "inProgress": "Em curso"
+    },
+    "examStatus": {
+      "draft": "Rascunho",
+      "published": "Publicada",
+      "closed": "Encerrada",
+      "cancelled": "Cancelada"
+    },
+    "students": {
+      "title": "Desempenho dos alunos",
+      "description": "Lista dos alunos com tentativa registada na prova.",
+      "empty": "Nenhuma tentativa encontrada.",
+      "status": "Estado:",
+      "finishedAt": "Finalização:",
+      "grade": "Classificação: {grade}"
+    },
+    "actions": {
+      "retry": "Tentar novamente",
+      "viewAttempt": "Ver tentativa"
+    },
+    "feedback": {
+      "loadError": "Erro ao carregar o boletim da prova.",
+      "invalidResponse": "Não foi possível interpretar os dados do boletim."
+    }
+  },
   "ProfessorEditAlternative": {
     "loading": "A carregar alternativa...",
     "notFound": "Alternativa não encontrada",

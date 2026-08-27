@@ -1178,6 +1178,49 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorExamGradebook": {
+    "loading": "Loading gradebook...",
+    "back": "← Back to the exam",
+    "title": "Exam gradebook",
+    "description": "View student performance for this assessment.",
+    "examSummary": "Maximum grade: {max} • Status: {status}",
+    "summary": {
+      "students": "Students with attempts",
+      "average": "Class average",
+      "performance": "Performance level"
+    },
+    "performance": {
+      "good": "Good performance",
+      "attention": "Needs attention",
+      "low": "Low performance"
+    },
+    "attemptStatus": {
+      "finished": "Finished",
+      "inProgress": "In progress"
+    },
+    "examStatus": {
+      "draft": "Draft",
+      "published": "Published",
+      "closed": "Closed",
+      "cancelled": "Cancelled"
+    },
+    "students": {
+      "title": "Student performance",
+      "description": "List of students with a recorded attempt on this exam.",
+      "empty": "No attempts found.",
+      "status": "Status:",
+      "finishedAt": "Finished:",
+      "grade": "Grade: {grade}"
+    },
+    "actions": {
+      "retry": "Try again",
+      "viewAttempt": "View attempt"
+    },
+    "feedback": {
+      "loadError": "Error loading the exam gradebook.",
+      "invalidResponse": "The gradebook data could not be interpreted."
+    }
+  },
   "ProfessorEditAlternative": {
     "loading": "Loading answer choice...",
     "notFound": "Answer choice not found",

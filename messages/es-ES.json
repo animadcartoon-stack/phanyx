@@ -1178,6 +1178,49 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorExamGradebook": {
+    "loading": "Cargando boletín...",
+    "back": "← Volver al examen",
+    "title": "Boletín del examen",
+    "description": "Consulte el rendimiento de los alumnos en esta evaluación.",
+    "examSummary": "Nota máxima: {max} • Estado: {status}",
+    "summary": {
+      "students": "Alumnos con intentos",
+      "average": "Media de la clase",
+      "performance": "Nivel de rendimiento"
+    },
+    "performance": {
+      "good": "Buen rendimiento",
+      "attention": "Atención",
+      "low": "Bajo rendimiento"
+    },
+    "attemptStatus": {
+      "finished": "Finalizado",
+      "inProgress": "En curso"
+    },
+    "examStatus": {
+      "draft": "Borrador",
+      "published": "Publicado",
+      "closed": "Cerrado",
+      "cancelled": "Cancelado"
+    },
+    "students": {
+      "title": "Rendimiento de los alumnos",
+      "description": "Lista de alumnos con un intento registrado en el examen.",
+      "empty": "No se han encontrado intentos.",
+      "status": "Estado:",
+      "finishedAt": "Finalización:",
+      "grade": "Calificación: {grade}"
+    },
+    "actions": {
+      "retry": "Intentar de nuevo",
+      "viewAttempt": "Ver intento"
+    },
+    "feedback": {
+      "loadError": "Error al cargar el boletín del examen.",
+      "invalidResponse": "No se han podido interpretar los datos del boletín."
+    }
+  },
   "ProfessorEditAlternative": {
     "loading": "Cargando alternativa...",
     "notFound": "Alternativa no encontrada",
