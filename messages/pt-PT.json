@@ -1178,6 +1178,56 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorEditActivity": {
+    "eyebrow": "Atividade",
+    "title": "Editar atividade",
+    "description": "Configure os detalhes da atividade que será disponibilizada aos alunos.",
+    "loading": "A carregar atividade...",
+    "classFallback": "Turma {id}",
+    "currentClassFallback": "Turma atual n.º {id}",
+    "blockedMessage": "Esta atividade encontra-se com o estado {status} e, de acordo com a regra atual do sistema, apenas atividades em rascunho podem ser editadas.",
+    "statusHelp": "A publicação, retirada da publicação e o encerramento da atividade são efetuados na página de detalhes.",
+    "status": {
+      "draft": "Rascunho",
+      "published": "Publicada",
+      "closed": "Encerrada",
+      "unknown": "Estado não identificado"
+    },
+    "fields": {
+      "title": "Título da atividade",
+      "titlePlaceholder": "Ex.: Trabalho sobre escatologia",
+      "description": "Descrição",
+      "descriptionPlaceholder": "Explique o que o aluno deve fazer...",
+      "deadline": "Prazo",
+      "class": "Turma",
+      "classPlaceholder": "Selecione uma turma",
+      "maximumGrade": "Nota máxima",
+      "status": "Estado"
+    },
+    "actions": {
+      "retry": "Tentar novamente",
+      "save": "Atualizar atividade",
+      "saving": "A guardar...",
+      "blocked": "Edição bloqueada",
+      "cancel": "Cancelar"
+    },
+    "validation": {
+      "titleRequired": "Introduza o título da atividade.",
+      "classRequired": "Selecione uma turma válida.",
+      "invalidMaximumGrade": "A nota máxima deve ser superior a zero.",
+      "invalidDeadline": "Introduza um prazo válido.",
+      "formInvalid": "Corrija os campos obrigatórios para continuar."
+    },
+    "feedback": {
+      "loadError": "Erro ao carregar a atividade.",
+      "classesLoadError": "Erro ao carregar as turmas.",
+      "invalidResponse": "Não foi possível interpretar os dados da atividade.",
+      "classesInvalidResponse": "Não foi possível interpretar a lista de turmas.",
+      "editBlocked": "Esta atividade não pode ser editada enquanto não estiver em rascunho.",
+      "saveError": "Erro ao guardar a atividade.",
+      "saveSuccess": "Atividade atualizada com sucesso."
+    }
+  },
   "ProfessorActivityDetail": {
     "loading": "A carregar atividade...",
     "back": "← Voltar para atividades",

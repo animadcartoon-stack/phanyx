@@ -1178,6 +1178,56 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorEditActivity": {
+    "eyebrow": "Activité",
+    "title": "Modifier l’activité",
+    "description": "Configurez les détails de l’activité qui sera mise à disposition des élèves.",
+    "loading": "Chargement de l’activité...",
+    "classFallback": "Classe {id}",
+    "currentClassFallback": "Classe actuelle n° {id}",
+    "blockedMessage": "Cette activité a actuellement le statut {status}. Selon la règle actuelle du système, seules les activités en brouillon peuvent être modifiées.",
+    "statusHelp": "La publication, le retrait de publication et la clôture de l’activité sont gérés depuis la page de détails.",
+    "status": {
+      "draft": "Brouillon",
+      "published": "Publiée",
+      "closed": "Terminée",
+      "unknown": "Statut non identifié"
+    },
+    "fields": {
+      "title": "Titre de l’activité",
+      "titlePlaceholder": "Ex. : Travail sur l’eschatologie",
+      "description": "Description",
+      "descriptionPlaceholder": "Expliquez ce que l’élève doit faire...",
+      "deadline": "Date limite",
+      "class": "Classe",
+      "classPlaceholder": "Sélectionnez une classe",
+      "maximumGrade": "Note maximale",
+      "status": "Statut"
+    },
+    "actions": {
+      "retry": "Réessayer",
+      "save": "Mettre à jour l’activité",
+      "saving": "Enregistrement...",
+      "blocked": "Modification bloquée",
+      "cancel": "Annuler"
+    },
+    "validation": {
+      "titleRequired": "Saisissez le titre de l’activité.",
+      "classRequired": "Sélectionnez une classe valide.",
+      "invalidMaximumGrade": "La note maximale doit être supérieure à zéro.",
+      "invalidDeadline": "Saisissez une date limite valide.",
+      "formInvalid": "Corrigez les champs obligatoires pour continuer."
+    },
+    "feedback": {
+      "loadError": "Erreur lors du chargement de l’activité.",
+      "classesLoadError": "Erreur lors du chargement des classes.",
+      "invalidResponse": "Les données de l’activité n’ont pas pu être interprétées.",
+      "classesInvalidResponse": "La liste des classes n’a pas pu être interprétée.",
+      "editBlocked": "Cette activité ne peut pas être modifiée tant qu’elle n’est pas en brouillon.",
+      "saveError": "Erreur lors de l’enregistrement de l’activité.",
+      "saveSuccess": "Activité mise à jour avec succès."
+    }
+  },
   "ProfessorActivityDetail": {
     "loading": "Chargement de l’activité...",
     "back": "← Retour aux activités",

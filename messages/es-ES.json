@@ -1178,6 +1178,56 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorEditActivity": {
+    "eyebrow": "Actividad",
+    "title": "Editar actividad",
+    "description": "Configure los detalles de la actividad que estará disponible para los alumnos.",
+    "loading": "Cargando actividad...",
+    "classFallback": "Clase {id}",
+    "currentClassFallback": "Clase actual #{id}",
+    "blockedMessage": "Esta actividad tiene actualmente el estado {status}. Según la regla actual del sistema, solo se pueden editar las actividades en borrador.",
+    "statusHelp": "La publicación, retirada de publicación y cierre de la actividad se realizan desde la página de detalles.",
+    "status": {
+      "draft": "Borrador",
+      "published": "Publicada",
+      "closed": "Cerrada",
+      "unknown": "Estado no identificado"
+    },
+    "fields": {
+      "title": "Título de la actividad",
+      "titlePlaceholder": "Ej.: Trabajo sobre escatología",
+      "description": "Descripción",
+      "descriptionPlaceholder": "Explique lo que el alumno debe hacer...",
+      "deadline": "Fecha límite",
+      "class": "Clase",
+      "classPlaceholder": "Seleccione una clase",
+      "maximumGrade": "Calificación máxima",
+      "status": "Estado"
+    },
+    "actions": {
+      "retry": "Intentar de nuevo",
+      "save": "Actualizar actividad",
+      "saving": "Guardando...",
+      "blocked": "Edición bloqueada",
+      "cancel": "Cancelar"
+    },
+    "validation": {
+      "titleRequired": "Introduzca el título de la actividad.",
+      "classRequired": "Seleccione una clase válida.",
+      "invalidMaximumGrade": "La calificación máxima debe ser mayor que cero.",
+      "invalidDeadline": "Introduzca una fecha límite válida.",
+      "formInvalid": "Corrija los campos obligatorios para continuar."
+    },
+    "feedback": {
+      "loadError": "Error al cargar la actividad.",
+      "classesLoadError": "Error al cargar las clases.",
+      "invalidResponse": "No se han podido interpretar los datos de la actividad.",
+      "classesInvalidResponse": "No se ha podido interpretar la lista de clases.",
+      "editBlocked": "Esta actividad no puede editarse mientras no esté en estado de borrador.",
+      "saveError": "Error al guardar la actividad.",
+      "saveSuccess": "Actividad actualizada correctamente."
+    }
+  },
   "ProfessorActivityDetail": {
     "loading": "Cargando actividad...",
     "back": "← Volver a actividades",

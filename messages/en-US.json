@@ -1178,6 +1178,56 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorEditActivity": {
+    "eyebrow": "Activity",
+    "title": "Edit activity",
+    "description": "Configure the details of the activity that will be made available to students.",
+    "loading": "Loading activity...",
+    "classFallback": "Class {id}",
+    "currentClassFallback": "Current class #{id}",
+    "blockedMessage": "This activity currently has the status {status}. Under the current system rule, only draft activities can be edited.",
+    "statusHelp": "Publishing, unpublishing, and closing the activity are handled on the activity details page.",
+    "status": {
+      "draft": "Draft",
+      "published": "Published",
+      "closed": "Closed",
+      "unknown": "Unknown status"
+    },
+    "fields": {
+      "title": "Activity title",
+      "titlePlaceholder": "Example: Assignment on eschatology",
+      "description": "Description",
+      "descriptionPlaceholder": "Explain what the student needs to do...",
+      "deadline": "Deadline",
+      "class": "Class",
+      "classPlaceholder": "Select a class",
+      "maximumGrade": "Maximum grade",
+      "status": "Status"
+    },
+    "actions": {
+      "retry": "Try again",
+      "save": "Update activity",
+      "saving": "Saving...",
+      "blocked": "Editing blocked",
+      "cancel": "Cancel"
+    },
+    "validation": {
+      "titleRequired": "Enter the activity title.",
+      "classRequired": "Select a valid class.",
+      "invalidMaximumGrade": "The maximum grade must be greater than zero.",
+      "invalidDeadline": "Enter a valid deadline.",
+      "formInvalid": "Correct the required fields to continue."
+    },
+    "feedback": {
+      "loadError": "Error loading the activity.",
+      "classesLoadError": "Error loading classes.",
+      "invalidResponse": "The activity data could not be interpreted.",
+      "classesInvalidResponse": "The class list could not be interpreted.",
+      "editBlocked": "This activity cannot be edited unless it is in draft status.",
+      "saveError": "Error saving the activity.",
+      "saveSuccess": "Activity updated successfully."
+    }
+  },
   "ProfessorActivityDetail": {
     "loading": "Loading activity...",
     "back": "← Back to activities",
