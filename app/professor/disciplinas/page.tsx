@@ -1,44 +1,101 @@
 "use client";
 
-import { useProfessor } from "@/app/context/ProfessorContext";
+import {
+  useEffect,
+  useState,
+} from "react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
+import { useProfessor } from "@/app/context/ProfessorContext";
 
-type FeedbackTipo = "sucesso" | "erro" | "";
+type FeedbackTipo =
+  | "sucesso"
+  | "erro"
+  | "";
+
+type DisciplinaExclusao = {
+  id: number;
+  nome: string;
+};
 
 export default function DisciplinasProfessor() {
-  const { disciplinas } = useProfessor();
+  const { disciplinas } =
+    useProfessor();
+
   const router = useRouter();
 
-  const [feedback, setFeedback] = useState("");
-  const [feedbackTipo, setFeedbackTipo] = useState<FeedbackTipo>("");
-  const [disciplinaParaExcluir, setDisciplinaParaExcluir] = useState<{
-    id: number;
-    nome: string;
-  } | null>(null);
-  const [excluindoId, setExcluindoId] = useState<number | null>(null);
+  const t = useTranslations(
+    "ProfessorDisciplines"
+  );
+
+  const [
+    feedback,
+    setFeedback,
+  ] = useState("");
+
+  const [
+    feedbackTipo,
+    setFeedbackTipo,
+  ] =
+    useState<FeedbackTipo>("");
+
+  const [
+    disciplinaParaExcluir,
+    setDisciplinaParaExcluir,
+  ] =
+    useState<DisciplinaExclusao | null>(
+      null
+    );
+
+  const [
+    excluindoId,
+    setExcluindoId,
+  ] =
+    useState<number | null>(
+      null
+    );
 
   useEffect(() => {
-    if (!feedback) return;
+    if (!feedback) {
+      return;
+    }
 
-    const timer = setTimeout(() => {
-      setFeedback("");
-      setFeedbackTipo("");
-    }, 3500);
+    const timer =
+      setTimeout(() => {
+        setFeedback("");
+        setFeedbackTipo("");
+      }, 3500);
 
-    return () => clearTimeout(timer);
+    return () =>
+      clearTimeout(timer);
   }, [feedback]);
 
-  function mostrarFeedback(tipo: Exclude<FeedbackTipo, "">, mensagem: string) {
+  function mostrarFeedback(
+    tipo: Exclude<
+      FeedbackTipo,
+      ""
+    >,
+    mensagem: string
+  ) {
     setFeedbackTipo(tipo);
     setFeedback(mensagem);
   }
 
   async function confirmarExclusaoDisciplina() {
-    if (!disciplinaParaExcluir) return;
+    if (
+      !disciplinaParaExcluir ||
+      excluindoId !== null
+    ) {
+      return;
+    }
 
     try {
-      setExcluindoId(disciplinaParaExcluir.id);
+      setExcluindoId(
+        disciplinaParaExcluir.id
+      );
+
+      setFeedback("");
+      setFeedbackTipo("");
 
       const res = await fetch(
         `/api/professor/disciplinas/${disciplinaParaExcluir.id}`,
@@ -48,20 +105,53 @@ export default function DisciplinasProfessor() {
         }
       );
 
-      const data = await res.json();
+      let data: {
+        error?: string;
+      } = {};
 
-      if (!res.ok) {
-        throw new Error(data?.error || "Erro ao excluir disciplina");
+      try {
+        data = await res.json();
+      } catch {
+        data = {};
       }
 
-      setDisciplinaParaExcluir(null);
-      mostrarFeedback("sucesso", "Disciplina excluída com sucesso.");
+      if (!res.ok) {
+        throw new Error(
+          data?.error ||
+            t(
+              "feedback.deleteError"
+            )
+        );
+      }
+
+      setDisciplinaParaExcluir(
+        null
+      );
+
+      mostrarFeedback(
+        "sucesso",
+        t(
+          "feedback.deleteSuccess"
+        )
+      );
 
       setTimeout(() => {
         window.location.reload();
       }, 700);
-    } catch (e: any) {
-      mostrarFeedback("erro", e?.message || "Erro ao excluir disciplina");
+    } catch (
+      error: unknown
+    ) {
+      const mensagem =
+        error instanceof Error
+          ? error.message
+          : t(
+              "feedback.deleteError"
+            );
+
+      mostrarFeedback(
+        "erro",
+        mensagem
+      );
     } finally {
       setExcluindoId(null);
     }
@@ -69,81 +159,216 @@ export default function DisciplinasProfessor() {
 
   return (
     <>
-      <div className="space-y-6">
+      <div className="space-y-6 text-slate-900 dark:text-slate-100">
         {feedback && (
           <div
-            className={`rounded-2xl border px-4 py-3 text-sm shadow-sm ${
-              feedbackTipo === "sucesso"
-                ? "border-green-200 bg-green-50 text-green-700"
-                : "border-red-200 bg-red-50 text-red-700"
+            aria-live={
+              feedbackTipo ===
+              "erro"
+                ? "assertive"
+                : "polite"
+            }
+            className={`rounded-2xl border px-4 py-3 text-sm font-medium shadow-sm ${
+              feedbackTipo ===
+              "sucesso"
+                ? "border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-950/40 dark:text-green-300"
+                : "border-red-200 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
             }`}
           >
             {feedback}
           </div>
         )}
 
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">📚 Disciplinas</h1>
+        <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-700 dark:text-blue-400">
+                {t("eyebrow")}
+              </p>
 
-          <button
-            onClick={() => router.push("/professor/disciplinas/nova")}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
-          >
-            Nova disciplina
-          </button>
-        </div>
+              <h1 className="mt-2 text-2xl font-black text-slate-900 dark:text-white">
+                {t("title")}
+              </h1>
 
-        <div className="space-y-4">
-          {disciplinas.map((d) => (
-            <div
-              key={d.id}
-              onClick={() => router.push(`/professor/disciplinas/${d.id}`)}
-              className="cursor-pointer rounded-lg border bg-white p-4 transition hover:shadow"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <h2 className="font-semibold text-gray-900">{d.nome}</h2>
-
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setDisciplinaParaExcluir({
-                      id: Number(d.id),
-                      nome: d.nome,
-                    });
-                  }}
-                  disabled={excluindoId === Number(d.id)}
-                  className="rounded bg-red-600 px-3 py-1 text-sm text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {excluindoId === Number(d.id) ? "Excluindo..." : "Excluir"}
-                </button>
-              </div>
+              <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
+                {t(
+                  "description"
+                )}
+              </p>
             </div>
-          ))}
 
-          {disciplinas.length === 0 && (
-            <p className="text-gray-600">Nenhuma disciplina criada ainda.</p>
-          )}
-        </div>
+            <button
+              type="button"
+              onClick={() =>
+                router.push(
+                  "/professor/disciplinas/nova"
+                )
+              }
+              className="shrink-0 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+            >
+              {t(
+                "actions.new"
+              )}
+            </button>
+          </div>
+        </section>
+
+        {disciplinas.length ===
+        0 ? (
+          <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 text-2xl dark:bg-slate-950">
+              📚
+            </div>
+
+            <p className="mt-4 font-bold text-slate-800 dark:text-slate-100">
+              {t(
+                "empty.title"
+              )}
+            </p>
+
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              {t(
+                "empty.description"
+              )}
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {disciplinas.map(
+              (disciplina) => {
+                const id =
+                  Number(
+                    disciplina.id
+                  );
+
+                const excluindo =
+                  excluindoId === id;
+
+                return (
+                  <div
+                    key={
+                      disciplina.id
+                    }
+                    role="button"
+                    tabIndex={0}
+                    onClick={() =>
+                      router.push(
+                        `/professor/disciplinas/${disciplina.id}`
+                      )
+                    }
+                    onKeyDown={(
+                      event
+                    ) => {
+                      if (
+                        event.key ===
+                          "Enter" ||
+                        event.key ===
+                          " "
+                      ) {
+                        event.preventDefault();
+
+                        router.push(
+                          `/professor/disciplinas/${disciplina.id}`
+                        );
+                      }
+                    }}
+                    className="cursor-pointer rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-blue-300 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500/40 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-blue-700"
+                  >
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400 dark:text-slate-500">
+                          {t(
+                            "card.label"
+                          )}
+                        </p>
+
+                        <h2 className="mt-1 truncate text-lg font-bold text-slate-900 dark:text-white">
+                          {
+                            disciplina.nome
+                          }
+                        </h2>
+
+                        <p className="mt-2 text-sm font-medium text-blue-700 dark:text-blue-400">
+                          {t(
+                            "actions.open"
+                          )}
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={(
+                          event
+                        ) => {
+                          event.stopPropagation();
+
+                          setDisciplinaParaExcluir(
+                            {
+                              id,
+                              nome:
+                                disciplina.nome,
+                            }
+                          );
+                        }}
+                        disabled={
+                          excluindo
+                        }
+                        className="shrink-0 rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {excluindo
+                          ? t(
+                              "actions.deleting"
+                            )
+                          : t(
+                              "actions.delete"
+                            )}
+                      </button>
+                    </div>
+                  </div>
+                );
+              }
+            )}
+          </div>
+        )}
       </div>
 
       {disciplinaParaExcluir && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 p-4">
-          <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl">
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="excluir-disciplina-titulo"
+        >
+          <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-900">
             <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-100 text-xl">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-red-100 text-xl dark:bg-red-950/60">
                 🗑️
               </div>
 
               <div className="flex-1">
-                <h2 className="text-lg font-bold text-slate-900">
-                  Confirmar exclusão
+                <h2
+                  id="excluir-disciplina-titulo"
+                  className="text-lg font-bold text-slate-900 dark:text-white"
+                >
+                  {t(
+                    "deleteModal.title"
+                  )}
                 </h2>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Tem certeza que deseja excluir a disciplina{" "}
-                  <strong>"{disciplinaParaExcluir.nome}"</strong>?
+
+                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                  {t(
+                    "deleteModal.message",
+                    {
+                      name:
+                        disciplinaParaExcluir.nome,
+                    }
+                  )}
                 </p>
-                <p className="mt-2 text-sm text-slate-500">
-                  Esta ação não pode ser desfeita.
+
+                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                  {t(
+                    "deleteModal.warning"
+                  )}
                 </p>
               </div>
             </div>
@@ -151,22 +376,41 @@ export default function DisciplinasProfessor() {
             <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
               <button
                 type="button"
-                onClick={() => setDisciplinaParaExcluir(null)}
-                disabled={excluindoId === disciplinaParaExcluir.id}
-                className="rounded-2xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                onClick={() =>
+                  setDisciplinaParaExcluir(
+                    null
+                  )
+                }
+                disabled={
+                  excluindoId ===
+                  disciplinaParaExcluir.id
+                }
+                className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
               >
-                Cancelar
+                {t(
+                  "actions.cancel"
+                )}
               </button>
 
               <button
                 type="button"
-                onClick={confirmarExclusaoDisciplina}
-                disabled={excluindoId === disciplinaParaExcluir.id}
+                onClick={
+                  confirmarExclusaoDisciplina
+                }
+                disabled={
+                  excluindoId ===
+                  disciplinaParaExcluir.id
+                }
                 className="rounded-2xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {excluindoId === disciplinaParaExcluir.id
-                  ? "Excluindo..."
-                  : "Confirmar exclusão"}
+                {excluindoId ===
+                disciplinaParaExcluir.id
+                  ? t(
+                      "actions.deleting"
+                    )
+                  : t(
+                      "deleteModal.confirm"
+                    )}
               </button>
             </div>
           </div>

@@ -1178,6 +1178,35 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorDisciplines": {
+    "eyebrow": "Disciplines",
+    "title": "Disciplines",
+    "description": "Access, create, and manage the disciplines linked to your professor area.",
+    "card": {
+      "label": "Discipline"
+    },
+    "empty": {
+      "title": "No disciplines have been created yet",
+      "description": "Create a new discipline to start organizing lessons, activities, and evaluations."
+    },
+    "actions": {
+      "new": "New discipline",
+      "open": "Open discipline →",
+      "delete": "Delete",
+      "deleting": "Deleting...",
+      "cancel": "Cancel"
+    },
+    "deleteModal": {
+      "title": "Confirm deletion",
+      "message": "Are you sure you want to delete the discipline \"{name}\"?",
+      "warning": "This action cannot be undone.",
+      "confirm": "Confirm deletion"
+    },
+    "feedback": {
+      "deleteError": "Error deleting the discipline.",
+      "deleteSuccess": "Discipline deleted successfully."
+    }
+  },
   "ProfessorEvaluationAttemptDetail": {
     "eyebrow": "Evaluation",
     "title": "Student answers",

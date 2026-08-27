@@ -1178,6 +1178,35 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorDisciplines": {
+    "eyebrow": "Disciplinas",
+    "title": "Disciplinas",
+    "description": "Aceda, crie e gira as disciplinas associadas à sua área de professor.",
+    "card": {
+      "label": "Disciplina"
+    },
+    "empty": {
+      "title": "Ainda não existem disciplinas criadas",
+      "description": "Crie uma nova disciplina para começar a organizar aulas, atividades e avaliações."
+    },
+    "actions": {
+      "new": "Nova disciplina",
+      "open": "Abrir disciplina →",
+      "delete": "Eliminar",
+      "deleting": "A eliminar...",
+      "cancel": "Cancelar"
+    },
+    "deleteModal": {
+      "title": "Confirmar eliminação",
+      "message": "Tem a certeza de que pretende eliminar a disciplina \"{name}\"?",
+      "warning": "Esta ação não pode ser anulada.",
+      "confirm": "Confirmar eliminação"
+    },
+    "feedback": {
+      "deleteError": "Erro ao eliminar a disciplina.",
+      "deleteSuccess": "Disciplina eliminada com sucesso."
+    }
+  },
   "ProfessorEvaluationAttemptDetail": {
     "eyebrow": "Avaliação",
     "title": "Respostas do aluno",

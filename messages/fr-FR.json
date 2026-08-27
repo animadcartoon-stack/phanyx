@@ -1178,6 +1178,35 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorDisciplines": {
+    "eyebrow": "Disciplines",
+    "title": "Disciplines",
+    "description": "Accédez, créez et gérez les disciplines associées à votre espace professeur.",
+    "card": {
+      "label": "Discipline"
+    },
+    "empty": {
+      "title": "Aucune discipline n’a encore été créée",
+      "description": "Créez une nouvelle discipline pour commencer à organiser les cours, les activités et les évaluations."
+    },
+    "actions": {
+      "new": "Nouvelle discipline",
+      "open": "Ouvrir la discipline →",
+      "delete": "Supprimer",
+      "deleting": "Suppression...",
+      "cancel": "Annuler"
+    },
+    "deleteModal": {
+      "title": "Confirmer la suppression",
+      "message": "Êtes-vous sûr de vouloir supprimer la discipline « {name} » ?",
+      "warning": "Cette action est irréversible.",
+      "confirm": "Confirmer la suppression"
+    },
+    "feedback": {
+      "deleteError": "Erreur lors de la suppression de la discipline.",
+      "deleteSuccess": "Discipline supprimée avec succès."
+    }
+  },
   "ProfessorEvaluationAttemptDetail": {
     "eyebrow": "Évaluation",
     "title": "Réponses de l’élève",
