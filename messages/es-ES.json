@@ -1178,6 +1178,68 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorSubmissionDetail": {
+    "eyebrow": "Entrega",
+    "title": "Corrección de la entrega",
+    "loading": "Cargando entrega...",
+    "errorTitle": "Error al cargar la entrega",
+    "notFound": "Entrega no encontrada.",
+    "activityFallback": "Actividad",
+    "studentFallback": "Alumno",
+    "studentFallbackWithId": "Alumno {id}",
+    "date": {
+      "notProvided": "—"
+    },
+    "grade": {
+      "notProvided": "No indicada"
+    },
+    "fields": {
+      "student": "Alumno",
+      "submittedAt": "Entregado el",
+      "maximumGrade": "Calificación máxima",
+      "correctedAt": "Corregida el",
+      "grade": "Calificación",
+      "gradePlaceholder": "Ej.: 8,5",
+      "maximumGradeHelp": "La calificación máxima de esta actividad es {maximum}.",
+      "feedback": "Feedback",
+      "feedbackPlaceholder": "Escriba un comentario para el alumno"
+    },
+    "content": {
+      "text": "Texto",
+      "link": "Enlace",
+      "file": "Archivo",
+      "empty": "—"
+    },
+    "correction": {
+      "eyebrow": "Corrección",
+      "title": "Corregir entrega",
+      "description": "Introduzca la calificación y el comentario que se registrarán para esta entrega."
+    },
+    "actions": {
+      "back": "← Volver a entregas",
+      "retry": "Intentar de nuevo",
+      "openLink": "Abrir enlace",
+      "openFile": "Abrir archivo",
+      "save": "Guardar corrección",
+      "saving": "Guardando..."
+    },
+    "validation": {
+      "invalidGrade": "Introduzca una calificación válida igual o mayor que cero.",
+      "gradeAboveMaximum": "La calificación no puede ser mayor que {maximum}."
+    },
+    "feedback": {
+      "invalidSubmission": "Entrega no válida.",
+      "loadError": "Error al cargar la entrega.",
+      "invalidResponse": "No se han podido interpretar los datos de la entrega.",
+      "missingCorrectionData": "No se ha podido identificar la actividad o el alumno de esta entrega.",
+      "saveError": "No se ha podido guardar la corrección.",
+      "saveSuccess": "Corrección guardada correctamente."
+    },
+    "toast": {
+      "successTitle": "Todo listo",
+      "errorTitle": "No se ha podido guardar"
+    }
+  },
   "ProfessorSubmissions": {
     "eyebrow": "Entregas",
     "title": "Entregas de los alumnos",

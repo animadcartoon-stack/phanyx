@@ -1178,6 +1178,68 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorSubmissionDetail": {
+    "eyebrow": "Submission",
+    "title": "Submission grading",
+    "loading": "Loading submission...",
+    "errorTitle": "Error loading submission",
+    "notFound": "Submission not found.",
+    "activityFallback": "Activity",
+    "studentFallback": "Student",
+    "studentFallbackWithId": "Student {id}",
+    "date": {
+      "notProvided": "—"
+    },
+    "grade": {
+      "notProvided": "Not provided"
+    },
+    "fields": {
+      "student": "Student",
+      "submittedAt": "Submitted at",
+      "maximumGrade": "Maximum grade",
+      "correctedAt": "Graded at",
+      "grade": "Grade",
+      "gradePlaceholder": "Example: 8.5",
+      "maximumGradeHelp": "The maximum grade for this activity is {maximum}.",
+      "feedback": "Feedback",
+      "feedbackPlaceholder": "Write feedback for the student"
+    },
+    "content": {
+      "text": "Text",
+      "link": "Link",
+      "file": "File",
+      "empty": "—"
+    },
+    "correction": {
+      "eyebrow": "Grading",
+      "title": "Grade submission",
+      "description": "Enter the grade and feedback that will be recorded for this submission."
+    },
+    "actions": {
+      "back": "← Back to submissions",
+      "retry": "Try again",
+      "openLink": "Open link",
+      "openFile": "Open file",
+      "save": "Save grading",
+      "saving": "Saving..."
+    },
+    "validation": {
+      "invalidGrade": "Enter a valid grade equal to or greater than zero.",
+      "gradeAboveMaximum": "The grade cannot be greater than {maximum}."
+    },
+    "feedback": {
+      "invalidSubmission": "Invalid submission.",
+      "loadError": "Error loading the submission.",
+      "invalidResponse": "The submission data could not be interpreted.",
+      "missingCorrectionData": "The activity or student for this submission could not be identified.",
+      "saveError": "The grading could not be saved.",
+      "saveSuccess": "Grading saved successfully."
+    },
+    "toast": {
+      "successTitle": "All set",
+      "errorTitle": "Could not save"
+    }
+  },
   "ProfessorSubmissions": {
     "eyebrow": "Submissions",
     "title": "Student submissions",

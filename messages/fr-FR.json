@@ -1178,6 +1178,68 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorSubmissionDetail": {
+    "eyebrow": "Remise",
+    "title": "Correction de la remise",
+    "loading": "Chargement de la remise...",
+    "errorTitle": "Erreur lors du chargement de la remise",
+    "notFound": "Remise introuvable.",
+    "activityFallback": "Activité",
+    "studentFallback": "Élève",
+    "studentFallbackWithId": "Élève {id}",
+    "date": {
+      "notProvided": "—"
+    },
+    "grade": {
+      "notProvided": "Non renseignée"
+    },
+    "fields": {
+      "student": "Élève",
+      "submittedAt": "Remis le",
+      "maximumGrade": "Note maximale",
+      "correctedAt": "Corrigée le",
+      "grade": "Note",
+      "gradePlaceholder": "Ex. : 8,5",
+      "maximumGradeHelp": "La note maximale de cette activité est {maximum}.",
+      "feedback": "Commentaire",
+      "feedbackPlaceholder": "Rédigez un commentaire pour l’élève"
+    },
+    "content": {
+      "text": "Texte",
+      "link": "Lien",
+      "file": "Fichier",
+      "empty": "—"
+    },
+    "correction": {
+      "eyebrow": "Correction",
+      "title": "Corriger la remise",
+      "description": "Saisissez la note et le commentaire qui seront enregistrés pour cette remise."
+    },
+    "actions": {
+      "back": "← Retour aux remises",
+      "retry": "Réessayer",
+      "openLink": "Ouvrir le lien",
+      "openFile": "Ouvrir le fichier",
+      "save": "Enregistrer la correction",
+      "saving": "Enregistrement..."
+    },
+    "validation": {
+      "invalidGrade": "Saisissez une note valide supérieure ou égale à zéro.",
+      "gradeAboveMaximum": "La note ne peut pas être supérieure à {maximum}."
+    },
+    "feedback": {
+      "invalidSubmission": "Remise non valide.",
+      "loadError": "Erreur lors du chargement de la remise.",
+      "invalidResponse": "Les données de la remise n’ont pas pu être interprétées.",
+      "missingCorrectionData": "L’activité ou l’élève associé à cette remise n’a pas pu être identifié.",
+      "saveError": "La correction n’a pas pu être enregistrée.",
+      "saveSuccess": "Correction enregistrée avec succès."
+    },
+    "toast": {
+      "successTitle": "Tout est prêt",
+      "errorTitle": "Impossible d’enregistrer"
+    }
+  },
   "ProfessorSubmissions": {
     "eyebrow": "Remises",
     "title": "Travaux remis par les élèves",
