@@ -1178,6 +1178,66 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorEditQuestion": {
+    "loading": "A carregar questão...",
+    "notFound": "Questão não encontrada",
+    "title": "Editar questão",
+    "questionNumber": "Questão {number} da prova",
+    "back": "Voltar para a prova",
+    "fields": {
+      "statement": "Enunciado",
+      "complementaryQuestion": "Pergunta complementar",
+      "optional": "Opcional",
+      "type": "Tipo",
+      "value": "Valor"
+    },
+    "questionTypes": {
+      "multipleChoice": "Escolha múltipla",
+      "discursive": "Discursiva"
+    },
+    "actions": {
+      "save": "Guardar questão",
+      "saving": "A guardar...",
+      "delete": "Eliminar questão",
+      "deleting": "A eliminar...",
+      "edit": "Editar"
+    },
+    "alternatives": {
+      "title": "Alternativas",
+      "description": "Registe as alternativas da questão.",
+      "textLabel": "Texto da alternativa",
+      "placeholder": "Introduza a alternativa",
+      "markCorrect": "Assinalar como correta",
+      "add": "Adicionar alternativa",
+      "adding": "A adicionar...",
+      "correct": "Alternativa correta",
+      "incorrect": "Alternativa incorreta",
+      "empty": "Ainda não existem alternativas registadas."
+    },
+    "deleteModal": {
+      "title": "Confirmar eliminação",
+      "message": "Tem a certeza de que pretende eliminar esta questão?",
+      "warning": "Esta ação não pode ser anulada.",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar eliminação"
+    },
+    "validation": {
+      "statementRequired": "Introduza o enunciado da questão.",
+      "invalidValue": "O valor da questão deve ser superior a zero.",
+      "alternativeRequired": "Introduza o texto da alternativa."
+    },
+    "feedback": {
+      "examLoadError": "Erro ao carregar a prova.",
+      "loadError": "Erro ao carregar a questão.",
+      "notFound": "Questão não encontrada.",
+      "saveError": "Erro ao guardar a questão.",
+      "saveSuccess": "Questão atualizada com sucesso.",
+      "deleteError": "Erro ao eliminar a questão.",
+      "deleteSuccess": "Questão eliminada com sucesso.",
+      "alternativeCreateError": "Erro ao criar a alternativa.",
+      "alternativeCreateSuccess": "Alternativa adicionada com sucesso."
+    }
+  },
   "ProfessorNewQuestion": {
     "back": "Voltar para a prova",
     "title": "Nova questão",

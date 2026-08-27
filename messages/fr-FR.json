@@ -1178,6 +1178,66 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorEditQuestion": {
+    "loading": "Chargement de la question...",
+    "notFound": "Question introuvable",
+    "title": "Modifier la question",
+    "questionNumber": "Question {number} de l’examen",
+    "back": "Retour à l’examen",
+    "fields": {
+      "statement": "Énoncé",
+      "complementaryQuestion": "Question complémentaire",
+      "optional": "Facultatif",
+      "type": "Type",
+      "value": "Valeur"
+    },
+    "questionTypes": {
+      "multipleChoice": "Choix multiple",
+      "discursive": "Rédactionnelle"
+    },
+    "actions": {
+      "save": "Enregistrer la question",
+      "saving": "Enregistrement...",
+      "delete": "Supprimer la question",
+      "deleting": "Suppression...",
+      "edit": "Modifier"
+    },
+    "alternatives": {
+      "title": "Réponses",
+      "description": "Ajoutez les réponses possibles à la question.",
+      "textLabel": "Texte de la réponse",
+      "placeholder": "Saisissez la réponse",
+      "markCorrect": "Marquer comme correcte",
+      "add": "Ajouter une réponse",
+      "adding": "Ajout...",
+      "correct": "Réponse correcte",
+      "incorrect": "Réponse incorrecte",
+      "empty": "Aucune réponse n’a encore été ajoutée."
+    },
+    "deleteModal": {
+      "title": "Confirmer la suppression",
+      "message": "Êtes-vous sûr de vouloir supprimer cette question ?",
+      "warning": "Cette action est irréversible.",
+      "cancel": "Annuler",
+      "confirm": "Confirmer la suppression"
+    },
+    "validation": {
+      "statementRequired": "Saisissez l’énoncé de la question.",
+      "invalidValue": "La valeur de la question doit être supérieure à zéro.",
+      "alternativeRequired": "Saisissez le texte de la réponse."
+    },
+    "feedback": {
+      "examLoadError": "Erreur lors du chargement de l’examen.",
+      "loadError": "Erreur lors du chargement de la question.",
+      "notFound": "Question introuvable.",
+      "saveError": "Erreur lors de l’enregistrement de la question.",
+      "saveSuccess": "Question mise à jour avec succès.",
+      "deleteError": "Erreur lors de la suppression de la question.",
+      "deleteSuccess": "Question supprimée avec succès.",
+      "alternativeCreateError": "Erreur lors de la création de la réponse.",
+      "alternativeCreateSuccess": "Réponse ajoutée avec succès."
+    }
+  },
   "ProfessorNewQuestion": {
     "back": "Retour à l’examen",
     "title": "Nouvelle question",

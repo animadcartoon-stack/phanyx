@@ -1178,6 +1178,66 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma acadêmica SaaS"
   },
+  "ProfessorEditQuestion": {
+    "loading": "Carregando questão...",
+    "notFound": "Questão não encontrada",
+    "title": "Editar questão",
+    "questionNumber": "Questão {number} da prova",
+    "back": "Voltar para a prova",
+    "fields": {
+      "statement": "Enunciado",
+      "complementaryQuestion": "Pergunta complementar",
+      "optional": "Opcional",
+      "type": "Tipo",
+      "value": "Valor"
+    },
+    "questionTypes": {
+      "multipleChoice": "Múltipla escolha",
+      "discursive": "Discursiva"
+    },
+    "actions": {
+      "save": "Salvar questão",
+      "saving": "Salvando...",
+      "delete": "Excluir questão",
+      "deleting": "Excluindo...",
+      "edit": "Editar"
+    },
+    "alternatives": {
+      "title": "Alternativas",
+      "description": "Cadastre as alternativas da questão.",
+      "textLabel": "Texto da alternativa",
+      "placeholder": "Digite a alternativa",
+      "markCorrect": "Marcar como correta",
+      "add": "Adicionar alternativa",
+      "adding": "Adicionando...",
+      "correct": "Alternativa correta",
+      "incorrect": "Alternativa incorreta",
+      "empty": "Nenhuma alternativa cadastrada ainda."
+    },
+    "deleteModal": {
+      "title": "Confirmar exclusão",
+      "message": "Tem certeza que deseja excluir esta questão?",
+      "warning": "Esta ação não pode ser desfeita.",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar exclusão"
+    },
+    "validation": {
+      "statementRequired": "Digite o enunciado da questão.",
+      "invalidValue": "O valor da questão precisa ser maior que zero.",
+      "alternativeRequired": "Digite o texto da alternativa."
+    },
+    "feedback": {
+      "examLoadError": "Erro ao carregar prova.",
+      "loadError": "Erro ao carregar questão.",
+      "notFound": "Questão não encontrada.",
+      "saveError": "Erro ao salvar questão.",
+      "saveSuccess": "Questão atualizada com sucesso.",
+      "deleteError": "Erro ao excluir questão.",
+      "deleteSuccess": "Questão excluída com sucesso.",
+      "alternativeCreateError": "Erro ao criar alternativa.",
+      "alternativeCreateSuccess": "Alternativa adicionada com sucesso."
+    }
+  },
   "ProfessorNewQuestion": {
     "back": "Voltar para a prova",
     "title": "Nova questão",

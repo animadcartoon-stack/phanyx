@@ -1178,6 +1178,66 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorEditQuestion": {
+    "loading": "Loading question...",
+    "notFound": "Question not found",
+    "title": "Edit question",
+    "questionNumber": "Question {number} of the exam",
+    "back": "Back to the exam",
+    "fields": {
+      "statement": "Question statement",
+      "complementaryQuestion": "Additional question",
+      "optional": "Optional",
+      "type": "Type",
+      "value": "Value"
+    },
+    "questionTypes": {
+      "multipleChoice": "Multiple choice",
+      "discursive": "Discursive"
+    },
+    "actions": {
+      "save": "Save question",
+      "saving": "Saving...",
+      "delete": "Delete question",
+      "deleting": "Deleting...",
+      "edit": "Edit"
+    },
+    "alternatives": {
+      "title": "Answer choices",
+      "description": "Add the answer choices for this question.",
+      "textLabel": "Answer choice text",
+      "placeholder": "Enter the answer choice",
+      "markCorrect": "Mark as correct",
+      "add": "Add answer choice",
+      "adding": "Adding...",
+      "correct": "Correct answer",
+      "incorrect": "Incorrect answer",
+      "empty": "No answer choices have been added yet."
+    },
+    "deleteModal": {
+      "title": "Confirm deletion",
+      "message": "Are you sure you want to delete this question?",
+      "warning": "This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Confirm deletion"
+    },
+    "validation": {
+      "statementRequired": "Enter the question statement.",
+      "invalidValue": "The question value must be greater than zero.",
+      "alternativeRequired": "Enter the answer choice text."
+    },
+    "feedback": {
+      "examLoadError": "Error loading the exam.",
+      "loadError": "Error loading the question.",
+      "notFound": "Question not found.",
+      "saveError": "Error saving the question.",
+      "saveSuccess": "Question updated successfully.",
+      "deleteError": "Error deleting the question.",
+      "deleteSuccess": "Question deleted successfully.",
+      "alternativeCreateError": "Error creating the answer choice.",
+      "alternativeCreateSuccess": "Answer choice added successfully."
+    }
+  },
   "ProfessorNewQuestion": {
     "back": "Back to the exam",
     "title": "New question",

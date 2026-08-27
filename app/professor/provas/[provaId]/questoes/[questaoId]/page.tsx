@@ -1,7 +1,15 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import {
+  FormEvent,
+  useEffect,
+  useState,
+} from "react";
+import {
+  useParams,
+  useRouter,
+} from "next/navigation";
+import { useTranslations } from "next-intl";
 
 type Alternativa = {
   id: number;
@@ -10,103 +18,300 @@ type Alternativa = {
   ordem?: number;
 };
 
+type TipoQuestao =
+  | "MULTIPLA_ESCOLHA"
+  | "DISCURSIVA";
+
 type Questao = {
   id: number;
   enunciado: string;
   pergunta?: string;
   tipo:
-  | "MULTIPLA_ESCOLHA"
-  | "DISCURSIVA"
-  | "multipla_escolha"
-  | "discursiva";
+    | TipoQuestao
+    | "multipla_escolha"
+    | "discursiva";
   valor: number;
   ordem: number;
   alternativas?: Alternativa[];
 };
 
-type FeedbackTipo = "sucesso" | "erro" | "";
+type FeedbackTipo =
+  | "sucesso"
+  | "erro"
+  | "";
 
-type TipoQuestao = "MULTIPLA_ESCOLHA" | "DISCURSIVA";
+function normalizarTipoQuestao(
+  valor:
+    | Questao["tipo"]
+    | string
+    | null
+    | undefined
+): TipoQuestao {
+  const normalizado = String(
+    valor || ""
+  )
+    .trim()
+    .toUpperCase();
+
+  if (
+    normalizado ===
+      "MULTIPLA_ESCOLHA" ||
+    normalizado ===
+      "MULTIPLA ESCOLHA"
+  ) {
+    return "MULTIPLA_ESCOLHA";
+  }
+
+  return "DISCURSIVA";
+}
 
 export default function QuestaoPage() {
   const params = useParams();
   const router = useRouter();
 
-  const provaId = params.provaId as string;
-  const questaoId = params.questaoId as string;
+  const t = useTranslations(
+    "ProfessorEditQuestion"
+  );
 
-  const [questao, setQuestao] = useState<Questao | null>(null);
+  const provaId = String(
+    params?.provaId || ""
+  );
 
-  const [enunciado, setEnunciado] = useState("");
-  const [pergunta, setPergunta] = useState("");
-  const [tipo, setTipo] =
-    useState<TipoQuestao>("MULTIPLA_ESCOLHA");
-  const [valor, setValor] = useState("1");
+  const questaoId = String(
+    params?.questaoId || ""
+  );
 
-  const [novaAlternativa, setNovaAlternativa] = useState("");
-  const [novaAlternativaCorreta, setNovaAlternativaCorreta] = useState(false);
+  const [
+    questao,
+    setQuestao,
+  ] = useState<Questao | null>(
+    null
+  );
 
-  const [loading, setLoading] = useState(true);
-  const [salvando, setSalvando] = useState(false);
-  const [salvandoAlternativa, setSalvandoAlternativa] = useState(false);
-  const [excluindo, setExcluindo] = useState(false);
+  const [
+    enunciado,
+    setEnunciado,
+  ] = useState("");
 
-  const [erro, setErro] = useState("");
-  const [feedback, setFeedback] = useState("");
-  const [feedbackTipo, setFeedbackTipo] = useState<FeedbackTipo>("");
-  const [modalExcluirAberto, setModalExcluirAberto] = useState(false);
-  const [erroAlternativa, setErroAlternativa] = useState("");
+  const [
+    pergunta,
+    setPergunta,
+  ] = useState("");
+
+  const [
+    tipo,
+    setTipo,
+  ] =
+    useState<TipoQuestao>(
+      "MULTIPLA_ESCOLHA"
+    );
+
+  const [
+    valor,
+    setValor,
+  ] = useState("1");
+
+  const [
+    novaAlternativa,
+    setNovaAlternativa,
+  ] = useState("");
+
+  const [
+    novaAlternativaCorreta,
+    setNovaAlternativaCorreta,
+  ] = useState(false);
+
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
+
+  const [
+    salvando,
+    setSalvando,
+  ] = useState(false);
+
+  const [
+    salvandoAlternativa,
+    setSalvandoAlternativa,
+  ] = useState(false);
+
+  const [
+    excluindo,
+    setExcluindo,
+  ] = useState(false);
+
+  const [
+    erro,
+    setErro,
+  ] = useState("");
+
+  const [
+    feedback,
+    setFeedback,
+  ] = useState("");
+
+  const [
+    feedbackTipo,
+    setFeedbackTipo,
+  ] =
+    useState<FeedbackTipo>(
+      ""
+    );
+
+  const [
+    modalExcluirAberto,
+    setModalExcluirAberto,
+  ] = useState(false);
+
+  const [
+    erroAlternativa,
+    setErroAlternativa,
+  ] = useState("");
 
   useEffect(() => {
-    if (!feedback) return;
+    if (!feedback) {
+      return;
+    }
 
-    const timer = setTimeout(() => {
-      setFeedback("");
-      setFeedbackTipo("");
-    }, 3500);
+    const timer =
+      setTimeout(() => {
+        setFeedback("");
+        setFeedbackTipo("");
+      }, 3500);
 
-    return () => clearTimeout(timer);
+    return () =>
+      clearTimeout(timer);
   }, [feedback]);
 
-  function mostrarFeedback(tipo: Exclude<FeedbackTipo, "">, mensagem: string) {
-    setFeedbackTipo(tipo);
+  function mostrarFeedback(
+    tipoFeedback: Exclude<
+      FeedbackTipo,
+      ""
+    >,
+    mensagem: string
+  ) {
+    setFeedbackTipo(
+      tipoFeedback
+    );
+
     setFeedback(mensagem);
   }
 
   async function carregarQuestao() {
+    if (
+      !provaId ||
+      !questaoId
+    ) {
+      setErro(
+        t(
+          "feedback.loadError"
+        )
+      );
+
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       setErro("");
 
-      const resProva = await fetch(`/api/professor/provas/${provaId}`);
+      const resProva =
+        await fetch(
+          `/api/professor/provas/${provaId}`,
+          {
+            cache: "no-store",
+          }
+        );
+
       if (!resProva.ok) {
-        throw new Error("Erro ao carregar prova");
+        throw new Error(
+          t(
+            "feedback.examLoadError"
+          )
+        );
       }
 
-      const prova = await resProva.json();
+      const prova =
+        await resProva.json();
 
-      const questaoEncontrada = prova.questoes?.find(
-        (q: Questao) => String(q.id) === String(questaoId)
-      );
+      const questaoEncontrada:
+        | Questao
+        | undefined =
+        Array.isArray(
+          prova?.questoes
+        )
+          ? prova.questoes.find(
+              (
+                item: Questao
+              ) =>
+                String(
+                  item.id
+                ) ===
+                String(
+                  questaoId
+                )
+            )
+          : undefined;
 
-      if (!questaoEncontrada) {
-        throw new Error("Questão não encontrada");
+      if (
+        !questaoEncontrada
+      ) {
+        throw new Error(
+          t(
+            "feedback.notFound"
+          )
+        );
       }
-
-      setQuestao(questaoEncontrada);
-      setEnunciado(questaoEncontrada.enunciado || "");
-      setPergunta(questaoEncontrada.pergunta || "");
 
       const tipoInterface =
-        questaoEncontrada.tipo === "multipla_escolha"
-          ? "MULTIPLA_ESCOLHA"
-          : "DISCURSIVA";
+        normalizarTipoQuestao(
+          questaoEncontrada.tipo
+        );
 
-      setTipo(tipoInterface);
+      setQuestao({
+        ...questaoEncontrada,
+        tipo: tipoInterface,
+        alternativas:
+          Array.isArray(
+            questaoEncontrada.alternativas
+          )
+            ? questaoEncontrada.alternativas
+            : [],
+      });
 
-      setValor(String(questaoEncontrada.valor ?? 1));
-    } catch (e: any) {
-      setErro(e.message || "Erro ao carregar questão");
+      setEnunciado(
+        questaoEncontrada.enunciado ||
+          ""
+      );
+
+      setPergunta(
+        questaoEncontrada.pergunta ||
+          ""
+      );
+
+      setTipo(
+        tipoInterface
+      );
+
+      setValor(
+        String(
+          questaoEncontrada.valor ??
+            1
+        )
+      );
+    } catch (
+      error: unknown
+    ) {
+      const mensagem =
+        error instanceof Error
+          ? error.message
+          : t(
+              "feedback.loadError"
+            );
+
+      setErro(mensagem);
     } finally {
       setLoading(false);
     }
@@ -114,47 +319,132 @@ export default function QuestaoPage() {
 
   useEffect(() => {
     carregarQuestao();
-  }, []);
+  }, [
+    provaId,
+    questaoId,
+    t,
+  ]);
 
-  async function salvarQuestao(e: FormEvent) {
+  async function salvarQuestao(
+    e: FormEvent
+  ) {
     e.preventDefault();
+
+    setErro("");
+    setFeedback("");
+    setFeedbackTipo("");
+
+    if (
+      !enunciado.trim()
+    ) {
+      const mensagem =
+        t(
+          "validation.statementRequired"
+        );
+
+      setErro(mensagem);
+
+      mostrarFeedback(
+        "erro",
+        mensagem
+      );
+
+      return;
+    }
+
+    const valorNumerico =
+      Number(valor);
+
+    if (
+      !Number.isFinite(
+        valorNumerico
+      ) ||
+      valorNumerico <= 0
+    ) {
+      const mensagem =
+        t(
+          "validation.invalidValue"
+        );
+
+      setErro(mensagem);
+
+      mostrarFeedback(
+        "erro",
+        mensagem
+      );
+
+      return;
+    }
 
     try {
       setSalvando(true);
-      setErro("");
-      setFeedback("");
-      setFeedbackTipo("");
 
-      const res = await fetch(
-        `/api/professor/provas/${provaId}/questoes/${questaoId}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            enunciado,
-            ...(pergunta.trim() ? { pergunta } : {}),
-            tipo,
-            valor: Number(valor),
-          }),
-        }
-      );
+      const res =
+        await fetch(
+          `/api/professor/provas/${provaId}/questoes/${questaoId}`,
+          {
+            method: "PATCH",
 
-      const data = await res.json();
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body: JSON.stringify(
+              {
+                enunciado:
+                  enunciado.trim(),
+
+                pergunta:
+                  pergunta.trim()
+                    ? pergunta.trim()
+                    : null,
+
+                tipo,
+
+                valor:
+                  valorNumerico,
+              }
+            ),
+          }
+        );
 
       if (!res.ok) {
-        throw new Error(data.error || "Erro ao salvar questão");
+        throw new Error(
+          t(
+            "feedback.saveError"
+          )
+        );
       }
 
-      mostrarFeedback("sucesso", "Questão atualizada com sucesso");
+      mostrarFeedback(
+        "sucesso",
+        t(
+          "feedback.saveSuccess"
+        )
+      );
+
       setTimeout(() => {
-        router.push(`/professor/provas/${provaId}`);
+        router.push(
+          `/professor/provas/${provaId}`
+        );
       }, 700);
-    } catch (e: any) {
-      const mensagem = e.message || "Erro ao salvar questão";
+    } catch (
+      error: unknown
+    ) {
+      const mensagem =
+        error instanceof Error
+          ? error.message
+          : t(
+              "feedback.saveError"
+            );
+
       setErro(mensagem);
-      mostrarFeedback("erro", mensagem);
+
+      mostrarFeedback(
+        "erro",
+        mensagem
+      );
     } finally {
       setSalvando(false);
     }
@@ -167,298 +457,576 @@ export default function QuestaoPage() {
       setFeedback("");
       setFeedbackTipo("");
 
-      const res = await fetch(
-        `/api/professor/provas/${provaId}/questoes/${questaoId}`,
-        {
-          method: "DELETE",
-        }
-      );
-
-      const data = await res.json();
+      const res =
+        await fetch(
+          `/api/professor/provas/${provaId}/questoes/${questaoId}`,
+          {
+            method: "DELETE",
+          }
+        );
 
       if (!res.ok) {
-        throw new Error(data.error || "Erro ao excluir questão");
+        throw new Error(
+          t(
+            "feedback.deleteError"
+          )
+        );
       }
 
-      setModalExcluirAberto(false);
-      mostrarFeedback("sucesso", "Questão excluída com sucesso");
+      setModalExcluirAberto(
+        false
+      );
+
+      mostrarFeedback(
+        "sucesso",
+        t(
+          "feedback.deleteSuccess"
+        )
+      );
 
       setTimeout(() => {
-        router.push(`/professor/provas/${provaId}`);
+        router.push(
+          `/professor/provas/${provaId}`
+        );
       }, 700);
-    } catch (e: any) {
-      mostrarFeedback("erro", e.message || "Erro ao excluir questão");
+    } catch (
+      error: unknown
+    ) {
+      const mensagem =
+        error instanceof Error
+          ? error.message
+          : t(
+              "feedback.deleteError"
+            );
+
+      mostrarFeedback(
+        "erro",
+        mensagem
+      );
     } finally {
       setExcluindo(false);
     }
   }
 
-  async function criarAlternativa(e: FormEvent) {
+  async function criarAlternativa(
+    e: FormEvent
+  ) {
     e.preventDefault();
 
     setErroAlternativa("");
     setFeedback("");
     setFeedbackTipo("");
 
-    if (!novaAlternativa.trim()) {
-      setErroAlternativa("Digite o texto da alternativa.");
-      mostrarFeedback("erro", "Digite o texto da alternativa.");
+    if (
+      !novaAlternativa.trim()
+    ) {
+      const mensagem =
+        t(
+          "validation.alternativeRequired"
+        );
+
+      setErroAlternativa(
+        mensagem
+      );
+
+      mostrarFeedback(
+        "erro",
+        mensagem
+      );
+
       return;
     }
 
     try {
-      setSalvandoAlternativa(true);
-
-      const res = await fetch(
-        `/api/professor/provas/${provaId}/questoes/${questaoId}/alternativas`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            texto: novaAlternativa,
-            correta: novaAlternativaCorreta,
-          }),
-        }
+      setSalvandoAlternativa(
+        true
       );
 
-      const data = await res.json();
+      const res =
+        await fetch(
+          `/api/professor/provas/${provaId}/questoes/${questaoId}/alternativas`,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body: JSON.stringify(
+              {
+                texto:
+                  novaAlternativa.trim(),
+
+                correta:
+                  novaAlternativaCorreta,
+              }
+            ),
+          }
+        );
 
       if (!res.ok) {
-        throw new Error(data.error || "Erro ao criar alternativa");
+        throw new Error(
+          t(
+            "feedback.alternativeCreateError"
+          )
+        );
       }
 
-      setNovaAlternativa("");
-      setNovaAlternativaCorreta(false);
-      setErroAlternativa("");
-      mostrarFeedback("sucesso", "Alternativa adicionada com sucesso");
+      setNovaAlternativa(
+        ""
+      );
+
+      setNovaAlternativaCorreta(
+        false
+      );
+
+      setErroAlternativa(
+        ""
+      );
+
+      mostrarFeedback(
+        "sucesso",
+        t(
+          "feedback.alternativeCreateSuccess"
+        )
+      );
+
       await carregarQuestao();
-    } catch (e: any) {
-      mostrarFeedback("erro", e.message || "Erro ao criar alternativa");
+    } catch (
+      error: unknown
+    ) {
+      const mensagem =
+        error instanceof Error
+          ? error.message
+          : t(
+              "feedback.alternativeCreateError"
+            );
+
+      mostrarFeedback(
+        "erro",
+        mensagem
+      );
     } finally {
-      setSalvandoAlternativa(false);
+      setSalvandoAlternativa(
+        false
+      );
     }
   }
 
   if (loading) {
-    return <div className="p-6">Carregando questão...</div>;
+    return (
+      <div className="p-6 text-slate-600 dark:text-slate-300">
+        {t("loading")}
+      </div>
+    );
   }
 
-  if (erro && !questao) {
-    return <div className="p-6 text-red-600">{erro}</div>;
+  if (
+    erro &&
+    !questao
+  ) {
+    return (
+      <div className="p-6 text-red-600 dark:text-red-300">
+        {erro}
+      </div>
+    );
   }
 
   if (!questao) {
-    return <div className="p-6">Questão não encontrada</div>;
+    return (
+      <div className="p-6 text-slate-600 dark:text-slate-300">
+        {t("notFound")}
+      </div>
+    );
   }
 
   return (
     <>
-      <div className="p-6">
+      <div className="phanyx-professor-editar-questao p-6 text-slate-900 dark:text-slate-100">
         <div className="mx-auto max-w-4xl space-y-6">
           {feedback && (
             <div
-              className={`rounded-2xl border px-4 py-3 text-sm shadow-sm ${feedbackTipo === "sucesso"
-                ? "border-green-200 bg-green-50 text-green-700"
-                : "border-red-200 bg-red-50 text-red-700"
-                }`}
+              aria-live="polite"
+              className={`rounded-2xl border px-4 py-3 text-sm font-medium shadow-sm ${
+                feedbackTipo ===
+                "sucesso"
+                  ? "border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-950/40 dark:text-green-300"
+                  : "border-red-200 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
+              }`}
             >
               {feedback}
             </div>
           )}
 
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Editar questão
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+                {t("title")}
               </h1>
-              <p className="text-sm text-gray-500">
-                Questão {questao.ordem} da prova
+
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                {t(
+                  "questionNumber",
+                  {
+                    number:
+                      questao.ordem,
+                  }
+                )}
               </p>
             </div>
 
             <a
               href={`/professor/provas/${provaId}`}
-              className="rounded-lg border px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="w-fit rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
             >
-              Voltar para prova
+              {t("back")}
             </a>
           </div>
 
           <form
-            onSubmit={salvarQuestao}
-            className="space-y-6 rounded-2xl border bg-white p-6 shadow-sm"
+            onSubmit={
+              salvarQuestao
+            }
+            className="space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900"
           >
             {erro && (
-              <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+              <div
+                aria-live="assertive"
+                className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm font-medium text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
+              >
                 {erro}
               </div>
             )}
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
-                Enunciado
+              <label
+                htmlFor="enunciado-questao"
+                className="block text-sm font-medium text-slate-700 dark:text-slate-200"
+              >
+                {t(
+                  "fields.statement"
+                )}
               </label>
+
               <textarea
-                value={enunciado}
-                onChange={(e) => setEnunciado(e.target.value)}
+                id="enunciado-questao"
+                value={
+                  enunciado
+                }
+                onChange={(e) =>
+                  setEnunciado(
+                    e.target.value
+                  )
+                }
                 rows={5}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
-                Pergunta complementar
+              <label
+                htmlFor="pergunta-complementar"
+                className="block text-sm font-medium text-slate-700 dark:text-slate-200"
+              >
+                {t(
+                  "fields.complementaryQuestion"
+                )}
               </label>
+
               <input
+                id="pergunta-complementar"
                 type="text"
-                value={pergunta}
-                onChange={(e) => setPergunta(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
-                placeholder="Opcional"
+                value={
+                  pergunta
+                }
+                onChange={(e) =>
+                  setPergunta(
+                    e.target.value
+                  )
+                }
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500"
+                placeholder={t(
+                  "fields.optional"
+                )}
               />
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Tipo
+                <label
+                  htmlFor="tipo-questao"
+                  className="block text-sm font-medium text-slate-700 dark:text-slate-200"
+                >
+                  {t(
+                    "fields.type"
+                  )}
                 </label>
+
                 <select
+                  id="tipo-questao"
                   value={tipo}
                   onChange={(e) =>
-                    setTipo(e.target.value as TipoQuestao)
+                    setTipo(
+                      e.target
+                        .value as TipoQuestao
+                    )
                   }
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                 >
-                  <option value="MULTIPLA_ESCOLHA">Múltipla escolha</option>
-                  <option value="DISCURSIVA">Discursiva</option>
+                  <option value="MULTIPLA_ESCOLHA">
+                    {t(
+                      "questionTypes.multipleChoice"
+                    )}
+                  </option>
+
+                  <option value="DISCURSIVA">
+                    {t(
+                      "questionTypes.discursive"
+                    )}
+                  </option>
                 </select>
               </div>
 
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Valor
+                <label
+                  htmlFor="valor-questao"
+                  className="block text-sm font-medium text-slate-700 dark:text-slate-200"
+                >
+                  {t(
+                    "fields.value"
+                  )}
                 </label>
+
                 <input
+                  id="valor-questao"
                   type="number"
-                  min="0"
+                  min="0.1"
                   step="0.1"
                   value={valor}
-                  onChange={(e) => setValor(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
+                  onChange={(e) =>
+                    setValor(
+                      e.target.value
+                    )
+                  }
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                   required
                 />
               </div>
             </div>
 
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
               <button
                 type="button"
-                onClick={() => setModalExcluirAberto(true)}
-                disabled={excluindo}
-                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+                onClick={() =>
+                  setModalExcluirAberto(
+                    true
+                  )
+                }
+                disabled={
+                  excluindo
+                }
+                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {excluindo ? "Excluindo..." : "Excluir questão"}
+                {excluindo
+                  ? t(
+                      "actions.deleting"
+                    )
+                  : t(
+                      "actions.delete"
+                    )}
               </button>
 
               <button
                 type="submit"
-                disabled={salvando}
-                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                disabled={
+                  salvando
+                }
+                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {salvando ? "Salvando..." : "Salvar questão"}
+                {salvando
+                  ? t(
+                      "actions.saving"
+                    )
+                  : t(
+                      "actions.save"
+                    )}
               </button>
             </div>
           </form>
 
-          {tipo === "MULTIPLA_ESCOLHA" && (
-            <div className="space-y-4 rounded-2xl border bg-white p-6 shadow-sm">
+          {tipo ===
+            "MULTIPLA_ESCOLHA" && (
+            <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Alternativas
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+                  {t(
+                    "alternatives.title"
+                  )}
                 </h2>
-                <p className="text-sm text-gray-500">
-                  Cadastre as alternativas da questão
+
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  {t(
+                    "alternatives.description"
+                  )}
                 </p>
               </div>
 
               <form
-                onSubmit={criarAlternativa}
-                className="space-y-4 rounded-xl border p-4"
+                onSubmit={
+                  criarAlternativa
+                }
+                className="space-y-4 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950"
               >
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Texto da alternativa
+                  <label
+                    htmlFor="nova-alternativa"
+                    className="block text-sm font-medium text-slate-700 dark:text-slate-200"
+                  >
+                    {t(
+                      "alternatives.textLabel"
+                    )}
                   </label>
+
                   <input
+                    id="nova-alternativa"
                     type="text"
-                    value={novaAlternativa}
+                    value={
+                      novaAlternativa
+                    }
                     onChange={(e) => {
-                      setNovaAlternativa(e.target.value);
-                      if (erroAlternativa) setErroAlternativa("");
+                      setNovaAlternativa(
+                        e.target.value
+                      );
+
+                      if (
+                        erroAlternativa
+                      ) {
+                        setErroAlternativa(
+                          ""
+                        );
+                      }
                     }}
-                    className={`w-full rounded-lg border px-3 py-2 text-sm outline-none ${erroAlternativa
-                      ? "border-red-400 focus:border-red-500"
-                      : "border-gray-300 focus:border-blue-500"
-                      }`}
-                    placeholder="Digite a alternativa"
+                    className={`w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-900 outline-none dark:bg-slate-900 dark:text-white ${
+                      erroAlternativa
+                        ? "border-red-400 focus:border-red-500 dark:border-red-700"
+                        : "border-slate-300 focus:border-blue-500 dark:border-slate-700"
+                    }`}
+                    placeholder={t(
+                      "alternatives.placeholder"
+                    )}
                   />
+
                   {erroAlternativa && (
-                    <p className="text-xs font-medium text-red-600">
-                      {erroAlternativa}
+                    <p className="text-xs font-medium text-red-600 dark:text-red-300">
+                      {
+                        erroAlternativa
+                      }
                     </p>
                   )}
                 </div>
 
-                <label className="flex items-center gap-2 text-sm text-gray-700">
+                <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-700 dark:text-slate-200">
                   <input
                     type="checkbox"
-                    checked={novaAlternativaCorreta}
-                    onChange={(e) => setNovaAlternativaCorreta(e.target.checked)}
+                    checked={
+                      novaAlternativaCorreta
+                    }
+                    onChange={(e) =>
+                      setNovaAlternativaCorreta(
+                        e.target
+                          .checked
+                      )
+                    }
                   />
-                  Marcar como correta
+
+                  {t(
+                    "alternatives.markCorrect"
+                  )}
                 </label>
 
                 <button
                   type="submit"
-                  disabled={salvandoAlternativa}
-                  className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
+                  disabled={
+                    salvandoAlternativa
+                  }
+                  className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {salvandoAlternativa ? "Adicionando..." : "Adicionar alternativa"}
+                  {salvandoAlternativa
+                    ? t(
+                        "alternatives.adding"
+                      )
+                    : t(
+                        "alternatives.add"
+                      )}
                 </button>
               </form>
 
               <div className="space-y-3">
-                {questao.alternativas && questao.alternativas.length > 0 ? (
-                  questao.alternativas.map((alt) => (
-                    <div
-                      key={alt.id}
-                      className="flex items-center justify-between rounded-lg border p-3"
-                    >
-                      <div>
-                        <p className="text-sm text-gray-900">{alt.texto}</p>
-                        <p className="text-xs text-gray-500">
-                          {alt.correta
-                            ? "Alternativa correta"
-                            : "Alternativa incorreta"}
-                        </p>
-                      </div>
+                {questao.alternativas &&
+                questao
+                  .alternativas
+                  .length > 0 ? (
+                  questao.alternativas
+                    .slice()
+                    .sort(
+                      (a, b) =>
+                        (a.ordem ??
+                          0) -
+                        (b.ordem ??
+                          0)
+                    )
+                    .map(
+                      (
+                        alternativa
+                      ) => (
+                        <div
+                          key={
+                            alternativa.id
+                          }
+                          className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900 sm:flex-row sm:items-center sm:justify-between"
+                        >
+                          <div>
+                            <p className="text-sm text-slate-900 dark:text-slate-100">
+                              {
+                                alternativa.texto
+                              }
+                            </p>
 
-                      <a
-                        href={`/professor/provas/${provaId}/questoes/${questaoId}/alternativas/${alt.id}`}
-                        className="text-sm font-medium text-blue-600 hover:underline"
-                      >
-                        Editar
-                      </a>
-                    </div>
-                  ))
+                            <p
+                              className={`text-xs font-medium ${
+                                alternativa.correta
+                                  ? "text-green-600 dark:text-green-300"
+                                  : "text-slate-500 dark:text-slate-400"
+                              }`}
+                            >
+                              {alternativa.correta
+                                ? t(
+                                    "alternatives.correct"
+                                  )
+                                : t(
+                                    "alternatives.incorrect"
+                                  )}
+                            </p>
+                          </div>
+
+                          <a
+                            href={`/professor/provas/${provaId}/questoes/${questaoId}/alternativas/${alternativa.id}`}
+                            className="w-fit text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+                          >
+                            {t(
+                              "actions.edit"
+                            )}
+                          </a>
+                        </div>
+                      )
+                    )
                 ) : (
-                  <div className="rounded-lg border p-4 text-sm text-gray-500">
-                    Nenhuma alternativa cadastrada ainda.
+                  <div className="rounded-lg border border-slate-200 p-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                    {t(
+                      "alternatives.empty"
+                    )}
                   </div>
                 )}
               </div>
@@ -469,21 +1037,29 @@ export default function QuestaoPage() {
 
       {modalExcluirAberto && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 p-4">
-          <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl">
+          <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-900">
             <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-100 text-xl">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-red-100 text-xl dark:bg-red-950/50">
                 🗑️
               </div>
 
               <div className="flex-1">
-                <h2 className="text-lg font-bold text-slate-900">
-                  Confirmar exclusão
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                  {t(
+                    "deleteModal.title"
+                  )}
                 </h2>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Tem certeza que deseja excluir esta questão?
+
+                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                  {t(
+                    "deleteModal.message"
+                  )}
                 </p>
-                <p className="mt-2 text-sm text-slate-500">
-                  Esta ação não pode ser desfeita.
+
+                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                  {t(
+                    "deleteModal.warning"
+                  )}
                 </p>
               </div>
             </div>
@@ -491,20 +1067,38 @@ export default function QuestaoPage() {
             <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
               <button
                 type="button"
-                onClick={() => setModalExcluirAberto(false)}
-                disabled={excluindo}
-                className="rounded-2xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                onClick={() =>
+                  setModalExcluirAberto(
+                    false
+                  )
+                }
+                disabled={
+                  excluindo
+                }
+                className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
               >
-                Cancelar
+                {t(
+                  "deleteModal.cancel"
+                )}
               </button>
 
               <button
                 type="button"
-                onClick={excluirQuestaoConfirmada}
-                disabled={excluindo}
+                onClick={
+                  excluirQuestaoConfirmada
+                }
+                disabled={
+                  excluindo
+                }
                 className="rounded-2xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {excluindo ? "Excluindo..." : "Confirmar exclusão"}
+                {excluindo
+                  ? t(
+                      "actions.deleting"
+                    )
+                  : t(
+                      "deleteModal.confirm"
+                    )}
               </button>
             </div>
           </div>
