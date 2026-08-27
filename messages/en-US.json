@@ -1178,6 +1178,27 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorExamAttempts": {
+    "loading": "Loading attempts...",
+    "title": "Exam attempts",
+    "description": "Track the attempts made by students and review the recorded grades.",
+    "empty": "No attempts have been recorded yet.",
+    "studentFallback": "Student {id}",
+    "studentUnknown": "Unidentified student",
+    "grade": "Grade: {grade}",
+    "status": {
+      "finished": "Finished",
+      "inProgress": "In progress"
+    },
+    "actions": {
+      "view": "View attempt",
+      "retry": "Try again"
+    },
+    "feedback": {
+      "loadError": "Error loading the attempts.",
+      "invalidResponse": "The attempts list could not be interpreted."
+    }
+  },
   "ProfessorEditQuestion": {
     "loading": "Loading question...",
     "notFound": "Question not found",

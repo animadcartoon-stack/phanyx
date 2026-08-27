@@ -1178,6 +1178,27 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorExamAttempts": {
+    "loading": "A carregar tentativas...",
+    "title": "Tentativas da prova",
+    "description": "Acompanhe as tentativas realizadas pelos alunos e consulte as classificações registadas.",
+    "empty": "Ainda não existem tentativas registadas.",
+    "studentFallback": "Aluno {id}",
+    "studentUnknown": "Aluno não identificado",
+    "grade": "Classificação: {grade}",
+    "status": {
+      "finished": "Finalizada",
+      "inProgress": "Em curso"
+    },
+    "actions": {
+      "view": "Ver tentativa",
+      "retry": "Tentar novamente"
+    },
+    "feedback": {
+      "loadError": "Erro ao carregar as tentativas.",
+      "invalidResponse": "Não foi possível interpretar a lista de tentativas."
+    }
+  },
   "ProfessorEditQuestion": {
     "loading": "A carregar questão...",
     "notFound": "Questão não encontrada",

@@ -1178,6 +1178,27 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorExamAttempts": {
+    "loading": "Chargement des tentatives...",
+    "title": "Tentatives de l’examen",
+    "description": "Suivez les tentatives réalisées par les élèves et consultez les notes enregistrées.",
+    "empty": "Aucune tentative n’a encore été enregistrée.",
+    "studentFallback": "Élève {id}",
+    "studentUnknown": "Élève non identifié",
+    "grade": "Note : {grade}",
+    "status": {
+      "finished": "Terminée",
+      "inProgress": "En cours"
+    },
+    "actions": {
+      "view": "Voir la tentative",
+      "retry": "Réessayer"
+    },
+    "feedback": {
+      "loadError": "Erreur lors du chargement des tentatives.",
+      "invalidResponse": "La liste des tentatives n’a pas pu être interprétée."
+    }
+  },
   "ProfessorEditQuestion": {
     "loading": "Chargement de la question...",
     "notFound": "Question introuvable",

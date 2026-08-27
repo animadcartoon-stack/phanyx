@@ -1178,6 +1178,27 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorExamAttempts": {
+    "loading": "Cargando intentos...",
+    "title": "Intentos del examen",
+    "description": "Consulte los intentos realizados por los alumnos y revise las calificaciones registradas.",
+    "empty": "Todavía no se ha registrado ningún intento.",
+    "studentFallback": "Alumno {id}",
+    "studentUnknown": "Alumno no identificado",
+    "grade": "Calificación: {grade}",
+    "status": {
+      "finished": "Finalizado",
+      "inProgress": "En curso"
+    },
+    "actions": {
+      "view": "Ver intento",
+      "retry": "Intentar de nuevo"
+    },
+    "feedback": {
+      "loadError": "Error al cargar los intentos.",
+      "invalidResponse": "No se ha podido interpretar la lista de intentos."
+    }
+  },
   "ProfessorEditQuestion": {
     "loading": "Cargando pregunta...",
     "notFound": "Pregunta no encontrada",
