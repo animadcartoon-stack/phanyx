@@ -1178,6 +1178,23 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorDisciplineActivities": {
+    "eyebrow": "Disciplina",
+    "title": "Actividades de la disciplina",
+    "description": "Acceda al módulo de actividades para crear y gestionar actividades relacionadas con esta disciplina.",
+    "empty": {
+      "title": "No se muestran actividades en esta página",
+      "description": "Actualmente, las actividades se gestionan desde el módulo de Actividades del profesor."
+    },
+    "actions": {
+      "newActivity": "+ Nueva actividad",
+      "createFirst": "Crear actividad"
+    },
+    "integration": {
+      "title": "Integración con actividades",
+      "description": "Esta página todavía no dispone de una fuente de datos propia para mostrar únicamente las actividades de esta disciplina. Utilice el módulo de Actividades para crear, publicar y realizar el seguimiento de las actividades."
+    }
+  },
   "ProfessorDisciplineDetail": {
     "eyebrow": "Disciplina",
     "noDescription": "Esta disciplina todavía no tiene una descripción registrada.",

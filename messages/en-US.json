@@ -1178,6 +1178,23 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorDisciplineActivities": {
+    "eyebrow": "Discipline",
+    "title": "Discipline activities",
+    "description": "Open the activities module to create and manage activities related to this discipline.",
+    "empty": {
+      "title": "No activities are displayed on this page",
+      "description": "Activities are currently managed through the professor Activities module."
+    },
+    "actions": {
+      "newActivity": "+ New activity",
+      "createFirst": "Create activity"
+    },
+    "integration": {
+      "title": "Activities integration",
+      "description": "This page does not yet have its own data source to display only the activities for this discipline. Use the Activities module to create, publish, and track activities."
+    }
+  },
   "ProfessorDisciplineDetail": {
     "eyebrow": "Discipline",
     "noDescription": "This discipline does not have a description yet.",
