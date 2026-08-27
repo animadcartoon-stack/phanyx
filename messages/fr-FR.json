@@ -1178,6 +1178,83 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorStudentGrade": {
+    "eyebrow": "Saisie de note",
+    "title": "Note de l’élève",
+    "description": "Cette page représente une saisie individuelle de note, mais elle doit encore être liée à des données académiques réelles avant de permettre l’enregistrement.",
+    "studentReference": "Référence de l’élève : {id}",
+    "invalid": {
+      "title": "Élève non valide",
+      "description": "L’élève indiqué dans cette route n’a pas pu être identifié correctement."
+    },
+    "integration": {
+      "title": "Lien académique requis",
+      "description": "Pour saisir une note en toute sécurité, il est nécessaire d’identifier l’élève, la discipline et l’évaluation ou l’activité correspondante. Cette page n’enregistrera aucune donnée tant que ces liens ne seront pas correctement établis."
+    },
+    "available": {
+      "title": "Utilisez les modules déjà intégrés",
+      "description": "Tant que cette route individuelle ne dispose pas d’une intégration complète, utilisez les espaces qui travaillent déjà avec des données académiques réelles.",
+      "exams": {
+        "title": "Évaluations",
+        "description": "Accédez aux évaluations, aux tentatives et aux notes associées aux évaluations des élèves.",
+        "action": "Voir les évaluations"
+      },
+      "classes": {
+        "title": "Classes",
+        "description": "Consultez les classes et les élèves inscrits avant d’accéder aux dossiers académiques.",
+        "action": "Voir les classes"
+      }
+    },
+    "safetyNotice": "Aucune note fictive ou sans lien académique ne sera enregistrée par cette page.",
+    "actions": {
+      "back": "← Retour aux notes"
+    }
+  },
+  "ProfessorGrades": {
+    "eyebrow": "Espace professeur",
+    "title": "Centre des notes",
+    "description": "Suivez les espaces dans lesquels les notes sont générées et accédez aux modules académiques associés.",
+    "integration": {
+      "title": "Centre consolidé en préparation",
+      "description": "Cette page ne dispose pas encore d’une intégration consolidée de toutes les notes des classes. Afin d’éviter d’afficher des données incomplètes ou fictives, utilisez les modules académiques disponibles ci-dessous."
+    },
+    "available": {
+      "title": "Espaces disponibles",
+      "description": "Accédez directement aux modules qui contiennent déjà des données réelles sur les classes, les évaluations, les activités et les remises."
+    },
+    "modules": {
+      "classes": {
+        "title": "Classes",
+        "description": "Consultez vos classes, les élèves inscrits et les autres informations académiques.",
+        "action": "Voir les classes"
+      },
+      "exams": {
+        "title": "Évaluations",
+        "description": "Créez des évaluations, suivez les tentatives et consultez les notes obtenues par les élèves.",
+        "action": "Voir les évaluations"
+      },
+      "activities": {
+        "title": "Activités",
+        "description": "Gérez les activités académiques et suivez ce qui a été publié pour les élèves.",
+        "action": "Voir les activités"
+      },
+      "submissions": {
+        "title": "Remises",
+        "description": "Suivez les remises des élèves et effectuez ou révisez les corrections.",
+        "action": "Voir les remises"
+      }
+    },
+    "consolidated": {
+      "title": "Vue consolidée des notes",
+      "description": "La consolidation automatique des notes provenant des évaluations, des activités et des autres évaluations apparaîtra ici lorsque l’intégration sera disponible.",
+      "emptyTitle": "Aucune donnée consolidée disponible",
+      "emptyDescription": "Pour le moment, consultez les notes et les corrections directement dans les modules d’évaluations, d’activités, de remises et de classes."
+    },
+    "actions": {
+      "viewExams": "Voir les évaluations",
+      "viewClasses": "Voir les classes"
+    }
+  },
   "ProfessorSubmissionDetail": {
     "eyebrow": "Remise",
     "title": "Correction de la remise",

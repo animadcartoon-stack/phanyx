@@ -1178,6 +1178,83 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorStudentGrade": {
+    "eyebrow": "Registro de calificación",
+    "title": "Calificación del alumno",
+    "description": "Esta página representa un registro individual de calificación, pero todavía debe estar vinculada a datos académicos reales antes de permitir el guardado.",
+    "studentReference": "Referencia del alumno: {id}",
+    "invalid": {
+      "title": "Alumno no válido",
+      "description": "No se ha podido identificar correctamente al alumno indicado en esta ruta."
+    },
+    "integration": {
+      "title": "Vinculación académica necesaria",
+      "description": "Para registrar una calificación de forma segura, es necesario identificar al alumno, la disciplina y la evaluación o actividad correspondiente. Esta página no guardará ningún dato hasta que estos vínculos estén correctamente establecidos."
+    },
+    "available": {
+      "title": "Utilice los módulos ya integrados",
+      "description": "Mientras esta ruta individual no disponga de una integración completa, utilice las áreas que ya trabajan con datos académicos reales.",
+      "exams": {
+        "title": "Evaluaciones",
+        "description": "Acceda a evaluaciones, intentos y calificaciones vinculadas a las evaluaciones de los alumnos.",
+        "action": "Ver evaluaciones"
+      },
+      "classes": {
+        "title": "Clases",
+        "description": "Consulte las clases y los alumnos vinculados antes de acceder a los registros académicos.",
+        "action": "Ver clases"
+      }
+    },
+    "safetyNotice": "Esta página no guardará ninguna calificación ficticia ni sin vinculación académica.",
+    "actions": {
+      "back": "← Volver a calificaciones"
+    }
+  },
+  "ProfessorGrades": {
+    "eyebrow": "Área del Profesor",
+    "title": "Centro de calificaciones",
+    "description": "Supervise las áreas en las que se generan calificaciones y acceda a los módulos académicos relacionados.",
+    "integration": {
+      "title": "Centro consolidado en preparación",
+      "description": "Esta página todavía no cuenta con una integración consolidada de todas las calificaciones de las clases. Para evitar mostrar datos incompletos o ficticios, utilice los módulos académicos disponibles a continuación."
+    },
+    "available": {
+      "title": "Áreas disponibles",
+      "description": "Acceda directamente a los módulos que ya contienen datos reales de clases, evaluaciones, actividades y entregas."
+    },
+    "modules": {
+      "classes": {
+        "title": "Clases",
+        "description": "Consulte sus clases, los alumnos vinculados y demás información académica.",
+        "action": "Ver clases"
+      },
+      "exams": {
+        "title": "Evaluaciones",
+        "description": "Cree evaluaciones, supervise los intentos y consulte las calificaciones obtenidas por los alumnos.",
+        "action": "Ver evaluaciones"
+      },
+      "activities": {
+        "title": "Actividades",
+        "description": "Gestione actividades académicas y supervise lo que se ha publicado para los alumnos.",
+        "action": "Ver actividades"
+      },
+      "submissions": {
+        "title": "Entregas",
+        "description": "Supervise las entregas de los alumnos y realice o revise las correcciones.",
+        "action": "Ver entregas"
+      }
+    },
+    "consolidated": {
+      "title": "Vista consolidada de calificaciones",
+      "description": "La consolidación automática de calificaciones de evaluaciones, actividades y otras valoraciones aparecerá aquí cuando la integración esté disponible.",
+      "emptyTitle": "No hay datos consolidados disponibles",
+      "emptyDescription": "Por ahora, consulte las calificaciones y correcciones directamente en los módulos de evaluaciones, actividades, entregas y clases."
+    },
+    "actions": {
+      "viewExams": "Ver evaluaciones",
+      "viewClasses": "Ver clases"
+    }
+  },
   "ProfessorSubmissionDetail": {
     "eyebrow": "Entrega",
     "title": "Corrección de la entrega",

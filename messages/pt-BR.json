@@ -1178,6 +1178,83 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma acadêmica SaaS"
   },
+  "ProfessorStudentGrade": {
+    "eyebrow": "Lançamento de nota",
+    "title": "Nota do aluno",
+    "description": "Esta página representa um lançamento individual de nota, mas ainda precisa estar vinculada a dados acadêmicos reais antes de permitir o salvamento.",
+    "studentReference": "Referência do aluno: {id}",
+    "invalid": {
+      "title": "Aluno inválido",
+      "description": "Não foi possível identificar corretamente o aluno informado nesta rota."
+    },
+    "integration": {
+      "title": "Vínculo acadêmico necessário",
+      "description": "Para lançar uma nota com segurança, é necessário identificar o aluno, a disciplina e a avaliação ou atividade correspondente. Esta página não fará gravações enquanto esses dados não estiverem vinculados corretamente."
+    },
+    "available": {
+      "title": "Use os módulos já integrados",
+      "description": "Enquanto esta rota individual não possui integração completa, utilize as áreas que já trabalham com dados acadêmicos reais.",
+      "exams": {
+        "title": "Avaliações",
+        "description": "Acesse provas, tentativas e notas vinculadas às avaliações dos alunos.",
+        "action": "Ver avaliações"
+      },
+      "classes": {
+        "title": "Turmas",
+        "description": "Consulte as turmas e os alunos vinculados antes de acessar os registros acadêmicos.",
+        "action": "Ver turmas"
+      }
+    },
+    "safetyNotice": "Nenhuma nota fictícia ou sem vínculo acadêmico será salva por esta página.",
+    "actions": {
+      "back": "← Voltar para notas"
+    }
+  },
+  "ProfessorGrades": {
+    "eyebrow": "Área do Professor",
+    "title": "Central de notas",
+    "description": "Acompanhe as áreas em que as notas são geradas e acesse os módulos acadêmicos relacionados.",
+    "integration": {
+      "title": "Central consolidada em preparação",
+      "description": "Esta página ainda não possui uma integração consolidada com todas as notas das turmas. Para evitar exibir dados incompletos ou fictícios, utilize os módulos acadêmicos disponíveis abaixo."
+    },
+    "available": {
+      "title": "Áreas disponíveis",
+      "description": "Acesse diretamente os módulos que já possuem dados reais de turmas, avaliações, atividades e entregas."
+    },
+    "modules": {
+      "classes": {
+        "title": "Turmas",
+        "description": "Consulte suas turmas, alunos vinculados e demais informações acadêmicas.",
+        "action": "Ver turmas"
+      },
+      "exams": {
+        "title": "Avaliações",
+        "description": "Crie avaliações, acompanhe tentativas e consulte as notas obtidas pelos alunos.",
+        "action": "Ver avaliações"
+      },
+      "activities": {
+        "title": "Atividades",
+        "description": "Gerencie atividades acadêmicas e acompanhe o que foi publicado para os alunos.",
+        "action": "Ver atividades"
+      },
+      "submissions": {
+        "title": "Entregas",
+        "description": "Acompanhe as entregas dos alunos e realize ou revise as correções.",
+        "action": "Ver entregas"
+      }
+    },
+    "consolidated": {
+      "title": "Visão consolidada de notas",
+      "description": "A consolidação automática de notas de provas, atividades e demais avaliações será exibida nesta área quando a integração estiver disponível.",
+      "emptyTitle": "Nenhuma consolidação disponível",
+      "emptyDescription": "Por enquanto, consulte as notas e correções diretamente nos módulos de avaliações, atividades, entregas e turmas."
+    },
+    "actions": {
+      "viewExams": "Ver avaliações",
+      "viewClasses": "Ver turmas"
+    }
+  },
   "ProfessorSubmissionDetail": {
     "eyebrow": "Entrega",
     "title": "Correção da entrega",

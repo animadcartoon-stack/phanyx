@@ -1178,6 +1178,83 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorStudentGrade": {
+    "eyebrow": "Grade entry",
+    "title": "Student grade",
+    "description": "This page represents an individual grade entry, but it still needs to be linked to real academic data before saving can be enabled.",
+    "studentReference": "Student reference: {id}",
+    "invalid": {
+      "title": "Invalid student",
+      "description": "The student specified in this route could not be identified correctly."
+    },
+    "integration": {
+      "title": "Academic link required",
+      "description": "To enter a grade safely, the student, discipline, and corresponding exam or activity must be identified. This page will not save any data until those links are correctly established."
+    },
+    "available": {
+      "title": "Use the modules already integrated",
+      "description": "While this individual route does not yet have full integration, use the areas that already work with real academic data.",
+      "exams": {
+        "title": "Exams",
+        "description": "Access exams, attempts, and grades linked to student assessments.",
+        "action": "View exams"
+      },
+      "classes": {
+        "title": "Classes",
+        "description": "View classes and enrolled students before accessing academic records.",
+        "action": "View classes"
+      }
+    },
+    "safetyNotice": "No fictional grade or grade without an academic link will be saved by this page.",
+    "actions": {
+      "back": "← Back to grades"
+    }
+  },
+  "ProfessorGrades": {
+    "eyebrow": "Professor Area",
+    "title": "Grade center",
+    "description": "Track the areas where grades are generated and access the related academic modules.",
+    "integration": {
+      "title": "Consolidated grade center in preparation",
+      "description": "This page does not yet have a consolidated integration with all class grades. To avoid showing incomplete or fictional data, use the academic modules available below."
+    },
+    "available": {
+      "title": "Available areas",
+      "description": "Access the modules that already contain real data for classes, exams, activities, and submissions."
+    },
+    "modules": {
+      "classes": {
+        "title": "Classes",
+        "description": "View your classes, enrolled students, and other academic information.",
+        "action": "View classes"
+      },
+      "exams": {
+        "title": "Exams",
+        "description": "Create exams, track attempts, and view the grades obtained by students.",
+        "action": "View exams"
+      },
+      "activities": {
+        "title": "Activities",
+        "description": "Manage academic activities and track what has been published for students.",
+        "action": "View activities"
+      },
+      "submissions": {
+        "title": "Submissions",
+        "description": "Track student submissions and grade or review them.",
+        "action": "View submissions"
+      }
+    },
+    "consolidated": {
+      "title": "Consolidated grade view",
+      "description": "Automatic consolidation of grades from exams, activities, and other assessments will appear here when the integration is available.",
+      "emptyTitle": "No consolidated data available",
+      "emptyDescription": "For now, view grades and corrections directly in the exams, activities, submissions, and classes modules."
+    },
+    "actions": {
+      "viewExams": "View exams",
+      "viewClasses": "View classes"
+    }
+  },
   "ProfessorSubmissionDetail": {
     "eyebrow": "Submission",
     "title": "Submission grading",
