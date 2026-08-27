@@ -1178,6 +1178,53 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorNewQuestion": {
+    "back": "Back to the exam",
+    "title": "New question",
+    "description": "Create multiple-choice or discursive questions. If you mix both types, the exam will automatically become hybrid.",
+    "questionType": {
+      "label": "Question type",
+      "multipleChoice": "Multiple choice",
+      "discursive": "Discursive",
+      "descriptions": {
+        "multipleChoice": "Question with answer choices. Mark one correct answer.",
+        "discursive": "Open-ended question answered in free text. Requires manual grading by the teacher."
+      }
+    },
+    "value": {
+      "label": "Question value"
+    },
+    "statement": {
+      "label": "Statement / question",
+      "placeholder": "Enter the question"
+    },
+    "alternatives": {
+      "title": "Answer choices",
+      "description": "Fill in the options and mark one as correct.",
+      "correct": "Correct",
+      "placeholder": "Answer choice {number}",
+      "remove": "Remove",
+      "add": "Add answer choice"
+    },
+    "modelAnswer": {
+      "label": "Model answer",
+      "placeholder": "Optional. Use it as a reference for manual grading."
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "creating": "Creating...",
+      "create": "Create question"
+    },
+    "validation": {
+      "statementRequired": "Enter the question statement.",
+      "invalidValue": "The question value must be greater than zero.",
+      "minimumAlternatives": "Enter at least 2 answer choices.",
+      "oneCorrectAlternative": "Mark exactly one correct answer."
+    },
+    "feedback": {
+      "createError": "Error creating question."
+    }
+  },
   "ProfessorExamDetail": {
     "loading": "Loading exam...",
     "notFound": "Exam not found",

@@ -1178,6 +1178,53 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorNewQuestion": {
+    "back": "Volver al examen",
+    "title": "Nueva pregunta",
+    "description": "Cree preguntas de opción múltiple o discursivas. Al combinar ambos tipos, el examen se convertirá automáticamente en híbrido.",
+    "questionType": {
+      "label": "Tipo de pregunta",
+      "multipleChoice": "Opción múltiple",
+      "discursive": "Discursiva",
+      "descriptions": {
+        "multipleChoice": "Pregunta con alternativas. Marque una respuesta correcta.",
+        "discursive": "Pregunta abierta respondida en texto libre. Requiere corrección manual por parte del profesor."
+      }
+    },
+    "value": {
+      "label": "Valor de la pregunta"
+    },
+    "statement": {
+      "label": "Enunciado / pregunta",
+      "placeholder": "Introduzca la pregunta"
+    },
+    "alternatives": {
+      "title": "Alternativas",
+      "description": "Complete las opciones y marque una como correcta.",
+      "correct": "Correcta",
+      "placeholder": "Alternativa {number}",
+      "remove": "Eliminar",
+      "add": "Añadir alternativa"
+    },
+    "modelAnswer": {
+      "label": "Respuesta modelo",
+      "placeholder": "Opcional. Utilícela como referencia para la corrección manual."
+    },
+    "actions": {
+      "cancel": "Cancelar",
+      "creating": "Creando...",
+      "create": "Crear pregunta"
+    },
+    "validation": {
+      "statementRequired": "Introduzca el enunciado de la pregunta.",
+      "invalidValue": "El valor de la pregunta debe ser mayor que cero.",
+      "minimumAlternatives": "Introduzca al menos 2 alternativas.",
+      "oneCorrectAlternative": "Marque exactamente una respuesta correcta."
+    },
+    "feedback": {
+      "createError": "Error al crear la pregunta."
+    }
+  },
   "ProfessorExamDetail": {
     "loading": "Cargando examen...",
     "notFound": "Examen no encontrado",

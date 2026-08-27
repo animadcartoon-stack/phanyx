@@ -1178,6 +1178,53 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorNewQuestion": {
+    "back": "Retour à l’examen",
+    "title": "Nouvelle question",
+    "description": "Créez des questions à choix multiple ou rédactionnelles. En combinant les deux types, l’examen deviendra automatiquement hybride.",
+    "questionType": {
+      "label": "Type de question",
+      "multipleChoice": "Choix multiple",
+      "discursive": "Rédactionnelle",
+      "descriptions": {
+        "multipleChoice": "Question avec plusieurs réponses possibles. Sélectionnez une réponse correcte.",
+        "discursive": "Question ouverte avec réponse en texte libre. Nécessite une correction manuelle par l’enseignant."
+      }
+    },
+    "value": {
+      "label": "Valeur de la question"
+    },
+    "statement": {
+      "label": "Énoncé / question",
+      "placeholder": "Saisissez la question"
+    },
+    "alternatives": {
+      "title": "Réponses",
+      "description": "Renseignez les différentes réponses et indiquez celle qui est correcte.",
+      "correct": "Correcte",
+      "placeholder": "Réponse {number}",
+      "remove": "Supprimer",
+      "add": "Ajouter une réponse"
+    },
+    "modelAnswer": {
+      "label": "Réponse modèle",
+      "placeholder": "Facultatif. Utilisez-la comme référence pour la correction manuelle."
+    },
+    "actions": {
+      "cancel": "Annuler",
+      "creating": "Création...",
+      "create": "Créer la question"
+    },
+    "validation": {
+      "statementRequired": "Saisissez l’énoncé de la question.",
+      "invalidValue": "La valeur de la question doit être supérieure à zéro.",
+      "minimumAlternatives": "Saisissez au moins 2 réponses.",
+      "oneCorrectAlternative": "Sélectionnez exactement une réponse correcte."
+    },
+    "feedback": {
+      "createError": "Erreur lors de la création de la question."
+    }
+  },
   "ProfessorExamDetail": {
     "loading": "Chargement de l’examen...",
     "notFound": "Examen introuvable",
