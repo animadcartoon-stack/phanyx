@@ -1178,6 +1178,71 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorAttemptDetail": {
+    "loading": "A carregar tentativa...",
+    "notFound": "Tentativa não encontrada",
+    "back": "← Voltar",
+    "title": "Tentativa n.º {id}",
+    "exam": "Prova: {title}",
+    "studentFallback": "Aluno {id}",
+    "studentUnknown": "Aluno não identificado",
+    "status": {
+      "finished": "Finalizada",
+      "inProgress": "Em curso"
+    },
+    "summary": {
+      "student": "Aluno",
+      "currentGrade": "Classificação atual",
+      "answers": "Respostas",
+      "objective": "Objetivas",
+      "discursive": "Discursivas"
+    },
+    "dates": {
+      "startedAt": "Início",
+      "finishedAt": "Finalização"
+    },
+    "questionTypes": {
+      "multipleChoice": "Escolha múltipla",
+      "discursive": "Discursiva"
+    },
+    "answers": {
+      "title": "Respostas da tentativa",
+      "description": "Reveja cada resposta antes de corrigir as discursivas.",
+      "empty": "Não existem respostas registadas nesta tentativa.",
+      "questionNumber": "Questão {number}",
+      "value": "Valor {value}",
+      "currentGrade": "Classificação atual:",
+      "selectedAlternative": "Alternativa assinalada",
+      "noAlternative": "Nenhuma alternativa assinalada",
+      "studentAnswer": "Resposta do aluno",
+      "noAnswer": "Sem resposta"
+    },
+    "grading": {
+      "title": "Correção das discursivas",
+      "description": "Atribua uma classificação e feedback a cada resposta discursiva.",
+      "discursiveNumber": "Discursiva {number}",
+      "maximumValue": "Valor máximo: {value}",
+      "grade": "Classificação",
+      "maximumPlaceholder": "Máximo: {value}",
+      "feedback": "Feedback",
+      "feedbackPlaceholder": "Comentário opcional"
+    },
+    "actions": {
+      "retry": "Tentar novamente",
+      "save": "Guardar correção",
+      "saving": "A guardar correção..."
+    },
+    "validation": {
+      "gradeRequired": "Introduza a classificação da discursiva {number}.",
+      "invalidGrade": "A classificação deve estar entre 0 e {max}."
+    },
+    "feedback": {
+      "loadError": "Erro ao carregar a tentativa.",
+      "invalidResponse": "Não foi possível interpretar os dados da tentativa.",
+      "saveError": "Erro ao corrigir as respostas discursivas.",
+      "saveSuccess": "Correção guardada com sucesso."
+    }
+  },
   "ProfessorExamAttempts": {
     "loading": "A carregar tentativas...",
     "title": "Tentativas da prova",

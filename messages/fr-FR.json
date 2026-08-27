@@ -1178,6 +1178,71 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorAttemptDetail": {
+    "loading": "Chargement de la tentative...",
+    "notFound": "Tentative introuvable",
+    "back": "← Retour",
+    "title": "Tentative #{id}",
+    "exam": "Examen : {title}",
+    "studentFallback": "Élève {id}",
+    "studentUnknown": "Élève non identifié",
+    "status": {
+      "finished": "Terminée",
+      "inProgress": "En cours"
+    },
+    "summary": {
+      "student": "Élève",
+      "currentGrade": "Note actuelle",
+      "answers": "Réponses",
+      "objective": "Objectives",
+      "discursive": "Rédactionnelles"
+    },
+    "dates": {
+      "startedAt": "Début",
+      "finishedAt": "Fin"
+    },
+    "questionTypes": {
+      "multipleChoice": "Choix multiple",
+      "discursive": "Rédactionnelle"
+    },
+    "answers": {
+      "title": "Réponses de la tentative",
+      "description": "Examinez chaque réponse avant de corriger les questions rédactionnelles.",
+      "empty": "Aucune réponse n’a été enregistrée pour cette tentative.",
+      "questionNumber": "Question {number}",
+      "value": "Valeur {value}",
+      "currentGrade": "Note actuelle :",
+      "selectedAlternative": "Réponse sélectionnée",
+      "noAlternative": "Aucune réponse sélectionnée",
+      "studentAnswer": "Réponse de l’élève",
+      "noAnswer": "Sans réponse"
+    },
+    "grading": {
+      "title": "Correction des questions rédactionnelles",
+      "description": "Attribuez une note et un commentaire à chaque réponse rédactionnelle.",
+      "discursiveNumber": "Rédactionnelle {number}",
+      "maximumValue": "Valeur maximale : {value}",
+      "grade": "Note",
+      "maximumPlaceholder": "Maximum : {value}",
+      "feedback": "Commentaire",
+      "feedbackPlaceholder": "Commentaire facultatif"
+    },
+    "actions": {
+      "retry": "Réessayer",
+      "save": "Enregistrer la correction",
+      "saving": "Enregistrement de la correction..."
+    },
+    "validation": {
+      "gradeRequired": "Saisissez la note de la question rédactionnelle {number}.",
+      "invalidGrade": "La note doit être comprise entre 0 et {max}."
+    },
+    "feedback": {
+      "loadError": "Erreur lors du chargement de la tentative.",
+      "invalidResponse": "Les données de la tentative n’ont pas pu être interprétées.",
+      "saveError": "Erreur lors de la correction des réponses rédactionnelles.",
+      "saveSuccess": "Correction enregistrée avec succès."
+    }
+  },
   "ProfessorExamAttempts": {
     "loading": "Chargement des tentatives...",
     "title": "Tentatives de l’examen",

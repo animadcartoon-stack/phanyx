@@ -1178,6 +1178,71 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorAttemptDetail": {
+    "loading": "Loading attempt...",
+    "notFound": "Attempt not found",
+    "back": "← Back",
+    "title": "Attempt #{id}",
+    "exam": "Exam: {title}",
+    "studentFallback": "Student {id}",
+    "studentUnknown": "Unidentified student",
+    "status": {
+      "finished": "Finished",
+      "inProgress": "In progress"
+    },
+    "summary": {
+      "student": "Student",
+      "currentGrade": "Current grade",
+      "answers": "Answers",
+      "objective": "Objective",
+      "discursive": "Discursive"
+    },
+    "dates": {
+      "startedAt": "Started",
+      "finishedAt": "Finished"
+    },
+    "questionTypes": {
+      "multipleChoice": "Multiple choice",
+      "discursive": "Discursive"
+    },
+    "answers": {
+      "title": "Attempt answers",
+      "description": "Review each answer before grading the discursive questions.",
+      "empty": "No answers have been recorded for this attempt.",
+      "questionNumber": "Question {number}",
+      "value": "Value {value}",
+      "currentGrade": "Current grade:",
+      "selectedAlternative": "Selected answer",
+      "noAlternative": "No answer selected",
+      "studentAnswer": "Student answer",
+      "noAnswer": "No answer"
+    },
+    "grading": {
+      "title": "Discursive question grading",
+      "description": "Assign a grade and feedback to each discursive answer.",
+      "discursiveNumber": "Discursive {number}",
+      "maximumValue": "Maximum value: {value}",
+      "grade": "Grade",
+      "maximumPlaceholder": "Maximum: {value}",
+      "feedback": "Feedback",
+      "feedbackPlaceholder": "Optional comment"
+    },
+    "actions": {
+      "retry": "Try again",
+      "save": "Save grading",
+      "saving": "Saving grading..."
+    },
+    "validation": {
+      "gradeRequired": "Enter the grade for discursive question {number}.",
+      "invalidGrade": "The grade must be between 0 and {max}."
+    },
+    "feedback": {
+      "loadError": "Error loading the attempt.",
+      "invalidResponse": "The attempt data could not be interpreted.",
+      "saveError": "Error grading the discursive answers.",
+      "saveSuccess": "Grading saved successfully."
+    }
+  },
   "ProfessorExamAttempts": {
     "loading": "Loading attempts...",
     "title": "Exam attempts",
