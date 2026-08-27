@@ -1178,6 +1178,95 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma acadêmica SaaS"
   },
+  "ProfessorLessonMaterials": {
+    "back": "← Voltar",
+    "title": "Materiais da aula",
+    "description": "Veja, adicione, edite ou exclua os materiais desta aula.",
+    "materialTypes": {
+      "file": "Arquivo",
+      "pdf": "PDF",
+      "document": "Documento",
+      "presentation": "Apresentação",
+      "link": "Link",
+      "video": "Vídeo"
+    },
+    "library": {
+      "eyebrow": "Biblioteca da aula",
+      "title": "Materiais salvos",
+      "description": "Arquivos, links, vídeos e documentos de apoio desta aula.",
+      "count": "{count} material(is)",
+      "loading": "Carregando materiais...",
+      "emptyTitle": "Nenhum material cadastrado ainda",
+      "emptyDescription": "Adicione apostilas, vídeos, PDFs, links ou documentos para os alunos.",
+      "secureStorage": "Material armazenado com segurança no PHANYX"
+    },
+    "newMaterial": {
+      "title": "Adicionar novo material"
+    },
+    "fields": {
+      "title": "Título",
+      "titlePlaceholder": "Ex.: Apostila da aula",
+      "type": "Tipo",
+      "url": "URL",
+      "urlPlaceholder": "https://...",
+      "videoUrlPlaceholder": "https://youtube.com/..."
+    },
+    "upload": {
+      "title": "Upload do arquivo",
+      "description": "O arquivo será enviado para o armazenamento do PHANYX.",
+      "select": "Selecionar arquivo",
+      "send": "Enviar arquivo",
+      "uploading": "Enviando...",
+      "selected": "Arquivo selecionado: {name}",
+      "noneSelected": "Nenhum arquivo selecionado.",
+      "progress": "Upload: {progress}%",
+      "success": "Arquivo enviado com sucesso.",
+      "fileInfo": "{name} • {size} bytes"
+    },
+    "actions": {
+      "open": "Abrir",
+      "edit": "Editar",
+      "delete": "Excluir",
+      "save": "Salvar material",
+      "saving": "Salvando...",
+      "cancel": "Cancelar",
+      "saveChanges": "Salvar alterações",
+      "deleting": "Excluindo..."
+    },
+    "editModal": {
+      "title": "Editar material",
+      "close": "Fechar"
+    },
+    "deleteModal": {
+      "title": "Confirmar exclusão",
+      "message": "Tem certeza que deseja excluir o material \"{title}\"?",
+      "warning": "Esta ação não pode ser desfeita.",
+      "confirm": "Confirmar exclusão"
+    },
+    "validation": {
+      "fileRequired": "Selecione um arquivo para enviar.",
+      "titleRequired": "Informe o título do material.",
+      "linkUrlRequired": "Informe a URL do link.",
+      "videoUrlRequired": "Informe a URL do vídeo.",
+      "urlRequired": "Informe a URL do material.",
+      "invalidUrl": "Informe uma URL válida iniciada por http:// ou https://.",
+      "uploadBeforeSave": "Envie o arquivo antes de salvar."
+    },
+    "feedback": {
+      "invalidLesson": "Aula inválida.",
+      "loadError": "Erro ao carregar materiais.",
+      "invalidResponse": "Não foi possível interpretar a lista de materiais.",
+      "uploadError": "Erro ao enviar arquivo.",
+      "uploadNoUrl": "Upload concluído, mas nenhuma URL foi retornada.",
+      "uploadSuccess": "Arquivo enviado com sucesso.",
+      "createError": "Erro ao salvar material.",
+      "createSuccess": "Material criado com sucesso.",
+      "editError": "Erro ao editar material.",
+      "editSuccess": "Material editado com sucesso.",
+      "deleteError": "Erro ao excluir material.",
+      "deleteSuccess": "Material excluído com sucesso."
+    }
+  },
   "ProfessorEditActivity": {
     "eyebrow": "Atividade",
     "title": "Editar atividade",

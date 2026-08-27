@@ -1178,6 +1178,95 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorLessonMaterials": {
+    "back": "← Back",
+    "title": "Lesson materials",
+    "description": "View, add, edit, or delete the materials for this lesson.",
+    "materialTypes": {
+      "file": "File",
+      "pdf": "PDF",
+      "document": "Document",
+      "presentation": "Presentation",
+      "link": "Link",
+      "video": "Video"
+    },
+    "library": {
+      "eyebrow": "Lesson library",
+      "title": "Saved materials",
+      "description": "Files, links, videos, and supporting documents for this lesson.",
+      "count": "{count} material(s)",
+      "loading": "Loading materials...",
+      "emptyTitle": "No materials have been added yet",
+      "emptyDescription": "Add handouts, videos, PDFs, links, or documents for students.",
+      "secureStorage": "Material securely stored in PHANYX"
+    },
+    "newMaterial": {
+      "title": "Add new material"
+    },
+    "fields": {
+      "title": "Title",
+      "titlePlaceholder": "Example: Lesson handout",
+      "type": "Type",
+      "url": "URL",
+      "urlPlaceholder": "https://...",
+      "videoUrlPlaceholder": "https://youtube.com/..."
+    },
+    "upload": {
+      "title": "File upload",
+      "description": "The file will be uploaded to PHANYX storage.",
+      "select": "Select file",
+      "send": "Upload file",
+      "uploading": "Uploading...",
+      "selected": "Selected file: {name}",
+      "noneSelected": "No file selected.",
+      "progress": "Upload: {progress}%",
+      "success": "File uploaded successfully.",
+      "fileInfo": "{name} • {size} bytes"
+    },
+    "actions": {
+      "open": "Open",
+      "edit": "Edit",
+      "delete": "Delete",
+      "save": "Save material",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "saveChanges": "Save changes",
+      "deleting": "Deleting..."
+    },
+    "editModal": {
+      "title": "Edit material",
+      "close": "Close"
+    },
+    "deleteModal": {
+      "title": "Confirm deletion",
+      "message": "Are you sure you want to delete the material \"{title}\"?",
+      "warning": "This action cannot be undone.",
+      "confirm": "Confirm deletion"
+    },
+    "validation": {
+      "fileRequired": "Select a file to upload.",
+      "titleRequired": "Enter the material title.",
+      "linkUrlRequired": "Enter the link URL.",
+      "videoUrlRequired": "Enter the video URL.",
+      "urlRequired": "Enter the material URL.",
+      "invalidUrl": "Enter a valid URL starting with http:// or https://.",
+      "uploadBeforeSave": "Upload the file before saving."
+    },
+    "feedback": {
+      "invalidLesson": "Invalid lesson.",
+      "loadError": "Error loading materials.",
+      "invalidResponse": "The materials list could not be interpreted.",
+      "uploadError": "Error uploading the file.",
+      "uploadNoUrl": "The upload was completed, but no URL was returned.",
+      "uploadSuccess": "File uploaded successfully.",
+      "createError": "Error saving the material.",
+      "createSuccess": "Material created successfully.",
+      "editError": "Error editing the material.",
+      "editSuccess": "Material edited successfully.",
+      "deleteError": "Error deleting the material.",
+      "deleteSuccess": "Material deleted successfully."
+    }
+  },
   "ProfessorEditActivity": {
     "eyebrow": "Activity",
     "title": "Edit activity",

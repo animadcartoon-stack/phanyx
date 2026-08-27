@@ -1178,6 +1178,95 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorLessonMaterials": {
+    "back": "← Retour",
+    "title": "Supports de cours",
+    "description": "Consultez, ajoutez, modifiez ou supprimez les supports de ce cours.",
+    "materialTypes": {
+      "file": "Fichier",
+      "pdf": "PDF",
+      "document": "Document",
+      "presentation": "Présentation",
+      "link": "Lien",
+      "video": "Vidéo"
+    },
+    "library": {
+      "eyebrow": "Bibliothèque du cours",
+      "title": "Supports enregistrés",
+      "description": "Fichiers, liens, vidéos et documents d’accompagnement de ce cours.",
+      "count": "{count} support(s)",
+      "loading": "Chargement des supports...",
+      "emptyTitle": "Aucun support n’a encore été ajouté",
+      "emptyDescription": "Ajoutez des documents, vidéos, PDF, liens ou fichiers pour les élèves.",
+      "secureStorage": "Support stocké de manière sécurisée dans PHANYX"
+    },
+    "newMaterial": {
+      "title": "Ajouter un nouveau support"
+    },
+    "fields": {
+      "title": "Titre",
+      "titlePlaceholder": "Ex. : Document du cours",
+      "type": "Type",
+      "url": "URL",
+      "urlPlaceholder": "https://...",
+      "videoUrlPlaceholder": "https://youtube.com/..."
+    },
+    "upload": {
+      "title": "Envoi du fichier",
+      "description": "Le fichier sera envoyé vers l’espace de stockage de PHANYX.",
+      "select": "Sélectionner un fichier",
+      "send": "Envoyer le fichier",
+      "uploading": "Envoi...",
+      "selected": "Fichier sélectionné : {name}",
+      "noneSelected": "Aucun fichier sélectionné.",
+      "progress": "Envoi : {progress}%",
+      "success": "Fichier envoyé avec succès.",
+      "fileInfo": "{name} • {size} octets"
+    },
+    "actions": {
+      "open": "Ouvrir",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "save": "Enregistrer le support",
+      "saving": "Enregistrement...",
+      "cancel": "Annuler",
+      "saveChanges": "Enregistrer les modifications",
+      "deleting": "Suppression..."
+    },
+    "editModal": {
+      "title": "Modifier le support",
+      "close": "Fermer"
+    },
+    "deleteModal": {
+      "title": "Confirmer la suppression",
+      "message": "Êtes-vous sûr de vouloir supprimer le support « {title} » ?",
+      "warning": "Cette action est irréversible.",
+      "confirm": "Confirmer la suppression"
+    },
+    "validation": {
+      "fileRequired": "Sélectionnez un fichier à envoyer.",
+      "titleRequired": "Saisissez le titre du support.",
+      "linkUrlRequired": "Saisissez l’URL du lien.",
+      "videoUrlRequired": "Saisissez l’URL de la vidéo.",
+      "urlRequired": "Saisissez l’URL du support.",
+      "invalidUrl": "Saisissez une URL valide commençant par http:// ou https://.",
+      "uploadBeforeSave": "Envoyez le fichier avant d’enregistrer."
+    },
+    "feedback": {
+      "invalidLesson": "Cours non valide.",
+      "loadError": "Erreur lors du chargement des supports.",
+      "invalidResponse": "La liste des supports n’a pas pu être interprétée.",
+      "uploadError": "Erreur lors de l’envoi du fichier.",
+      "uploadNoUrl": "L’envoi a été effectué, mais aucune URL n’a été retournée.",
+      "uploadSuccess": "Fichier envoyé avec succès.",
+      "createError": "Erreur lors de l’enregistrement du support.",
+      "createSuccess": "Support créé avec succès.",
+      "editError": "Erreur lors de la modification du support.",
+      "editSuccess": "Support modifié avec succès.",
+      "deleteError": "Erreur lors de la suppression du support.",
+      "deleteSuccess": "Support supprimé avec succès."
+    }
+  },
   "ProfessorEditActivity": {
     "eyebrow": "Activité",
     "title": "Modifier l’activité",
