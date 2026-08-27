@@ -1178,6 +1178,38 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma acadêmica SaaS"
   },
+  "ProfessorNewDiscipline": {
+    "back": "← Voltar",
+    "eyebrow": "Disciplina",
+    "title": "Nova disciplina",
+    "description": "Cadastre uma nova disciplina e informe os dados básicos para começar a organizá-la.",
+    "fields": {
+      "name": "Nome",
+      "namePlaceholder": "Ex.: Teologia Sistemática",
+      "description": "Descrição",
+      "descriptionPlaceholder": "Descreva os objetivos, conteúdos ou informações importantes da disciplina.",
+      "professorEmail": "E-mail do professor",
+      "professorEmailPlaceholder": "professor@instituicao.com",
+      "professorEmailHelp": "Informe o e-mail do professor responsável pela disciplina.",
+      "workload": "Carga horária",
+      "workloadPlaceholder": "Ex.: 40",
+      "hours": "horas"
+    },
+    "actions": {
+      "cancel": "Cancelar",
+      "create": "Criar disciplina",
+      "creating": "Criando..."
+    },
+    "validation": {
+      "nameRequired": "Informe o nome da disciplina.",
+      "emailRequired": "Informe o e-mail do professor.",
+      "invalidEmail": "Informe um endereço de e-mail válido.",
+      "invalidWorkload": "Informe uma carga horária válida."
+    },
+    "feedback": {
+      "createError": "Não foi possível criar a disciplina."
+    }
+  },
   "ProfessorDisciplines": {
     "eyebrow": "Disciplinas",
     "title": "Disciplinas",
