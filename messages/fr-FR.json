@@ -1178,6 +1178,66 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorDisciplineLessonDetail": {
+    "eyebrow": "Cours",
+    "notFound": {
+      "title": "Cours introuvable",
+      "description": "Ce cours n’a pas pu être localisé."
+    },
+    "video": {
+      "frameTitle": "Vidéo du cours",
+      "unavailable": "Aucune vidéo n’est disponible pour ce cours."
+    },
+    "materials": {
+      "eyebrow": "Supports",
+      "title": "Supports du cours",
+      "description": "Envoyez et consultez les supports pédagogiques de ce cours.",
+      "selectFile": "Sélectionner un fichier",
+      "selectedFile": "Fichier sélectionné : {name}",
+      "empty": "Aucun support ajouté."
+    },
+    "edit": {
+      "eyebrow": "Modification",
+      "title": "Modifier le cours"
+    },
+    "fields": {
+      "title": "Titre du cours",
+      "videoUrl": "URL de la vidéo"
+    },
+    "actions": {
+      "back": "← Retour",
+      "uploadFile": "Envoyer le fichier",
+      "uploading": "Envoi...",
+      "open": "Ouvrir",
+      "editLesson": "Modifier le cours",
+      "deleteLesson": "Supprimer le cours",
+      "save": "Enregistrer les modifications",
+      "saving": "Enregistrement...",
+      "cancel": "Annuler",
+      "deleting": "Suppression..."
+    },
+    "validation": {
+      "titleRequired": "Saisissez le titre du cours.",
+      "videoRequired": "Saisissez l’URL de la vidéo.",
+      "invalidVideoUrl": "Saisissez une URL valide commençant par http:// ou https://."
+    },
+    "feedback": {
+      "updateSuccess": "Cours mis à jour avec succès.",
+      "updateError": "Le cours n’a pas pu être mis à jour.",
+      "deleteError": "Le cours n’a pas pu être supprimé.",
+      "uploadPrepareError": "L’envoi du fichier n’a pas pu être préparé.",
+      "invalidUploadResponse": "La réponse du serveur pour l’envoi est invalide.",
+      "storageUploadError": "Erreur lors de l’envoi du fichier vers le stockage.",
+      "uploadSuccess": "Fichier envoyé avec succès.",
+      "uploadError": "Le fichier n’a pas pu être envoyé."
+    },
+    "deleteModal": {
+      "title": "Confirmer la suppression",
+      "message": "Êtes-vous sûr de vouloir supprimer le cours « {title} » ?",
+      "warning": "Cette action est irréversible.",
+      "confirm": "Confirmer la suppression"
+    }
+  },
   "ProfessorDisciplineLessons": {
     "eyebrow": "Discipline",
     "title": "Cours de la discipline",

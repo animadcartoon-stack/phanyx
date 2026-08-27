@@ -1178,6 +1178,66 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma acadêmica SaaS"
   },
+  "ProfessorDisciplineLessonDetail": {
+    "eyebrow": "Aula",
+    "notFound": {
+      "title": "Aula não encontrada",
+      "description": "Não foi possível localizar esta aula."
+    },
+    "video": {
+      "frameTitle": "Vídeo da aula",
+      "unavailable": "Nenhum vídeo disponível para esta aula."
+    },
+    "materials": {
+      "eyebrow": "Materiais",
+      "title": "Materiais da aula",
+      "description": "Envie e acesse os materiais de apoio desta aula.",
+      "selectFile": "Selecionar arquivo",
+      "selectedFile": "Arquivo selecionado: {name}",
+      "empty": "Nenhum material adicionado."
+    },
+    "edit": {
+      "eyebrow": "Edição",
+      "title": "Editar aula"
+    },
+    "fields": {
+      "title": "Título da aula",
+      "videoUrl": "URL do vídeo"
+    },
+    "actions": {
+      "back": "← Voltar",
+      "uploadFile": "Enviar arquivo",
+      "uploading": "Enviando...",
+      "open": "Abrir",
+      "editLesson": "Editar aula",
+      "deleteLesson": "Excluir aula",
+      "save": "Salvar alterações",
+      "saving": "Salvando...",
+      "cancel": "Cancelar",
+      "deleting": "Excluindo..."
+    },
+    "validation": {
+      "titleRequired": "Informe o título da aula.",
+      "videoRequired": "Informe a URL do vídeo.",
+      "invalidVideoUrl": "Informe uma URL válida iniciada por http:// ou https://."
+    },
+    "feedback": {
+      "updateSuccess": "Aula atualizada com sucesso.",
+      "updateError": "Não foi possível atualizar a aula.",
+      "deleteError": "Não foi possível excluir a aula.",
+      "uploadPrepareError": "Não foi possível preparar o envio do arquivo.",
+      "invalidUploadResponse": "A resposta do servidor para o upload é inválida.",
+      "storageUploadError": "Erro ao enviar o arquivo para o armazenamento.",
+      "uploadSuccess": "Arquivo enviado com sucesso.",
+      "uploadError": "Não foi possível enviar o arquivo."
+    },
+    "deleteModal": {
+      "title": "Confirmar exclusão",
+      "message": "Tem certeza que deseja excluir a aula \"{title}\"?",
+      "warning": "Esta ação não pode ser desfeita.",
+      "confirm": "Confirmar exclusão"
+    }
+  },
   "ProfessorDisciplineLessons": {
     "eyebrow": "Disciplina",
     "title": "Aulas da disciplina",

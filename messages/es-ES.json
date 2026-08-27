@@ -1178,6 +1178,66 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorDisciplineLessonDetail": {
+    "eyebrow": "Clase",
+    "notFound": {
+      "title": "Clase no encontrada",
+      "description": "No se ha podido localizar esta clase."
+    },
+    "video": {
+      "frameTitle": "Vídeo de la clase",
+      "unavailable": "No hay ningún vídeo disponible para esta clase."
+    },
+    "materials": {
+      "eyebrow": "Materiales",
+      "title": "Materiales de la clase",
+      "description": "Suba y acceda a los materiales de apoyo de esta clase.",
+      "selectFile": "Seleccionar archivo",
+      "selectedFile": "Archivo seleccionado: {name}",
+      "empty": "No se han añadido materiales."
+    },
+    "edit": {
+      "eyebrow": "Edición",
+      "title": "Editar clase"
+    },
+    "fields": {
+      "title": "Título de la clase",
+      "videoUrl": "URL del vídeo"
+    },
+    "actions": {
+      "back": "← Volver",
+      "uploadFile": "Subir archivo",
+      "uploading": "Subiendo...",
+      "open": "Abrir",
+      "editLesson": "Editar clase",
+      "deleteLesson": "Eliminar clase",
+      "save": "Guardar cambios",
+      "saving": "Guardando...",
+      "cancel": "Cancelar",
+      "deleting": "Eliminando..."
+    },
+    "validation": {
+      "titleRequired": "Introduzca el título de la clase.",
+      "videoRequired": "Introduzca la URL del vídeo.",
+      "invalidVideoUrl": "Introduzca una URL válida que comience por http:// o https://."
+    },
+    "feedback": {
+      "updateSuccess": "Clase actualizada correctamente.",
+      "updateError": "No se ha podido actualizar la clase.",
+      "deleteError": "No se ha podido eliminar la clase.",
+      "uploadPrepareError": "No se ha podido preparar la subida del archivo.",
+      "invalidUploadResponse": "La respuesta del servidor para la subida no es válida.",
+      "storageUploadError": "Error al subir el archivo al almacenamiento.",
+      "uploadSuccess": "Archivo subido correctamente.",
+      "uploadError": "No se ha podido subir el archivo."
+    },
+    "deleteModal": {
+      "title": "Confirmar eliminación",
+      "message": "¿Está seguro de que desea eliminar la clase \"{title}\"?",
+      "warning": "Esta acción no se puede deshacer.",
+      "confirm": "Confirmar eliminación"
+    }
+  },
   "ProfessorDisciplineLessons": {
     "eyebrow": "Disciplina",
     "title": "Clases de la disciplina",

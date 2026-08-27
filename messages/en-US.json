@@ -1178,6 +1178,66 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorDisciplineLessonDetail": {
+    "eyebrow": "Lesson",
+    "notFound": {
+      "title": "Lesson not found",
+      "description": "This lesson could not be found."
+    },
+    "video": {
+      "frameTitle": "Lesson video",
+      "unavailable": "No video is available for this lesson."
+    },
+    "materials": {
+      "eyebrow": "Materials",
+      "title": "Lesson materials",
+      "description": "Upload and access the supporting materials for this lesson.",
+      "selectFile": "Select file",
+      "selectedFile": "Selected file: {name}",
+      "empty": "No materials added."
+    },
+    "edit": {
+      "eyebrow": "Editing",
+      "title": "Edit lesson"
+    },
+    "fields": {
+      "title": "Lesson title",
+      "videoUrl": "Video URL"
+    },
+    "actions": {
+      "back": "← Back",
+      "uploadFile": "Upload file",
+      "uploading": "Uploading...",
+      "open": "Open",
+      "editLesson": "Edit lesson",
+      "deleteLesson": "Delete lesson",
+      "save": "Save changes",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "deleting": "Deleting..."
+    },
+    "validation": {
+      "titleRequired": "Enter the lesson title.",
+      "videoRequired": "Enter the video URL.",
+      "invalidVideoUrl": "Enter a valid URL starting with http:// or https://."
+    },
+    "feedback": {
+      "updateSuccess": "Lesson updated successfully.",
+      "updateError": "The lesson could not be updated.",
+      "deleteError": "The lesson could not be deleted.",
+      "uploadPrepareError": "The file upload could not be prepared.",
+      "invalidUploadResponse": "The server response for the upload is invalid.",
+      "storageUploadError": "Error uploading the file to storage.",
+      "uploadSuccess": "File uploaded successfully.",
+      "uploadError": "The file could not be uploaded."
+    },
+    "deleteModal": {
+      "title": "Confirm deletion",
+      "message": "Are you sure you want to delete the lesson \"{title}\"?",
+      "warning": "This action cannot be undone.",
+      "confirm": "Confirm deletion"
+    }
+  },
   "ProfessorDisciplineLessons": {
     "eyebrow": "Discipline",
     "title": "Discipline lessons",
