@@ -1178,6 +1178,72 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorNewActivity": {
+    "loading": "Chargement des données...",
+    "back": "← Retour aux activités",
+    "title": "Nouvelle activité",
+    "description": "Créez une nouvelle activité pour votre matière.",
+    "classFallback": "Classe {id}",
+    "classesEmpty": "Aucune classe n’est disponible pour créer cette activité.",
+    "fields": {
+      "title": "Titre",
+      "titlePlaceholder": "Ex. : Travail sur la Révolution industrielle",
+      "description": "Description",
+      "descriptionPlaceholder": "Décrivez l’activité",
+      "class": "Classe",
+      "classPlaceholder": "Sélectionnez une classe",
+      "deadline": "Date limite",
+      "maximumGrade": "Note maximale"
+    },
+    "attachment": {
+      "title": "Pièce jointe de l’activité",
+      "description": "Ajoutez un PDF, une image ou un document pour accompagner l’activité.",
+      "select": "Sélectionner un fichier",
+      "selected": "Fichier sélectionné : {name}",
+      "upload": "Envoyer la pièce jointe",
+      "uploading": "Envoi du fichier...",
+      "bytes": "octets",
+      "uploaded": {
+        "file": "Fichier envoyé :",
+        "type": "Type :",
+        "size": "Taille :"
+      }
+    },
+    "actions": {
+      "retry": "Réessayer",
+      "create": "Créer l’activité",
+      "saving": "Enregistrement..."
+    },
+    "publishModal": {
+      "title": "Publier l’activité ?",
+      "description": "L’activité a été créée comme brouillon. Souhaitez-vous la publier maintenant pour les élèves ?",
+      "keepDraft": "Conserver comme brouillon",
+      "publishNow": "Publier maintenant",
+      "publishing": "Publication..."
+    },
+    "validation": {
+      "fileRequired": "Sélectionnez un fichier à envoyer.",
+      "titleRequired": "Saisissez le titre de l’activité.",
+      "classRequired": "Sélectionnez une classe.",
+      "subjectRequired": "La classe sélectionnée doit être associée à une matière.",
+      "invalidMaximumGrade": "La note maximale doit être supérieure à zéro.",
+      "invalidDeadline": "Saisissez une date limite valide."
+    },
+    "feedback": {
+      "classesLoadError": "Erreur lors du chargement des classes.",
+      "classesInvalidResponse": "La liste des classes n’a pas pu être interprétée.",
+      "loadError": "Erreur lors du chargement des données.",
+      "uploadError": "Erreur lors de l’envoi du fichier.",
+      "uploadInvalidResponse": "Les données du fichier envoyé n’ont pas pu être interprétées.",
+      "uploadSuccess": "Fichier envoyé avec succès.",
+      "createError": "Erreur lors de la création de l’activité.",
+      "createInvalidResponse": "L’activité a été créée, mais l’enregistrement généré n’a pas pu être identifié.",
+      "createSuccess": "Activité créée avec succès.",
+      "createWithAttachmentSuccess": "Activité créée avec succès avec la pièce jointe associée.",
+      "publishError": "Erreur lors de la publication de l’activité.",
+      "publishSuccess": "Activité publiée avec succès."
+    }
+  },
   "ProfessorExamGradebook": {
     "loading": "Chargement du relevé...",
     "back": "← Retour à l’examen",

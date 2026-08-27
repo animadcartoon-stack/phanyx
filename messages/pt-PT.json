@@ -1178,6 +1178,72 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorNewActivity": {
+    "loading": "A carregar dados...",
+    "back": "← Voltar para atividades",
+    "title": "Nova atividade",
+    "description": "Crie uma nova atividade para a sua disciplina.",
+    "classFallback": "Turma {id}",
+    "classesEmpty": "Não existem turmas disponíveis para criar a atividade.",
+    "fields": {
+      "title": "Título",
+      "titlePlaceholder": "Ex.: Trabalho sobre a Revolução Industrial",
+      "description": "Descrição",
+      "descriptionPlaceholder": "Descreva a atividade",
+      "class": "Turma",
+      "classPlaceholder": "Selecione uma turma",
+      "deadline": "Prazo",
+      "maximumGrade": "Nota máxima"
+    },
+    "attachment": {
+      "title": "Anexo da atividade",
+      "description": "Envie um PDF, imagem ou documento para acompanhar a atividade.",
+      "select": "Selecionar ficheiro",
+      "selected": "Ficheiro selecionado: {name}",
+      "upload": "Enviar anexo",
+      "uploading": "A enviar ficheiro...",
+      "bytes": "bytes",
+      "uploaded": {
+        "file": "Ficheiro enviado:",
+        "type": "Tipo:",
+        "size": "Tamanho:"
+      }
+    },
+    "actions": {
+      "retry": "Tentar novamente",
+      "create": "Criar atividade",
+      "saving": "A guardar..."
+    },
+    "publishModal": {
+      "title": "Publicar atividade?",
+      "description": "A atividade foi criada como rascunho. Pretende publicá-la agora para os alunos?",
+      "keepDraft": "Manter rascunho",
+      "publishNow": "Publicar agora",
+      "publishing": "A publicar..."
+    },
+    "validation": {
+      "fileRequired": "Selecione um ficheiro para enviar.",
+      "titleRequired": "Introduza o título da atividade.",
+      "classRequired": "Selecione uma turma.",
+      "subjectRequired": "A turma selecionada deve estar associada a uma disciplina.",
+      "invalidMaximumGrade": "A nota máxima deve ser superior a zero.",
+      "invalidDeadline": "Introduza um prazo válido."
+    },
+    "feedback": {
+      "classesLoadError": "Erro ao carregar as turmas.",
+      "classesInvalidResponse": "Não foi possível interpretar a lista de turmas.",
+      "loadError": "Erro ao carregar os dados.",
+      "uploadError": "Erro ao enviar o ficheiro.",
+      "uploadInvalidResponse": "Não foi possível interpretar os dados do ficheiro enviado.",
+      "uploadSuccess": "Ficheiro enviado com sucesso.",
+      "createError": "Erro ao criar a atividade.",
+      "createInvalidResponse": "A atividade foi criada, mas não foi possível identificar o registo gerado.",
+      "createSuccess": "Atividade criada com sucesso.",
+      "createWithAttachmentSuccess": "Atividade criada com sucesso, com anexo associado.",
+      "publishError": "Erro ao publicar a atividade.",
+      "publishSuccess": "Atividade publicada com sucesso."
+    }
+  },
   "ProfessorExamGradebook": {
     "loading": "A carregar boletim...",
     "back": "← Voltar para a prova",

@@ -1178,6 +1178,72 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorNewActivity": {
+    "loading": "Cargando datos...",
+    "back": "← Volver a actividades",
+    "title": "Nueva actividad",
+    "description": "Cree una nueva actividad para su asignatura.",
+    "classFallback": "Clase {id}",
+    "classesEmpty": "No hay clases disponibles para crear esta actividad.",
+    "fields": {
+      "title": "Título",
+      "titlePlaceholder": "Ej.: Trabajo sobre la Revolución Industrial",
+      "description": "Descripción",
+      "descriptionPlaceholder": "Describa la actividad",
+      "class": "Clase",
+      "classPlaceholder": "Seleccione una clase",
+      "deadline": "Fecha límite",
+      "maximumGrade": "Calificación máxima"
+    },
+    "attachment": {
+      "title": "Archivo adjunto de la actividad",
+      "description": "Suba un PDF, una imagen o un documento para acompañar la actividad.",
+      "select": "Seleccionar archivo",
+      "selected": "Archivo seleccionado: {name}",
+      "upload": "Subir archivo adjunto",
+      "uploading": "Subiendo archivo...",
+      "bytes": "bytes",
+      "uploaded": {
+        "file": "Archivo enviado:",
+        "type": "Tipo:",
+        "size": "Tamaño:"
+      }
+    },
+    "actions": {
+      "retry": "Intentar de nuevo",
+      "create": "Crear actividad",
+      "saving": "Guardando..."
+    },
+    "publishModal": {
+      "title": "¿Publicar actividad?",
+      "description": "La actividad se creó como borrador. ¿Desea publicarla ahora para los alumnos?",
+      "keepDraft": "Mantener como borrador",
+      "publishNow": "Publicar ahora",
+      "publishing": "Publicando..."
+    },
+    "validation": {
+      "fileRequired": "Seleccione un archivo para subir.",
+      "titleRequired": "Introduzca el título de la actividad.",
+      "classRequired": "Seleccione una clase.",
+      "subjectRequired": "La clase seleccionada debe estar vinculada a una asignatura.",
+      "invalidMaximumGrade": "La calificación máxima debe ser mayor que cero.",
+      "invalidDeadline": "Introduzca una fecha límite válida."
+    },
+    "feedback": {
+      "classesLoadError": "Error al cargar las clases.",
+      "classesInvalidResponse": "No se ha podido interpretar la lista de clases.",
+      "loadError": "Error al cargar los datos.",
+      "uploadError": "Error al subir el archivo.",
+      "uploadInvalidResponse": "No se han podido interpretar los datos del archivo enviado.",
+      "uploadSuccess": "Archivo enviado correctamente.",
+      "createError": "Error al crear la actividad.",
+      "createInvalidResponse": "La actividad se creó, pero no se pudo identificar el registro generado.",
+      "createSuccess": "Actividad creada correctamente.",
+      "createWithAttachmentSuccess": "Actividad creada correctamente con el archivo adjunto vinculado.",
+      "publishError": "Error al publicar la actividad.",
+      "publishSuccess": "Actividad publicada correctamente."
+    }
+  },
   "ProfessorExamGradebook": {
     "loading": "Cargando boletín...",
     "back": "← Volver al examen",

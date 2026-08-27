@@ -1178,6 +1178,72 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorNewActivity": {
+    "loading": "Loading data...",
+    "back": "← Back to activities",
+    "title": "New activity",
+    "description": "Create a new activity for your subject.",
+    "classFallback": "Class {id}",
+    "classesEmpty": "No classes are available to create this activity.",
+    "fields": {
+      "title": "Title",
+      "titlePlaceholder": "Example: Assignment on the Industrial Revolution",
+      "description": "Description",
+      "descriptionPlaceholder": "Describe the activity",
+      "class": "Class",
+      "classPlaceholder": "Select a class",
+      "deadline": "Deadline",
+      "maximumGrade": "Maximum grade"
+    },
+    "attachment": {
+      "title": "Activity attachment",
+      "description": "Upload a PDF, image, or document to accompany the activity.",
+      "select": "Select file",
+      "selected": "Selected file: {name}",
+      "upload": "Upload attachment",
+      "uploading": "Uploading file...",
+      "bytes": "bytes",
+      "uploaded": {
+        "file": "Uploaded file:",
+        "type": "Type:",
+        "size": "Size:"
+      }
+    },
+    "actions": {
+      "retry": "Try again",
+      "create": "Create activity",
+      "saving": "Saving..."
+    },
+    "publishModal": {
+      "title": "Publish activity?",
+      "description": "The activity was created as a draft. Would you like to publish it to students now?",
+      "keepDraft": "Keep as draft",
+      "publishNow": "Publish now",
+      "publishing": "Publishing..."
+    },
+    "validation": {
+      "fileRequired": "Select a file to upload.",
+      "titleRequired": "Enter the activity title.",
+      "classRequired": "Select a class.",
+      "subjectRequired": "The selected class must be linked to a subject.",
+      "invalidMaximumGrade": "The maximum grade must be greater than zero.",
+      "invalidDeadline": "Enter a valid deadline."
+    },
+    "feedback": {
+      "classesLoadError": "Error loading classes.",
+      "classesInvalidResponse": "The class list could not be interpreted.",
+      "loadError": "Error loading data.",
+      "uploadError": "Error uploading the file.",
+      "uploadInvalidResponse": "The uploaded file data could not be interpreted.",
+      "uploadSuccess": "File uploaded successfully.",
+      "createError": "Error creating the activity.",
+      "createInvalidResponse": "The activity was created, but the generated record could not be identified.",
+      "createSuccess": "Activity created successfully.",
+      "createWithAttachmentSuccess": "Activity created successfully with the attachment linked.",
+      "publishError": "Error publishing the activity.",
+      "publishSuccess": "Activity published successfully."
+    }
+  },
   "ProfessorExamGradebook": {
     "loading": "Loading gradebook...",
     "back": "← Back to the exam",
