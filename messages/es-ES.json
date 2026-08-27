@@ -1178,6 +1178,61 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorDisciplineDetail": {
+    "eyebrow": "Disciplina",
+    "noDescription": "Esta disciplina todavía no tiene una descripción registrada.",
+    "notFound": {
+      "title": "Disciplina no encontrada",
+      "description": "No se ha podido localizar esta disciplina."
+    },
+    "students": {
+      "eyebrow": "Alumnos",
+      "title": "Alumnos matriculados",
+      "description": "Realice el seguimiento de los alumnos vinculados a esta disciplina y de sus calificaciones.",
+      "empty": "No hay alumnos matriculados.",
+      "grade": "Calificación: {grade}",
+      "approved": "Aprobado",
+      "failed": "Reprobado",
+      "noGrade": "Sin calificación"
+    },
+    "exam": {
+      "eyebrow": "Evaluación",
+      "title": "Examen de la disciplina",
+      "description": "Cree o edite el examen vinculado a esta disciplina.",
+      "action": "Crear / editar examen"
+    },
+    "newLesson": {
+      "eyebrow": "Clase",
+      "title": "Nueva clase",
+      "description": "Añada una nueva clase a la disciplina."
+    },
+    "lessons": {
+      "eyebrow": "Contenido",
+      "title": "Clases",
+      "empty": "Todavía no se han creado clases."
+    },
+    "fields": {
+      "lessonTitle": "Título de la clase",
+      "lessonTitlePlaceholder": "Ej.: Introducción al contenido",
+      "videoUrl": "Enlace del vídeo",
+      "videoUrlPlaceholder": "https://youtube.com/..."
+    },
+    "actions": {
+      "back": "← Volver",
+      "addLesson": "Añadir clase",
+      "addingLesson": "Añadiendo...",
+      "openLesson": "Abrir clase →"
+    },
+    "validation": {
+      "lessonTitleRequired": "Introduzca el título de la clase.",
+      "videoRequired": "Introduzca el enlace del vídeo.",
+      "invalidVideoUrl": "Introduzca una URL válida que comience por http:// o https://."
+    },
+    "feedback": {
+      "lessonAdded": "Clase añadida correctamente.",
+      "lessonAddError": "No se ha podido añadir la clase."
+    }
+  },
   "ProfessorNewDiscipline": {
     "back": "← Volver",
     "eyebrow": "Disciplina",

@@ -1178,6 +1178,61 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorDisciplineDetail": {
+    "eyebrow": "Disciplina",
+    "noDescription": "Esta disciplina não possui uma descrição registada.",
+    "notFound": {
+      "title": "Disciplina não encontrada",
+      "description": "Não foi possível localizar esta disciplina."
+    },
+    "students": {
+      "eyebrow": "Alunos",
+      "title": "Alunos inscritos",
+      "description": "Acompanhe os alunos associados a esta disciplina e as respetivas notas.",
+      "empty": "Nenhum aluno inscrito.",
+      "grade": "Nota: {grade}",
+      "approved": "Aprovado",
+      "failed": "Reprovado",
+      "noGrade": "Sem nota"
+    },
+    "exam": {
+      "eyebrow": "Avaliação",
+      "title": "Prova da disciplina",
+      "description": "Crie ou edite a prova associada a esta disciplina.",
+      "action": "Criar / editar prova"
+    },
+    "newLesson": {
+      "eyebrow": "Aula",
+      "title": "Nova aula",
+      "description": "Adicione uma nova aula à disciplina."
+    },
+    "lessons": {
+      "eyebrow": "Conteúdo",
+      "title": "Aulas",
+      "empty": "Ainda não existem aulas criadas."
+    },
+    "fields": {
+      "lessonTitle": "Título da aula",
+      "lessonTitlePlaceholder": "Ex.: Introdução ao conteúdo",
+      "videoUrl": "Ligação do vídeo",
+      "videoUrlPlaceholder": "https://youtube.com/..."
+    },
+    "actions": {
+      "back": "← Voltar",
+      "addLesson": "Adicionar aula",
+      "addingLesson": "A adicionar...",
+      "openLesson": "Abrir aula →"
+    },
+    "validation": {
+      "lessonTitleRequired": "Introduza o título da aula.",
+      "videoRequired": "Introduza a ligação do vídeo.",
+      "invalidVideoUrl": "Introduza um URL válido iniciado por http:// ou https://."
+    },
+    "feedback": {
+      "lessonAdded": "Aula adicionada com sucesso.",
+      "lessonAddError": "Não foi possível adicionar a aula."
+    }
+  },
   "ProfessorNewDiscipline": {
     "back": "← Voltar",
     "eyebrow": "Disciplina",

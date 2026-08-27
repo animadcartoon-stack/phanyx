@@ -1178,6 +1178,61 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorDisciplineDetail": {
+    "eyebrow": "Discipline",
+    "noDescription": "This discipline does not have a description yet.",
+    "notFound": {
+      "title": "Discipline not found",
+      "description": "This discipline could not be found."
+    },
+    "students": {
+      "eyebrow": "Students",
+      "title": "Enrolled students",
+      "description": "Track the students linked to this discipline and their grades.",
+      "empty": "No students enrolled.",
+      "grade": "Grade: {grade}",
+      "approved": "Passed",
+      "failed": "Failed",
+      "noGrade": "No grade"
+    },
+    "exam": {
+      "eyebrow": "Evaluation",
+      "title": "Discipline exam",
+      "description": "Create or edit the exam linked to this discipline.",
+      "action": "Create / edit exam"
+    },
+    "newLesson": {
+      "eyebrow": "Lesson",
+      "title": "New lesson",
+      "description": "Add a new lesson to the discipline."
+    },
+    "lessons": {
+      "eyebrow": "Content",
+      "title": "Lessons",
+      "empty": "No lessons have been created yet."
+    },
+    "fields": {
+      "lessonTitle": "Lesson title",
+      "lessonTitlePlaceholder": "Example: Introduction to the content",
+      "videoUrl": "Video link",
+      "videoUrlPlaceholder": "https://youtube.com/..."
+    },
+    "actions": {
+      "back": "← Back",
+      "addLesson": "Add lesson",
+      "addingLesson": "Adding...",
+      "openLesson": "Open lesson →"
+    },
+    "validation": {
+      "lessonTitleRequired": "Enter the lesson title.",
+      "videoRequired": "Enter the video link.",
+      "invalidVideoUrl": "Enter a valid URL starting with http:// or https://."
+    },
+    "feedback": {
+      "lessonAdded": "Lesson added successfully.",
+      "lessonAddError": "The lesson could not be added."
+    }
+  },
   "ProfessorNewDiscipline": {
     "back": "← Back",
     "eyebrow": "Discipline",

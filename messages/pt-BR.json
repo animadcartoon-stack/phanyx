@@ -1178,6 +1178,61 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma acadêmica SaaS"
   },
+  "ProfessorDisciplineDetail": {
+    "eyebrow": "Disciplina",
+    "noDescription": "Esta disciplina não possui descrição cadastrada.",
+    "notFound": {
+      "title": "Disciplina não encontrada",
+      "description": "Não foi possível localizar esta disciplina."
+    },
+    "students": {
+      "eyebrow": "Alunos",
+      "title": "Alunos matriculados",
+      "description": "Acompanhe os alunos vinculados a esta disciplina e suas notas.",
+      "empty": "Nenhum aluno matriculado.",
+      "grade": "Nota: {grade}",
+      "approved": "Aprovado",
+      "failed": "Reprovado",
+      "noGrade": "Sem nota"
+    },
+    "exam": {
+      "eyebrow": "Avaliação",
+      "title": "Prova da disciplina",
+      "description": "Crie ou edite a prova vinculada a esta disciplina.",
+      "action": "Criar / editar prova"
+    },
+    "newLesson": {
+      "eyebrow": "Aula",
+      "title": "Nova aula",
+      "description": "Adicione uma nova aula à disciplina."
+    },
+    "lessons": {
+      "eyebrow": "Conteúdo",
+      "title": "Aulas",
+      "empty": "Nenhuma aula criada ainda."
+    },
+    "fields": {
+      "lessonTitle": "Título da aula",
+      "lessonTitlePlaceholder": "Ex.: Introdução ao conteúdo",
+      "videoUrl": "Link do vídeo",
+      "videoUrlPlaceholder": "https://youtube.com/..."
+    },
+    "actions": {
+      "back": "← Voltar",
+      "addLesson": "Adicionar aula",
+      "addingLesson": "Adicionando...",
+      "openLesson": "Abrir aula →"
+    },
+    "validation": {
+      "lessonTitleRequired": "Informe o título da aula.",
+      "videoRequired": "Informe o link do vídeo.",
+      "invalidVideoUrl": "Informe uma URL válida iniciada por http:// ou https://."
+    },
+    "feedback": {
+      "lessonAdded": "Aula adicionada com sucesso.",
+      "lessonAddError": "Não foi possível adicionar a aula."
+    }
+  },
   "ProfessorNewDiscipline": {
     "back": "← Voltar",
     "eyebrow": "Disciplina",

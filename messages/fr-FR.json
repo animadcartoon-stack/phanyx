@@ -1178,6 +1178,61 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorDisciplineDetail": {
+    "eyebrow": "Discipline",
+    "noDescription": "Cette discipline ne possède pas encore de description.",
+    "notFound": {
+      "title": "Discipline introuvable",
+      "description": "Cette discipline n’a pas pu être localisée."
+    },
+    "students": {
+      "eyebrow": "Élèves",
+      "title": "Élèves inscrits",
+      "description": "Suivez les élèves associés à cette discipline ainsi que leurs notes.",
+      "empty": "Aucun élève inscrit.",
+      "grade": "Note : {grade}",
+      "approved": "Admis",
+      "failed": "Non admis",
+      "noGrade": "Sans note"
+    },
+    "exam": {
+      "eyebrow": "Évaluation",
+      "title": "Examen de la discipline",
+      "description": "Créez ou modifiez l’examen associé à cette discipline.",
+      "action": "Créer / modifier l’examen"
+    },
+    "newLesson": {
+      "eyebrow": "Cours",
+      "title": "Nouveau cours",
+      "description": "Ajoutez un nouveau cours à la discipline."
+    },
+    "lessons": {
+      "eyebrow": "Contenu",
+      "title": "Cours",
+      "empty": "Aucun cours n’a encore été créé."
+    },
+    "fields": {
+      "lessonTitle": "Titre du cours",
+      "lessonTitlePlaceholder": "Ex. : Introduction au contenu",
+      "videoUrl": "Lien de la vidéo",
+      "videoUrlPlaceholder": "https://youtube.com/..."
+    },
+    "actions": {
+      "back": "← Retour",
+      "addLesson": "Ajouter le cours",
+      "addingLesson": "Ajout...",
+      "openLesson": "Ouvrir le cours →"
+    },
+    "validation": {
+      "lessonTitleRequired": "Saisissez le titre du cours.",
+      "videoRequired": "Saisissez le lien de la vidéo.",
+      "invalidVideoUrl": "Saisissez une URL valide commençant par http:// ou https://."
+    },
+    "feedback": {
+      "lessonAdded": "Cours ajouté avec succès.",
+      "lessonAddError": "Le cours n’a pas pu être ajouté."
+    }
+  },
   "ProfessorNewDiscipline": {
     "back": "← Retour",
     "eyebrow": "Discipline",
