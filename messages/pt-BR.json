@@ -1178,6 +1178,42 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma acadêmica SaaS"
   },
+  "ProfessorEvaluationAttemptDetail": {
+    "eyebrow": "Avaliação",
+    "title": "Respostas do aluno",
+    "description": "Consulte as respostas enviadas pelo aluno nesta tentativa.",
+    "loading": "Carregando respostas...",
+    "errorTitle": "Erro",
+    "notFound": "Tentativa não encontrada.",
+    "studentFallback": "Aluno",
+    "examFallback": "-",
+    "questionNumber": "Questão {number}",
+    "fields": {
+      "student": "Aluno",
+      "exam": "Prova",
+      "studentAnswer": "Resposta do aluno",
+      "grade": "Nota"
+    },
+    "answer": {
+      "empty": "—"
+    },
+    "grade": {
+      "empty": "—"
+    },
+    "empty": {
+      "title": "Nenhuma resposta encontrada",
+      "description": "Esta tentativa ainda não possui respostas registradas."
+    },
+    "actions": {
+      "back": "← Voltar",
+      "retry": "Tentar novamente"
+    },
+    "feedback": {
+      "invalidAttempt": "Tentativa inválida.",
+      "loadError": "Erro ao carregar a tentativa.",
+      "invalidResponse": "Não foi possível interpretar os dados da tentativa."
+    }
+  },
   "ProfessorEvaluationsResults": {
     "eyebrow": "Avaliações",
     "title": "Resultados das provas",

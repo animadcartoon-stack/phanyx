@@ -1178,6 +1178,42 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorEvaluationAttemptDetail": {
+    "eyebrow": "Evaluation",
+    "title": "Student answers",
+    "description": "Review the answers submitted by the student in this attempt.",
+    "loading": "Loading answers...",
+    "errorTitle": "Error",
+    "notFound": "Attempt not found.",
+    "studentFallback": "Student",
+    "examFallback": "-",
+    "questionNumber": "Question {number}",
+    "fields": {
+      "student": "Student",
+      "exam": "Exam",
+      "studentAnswer": "Student answer",
+      "grade": "Grade"
+    },
+    "answer": {
+      "empty": "—"
+    },
+    "grade": {
+      "empty": "—"
+    },
+    "empty": {
+      "title": "No answers found",
+      "description": "This attempt does not have any recorded answers yet."
+    },
+    "actions": {
+      "back": "← Back",
+      "retry": "Try again"
+    },
+    "feedback": {
+      "invalidAttempt": "Invalid attempt.",
+      "loadError": "Error loading the attempt.",
+      "invalidResponse": "The attempt data could not be interpreted."
+    }
+  },
   "ProfessorEvaluationsResults": {
     "eyebrow": "Evaluations",
     "title": "Exam results",
