@@ -1178,6 +1178,45 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorSubmissions": {
+    "eyebrow": "Entregas",
+    "title": "Entregas de los alumnos",
+    "description": "Realice el seguimiento de las actividades enviadas por los alumnos y acceda a cada entrega para corregirla o revisar la corrección.",
+    "loading": "Cargando entregas...",
+    "activityFallback": "Actividad",
+    "studentFallback": "Alumno",
+    "studentFallbackWithId": "Alumno {id}",
+    "date": {
+      "notProvided": "Fecha no indicada"
+    },
+    "fields": {
+      "student": "Alumno",
+      "activity": "Actividad",
+      "submittedAt": "Entregado el"
+    },
+    "status": {
+      "corrected": "Corregida",
+      "pending": "Pendiente de corrección"
+    },
+    "grade": {
+      "withMaximum": "Calificación: {grade} / {maximum}",
+      "withoutMaximum": "Calificación: {grade}"
+    },
+    "empty": {
+      "title": "No se encontraron entregas",
+      "description": "Las entregas enviadas por los alumnos aparecerán aquí para su corrección."
+    },
+    "actions": {
+      "retry": "Intentar de nuevo",
+      "correct": "Corregir entrega",
+      "review": "Revisar corrección",
+      "viewActivity": "Ver actividad"
+    },
+    "feedback": {
+      "loadError": "Error al cargar las entregas.",
+      "invalidActivitiesResponse": "No se ha podido interpretar la lista de actividades."
+    }
+  },
   "ProfessorDisciplineExam": {
     "eyebrow": "Evaluación",
     "title": "Examen — {discipline}",

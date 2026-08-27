@@ -1,9 +1,29 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import Link from "next/link";
+import {
+  useLocale,
+  useTranslations,
+} from "next-intl";
 
-type EntregaDetalhe = {
+type AtividadeResumo = {
+  id: number;
+  titulo?: string | null;
+};
+
+type AlunoEntrega = {
+  id?: number | null;
+  nome?: string | null;
+  email?: string | null;
+};
+
+type EntregaApi = {
   id: number;
   texto?: string | null;
   link?: string | null;
@@ -12,299 +32,522 @@ type EntregaDetalhe = {
   feedback?: string | null;
   entregueEm?: string | null;
   corrigidaEm?: string | null;
-  aluno?: {
-    id: number;
-    nome?: string | null;
-  } | null;
-  atividade?: {
-    id: number;
-    titulo: string;
-    notaMaxima: number;
-  } | null;
+  aluno?: AlunoEntrega | null;
 };
 
-export default function ProfessorEntregaDetalhePage() {
-  const params = useParams();
-  const entregaId = params.entregaId as string;
+type AtividadeDetalhe = {
+  id: number;
+  titulo?: string | null;
+  notaMaxima?: number | null;
+  entregas?: EntregaApi[];
+};
 
-  const [entrega, setEntrega] = useState<EntregaDetalhe | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [erro, setErro] = useState("");
-  const [mensagem, setMensagem] = useState("");
+type EntregaLista = EntregaApi & {
+  atividadeId: number;
+  atividadeTitulo: string;
+  notaMaxima: number | null;
+};
 
-  const [nota, setNota] = useState("");
-  const [feedback, setFeedback] = useState("");
-  const [salvando, setSalvando] = useState(false);
+export default function ProfessorEntregasPage() {
+  const t = useTranslations(
+    "ProfessorSubmissions"
+  );
 
-  async function carregarEntrega() {
-    try {
-      setLoading(true);
-      setErro("");
+  const locale = useLocale();
 
-      const res = await fetch("/api/professor/atividades");
-      const json = await res.json();
+  const [
+    entregas,
+    setEntregas,
+  ] = useState<EntregaLista[]>(
+    []
+  );
 
-      if (!res.ok) {
-        throw new Error(json.error || "Erro ao carregar entregas");
-      }
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
 
-      let encontrada: any = null;
+  const [
+    erro,
+    setErro,
+  ] = useState("");
 
-      for (const atividade of json) {
-        const detalheRes = await fetch(`/api/professor/atividades/${atividade.id}`);
-        const detalheJson = await detalheRes.json();
+  const formatadorNumero =
+    useMemo(
+      () =>
+        new Intl.NumberFormat(
+          locale,
+          {
+            maximumFractionDigits: 2,
+          }
+        ),
+      [locale]
+    );
 
-        if (!detalheRes.ok) continue;
-
-        const entregaEncontrada = (detalheJson.entregas || []).find(
-          (item: any) => String(item.id) === String(entregaId)
-        );
-
-        if (entregaEncontrada) {
-          encontrada = {
-            ...entregaEncontrada,
-            atividade: {
-              id: detalheJson.id,
-              titulo: detalheJson.titulo,
-              notaMaxima: detalheJson.notaMaxima,
-            },
-          };
-          break;
-        }
-      }
-
-      if (!encontrada) {
-        throw new Error("Entrega não encontrada");
-      }
-
-      setEntrega(encontrada);
-      setNota(
-        encontrada.nota !== null && encontrada.nota !== undefined
-          ? String(encontrada.nota)
-          : ""
+  function formatarData(
+    valor?: string | null
+  ) {
+    if (!valor) {
+      return t(
+        "date.notProvided"
       );
-      setFeedback(encontrada.feedback || "");
-    } catch (e: any) {
-      setErro(e.message || "Erro ao carregar entrega");
-    } finally {
-      setLoading(false);
     }
+
+    const data = new Date(
+      valor
+    );
+
+    if (
+      Number.isNaN(
+        data.getTime()
+      )
+    ) {
+      return t(
+        "date.notProvided"
+      );
+    }
+
+    return new Intl.DateTimeFormat(
+      locale,
+      {
+        dateStyle: "medium",
+        timeStyle: "short",
+      }
+    ).format(data);
   }
+
+  function nomeAluno(
+    entrega: EntregaLista
+  ) {
+    const nome =
+      entrega.aluno?.nome?.trim();
+
+    if (nome) {
+      return nome;
+    }
+
+    const email =
+      entrega.aluno?.email?.trim();
+
+    if (email) {
+      return email;
+    }
+
+    if (
+      entrega.aluno?.id
+    ) {
+      return t(
+        "studentFallbackWithId",
+        {
+          id:
+            entrega.aluno.id,
+        }
+      );
+    }
+
+    return t(
+      "studentFallback"
+    );
+  }
+
+  const carregarEntregas =
+    useCallback(
+      async () => {
+        try {
+          setLoading(true);
+          setErro("");
+
+          const resAtividades =
+            await fetch(
+              "/api/professor/atividades",
+              {
+                credentials:
+                  "include",
+                cache:
+                  "no-store",
+              }
+            );
+
+          if (
+            !resAtividades.ok
+          ) {
+            throw new Error(
+              t(
+                "feedback.loadError"
+              )
+            );
+          }
+
+          const atividadesJson =
+            await resAtividades.json();
+
+          if (
+            !Array.isArray(
+              atividadesJson
+            )
+          ) {
+            throw new Error(
+              t(
+                "feedback.invalidActivitiesResponse"
+              )
+            );
+          }
+
+          const atividades =
+            atividadesJson as AtividadeResumo[];
+
+          const detalhes =
+            await Promise.all(
+              atividades.map(
+                async (
+                  atividade
+                ) => {
+                  try {
+                    const res =
+                      await fetch(
+                        `/api/professor/atividades/${atividade.id}`,
+                        {
+                          credentials:
+                            "include",
+                          cache:
+                            "no-store",
+                        }
+                      );
+
+                    if (
+                      !res.ok
+                    ) {
+                      return null;
+                    }
+
+                    const json =
+                      await res.json();
+
+                    if (
+                      !json ||
+                      typeof json !==
+                        "object"
+                    ) {
+                      return null;
+                    }
+
+                    return json as AtividadeDetalhe;
+                  } catch {
+                    return null;
+                  }
+                }
+              )
+            );
+
+          const lista:
+            EntregaLista[] =
+            [];
+
+          for (
+            const detalhe of
+            detalhes
+          ) {
+            if (
+              !detalhe ||
+              !Array.isArray(
+                detalhe.entregas
+              )
+            ) {
+              continue;
+            }
+
+            const atividadeTitulo =
+              detalhe.titulo?.trim() ||
+              t(
+                "activityFallback"
+              );
+
+            for (
+              const entrega of
+              detalhe.entregas
+            ) {
+              if (
+                !entrega ||
+                typeof entrega.id !==
+                  "number"
+              ) {
+                continue;
+              }
+
+              lista.push({
+                ...entrega,
+
+                atividadeId:
+                  detalhe.id,
+
+                atividadeTitulo,
+
+                notaMaxima:
+                  typeof detalhe.notaMaxima ===
+                  "number"
+                    ? detalhe.notaMaxima
+                    : null,
+              });
+            }
+          }
+
+          lista.sort(
+            (
+              anterior,
+              posterior
+            ) => {
+              const dataAnterior =
+                anterior.entregueEm
+                  ? new Date(
+                      anterior.entregueEm
+                    ).getTime()
+                  : 0;
+
+              const dataPosterior =
+                posterior.entregueEm
+                  ? new Date(
+                      posterior.entregueEm
+                    ).getTime()
+                  : 0;
+
+              return (
+                dataPosterior -
+                dataAnterior
+              );
+            }
+          );
+
+          setEntregas(lista);
+        } catch (
+          error: unknown
+        ) {
+          const mensagem =
+            error instanceof Error
+              ? error.message
+              : t(
+                  "feedback.loadError"
+                );
+
+          setErro(mensagem);
+          setEntregas([]);
+        } finally {
+          setLoading(false);
+        }
+      },
+      [t]
+    );
 
   useEffect(() => {
-    carregarEntrega();
-  }, [entregaId]);
-
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-
-    try {
-      setSalvando(true);
-      setErro("");
-      setMensagem("");
-
-      const res = await fetch(
-        `/api/professor/entregas/${entregaId}/corrigir`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            nota,
-            feedback,
-          }),
-        }
-      );
-
-      const json = await res.json();
-
-      if (!res.ok) {
-        throw new Error(json.error || "Erro ao corrigir entrega");
-      }
-
-      setMensagem("Entrega corrigida com sucesso.");
-      await carregarEntrega();
-    } catch (e: any) {
-      setErro(e.message || "Erro ao corrigir entrega");
-    } finally {
-      setSalvando(false);
-    }
-  }
-
-  function formatarData(data?: string | null) {
-    if (!data) return "Sem data";
-
-    try {
-      return new Date(data).toLocaleString("pt-BR");
-    } catch {
-      return data;
-    }
-  }
+    void carregarEntregas();
+  }, [carregarEntregas]);
 
   return (
-    <div className="p-6">
-      <div className="mx-auto max-w-4xl space-y-6">
-        <div className="rounded-2xl border bg-white p-6 shadow-sm">
-          <a
-            href="/professor/atividades"
-            className="inline-block text-sm font-medium text-gray-500 hover:text-gray-700"
-          >
-            ← Voltar para atividades
-          </a>
-        </div>
+    <div className="space-y-6 p-6 text-slate-900 dark:text-slate-100">
+      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-700 dark:text-blue-400">
+          {t("eyebrow")}
+        </p>
 
-        {loading && (
-          <div className="rounded-2xl border bg-white p-6 text-sm text-gray-500 shadow-sm">
-            Carregando entrega...
-          </div>
-        )}
+        <h1 className="mt-2 text-2xl font-black text-slate-900 dark:text-white">
+          {t("title")}
+        </h1>
 
-        {!loading && erro && (
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 shadow-sm">
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">
+          {t(
+            "description"
+          )}
+        </p>
+      </section>
+
+      {erro && (
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-5 shadow-sm dark:border-red-800 dark:bg-red-950/40">
+          <p className="text-sm font-semibold text-red-700 dark:text-red-300">
             {erro}
+          </p>
+
+          <button
+            type="button"
+            onClick={() =>
+              void carregarEntregas()
+            }
+            className="mt-3 rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700"
+          >
+            {t(
+              "actions.retry"
+            )}
+          </button>
+        </div>
+      )}
+
+      {loading && !erro && (
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 text-sm text-slate-500 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
+          {t("loading")}
+        </div>
+      )}
+
+      {!loading &&
+        !erro &&
+        entregas.length ===
+          0 && (
+          <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 text-2xl dark:bg-slate-950">
+              📥
+            </div>
+
+            <p className="mt-4 font-bold text-slate-900 dark:text-white">
+              {t(
+                "empty.title"
+              )}
+            </p>
+
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              {t(
+                "empty.description"
+              )}
+            </p>
           </div>
         )}
 
-        {!loading && !erro && entrega && (
-          <>
-            <div className="rounded-2xl border bg-white p-6 shadow-sm">
-              <div className="space-y-3">
-                <h1 className="text-2xl font-bold text-gray-900">
-                  Correção da entrega
-                </h1>
+      {!loading &&
+        !erro &&
+        entregas.length > 0 && (
+          <div className="space-y-4">
+            {entregas.map(
+              (entrega) => {
+                const corrigida =
+                  entrega.corrigidaEm !==
+                    null &&
+                  entrega.corrigidaEm !==
+                    undefined;
 
-                <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-gray-500">
-                  <span>
-                    <strong className="font-medium text-gray-700">
-                      Atividade:
-                    </strong>{" "}
-                    {entrega.atividade?.titulo}
-                  </span>
-
-                  <span>
-                    <strong className="font-medium text-gray-700">
-                      Aluno:
-                    </strong>{" "}
-                    {entrega.aluno?.nome || `Aluno ${entrega.aluno?.id ?? ""}`}
-                  </span>
-
-                  <span>
-                    <strong className="font-medium text-gray-700">
-                      Entregue em:
-                    </strong>{" "}
-                    {formatarData(entrega.entregueEm)}
-                  </span>
-
-                  <span>
-                    <strong className="font-medium text-gray-700">
-                      Nota máxima:
-                    </strong>{" "}
-                    {entrega.atividade?.notaMaxima ?? "-"}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-2xl border bg-white p-6 shadow-sm space-y-4">
-              {entrega.texto && (
-                <div className="rounded-lg bg-gray-50 p-4 text-sm text-gray-700">
-                  <strong className="font-medium text-gray-800">Texto:</strong>
-                  <p className="mt-2 whitespace-pre-wrap">{entrega.texto}</p>
-                </div>
-              )}
-
-              <div className="flex flex-wrap gap-3 text-sm">
-                {entrega.link && (
-                  <a
-                    href={entrega.link}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="rounded-lg border px-3 py-2 font-medium text-gray-700 hover:bg-gray-50"
+                return (
+                  <article
+                    key={
+                      entrega.id
+                    }
+                    className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-blue-300 hover:shadow-md dark:border-slate-700 dark:bg-slate-900 dark:hover:border-blue-700"
                   >
-                    Abrir link
-                  </a>
-                )}
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400 dark:text-slate-500">
+                          {t(
+                            "fields.student"
+                          )}
+                        </p>
 
-                {entrega.arquivoUrl && (
-                  <a
-                    href={entrega.arquivoUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="rounded-lg border px-3 py-2 font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    Abrir arquivo
-                  </a>
-                )}
-              </div>
-            </div>
+                        <h2 className="mt-1 text-lg font-black text-slate-900 dark:text-white">
+                          {nomeAluno(
+                            entrega
+                          )}
+                        </h2>
 
-            <form
-              onSubmit={handleSubmit}
-              className="space-y-6 rounded-2xl border bg-white p-6 shadow-sm"
-            >
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Corrigir entrega
-                </h2>
-                <p className="mt-1 text-sm text-gray-500">
-                  Informe a nota e o feedback do aluno.
-                </p>
-              </div>
+                        <div className="mt-3 space-y-1 text-sm text-slate-600 dark:text-slate-300">
+                          <p>
+                            <strong className="font-semibold text-slate-800 dark:text-slate-100">
+                              {t(
+                                "fields.activity"
+                              )}
+                              :
+                            </strong>{" "}
+                            {
+                              entrega.atividadeTitulo
+                            }
+                          </p>
 
-              {mensagem && (
-                <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
-                  {mensagem}
-                </div>
-              )}
+                          <p>
+                            <strong className="font-semibold text-slate-800 dark:text-slate-100">
+                              {t(
+                                "fields.submittedAt"
+                              )}
+                              :
+                            </strong>{" "}
+                            {formatarData(
+                              entrega.entregueEm
+                            )}
+                          </p>
+                        </div>
+                      </div>
 
-              {erro && (
-                <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                  {erro}
-                </div>
-              )}
+                      <div className="flex flex-wrap gap-2 sm:justify-end">
+                        <span
+                          className={`rounded-full border px-3 py-1 text-xs font-bold ${
+                            corrigida
+                              ? "border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-950/40 dark:text-green-300"
+                              : "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300"
+                          }`}
+                        >
+                          {corrigida
+                            ? t(
+                                "status.corrected"
+                              )
+                            : t(
+                                "status.pending"
+                              )}
+                        </span>
 
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Nota
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.1"
-                  value={nota}
-                  onChange={(e) => setNota(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
-                  placeholder="Ex.: 8.5"
-                />
-              </div>
+                        {entrega.nota !==
+                          null &&
+                          entrega.nota !==
+                            undefined && (
+                          <span className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300">
+                            {entrega.notaMaxima !==
+                            null
+                              ? t(
+                                  "grade.withMaximum",
+                                  {
+                                    grade:
+                                      formatadorNumero.format(
+                                        entrega.nota
+                                      ),
+                                    maximum:
+                                      formatadorNumero.format(
+                                        entrega.notaMaxima
+                                      ),
+                                  }
+                                )
+                              : t(
+                                  "grade.withoutMaximum",
+                                  {
+                                    grade:
+                                      formatadorNumero.format(
+                                        entrega.nota
+                                      ),
+                                  }
+                                )}
+                          </span>
+                        )}
+                      </div>
+                    </div>
 
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Feedback
-                </label>
-                <textarea
-                  value={feedback}
-                  onChange={(e) => setFeedback(e.target.value)}
-                  rows={5}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
-                  placeholder="Escreva um feedback para o aluno"
-                />
-              </div>
+                    <div className="mt-5 flex flex-wrap gap-3">
+                      <Link
+                        href={`/professor/entregas/${entrega.id}`}
+                        className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+                      >
+                        {corrigida
+                          ? t(
+                              "actions.review"
+                            )
+                          : t(
+                              "actions.correct"
+                            )}
+                      </Link>
 
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  disabled={salvando}
-                  className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-                >
-                  {salvando ? "Salvando..." : "Salvar correção"}
-                </button>
-              </div>
-            </form>
-          </>
+                      <Link
+                        href={`/professor/atividades/${entrega.atividadeId}`}
+                        className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                      >
+                        {t(
+                          "actions.viewActivity"
+                        )}
+                      </Link>
+                    </div>
+                  </article>
+                );
+              }
+            )}
+          </div>
         )}
-      </div>
     </div>
   );
 }

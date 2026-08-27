@@ -1178,6 +1178,45 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorSubmissions": {
+    "eyebrow": "Submissions",
+    "title": "Student submissions",
+    "description": "Track the activities submitted by students and open each submission to grade or review it.",
+    "loading": "Loading submissions...",
+    "activityFallback": "Activity",
+    "studentFallback": "Student",
+    "studentFallbackWithId": "Student {id}",
+    "date": {
+      "notProvided": "Date not provided"
+    },
+    "fields": {
+      "student": "Student",
+      "activity": "Activity",
+      "submittedAt": "Submitted at"
+    },
+    "status": {
+      "corrected": "Graded",
+      "pending": "Awaiting grading"
+    },
+    "grade": {
+      "withMaximum": "Grade: {grade} / {maximum}",
+      "withoutMaximum": "Grade: {grade}"
+    },
+    "empty": {
+      "title": "No submissions found",
+      "description": "Submissions sent by students will appear here for grading."
+    },
+    "actions": {
+      "retry": "Try again",
+      "correct": "Grade submission",
+      "review": "Review grading",
+      "viewActivity": "View activity"
+    },
+    "feedback": {
+      "loadError": "Error loading submissions.",
+      "invalidActivitiesResponse": "The activity list could not be interpreted."
+    }
+  },
   "ProfessorDisciplineExam": {
     "eyebrow": "Evaluation",
     "title": "Exam — {discipline}",

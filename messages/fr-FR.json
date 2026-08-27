@@ -1178,6 +1178,45 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorSubmissions": {
+    "eyebrow": "Remises",
+    "title": "Travaux remis par les élèves",
+    "description": "Suivez les activités remises par les élèves et ouvrez chaque remise pour la corriger ou revoir la correction.",
+    "loading": "Chargement des remises...",
+    "activityFallback": "Activité",
+    "studentFallback": "Élève",
+    "studentFallbackWithId": "Élève {id}",
+    "date": {
+      "notProvided": "Date non renseignée"
+    },
+    "fields": {
+      "student": "Élève",
+      "activity": "Activité",
+      "submittedAt": "Remis le"
+    },
+    "status": {
+      "corrected": "Corrigée",
+      "pending": "En attente de correction"
+    },
+    "grade": {
+      "withMaximum": "Note : {grade} / {maximum}",
+      "withoutMaximum": "Note : {grade}"
+    },
+    "empty": {
+      "title": "Aucune remise trouvée",
+      "description": "Les travaux remis par les élèves apparaîtront ici pour être corrigés."
+    },
+    "actions": {
+      "retry": "Réessayer",
+      "correct": "Corriger la remise",
+      "review": "Revoir la correction",
+      "viewActivity": "Voir l’activité"
+    },
+    "feedback": {
+      "loadError": "Erreur lors du chargement des remises.",
+      "invalidActivitiesResponse": "La liste des activités n’a pas pu être interprétée."
+    }
+  },
   "ProfessorDisciplineExam": {
     "eyebrow": "Évaluation",
     "title": "Examen — {discipline}",
