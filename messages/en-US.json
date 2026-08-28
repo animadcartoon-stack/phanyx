@@ -1178,6 +1178,40 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorProgress": {
+    "eyebrow": "Academic progress",
+    "title": "Student progress",
+    "description": "Track the academic modules related to student development and access real class and student data.",
+    "integration": {
+      "title": "Progress integration in preparation",
+      "description": "This page does not yet have a complete academic link for recording each student’s individual progress. To avoid fictional information or data saved only in the browser, use the integrated areas available below."
+    },
+    "available": {
+      "title": "Available areas",
+      "description": "View the modules that already work with real students and classes.",
+      "classes": {
+        "title": "Classes",
+        "description": "Access your classes, enrolled students, and related academic information.",
+        "action": "View classes"
+      },
+      "students": {
+        "title": "Students",
+        "description": "View the students linked to the professor and access their available records.",
+        "action": "View students"
+      }
+    },
+    "progress": {
+      "title": "Progress tracking",
+      "description": "Individual progress will appear in this area when it is correctly linked to the student, course, and academic period.",
+      "emptyTitle": "No consolidated progress available",
+      "emptyDescription": "For now, view student and class data directly in the available academic modules."
+    },
+    "actions": {
+      "viewClasses": "View classes",
+      "viewStudents": "View students"
+    },
+    "safetyNotice": "No fictional progress or progress without an academic link will be saved by this page."
+  },
   "ProfessorStudentGrade": {
     "eyebrow": "Grade entry",
     "title": "Student grade",

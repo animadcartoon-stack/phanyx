@@ -1178,6 +1178,40 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorProgress": {
+    "eyebrow": "Progression académique",
+    "title": "Progression des élèves",
+    "description": "Suivez les modules académiques liés au développement des élèves et accédez aux données réelles des classes et des étudiants.",
+    "integration": {
+      "title": "Intégration du suivi en préparation",
+      "description": "Cette page ne dispose pas encore d’un lien académique complet permettant d’enregistrer la progression individuelle de chaque élève. Afin d’éviter des informations fictives ou des données enregistrées uniquement dans le navigateur, utilisez les espaces intégrés disponibles ci-dessous."
+    },
+    "available": {
+      "title": "Espaces disponibles",
+      "description": "Consultez les modules qui travaillent déjà avec des élèves et des classes réels.",
+      "classes": {
+        "title": "Classes",
+        "description": "Accédez à vos classes, aux élèves inscrits et aux informations académiques associées.",
+        "action": "Voir les classes"
+      },
+      "students": {
+        "title": "Élèves",
+        "description": "Consultez les élèves associés au professeur et accédez à leurs dossiers disponibles.",
+        "action": "Voir les élèves"
+      }
+    },
+    "progress": {
+      "title": "Suivi de la progression",
+      "description": "La progression individuelle apparaîtra dans cet espace lorsqu’elle sera correctement associée à l’élève, au cours et à la période académique.",
+      "emptyTitle": "Aucune progression consolidée disponible",
+      "emptyDescription": "Pour le moment, consultez les données des élèves et des classes directement dans les modules académiques disponibles."
+    },
+    "actions": {
+      "viewClasses": "Voir les classes",
+      "viewStudents": "Voir les élèves"
+    },
+    "safetyNotice": "Aucune progression fictive ou sans lien académique ne sera enregistrée par cette page."
+  },
   "ProfessorStudentGrade": {
     "eyebrow": "Saisie de note",
     "title": "Note de l’élève",

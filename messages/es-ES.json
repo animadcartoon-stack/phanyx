@@ -1178,6 +1178,40 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorProgress": {
+    "eyebrow": "Progreso académico",
+    "title": "Progreso de los alumnos",
+    "description": "Supervise los módulos académicos relacionados con el desarrollo de los alumnos y acceda a datos reales de clases y estudiantes.",
+    "integration": {
+      "title": "Integración de progreso en preparación",
+      "description": "Esta página todavía no cuenta con una vinculación académica completa para registrar el progreso individual de cada alumno. Para evitar información ficticia o datos guardados únicamente en el navegador, utilice las áreas integradas disponibles a continuación."
+    },
+    "available": {
+      "title": "Áreas disponibles",
+      "description": "Consulte los módulos que ya trabajan con alumnos y clases reales.",
+      "classes": {
+        "title": "Clases",
+        "description": "Acceda a sus clases, alumnos vinculados y demás información académica relacionada.",
+        "action": "Ver clases"
+      },
+      "students": {
+        "title": "Alumnos",
+        "description": "Consulte los alumnos vinculados al profesor y acceda a sus registros disponibles.",
+        "action": "Ver alumnos"
+      }
+    },
+    "progress": {
+      "title": "Seguimiento del progreso",
+      "description": "El progreso individual aparecerá en esta área cuando esté correctamente vinculado al alumno, curso y período académico.",
+      "emptyTitle": "No hay progreso consolidado disponible",
+      "emptyDescription": "Por ahora, consulte los datos de los alumnos y las clases directamente en los módulos académicos disponibles."
+    },
+    "actions": {
+      "viewClasses": "Ver clases",
+      "viewStudents": "Ver alumnos"
+    },
+    "safetyNotice": "Esta página no guardará ningún progreso ficticio ni sin vinculación académica."
+  },
   "ProfessorStudentGrade": {
     "eyebrow": "Registro de calificación",
     "title": "Calificación del alumno",

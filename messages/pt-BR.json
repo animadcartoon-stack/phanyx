@@ -1178,6 +1178,40 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma acadêmica SaaS"
   },
+  "ProfessorProgress": {
+    "eyebrow": "Progresso acadêmico",
+    "title": "Progresso dos alunos",
+    "description": "Acompanhe os módulos acadêmicos relacionados ao desenvolvimento dos alunos e acesse os dados reais de turmas e estudantes.",
+    "integration": {
+      "title": "Integração de progresso em preparação",
+      "description": "Esta página ainda não possui um vínculo acadêmico completo para registrar o progresso individual de cada aluno. Para evitar informações fictícias ou salvas apenas no navegador, utilize as áreas integradas disponíveis abaixo."
+    },
+    "available": {
+      "title": "Áreas disponíveis",
+      "description": "Consulte os módulos que já trabalham com alunos e turmas reais.",
+      "classes": {
+        "title": "Turmas",
+        "description": "Acesse suas turmas, alunos vinculados e informações acadêmicas relacionadas.",
+        "action": "Ver turmas"
+      },
+      "students": {
+        "title": "Alunos",
+        "description": "Consulte os alunos vinculados ao professor e acesse seus registros disponíveis.",
+        "action": "Ver alunos"
+      }
+    },
+    "progress": {
+      "title": "Acompanhamento de progresso",
+      "description": "O progresso individual será exibido nesta área quando estiver corretamente vinculado ao aluno, curso e período acadêmico.",
+      "emptyTitle": "Nenhum progresso consolidado disponível",
+      "emptyDescription": "No momento, consulte os dados dos alunos e das turmas diretamente nos módulos acadêmicos disponíveis."
+    },
+    "actions": {
+      "viewClasses": "Ver turmas",
+      "viewStudents": "Ver alunos"
+    },
+    "safetyNotice": "Nenhum progresso fictício ou sem vínculo acadêmico será salvo por esta página."
+  },
   "ProfessorStudentGrade": {
     "eyebrow": "Lançamento de nota",
     "title": "Nota do aluno",
