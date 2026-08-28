@@ -1178,6 +1178,73 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma acadêmica SaaS"
   },
+  "ProfessorClassGradebook": {
+    "eyebrow": "Boletim acadêmico",
+    "title": "Boletim da turma {className}",
+    "loading": "Carregando boletim...",
+    "errorTitle": "Erro ao carregar o boletim",
+    "notFound": "Boletim não encontrado.",
+    "description": "Consulte notas, status e desempenho dos alunos. Use a busca e os filtros para encontrar rapidamente alunos em turmas grandes.",
+    "exportHelp": "Arquivo CSV. Use o Excel para visualizar corretamente.",
+    "common": {
+      "notProvided": "—"
+    },
+    "disciplines": {
+      "count": "{count} disciplina(s)",
+      "linked": "Disciplinas vinculadas à turma",
+      "show": "Ver disciplinas da turma",
+      "empty": "Nenhuma disciplina informada."
+    },
+    "summary": {
+      "totalStudents": "Total de alunos",
+      "classAverage": "Média da turma",
+      "highestGrade": "Melhor nota",
+      "lowestGrade": "Pior nota"
+    },
+    "students": {
+      "title": "Alunos",
+      "displaying": "Exibindo {filtered} de {total} aluno(s).",
+      "emptyFiltered": "Nenhum aluno encontrado com os filtros atuais."
+    },
+    "search": {
+      "label": "Buscar alunos",
+      "placeholder": "Buscar por aluno, e-mail, nota ou status..."
+    },
+    "filters": {
+      "all": "Todos ({count})",
+      "noExam": "Sem prova ({count})",
+      "approved": "Aprovados ({count})",
+      "failed": "Reprovados ({count})"
+    },
+    "status": {
+      "approved": "Aprovado",
+      "failed": "Reprovado",
+      "noExam": "Sem prova",
+      "unknown": "Não informado"
+    },
+    "table": {
+      "student": "Aluno",
+      "email": "E-mail",
+      "grade": "Nota",
+      "status": "Status",
+      "studentId": "ID do aluno: {id}"
+    },
+    "pagination": {
+      "page": "Página {current} de {total}",
+      "previous": "Anterior",
+      "next": "Próxima"
+    },
+    "actions": {
+      "back": "← Voltar",
+      "retry": "Tentar novamente",
+      "exportCsv": "⬇ Exportar para Excel"
+    },
+    "feedback": {
+      "invalidClass": "Turma inválida.",
+      "loadError": "Erro ao carregar o boletim.",
+      "invalidResponse": "Não foi possível interpretar os dados do boletim."
+    }
+  },
   "ProfessorClassAttendance": {
     "eyebrow": "Presenças",
     "title": "Chamada da aula",

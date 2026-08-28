@@ -1178,6 +1178,73 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorClassGradebook": {
+    "eyebrow": "Boletín académico",
+    "title": "Boletín de la clase {className}",
+    "loading": "Cargando boletín...",
+    "errorTitle": "Error al cargar el boletín",
+    "notFound": "Boletín no encontrado.",
+    "description": "Consulte las calificaciones, el estado y el rendimiento de los alumnos. Utilice la búsqueda y los filtros para encontrar rápidamente alumnos en clases numerosas.",
+    "exportHelp": "Archivo CSV. Utilice Excel para visualizarlo correctamente.",
+    "common": {
+      "notProvided": "—"
+    },
+    "disciplines": {
+      "count": "{count} disciplina(s)",
+      "linked": "Disciplinas vinculadas a la clase",
+      "show": "Ver disciplinas de la clase",
+      "empty": "No se ha informado ninguna disciplina."
+    },
+    "summary": {
+      "totalStudents": "Total de alumnos",
+      "classAverage": "Promedio de la clase",
+      "highestGrade": "Mejor calificación",
+      "lowestGrade": "Calificación más baja"
+    },
+    "students": {
+      "title": "Alumnos",
+      "displaying": "Mostrando {filtered} de {total} alumno(s).",
+      "emptyFiltered": "No se han encontrado alumnos con los filtros actuales."
+    },
+    "search": {
+      "label": "Buscar alumnos",
+      "placeholder": "Buscar por alumno, correo electrónico, calificación o estado..."
+    },
+    "filters": {
+      "all": "Todos ({count})",
+      "noExam": "Sin examen ({count})",
+      "approved": "Aprobados ({count})",
+      "failed": "Reprobados ({count})"
+    },
+    "status": {
+      "approved": "Aprobado",
+      "failed": "Reprobado",
+      "noExam": "Sin examen",
+      "unknown": "No informado"
+    },
+    "table": {
+      "student": "Alumno",
+      "email": "Correo electrónico",
+      "grade": "Calificación",
+      "status": "Estado",
+      "studentId": "ID del alumno: {id}"
+    },
+    "pagination": {
+      "page": "Página {current} de {total}",
+      "previous": "Anterior",
+      "next": "Siguiente"
+    },
+    "actions": {
+      "back": "← Volver",
+      "retry": "Intentar de nuevo",
+      "exportCsv": "⬇ Exportar a Excel"
+    },
+    "feedback": {
+      "invalidClass": "Clase no válida.",
+      "loadError": "Error al cargar el boletín.",
+      "invalidResponse": "No se han podido interpretar los datos del boletín."
+    }
+  },
   "ProfessorClassAttendance": {
     "eyebrow": "Asistencia",
     "title": "Asistencia de la clase",

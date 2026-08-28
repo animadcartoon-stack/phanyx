@@ -1178,6 +1178,73 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorClassGradebook": {
+    "eyebrow": "Academic gradebook",
+    "title": "Gradebook for class {className}",
+    "loading": "Loading gradebook...",
+    "errorTitle": "Error loading gradebook",
+    "notFound": "Gradebook not found.",
+    "description": "Review student grades, status, and performance. Use search and filters to quickly find students in large classes.",
+    "exportHelp": "CSV file. Use Excel to view it correctly.",
+    "common": {
+      "notProvided": "—"
+    },
+    "disciplines": {
+      "count": "{count} discipline(s)",
+      "linked": "Disciplines linked to this class",
+      "show": "View class disciplines",
+      "empty": "No disciplines provided."
+    },
+    "summary": {
+      "totalStudents": "Total students",
+      "classAverage": "Class average",
+      "highestGrade": "Highest grade",
+      "lowestGrade": "Lowest grade"
+    },
+    "students": {
+      "title": "Students",
+      "displaying": "Showing {filtered} of {total} student(s).",
+      "emptyFiltered": "No students found with the current filters."
+    },
+    "search": {
+      "label": "Search students",
+      "placeholder": "Search by student, email, grade, or status..."
+    },
+    "filters": {
+      "all": "All ({count})",
+      "noExam": "No exam ({count})",
+      "approved": "Passed ({count})",
+      "failed": "Failed ({count})"
+    },
+    "status": {
+      "approved": "Passed",
+      "failed": "Failed",
+      "noExam": "No exam",
+      "unknown": "Not provided"
+    },
+    "table": {
+      "student": "Student",
+      "email": "Email",
+      "grade": "Grade",
+      "status": "Status",
+      "studentId": "Student ID: {id}"
+    },
+    "pagination": {
+      "page": "Page {current} of {total}",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "actions": {
+      "back": "← Back",
+      "retry": "Try again",
+      "exportCsv": "⬇ Export to Excel"
+    },
+    "feedback": {
+      "invalidClass": "Invalid class.",
+      "loadError": "Error loading gradebook.",
+      "invalidResponse": "The gradebook data could not be interpreted."
+    }
+  },
   "ProfessorClassAttendance": {
     "eyebrow": "Attendance",
     "title": "Lesson attendance",

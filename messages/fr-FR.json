@@ -1178,6 +1178,73 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorClassGradebook": {
+    "eyebrow": "Bulletin académique",
+    "title": "Bulletin de la classe {className}",
+    "loading": "Chargement du bulletin...",
+    "errorTitle": "Erreur lors du chargement du bulletin",
+    "notFound": "Bulletin introuvable.",
+    "description": "Consultez les notes, les statuts et les performances des élèves. Utilisez la recherche et les filtres pour retrouver rapidement les élèves dans les classes nombreuses.",
+    "exportHelp": "Fichier CSV. Utilisez Excel pour l’afficher correctement.",
+    "common": {
+      "notProvided": "—"
+    },
+    "disciplines": {
+      "count": "{count} discipline(s)",
+      "linked": "Disciplines associées à la classe",
+      "show": "Voir les disciplines de la classe",
+      "empty": "Aucune discipline indiquée."
+    },
+    "summary": {
+      "totalStudents": "Nombre total d’élèves",
+      "classAverage": "Moyenne de la classe",
+      "highestGrade": "Meilleure note",
+      "lowestGrade": "Note la plus basse"
+    },
+    "students": {
+      "title": "Élèves",
+      "displaying": "Affichage de {filtered} élève(s) sur {total}.",
+      "emptyFiltered": "Aucun élève trouvé avec les filtres actuels."
+    },
+    "search": {
+      "label": "Rechercher des élèves",
+      "placeholder": "Rechercher par élève, e-mail, note ou statut..."
+    },
+    "filters": {
+      "all": "Tous ({count})",
+      "noExam": "Sans épreuve ({count})",
+      "approved": "Admis ({count})",
+      "failed": "Échoués ({count})"
+    },
+    "status": {
+      "approved": "Admis",
+      "failed": "Échoué",
+      "noExam": "Sans épreuve",
+      "unknown": "Non renseigné"
+    },
+    "table": {
+      "student": "Élève",
+      "email": "E-mail",
+      "grade": "Note",
+      "status": "Statut",
+      "studentId": "ID de l’élève : {id}"
+    },
+    "pagination": {
+      "page": "Page {current} sur {total}",
+      "previous": "Précédente",
+      "next": "Suivante"
+    },
+    "actions": {
+      "back": "← Retour",
+      "retry": "Réessayer",
+      "exportCsv": "⬇ Exporter vers Excel"
+    },
+    "feedback": {
+      "invalidClass": "Classe non valide.",
+      "loadError": "Erreur lors du chargement du bulletin.",
+      "invalidResponse": "Les données du bulletin n’ont pas pu être interprétées."
+    }
+  },
   "ProfessorClassAttendance": {
     "eyebrow": "Présences",
     "title": "Présences du cours",
