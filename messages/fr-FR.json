@@ -1178,6 +1178,22 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorLayout": {
+    "logout": "Se déconnecter",
+    "mobileNav": {
+      "ariaLabel": "Navigation principale du professeur",
+      "dashboard": "Tableau de bord",
+      "classes": "Classes",
+      "substitutions": "Remplacements",
+      "students": "Élèves",
+      "lessons": "Cours",
+      "activities": "Activités",
+      "assessments": "Évaluations",
+      "assignments": "Travaux",
+      "meetings": "Réunions",
+      "ombudsman": "Médiation"
+    }
+  },
   "ProfessorClassGradebook": {
     "eyebrow": "Bulletin académique",
     "title": "Bulletin de la classe {className}",

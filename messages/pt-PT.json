@@ -1178,6 +1178,22 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorLayout": {
+    "logout": "Sair",
+    "mobileNav": {
+      "ariaLabel": "Navegação principal do professor",
+      "dashboard": "Painel",
+      "classes": "Turmas",
+      "substitutions": "Substituições",
+      "students": "Alunos",
+      "lessons": "Aulas",
+      "activities": "Atividades",
+      "assessments": "Avaliações",
+      "assignments": "Trabalhos",
+      "meetings": "Reuniões",
+      "ombudsman": "Provedoria"
+    }
+  },
   "ProfessorClassGradebook": {
     "eyebrow": "Boletim académico",
     "title": "Boletim da turma {className}",

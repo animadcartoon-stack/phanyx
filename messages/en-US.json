@@ -1178,6 +1178,22 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorLayout": {
+    "logout": "Log out",
+    "mobileNav": {
+      "ariaLabel": "Professor main navigation",
+      "dashboard": "Dashboard",
+      "classes": "Classes",
+      "substitutions": "Substitutions",
+      "students": "Students",
+      "lessons": "Lessons",
+      "activities": "Activities",
+      "assessments": "Assessments",
+      "assignments": "Assignments",
+      "meetings": "Meetings",
+      "ombudsman": "Ombudsman"
+    }
+  },
   "ProfessorClassGradebook": {
     "eyebrow": "Academic gradebook",
     "title": "Gradebook for class {className}",
