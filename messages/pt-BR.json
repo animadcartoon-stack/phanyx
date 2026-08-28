@@ -1178,6 +1178,86 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma acadêmica SaaS"
   },
+  "ProfessorClassAttendance": {
+    "eyebrow": "Presenças",
+    "title": "Chamada da aula",
+    "loading": "Carregando chamada...",
+    "errorTitle": "Não foi possível carregar a chamada",
+    "common": {
+      "notProvided": "—"
+    },
+    "fields": {
+      "class": "Turma",
+      "lesson": "Aula",
+      "enrollment": "Matrícula",
+      "email": "E-mail",
+      "studentStatus": "Status do aluno",
+      "disciplineStatus": "Status da disciplina",
+      "attendance": "Presença",
+      "observation": "Observação"
+    },
+    "summary": {
+      "total": "Total",
+      "present": "Presentes",
+      "absent": "Faltas",
+      "justified": "Justificadas",
+      "medicalCertificates": "Atestados"
+    },
+    "attendanceEntry": {
+      "title": "Lançamento da chamada",
+      "description": "Marque a presença individualmente ou utilize os atalhos rápidos."
+    },
+    "attendance": {
+      "present": "Presente",
+      "absent": "Falta",
+      "justified": "Justificada",
+      "medicalCertificate": "Atestado"
+    },
+    "studentStatus": {
+      "active": "Ativo",
+      "locked": "Trancado",
+      "suspended": "Suspenso",
+      "delinquent": "Inadimplente",
+      "transferred": "Transferido",
+      "inactive": "Desligado",
+      "graduated": "Formado",
+      "cancelled": "Cancelado",
+      "medicalLeave": "Pausa médica",
+      "missing": "Faltante"
+    },
+    "disciplineStatus": {
+      "toTake": "A cursar",
+      "inProgress": "Em curso",
+      "completed": "Concluído",
+      "locked": "Trancado",
+      "failed": "Reprovado",
+      "cancelled": "Cancelado"
+    },
+    "empty": {
+      "title": "Nenhum aluno matriculado nesta turma",
+      "description": "Não há alunos disponíveis para registrar presença nesta aula."
+    },
+    "placeholders": {
+      "observation": "Ex.: chegou atrasado, apresentou atestado..."
+    },
+    "actions": {
+      "back": "← Voltar",
+      "retry": "Tentar novamente",
+      "allPresent": "Todos presentes",
+      "allAbsent": "Todos faltaram",
+      "allJustified": "Todos justificados",
+      "save": "Salvar chamada",
+      "saving": "Salvando chamada..."
+    },
+    "feedback": {
+      "invalidClass": "Turma inválida.",
+      "invalidLesson": "Aula inválida.",
+      "loadError": "Erro ao carregar a chamada.",
+      "invalidResponse": "Não foi possível interpretar os dados da chamada.",
+      "saveError": "Erro ao salvar a chamada.",
+      "saveSuccess": "Chamada salva com sucesso!"
+    }
+  },
   "ProfessorClassLessons": {
     "eyebrow": "Turma",
     "title": "Aulas da turma",

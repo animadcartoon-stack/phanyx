@@ -1178,6 +1178,86 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorClassAttendance": {
+    "eyebrow": "Présences",
+    "title": "Présences du cours",
+    "loading": "Chargement des présences...",
+    "errorTitle": "Impossible de charger les présences",
+    "common": {
+      "notProvided": "—"
+    },
+    "fields": {
+      "class": "Classe",
+      "lesson": "Cours",
+      "enrollment": "Inscription",
+      "email": "E-mail",
+      "studentStatus": "Statut de l’élève",
+      "disciplineStatus": "Statut de la discipline",
+      "attendance": "Présence",
+      "observation": "Observation"
+    },
+    "summary": {
+      "total": "Total",
+      "present": "Présents",
+      "absent": "Absents",
+      "justified": "Justifiées",
+      "medicalCertificates": "Certificats médicaux"
+    },
+    "attendanceEntry": {
+      "title": "Saisie des présences",
+      "description": "Indiquez la présence de chaque élève ou utilisez les actions rapides."
+    },
+    "attendance": {
+      "present": "Présent",
+      "absent": "Absent",
+      "justified": "Absence justifiée",
+      "medicalCertificate": "Certificat médical"
+    },
+    "studentStatus": {
+      "active": "Actif",
+      "locked": "Inscription suspendue",
+      "suspended": "Suspendu",
+      "delinquent": "En situation d’impayé",
+      "transferred": "Transféré",
+      "inactive": "Désinscrit",
+      "graduated": "Diplômé",
+      "cancelled": "Annulé",
+      "medicalLeave": "Congé médical",
+      "missing": "Absent"
+    },
+    "disciplineStatus": {
+      "toTake": "À suivre",
+      "inProgress": "En cours",
+      "completed": "Terminé",
+      "locked": "Suspendu",
+      "failed": "Échoué",
+      "cancelled": "Annulé"
+    },
+    "empty": {
+      "title": "Aucun élève inscrit dans cette classe",
+      "description": "Aucun élève n’est disponible pour enregistrer les présences à ce cours."
+    },
+    "placeholders": {
+      "observation": "Ex. : arrivé en retard, a présenté un certificat médical..."
+    },
+    "actions": {
+      "back": "← Retour",
+      "retry": "Réessayer",
+      "allPresent": "Tous présents",
+      "allAbsent": "Tous absents",
+      "allJustified": "Toutes les absences justifiées",
+      "save": "Enregistrer les présences",
+      "saving": "Enregistrement des présences..."
+    },
+    "feedback": {
+      "invalidClass": "Classe non valide.",
+      "invalidLesson": "Cours non valide.",
+      "loadError": "Erreur lors du chargement des présences.",
+      "invalidResponse": "Les données de présence n’ont pas pu être interprétées.",
+      "saveError": "Erreur lors de l’enregistrement des présences.",
+      "saveSuccess": "Présences enregistrées avec succès !"
+    }
+  },
   "ProfessorClassLessons": {
     "eyebrow": "Classe",
     "title": "Cours de la classe",

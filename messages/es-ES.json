@@ -1178,6 +1178,86 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorClassAttendance": {
+    "eyebrow": "Asistencia",
+    "title": "Asistencia de la clase",
+    "loading": "Cargando asistencia...",
+    "errorTitle": "No se ha podido cargar la asistencia",
+    "common": {
+      "notProvided": "—"
+    },
+    "fields": {
+      "class": "Clase",
+      "lesson": "Clase",
+      "enrollment": "Matrícula",
+      "email": "Correo electrónico",
+      "studentStatus": "Estado del alumno",
+      "disciplineStatus": "Estado de la disciplina",
+      "attendance": "Asistencia",
+      "observation": "Observación"
+    },
+    "summary": {
+      "total": "Total",
+      "present": "Presentes",
+      "absent": "Ausentes",
+      "justified": "Justificadas",
+      "medicalCertificates": "Justificantes médicos"
+    },
+    "attendanceEntry": {
+      "title": "Registro de asistencia",
+      "description": "Marque la asistencia individualmente o utilice las acciones rápidas."
+    },
+    "attendance": {
+      "present": "Presente",
+      "absent": "Ausente",
+      "justified": "Justificada",
+      "medicalCertificate": "Justificante médico"
+    },
+    "studentStatus": {
+      "active": "Activo",
+      "locked": "Suspendido temporalmente",
+      "suspended": "Suspendido",
+      "delinquent": "Moroso",
+      "transferred": "Transferido",
+      "inactive": "Desvinculado",
+      "graduated": "Graduado",
+      "cancelled": "Cancelado",
+      "medicalLeave": "Baja médica",
+      "missing": "Ausente"
+    },
+    "disciplineStatus": {
+      "toTake": "Pendiente de cursar",
+      "inProgress": "En curso",
+      "completed": "Completado",
+      "locked": "Suspendido temporalmente",
+      "failed": "Reprobado",
+      "cancelled": "Cancelado"
+    },
+    "empty": {
+      "title": "No hay alumnos matriculados en esta clase",
+      "description": "No hay alumnos disponibles para registrar la asistencia en esta clase."
+    },
+    "placeholders": {
+      "observation": "Ej.: llegó tarde, presentó un justificante médico..."
+    },
+    "actions": {
+      "back": "← Volver",
+      "retry": "Intentar de nuevo",
+      "allPresent": "Todos presentes",
+      "allAbsent": "Todos ausentes",
+      "allJustified": "Todos justificados",
+      "save": "Guardar asistencia",
+      "saving": "Guardando asistencia..."
+    },
+    "feedback": {
+      "invalidClass": "Clase no válida.",
+      "invalidLesson": "Clase no válida.",
+      "loadError": "Error al cargar la asistencia.",
+      "invalidResponse": "No se han podido interpretar los datos de asistencia.",
+      "saveError": "Error al guardar la asistencia.",
+      "saveSuccess": "¡Asistencia guardada correctamente!"
+    }
+  },
   "ProfessorClassLessons": {
     "eyebrow": "Clase",
     "title": "Clases de la turma",

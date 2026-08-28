@@ -1178,6 +1178,86 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorClassAttendance": {
+    "eyebrow": "Attendance",
+    "title": "Lesson attendance",
+    "loading": "Loading attendance...",
+    "errorTitle": "Attendance could not be loaded",
+    "common": {
+      "notProvided": "—"
+    },
+    "fields": {
+      "class": "Class",
+      "lesson": "Lesson",
+      "enrollment": "Enrollment",
+      "email": "Email",
+      "studentStatus": "Student status",
+      "disciplineStatus": "Discipline status",
+      "attendance": "Attendance",
+      "observation": "Observation"
+    },
+    "summary": {
+      "total": "Total",
+      "present": "Present",
+      "absent": "Absent",
+      "justified": "Justified",
+      "medicalCertificates": "Medical certificates"
+    },
+    "attendanceEntry": {
+      "title": "Attendance entry",
+      "description": "Mark attendance individually or use the quick actions."
+    },
+    "attendance": {
+      "present": "Present",
+      "absent": "Absent",
+      "justified": "Justified",
+      "medicalCertificate": "Medical certificate"
+    },
+    "studentStatus": {
+      "active": "Active",
+      "locked": "On hold",
+      "suspended": "Suspended",
+      "delinquent": "Delinquent",
+      "transferred": "Transferred",
+      "inactive": "Inactive",
+      "graduated": "Graduated",
+      "cancelled": "Cancelled",
+      "medicalLeave": "Medical leave",
+      "missing": "Missing"
+    },
+    "disciplineStatus": {
+      "toTake": "To be taken",
+      "inProgress": "In progress",
+      "completed": "Completed",
+      "locked": "On hold",
+      "failed": "Failed",
+      "cancelled": "Cancelled"
+    },
+    "empty": {
+      "title": "No students enrolled in this class",
+      "description": "There are no students available to record attendance for this lesson."
+    },
+    "placeholders": {
+      "observation": "Example: arrived late, provided a medical certificate..."
+    },
+    "actions": {
+      "back": "← Back",
+      "retry": "Try again",
+      "allPresent": "Mark all present",
+      "allAbsent": "Mark all absent",
+      "allJustified": "Mark all justified",
+      "save": "Save attendance",
+      "saving": "Saving attendance..."
+    },
+    "feedback": {
+      "invalidClass": "Invalid class.",
+      "invalidLesson": "Invalid lesson.",
+      "loadError": "Error loading attendance.",
+      "invalidResponse": "The attendance data could not be interpreted.",
+      "saveError": "Error saving attendance.",
+      "saveSuccess": "Attendance saved successfully!"
+    }
+  },
   "ProfessorClassLessons": {
     "eyebrow": "Class",
     "title": "Class lessons",
