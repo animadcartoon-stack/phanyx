@@ -1178,6 +1178,95 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma acadêmica SaaS"
   },
+  "ProfessorClassLessons": {
+    "eyebrow": "Turma",
+    "title": "Aulas da turma",
+    "loading": "Carregando aulas...",
+    "errorTitle": "Erro ao carregar as aulas",
+    "classFallback": "Turma {id}",
+    "fields": {
+      "class": "Turma",
+      "discipline": "Disciplina",
+      "lessonTitle": "Título",
+      "description": "Descrição",
+      "duration": "Duração (minutos)",
+      "lessonUrl": "Link da aula, vídeo ou transmissão ao vivo"
+    },
+    "discipline": {
+      "notSelected": "Nenhuma disciplina selecionada",
+      "title": "Selecione a disciplina",
+      "description": "Escolha a disciplina desta turma para visualizar e gerenciar as aulas correspondentes.",
+      "empty": "Nenhuma disciplina vinculada a esta turma foi encontrada para o professor.",
+      "open": "Abrir aulas",
+      "fallbackWithId": "Disciplina {id}"
+    },
+    "newLesson": {
+      "eyebrow": "Nova aula",
+      "title": "Adicionar aula",
+      "urlHelp": "Opcional. Use este campo para aula gravada, aula ao vivo ou transmissão. Materiais e links de apoio ficam disponíveis na área de Materiais."
+    },
+    "placeholders": {
+      "title": "Ex.: Introdução ao Direito Constitucional",
+      "description": "Resumo do conteúdo da aula",
+      "duration": "Ex.: 20",
+      "url": "Cole o link do YouTube, Google Meet, Zoom, Teams ou transmissão ao vivo"
+    },
+    "lessons": {
+      "title": "Aulas cadastradas",
+      "description": "Consulte e gerencie as aulas vinculadas à disciplina selecionada.",
+      "emptyTitle": "Nenhuma aula criada ainda",
+      "emptyDescription": "Adicione a primeira aula desta disciplina utilizando o formulário acima.",
+      "duration": "{minutes} min",
+      "noDuration": "Sem duração informada",
+      "materialsHelp": "Nesta aula, o professor poderá adicionar arquivos, PDFs, documentos, imagens e links de apoio pela área de Materiais."
+    },
+    "edit": {
+      "title": "Editar aula"
+    },
+    "deleteModal": {
+      "title": "Confirmar exclusão",
+      "description": "Tem certeza de que deseja excluir a aula \"{title}\"?",
+      "warning": "Esta ação não pode ser desfeita."
+    },
+    "actions": {
+      "back": "← Voltar",
+      "retry": "Tentar novamente",
+      "saving": "Salvando...",
+      "addLesson": "Adicionar aula",
+      "edit": "Editar",
+      "attendance": "Fazer chamada",
+      "materials": "Materiais",
+      "deleting": "Excluindo...",
+      "delete": "Excluir",
+      "openLesson": "Abrir aula / transmissão",
+      "close": "Fechar",
+      "cancel": "Cancelar",
+      "saveChanges": "Salvar alterações",
+      "confirmDelete": "Confirmar exclusão"
+    },
+    "validation": {
+      "titleRequired": "Informe o título da aula.",
+      "invalidDuration": "Informe uma duração válida maior que zero.",
+      "invalidUrl": "Informe um link válido começando com http:// ou https://."
+    },
+    "feedback": {
+      "invalidClass": "Turma inválida.",
+      "invalidDiscipline": "Disciplina inválida. Volte para Minhas Turmas e abra a disciplina correta.",
+      "loadClassesError": "Erro ao carregar as turmas.",
+      "invalidClassesResponse": "Não foi possível interpretar a lista de turmas.",
+      "classNotFound": "Turma não encontrada para este professor.",
+      "disciplineNotFound": "Disciplina não encontrada para este professor nesta turma. Verifique se a disciplina está vinculada ao professor no admin.",
+      "loadLessonsError": "Erro ao carregar as aulas.",
+      "invalidLessonsResponse": "Não foi possível interpretar a lista de aulas.",
+      "loadPageError": "Erro ao carregar a página.",
+      "createError": "Não foi possível criar a aula.",
+      "createSuccess": "Aula criada com sucesso!",
+      "editError": "Não foi possível editar a aula.",
+      "editSuccess": "Aula editada com sucesso!",
+      "deleteError": "Não foi possível excluir a aula.",
+      "deleteSuccess": "Aula excluída com sucesso."
+    }
+  },
   "ProfessorClassDetail": {
     "eyebrow": "Turma",
     "title": "Detalhes da turma",

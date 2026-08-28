@@ -1178,6 +1178,95 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorClassLessons": {
+    "eyebrow": "Classe",
+    "title": "Cours de la classe",
+    "loading": "Chargement des cours...",
+    "errorTitle": "Erreur lors du chargement des cours",
+    "classFallback": "Classe {id}",
+    "fields": {
+      "class": "Classe",
+      "discipline": "Discipline",
+      "lessonTitle": "Titre",
+      "description": "Description",
+      "duration": "Durée (minutes)",
+      "lessonUrl": "Lien du cours, de la vidéo ou de la diffusion en direct"
+    },
+    "discipline": {
+      "notSelected": "Aucune discipline sélectionnée",
+      "title": "Sélectionnez la discipline",
+      "description": "Choisissez une discipline de cette classe pour afficher et gérer les cours correspondants.",
+      "empty": "Aucune discipline associée à cette classe n’a été trouvée pour ce professeur.",
+      "open": "Ouvrir les cours",
+      "fallbackWithId": "Discipline {id}"
+    },
+    "newLesson": {
+      "eyebrow": "Nouveau cours",
+      "title": "Ajouter un cours",
+      "urlHelp": "Facultatif. Utilisez ce champ pour un cours enregistré, un cours en direct ou une diffusion. Les supports et liens complémentaires sont disponibles dans l’espace Matériels."
+    },
+    "placeholders": {
+      "title": "Ex. : Introduction au droit constitutionnel",
+      "description": "Résumé du contenu du cours",
+      "duration": "Ex. : 20",
+      "url": "Collez le lien YouTube, Google Meet, Zoom, Teams ou d’une diffusion en direct"
+    },
+    "lessons": {
+      "title": "Cours enregistrés",
+      "description": "Consultez et gérez les cours associés à la discipline sélectionnée.",
+      "emptyTitle": "Aucun cours créé pour le moment",
+      "emptyDescription": "Ajoutez le premier cours de cette discipline à l’aide du formulaire ci-dessus.",
+      "duration": "{minutes} min",
+      "noDuration": "Durée non renseignée",
+      "materialsHelp": "Pour ce cours, le professeur peut ajouter des fichiers, PDF, documents, images et liens complémentaires depuis l’espace Matériels."
+    },
+    "edit": {
+      "title": "Modifier le cours"
+    },
+    "deleteModal": {
+      "title": "Confirmer la suppression",
+      "description": "Voulez-vous vraiment supprimer le cours « {title} » ?",
+      "warning": "Cette action est irréversible."
+    },
+    "actions": {
+      "back": "← Retour",
+      "retry": "Réessayer",
+      "saving": "Enregistrement...",
+      "addLesson": "Ajouter un cours",
+      "edit": "Modifier",
+      "attendance": "Faire l’appel",
+      "materials": "Matériels",
+      "deleting": "Suppression...",
+      "delete": "Supprimer",
+      "openLesson": "Ouvrir le cours / la diffusion",
+      "close": "Fermer",
+      "cancel": "Annuler",
+      "saveChanges": "Enregistrer les modifications",
+      "confirmDelete": "Confirmer la suppression"
+    },
+    "validation": {
+      "titleRequired": "Saisissez le titre du cours.",
+      "invalidDuration": "Saisissez une durée valide supérieure à zéro.",
+      "invalidUrl": "Saisissez un lien valide commençant par http:// ou https://."
+    },
+    "feedback": {
+      "invalidClass": "Classe non valide.",
+      "invalidDiscipline": "Discipline non valide. Revenez à Mes classes et ouvrez la discipline correcte.",
+      "loadClassesError": "Erreur lors du chargement des classes.",
+      "invalidClassesResponse": "La liste des classes n’a pas pu être interprétée.",
+      "classNotFound": "Classe introuvable pour ce professeur.",
+      "disciplineNotFound": "Discipline introuvable pour ce professeur dans cette classe. Vérifiez que la discipline est bien associée au professeur dans l’espace d’administration.",
+      "loadLessonsError": "Erreur lors du chargement des cours.",
+      "invalidLessonsResponse": "La liste des cours n’a pas pu être interprétée.",
+      "loadPageError": "Erreur lors du chargement de la page.",
+      "createError": "Le cours n’a pas pu être créé.",
+      "createSuccess": "Cours créé avec succès !",
+      "editError": "Le cours n’a pas pu être modifié.",
+      "editSuccess": "Cours mis à jour avec succès !",
+      "deleteError": "Le cours n’a pas pu être supprimé.",
+      "deleteSuccess": "Cours supprimé avec succès."
+    }
+  },
   "ProfessorClassDetail": {
     "eyebrow": "Classe",
     "title": "Détails de la classe",

@@ -1178,6 +1178,95 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorClassLessons": {
+    "eyebrow": "Class",
+    "title": "Class lessons",
+    "loading": "Loading lessons...",
+    "errorTitle": "Error loading lessons",
+    "classFallback": "Class {id}",
+    "fields": {
+      "class": "Class",
+      "discipline": "Discipline",
+      "lessonTitle": "Title",
+      "description": "Description",
+      "duration": "Duration (minutes)",
+      "lessonUrl": "Lesson, video, or live stream link"
+    },
+    "discipline": {
+      "notSelected": "No discipline selected",
+      "title": "Select a discipline",
+      "description": "Choose a discipline from this class to view and manage its lessons.",
+      "empty": "No discipline linked to this class was found for this professor.",
+      "open": "Open lessons",
+      "fallbackWithId": "Discipline {id}"
+    },
+    "newLesson": {
+      "eyebrow": "New lesson",
+      "title": "Add lesson",
+      "urlHelp": "Optional. Use this field for a recorded lesson, live class, or stream. Supporting materials and links are available in the Materials area."
+    },
+    "placeholders": {
+      "title": "Example: Introduction to Constitutional Law",
+      "description": "Summary of the lesson content",
+      "duration": "Example: 20",
+      "url": "Paste a YouTube, Google Meet, Zoom, Teams, or live stream link"
+    },
+    "lessons": {
+      "title": "Registered lessons",
+      "description": "View and manage the lessons linked to the selected discipline.",
+      "emptyTitle": "No lessons created yet",
+      "emptyDescription": "Add the first lesson for this discipline using the form above.",
+      "duration": "{minutes} min",
+      "noDuration": "No duration provided",
+      "materialsHelp": "For this lesson, the professor can add files, PDFs, documents, images, and supporting links through the Materials area."
+    },
+    "edit": {
+      "title": "Edit lesson"
+    },
+    "deleteModal": {
+      "title": "Confirm deletion",
+      "description": "Are you sure you want to delete the lesson \"{title}\"?",
+      "warning": "This action cannot be undone."
+    },
+    "actions": {
+      "back": "← Back",
+      "retry": "Try again",
+      "saving": "Saving...",
+      "addLesson": "Add lesson",
+      "edit": "Edit",
+      "attendance": "Take attendance",
+      "materials": "Materials",
+      "deleting": "Deleting...",
+      "delete": "Delete",
+      "openLesson": "Open lesson / stream",
+      "close": "Close",
+      "cancel": "Cancel",
+      "saveChanges": "Save changes",
+      "confirmDelete": "Confirm deletion"
+    },
+    "validation": {
+      "titleRequired": "Enter the lesson title.",
+      "invalidDuration": "Enter a valid duration greater than zero.",
+      "invalidUrl": "Enter a valid link starting with http:// or https://."
+    },
+    "feedback": {
+      "invalidClass": "Invalid class.",
+      "invalidDiscipline": "Invalid discipline. Return to My Classes and open the correct discipline.",
+      "loadClassesError": "Error loading classes.",
+      "invalidClassesResponse": "The class list could not be interpreted.",
+      "classNotFound": "Class not found for this professor.",
+      "disciplineNotFound": "Discipline not found for this professor in this class. Check whether the discipline is linked to the professor in the admin area.",
+      "loadLessonsError": "Error loading lessons.",
+      "invalidLessonsResponse": "The lesson list could not be interpreted.",
+      "loadPageError": "Error loading the page.",
+      "createError": "The lesson could not be created.",
+      "createSuccess": "Lesson created successfully!",
+      "editError": "The lesson could not be edited.",
+      "editSuccess": "Lesson updated successfully!",
+      "deleteError": "The lesson could not be deleted.",
+      "deleteSuccess": "Lesson deleted successfully."
+    }
+  },
   "ProfessorClassDetail": {
     "eyebrow": "Class",
     "title": "Class details",

@@ -1178,6 +1178,95 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorClassLessons": {
+    "eyebrow": "Clase",
+    "title": "Clases de la turma",
+    "loading": "Cargando clases...",
+    "errorTitle": "Error al cargar las clases",
+    "classFallback": "Turma {id}",
+    "fields": {
+      "class": "Turma",
+      "discipline": "Disciplina",
+      "lessonTitle": "Título",
+      "description": "Descripción",
+      "duration": "Duración (minutos)",
+      "lessonUrl": "Enlace de la clase, vídeo o transmisión en directo"
+    },
+    "discipline": {
+      "notSelected": "No se ha seleccionado ninguna disciplina",
+      "title": "Seleccione la disciplina",
+      "description": "Elija una disciplina de esta turma para visualizar y gestionar las clases correspondientes.",
+      "empty": "No se ha encontrado ninguna disciplina vinculada a esta turma para el profesor.",
+      "open": "Abrir clases",
+      "fallbackWithId": "Disciplina {id}"
+    },
+    "newLesson": {
+      "eyebrow": "Nueva clase",
+      "title": "Añadir clase",
+      "urlHelp": "Opcional. Utilice este campo para una clase grabada, una clase en directo o una transmisión. Los materiales y enlaces de apoyo están disponibles en el área de Materiales."
+    },
+    "placeholders": {
+      "title": "Ej.: Introducción al Derecho Constitucional",
+      "description": "Resumen del contenido de la clase",
+      "duration": "Ej.: 20",
+      "url": "Pegue el enlace de YouTube, Google Meet, Zoom, Teams o una transmisión en directo"
+    },
+    "lessons": {
+      "title": "Clases registradas",
+      "description": "Consulte y gestione las clases vinculadas a la disciplina seleccionada.",
+      "emptyTitle": "Todavía no se ha creado ninguna clase",
+      "emptyDescription": "Añada la primera clase de esta disciplina utilizando el formulario anterior.",
+      "duration": "{minutes} min",
+      "noDuration": "Duración no indicada",
+      "materialsHelp": "En esta clase, el profesor puede añadir archivos, PDF, documentos, imágenes y enlaces de apoyo desde el área de Materiales."
+    },
+    "edit": {
+      "title": "Editar clase"
+    },
+    "deleteModal": {
+      "title": "Confirmar eliminación",
+      "description": "¿Está seguro de que desea eliminar la clase \"{title}\"?",
+      "warning": "Esta acción no se puede deshacer."
+    },
+    "actions": {
+      "back": "← Volver",
+      "retry": "Intentar de nuevo",
+      "saving": "Guardando...",
+      "addLesson": "Añadir clase",
+      "edit": "Editar",
+      "attendance": "Tomar asistencia",
+      "materials": "Materiales",
+      "deleting": "Eliminando...",
+      "delete": "Eliminar",
+      "openLesson": "Abrir clase / transmisión",
+      "close": "Cerrar",
+      "cancel": "Cancelar",
+      "saveChanges": "Guardar cambios",
+      "confirmDelete": "Confirmar eliminación"
+    },
+    "validation": {
+      "titleRequired": "Introduzca el título de la clase.",
+      "invalidDuration": "Introduzca una duración válida mayor que cero.",
+      "invalidUrl": "Introduzca un enlace válido que comience por http:// o https://."
+    },
+    "feedback": {
+      "invalidClass": "Turma no válida.",
+      "invalidDiscipline": "Disciplina no válida. Vuelva a Mis Turmas y abra la disciplina correcta.",
+      "loadClassesError": "Error al cargar las turmas.",
+      "invalidClassesResponse": "No se ha podido interpretar la lista de turmas.",
+      "classNotFound": "No se ha encontrado la turma para este profesor.",
+      "disciplineNotFound": "No se ha encontrado la disciplina para este profesor en esta turma. Compruebe si la disciplina está vinculada al profesor en el área de administración.",
+      "loadLessonsError": "Error al cargar las clases.",
+      "invalidLessonsResponse": "No se ha podido interpretar la lista de clases.",
+      "loadPageError": "Error al cargar la página.",
+      "createError": "No se ha podido crear la clase.",
+      "createSuccess": "¡Clase creada correctamente!",
+      "editError": "No se ha podido editar la clase.",
+      "editSuccess": "¡Clase actualizada correctamente!",
+      "deleteError": "No se ha podido eliminar la clase.",
+      "deleteSuccess": "Clase eliminada correctamente."
+    }
+  },
   "ProfessorClassDetail": {
     "eyebrow": "Clase",
     "title": "Detalles de la clase",
