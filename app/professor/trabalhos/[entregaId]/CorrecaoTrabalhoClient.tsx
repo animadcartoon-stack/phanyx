@@ -1,7 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import {
+  useLocale,
+  useTranslations,
+} from "next-intl";
 
 type Historico = {
   id: number;
@@ -19,8 +29,8 @@ type Trabalho = {
   notaMaxima: number;
   prazo?: string | null;
   aluno: string;
-  matricula?: string;
-  curso?: string;
+  matricula?: string | null;
+  curso?: string | null;
   turma: string;
   semestre: string;
   periodoLetivo: string;
@@ -32,99 +42,507 @@ type Trabalho = {
   entregueEm?: string | null;
   corrigidaEm?: string | null;
   historicos?: Historico[];
-  status: "Enviado" | "Avaliado";
+  status: string;
 };
 
 type Props = {
   entregaId: number;
 };
 
-function formatarData(data?: string | null) {
-  if (!data) return "-";
-  try {
-    return new Date(data).toLocaleString("pt-BR");
-  } catch {
-    return data;
-  }
-}
+type FeedbackTipo =
+  | "erro"
+  | "sucesso"
+  | "";
 
-export default function CorrecaoTrabalhoClient({ entregaId }: Props) {
-  const [trabalho, setTrabalho] = useState<Trabalho | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [erro, setErro] = useState("");
-  const [nota, setNota] = useState("");
-  const [feedback, setFeedback] = useState("");
-  const [salvando, setSalvando] = useState(false);
-  const [sucesso, setSucesso] = useState("");
+export default function CorrecaoTrabalhoClient({
+  entregaId,
+}: Props) {
+  const t = useTranslations(
+    "ProfessorWorkSubmissionDetail"
+  );
+
+  const locale = useLocale();
+
+  const [
+    trabalho,
+    setTrabalho,
+  ] = useState<Trabalho | null>(
+    null
+  );
+
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
+
+  const [
+    erroCarregamento,
+    setErroCarregamento,
+  ] = useState("");
+
+  const [
+    feedbackTela,
+    setFeedbackTela,
+  ] = useState<{
+    tipo: FeedbackTipo;
+    mensagem: string;
+  }>({
+    tipo: "",
+    mensagem: "",
+  });
+
+  const [
+    nota,
+    setNota,
+  ] = useState("");
+
+  const [
+    feedback,
+    setFeedback,
+  ] = useState("");
+
+  const [
+    salvando,
+    setSalvando,
+  ] = useState(false);
+
+  const formatadorNumero =
+    useMemo(
+      () =>
+        new Intl.NumberFormat(
+          locale,
+          {
+            maximumFractionDigits: 2,
+          }
+        ),
+      [locale]
+    );
+
+  const entregaIdValido =
+    Number.isInteger(
+      entregaId
+    ) && entregaId > 0;
+
+  function formatarData(
+    data?: string | null
+  ) {
+    if (!data) {
+      return t(
+        "common.notProvided"
+      );
+    }
+
+    const valor =
+      new Date(data);
+
+    if (
+      Number.isNaN(
+        valor.getTime()
+      )
+    ) {
+      return t(
+        "common.notProvided"
+      );
+    }
+
+    return new Intl.DateTimeFormat(
+      locale,
+      {
+        dateStyle: "medium",
+        timeStyle: "short",
+      }
+    ).format(valor);
+  }
+
+  function formatarNumero(
+    valor: number
+  ) {
+    return formatadorNumero.format(
+      valor
+    );
+  }
+
+  const carregarTrabalho =
+    useCallback(
+      async () => {
+        if (
+          !entregaIdValido
+        ) {
+          setTrabalho(null);
+
+          setErroCarregamento(
+            t(
+              "feedback.invalidSubmission"
+            )
+          );
+
+          setLoading(false);
+          return;
+        }
+
+        try {
+          setLoading(true);
+          setErroCarregamento("");
+
+          const res =
+            await fetch(
+              `/api/professor/trabalhos/${entregaId}`,
+              {
+                credentials:
+                  "include",
+                cache:
+                  "no-store",
+              }
+            );
+
+          let json: unknown =
+            null;
+
+          try {
+            json =
+              await res.json();
+          } catch {
+            json = null;
+          }
+
+          if (!res.ok) {
+            const mensagem =
+              json &&
+              typeof json ===
+                "object" &&
+              "error" in json &&
+              typeof (
+                json as {
+                  error?: unknown;
+                }
+              ).error ===
+                "string"
+                ? String(
+                    (
+                      json as {
+                        error: string;
+                      }
+                    ).error
+                  )
+                : t(
+                    "feedback.loadError"
+                  );
+
+            throw new Error(
+              mensagem
+            );
+          }
+
+          if (
+            !json ||
+            typeof json !==
+              "object" ||
+            !(
+              "trabalho" in json
+            )
+          ) {
+            throw new Error(
+              t(
+                "feedback.invalidResponse"
+              )
+            );
+          }
+
+          const dados =
+            (
+              json as {
+                trabalho?: Trabalho | null;
+              }
+            ).trabalho ??
+            null;
+
+          if (!dados) {
+            setTrabalho(null);
+
+            setErroCarregamento(
+              t(
+                "feedback.notFound"
+              )
+            );
+
+            return;
+          }
+
+          setTrabalho(dados);
+
+          setNota(
+            dados.nota !==
+                null &&
+              dados.nota !==
+                undefined
+              ? String(
+                  dados.nota
+                )
+              : ""
+          );
+
+          setFeedback(
+            dados.feedback ??
+              ""
+          );
+        } catch (
+          error: unknown
+        ) {
+          setTrabalho(null);
+
+          setErroCarregamento(
+            error instanceof Error
+              ? error.message
+              : t(
+                  "feedback.loadError"
+                )
+          );
+        } finally {
+          setLoading(false);
+        }
+      },
+      [
+        entregaId,
+        entregaIdValido,
+        t,
+      ]
+    );
 
   useEffect(() => {
-    carregarTrabalho();
-  }, [entregaId]);
-
-  async function carregarTrabalho() {
-    try {
-      setLoading(true);
-      setErro("");
-
-      const res = await fetch(`/api/professor/trabalhos/${entregaId}`, {
-        credentials: "include",
-        cache: "no-store",
-      });
-
-      const json = await res.json();
-
-      if (!res.ok) {
-        throw new Error(json?.error || "Erro ao carregar entrega");
-      }
-
-      setTrabalho(json.trabalho || null);
-      setNota(
-  json.trabalho?.nota !== null && json.trabalho?.nota !== undefined
-    ? String(json.trabalho.nota)
-    : ""
-);
-
-setFeedback(json.trabalho?.feedback || "");
-    } catch (e: any) {
-      setErro(e?.message || "Erro ao carregar entrega");
-      setTrabalho(null);
-    } finally {
-      setLoading(false);
-    }
-  }
+    void carregarTrabalho();
+  }, [carregarTrabalho]);
 
   async function salvarCorrecao() {
-  try {
-    setSalvando(true);
-    setSucesso("");
-
-    const resp = await fetch("/api/professor/trabalhos", {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        entregaId: trabalho.entregaId,
-        nota: Number(nota),
-        feedback,
-      }),
-    });
-
-    const json = await resp.json();
-
-    if (!resp.ok) {
-      throw new Error(json.error || "Erro ao salvar.");
+    if (
+      !trabalho ||
+      salvando
+    ) {
+      return;
     }
 
-    setSucesso("Correção salva com sucesso.");
+    setFeedbackTela({
+      tipo: "",
+      mensagem: "",
+    });
 
-    await carregarTrabalho();
-  } catch (e) {
-    console.error(e);
-  } finally {
-    setSalvando(false);
+    const notaTexto =
+      nota.trim();
+
+    if (!notaTexto) {
+      setFeedbackTela({
+        tipo: "erro",
+        mensagem: t(
+          "validation.gradeRequired"
+        ),
+      });
+      return;
+    }
+
+    const notaNumerica =
+      Number(notaTexto);
+
+    if (
+      !Number.isFinite(
+        notaNumerica
+      ) ||
+      notaNumerica < 0
+    ) {
+      setFeedbackTela({
+        tipo: "erro",
+        mensagem: t(
+          "validation.invalidGrade"
+        ),
+      });
+      return;
+    }
+
+    if (
+      notaNumerica >
+      trabalho.notaMaxima
+    ) {
+      setFeedbackTela({
+        tipo: "erro",
+        mensagem: t(
+          "validation.gradeAboveMaximum",
+          {
+            maximum:
+              formatarNumero(
+                trabalho.notaMaxima
+              ),
+          }
+        ),
+      });
+      return;
+    }
+
+    try {
+      setSalvando(true);
+
+      const resp =
+        await fetch(
+          "/api/professor/trabalhos",
+          {
+            method: "PATCH",
+
+            credentials:
+              "include",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body: JSON.stringify(
+              {
+                entregaId:
+                  trabalho.entregaId,
+
+                nota:
+                  notaNumerica,
+
+                feedback:
+                  feedback.trim(),
+              }
+            ),
+          }
+        );
+
+      let json: unknown =
+        null;
+
+      try {
+        json =
+          await resp.json();
+      } catch {
+        json = null;
+      }
+
+      if (!resp.ok) {
+        const mensagem =
+          json &&
+          typeof json ===
+            "object" &&
+          "error" in json &&
+          typeof (
+            json as {
+              error?: unknown;
+            }
+          ).error ===
+            "string"
+            ? String(
+                (
+                  json as {
+                    error: string;
+                  }
+                ).error
+              )
+            : t(
+                "feedback.saveError"
+              );
+
+        throw new Error(
+          mensagem
+        );
+      }
+
+      await carregarTrabalho();
+
+      setFeedbackTela({
+        tipo: "sucesso",
+        mensagem: t(
+          "feedback.saveSuccess"
+        ),
+      });
+    } catch (
+      error: unknown
+    ) {
+      setFeedbackTela({
+        tipo: "erro",
+        mensagem:
+          error instanceof Error
+            ? error.message
+            : t(
+                "feedback.saveError"
+              ),
+      });
+    } finally {
+      setSalvando(false);
+    }
   }
-}
+
+  function statusTraduzido(
+    status: string
+  ) {
+    const normalizado =
+      status
+        .trim()
+        .toLocaleLowerCase();
+
+    if (
+      normalizado ===
+      "enviado"
+    ) {
+      return t(
+        "status.sent"
+      );
+    }
+
+    if (
+      normalizado ===
+      "avaliado"
+    ) {
+      return t(
+        "status.graded"
+      );
+    }
+
+    if (
+      normalizado ===
+        "revisao" ||
+      normalizado ===
+        "revisão"
+    ) {
+      return t(
+        "status.review"
+      );
+    }
+
+    return status;
+  }
+
+  function classeStatus(
+    status: string
+  ) {
+    const normalizado =
+      status
+        .trim()
+        .toLocaleLowerCase();
+
+    if (
+      normalizado ===
+      "enviado"
+    ) {
+      return "border-amber-300 bg-amber-100 text-amber-700 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-300";
+    }
+
+    if (
+      normalizado ===
+      "avaliado"
+    ) {
+      return "border-emerald-300 bg-emerald-100 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-300";
+    }
+
+    if (
+      normalizado ===
+        "revisao" ||
+      normalizado ===
+        "revisão"
+    ) {
+      return "border-blue-300 bg-blue-100 text-blue-700 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300";
+    }
+
+    return "border-slate-300 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200";
+  }
 
   return (
     <main className="phanyx-professor-correcao-page space-y-6 p-4 text-slate-900 dark:text-slate-100">
@@ -133,305 +551,598 @@ setFeedback(json.trabalho?.feedback || "");
           href="/professor/trabalhos"
           className="inline-flex items-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
         >
-          ← Voltar para trabalhos
+          {t(
+            "actions.back"
+          )}
         </Link>
       </div>
 
-      {erro && (
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-200">
-          {erro}
-        </div>
-      )}
-
       {loading && (
         <div className="rounded-3xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
-          Carregando entrega...
+          {t("loading")}
         </div>
       )}
 
-      {!loading && trabalho && (
-        <>
-          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+      {!loading &&
+        erroCarregamento && (
+          <div className="rounded-3xl border border-red-200 bg-red-50 p-5 shadow-sm dark:border-red-900 dark:bg-red-950/40">
+            <p className="font-bold text-red-800 dark:text-red-200">
+              {t(
+                "errorTitle"
+              )}
+            </p>
 
-  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <p className="mt-2 text-sm text-red-700 dark:text-red-300">
+              {
+                erroCarregamento
+              }
+            </p>
 
-    <div>
-      <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-700 dark:text-blue-400">
-        Trabalhos
-      </p>
+            <button
+              type="button"
+              onClick={() =>
+                void carregarTrabalho()
+              }
+              className="mt-4 rounded-xl bg-red-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-red-700"
+            >
+              {t(
+                "actions.retry"
+              )}
+            </button>
+          </div>
+        )}
 
-      <h1 className="mt-2 text-3xl font-black text-slate-900 dark:text-white">
-        Correção da entrega
-      </h1>
+      {!loading &&
+        !erroCarregamento &&
+        trabalho && (
+          <>
+            <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-700 dark:text-blue-400">
+                    {t(
+                      "eyebrow"
+                    )}
+                  </p>
 
-      <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-        Entrega #{trabalho.entregaId}
-      </p>
-    </div>
+                  <h1 className="mt-2 text-3xl font-black text-slate-900 dark:text-white">
+                    {t(
+                      "title"
+                    )}
+                  </h1>
 
-    <div className="flex flex-wrap gap-3">
+                  <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                    {t(
+                      "submissionReference",
+                      {
+                        id:
+                          trabalho.entregaId,
+                      }
+                    )}
+                  </p>
+                </div>
 
-      <div className="rounded-2xl border border-slate-200 px-4 py-3 dark:border-slate-700">
-        <p className="text-xs uppercase text-slate-500">
-          Aluno
-        </p>
+                <div className="flex flex-wrap gap-3">
+                  <HeaderInfo
+                    titulo={t(
+                      "fields.student"
+                    )}
+                    valor={
+                      trabalho.aluno
+                    }
+                  />
 
-        <p className="font-bold">
-          {trabalho.aluno}
-        </p>
-      </div>
+                  <HeaderInfo
+                    titulo={t(
+                      "fields.class"
+                    )}
+                    valor={
+                      trabalho.turma
+                    }
+                  />
 
-      <div className="rounded-2xl border border-slate-200 px-4 py-3 dark:border-slate-700">
-        <p className="text-xs uppercase text-slate-500">
-          Turma
-        </p>
+                  <HeaderInfo
+                    titulo={t(
+                      "fields.course"
+                    )}
+                    valor={
+                      trabalho.curso ||
+                      t(
+                        "common.notProvided"
+                      )
+                    }
+                  />
 
-        <p className="font-bold">
-          {trabalho.turma}
-        </p>
-      </div>
+                  <div className="rounded-2xl border border-slate-200 px-4 py-3 dark:border-slate-700">
+                    <p className="text-xs uppercase text-slate-500 dark:text-slate-400">
+                      {t(
+                        "fields.status"
+                      )}
+                    </p>
 
-      <div className="rounded-2xl border border-slate-200 px-4 py-3 dark:border-slate-700">
-        <p className="text-xs uppercase text-slate-500">
-          Curso
-        </p>
+                    <div className="mt-2">
+                      <span
+                        className={`inline-flex rounded-full border px-3 py-1 text-xs font-black ${classeStatus(
+                          trabalho.status
+                        )}`}
+                      >
+                        {statusTraduzido(
+                          trabalho.status
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
 
-        <p className="font-bold">
-          {trabalho.curso}
-        </p>
-      </div>
+            <section className="grid gap-4 lg:grid-cols-2">
+              <InfoCard
+                titulo={t(
+                  "fields.submittedAt"
+                )}
+                valor={formatarData(
+                  trabalho.entregueEm
+                )}
+              />
 
-      <div className="rounded-2xl border border-slate-200 px-4 py-3 dark:border-slate-700">
-        <p className="text-xs uppercase text-slate-500">
-          Status
-        </p>
+              <InfoCard
+                titulo={t(
+                  "fields.correctedAt"
+                )}
+                valor={formatarData(
+                  trabalho.corrigidaEm
+                )}
+              />
+            </section>
 
-        <div className="mt-2">
-          <StatusBadge status={trabalho.status} />
-        </div>
-      </div>
+            <section className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+              <Card
+                titulo={t(
+                  "activity.title"
+                )}
+              >
+                <div className="space-y-3 text-sm text-slate-600 dark:text-slate-300">
+                  <p>
+                    <strong className="text-slate-800 dark:text-slate-100">
+                      {t(
+                        "fields.activityTitle"
+                      )}
+                      :
+                    </strong>{" "}
+                    {
+                      trabalho.titulo
+                    }
+                  </p>
 
-    </div>
+                  <p>
+                    <strong className="text-slate-800 dark:text-slate-100">
+                      {t(
+                        "fields.maximumGrade"
+                      )}
+                      :
+                    </strong>{" "}
+                    {formatarNumero(
+                      trabalho.notaMaxima
+                    )}
+                  </p>
 
-  </div>
+                  <p>
+                    <strong className="text-slate-800 dark:text-slate-100">
+                      {t(
+                        "fields.deadline"
+                      )}
+                      :
+                    </strong>{" "}
+                    {formatarData(
+                      trabalho.prazo
+                    )}
+                  </p>
 
-</section>
+                  <div className="whitespace-pre-line rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+                    {trabalho.descricao ||
+                      t(
+                        "activity.noDescription"
+                      )}
+                  </div>
+                </div>
+              </Card>
 
-          <section className="grid gap-4 lg:grid-cols-2">
-  <InfoCard
-    titulo="Data da entrega"
-    valor={formatarData(trabalho.entregueEm)}
-  />
+              <Card
+                titulo={t(
+                  "academic.title"
+                )}
+              >
+                <div className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
+                  <AcademicLine
+                    label={t(
+                      "fields.enrollment"
+                    )}
+                    value={
+                      trabalho.matricula ||
+                      t(
+                        "common.notProvided"
+                      )
+                    }
+                  />
 
-  <InfoCard
-    titulo="Data da correção"
-    valor={formatarData(trabalho.corrigidaEm)}
-  />
-</section>
+                  <AcademicLine
+                    label={t(
+                      "fields.course"
+                    )}
+                    value={
+                      trabalho.curso ||
+                      t(
+                        "common.notProvided"
+                      )
+                    }
+                  />
 
-          <section className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-            <Card titulo="Atividade">
-              <div className="space-y-3 text-sm text-slate-600 dark:text-slate-300">
-                <p>
-                  <strong className="text-slate-800 dark:text-slate-100">Título:</strong>{" "}
-                  {trabalho.titulo}
-                </p>
+                  <AcademicLine
+                    label={t(
+                      "fields.class"
+                    )}
+                    value={
+                      trabalho.turma ||
+                      t(
+                        "common.notProvided"
+                      )
+                    }
+                  />
 
-                <p>
-                  <strong className="text-slate-800 dark:text-slate-100">Nota máxima:</strong>{" "}
-                  {trabalho.notaMaxima}
-                </p>
+                  <AcademicLine
+                    label={t(
+                      "fields.semester"
+                    )}
+                    value={
+                      trabalho.semestre ||
+                      t(
+                        "common.notProvided"
+                      )
+                    }
+                  />
 
-                <p>
-                  <strong className="text-slate-800 dark:text-slate-100">Prazo:</strong>{" "}
-                  {formatarData(trabalho.prazo)}
-                </p>
+                  <AcademicLine
+                    label={t(
+                      "fields.academicPeriod"
+                    )}
+                    value={
+                      trabalho.periodoLetivo ||
+                      t(
+                        "common.notProvided"
+                      )
+                    }
+                  />
+                </div>
+              </Card>
+            </section>
 
-                <div className="whitespace-pre-line rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-                  {trabalho.descricao || "Sem descrição informada."}
+            <Card
+              titulo={t(
+                "submission.title"
+              )}
+            >
+              <div className="space-y-4">
+                <div className="whitespace-pre-line rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300">
+                  {trabalho.texto ||
+                    t(
+                      "submission.noText"
+                    )}
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+                  {trabalho.link ? (
+                    <a
+                      href={
+                        trabalho.link
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-2xl bg-blue-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-blue-700"
+                    >
+                      🌐{" "}
+                      {t(
+                        "actions.openSubmittedLink"
+                      )}
+                    </a>
+                  ) : (
+                    <span className="rounded-2xl border border-slate-300 px-4 py-3 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                      {t(
+                        "submission.noLink"
+                      )}
+                    </span>
+                  )}
+
+                  {trabalho.arquivoUrl ? (
+                    <a
+                      href={
+                        trabalho.arquivoUrl
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-emerald-700"
+                    >
+                      📎{" "}
+                      {t(
+                        "actions.openSubmittedFile"
+                      )}
+                    </a>
+                  ) : (
+                    <span className="rounded-2xl border border-slate-300 px-4 py-3 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                      {t(
+                        "submission.noFile"
+                      )}
+                    </span>
+                  )}
                 </div>
               </div>
             </Card>
 
-            <Card titulo="Dados acadêmicos">
-              <div className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
-                <p><strong className="text-slate-800 dark:text-slate-100">Matrícula:</strong> {trabalho.matricula || "-"}</p>
-                <p><strong className="text-slate-800 dark:text-slate-100">Curso:</strong> {trabalho.curso || "-"}</p>
-                <p><strong className="text-slate-800 dark:text-slate-100">Turma:</strong> {trabalho.turma || "-"}</p>
-                <p><strong className="text-slate-800 dark:text-slate-100">Semestre:</strong> {trabalho.semestre || "-"}</p>
-                <p><strong className="text-slate-800 dark:text-slate-100">Período letivo:</strong> {trabalho.periodoLetivo || "-"}</p>
+            <Card
+              titulo={t(
+                "grading.title"
+              )}
+            >
+              <div className="grid gap-4">
+                {feedbackTela.mensagem && (
+                  <div
+                    className={`rounded-2xl border px-4 py-3 text-sm font-bold ${
+                      feedbackTela.tipo ===
+                      "sucesso"
+                        ? "border-green-200 bg-green-50 text-green-700 dark:border-green-900 dark:bg-green-950/40 dark:text-green-300"
+                        : "border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300"
+                    }`}
+                  >
+                    {
+                      feedbackTela.mensagem
+                    }
+                  </div>
+                )}
+
+                <div>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <label
+                      htmlFor="nota-trabalho"
+                      className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400"
+                    >
+                      {t(
+                        "fields.grade"
+                      )}
+                    </label>
+
+                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                      {t(
+                        "grading.maximumGrade",
+                        {
+                          maximum:
+                            formatarNumero(
+                              trabalho.notaMaxima
+                            ),
+                        }
+                      )}
+                    </span>
+                  </div>
+
+                  <input
+                    id="nota-trabalho"
+                    type="number"
+                    min={0}
+                    max={
+                      trabalho.notaMaxima
+                    }
+                    step="0.1"
+                    value={nota}
+                    onChange={(
+                      event
+                    ) =>
+                      setNota(
+                        event
+                          .target
+                          .value
+                      )
+                    }
+                    placeholder={t(
+                      "grading.gradePlaceholder"
+                    )}
+                    className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                  />
+
+                  <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                    {t(
+                      "grading.gradeHelp",
+                      {
+                        maximum:
+                          formatarNumero(
+                            trabalho.notaMaxima
+                          ),
+                      }
+                    )}
+                  </p>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="feedback-trabalho"
+                    className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400"
+                  >
+                    {t(
+                      "fields.feedback"
+                    )}
+                  </label>
+
+                  <textarea
+                    id="feedback-trabalho"
+                    rows={6}
+                    value={feedback}
+                    onChange={(
+                      event
+                    ) =>
+                      setFeedback(
+                        event
+                          .target
+                          .value
+                      )
+                    }
+                    placeholder={t(
+                      "grading.feedbackPlaceholder"
+                    )}
+                    className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
+                  />
+                </div>
+
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={
+                      salvarCorrecao
+                    }
+                    disabled={
+                      salvando
+                    }
+                    className="rounded-2xl bg-blue-600 px-6 py-3 text-sm font-black text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {salvando
+                      ? t(
+                          "actions.saving"
+                        )
+                      : t(
+                          "actions.save"
+                        )}
+                  </button>
+                </div>
               </div>
             </Card>
-          </section>
 
-          <Card titulo="Entrega do aluno">
-            <div className="space-y-4">
-              <div className="whitespace-pre-line rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300">
-                {trabalho.texto || "O aluno não enviou texto."}
-              </div>
+            <Card
+              titulo={t(
+                "history.title"
+              )}
+            >
+              {trabalho.historicos &&
+              trabalho.historicos
+                .length > 0 ? (
+                <div className="space-y-3">
+                  {trabalho.historicos.map(
+                    (
+                      historico
+                    ) => (
+                      <div
+                        key={
+                          historico.id
+                        }
+                        className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-700 dark:bg-slate-950"
+                      >
+                        <p className="font-black text-slate-900 dark:text-white">
+                          {t(
+                            "history.version",
+                            {
+                              version:
+                                historico.versao,
+                            }
+                          )}
+                        </p>
 
-              <div className="flex flex-wrap gap-3">
+                        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                          {t(
+                            "history.submittedAt",
+                            {
+                              date: formatarData(
+                                historico.entregueEm
+                              ),
+                            }
+                          )}
+                        </p>
 
-  {trabalho.link ? (
-    <a
-      href={trabalho.link}
-      target="_blank"
-      rel="noreferrer"
-      className="rounded-2xl bg-blue-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-blue-700"
-    >
-      🌐 Abrir link enviado
-    </a>
-  ) : (
-    <span className="rounded-2xl border border-slate-300 px-4 py-3 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
-      Sem link enviado
-    </span>
-  )}
+                        {historico.texto && (
+                          <p className="mt-3 whitespace-pre-line text-slate-700 dark:text-slate-300">
+                            {
+                              historico.texto
+                            }
+                          </p>
+                        )}
 
-  {trabalho.arquivoUrl ? (
-    <a
-      href={trabalho.arquivoUrl}
-      target="_blank"
-      rel="noreferrer"
-      className="rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-emerald-700"
-    >
-      📎 Abrir arquivo enviado
-    </a>
-  ) : (
-    <span className="rounded-2xl border border-slate-300 px-4 py-3 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
-      Sem arquivo enviado
-    </span>
-  )}
+                        <div className="mt-3 flex flex-wrap gap-3">
+                          {historico.link && (
+                            <a
+                              href={
+                                historico.link
+                              }
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-bold text-blue-600 hover:underline dark:text-blue-400"
+                            >
+                              {t(
+                                "actions.openLink"
+                              )}
+                            </a>
+                          )}
 
-</div>
-            </div>
-          </Card>
-
-          <Card titulo="Avaliação">
-            <div className="grid gap-4">
-              <div>
-                <div className="flex items-center justify-between">
-
-  <label className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
-    Nota
-  </label>
-
-  <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-300">
-    Nota máxima: {trabalho.notaMaxima}
-  </span>
-
-</div>
-                <input
-  type="number"
-  min={0}
-  max={trabalho.notaMaxima}
-  value={nota}
-  onChange={(e) => setNota(e.target.value)}
-  placeholder="Digite a nota"
-  className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
-/>
-                <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-A nota deve estar entre 0 e {trabalho.notaMaxima}.
-</p>
-              </div>
-
-              <div>
-                <label className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
-                  Feedback para o aluno
-                </label>
-                <textarea
-  rows={6}
-  value={feedback}
-  onChange={(e) => setFeedback(e.target.value)}
-  placeholder="Digite o feedback da correção..."
-  className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
-/>
-              </div>
-
-              <div className="flex justify-end">
-
-{sucesso && (
-  <div className="rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-bold text-green-700 dark:border-green-900 dark:bg-green-950/40 dark:text-green-300">
-    ✅ {sucesso}
-  </div>
-)}
-
-                <button
-  type="button"
-  onClick={salvarCorrecao}
-  disabled={salvando}
-  className="rounded-2xl bg-blue-600 px-6 py-3 text-sm font-black text-white transition hover:bg-blue-700 disabled:opacity-50"
->
-  {salvando ? "Salvando..." : "Salvar correção"}
-</button>
-              </div>
-            </div>
-          </Card>
-
-          <Card titulo="Histórico de versões">
-            {trabalho.historicos && trabalho.historicos.length > 0 ? (
-              <div className="space-y-3">
-                {trabalho.historicos.map((historico) => (
-                  <div
-                    key={historico.id}
-                    className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-700 dark:bg-slate-950"
-                  >
-                    <p className="font-black text-slate-900 dark:text-white">
-                      Versão {historico.versao}
-                    </p>
-
-                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                      Enviada em: {formatarData(historico.entregueEm)}
-                    </p>
-
-                    {historico.texto && (
-                      <p className="mt-3 whitespace-pre-line text-slate-700 dark:text-slate-300">
-                        {historico.texto}
-                      </p>
-                    )}
-
-                    <div className="mt-3 flex flex-wrap gap-3">
-                      {historico.link && (
-                        <a href={historico.link} target="_blank" rel="noopener noreferrer" className="font-bold text-blue-600 hover:underline dark:text-blue-400">
-                          Abrir link
-                        </a>
-                      )}
-
-                      {historico.arquivoUrl && (
-                        <a href={historico.arquivoUrl} target="_blank" rel="noopener noreferrer" className="font-bold text-blue-600 hover:underline dark:text-blue-400">
-                          Abrir arquivo
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
-                Nenhuma versão anterior registrada.
-              </div>
-            )}
-          </Card>
-        </>
-      )}
+                          {historico.arquivoUrl && (
+                            <a
+                              href={
+                                historico.arquivoUrl
+                              }
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-bold text-blue-600 hover:underline dark:text-blue-400"
+                            >
+                              {t(
+                                "actions.openFile"
+                              )}
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  )}
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                  {t(
+                    "history.empty"
+                  )}
+                </div>
+              )}
+            </Card>
+          </>
+        )}
     </main>
   );
 }
 
-function Card({ titulo, children }: { titulo: string; children: React.ReactNode }) {
+function Card({
+  titulo,
+  children,
+}: {
+  titulo: string;
+  children: ReactNode;
+}) {
   return (
     <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-      <h2 className="text-lg font-black text-slate-900 dark:text-white">{titulo}</h2>
-      <div className="mt-4">{children}</div>
+      <h2 className="text-lg font-black text-slate-900 dark:text-white">
+        {titulo}
+      </h2>
+
+      <div className="mt-4">
+        {children}
+      </div>
     </section>
   );
 }
 
-function InfoCard({ titulo, valor }: { titulo: string; valor: string }) {
+function InfoCard({
+  titulo,
+  valor,
+}: {
+  titulo: string;
+  valor: string;
+}) {
   return (
     <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
       <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
         {titulo}
       </p>
+
       <p className="mt-2 text-lg font-black text-slate-900 dark:text-white">
         {valor}
       </p>
@@ -439,27 +1150,39 @@ function InfoCard({ titulo, valor }: { titulo: string; valor: string }) {
   );
 }
 
-function StatusBadge({ status }: { status: string }) {
-  const estilos = {
-    Enviado:
-      "bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-800",
-
-    Avaliado:
-      "bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800",
-
-    Revisao:
-      "bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800",
-  };
-
-  const classe =
-    estilos[status as keyof typeof estilos] ??
-    "bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700";
-
+function HeaderInfo({
+  titulo,
+  valor,
+}: {
+  titulo: string;
+  valor: string;
+}) {
   return (
-    <span
-      className={`inline-flex rounded-full border px-3 py-1 text-xs font-black ${classe}`}
-    >
-      {status}
-    </span>
+    <div className="rounded-2xl border border-slate-200 px-4 py-3 dark:border-slate-700">
+      <p className="text-xs uppercase text-slate-500 dark:text-slate-400">
+        {titulo}
+      </p>
+
+      <p className="font-bold text-slate-900 dark:text-white">
+        {valor}
+      </p>
+    </div>
+  );
+}
+
+function AcademicLine({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <p>
+      <strong className="text-slate-800 dark:text-slate-100">
+        {label}:
+      </strong>{" "}
+      {value}
+    </p>
   );
 }

@@ -1178,6 +1178,86 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorWorkSubmissionDetail": {
+    "eyebrow": "Travaux",
+    "title": "Correction de la remise",
+    "submissionReference": "Remise n° {id}",
+    "loading": "Chargement de la remise...",
+    "errorTitle": "Erreur lors du chargement de la remise",
+    "common": {
+      "notProvided": "—"
+    },
+    "fields": {
+      "student": "Élève",
+      "class": "Classe",
+      "course": "Cours",
+      "status": "Statut",
+      "submittedAt": "Date de remise",
+      "correctedAt": "Date de correction",
+      "activityTitle": "Titre",
+      "maximumGrade": "Note maximale",
+      "deadline": "Date limite",
+      "enrollment": "Inscription",
+      "semester": "Semestre",
+      "academicPeriod": "Période académique",
+      "grade": "Note",
+      "feedback": "Commentaire pour l’élève"
+    },
+    "status": {
+      "sent": "Remis",
+      "graded": "Évalué",
+      "review": "En révision"
+    },
+    "activity": {
+      "title": "Activité",
+      "noDescription": "Aucune description renseignée."
+    },
+    "academic": {
+      "title": "Données académiques"
+    },
+    "submission": {
+      "title": "Remise de l’élève",
+      "noText": "L’élève n’a envoyé aucun texte.",
+      "noLink": "Aucun lien envoyé",
+      "noFile": "Aucun fichier envoyé"
+    },
+    "grading": {
+      "title": "Évaluation",
+      "maximumGrade": "Note maximale : {maximum}",
+      "gradePlaceholder": "Saisissez la note",
+      "gradeHelp": "La note doit être comprise entre 0 et {maximum}.",
+      "feedbackPlaceholder": "Saisissez le commentaire de correction..."
+    },
+    "history": {
+      "title": "Historique des versions",
+      "version": "Version {version}",
+      "submittedAt": "Remise le : {date}",
+      "empty": "Aucune version précédente enregistrée."
+    },
+    "actions": {
+      "back": "← Retour aux travaux",
+      "retry": "Réessayer",
+      "openSubmittedLink": "Ouvrir le lien envoyé",
+      "openSubmittedFile": "Ouvrir le fichier envoyé",
+      "openLink": "Ouvrir le lien",
+      "openFile": "Ouvrir le fichier",
+      "save": "Enregistrer la correction",
+      "saving": "Enregistrement..."
+    },
+    "validation": {
+      "gradeRequired": "Saisissez la note.",
+      "invalidGrade": "Saisissez une note valide supérieure ou égale à zéro.",
+      "gradeAboveMaximum": "La note ne peut pas être supérieure à {maximum}."
+    },
+    "feedback": {
+      "invalidSubmission": "Remise non valide.",
+      "loadError": "Erreur lors du chargement de la remise.",
+      "invalidResponse": "Les données de la remise n’ont pas pu être interprétées.",
+      "notFound": "Remise introuvable.",
+      "saveError": "La correction n’a pas pu être enregistrée.",
+      "saveSuccess": "Correction enregistrée avec succès."
+    }
+  },
   "ProfessorProgress": {
     "eyebrow": "Progression académique",
     "title": "Progression des élèves",

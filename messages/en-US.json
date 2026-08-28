@@ -1178,6 +1178,86 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorWorkSubmissionDetail": {
+    "eyebrow": "Assignments",
+    "title": "Submission grading",
+    "submissionReference": "Submission #{id}",
+    "loading": "Loading submission...",
+    "errorTitle": "Error loading submission",
+    "common": {
+      "notProvided": "—"
+    },
+    "fields": {
+      "student": "Student",
+      "class": "Class",
+      "course": "Course",
+      "status": "Status",
+      "submittedAt": "Submission date",
+      "correctedAt": "Grading date",
+      "activityTitle": "Title",
+      "maximumGrade": "Maximum grade",
+      "deadline": "Deadline",
+      "enrollment": "Enrollment",
+      "semester": "Semester",
+      "academicPeriod": "Academic period",
+      "grade": "Grade",
+      "feedback": "Feedback for the student"
+    },
+    "status": {
+      "sent": "Submitted",
+      "graded": "Graded",
+      "review": "Under review"
+    },
+    "activity": {
+      "title": "Activity",
+      "noDescription": "No description provided."
+    },
+    "academic": {
+      "title": "Academic information"
+    },
+    "submission": {
+      "title": "Student submission",
+      "noText": "The student did not submit any text.",
+      "noLink": "No link submitted",
+      "noFile": "No file submitted"
+    },
+    "grading": {
+      "title": "Grading",
+      "maximumGrade": "Maximum grade: {maximum}",
+      "gradePlaceholder": "Enter the grade",
+      "gradeHelp": "The grade must be between 0 and {maximum}.",
+      "feedbackPlaceholder": "Enter feedback for this submission..."
+    },
+    "history": {
+      "title": "Version history",
+      "version": "Version {version}",
+      "submittedAt": "Submitted at: {date}",
+      "empty": "No previous versions recorded."
+    },
+    "actions": {
+      "back": "← Back to assignments",
+      "retry": "Try again",
+      "openSubmittedLink": "Open submitted link",
+      "openSubmittedFile": "Open submitted file",
+      "openLink": "Open link",
+      "openFile": "Open file",
+      "save": "Save grading",
+      "saving": "Saving..."
+    },
+    "validation": {
+      "gradeRequired": "Enter the grade.",
+      "invalidGrade": "Enter a valid grade equal to or greater than zero.",
+      "gradeAboveMaximum": "The grade cannot be greater than {maximum}."
+    },
+    "feedback": {
+      "invalidSubmission": "Invalid submission.",
+      "loadError": "Error loading the submission.",
+      "invalidResponse": "The submission data could not be interpreted.",
+      "notFound": "Submission not found.",
+      "saveError": "The grading could not be saved.",
+      "saveSuccess": "Grading saved successfully."
+    }
+  },
   "ProfessorProgress": {
     "eyebrow": "Academic progress",
     "title": "Student progress",

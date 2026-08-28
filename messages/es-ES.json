@@ -1178,6 +1178,86 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorWorkSubmissionDetail": {
+    "eyebrow": "Trabajos",
+    "title": "Corrección de la entrega",
+    "submissionReference": "Entrega #{id}",
+    "loading": "Cargando entrega...",
+    "errorTitle": "Error al cargar la entrega",
+    "common": {
+      "notProvided": "—"
+    },
+    "fields": {
+      "student": "Alumno",
+      "class": "Clase",
+      "course": "Curso",
+      "status": "Estado",
+      "submittedAt": "Fecha de entrega",
+      "correctedAt": "Fecha de corrección",
+      "activityTitle": "Título",
+      "maximumGrade": "Calificación máxima",
+      "deadline": "Fecha límite",
+      "enrollment": "Matrícula",
+      "semester": "Semestre",
+      "academicPeriod": "Período académico",
+      "grade": "Calificación",
+      "feedback": "Comentario para el alumno"
+    },
+    "status": {
+      "sent": "Enviado",
+      "graded": "Evaluado",
+      "review": "En revisión"
+    },
+    "activity": {
+      "title": "Actividad",
+      "noDescription": "No se ha proporcionado una descripción."
+    },
+    "academic": {
+      "title": "Datos académicos"
+    },
+    "submission": {
+      "title": "Entrega del alumno",
+      "noText": "El alumno no ha enviado texto.",
+      "noLink": "No se ha enviado ningún enlace",
+      "noFile": "No se ha enviado ningún archivo"
+    },
+    "grading": {
+      "title": "Evaluación",
+      "maximumGrade": "Calificación máxima: {maximum}",
+      "gradePlaceholder": "Introduzca la calificación",
+      "gradeHelp": "La calificación debe estar entre 0 y {maximum}.",
+      "feedbackPlaceholder": "Introduzca el comentario de la corrección..."
+    },
+    "history": {
+      "title": "Historial de versiones",
+      "version": "Versión {version}",
+      "submittedAt": "Enviada el: {date}",
+      "empty": "No hay versiones anteriores registradas."
+    },
+    "actions": {
+      "back": "← Volver a trabajos",
+      "retry": "Intentar de nuevo",
+      "openSubmittedLink": "Abrir enlace enviado",
+      "openSubmittedFile": "Abrir archivo enviado",
+      "openLink": "Abrir enlace",
+      "openFile": "Abrir archivo",
+      "save": "Guardar corrección",
+      "saving": "Guardando..."
+    },
+    "validation": {
+      "gradeRequired": "Introduzca la calificación.",
+      "invalidGrade": "Introduzca una calificación válida igual o mayor que cero.",
+      "gradeAboveMaximum": "La calificación no puede ser mayor que {maximum}."
+    },
+    "feedback": {
+      "invalidSubmission": "Entrega no válida.",
+      "loadError": "Error al cargar la entrega.",
+      "invalidResponse": "No se han podido interpretar los datos de la entrega.",
+      "notFound": "Entrega no encontrada.",
+      "saveError": "No se ha podido guardar la corrección.",
+      "saveSuccess": "Corrección guardada correctamente."
+    }
+  },
   "ProfessorProgress": {
     "eyebrow": "Progreso académico",
     "title": "Progreso de los alumnos",

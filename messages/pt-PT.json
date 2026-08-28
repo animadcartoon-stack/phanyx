@@ -1178,6 +1178,86 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorWorkSubmissionDetail": {
+    "eyebrow": "Trabalhos",
+    "title": "Correção da entrega",
+    "submissionReference": "Entrega #{id}",
+    "loading": "A carregar entrega...",
+    "errorTitle": "Erro ao carregar a entrega",
+    "common": {
+      "notProvided": "—"
+    },
+    "fields": {
+      "student": "Aluno",
+      "class": "Turma",
+      "course": "Curso",
+      "status": "Estado",
+      "submittedAt": "Data da entrega",
+      "correctedAt": "Data da correção",
+      "activityTitle": "Título",
+      "maximumGrade": "Nota máxima",
+      "deadline": "Prazo",
+      "enrollment": "Matrícula",
+      "semester": "Semestre",
+      "academicPeriod": "Período letivo",
+      "grade": "Nota",
+      "feedback": "Feedback para o aluno"
+    },
+    "status": {
+      "sent": "Enviado",
+      "graded": "Avaliado",
+      "review": "Em revisão"
+    },
+    "activity": {
+      "title": "Atividade",
+      "noDescription": "Sem descrição indicada."
+    },
+    "academic": {
+      "title": "Dados académicos"
+    },
+    "submission": {
+      "title": "Entrega do aluno",
+      "noText": "O aluno não enviou texto.",
+      "noLink": "Sem ligação enviada",
+      "noFile": "Sem ficheiro enviado"
+    },
+    "grading": {
+      "title": "Avaliação",
+      "maximumGrade": "Nota máxima: {maximum}",
+      "gradePlaceholder": "Introduza a nota",
+      "gradeHelp": "A nota deve estar entre 0 e {maximum}.",
+      "feedbackPlaceholder": "Introduza o feedback da correção..."
+    },
+    "history": {
+      "title": "Histórico de versões",
+      "version": "Versão {version}",
+      "submittedAt": "Enviada em: {date}",
+      "empty": "Nenhuma versão anterior registada."
+    },
+    "actions": {
+      "back": "← Voltar para trabalhos",
+      "retry": "Tentar novamente",
+      "openSubmittedLink": "Abrir ligação enviada",
+      "openSubmittedFile": "Abrir ficheiro enviado",
+      "openLink": "Abrir ligação",
+      "openFile": "Abrir ficheiro",
+      "save": "Guardar correção",
+      "saving": "A guardar..."
+    },
+    "validation": {
+      "gradeRequired": "Introduza a nota.",
+      "invalidGrade": "Introduza uma nota válida igual ou superior a zero.",
+      "gradeAboveMaximum": "A nota não pode ser superior a {maximum}."
+    },
+    "feedback": {
+      "invalidSubmission": "Entrega inválida.",
+      "loadError": "Erro ao carregar a entrega.",
+      "invalidResponse": "Não foi possível interpretar os dados da entrega.",
+      "notFound": "Entrega não encontrada.",
+      "saveError": "Não foi possível guardar a correção.",
+      "saveSuccess": "Correção guardada com sucesso."
+    }
+  },
   "ProfessorProgress": {
     "eyebrow": "Progresso académico",
     "title": "Progresso dos alunos",
