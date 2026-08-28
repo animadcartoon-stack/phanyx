@@ -1178,6 +1178,38 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorClassStudent": {
+    "eyebrow": "Alumno de la clase",
+    "title": "Registro académico del alumno",
+    "description": "Esta página representa el acceso individual a un alumno dentro de las clases del profesor, pero todavía debe estar vinculada a datos académicos reales antes de permitir el registro de calificaciones.",
+    "studentReference": "Referencia del alumno: {id}",
+    "invalid": {
+      "title": "Alumno no válido",
+      "description": "No se ha podido identificar correctamente al alumno indicado en esta ruta."
+    },
+    "integration": {
+      "title": "Vinculación académica necesaria",
+      "description": "Para registrar una calificación de forma segura, es necesario identificar la clase, la disciplina y la evaluación o actividad correspondiente. Esta página no guardará ningún dato hasta que estos vínculos estén correctamente establecidos."
+    },
+    "available": {
+      "title": "Áreas disponibles",
+      "description": "Utilice los módulos que ya trabajan con datos académicos reales.",
+      "classes": {
+        "title": "Clases",
+        "description": "Consulte sus clases, los alumnos vinculados y la información académica disponible.",
+        "action": "Ver clases"
+      },
+      "exams": {
+        "title": "Evaluaciones",
+        "description": "Acceda a evaluaciones, intentos y calificaciones vinculadas a las evaluaciones de los alumnos.",
+        "action": "Ver evaluaciones"
+      }
+    },
+    "safetyNotice": "Esta página no guardará ninguna calificación ficticia ni sin vinculación académica.",
+    "actions": {
+      "backToClasses": "← Volver a clases"
+    }
+  },
   "ProfessorWorkSubmissionDetail": {
     "eyebrow": "Trabajos",
     "title": "Corrección de la entrega",

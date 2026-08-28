@@ -1178,6 +1178,38 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorClassStudent": {
+    "eyebrow": "Aluno da turma",
+    "title": "Registo académico do aluno",
+    "description": "Esta página representa um acesso individual ao aluno dentro das turmas do professor, mas ainda precisa de estar associada aos dados académicos reais antes de permitir lançamentos de nota.",
+    "studentReference": "Referência do aluno: {id}",
+    "invalid": {
+      "title": "Aluno inválido",
+      "description": "Não foi possível identificar corretamente o aluno indicado nesta rota."
+    },
+    "integration": {
+      "title": "Associação académica necessária",
+      "description": "Para lançar uma nota com segurança, é necessário identificar a turma, a disciplina e a avaliação ou atividade correspondente. Esta página não efetuará gravações enquanto estes dados não estiverem corretamente associados."
+    },
+    "available": {
+      "title": "Áreas disponíveis",
+      "description": "Utilize os módulos que já trabalham com dados académicos reais.",
+      "classes": {
+        "title": "Turmas",
+        "description": "Consulte as suas turmas, os alunos associados e as informações académicas disponíveis.",
+        "action": "Ver turmas"
+      },
+      "exams": {
+        "title": "Avaliações",
+        "description": "Aceda a provas, tentativas e notas associadas às avaliações dos alunos.",
+        "action": "Ver avaliações"
+      }
+    },
+    "safetyNotice": "Nenhuma nota fictícia ou sem associação académica será guardada por esta página.",
+    "actions": {
+      "backToClasses": "← Voltar para turmas"
+    }
+  },
   "ProfessorWorkSubmissionDetail": {
     "eyebrow": "Trabalhos",
     "title": "Correção da entrega",

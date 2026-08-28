@@ -1178,6 +1178,38 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorClassStudent": {
+    "eyebrow": "Élève de la classe",
+    "title": "Dossier académique de l’élève",
+    "description": "Cette page représente un accès individuel à un élève dans les classes du professeur, mais elle doit encore être liée à des données académiques réelles avant de permettre la saisie de notes.",
+    "studentReference": "Référence de l’élève : {id}",
+    "invalid": {
+      "title": "Élève non valide",
+      "description": "L’élève indiqué dans cette route n’a pas pu être identifié correctement."
+    },
+    "integration": {
+      "title": "Lien académique requis",
+      "description": "Pour saisir une note en toute sécurité, il est nécessaire d’identifier la classe, la discipline et l’évaluation ou l’activité correspondante. Cette page n’enregistrera aucune donnée tant que ces liens ne seront pas correctement établis."
+    },
+    "available": {
+      "title": "Espaces disponibles",
+      "description": "Utilisez les modules qui travaillent déjà avec des données académiques réelles.",
+      "classes": {
+        "title": "Classes",
+        "description": "Consultez vos classes, les élèves inscrits et les informations académiques disponibles.",
+        "action": "Voir les classes"
+      },
+      "exams": {
+        "title": "Évaluations",
+        "description": "Accédez aux évaluations, aux tentatives et aux notes associées aux évaluations des élèves.",
+        "action": "Voir les évaluations"
+      }
+    },
+    "safetyNotice": "Aucune note fictive ou sans lien académique ne sera enregistrée par cette page.",
+    "actions": {
+      "backToClasses": "← Retour aux classes"
+    }
+  },
   "ProfessorWorkSubmissionDetail": {
     "eyebrow": "Travaux",
     "title": "Correction de la remise",

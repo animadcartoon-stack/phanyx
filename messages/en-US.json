@@ -1178,6 +1178,38 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorClassStudent": {
+    "eyebrow": "Class student",
+    "title": "Student academic record",
+    "description": "This page represents individual access to a student within the professor’s classes, but it still needs to be linked to real academic data before grade entry can be enabled.",
+    "studentReference": "Student reference: {id}",
+    "invalid": {
+      "title": "Invalid student",
+      "description": "The student specified in this route could not be identified correctly."
+    },
+    "integration": {
+      "title": "Academic link required",
+      "description": "To enter a grade safely, the class, discipline, and corresponding exam or activity must be identified. This page will not save any data until those links are correctly established."
+    },
+    "available": {
+      "title": "Available areas",
+      "description": "Use the modules that already work with real academic data.",
+      "classes": {
+        "title": "Classes",
+        "description": "View your classes, enrolled students, and available academic information.",
+        "action": "View classes"
+      },
+      "exams": {
+        "title": "Exams",
+        "description": "Access exams, attempts, and grades linked to student assessments.",
+        "action": "View exams"
+      }
+    },
+    "safetyNotice": "No fictional grade or grade without an academic link will be saved by this page.",
+    "actions": {
+      "backToClasses": "← Back to classes"
+    }
+  },
   "ProfessorWorkSubmissionDetail": {
     "eyebrow": "Assignments",
     "title": "Submission grading",
