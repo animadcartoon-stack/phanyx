@@ -1178,6 +1178,43 @@
     "adminArea": "Administrative Area",
     "academicPlatform": "Academic SaaS Platform"
   },
+  "ProfessorClassDetail": {
+    "eyebrow": "Class",
+    "title": "Class details",
+    "description": "Access the academic areas related to this class and review the resources available to the professor.",
+    "classReference": "Class reference: {id}",
+    "invalid": {
+      "title": "Invalid class",
+      "description": "The class specified in this route could not be identified correctly."
+    },
+    "modules": {
+      "lessons": {
+        "title": "Class lessons",
+        "description": "Access and manage the lessons linked to this class.",
+        "action": "Manage lessons"
+      },
+      "gradebook": {
+        "title": "Class gradebook",
+        "description": "View the gradebook and the academic records available for this class.",
+        "action": "View gradebook"
+      }
+    },
+    "studentsIntegration": {
+      "title": "Student list integration in progress",
+      "description": "This page does not yet have a real source of students linked to the class. Simulated students and grades stored only in the browser were removed to avoid incorrect data."
+    },
+    "students": {
+      "title": "Class students",
+      "description": "Students linked to this class will appear here when the academic integration is available.",
+      "emptyTitle": "No students loaded on this page",
+      "emptyDescription": "For now, view students through the professor's general student area."
+    },
+    "actions": {
+      "back": "← Back to classes",
+      "viewStudents": "View students"
+    },
+    "safetyNotice": "No fictional student, grade, or status will be displayed as real academic data on this page."
+  },
   "ProfessorClassStudent": {
     "eyebrow": "Class student",
     "title": "Student academic record",

@@ -1178,6 +1178,43 @@
     "adminArea": "Espace administratif",
     "academicPlatform": "Plateforme académique SaaS"
   },
+  "ProfessorClassDetail": {
+    "eyebrow": "Classe",
+    "title": "Détails de la classe",
+    "description": "Accédez aux espaces académiques liés à cette classe et consultez les ressources disponibles pour le professeur.",
+    "classReference": "Référence de la classe : {id}",
+    "invalid": {
+      "title": "Classe non valide",
+      "description": "La classe indiquée dans cette route n’a pas pu être identifiée correctement."
+    },
+    "modules": {
+      "lessons": {
+        "title": "Cours de la classe",
+        "description": "Accédez aux cours associés à cette classe et gérez-les.",
+        "action": "Gérer les cours"
+      },
+      "gradebook": {
+        "title": "Bulletin de la classe",
+        "description": "Consultez le bulletin et les dossiers académiques disponibles pour cette classe.",
+        "action": "Voir le bulletin"
+      }
+    },
+    "studentsIntegration": {
+      "title": "Intégration de la liste des élèves en cours",
+      "description": "Cette page ne dispose pas encore d’une source réelle d’élèves associés à la classe. Les élèves simulés et les notes enregistrées uniquement dans le navigateur ont été supprimés afin d’éviter des données incorrectes."
+    },
+    "students": {
+      "title": "Élèves de la classe",
+      "description": "Les élèves associés à cette classe apparaîtront ici lorsque l’intégration académique sera disponible.",
+      "emptyTitle": "Aucun élève chargé sur cette page",
+      "emptyDescription": "Pour le moment, consultez les élèves depuis l’espace général des élèves du professeur."
+    },
+    "actions": {
+      "back": "← Retour aux classes",
+      "viewStudents": "Voir les élèves"
+    },
+    "safetyNotice": "Aucun élève, note ou statut fictif ne sera affiché comme donnée académique réelle sur cette page."
+  },
   "ProfessorClassStudent": {
     "eyebrow": "Élève de la classe",
     "title": "Dossier académique de l’élève",

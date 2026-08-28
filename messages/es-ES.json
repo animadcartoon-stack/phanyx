@@ -1178,6 +1178,43 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma académica SaaS"
   },
+  "ProfessorClassDetail": {
+    "eyebrow": "Clase",
+    "title": "Detalles de la clase",
+    "description": "Acceda a las áreas académicas relacionadas con esta clase y consulte los recursos disponibles para el profesor.",
+    "classReference": "Referencia de la clase: {id}",
+    "invalid": {
+      "title": "Clase no válida",
+      "description": "No se ha podido identificar correctamente la clase indicada en esta ruta."
+    },
+    "modules": {
+      "lessons": {
+        "title": "Clases de la turma",
+        "description": "Acceda y gestione las clases vinculadas a esta turma.",
+        "action": "Gestionar clases"
+      },
+      "gradebook": {
+        "title": "Boletín de la turma",
+        "description": "Consulte el boletín y los registros académicos disponibles de esta turma.",
+        "action": "Ver boletín"
+      }
+    },
+    "studentsIntegration": {
+      "title": "Integración de la lista de alumnos en curso",
+      "description": "Esta página todavía no dispone de una fuente real de alumnos vinculados a la turma. Se eliminaron los alumnos simulados y las calificaciones almacenadas únicamente en el navegador para evitar datos incorrectos."
+    },
+    "students": {
+      "title": "Alumnos de la turma",
+      "description": "Los alumnos vinculados a esta turma aparecerán aquí cuando la integración académica esté disponible.",
+      "emptyTitle": "No hay alumnos cargados en esta página",
+      "emptyDescription": "Por ahora, consulte los alumnos desde el área general de alumnos del profesor."
+    },
+    "actions": {
+      "back": "← Volver a clases",
+      "viewStudents": "Ver alumnos"
+    },
+    "safetyNotice": "No se mostrará ningún alumno, calificación o estado ficticio como dato académico real en esta página."
+  },
   "ProfessorClassStudent": {
     "eyebrow": "Alumno de la clase",
     "title": "Registro académico del alumno",

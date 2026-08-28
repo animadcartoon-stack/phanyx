@@ -1,130 +1,238 @@
 "use client";
 
-import { useRouter, useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 
-type Aluno = {
-  id: string;
-  nome: string;
-  email: string;
-};
+export default function TurmaDetalhePage() {
+  const params =
+    useParams<{
+      id: string;
+    }>();
 
-export default function AlunosDaTurmaPage() {
-  const router = useRouter();
-  const { id } = useParams<{ id: string }>();
+  const t = useTranslations(
+    "ProfessorClassDetail"
+  );
 
-  // ALUNOS SIMULADOS
-  const alunos: Aluno[] = [
-    { id: "1", nome: "João Silva", email: "joao@email.com" },
-    { id: "2", nome: "Maria Oliveira", email: "maria@email.com" },
-    { id: "3", nome: "Pedro Santos", email: "pedro@email.com" },
-  ];
+  const turmaId = String(
+    params?.id || ""
+  ).trim();
 
-  const [notasSalvas, setNotasSalvas] = useState<Record<string, any>>({});
+  const turmaIdValido =
+    /^\d+$/.test(turmaId) &&
+    Number(turmaId) > 0;
 
-  useEffect(() => {
-    const notas: Record<string, any> = {};
+  if (!turmaIdValido) {
+    return (
+      <main className="min-h-screen p-6 text-slate-900 dark:text-slate-100 md:p-8">
+        <div className="mx-auto max-w-5xl">
+          <section className="rounded-3xl border border-red-200 bg-red-50 p-6 shadow-sm dark:border-red-800 dark:bg-red-950/40">
+            <h1 className="text-lg font-black text-red-800 dark:text-red-200">
+              {t(
+                "invalid.title"
+              )}
+            </h1>
 
-    alunos.forEach((aluno) => {
-      const item = localStorage.getItem(`nota-${aluno.id}`);
-      if (item) {
-        notas[aluno.id] = JSON.parse(item);
-      }
-    });
+            <p className="mt-2 text-sm leading-6 text-red-700 dark:text-red-300">
+              {t(
+                "invalid.description"
+              )}
+            </p>
 
-    setNotasSalvas(notas);
-  }, []);
+            <Link
+              href="/professor/turmas"
+              className="mt-5 inline-flex rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700"
+            >
+              {t(
+                "actions.back"
+              )}
+            </Link>
+          </section>
+        </div>
+      </main>
+    );
+  }
 
   return (
-    <main className="p-8 bg-white text-gray-900 min-h-screen space-y-6">
-      <button
-        onClick={() => router.back()}
-        className="text-blue-600 hover:underline"
-      >
-        ⬅ Voltar
-      </button>
+    <main className="min-h-screen p-6 text-slate-900 dark:text-slate-100 md:p-8">
+      <div className="mx-auto max-w-5xl space-y-6">
+        <Link
+          href="/professor/turmas"
+          className="inline-flex text-sm font-semibold text-blue-600 transition hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
+        >
+          {t(
+            "actions.back"
+          )}
+        </Link>
 
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold">👩‍🎓 Alunos da Turma</h1>
+        <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-700 dark:text-blue-400">
+            {t("eyebrow")}
+          </p>
 
-        <p className="text-gray-600">
-          Turma: <strong>{id}</strong>
-        </p>
-      </div>
+          <h1 className="mt-2 text-3xl font-black tracking-tight text-slate-900 dark:text-white">
+            {t("title")}
+          </h1>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="bg-white border rounded-lg p-6">
-          <h2 className="font-semibold text-gray-900 mb-3">
-            Aulas da turma
-          </h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
+            {t(
+              "description"
+            )}
+          </p>
 
-          <button
-            onClick={() => router.push(`/professor/turmas/${id}/aulas`)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          <div className="mt-5 inline-flex rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-400">
+            {t(
+              "classReference",
+              {
+                id: turmaId,
+              }
+            )}
+          </div>
+        </section>
+
+        <section className="grid gap-4 md:grid-cols-2">
+          <Link
+            href={`/professor/turmas/${turmaId}/aulas`}
+            className="group rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-blue-300 hover:shadow-md dark:border-slate-700 dark:bg-slate-900 dark:hover:border-blue-700"
           >
-            Gerenciar aulas
-          </button>
-        </div>
+            <div
+              aria-hidden="true"
+              className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-2xl dark:bg-blue-950/50"
+            >
+              📚
+            </div>
 
-        <div className="bg-white border rounded-lg p-6">
-          <h2 className="font-semibold text-gray-900 mb-3">
-            Boletim da turma
-          </h2>
+            <h2 className="mt-4 text-lg font-black text-slate-900 dark:text-white">
+              {t(
+                "modules.lessons.title"
+              )}
+            </h2>
 
-          <button
-            onClick={() => router.push(`/professor/turmas/${id}/boletim`)}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+            <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
+              {t(
+                "modules.lessons.description"
+              )}
+            </p>
+
+            <p className="mt-5 text-sm font-bold text-blue-700 group-hover:underline dark:text-blue-400">
+              {t(
+                "modules.lessons.action"
+              )}
+            </p>
+          </Link>
+
+          <Link
+            href={`/professor/turmas/${turmaId}/boletim`}
+            className="group rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-emerald-300 hover:shadow-md dark:border-slate-700 dark:bg-slate-900 dark:hover:border-emerald-700"
           >
-            Ver boletim
-          </button>
-        </div>
-      </div>
+            <div
+              aria-hidden="true"
+              className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-2xl dark:bg-emerald-950/50"
+            >
+              📊
+            </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full border border-gray-200 rounded-lg overflow-hidden">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="p-3 text-left">Nome</th>
-              <th className="p-3 text-left">Email</th>
-              <th className="p-3 text-left">Status</th>
-              <th className="p-3 text-left">Ações</th>
-            </tr>
-          </thead>
+            <h2 className="mt-4 text-lg font-black text-slate-900 dark:text-white">
+              {t(
+                "modules.gradebook.title"
+              )}
+            </h2>
 
-          <tbody>
-            {alunos.map((aluno) => {
-              const nota = notasSalvas[aluno.id];
+            <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
+              {t(
+                "modules.gradebook.description"
+              )}
+            </p>
 
-              return (
-                <tr key={aluno.id} className="border-t hover:bg-gray-50">
-                  <td className="p-3">{aluno.nome}</td>
-                  <td className="p-3">{aluno.email}</td>
+            <p className="mt-5 text-sm font-bold text-emerald-700 group-hover:underline dark:text-emerald-400">
+              {t(
+                "modules.gradebook.action"
+              )}
+            </p>
+          </Link>
+        </section>
 
-                  <td className="p-3">
-                    {nota ? (
-                      <span className="text-green-600 font-medium">
-                        ✅ Nota lançada ({nota.nota})
-                      </span>
-                    ) : (
-                      <span className="text-red-600 font-medium">
-                        ❌ Pendente
-                      </span>
-                    )}
-                  </td>
+        <section className="rounded-3xl border border-amber-200 bg-amber-50 p-6 shadow-sm dark:border-amber-800 dark:bg-amber-950/30">
+          <div className="flex gap-4">
+            <div
+              aria-hidden="true"
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-2xl dark:bg-amber-900/50"
+            >
+              ⚠️
+            </div>
 
-                  <td className="p-3">
-                    <button
-                      onClick={() => router.push(`/professor/notas/${aluno.id}`)}
-                      className="text-blue-600 hover:underline"
-                    >
-                      {nota ? "✏️ Editar nota" : "📝 Lançar nota"}
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+            <div>
+              <h2 className="font-black text-amber-950 dark:text-amber-100">
+                {t(
+                  "studentsIntegration.title"
+                )}
+              </h2>
+
+              <p className="mt-2 text-sm leading-6 text-amber-900/80 dark:text-amber-200">
+                {t(
+                  "studentsIntegration.description"
+                )}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
+          <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-700">
+            <h2 className="text-lg font-black text-slate-900 dark:text-white">
+              {t(
+                "students.title"
+              )}
+            </h2>
+
+            <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">
+              {t(
+                "students.description"
+              )}
+            </p>
+          </div>
+
+          <div className="p-6">
+            <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center dark:border-slate-700 dark:bg-slate-950">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-2xl shadow-sm dark:bg-slate-900">
+                👩‍🎓
+              </div>
+
+              <div className="mx-auto mt-4 max-w-xl">
+                <h3 className="text-lg font-black text-slate-900 dark:text-white">
+                  {t(
+                    "students.emptyTitle"
+                  )}
+                </h3>
+
+                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                  {t(
+                    "students.emptyDescription"
+                  )}
+                </p>
+              </div>
+
+              <div className="mt-6">
+                <Link
+                  href="/professor/alunos"
+                  className="inline-flex rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+                >
+                  {t(
+                    "actions.viewStudents"
+                  )}
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-3xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-700 dark:bg-slate-950">
+          <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
+            {t(
+              "safetyNotice"
+            )}
+          </p>
+        </section>
       </div>
     </main>
   );
