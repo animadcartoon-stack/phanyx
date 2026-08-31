@@ -29833,3 +29833,94 @@ html[data-theme="light"]
   background-color: #f8fafc !important;
   border-color: #cbd5e1 !important;
 }
+
+/* PHANYX — criação de prova no tema claro */
+html[data-theme="light"] .phanyx-professor-nova-prova {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-professor-nova-prova
+  .bg-white {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-professor-nova-prova
+  :is(
+    h1,
+    h2,
+    h3,
+    h4,
+    label,
+    strong,
+    .text-gray-900,
+    .text-gray-700,
+    .text-slate-900,
+    .text-slate-800,
+    .text-slate-700
+  ) {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-professor-nova-prova
+  :is(
+    .text-gray-500,
+    .text-slate-600,
+    .text-slate-500,
+    .text-slate-400
+  ) {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-professor-nova-prova
+  :is(input, select, textarea) {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-professor-nova-prova
+  :is(input, textarea)::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-professor-nova-prova
+  .bg-blue-50 {
+  background-color: #eff6ff !important;
+  border-color: #93c5fd !important;
+}
+
+html[data-theme="light"]
+  .phanyx-professor-nova-prova
+  .text-blue-700 {
+  color: #1d4ed8 !important;
+  -webkit-text-fill-color: #1d4ed8 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-professor-nova-prova
+  .text-yellow-700 {
+  color: #a16207 !important;
+  -webkit-text-fill-color: #a16207 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-professor-nova-prova
+  :is(button, a)[class~="text-white"] {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
