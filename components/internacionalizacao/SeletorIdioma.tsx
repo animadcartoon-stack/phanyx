@@ -112,7 +112,7 @@ export default function SeletorIdioma({
             {exibirRotulo && (
                 <label
                     htmlFor={id}
-                    className="mb-1 block text-xs font-bold !text-slate-900 dark:!text-white"
+                    className="phanyx-seletor-idioma-rotulo mb-1 block text-xs font-bold !text-slate-900 dark:!text-white"
                     style={{
                         WebkitTextFillColor: "currentColor",
                     }}

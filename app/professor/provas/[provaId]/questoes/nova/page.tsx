@@ -361,7 +361,7 @@ export default function NovaQuestaoPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 p-6 text-slate-900 dark:bg-slate-950 dark:text-white">
+    <div className="phanyx-professor-nova-questao min-h-screen bg-slate-100 p-6 text-slate-900 dark:bg-slate-950 dark:text-white">
       <div className="mx-auto max-w-5xl space-y-6">
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <Link

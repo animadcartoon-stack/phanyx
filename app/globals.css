@@ -29683,3 +29683,153 @@ html[data-theme="system"]
   color: #64748b !important;
   -webkit-text-fill-color: #64748b !important;
 }
+
+/* PHANYX — avaliações do professor no tema claro */
+html[data-theme="light"] .phanyx-seletor-idioma-rotulo {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  :is(
+    .phanyx-professor-prova-detalhe,
+    .phanyx-professor-tentativas,
+    .phanyx-professor-nova-questao
+  ) {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  :is(
+    .phanyx-professor-prova-detalhe,
+    .phanyx-professor-tentativas,
+    .phanyx-professor-nova-questao
+  )
+  .bg-white {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"]
+  :is(
+    .phanyx-professor-prova-detalhe,
+    .phanyx-professor-tentativas,
+    .phanyx-professor-nova-questao
+  )
+  .bg-slate-100 {
+  background-color: #f1f5f9 !important;
+}
+
+html[data-theme="light"]
+  :is(
+    .phanyx-professor-prova-detalhe,
+    .phanyx-professor-tentativas,
+    .phanyx-professor-nova-questao
+  )
+  .bg-slate-50 {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"]
+  :is(
+    .phanyx-professor-prova-detalhe,
+    .phanyx-professor-tentativas,
+    .phanyx-professor-nova-questao
+  )
+  :is(
+    h1,
+    h2,
+    h3,
+    label,
+    .text-slate-900,
+    .text-slate-800,
+    .text-slate-700
+  ) {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  :is(
+    .phanyx-professor-prova-detalhe,
+    .phanyx-professor-tentativas,
+    .phanyx-professor-nova-questao
+  )
+  :is(
+    .text-slate-600,
+    .text-slate-500,
+    .text-slate-400
+  ) {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  :is(
+    .phanyx-professor-prova-detalhe,
+    .phanyx-professor-tentativas,
+    .phanyx-professor-nova-questao
+  )
+  :is(input, select, textarea) {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  :is(
+    .phanyx-professor-prova-detalhe,
+    .phanyx-professor-tentativas,
+    .phanyx-professor-nova-questao
+  )
+  :is(input, textarea)::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  :is(
+    .phanyx-professor-prova-detalhe,
+    .phanyx-professor-tentativas,
+    .phanyx-professor-nova-questao
+  )
+  :is(button, a)[class~="text-white"] {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="light"]
+  :is(
+    .phanyx-professor-prova-detalhe,
+    .phanyx-professor-tentativas,
+    .phanyx-professor-nova-questao
+  )
+  .bg-yellow-50 {
+  background-color: #fffbeb !important;
+  border-color: #fcd34d !important;
+}
+
+html[data-theme="light"]
+  :is(
+    .phanyx-professor-prova-detalhe,
+    .phanyx-professor-tentativas,
+    .phanyx-professor-nova-questao
+  )
+  .text-yellow-800 {
+  color: #78350f !important;
+  -webkit-text-fill-color: #78350f !important;
+}
+
+html[data-theme="light"]
+  .phanyx-professor-nova-questao
+  .bg-slate-50 {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
