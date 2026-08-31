@@ -153,6 +153,10 @@ type LeadParaConversao = {
 };
 
 function AdminAlunosPage() {
+  const t = useTranslations(
+    "AdminStudents"
+  );
+
   const tTelefone =
     useTranslations(
       "InternationalPhone"
@@ -1753,33 +1757,44 @@ function AdminAlunosPage() {
     }
   }
 
-  function labelStatusAluno(status?: StatusAluno) {
+  function labelStatusAluno(
+    status?: StatusAluno
+  ) {
     switch (status) {
       case "ATIVO":
-        return "Ativo";
+        return t("statuses.active");
+
       case "TRANCADO":
-        return "Trancado";
+        return t("statuses.locked");
+
       case "SUSPENSO":
-        return "Suspenso";
+        return t("statuses.suspended");
+
       case "INADIMPLENTE":
-        return "Inadimplente";
+        return t("statuses.delinquent");
+
       case "TRANSFERIDO":
-        return "Transferido";
+        return t("statuses.transferred");
+
       case "DESLIGADO":
-        return "Desligado";
+        return t("statuses.inactive");
+
       case "FORMADO":
-        return "Formado";
+        return t("statuses.graduated");
+
       case "CANCELADO":
-        return "Cancelado";
+        return t("statuses.canceled");
+
       case "PAUSA_MEDICA":
-        return "Pausa médica";
+        return t("statuses.medicalLeave");
+
       case "FALTANTE":
-        return "Faltante";
+        return t("statuses.absent");
+
       default:
         return "-";
     }
   }
-
   function classeStatusAluno(status?: StatusAluno) {
     switch (status) {
       case "ATIVO":
@@ -2306,11 +2321,19 @@ function AdminAlunosPage() {
   }
 
   const turmaNomeSelecionada = useMemo(() => {
-    if (filtroTurmaId === "TODAS") return "Todas as turmas";
-    const turma = turmas.find((t) => t.id === Number(filtroTurmaId));
-    return turma ? turma.nome : "Turma";
-  }, [filtroTurmaId, turmas]);
+    if (filtroTurmaId === "TODAS") {
+      return t("filters.allClasses");
+    }
 
+    const turma = turmas.find(
+      (item) =>
+        item.id === Number(filtroTurmaId)
+    );
+
+    return turma
+      ? turma.nome
+      : t("filters.classFallback");
+  }, [filtroTurmaId, turmas, t]);
   return (
     <div className="phanyx-admin-alunos-page">
       <div className="mx-auto max-w-7xl space-y-6 p-4 md:p-6">
@@ -2329,14 +2352,13 @@ function AdminAlunosPage() {
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-600">
-                Gestão de alunos
+                {t("eyebrow")}
               </p>
               <h1 className="mt-2 text-3xl font-bold text-slate-900">
-                Alunos
+                {t("title")}
               </h1>
               <p className="mt-2 text-sm leading-6 text-slate-500">
-                Organize alunos criados, matriculados, cancelados e por turma em
-                uma visão mais profissional e operacional.
+                {t("description")}
               </p>
             </div>
 
@@ -2346,7 +2368,9 @@ function AdminAlunosPage() {
                 onClick={() => setMostrarFormulario((prev) => !prev)}
                 className="rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100"
               >
-                {mostrarFormulario ? "Ocultar cadastro" : "Novo aluno"}
+                {mostrarFormulario
+                  ? t("actions.hideRegistration")
+                  : t("actions.newStudent")}
               </button>
 
               <button
@@ -2360,7 +2384,7 @@ function AdminAlunosPage() {
                 }}
                 className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
               >
-                Limpar filtros
+                {t("actions.clearFilters")}
               </button>
             </div>
           </div>
@@ -2369,7 +2393,7 @@ function AdminAlunosPage() {
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
-              Total de alunos
+              {t("stats.total")}
             </p>
             <p className="mt-3 text-3xl font-bold text-slate-900">
               {totais.total}
@@ -2378,7 +2402,7 @@ function AdminAlunosPage() {
 
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
-              Matriculados
+              {t("stats.enrolled")}
             </p>
             <p className="mt-3 text-3xl font-bold text-blue-700">
               {totais.matriculados}
@@ -2387,7 +2411,7 @@ function AdminAlunosPage() {
 
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
-              Sem matrícula
+              {t("stats.withoutEnrollment")}
             </p>
             <p className="mt-3 text-3xl font-bold text-slate-700">
               {totais.semMatricula}
@@ -2396,7 +2420,7 @@ function AdminAlunosPage() {
 
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
-              Cancelados
+              {t("stats.canceled")}
             </p>
             <p className="mt-3 text-3xl font-bold text-slate-600">
               {totais.cancelados}
@@ -2405,7 +2429,7 @@ function AdminAlunosPage() {
 
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
-              Inadimplentes
+              {t("stats.delinquent")}
             </p>
             <p className="mt-3 text-3xl font-bold text-red-600">
               {totais.inadimplentes}
@@ -2417,11 +2441,10 @@ function AdminAlunosPage() {
           <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <div className="mb-4">
               <h2 className="text-lg font-semibold text-slate-900">
-                Novo aluno
+                {t("registration.title")}
               </h2>
               <p className="text-sm text-slate-500">
-                Cadastre novos alunos com dados pessoais, responsável e
-                acessibilidade.
+                {t("registration.description")}
               </p>
             </div>
 
@@ -2434,17 +2457,13 @@ function AdminAlunosPage() {
               {leadParaConversao && (
                 <div className="rounded-2xl border border-emerald-300 bg-emerald-50 p-4 text-sm text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-100">
                   <strong className="block text-base">
-                    Convertendo lead em aluno
+                    {t("lead.title")}
                   </strong>
 
                   <p className="mt-1 leading-6">
-                    Os dados de{" "}
-                    <strong>
-                      {leadParaConversao.nome}
-                    </strong>{" "}
-                    foram preenchidos a partir do CRM.
-                    Complete os dados pessoais obrigatórios
-                    antes de criar o aluno.
+                    {t("lead.description", {
+                      name: leadParaConversao.nome,
+                    })}
                   </p>
 
                   <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs">
@@ -2454,15 +2473,17 @@ function AdminAlunosPage() {
 
                     {leadParaConversao.responsavelNome ? (
                       <span>
-                        Responsável comercial:{" "}
-                        {leadParaConversao.responsavelNome}
+                        {t("lead.commercialOwner", {
+                          name: leadParaConversao.responsavelNome,
+                        })}
                       </span>
                     ) : null}
 
                     {leadParaConversao.interesse ? (
                       <span>
-                        Interesse:{" "}
-                        {leadParaConversao.interesse}
+                        {t("lead.interest", {
+                          interest: leadParaConversao.interesse,
+                        })}
                       </span>
                     ) : null}
                   </div>
@@ -2475,7 +2496,7 @@ function AdminAlunosPage() {
                     {fotoPerfil ? (
                       <img
                         src={fotoPerfil}
-                        alt={nome || "Foto oficial do aluno"}
+                        alt={nome || t("photo.alt")}
                         className="h-full w-full object-cover"
                       />
                     ) : (
@@ -2487,17 +2508,18 @@ function AdminAlunosPage() {
 
                   <div className="flex-1">
                     <h3 className="font-semibold text-slate-900 dark:text-slate-100">
-                      Foto oficial do aluno
+                      {t("photo.title")}
                     </h3>
 
                     <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                      Esta é a foto institucional usada em crachás, identificação e documentos
-                      oficiais. Não é a foto pessoal que o aluno altera no próprio perfil.
+                      {t("photo.description")}
                     </p>
 
                     <div className="mt-3 flex flex-wrap items-center gap-2">
                       <label className="cursor-pointer rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-100">
-                        {enviandoFotoPerfil ? "Enviando..." : "Enviar foto"}
+                        {enviandoFotoPerfil
+                          ? t("photo.uploading")
+                          : t("photo.upload")}
                         <input
                           type="file"
                           accept="image/png,image/jpeg,image/jpg,image/webp"
@@ -2515,7 +2537,7 @@ function AdminAlunosPage() {
                           onClick={() => setFotoPerfil("")}
                           className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
                         >
-                          Remover foto
+                          {t("photo.remove")}
                         </button>
                       )}
                     </div>
@@ -2525,7 +2547,7 @@ function AdminAlunosPage() {
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <input
-                  placeholder="Nome do aluno"
+                  placeholder={t("fields.name")}
                   name="nome-aluno-cadastro-phanyx"
                   autoComplete="off"
                   value={nome}
@@ -2543,7 +2565,7 @@ function AdminAlunosPage() {
                 />
 
                 <input
-                  placeholder="Nome social"
+                  placeholder={t("fields.socialName")}
                   value={nomeSocial}
                   onChange={(e) => setNomeSocial(e.target.value)}
                   className="w-full rounded-xl border p-2.5"
@@ -2565,7 +2587,7 @@ function AdminAlunosPage() {
                 </select>
 
                 <input
-                  placeholder="Email"
+                  placeholder={t("fields.email")}
                   type="email"
                   name="email-aluno-phanyx"
                   autoComplete="new-password"
@@ -2576,9 +2598,11 @@ function AdminAlunosPage() {
                 />
 
                 <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3 text-sm text-slate-600">
-                  <strong>Número da matrícula</strong>
+                  <strong>
+                    {t("fields.enrollmentNumber")}
+                  </strong>
                   <br />
-                  Será gerado automaticamente após a matrícula oficial do aluno.
+                  {t("fields.enrollmentGenerated")}
                 </div>
 
                 <input
@@ -2626,16 +2650,36 @@ function AdminAlunosPage() {
                   onChange={(e) => setStatusAluno(e.target.value as StatusAluno)}
                   className="w-full rounded-xl border p-2.5"
                 >
-                  <option value="ATIVO">Ativo</option>
-                  <option value="TRANCADO">Trancado</option>
-                  <option value="SUSPENSO">Suspenso</option>
-                  <option value="INADIMPLENTE">Inadimplente</option>
-                  <option value="TRANSFERIDO">Transferido</option>
-                  <option value="DESLIGADO">Desligado</option>
-                  <option value="FORMADO">Formado</option>
-                  <option value="CANCELADO">Cancelado</option>
-                  <option value="PAUSA_MEDICA">Pausa médica</option>
-                  <option value="FALTANTE">Faltante</option>
+                  <option value="ATIVO">
+                    {t("statuses.active")}
+                  </option>
+                  <option value="TRANCADO">
+                    {t("statuses.locked")}
+                  </option>
+                  <option value="SUSPENSO">
+                    {t("statuses.suspended")}
+                  </option>
+                  <option value="INADIMPLENTE">
+                    {t("statuses.delinquent")}
+                  </option>
+                  <option value="TRANSFERIDO">
+                    {t("statuses.transferred")}
+                  </option>
+                  <option value="DESLIGADO">
+                    {t("statuses.inactive")}
+                  </option>
+                  <option value="FORMADO">
+                    {t("statuses.graduated")}
+                  </option>
+                  <option value="CANCELADO">
+                    {t("statuses.canceled")}
+                  </option>
+                  <option value="PAUSA_MEDICA">
+                    {t("statuses.medicalLeave")}
+                  </option>
+                  <option value="FALTANTE">
+                    {t("statuses.absent")}
+                  </option>
                 </select>
 
                 <select
@@ -2643,7 +2687,9 @@ function AdminAlunosPage() {
                   onChange={(e) => setPoloId(e.target.value)}
                   className="w-full rounded-xl border p-2.5"
                 >
-                  <option value="">Selecione o polo do aluno</option>
+                  <option value="">
+                    {t("fields.selectCampus")}
+                  </option>
                   {polos.map((polo) => (
                     <option key={polo.id} value={polo.id}>
                       {polo.nome}
@@ -2652,7 +2698,7 @@ function AdminAlunosPage() {
                 </select>
 
                 <input
-                  placeholder="CEP"
+                  placeholder={t("fields.postalCode")}
                   value={cep}
                   onChange={(e) => {
                     const valor = e.target.value;
@@ -2675,42 +2721,42 @@ function AdminAlunosPage() {
                 />
 
                 <input
-                  placeholder="Endereço"
+                  placeholder={t("fields.address")}
                   value={endereco}
                   onChange={(e) => setEndereco(e.target.value)}
                   className="w-full rounded-xl border p-2.5"
                 />
 
                 <input
-                  placeholder="Número"
+                  placeholder={t("fields.number")}
                   value={numero}
                   onChange={(e) => setNumero(e.target.value)}
                   className="w-full rounded-xl border p-2.5"
                 />
 
                 <input
-                  placeholder="Complemento"
+                  placeholder={t("fields.complement")}
                   value={complemento}
                   onChange={(e) => setComplemento(e.target.value)}
                   className="w-full rounded-xl border p-2.5"
                 />
 
                 <input
-                  placeholder="Bairro"
+                  placeholder={t("fields.district")}
                   value={bairro}
                   onChange={(e) => setBairro(e.target.value)}
                   className="w-full rounded-xl border p-2.5"
                 />
 
                 <input
-                  placeholder="Cidade"
+                  placeholder={t("fields.city")}
                   value={cidade}
                   onChange={(e) => setCidade(e.target.value)}
                   className="w-full rounded-xl border p-2.5"
                 />
 
                 <input
-                  placeholder="Estado"
+                  placeholder={t("fields.state")}
                   value={estado}
                   onChange={(e) => setEstado(e.target.value)}
                   className="w-full rounded-xl border p-2.5"
@@ -2718,11 +2764,11 @@ function AdminAlunosPage() {
 
                 <div className="md:col-span-2 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
                   <h3 className="font-semibold text-slate-900 dark:text-slate-100">
-                    Documentos do aluno
+                    {t("documents.studentTitle")}
                   </h3>
 
                   <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    Opcional. Envie RG, CPF, CNH, Histórico Escolar, Comprovante de Residência ou Título de Eleitor.
+                    {t("documents.studentDescription")}
                   </p>
 
                   <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -2756,7 +2802,7 @@ function AdminAlunosPage() {
 
               <div className="border-t pt-4">
                 <h3 className="mb-3 font-semibold text-slate-900">
-                  Necessidades especiais e acessibilidade
+                  {t("accessibility.title")}
                 </h3>
 
                 <div className="space-y-4">
@@ -2768,12 +2814,12 @@ function AdminAlunosPage() {
                         setPossuiNecessidadeEspecial(e.target.checked)
                       }
                     />
-                    Possui necessidade especial
+                    {t("accessibility.hasSpecialNeed")}
                   </label>
 
                   <div className="grid grid-cols-1 gap-4">
                     <textarea
-                      placeholder="Descreva a necessidade especial do aluno"
+                      placeholder={t("accessibility.specialNeedPlaceholder")}
                       value={descricaoNecessidadeEspecial}
                       onChange={(e) =>
                         setDescricaoNecessidadeEspecial(e.target.value)
@@ -2782,7 +2828,7 @@ function AdminAlunosPage() {
                     />
 
                     <textarea
-                      placeholder="Observações de acessibilidade, apoio pedagógico ou adaptações"
+                      placeholder={t("accessibility.notesPlaceholder")}
                       value={observacoesAcessibilidade}
                       onChange={(e) =>
                         setObservacoesAcessibilidade(e.target.value)
@@ -2795,19 +2841,19 @@ function AdminAlunosPage() {
 
               <div className="border-t pt-4">
                 <h3 className="mb-3 font-semibold text-slate-900">
-                  Dados do responsável
+                  {t("guardian.title")}
                 </h3>
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <input
-                    placeholder="Nome do responsável"
+                    placeholder={t("guardian.name")}
                     value={nomeResponsavel}
                     onChange={(e) => setNomeResponsavel(e.target.value)}
                     className="w-full rounded-xl border p-2.5"
                   />
 
                   <input
-                    placeholder="CPF do responsável"
+                    placeholder={t("guardian.cpf")}
                     value={cpfResponsavel}
                     onChange={(e) => setCpfResponsavel(e.target.value)}
                     className="w-full rounded-xl border p-2.5"
@@ -2835,7 +2881,7 @@ function AdminAlunosPage() {
                   />
 
                   <input
-                    placeholder="Email do responsável"
+                    placeholder={t("guardian.email")}
                     type="email"
                     value={emailResponsavel}
                     onChange={(e) => setEmailResponsavel(e.target.value)}
@@ -2843,7 +2889,7 @@ function AdminAlunosPage() {
                   />
 
                   <input
-                    placeholder="Parentesco do responsável"
+                    placeholder={t("guardian.relationship")}
                     value={parentescoResponsavel}
                     onChange={(e) => setParentescoResponsavel(e.target.value)}
                     className="w-full rounded-xl border p-2.5 md:col-span-2"
@@ -2851,11 +2897,11 @@ function AdminAlunosPage() {
 
                   <div className="md:col-span-2 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
                     <h3 className="font-semibold text-slate-900 dark:text-slate-100">
-                      Documentos do responsável
+                      {t("guardian.documentsTitle")}
                     </h3>
 
                     <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                      Opcional. Envie documentos do titular/responsável pelo aluno.
+                      {t("guardian.documentsDescription")}
                     </p>
 
                     <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -2897,12 +2943,12 @@ function AdminAlunosPage() {
                 className="rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
               >
                 {carregandoLeadParaConversao
-                  ? "Carregando lead..."
+                  ? t("registration.loadingLead")
                   : criando
-                    ? "Criando aluno..."
+                    ? t("registration.creating")
                     : leadParaConversao
-                      ? "Criar aluno e continuar"
-                      : "Criar aluno"}
+                      ? t("registration.createAndContinue")
+                      : t("registration.create")}
               </button>
             </form>
           </section>
@@ -2912,24 +2958,24 @@ function AdminAlunosPage() {
           <div className="flex flex-col gap-4">
             <div>
               <h2 className="text-lg font-semibold text-slate-900">
-                Buscar e organizar alunos
+                {t("filters.title")}
               </h2>
+
               <p className="text-sm text-slate-500">
-                Filtre por status, situação acadêmica, turma e texto livre.
+                {t("filters.description")}
               </p>
             </div>
 
             <div className="grid grid-cols-1 gap-3 lg:grid-cols-4">
               <input
                 type="text"
-                placeholder="Buscar por nome, email, matrícula, CPF..."
+                placeholder={t("filters.searchPlaceholder")}
                 autoComplete="off"
                 name="busca-alunos-phanyx"
                 value={busca}
                 onChange={(e) => {
                   setBusca(e.target.value);
                   setPaginaAtual(1);
-
                 }}
                 className="rounded-xl border px-3 py-2.5"
               />
@@ -2942,47 +2988,86 @@ function AdminAlunosPage() {
                 }}
                 className="rounded-xl border px-3 py-2.5"
               >
-                <option value="TODOS">Todos os status</option>
-                <option value="ATIVO">Ativos</option>
-                <option value="CANCELADO">Cancelados</option>
-                <option value="INADIMPLENTE">Inadimplentes</option>
-                <option value="TRANCADO">Trancados</option>
-                <option value="FORMADO">Formados</option>
+                <option value="TODOS">
+                  {t("filters.allStatuses")}
+                </option>
+
+                <option value="ATIVO">
+                  {t("filters.active")}
+                </option>
+
+                <option value="CANCELADO">
+                  {t("filters.canceled")}
+                </option>
+
+                <option value="INADIMPLENTE">
+                  {t("filters.delinquent")}
+                </option>
+
+                <option value="TRANCADO">
+                  {t("filters.suspended")}
+                </option>
+
+                <option value="FORMADO">
+                  {t("filters.graduated")}
+                </option>
               </select>
 
               <select
                 value={filtroSituacaoAcademica}
-                onChange={(e) =>
+                onChange={(e) => {
                   setFiltroSituacaoAcademica(
                     e.target.value as SituacaoAcademicaFiltro
-                  )
-                }
+                  );
+                  setPaginaAtual(1);
+                }}
                 className="rounded-xl border px-3 py-2.5"
               >
-                <option value="TODOS">Todos</option>
-                <option value="MATRICULADOS">Matriculados</option>
-                <option value="SEM_MATRICULA">Sem matrícula</option>
+                <option value="TODOS">
+                  {t("filters.all")}
+                </option>
+
+                <option value="MATRICULADOS">
+                  {t("filters.enrolled")}
+                </option>
+
+                <option value="SEM_MATRICULA">
+                  {t("filters.withoutEnrollment")}
+                </option>
               </select>
 
               <select
                 value={filtroTurmaId}
-                onChange={(e) => setFiltroTurmaId(e.target.value)}
+                onChange={(e) => {
+                  setFiltroTurmaId(e.target.value);
+                  setPaginaAtual(1);
+                }}
                 className="rounded-xl border px-3 py-2.5"
               >
-                <option value="TODAS">Todas as turmas</option>
+                <option value="TODAS">
+                  {t("filters.allClasses")}
+                </option>
+
                 {turmas.map((turma) => (
-                  <option key={turma.id} value={String(turma.id)}>
+                  <option
+                    key={turma.id}
+                    value={String(turma.id)}
+                  >
                     {turma.nome}
-                    {turma.disciplinaNome ? ` • ${turma.disciplinaNome}` : ""}
+                    {turma.disciplinaNome
+                      ? ` • ${turma.disciplinaNome}`
+                      : ""}
                   </option>
                 ))}
               </select>
             </div>
 
             <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
-              Exibindo <strong>{alunosFiltrados.length}</strong> de{" "}
-              <strong>{totalAlunos}</strong> aluno(s) —
-              filtro atual: <strong>{turmaNomeSelecionada}</strong>
+              {t("filters.resultSummary", {
+                displayed: alunosFiltrados.length,
+                total: totalAlunos,
+                currentFilter: turmaNomeSelecionada,
+              })}
             </div>
           </div>
         </section>
@@ -2992,12 +3077,24 @@ function AdminAlunosPage() {
             <table className="min-w-full text-sm">
               <thead className="bg-slate-50">
                 <tr className="text-left text-slate-600">
-                  <th className="px-4 py-3 font-semibold">Aluno</th>
-                  <th className="px-4 py-3 font-semibold">Status</th>
-                  <th className="px-4 py-3 font-semibold">Curso</th>
-                  <th className="px-4 py-3 font-semibold">Turma(s)</th>
-                  <th className="px-4 py-3 font-semibold">Matrícula</th>
-                  <th className="px-4 py-3 font-semibold">Ações</th>
+                  <th className="px-4 py-3 font-semibold">
+                    {t("table.student")}
+                  </th>
+                  <th className="px-4 py-3 font-semibold">
+                    {t("table.status")}
+                  </th>
+                  <th className="px-4 py-3 font-semibold">
+                    {t("table.course")}
+                  </th>
+                  <th className="px-4 py-3 font-semibold">
+                    {t("table.classes")}
+                  </th>
+                  <th className="px-4 py-3 font-semibold">
+                    {t("table.enrollment")}
+                  </th>
+                  <th className="px-4 py-3 font-semibold">
+                    {t("table.actions")}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -3007,7 +3104,7 @@ function AdminAlunosPage() {
                       colSpan={6}
                       className="px-4 py-10 text-center text-slate-500"
                     >
-                      Nenhum aluno encontrado para os filtros aplicados.
+                      {t("table.empty")}
                     </td>
                   </tr>
                 ) : (
@@ -3051,7 +3148,7 @@ function AdminAlunosPage() {
                         </td>
 
                         <td className="px-4 py-4 align-top text-slate-700">
-                          {resumo?.cursoNome || "Sem matrícula"}
+                          {resumo?.cursoNome || t("table.withoutEnrollment")}
                         </td>
 
                         <td className="px-4 py-4 align-top text-slate-700">
@@ -3069,7 +3166,9 @@ function AdminAlunosPage() {
                               ))}
                               {resumo.turmas.length > 2 && (
                                 <div className="text-xs text-slate-500">
-                                  +{resumo.turmas.length - 2} turma(s)
+                                  {t("table.moreClasses", {
+                                    count: resumo.turmas.length - 2,
+                                  })}
                                 </div>
                               )}
                             </div>
@@ -3081,7 +3180,7 @@ function AdminAlunosPage() {
                         <td className="px-4 py-4 align-top text-slate-700">
                           <div>{a.matricula || "-"}</div>
                           <div className="text-xs text-slate-500">
-                            {resumo?.status || "Sem vínculo"}
+                            {resumo?.status || t("table.withoutLink")}
                           </div>
                         </td>
 
@@ -3092,7 +3191,7 @@ function AdminAlunosPage() {
                               onClick={() => abrirDetalhesAluno(a)}
                               className="rounded-xl border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50"
                             >
-                              Ver
+                              {t("table.view")}
                             </button>
 
                             <button
@@ -3105,7 +3204,7 @@ function AdminAlunosPage() {
                               }
                               className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 transition hover:bg-emerald-100"
                             >
-                              Contrato
+                              {t("table.contract")}
                             </button>
 
                             {a.statusAluno === "CANCELADO" ? (
@@ -3114,7 +3213,7 @@ function AdminAlunosPage() {
                                 onClick={() => reativarAluno(a.id)}
                                 className="rounded-xl border border-emerald-200 bg-white px-3 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50"
                               >
-                                Reativar
+                                {t("table.reactivate")}
                               </button>
                             ) : (
                               <button
@@ -3122,7 +3221,7 @@ function AdminAlunosPage() {
                                 onClick={() => cancelarAluno(a.id)}
                                 className="rounded-xl border border-orange-200 bg-orange-50 px-3 py-1.5 text-xs font-semibold text-orange-700 transition hover:bg-orange-100"
                               >
-                                Cancelar
+                                {t("table.cancel")}
                               </button>
                             )}
                           </div>
@@ -3138,9 +3237,11 @@ function AdminAlunosPage() {
 
         <section className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
           <div className="text-sm text-slate-600">
-            Página <strong>{paginaAtual}</strong> de{" "}
-            <strong>{totalPaginas}</strong> — total de{" "}
-            <strong>{totalAlunos}</strong> aluno(s)
+            {t("pagination.summary", {
+              current: paginaAtual,
+              pages: totalPaginas,
+              total: totalAlunos,
+            })}
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -3150,7 +3251,7 @@ function AdminAlunosPage() {
               onClick={() => setPaginaAtual((prev) => Math.max(prev - 1, 1))}
               className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Anterior
+              {t("pagination.previous")}
             </button>
 
             <button
@@ -3161,7 +3262,7 @@ function AdminAlunosPage() {
               }
               className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Próxima
+              {t("pagination.next")}
             </button>
           </div>
         </section>
@@ -3175,7 +3276,7 @@ function AdminAlunosPage() {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-600">
-                    Detalhes do aluno
+                    {t("drawer.title")}
                   </p>
                   <h2 className="mt-1 text-2xl font-bold text-slate-900">
                     {alunoSelecionado.nome}
@@ -3200,7 +3301,7 @@ function AdminAlunosPage() {
                   }}
                   className="rounded-2xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
                 >
-                  Fechar
+                  {t("drawer.close")}
                 </button>
               </div>
             </div>
@@ -3209,12 +3310,30 @@ function AdminAlunosPage() {
 
               <div className="flex flex-wrap gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm dark:border-slate-700 dark:bg-slate-900">
                 {[
-                  { id: "DADOS", label: "Dados" },
-                  { id: "DOCUMENTOS", label: "Documentos" },
-                  { id: "MATRICULAS", label: "Matrículas" },
-                  { id: "DESEMPENHO", label: "Desempenho" },
-                  { id: "HISTORICO", label: "Histórico" },
-                  { id: "CERTIFICADOS", label: "Certificados" },
+                  {
+                    id: "DADOS",
+                    label: t("drawer.tabs.data"),
+                  },
+                  {
+                    id: "DOCUMENTOS",
+                    label: t("drawer.tabs.documents"),
+                  },
+                  {
+                    id: "MATRICULAS",
+                    label: t("drawer.tabs.enrollments"),
+                  },
+                  {
+                    id: "DESEMPENHO",
+                    label: t("drawer.tabs.performance"),
+                  },
+                  {
+                    id: "HISTORICO",
+                    label: t("drawer.tabs.history"),
+                  },
+                  {
+                    id: "CERTIFICADOS",
+                    label: t("drawer.tabs.certificates"),
+                  },
                 ].map((aba) => (
                   <button
                     key={aba.id}
@@ -3235,7 +3354,7 @@ function AdminAlunosPage() {
                   {editandoId === alunoSelecionado.id ? (
                     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                       <h3 className="mb-4 text-lg font-semibold text-slate-900">
-                        Editar aluno
+                        {t("drawer.editTitle")}
                       </h3>
 
                       <div className="mb-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
@@ -3244,7 +3363,7 @@ function AdminAlunosPage() {
                             {editFotoPerfil ? (
                               <img
                                 src={editFotoPerfil}
-                                alt={editNome || "Foto oficial do aluno"}
+                                alt={editNome || t("photo.alt")}
                                 className="h-full w-full object-cover"
                               />
                             ) : (
@@ -3256,11 +3375,11 @@ function AdminAlunosPage() {
 
                           <div className="flex-1">
                             <h4 className="font-semibold text-slate-900 dark:text-slate-100">
-                              Foto oficial do aluno
+                              {t("photo.title")}
                             </h4>
 
                             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                              Foto controlada pela instituição e usada no crachá oficial.
+                              {t("drawer.institutionalPhoto")}
                             </p>
                             <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-300">
                               Formatos aceitos: JPG, JPEG ou PNG. Tamanho máximo: 2 MB.
@@ -3268,7 +3387,9 @@ function AdminAlunosPage() {
                             </p>
                             <div className="mt-3 flex flex-wrap items-center gap-2">
                               <label className="cursor-pointer rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-100">
-                                {editEnviandoFotoPerfil ? "Enviando..." : "Trocar foto"}
+                                {editEnviandoFotoPerfil
+                                  ? t("photo.uploading")
+                                  : t("drawer.changePhoto")}
                                 <input
                                   type="file"
                                   accept="image/png,image/jpeg,image/webp"
@@ -3286,7 +3407,7 @@ function AdminAlunosPage() {
                                   onClick={() => setEditFotoPerfil("")}
                                   className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
                                 >
-                                  Remover foto
+                                  {t("photo.remove")}
                                 </button>
                               )}
                             </div>
@@ -3299,39 +3420,49 @@ function AdminAlunosPage() {
                           value={editNome}
                           onChange={(e) => setEditNome(e.target.value)}
                           className="rounded-xl border p-2.5"
-                          placeholder="Nome"
+                          placeholder={t("drawer.labels.name")}
                         />
                         <input
                           value={editNomeSocial}
                           onChange={(e) => setEditNomeSocial(e.target.value)}
                           className="rounded-xl border p-2.5"
-                          placeholder="Nome social"
+                          placeholder={t("fields.socialName")}
                         />
                         <select
                           value={editGenero}
                           onChange={(e) => setEditGenero(e.target.value)}
                           className="rounded-xl border p-2.5"
                         >
-                          <option value="">Gênero</option>
-                          <option value="FEMININO">Feminino</option>
-                          <option value="MASCULINO">Masculino</option>
-                          <option value="NAO_BINARIO">Não binário</option>
-                          <option value="OUTRO">Outro</option>
+                          <option value="">
+                            {t("fields.gender")}
+                          </option>
+                          <option value="FEMININO">
+                            {t("fields.female")}
+                          </option>
+                          <option value="MASCULINO">
+                            {t("fields.male")}
+                          </option>
+                          <option value="NAO_BINARIO">
+                            {t("fields.nonBinary")}
+                          </option>
+                          <option value="OUTRO">
+                            {t("fields.other")}
+                          </option>
                           <option value="PREFIRO_NAO_INFORMAR">
-                            Prefiro não informar
+                            {t("fields.preferNotSay")}
                           </option>
                         </select>
                         <input
                           value={editEmail}
                           onChange={(e) => setEditEmail(e.target.value)}
                           className="rounded-xl border p-2.5"
-                          placeholder="Email"
+                          placeholder={t("fields.email")}
                           type="email"
                           name="edit-email-aluno-phanyx"
                           autoComplete="off"
                         />
                         <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3 text-sm text-slate-600">
-                          Matrícula gerada automaticamente pelo sistema.
+                          {t("drawer.automaticEnrollment")}
                         </div>
                         <input
                           value={editCpf}
@@ -3421,49 +3552,49 @@ function AdminAlunosPage() {
                             void buscarEnderecoEdicaoPorCep(e.currentTarget.value);
                           }}
                           className="rounded-xl border p-2.5"
-                          placeholder="CEP"
+                          placeholder={t("fields.postalCode")}
                         />
                         <input
                           value={editEndereco}
                           onChange={(e) => setEditEndereco(e.target.value)}
                           className="rounded-xl border p-2.5"
-                          placeholder="Endereço"
+                          placeholder={t("fields.address")}
                         />
                         <input
                           value={editNumero}
                           onChange={(e) => setEditNumero(e.target.value)}
                           className="rounded-xl border p-2.5"
-                          placeholder="Número"
+                          placeholder={t("fields.number")}
                         />
                         <input
                           value={editComplemento}
                           onChange={(e) => setEditComplemento(e.target.value)}
                           className="rounded-xl border p-2.5"
-                          placeholder="Complemento"
+                          placeholder={t("fields.complement")}
                         />
                         <input
                           value={editBairro}
                           onChange={(e) => setEditBairro(e.target.value)}
                           className="rounded-xl border p-2.5"
-                          placeholder="Bairro"
+                          placeholder={t("fields.district")}
                         />
                         <input
                           value={editCidade}
                           onChange={(e) => setEditCidade(e.target.value)}
                           className="rounded-xl border p-2.5"
-                          placeholder="Cidade"
+                          placeholder={t("fields.city")}
                         />
                         <input
                           value={editEstado}
                           onChange={(e) => setEditEstado(e.target.value)}
                           className="rounded-xl border p-2.5"
-                          placeholder="Estado"
+                          placeholder={t("fields.state")}
                         />
                         <input
                           value={editDocumentoUrl}
                           onChange={(e) => setEditDocumentoUrl(e.target.value)}
                           className="rounded-xl border p-2.5 md:col-span-2"
-                          placeholder="URL do documento"
+                          placeholder={t("drawer.documentUrl")}
                         />
                       </div>
 
@@ -3506,7 +3637,7 @@ function AdminAlunosPage() {
 
                       <div className="mt-5 border-t pt-4">
                         <h4 className="mb-3 font-semibold text-slate-900">
-                          Responsável
+                          {t("drawer.guardianTitle")}
                         </h4>
 
                         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -3570,15 +3701,15 @@ function AdminAlunosPage() {
                           className="rounded-2xl bg-green-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-700 disabled:opacity-60"
                         >
                           {salvandoId === alunoSelecionado.id
-                            ? "Salvando..."
-                            : "Salvar alterações"}
+                            ? t("drawer.saving")
+                            : t("drawer.saveChanges")}
                         </button>
 
                         <button
                           onClick={() => setEditandoId(null)}
                           className="rounded-2xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
                         >
-                          Cancelar edição
+                          {t("drawer.cancelEditing")}
                         </button>
                       </div>
                     </section>
@@ -3604,7 +3735,7 @@ function AdminAlunosPage() {
                               onClick={() => reativarAluno(alunoSelecionado.id)}
                               className="rounded-2xl border border-emerald-200 bg-white px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50"
                             >
-                              Reativar aluno
+                              {t("drawer.reactivateStudent")}
                             </button>
 
                           ) : (
@@ -3619,13 +3750,13 @@ function AdminAlunosPage() {
                                 }}
                                 className="rounded-xl border border-blue-300 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-100 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-200 dark:hover:bg-blue-900"
                               >
-                                ✏️ Editar cadastro
+                                ✏️ {t("drawer.editRegistration")}
                               </button>
                               <button
                                 onClick={() => cancelarAluno(alunoSelecionado.id)}
                                 className="rounded-2xl border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700 transition hover:bg-orange-100"
                               >
-                                Cancelar aluno
+                                {t("drawer.cancelStudent")}
                               </button>
                             </>
                           )}
@@ -3635,45 +3766,45 @@ function AdminAlunosPage() {
                       <section className="grid gap-6 lg:grid-cols-2">
                         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                           <h3 className="text-lg font-semibold text-slate-900">
-                            Dados principais
+                            {t("drawer.mainData")}
                           </h3>
                           <div className="mt-4 space-y-2 text-sm text-slate-600">
                             <p>
-                              <strong>Nome:</strong> {alunoSelecionado.nome || "-"}
+                              <strong>{t("drawer.labels.name")}:</strong> {alunoSelecionado.nome || "-"}
                             </p>
                             <p>
-                              <strong>Nome social:</strong>{" "}
+                              <strong>{t("drawer.labels.socialName")}:</strong>{" "}
                               {alunoSelecionado.nomeSocial || "-"}
                             </p>
                             <p>
-                              <strong>Email:</strong>{" "}
+                              <strong>{t("drawer.labels.email")}:</strong>{" "}
                               {alunoSelecionado.user?.email || "-"}
                             </p>
                             <p>
-                              <strong>Gênero:</strong>{" "}
+                              <strong>{t("drawer.labels.gender")}:</strong>{" "}
                               {alunoSelecionado.genero || "-"}
                             </p>
                             <p>
-                              <strong>Data de nascimento:</strong>{" "}
+                              <strong>{t("drawer.labels.birthDate")}:</strong>{" "}
                               {formatarData(alunoSelecionado.dataNascimento)}
                             </p>
                             <p>
-                              <strong>Matrícula:</strong>{" "}
+                              <strong>{t("drawer.labels.enrollment")}:</strong>{" "}
                               {alunoSelecionado.matricula || "-"}
                             </p>
                             <p>
-                              <strong>CPF:</strong> {alunoSelecionado.cpf || "-"}
+                              <strong>{t("drawer.labels.cpf")}:</strong> {alunoSelecionado.cpf || "-"}
                             </p>
                             <p>
-                              <strong>RG:</strong> {alunoSelecionado.rg || "-"}
+                              <strong>{t("drawer.labels.rg")}:</strong> {alunoSelecionado.rg || "-"}
                             </p>
                             <p>
-                              <strong>Telefone:</strong>{" "}
+                              <strong>{t("drawer.labels.phone")}:</strong>{" "}
                               {alunoSelecionado.telefone || "-"}
                             </p>
 
                             <p>
-                              <strong>Polo:</strong>{" "}
+                              <strong>{t("drawer.labels.campus")}:</strong>{" "}
                               {alunoSelecionado.polo?.nome || "-"}
                             </p>
 
@@ -3682,34 +3813,37 @@ function AdminAlunosPage() {
 
                         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                           <h3 className="text-lg font-semibold text-slate-900">
-                            Endereço
+                            {t("drawer.addressTitle")}
                           </h3>
                           <div className="mt-4 space-y-2 text-sm text-slate-600">
                             <p>
-                              <strong>CEP:</strong> {alunoSelecionado.cep || "-"}
+                              <strong>
+                                {t("drawer.labels.postalCode")}:
+                              </strong>{" "}
+                              {alunoSelecionado.cep || "-"}
                             </p>
                             <p>
-                              <strong>Endereço:</strong>{" "}
+                              <strong>{t("drawer.labels.address")}:</strong>{" "}
                               {alunoSelecionado.endereco || "-"}
                             </p>
                             <p>
-                              <strong>Número:</strong>{" "}
+                              <strong>{t("drawer.labels.number")}:</strong>{" "}
                               {alunoSelecionado.numero || "-"}
                             </p>
                             <p>
-                              <strong>Complemento:</strong>{" "}
+                              <strong>{t("drawer.labels.complement")}:</strong>{" "}
                               {alunoSelecionado.complemento || "-"}
                             </p>
                             <p>
-                              <strong>Bairro:</strong>{" "}
+                              <strong>{t("drawer.labels.district")}:</strong>{" "}
                               {alunoSelecionado.bairro || "-"}
                             </p>
                             <p>
-                              <strong>Cidade:</strong>{" "}
+                              <strong>{t("drawer.labels.city")}:</strong>{" "}
                               {alunoSelecionado.cidade || "-"}
                             </p>
                             <p>
-                              <strong>Estado:</strong>{" "}
+                              <strong>{t("drawer.labels.state")}:</strong>{" "}
                               {alunoSelecionado.estado || "-"}
                             </p>
                           </div>
@@ -3717,27 +3851,27 @@ function AdminAlunosPage() {
 
                         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                           <h3 className="text-lg font-semibold text-slate-900">
-                            Responsável
+                            {t("drawer.guardianTitle")}
                           </h3>
                           <div className="mt-4 space-y-2 text-sm text-slate-600">
                             <p>
-                              <strong>Nome:</strong>{" "}
+                              <strong>{t("drawer.labels.name")}:</strong>{" "}
                               {alunoSelecionado.nomeResponsavel || "-"}
                             </p>
                             <p>
-                              <strong>CPF:</strong>{" "}
+                              <strong>{t("drawer.labels.cpf")}:</strong>{" "}
                               {alunoSelecionado.cpfResponsavel || "-"}
                             </p>
                             <p>
-                              <strong>Telefone:</strong>{" "}
+                              <strong>{t("drawer.labels.phone")}:</strong>{" "}
                               {alunoSelecionado.telefoneResponsavel || "-"}
                             </p>
                             <p>
-                              <strong>Email:</strong>{" "}
+                              <strong>{t("drawer.labels.email")}:</strong>{" "}
                               {alunoSelecionado.emailResponsavel || "-"}
                             </p>
                             <p>
-                              <strong>Parentesco:</strong>{" "}
+                              <strong>{t("drawer.labels.relationship")}:</strong>{" "}
                               {alunoSelecionado.parentescoResponsavel || "-"}
                             </p>
                           </div>
@@ -3745,21 +3879,21 @@ function AdminAlunosPage() {
 
                         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                           <h3 className="text-lg font-semibold text-slate-900">
-                            Acessibilidade
+                            {t("drawer.accessibilityTitle")}
                           </h3>
                           <div className="mt-4 space-y-2 text-sm text-slate-600">
                             <p>
-                              <strong>Possui necessidade especial:</strong>{" "}
+                              <strong>{t("drawer.labels.hasSpecialNeed")}:</strong>{" "}
                               {alunoSelecionado.possuiNecessidadeEspecial
-                                ? "Sim"
-                                : "Não"}
+                                ? t("drawer.yes")
+                                : t("drawer.no")}
                             </p>
                             <p>
-                              <strong>Descrição:</strong>{" "}
+                              <strong>{t("drawer.labels.specialNeed")}:</strong>{" "}
                               {alunoSelecionado.descricaoNecessidadeEspecial || "-"}
                             </p>
                             <p>
-                              <strong>Observações:</strong>{" "}
+                              <strong>{t("drawer.labels.notes")}:</strong>{" "}
                               {alunoSelecionado.observacoesAcessibilidade || "-"}
                             </p>
                           </div>

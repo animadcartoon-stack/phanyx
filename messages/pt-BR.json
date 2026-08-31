@@ -3494,5 +3494,269 @@
       "sentForReview": "Rematrícula enviada para análise da instituição.",
       "draftSaved": "Rascunho salvo com sucesso."
     }
+  },
+  "AdminStudents": {
+    "eyebrow": "Gestão de alunos",
+    "title": "Alunos",
+    "description": "Organize alunos criados, matriculados, cancelados e por turma em uma visão mais profissional e operacional.",
+    "actions": {
+      "hideRegistration": "Ocultar cadastro",
+      "newStudent": "Novo aluno",
+      "clearFilters": "Limpar filtros"
+    },
+    "stats": {
+      "total": "Total de alunos",
+      "enrolled": "Matriculados",
+      "withoutEnrollment": "Sem matrícula",
+      "canceled": "Cancelados",
+      "delinquent": "Inadimplentes"
+    },
+    "filters": {
+      "title": "Buscar e organizar alunos",
+      "description": "Filtre por status, situação acadêmica, turma e texto livre.",
+      "searchPlaceholder": "Buscar por nome, email, matrícula, CPF...",
+      "allStatuses": "Todos os status",
+      "active": "Ativos",
+      "canceled": "Cancelados",
+      "delinquent": "Inadimplentes",
+      "suspended": "Trancados",
+      "graduated": "Formados",
+      "all": "Todos",
+      "enrolled": "Matriculados",
+      "withoutEnrollment": "Sem matrícula",
+      "allClasses": "Todas as turmas",
+      "classFallback": "Turma",
+      "resultSummary": "Exibindo {displayed} de {total} alunos — filtro atual: {currentFilter}"
+    },
+    "table": {
+      "student": "Aluno",
+      "status": "Status",
+      "course": "Curso",
+      "classes": "Turmas",
+      "enrollment": "Matrícula",
+      "actions": "Ações",
+      "empty": "Nenhum aluno encontrado para os filtros aplicados.",
+      "withoutEnrollment": "Sem matrícula",
+      "withoutLink": "Sem vínculo",
+      "moreClasses": "+{count} turma(s)",
+      "view": "Ver",
+      "contract": "Contrato",
+      "reactivate": "Reativar",
+      "cancel": "Cancelar"
+    },
+    "pagination": {
+      "summary": "Página {current} de {pages} — total de {total} alunos",
+      "previous": "Anterior",
+      "next": "Próxima"
+    },
+    "registration": {
+      "title": "Novo aluno",
+      "description": "Cadastre novos alunos com dados pessoais, responsável e acessibilidade.",
+      "loadingLead": "Carregando lead...",
+      "creating": "Criando aluno...",
+      "createAndContinue": "Criar aluno e continuar",
+      "create": "Criar aluno"
+    },
+    "lead": {
+      "title": "Convertendo lead em aluno",
+      "description": "Os dados de {name} foram preenchidos a partir do CRM. Complete os dados pessoais obrigatórios antes de criar o aluno.",
+      "commercialOwner": "Responsável comercial: {name}",
+      "interest": "Interesse: {interest}"
+    },
+    "photo": {
+      "alt": "Foto oficial do aluno",
+      "title": "Foto oficial do aluno",
+      "description": "Esta é a foto institucional usada em crachás, identificação e documentos oficiais. Não é a foto pessoal que o aluno altera no próprio perfil.",
+      "uploading": "Enviando...",
+      "upload": "Enviar foto",
+      "remove": "Remover foto"
+    },
+    "fields": {
+      "name": "Nome do aluno",
+      "socialName": "Nome social",
+      "gender": "Gênero",
+      "female": "Feminino",
+      "male": "Masculino",
+      "nonBinary": "Não binário",
+      "other": "Outro",
+      "preferNotSay": "Prefiro não informar",
+      "email": "Email",
+      "enrollmentNumber": "Número da matrícula",
+      "enrollmentGenerated": "Será gerado automaticamente após a matrícula oficial do aluno.",
+      "postalCode": "CEP",
+      "address": "Endereço",
+      "number": "Número",
+      "complement": "Complemento",
+      "district": "Bairro",
+      "city": "Cidade",
+      "state": "Estado",
+      "selectCampus": "Selecione o polo do aluno"
+    },
+    "statuses": {
+      "active": "Ativo",
+      "locked": "Trancado",
+      "suspended": "Suspenso",
+      "delinquent": "Inadimplente",
+      "transferred": "Transferido",
+      "inactive": "Desligado",
+      "graduated": "Formado",
+      "canceled": "Cancelado",
+      "medicalLeave": "Pausa médica",
+      "absent": "Faltante"
+    },
+    "documents": {
+      "studentTitle": "Documentos do aluno",
+      "studentDescription": "Opcional. Envie RG, CPF, CNH, Histórico Escolar, Comprovante de Residência ou Título de Eleitor."
+    },
+    "accessibility": {
+      "title": "Necessidades especiais e acessibilidade",
+      "hasSpecialNeed": "Possui necessidade especial",
+      "specialNeedPlaceholder": "Descreva a necessidade especial do aluno",
+      "notesPlaceholder": "Observações de acessibilidade, apoio pedagógico ou adaptações"
+    },
+    "guardian": {
+      "title": "Dados do responsável",
+      "name": "Nome do responsável",
+      "cpf": "CPF do responsável",
+      "email": "Email do responsável",
+      "relationship": "Parentesco do responsável",
+      "documentsTitle": "Documentos do responsável",
+      "documentsDescription": "Opcional. Envie documentos do titular ou responsável pelo aluno."
+    },
+    "drawer": {
+      "title": "Detalhes do aluno",
+      "close": "Fechar",
+      "tabs": {
+        "data": "Dados",
+        "documents": "Documentos",
+        "enrollments": "Matrículas",
+        "performance": "Desempenho",
+        "history": "Histórico",
+        "certificates": "Certificados"
+      },
+      "editTitle": "Editar aluno",
+      "institutionalPhoto": "Foto controlada pela instituição e usada no crachá oficial.",
+      "changePhoto": "Trocar foto",
+      "automaticEnrollment": "Matrícula gerada automaticamente pelo sistema.",
+      "documentUrl": "URL do documento",
+      "guardianTitle": "Responsável",
+      "saving": "Salvando...",
+      "saveChanges": "Salvar alterações",
+      "cancelEditing": "Cancelar edição",
+      "reactivateStudent": "Reativar aluno",
+      "editRegistration": "Editar cadastro",
+      "cancelStudent": "Cancelar aluno",
+      "mainData": "Dados principais",
+      "addressTitle": "Endereço",
+      "accessibilityTitle": "Acessibilidade",
+      "yes": "Sim",
+      "no": "Não",
+      "labels": {
+        "name": "Nome",
+        "socialName": "Nome social",
+        "email": "Email",
+        "gender": "Gênero",
+        "birthDate": "Data de nascimento",
+        "enrollment": "Matrícula",
+        "cpf": "CPF",
+        "rg": "RG",
+        "phone": "Telefone",
+        "campus": "Polo",
+        "postalCode": "CEP",
+        "address": "Endereço",
+        "number": "Número",
+        "complement": "Complemento",
+        "district": "Bairro",
+        "city": "Cidade",
+        "state": "Estado",
+        "relationship": "Parentesco",
+        "hasSpecialNeed": "Possui necessidade especial",
+        "specialNeed": "Descrição da necessidade",
+        "notes": "Observações"
+      }
+    }
+  },
+  "AdminStudentSuccess": {
+    "title": "Student Success",
+    "subtitle": "Inteligência e acompanhamento acadêmico",
+    "description": "Identifique sinais acadêmicos que precisam de atenção e acompanhe a evolução dos alunos.",
+    "cards": {
+      "critical": "Risco crítico",
+      "risk": "Em risco",
+      "attention": "Atenção",
+      "normal": "Situação normal",
+      "insufficient": "Dados insuficientes"
+    },
+    "studentsAttention": {
+      "title": "Alunos que precisam de atenção",
+      "description": "Acompanhe os principais sinais acadêmicos identificados pela PHANYX."
+    },
+    "table": {
+      "student": "Aluno",
+      "risk": "Risco",
+      "score": "Pontuação",
+      "frequency": "Frequência",
+      "performance": "Desempenho",
+      "pendingActivities": "Pendências",
+      "trend": "Evolução",
+      "actions": "Ações"
+    },
+    "levels": {
+      "NORMAL": "Normal",
+      "ATENCAO": "Atenção",
+      "RISCO": "Risco",
+      "CRITICO": "Crítico",
+      "DADOS_INSUFICIENTES": "Dados insuficientes"
+    },
+    "reliability": {
+      "label": "Confiabilidade",
+      "BAIXA": "Baixa",
+      "MEDIA": "Média",
+      "ALTA": "Alta"
+    },
+    "components": {
+      "FREQUENCIA": "Frequência",
+      "DESEMPENHO": "Desempenho",
+      "PENDENCIAS": "Atividades pendentes",
+      "QUEDA_DESEMPENHO": "Evolução recente",
+      "PARTICIPACAO": "Participação"
+    },
+    "actions": {
+      "viewStudent": "Ver análise",
+      "viewDetails": "Ver detalhes",
+      "filters": "Filtros",
+      "refresh": "Atualizar análise",
+      "clearFilters": "Limpar filtros"
+    },
+    "filters": {
+      "title": "Filtros",
+      "search": "Buscar aluno",
+      "searchPlaceholder": "Nome ou matrícula",
+      "course": "Curso",
+      "class": "Turma",
+      "subject": "Disciplina",
+      "level": "Nível de risco",
+      "all": "Todos"
+    },
+    "states": {
+      "loading": "Carregando análises...",
+      "empty": "Nenhum aluno encontrado para os filtros selecionados.",
+      "noRisk": "Nenhum aluno apresenta sinais relevantes de risco neste momento.",
+      "error": "Não foi possível carregar as análises acadêmicas."
+    },
+    "score": {
+      "label": "Índice de risco",
+      "outOf": "de 100",
+      "coverage": "Cobertura dos dados"
+    },
+    "overview": {
+      "title": "Visão geral",
+      "monitoredStudents": "Alunos monitorados",
+      "studentsWithSignals": "Alunos com sinais de atenção"
+    },
+    "disclaimer": {
+      "title": "Apoio à decisão acadêmica",
+      "text": "Os indicadores auxiliam a equipe pedagógica na identificação de sinais acadêmicos. As decisões e intervenções permanecem sob responsabilidade dos profissionais da instituição."
+    }
   }
 }

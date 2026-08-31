@@ -3494,5 +3494,269 @@
       "sentForReview": "Rematrícula enviada para revisión por la institución.",
       "draftSaved": "Borrador guardado correctamente."
     }
+  },
+  "AdminStudents": {
+    "eyebrow": "Gestión de estudiantes",
+    "title": "Estudiantes",
+    "description": "Organiza a los estudiantes creados, matriculados y cancelados por clase en una vista más profesional y operativa.",
+    "actions": {
+      "hideRegistration": "Ocultar formulario",
+      "newStudent": "Nuevo estudiante",
+      "clearFilters": "Limpiar filtros"
+    },
+    "stats": {
+      "total": "Total de estudiantes",
+      "enrolled": "Matriculados",
+      "withoutEnrollment": "Sin matrícula",
+      "canceled": "Cancelados",
+      "delinquent": "Morosos"
+    },
+    "filters": {
+      "title": "Buscar y organizar estudiantes",
+      "description": "Filtra por estado, situación académica, clase y texto libre.",
+      "searchPlaceholder": "Buscar por nombre, email, matrícula, identificación...",
+      "allStatuses": "Todos los estados",
+      "active": "Activos",
+      "canceled": "Cancelados",
+      "delinquent": "Morosos",
+      "suspended": "Matrícula suspendida",
+      "graduated": "Graduados",
+      "all": "Todos",
+      "enrolled": "Matriculados",
+      "withoutEnrollment": "Sin matrícula",
+      "allClasses": "Todas las clases",
+      "classFallback": "Clase",
+      "resultSummary": "Mostrando {displayed} de {total} estudiantes — filtro actual: {currentFilter}"
+    },
+    "table": {
+      "student": "Estudiante",
+      "status": "Estado",
+      "course": "Curso",
+      "classes": "Clases",
+      "enrollment": "Matrícula",
+      "actions": "Acciones",
+      "empty": "No se encontraron estudiantes con los filtros seleccionados.",
+      "withoutEnrollment": "Sin matrícula",
+      "withoutLink": "Sin vínculo académico",
+      "moreClasses": "+{count} clase(s)",
+      "view": "Ver",
+      "contract": "Contrato",
+      "reactivate": "Reactivar",
+      "cancel": "Cancelar"
+    },
+    "pagination": {
+      "summary": "Página {current} de {pages} — {total} estudiantes en total",
+      "previous": "Anterior",
+      "next": "Siguiente"
+    },
+    "registration": {
+      "title": "Nuevo estudiante",
+      "description": "Registra nuevos estudiantes con datos personales, del responsable y de accesibilidad.",
+      "loadingLead": "Cargando lead...",
+      "creating": "Creando estudiante...",
+      "createAndContinue": "Crear estudiante y continuar",
+      "create": "Crear estudiante"
+    },
+    "lead": {
+      "title": "Convirtiendo lead en estudiante",
+      "description": "Los datos de {name} se han completado desde el CRM. Completa los datos personales obligatorios antes de crear al estudiante.",
+      "commercialOwner": "Responsable comercial: {name}",
+      "interest": "Interés: {interest}"
+    },
+    "photo": {
+      "alt": "Foto oficial del estudiante",
+      "title": "Foto oficial del estudiante",
+      "description": "Esta foto institucional se utiliza en credenciales, registros de identificación y documentos oficiales. No es la foto personal que el estudiante modifica en su perfil.",
+      "uploading": "Enviando...",
+      "upload": "Enviar foto",
+      "remove": "Eliminar foto"
+    },
+    "fields": {
+      "name": "Nombre del estudiante",
+      "socialName": "Nombre preferido",
+      "gender": "Género",
+      "female": "Femenino",
+      "male": "Masculino",
+      "nonBinary": "No binario",
+      "other": "Otro",
+      "preferNotSay": "Prefiero no informar",
+      "email": "Email",
+      "enrollmentNumber": "Número de matrícula",
+      "enrollmentGenerated": "Se generará automáticamente después de la matrícula oficial del estudiante.",
+      "postalCode": "Código postal",
+      "address": "Dirección",
+      "number": "Número",
+      "complement": "Información adicional",
+      "district": "Barrio",
+      "city": "Ciudad",
+      "state": "Provincia o región",
+      "selectCampus": "Selecciona la sede del estudiante"
+    },
+    "statuses": {
+      "active": "Activo",
+      "locked": "Matrícula suspendida",
+      "suspended": "Suspendido",
+      "delinquent": "Moroso",
+      "transferred": "Transferido",
+      "inactive": "Desvinculado",
+      "graduated": "Graduado",
+      "canceled": "Cancelado",
+      "medicalLeave": "Baja médica",
+      "absent": "Ausente"
+    },
+    "documents": {
+      "studentTitle": "Documentos del estudiante",
+      "studentDescription": "Opcional. Envía documentos de identificación, expediente académico, comprobante de domicilio o título electoral."
+    },
+    "accessibility": {
+      "title": "Necesidades especiales y accesibilidad",
+      "hasSpecialNeed": "Tiene una necesidad especial",
+      "specialNeedPlaceholder": "Describe la necesidad especial del estudiante",
+      "notesPlaceholder": "Observaciones de accesibilidad, apoyo pedagógico o adaptaciones"
+    },
+    "guardian": {
+      "title": "Datos del responsable",
+      "name": "Nombre del responsable",
+      "cpf": "Identificación del responsable",
+      "email": "Email del responsable",
+      "relationship": "Relación con el estudiante",
+      "documentsTitle": "Documentos del responsable",
+      "documentsDescription": "Opcional. Envía documentos del titular o responsable del estudiante."
+    },
+    "drawer": {
+      "title": "Detalles del estudiante",
+      "close": "Cerrar",
+      "tabs": {
+        "data": "Datos",
+        "documents": "Documentos",
+        "enrollments": "Matrículas",
+        "performance": "Rendimiento",
+        "history": "Historial",
+        "certificates": "Certificados"
+      },
+      "editTitle": "Editar estudiante",
+      "institutionalPhoto": "Foto gestionada por la institución y utilizada en la credencial oficial.",
+      "changePhoto": "Cambiar foto",
+      "automaticEnrollment": "Matrícula generada automáticamente por el sistema.",
+      "documentUrl": "URL del documento",
+      "guardianTitle": "Responsable",
+      "saving": "Guardando...",
+      "saveChanges": "Guardar cambios",
+      "cancelEditing": "Cancelar edición",
+      "reactivateStudent": "Reactivar estudiante",
+      "editRegistration": "Editar registro",
+      "cancelStudent": "Cancelar estudiante",
+      "mainData": "Datos principales",
+      "addressTitle": "Dirección",
+      "accessibilityTitle": "Accesibilidad",
+      "yes": "Sí",
+      "no": "No",
+      "labels": {
+        "name": "Nombre",
+        "socialName": "Nombre preferido",
+        "email": "Email",
+        "gender": "Género",
+        "birthDate": "Fecha de nacimiento",
+        "enrollment": "Matrícula",
+        "cpf": "Identificación",
+        "rg": "Documento de identidad",
+        "phone": "Teléfono",
+        "campus": "Sede",
+        "postalCode": "Código postal",
+        "address": "Dirección",
+        "number": "Número",
+        "complement": "Información adicional",
+        "district": "Barrio",
+        "city": "Ciudad",
+        "state": "Provincia o región",
+        "relationship": "Relación",
+        "hasSpecialNeed": "Tiene una necesidad especial",
+        "specialNeed": "Descripción de la necesidad",
+        "notes": "Observaciones"
+      }
+    }
+  },
+  "AdminStudentSuccess": {
+    "title": "Student Success",
+    "subtitle": "Inteligencia y seguimiento académico",
+    "description": "Identifique señales académicas que requieren atención y supervise la evolución de los estudiantes.",
+    "cards": {
+      "critical": "Riesgo crítico",
+      "risk": "En riesgo",
+      "attention": "Atención",
+      "normal": "Situación normal",
+      "insufficient": "Datos insuficientes"
+    },
+    "studentsAttention": {
+      "title": "Estudiantes que requieren atención",
+      "description": "Supervise las principales señales académicas identificadas por PHANYX."
+    },
+    "table": {
+      "student": "Estudiante",
+      "risk": "Riesgo",
+      "score": "Puntuación",
+      "frequency": "Asistencia",
+      "performance": "Rendimiento",
+      "pendingActivities": "Pendientes",
+      "trend": "Evolución",
+      "actions": "Acciones"
+    },
+    "levels": {
+      "NORMAL": "Normal",
+      "ATENCAO": "Atención",
+      "RISCO": "Riesgo",
+      "CRITICO": "Crítico",
+      "DADOS_INSUFICIENTES": "Datos insuficientes"
+    },
+    "reliability": {
+      "label": "Fiabilidad",
+      "BAIXA": "Baja",
+      "MEDIA": "Media",
+      "ALTA": "Alta"
+    },
+    "components": {
+      "FREQUENCIA": "Asistencia",
+      "DESEMPENHO": "Rendimiento",
+      "PENDENCIAS": "Actividades pendientes",
+      "QUEDA_DESEMPENHO": "Evolución reciente",
+      "PARTICIPACAO": "Participación"
+    },
+    "actions": {
+      "viewStudent": "Ver análisis",
+      "viewDetails": "Ver detalles",
+      "filters": "Filtros",
+      "refresh": "Actualizar análisis",
+      "clearFilters": "Limpiar filtros"
+    },
+    "filters": {
+      "title": "Filtros",
+      "search": "Buscar estudiante",
+      "searchPlaceholder": "Nombre o matrícula",
+      "course": "Curso",
+      "class": "Clase",
+      "subject": "Asignatura",
+      "level": "Nivel de riesgo",
+      "all": "Todos"
+    },
+    "states": {
+      "loading": "Cargando análisis...",
+      "empty": "No se encontraron estudiantes para los filtros seleccionados.",
+      "noRisk": "Actualmente ningún estudiante presenta señales relevantes de riesgo.",
+      "error": "No fue posible cargar los análisis académicos."
+    },
+    "score": {
+      "label": "Índice de riesgo",
+      "outOf": "de 100",
+      "coverage": "Cobertura de datos"
+    },
+    "overview": {
+      "title": "Vista general",
+      "monitoredStudents": "Estudiantes supervisados",
+      "studentsWithSignals": "Estudiantes con señales de atención"
+    },
+    "disclaimer": {
+      "title": "Apoyo a la decisión académica",
+      "text": "Los indicadores ayudan al equipo educativo a identificar señales académicas. Las decisiones e intervenciones siguen siendo responsabilidad de los profesionales de la institución."
+    }
   }
 }

@@ -3495,5 +3495,269 @@
       "sentForReview": "Reenrollment submitted for institutional review.",
       "draftSaved": "Draft saved successfully."
     }
+  },
+  "AdminStudents": {
+    "eyebrow": "Student management",
+    "title": "Students",
+    "description": "Organize created, enrolled and canceled students by class in a more professional and operational view.",
+    "actions": {
+      "hideRegistration": "Hide form",
+      "newStudent": "New student",
+      "clearFilters": "Clear filters"
+    },
+    "stats": {
+      "total": "Total students",
+      "enrolled": "Enrolled",
+      "withoutEnrollment": "Without enrollment",
+      "canceled": "Canceled",
+      "delinquent": "Overdue payments"
+    },
+    "filters": {
+      "title": "Search and organize students",
+      "description": "Filter by status, academic standing, class and free text.",
+      "searchPlaceholder": "Search by name, email, enrollment number, ID...",
+      "allStatuses": "All statuses",
+      "active": "Active",
+      "canceled": "Canceled",
+      "delinquent": "Overdue payments",
+      "suspended": "Suspended",
+      "graduated": "Graduated",
+      "all": "All",
+      "enrolled": "Enrolled",
+      "withoutEnrollment": "Without enrollment",
+      "allClasses": "All classes",
+      "classFallback": "Class",
+      "resultSummary": "Showing {displayed} of {total} students — current filter: {currentFilter}"
+    },
+    "table": {
+      "student": "Student",
+      "status": "Status",
+      "course": "Course",
+      "classes": "Classes",
+      "enrollment": "Enrollment",
+      "actions": "Actions",
+      "empty": "No students were found for the selected filters.",
+      "withoutEnrollment": "Without enrollment",
+      "withoutLink": "No academic link",
+      "moreClasses": "+{count} class(es)",
+      "view": "View",
+      "contract": "Contract",
+      "reactivate": "Reactivate",
+      "cancel": "Cancel"
+    },
+    "pagination": {
+      "summary": "Page {current} of {pages} — {total} students in total",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "registration": {
+      "title": "New student",
+      "description": "Register new students with personal, guardian and accessibility information.",
+      "loadingLead": "Loading lead...",
+      "creating": "Creating student...",
+      "createAndContinue": "Create student and continue",
+      "create": "Create student"
+    },
+    "lead": {
+      "title": "Converting lead into student",
+      "description": "{name}'s information was filled in from the CRM. Complete the required personal information before creating the student.",
+      "commercialOwner": "Commercial owner: {name}",
+      "interest": "Interest: {interest}"
+    },
+    "photo": {
+      "alt": "Official student photo",
+      "title": "Official student photo",
+      "description": "This institutional photo is used on ID cards, identification records and official documents. It is not the personal profile photo managed by the student.",
+      "uploading": "Uploading...",
+      "upload": "Upload photo",
+      "remove": "Remove photo"
+    },
+    "fields": {
+      "name": "Student name",
+      "socialName": "Preferred name",
+      "gender": "Gender",
+      "female": "Female",
+      "male": "Male",
+      "nonBinary": "Non-binary",
+      "other": "Other",
+      "preferNotSay": "Prefer not to say",
+      "email": "Email",
+      "enrollmentNumber": "Enrollment number",
+      "enrollmentGenerated": "It will be generated automatically after the student's official enrollment.",
+      "postalCode": "Postal code",
+      "address": "Address",
+      "number": "Number",
+      "complement": "Address details",
+      "district": "District",
+      "city": "City",
+      "state": "State or region",
+      "selectCampus": "Select the student's campus"
+    },
+    "statuses": {
+      "active": "Active",
+      "locked": "Enrollment suspended",
+      "suspended": "Suspended",
+      "delinquent": "Overdue payments",
+      "transferred": "Transferred",
+      "inactive": "Inactive",
+      "graduated": "Graduated",
+      "canceled": "Canceled",
+      "medicalLeave": "Medical leave",
+      "absent": "Absent"
+    },
+    "documents": {
+      "studentTitle": "Student documents",
+      "studentDescription": "Optional. Upload identification, school records, proof of address or voter registration documents."
+    },
+    "accessibility": {
+      "title": "Special needs and accessibility",
+      "hasSpecialNeed": "Has a special need",
+      "specialNeedPlaceholder": "Describe the student's special need",
+      "notesPlaceholder": "Accessibility, educational support or accommodation notes"
+    },
+    "guardian": {
+      "title": "Guardian information",
+      "name": "Guardian name",
+      "cpf": "Guardian identification",
+      "email": "Guardian email",
+      "relationship": "Relationship to the student",
+      "documentsTitle": "Guardian documents",
+      "documentsDescription": "Optional. Upload documents belonging to the student's account holder or guardian."
+    },
+    "drawer": {
+      "title": "Student details",
+      "close": "Close",
+      "tabs": {
+        "data": "Details",
+        "documents": "Documents",
+        "enrollments": "Enrollments",
+        "performance": "Performance",
+        "history": "History",
+        "certificates": "Certificates"
+      },
+      "editTitle": "Edit student",
+      "institutionalPhoto": "Photo managed by the institution and used on the official ID card.",
+      "changePhoto": "Change photo",
+      "automaticEnrollment": "Enrollment generated automatically by the system.",
+      "documentUrl": "Document URL",
+      "guardianTitle": "Guardian",
+      "saving": "Saving...",
+      "saveChanges": "Save changes",
+      "cancelEditing": "Cancel editing",
+      "reactivateStudent": "Reactivate student",
+      "editRegistration": "Edit registration",
+      "cancelStudent": "Cancel student",
+      "mainData": "Main information",
+      "addressTitle": "Address",
+      "accessibilityTitle": "Accessibility",
+      "yes": "Yes",
+      "no": "No",
+      "labels": {
+        "name": "Name",
+        "socialName": "Preferred name",
+        "email": "Email",
+        "gender": "Gender",
+        "birthDate": "Date of birth",
+        "enrollment": "Enrollment",
+        "cpf": "Identification",
+        "rg": "Identity document",
+        "phone": "Phone",
+        "campus": "Campus",
+        "postalCode": "Postal code",
+        "address": "Address",
+        "number": "Number",
+        "complement": "Address details",
+        "district": "District",
+        "city": "City",
+        "state": "State or region",
+        "relationship": "Relationship",
+        "hasSpecialNeed": "Has a special need",
+        "specialNeed": "Special need description",
+        "notes": "Notes"
+      }
+    }
+  },
+  "AdminStudentSuccess": {
+    "title": "Student Success",
+    "subtitle": "Academic intelligence and student monitoring",
+    "description": "Identify academic signals that require attention and monitor student progress.",
+    "cards": {
+      "critical": "Critical risk",
+      "risk": "At risk",
+      "attention": "Needs attention",
+      "normal": "Normal status",
+      "insufficient": "Insufficient data"
+    },
+    "studentsAttention": {
+      "title": "Students requiring attention",
+      "description": "Monitor the main academic signals identified by PHANYX."
+    },
+    "table": {
+      "student": "Student",
+      "risk": "Risk",
+      "score": "Score",
+      "frequency": "Attendance",
+      "performance": "Performance",
+      "pendingActivities": "Pending activities",
+      "trend": "Trend",
+      "actions": "Actions"
+    },
+    "levels": {
+      "NORMAL": "Normal",
+      "ATENCAO": "Attention",
+      "RISCO": "Risk",
+      "CRITICO": "Critical",
+      "DADOS_INSUFICIENTES": "Insufficient data"
+    },
+    "reliability": {
+      "label": "Reliability",
+      "BAIXA": "Low",
+      "MEDIA": "Medium",
+      "ALTA": "High"
+    },
+    "components": {
+      "FREQUENCIA": "Attendance",
+      "DESEMPENHO": "Performance",
+      "PENDENCIAS": "Pending activities",
+      "QUEDA_DESEMPENHO": "Recent trend",
+      "PARTICIPACAO": "Participation"
+    },
+    "actions": {
+      "viewStudent": "View analysis",
+      "viewDetails": "View details",
+      "filters": "Filters",
+      "refresh": "Refresh analysis",
+      "clearFilters": "Clear filters"
+    },
+    "filters": {
+      "title": "Filters",
+      "search": "Search student",
+      "searchPlaceholder": "Name or enrollment number",
+      "course": "Course",
+      "class": "Class",
+      "subject": "Subject",
+      "level": "Risk level",
+      "all": "All"
+    },
+    "states": {
+      "loading": "Loading analyses...",
+      "empty": "No students found for the selected filters.",
+      "noRisk": "No students currently show relevant risk signals.",
+      "error": "Academic analyses could not be loaded."
+    },
+    "score": {
+      "label": "Risk index",
+      "outOf": "out of 100",
+      "coverage": "Data coverage"
+    },
+    "overview": {
+      "title": "Overview",
+      "monitoredStudents": "Students monitored",
+      "studentsWithSignals": "Students with attention signals"
+    },
+    "disclaimer": {
+      "title": "Academic decision support",
+      "text": "These indicators help educational teams identify academic signals. Decisions and interventions remain the responsibility of the institution's professionals."
+    }
   }
 }
