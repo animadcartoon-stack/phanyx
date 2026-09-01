@@ -9601,9 +9601,8 @@ model AtividadeExternaAutorizacao {
 
   atividadeExterna AtividadeExterna @relation(fields: [atividadeExternaId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
 
-  participante AtividadeExternaParticipante @relation(fields: [participanteId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
-
-  respondidaPorUser User? @relation("AtividadeExternaAutorizacaoRespondidaPor", fields: [respondidaPorUserId], references: [id], onDelete: SetNull)
+  participante      AtividadeExternaParticipante @relation(fields: [participanteId, atividadeExternaId, instituicaoId], references: [id, atividadeExternaId, instituicaoId], onDelete: Cascade)
+  respondidaPorUser User?                        @relation("AtividadeExternaAutorizacaoRespondidaPor", fields: [respondidaPorUserId], references: [id], onDelete: SetNull)
 
   registradaPorUser User? @relation("AtividadeExternaAutorizacaoRegistradaPor", fields: [registradaPorUserId], references: [id], onDelete: SetNull)
 
@@ -9660,9 +9659,8 @@ model AtividadeExternaDocumento {
 
   veiculo VeiculoTransporte? @relation(fields: [veiculoId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
 
-  participante AtividadeExternaParticipante? @relation(fields: [participanteId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
-
-  enviadoPor User? @relation("AtividadeExternaDocumentoEnviadoPor", fields: [enviadoPorId], references: [id], onDelete: SetNull)
+  participante AtividadeExternaParticipante? @relation(fields: [participanteId, atividadeExternaId, instituicaoId], references: [id, atividadeExternaId, instituicaoId], onDelete: Restrict)
+  enviadoPor   User?                         @relation("AtividadeExternaDocumentoEnviadoPor", fields: [enviadoPorId], references: [id], onDelete: SetNull)
 
   atualizadoPor User? @relation("AtividadeExternaDocumentoAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
 
