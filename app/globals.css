@@ -30375,3 +30375,56 @@ html[data-theme="system"]
   color: #f5f5f5 !important;
   -webkit-text-fill-color: #f5f5f5 !important;
 }
+
+/* =========================================================
+   STUDENT SUCCESS — FILTROS COM CONTRASTE FORÇADO
+========================================================= */
+
+html[data-theme="light"]
+  button.phanyx-student-success-filter-inactive {
+  background-color: #ffffff !important;
+  border-color: #94a3b8 !important;
+
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+html[data-theme="light"]
+  button.phanyx-student-success-filter-inactive
+  span {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  button.phanyx-student-success-filter-inactive:hover {
+  background-color: #eff6ff !important;
+  border-color: #3b82f6 !important;
+
+  color: #1d4ed8 !important;
+  -webkit-text-fill-color: #1d4ed8 !important;
+}
+
+html[data-theme="light"]
+  button.phanyx-student-success-filter-active {
+  background-color: #2563eb !important;
+  border-color: #2563eb !important;
+
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+html[data-theme="light"]
+  button.phanyx-student-success-filter-active
+  span {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
