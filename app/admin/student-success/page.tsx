@@ -27,6 +27,30 @@ type FiltroNivel =
   | "TODOS"
   | NivelRisco;
 
+  type TipoIntervencao =
+  | "CONTATO"
+  | "ORIENTACAO"
+  | "REUNIAO"
+  | "ENCAMINHAMENTO"
+  | "ACOMPANHAMENTO"
+  | "OUTRO";
+
+type CanalIntervencao =
+  | "WHATSAPP"
+  | "LIGACAO"
+  | "EMAIL"
+  | "PRESENCIAL"
+  | "VIDEOCHAMADA"
+  | "SISTEMA"
+  | "OUTRO";
+
+type StatusIntervencao =
+  | "REGISTRADA"
+  | "AGUARDANDO_RETORNO"
+  | "EM_ACOMPANHAMENTO"
+  | "RESOLVIDA"
+  | "CANCELADA";
+
 type ComponenteAnalise = {
   codigo:
   | "FREQUENCIA"
@@ -392,6 +416,69 @@ export default function AdminStudentSuccessPage() {
       null
     );
 
+    const [
+  modalIntervencaoAberto,
+  setModalIntervencaoAberto,
+] =
+  useState(false);
+
+const [
+  tipoIntervencao,
+  setTipoIntervencao,
+] =
+  useState<TipoIntervencao>(
+    "CONTATO"
+  );
+
+const [
+  canalIntervencao,
+  setCanalIntervencao,
+] =
+  useState<CanalIntervencao>(
+    "LIGACAO"
+  );
+
+const [
+  statusIntervencao,
+  setStatusIntervencao,
+] =
+  useState<StatusIntervencao>(
+    "REGISTRADA"
+  );
+
+const [
+  observacaoIntervencao,
+  setObservacaoIntervencao,
+] =
+  useState("");
+
+const [
+  retornoIntervencao,
+  setRetornoIntervencao,
+] =
+  useState("");
+
+const [
+  salvandoIntervencao,
+  setSalvandoIntervencao,
+] =
+  useState(false);
+
+const [
+  mensagemIntervencao,
+  setMensagemIntervencao,
+] =
+  useState<
+    | {
+        tipo:
+          | "sucesso"
+          | "erro";
+
+        texto: string;
+      }
+    | null
+  >(null);
+
   const carregarDados =
     useCallback(
       async () => {
@@ -609,6 +696,182 @@ export default function AdminStudentSuccessPage() {
         filtroNivel,
       ]
     );
+
+    const registrarIntervencao =
+  async () => {
+    if (
+      !alunoSelecionado ||
+      salvandoIntervencao
+    ) {
+      return;
+    }
+
+    const observacao =
+      observacaoIntervencao
+        .trim();
+
+    if (
+      observacao.length < 3
+    ) {
+      setMensagemIntervencao({
+        tipo:
+          "erro",
+
+        texto:
+          t(
+            "intervention.error"
+          ),
+      });
+
+      return;
+    }
+
+    setSalvandoIntervencao(
+      true
+    );
+
+    setMensagemIntervencao(
+      null
+    );
+
+    try {
+      const retornoEm =
+        retornoIntervencao
+          ? new Date(
+              `${retornoIntervencao}T12:00:00`
+            ).toISOString()
+          : null;
+
+      const resposta =
+        await fetch(
+          "/api/admin/student-success/intervencoes",
+          {
+            method:
+              "POST",
+
+            credentials:
+              "include",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                alunoId:
+                  alunoSelecionado
+                    .alunoId,
+
+                tipo:
+                  tipoIntervencao,
+
+                canal:
+                  canalIntervencao,
+
+                status:
+                  statusIntervencao,
+
+                observacao,
+
+                retornoEm,
+
+                analise: {
+                  nivel:
+                    alunoSelecionado
+                      .analise
+                      .nivel,
+
+                  pontuacao:
+                    alunoSelecionado
+                      .analise
+                      .pontuacao,
+
+                  coberturaPercentual:
+                    alunoSelecionado
+                      .analise
+                      .coberturaPercentual,
+
+                  confiabilidade:
+                    alunoSelecionado
+                      .analise
+                      .confiabilidade,
+
+                  fatoresPrincipais:
+                    alunoSelecionado
+                      .analise
+                      .fatoresPrincipais,
+                },
+              }),
+          }
+        );
+
+      const json =
+        await resposta.json();
+
+      if (
+        !resposta.ok ||
+        !json?.ok
+      ) {
+        throw new Error(
+          json?.error ??
+            "INTERVENTION_ERROR"
+        );
+      }
+
+      setMensagemIntervencao({
+        tipo:
+          "sucesso",
+
+        texto:
+          t(
+            "intervention.success"
+          ),
+      });
+
+      setObservacaoIntervencao(
+        ""
+      );
+
+      setRetornoIntervencao(
+        ""
+      );
+
+      setTimeout(
+        () => {
+          setModalIntervencaoAberto(
+            false
+          );
+
+          setMensagemIntervencao(
+            null
+          );
+        },
+        900
+      );
+    }
+    catch (error) {
+      console.error(
+        "[STUDENT_SUCCESS_INTERVENTION]",
+        error
+      );
+
+      setMensagemIntervencao({
+        tipo:
+          "erro",
+
+        texto:
+          t(
+            "intervention.error"
+          ),
+      });
+    }
+    finally {
+      setSalvandoIntervencao(
+        false
+      );
+    }
+  };
 
   const resumo =
     dados?.resumo;
@@ -2939,36 +3202,624 @@ export default function AdminStudentSuccessPage() {
                 </div>
 
                 <button
-                  type="button"
-                  disabled
-                  title={t(
-                    "drawer.actionComingSoon"
-                  )}
-                  className="
-                  phanyx-student-success-action
-  phanyx-student-success-action-disabled
-              mt-3
-              w-full
-              rounded-xl
-              bg-blue-700
-              px-4
-              py-3
-              text-sm
-              font-bold
-              text-white
-              
-            "
-                >
-                  +{" "}
-                  {t(
-                    "drawer.registerIntervention"
-                  )}
-                </button>
+  type="button"
+  onClick={() => {
+    setMensagemIntervencao(
+      null
+    );
+
+    setTipoIntervencao(
+      "CONTATO"
+    );
+
+    setCanalIntervencao(
+      alunoSelecionado
+        .contato
+        .telefone
+        ? "LIGACAO"
+        : "EMAIL"
+    );
+
+    setStatusIntervencao(
+      "REGISTRADA"
+    );
+
+    setObservacaoIntervencao(
+      ""
+    );
+
+    setRetornoIntervencao(
+      ""
+    );
+
+    setModalIntervencaoAberto(
+      true
+    );
+  }}
+  className="
+    mt-3
+    w-full
+    rounded-xl
+    bg-blue-700
+    px-4
+    py-3
+    text-sm
+    font-bold
+    text-white
+    transition
+    hover:bg-blue-800
+  "
+>
+  +{" "}
+  {t(
+    "drawer.registerIntervention"
+  )}
+</button>
               </section>
             </div>
           </aside>
         </div>
       ) : null}
+      {modalIntervencaoAberto &&
+alunoSelecionado ? (
+  <div
+    className="
+      fixed
+      inset-0
+      z-[150]
+      flex
+      items-center
+      justify-center
+      bg-black/55
+      p-4
+    "
+  >
+    <div
+      role="dialog"
+      aria-modal="true"
+      className="
+        w-full
+        max-w-2xl
+        rounded-2xl
+        border
+        border-slate-200
+        bg-white
+        shadow-2xl
+        dark:border-slate-700
+        dark:bg-slate-950
+      "
+    >
+      <div
+        className="
+          flex
+          items-start
+          justify-between
+          gap-4
+          border-b
+          border-slate-200
+          p-5
+          dark:border-slate-800
+        "
+      >
+        <div>
+          <h2
+            className="
+              text-lg
+              font-bold
+              text-slate-950
+              dark:text-white
+            "
+          >
+            {t(
+              "intervention.title"
+            )}
+          </h2>
+
+          <p
+            className="
+              mt-1
+              text-sm
+              text-slate-600
+              dark:text-slate-300
+            "
+          >
+            {alunoSelecionado.nome}
+          </p>
+
+          <p
+            className="
+              mt-1
+              text-xs
+              text-slate-500
+              dark:text-slate-400
+            "
+          >
+            {t(
+              "intervention.description"
+            )}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          disabled={
+            salvandoIntervencao
+          }
+          onClick={() =>
+            setModalIntervencaoAberto(
+              false
+            )
+          }
+          className="
+            flex
+            h-9
+            w-9
+            items-center
+            justify-center
+            rounded-xl
+            border
+            border-slate-300
+            bg-white
+            text-lg
+            font-bold
+            text-slate-700
+            dark:border-slate-700
+            dark:bg-slate-900
+            dark:text-white
+          "
+        >
+          ×
+        </button>
+      </div>
+
+      <div
+        className="
+          space-y-4
+          p-5
+        "
+      >
+        <div
+          className="
+            grid
+            gap-4
+            sm:grid-cols-2
+          "
+        >
+          <label
+            className="
+              block
+            "
+          >
+            <span
+              className="
+                mb-1
+                block
+                text-sm
+                font-semibold
+                text-slate-700
+                dark:text-slate-200
+              "
+            >
+              {t(
+                "intervention.type"
+              )}
+            </span>
+
+            <select
+              value={
+                tipoIntervencao
+              }
+              onChange={
+                (event) =>
+                  setTipoIntervencao(
+                    event.target
+                      .value as TipoIntervencao
+                  )
+              }
+              className="
+                w-full
+                rounded-xl
+                border
+                border-slate-300
+                bg-white
+                px-3
+                py-2.5
+                text-sm
+                text-slate-900
+                dark:border-slate-700
+                dark:bg-slate-900
+                dark:text-white
+              "
+            >
+              {[
+                "CONTATO",
+                "ORIENTACAO",
+                "REUNIAO",
+                "ENCAMINHAMENTO",
+                "ACOMPANHAMENTO",
+                "OUTRO",
+              ].map(
+                (tipo) => (
+                  <option
+                    key={
+                      tipo
+                    }
+                    value={
+                      tipo
+                    }
+                  >
+                    {t(
+                      `intervention.types.${tipo}`
+                    )}
+                  </option>
+                )
+              )}
+            </select>
+          </label>
+
+          <label
+            className="
+              block
+            "
+          >
+            <span
+              className="
+                mb-1
+                block
+                text-sm
+                font-semibold
+                text-slate-700
+                dark:text-slate-200
+              "
+            >
+              {t(
+                "intervention.channel"
+              )}
+            </span>
+
+            <select
+              value={
+                canalIntervencao
+              }
+              onChange={
+                (event) =>
+                  setCanalIntervencao(
+                    event.target
+                      .value as CanalIntervencao
+                  )
+              }
+              className="
+                w-full
+                rounded-xl
+                border
+                border-slate-300
+                bg-white
+                px-3
+                py-2.5
+                text-sm
+                text-slate-900
+                dark:border-slate-700
+                dark:bg-slate-900
+                dark:text-white
+              "
+            >
+              {[
+                "WHATSAPP",
+                "LIGACAO",
+                "EMAIL",
+                "PRESENCIAL",
+                "VIDEOCHAMADA",
+                "SISTEMA",
+                "OUTRO",
+              ].map(
+                (canal) => (
+                  <option
+                    key={
+                      canal
+                    }
+                    value={
+                      canal
+                    }
+                  >
+                    {t(
+                      `intervention.channels.${canal}`
+                    )}
+                  </option>
+                )
+              )}
+            </select>
+          </label>
+
+          <label
+            className="
+              block
+            "
+          >
+            <span
+              className="
+                mb-1
+                block
+                text-sm
+                font-semibold
+                text-slate-700
+                dark:text-slate-200
+              "
+            >
+              {t(
+                "intervention.status"
+              )}
+            </span>
+
+            <select
+              value={
+                statusIntervencao
+              }
+              onChange={
+                (event) =>
+                  setStatusIntervencao(
+                    event.target
+                      .value as StatusIntervencao
+                  )
+              }
+              className="
+                w-full
+                rounded-xl
+                border
+                border-slate-300
+                bg-white
+                px-3
+                py-2.5
+                text-sm
+                text-slate-900
+                dark:border-slate-700
+                dark:bg-slate-900
+                dark:text-white
+              "
+            >
+              {[
+                "REGISTRADA",
+                "AGUARDANDO_RETORNO",
+                "EM_ACOMPANHAMENTO",
+                "RESOLVIDA",
+                "CANCELADA",
+              ].map(
+                (status) => (
+                  <option
+                    key={
+                      status
+                    }
+                    value={
+                      status
+                    }
+                  >
+                    {t(
+                      `intervention.statuses.${status}`
+                    )}
+                  </option>
+                )
+              )}
+            </select>
+          </label>
+
+          <label
+            className="
+              block
+            "
+          >
+            <span
+              className="
+                mb-1
+                flex
+                items-center
+                gap-2
+                text-sm
+                font-semibold
+                text-slate-700
+                dark:text-slate-200
+              "
+            >
+              {t(
+                "intervention.returnDate"
+              )}
+
+              <span
+                className="
+                  text-xs
+                  font-normal
+                  text-slate-500
+                "
+              >
+                {t(
+                  "intervention.returnDateOptional"
+                )}
+              </span>
+            </span>
+
+            <input
+              type="date"
+              value={
+                retornoIntervencao
+              }
+              onChange={
+                (event) =>
+                  setRetornoIntervencao(
+                    event.target
+                      .value
+                  )
+              }
+              className="
+                w-full
+                rounded-xl
+                border
+                border-slate-300
+                bg-white
+                px-3
+                py-2.5
+                text-sm
+                text-slate-900
+                dark:border-slate-700
+                dark:bg-slate-900
+                dark:text-white
+              "
+            />
+          </label>
+        </div>
+
+        <label
+          className="
+            block
+          "
+        >
+          <span
+            className="
+              mb-1
+              block
+              text-sm
+              font-semibold
+              text-slate-700
+              dark:text-slate-200
+            "
+          >
+            {t(
+              "intervention.observation"
+            )}
+          </span>
+
+          <textarea
+            value={
+              observacaoIntervencao
+            }
+            onChange={
+              (event) =>
+                setObservacaoIntervencao(
+                  event.target
+                    .value
+                )
+            }
+            rows={5}
+            maxLength={5000}
+            placeholder={t(
+              "intervention.observationPlaceholder"
+            )}
+            className="
+              w-full
+              resize-y
+              rounded-xl
+              border
+              border-slate-300
+              bg-white
+              px-3
+              py-3
+              text-sm
+              text-slate-900
+              placeholder:text-slate-400
+              dark:border-slate-700
+              dark:bg-slate-900
+              dark:text-white
+            "
+          />
+        </label>
+
+        {mensagemIntervencao ? (
+          <div
+            className={[
+              "rounded-xl border px-4 py-3 text-sm font-semibold",
+
+              mensagemIntervencao
+                .tipo ===
+              "sucesso"
+                ? "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-200"
+                : "border-red-300 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-950/30 dark:text-red-200",
+            ].join(
+              " "
+            )}
+          >
+            {
+              mensagemIntervencao
+                .texto
+            }
+          </div>
+        ) : null}
+      </div>
+
+      <div
+        className="
+          flex
+          justify-end
+          gap-3
+          border-t
+          border-slate-200
+          p-5
+          dark:border-slate-800
+        "
+      >
+        <button
+          type="button"
+          disabled={
+            salvandoIntervencao
+          }
+          onClick={() =>
+            setModalIntervencaoAberto(
+              false
+            )
+          }
+          className="
+            rounded-xl
+            border
+            border-slate-300
+            bg-white
+            px-4
+            py-2.5
+            text-sm
+            font-semibold
+            text-slate-700
+            dark:border-slate-700
+            dark:bg-slate-900
+            dark:text-slate-200
+          "
+        >
+          {t(
+            "intervention.cancel"
+          )}
+        </button>
+
+        <button
+          type="button"
+          disabled={
+            salvandoIntervencao ||
+            observacaoIntervencao
+              .trim()
+              .length < 3
+          }
+          onClick={() =>
+            void registrarIntervencao()
+          }
+          className="
+            rounded-xl
+            bg-blue-700
+            px-4
+            py-2.5
+            text-sm
+            font-bold
+            text-white
+            transition
+            hover:bg-blue-800
+            disabled:cursor-not-allowed
+            disabled:opacity-50
+          "
+        >
+          {salvandoIntervencao
+            ? t(
+                "intervention.saving"
+              )
+            : t(
+                "intervention.save"
+              )}
+        </button>
+      </div>
+    </div>
+  </div>
+) : null}
     </main >
   );
 }
