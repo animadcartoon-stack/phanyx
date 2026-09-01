@@ -30921,3 +30921,65 @@ html[data-theme="system"]
   -webkit-text-fill-color: currentColor !important;
   opacity: 1 !important;
 }
+
+/* =========================================================
+   STUDENT SUCCESS — AÇÕES DO DRAWER
+========================================================= */
+
+/* ação realmente desabilitada */
+.phanyx-student-success-action-disabled:disabled {
+  background: #e2e8f0 !important;
+  border-color: #cbd5e1 !important;
+
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+}
+
+/* ligação disponível */
+html[data-theme="light"]
+.phanyx-student-success-action-call:not(:disabled) {
+  background: #eff6ff !important;
+  border-color: #60a5fa !important;
+
+  color: #1d4ed8 !important;
+  -webkit-text-fill-color: #1d4ed8 !important;
+
+  opacity: 1 !important;
+}
+
+/* ligação indisponível */
+html[data-theme="light"]
+.phanyx-student-success-action-call:disabled {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+
+  color: #94a3b8 !important;
+  -webkit-text-fill-color: #94a3b8 !important;
+
+  opacity: 1 !important;
+}
+
+/* e-mail disponível */
+html[data-theme="light"]
+.phanyx-student-success-action-email:not(:disabled) {
+  background: #f5f3ff !important;
+  border-color: #8b5cf6 !important;
+
+  color: #6d28d9 !important;
+  -webkit-text-fill-color: #6d28d9 !important;
+
+  opacity: 1 !important;
+  cursor: pointer !important;
+}
+
+html[data-theme="light"]
+.phanyx-student-success-action-email:not(:disabled):hover {
+  background: #ede9fe !important;
+  border-color: #7c3aed !important;
+
+  color: #5b21b6 !important;
+  -webkit-text-fill-color: #5b21b6 !important;
+}

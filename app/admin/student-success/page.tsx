@@ -2809,6 +2809,8 @@ export default function AdminStudentSuccessPage() {
                       "drawer.actionComingSoon"
                     )}
                     className="
+                    phanyx-student-success-action
+  phanyx-student-success-action-disabled
                 rounded-xl
                 border
                 border-emerald-300
@@ -2818,7 +2820,7 @@ export default function AdminStudentSuccessPage() {
                 text-sm
                 font-bold
                 text-emerald-800
-                opacity-60
+                
                 dark:border-emerald-900
                 dark:bg-emerald-950/30
                 dark:text-emerald-200
@@ -2855,6 +2857,8 @@ export default function AdminStudentSuccessPage() {
                         `tel:${telefone}`;
                     }}
                     className="
+                    phanyx-student-success-action
+  phanyx-student-success-action-call
                 rounded-xl
                 border
                 border-blue-300
@@ -2907,6 +2911,8 @@ export default function AdminStudentSuccessPage() {
                         `mailto:${email}`;
                     }}
                     className="
+                    phanyx-student-success-action
+  phanyx-student-success-action-email
                 rounded-xl
                 border
                 border-violet-300
@@ -2939,6 +2945,8 @@ export default function AdminStudentSuccessPage() {
                     "drawer.actionComingSoon"
                   )}
                   className="
+                  phanyx-student-success-action
+  phanyx-student-success-action-disabled
               mt-3
               w-full
               rounded-xl
@@ -2948,7 +2956,7 @@ export default function AdminStudentSuccessPage() {
               text-sm
               font-bold
               text-white
-              opacity-60
+              
             "
                 >
                   +{" "}
