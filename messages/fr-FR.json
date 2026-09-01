@@ -4052,6 +4052,27 @@
         "saving": "Enregistrement...",
         "success": "Suivi mis à jour avec succès.",
         "error": "Impossible de mettre à jour le suivi."
+      },
+      "comparison": {
+        "title": "Évolution académique",
+        "registration": "À l'enregistrement",
+        "closure": "À la clôture",
+        "risk": "Situation",
+        "coverage": "Couverture",
+        "attendance": "Assiduité",
+        "performance": "Performance",
+        "pending": "Activités en attente",
+        "evolution": "Évolution",
+        "noMeasurableChange": "Aucun changement académique mesurable sur cette période.",
+        "coverageImproved": "La couverture des données a augmenté",
+        "coverageReduced": "La couverture des données a diminué",
+        "pendingReduced": "Les activités en attente ont diminué",
+        "pendingIncreased": "Les activités en attente ont augmenté",
+        "attendanceImproved": "L'assiduité s'est améliorée",
+        "attendanceReduced": "L'assiduité a diminué",
+        "performanceImproved": "La performance s'est améliorée",
+        "performanceReduced": "La performance a diminué",
+        "percentagePoints": "pts"
       }
     }
   },

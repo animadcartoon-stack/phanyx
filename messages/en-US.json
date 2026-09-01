@@ -4053,6 +4053,27 @@
         "saving": "Saving...",
         "success": "Follow-up updated successfully.",
         "error": "The follow-up could not be updated."
+      },
+      "comparison": {
+        "title": "Academic progress",
+        "registration": "At registration",
+        "closure": "At closure",
+        "risk": "Status",
+        "coverage": "Data coverage",
+        "attendance": "Attendance",
+        "performance": "Performance",
+        "pending": "Pending activities",
+        "evolution": "Progress",
+        "noMeasurableChange": "No measurable academic change during this period.",
+        "coverageImproved": "Data coverage increased",
+        "coverageReduced": "Data coverage decreased",
+        "pendingReduced": "Pending activities decreased",
+        "pendingIncreased": "Pending activities increased",
+        "attendanceImproved": "Attendance improved",
+        "attendanceReduced": "Attendance decreased",
+        "performanceImproved": "Performance improved",
+        "performanceReduced": "Performance decreased",
+        "percentagePoints": "pp"
       }
     }
   },

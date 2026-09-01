@@ -1445,6 +1445,738 @@ export default function AdminStudentSuccessPage() {
       }
     };
 
+    const renderComparacaoAcademica =
+  (
+    intervencao:
+      StudentSuccessIntervencao
+  ) => {
+    /*
+     * Só existe comparação quando
+     * a intervenção possui uma fotografia
+     * acadêmica de encerramento.
+     *
+     * Intervenções antigas continuam
+     * funcionando normalmente.
+     */
+    if (
+      !intervencao
+        .nivelRiscoNoEncerramento
+    ) {
+      return null;
+    }
+
+    const inicio =
+      intervencao
+        .indicadoresNoRegistro;
+
+    const fim =
+      intervencao
+        .indicadoresNoEncerramento;
+
+    type Mudanca = {
+      texto: string;
+
+      tipo:
+        | "positiva"
+        | "negativa";
+    };
+
+    const mudancas:
+      Mudanca[] =
+      [];
+
+    /* ---------------------------------------
+       COBERTURA
+       --------------------------------------- */
+
+    if (
+      intervencao
+        .coberturaNoEncerramento !==
+      null
+    ) {
+      const antes =
+        intervencao
+          .coberturaNoRegistro;
+
+      const depois =
+        intervencao
+          .coberturaNoEncerramento;
+
+      const diferenca =
+        depois -
+        antes;
+
+      if (
+        diferenca > 0
+      ) {
+        mudancas.push({
+          tipo:
+            "positiva",
+
+          texto:
+            `${t(
+              "intervention.comparison.coverageImproved"
+            )}: ${antes}% → ${depois}% (+${diferenca} ${t(
+              "intervention.comparison.percentagePoints"
+            )})`,
+        });
+      }
+
+      if (
+        diferenca < 0
+      ) {
+        mudancas.push({
+          tipo:
+            "negativa",
+
+          texto:
+            `${t(
+              "intervention.comparison.coverageReduced"
+            )}: ${antes}% → ${depois}% (${diferenca} ${t(
+              "intervention.comparison.percentagePoints"
+            )})`,
+        });
+      }
+    }
+
+    /* ---------------------------------------
+       ATIVIDADES PENDENTES
+       --------------------------------------- */
+
+    if (
+      inicio &&
+      fim
+    ) {
+      const antes =
+        inicio
+          .atividadesVencidas;
+
+      const depois =
+        fim
+          .atividadesVencidas;
+
+      if (
+        depois <
+        antes
+      ) {
+        mudancas.push({
+          tipo:
+            "positiva",
+
+          texto:
+            `${t(
+              "intervention.comparison.pendingReduced"
+            )}: ${antes} → ${depois}`,
+        });
+      }
+
+      if (
+        depois >
+        antes
+      ) {
+        mudancas.push({
+          tipo:
+            "negativa",
+
+          texto:
+            `${t(
+              "intervention.comparison.pendingIncreased"
+            )}: ${antes} → ${depois}`,
+        });
+      }
+    }
+
+    /* ---------------------------------------
+       FREQUÊNCIA
+       --------------------------------------- */
+
+    if (
+      inicio
+        ?.frequenciaPercentual !==
+        null &&
+      inicio
+        ?.frequenciaPercentual !==
+        undefined &&
+      fim
+        ?.frequenciaPercentual !==
+        null &&
+      fim
+        ?.frequenciaPercentual !==
+        undefined
+    ) {
+      const antes =
+        inicio
+          .frequenciaPercentual;
+
+      const depois =
+        fim
+          .frequenciaPercentual;
+
+      const diferenca =
+        Math.round(
+          depois -
+            antes
+        );
+
+      if (
+        diferenca > 0
+      ) {
+        mudancas.push({
+          tipo:
+            "positiva",
+
+          texto:
+            `${t(
+              "intervention.comparison.attendanceImproved"
+            )}: ${Math.round(
+              antes
+            )}% → ${Math.round(
+              depois
+            )}% (+${diferenca} ${t(
+              "intervention.comparison.percentagePoints"
+            )})`,
+        });
+      }
+
+      if (
+        diferenca < 0
+      ) {
+        mudancas.push({
+          tipo:
+            "negativa",
+
+          texto:
+            `${t(
+              "intervention.comparison.attendanceReduced"
+            )}: ${Math.round(
+              antes
+            )}% → ${Math.round(
+              depois
+            )}% (${diferenca} ${t(
+              "intervention.comparison.percentagePoints"
+            )})`,
+        });
+      }
+    }
+
+    /* ---------------------------------------
+       DESEMPENHO
+       --------------------------------------- */
+
+    if (
+      inicio
+        ?.mediaPercentual !==
+        null &&
+      inicio
+        ?.mediaPercentual !==
+        undefined &&
+      fim
+        ?.mediaPercentual !==
+        null &&
+      fim
+        ?.mediaPercentual !==
+        undefined
+    ) {
+      const antes =
+        inicio
+          .mediaPercentual;
+
+      const depois =
+        fim
+          .mediaPercentual;
+
+      const diferenca =
+        Math.round(
+          depois -
+            antes
+        );
+
+      if (
+        diferenca > 0
+      ) {
+        mudancas.push({
+          tipo:
+            "positiva",
+
+          texto:
+            `${t(
+              "intervention.comparison.performanceImproved"
+            )}: ${Math.round(
+              antes
+            )}% → ${Math.round(
+              depois
+            )}% (+${diferenca} ${t(
+              "intervention.comparison.percentagePoints"
+            )})`,
+        });
+      }
+
+      if (
+        diferenca < 0
+      ) {
+        mudancas.push({
+          tipo:
+            "negativa",
+
+          texto:
+            `${t(
+              "intervention.comparison.performanceReduced"
+            )}: ${Math.round(
+              antes
+            )}% → ${Math.round(
+              depois
+            )}% (${diferenca} ${t(
+              "intervention.comparison.percentagePoints"
+            )})`,
+        });
+      }
+    }
+
+    return (
+      <div
+        className="
+          phanyx-student-success-comparison
+          mt-4
+          rounded-xl
+          border
+          p-3
+        "
+      >
+        <div
+          className="
+            phanyx-student-success-comparison-title
+            text-xs
+            font-bold
+            uppercase
+            tracking-wide
+          "
+        >
+          {t(
+            "intervention.comparison.title"
+          )}
+        </div>
+
+        <div
+          className="
+            mt-3
+            grid
+            gap-3
+            sm:grid-cols-[1fr_auto_1fr]
+            sm:items-stretch
+          "
+        >
+          {/* NO REGISTRO */}
+
+          <div
+            className="
+              phanyx-student-success-comparison-snapshot
+              rounded-xl
+              border
+              p-3
+            "
+          >
+            <div
+              className="
+                text-xs
+                font-bold
+                uppercase
+                tracking-wide
+              "
+            >
+              {t(
+                "intervention.comparison.registration"
+              )}
+            </div>
+
+            <dl
+              className="
+                mt-3
+                space-y-2
+                text-xs
+              "
+            >
+              <div>
+                <dt
+                  className="
+                    font-semibold
+                  "
+                >
+                  {t(
+                    "intervention.comparison.risk"
+                  )}
+                </dt>
+
+                <dd
+                  className="
+                    mt-0.5
+                    font-bold
+                  "
+                >
+                  {t(
+                    `levels.${intervencao.nivelRiscoNoRegistro as NivelRisco}`
+                  )}
+                </dd>
+              </div>
+
+              <div>
+                <dt
+                  className="
+                    font-semibold
+                  "
+                >
+                  {t(
+                    "intervention.comparison.coverage"
+                  )}
+                </dt>
+
+                <dd
+                  className="
+                    mt-0.5
+                    font-bold
+                  "
+                >
+                  {
+                    intervencao
+                      .coberturaNoRegistro
+                  }
+                  %
+                </dd>
+              </div>
+
+              <div>
+                <dt
+                  className="
+                    font-semibold
+                  "
+                >
+                  {t(
+                    "intervention.comparison.attendance"
+                  )}
+                </dt>
+
+                <dd
+                  className="
+                    mt-0.5
+                    font-bold
+                  "
+                >
+                  {formatarPercentual(
+                    inicio
+                      ?.frequenciaPercentual ??
+                      null
+                  )}
+                </dd>
+              </div>
+
+              <div>
+                <dt
+                  className="
+                    font-semibold
+                  "
+                >
+                  {t(
+                    "intervention.comparison.performance"
+                  )}
+                </dt>
+
+                <dd
+                  className="
+                    mt-0.5
+                    font-bold
+                  "
+                >
+                  {formatarPercentual(
+                    inicio
+                      ?.mediaPercentual ??
+                      null
+                  )}
+                </dd>
+              </div>
+
+              <div>
+                <dt
+                  className="
+                    font-semibold
+                  "
+                >
+                  {t(
+                    "intervention.comparison.pending"
+                  )}
+                </dt>
+
+                <dd
+                  className="
+                    mt-0.5
+                    font-bold
+                  "
+                >
+                  {inicio
+                    ? inicio
+                        .atividadesVencidas
+                    : "—"}
+                </dd>
+              </div>
+            </dl>
+          </div>
+
+          {/* SETA */}
+
+          <div
+            className="
+              phanyx-student-success-comparison-arrow
+              flex
+              items-center
+              justify-center
+              text-xl
+              font-bold
+            "
+            aria-hidden="true"
+          >
+            →
+          </div>
+
+          {/* NO ENCERRAMENTO */}
+
+          <div
+            className="
+              phanyx-student-success-comparison-snapshot
+              rounded-xl
+              border
+              p-3
+            "
+          >
+            <div
+              className="
+                text-xs
+                font-bold
+                uppercase
+                tracking-wide
+              "
+            >
+              {t(
+                "intervention.comparison.closure"
+              )}
+            </div>
+
+            <dl
+              className="
+                mt-3
+                space-y-2
+                text-xs
+              "
+            >
+              <div>
+                <dt
+                  className="
+                    font-semibold
+                  "
+                >
+                  {t(
+                    "intervention.comparison.risk"
+                  )}
+                </dt>
+
+                <dd
+                  className="
+                    mt-0.5
+                    font-bold
+                  "
+                >
+                  {t(
+                    `levels.${intervencao.nivelRiscoNoEncerramento as NivelRisco}`
+                  )}
+                </dd>
+              </div>
+
+              <div>
+                <dt
+                  className="
+                    font-semibold
+                  "
+                >
+                  {t(
+                    "intervention.comparison.coverage"
+                  )}
+                </dt>
+
+                <dd
+                  className="
+                    mt-0.5
+                    font-bold
+                  "
+                >
+                  {
+                    intervencao
+                      .coberturaNoEncerramento ??
+                    0
+                  }
+                  %
+                </dd>
+              </div>
+
+              <div>
+                <dt
+                  className="
+                    font-semibold
+                  "
+                >
+                  {t(
+                    "intervention.comparison.attendance"
+                  )}
+                </dt>
+
+                <dd
+                  className="
+                    mt-0.5
+                    font-bold
+                  "
+                >
+                  {formatarPercentual(
+                    fim
+                      ?.frequenciaPercentual ??
+                      null
+                  )}
+                </dd>
+              </div>
+
+              <div>
+                <dt
+                  className="
+                    font-semibold
+                  "
+                >
+                  {t(
+                    "intervention.comparison.performance"
+                  )}
+                </dt>
+
+                <dd
+                  className="
+                    mt-0.5
+                    font-bold
+                  "
+                >
+                  {formatarPercentual(
+                    fim
+                      ?.mediaPercentual ??
+                      null
+                  )}
+                </dd>
+              </div>
+
+              <div>
+                <dt
+                  className="
+                    font-semibold
+                  "
+                >
+                  {t(
+                    "intervention.comparison.pending"
+                  )}
+                </dt>
+
+                <dd
+                  className="
+                    mt-0.5
+                    font-bold
+                  "
+                >
+                  {fim
+                    ? fim
+                        .atividadesVencidas
+                    : "—"}
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+
+        {/* EVOLUÇÃO CALCULADA */}
+
+        <div
+          className="
+            phanyx-student-success-comparison-evolution
+            mt-3
+            rounded-xl
+            border
+            p-3
+          "
+        >
+          <div
+            className="
+              text-xs
+              font-bold
+              uppercase
+              tracking-wide
+            "
+          >
+            {t(
+              "intervention.comparison.evolution"
+            )}
+          </div>
+
+          {mudancas.length >
+          0 ? (
+            <div
+              className="
+                mt-2
+                space-y-2
+              "
+            >
+              {mudancas.map(
+                (
+                  mudanca,
+                  indice
+                ) => (
+                  <div
+                    key={
+                      `${mudanca.tipo}-${indice}`
+                    }
+                    className={[
+                      "phanyx-student-success-comparison-change rounded-lg border px-3 py-2 text-xs font-semibold",
+
+                      mudanca.tipo ===
+                      "positiva"
+                        ? "phanyx-student-success-comparison-positive"
+                        : "phanyx-student-success-comparison-negative",
+                    ].join(
+                      " "
+                    )}
+                  >
+                    <span
+                      aria-hidden="true"
+                    >
+                      {mudanca.tipo ===
+                      "positiva"
+                        ? "✓"
+                        : "⚠"}
+                    </span>{" "}
+                    {
+                      mudanca.texto
+                    }
+                  </div>
+                )
+              )}
+            </div>
+          ) : (
+            <p
+              className="
+                phanyx-student-success-comparison-neutral
+                mt-2
+                text-xs
+                font-semibold
+              "
+            >
+              {t(
+                "intervention.comparison.noMeasurableChange"
+              )}
+            </p>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const resumo =
     dados?.resumo;
 
@@ -4162,6 +4894,10 @@ export default function AdminStudentSuccessPage() {
                               </p>
                             </div>
                           ) : null}
+
+                          {renderComparacaoAcademica(
+  intervencao
+)}
 
                           {intervencao.concluidoEm ? (
                             <p

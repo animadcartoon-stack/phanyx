@@ -4052,6 +4052,27 @@
         "saving": "Guardando...",
         "success": "Seguimiento actualizado correctamente.",
         "error": "No se pudo actualizar el seguimiento."
+      },
+      "comparison": {
+        "title": "Evolución académica",
+        "registration": "Al registrar",
+        "closure": "Al finalizar",
+        "risk": "Situación",
+        "coverage": "Cobertura",
+        "attendance": "Asistencia",
+        "performance": "Rendimiento",
+        "pending": "Actividades pendientes",
+        "evolution": "Evolución",
+        "noMeasurableChange": "Sin cambios académicos mensurables durante el período.",
+        "coverageImproved": "La cobertura de datos aumentó",
+        "coverageReduced": "La cobertura de datos disminuyó",
+        "pendingReduced": "Las actividades pendientes disminuyeron",
+        "pendingIncreased": "Las actividades pendientes aumentaron",
+        "attendanceImproved": "La asistencia mejoró",
+        "attendanceReduced": "La asistencia disminuyó",
+        "performanceImproved": "El rendimiento mejoró",
+        "performanceReduced": "El rendimiento disminuyó",
+        "percentagePoints": "p.p."
       }
     }
   },

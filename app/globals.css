@@ -31424,3 +31424,204 @@ html[data-theme="system"]
   border-color: #5f5f5f !important;
   color: #ffffff !important;
 }
+
+/* =========================================================
+   STUDENT SUCCESS — COMPARAÇÃO ACADÊMICA
+   ========================================================= */
+
+/* LIGHT */
+
+html[data-theme="light"]
+  .phanyx-student-success-comparison {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-comparison-title {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-comparison-snapshot {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-comparison-snapshot dt {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-comparison-snapshot dd {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-comparison-arrow {
+  color: #2563eb !important;
+  -webkit-text-fill-color: #2563eb !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-comparison-evolution {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-comparison-positive {
+  background: #ecfdf5 !important;
+  border-color: #86efac !important;
+  color: #166534 !important;
+  -webkit-text-fill-color: #166534 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-comparison-negative {
+  background: #fef2f2 !important;
+  border-color: #fca5a5 !important;
+  color: #991b1b !important;
+  -webkit-text-fill-color: #991b1b !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-comparison-neutral {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+}
+
+
+/* DARK */
+
+html[data-theme="dark"]
+  .phanyx-student-success-comparison {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-comparison-title,
+html[data-theme="dark"]
+  .phanyx-student-success-comparison-snapshot dd {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-comparison-snapshot {
+  background: #111827 !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-comparison-snapshot dt {
+  color: #94a3b8 !important;
+  -webkit-text-fill-color: #94a3b8 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-comparison-arrow {
+  color: #60a5fa !important;
+  -webkit-text-fill-color: #60a5fa !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-comparison-evolution {
+  background: #111827 !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-comparison-positive {
+  background: #052e16 !important;
+  border-color: #166534 !important;
+  color: #bbf7d0 !important;
+  -webkit-text-fill-color: #bbf7d0 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-comparison-negative {
+  background: #450a0a !important;
+  border-color: #991b1b !important;
+  color: #fecaca !important;
+  -webkit-text-fill-color: #fecaca !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-comparison-neutral {
+  color: #cbd5e1 !important;
+  -webkit-text-fill-color: #cbd5e1 !important;
+}
+
+
+/* SYSTEM */
+
+html[data-theme="system"]
+  .phanyx-student-success-comparison {
+  background: #303030 !important;
+  border-color: #5f5f5f !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-comparison-title,
+html[data-theme="system"]
+  .phanyx-student-success-comparison-snapshot dd {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-comparison-snapshot {
+  background: #383838 !important;
+  border-color: #5f5f5f !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-comparison-snapshot dt {
+  color: #d1d5db !important;
+  -webkit-text-fill-color: #d1d5db !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-comparison-arrow {
+  color: #60a5fa !important;
+  -webkit-text-fill-color: #60a5fa !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-comparison-evolution {
+  background: #383838 !important;
+  border-color: #5f5f5f !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-comparison-positive {
+  background: #163a29 !important;
+  border-color: #31875b !important;
+  color: #d1fae5 !important;
+  -webkit-text-fill-color: #d1fae5 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-comparison-negative {
+  background: #4b2222 !important;
+  border-color: #a34a4a !important;
+  color: #fee2e2 !important;
+  -webkit-text-fill-color: #fee2e2 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-comparison-neutral {
+  color: #e5e7eb !important;
+  -webkit-text-fill-color: #e5e7eb !important;
+}
