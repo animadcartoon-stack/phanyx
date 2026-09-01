@@ -129,6 +129,8 @@
     "semesterReenrollments": "Renovaciones semestrales",
     "classes": "Clases",
     "operationalSchedule": "Agenda / Turnos",
+    "externalActivities": "Actividades externas",
+
     "academicPublications": "Publicaciones Académicas",
     "visitors": "Visitantes",
     "overview": "Resumen general",
@@ -4398,60 +4400,63 @@
     }
   },
   "AdminAcademicPublicationNew": {
-    "backToPublications": "← Volver a publicaciones",
+    "backToPublications": "â† Volver a publicaciones",
     "eyebrow": "Apoyo Docente",
-    "title": "Nueva publicación académica",
-    "description": "Registra actividades, trabajos, enlaces u orientaciones recibidas de los profesores y publícalos en la clase y asignatura correctas.",
+    "title": "Nueva publicaciÃ³n acadÃ©mica",
+    "description": "Registra actividades, trabajos, enlaces u orientaciones recibidas de los profesores y publÃ­calos en la clase y asignatura correctas.",
     "loadingData": "Cargando datos...",
     "fields": {
-      "activityTitle": "Título de la actividad",
-      "instructions": "Descripción / instrucciones del profesor",
+      "activityTitle": "TÃ­tulo de la actividad",
+      "instructions": "DescripciÃ³n / instrucciones del profesor",
       "responsibleTeacher": "Profesor responsable",
       "class": "Clase",
       "subject": "Asignatura",
-      "deadline": "Fecha límite",
-      "maximumGrade": "Calificación máxima",
+      "deadline": "Fecha lÃ­mite",
+      "maximumGrade": "CalificaciÃ³n mÃ¡xima",
       "optionalExternalLink": "Enlace externo opcional",
-      "publicationFiles": "Archivos de la publicación"
+      "publicationFiles": "Archivos de la publicaciÃ³n"
     },
     "placeholders": {
       "activityTitle": "Ej.: Estudio dirigido sobre...",
-      "instructions": "Escribe las orientaciones que verán los alumnos..."
+      "instructions": "Escribe las orientaciones que verÃ¡n los alumnos..."
     },
     "select": "Seleccionar",
-    "noSpecificSubject": "Sin asignatura específica",
-    "fileHelp": "Acepta PDF, imágenes, vídeos, PowerPoint, Word, Excel, ZIP, Blender, Maya, After Effects y otros formatos comunes. Límite: 500 MB por archivo.",
+    "noSpecificSubject": "Sin asignatura especÃ­fica",
+    "fileHelp": "Acepta PDF, imÃ¡genes, vÃ­deos, PowerPoint, Word, Excel, ZIP, Blender, Maya, After Effects y otros formatos comunes. LÃ­mite: 500 MB por archivo.",
     "selectedFiles": "Archivos seleccionados",
+    "chooseFiles": "Elegir archivos",
+    "noFilesSelected": "NingÃºn archivo seleccionado",
+    "filesSelected": "{count, plural, one {# archivo seleccionado} other {# archivos seleccionados}}",
     "fileSize": "{size} MB",
     "uploadProgress": "Subiendo {current} de {total}: {name}",
     "publishImmediately": {
       "title": "Publicar inmediatamente para los alumnos",
-      "description": "Si se desactiva, permanecerá en la cola de publicación."
+      "description": "Si se desactiva, permanecerÃ¡ en la cola de publicaciÃ³n."
     },
     "cancel": "Cancelar",
-    "savePublication": "Guardar publicación",
+    "savePublication": "Guardar publicaciÃ³n",
     "saving": "Guardando...",
     "uploadingFiles": "Subiendo archivos...",
     "success": {
-      "published": "La actividad se publicó correctamente para los alumnos.",
-      "queued": "La actividad se creó y se añadió a la cola de publicación."
+      "published": "La actividad se publicÃ³ correctamente para los alumnos.",
+      "queued": "La actividad se creÃ³ y se aÃ±adiÃ³ a la cola de publicaciÃ³n."
     },
     "errors": {
       "loadOptions": "Error al cargar las opciones.",
-      "createPublication": "Error al crear la publicación.",
-      "invalidActivityForAttachments": "La publicación se creó, pero no fue posible adjuntar los archivos.",
-      "registerAttachment": "El archivo se subió, pero no pudo registrarse."
+      "createPublication": "Error al crear la publicaciÃ³n.",
+      "invalidActivityForAttachments": "La publicaciÃ³n se creÃ³, pero no fue posible adjuntar los archivos.",
+      "registerAttachment": "El archivo se subiÃ³, pero no pudo registrarse."
     }
   },
   "AdminAcademicPublications": {
-    "eyebrow": "Secretaría Académica",
-    "title": "Publicaciones académicas",
-    "description": "Cola de actividades y trabajos enviados por los profesores para su revisión y publicación.",
-    "newPublication": "+ Nueva publicación académica",
+    "eyebrow": "SecretarÃ­a AcadÃ©mica",
+    "title": "Publicaciones acadÃ©micas",
+    "description": "Cola de actividades y trabajos enviados por los profesores para su revisiÃ³n y publicaciÃ³n.",
+    "newPublication": "+ Nueva publicaciÃ³n acadÃ©mica",
     "loading": "Cargando publicaciones...",
-    "empty": "No hay publicaciones pendientes de revisión en este momento.",
+    "empty": "No hay publicaciones pendientes de revisiÃ³n en este momento.",
     "status": {
-      "awaitingPublication": "Pendiente de publicación",
+      "awaitingPublication": "Pendiente de publicaciÃ³n",
       "published": "Publicada",
       "returned": "Devuelta",
       "draft": "Borrador"
@@ -4460,8 +4465,8 @@
       "teacher": "Profesor",
       "class": "Clase",
       "subject": "Asignatura",
-      "deadline": "Fecha límite",
-      "maximumGrade": "Calificación máxima",
+      "deadline": "Fecha lÃ­mite",
+      "maximumGrade": "CalificaciÃ³n mÃ¡xima",
       "sentAt": "Enviado el"
     },
     "attachments": "Archivos adjuntos",
@@ -4476,6 +4481,350 @@
       "load": "Error al cargar las publicaciones.",
       "publish": "Error al publicar la actividad.",
       "return": "Error al devolver la actividad."
+    }
+  },
+  "AdminLibraryDashboard": {
+    "loadingAria": "Cargando biblioteca",
+    "description": "Gestiona la colecciÃ³n fÃ­sica y digital, la circulaciÃ³n, las recomendaciones acadÃ©micas y el uso del almacenamiento de la instituciÃ³n.",
+    "libraryPlan": "Plan de la biblioteca: {plan}",
+    "refreshDashboard": "Actualizar panel",
+    "overview": "Vista general",
+    "retry": "Intentar de nuevo",
+    "errors": {
+      "load": "No se pudo cargar la Biblioteca Digital.",
+      "unavailableTitle": "Biblioteca Digital no disponible",
+      "noAccess": "No tienes acceso a la Biblioteca Digital."
+    },
+    "indicators": {
+      "collectionItems": "Elementos de la colecciÃ³n",
+      "publishedItems": "Elementos publicados",
+      "availableFiles": "Archivos disponibles",
+      "activeLoans": "PrÃ©stamos activos",
+      "overdueLoans": "PrÃ©stamos atrasados",
+      "waitingReservations": "Reservas en espera",
+      "pendingReviews": "ReseÃ±as pendientes",
+      "activeRecommendations": "Recomendaciones activas"
+    },
+    "recent": {
+      "title": "Elementos aÃ±adidos recientemente",
+      "description": "Ãšltimos materiales aÃ±adidos a la colecciÃ³n de la instituciÃ³n.",
+      "emptyTitle": "No hay elementos registrados",
+      "emptyDescription": "Los primeros libros, artÃ­culos y contenidos multimedia aparecerÃ¡n aquÃ­."
+    },
+    "storage": {
+      "title": "Almacenamiento",
+      "description": "Espacio utilizado por los archivos de la biblioteca.",
+      "totalLimit": "LÃ­mite total",
+      "available": "Disponible",
+      "contracted": "Contratado",
+      "extraSpace": "Espacio adicional"
+    },
+    "moduleStatus": {
+      "active": "Activa",
+      "pending": "Pendiente",
+      "blocked": "Bloqueada",
+      "cancelled": "Cancelada",
+      "inactive": "Inactiva"
+    },
+    "itemStatus": {
+      "draft": "Borrador",
+      "inReview": "En revisiÃ³n",
+      "published": "Publicado",
+      "restricted": "Restringido",
+      "unavailable": "No disponible",
+      "archived": "Archivado"
+    },
+    "types": {
+      "book": "Libro",
+      "ebook": "Libro electrÃ³nico",
+      "scientificArticle": "ArtÃ­culo cientÃ­fico",
+      "magazine": "Revista",
+      "journal": "PublicaciÃ³n periÃ³dica",
+      "handout": "Apuntes",
+      "finalPaper": "Trabajo de fin de estudios",
+      "monograph": "MonografÃ­a",
+      "dissertation": "DisertaciÃ³n",
+      "thesis": "Tesis",
+      "research": "InvestigaciÃ³n",
+      "document": "Documento",
+      "video": "VÃ­deo",
+      "documentary": "Documental",
+      "audio": "Audio",
+      "audiobook": "Audiolibro",
+      "podcast": "PÃ³dcast",
+      "externalLink": "Enlace externo",
+      "other": "Otro"
+    }
+  },
+  "AdminLibraryContracting": {
+    "eyebrow": "Biblioteca Virtual PHANYX",
+    "title": "Planes y contrataciÃ³n",
+    "description": "Elija la capacidad adecuada para la colecciÃ³n de la instituciÃ³n. La activaciÃ³n se realiza automÃ¡ticamente despuÃ©s de que Asaas confirme el pago.",
+    "backToLibrary": "â† Volver a la Biblioteca",
+    "refresh": "Actualizar",
+    "loadingPlans": "Cargando planes",
+    "retry": "Intentar de nuevo",
+    "errors": {
+      "invalidApiResponse": "La API de contrataciÃ³n no devolviÃ³ una respuesta vÃ¡lida.",
+      "loadPlans": "No se pudieron cargar los planes de la Biblioteca Virtual.",
+      "checkoutUnavailable": "El enlace de pago no estÃ¡ disponible. Actualice la pÃ¡gina o cree una nueva contrataciÃ³n.",
+      "startSubscription": "No se pudo iniciar la contrataciÃ³n de la Biblioteca Virtual.",
+      "loadSubscriptionTitle": "No se pudo cargar la contrataciÃ³n"
+    },
+    "success": {
+      "created": "ContrataciÃ³n creada. Actualice la pÃ¡gina para consultar el pago."
+    },
+    "current": {
+      "title": "SituaciÃ³n actual de la Biblioteca",
+      "complimentary": "CortesÃ­a PHANYX",
+      "plan": "Plan: {plan}",
+      "complimentaryDescription": "Esta instituciÃ³n tiene acceso gratuito y no serÃ¡ enviada a facturaciÃ³n.",
+      "accessLibrary": "Acceder a la Biblioteca",
+      "storage": "Almacenamiento",
+      "availableSpace": "Espacio disponible",
+      "monthlyPrice": "Precio mensual",
+      "nextCharge": "PrÃ³ximo cobro",
+      "free": "Gratuito",
+      "notApplicable": "No aplicable"
+    },
+    "pending": {
+      "title": "Pago pendiente",
+      "summary": "{plan} â€” {price} al mes.",
+      "linkAvailableUntil": "Enlace disponible hasta {date}.",
+      "continuePayment": "Continuar pago"
+    },
+    "plans": {
+      "title": "Planes disponibles",
+      "description": "Todos los planes incluyen todas las funciones de la Biblioteca Virtual."
+    },
+    "planCard": {
+      "featured": "MÃ¡s elegido",
+      "storageIncluded": "{gb} GB incluidos",
+      "description": "{gb} GB de capacidad para la colecciÃ³n digital de la instituciÃ³n.",
+      "perMonth": "al mes",
+      "currentPlan": "Plan actual",
+      "subscribe": "Contratar este plan"
+    },
+    "permissions": {
+      "viewOnly": "Su cuenta puede consultar los planes, pero no tiene permiso para contratar la Biblioteca Virtual.",
+      "impersonationBlocked": "Las contrataciones financieras quedan bloqueadas durante una sesiÃ³n de soporte por suplantaciÃ³n."
+    },
+    "modal": {
+      "eyebrow": "Confirmar contrataciÃ³n",
+      "description": "SerÃ¡ redirigido al entorno seguro de Asaas para completar la suscripciÃ³n mensual de la Biblioteca Virtual.",
+      "monthlyFee": "Cuota mensual",
+      "storage": "Almacenamiento",
+      "renewal": "RenovaciÃ³n",
+      "monthly": "Mensual",
+      "back": "Volver",
+      "creatingCheckout": "Creando checkout...",
+      "goToPayment": "Ir al pago"
+    },
+    "status": {
+      "active": "Activo",
+      "paid": "Pagado",
+      "freeTrial": "Prueba gratuita",
+      "created": "Creada",
+      "pending": "Pendiente",
+      "awaitingPayment": "Esperando pago",
+      "overdue": "Vencido",
+      "suspended": "Suspendido",
+      "failed": "Fallido",
+      "cancelled": "Cancelado",
+      "unknown": "Estado desconocido"
+    },
+    "features": {
+      "storage": "Almacenamiento seguro para la colecciÃ³n digital",
+      "reports": "Informes de uso y seguimiento",
+      "loans": "GestiÃ³n de prÃ©stamos",
+      "reservations": "GestiÃ³n de reservas",
+      "collection": "GestiÃ³n completa de la colecciÃ³n",
+      "support": "Soporte especializado",
+      "users": "Acceso para la comunidad acadÃ©mica"
+    }
+  },
+  "AdminLibraryCollection": {
+    "eyebrow": "Biblioteca Virtual PHANYX",
+    "title": "ColecciÃ³n de la instituciÃ³n",
+    "description": "Registre y organice libros, artÃ­culos, documentos, investigaciones y contenidos multimedia de la biblioteca.",
+    "backToDashboard": "â† Volver al panel",
+    "registerItem": "+ Registrar elemento",
+    "loadingCollection": "Cargando colecciÃ³n",
+    "retry": "Intentar de nuevo",
+    "summary": {
+      "ariaLabel": "Resumen de la colecciÃ³n",
+      "totalFound": "Total encontrado",
+      "currentPage": "PÃ¡gina actual",
+      "showing": "Mostrando"
+    },
+    "filters": {
+      "title": "Buscar en la colecciÃ³n",
+      "description": "Localice elementos por tÃ­tulo, ISBN, ISSN o DOI.",
+      "searchLabel": "BÃºsqueda",
+      "searchPlaceholder": "Introduzca el tÃ­tulo o identificador",
+      "typeLabel": "Tipo",
+      "allTypes": "Todos los tipos",
+      "statusLabel": "Estado",
+      "allStatuses": "Todos los estados",
+      "search": "Buscar",
+      "clear": "Limpiar"
+    },
+    "catalog": {
+      "title": "Elementos registrados",
+      "description": "Los nuevos elementos permanecen como borradores hasta su revisiÃ³n y publicaciÃ³n.",
+      "refreshing": "Actualizando...",
+      "refresh": "Actualizar"
+    },
+    "errors": {
+      "invalidApiResponse": "La API de la colecciÃ³n no devolviÃ³ una respuesta vÃ¡lida.",
+      "loadCollection": "No se pudo cargar la colecciÃ³n.",
+      "loadCollectionTitle": "No se pudo cargar la colecciÃ³n",
+      "titleRequired": "Introduzca el tÃ­tulo de la obra.",
+      "createItem": "No se pudo registrar el elemento."
+    },
+    "success": {
+      "itemCreated": "Elemento registrado en la colecciÃ³n como borrador."
+    },
+    "results": {
+      "range": "{start}â€“{end} de {total}"
+    },
+    "empty": {
+      "noItemsFound": "No se encontraron elementos",
+      "collectionEmpty": "La colecciÃ³n todavÃ­a estÃ¡ vacÃ­a",
+      "changeFilters": "Cambie los filtros para encontrar otras obras.",
+      "registerFirstItems": "Registre libros, artÃ­culos, documentos y contenidos multimedia."
+    },
+    "item": {
+      "featured": "â˜… Destacado",
+      "modality": "Modalidad",
+      "identifier": "Identificador",
+      "noIdentifier": "Sin identificador",
+      "year": "AÃ±o",
+      "files": "{count, plural, =0 {0 archivos} one {1 archivo} other {# archivos}}",
+      "copies": "{count, plural, =0 {0 ejemplares} one {1 ejemplar} other {# ejemplares}}",
+      "updatedAt": "Actualizado el {date}",
+      "open": "Abrir elemento â†’"
+    },
+    "pagination": {
+      "ariaLabel": "PaginaciÃ³n de la colecciÃ³n",
+      "previous": "â† Anterior",
+      "pageOf": "PÃ¡gina <strong>{page}</strong> de <strong>{total}</strong>",
+      "next": "Siguiente â†’"
+    },
+    "modal": {
+      "eyebrow": "Nuevo elemento",
+      "title": "Registrar en la colecciÃ³n",
+      "description": "El elemento se guardarÃ¡ como borrador para completarlo y publicarlo posteriormente.",
+      "close": "Cerrar registro",
+      "fields": {
+        "title": "TÃ­tulo",
+        "titlePlaceholder": "Ej.: IntroducciÃ³n a la TeologÃ­a",
+        "subtitle": "SubtÃ­tulo",
+        "subtitlePlaceholder": "Complemento del tÃ­tulo",
+        "contentType": "Tipo de contenido",
+        "accessMode": "Modalidad de acceso",
+        "publicationYear": "AÃ±o de publicaciÃ³n",
+        "keywords": "Palabras clave",
+        "keywordsPlaceholder": "teologÃ­a, historia, educaciÃ³n",
+        "synopsis": "Sinopsis o resumen",
+        "synopsisPlaceholder": "Describa brevemente el contenido de la obra."
+      },
+      "options": {
+        "title": "Opciones iniciales",
+        "allowReviews": "Permitir reseÃ±as",
+        "allowReviewsDescription": "Los estudiantes y profesores podrÃ¡n evaluarla despuÃ©s de su publicaciÃ³n.",
+        "openAccess": "Acceso libre",
+        "openAccessDescription": "Disponible para pÃºblicos autorizados sin prÃ©stamo.",
+        "allowDownload": "Solicitar permiso de descarga",
+        "allowDownloadDescription": "Depende de la configuraciÃ³n general de la biblioteca y de la licencia de la obra."
+      },
+      "cancel": "Cancelar",
+      "saving": "Guardando...",
+      "saveDraft": "Guardar como borrador"
+    },
+    "toast": {
+      "close": "Cerrar mensaje"
+    },
+    "modalities": {
+      "internalReading": "Lectura interna",
+      "openAccess": "Acceso libre",
+      "authorizedDownload": "Descarga autorizada",
+      "digitalLoan": "PrÃ©stamo digital",
+      "physicalLoan": "PrÃ©stamo fÃ­sico",
+      "streaming": "Streaming",
+      "externalLink": "Enlace externo"
+    }
+  }
+,
+  "AdminExternalActivities": {
+    "eyebrow": "Gestión académica",
+    "title": "Actividades externas",
+    "subtitle": "Planifica y supervisa excursiones, visitas técnicas, viajes educativos, retiros, campamentos y otras actividades fuera de la institución.",
+    "newActivity": "Nueva actividad",
+    "searchPlaceholder": "Buscar por título, destino, ciudad o país...",
+    "filters": {
+      "status": "Estado",
+      "type": "Tipo",
+      "allStatuses": "Todos los estados",
+      "allTypes": "Todos los tipos",
+      "clear": "Limpiar filtros"
+    },
+    "loading": "Cargando actividades externas...",
+    "retry": "Intentar de nuevo",
+    "empty": {
+      "title": "No se encontraron actividades",
+      "description": "Crea la primera actividad externa o modifica los filtros de búsqueda."
+    },
+    "results": {
+      "one": "{count} actividad encontrada",
+      "other": "{count} actividades encontradas"
+    },
+    "labels": {
+      "destination": "Destino",
+      "departure": "Salida",
+      "return": "Regreso previsto",
+      "responsible": "Responsable",
+      "participants": "Participantes",
+      "authorizations": "Autorizaciones",
+      "legs": "Trayectos",
+      "risks": "Riesgos",
+      "noDestination": "Destino aún no indicado",
+      "noDate": "Aún no definida",
+      "noResponsible": "No indicado",
+      "curricular": "Curricular",
+      "mandatory": "Obligatoria",
+      "international": "Internacional"
+    },
+    "actions": {
+      "open": "Abrir actividad",
+      "previous": "Anterior",
+      "next": "Siguiente"
+    },
+    "status": {
+      "RASCUNHO": "Borrador",
+      "PLANEJAMENTO": "Planificación",
+      "AGUARDANDO_AUTORIZACOES": "Esperando autorizaciones",
+      "CONFIRMADA": "Confirmada",
+      "EM_ANDAMENTO": "En curso",
+      "CONCLUIDA": "Finalizada",
+      "CANCELADA": "Cancelada",
+      "ARQUIVADA": "Archivada"
+    },
+    "types": {
+      "EXCURSAO": "Excursión",
+      "VISITA_TECNICA": "Visita técnica",
+      "VIAGEM_PEDAGOGICA": "Viaje educativo",
+      "ACAMPAMENTO": "Campamento",
+      "RETIRO": "Retiro",
+      "COMPETICAO": "Competición",
+      "INTERCAMBIO": "Intercambio",
+      "EVENTO_ESPORTIVO": "Evento deportivo",
+      "ATIVIDADE_COMUNITARIA": "Actividad comunitaria",
+      "VIAGEM_INTERNACIONAL": "Viaje internacional",
+      "OUTRA": "Otra"
+    },
+    "errors": {
+      "load": "No se pudieron cargar las actividades externas."
     }
   }
 }

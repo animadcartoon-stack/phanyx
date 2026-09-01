@@ -8,6 +8,7 @@ import {
   useState,
 } from "react";
 import type { FormEvent } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 type ItemAcervo = {
   id: number;
@@ -154,25 +155,14 @@ const PAGINACAO_INICIAL: Paginacao = {
   totalPaginas: 0,
 };
 
-function rotuloEnum(valor?: string | null) {
-  if (!valor) return "—";
-
-  return valor
-    .replaceAll("_", " ")
-    .toLocaleLowerCase("pt-BR")
-    .replace(/(^|\s)\p{L}/gu, (letra) =>
-      letra.toLocaleUpperCase("pt-BR")
-    );
-}
-
-function formatarData(valor?: string | null) {
+function formatarData(valor: string | null | undefined, locale: string) {
   if (!valor) return "—";
 
   const data = new Date(valor);
 
   if (Number.isNaN(data.getTime())) return "—";
 
-  return new Intl.DateTimeFormat("pt-BR", {
+  return new Intl.DateTimeFormat(locale, {
     dateStyle: "short",
     timeStyle: "short",
   }).format(data);
@@ -194,29 +184,41 @@ function classeStatus(status: string) {
   }
 }
 
-function identificadorItem(item: ItemAcervo) {
+function identificadorItem(item: ItemAcervo, semIdentificador: string) {
   return (
     item.isbn13 ||
     item.isbn10 ||
     item.issn ||
     item.doi ||
-    "Sem identificador"
+    semIdentificador
   );
 }
 
-async function lerJsonSeguro<T>(resposta: Response) {
+async function lerJsonSeguro<T>(resposta: Response, mensagemInvalida: string) {
   const tipo = resposta.headers.get("content-type") || "";
 
   if (!tipo.includes("application/json")) {
     throw new Error(
-      "A API do acervo não retornou uma resposta válida."
+      mensagemInvalida
     );
   }
 
   return (await resposta.json()) as T;
 }
 
-function EstadoVazio({ filtrado }: { filtrado: boolean }) {
+function EstadoVazio({
+  filtrado,
+  tituloFiltrado,
+  tituloVazio,
+  descricaoFiltrada,
+  descricaoVazia,
+}: {
+  filtrado: boolean;
+  tituloFiltrado: string;
+  tituloVazio: string;
+  descricaoFiltrada: string;
+  descricaoVazia: string;
+}) {
   return (
     <div className="bib-empty">
       <div className="bib-empty-icon" aria-hidden="true">
@@ -224,21 +226,21 @@ function EstadoVazio({ filtrado }: { filtrado: boolean }) {
       </div>
       <h2>
         {filtrado
-          ? "Nenhum item encontrado"
-          : "O acervo ainda está vazio"}
+          ? tituloFiltrado
+          : tituloVazio}
       </h2>
       <p>
         {filtrado
-          ? "Altere os filtros para encontrar outras obras."
-          : "Cadastre livros, artigos, documentos e conteúdos multimídia."}
+          ? descricaoFiltrada
+          : descricaoVazia}
       </p>
     </div>
   );
 }
 
-function Esqueleto() {
+function Esqueleto({ label }: { label: string }) {
   return (
-    <div className="bib-list" aria-label="Carregando acervo">
+    <div className="bib-list" aria-label={label}>
       {[1, 2, 3].map((item) => (
         <div className="bib-item bib-skeleton" key={item}>
           <span />
@@ -254,6 +256,9 @@ function Esqueleto() {
 }
 
 export default function BibliotecaAcervoPage() {
+  const t = useTranslations("AdminLibraryCollection");
+  const tDashboard = useTranslations("AdminLibraryDashboard");
+  const locale = useLocale();
   const [itens, setItens] = useState<ItemAcervo[]>([]);
   const [paginacao, setPaginacao] =
     useState<Paginacao>(PAGINACAO_INICIAL);
@@ -316,13 +321,14 @@ export default function BibliotecaAcervoPage() {
         );
 
         const dados = await lerJsonSeguro<RespostaAcervo>(
-          resposta
+          resposta,
+          t("errors.invalidApiResponse")
         );
 
         if (!resposta.ok) {
           throw new Error(
             dados.error ||
-            "Não foi possível carregar o acervo."
+            t("errors.loadCollection")
           );
         }
 
@@ -341,7 +347,7 @@ export default function BibliotecaAcervoPage() {
         setErro(
           falha instanceof Error
             ? falha.message
-            : "Não foi possível carregar o acervo."
+            : t("errors.loadCollection")
         );
         setItens([]);
         setPaginacao(PAGINACAO_INICIAL);
@@ -355,6 +361,7 @@ export default function BibliotecaAcervoPage() {
     buscaAplicada,
     pagina,
     status,
+    t,
     tipo,
   ]
   );
@@ -402,7 +409,7 @@ export default function BibliotecaAcervoPage() {
 
   const resumoPagina = useMemo(() => {
     if (paginacao.total === 0) {
-      return "Nenhum item encontrado";
+      return t("empty.noItemsFound");
     }
 
     const inicio =
@@ -413,8 +420,12 @@ export default function BibliotecaAcervoPage() {
       paginacao.total
     );
 
-    return `${inicio}–${fim} de ${paginacao.total}`;
-  }, [itens.length, paginacao]);
+    return t("results.range", {
+      start: inicio,
+      end: fim,
+      total: paginacao.total,
+    });
+  }, [itens.length, paginacao, t]);
 
   function aplicarFiltros(evento: FormEvent) {
     evento.preventDefault();
@@ -457,7 +468,7 @@ export default function BibliotecaAcervoPage() {
     setErroFormulario("");
 
     if (!formulario.titulo.trim()) {
-      setErroFormulario("Informe o título da obra.");
+      setErroFormulario(t("errors.titleRequired"));
       return;
     }
 
@@ -503,13 +514,14 @@ export default function BibliotecaAcervoPage() {
       );
 
       const dados = await lerJsonSeguro<RespostaAcervo>(
-        resposta
+        resposta,
+        t("errors.invalidApiResponse")
       );
 
       if (!resposta.ok) {
         throw new Error(
           dados.error ||
-          "Não foi possível cadastrar o item."
+          t("errors.createItem")
         );
       }
 
@@ -524,32 +536,141 @@ export default function BibliotecaAcervoPage() {
       setToast({
         tipo: "sucesso",
         mensagem:
-          "Item cadastrado no acervo como rascunho.",
+          t("success.itemCreated"),
       });
     } catch (falha) {
       setErroFormulario(
         falha instanceof Error
           ? falha.message
-          : "Não foi possível cadastrar o item."
+          : t("errors.createItem")
       );
     } finally {
       setSalvando(false);
     }
   }
 
+  function rotuloTipo(valor: string) {
+    switch (valor) {
+      case "LIVRO": return tDashboard("types.book");
+      case "EBOOK": return tDashboard("types.ebook");
+      case "ARTIGO_CIENTIFICO": return tDashboard("types.scientificArticle");
+      case "REVISTA": return tDashboard("types.magazine");
+      case "PERIODICO": return tDashboard("types.journal");
+      case "APOSTILA": return tDashboard("types.handout");
+      case "TCC": return tDashboard("types.finalPaper");
+      case "MONOGRAFIA": return tDashboard("types.monograph");
+      case "DISSERTACAO": return tDashboard("types.dissertation");
+      case "TESE": return tDashboard("types.thesis");
+      case "PESQUISA": return tDashboard("types.research");
+      case "DOCUMENTO": return tDashboard("types.document");
+      case "VIDEO": return tDashboard("types.video");
+      case "DOCUMENTARIO": return tDashboard("types.documentary");
+      case "AUDIO": return tDashboard("types.audio");
+      case "AUDIOLIVRO": return tDashboard("types.audiobook");
+      case "PODCAST": return tDashboard("types.podcast");
+      case "LINK_EXTERNO": return tDashboard("types.externalLink");
+      case "OUTRO": return tDashboard("types.other");
+      default: return valor;
+    }
+  }
+
+  function rotuloStatus(valor: string) {
+    switch (valor) {
+      case "RASCUNHO": return tDashboard("itemStatus.draft");
+      case "EM_REVISAO": return tDashboard("itemStatus.inReview");
+      case "PUBLICADO": return tDashboard("itemStatus.published");
+      case "RESTRITO": return tDashboard("itemStatus.restricted");
+      case "INDISPONIVEL": return tDashboard("itemStatus.unavailable");
+      case "ARQUIVADO": return tDashboard("itemStatus.archived");
+      default: return valor;
+    }
+  }
+
+  function rotuloModalidade(valor: string) {
+    switch (valor) {
+      case "LEITURA_INTERNA": return t("modalities.internalReading");
+      case "ACESSO_LIVRE": return t("modalities.openAccess");
+      case "DOWNLOAD_AUTORIZADO": return t("modalities.authorizedDownload");
+      case "EMPRESTIMO_DIGITAL": return t("modalities.digitalLoan");
+      case "EMPRESTIMO_FISICO": return t("modalities.physicalLoan");
+      case "STREAMING": return t("modalities.streaming");
+      case "LINK_EXTERNO": return t("modalities.externalLink");
+      default: return valor;
+    }
+  }
+
+  const estilos = (
+    <style jsx global>{`
+      html[data-theme="system"] .phanyx-biblioteca-acervo-page {
+        background: #242424 !important;
+        color: #ffffff !important;
+        color-scheme: dark;
+      }
+
+      html[data-theme="system"] .phanyx-biblioteca-acervo-page .bib-hero,
+      html[data-theme="system"] .phanyx-biblioteca-acervo-page .bib-card,
+      html[data-theme="system"] .phanyx-biblioteca-acervo-page .bib-summary-card,
+      html[data-theme="system"] .phanyx-biblioteca-acervo-page .bib-item,
+      html[data-theme="system"] .phanyx-biblioteca-acervo-page .bib-modal {
+        background: #2d2d2d !important;
+        border-color: #505050 !important;
+        color: #ffffff !important;
+      }
+
+      html[data-theme="system"] .phanyx-biblioteca-acervo-page .bib-input,
+      html[data-theme="system"] .phanyx-biblioteca-acervo-page select,
+      html[data-theme="system"] .phanyx-biblioteca-acervo-page textarea,
+      html[data-theme="system"] .phanyx-biblioteca-acervo-page option,
+      html[data-theme="system"] .phanyx-biblioteca-acervo-page .bib-cover,
+      html[data-theme="system"] .phanyx-biblioteca-acervo-page .bib-options {
+        background: #383838 !important;
+        border-color: #606060 !important;
+        color: #ffffff !important;
+        -webkit-text-fill-color: #ffffff !important;
+      }
+
+      html[data-theme="system"] .phanyx-biblioteca-acervo-page h1,
+      html[data-theme="system"] .phanyx-biblioteca-acervo-page h2,
+      html[data-theme="system"] .phanyx-biblioteca-acervo-page h3,
+      html[data-theme="system"] .phanyx-biblioteca-acervo-page label,
+      html[data-theme="system"] .phanyx-biblioteca-acervo-page .bib-item-title-link,
+      html[data-theme="system"] .phanyx-biblioteca-acervo-page .bib-summary-card strong {
+        color: #ffffff !important;
+        -webkit-text-fill-color: #ffffff !important;
+      }
+
+      html[data-theme="system"] .phanyx-biblioteca-acervo-page p,
+      html[data-theme="system"] .phanyx-biblioteca-acervo-page small,
+      html[data-theme="system"] .phanyx-biblioteca-acervo-page .bib-item-meta,
+      html[data-theme="system"] .phanyx-biblioteca-acervo-page .bib-item-counts,
+      html[data-theme="system"] .phanyx-biblioteca-acervo-page .bib-result-count,
+      html[data-theme="system"] .phanyx-biblioteca-acervo-page .bib-summary-card span {
+        color: #d1d5db !important;
+        -webkit-text-fill-color: #d1d5db !important;
+      }
+
+      html[data-theme="system"] .phanyx-biblioteca-acervo-page .bib-button-secondary,
+      html[data-theme="system"] .phanyx-biblioteca-acervo-page .bib-button-ghost {
+        background: #383838 !important;
+        border-color: #666666 !important;
+        color: #ffffff !important;
+        -webkit-text-fill-color: #ffffff !important;
+      }
+    `}</style>
+  );
+
   return (
     <main className="phanyx-biblioteca-acervo-page">
+      {estilos}
       <div className="bib-page-shell">
         <header className="bib-hero">
           <div>
             <p className="bib-eyebrow">
-              Biblioteca Virtual PHANYX
+              {t("eyebrow")}
             </p>
-            <h1>Acervo da instituição</h1>
+            <h1>{t("title")}</h1>
             <p className="bib-hero-description">
-              Cadastre e organize livros, artigos,
-              documentos, pesquisas e conteúdos
-              multimídia da biblioteca.
+              {t("description")}
             </p>
           </div>
 
@@ -558,26 +679,26 @@ export default function BibliotecaAcervoPage() {
               href="/admin/biblioteca"
               className="bib-button bib-button-secondary"
             >
-              ← Voltar ao painel
+              {t("backToDashboard")}
             </Link>
             <button
               type="button"
               className="bib-button bib-button-primary"
               onClick={abrirCadastro}
             >
-              + Cadastrar item
+              {t("registerItem")}
             </button>
           </div>
         </header>
 
-        <section className="bib-summary" aria-label="Resumo do acervo">
+        <section className="bib-summary" aria-label={t("summary.ariaLabel")}>
           <div className="bib-summary-card">
             <span className="bib-summary-icon" aria-hidden="true">
               📚
             </span>
             <div>
-              <span>Total encontrado</span>
-              <strong>{paginacao.total}</strong>
+              <span>{t("summary.totalFound")}</span>
+              <strong>{paginacao.total.toLocaleString(locale)}</strong>
             </div>
           </div>
 
@@ -586,7 +707,7 @@ export default function BibliotecaAcervoPage() {
               📄
             </span>
             <div>
-              <span>Página atual</span>
+              <span>{t("summary.currentPage")}</span>
               <strong>
                 {paginacao.total === 0
                   ? 0
@@ -600,8 +721,8 @@ export default function BibliotecaAcervoPage() {
               🔎
             </span>
             <div>
-              <span>Exibindo</span>
-              <strong>{itens.length}</strong>
+              <span>{t("summary.showing")}</span>
+              <strong>{itens.length.toLocaleString(locale)}</strong>
             </div>
           </div>
         </section>
@@ -609,9 +730,9 @@ export default function BibliotecaAcervoPage() {
         <section className="bib-card bib-filter-card">
           <div className="bib-section-heading">
             <div>
-              <h2>Pesquisar no acervo</h2>
+              <h2>{t("filters.title")}</h2>
               <p>
-                Localize itens por título, ISBN, ISSN ou DOI.
+                {t("filters.description")}
               </p>
             </div>
             <span className="bib-result-count">
@@ -624,7 +745,7 @@ export default function BibliotecaAcervoPage() {
             onSubmit={aplicarFiltros}
           >
             <label className="bib-field bib-search-field">
-              <span>Busca</span>
+              <span>{t("filters.searchLabel")}</span>
               <input
                 className="bib-input"
                 type="search"
@@ -632,13 +753,13 @@ export default function BibliotecaAcervoPage() {
                 onChange={(evento) =>
                   setBuscaDigitada(evento.target.value)
                 }
-                placeholder="Digite o título ou identificador"
+                placeholder={t("filters.searchPlaceholder")}
                 maxLength={150}
               />
             </label>
 
             <label className="bib-field">
-              <span>Tipo</span>
+              <span>{t("filters.typeLabel")}</span>
               <select
                 className="bib-input"
                 value={tipo}
@@ -647,17 +768,17 @@ export default function BibliotecaAcervoPage() {
                   setPagina(1);
                 }}
               >
-                <option value="">Todos os tipos</option>
+                <option value="">{t("filters.allTypes")}</option>
                 {TIPOS_ITEM.map((item) => (
                   <option value={item} key={item}>
-                    {rotuloEnum(item)}
+                    {rotuloTipo(item)}
                   </option>
                 ))}
               </select>
             </label>
 
             <label className="bib-field">
-              <span>Status</span>
+              <span>{t("filters.statusLabel")}</span>
               <select
                 className="bib-input"
                 value={status}
@@ -666,10 +787,10 @@ export default function BibliotecaAcervoPage() {
                   setPagina(1);
                 }}
               >
-                <option value="">Todos os status</option>
+                <option value="">{t("filters.allStatuses")}</option>
                 {STATUS_ITEM.map((item) => (
                   <option value={item} key={item}>
-                    {rotuloEnum(item)}
+                    {rotuloStatus(item)}
                   </option>
                 ))}
               </select>
@@ -680,7 +801,7 @@ export default function BibliotecaAcervoPage() {
                 className="bib-button bib-button-primary"
                 type="submit"
               >
-                Pesquisar
+                {t("filters.search")}
               </button>
               <button
                 className="bib-button bib-button-ghost"
@@ -688,7 +809,7 @@ export default function BibliotecaAcervoPage() {
                 onClick={limparFiltros}
                 disabled={!possuiFiltros && !buscaDigitada}
               >
-                Limpar
+                {t("filters.clear")}
               </button>
             </div>
           </form>
@@ -697,10 +818,9 @@ export default function BibliotecaAcervoPage() {
         <section className="bib-card bib-catalog-card">
           <div className="bib-section-heading bib-catalog-heading">
             <div>
-              <h2>Itens cadastrados</h2>
+              <h2>{t("catalog.title")}</h2>
               <p>
-                Os itens novos permanecem como rascunho até a
-                revisão e publicação.
+                {t("catalog.description")}
               </p>
             </div>
             <button
@@ -711,14 +831,14 @@ export default function BibliotecaAcervoPage() {
               }
               disabled={carregando}
             >
-              {carregando ? "Atualizando..." : "Atualizar"}
+              {carregando ? t("catalog.refreshing") : t("catalog.refresh")}
             </button>
           </div>
 
           {erro ? (
             <div className="bib-feedback bib-feedback-error">
               <div>
-                <strong>Não foi possível carregar o acervo</strong>
+                <strong>{t("errors.loadCollectionTitle")}</strong>
                 <p>{erro}</p>
               </div>
               <button
@@ -728,13 +848,19 @@ export default function BibliotecaAcervoPage() {
                   setAtualizacao((valor) => valor + 1)
                 }
               >
-                Tentar novamente
+                {t("retry")}
               </button>
             </div>
           ) : carregando ? (
-            <Esqueleto />
+            <Esqueleto label={t("loadingCollection")} />
           ) : itens.length === 0 ? (
-            <EstadoVazio filtrado={possuiFiltros} />
+            <EstadoVazio
+              filtrado={possuiFiltros}
+              tituloFiltrado={t("empty.noItemsFound")}
+              tituloVazio={t("empty.collectionEmpty")}
+              descricaoFiltrada={t("empty.changeFilters")}
+              descricaoVazia={t("empty.registerFirstItems")}
+            />
           ) : (
             <div className="bib-list">
               {itens.map((item) => (
@@ -755,14 +881,14 @@ export default function BibliotecaAcervoPage() {
                     <div className="bib-item-topline">
                       <div className="bib-item-badges">
                         <span className={classeStatus(item.status)}>
-                          {rotuloEnum(item.status)}
+                          {rotuloStatus(item.status)}
                         </span>
                         <span className="bib-type-badge">
-                          {rotuloEnum(item.tipo)}
+                          {rotuloTipo(item.tipo)}
                         </span>
                         {item.destaque ? (
                           <span className="bib-highlight-badge">
-                            ★ Destaque
+                            {t("item.featured")}
                           </span>
                         ) : null}
                       </div>
@@ -787,15 +913,15 @@ export default function BibliotecaAcervoPage() {
 
                     <div className="bib-item-meta">
                       <span>
-                        <b>Modalidade:</b>{" "}
-                        {rotuloEnum(item.modalidade)}
+                        <b>{t("item.modality")}:</b>{" "}
+                        {rotuloModalidade(item.modalidade)}
                       </span>
                       <span>
-                        <b>Identificador:</b>{" "}
-                        {identificadorItem(item)}
+                        <b>{t("item.identifier")}:</b>{" "}
+                        {identificadorItem(item, t("item.noIdentifier"))}
                       </span>
                       <span>
-                        <b>Ano:</b>{" "}
+                        <b>{t("item.year")}:</b>{" "}
                         {item.anoPublicacao || "—"}
                       </span>
                     </div>
@@ -803,26 +929,22 @@ export default function BibliotecaAcervoPage() {
                     <div className="bib-item-footer">
                       <div className="bib-item-counts">
                         <span>
-                          📎 {item._count.arquivos}{" "}
-                          {item._count.arquivos === 1
-                            ? "arquivo"
-                            : "arquivos"}
+                          📎 {t("item.files", { count: item._count.arquivos })}
                         </span>
                         <span>
-                          📚 {item._count.exemplares}{" "}
-                          {item._count.exemplares === 1
-                            ? "exemplar"
-                            : "exemplares"}
+                          📚 {t("item.copies", { count: item._count.exemplares })}
                         </span>
                         <span>
-                          Atualizado em {formatarData(item.atualizadoEm)}
+                          {t("item.updatedAt", {
+                            date: formatarData(item.atualizadoEm, locale),
+                          })}
                         </span>
                       </div>
                       <Link
                         href={`/admin/biblioteca/acervo/${item.id}`}
                         className="bib-item-open-link"
                       >
-                        Abrir item →
+                        {t("item.open")}
                       </Link>
                     </div>
                   </div>
@@ -834,7 +956,7 @@ export default function BibliotecaAcervoPage() {
           {!carregando && !erro && paginacao.total > 0 ? (
             <nav
               className="bib-pagination"
-              aria-label="Paginação do acervo"
+              aria-label={t("pagination.ariaLabel")}
             >
               <button
                 type="button"
@@ -844,11 +966,14 @@ export default function BibliotecaAcervoPage() {
                 }
                 disabled={pagina <= 1}
               >
-                ← Anterior
+                {t("pagination.previous")}
               </button>
               <span>
-                Página <strong>{pagina}</strong> de{" "}
-                <strong>{totalPaginasExibido}</strong>
+                {t.rich("pagination.pageOf", {
+                  page: pagina,
+                  total: totalPaginasExibido,
+                  strong: (chunks) => <strong>{chunks}</strong>,
+                })}
               </span>
               <button
                 type="button"
@@ -860,7 +985,7 @@ export default function BibliotecaAcervoPage() {
                 }
                 disabled={pagina >= totalPaginasExibido}
               >
-                Próxima →
+                {t("pagination.next")}
               </button>
             </nav>
           ) : null}
@@ -885,13 +1010,12 @@ export default function BibliotecaAcervoPage() {
           >
             <header className="bib-modal-header">
               <div>
-                <p className="bib-eyebrow">Novo item</p>
+                <p className="bib-eyebrow">{t("modal.eyebrow")}</p>
                 <h2 id="bib-modal-title">
-                  Cadastrar no acervo
+                  {t("modal.title")}
                 </h2>
                 <p>
-                  O item será salvo como rascunho para posterior
-                  complementação e publicação.
+                  {t("modal.description")}
                 </p>
               </div>
               <button
@@ -899,7 +1023,7 @@ export default function BibliotecaAcervoPage() {
                 className="bib-modal-close"
                 onClick={fecharCadastro}
                 disabled={salvando}
-                aria-label="Fechar cadastro"
+                aria-label={t("modal.close")}
               >
                 ×
               </button>
@@ -916,7 +1040,7 @@ export default function BibliotecaAcervoPage() {
                 <div className="bib-form-grid">
                   <label className="bib-field bib-field-full">
                     <span>
-                      Título <b aria-hidden="true">*</b>
+                      {t("modal.fields.title")} <b aria-hidden="true">*</b>
                     </span>
                     <input
                       className="bib-input"
@@ -930,12 +1054,12 @@ export default function BibliotecaAcervoPage() {
                           evento.target.value
                         )
                       }
-                      placeholder="Ex.: Introdução à Teologia"
+                      placeholder={t("modal.fields.titlePlaceholder")}
                     />
                   </label>
 
                   <label className="bib-field bib-field-full">
-                    <span>Subtítulo</span>
+                    <span>{t("modal.fields.subtitle")}</span>
                     <input
                       className="bib-input"
                       maxLength={240}
@@ -946,12 +1070,12 @@ export default function BibliotecaAcervoPage() {
                           evento.target.value
                         )
                       }
-                      placeholder="Complemento do título"
+                      placeholder={t("modal.fields.subtitlePlaceholder")}
                     />
                   </label>
 
                   <label className="bib-field">
-                    <span>Tipo de conteúdo</span>
+                    <span>{t("modal.fields.contentType")}</span>
                     <select
                       className="bib-input"
                       value={formulario.tipo}
@@ -964,14 +1088,14 @@ export default function BibliotecaAcervoPage() {
                     >
                       {TIPOS_ITEM.map((item) => (
                         <option value={item} key={item}>
-                          {rotuloEnum(item)}
+                          {rotuloTipo(item)}
                         </option>
                       ))}
                     </select>
                   </label>
 
                   <label className="bib-field">
-                    <span>Modalidade de acesso</span>
+                    <span>{t("modal.fields.accessMode")}</span>
                     <select
                       className="bib-input"
                       value={formulario.modalidade}
@@ -989,7 +1113,7 @@ export default function BibliotecaAcervoPage() {
                     >
                       {MODALIDADES.map((item) => (
                         <option value={item} key={item}>
-                          {rotuloEnum(item)}
+                          {rotuloModalidade(item)}
                         </option>
                       ))}
                     </select>
@@ -1028,7 +1152,7 @@ export default function BibliotecaAcervoPage() {
                   </label>
 
                   <label className="bib-field">
-                    <span>Ano de publicação</span>
+                    <span>{t("modal.fields.publicationYear")}</span>
                     <input
                       className="bib-input"
                       type="number"
@@ -1046,7 +1170,7 @@ export default function BibliotecaAcervoPage() {
                   </label>
 
                   <label className="bib-field">
-                    <span>Palavras-chave</span>
+                    <span>{t("modal.fields.keywords")}</span>
                     <input
                       className="bib-input"
                       value={formulario.palavrasChave}
@@ -1056,12 +1180,12 @@ export default function BibliotecaAcervoPage() {
                           evento.target.value
                         )
                       }
-                      placeholder="teologia, história, educação"
+                      placeholder={t("modal.fields.keywordsPlaceholder")}
                     />
                   </label>
 
                   <label className="bib-field bib-field-full">
-                    <span>Sinopse ou resumo</span>
+                    <span>{t("modal.fields.synopsis")}</span>
                     <textarea
                       className="bib-input bib-textarea"
                       maxLength={20_000}
@@ -1072,13 +1196,13 @@ export default function BibliotecaAcervoPage() {
                           evento.target.value
                         )
                       }
-                      placeholder="Apresente brevemente o conteúdo da obra."
+                      placeholder={t("modal.fields.synopsisPlaceholder")}
                     />
                   </label>
                 </div>
 
                 <fieldset className="bib-options">
-                  <legend>Opções iniciais</legend>
+                  <legend>{t("modal.options.title")}</legend>
 
                   <label className="bib-check">
                     <input
@@ -1092,10 +1216,9 @@ export default function BibliotecaAcervoPage() {
                       }
                     />
                     <span>
-                      <b>Permitir avaliações</b>
+                      <b>{t("modal.options.allowReviews")}</b>
                       <small>
-                        Alunos e professores poderão avaliar após a
-                        publicação.
+                        {t("modal.options.allowReviewsDescription")}
                       </small>
                     </span>
                   </label>
@@ -1115,10 +1238,9 @@ export default function BibliotecaAcervoPage() {
                       }
                     />
                     <span>
-                      <b>Acesso livre</b>
+                      <b>{t("modal.options.openAccess")}</b>
                       <small>
-                        Disponível aos públicos autorizados sem
-                        empréstimo.
+                        {t("modal.options.openAccessDescription")}
                       </small>
                     </span>
                   </label>
@@ -1135,10 +1257,9 @@ export default function BibliotecaAcervoPage() {
                       }
                     />
                     <span>
-                      <b>Solicitar permissão de download</b>
+                      <b>{t("modal.options.allowDownload")}</b>
                       <small>
-                        Depende da configuração geral da biblioteca e
-                        da licença da obra.
+                        {t("modal.options.allowDownloadDescription")}
                       </small>
                     </span>
                   </label>
@@ -1152,7 +1273,7 @@ export default function BibliotecaAcervoPage() {
                   onClick={fecharCadastro}
                   disabled={salvando}
                 >
-                  Cancelar
+                  {t("modal.cancel")}
                 </button>
                 <button
                   type="submit"
@@ -1160,8 +1281,8 @@ export default function BibliotecaAcervoPage() {
                   disabled={salvando}
                 >
                   {salvando
-                    ? "Salvando..."
-                    : "Salvar como rascunho"}
+                    ? t("modal.saving")
+                    : t("modal.saveDraft")}
                 </button>
               </footer>
             </form>
@@ -1181,7 +1302,7 @@ export default function BibliotecaAcervoPage() {
           <button
             type="button"
             onClick={() => setToast(null)}
-            aria-label="Fechar mensagem"
+            aria-label={t("toast.close")}
           >
             ×
           </button>

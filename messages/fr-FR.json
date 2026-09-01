@@ -129,6 +129,8 @@
     "semesterReenrollments": "Réinscriptions semestrielles",
     "classes": "Classes",
     "operationalSchedule": "Agenda / Planning",
+    "externalActivities": "Activités extérieures",
+
     "academicPublications": "Publications académiques",
     "visitors": "Visiteurs",
     "overview": "Vue d'ensemble",
@@ -4398,84 +4400,431 @@
     }
   },
   "AdminAcademicPublicationNew": {
-    "backToPublications": "← Retour aux publications",
-    "eyebrow": "Soutien pédagogique",
-    "title": "Nouvelle publication académique",
-    "description": "Créez des activités, des devoirs, des liens ou des consignes reçues des enseignants et publiez-les dans la classe et la matière appropriées.",
-    "loadingData": "Chargement des données...",
+    "backToPublications": "â† Retour aux publications",
+    "eyebrow": "Soutien pÃ©dagogique",
+    "title": "Nouvelle publication acadÃ©mique",
+    "description": "CrÃ©ez des activitÃ©s, des devoirs, des liens ou des consignes reÃ§ues des enseignants et publiez-les dans la classe et la matiÃ¨re appropriÃ©es.",
+    "loadingData": "Chargement des donnÃ©es...",
     "fields": {
-      "activityTitle": "Titre de l’activité",
-      "instructions": "Description / consignes de l’enseignant",
+      "activityTitle": "Titre de lâ€™activitÃ©",
+      "instructions": "Description / consignes de lâ€™enseignant",
       "responsibleTeacher": "Enseignant responsable",
       "class": "Classe",
-      "subject": "Matière",
-      "deadline": "Échéance",
+      "subject": "MatiÃ¨re",
+      "deadline": "Ã‰chÃ©ance",
       "maximumGrade": "Note maximale",
       "optionalExternalLink": "Lien externe facultatif",
       "publicationFiles": "Fichiers de la publication"
     },
     "placeholders": {
-      "activityTitle": "Ex. : Étude dirigée sur...",
-      "instructions": "Saisissez les consignes qui seront affichées aux élèves..."
+      "activityTitle": "Ex. : Ã‰tude dirigÃ©e sur...",
+      "instructions": "Saisissez les consignes qui seront affichÃ©es aux Ã©lÃ¨ves..."
     },
-    "select": "Sélectionner",
-    "noSpecificSubject": "Aucune matière spécifique",
-    "fileHelp": "Accepte les PDF, images, vidéos, fichiers PowerPoint, Word, Excel, ZIP, Blender, Maya, After Effects et d’autres formats courants. Limite : 500 Mo par fichier.",
-    "selectedFiles": "Fichiers sélectionnés",
+    "select": "SÃ©lectionner",
+    "noSpecificSubject": "Aucune matiÃ¨re spÃ©cifique",
+    "fileHelp": "Accepte les PDF, images, vidÃ©os, fichiers PowerPoint, Word, Excel, ZIP, Blender, Maya, After Effects et dâ€™autres formats courants. Limite : 500 Mo par fichier.",
+    "selectedFiles": "Fichiers sÃ©lectionnÃ©s",
+    "chooseFiles": "Choisir des fichiers",
+    "noFilesSelected": "Aucun fichier sÃ©lectionnÃ©",
+    "filesSelected": "{count, plural, one {# fichier sÃ©lectionnÃ©} other {# fichiers sÃ©lectionnÃ©s}}",
     "fileSize": "{size} Mo",
     "uploadProgress": "Envoi de {current} sur {total} : {name}",
     "publishImmediately": {
-      "title": "Publier immédiatement pour les élèves",
-      "description": "Si cette option est désactivée, l’activité restera dans la file de publication."
+      "title": "Publier immÃ©diatement pour les Ã©lÃ¨ves",
+      "description": "Si cette option est dÃ©sactivÃ©e, lâ€™activitÃ© restera dans la file de publication."
     },
     "cancel": "Annuler",
     "savePublication": "Enregistrer la publication",
     "saving": "Enregistrement...",
     "uploadingFiles": "Envoi des fichiers...",
     "success": {
-      "published": "L’activité a été publiée pour les élèves avec succès.",
-      "queued": "L’activité a été créée et ajoutée à la file de publication."
+      "published": "Lâ€™activitÃ© a Ã©tÃ© publiÃ©e pour les Ã©lÃ¨ves avec succÃ¨s.",
+      "queued": "Lâ€™activitÃ© a Ã©tÃ© crÃ©Ã©e et ajoutÃ©e Ã  la file de publication."
     },
     "errors": {
       "loadOptions": "Impossible de charger les options.",
-      "createPublication": "Impossible de créer la publication.",
-      "invalidActivityForAttachments": "La publication a été créée, mais les fichiers n’ont pas pu être joints.",
-      "registerAttachment": "Le fichier a été envoyé, mais il n’a pas pu être enregistré."
+      "createPublication": "Impossible de crÃ©er la publication.",
+      "invalidActivityForAttachments": "La publication a Ã©tÃ© crÃ©Ã©e, mais les fichiers nâ€™ont pas pu Ãªtre joints.",
+      "registerAttachment": "Le fichier a Ã©tÃ© envoyÃ©, mais il nâ€™a pas pu Ãªtre enregistrÃ©."
     }
   },
   "AdminAcademicPublications": {
-    "eyebrow": "Secrétariat pédagogique",
-    "title": "Publications académiques",
-    "description": "File d’attente des activités et des devoirs envoyés par les enseignants pour vérification et publication.",
-    "newPublication": "+ Nouvelle publication académique",
+    "eyebrow": "SecrÃ©tariat pÃ©dagogique",
+    "title": "Publications acadÃ©miques",
+    "description": "File dâ€™attente des activitÃ©s et des devoirs envoyÃ©s par les enseignants pour vÃ©rification et publication.",
+    "newPublication": "+ Nouvelle publication acadÃ©mique",
     "loading": "Chargement des publications...",
-    "empty": "Aucune publication n’est actuellement en attente de vérification.",
+    "empty": "Aucune publication nâ€™est actuellement en attente de vÃ©rification.",
     "status": {
       "awaitingPublication": "En attente de publication",
-      "published": "Publiée",
-      "returned": "Renvoyée",
+      "published": "PubliÃ©e",
+      "returned": "RenvoyÃ©e",
       "draft": "Brouillon"
     },
     "fields": {
       "teacher": "Enseignant",
       "class": "Classe",
-      "subject": "Matière",
-      "deadline": "Échéance",
+      "subject": "MatiÃ¨re",
+      "deadline": "Ã‰chÃ©ance",
       "maximumGrade": "Note maximale",
-      "sentAt": "Envoyé le"
+      "sentAt": "EnvoyÃ© le"
     },
-    "attachments": "Pièces jointes",
-    "attachmentFallback": "Pièce jointe",
+    "attachments": "PiÃ¨ces jointes",
+    "attachmentFallback": "PiÃ¨ce jointe",
     "actions": {
-      "publish": "Publier pour les élèves",
+      "publish": "Publier pour les Ã©lÃ¨ves",
       "publishing": "Publication...",
-      "return": "Renvoyer à l’enseignant",
+      "return": "Renvoyer Ã  lâ€™enseignant",
       "returning": "Renvoi..."
     },
     "errors": {
       "load": "Impossible de charger les publications.",
-      "publish": "Impossible de publier l’activité.",
-      "return": "Impossible de renvoyer l’activité."
+      "publish": "Impossible de publier lâ€™activitÃ©.",
+      "return": "Impossible de renvoyer lâ€™activitÃ©."
+    }
+  },
+  "AdminLibraryDashboard": {
+    "loadingAria": "Chargement de la bibliothÃ¨que",
+    "description": "GÃ©rez le fonds physique et numÃ©rique, la circulation, les recommandations acadÃ©miques et lâ€™utilisation du stockage de lâ€™Ã©tablissement.",
+    "libraryPlan": "Forfait de la bibliothÃ¨que : {plan}",
+    "refreshDashboard": "Actualiser le tableau de bord",
+    "overview": "Vue dâ€™ensemble",
+    "retry": "RÃ©essayer",
+    "errors": {
+      "load": "Impossible de charger la BibliothÃ¨que numÃ©rique.",
+      "unavailableTitle": "BibliothÃ¨que numÃ©rique indisponible",
+      "noAccess": "Vous nâ€™avez pas accÃ¨s Ã  la BibliothÃ¨que numÃ©rique."
+    },
+    "indicators": {
+      "collectionItems": "Ã‰lÃ©ments du fonds",
+      "publishedItems": "Ã‰lÃ©ments publiÃ©s",
+      "availableFiles": "Fichiers disponibles",
+      "activeLoans": "PrÃªts en cours",
+      "overdueLoans": "PrÃªts en retard",
+      "waitingReservations": "RÃ©servations en attente",
+      "pendingReviews": "Avis en attente",
+      "activeRecommendations": "Recommandations actives"
+    },
+    "recent": {
+      "title": "Ã‰lÃ©ments ajoutÃ©s rÃ©cemment",
+      "description": "Derniers documents ajoutÃ©s au fonds de lâ€™Ã©tablissement.",
+      "emptyTitle": "Aucun Ã©lÃ©ment enregistrÃ©",
+      "emptyDescription": "Les premiers livres, articles et contenus multimÃ©dias apparaÃ®tront ici."
+    },
+    "storage": {
+      "title": "Stockage",
+      "description": "Espace utilisÃ© par les fichiers de la bibliothÃ¨que.",
+      "totalLimit": "Limite totale",
+      "available": "Disponible",
+      "contracted": "Souscrit",
+      "extraSpace": "Espace supplÃ©mentaire"
+    },
+    "moduleStatus": {
+      "active": "Active",
+      "pending": "En attente",
+      "blocked": "BloquÃ©e",
+      "cancelled": "AnnulÃ©e",
+      "inactive": "Inactive"
+    },
+    "itemStatus": {
+      "draft": "Brouillon",
+      "inReview": "En cours de vÃ©rification",
+      "published": "PubliÃ©",
+      "restricted": "Restreint",
+      "unavailable": "Indisponible",
+      "archived": "ArchivÃ©"
+    },
+    "types": {
+      "book": "Livre",
+      "ebook": "Livre numÃ©rique",
+      "scientificArticle": "Article scientifique",
+      "magazine": "Magazine",
+      "journal": "PÃ©riodique",
+      "handout": "Support de cours",
+      "finalPaper": "MÃ©moire de fin dâ€™Ã©tudes",
+      "monograph": "Monographie",
+      "dissertation": "MÃ©moire",
+      "thesis": "ThÃ¨se",
+      "research": "Recherche",
+      "document": "Document",
+      "video": "VidÃ©o",
+      "documentary": "Documentaire",
+      "audio": "Audio",
+      "audiobook": "Livre audio",
+      "podcast": "Podcast",
+      "externalLink": "Lien externe",
+      "other": "Autre"
+    }
+  },
+  "AdminLibraryContracting": {
+    "eyebrow": "BibliothÃ¨que numÃ©rique PHANYX",
+    "title": "Forfaits et souscription",
+    "description": "Choisissez la capacitÃ© adaptÃ©e au fonds de lâ€™Ã©tablissement. Lâ€™activation est automatique aprÃ¨s confirmation du paiement par Asaas.",
+    "backToLibrary": "â† Retour Ã  la BibliothÃ¨que",
+    "refresh": "Actualiser",
+    "loadingPlans": "Chargement des forfaits",
+    "retry": "RÃ©essayer",
+    "errors": {
+      "invalidApiResponse": "Lâ€™API de souscription nâ€™a pas renvoyÃ© de rÃ©ponse valide.",
+      "loadPlans": "Impossible de charger les forfaits de la BibliothÃ¨que numÃ©rique.",
+      "checkoutUnavailable": "Le lien de paiement nâ€™est pas disponible. Actualisez la page ou crÃ©ez une nouvelle souscription.",
+      "startSubscription": "Impossible de dÃ©marrer la souscription Ã  la BibliothÃ¨que numÃ©rique.",
+      "loadSubscriptionTitle": "Impossible de charger la souscription"
+    },
+    "success": {
+      "created": "Souscription crÃ©Ã©e. Actualisez la page pour consulter le paiement."
+    },
+    "current": {
+      "title": "Situation actuelle de la BibliothÃ¨que",
+      "complimentary": "AccÃ¨s offert par PHANYX",
+      "plan": "Forfait : {plan}",
+      "complimentaryDescription": "Cet Ã©tablissement bÃ©nÃ©ficie dâ€™un accÃ¨s gratuit et ne sera pas facturÃ©.",
+      "accessLibrary": "AccÃ©der Ã  la BibliothÃ¨que",
+      "storage": "Stockage",
+      "availableSpace": "Espace disponible",
+      "monthlyPrice": "Prix mensuel",
+      "nextCharge": "Prochain prÃ©lÃ¨vement",
+      "free": "Gratuit",
+      "notApplicable": "Sans objet"
+    },
+    "pending": {
+      "title": "Paiement en attente",
+      "summary": "{plan} â€” {price} par mois.",
+      "linkAvailableUntil": "Lien disponible jusquâ€™au {date}.",
+      "continuePayment": "Continuer le paiement"
+    },
+    "plans": {
+      "title": "Forfaits disponibles",
+      "description": "Tous les forfaits incluent lâ€™ensemble des fonctionnalitÃ©s de la BibliothÃ¨que numÃ©rique."
+    },
+    "planCard": {
+      "featured": "Le plus choisi",
+      "storageIncluded": "{gb} Go inclus",
+      "description": "{gb} Go de capacitÃ© pour le fonds numÃ©rique de lâ€™Ã©tablissement.",
+      "perMonth": "par mois",
+      "currentPlan": "Forfait actuel",
+      "subscribe": "Choisir ce forfait"
+    },
+    "permissions": {
+      "viewOnly": "Votre compte peut consulter les forfaits, mais ne peut pas souscrire Ã  la BibliothÃ¨que numÃ©rique.",
+      "impersonationBlocked": "Les souscriptions financiÃ¨res sont bloquÃ©es pendant une session dâ€™assistance avec usurpation dâ€™identitÃ©."
+    },
+    "modal": {
+      "eyebrow": "Confirmer la souscription",
+      "description": "Vous serez redirigÃ© vers lâ€™environnement sÃ©curisÃ© dâ€™Asaas pour finaliser lâ€™abonnement mensuel Ã  la BibliothÃ¨que numÃ©rique.",
+      "monthlyFee": "MensualitÃ©",
+      "storage": "Stockage",
+      "renewal": "Renouvellement",
+      "monthly": "Mensuel",
+      "back": "Retour",
+      "creatingCheckout": "CrÃ©ation du paiement...",
+      "goToPayment": "Passer au paiement"
+    },
+    "status": {
+      "active": "Actif",
+      "paid": "PayÃ©",
+      "freeTrial": "Essai gratuit",
+      "created": "CrÃ©Ã©e",
+      "pending": "En attente",
+      "awaitingPayment": "En attente de paiement",
+      "overdue": "En retard",
+      "suspended": "Suspendu",
+      "failed": "Ã‰chec",
+      "cancelled": "AnnulÃ©",
+      "unknown": "Statut inconnu"
+    },
+    "features": {
+      "storage": "Stockage sÃ©curisÃ© du fonds numÃ©rique",
+      "reports": "Rapports dâ€™utilisation et de suivi",
+      "loans": "Gestion des prÃªts",
+      "reservations": "Gestion des rÃ©servations",
+      "collection": "Gestion complÃ¨te du fonds",
+      "support": "Assistance spÃ©cialisÃ©e",
+      "users": "AccÃ¨s pour la communautÃ© universitaire"
+    }
+  },
+  "AdminLibraryCollection": {
+    "eyebrow": "BibliothÃ¨que numÃ©rique PHANYX",
+    "title": "Fonds de lâ€™Ã©tablissement",
+    "description": "Enregistrez et organisez les livres, articles, documents, recherches et contenus multimÃ©dias de la bibliothÃ¨que.",
+    "backToDashboard": "â† Retour au tableau de bord",
+    "registerItem": "+ Ajouter un Ã©lÃ©ment",
+    "loadingCollection": "Chargement du fonds",
+    "retry": "RÃ©essayer",
+    "summary": {
+      "ariaLabel": "RÃ©sumÃ© du fonds",
+      "totalFound": "Total trouvÃ©",
+      "currentPage": "Page actuelle",
+      "showing": "AffichÃ©s"
+    },
+    "filters": {
+      "title": "Rechercher dans le fonds",
+      "description": "Recherchez des Ã©lÃ©ments par titre, ISBN, ISSN ou DOI.",
+      "searchLabel": "Recherche",
+      "searchPlaceholder": "Saisissez le titre ou lâ€™identifiant",
+      "typeLabel": "Type",
+      "allTypes": "Tous les types",
+      "statusLabel": "Statut",
+      "allStatuses": "Tous les statuts",
+      "search": "Rechercher",
+      "clear": "Effacer"
+    },
+    "catalog": {
+      "title": "Ã‰lÃ©ments enregistrÃ©s",
+      "description": "Les nouveaux Ã©lÃ©ments restent Ã  lâ€™Ã©tat de brouillon jusquâ€™Ã  leur vÃ©rification et publication.",
+      "refreshing": "Actualisation...",
+      "refresh": "Actualiser"
+    },
+    "errors": {
+      "invalidApiResponse": "Lâ€™API du fonds nâ€™a pas renvoyÃ© de rÃ©ponse valide.",
+      "loadCollection": "Impossible de charger le fonds.",
+      "loadCollectionTitle": "Impossible de charger le fonds",
+      "titleRequired": "Saisissez le titre de lâ€™Å“uvre.",
+      "createItem": "Impossible dâ€™ajouter lâ€™Ã©lÃ©ment."
+    },
+    "success": {
+      "itemCreated": "Ã‰lÃ©ment ajoutÃ© au fonds en tant que brouillon."
+    },
+    "results": {
+      "range": "{start}â€“{end} sur {total}"
+    },
+    "empty": {
+      "noItemsFound": "Aucun Ã©lÃ©ment trouvÃ©",
+      "collectionEmpty": "Le fonds est encore vide",
+      "changeFilters": "Modifiez les filtres pour trouver dâ€™autres Å“uvres.",
+      "registerFirstItems": "Ajoutez des livres, articles, documents et contenus multimÃ©dias."
+    },
+    "item": {
+      "featured": "â˜… Ã€ la une",
+      "modality": "Mode dâ€™accÃ¨s",
+      "identifier": "Identifiant",
+      "noIdentifier": "Sans identifiant",
+      "year": "AnnÃ©e",
+      "files": "{count, plural, =0 {0 fichiers} one {1 fichier} other {# fichiers}}",
+      "copies": "{count, plural, =0 {0 exemplaires} one {1 exemplaire} other {# exemplaires}}",
+      "updatedAt": "Mis Ã  jour le {date}",
+      "open": "Ouvrir lâ€™Ã©lÃ©ment â†’"
+    },
+    "pagination": {
+      "ariaLabel": "Pagination du fonds",
+      "previous": "â† PrÃ©cÃ©dente",
+      "pageOf": "Page <strong>{page}</strong> sur <strong>{total}</strong>",
+      "next": "Suivante â†’"
+    },
+    "modal": {
+      "eyebrow": "Nouvel Ã©lÃ©ment",
+      "title": "Ajouter au fonds",
+      "description": "Lâ€™Ã©lÃ©ment sera enregistrÃ© comme brouillon pour Ãªtre complÃ©tÃ© et publiÃ© ultÃ©rieurement.",
+      "close": "Fermer le formulaire",
+      "fields": {
+        "title": "Titre",
+        "titlePlaceholder": "Ex. : Introduction Ã  la thÃ©ologie",
+        "subtitle": "Sous-titre",
+        "subtitlePlaceholder": "ComplÃ©ment du titre",
+        "contentType": "Type de contenu",
+        "accessMode": "Mode dâ€™accÃ¨s",
+        "publicationYear": "AnnÃ©e de publication",
+        "keywords": "Mots-clÃ©s",
+        "keywordsPlaceholder": "thÃ©ologie, histoire, Ã©ducation",
+        "synopsis": "Synopsis ou rÃ©sumÃ©",
+        "synopsisPlaceholder": "PrÃ©sentez briÃ¨vement le contenu de lâ€™Å“uvre."
+      },
+      "options": {
+        "title": "Options initiales",
+        "allowReviews": "Autoriser les avis",
+        "allowReviewsDescription": "Les Ã©lÃ¨ves et les enseignants pourront lâ€™Ã©valuer aprÃ¨s sa publication.",
+        "openAccess": "AccÃ¨s libre",
+        "openAccessDescription": "Disponible aux publics autorisÃ©s sans emprunt.",
+        "allowDownload": "Demander lâ€™autorisation de tÃ©lÃ©chargement",
+        "allowDownloadDescription": "DÃ©pend des paramÃ¨tres gÃ©nÃ©raux de la bibliothÃ¨que et de la licence de lâ€™Å“uvre."
+      },
+      "cancel": "Annuler",
+      "saving": "Enregistrement...",
+      "saveDraft": "Enregistrer comme brouillon"
+    },
+    "toast": {
+      "close": "Fermer le message"
+    },
+    "modalities": {
+      "internalReading": "Consultation sur place",
+      "openAccess": "AccÃ¨s libre",
+      "authorizedDownload": "TÃ©lÃ©chargement autorisÃ©",
+      "digitalLoan": "PrÃªt numÃ©rique",
+      "physicalLoan": "PrÃªt physique",
+      "streaming": "Streaming",
+      "externalLink": "Lien externe"
+    }
+  }
+,
+  "AdminExternalActivities": {
+    "eyebrow": "Gestion académique",
+    "title": "Activités extérieures",
+    "subtitle": "Planifiez et suivez les sorties scolaires, visites techniques, voyages pédagogiques, retraites, camps et autres activités hors établissement.",
+    "newActivity": "Nouvelle activité",
+    "searchPlaceholder": "Rechercher par titre, destination, ville ou pays...",
+    "filters": {
+      "status": "Statut",
+      "type": "Type",
+      "allStatuses": "Tous les statuts",
+      "allTypes": "Tous les types",
+      "clear": "Effacer les filtres"
+    },
+    "loading": "Chargement des activités extérieures...",
+    "retry": "Réessayer",
+    "empty": {
+      "title": "Aucune activité trouvée",
+      "description": "Créez la première activité extérieure ou modifiez les filtres de recherche."
+    },
+    "results": {
+      "one": "{count} activité trouvée",
+      "other": "{count} activités trouvées"
+    },
+    "labels": {
+      "destination": "Destination",
+      "departure": "Départ",
+      "return": "Retour prévu",
+      "responsible": "Responsable",
+      "participants": "Participants",
+      "authorizations": "Autorisations",
+      "legs": "Trajets",
+      "risks": "Risques",
+      "noDestination": "Destination non renseignée",
+      "noDate": "Pas encore définie",
+      "noResponsible": "Non renseigné",
+      "curricular": "Pédagogique",
+      "mandatory": "Obligatoire",
+      "international": "International"
+    },
+    "actions": {
+      "open": "Ouvrir l’activité",
+      "previous": "Précédente",
+      "next": "Suivante"
+    },
+    "status": {
+      "RASCUNHO": "Brouillon",
+      "PLANEJAMENTO": "Planification",
+      "AGUARDANDO_AUTORIZACOES": "En attente des autorisations",
+      "CONFIRMADA": "Confirmée",
+      "EM_ANDAMENTO": "En cours",
+      "CONCLUIDA": "Terminée",
+      "CANCELADA": "Annulée",
+      "ARQUIVADA": "Archivée"
+    },
+    "types": {
+      "EXCURSAO": "Sortie scolaire",
+      "VISITA_TECNICA": "Visite technique",
+      "VIAGEM_PEDAGOGICA": "Voyage pédagogique",
+      "ACAMPAMENTO": "Camp",
+      "RETIRO": "Retraite",
+      "COMPETICAO": "Compétition",
+      "INTERCAMBIO": "Échange",
+      "EVENTO_ESPORTIVO": "Événement sportif",
+      "ATIVIDADE_COMUNITARIA": "Activité communautaire",
+      "VIAGEM_INTERNACIONAL": "Voyage international",
+      "OUTRA": "Autre"
+    },
+    "errors": {
+      "load": "Impossible de charger les activités extérieures."
     }
   }
 }

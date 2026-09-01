@@ -31625,3 +31625,249 @@ html[data-theme="system"]
   color: #e5e7eb !important;
   -webkit-text-fill-color: #e5e7eb !important;
 }
+
+/* =========================================================
+   PHANYX — ATIVIDADES EXTERNAS
+   CORREÇÃO DE CONTRASTE — TEMA CLARO
+   ========================================================= */
+
+html[data-theme="light"]
+  .phanyx-atividades-externas-page {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+
+/* ---------------------------------------------------------
+   CARDS PRINCIPAIS
+   --------------------------------------------------------- */
+
+html[data-theme="light"]
+  .phanyx-atividades-externas-page
+  .phanyx-theme-card {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+
+/* ---------------------------------------------------------
+   TEXTOS ESCUROS
+   --------------------------------------------------------- */
+
+html[data-theme="light"]
+  .phanyx-atividades-externas-page
+  .text-slate-950 {
+  color: #020617 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividades-externas-page
+  .text-slate-900 {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividades-externas-page
+  .text-slate-800 {
+  color: #1e293b !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividades-externas-page
+  .text-slate-700 {
+  color: #334155 !important;
+}
+
+
+/* ---------------------------------------------------------
+   TEXTOS SECUNDÁRIOS
+   --------------------------------------------------------- */
+
+html[data-theme="light"]
+  .phanyx-atividades-externas-page
+  .text-slate-600 {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividades-externas-page
+  .text-slate-500 {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividades-externas-page
+  .text-slate-400 {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+
+
+/* ---------------------------------------------------------
+   AZUIS
+   --------------------------------------------------------- */
+
+html[data-theme="light"]
+  .phanyx-atividades-externas-page
+  .text-blue-700 {
+  color: #1d4ed8 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividades-externas-page
+  .text-blue-300 {
+  color: #2563eb !important;
+}
+
+
+/* ---------------------------------------------------------
+   CAMPOS DE BUSCA E SELECTS
+   --------------------------------------------------------- */
+
+html[data-theme="light"]
+  .phanyx-atividades-externas-page
+  input,
+html[data-theme="light"]
+  .phanyx-atividades-externas-page
+  select {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividades-externas-page
+  input::placeholder {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividades-externas-page
+  select
+  option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+
+/* ---------------------------------------------------------
+   CARDS INTERNOS
+   Participantes / Autorizações / Trechos / Riscos
+   --------------------------------------------------------- */
+
+html[data-theme="light"]
+  .phanyx-atividades-externas-page
+  .bg-slate-50 {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividades-externas-page
+  .bg-slate-50
+  strong {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividades-externas-page
+  .bg-slate-50
+  span {
+  color: #475569 !important;
+}
+
+
+/* ---------------------------------------------------------
+   BADGES
+   --------------------------------------------------------- */
+
+html[data-theme="light"]
+  .phanyx-atividades-externas-page
+  span.bg-white {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+
+/* ---------------------------------------------------------
+   BOTÃO NOVA ATIVIDADE
+   Mantém branco sobre azul
+   --------------------------------------------------------- */
+
+html[data-theme="light"]
+  .phanyx-atividades-externas-page
+  .bg-blue-700 {
+  background-color: #1d4ed8 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividades-externas-page
+  .bg-blue-700:hover {
+  background-color: #1e40af !important;
+}
+
+
+/* ---------------------------------------------------------
+   BOTÃO ABRIR ATIVIDADE
+   --------------------------------------------------------- */
+
+html[data-theme="light"]
+  .phanyx-atividades-externas-page
+  .bg-blue-50 {
+  background-color: #eff6ff !important;
+  color: #1e40af !important;
+  border-color: #93c5fd !important;
+}
+
+
+/* ---------------------------------------------------------
+   BOTÃO LIMPAR FILTROS DESABILITADO
+   Ainda deve permanecer legível
+   --------------------------------------------------------- */
+
+html[data-theme="light"]
+  .phanyx-atividades-externas-page
+  button:disabled {
+  color: #64748b !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividades-externas-page
+  button:disabled:not(.bg-blue-700) {
+  background-color: #f8fafc !important;
+  opacity: 0.65 !important;
+}
+
+
+/* ---------------------------------------------------------
+   GARANTIA PARA TÍTULOS E DADOS PRINCIPAIS
+   --------------------------------------------------------- */
+
+html[data-theme="light"]
+  .phanyx-atividades-externas-page
+  h1,
+html[data-theme="light"]
+  .phanyx-atividades-externas-page
+  h2 {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividades-externas-page
+  dd {
+  color: #1e293b !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividades-externas-page
+  dt {
+  color: #64748b !important;
+}

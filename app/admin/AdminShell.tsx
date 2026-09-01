@@ -612,6 +612,12 @@ export default function AdminShell({
       "comercial.configuracoes.gerenciar"
     );
 
+    const podeVerAtividadesExternas =
+  podeAcessar(
+    "atividades-externas.ver",
+    "atividades-externas.gerenciar"
+  );
+
   const podeVerPublicacoesAcademicas =
     usuarioAdmin || temPermissao("academico.publicacoes.ver");
 
@@ -1136,6 +1142,15 @@ export default function AdminShell({
                       >
                         🗓️ {tNav("operationalSchedule")}
                       </Link>
+
+                      {podeVerAtividadesExternas && (
+  <Link
+    href="/admin/atividades-externas"
+    className={getLinkClass("/admin/atividades-externas")}
+  >
+    🚌 {tNav("externalActivities")}
+  </Link>
+)}
 
                       {podeVerPublicacoesAcademicas && (
                         <Link
@@ -1735,6 +1750,14 @@ export default function AdminShell({
                     >
                       🗓️ {tNav("operationalSchedule")}
                     </Link>
+                    {podeVerAtividadesExternas && (
+  <Link
+    href="/admin/atividades-externas"
+    className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+  >
+    🚌 {tNav("externalActivities")}
+  </Link>
+)}
                     {podeVerPublicacoesAcademicas && (
                       <Link
                         href="/admin/academico/publicacoes"

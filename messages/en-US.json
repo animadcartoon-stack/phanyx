@@ -129,6 +129,8 @@
     "semesterReenrollments": "Semester Re-enrollments",
     "classes": "Classes",
     "operationalSchedule": "Schedule / Roster",
+    "externalActivities": "External activities",
+
     "academicPublications": "Academic Publications",
     "visitors": "Visitors",
     "overview": "Overview",
@@ -4399,7 +4401,7 @@
     }
   },
   "AdminAcademicPublicationNew": {
-    "backToPublications": "← Back to publications",
+    "backToPublications": "â† Back to publications",
     "eyebrow": "Teaching Support",
     "title": "New academic publication",
     "description": "Create activities, assignments, links, or instructions received from teachers and publish them to the correct class and subject.",
@@ -4423,6 +4425,9 @@
     "noSpecificSubject": "No specific subject",
     "fileHelp": "Accepts PDF, images, videos, PowerPoint, Word, Excel, ZIP, Blender, Maya, After Effects, and other common formats. Limit: 500 MB per file.",
     "selectedFiles": "Selected files",
+    "chooseFiles": "Choose files",
+    "noFilesSelected": "No files selected",
+    "filesSelected": "{count, plural, one {# file selected} other {# files selected}}",
     "fileSize": "{size} MB",
     "uploadProgress": "Uploading {current} of {total}: {name}",
     "publishImmediately": {
@@ -4477,6 +4482,350 @@
       "load": "Unable to load the publications.",
       "publish": "Unable to publish the activity.",
       "return": "Unable to return the activity."
+    }
+  },
+  "AdminLibraryDashboard": {
+    "loadingAria": "Loading library",
+    "description": "Manage the institutionâ€™s physical and digital collection, circulation, academic recommendations, and storage usage.",
+    "libraryPlan": "Library plan: {plan}",
+    "refreshDashboard": "Refresh dashboard",
+    "overview": "Overview",
+    "retry": "Try again",
+    "errors": {
+      "load": "The Digital Library could not be loaded.",
+      "unavailableTitle": "Digital Library unavailable",
+      "noAccess": "You do not have access to the Digital Library."
+    },
+    "indicators": {
+      "collectionItems": "Collection items",
+      "publishedItems": "Published items",
+      "availableFiles": "Available files",
+      "activeLoans": "Active loans",
+      "overdueLoans": "Overdue loans",
+      "waitingReservations": "Waiting reservations",
+      "pendingReviews": "Pending reviews",
+      "activeRecommendations": "Active recommendations"
+    },
+    "recent": {
+      "title": "Recently added items",
+      "description": "The latest materials added to the institutionâ€™s collection.",
+      "emptyTitle": "No items added",
+      "emptyDescription": "The first books, articles, and media will appear here."
+    },
+    "storage": {
+      "title": "Storage",
+      "description": "Space used by the library files.",
+      "totalLimit": "Total limit",
+      "available": "Available",
+      "contracted": "Contracted",
+      "extraSpace": "Extra space"
+    },
+    "moduleStatus": {
+      "active": "Active",
+      "pending": "Pending",
+      "blocked": "Blocked",
+      "cancelled": "Cancelled",
+      "inactive": "Inactive"
+    },
+    "itemStatus": {
+      "draft": "Draft",
+      "inReview": "In review",
+      "published": "Published",
+      "restricted": "Restricted",
+      "unavailable": "Unavailable",
+      "archived": "Archived"
+    },
+    "types": {
+      "book": "Book",
+      "ebook": "E-book",
+      "scientificArticle": "Scientific article",
+      "magazine": "Magazine",
+      "journal": "Journal",
+      "handout": "Handout",
+      "finalPaper": "Final paper",
+      "monograph": "Monograph",
+      "dissertation": "Dissertation",
+      "thesis": "Thesis",
+      "research": "Research",
+      "document": "Document",
+      "video": "Video",
+      "documentary": "Documentary",
+      "audio": "Audio",
+      "audiobook": "Audiobook",
+      "podcast": "Podcast",
+      "externalLink": "External link",
+      "other": "Other"
+    }
+  },
+  "AdminLibraryContracting": {
+    "eyebrow": "PHANYX Digital Library",
+    "title": "Plans and subscription",
+    "description": "Choose the right capacity for your institutionâ€™s collection. Activation occurs automatically after Asaas confirms the payment.",
+    "backToLibrary": "â† Back to Library",
+    "refresh": "Refresh",
+    "loadingPlans": "Loading plans",
+    "retry": "Try again",
+    "errors": {
+      "invalidApiResponse": "The subscription API did not return a valid response.",
+      "loadPlans": "The Digital Library plans could not be loaded.",
+      "checkoutUnavailable": "The payment link is unavailable. Refresh the page or create a new subscription.",
+      "startSubscription": "The Digital Library subscription could not be started.",
+      "loadSubscriptionTitle": "The subscription could not be loaded"
+    },
+    "success": {
+      "created": "Subscription created. Refresh the page to check the payment."
+    },
+    "current": {
+      "title": "Current Library status",
+      "complimentary": "PHANYX complimentary access",
+      "plan": "Plan: {plan}",
+      "complimentaryDescription": "This institution has complimentary access and will not be sent to billing.",
+      "accessLibrary": "Open Library",
+      "storage": "Storage",
+      "availableSpace": "Available space",
+      "monthlyPrice": "Monthly price",
+      "nextCharge": "Next charge",
+      "free": "Free",
+      "notApplicable": "Not applicable"
+    },
+    "pending": {
+      "title": "Pending payment",
+      "summary": "{plan} â€” {price} per month.",
+      "linkAvailableUntil": "Link available until {date}.",
+      "continuePayment": "Continue payment"
+    },
+    "plans": {
+      "title": "Available plans",
+      "description": "All plans include the complete Digital Library feature set."
+    },
+    "planCard": {
+      "featured": "Most popular",
+      "storageIncluded": "{gb} GB included",
+      "description": "{gb} GB of capacity for the institutionâ€™s digital collection.",
+      "perMonth": "per month",
+      "currentPlan": "Current plan",
+      "subscribe": "Choose this plan"
+    },
+    "permissions": {
+      "viewOnly": "Your account can view plans but does not have permission to subscribe to the Digital Library.",
+      "impersonationBlocked": "Financial subscriptions are blocked during an impersonated support session."
+    },
+    "modal": {
+      "eyebrow": "Confirm subscription",
+      "description": "You will be redirected to Asaasâ€™s secure environment to complete the monthly Digital Library subscription.",
+      "monthlyFee": "Monthly fee",
+      "storage": "Storage",
+      "renewal": "Renewal",
+      "monthly": "Monthly",
+      "back": "Back",
+      "creatingCheckout": "Creating checkout...",
+      "goToPayment": "Proceed to payment"
+    },
+    "status": {
+      "active": "Active",
+      "paid": "Paid",
+      "freeTrial": "Free trial",
+      "created": "Created",
+      "pending": "Pending",
+      "awaitingPayment": "Awaiting payment",
+      "overdue": "Overdue",
+      "suspended": "Suspended",
+      "failed": "Failed",
+      "cancelled": "Cancelled",
+      "unknown": "Unknown status"
+    },
+    "features": {
+      "storage": "Secure digital collection storage",
+      "reports": "Usage and monitoring reports",
+      "loans": "Loan management",
+      "reservations": "Reservation management",
+      "collection": "Complete collection management",
+      "support": "Specialized support",
+      "users": "Access for the academic community"
+    }
+  },
+  "AdminLibraryCollection": {
+    "eyebrow": "PHANYX Digital Library",
+    "title": "Institution collection",
+    "description": "Register and organize books, articles, documents, research, and multimedia library content.",
+    "backToDashboard": "â† Back to dashboard",
+    "registerItem": "+ Add item",
+    "loadingCollection": "Loading collection",
+    "retry": "Try again",
+    "summary": {
+      "ariaLabel": "Collection summary",
+      "totalFound": "Total found",
+      "currentPage": "Current page",
+      "showing": "Showing"
+    },
+    "filters": {
+      "title": "Search the collection",
+      "description": "Find items by title, ISBN, ISSN, or DOI.",
+      "searchLabel": "Search",
+      "searchPlaceholder": "Enter a title or identifier",
+      "typeLabel": "Type",
+      "allTypes": "All types",
+      "statusLabel": "Status",
+      "allStatuses": "All statuses",
+      "search": "Search",
+      "clear": "Clear"
+    },
+    "catalog": {
+      "title": "Registered items",
+      "description": "New items remain as drafts until they are reviewed and published.",
+      "refreshing": "Refreshing...",
+      "refresh": "Refresh"
+    },
+    "errors": {
+      "invalidApiResponse": "The collection API did not return a valid response.",
+      "loadCollection": "The collection could not be loaded.",
+      "loadCollectionTitle": "The collection could not be loaded",
+      "titleRequired": "Enter the work title.",
+      "createItem": "The item could not be added."
+    },
+    "success": {
+      "itemCreated": "Item added to the collection as a draft."
+    },
+    "results": {
+      "range": "{start}â€“{end} of {total}"
+    },
+    "empty": {
+      "noItemsFound": "No items found",
+      "collectionEmpty": "The collection is still empty",
+      "changeFilters": "Change the filters to find other works.",
+      "registerFirstItems": "Add books, articles, documents, and multimedia content."
+    },
+    "item": {
+      "featured": "â˜… Featured",
+      "modality": "Access mode",
+      "identifier": "Identifier",
+      "noIdentifier": "No identifier",
+      "year": "Year",
+      "files": "{count, plural, =0 {0 files} one {1 file} other {# files}}",
+      "copies": "{count, plural, =0 {0 copies} one {1 copy} other {# copies}}",
+      "updatedAt": "Updated on {date}",
+      "open": "Open item â†’"
+    },
+    "pagination": {
+      "ariaLabel": "Collection pagination",
+      "previous": "â† Previous",
+      "pageOf": "Page <strong>{page}</strong> of <strong>{total}</strong>",
+      "next": "Next â†’"
+    },
+    "modal": {
+      "eyebrow": "New item",
+      "title": "Add to collection",
+      "description": "The item will be saved as a draft for later completion and publication.",
+      "close": "Close form",
+      "fields": {
+        "title": "Title",
+        "titlePlaceholder": "Example: Introduction to Theology",
+        "subtitle": "Subtitle",
+        "subtitlePlaceholder": "Title complement",
+        "contentType": "Content type",
+        "accessMode": "Access mode",
+        "publicationYear": "Publication year",
+        "keywords": "Keywords",
+        "keywordsPlaceholder": "theology, history, education",
+        "synopsis": "Synopsis or abstract",
+        "synopsisPlaceholder": "Briefly describe the workâ€™s content."
+      },
+      "options": {
+        "title": "Initial options",
+        "allowReviews": "Allow reviews",
+        "allowReviewsDescription": "Students and teachers may review it after publication.",
+        "openAccess": "Open access",
+        "openAccessDescription": "Available to authorized audiences without a loan.",
+        "allowDownload": "Request download permission",
+        "allowDownloadDescription": "Subject to the general library settings and the workâ€™s license."
+      },
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "saveDraft": "Save as draft"
+    },
+    "toast": {
+      "close": "Close message"
+    },
+    "modalities": {
+      "internalReading": "Internal reading",
+      "openAccess": "Open access",
+      "authorizedDownload": "Authorized download",
+      "digitalLoan": "Digital loan",
+      "physicalLoan": "Physical loan",
+      "streaming": "Streaming",
+      "externalLink": "External link"
+    }
+  }
+,
+  "AdminExternalActivities": {
+    "eyebrow": "Academic management",
+    "title": "External activities",
+    "subtitle": "Plan and monitor field trips, technical visits, educational travel, retreats, camps and other off-campus activities.",
+    "newActivity": "New activity",
+    "searchPlaceholder": "Search by title, destination, city or country...",
+    "filters": {
+      "status": "Status",
+      "type": "Type",
+      "allStatuses": "All statuses",
+      "allTypes": "All types",
+      "clear": "Clear filters"
+    },
+    "loading": "Loading external activities...",
+    "retry": "Try again",
+    "empty": {
+      "title": "No activities found",
+      "description": "Create the first external activity or change the search filters."
+    },
+    "results": {
+      "one": "{count} activity found",
+      "other": "{count} activities found"
+    },
+    "labels": {
+      "destination": "Destination",
+      "departure": "Departure",
+      "return": "Expected return",
+      "responsible": "Lead",
+      "participants": "Participants",
+      "authorizations": "Permissions",
+      "legs": "Travel legs",
+      "risks": "Risks",
+      "noDestination": "Destination not provided yet",
+      "noDate": "Not defined yet",
+      "noResponsible": "Not provided",
+      "curricular": "Curricular",
+      "mandatory": "Mandatory",
+      "international": "International"
+    },
+    "actions": {
+      "open": "Open activity",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "status": {
+      "RASCUNHO": "Draft",
+      "PLANEJAMENTO": "Planning",
+      "AGUARDANDO_AUTORIZACOES": "Awaiting permissions",
+      "CONFIRMADA": "Confirmed",
+      "EM_ANDAMENTO": "In progress",
+      "CONCLUIDA": "Completed",
+      "CANCELADA": "Cancelled",
+      "ARQUIVADA": "Archived"
+    },
+    "types": {
+      "EXCURSAO": "Field trip",
+      "VISITA_TECNICA": "Technical visit",
+      "VIAGEM_PEDAGOGICA": "Educational trip",
+      "ACAMPAMENTO": "Camp",
+      "RETIRO": "Retreat",
+      "COMPETICAO": "Competition",
+      "INTERCAMBIO": "Exchange program",
+      "EVENTO_ESPORTIVO": "Sports event",
+      "ATIVIDADE_COMUNITARIA": "Community activity",
+      "VIAGEM_INTERNACIONAL": "International trip",
+      "OUTRA": "Other"
+    },
+    "errors": {
+      "load": "External activities could not be loaded."
     }
   }
 }

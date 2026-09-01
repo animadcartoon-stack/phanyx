@@ -1,7 +1,8 @@
-"use client";
+
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 type PlanoBiblioteca = {
   codigo: string;
@@ -93,14 +94,14 @@ const STATUS_CONTRATACAO_PENDENTE = new Set([
   "AGUARDANDO_PAGAMENTO",
 ]);
 
-function formatarMoeda(valor: number) {
-  return Number(valor || 0).toLocaleString("pt-BR", {
+function formatarMoeda(valor: number, locale: string) {
+  return Number(valor || 0).toLocaleString(locale, {
     style: "currency",
     currency: "BRL",
   });
 }
 
-function formatarData(valor?: string | null) {
+function formatarData(valor: string | null | undefined, locale: string) {
   if (!valor) return "—";
 
   const data = new Date(valor);
@@ -109,21 +110,21 @@ function formatarData(valor?: string | null) {
     return "—";
   }
 
-  return new Intl.DateTimeFormat("pt-BR", {
+  return new Intl.DateTimeFormat(locale, {
     dateStyle: "short",
     timeStyle: "short",
   }).format(data);
 }
 
-function formatarPlano(codigo?: string | null) {
+function formatarPlano(codigo: string | null | undefined, locale: string) {
   if (!codigo) return "—";
 
   return codigo
     .replace(/^BIBLIOTECA_/, "")
     .replaceAll("_", " ")
-    .toLocaleLowerCase("pt-BR")
+    .toLocaleLowerCase(locale)
     .replace(/(^|\s)\p{L}/gu, (letra) =>
-      letra.toLocaleUpperCase("pt-BR")
+      letra.toLocaleUpperCase(locale)
     );
 }
 
@@ -169,11 +170,11 @@ function urlCheckoutValida(valor: unknown): valor is string {
   }
 }
 
-async function lerResposta(resposta: Response) {
+async function lerResposta(resposta: Response, mensagemInvalida: string) {
   const contentType = resposta.headers.get("content-type") || "";
 
   if (!contentType.includes("application/json")) {
-    throw new Error("A API de contratação não retornou uma resposta válida.");
+    throw new Error(mensagemInvalida);
   }
 
   return resposta.json();
@@ -184,11 +185,24 @@ function CartaoPlano({
   planoAtual,
   bloqueado,
   aoSelecionar,
+  textos,
+  locale,
+  traduzirRecurso,
 }: {
   plano: PlanoBiblioteca;
   planoAtual: boolean;
   bloqueado: boolean;
   aoSelecionar: (plano: PlanoBiblioteca) => void;
+  textos: {
+    featured: string;
+    storageIncluded: (gb: number) => string;
+    description: (gb: number) => string;
+    perMonth: string;
+    currentPlan: string;
+    subscribe: string;
+  };
+  locale: string;
+  traduzirRecurso: (recurso: string) => string;
 }) {
   return (
     <article
@@ -201,13 +215,13 @@ function CartaoPlano({
     >
       {plano.destaque ? (
         <span className="absolute right-5 top-5 rounded-full bg-emerald-700 px-3 py-1 text-xs font-black uppercase tracking-wide text-white dark:bg-emerald-600">
-          Mais escolhido
+          {textos.featured}
         </span>
       ) : null}
 
       <div className="pr-24">
         <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-300">
-          {plano.armazenamentoGb} GB incluídos
+          {textos.storageIncluded(plano.armazenamentoGb)}
         </p>
 
         <h2 className="mt-2 text-2xl font-black text-slate-950 dark:text-white">
@@ -216,15 +230,15 @@ function CartaoPlano({
       </div>
 
       <p className="mt-4 min-h-16 text-sm leading-6 text-slate-600 dark:text-slate-300">
-        {plano.descricao}
+        {textos.description(plano.armazenamentoGb)}
       </p>
 
       <div className="mt-5 flex items-end gap-2 border-y border-slate-200 py-5 dark:border-slate-800">
         <strong className="text-3xl font-black text-slate-950 dark:text-white">
-          {formatarMoeda(plano.valorMensal)}
+          {formatarMoeda(plano.valorMensal, locale)}
         </strong>
         <span className="pb-1 text-sm text-slate-500 dark:text-slate-400">
-          por mês
+          {textos.perMonth}
         </span>
       </div>
 
@@ -237,7 +251,7 @@ function CartaoPlano({
             <span className="font-black text-emerald-700 dark:text-emerald-300" aria-hidden="true">
               ✓
             </span>
-            <span>{recurso}</span>
+            <span>{traduzirRecurso(recurso)}</span>
           </li>
         ))}
       </ul>
@@ -255,13 +269,15 @@ function CartaoPlano({
               : "bg-emerald-700 text-white shadow-sm hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-500",
         ].join(" ")}
       >
-        {planoAtual ? "Plano atual" : "Contratar este plano"}
+        {planoAtual ? textos.currentPlan : textos.subscribe}
       </button>
     </article>
   );
 }
 
 export default function BibliotecaContratacaoPage() {
+  const t = useTranslations("AdminLibraryContracting");
+  const locale = useLocale();
   const [dados, setDados] = useState<DadosContratacao | null>(null);
   const [carregando, setCarregando] = useState(true);
   const [processando, setProcessando] = useState(false);
@@ -284,7 +300,7 @@ export default function BibliotecaContratacaoPage() {
         }
       );
 
-      const corpo = (await lerResposta(resposta)) as
+      const corpo = (await lerResposta(resposta, t("errors.invalidApiResponse"))) as
         | DadosContratacao
         | RespostaErro;
 
@@ -292,7 +308,7 @@ export default function BibliotecaContratacaoPage() {
         const mensagem =
           "error" in corpo && typeof corpo.error === "string"
             ? corpo.error
-            : "Não foi possível carregar os planos da Biblioteca Virtual.";
+            : t("errors.loadPlans");
 
         throw new Error(
           mensagem
@@ -305,12 +321,12 @@ export default function BibliotecaContratacaoPage() {
       setErro(
         error instanceof Error
           ? error.message
-          : "Não foi possível carregar os planos da Biblioteca Virtual."
+          : t("errors.loadPlans")
       );
     } finally {
       setCarregando(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     void carregarDados();
@@ -342,10 +358,100 @@ export default function BibliotecaContratacaoPage() {
     return contratacao;
   }, [dados?.contratacaoAtual]);
 
+  function rotuloStatus(status?: string | null) {
+    switch (String(status || "").toUpperCase()) {
+      case "ATIVO":
+        return t("status.active");
+      case "PAGA":
+        return t("status.paid");
+      case "TESTE_GRATIS":
+        return t("status.freeTrial");
+      case "CRIADA":
+        return t("status.created");
+      case "PENDENTE":
+        return t("status.pending");
+      case "AGUARDANDO_PAGAMENTO":
+        return t("status.awaitingPayment");
+      case "EM_ATRASO":
+        return t("status.overdue");
+      case "SUSPENSO":
+        return t("status.suspended");
+      case "FALHA":
+        return t("status.failed");
+      case "CANCELADO":
+        return t("status.cancelled");
+      default:
+        return status ? status.replaceAll("_", " ") : t("status.unknown");
+    }
+  }
+
+  function recursoTraduzido(recurso: string) {
+    const normalizado = recurso
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLocaleLowerCase("pt-BR");
+
+    if (normalizado.includes("armazen")) return t("features.storage");
+    if (normalizado.includes("relatorio")) return t("features.reports");
+    if (normalizado.includes("emprest")) return t("features.loans");
+    if (normalizado.includes("reserva")) return t("features.reservations");
+    if (normalizado.includes("acervo")) return t("features.collection");
+    if (normalizado.includes("suporte")) return t("features.support");
+    if (normalizado.includes("usuario") || normalizado.includes("aluno")) {
+      return t("features.users");
+    }
+
+    return recurso;
+  }
+
+  const estilos = (
+    <style jsx global>{`
+      html[data-theme="system"] .phanyx-biblioteca-contratacao-page {
+        background: #242424 !important;
+        color: #ffffff !important;
+        color-scheme: dark;
+      }
+
+      html[data-theme="system"] .phanyx-biblioteca-contratacao-page .bg-white,
+      html[data-theme="system"] .phanyx-biblioteca-contratacao-page .dark\\:bg-slate-900 {
+        background: #2d2d2d !important;
+      }
+
+      html[data-theme="system"] .phanyx-biblioteca-contratacao-page .bg-slate-50,
+      html[data-theme="system"] .phanyx-biblioteca-contratacao-page .dark\\:bg-slate-950 {
+        background: #383838 !important;
+      }
+
+      html[data-theme="system"] .phanyx-biblioteca-contratacao-page .text-slate-950,
+      html[data-theme="system"] .phanyx-biblioteca-contratacao-page .text-slate-800,
+      html[data-theme="system"] .phanyx-biblioteca-contratacao-page .text-slate-700,
+      html[data-theme="system"] .phanyx-biblioteca-contratacao-page .dark\\:text-white,
+      html[data-theme="system"] .phanyx-biblioteca-contratacao-page .dark\\:text-slate-200 {
+        color: #ffffff !important;
+        -webkit-text-fill-color: #ffffff !important;
+      }
+
+      html[data-theme="system"] .phanyx-biblioteca-contratacao-page .text-slate-600,
+      html[data-theme="system"] .phanyx-biblioteca-contratacao-page .text-slate-500,
+      html[data-theme="system"] .phanyx-biblioteca-contratacao-page .dark\\:text-slate-300,
+      html[data-theme="system"] .phanyx-biblioteca-contratacao-page .dark\\:text-slate-400 {
+        color: #d1d5db !important;
+        -webkit-text-fill-color: #d1d5db !important;
+      }
+
+      html[data-theme="system"] .phanyx-biblioteca-contratacao-page .border-slate-200,
+      html[data-theme="system"] .phanyx-biblioteca-contratacao-page .border-slate-300,
+      html[data-theme="system"] .phanyx-biblioteca-contratacao-page .dark\\:border-slate-700,
+      html[data-theme="system"] .phanyx-biblioteca-contratacao-page .dark\\:border-slate-800 {
+        border-color: #505050 !important;
+      }
+    `}</style>
+  );
+
   function continuarPagamento(url: string | null) {
     if (!urlCheckoutValida(url)) {
       setErro(
-        "O link de pagamento não está disponível. Atualize a página ou gere uma nova contratação."
+        t("errors.checkoutUnavailable")
       );
       return;
     }
@@ -376,12 +482,13 @@ export default function BibliotecaContratacaoPage() {
       );
 
       const corpo = (await lerResposta(
-        resposta
+        resposta,
+        t("errors.invalidApiResponse")
       )) as RespostaCriarContratacao;
 
       if (!resposta.ok) {
         throw new Error(
-          corpo?.error || "Não foi possível iniciar a contratação da Biblioteca Virtual."
+          corpo?.error || t("errors.startSubscription")
         );
       }
 
@@ -399,7 +506,7 @@ export default function BibliotecaContratacaoPage() {
       }
 
       setSucesso(
-        "Contratação criada. Atualize a página para consultar o pagamento."
+        t("success.created")
       );
 
       await carregarDados();
@@ -407,7 +514,7 @@ export default function BibliotecaContratacaoPage() {
       setErro(
         error instanceof Error
           ? error.message
-          : "Não foi possível iniciar a contratação da Biblioteca Virtual."
+          : t("errors.startSubscription")
       );
     } finally {
       setProcessando(false);
@@ -416,22 +523,21 @@ export default function BibliotecaContratacaoPage() {
 
   return (
     <main className="phanyx-biblioteca-contratacao-page min-h-screen bg-slate-50 p-4 text-slate-950 dark:bg-slate-950 dark:text-white sm:p-6">
+      {estilos}
       <div className="mx-auto max-w-7xl space-y-6">
         <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-300">
-                Biblioteca Virtual PHANYX
+                {t("eyebrow")}
               </p>
 
               <h1 className="mt-2 text-3xl font-black tracking-tight text-slate-950 dark:text-white">
-                Planos e contratação
+                {t("title")}
               </h1>
 
               <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
-                Escolha a capacidade adequada para o acervo da instituição. A
-                ativação ocorre automaticamente após a confirmação do pagamento
-                pelo Asaas.
+                {t("description")}
               </p>
             </div>
 
@@ -440,7 +546,7 @@ export default function BibliotecaContratacaoPage() {
                 href="/admin/biblioteca"
                 className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-800 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800 dark:focus:ring-offset-slate-900"
               >
-                ← Voltar à Biblioteca
+                {t("backToLibrary")}
               </Link>
 
               <button
@@ -449,7 +555,7 @@ export default function BibliotecaContratacaoPage() {
                 disabled={carregando || processando}
                 className="inline-flex min-h-11 items-center justify-center rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-emerald-600 dark:hover:bg-emerald-500"
               >
-                Atualizar
+                {t("refresh")}
               </button>
             </div>
           </div>
@@ -474,7 +580,7 @@ export default function BibliotecaContratacaoPage() {
         ) : null}
 
         {carregando ? (
-          <div className="grid gap-5 md:grid-cols-3" aria-label="Carregando planos">
+          <div className="grid gap-5 md:grid-cols-3" aria-label={t("loadingPlans")}>
             {Array.from({ length: 3 }).map((_, indice) => (
               <div
                 key={indice}
@@ -488,14 +594,14 @@ export default function BibliotecaContratacaoPage() {
               ⚠️
             </div>
             <h2 className="mt-4 text-xl font-black text-slate-950 dark:text-white">
-              Não foi possível carregar a contratação
+              {t("errors.loadSubscriptionTitle")}
             </h2>
             <button
               type="button"
               onClick={() => void carregarDados()}
               className="mt-5 rounded-xl bg-slate-950 px-5 py-3 text-sm font-bold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
             >
-              Tentar novamente
+              {t("retry")}
             </button>
           </section>
         ) : (
@@ -506,29 +612,29 @@ export default function BibliotecaContratacaoPage() {
                   <div>
                     <div className="flex flex-wrap items-center gap-3">
                       <h2 className="text-xl font-black text-slate-950 dark:text-white">
-                        Situação atual da Biblioteca
+                        {t("current.title")}
                       </h2>
                       <span
                         className={`rounded-full border px-3 py-1 text-xs font-black uppercase tracking-wide ${classeStatus(
                           dados.modulo.status
                         )}`}
                       >
-                        {dados.modulo.status.replaceAll("_", " ")}
+                        {rotuloStatus(dados.modulo.status)}
                       </span>
                       {dados.modulo.cortesia ? (
                         <span className="rounded-full border border-violet-300 bg-violet-50 px-3 py-1 text-xs font-black uppercase tracking-wide text-violet-800 dark:border-violet-800 dark:bg-violet-950/50 dark:text-violet-200">
-                          Cortesia PHANYX
+                          {t("current.complimentary")}
                         </span>
                       ) : null}
                     </div>
 
                     <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
-                      Plano: {formatarPlano(dados.modulo.plano)}
+                      {t("current.plan", { plan: formatarPlano(dados.modulo.plano, locale) })}
                     </p>
 
                     {dados.modulo.cortesia ? (
                       <p className="mt-2 text-sm font-semibold text-violet-800 dark:text-violet-200">
-                        Esta instituição possui acesso gratuito e não será encaminhada para cobrança.
+                        {t("current.complimentaryDescription")}
                       </p>
                     ) : null}
 
@@ -544,7 +650,7 @@ export default function BibliotecaContratacaoPage() {
                       href="/admin/biblioteca"
                       className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl bg-emerald-700 px-5 py-3 text-sm font-black text-white transition hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-500"
                     >
-                      Acessar Biblioteca
+                      {t("current.accessLibrary")}
                     </Link>
                   ) : null}
                 </div>
@@ -552,41 +658,41 @@ export default function BibliotecaContratacaoPage() {
                 <dl className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
                     <dt className="text-xs font-black uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                      Armazenamento
+                      {t("current.storage")}
                     </dt>
                     <dd className="mt-2 text-xl font-black text-slate-950 dark:text-white">
-                      {dados.modulo.armazenamento.limiteGb.toLocaleString("pt-BR")} GB
+                      {dados.modulo.armazenamento.limiteGb.toLocaleString(locale)} GB
                     </dd>
                   </div>
 
                   <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
                     <dt className="text-xs font-black uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                      Espaço disponível
+                      {t("current.availableSpace")}
                     </dt>
                     <dd className="mt-2 text-xl font-black text-slate-950 dark:text-white">
-                      {dados.modulo.armazenamento.disponivelGb.toLocaleString("pt-BR")} GB
+                      {dados.modulo.armazenamento.disponivelGb.toLocaleString(locale)} GB
                     </dd>
                   </div>
 
                   <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
                     <dt className="text-xs font-black uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                      Valor mensal
+                      {t("current.monthlyPrice")}
                     </dt>
                     <dd className="mt-2 text-xl font-black text-slate-950 dark:text-white">
                       {dados.modulo.cortesia
-                        ? "Gratuito"
-                        : formatarMoeda(dados.modulo.valorMensal)}
+                        ? t("current.free")
+                        : formatarMoeda(dados.modulo.valorMensal, locale)}
                     </dd>
                   </div>
 
                   <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
                     <dt className="text-xs font-black uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                      Próxima cobrança
+                      {t("current.nextCharge")}
                     </dt>
                     <dd className="mt-2 text-base font-black text-slate-950 dark:text-white">
                       {dados.modulo.cortesia
-                        ? "Não se aplica"
-                        : formatarData(dados.modulo.proximaCobrancaEm)}
+                        ? t("current.notApplicable")
+                        : formatarData(dados.modulo.proximaCobrancaEm, locale)}
                     </dd>
                   </div>
                 </dl>
@@ -599,26 +705,29 @@ export default function BibliotecaContratacaoPage() {
                   <div>
                     <div className="flex flex-wrap items-center gap-3">
                       <h2 className="text-xl font-black text-amber-950 dark:text-amber-100">
-                        Pagamento pendente
+                        {t("pending.title")}
                       </h2>
                       <span
                         className={`rounded-full border px-3 py-1 text-xs font-black uppercase tracking-wide ${classeStatus(
                           contratacaoPendente.status
                         )}`}
                       >
-                        {contratacaoPendente.status.replaceAll("_", " ")}
+                        {rotuloStatus(contratacaoPendente.status)}
                       </span>
                     </div>
 
                     <p className="mt-2 text-sm leading-6 text-amber-900 dark:text-amber-200">
-                      {formatarPlano(contratacaoPendente.plano)} — {formatarMoeda(
-                        contratacaoPendente.valorMensal
-                      )} por mês.
+                      {t("pending.summary", {
+                        plan: formatarPlano(contratacaoPendente.plano, locale),
+                        price: formatarMoeda(contratacaoPendente.valorMensal, locale),
+                      })}
                     </p>
 
                     {contratacaoPendente.checkoutExpiraEm ? (
                       <p className="mt-1 text-xs font-semibold text-amber-800 dark:text-amber-300">
-                        Link disponível até {formatarData(contratacaoPendente.checkoutExpiraEm)}.
+                        {t("pending.linkAvailableUntil", {
+                          date: formatarData(contratacaoPendente.checkoutExpiraEm, locale),
+                        })}
                       </p>
                     ) : null}
                   </div>
@@ -630,7 +739,7 @@ export default function BibliotecaContratacaoPage() {
                     }
                     className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl bg-amber-900 px-5 py-3 text-sm font-black text-white transition hover:bg-amber-950 dark:bg-amber-300 dark:text-amber-950 dark:hover:bg-amber-200"
                   >
-                    Continuar pagamento
+                    {t("pending.continuePayment")}
                   </button>
                 </div>
               </section>
@@ -642,10 +751,10 @@ export default function BibliotecaContratacaoPage() {
                   id="planos-biblioteca"
                   className="text-2xl font-black text-slate-950 dark:text-white"
                 >
-                  Planos disponíveis
+                  {t("plans.title")}
                 </h2>
                 <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                  Todos os planos incluem os recursos completos da Biblioteca Virtual.
+                  {t("plans.description")}
                 </p>
               </div>
 
@@ -667,6 +776,16 @@ export default function BibliotecaContratacaoPage() {
                       planoAtual={planoAtual}
                       bloqueado={bloqueado}
                       aoSelecionar={setPlanoSelecionado}
+                      locale={locale}
+                      traduzirRecurso={recursoTraduzido}
+                      textos={{
+                        featured: t("planCard.featured"),
+                        storageIncluded: (gb) => t("planCard.storageIncluded", { gb }),
+                        description: (gb) => t("planCard.description", { gb }),
+                        perMonth: t("planCard.perMonth"),
+                        currentPlan: t("planCard.currentPlan"),
+                        subscribe: t("planCard.subscribe"),
+                      }}
                     />
                   );
                 })}
@@ -674,13 +793,13 @@ export default function BibliotecaContratacaoPage() {
 
               {!dados.permissoes.podeGerenciar ? (
                 <p className="rounded-2xl border border-slate-300 bg-white p-4 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
-                  Seu usuário pode consultar os planos, mas não possui permissão para contratar a Biblioteca Virtual.
+                  {t("permissions.viewOnly")}
                 </p>
               ) : null}
 
               {dados.permissoes.impersonacao ? (
                 <p className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm font-medium text-amber-900 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-200">
-                  Contratações financeiras ficam bloqueadas durante uma sessão de suporte por impersonação.
+                  {t("permissions.impersonationBlocked")}
                 </p>
               ) : null}
             </section>
@@ -705,7 +824,7 @@ export default function BibliotecaContratacaoPage() {
             className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 text-slate-950 shadow-2xl dark:border-slate-700 dark:bg-slate-900 dark:text-white"
           >
             <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-300">
-              Confirmar contratação
+              {t("modal.eyebrow")}
             </p>
 
             <h2 id="titulo-confirmar-plano" className="mt-2 text-2xl font-black">
@@ -713,22 +832,21 @@ export default function BibliotecaContratacaoPage() {
             </h2>
 
             <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
-              Você será encaminhado ao ambiente seguro do Asaas para concluir a
-              assinatura mensal da Biblioteca Virtual.
+              {t("modal.description")}
             </p>
 
             <dl className="mt-5 divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-slate-50 px-4 dark:divide-slate-800 dark:border-slate-800 dark:bg-slate-950">
               <div className="flex items-center justify-between gap-4 py-4">
                 <dt className="text-sm text-slate-600 dark:text-slate-300">
-                  Mensalidade
+                  {t("modal.monthlyFee")}
                 </dt>
                 <dd className="font-black">
-                  {formatarMoeda(planoSelecionado.valorMensal)}
+                  {formatarMoeda(planoSelecionado.valorMensal, locale)}
                 </dd>
               </div>
               <div className="flex items-center justify-between gap-4 py-4">
                 <dt className="text-sm text-slate-600 dark:text-slate-300">
-                  Armazenamento
+                  {t("modal.storage")}
                 </dt>
                 <dd className="font-black">
                   {planoSelecionado.armazenamentoGb} GB
@@ -736,9 +854,9 @@ export default function BibliotecaContratacaoPage() {
               </div>
               <div className="flex items-center justify-between gap-4 py-4">
                 <dt className="text-sm text-slate-600 dark:text-slate-300">
-                  Renovação
+                  {t("modal.renewal")}
                 </dt>
-                <dd className="font-black">Mensal</dd>
+                <dd className="font-black">{t("modal.monthly")}</dd>
               </div>
             </dl>
 
@@ -749,7 +867,7 @@ export default function BibliotecaContratacaoPage() {
                 onClick={() => setPlanoSelecionado(null)}
                 className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
               >
-                Voltar
+                {t("modal.back")}
               </button>
 
               <button
@@ -758,7 +876,7 @@ export default function BibliotecaContratacaoPage() {
                 onClick={() => void confirmarContratacao()}
                 className="inline-flex min-h-11 items-center justify-center rounded-xl bg-emerald-700 px-5 py-3 text-sm font-black text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-emerald-600 dark:hover:bg-emerald-500"
               >
-                {processando ? "Criando checkout..." : "Ir para o pagamento"}
+                {processando ? t("modal.creatingCheckout") : t("modal.goToPayment")}
               </button>
             </div>
           </section>
