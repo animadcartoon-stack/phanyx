@@ -12,6 +12,20 @@ type AlunoMonitorado = {
     nome: string;
     matricula: string | null;
 
+    contato: {
+        telefone: string | null;
+        paisTelefone: string | null;
+        email: string | null;
+
+        responsavel: {
+            nome: string | null;
+            parentesco: string | null;
+            telefone: string | null;
+            paisTelefone: string | null;
+            email: string | null;
+        };
+    };
+
     turmaIds: Set<number>;
     paresTurmaDisciplina: Set<string>;
 };
@@ -212,6 +226,21 @@ export async function GET() {
                                 id: true,
                                 nome: true,
                                 matricula: true,
+
+                                telefone: true,
+                                paisTelefone: true,
+
+                                nomeResponsavel: true,
+                                parentescoResponsavel: true,
+                                telefoneResponsavel: true,
+                                paisTelefoneResponsavel: true,
+                                emailResponsavel: true,
+
+                                user: {
+                                    select: {
+                                        email: true,
+                                    },
+                                },
                             },
                         },
 
@@ -272,6 +301,35 @@ export async function GET() {
                         matricula.aluno
                             .matricula ??
                         null,
+
+                    contato: {
+                        telefone:
+                            matricula.aluno.telefone,
+
+                        paisTelefone:
+                            matricula.aluno.paisTelefone,
+
+                        email:
+                            matricula.aluno.user.email ??
+                            null,
+
+                        responsavel: {
+                            nome:
+                                matricula.aluno.nomeResponsavel,
+
+                            parentesco:
+                                matricula.aluno.parentescoResponsavel,
+
+                            telefone:
+                                matricula.aluno.telefoneResponsavel,
+
+                            paisTelefone:
+                                matricula.aluno.paisTelefoneResponsavel,
+
+                            email:
+                                matricula.aluno.emailResponsavel,
+                        },
+                    },
 
                     turmaIds:
                         new Set<number>(),
@@ -981,6 +1039,9 @@ export async function GET() {
 
                         matricula:
                             aluno.matricula,
+
+                        contato:
+                            aluno.contato,
 
                         indicadores: {
                             frequenciaPercentual,
