@@ -1512,7 +1512,7 @@ export default function AdminStudentSuccessPage() {
                           >
                             <span
                               className={[
-                                "inline-flex rounded-full border px-3 py-1 text-xs font-bold",
+                                "phanyx-student-success-risk-badge inline-flex rounded-full border px-3 py-1 text-xs font-bold",
                                 classeNivel(
                                   aluno
                                     .analise
