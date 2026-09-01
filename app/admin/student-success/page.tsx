@@ -388,7 +388,7 @@ export default function AdminStudentSuccessPage() {
           );
         }
         catch (
-          error
+        error
         ) {
           console.error(
             "[STUDENT_SUCCESS_PAGE]",
@@ -921,6 +921,7 @@ export default function AdminStudentSuccessPage() {
                   </span>
 
                   <input
+
                     type="search"
                     value={
                       busca
@@ -939,6 +940,7 @@ export default function AdminStudentSuccessPage() {
                       "filters.searchPlaceholder"
                     )}
                     className="
+                     phanyx-student-success-search
             w-full
             rounded-xl
             border
@@ -1050,54 +1052,54 @@ export default function AdminStudentSuccessPage() {
                             )
                         }
                         className={[
-                          "rounded-full border px-4 py-2 text-sm font-semibold transition",
+                          "phanyx-student-success-filter rounded-full border px-4 py-2 text-sm font-semibold transition",
 
-                          filtroNivel ===
-                            valor
-                            ? "border-blue-600 bg-blue-600 text-white shadow-sm"
-                            : "border-slate-300 bg-white text-slate-700 hover:border-blue-400 hover:bg-blue-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800",
+                        filtroNivel ===
+                        valor
+                        ? "border-blue-600 bg-blue-600 text-white shadow-sm"
+                        : "border-slate-300 bg-white text-slate-700 hover:border-blue-400 hover:bg-blue-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800",
                         ].join(
-                          " "
+                  " "
                         )}
                       >
-                        {titulo}
+                  {titulo}
 
-                        <span
-                          className="
+                  <span
+                    className="
                   ml-2
                   opacity-80
                 "
-                        >
-                          {
-                            quantidade
-                          }
-                        </span>
-                      </button>
-                    )
+                  >
+                    {
+                      quantidade
+                    }
+                  </span>
+                </button>
+                )
                   )}
-                </div>
               </div>
+            </div>
             </div>
           ) : null}
 
-          {carregando ? (
-            <div
-              className="
+      {carregando ? (
+        <div
+          className="
                 flex
                 min-h-[280px]
                 items-center
                 justify-center
                 p-6
               "
-            >
-              <div
-                className="
+        >
+          <div
+            className="
                   max-w-md
                   text-center
                 "
-              >
-                <div
-                  className="
+          >
+            <div
+              className="
                     mx-auto
                     h-10
                     w-10
@@ -1109,11 +1111,11 @@ export default function AdminStudentSuccessPage() {
                     dark:border-slate-700
                     dark:border-t-blue-400
                   "
-                  aria-hidden="true"
-                />
+              aria-hidden="true"
+            />
 
-                <p
-                  className="
+            <p
+              className="
                     phanyx-student-success-muted
                     mt-4
                     text-sm
@@ -1121,48 +1123,48 @@ export default function AdminStudentSuccessPage() {
                     text-slate-700
                     dark:text-slate-200
                   "
-                >
-                  {t(
-                    "states.loading"
-                  )}
-                </p>
-              </div>
-            </div>
-          ) : erro ? (
-            <div
-              className="
+            >
+              {t(
+                "states.loading"
+              )}
+            </p>
+          </div>
+        </div>
+      ) : erro ? (
+        <div
+          className="
                 flex
                 min-h-[240px]
                 items-center
                 justify-center
                 p-6
               "
-            >
-              <div
-                className="
+        >
+          <div
+            className="
                   max-w-md
                   text-center
                 "
-              >
-                <p
-                  className="
+          >
+            <p
+              className="
                     font-semibold
                     text-red-700
                     dark:text-red-300
                   "
-                >
-                  {t(
-                    "states.error"
-                  )}
-                </p>
+            >
+              {t(
+                "states.error"
+              )}
+            </p>
 
-                <button
-                  type="button"
-                  onClick={
-                    () =>
-                      void carregarDados()
-                  }
-                  className="
+            <button
+              type="button"
+              onClick={
+                () =>
+                  void carregarDados()
+              }
+              className="
                     mt-4
                     rounded-xl
                     bg-blue-700
@@ -1174,26 +1176,26 @@ export default function AdminStudentSuccessPage() {
                     transition
                     hover:bg-blue-800
                   "
-                >
-                  {t(
-                    "actions.refresh"
-                  )}
-                </button>
-              </div>
-            </div>
-          ) : alunosFiltrados.length ===
-            0 ? (
-            <div
-              className="
+            >
+              {t(
+                "actions.refresh"
+              )}
+            </button>
+          </div>
+        </div>
+      ) : alunosFiltrados.length ===
+        0 ? (
+        <div
+          className="
                 flex
                 min-h-[240px]
                 items-center
                 justify-center
                 p-6
               "
-            >
-              <p
-                className="
+        >
+          <p
+            className="
                   phanyx-student-success-muted
                   text-center
                   text-sm
@@ -1201,35 +1203,35 @@ export default function AdminStudentSuccessPage() {
                   text-slate-700
                   dark:text-slate-200
                 "
-              >
-                {t(
-                  "states.noRisk"
-                )}
-              </p>
-            </div>
-          ) : (
-            <div
-              className="
+          >
+            {t(
+              "states.noRisk"
+            )}
+          </p>
+        </div>
+      ) : (
+        <div
+          className="
                 overflow-x-auto
               "
-            >
-              <table
-                className="
+        >
+          <table
+            className="
     phanyx-student-success-table
     w-full
     min-w-[900px]
     border-collapse
   "
-              >
-                <thead
-                  className="
+          >
+            <thead
+              className="
                     bg-slate-50
                     dark:bg-slate-950/60
                   "
-                >
-                  <tr>
-                    <th
-                      className="
+            >
+              <tr>
+                <th
+                  className="
                         px-5
                         py-3
                         text-left
@@ -1240,14 +1242,14 @@ export default function AdminStudentSuccessPage() {
                         text-slate-600
                         dark:text-slate-300
                       "
-                    >
-                      {t(
-                        "table.student"
-                      )}
-                    </th>
+                >
+                  {t(
+                    "table.student"
+                  )}
+                </th>
 
-                    <th
-                      className="
+                <th
+                  className="
                         px-4
                         py-3
                         text-left
@@ -1258,258 +1260,258 @@ export default function AdminStudentSuccessPage() {
                         text-slate-600
                         dark:text-slate-300
                       "
-                    >
-                      {t(
-                        "table.risk"
-                      )}
-                    </th>
+                >
+                  {t(
+                    "table.risk"
+                  )}
+                </th>
 
-                    <th
-                      className="
-                        px-4
-                        py-3
-                        text-center
-                        text-xs
-                        font-bold
-                        uppercase
-                        tracking-wide
-                        text-slate-600
-                        dark:text-slate-300
-                      "
-                    >
-                      {t(
-                        "table.score"
-                      )}
-                    </th>
-
-                    <th
-                      className="
-                        px-4
-                        py-3
-                        text-center
-                        text-xs
-                        font-bold
-                        uppercase
-                        tracking-wide
-                        text-slate-600
-                        dark:text-slate-300
-                      "
-                    >
-                      {t(
-                        "table.frequency"
-                      )}
-                    </th>
-
-                    <th
-                      className="
-                        px-4
-                        py-3
-                        text-center
-                        text-xs
-                        font-bold
-                        uppercase
-                        tracking-wide
-                        text-slate-600
-                        dark:text-slate-300
-                      "
-                    >
-                      {t(
-                        "table.performance"
-                      )}
-                    </th>
-
-                    <th
-                      className="
-                        px-4
-                        py-3
-                        text-center
-                        text-xs
-                        font-bold
-                        uppercase
-                        tracking-wide
-                        text-slate-600
-                        dark:text-slate-300
-                      "
-                    >
-                      {t(
-                        "table.pendingActivities"
-                      )}
-                    </th>
-                  </tr>
-                </thead>
-
-                <tbody
+                <th
                   className="
+                        px-4
+                        py-3
+                        text-center
+                        text-xs
+                        font-bold
+                        uppercase
+                        tracking-wide
+                        text-slate-600
+                        dark:text-slate-300
+                      "
+                >
+                  {t(
+                    "table.score"
+                  )}
+                </th>
+
+                <th
+                  className="
+                        px-4
+                        py-3
+                        text-center
+                        text-xs
+                        font-bold
+                        uppercase
+                        tracking-wide
+                        text-slate-600
+                        dark:text-slate-300
+                      "
+                >
+                  {t(
+                    "table.frequency"
+                  )}
+                </th>
+
+                <th
+                  className="
+                        px-4
+                        py-3
+                        text-center
+                        text-xs
+                        font-bold
+                        uppercase
+                        tracking-wide
+                        text-slate-600
+                        dark:text-slate-300
+                      "
+                >
+                  {t(
+                    "table.performance"
+                  )}
+                </th>
+
+                <th
+                  className="
+                        px-4
+                        py-3
+                        text-center
+                        text-xs
+                        font-bold
+                        uppercase
+                        tracking-wide
+                        text-slate-600
+                        dark:text-slate-300
+                      "
+                >
+                  {t(
+                    "table.pendingActivities"
+                  )}
+                </th>
+              </tr>
+            </thead>
+
+            <tbody
+              className="
                     divide-y
                     divide-slate-200
                     dark:divide-slate-800
                   "
-                >
-                  {alunosFiltrados.map(
-                    (
-                      aluno
-                    ) => {
-                      const dadosInsuficientes =
-                        aluno
-                          .analise
-                          .nivel ===
-                        "DADOS_INSUFICIENTES";
+            >
+              {alunosFiltrados.map(
+                (
+                  aluno
+                ) => {
+                  const dadosInsuficientes =
+                    aluno
+                      .analise
+                      .nivel ===
+                    "DADOS_INSUFICIENTES";
 
-                      return (
-                        <tr
-                          key={
-                            aluno.alunoId
-                          }
-                          className="
+                  return (
+                    <tr
+                      key={
+                        aluno.alunoId
+                      }
+                      className="
                             transition
                             hover:bg-slate-50
                             dark:hover:bg-slate-800/40
                           "
-                        >
-                          <td
-                            className="
+                    >
+                      <td
+                        className="
                               px-5
                               py-4
                             "
-                          >
-                            <div
-                              className="
+                      >
+                        <div
+                          className="
     phanyx-student-success-student-name
     font-semibold
     text-slate-950
     dark:text-white
   "
-                            >
-                              {
-                                aluno.nome
-                              }
-                            </div>
+                        >
+                          {
+                            aluno.nome
+                          }
+                        </div>
 
-                            {aluno.matricula ? (
-                              <div
-                                className="
+                        {aluno.matricula ? (
+                          <div
+                            className="
     phanyx-student-success-student-registration
     mt-1
     text-xs
     text-slate-500
     dark:text-slate-400
   "
-                              >
-                                {
-                                  aluno.matricula
-                                }
-                              </div>
-                            ) : null}
-                          </td>
-
-                          <td
-                            className="
-                              px-4
-                              py-4
-                            "
-                          >
-                            <span
-                              className={[
-                                "inline-flex rounded-full border px-3 py-1 text-xs font-bold",
-                                classeNivel(
-                                  aluno
-                                    .analise
-                                    .nivel
-                                ),
-                              ].join(
-                                " "
-                              )}
-                            >
-                              {t(
-                                `levels.${aluno.analise.nivel}`
-                              )}
-                            </span>
-                          </td>
-
-                          <td
-                            className="
-                              px-4
-                              py-4
-                              text-center
-                              text-sm
-                              font-bold
-                              text-slate-800
-                              dark:text-slate-100
-                            "
-                          >
-                            {dadosInsuficientes
-                              ? "—"
-                              : aluno
-                                .analise
-                                .pontuacao}
-                          </td>
-
-                          <td
-                            className="
-                              px-4
-                              py-4
-                              text-center
-                              text-sm
-                              font-semibold
-                              text-slate-700
-                              dark:text-slate-200
-                            "
-                          >
-                            {formatarPercentual(
-                              aluno
-                                .indicadores
-                                .frequenciaPercentual
-                            )}
-                          </td>
-
-                          <td
-                            className="
-                              px-4
-                              py-4
-                              text-center
-                              text-sm
-                              font-semibold
-                              text-slate-700
-                              dark:text-slate-200
-                            "
-                          >
-                            {formatarPercentual(
-                              aluno
-                                .indicadores
-                                .mediaPercentual
-                            )}
-                          </td>
-
-                          <td
-                            className="
-                              px-4
-                              py-4
-                              text-center
-                              text-sm
-                              font-bold
-                              text-slate-800
-                              dark:text-slate-100
-                            "
                           >
                             {
-                              aluno
-                                .indicadores
-                                .atividadesVencidas
+                              aluno.matricula
                             }
-                          </td>
-                        </tr>
-                      );
-                    }
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </section>
+                          </div>
+                        ) : null}
+                      </td>
 
-        {/* APOIO À DECISÃO */}
-        <section
-          className="
+                      <td
+                        className="
+                              px-4
+                              py-4
+                            "
+                      >
+                        <span
+                          className={[
+                            "inline-flex rounded-full border px-3 py-1 text-xs font-bold",
+                            classeNivel(
+                              aluno
+                                .analise
+                                .nivel
+                            ),
+                          ].join(
+                            " "
+                          )}
+                        >
+                          {t(
+                            `levels.${aluno.analise.nivel}`
+                          )}
+                        </span>
+                      </td>
+
+                      <td
+                        className="
+                              px-4
+                              py-4
+                              text-center
+                              text-sm
+                              font-bold
+                              text-slate-800
+                              dark:text-slate-100
+                            "
+                      >
+                        {dadosInsuficientes
+                          ? "—"
+                          : aluno
+                            .analise
+                            .pontuacao}
+                      </td>
+
+                      <td
+                        className="
+                              px-4
+                              py-4
+                              text-center
+                              text-sm
+                              font-semibold
+                              text-slate-700
+                              dark:text-slate-200
+                            "
+                      >
+                        {formatarPercentual(
+                          aluno
+                            .indicadores
+                            .frequenciaPercentual
+                        )}
+                      </td>
+
+                      <td
+                        className="
+                              px-4
+                              py-4
+                              text-center
+                              text-sm
+                              font-semibold
+                              text-slate-700
+                              dark:text-slate-200
+                            "
+                      >
+                        {formatarPercentual(
+                          aluno
+                            .indicadores
+                            .mediaPercentual
+                        )}
+                      </td>
+
+                      <td
+                        className="
+                              px-4
+                              py-4
+                              text-center
+                              text-sm
+                              font-bold
+                              text-slate-800
+                              dark:text-slate-100
+                            "
+                      >
+                        {
+                          aluno
+                            .indicadores
+                            .atividadesVencidas
+                        }
+                      </td>
+                    </tr>
+                  );
+                }
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
+
+        {/* APOIO À DECISÃO */ }
+  <section
+    className="
           phanyx-student-success-disclaimer
             rounded-2xl
             border
@@ -1521,16 +1523,16 @@ export default function AdminStudentSuccessPage() {
             dark:bg-blue-950/30
             dark:text-blue-100
           "
-        >
-          <div
-            className="
+  >
+    <div
+      className="
               flex
               items-start
               gap-3
             "
-          >
-            <div
-              className="
+    >
+      <div
+        className="
               phanyx-student-success-disclaimer-icon
                 mt-0.5
                 flex
@@ -1545,50 +1547,50 @@ export default function AdminStudentSuccessPage() {
                 dark:bg-blue-900/70
                 dark:text-blue-200
               "
-              aria-hidden="true"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                className="
+        aria-hidden="true"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          className="
                   h-5
                   w-5
                 "
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <circle
-                  cx="12"
-                  cy="12"
-                  r="9"
-                />
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <circle
+            cx="12"
+            cy="12"
+            r="9"
+          />
 
-                <path
-                  strokeLinecap="round"
-                  d="M12 10v6"
-                />
+          <path
+            strokeLinecap="round"
+            d="M12 10v6"
+          />
 
-                <path
-                  strokeLinecap="round"
-                  d="M12 7h.01"
-                />
-              </svg>
-            </div>
+          <path
+            strokeLinecap="round"
+            d="M12 7h.01"
+          />
+        </svg>
+      </div>
 
-            <div>
-              <h3
-                className="
+      <div>
+        <h3
+          className="
     phanyx-student-success-disclaimer-title
     font-bold
   "
-              >
-                {t(
-                  "disclaimer.title"
-                )}
-              </h3>
+        >
+          {t(
+            "disclaimer.title"
+          )}
+        </h3>
 
-              <p
-                className="
+        <p
+          className="
                 phanyx-student-success-disclaimer-text
                   mt-1
                   text-sm
@@ -1596,15 +1598,15 @@ export default function AdminStudentSuccessPage() {
                   text-blue-900
                   dark:text-blue-200
                 "
-              >
-                {t(
-                  "disclaimer.text"
-                )}
-              </p>
-            </div>
-          </div>
-        </section>
+        >
+          {t(
+            "disclaimer.text"
+          )}
+        </p>
       </div>
-    </main>
+    </div>
+  </section>
+      </div >
+    </main >
   );
 }
