@@ -245,6 +245,8 @@ model Instituicao {
   bibliotecaExemplares            BibliotecaExemplar[]
   bibliotecaManutencoesExemplares BibliotecaManutencaoExemplar[]
 
+  studentSuccessIntervencoes StudentSuccessIntervencao[]
+
   bibliotecaEmprestimos BibliotecaEmprestimo[]
   bibliotecaRenovacoes  BibliotecaRenovacao[]
   bibliotecaReservas    BibliotecaReserva[]
@@ -417,6 +419,8 @@ model User {
   etapasFunisComerciaisAtualizadas   EtapaFunilComercial[]    @relation("EtapaFunilComercialAtualizadaPor")
   etapasFunisComerciaisArquivadas    EtapaFunilComercial[]    @relation("EtapaFunilComercialArquivadaPor")
   etapasFunisComerciaisRestauradas   EtapaFunilComercial[]    @relation("EtapaFunilComercialRestauradaPor")
+
+  studentSuccessIntervencoesCriadas StudentSuccessIntervencao[] @relation("StudentSuccessIntervencaoCriadaPor")
 
   motivosPerdaComerciaisCriados     MotivoPerdaComercial[] @relation("MotivoPerdaComercialCriadoPor")
   motivosPerdaComerciaisAtualizados MotivoPerdaComercial[] @relation("MotivoPerdaComercialAtualizadoPor")
@@ -630,6 +634,7 @@ model Aluno {
 
   restricoesRematricula          RestricaoRematriculaAluno[]
   historicosRestricaoRematricula RestricaoRematriculaHistorico[]
+  studentSuccessIntervencoes     StudentSuccessIntervencao[]
 
   @@unique([instituicaoId, matricula])
   @@unique([instituicaoId, slug])
@@ -956,7 +961,7 @@ model Turma {
   atividades                      Atividade[]
   aulas                           Aula[]
   itensMatricula                  ItemMatricula[]
-  matriculasComoPrincipal Matricula[] @relation("MatriculaTurmaPrincipal")
+  matriculasComoPrincipal         Matricula[]                     @relation("MatriculaTurmaPrincipal")
   modulos                         Modulo[]
   notas                           Nota[]
   provas                          Prova[]
@@ -966,7 +971,7 @@ model Turma {
   professor                       Professor?                      @relation(fields: [professorId], references: [id])
   disciplinas                     TurmaDisciplina[]
   semestres                       TurmaSemestre[]
-  periodosMatriculaParticipantes PeriodoMatriculaTurma[]
+  periodosMatriculaParticipantes  PeriodoMatriculaTurma[]
   poloId                          Int?
   polo                            Polo?                           @relation(fields: [poloId], references: [id])
   reunioes                        Reuniao[]
@@ -1077,22 +1082,22 @@ model Matricula {
   lancamentosComissaoRH   LancamentoComissaoRH[]
   rematriculasComoOrigem  RematriculaSemestral[]           @relation("RematriculaMatriculaOrigem")
 
-  rematriculaGeradora RematriculaSemestral? @relation("RematriculaMatriculaGerada")
-  cursoSemestreId     Int?
-  periodoMatriculaId  Int?
-  periodoLetivo       String?
-  turmaPrincipalId Int?
-  realizadaPeloAluno  Boolean               @default(false)
-  confirmadaEm        DateTime?
-  cursoSemestre       CursoSemestre?        @relation(fields: [cursoSemestreId], references: [id])
-  periodoMatricula    PeriodoMatricula?     @relation(fields: [periodoMatriculaId], references: [id])
-  aluno               Aluno                 @relation(fields: [alunoId], references: [id], onDelete: Cascade)
-  curso               Curso?                @relation(fields: [cursoId], references: [id])
-  instituicao         Instituicao           @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  polo                Polo?                 @relation(fields: [poloId], references: [id])
-  turmaPrincipal Turma? @relation("MatriculaTurmaPrincipal", fields: [turmaPrincipalId], references: [id], onDelete: SetNull)
-  confirmacaoMenorPorUser        User?        @relation("MatriculaConfirmacaoMenorPorUser", fields: [confirmacaoMenorPorUserId], references: [id], onDelete: SetNull)
-  confirmacaoMenorPorFuncionario Funcionario? @relation("MatriculaConfirmacaoMenorPorFuncionario", fields: [confirmacaoMenorPorFuncionarioId], references: [id], onDelete: SetNull)
+  rematriculaGeradora            RematriculaSemestral? @relation("RematriculaMatriculaGerada")
+  cursoSemestreId                Int?
+  periodoMatriculaId             Int?
+  periodoLetivo                  String?
+  turmaPrincipalId               Int?
+  realizadaPeloAluno             Boolean               @default(false)
+  confirmadaEm                   DateTime?
+  cursoSemestre                  CursoSemestre?        @relation(fields: [cursoSemestreId], references: [id])
+  periodoMatricula               PeriodoMatricula?     @relation(fields: [periodoMatriculaId], references: [id])
+  aluno                          Aluno                 @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+  curso                          Curso?                @relation(fields: [cursoId], references: [id])
+  instituicao                    Instituicao           @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  polo                           Polo?                 @relation(fields: [poloId], references: [id])
+  turmaPrincipal                 Turma?                @relation("MatriculaTurmaPrincipal", fields: [turmaPrincipalId], references: [id], onDelete: SetNull)
+  confirmacaoMenorPorUser        User?                 @relation("MatriculaConfirmacaoMenorPorUser", fields: [confirmacaoMenorPorUserId], references: [id], onDelete: SetNull)
+  confirmacaoMenorPorFuncionario Funcionario?          @relation("MatriculaConfirmacaoMenorPorFuncionario", fields: [confirmacaoMenorPorFuncionarioId], references: [id], onDelete: SetNull)
 
   @@unique([instituicaoId, numeroMatricula])
   @@index([instituicaoId])
@@ -2447,7 +2452,7 @@ model PeriodoMatricula {
   rematriculas          RematriculaSemestral[]
   restricoesRematricula RestricaoRematriculaAluno[]
   historicosRestricao   RestricaoRematriculaHistorico[]
-  turmasParticipantes PeriodoMatriculaTurma[]
+  turmasParticipantes   PeriodoMatriculaTurma[]
 
   @@index([instituicaoId])
   @@index([cursoId])
@@ -2461,9 +2466,9 @@ model PeriodoMatricula {
 model PeriodoMatriculaTurma {
   id Int @id @default(autoincrement())
 
-  instituicaoId       Int
-  periodoMatriculaId  Int
-  turmaId             Int
+  instituicaoId      Int
+  periodoMatriculaId Int
+  turmaId            Int
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -7446,6 +7451,55 @@ model BibliotecaRecomendacaoDestino {
   @@index([disciplinaId])
 }
 
+model StudentSuccessIntervencao {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+  alunoId       Int
+
+  criadoPorId Int?
+
+  tipo   TipoIntervencaoStudentSuccess
+  canal  CanalIntervencaoStudentSuccess
+  status StatusIntervencaoStudentSuccess @default(REGISTRADA)
+
+  observacao String @db.Text
+
+  retornoEm DateTime?
+  resultado String?   @db.Text
+
+  // Fotografia da análise no momento
+  // em que a intervenção foi registrada.
+  //
+  // Isso permitirá medir posteriormente
+  // se houve evolução acadêmica.
+  nivelRiscoNoRegistro     String
+  pontuacaoNoRegistro      Int?
+  coberturaNoRegistro      Int
+  confiabilidadeNoRegistro String
+
+  fatoresNoRegistro Json?
+
+  criadoEm     DateTime  @default(now())
+  atualizadoEm DateTime  @updatedAt
+  concluidoEm  DateTime?
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  aluno Aluno @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+
+  criadoPor User? @relation("StudentSuccessIntervencaoCriadaPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+
+  @@index([instituicaoId])
+  @@index([alunoId])
+  @@index([criadoPorId])
+  @@index([status])
+  @@index([tipo])
+  @@index([canal])
+  @@index([retornoEm])
+  @@index([criadoEm])
+  @@index([instituicaoId, alunoId, criadoEm])
+}
+
 enum ModalidadeCertificado {
   GERAL
   BACHARELADO
@@ -8529,4 +8583,31 @@ enum StatusProcessamentoWebhookAsaas {
   PROCESSANDO
   PROCESSADO
   ERRO
+}
+
+enum TipoIntervencaoStudentSuccess {
+  CONTATO
+  ORIENTACAO
+  REUNIAO
+  ENCAMINHAMENTO
+  ACOMPANHAMENTO
+  OUTRO
+}
+
+enum CanalIntervencaoStudentSuccess {
+  WHATSAPP
+  LIGACAO
+  EMAIL
+  PRESENCIAL
+  VIDEOCHAMADA
+  SISTEMA
+  OUTRO
+}
+
+enum StatusIntervencaoStudentSuccess {
+  REGISTRADA
+  AGUARDANDO_RETORNO
+  EM_ACOMPANHAMENTO
+  RESOLVIDA
+  CANCELADA
 }
