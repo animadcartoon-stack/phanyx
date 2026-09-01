@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 type Item = {
@@ -54,8 +60,24 @@ export default function AuditoriaPage() {
   const [dados, setDados] = useState<Item[]>([]);
   const [busca, setBusca] = useState("");
   const [status, setStatus] = useState("");
+  const [seletorStatusAberto, setSeletorStatusAberto] = useState(false);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
+  const seletorStatusRef = useRef<HTMLDivElement>(null);
+
+  const opcoesStatus = useMemo(
+    () => [
+      { valor: "", texto: t("filters.all") },
+      { valor: "valido", texto: t("filters.valid") },
+      { valor: "invalido", texto: t("filters.invalid") },
+      { valor: "suspeito", texto: t("filters.suspicious") },
+    ],
+    [t]
+  );
+
+  const textoStatusSelecionado =
+    opcoesStatus.find((opcao) => opcao.valor === status)?.texto ||
+    t("filters.all");
 
   const formatadorData = useMemo(
     () =>
@@ -125,6 +147,31 @@ export default function AuditoriaPage() {
 
     return () => controller.abort();
   }, [carregar]);
+
+  useEffect(() => {
+    if (!seletorStatusAberto) return;
+
+    function fecharAoClicarFora(event: MouseEvent) {
+      if (
+        seletorStatusRef.current &&
+        !seletorStatusRef.current.contains(event.target as Node)
+      ) {
+        setSeletorStatusAberto(false);
+      }
+    }
+
+    function fecharComEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") setSeletorStatusAberto(false);
+    }
+
+    document.addEventListener("mousedown", fecharAoClicarFora);
+    document.addEventListener("keydown", fecharComEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", fecharAoClicarFora);
+      document.removeEventListener("keydown", fecharComEscape);
+    };
+  }, [seletorStatusAberto]);
 
   function formatarData(valor: string) {
     const data = new Date(valor);
@@ -209,21 +256,61 @@ export default function AuditoriaPage() {
               />
             </label>
 
-            <label className="block">
+            <div ref={seletorStatusRef} className="relative block">
               <span className="audit-label mb-2 block text-sm font-semibold">
                 {t("filters.statusLabel")}
               </span>
-              <select
-                className="audit-control h-11 w-full rounded-xl border px-3 text-sm outline-none transition focus:ring-2"
-                value={status}
-                onChange={(event) => setStatus(event.target.value)}
+
+              <button
+                type="button"
+                aria-haspopup="listbox"
+                aria-expanded={seletorStatusAberto}
+                className="audit-control audit-select-trigger flex h-11 w-full items-center justify-between rounded-xl border px-3 text-left text-sm outline-none transition focus:ring-2"
+                onClick={() =>
+                  setSeletorStatusAberto((estadoAtual) => !estadoAtual)
+                }
               >
-                <option value="">{t("filters.all")}</option>
-                <option value="valido">{t("filters.valid")}</option>
-                <option value="invalido">{t("filters.invalid")}</option>
-                <option value="suspeito">{t("filters.suspicious")}</option>
-              </select>
-            </label>
+                <span>{textoStatusSelecionado}</span>
+                <span
+                  aria-hidden="true"
+                  className={`audit-select-arrow transition-transform ${
+                    seletorStatusAberto ? "rotate-180" : ""
+                  }`}
+                >
+                  ▾
+                </span>
+              </button>
+
+              {seletorStatusAberto ? (
+                <div
+                  role="listbox"
+                  aria-label={t("filters.statusLabel")}
+                  className="audit-select-menu absolute left-0 right-0 z-30 mt-2 overflow-hidden rounded-xl border p-1 shadow-xl"
+                >
+                  {opcoesStatus.map((opcao) => {
+                    const selecionada = status === opcao.valor;
+
+                    return (
+                      <button
+                        key={opcao.valor || "todos"}
+                        type="button"
+                        role="option"
+                        aria-selected={selecionada}
+                        className={`audit-select-option w-full rounded-lg px-3 py-2 text-left text-sm transition ${
+                          selecionada ? "is-selected" : ""
+                        }`}
+                        onClick={() => {
+                          setStatus(opcao.valor);
+                          setSeletorStatusAberto(false);
+                        }}
+                      >
+                        {opcao.texto}
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : null}
+            </div>
 
             <button
               type="button"
@@ -394,6 +481,31 @@ export default function AuditoriaPage() {
           --tw-ring-color: rgba(37, 99, 235, 0.25);
         }
 
+        .phanyx-auditoria-validacoes-page .audit-select-arrow {
+          color: #475569;
+          -webkit-text-fill-color: #475569;
+        }
+
+        .phanyx-auditoria-validacoes-page .audit-select-menu {
+          background: #ffffff;
+          border-color: #cbd5e1;
+        }
+
+        .phanyx-auditoria-validacoes-page .audit-select-option {
+          background: #ffffff;
+          color: #0f172a;
+          -webkit-text-fill-color: #0f172a;
+        }
+
+        .phanyx-auditoria-validacoes-page .audit-select-option:hover,
+        .phanyx-auditoria-validacoes-page .audit-select-option:focus-visible,
+        .phanyx-auditoria-validacoes-page .audit-select-option.is-selected {
+          background: #e2e8f0;
+          color: #0f172a;
+          -webkit-text-fill-color: #0f172a;
+          outline: none;
+        }
+
         .phanyx-auditoria-validacoes-page .audit-button {
           background: #2563eb;
           color: #ffffff;
@@ -515,6 +627,30 @@ export default function AuditoriaPage() {
           -webkit-text-fill-color: #94a3b8;
         }
 
+        html[data-theme="dark"] .phanyx-auditoria-validacoes-page .audit-select-arrow {
+          color: #cbd5e1;
+          -webkit-text-fill-color: #cbd5e1;
+        }
+
+        html[data-theme="dark"] .phanyx-auditoria-validacoes-page .audit-select-menu {
+          background: #111c30;
+          border-color: #475569;
+        }
+
+        html[data-theme="dark"] .phanyx-auditoria-validacoes-page .audit-select-option {
+          background: #111c30;
+          color: #f8fafc;
+          -webkit-text-fill-color: #f8fafc;
+        }
+
+        html[data-theme="dark"] .phanyx-auditoria-validacoes-page .audit-select-option:hover,
+        html[data-theme="dark"] .phanyx-auditoria-validacoes-page .audit-select-option:focus-visible,
+        html[data-theme="dark"] .phanyx-auditoria-validacoes-page .audit-select-option.is-selected {
+          background: #334155;
+          color: #ffffff;
+          -webkit-text-fill-color: #ffffff;
+        }
+
         html[data-theme="dark"] .phanyx-auditoria-validacoes-page .audit-table-head {
           background: #162033;
           color: #e2e8f0;
@@ -599,6 +735,30 @@ export default function AuditoriaPage() {
         html[data-theme="system"] .phanyx-auditoria-validacoes-page .audit-control::placeholder {
           color: #d1d5db;
           -webkit-text-fill-color: #d1d5db;
+        }
+
+        html[data-theme="system"] .phanyx-auditoria-validacoes-page .audit-select-arrow {
+          color: #e5e7eb;
+          -webkit-text-fill-color: #e5e7eb;
+        }
+
+        html[data-theme="system"] .phanyx-auditoria-validacoes-page .audit-select-menu {
+          background: #353535;
+          border-color: #666666;
+        }
+
+        html[data-theme="system"] .phanyx-auditoria-validacoes-page .audit-select-option {
+          background: #353535;
+          color: #ffffff;
+          -webkit-text-fill-color: #ffffff;
+        }
+
+        html[data-theme="system"] .phanyx-auditoria-validacoes-page .audit-select-option:hover,
+        html[data-theme="system"] .phanyx-auditoria-validacoes-page .audit-select-option:focus-visible,
+        html[data-theme="system"] .phanyx-auditoria-validacoes-page .audit-select-option.is-selected {
+          background: #525252;
+          color: #ffffff;
+          -webkit-text-fill-color: #ffffff;
         }
 
         html[data-theme="system"] .phanyx-auditoria-validacoes-page .audit-table-head {
