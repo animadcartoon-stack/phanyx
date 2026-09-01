@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 type TipoPessoa = "ALUNO" | "PROFESSOR" | "FUNCIONARIO";
 
@@ -35,21 +36,6 @@ type InstituicaoAniversariantes = {
   whatsapp: string;
 };
 
-const meses = [
-  { valor: "1", nome: "Janeiro" },
-  { valor: "2", nome: "Fevereiro" },
-  { valor: "3", nome: "Março" },
-  { valor: "4", nome: "Abril" },
-  { valor: "5", nome: "Maio" },
-  { valor: "6", nome: "Junho" },
-  { valor: "7", nome: "Julho" },
-  { valor: "8", nome: "Agosto" },
-  { valor: "9", nome: "Setembro" },
-  { valor: "10", nome: "Outubro" },
-  { valor: "11", nome: "Novembro" },
-  { valor: "12", nome: "Dezembro" },
-];
-
 function classeTipo(tipo: TipoPessoa) {
   if (tipo === "ALUNO") {
     return "bg-blue-50 text-blue-700 ring-blue-200 dark:bg-blue-950/40 dark:text-blue-200 dark:ring-blue-800";
@@ -64,10 +50,6 @@ function classeTipo(tipo: TipoPessoa) {
 
 function classeStatus(status: string) {
   const normalizado = status.toLowerCase();
-
-  if (normalizado.includes("ativo")) {
-    return "bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-200 dark:ring-emerald-800";
-  }
 
   if (
     normalizado.includes("cancel") ||
@@ -85,17 +67,29 @@ function classeStatus(status: string) {
     return "bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-950/40 dark:text-amber-200 dark:ring-amber-800";
   }
 
+  if (normalizado.includes("ativo")) {
+    return "bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-200 dark:ring-emerald-800";
+  }
+
   return "bg-slate-50 text-slate-700 ring-slate-200 dark:bg-slate-900 dark:text-slate-200 dark:ring-slate-700";
 }
 
-function nomeTipo(tipo: TipoPessoa) {
-  if (tipo === "ALUNO") return "Aluno";
-  if (tipo === "PROFESSOR") return "Professor";
-  return "Funcionário";
-}
-
 export default function AdminAniversariantesPage() {
+  const locale = useLocale();
+  const t = useTranslations("AdminBirthdays");
   const mesAtual = String(new Date().getMonth() + 1);
+
+  const meses = useMemo(
+    () =>
+      Array.from({ length: 12 }, (_, indice) => ({
+        valor: String(indice + 1),
+        nome: new Intl.DateTimeFormat(locale, {
+          month: "long",
+          timeZone: "UTC",
+        }).format(new Date(Date.UTC(2026, indice, 1))),
+      })),
+    [locale]
+  );
 
   const [mes, setMes] = useState(mesAtual);
   const [tipo, setTipo] = useState("TODOS");
@@ -120,11 +114,9 @@ export default function AdminAniversariantesPage() {
   const [enviandoMensagem, setEnviandoMensagem] = useState(false);
   const [sucesso, setSucesso] = useState("");
 
-  const TITULO_ANIVERSARIO_PADRAO =
-    "Feliz aniversário, {{primeiroNome}}!";
+  const TITULO_ANIVERSARIO_PADRAO = t("messageDefaults.title");
 
-  const MENSAGEM_ANIVERSARIO_PADRAO =
-    "Olá, {{primeiroNome}}! Hoje é uma data especial: {{dataAniversario}}.\n\nA equipe da instituição deseja a você um feliz aniversário, com muita saúde, alegria e bênçãos.\n\nReceba nosso carinho neste dia tão importante!";
+  const MENSAGEM_ANIVERSARIO_PADRAO = t("messageDefaults.body");
 
   const [tituloMensagem, setTituloMensagem] = useState(
     TITULO_ANIVERSARIO_PADRAO
@@ -147,12 +139,41 @@ export default function AdminAniversariantesPage() {
     return String(nome || "").trim().split(" ")[0] || "";
   }
 
+  function nomeTipo(tipoPessoa: TipoPessoa) {
+    if (tipoPessoa === "ALUNO") return t("personTypes.student");
+    if (tipoPessoa === "PROFESSOR") return t("personTypes.teacher");
+    return t("personTypes.employee");
+  }
+
+  function nomeStatus(statusPessoa: string) {
+    const chave = String(statusPessoa || "").toUpperCase();
+
+    const traducoes: Record<string, string> = {
+      ATIVO: t("statuses.active"),
+      INATIVO: t("statuses.inactive"),
+      CANCELADO: t("statuses.cancelled"),
+      AFASTADO: t("statuses.onLeave"),
+      ATESTADO: t("statuses.medicalLeave"),
+      SUSPENSO: t("statuses.suspended"),
+    };
+
+    return traducoes[chave] || statusPessoa;
+  }
+
+  function formatarDataAniversario(item: Aniversariante) {
+    return new Intl.DateTimeFormat(locale, {
+      day: "2-digit",
+      month: "2-digit",
+      timeZone: "UTC",
+    }).format(new Date(Date.UTC(2026, item.mes - 1, item.dia)));
+  }
+
   function aplicarTags(texto: string, item: Aniversariante) {
     return String(texto || "")
       .replaceAll("{{nome}}", item.nome || "")
       .replaceAll("{{primeiroNome}}", primeiroNome(item.nome))
-      .replaceAll("{{instituicao}}", instituicao?.nome || "instituição")
-      .replaceAll("{{dataAniversario}}", item.dataAniversario || "")
+      .replaceAll("{{instituicao}}", instituicao?.nome || t("fallback.institution"))
+      .replaceAll("{{dataAniversario}}", formatarDataAniversario(item))
       .replaceAll("{{dia}}", String(item.dia || ""))
       .replaceAll("{{mes}}", String(item.mes || ""))
       .replaceAll("{{tipoPessoa}}", nomeTipo(item.tipo))
@@ -182,7 +203,7 @@ export default function AdminAniversariantesPage() {
       setSucesso("");
 
       if (aniversariantesSelecionados.length === 0) {
-        setErro("Selecione pelo menos um aniversariante.");
+        setErro(t("feedback.selectAtLeastOne"));
         return;
       }
 
@@ -212,14 +233,14 @@ export default function AdminAniversariantesPage() {
       const json = await resposta.json();
 
       if (!resposta.ok) {
-        throw new Error(json.error || "Erro ao enviar mensagem.");
+        throw new Error(json.error || t("feedback.sendError"));
       }
 
-      setSucesso(`Mensagem enviada para ${json.total} aniversariante(s).`);
+      setSucesso(t("feedback.sent", { count: json.total }));
       setModalMensagemAberto(false);
     } catch (error: any) {
       console.error(error);
-      setErro(error.message || "Erro ao enviar mensagem.");
+      setErro(error.message || t("feedback.sendError"));
     } finally {
       setEnviandoMensagem(false);
     }
@@ -252,7 +273,7 @@ export default function AdminAniversariantesPage() {
       const json = await resposta.json();
 
       if (!resposta.ok) {
-        throw new Error(json.error || "Erro ao carregar aniversariantes.");
+        throw new Error(json.error || t("feedback.loadError"));
       }
 
       setAniversariantes(json.aniversariantes || []);
@@ -261,7 +282,7 @@ export default function AdminAniversariantesPage() {
       setSelecionados([]);
     } catch (error: any) {
       console.error(error);
-      setErro(error.message || "Erro ao carregar aniversariantes.");
+      setErro(error.message || t("feedback.loadError"));
     } finally {
       setCarregando(false);
     }
@@ -304,8 +325,8 @@ export default function AdminAniversariantesPage() {
       if (!resposta.ok) {
         let mensagem =
           formato === "pdf"
-            ? "Erro ao gerar PDF."
-            : "Erro ao gerar Excel.";
+            ? t("feedback.pdfError")
+            : t("feedback.excelError");
 
         try {
           const json = await resposta.json();
@@ -322,8 +343,8 @@ export default function AdminAniversariantesPage() {
       link.href = url;
       link.download =
         formato === "pdf"
-          ? `aniversariantes-mes-${mes}.pdf`
-          : `aniversariantes-mes-${mes}.xls`;
+          ? `${t("reports.fileBase", { month: mes })}.pdf`
+          : `${t("reports.fileBase", { month: mes })}.xls`;
 
       document.body.appendChild(link);
       link.click();
@@ -332,7 +353,7 @@ export default function AdminAniversariantesPage() {
       window.URL.revokeObjectURL(url);
     } catch (error: any) {
       console.error(error);
-      setErro(error.message || "Erro ao baixar relatório.");
+      setErro(error.message || t("feedback.downloadError"));
     }
   }
 
@@ -380,22 +401,20 @@ export default function AdminAniversariantesPage() {
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <p className="text-sm font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">
-                Administração
+                {t("hero.eyebrow")}
               </p>
 
               <h1 className="mt-1 text-2xl font-bold text-slate-950 dark:text-white">
-                Aniversariantes
+                {t("hero.title")}
               </h1>
 
               <p className="mt-2 max-w-3xl text-sm text-slate-600 dark:text-slate-300">
-                Consulte aniversariantes por mês, perfil, status, WhatsApp e
-                departamento. A lista é gerada automaticamente pelos cadastros
-                de alunos, professores e funcionários.
+                {t("hero.description")}
               </p>
             </div>
 
             <div className="rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-900 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-100">
-              <p className="font-semibold">Selecionados</p>
+              <p className="font-semibold">{t("hero.selected")}</p>
               <p className="text-2xl font-bold">{selecionados.length}</p>
             </div>
           </div>
@@ -405,7 +424,7 @@ export default function AdminAniversariantesPage() {
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
             <label className="space-y-1">
               <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">
-                Mês
+                {t("filters.month")}
               </span>
               <select
                 value={mes}
@@ -422,64 +441,64 @@ export default function AdminAniversariantesPage() {
 
             <label className="space-y-1">
               <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">
-                Tipo
+                {t("filters.type")}
               </span>
               <select
                 value={tipo}
                 onChange={(e) => setTipo(e.target.value)}
                 className="phanyx-aniversariantes-campo w-full rounded-xl px-3 py-2 text-sm outline-none"
               >
-                <option value="TODOS">Todos</option>
-                <option value="ALUNO">Alunos</option>
-                <option value="PROFESSOR">Professores</option>
-                <option value="FUNCIONARIO">Funcionários</option>
+                <option value="TODOS">{t("common.all")}</option>
+                <option value="ALUNO">{t("personTypes.students")}</option>
+                <option value="PROFESSOR">{t("personTypes.teachers")}</option>
+                <option value="FUNCIONARIO">{t("personTypes.employees")}</option>
               </select>
             </label>
 
             <label className="space-y-1">
               <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">
-                Status
+                {t("filters.status")}
               </span>
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
                 className="phanyx-aniversariantes-campo w-full rounded-xl px-3 py-2 text-sm outline-none"
               >
-                <option value="TODOS">Todos</option>
-                <option value="ATIVO">Ativo</option>
-                <option value="INATIVO">Inativo</option>
-                <option value="CANCELADO">Cancelado</option>
-                <option value="AFASTADO">Afastado</option>
-                <option value="ATESTADO">Atestado médico</option>
-                <option value="SUSPENSO">Suspenso</option>
+                <option value="TODOS">{t("common.all")}</option>
+                <option value="ATIVO">{t("statuses.active")}</option>
+                <option value="INATIVO">{t("statuses.inactive")}</option>
+                <option value="CANCELADO">{t("statuses.cancelled")}</option>
+                <option value="AFASTADO">{t("statuses.onLeave")}</option>
+                <option value="ATESTADO">{t("statuses.medicalLeave")}</option>
+                <option value="SUSPENSO">{t("statuses.suspended")}</option>
               </select>
             </label>
 
             <label className="space-y-1">
               <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">
-                WhatsApp
+                {t("filters.whatsapp")}
               </span>
               <select
                 value={whatsapp}
                 onChange={(e) => setWhatsapp(e.target.value)}
                 className="phanyx-aniversariantes-campo w-full rounded-xl px-3 py-2 text-sm outline-none"
               >
-                <option value="TODOS">Todos</option>
-                <option value="COM">Com WhatsApp</option>
-                <option value="SEM">Sem WhatsApp</option>
+                <option value="TODOS">{t("common.all")}</option>
+                <option value="COM">{t("filters.withWhatsapp")}</option>
+                <option value="SEM">{t("filters.withoutWhatsapp")}</option>
               </select>
             </label>
 
             <label className="space-y-1">
               <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">
-                Departamento
+                {t("filters.department")}
               </span>
               <select
                 value={departamentoId}
                 onChange={(e) => setDepartamentoId(e.target.value)}
                 className="phanyx-aniversariantes-campo w-full rounded-xl px-3 py-2 text-sm outline-none"
               >
-                <option value="TODOS">Todos</option>
+                <option value="TODOS">{t("common.all")}</option>
                 {departamentos.map((departamento) => (
                   <option key={departamento.id} value={departamento.id}>
                     {departamento.nome}
@@ -490,12 +509,12 @@ export default function AdminAniversariantesPage() {
 
             <label className="space-y-1">
               <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">
-                Buscar
+                {t("filters.search")}
               </span>
               <input
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
-                placeholder="Nome..."
+                placeholder={t("filters.searchPlaceholder")}
                 className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:ring-blue-900"
               />
             </label>
@@ -518,12 +537,14 @@ export default function AdminAniversariantesPage() {
           <div className="flex flex-col gap-3 border-b border-slate-200 p-5 dark:border-slate-800 md:flex-row md:items-center md:justify-between">
             <div>
               <h2 className="text-lg font-bold text-slate-950 dark:text-white">
-                Lista de aniversariantes
+                {t("list.title")}
               </h2>
               <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
                 {carregando
-                  ? "Carregando..."
-                  : `${aniversariantes.length} registro(s) encontrado(s).`}
+                  ? t("common.loading")
+                  : t("list.recordsFound", {
+                      count: aniversariantes.length,
+                    })}
               </p>
             </div>
 
@@ -534,7 +555,7 @@ export default function AdminAniversariantesPage() {
                 disabled={carregando}
                 className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-pdf"
               >
-                📄 Baixar PDF
+                📄 {t("reports.downloadPdf")}
               </button>
 
               <button
@@ -543,7 +564,7 @@ export default function AdminAniversariantesPage() {
                 disabled={carregando}
                 className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-excel"
               >
-                📊 Baixar Excel
+                📊 {t("reports.downloadExcel")}
               </button>
 
               <button
@@ -551,7 +572,7 @@ export default function AdminAniversariantesPage() {
                 onClick={() => setModalMensagemAberto(true)}
                 className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-mensagem"
               >
-                Enviar mensagem
+                {t("actions.sendMessage")}
               </button>
 
               <button
@@ -559,7 +580,7 @@ export default function AdminAniversariantesPage() {
                 onClick={() => setModalWhatsappAberto(true)}
                 className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-whatsapp"
               >
-                Gerar links WhatsApp
+                {t("actions.generateWhatsappLinks")}
               </button>
             </div>
           </div>
@@ -577,22 +598,22 @@ export default function AdminAniversariantesPage() {
                     />
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-                    Nome
+                    {t("table.name")}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-                    Tipo
+                    {t("table.type")}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-                    Aniversário
+                    {t("table.birthday")}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-                    Departamento / Contexto
+                    {t("table.departmentContext")}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-                    WhatsApp
+                    {t("table.whatsapp")}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-                    Status
+                    {t("table.status")}
                   </th>
                 </tr>
               </thead>
@@ -604,7 +625,7 @@ export default function AdminAniversariantesPage() {
                       colSpan={7}
                       className="px-4 py-8 text-center text-sm text-slate-600 dark:text-slate-300"
                     >
-                      Carregando aniversariantes...
+                      {t("list.loadingBirthdays")}
                     </td>
                   </tr>
                 )}
@@ -615,8 +636,7 @@ export default function AdminAniversariantesPage() {
                       colSpan={7}
                       className="px-4 py-8 text-center text-sm text-slate-600 dark:text-slate-300"
                     >
-                      Nenhum aniversariante encontrado para os filtros
-                      selecionados.
+                      {t("list.empty")}
                     </td>
                   </tr>
                 )}
@@ -656,7 +676,10 @@ export default function AdminAniversariantesPage() {
                               {item.nome}
                             </p>
                             <p className="text-xs text-slate-500 dark:text-slate-400">
-                              ID {item.id} · Usuário {item.userId}
+                              {t("table.identifiers", {
+                                id: item.id,
+                                userId: item.userId,
+                              })}
                             </p>
                           </div>
                         </div>
@@ -674,7 +697,7 @@ export default function AdminAniversariantesPage() {
 
                       <td className="px-4 py-4 align-middle">
                         <span className="phanyx-aniversariante-data">
-                          {item.dataAniversario}
+                          {formatarDataAniversario(item)}
                         </span>
                       </td>
 
@@ -692,13 +715,13 @@ export default function AdminAniversariantesPage() {
                             </p>
                             <p className="text-xs text-slate-500 dark:text-slate-400">
                               {item.temWhatsapp
-                                ? "Possui número"
-                                : "Número incompleto"}
+                                ? t("table.hasNumber")
+                                : t("table.incompleteNumber")}
                             </p>
                           </div>
                         ) : (
                           <span className="text-sm text-slate-500 dark:text-slate-400">
-                            Sem telefone
+                            {t("table.noPhone")}
                           </span>
                         )}
                       </td>
@@ -709,7 +732,7 @@ export default function AdminAniversariantesPage() {
                             item.status
                           )}`}
                         >
-                          {item.status}
+                          {nomeStatus(item.status)}
                         </span>
                       </td>
                     </tr>
@@ -724,10 +747,9 @@ export default function AdminAniversariantesPage() {
           <div className="phanyx-aniversariantes-modal w-full max-w-2xl rounded-3xl border p-6 shadow-2xl">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h2>Enviar mensagem</h2>
+                <h2>{t("messageModal.title")}</h2>
                 <p>
-                  A mensagem será enviada no login individual dos aniversariantes
-                  selecionados.
+                  {t("messageModal.description")}
                 </p>
               </div>
 
@@ -735,6 +757,7 @@ export default function AdminAniversariantesPage() {
                 type="button"
                 onClick={() => setModalMensagemAberto(false)}
                 className="phanyx-aniversariantes-modal-fechar"
+                aria-label={t("common.close")}
               >
                 ×
               </button>
@@ -742,7 +765,7 @@ export default function AdminAniversariantesPage() {
 
             <div className="mt-5 space-y-4">
               <label className="block">
-                <span>Título</span>
+                <span>{t("messageModal.subject")}</span>
                 <input
                   value={tituloMensagem}
                   onChange={(e) => setTituloMensagem(e.target.value)}
@@ -751,7 +774,7 @@ export default function AdminAniversariantesPage() {
               </label>
 
               <label className="block">
-                <span>Mensagem</span>
+                <span>{t("messageModal.message")}</span>
                 <textarea
                   value={textoMensagem}
                   onChange={(e) => setTextoMensagem(e.target.value)}
@@ -761,7 +784,7 @@ export default function AdminAniversariantesPage() {
               </label>
 
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
-                <strong>Tags disponíveis:</strong>{" "}
+                <strong>{t("messageModal.availableTags")}:</strong>{" "}
                 {"{{nome}}, {{primeiroNome}}, {{instituicao}}, {{dataAniversario}}, {{dia}}, {{mes}}, {{tipoPessoa}}, {{departamento}}, {{contexto}}, {{status}}"}
               </div>
 
@@ -773,17 +796,21 @@ export default function AdminAniversariantesPage() {
                 }}
                 className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-secundario"
               >
-                Restaurar mensagem padrão
+                {t("messageModal.restoreDefault")}
               </button>
 
               <div className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-950">
                 <p className="text-sm font-bold">
-                  Selecionados: {aniversariantesSelecionados.length}
+                  {t("messageModal.selectedCount", {
+                    count: aniversariantesSelecionados.length,
+                  })}
                 </p>
 
                 {aniversariantesSelecionados[0] && (
                   <div className="mt-2 text-sm">
-                    <p className="font-semibold">Prévia:</p>
+                    <p className="font-semibold">
+                      {t("messageModal.preview")}:
+                    </p>
                     <p className="mt-1">
                       {aplicarTags(textoMensagem, aniversariantesSelecionados[0])}
                     </p>
@@ -798,7 +825,7 @@ export default function AdminAniversariantesPage() {
                 onClick={() => setModalMensagemAberto(false)}
                 className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-secundario"
               >
-                Cancelar
+                {t("common.cancel")}
               </button>
 
               <button
@@ -807,7 +834,9 @@ export default function AdminAniversariantesPage() {
                 disabled={enviandoMensagem}
                 className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-mensagem"
               >
-                {enviandoMensagem ? "Enviando..." : "Enviar agora"}
+                {enviandoMensagem
+                  ? t("common.sending")
+                  : t("messageModal.sendNow")}
               </button>
             </div>
           </div>
@@ -819,27 +848,23 @@ export default function AdminAniversariantesPage() {
           <div className="phanyx-aniversariantes-modal w-full max-w-3xl rounded-3xl border p-6 shadow-2xl">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h2>Gerar links WhatsApp</h2>
+                <h2>{t("whatsappModal.title")}</h2>
                 <p>
-                  O PHANYX gera links personalizados de WhatsApp com a mensagem já preenchida.
-                  Nesta etapa, o envio ainda precisa ser confirmado manualmente no WhatsApp.
+                  {t("whatsappModal.description")}
                 </p>
 
                 <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-900 dark:border-amber-900/70 dark:bg-amber-950/40 dark:text-amber-100">
                   <p>
-                    Número institucional cadastrado:{" "}
-                    {instituicao?.telefone || "não informado"}
+                    {t("whatsappModal.institutionalNumber")}: {" "}
+                    {instituicao?.telefone || t("fallback.notInformed")}
                   </p>
 
                   <p className="mt-2 font-medium">
-                    Atenção: estes links serão enviados pelo WhatsApp que estiver conectado
-                    neste computador ou celular. Para sair pelo número institucional, o
-                    WhatsApp Web precisa estar conectado ao número da instituição.
+                    {t("whatsappModal.connectedDeviceWarning")}
                   </p>
 
                   <p className="mt-2 font-medium">
-                    O envio automático em massa será liberado futuramente por integração
-                    oficial de WhatsApp da própria instituição.
+                    {t("whatsappModal.futureIntegration")}
                   </p>
                 </div>
 
@@ -849,6 +874,7 @@ export default function AdminAniversariantesPage() {
                 type="button"
                 onClick={() => setModalWhatsappAberto(false)}
                 className="phanyx-aniversariantes-modal-fechar"
+                aria-label={t("common.close")}
               >
                 ×
               </button>
@@ -857,7 +883,7 @@ export default function AdminAniversariantesPage() {
             <div className="mt-5 max-h-[420px] space-y-3 overflow-y-auto pr-1">
               {aniversariantesSelecionados.length === 0 && (
                 <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-800 dark:border-amber-900/70 dark:bg-amber-950/40 dark:text-amber-100">
-                  Selecione pelo menos um aniversariante.
+                  {t("feedback.selectAtLeastOne")}
                 </div>
               )}
 
@@ -873,7 +899,7 @@ export default function AdminAniversariantesPage() {
                       <div>
                         <p className="font-bold">{item.nome}</p>
                         <p className="text-sm text-slate-500 dark:text-slate-400">
-                          {item.telefone || "Sem telefone cadastrado"}
+                          {item.telefone || t("table.noRegisteredPhone")}
                         </p>
                       </div>
 
@@ -884,11 +910,11 @@ export default function AdminAniversariantesPage() {
                           rel="noreferrer"
                           className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-whatsapp"
                         >
-                          Abrir WhatsApp
+                          {t("whatsappModal.openWhatsapp")}
                         </a>
                       ) : (
                         <span className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-bold text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-100">
-                          Sem número válido
+                          {t("whatsappModal.invalidNumber")}
                         </span>
                       )}
                     </div>
@@ -907,7 +933,7 @@ export default function AdminAniversariantesPage() {
                 onClick={() => setModalWhatsappAberto(false)}
                 className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-secundario"
               >
-                Fechar
+                {t("common.close")}
               </button>
             </div>
           </div>

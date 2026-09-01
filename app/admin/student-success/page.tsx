@@ -23,6 +23,10 @@ type Confiabilidade =
   | "MEDIA"
   | "ALTA";
 
+type FiltroNivel =
+  | "TODOS"
+  | NivelRisco;
+
 type ComponenteAnalise = {
   codigo:
   | "FREQUENCIA"
@@ -46,6 +50,42 @@ type AlunoStudentSuccess = {
   matricula:
   | string
   | null;
+
+  contato: {
+    telefone:
+    | string
+    | null;
+
+    paisTelefone:
+    | string
+    | null;
+
+    email:
+    | string
+    | null;
+
+    responsavel: {
+      nome:
+      | string
+      | null;
+
+      parentesco:
+      | string
+      | null;
+
+      telefone:
+      | string
+      | null;
+
+      paisTelefone:
+      | string
+      | null;
+
+      email:
+      | string
+      | null;
+    };
+  };
 
   indicadores: {
     frequenciaPercentual:
@@ -281,6 +321,20 @@ export default function AdminStudentSuccessPage() {
       false
     );
 
+  const [
+    busca,
+    setBusca,
+  ] =
+    useState("");
+
+  const [
+    filtroNivel,
+    setFiltroNivel,
+  ] =
+    useState<FiltroNivel>(
+      "TODOS"
+    );
+
   const carregarDados =
     useCallback(
       async () => {
@@ -334,7 +388,7 @@ export default function AdminStudentSuccessPage() {
           );
         }
         catch (
-        error
+          error
         ) {
           console.error(
             "[STUDENT_SUCCESS_PAGE]",
@@ -379,20 +433,73 @@ export default function AdminStudentSuccessPage() {
    * não possuem dados suficientes para
    * uma análise confiável.
    */
-  const alunosParaAcompanhamento =
+  const alunosFiltrados =
     useMemo(
-      () =>
-        (
+      () => {
+        const termo =
+          busca
+            .trim()
+            .toLocaleLowerCase();
+
+        return (
           dados?.alunos ??
           []
         ).filter(
-          (aluno) =>
-            aluno.analise
-              .nivel !==
-            "NORMAL"
-        ),
+          (aluno) => {
+            const correspondeNivel =
+              filtroNivel ===
+              "TODOS" ||
+              aluno.analise
+                .nivel ===
+              filtroNivel;
+
+            if (
+              !correspondeNivel
+            ) {
+              return false;
+            }
+
+            if (!termo) {
+              return true;
+            }
+
+            const nome =
+              aluno.nome
+                .toLocaleLowerCase();
+
+            const matricula =
+              (
+                aluno.matricula ??
+                ""
+              )
+                .toLocaleLowerCase();
+
+            const telefone =
+              (
+                aluno.contato
+                  ?.telefone ??
+                ""
+              )
+                .toLocaleLowerCase();
+
+            return (
+              nome.includes(
+                termo
+              ) ||
+              matricula.includes(
+                termo
+              ) ||
+              telefone.includes(
+                termo
+              )
+            );
+          }
+        );
+      },
       [
+        busca,
         dados,
+        filtroNivel,
       ]
     );
 
@@ -776,6 +883,203 @@ export default function AdminStudentSuccessPage() {
             </p>
           </div>
 
+          {!carregando &&
+            !erro ? (
+            <div
+              className="
+      border-b
+      border-slate-200
+      p-4
+      dark:border-slate-800
+      sm:p-5
+    "
+            >
+              <div
+                className="
+        flex
+        flex-col
+        gap-4
+      "
+              >
+                <div
+                  className="
+          relative
+        "
+                >
+                  <span
+                    className="
+            pointer-events-none
+            absolute
+            left-4
+            top-1/2
+            -translate-y-1/2
+            text-slate-400
+          "
+                    aria-hidden="true"
+                  >
+                    🔎
+                  </span>
+
+                  <input
+                    type="search"
+                    value={
+                      busca
+                    }
+                    onChange={
+                      (
+                        event
+                      ) =>
+                        setBusca(
+                          event
+                            .target
+                            .value
+                        )
+                    }
+                    placeholder={t(
+                      "filters.searchPlaceholder"
+                    )}
+                    className="
+            w-full
+            rounded-xl
+            border
+            border-slate-300
+            bg-white
+            py-3
+            pl-11
+            pr-4
+            text-sm
+            font-medium
+            text-slate-900
+            outline-none
+            transition
+            placeholder:text-slate-400
+            focus:border-blue-500
+            focus:ring-2
+            focus:ring-blue-500/20
+            dark:border-slate-700
+            dark:bg-slate-950
+            dark:text-white
+          "
+                  />
+                </div>
+
+                <div
+                  className="
+          flex
+          flex-wrap
+          gap-2
+        "
+                >
+                  {(
+                    [
+                      [
+                        "TODOS",
+                        t(
+                          "filters.all"
+                        ),
+                        dados?.resumo
+                          .monitorados ??
+                        0,
+                      ],
+
+                      [
+                        "CRITICO",
+                        t(
+                          "levels.CRITICO"
+                        ),
+                        dados?.resumo
+                          .critico ??
+                        0,
+                      ],
+
+                      [
+                        "RISCO",
+                        t(
+                          "levels.RISCO"
+                        ),
+                        dados?.resumo
+                          .risco ??
+                        0,
+                      ],
+
+                      [
+                        "ATENCAO",
+                        t(
+                          "levels.ATENCAO"
+                        ),
+                        dados?.resumo
+                          .atencao ??
+                        0,
+                      ],
+
+                      [
+                        "NORMAL",
+                        t(
+                          "levels.NORMAL"
+                        ),
+                        dados?.resumo
+                          .normal ??
+                        0,
+                      ],
+
+                      [
+                        "DADOS_INSUFICIENTES",
+                        t(
+                          "levels.DADOS_INSUFICIENTES"
+                        ),
+                        dados?.resumo
+                          .dadosInsuficientes ??
+                        0,
+                      ],
+                    ] as const
+                  ).map(
+                    ([
+                      valor,
+                      titulo,
+                      quantidade,
+                    ]) => (
+                      <button
+                        key={
+                          valor
+                        }
+                        type="button"
+                        onClick={
+                          () =>
+                            setFiltroNivel(
+                              valor
+                            )
+                        }
+                        className={[
+                          "rounded-full border px-4 py-2 text-sm font-semibold transition",
+
+                          filtroNivel ===
+                            valor
+                            ? "border-blue-600 bg-blue-600 text-white shadow-sm"
+                            : "border-slate-300 bg-white text-slate-700 hover:border-blue-400 hover:bg-blue-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800",
+                        ].join(
+                          " "
+                        )}
+                      >
+                        {titulo}
+
+                        <span
+                          className="
+                  ml-2
+                  opacity-80
+                "
+                        >
+                          {
+                            quantidade
+                          }
+                        </span>
+                      </button>
+                    )
+                  )}
+                </div>
+              </div>
+            </div>
+          ) : null}
+
           {carregando ? (
             <div
               className="
@@ -877,7 +1181,7 @@ export default function AdminStudentSuccessPage() {
                 </button>
               </div>
             </div>
-          ) : alunosParaAcompanhamento.length ===
+          ) : alunosFiltrados.length ===
             0 ? (
             <div
               className="
@@ -1041,7 +1345,7 @@ export default function AdminStudentSuccessPage() {
                     dark:divide-slate-800
                   "
                 >
-                  {alunosParaAcompanhamento.map(
+                  {alunosFiltrados.map(
                     (
                       aluno
                     ) => {
