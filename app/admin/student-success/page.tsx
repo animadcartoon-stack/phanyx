@@ -1206,6 +1206,7 @@ export default function AdminStudentSuccessPage() {
         {/* APOIO À DECISÃO */}
         <section
           className="
+          phanyx-student-success-disclaimer
             rounded-2xl
             border
             border-blue-200
@@ -1226,6 +1227,7 @@ export default function AdminStudentSuccessPage() {
           >
             <div
               className="
+              phanyx-student-success-disclaimer-icon
                 mt-0.5
                 flex
                 h-9
@@ -1272,8 +1274,9 @@ export default function AdminStudentSuccessPage() {
             <div>
               <h3
                 className="
-                  font-bold
-                "
+    phanyx-student-success-disclaimer-title
+    font-bold
+  "
               >
                 {t(
                   "disclaimer.title"
@@ -1282,6 +1285,7 @@ export default function AdminStudentSuccessPage() {
 
               <p
                 className="
+                phanyx-student-success-disclaimer-text
                   mt-1
                   text-sm
                   leading-6

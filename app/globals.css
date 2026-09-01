@@ -30199,3 +30199,76 @@ html[data-theme="system"]
   -webkit-text-fill-color: #cbd5e1 !important;
   opacity: 1 !important;
 }
+
+/* =========================================================
+   PHANYX STUDENT SUCCESS — APOIO À DECISÃO
+========================================================= */
+
+/* CLARO */
+
+html[data-theme="light"]
+  .phanyx-student-success-disclaimer {
+  background: #eff6ff !important;
+  border-color: #93c5fd !important;
+  color: #172554 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-disclaimer-title {
+  color: #1e3a8a !important;
+  -webkit-text-fill-color: #1e3a8a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-disclaimer-text {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-disclaimer-icon {
+  background: #dbeafe !important;
+  color: #1d4ed8 !important;
+}
+
+/* ESCURO */
+
+html[data-theme="dark"]
+  .phanyx-student-success-disclaimer {
+  background: #0f1f3d !important;
+  border-color: #1e40af !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-disclaimer-title {
+  color: #dbeafe !important;
+  -webkit-text-fill-color: #dbeafe !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-disclaimer-text {
+  color: #bfdbfe !important;
+  -webkit-text-fill-color: #bfdbfe !important;
+}
+
+/* SISTEMA */
+
+html[data-theme="system"]
+  .phanyx-student-success-disclaimer {
+  background: #292929 !important;
+  border-color: #52647d !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-disclaimer-title {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-disclaimer-text {
+  color: #d4d4d4 !important;
+  -webkit-text-fill-color: #d4d4d4 !important;
+}

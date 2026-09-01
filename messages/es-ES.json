@@ -3772,7 +3772,40 @@
                                                    "downloadErrorTitle":  "Error al descargar el certificado",
                                                    "downloadedSuccess":  "Certificado descargado correctamente.",
                                                    "downloadException":  "Error al descargar el certificado."
-                                               }
+                                               },
+                          "minorConfirmation":  {
+                                                    "attention":  "Atención",
+                                                    "incompleteGuardianTitle":  "Datos incompletos del responsable",
+                                                    "minorTitle":  "Estudiante menor de edad",
+                                                    "ageDescription":  "Este estudiante tiene {age, plural, one {# año} other {# años}} y aún no ha alcanzado la mayoría de edad.",
+                                                    "incompleteWarningTitle":  "Los datos del titular o responsable mayor de edad no fueron completados.",
+                                                    "incompleteWarningDescription":  "Vuelva y complete los datos siguientes o confirme que desea continuar de todos modos.",
+                                                    "confirmationQuestion":  "¿Está seguro de que desea registrar a este estudiante menor de edad?",
+                                                    "acknowledgement":  "Soy consciente de que el estudiante es menor de edad y asumo la responsabilidad de continuar con este registro.",
+                                                    "backAndComplete":  "Volver y completar",
+                                                    "back":  "Volver",
+                                                    "creating":  "Creando estudiante...",
+                                                    "createAnyway":  "Crear estudiante de todos modos",
+                                                    "confirmRegistration":  "Confirmar registro",
+                                                    "pendingGuardianName":  "Nombre del responsable",
+                                                    "pendingGuardianCpf":  "Identificación fiscal del responsable",
+                                                    "pendingGuardianEmail":  "Correo electrónico del responsable",
+                                                    "pendingGuardianRelationship":  "Parentesco del responsable"
+                                                },
+                          "existingStudentModal":  {
+                                                       "title":  "Estudiante ya registrado",
+                                                       "description":  "Ya existe un registro para {name}.",
+                                                       "locatedBy":  "Registro localizado por: {field}",
+                                                       "cpf":  "identificación fiscal",
+                                                       "email":  "correo electrónico",
+                                                       "currentStatus":  "Estado actual: {status}",
+                                                       "activeDescription":  "Puede utilizar este registro y continuar directamente con la matrícula, manteniendo al responsable comercial del lead.",
+                                                       "inactiveDescription":  "Este estudiante no está activo. Reactive el registro en la lista de estudiantes antes de iniciar una nueva matrícula.",
+                                                       "backToRegistration":  "Volver al registro",
+                                                       "understood":  "Entendido",
+                                                       "useAndContinue":  "Usar este estudiante y continuar",
+                                                       "alreadyRegisteredFallback":  "Este estudiante ya está registrado."
+                                                   }
                       },
     "AdminStudentSuccess":  {
                                 "title":  "Student Success",

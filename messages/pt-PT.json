@@ -3772,7 +3772,40 @@
                                                    "downloadErrorTitle":  "Erro ao descarregar certificado",
                                                    "downloadedSuccess":  "Certificado descarregado com sucesso.",
                                                    "downloadException":  "Erro ao descarregar certificado."
-                                               }
+                                               },
+                          "minorConfirmation":  {
+                                                    "attention":  "Atenção",
+                                                    "incompleteGuardianTitle":  "Dados do responsável incompletos",
+                                                    "minorTitle":  "Aluno menor de idade",
+                                                    "ageDescription":  "Este aluno tem {age, plural, one {# ano} other {# anos}} e ainda não atingiu a maioridade.",
+                                                    "incompleteWarningTitle":  "Os dados do titular/responsável maior de idade não foram completamente preenchidos.",
+                                                    "incompleteWarningDescription":  "Volte e preencha os dados abaixo ou confirme que pretende continuar mesmo assim.",
+                                                    "confirmationQuestion":  "Tem a certeza de que pretende registar este aluno menor de idade?",
+                                                    "acknowledgement":  "Estou ciente de que o aluno é menor de idade e responsabilizo-me por continuar este registo.",
+                                                    "backAndComplete":  "Voltar e preencher",
+                                                    "back":  "Voltar",
+                                                    "creating":  "A criar aluno...",
+                                                    "createAnyway":  "Criar aluno mesmo assim",
+                                                    "confirmRegistration":  "Confirmar registo",
+                                                    "pendingGuardianName":  "Nome do responsável",
+                                                    "pendingGuardianCpf":  "Identificação fiscal do responsável",
+                                                    "pendingGuardianEmail":  "E-mail do responsável",
+                                                    "pendingGuardianRelationship":  "Parentesco do responsável"
+                                                },
+                          "existingStudentModal":  {
+                                                       "title":  "Aluno já registado",
+                                                       "description":  "Já existe um registo para {name}.",
+                                                       "locatedBy":  "Registo localizado através de: {field}",
+                                                       "cpf":  "identificação fiscal",
+                                                       "email":  "e-mail",
+                                                       "currentStatus":  "Estado atual: {status}",
+                                                       "activeDescription":  "Pode utilizar este registo e continuar diretamente para a matrícula, mantendo o responsável comercial do contacto.",
+                                                       "inactiveDescription":  "Este aluno não está ativo. Reative o registo na lista de alunos antes de iniciar uma nova matrícula.",
+                                                       "backToRegistration":  "Voltar ao registo",
+                                                       "understood":  "Compreendi",
+                                                       "useAndContinue":  "Utilizar este aluno e continuar",
+                                                       "alreadyRegisteredFallback":  "Este aluno já está registado."
+                                                   }
                       },
     "AdminStudentSuccess":  {
                                 "title":  "Student Success",

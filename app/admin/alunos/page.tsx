@@ -586,13 +586,13 @@ function AdminAlunosPage() {
 
     if (!nomeResponsavel.trim()) {
       pendentes.push(
-        "Nome do responsável"
+        t("minorConfirmation.pendingGuardianName")
       );
     }
 
     if (cpfLimpo.length !== 11) {
       pendentes.push(
-        "CPF do responsável"
+        t("minorConfirmation.pendingGuardianCpf")
       );
     }
 
@@ -616,7 +616,7 @@ function AdminAlunosPage() {
       )
     ) {
       pendentes.push(
-        "E-mail do responsável"
+        t("minorConfirmation.pendingGuardianEmail")
       );
     }
 
@@ -624,7 +624,7 @@ function AdminAlunosPage() {
       !parentescoResponsavel.trim()
     ) {
       pendentes.push(
-        "Parentesco do responsável"
+        t("minorConfirmation.pendingGuardianRelationship")
       );
     }
 
@@ -4611,14 +4611,14 @@ function AdminAlunosPage() {
 
                 <div>
                   <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-700 dark:text-amber-300">
-                    Atenção
+                    {t("minorConfirmation.attention")}
                   </p>
 
                   <h2 className="mt-1 text-xl font-black text-slate-950 dark:text-white">
                     {confirmacaoMenorCadastro
                       .responsavelIncompleto
-                      ? "Dados do responsável incompletos"
-                      : "Aluno menor de idade"}
+                      ? t("minorConfirmation.incompleteGuardianTitle")
+                      : t("minorConfirmation.minorTitle")}
                   </h2>
                 </div>
               </div>
@@ -4626,16 +4626,9 @@ function AdminAlunosPage() {
 
             <div className="space-y-4 px-6 py-5 text-slate-700 dark:text-slate-200">
               <p className="text-sm leading-6">
-                Este aluno possui{" "}
-                <strong>
-                  {
-                    confirmacaoMenorCadastro
-                      .idade
-                  }{" "}
-                  ano(s)
-                </strong>{" "}
-                e ainda não atingiu a idade
-                adulta.
+                {t("minorConfirmation.ageDescription", {
+                  age: confirmacaoMenorCadastro.idade,
+                })}
               </p>
 
               {confirmacaoMenorCadastro
@@ -4643,15 +4636,11 @@ function AdminAlunosPage() {
                 <>
                   <div className="rounded-2xl border border-red-300 bg-red-50 p-4 text-sm text-red-900 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200">
                     <strong className="block">
-                      Os dados do titular/responsável
-                      maior de idade não foram
-                      preenchidos completamente.
+                      {t("minorConfirmation.incompleteWarningTitle")}
                     </strong>
 
                     <p className="mt-2">
-                      Volte e preencha os dados abaixo
-                      ou confirme que deseja prosseguir
-                      mesmo assim.
+                      {t("minorConfirmation.incompleteWarningDescription")}
                     </p>
                   </div>
 
@@ -4675,8 +4664,7 @@ function AdminAlunosPage() {
                 </>
               ) : (
                 <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
-                  Tem certeza de que deseja cadastrar
-                  este aluno menor de idade?
+                  {t("minorConfirmation.confirmationQuestion")}
                 </div>
               )}
 
@@ -4695,9 +4683,7 @@ function AdminAlunosPage() {
                 />
 
                 <span className="text-sm font-semibold leading-6">
-                  Estou ciente de que o aluno é
-                  menor de idade e me responsabilizo
-                  por prosseguir com este cadastro.
+                  {t("minorConfirmation.acknowledgement")}
                 </span>
               </label>
             </div>
@@ -4719,8 +4705,8 @@ function AdminAlunosPage() {
               >
                 {confirmacaoMenorCadastro
                   .responsavelIncompleto
-                  ? "Voltar e preencher"
-                  : "Voltar"}
+                  ? t("minorConfirmation.backAndComplete")
+                  : t("minorConfirmation.back")}
               </button>
 
               <button
@@ -4740,11 +4726,11 @@ function AdminAlunosPage() {
                   }`}
               >
                 {criando
-                  ? "Criando aluno..."
+                  ? t("minorConfirmation.creating")
                   : confirmacaoMenorCadastro
                     .responsavelIncompleto
-                    ? "Criar aluno mesmo assim"
-                    : "Confirmar cadastro"}
+                    ? t("minorConfirmation.createAnyway")
+                    : t("minorConfirmation.confirmRegistration")}
               </button>
             </div>
           </div>

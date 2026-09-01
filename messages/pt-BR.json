@@ -3772,7 +3772,40 @@
                                                    "downloadErrorTitle":  "Erro ao baixar certificado",
                                                    "downloadedSuccess":  "Certificado baixado com sucesso.",
                                                    "downloadException":  "Erro ao baixar certificado."
-                                               }
+                                               },
+                          "minorConfirmation":  {
+                                                    "attention":  "Atenção",
+                                                    "incompleteGuardianTitle":  "Dados do responsável incompletos",
+                                                    "minorTitle":  "Aluno menor de idade",
+                                                    "ageDescription":  "Este aluno possui {age, plural, one {# ano} other {# anos}} e ainda não atingiu a idade adulta.",
+                                                    "incompleteWarningTitle":  "Os dados do titular/responsável maior de idade não foram preenchidos completamente.",
+                                                    "incompleteWarningDescription":  "Volte e preencha os dados abaixo ou confirme que deseja prosseguir mesmo assim.",
+                                                    "confirmationQuestion":  "Tem certeza de que deseja cadastrar este aluno menor de idade?",
+                                                    "acknowledgement":  "Estou ciente de que o aluno é menor de idade e me responsabilizo por prosseguir com este cadastro.",
+                                                    "backAndComplete":  "Voltar e preencher",
+                                                    "back":  "Voltar",
+                                                    "creating":  "Criando aluno...",
+                                                    "createAnyway":  "Criar aluno mesmo assim",
+                                                    "confirmRegistration":  "Confirmar cadastro",
+                                                    "pendingGuardianName":  "Nome do responsável",
+                                                    "pendingGuardianCpf":  "CPF do responsável",
+                                                    "pendingGuardianEmail":  "E-mail do responsável",
+                                                    "pendingGuardianRelationship":  "Parentesco do responsável"
+                                                },
+                          "existingStudentModal":  {
+                                                       "title":  "Aluno já cadastrado",
+                                                       "description":  "Já existe um cadastro para {name}.",
+                                                       "locatedBy":  "Cadastro localizado por: {field}",
+                                                       "cpf":  "CPF",
+                                                       "email":  "e-mail",
+                                                       "currentStatus":  "Status atual: {status}",
+                                                       "activeDescription":  "Você pode aproveitar este cadastro e continuar diretamente para a matrícula, mantendo o responsável comercial do lead.",
+                                                       "inactiveDescription":  "Este aluno não está ativo. Reative o cadastro na listagem de alunos antes de iniciar uma nova matrícula.",
+                                                       "backToRegistration":  "Voltar ao cadastro",
+                                                       "understood":  "Entendi",
+                                                       "useAndContinue":  "Usar este aluno e continuar",
+                                                       "alreadyRegisteredFallback":  "Este aluno já está cadastrado."
+                                                   }
                       },
     "AdminStudentSuccess":  {
                                 "title":  "Student Success",

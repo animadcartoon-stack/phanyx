@@ -3773,7 +3773,40 @@
                                                    "downloadErrorTitle":  "Error downloading certificate",
                                                    "downloadedSuccess":  "Certificate downloaded successfully.",
                                                    "downloadException":  "Error downloading certificate."
-                                               }
+                                               },
+                          "minorConfirmation":  {
+                                                    "attention":  "Attention",
+                                                    "incompleteGuardianTitle":  "Incomplete guardian information",
+                                                    "minorTitle":  "Underage student",
+                                                    "ageDescription":  "This student is {age, plural, one {# year} other {# years}} old and has not yet reached adulthood.",
+                                                    "incompleteWarningTitle":  "The adult account holder or guardian information has not been completed.",
+                                                    "incompleteWarningDescription":  "Go back and complete the information below, or confirm that you want to continue anyway.",
+                                                    "confirmationQuestion":  "Are you sure you want to register this underage student?",
+                                                    "acknowledgement":  "I understand that the student is underage and I accept responsibility for continuing this registration.",
+                                                    "backAndComplete":  "Go back and complete",
+                                                    "back":  "Go back",
+                                                    "creating":  "Creating student...",
+                                                    "createAnyway":  "Create student anyway",
+                                                    "confirmRegistration":  "Confirm registration",
+                                                    "pendingGuardianName":  "Guardian name",
+                                                    "pendingGuardianCpf":  "Guardian tax ID",
+                                                    "pendingGuardianEmail":  "Guardian email",
+                                                    "pendingGuardianRelationship":  "Guardian relationship"
+                                                },
+                          "existingStudentModal":  {
+                                                       "title":  "Student already registered",
+                                                       "description":  "A registration already exists for {name}.",
+                                                       "locatedBy":  "Registration found by: {field}",
+                                                       "cpf":  "tax ID",
+                                                       "email":  "email",
+                                                       "currentStatus":  "Current status: {status}",
+                                                       "activeDescription":  "You can use this registration and proceed directly to enrollment while keeping the lead\u0027s assigned sales representative.",
+                                                       "inactiveDescription":  "This student is not active. Reactivate the registration in the student list before starting a new enrollment.",
+                                                       "backToRegistration":  "Back to registration",
+                                                       "understood":  "Understood",
+                                                       "useAndContinue":  "Use this student and continue",
+                                                       "alreadyRegisteredFallback":  "This student is already registered."
+                                                   }
                       },
     "AdminStudentSuccess":  {
                                 "title":  "Student Success",

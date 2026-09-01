@@ -3772,7 +3772,40 @@
                                                    "downloadErrorTitle":  "Erreur lors du téléchargement du certificat",
                                                    "downloadedSuccess":  "Certificat téléchargé avec succès.",
                                                    "downloadException":  "Erreur lors du téléchargement du certificat."
-                                               }
+                                               },
+                          "minorConfirmation":  {
+                                                    "attention":  "Attention",
+                                                    "incompleteGuardianTitle":  "Informations incomplètes du responsable",
+                                                    "minorTitle":  "Étudiant mineur",
+                                                    "ageDescription":  "Cet étudiant a {age, plural, one {# an} other {# ans}} et n\u0027a pas encore atteint l\u0027âge adulte.",
+                                                    "incompleteWarningTitle":  "Les informations du titulaire ou du responsable majeur n\u0027ont pas été entièrement renseignées.",
+                                                    "incompleteWarningDescription":  "Revenez en arrière et complétez les informations ci-dessous, ou confirmez que vous souhaitez tout de même continuer.",
+                                                    "confirmationQuestion":  "Voulez-vous vraiment inscrire cet étudiant mineur ?",
+                                                    "acknowledgement":  "Je reconnais que l\u0027étudiant est mineur et j\u0027accepte la responsabilité de poursuivre cette inscription.",
+                                                    "backAndComplete":  "Revenir et compléter",
+                                                    "back":  "Revenir",
+                                                    "creating":  "Création de l\u0027étudiant...",
+                                                    "createAnyway":  "Créer l\u0027étudiant quand même",
+                                                    "confirmRegistration":  "Confirmer l\u0027inscription",
+                                                    "pendingGuardianName":  "Nom du responsable",
+                                                    "pendingGuardianCpf":  "Identifiant fiscal du responsable",
+                                                    "pendingGuardianEmail":  "E-mail du responsable",
+                                                    "pendingGuardianRelationship":  "Lien avec le responsable"
+                                                },
+                          "existingStudentModal":  {
+                                                       "title":  "Étudiant déjà inscrit",
+                                                       "description":  "Une inscription existe déjà pour {name}.",
+                                                       "locatedBy":  "Inscription trouvée grâce à : {field}",
+                                                       "cpf":  "identifiant fiscal",
+                                                       "email":  "e-mail",
+                                                       "currentStatus":  "Statut actuel : {status}",
+                                                       "activeDescription":  "Vous pouvez utiliser cette inscription et passer directement à l\u0027inscription pédagogique tout en conservant le responsable commercial du prospect.",
+                                                       "inactiveDescription":  "Cet étudiant n\u0027est pas actif. Réactivez son dossier dans la liste des étudiants avant de commencer une nouvelle inscription.",
+                                                       "backToRegistration":  "Revenir à l\u0027inscription",
+                                                       "understood":  "J\u0027ai compris",
+                                                       "useAndContinue":  "Utiliser cet étudiant et continuer",
+                                                       "alreadyRegisteredFallback":  "Cet étudiant est déjà inscrit."
+                                                   }
                       },
     "AdminStudentSuccess":  {
                                 "title":  "Student Success",
