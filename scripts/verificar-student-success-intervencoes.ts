@@ -1,37 +1,53 @@
-﻿import { PrismaClient } from "@prisma/client";
+﻿import {
+  PrismaClient,
+} from "@prisma/client";
 
-const prisma = new PrismaClient();
+const prisma =
+  new PrismaClient();
 
 async function main() {
-  const rows =
-    await prisma.studentSuccessIntervencao.findMany({
-      orderBy: {
-        criadoEm: "desc",
-      },
-
-      take: 10,
-
-      include: {
-        aluno: {
-          select: {
-            id: true,
-            nome: true,
-            matricula: true,
-          },
+  const intervencao =
+    await prisma
+      .studentSuccessIntervencao
+      .findFirst({
+        where: {
+          alunoId: 2097,
         },
 
-        criadoPor: {
-          select: {
-            id: true,
-            nome: true,
+        orderBy: {
+          criadoEm:
+            "desc",
+        },
+
+        include: {
+          aluno: {
+            select: {
+              id:
+                true,
+
+              nome:
+                true,
+
+              matricula:
+                true,
+            },
+          },
+
+          criadoPor: {
+            select: {
+              id:
+                true,
+
+              nome:
+                true,
+            },
           },
         },
-      },
-    });
+      });
 
   console.log(
     JSON.stringify(
-      rows,
+      intervencao,
       null,
       2
     )
@@ -39,10 +55,20 @@ async function main() {
 }
 
 main()
-  .catch((error) => {
-    console.error(error);
-    process.exitCode = 1;
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+  .catch(
+    (
+      error
+    ) => {
+      console.error(
+        error
+      );
+
+      process.exitCode =
+        1;
+    }
+  )
+  .finally(
+    async () => {
+      await prisma.$disconnect();
+    }
+  );

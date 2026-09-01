@@ -276,6 +276,7 @@ model Instituicao {
   atividadesExternasSaudeParticipantes        AtividadeExternaSaudeParticipante[]
   atividadesExternasRiscos                    AtividadeExternaRisco[]
   atividadesExternasPlanosEmergencia          AtividadeExternaPlanoEmergencia[]
+  atividadesExternasDocumentos                AtividadeExternaDocumento[]
 
   @@index([redeInstitucionalId])
   @@index([redeInstitucionalId, ativo])
@@ -542,6 +543,8 @@ model User {
   riscosAtividadesExternasAtualizados      AtividadeExternaRisco[]                 @relation("AtividadeExternaRiscoAtualizadoPor")
   planosEmergenciaExternosCriados          AtividadeExternaPlanoEmergencia[]       @relation("AtividadeExternaPlanoEmergenciaCriadoPor")
   planosEmergenciaExternosAtualizados      AtividadeExternaPlanoEmergencia[]       @relation("AtividadeExternaPlanoEmergenciaAtualizadoPor")
+  documentosAtividadesExternasEnviados     AtividadeExternaDocumento[]             @relation("AtividadeExternaDocumentoEnviadoPor")
+  documentosAtividadesExternasAtualizados  AtividadeExternaDocumento[]             @relation("AtividadeExternaDocumentoAtualizadoPor")
 
   @@unique([id, instituicaoId])
   @@index([instituicaoId])
@@ -9449,6 +9452,7 @@ model AtividadeExterna {
   saudeParticipantes AtividadeExternaSaudeParticipante[]
   riscos             AtividadeExternaRisco[]
   planoEmergencia    AtividadeExternaPlanoEmergencia?
+  documentos         AtividadeExternaDocumento[]
 
   @@unique([id, instituicaoId])
   @@index([instituicaoId])
@@ -9508,6 +9512,7 @@ model AtividadeExternaParticipante {
   trechosPassageiro   AtividadeExternaTrechoPassageiro[]
   checkpointRegistros AtividadeExternaCheckpointRegistro[]
   saude               AtividadeExternaSaudeParticipante?
+  documentos          AtividadeExternaDocumento[]
 
   @@unique([atividadeExternaId, alunoId])
   @@unique([id, instituicaoId])
@@ -9608,6 +9613,106 @@ model AtividadeExternaAutorizacao {
   @@index([status])
   @@index([respondidaPorUserId])
   @@index([registradaPorUserId])
+}
+
+model AtividadeExternaDocumento {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+
+  atividadeExternaId Int
+
+  prestadorTransporteId Int?
+  veiculoId             Int?
+  participanteId        Int?
+
+  tipo TipoDocumentoAtividadeExterna
+
+  titulo    String
+  descricao String? @db.Text
+
+  arquivoUrl  String?
+  arquivoNome String?
+  mimeType    String?
+  tamanho     Int?
+
+  numeroDocumento String?
+
+  emitidoEm    DateTime?
+  validoAte    DateTime?
+  obrigatorio  Boolean   @default(false)
+  confidencial Boolean   @default(false)
+
+  status StatusDocumentoAtividadeExterna @default(ATIVO)
+
+  observacao String? @db.Text
+
+  enviadoPorId    Int?
+  atualizadoPorId Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  atividadeExterna AtividadeExterna @relation(fields: [atividadeExternaId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  prestadorTransporte PrestadorTransporte? @relation(fields: [prestadorTransporteId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+
+  veiculo VeiculoTransporte? @relation(fields: [veiculoId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+
+  participante AtividadeExternaParticipante? @relation(fields: [participanteId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+
+  enviadoPor User? @relation("AtividadeExternaDocumentoEnviadoPor", fields: [enviadoPorId], references: [id], onDelete: SetNull)
+
+  atualizadoPor User? @relation("AtividadeExternaDocumentoAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
+
+  @@unique([id, instituicaoId])
+  @@index([instituicaoId])
+  @@index([atividadeExternaId])
+  @@index([prestadorTransporteId])
+  @@index([veiculoId])
+  @@index([participanteId])
+  @@index([tipo])
+  @@index([status])
+  @@index([validoAte])
+  @@index([obrigatorio])
+  @@index([confidencial])
+  @@index([enviadoPorId])
+  @@index([atualizadoPorId])
+}
+
+enum TipoDocumentoAtividadeExterna {
+  ROTEIRO
+  TERMO_AUTORIZACAO
+  AUTORIZACAO_ASSINADA
+  CONTRATO_TRANSPORTE
+  CONTRATO_HOSPEDAGEM
+  SEGURO_VIAGEM
+  APOLICE_TRANSPORTE
+  LICENCA_PRESTADOR
+  DOCUMENTO_VEICULO
+  DOCUMENTO_CONDUTOR
+  AVALIACAO_RISCO
+  PLANO_EMERGENCIA
+  COMPROVANTE_RESERVA
+  PASSAGEM
+  HOSPEDAGEM
+  PASSAPORTE
+  VISTO
+  DOCUMENTO_MEDICO
+  LISTA_PARTICIPANTES
+  OUTRO
+}
+
+enum StatusDocumentoAtividadeExterna {
+  ATIVO
+  PENDENTE
+  EM_ANALISE
+  APROVADO
+  REJEITADO
+  VENCIDO
+  SUBSTITUIDO
+  ARQUIVADO
 }
 
 enum TipoAtividadeExterna {
@@ -9753,9 +9858,10 @@ model PrestadorTransporte {
 
   atualizadoPor User? @relation("PrestadorTransporteAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
 
-  veiculos                  VeiculoTransporte[]
-  condutores                CondutorTransporte[]
-  trechosAtividadesExternas AtividadeExternaTrecho[]
+  veiculos                     VeiculoTransporte[]
+  condutores                   CondutorTransporte[]
+  trechosAtividadesExternas    AtividadeExternaTrecho[]
+  documentosAtividadesExternas AtividadeExternaDocumento[]
 
   @@unique([id, instituicaoId])
   @@index([instituicaoId])
@@ -9834,7 +9940,8 @@ model VeiculoTransporte {
 
   atualizadoPor User? @relation("VeiculoTransporteAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
 
-  trechosAtividadesExternas AtividadeExternaTrechoVeiculo[]
+  trechosAtividadesExternas    AtividadeExternaTrechoVeiculo[]
+  documentosAtividadesExternas AtividadeExternaDocumento[]
 
   @@unique([id, instituicaoId])
   @@index([instituicaoId])
