@@ -27,9 +27,17 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts",
-    "next.config.mjs"
-, ".next/types/app/professor/atividades/page.tsx", ".next/types/app/aluno/historico/page.tsx", ".next/types/app/aluno/reunioes/page.tsx", ".next/types/app/aluno/certificados/page.tsx"  ],
-  "exclude": ["node_modules"]
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "scripts",
+    ".next/dev",
+    ".next/cache",
+    "coverage",
+    "tests",
+    "test",
+    "e2e",
+    "playwright-report"
+  ]
 }
