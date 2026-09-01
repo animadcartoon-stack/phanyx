@@ -51,6 +51,54 @@ type StatusIntervencao =
   | "RESOLVIDA"
   | "CANCELADA";
 
+  type StudentSuccessIntervencao = {
+  id: number;
+
+  tipo: TipoIntervencao;
+  canal: CanalIntervencao;
+  status: StatusIntervencao;
+
+  observacao: string;
+
+  retornoEm:
+    | string
+    | null;
+
+  resultado:
+    | string
+    | null;
+
+  nivelRiscoNoRegistro: string;
+
+  pontuacaoNoRegistro:
+    | number
+    | null;
+
+  coberturaNoRegistro: number;
+
+  confiabilidadeNoRegistro: string;
+
+  fatoresNoRegistro:
+    | unknown[]
+    | null;
+
+  criadoEm: string;
+
+  atualizadoEm: string;
+
+  concluidoEm:
+    | string
+    | null;
+
+  criadoPor:
+    | {
+        id: number;
+        nome: string;
+        email?: string;
+      }
+    | null;
+};
+
 type ComponenteAnalise = {
   codigo:
   | "FREQUENCIA"
@@ -224,6 +272,7 @@ function CardResumo({
   titulo,
   variante,
 }: CardResumoProps) {
+
   const estilos = {
     critical:
       "border-red-200 bg-red-50 text-red-950 dark:border-red-900/70 dark:bg-red-950/35 dark:text-red-100",
@@ -278,6 +327,7 @@ function formatarPercentual(
     | number
     | null
 ) {
+
   if (
     valor === null ||
     !Number.isFinite(
@@ -296,6 +346,7 @@ function classeNivel(
   nivel:
     NivelRisco
 ) {
+
   switch (nivel) {
     case "CRITICO":
       return "border-red-300 bg-red-100 text-red-900 dark:border-red-900 dark:bg-red-950/60 dark:text-red-200";
@@ -320,6 +371,7 @@ function emailPodeSerUsado(
     | string
     | null
 ) {
+
   if (!email) {
     return false;
   }
@@ -348,6 +400,7 @@ function telefoneParaLink(
     | string
     | null
 ) {
+
   if (!telefone) {
     return null;
   }
@@ -457,6 +510,34 @@ const [
   setRetornoIntervencao,
 ] =
   useState("");
+
+  const [
+  intervencoes,
+  setIntervencoes,
+] =
+  useState<
+    StudentSuccessIntervencao[]
+  >([]);
+
+const [
+  carregandoIntervencoes,
+  setCarregandoIntervencoes,
+] =
+  useState(false);
+
+const [
+  erroIntervencoes,
+  setErroIntervencoes,
+] =
+  useState<string | null>(
+    null
+  );
+
+const [
+  versaoIntervencoes,
+  setVersaoIntervencoes,
+] =
+  useState(0);
 
 const [
   salvandoIntervencao,
@@ -610,6 +691,111 @@ const [
       alunoSelecionado,
     ]
   );
+
+  useEffect(
+  () => {
+    if (
+      !alunoSelecionado
+    ) {
+      setIntervencoes(
+        []
+      );
+
+      return;
+    }
+
+    let cancelado =
+      false;
+
+    const carregar =
+      async () => {
+        setCarregandoIntervencoes(
+          true
+        );
+
+        setErroIntervencoes(
+          null
+        );
+
+        try {
+          const resposta =
+            await fetch(
+              `/api/admin/student-success/intervencoes?alunoId=${alunoSelecionado.alunoId}`,
+              {
+                credentials:
+                  "include",
+              }
+            );
+
+          const json =
+            await resposta.json();
+
+          if (
+            !resposta.ok ||
+            !json?.ok
+          ) {
+            throw new Error(
+              json?.error ??
+                "INTERVENTIONS_ERROR"
+            );
+          }
+
+          if (
+            !cancelado
+          ) {
+            setIntervencoes(
+              Array.isArray(
+                json.intervencoes
+              )
+                ? json.intervencoes
+                : []
+            );
+          }
+        }
+        catch (error) {
+          console.error(
+            "[STUDENT_SUCCESS_INTERVENTIONS_LOAD]",
+            error
+          );
+
+          if (
+            !cancelado
+          ) {
+            setIntervencoes(
+              []
+            );
+
+            setErroIntervencoes(
+              t(
+                "intervention.error"
+              )
+            );
+          }
+        }
+        finally {
+          if (
+            !cancelado
+          ) {
+            setCarregandoIntervencoes(
+              false
+            );
+          }
+        }
+      };
+
+    void carregar();
+
+    return () => {
+      cancelado =
+        true;
+    };
+  },
+  [
+    alunoSelecionado,
+    versaoIntervencoes,
+    t,
+  ]
+);
 
   /*
    * Mostramos aqui:
@@ -828,6 +1014,11 @@ const [
             "intervention.success"
           ),
       });
+
+      setVersaoIntervencoes(
+  (valor) =>
+    valor + 1
+);
 
       setObservacaoIntervencao(
         ""
@@ -3256,10 +3447,315 @@ const [
   )}
 </button>
               </section>
+              <section
+  className="
+    phanyx-student-success-history
+    mt-6
+  "
+>
+  <div
+    className="
+      mb-3
+      flex
+      items-center
+      justify-between
+      gap-3
+    "
+  >
+    <h3
+      className="
+        text-sm
+        font-bold
+        uppercase
+        tracking-wide
+      "
+    >
+      {t(
+        "intervention.history.title"
+      )}
+    </h3>
+
+    {!carregandoIntervencoes ? (
+      <span
+        className="
+          text-xs
+          font-semibold
+        "
+      >
+        {
+          intervencoes.length
+        }
+      </span>
+    ) : null}
+  </div>
+
+  {carregandoIntervencoes ? (
+    <div
+      className="
+        phanyx-student-success-history-empty
+        rounded-xl
+        border
+        p-4
+        text-sm
+      "
+    >
+      ...
+    </div>
+  ) : erroIntervencoes ? (
+    <div
+      className="
+        rounded-xl
+        border
+        border-red-300
+        bg-red-50
+        p-4
+        text-sm
+        text-red-800
+      "
+    >
+      {
+        erroIntervencoes
+      }
+    </div>
+  ) : intervencoes.length ===
+    0 ? (
+    <div
+      className="
+        phanyx-student-success-history-empty
+        rounded-xl
+        border
+        p-4
+        text-sm
+      "
+    >
+      {t(
+        "intervention.history.empty"
+      )}
+    </div>
+  ) : (
+    <div
+      className="
+        space-y-3
+      "
+    >
+      {intervencoes.map(
+        (
+          intervencao
+        ) => (
+          <article
+            key={
+              intervencao.id
+            }
+            className="
+              phanyx-student-success-history-card
+              rounded-xl
+              border
+              p-4
+            "
+          >
+            <div
+              className="
+                flex
+                flex-wrap
+                items-start
+                justify-between
+                gap-2
+              "
+            >
+              <div>
+                <div
+                  className="
+                    flex
+                    flex-wrap
+                    items-center
+                    gap-2
+                  "
+                >
+                  <span
+                    className="
+                      phanyx-student-success-history-type
+                      text-sm
+                      font-bold
+                    "
+                  >
+                    {t(
+                      `intervention.types.${intervencao.tipo}`
+                    )}
+                  </span>
+
+                  <span>
+                    ·
+                  </span>
+
+                  <span
+                    className="
+                      text-sm
+                      font-semibold
+                    "
+                  >
+                    {t(
+                      `intervention.channels.${intervencao.canal}`
+                    )}
+                  </span>
+                </div>
+
+                <div
+                  className="
+                    mt-2
+                  "
+                >
+                  <span
+                    className="
+                      phanyx-student-success-history-status
+                      inline-flex
+                      rounded-full
+                      border
+                      px-2.5
+                      py-1
+                      text-xs
+                      font-bold
+                    "
+                  >
+                    {t(
+                      `intervention.statuses.${intervencao.status}`
+                    )}
+                  </span>
+                </div>
+              </div>
+
+              <span
+                className="
+                  phanyx-student-success-history-date
+                  text-xs
+                "
+              >
+                {new Intl.DateTimeFormat(
+                  undefined,
+                  {
+                    dateStyle:
+                      "short",
+
+                    timeStyle:
+                      "short",
+                  }
+                ).format(
+                  new Date(
+                    intervencao.criadoEm
+                  )
+                )}
+              </span>
+            </div>
+
+            <p
+              className="
+                phanyx-student-success-history-observation
+                mt-3
+                whitespace-pre-wrap
+                text-sm
+              "
+            >
+              {
+                intervencao.observacao
+              }
+            </p>
+
+            <div
+              className="
+                phanyx-student-success-history-meta
+                mt-3
+                space-y-1
+                border-t
+                pt-3
+                text-xs
+              "
+            >
+              {intervencao
+                .criadoPor
+                ?.nome ? (
+                <p>
+                  <strong>
+                    {t(
+                      "intervention.history.registeredBy"
+                    )}
+                    :
+                  </strong>{" "}
+                  {
+                    intervencao
+                      .criadoPor
+                      .nome
+                  }
+                </p>
+              ) : null}
+
+              <p>
+                <strong>
+                  {t(
+                    "intervention.history.recordedAt"
+                  )}
+                  :
+                </strong>{" "}
+                {new Intl.DateTimeFormat(
+                  undefined,
+                  {
+                    dateStyle:
+                      "medium",
+
+                    timeStyle:
+                      "short",
+                  }
+                ).format(
+                  new Date(
+                    intervencao.criadoEm
+                  )
+                )}
+              </p>
+
+              {intervencao.retornoEm ? (
+                <p>
+                  <strong>
+                    {t(
+                      "intervention.history.returnScheduled"
+                    )}
+                    :
+                  </strong>{" "}
+                  {new Intl.DateTimeFormat(
+                    undefined,
+                    {
+                      dateStyle:
+                        "medium",
+                    }
+                  ).format(
+                    new Date(
+                      intervencao.retornoEm
+                    )
+                  )}
+                </p>
+              ) : null}
+
+              <p>
+                <strong>
+                  {t(
+                    "drawer.dataCoverage"
+                  )}
+                  :
+                </strong>{" "}
+                {
+                  intervencao.coberturaNoRegistro
+                }
+                %
+              </p>
+            </div>
+          </article>
+        )
+      )}
+    </div>
+  )}
+</section>
             </div>
           </aside>
         </div>
       ) : null}
+
       {modalIntervencaoAberto &&
 alunoSelecionado ? (
   <div
