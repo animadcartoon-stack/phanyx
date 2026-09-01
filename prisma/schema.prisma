@@ -259,6 +259,24 @@ model Instituicao {
   bibliotecaHistoricosAcesso BibliotecaHistoricoAcesso[]
   bibliotecaRecomendacoes    BibliotecaRecomendacao[]
 
+  atividadesExternas                          AtividadeExterna[]
+  atividadesExternasTurmas                    AtividadeExternaTurma[]
+  atividadesExternasParticipantes             AtividadeExternaParticipante[]
+  atividadesExternasEquipe                    AtividadeExternaEquipe[]
+  atividadesExternasAutorizacoes              AtividadeExternaAutorizacao[]
+  prestadoresTransporte                       PrestadorTransporte[]
+  veiculosTransporte                          VeiculoTransporte[]
+  condutoresTransporte                        CondutorTransporte[]
+  atividadesExternasTrechos                   AtividadeExternaTrecho[]
+  atividadesExternasTrechosVeiculos           AtividadeExternaTrechoVeiculo[]
+  atividadesExternasTrechosVeiculosCondutores AtividadeExternaTrechoVeiculoCondutor[]
+  atividadesExternasTrechosPassageiros        AtividadeExternaTrechoPassageiro[]
+  atividadesExternasCheckpoints               AtividadeExternaCheckpoint[]
+  atividadesExternasCheckpointRegistros       AtividadeExternaCheckpointRegistro[]
+  atividadesExternasSaudeParticipantes        AtividadeExternaSaudeParticipante[]
+  atividadesExternasRiscos                    AtividadeExternaRisco[]
+  atividadesExternasPlanosEmergencia          AtividadeExternaPlanoEmergencia[]
+
   @@index([redeInstitucionalId])
   @@index([redeInstitucionalId, ativo])
 }
@@ -493,6 +511,38 @@ model User {
   bibliotecaHistoricosAcesso               BibliotecaHistoricoAcesso[]
   contratacoesModulosAdicionaisSolicitadas ModuloAdicionalContratacao[] @relation("ModuloAdicionalContratacaoSolicitadaPor")
 
+  atividadesExternasCriadas                AtividadeExterna[]                      @relation("AtividadeExternaCriadaPor")
+  atividadesExternasResponsavelPrincipal   AtividadeExterna[]                      @relation("AtividadeExternaResponsavelPrincipal")
+  prestadoresTransporteCriados             PrestadorTransporte[]                   @relation("PrestadorTransporteCriadoPor")
+  prestadoresTransporteAtualizados         PrestadorTransporte[]                   @relation("PrestadorTransporteAtualizadoPor")
+  veiculosTransporteCriados                VeiculoTransporte[]                     @relation("VeiculoTransporteCriadoPor")
+  veiculosTransporteAtualizados            VeiculoTransporte[]                     @relation("VeiculoTransporteAtualizadoPor")
+  equipesAtividadeExterna                  AtividadeExternaEquipe[]                @relation("AtividadeExternaEquipeUser")
+  autorizacoesAtividadeExternaRespondidas  AtividadeExternaAutorizacao[]           @relation("AtividadeExternaAutorizacaoRespondidaPor")
+  autorizacoesAtividadeExternaRegistradas  AtividadeExternaAutorizacao[]           @relation("AtividadeExternaAutorizacaoRegistradaPor")
+  condutoresTransporteCriados              CondutorTransporte[]                    @relation("CondutorTransporteCriadoPor")
+  condutoresTransporteAtualizados          CondutorTransporte[]                    @relation("CondutorTransporteAtualizadoPor")
+  trechosAtividadesExternasCriados         AtividadeExternaTrecho[]                @relation("AtividadeExternaTrechoCriadoPor")
+  trechosAtividadesExternasAtualizados     AtividadeExternaTrecho[]                @relation("AtividadeExternaTrechoAtualizadoPor")
+  trechosVeiculosCriados                   AtividadeExternaTrechoVeiculo[]         @relation("AtividadeExternaTrechoVeiculoCriadoPor")
+  trechosVeiculosAtualizados               AtividadeExternaTrechoVeiculo[]         @relation("AtividadeExternaTrechoVeiculoAtualizadoPor")
+  trechosVeiculosCondutoresCriados         AtividadeExternaTrechoVeiculoCondutor[] @relation("AtividadeExternaTrechoVeiculoCondutorCriadoPor")
+  trechosVeiculosCondutoresAtualizados     AtividadeExternaTrechoVeiculoCondutor[] @relation("AtividadeExternaTrechoVeiculoCondutorAtualizadoPor")
+  trechosPassageirosCriados                AtividadeExternaTrechoPassageiro[]      @relation("AtividadeExternaTrechoPassageiroCriadoPor")
+  trechosPassageirosAtualizados            AtividadeExternaTrechoPassageiro[]      @relation("AtividadeExternaTrechoPassageiroAtualizadoPor")
+  embarquesAtividadeExternaConfirmados     AtividadeExternaTrechoPassageiro[]      @relation("AtividadeExternaPassageiroEmbarqueConfirmadoPor")
+  desembarquesAtividadeExternaConfirmados  AtividadeExternaTrechoPassageiro[]      @relation("AtividadeExternaPassageiroDesembarqueConfirmadoPor")
+  checkpointsAtividadesExternasCriados     AtividadeExternaCheckpoint[]            @relation("AtividadeExternaCheckpointCriadoPor")
+  checkpointsAtividadesExternasAtualizados AtividadeExternaCheckpoint[]            @relation("AtividadeExternaCheckpointAtualizadoPor")
+  checkpointRegistrosRealizados            AtividadeExternaCheckpointRegistro[]    @relation("AtividadeExternaCheckpointRegistradoPor")
+  checkpointRegistrosAtualizados           AtividadeExternaCheckpointRegistro[]    @relation("AtividadeExternaCheckpointRegistroAtualizadoPor")
+  saudeAtividadesExternasRegistrada        AtividadeExternaSaudeParticipante[]     @relation("AtividadeExternaSaudeRegistradaPor")
+  saudeAtividadesExternasAtualizada        AtividadeExternaSaudeParticipante[]     @relation("AtividadeExternaSaudeAtualizadaPor")
+  riscosAtividadesExternasCriados          AtividadeExternaRisco[]                 @relation("AtividadeExternaRiscoCriadoPor")
+  riscosAtividadesExternasAtualizados      AtividadeExternaRisco[]                 @relation("AtividadeExternaRiscoAtualizadoPor")
+  planosEmergenciaExternosCriados          AtividadeExternaPlanoEmergencia[]       @relation("AtividadeExternaPlanoEmergenciaCriadoPor")
+  planosEmergenciaExternosAtualizados      AtividadeExternaPlanoEmergencia[]       @relation("AtividadeExternaPlanoEmergenciaAtualizadoPor")
+
   @@unique([id, instituicaoId])
   @@index([instituicaoId])
   @@index([role])
@@ -636,6 +686,9 @@ model Aluno {
   historicosRestricaoRematricula RestricaoRematriculaHistorico[]
   studentSuccessIntervencoes     StudentSuccessIntervencao[]
 
+  participacoesAtividadesExternas AtividadeExternaParticipante[]
+
+  @@unique([id, instituicaoId])
   @@unique([instituicaoId, matricula])
   @@unique([instituicaoId, slug])
   @@index([instituicaoId])
@@ -695,6 +748,8 @@ model Professor {
   substituicoesComoSubstituto SubstituicaoDocente[]    @relation("ProfessorSubstitutoSubstituicao")
   historicosRemuneracaoRH     HistoricoRemuneracaoRH[]
   recomendacoesBiblioteca     BibliotecaRecomendacao[]
+
+  equipesAtividadeExterna AtividadeExternaEquipe[] @relation("AtividadeExternaEquipeProfessor")
 
   @@unique([instituicaoId, slug])
   @@unique([id, instituicaoId])
@@ -977,6 +1032,8 @@ model Turma {
   reunioes                        Reuniao[]
   substituicoesDocentes           SubstituicaoDocente[]
   destinosRecomendacoesBiblioteca BibliotecaRecomendacaoDestino[]
+
+  atividadesExternas AtividadeExternaTurma[]
 
   @@unique([instituicaoId, nome, semestre, periodoLetivo])
   @@unique([id, instituicaoId])
@@ -1697,6 +1754,8 @@ model Funcionario {
   tarefasComerciaisResponsavel                TarefaComercial[]                           @relation("TarefaComercialResponsavel")
   formulariosCaptacaoComoResponsavelPadrao    FormularioCaptacaoLead[]                    @relation("FormularioCaptacaoResponsavelPadrao")
   regrasDistribuicaoComoResponsavelFixo       RegraDistribuicaoLead[]                     @relation("RegraDistribuicaoResponsavelFixo")
+
+  equipesAtividadeExterna AtividadeExternaEquipe[] @relation("AtividadeExternaEquipeFuncionario")
 
   @@index([instituicaoId])
   @@index([departamentoId])
@@ -2543,6 +2602,8 @@ model Polo {
   leadsInteressados          Lead[]                   @relation("LeadPoloInteresse")
   formulariosCaptacaoPadrao  FormularioCaptacaoLead[] @relation("FormularioCaptacaoPoloPadrao")
   regrasDistribuicaoCaptacao RegraDistribuicaoLead[]  @relation("RegraDistribuicaoPolo")
+
+  atividadesExternas AtividadeExterna[]
 
   @@unique([instituicaoId, nome])
   @@unique([instituicaoId, codigo])
@@ -7472,12 +7533,21 @@ model StudentSuccessIntervencao {
   //
   // Isso permitirá medir posteriormente
   // se houve evolução acadêmica.
+  // Fotografia acadêmica no momento do registro
   nivelRiscoNoRegistro     String
   pontuacaoNoRegistro      Int?
   coberturaNoRegistro      Int
   confiabilidadeNoRegistro String
+  fatoresNoRegistro        Json?
+  indicadoresNoRegistro    Json?
 
-  fatoresNoRegistro Json?
+  // Fotografia acadêmica no momento do encerramento
+  nivelRiscoNoEncerramento     String?
+  pontuacaoNoEncerramento      Int?
+  coberturaNoEncerramento      Int?
+  confiabilidadeNoEncerramento String?
+  fatoresNoEncerramento        Json?
+  indicadoresNoEncerramento    Json?
 
   criadoEm     DateTime  @default(now())
   atualizadoEm DateTime  @updatedAt
@@ -7498,6 +7568,705 @@ model StudentSuccessIntervencao {
   @@index([retornoEm])
   @@index([criadoEm])
   @@index([instituicaoId, alunoId, criadoEm])
+}
+
+model CondutorTransporte {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+
+  prestadorTransporteId Int?
+
+  nome String
+
+  tipo TipoCondutorTransporte @default(MOTORISTA)
+
+  telefone String?
+  email    String?
+
+  paisDocumento   String?
+  tipoDocumento   String?
+  numeroDocumento String?
+
+  numeroLicenca    String?
+  categoriaLicenca String?
+  licencaValidaAte DateTime?
+
+  autorizadoTransporteEstudantil StatusVerificacaoTransporteEstudantil @default(NAO_VERIFICADO)
+
+  contatoEmergencia  String?
+  telefoneEmergencia String?
+
+  observacao String? @db.Text
+
+  ativo Boolean @default(true)
+
+  criadoPorId     Int?
+  atualizadoPorId Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  prestadorTransporte PrestadorTransporte? @relation(fields: [prestadorTransporteId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+
+  criadoPor User? @relation("CondutorTransporteCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+
+  atualizadoPor User? @relation("CondutorTransporteAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
+
+  atribuicoesTrechos AtividadeExternaTrechoVeiculoCondutor[]
+
+  @@unique([id, instituicaoId])
+  @@index([instituicaoId])
+  @@index([instituicaoId, ativo])
+  @@index([prestadorTransporteId])
+  @@index([tipo])
+  @@index([numeroLicenca])
+  @@index([criadoPorId])
+  @@index([atualizadoPorId])
+}
+
+model AtividadeExternaTrecho {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+
+  atividadeExternaId Int
+
+  ordem Int @default(1)
+
+  titulo String?
+
+  modal TipoModalTransporte
+
+  prestadorTransporteId Int?
+
+  origemNome     String
+  origemEndereco String?
+  origemCidade   String?
+  origemRegiao   String?
+  origemPais     String?
+
+  destinoNome     String
+  destinoEndereco String?
+  destinoCidade   String?
+  destinoRegiao   String?
+  destinoPais     String?
+
+  partidaPrevista DateTime?
+  chegadaPrevista DateTime?
+
+  partidaReal DateTime?
+  chegadaReal DateTime?
+
+  numeroReferencia String?
+
+  observacao String? @db.Text
+
+  status StatusTrechoAtividadeExterna @default(PLANEJADO)
+
+  criadoPorId     Int?
+  atualizadoPorId Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  atividadeExterna AtividadeExterna @relation(fields: [atividadeExternaId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  prestadorTransporte PrestadorTransporte? @relation(fields: [prestadorTransporteId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+
+  criadoPor User? @relation("AtividadeExternaTrechoCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+
+  atualizadoPor User? @relation("AtividadeExternaTrechoAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
+
+  veiculos    AtividadeExternaTrechoVeiculo[]
+  passageiros AtividadeExternaTrechoPassageiro[]
+
+  @@unique([id, instituicaoId])
+  @@unique([atividadeExternaId, ordem])
+  @@index([instituicaoId])
+  @@index([atividadeExternaId])
+  @@index([prestadorTransporteId])
+  @@index([modal])
+  @@index([status])
+  @@index([partidaPrevista])
+  @@index([criadoPorId])
+  @@index([atualizadoPorId])
+}
+
+model AtividadeExternaTrechoVeiculo {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+
+  atividadeExternaTrechoId Int
+  veiculoId                Int
+
+  supervisorEquipeId Int?
+
+  ordem Int @default(1)
+
+  identificacaoOperacional String?
+
+  capacidadePlanejada Int?
+
+  pontoEmbarque    String?
+  pontoDesembarque String?
+
+  embarquePrevisto    DateTime?
+  desembarquePrevisto DateTime?
+
+  embarqueReal    DateTime?
+  desembarqueReal DateTime?
+
+  status StatusVeiculoTrechoAtividadeExterna @default(PLANEJADO)
+
+  observacao String? @db.Text
+
+  criadoPorId     Int?
+  atualizadoPorId Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  atividadeExternaTrecho AtividadeExternaTrecho @relation(fields: [atividadeExternaTrechoId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  veiculo VeiculoTransporte @relation(fields: [veiculoId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+
+  supervisorEquipe AtividadeExternaEquipe? @relation(fields: [supervisorEquipeId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+
+  criadoPor User? @relation("AtividadeExternaTrechoVeiculoCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+
+  atualizadoPor User? @relation("AtividadeExternaTrechoVeiculoAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
+
+  condutores  AtividadeExternaTrechoVeiculoCondutor[]
+  passageiros AtividadeExternaTrechoPassageiro[]
+
+  @@unique([id, instituicaoId])
+  @@unique([atividadeExternaTrechoId, veiculoId])
+  @@unique([id, atividadeExternaTrechoId, instituicaoId])
+  @@index([instituicaoId])
+  @@index([atividadeExternaTrechoId])
+  @@index([veiculoId])
+  @@index([supervisorEquipeId])
+  @@index([status])
+  @@index([criadoPorId])
+  @@index([atualizadoPorId])
+}
+
+model AtividadeExternaTrechoVeiculoCondutor {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+
+  trechoVeiculoId Int
+  condutorId      Int
+
+  papel PapelCondutorTrechoAtividadeExterna @default(PRINCIPAL)
+
+  observacao String? @db.Text
+
+  criadoPorId     Int?
+  atualizadoPorId Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  trechoVeiculo AtividadeExternaTrechoVeiculo @relation(fields: [trechoVeiculoId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  condutor CondutorTransporte @relation(fields: [condutorId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+
+  criadoPor User? @relation("AtividadeExternaTrechoVeiculoCondutorCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+
+  atualizadoPor User? @relation("AtividadeExternaTrechoVeiculoCondutorAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
+
+  @@unique([id, instituicaoId])
+  @@unique([trechoVeiculoId, condutorId])
+  @@index([instituicaoId])
+  @@index([trechoVeiculoId])
+  @@index([condutorId])
+  @@index([papel])
+  @@index([criadoPorId])
+  @@index([atualizadoPorId])
+}
+
+model AtividadeExternaTrechoPassageiro {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+
+  atividadeExternaTrechoId Int
+  trechoVeiculoId          Int
+  participanteId           Int
+
+  assento String?
+
+  status StatusPassageiroTrechoAtividadeExterna @default(PLANEJADO)
+
+  embarcadoEm    DateTime?
+  desembarcadoEm DateTime?
+
+  embarqueConfirmadoPorId    Int?
+  desembarqueConfirmadoPorId Int?
+
+  observacao String? @db.Text
+
+  criadoPorId     Int?
+  atualizadoPorId Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  atividadeExternaTrecho AtividadeExternaTrecho @relation(fields: [atividadeExternaTrechoId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  trechoVeiculo AtividadeExternaTrechoVeiculo @relation(fields: [trechoVeiculoId, atividadeExternaTrechoId, instituicaoId], references: [id, atividadeExternaTrechoId, instituicaoId], onDelete: Cascade)
+
+  participante AtividadeExternaParticipante @relation(fields: [participanteId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  embarqueConfirmadoPor User? @relation("AtividadeExternaPassageiroEmbarqueConfirmadoPor", fields: [embarqueConfirmadoPorId], references: [id], onDelete: SetNull)
+
+  desembarqueConfirmadoPor User? @relation("AtividadeExternaPassageiroDesembarqueConfirmadoPor", fields: [desembarqueConfirmadoPorId], references: [id], onDelete: SetNull)
+
+  criadoPor User? @relation("AtividadeExternaTrechoPassageiroCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+
+  atualizadoPor User? @relation("AtividadeExternaTrechoPassageiroAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
+
+  @@unique([id, instituicaoId])
+  @@unique([atividadeExternaTrechoId, participanteId])
+  @@index([instituicaoId])
+  @@index([atividadeExternaTrechoId])
+  @@index([trechoVeiculoId])
+  @@index([participanteId])
+  @@index([status])
+  @@index([embarqueConfirmadoPorId])
+  @@index([desembarqueConfirmadoPorId])
+  @@index([criadoPorId])
+  @@index([atualizadoPorId])
+}
+
+model AtividadeExternaCheckpoint {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+
+  atividadeExternaId Int
+
+  nome  String
+  tipo  TipoCheckpointAtividadeExterna
+  ordem Int                            @default(1)
+
+  localNome     String?
+  localEndereco String?
+
+  previstoEm DateTime?
+
+  obrigatorio Boolean @default(true)
+  ativo       Boolean @default(true)
+
+  observacao String? @db.Text
+
+  criadoPorId     Int?
+  atualizadoPorId Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  atividadeExterna AtividadeExterna @relation(fields: [atividadeExternaId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  criadoPor User? @relation("AtividadeExternaCheckpointCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+
+  atualizadoPor User? @relation("AtividadeExternaCheckpointAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
+
+  registros AtividadeExternaCheckpointRegistro[]
+
+  @@unique([id, atividadeExternaId, instituicaoId])
+  @@unique([atividadeExternaId, ordem])
+  @@index([instituicaoId])
+  @@index([atividadeExternaId])
+  @@index([tipo])
+  @@index([previstoEm])
+  @@index([ativo])
+  @@index([criadoPorId])
+  @@index([atualizadoPorId])
+}
+
+model AtividadeExternaCheckpointRegistro {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+
+  atividadeExternaId Int
+  checkpointId       Int
+  participanteId     Int
+
+  status StatusCheckpointParticipante @default(NAO_VERIFICADO)
+
+  registradoEm DateTime?
+
+  origemRegistro OrigemRegistroCheckpoint @default(MANUAL)
+
+  observacao String? @db.Text
+
+  registradoPorId Int?
+  atualizadoPorId Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  checkpoint AtividadeExternaCheckpoint @relation(fields: [checkpointId, atividadeExternaId, instituicaoId], references: [id, atividadeExternaId, instituicaoId], onDelete: Cascade)
+
+  participante AtividadeExternaParticipante @relation(fields: [participanteId, atividadeExternaId, instituicaoId], references: [id, atividadeExternaId, instituicaoId], onDelete: Cascade)
+
+  registradoPor User? @relation("AtividadeExternaCheckpointRegistradoPor", fields: [registradoPorId], references: [id], onDelete: SetNull)
+
+  atualizadoPor User? @relation("AtividadeExternaCheckpointRegistroAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
+
+  @@unique([checkpointId, participanteId])
+  @@index([instituicaoId])
+  @@index([atividadeExternaId])
+  @@index([checkpointId])
+  @@index([participanteId])
+  @@index([status])
+  @@index([registradoEm])
+  @@index([registradoPorId])
+  @@index([atualizadoPorId])
+}
+
+model AtividadeExternaSaudeParticipante {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+
+  atividadeExternaId Int
+  participanteId     Int
+
+  possuiAlergia Boolean @default(false)
+  alergias      String? @db.Text
+
+  possuiRestricaoAlimentar Boolean @default(false)
+  restricoesAlimentares    String? @db.Text
+
+  utilizaMedicacao Boolean @default(false)
+  medicacoes       String? @db.Text
+
+  necessitaMedicacaoDuranteAtividade Boolean @default(false)
+  instrucoesMedicacao                String? @db.Text
+
+  possuiCondicaoSaudeRelevante Boolean @default(false)
+  condicoesSaudeRelevantes     String? @db.Text
+
+  possuiNecessidadeEspecial Boolean @default(false)
+  necessidadesEspeciais     String? @db.Text
+
+  necessitaAcessibilidade   Boolean @default(false)
+  orientacoesAcessibilidade String? @db.Text
+
+  necessitaAcompanhamentoIndividual Boolean @default(false)
+  orientacoesAcompanhamento         String? @db.Text
+
+  contatoEmergenciaNome       String?
+  contatoEmergenciaTelefone   String?
+  contatoEmergenciaParentesco String?
+
+  medicoOuServicoReferencia String?
+  telefoneMedicoOuServico   String?
+
+  planoSaudeOuSeguro  String?
+  numeroPlanoOuSeguro String?
+
+  observacoesEmergencia String? @db.Text
+
+  informacaoConfirmadaPeloResponsavel Boolean   @default(false)
+  confirmadaEm                        DateTime?
+
+  registradaPorId Int?
+  atualizadaPorId Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  atividadeExterna AtividadeExterna @relation(fields: [atividadeExternaId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  participante AtividadeExternaParticipante @relation(fields: [participanteId, atividadeExternaId, instituicaoId], references: [id, atividadeExternaId, instituicaoId], onDelete: Cascade)
+
+  registradaPor User? @relation("AtividadeExternaSaudeRegistradaPor", fields: [registradaPorId], references: [id], onDelete: SetNull)
+
+  atualizadaPor User? @relation("AtividadeExternaSaudeAtualizadaPor", fields: [atualizadaPorId], references: [id], onDelete: SetNull)
+
+  @@unique([id, instituicaoId])
+  @@unique([participanteId, atividadeExternaId, instituicaoId])
+  @@index([instituicaoId])
+  @@index([atividadeExternaId])
+  @@index([participanteId])
+  @@index([possuiAlergia])
+  @@index([utilizaMedicacao])
+  @@index([possuiCondicaoSaudeRelevante])
+  @@index([necessitaAcessibilidade])
+  @@index([necessitaAcompanhamentoIndividual])
+  @@index([registradaPorId])
+  @@index([atualizadaPorId])
+}
+
+model AtividadeExternaRisco {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+
+  atividadeExternaId Int
+
+  titulo    String
+  descricao String? @db.Text
+
+  categoria CategoriaRiscoAtividadeExterna
+
+  probabilidade ProbabilidadeRiscoAtividadeExterna
+  gravidade     GravidadeRiscoAtividadeExterna
+
+  medidasPreventivas String? @db.Text
+  planoResposta      String? @db.Text
+
+  responsavelEquipeId Int?
+
+  status StatusRiscoAtividadeExterna @default(IDENTIFICADO)
+
+  observacao String? @db.Text
+
+  criadoPorId     Int?
+  atualizadoPorId Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  atividadeExterna AtividadeExterna @relation(fields: [atividadeExternaId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  responsavelEquipe AtividadeExternaEquipe? @relation(fields: [responsavelEquipeId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+
+  criadoPor User? @relation("AtividadeExternaRiscoCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+
+  atualizadoPor User? @relation("AtividadeExternaRiscoAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
+
+  @@unique([id, instituicaoId])
+  @@index([instituicaoId])
+  @@index([atividadeExternaId])
+  @@index([categoria])
+  @@index([probabilidade])
+  @@index([gravidade])
+  @@index([status])
+  @@index([responsavelEquipeId])
+  @@index([criadoPorId])
+  @@index([atualizadoPorId])
+}
+
+model AtividadeExternaPlanoEmergencia {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+
+  atividadeExternaId Int
+
+  status StatusPlanoEmergenciaAtividadeExterna @default(RASCUNHO)
+
+  contatoEmergenciaEscola  String?
+  telefoneEmergenciaEscola String?
+
+  responsavelEmergenciaNome     String?
+  responsavelEmergenciaTelefone String?
+
+  numeroEmergenciaLocal String?
+
+  hospitalReferencia         String?
+  enderecoHospitalReferencia String?
+  telefoneHospitalReferencia String?
+
+  servicoAlternativoEmergencia String?
+  telefoneServicoAlternativo   String?
+
+  pontoEncontroEmergencia String? @db.Text
+
+  procedimentoEvacuacao          String? @db.Text
+  procedimentoAcidente           String? @db.Text
+  procedimentoPessoaDesaparecida String? @db.Text
+  procedimentoEmergenciaMedica   String? @db.Text
+  procedimentoClimaSevero        String? @db.Text
+
+  instrucoesGerais String? @db.Text
+  observacao       String? @db.Text
+
+  criadoPorId     Int?
+  atualizadoPorId Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  atividadeExterna AtividadeExterna @relation(fields: [atividadeExternaId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  criadoPor User? @relation("AtividadeExternaPlanoEmergenciaCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+
+  atualizadoPor User? @relation("AtividadeExternaPlanoEmergenciaAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
+
+  @@unique([id, instituicaoId])
+  @@unique([atividadeExternaId, instituicaoId])
+  @@index([instituicaoId])
+  @@index([atividadeExternaId])
+  @@index([status])
+  @@index([criadoPorId])
+  @@index([atualizadoPorId])
+}
+
+enum CategoriaRiscoAtividadeExterna {
+  TRANSPORTE
+  SAUDE
+  CLIMA
+  AMBIENTE
+  ATIVIDADE_FISICA
+  AQUATICO
+  SEGURANCA
+  ALIMENTACAO
+  ACESSIBILIDADE
+  COMPORTAMENTO
+  TECNOLOGIA
+  OUTRO
+}
+
+enum ProbabilidadeRiscoAtividadeExterna {
+  MUITO_BAIXA
+  BAIXA
+  MEDIA
+  ALTA
+  MUITO_ALTA
+}
+
+enum GravidadeRiscoAtividadeExterna {
+  LEVE
+  MODERADA
+  GRAVE
+  MUITO_GRAVE
+  CRITICA
+}
+
+enum StatusRiscoAtividadeExterna {
+  IDENTIFICADO
+  EM_TRATAMENTO
+  MITIGADO
+  ACEITO
+  ENCERRADO
+}
+
+enum StatusPlanoEmergenciaAtividadeExterna {
+  RASCUNHO
+  EM_REVISAO
+  APROVADO
+  ATIVO
+  ARQUIVADO
+}
+
+enum TipoCheckpointAtividadeExterna {
+  SAIDA_ORIGEM
+  CHEGADA_DESTINO
+  SAIDA_DESTINO
+  RETORNO_ORIGEM
+  EMBARQUE
+  DESEMBARQUE
+  PONTO_ENCONTRO
+  CONTAGEM
+  PERSONALIZADO
+}
+
+enum StatusCheckpointParticipante {
+  NAO_VERIFICADO
+  PRESENTE
+  AUSENTE
+  DISPENSADO
+  ATRASADO
+  NAO_SE_APLICA
+}
+
+enum OrigemRegistroCheckpoint {
+  MANUAL
+  LISTA
+  QR_CODE
+  NFC
+  BIOMETRIA
+  INTEGRACAO
+  AUTOMATICO
+}
+
+enum StatusPassageiroTrechoAtividadeExterna {
+  PLANEJADO
+  AGUARDANDO_EMBARQUE
+  EMBARCADO
+  NAO_EMBARCOU
+  DESEMBARCADO
+  TRANSFERIDO
+  CANCELADO
+}
+
+enum StatusVeiculoTrechoAtividadeExterna {
+  PLANEJADO
+  CONFIRMADO
+  EM_EMBARQUE
+  EM_TRANSITO
+  CHEGOU
+  CANCELADO
+}
+
+enum PapelCondutorTrechoAtividadeExterna {
+  PRINCIPAL
+  AUXILIAR
+  RESERVA
+  OPERADOR
+  OPERADOR_REMOTO
+  SUPERVISOR_AUTONOMO
+  OUTRO
+}
+
+enum TipoModalTransporte {
+  ONIBUS
+  MICRO_ONIBUS
+  VAN
+  AUTOMOVEL
+  VEICULO_AUTONOMO
+  AVIAO
+  HELICOPTERO
+  TREM
+  METRO
+  BONDE
+  BARCO
+  FERRY
+  NAVIO
+  TRANSPORTE_PUBLICO
+  BICICLETA
+  CAMINHADA
+  OUTRO
+}
+
+enum StatusTrechoAtividadeExterna {
+  PLANEJADO
+  CONFIRMADO
+  EM_EMBARQUE
+  EM_TRANSITO
+  CONCLUIDO
+  CANCELADO
+}
+
+enum TipoCondutorTransporte {
+  MOTORISTA
+  PILOTO
+  MAQUINISTA
+  COMANDANTE_EMBARCACAO
+  OPERADOR
+  OPERADOR_REMOTO
+  SUPERVISOR_AUTONOMO
+  OUTRO
 }
 
 enum ModalidadeCertificado {
@@ -8610,4 +9379,501 @@ enum StatusIntervencaoStudentSuccess {
   EM_ACOMPANHAMENTO
   RESOLVIDA
   CANCELADA
+}
+
+// ============================================================
+// ATIVIDADES EXTERNAS / TRIPS & OFF-SITE ACTIVITIES
+// Núcleo internacional e multi-tenant.
+// ============================================================
+
+model AtividadeExterna {
+  id            Int  @id @default(autoincrement())
+  instituicaoId Int
+  poloId        Int?
+
+  titulo             String
+  tipo               TipoAtividadeExterna
+  status             StatusAtividadeExterna @default(RASCUNHO)
+  descricao          String?                @db.Text
+  objetivoPedagogico String?                @db.Text
+
+  curricular    Boolean @default(false)
+  obrigatoria   Boolean @default(false)
+  internacional Boolean @default(false)
+
+  destinoNome     String?
+  enderecoDestino String?
+  cidadeDestino   String?
+  regiaoDestino   String?
+  paisDestino     String?
+  fusoHorario     String?
+
+  latitude  Decimal? @db.Decimal(9, 6)
+  longitude Decimal? @db.Decimal(9, 6)
+
+  saidaEm           DateTime?
+  retornoPrevistoEm DateTime?
+  retornoRealEm     DateTime?
+
+  capacidadeMaxima  Int?
+  valorParticipante Decimal? @db.Decimal(12, 2)
+  moeda             String?
+
+  exigeAutorizacaoResponsavel Boolean @default(true)
+  exigePagamento              Boolean @default(false)
+  exigeCheckin                Boolean @default(true)
+
+  criadoPorId                Int?
+  responsavelPrincipalUserId Int?
+  publicadoEm                DateTime?
+  encerradoEm                DateTime?
+  canceladoEm                DateTime?
+  motivoCancelamento         String?   @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  polo        Polo?       @relation(fields: [poloId], references: [id], onDelete: SetNull)
+
+  criadoPor User? @relation("AtividadeExternaCriadaPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+
+  responsavelPrincipal User? @relation("AtividadeExternaResponsavelPrincipal", fields: [responsavelPrincipalUserId], references: [id], onDelete: SetNull)
+
+  turmas             AtividadeExternaTurma[]
+  participantes      AtividadeExternaParticipante[]
+  equipe             AtividadeExternaEquipe[]
+  autorizacoes       AtividadeExternaAutorizacao[]
+  trechos            AtividadeExternaTrecho[]
+  checkpoints        AtividadeExternaCheckpoint[]
+  saudeParticipantes AtividadeExternaSaudeParticipante[]
+  riscos             AtividadeExternaRisco[]
+  planoEmergencia    AtividadeExternaPlanoEmergencia?
+
+  @@unique([id, instituicaoId])
+  @@index([instituicaoId])
+  @@index([instituicaoId, status])
+  @@index([instituicaoId, tipo])
+  @@index([poloId])
+  @@index([saidaEm])
+  @@index([responsavelPrincipalUserId])
+}
+
+model AtividadeExternaTurma {
+  id                 Int      @id @default(autoincrement())
+  instituicaoId      Int
+  atividadeExternaId Int
+  turmaId            Int
+  adicionadaEm       DateTime @default(now())
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  atividadeExterna AtividadeExterna @relation(fields: [atividadeExternaId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  turma Turma @relation(fields: [turmaId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  @@unique([atividadeExternaId, turmaId])
+  @@index([instituicaoId])
+  @@index([atividadeExternaId])
+  @@index([turmaId])
+}
+
+model AtividadeExternaParticipante {
+  id                 Int @id @default(autoincrement())
+  instituicaoId      Int
+  atividadeExternaId Int
+  alunoId            Int
+
+  origem             OrigemParticipanteAtividadeExterna @default(MANUAL)
+  statusParticipacao StatusParticipacaoAtividadeExterna @default(CONVIDADO)
+  statusPresenca     StatusPresencaAtividadeExterna     @default(NAO_REGISTRADA)
+  statusPagamento    StatusPagamentoAtividadeExterna    @default(NAO_APLICAVEL)
+
+  grupoNome  String?
+  observacao String? @db.Text
+
+  convidadoEm  DateTime  @default(now())
+  confirmadoEm DateTime?
+  canceladoEm  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  atividadeExterna AtividadeExterna @relation(fields: [atividadeExternaId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  aluno Aluno @relation(fields: [alunoId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  autorizacoes        AtividadeExternaAutorizacao[]
+  trechosPassageiro   AtividadeExternaTrechoPassageiro[]
+  checkpointRegistros AtividadeExternaCheckpointRegistro[]
+  saude               AtividadeExternaSaudeParticipante?
+
+  @@unique([atividadeExternaId, alunoId])
+  @@unique([id, instituicaoId])
+  @@unique([id, atividadeExternaId, instituicaoId])
+  @@index([instituicaoId])
+  @@index([atividadeExternaId])
+  @@index([alunoId])
+  @@index([statusParticipacao])
+  @@index([statusPresenca])
+  @@index([statusPagamento])
+}
+
+model AtividadeExternaEquipe {
+  id                 Int @id @default(autoincrement())
+  instituicaoId      Int
+  atividadeExternaId Int
+
+  tipoMembro TipoMembroEquipeAtividadeExterna
+  papel      PapelEquipeAtividadeExterna
+  principal  Boolean                          @default(false)
+
+  userId        Int?
+  professorId   Int?
+  funcionarioId Int?
+
+  nomeSnapshot     String
+  emailSnapshot    String?
+  telefoneSnapshot String?
+  observacao       String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  atividadeExterna AtividadeExterna @relation(fields: [atividadeExternaId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  user User? @relation("AtividadeExternaEquipeUser", fields: [userId], references: [id], onDelete: SetNull)
+
+  professor Professor? @relation("AtividadeExternaEquipeProfessor", fields: [professorId], references: [id], onDelete: SetNull)
+
+  funcionario Funcionario? @relation("AtividadeExternaEquipeFuncionario", fields: [funcionarioId], references: [id], onDelete: SetNull)
+
+  veiculosSupervisionados AtividadeExternaTrechoVeiculo[]
+  riscosResponsavel       AtividadeExternaRisco[]
+
+  @@unique([id, instituicaoId])
+  @@index([instituicaoId])
+  @@index([atividadeExternaId])
+  @@index([userId])
+  @@index([professorId])
+  @@index([funcionarioId])
+  @@index([papel])
+}
+
+model AtividadeExternaAutorizacao {
+  id                 Int @id @default(autoincrement())
+  instituicaoId      Int
+  atividadeExternaId Int
+  participanteId     Int
+
+  status StatusAutorizacaoAtividadeExterna  @default(PENDENTE)
+  metodo MetodoAutorizacaoAtividadeExterna?
+
+  responsavelNomeSnapshot       String?
+  responsavelEmailSnapshot      String?
+  responsavelTelefoneSnapshot   String?
+  responsavelParentescoSnapshot String?
+
+  versaoTermo        String?
+  textoTermoSnapshot String? @db.Text
+  observacao         String? @db.Text
+
+  respondidaPorUserId Int?
+  registradaPorUserId Int?
+  respondidaEm        DateTime?
+  revogadaEm          DateTime?
+
+  ip        String?
+  userAgent String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  atividadeExterna AtividadeExterna @relation(fields: [atividadeExternaId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  participante AtividadeExternaParticipante @relation(fields: [participanteId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  respondidaPorUser User? @relation("AtividadeExternaAutorizacaoRespondidaPor", fields: [respondidaPorUserId], references: [id], onDelete: SetNull)
+
+  registradaPorUser User? @relation("AtividadeExternaAutorizacaoRegistradaPor", fields: [registradaPorUserId], references: [id], onDelete: SetNull)
+
+  @@index([instituicaoId])
+  @@index([atividadeExternaId])
+  @@index([participanteId])
+  @@index([status])
+  @@index([respondidaPorUserId])
+  @@index([registradaPorUserId])
+}
+
+enum TipoAtividadeExterna {
+  EXCURSAO
+  VISITA_TECNICA
+  VIAGEM_PEDAGOGICA
+  ACAMPAMENTO
+  RETIRO
+  COMPETICAO
+  INTERCAMBIO
+  EVENTO_ESPORTIVO
+  ATIVIDADE_COMUNITARIA
+  VIAGEM_INTERNACIONAL
+  OUTRA
+}
+
+enum StatusAtividadeExterna {
+  RASCUNHO
+  PLANEJAMENTO
+  AGUARDANDO_AUTORIZACOES
+  CONFIRMADA
+  EM_ANDAMENTO
+  CONCLUIDA
+  CANCELADA
+  ARQUIVADA
+}
+
+enum OrigemParticipanteAtividadeExterna {
+  TURMA
+  MANUAL
+  IMPORTACAO
+}
+
+enum StatusParticipacaoAtividadeExterna {
+  CONVIDADO
+  AGUARDANDO_AUTORIZACAO
+  CONFIRMADO
+  RECUSADO
+  CANCELADO
+}
+
+enum StatusPresencaAtividadeExterna {
+  NAO_REGISTRADA
+  PRESENTE
+  AUSENTE
+  SAIDA_ANTECIPADA
+}
+
+enum StatusPagamentoAtividadeExterna {
+  NAO_APLICAVEL
+  PENDENTE
+  PARCIAL
+  PAGO
+  ISENTO
+  REEMBOLSADO
+  CANCELADO
+}
+
+enum TipoMembroEquipeAtividadeExterna {
+  PROFESSOR
+  FUNCIONARIO
+  ACOMPANHANTE_EXTERNO
+  RESPONSAVEL_VOLUNTARIO
+  GUIA
+  OUTRO
+}
+
+enum PapelEquipeAtividadeExterna {
+  RESPONSAVEL_GERAL
+  COORDENADOR
+  SUPERVISOR
+  MONITOR
+  PRIMEIROS_SOCORROS
+  ACOMPANHANTE
+  OUTRO
+}
+
+enum StatusAutorizacaoAtividadeExterna {
+  PENDENTE
+  AUTORIZADO
+  NAO_AUTORIZADO
+  REVOGADO
+  DISPENSADO
+  EXPIRADO
+}
+
+enum MetodoAutorizacaoAtividadeExterna {
+  PORTAL
+  LINK_SEGURO
+  PRESENCIAL
+  IMPORTADO
+  ADMINISTRATIVO
+  OUTRO
+}
+
+model PrestadorTransporte {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+
+  nome         String
+  nomeFantasia String?
+
+  tipo TipoPrestadorTransporte
+
+  pais   String?
+  regiao String?
+  cidade String?
+
+  telefone String?
+  email    String?
+  site     String?
+
+  responsavelContato         String?
+  telefoneResponsavelContato String?
+  emailResponsavelContato    String?
+
+  tipoDocumento   String?
+  numeroDocumento String?
+
+  numeroLicenca    String?
+  licencaValidaAte DateTime?
+
+  numeroApolice   String?
+  seguroValidoAte DateTime?
+
+  verificacaoTransporteEstudantil StatusVerificacaoTransporteEstudantil @default(NAO_VERIFICADO)
+
+  permiteSubcontratacao Boolean @default(false)
+
+  observacao String? @db.Text
+
+  ativo Boolean @default(true)
+
+  criadoPorId     Int?
+  atualizadoPorId Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  criadoPor User? @relation("PrestadorTransporteCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+
+  atualizadoPor User? @relation("PrestadorTransporteAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
+
+  veiculos                  VeiculoTransporte[]
+  condutores                CondutorTransporte[]
+  trechosAtividadesExternas AtividadeExternaTrecho[]
+
+  @@unique([id, instituicaoId])
+  @@index([instituicaoId])
+  @@index([instituicaoId, ativo])
+  @@index([tipo])
+  @@index([verificacaoTransporteEstudantil])
+  @@index([criadoPorId])
+  @@index([atualizadoPorId])
+}
+
+enum TipoPrestadorTransporte {
+  RODOVIARIO
+  AEREO
+  FERROVIARIO
+  MARITIMO
+  MOBILIDADE_AUTONOMA
+  MULTIMODAL
+  OUTRO
+}
+
+enum StatusVerificacaoTransporteEstudantil {
+  NAO_VERIFICADO
+  VERIFICADO
+  NAO_AUTORIZADO
+  NAO_APLICAVEL
+}
+
+model VeiculoTransporte {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+
+  prestadorTransporteId Int?
+
+  nomeIdentificacao String?
+  tipo              TipoVeiculoTransporte
+
+  marca  String?
+  modelo String?
+  ano    Int?
+
+  placa                String?
+  paisRegistro         String?
+  identificadorExterno String?
+
+  capacidadePassageiros Int?
+
+  acessivelPcd Boolean @default(false)
+
+  tipoConducao TipoConducaoVeiculo @default(HUMANA)
+
+  sistemaConducao String?
+  versaoSoftware  String?
+
+  possuiRastreamento Boolean @default(false)
+  possuiTelemetria   Boolean @default(false)
+
+  trackingProvider  String?
+  externalVehicleId String?
+
+  autorizadoTransporteEstudantil StatusVerificacaoTransporteEstudantil @default(NAO_VERIFICADO)
+
+  observacao String? @db.Text
+
+  ativo Boolean @default(true)
+
+  criadoPorId     Int?
+  atualizadoPorId Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  prestadorTransporte PrestadorTransporte? @relation(fields: [prestadorTransporteId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+  criadoPor           User?                @relation("VeiculoTransporteCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+
+  atualizadoPor User? @relation("VeiculoTransporteAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
+
+  trechosAtividadesExternas AtividadeExternaTrechoVeiculo[]
+
+  @@unique([id, instituicaoId])
+  @@index([instituicaoId])
+  @@index([instituicaoId, ativo])
+  @@index([prestadorTransporteId])
+  @@index([tipo])
+  @@index([tipoConducao])
+  @@index([placa])
+  @@index([externalVehicleId])
+  @@index([criadoPorId])
+  @@index([atualizadoPorId])
+}
+
+enum TipoVeiculoTransporte {
+  ONIBUS
+  MICRO_ONIBUS
+  VAN
+  AUTOMOVEL
+  SUV
+  MINIVAN
+  CAMINHAO_ADAPTADO
+  AERONAVE
+  TREM
+  METRO
+  BONDE
+  BARCO
+  FERRY
+  EMBARCACAO
+  BICICLETA
+  VEICULO_AUTONOMO
+  OUTRO
+}
+
+enum TipoConducaoVeiculo {
+  HUMANA
+  ADAS
+  AUTOMATIZADA_SUPERVISIONADA
+  AUTONOMA
+  SUPERVISAO_REMOTA
+  MISTA
+  NAO_APLICAVEL
 }

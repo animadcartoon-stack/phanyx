@@ -57,6 +57,11 @@ function usuarioAdmin(
   );
 }
 
+/* =========================================================
+   GET
+   Histórico de intervenções de um aluno
+   ========================================================= */
+
 export async function GET(
   request: NextRequest
 ) {
@@ -93,9 +98,11 @@ export async function GET(
     }
 
     const alunoIdTexto =
-      request.nextUrl.searchParams.get(
-        "alunoId"
-      );
+      request.nextUrl
+        .searchParams
+        .get(
+          "alunoId"
+        );
 
     const alunoId =
       Number(
@@ -119,6 +126,10 @@ export async function GET(
       );
     }
 
+    /*
+     * Garante o isolamento
+     * por instituição.
+     */
     const aluno =
       await prisma.aluno.findFirst({
         where: {
@@ -189,6 +200,8 @@ export async function GET(
             resultado:
               true,
 
+            /* Fotografia no registro */
+
             nivelRiscoNoRegistro:
               true,
 
@@ -203,6 +216,31 @@ export async function GET(
 
             fatoresNoRegistro:
               true,
+
+            indicadoresNoRegistro:
+              true,
+
+            /* Fotografia no encerramento */
+
+            nivelRiscoNoEncerramento:
+              true,
+
+            pontuacaoNoEncerramento:
+              true,
+
+            coberturaNoEncerramento:
+              true,
+
+            confiabilidadeNoEncerramento:
+              true,
+
+            fatoresNoEncerramento:
+              true,
+
+            indicadoresNoEncerramento:
+              true,
+
+            /* Datas */
 
             criadoEm:
               true,
@@ -261,6 +299,11 @@ export async function GET(
   }
 }
 
+/* =========================================================
+   POST
+   Registra uma nova intervenção
+   ========================================================= */
+
 export async function POST(
   request: NextRequest
 ) {
@@ -299,6 +342,10 @@ export async function POST(
     const body =
       await request.json();
 
+    /* -----------------------------------------------------
+       ALUNO
+       ----------------------------------------------------- */
+
     const alunoId =
       Number(
         body?.alunoId
@@ -320,6 +367,10 @@ export async function POST(
         }
       );
     }
+
+    /* -----------------------------------------------------
+       TIPO / CANAL / STATUS
+       ----------------------------------------------------- */
 
     const tipo =
       String(
@@ -388,6 +439,10 @@ export async function POST(
       );
     }
 
+    /* -----------------------------------------------------
+       OBSERVAÇÃO
+       ----------------------------------------------------- */
+
     const observacao =
       String(
         body?.observacao ??
@@ -424,6 +479,10 @@ export async function POST(
       );
     }
 
+    /* -----------------------------------------------------
+       CONFIRMA O ALUNO NA INSTITUIÇÃO
+       ----------------------------------------------------- */
+
     const aluno =
       await prisma.aluno.findFirst({
         where: {
@@ -458,6 +517,10 @@ export async function POST(
       );
     }
 
+    /* -----------------------------------------------------
+       RETORNO
+       ----------------------------------------------------- */
+
     let retornoEm:
       | Date
       | null =
@@ -490,6 +553,10 @@ export async function POST(
       retornoEm =
         data;
     }
+
+    /* =====================================================
+       FOTOGRAFIA ACADÊMICA NO MOMENTO DO REGISTRO
+       ===================================================== */
 
     const nivelRisco =
       String(
@@ -542,9 +609,43 @@ export async function POST(
           ?.analise
           ?.fatoresPrincipais
       )
-        ? body.analise
+        ? body
+            .analise
             .fatoresPrincipais
         : [];
+
+    /*
+     * Os indicadores são uma fotografia
+     * dos valores acadêmicos naquele momento.
+     */
+    const indicadores =
+      body?.indicadores &&
+      typeof body.indicadores ===
+        "object" &&
+      !Array.isArray(
+        body.indicadores
+      )
+        ? body.indicadores
+        : null;
+
+    const coberturaNormalizada =
+      Number.isFinite(
+        cobertura
+      )
+        ? Math.max(
+            0,
+            Math.min(
+              100,
+              Math.round(
+                cobertura
+              )
+            )
+          )
+        : 0;
+
+    /* =====================================================
+       CRIA A INTERVENÇÃO
+       ===================================================== */
 
     const intervencao =
       await prisma
@@ -576,6 +677,8 @@ export async function POST(
 
             retornoEm,
 
+            /* Fotografia inicial */
+
             nivelRiscoNoRegistro:
               nivelRisco,
 
@@ -583,21 +686,23 @@ export async function POST(
               pontuacao,
 
             coberturaNoRegistro:
-              Math.max(
-                0,
-                Math.min(
-                  100,
-                  Math.round(
-                    cobertura
-                  )
-                )
-              ),
+              coberturaNormalizada,
 
             confiabilidadeNoRegistro:
               confiabilidade,
 
             fatoresNoRegistro:
               fatores,
+
+            /*
+             * Para Json? usamos undefined
+             * quando nenhum objeto foi recebido.
+             * Assim evitamos conflito com
+             * JsonNull/DbNull do Prisma.
+             */
+            indicadoresNoRegistro:
+              indicadores ??
+              undefined,
           },
 
           select: {
@@ -619,6 +724,11 @@ export async function POST(
             retornoEm:
               true,
 
+            resultado:
+              true,
+
+            /* Fotografia no registro */
+
             nivelRiscoNoRegistro:
               true,
 
@@ -634,7 +744,38 @@ export async function POST(
             fatoresNoRegistro:
               true,
 
+            indicadoresNoRegistro:
+              true,
+
+            /* Encerramento ainda estará vazio */
+
+            nivelRiscoNoEncerramento:
+              true,
+
+            pontuacaoNoEncerramento:
+              true,
+
+            coberturaNoEncerramento:
+              true,
+
+            confiabilidadeNoEncerramento:
+              true,
+
+            fatoresNoEncerramento:
+              true,
+
+            indicadoresNoEncerramento:
+              true,
+
+            /* Datas */
+
             criadoEm:
+              true,
+
+            atualizadoEm:
+              true,
+
+            concluidoEm:
               true,
 
             criadoPor: {
@@ -643,6 +784,9 @@ export async function POST(
                   true,
 
                 nome:
+                  true,
+
+                email:
                   true,
               },
             },

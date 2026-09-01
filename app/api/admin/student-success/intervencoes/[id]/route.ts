@@ -4,6 +4,10 @@ import {
 } from "next/server";
 
 import {
+  Prisma,
+} from "@prisma/client";
+
+import {
   prisma,
 } from "@/lib/prisma";
 
@@ -50,6 +54,10 @@ export async function PATCH(
   }
 ) {
   try {
+    /* =====================================================
+       AUTENTICAÇÃO
+       ===================================================== */
+
     const user =
       await getUserFromToken();
 
@@ -81,6 +89,10 @@ export async function PATCH(
       );
     }
 
+    /* =====================================================
+       INTERVENÇÃO
+       ===================================================== */
+
     const intervencaoId =
       Number(
         context.params.id
@@ -103,6 +115,11 @@ export async function PATCH(
       );
     }
 
+    /*
+     * Importante:
+     * a intervenção precisa pertencer
+     * à mesma instituição do usuário.
+     */
     const atual =
       await prisma
         .studentSuccessIntervencao
@@ -130,6 +147,10 @@ export async function PATCH(
 
     const body =
       await request.json();
+
+    /* =====================================================
+       STATUS
+       ===================================================== */
 
     const statusRecebido =
       body?.status !==
@@ -160,16 +181,21 @@ export async function PATCH(
       statusRecebido as
         StatusIntervencao;
 
+    /* =====================================================
+       RESULTADO
+       ===================================================== */
+
     let resultado:
       | string
       | null =
       atual.resultado;
 
     if (
-      Object.prototype.hasOwnProperty.call(
-        body,
-        "resultado"
-      )
+      Object.prototype
+        .hasOwnProperty.call(
+          body,
+          "resultado"
+        )
     ) {
       const texto =
         String(
@@ -183,8 +209,11 @@ export async function PATCH(
     }
 
     /*
-     * Uma intervenção encerrada precisa
-     * registrar o resultado da atuação.
+     * Uma intervenção resolvida
+     * precisa explicar o resultado.
+     *
+     * Uma intervenção cancelada
+     * precisa explicar o motivo.
      */
     if (
       (
@@ -229,16 +258,21 @@ export async function PATCH(
       );
     }
 
+    /* =====================================================
+       DATA DE RETORNO
+       ===================================================== */
+
     let retornoEm:
       | Date
       | null =
       atual.retornoEm;
 
     if (
-      Object.prototype.hasOwnProperty.call(
-        body,
-        "retornoEm"
-      )
+      Object.prototype
+        .hasOwnProperty.call(
+          body,
+          "retornoEm"
+        )
     ) {
       if (
         body?.retornoEm
@@ -273,6 +307,10 @@ export async function PATCH(
       }
     }
 
+    /* =====================================================
+       SITUAÇÃO DE ENCERRAMENTO
+       ===================================================== */
+
     const encerrada =
       status ===
         "RESOLVIDA" ||
@@ -285,6 +323,10 @@ export async function PATCH(
       atual.concluidoEm;
 
     if (encerrada) {
+      /*
+       * Se ainda não tinha sido encerrada,
+       * registra o momento da conclusão.
+       */
       if (
         !concluidoEm
       ) {
@@ -294,12 +336,177 @@ export async function PATCH(
     }
     else {
       /*
-       * Se a intervenção for reaberta,
+       * Se foi reaberta,
        * deixa de ser considerada concluída.
        */
       concluidoEm =
         null;
     }
+
+    /* =====================================================
+       FOTOGRAFIA ACADÊMICA ATUAL
+       ===================================================== */
+
+    const analiseAtual =
+      body?.analiseAtual &&
+      typeof body.analiseAtual ===
+        "object" &&
+      !Array.isArray(
+        body.analiseAtual
+      )
+        ? body.analiseAtual
+        : null;
+
+    const indicadoresAtuais =
+      body?.indicadoresAtuais &&
+      typeof body.indicadoresAtuais ===
+        "object" &&
+      !Array.isArray(
+        body.indicadoresAtuais
+      )
+        ? body.indicadoresAtuais
+        : null;
+
+    let nivelRiscoNoEncerramento:
+      string | null =
+      atual.nivelRiscoNoEncerramento;
+
+    let pontuacaoNoEncerramento:
+      number | null =
+      atual.pontuacaoNoEncerramento;
+
+    let coberturaNoEncerramento:
+      number | null =
+      atual.coberturaNoEncerramento;
+
+    let confiabilidadeNoEncerramento:
+      string | null =
+      atual.confiabilidadeNoEncerramento;
+
+    let fatoresNoEncerramento:
+      Prisma.InputJsonValue |
+      typeof Prisma.DbNull =
+      Prisma.DbNull;
+
+    let indicadoresNoEncerramento:
+      Prisma.InputJsonValue |
+      typeof Prisma.DbNull =
+      Prisma.DbNull;
+
+    /*
+     * Quando a intervenção é encerrada,
+     * congelamos uma segunda fotografia
+     * acadêmica do aluno.
+     */
+    if (encerrada) {
+      if (!analiseAtual) {
+        return NextResponse.json(
+          {
+            error:
+              "Análise acadêmica atual não informada",
+          },
+          {
+            status: 400,
+          }
+        );
+      }
+
+      nivelRiscoNoEncerramento =
+        String(
+          analiseAtual.nivel ??
+            "DADOS_INSUFICIENTES"
+        );
+
+      const pontuacaoAtual =
+        Number(
+          analiseAtual.pontuacao
+        );
+
+      pontuacaoNoEncerramento =
+        nivelRiscoNoEncerramento ===
+        "DADOS_INSUFICIENTES"
+          ? null
+          : Number.isFinite(
+              pontuacaoAtual
+            )
+          ? Math.round(
+              pontuacaoAtual
+            )
+          : null;
+
+      const coberturaAtual =
+        Number(
+          analiseAtual
+            .coberturaPercentual
+        );
+
+      coberturaNoEncerramento =
+        Number.isFinite(
+          coberturaAtual
+        )
+          ? Math.max(
+              0,
+              Math.min(
+                100,
+                Math.round(
+                  coberturaAtual
+                )
+              )
+            )
+          : 0;
+
+      confiabilidadeNoEncerramento =
+        String(
+          analiseAtual
+            .confiabilidade ??
+            "BAIXA"
+        );
+
+      fatoresNoEncerramento =
+        Array.isArray(
+          analiseAtual
+            .fatoresPrincipais
+        )
+          ? analiseAtual
+              .fatoresPrincipais as Prisma.InputJsonValue
+          : [];
+
+      indicadoresNoEncerramento =
+        indicadoresAtuais
+          ? indicadoresAtuais as Prisma.InputJsonValue
+          : Prisma.DbNull;
+    }
+    else {
+      /*
+       * Se a intervenção for reaberta,
+       * apagamos a fotografia antiga
+       * de encerramento.
+       *
+       * Uma nova fotografia será gravada
+       * quando ela for encerrada novamente.
+       */
+      nivelRiscoNoEncerramento =
+        null;
+
+      pontuacaoNoEncerramento =
+        null;
+
+      coberturaNoEncerramento =
+        null;
+
+      confiabilidadeNoEncerramento =
+        null;
+
+      fatoresNoEncerramento =
+        Prisma.DbNull;
+
+      indicadoresNoEncerramento =
+        Prisma.DbNull;
+    }
+
+    /* =====================================================
+       ATUALIZA
+       ===================================================== */
 
     const atualizada =
       await prisma
@@ -312,9 +519,24 @@ export async function PATCH(
 
           data: {
             status,
+
             resultado,
+
             retornoEm,
+
             concluidoEm,
+
+            nivelRiscoNoEncerramento,
+
+            pontuacaoNoEncerramento,
+
+            coberturaNoEncerramento,
+
+            confiabilidadeNoEncerramento,
+
+            fatoresNoEncerramento,
+
+            indicadoresNoEncerramento,
           },
 
           select: {
@@ -339,6 +561,8 @@ export async function PATCH(
             resultado:
               true,
 
+            /* Fotografia inicial */
+
             nivelRiscoNoRegistro:
               true,
 
@@ -352,6 +576,29 @@ export async function PATCH(
               true,
 
             fatoresNoRegistro:
+              true,
+
+            indicadoresNoRegistro:
+              true,
+
+            /* Fotografia de encerramento */
+
+            nivelRiscoNoEncerramento:
+              true,
+
+            pontuacaoNoEncerramento:
+              true,
+
+            coberturaNoEncerramento:
+              true,
+
+            confiabilidadeNoEncerramento:
+              true,
+
+            fatoresNoEncerramento:
+              true,
+
+            indicadoresNoEncerramento:
               true,
 
             criadoEm:
