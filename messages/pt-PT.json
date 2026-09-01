@@ -203,7 +203,8 @@
                             "campusManagementDisabled":  "Gestão de polos não ativada",
                             "campusManagementDisabledDescription":  "Este ID institucional não tem autorização para criar ou gerir polos. Esta permissão é controlada pela instituição contratante da rede.",
                             "backToDashboard":  "Voltar ao painel",
-                            "studentSuccess":  "Student Success"
+                            "studentSuccess":  "Student Success",
+                            "validationAudit":  "Auditoria de validações"
                         },
     "MonthlyCampaign":  {
                             "origin":  "Campanha mensal",

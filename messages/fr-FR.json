@@ -203,7 +203,8 @@
                             "campusManagementDisabled":  "Gestion des sites non activée",
                             "campusManagementDisabledDescription":  "Cet identifiant institutionnel n\u0027est pas autorisé à créer ou gérer des sites ou des unités. Cette autorisation est contrôlée par l\u0027établissement contractant du réseau.",
                             "backToDashboard":  "Retour au tableau de bord",
-                            "studentSuccess":  "Student Success"
+                            "studentSuccess":  "Student Success",
+                            "validationAudit":  "Audit des validations"
                         },
     "MonthlyCampaign":  {
                             "origin":  "Campagne mensuelle de sensibilisation",

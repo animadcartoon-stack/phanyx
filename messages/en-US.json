@@ -203,7 +203,8 @@
                             "campusManagementDisabled":  "Campus and unit management is unavailable",
                             "campusManagementDisabledDescription":  "This institution ID is not authorized to create or manage campuses or units. This permission is controlled by the network\u0027s contracting institution.",
                             "backToDashboard":  "Back to dashboard",
-                            "studentSuccess":  "Student Success"
+                            "studentSuccess":  "Student Success",
+                            "validationAudit":  "Validation audit"
                         },
     "MonthlyCampaign":  {
                             "origin":  "Monthly Awareness Campaign",

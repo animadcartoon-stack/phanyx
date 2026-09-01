@@ -203,7 +203,8 @@
                             "campusManagementDisabled":  "Gestión de sedes no habilitada",
                             "campusManagementDisabledDescription":  "Este identificador institucional no está autorizado para crear o gestionar sedes o unidades. Este permiso está controlado por la institución contratante de la red.",
                             "backToDashboard":  "Volver al panel",
-                            "studentSuccess":  "Student Success"
+                            "studentSuccess":  "Student Success",
+                            "validationAudit":  "Auditoría de validaciones"
                         },
     "MonthlyCampaign":  {
                             "origin":  "Campaña mensual de concienciación",
