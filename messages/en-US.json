@@ -4397,5 +4397,86 @@
       "loadPreferences": "Unable to load the preferences.",
       "savePreferences": "Unable to save the preferences."
     }
+  },
+  "AdminAcademicPublicationNew": {
+    "backToPublications": "← Back to publications",
+    "eyebrow": "Teaching Support",
+    "title": "New academic publication",
+    "description": "Create activities, assignments, links, or instructions received from teachers and publish them to the correct class and subject.",
+    "loadingData": "Loading data...",
+    "fields": {
+      "activityTitle": "Activity title",
+      "instructions": "Description / teacher instructions",
+      "responsibleTeacher": "Responsible teacher",
+      "class": "Class",
+      "subject": "Subject",
+      "deadline": "Deadline",
+      "maximumGrade": "Maximum grade",
+      "optionalExternalLink": "Optional external link",
+      "publicationFiles": "Publication files"
+    },
+    "placeholders": {
+      "activityTitle": "Example: Guided study about...",
+      "instructions": "Enter the instructions students will see..."
+    },
+    "select": "Select",
+    "noSpecificSubject": "No specific subject",
+    "fileHelp": "Accepts PDF, images, videos, PowerPoint, Word, Excel, ZIP, Blender, Maya, After Effects, and other common formats. Limit: 500 MB per file.",
+    "selectedFiles": "Selected files",
+    "fileSize": "{size} MB",
+    "uploadProgress": "Uploading {current} of {total}: {name}",
+    "publishImmediately": {
+      "title": "Publish to students immediately",
+      "description": "When disabled, it will remain in the publication queue."
+    },
+    "cancel": "Cancel",
+    "savePublication": "Save publication",
+    "saving": "Saving...",
+    "uploadingFiles": "Uploading files...",
+    "success": {
+      "published": "The activity was successfully published to students.",
+      "queued": "The activity was created and added to the publication queue."
+    },
+    "errors": {
+      "loadOptions": "Unable to load the options.",
+      "createPublication": "Unable to create the publication.",
+      "invalidActivityForAttachments": "The publication was created, but the files could not be attached.",
+      "registerAttachment": "The file was uploaded, but it could not be registered."
+    }
+  },
+  "AdminAcademicPublications": {
+    "eyebrow": "Academic Office",
+    "title": "Academic publications",
+    "description": "Review and publication queue for activities and assignments submitted by teachers.",
+    "newPublication": "+ New academic publication",
+    "loading": "Loading publications...",
+    "empty": "There are no publications awaiting review at this time.",
+    "status": {
+      "awaitingPublication": "Awaiting publication",
+      "published": "Published",
+      "returned": "Returned",
+      "draft": "Draft"
+    },
+    "fields": {
+      "teacher": "Teacher",
+      "class": "Class",
+      "subject": "Subject",
+      "deadline": "Deadline",
+      "maximumGrade": "Maximum grade",
+      "sentAt": "Submitted at"
+    },
+    "attachments": "Attachments",
+    "attachmentFallback": "Attachment",
+    "actions": {
+      "publish": "Publish to students",
+      "publishing": "Publishing...",
+      "return": "Return to teacher",
+      "returning": "Returning..."
+    },
+    "errors": {
+      "load": "Unable to load the publications.",
+      "publish": "Unable to publish the activity.",
+      "return": "Unable to return the activity."
+    }
   }
 }

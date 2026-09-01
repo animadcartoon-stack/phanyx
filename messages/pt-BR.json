@@ -4396,5 +4396,86 @@
       "loadPreferences": "Erro ao carregar preferências.",
       "savePreferences": "Erro ao salvar preferências."
     }
+  },
+  "AdminAcademicPublicationNew": {
+    "backToPublications": "← Voltar para publicações",
+    "eyebrow": "Apoio Docente",
+    "title": "Nova publicação acadêmica",
+    "description": "Cadastre atividades, trabalhos, links ou orientações recebidas dos professores e publique na turma e na disciplina corretas.",
+    "loadingData": "Carregando dados...",
+    "fields": {
+      "activityTitle": "Título da atividade",
+      "instructions": "Descrição / instruções do professor",
+      "responsibleTeacher": "Professor responsável",
+      "class": "Turma",
+      "subject": "Disciplina",
+      "deadline": "Prazo",
+      "maximumGrade": "Nota máxima",
+      "optionalExternalLink": "Link externo opcional",
+      "publicationFiles": "Arquivos da publicação"
+    },
+    "placeholders": {
+      "activityTitle": "Ex.: Estudo dirigido sobre...",
+      "instructions": "Digite as orientações que serão vistas pelos alunos..."
+    },
+    "select": "Selecione",
+    "noSpecificSubject": "Sem disciplina específica",
+    "fileHelp": "Aceita PDF, imagens, vídeos, PowerPoint, Word, Excel, ZIP, Blender, Maya, After Effects e outros formatos comuns. Limite: 500 MB por arquivo.",
+    "selectedFiles": "Arquivos selecionados",
+    "fileSize": "{size} MB",
+    "uploadProgress": "Enviando {current} de {total}: {name}",
+    "publishImmediately": {
+      "title": "Publicar imediatamente para os alunos",
+      "description": "Se desligado, ficará na fila aguardando publicação."
+    },
+    "cancel": "Cancelar",
+    "savePublication": "Salvar publicação",
+    "saving": "Salvando...",
+    "uploadingFiles": "Enviando arquivos...",
+    "success": {
+      "published": "Atividade publicada para os alunos com sucesso.",
+      "queued": "Atividade criada e enviada para a fila de publicação."
+    },
+    "errors": {
+      "loadOptions": "Erro ao carregar opções.",
+      "createPublication": "Erro ao criar publicação.",
+      "invalidActivityForAttachments": "A publicação foi criada, mas não foi possível anexar os arquivos.",
+      "registerAttachment": "O arquivo foi enviado, mas não foi registrado."
+    }
+  },
+  "AdminAcademicPublications": {
+    "eyebrow": "Secretaria Acadêmica",
+    "title": "Publicações acadêmicas",
+    "description": "Fila de atividades e trabalhos enviados pelos professores para conferência e publicação.",
+    "newPublication": "+ Nova publicação acadêmica",
+    "loading": "Carregando publicações...",
+    "empty": "Nenhuma publicação aguardando análise no momento.",
+    "status": {
+      "awaitingPublication": "Aguardando publicação",
+      "published": "Publicada",
+      "returned": "Devolvida",
+      "draft": "Rascunho"
+    },
+    "fields": {
+      "teacher": "Professor",
+      "class": "Turma",
+      "subject": "Disciplina",
+      "deadline": "Prazo",
+      "maximumGrade": "Nota máxima",
+      "sentAt": "Enviado em"
+    },
+    "attachments": "Anexos",
+    "attachmentFallback": "Anexo",
+    "actions": {
+      "publish": "Publicar para alunos",
+      "publishing": "Publicando...",
+      "return": "Devolver ao professor",
+      "returning": "Devolvendo..."
+    },
+    "errors": {
+      "load": "Erro ao carregar publicações.",
+      "publish": "Erro ao publicar atividade.",
+      "return": "Erro ao devolver atividade."
+    }
   }
 }

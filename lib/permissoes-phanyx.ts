@@ -20,6 +20,23 @@ export const PERMISSOES_PHANYX = [
   { chave: "matriculas.ver", nome: "Acadêmico - Ver matrículas" },
   { chave: "matriculas.criar", nome: "Acadêmico - Criar matrículas" },
 
+    // =====================================================
+  // ATIVIDADES EXTERNAS
+  // Passeios, excursões, retiros, acampamentos e viagens
+  // =====================================================
+  {
+    chave: "atividades-externas.ver",
+    nome: "Acadêmico - Ver atividades externas",
+    descricao:
+      "Permite consultar passeios, excursões, viagens pedagógicas, retiros, acampamentos e demais atividades externas da instituição.",
+  },
+  {
+    chave: "atividades-externas.gerenciar",
+    nome: "Acadêmico - Gerenciar atividades externas",
+    descricao:
+      "Permite criar e administrar atividades externas, participantes, turmas, responsáveis, datas, destinos e planejamento geral.",
+  },
+
   // =====================================================
   // APOIO DOCENTE
   // Página própria no Admin

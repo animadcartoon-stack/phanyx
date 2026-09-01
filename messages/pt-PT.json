@@ -4396,5 +4396,86 @@
       "loadPreferences": "Erro ao carregar as preferências.",
       "savePreferences": "Erro ao guardar as preferências."
     }
+  },
+  "AdminAcademicPublicationNew": {
+    "backToPublications": "← Voltar às publicações",
+    "eyebrow": "Apoio Docente",
+    "title": "Nova publicação académica",
+    "description": "Registe atividades, trabalhos, ligações ou orientações recebidas dos professores e publique na turma e na disciplina corretas.",
+    "loadingData": "A carregar dados...",
+    "fields": {
+      "activityTitle": "Título da atividade",
+      "instructions": "Descrição / instruções do professor",
+      "responsibleTeacher": "Professor responsável",
+      "class": "Turma",
+      "subject": "Disciplina",
+      "deadline": "Prazo",
+      "maximumGrade": "Nota máxima",
+      "optionalExternalLink": "Ligação externa opcional",
+      "publicationFiles": "Ficheiros da publicação"
+    },
+    "placeholders": {
+      "activityTitle": "Ex.: Estudo orientado sobre...",
+      "instructions": "Introduza as orientações que serão apresentadas aos alunos..."
+    },
+    "select": "Selecionar",
+    "noSpecificSubject": "Sem disciplina específica",
+    "fileHelp": "Aceita PDF, imagens, vídeos, PowerPoint, Word, Excel, ZIP, Blender, Maya, After Effects e outros formatos comuns. Limite: 500 MB por ficheiro.",
+    "selectedFiles": "Ficheiros selecionados",
+    "fileSize": "{size} MB",
+    "uploadProgress": "A enviar {current} de {total}: {name}",
+    "publishImmediately": {
+      "title": "Publicar imediatamente para os alunos",
+      "description": "Se estiver desativado, ficará na fila a aguardar publicação."
+    },
+    "cancel": "Cancelar",
+    "savePublication": "Guardar publicação",
+    "saving": "A guardar...",
+    "uploadingFiles": "A enviar ficheiros...",
+    "success": {
+      "published": "Atividade publicada para os alunos com sucesso.",
+      "queued": "Atividade criada e enviada para a fila de publicação."
+    },
+    "errors": {
+      "loadOptions": "Erro ao carregar as opções.",
+      "createPublication": "Erro ao criar a publicação.",
+      "invalidActivityForAttachments": "A publicação foi criada, mas não foi possível anexar os ficheiros.",
+      "registerAttachment": "O ficheiro foi enviado, mas não foi registado."
+    }
+  },
+  "AdminAcademicPublications": {
+    "eyebrow": "Secretaria Académica",
+    "title": "Publicações académicas",
+    "description": "Fila de atividades e trabalhos enviados pelos professores para verificação e publicação.",
+    "newPublication": "+ Nova publicação académica",
+    "loading": "A carregar publicações...",
+    "empty": "Não existem publicações a aguardar análise neste momento.",
+    "status": {
+      "awaitingPublication": "A aguardar publicação",
+      "published": "Publicada",
+      "returned": "Devolvida",
+      "draft": "Rascunho"
+    },
+    "fields": {
+      "teacher": "Professor",
+      "class": "Turma",
+      "subject": "Disciplina",
+      "deadline": "Prazo",
+      "maximumGrade": "Nota máxima",
+      "sentAt": "Enviado em"
+    },
+    "attachments": "Anexos",
+    "attachmentFallback": "Anexo",
+    "actions": {
+      "publish": "Publicar para os alunos",
+      "publishing": "A publicar...",
+      "return": "Devolver ao professor",
+      "returning": "A devolver..."
+    },
+    "errors": {
+      "load": "Erro ao carregar as publicações.",
+      "publish": "Erro ao publicar a atividade.",
+      "return": "Erro ao devolver a atividade."
+    }
   }
 }

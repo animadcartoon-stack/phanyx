@@ -4396,5 +4396,86 @@
       "loadPreferences": "Impossible de charger les préférences.",
       "savePreferences": "Impossible d'enregistrer les préférences."
     }
+  },
+  "AdminAcademicPublicationNew": {
+    "backToPublications": "← Retour aux publications",
+    "eyebrow": "Soutien pédagogique",
+    "title": "Nouvelle publication académique",
+    "description": "Créez des activités, des devoirs, des liens ou des consignes reçues des enseignants et publiez-les dans la classe et la matière appropriées.",
+    "loadingData": "Chargement des données...",
+    "fields": {
+      "activityTitle": "Titre de l’activité",
+      "instructions": "Description / consignes de l’enseignant",
+      "responsibleTeacher": "Enseignant responsable",
+      "class": "Classe",
+      "subject": "Matière",
+      "deadline": "Échéance",
+      "maximumGrade": "Note maximale",
+      "optionalExternalLink": "Lien externe facultatif",
+      "publicationFiles": "Fichiers de la publication"
+    },
+    "placeholders": {
+      "activityTitle": "Ex. : Étude dirigée sur...",
+      "instructions": "Saisissez les consignes qui seront affichées aux élèves..."
+    },
+    "select": "Sélectionner",
+    "noSpecificSubject": "Aucune matière spécifique",
+    "fileHelp": "Accepte les PDF, images, vidéos, fichiers PowerPoint, Word, Excel, ZIP, Blender, Maya, After Effects et d’autres formats courants. Limite : 500 Mo par fichier.",
+    "selectedFiles": "Fichiers sélectionnés",
+    "fileSize": "{size} Mo",
+    "uploadProgress": "Envoi de {current} sur {total} : {name}",
+    "publishImmediately": {
+      "title": "Publier immédiatement pour les élèves",
+      "description": "Si cette option est désactivée, l’activité restera dans la file de publication."
+    },
+    "cancel": "Annuler",
+    "savePublication": "Enregistrer la publication",
+    "saving": "Enregistrement...",
+    "uploadingFiles": "Envoi des fichiers...",
+    "success": {
+      "published": "L’activité a été publiée pour les élèves avec succès.",
+      "queued": "L’activité a été créée et ajoutée à la file de publication."
+    },
+    "errors": {
+      "loadOptions": "Impossible de charger les options.",
+      "createPublication": "Impossible de créer la publication.",
+      "invalidActivityForAttachments": "La publication a été créée, mais les fichiers n’ont pas pu être joints.",
+      "registerAttachment": "Le fichier a été envoyé, mais il n’a pas pu être enregistré."
+    }
+  },
+  "AdminAcademicPublications": {
+    "eyebrow": "Secrétariat pédagogique",
+    "title": "Publications académiques",
+    "description": "File d’attente des activités et des devoirs envoyés par les enseignants pour vérification et publication.",
+    "newPublication": "+ Nouvelle publication académique",
+    "loading": "Chargement des publications...",
+    "empty": "Aucune publication n’est actuellement en attente de vérification.",
+    "status": {
+      "awaitingPublication": "En attente de publication",
+      "published": "Publiée",
+      "returned": "Renvoyée",
+      "draft": "Brouillon"
+    },
+    "fields": {
+      "teacher": "Enseignant",
+      "class": "Classe",
+      "subject": "Matière",
+      "deadline": "Échéance",
+      "maximumGrade": "Note maximale",
+      "sentAt": "Envoyé le"
+    },
+    "attachments": "Pièces jointes",
+    "attachmentFallback": "Pièce jointe",
+    "actions": {
+      "publish": "Publier pour les élèves",
+      "publishing": "Publication...",
+      "return": "Renvoyer à l’enseignant",
+      "returning": "Renvoi..."
+    },
+    "errors": {
+      "load": "Impossible de charger les publications.",
+      "publish": "Impossible de publier l’activité.",
+      "return": "Impossible de renvoyer l’activité."
+    }
   }
 }
