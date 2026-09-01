@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { upload } from "@vercel/blob/client";
 import { useTranslations } from "next-intl";
@@ -29,6 +29,7 @@ export default function NovaPublicacaoAcademicaPage() {
 
   const [arquivos, setArquivos] = useState<File[]>([]);
   const [fileInputKey, setFileInputKey] = useState(0);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [uploading, setUploading] = useState(false);
   const [progressoUpload, setProgressoUpload] = useState("");
 
@@ -324,6 +325,23 @@ export default function NovaPublicacaoAcademicaPage() {
           -webkit-text-fill-color: var(--publication-muted);
         }
 
+        .phanyx-new-publication-page .publication-file-picker {
+          border: 1px dashed var(--publication-border);
+          background: var(--publication-input-bg);
+        }
+
+        .phanyx-new-publication-page .publication-file-picker-button {
+          border: 1px solid var(--publication-border);
+          background: var(--publication-soft-bg);
+          color: var(--publication-text);
+          -webkit-text-fill-color: var(--publication-text);
+        }
+
+        .phanyx-new-publication-page .publication-file-picker-button:hover {
+          border-color: #3b82f6;
+          background: var(--publication-card-bg);
+        }
+
         .phanyx-new-publication-page .publication-success {
           border-color: var(--publication-success-border);
           background: var(--publication-success-bg);
@@ -568,14 +586,31 @@ export default function NovaPublicacaoAcademicaPage() {
 
                 <input
                   key={fileInputKey}
+                  ref={fileInputRef}
                   id="publication-files"
                   type="file"
                   multiple
                   onChange={(e) => {
                     setArquivos(Array.from(e.target.files || []));
                   }}
-                  className="publication-control mt-2 rounded-2xl border-dashed px-4 py-4 text-sm outline-none"
+                  className="sr-only"
                 />
+
+                <div className="publication-file-picker mt-2 flex flex-col gap-3 rounded-2xl p-4 sm:flex-row sm:items-center">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="publication-file-picker-button inline-flex shrink-0 items-center justify-center rounded-xl px-4 py-2.5 text-sm font-bold"
+                  >
+                    {t("chooseFiles")}
+                  </button>
+
+                  <span className="publication-description min-w-0 break-words text-sm">
+                    {arquivos.length > 0
+                      ? t("filesSelected", { count: arquivos.length })
+                      : t("noFilesSelected")}
+                  </span>
+                </div>
 
                 <p className="publication-help mt-2 text-xs">
                   {t("fileHelp")}
