@@ -3,6 +3,7 @@
 import { upload } from "@vercel/blob/client";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 
 import {
   useCallback,
@@ -528,11 +529,16 @@ function limparNomeArquivoUpload(
 function rotuloEnum(valor?: string | null) {
   if (!valor) return "—";
 
+  const locale =
+    typeof document !== "undefined"
+      ? document.documentElement.lang || "pt-BR"
+      : "pt-BR";
+
   return valor
     .replaceAll("_", " ")
-    .toLocaleLowerCase("pt-BR")
+    .toLocaleLowerCase(locale)
     .replace(/(^|\s)\p{L}/gu, (letra) =>
-      letra.toLocaleUpperCase("pt-BR")
+      letra.toLocaleUpperCase(locale)
     );
 }
 
@@ -543,7 +549,12 @@ function formatarData(valor?: string | null) {
 
   if (Number.isNaN(data.getTime())) return "—";
 
-  return new Intl.DateTimeFormat("pt-BR", {
+  const locale =
+    typeof document !== "undefined"
+      ? document.documentElement.lang || "pt-BR"
+      : "pt-BR";
+
+  return new Intl.DateTimeFormat(locale, {
     dateStyle: "short",
     timeStyle: "short",
   }).format(data);
@@ -563,7 +574,12 @@ function formatarBytes(valor: string) {
   );
   const quantidade = bytes / 1024 ** indice;
 
-  return `${new Intl.NumberFormat("pt-BR", {
+  const locale =
+    typeof document !== "undefined"
+      ? document.documentElement.lang || "pt-BR"
+      : "pt-BR";
+
+  return `${new Intl.NumberFormat(locale, {
     maximumFractionDigits: indice === 0 ? 0 : 1,
   }).format(quantidade)} ${unidades[indice]}`;
 }
@@ -674,8 +690,91 @@ const FORMULARIO_EXEMPLAR_INICIAL: FormularioExemplar = {
 };
 
 export default function BibliotecaItemPage() {
+  const t = useTranslations("AdminLibraryItem");
+  const ui = useTranslations("AdminLibraryItemUi");
+  const tCollection = useTranslations("AdminLibraryCollection");
+  const tDashboard = useTranslations("AdminLibraryDashboard");
+  const locale = useLocale();
   const params = useParams<{ itemId: string }>();
   const itemId = Number(params.itemId);
+
+  function rotuloTipoItem(valor: string) {
+    switch (valor) {
+      case "LIVRO": return tDashboard("types.book");
+      case "EBOOK": return tDashboard("types.ebook");
+      case "ARTIGO_CIENTIFICO": return tDashboard("types.scientificArticle");
+      case "REVISTA": return tDashboard("types.magazine");
+      case "PERIODICO": return tDashboard("types.journal");
+      case "APOSTILA": return tDashboard("types.handout");
+      case "TCC": return tDashboard("types.finalPaper");
+      case "MONOGRAFIA": return tDashboard("types.monograph");
+      case "DISSERTACAO": return tDashboard("types.dissertation");
+      case "TESE": return tDashboard("types.thesis");
+      case "PESQUISA": return tDashboard("types.research");
+      case "DOCUMENTO": return tDashboard("types.document");
+      case "VIDEO": return tDashboard("types.video");
+      case "DOCUMENTARIO": return tDashboard("types.documentary");
+      case "AUDIO": return tDashboard("types.audio");
+      case "AUDIOLIVRO": return tDashboard("types.audiobook");
+      case "PODCAST": return tDashboard("types.podcast");
+      case "LINK_EXTERNO": return tDashboard("types.externalLink");
+      case "OUTRO": return tDashboard("types.other");
+      default: return valor;
+    }
+  }
+
+  function rotuloStatusItem(valor: string) {
+    switch (valor) {
+      case "RASCUNHO": return tDashboard("itemStatus.draft");
+      case "EM_REVISAO": return tDashboard("itemStatus.inReview");
+      case "PUBLICADO": return tDashboard("itemStatus.published");
+      case "RESTRITO": return tDashboard("itemStatus.restricted");
+      case "INDISPONIVEL": return tDashboard("itemStatus.unavailable");
+      case "ARQUIVADO": return tDashboard("itemStatus.archived");
+      default: return valor;
+    }
+  }
+
+  function rotuloModalidade(valor: string) {
+    switch (valor) {
+      case "LEITURA_INTERNA": return tCollection("modalities.internalReading");
+      case "ACESSO_LIVRE": return tCollection("modalities.openAccess");
+      case "DOWNLOAD_AUTORIZADO": return tCollection("modalities.authorizedDownload");
+      case "EMPRESTIMO_DIGITAL": return tCollection("modalities.digitalLoan");
+      case "EMPRESTIMO_FISICO": return tCollection("modalities.physicalLoan");
+      case "STREAMING": return tCollection("modalities.streaming");
+      case "LINK_EXTERNO": return tCollection("modalities.externalLink");
+      default: return valor;
+    }
+  }
+
+  function rotuloEnumLocalizado(valor?: string | null) {
+    switch (valor) {
+      case "DISPONIVEL": return ui("enumAvailable");
+      case "PROCESSANDO": return ui("enumProcessing");
+      case "ERRO": return ui("enumError");
+      case "EXCLUIDO": return ui("enumDeleted");
+      case "FISICO": return ui("physical");
+      case "DIGITAL": return ui("digital");
+      case "EMPRESTADO": return ui("enumLoaned");
+      case "RESERVADO": return ui("enumReserved");
+      case "MANUTENCAO": return ui("enumMaintenance");
+      case "DANIFICADO": return ui("enumDamaged");
+      case "INDISPONIVEL": return ui("enumUnavailable");
+      case "EXTRAVIADO": return ui("enumLost");
+      case "BAIXADO": return ui("enumWrittenOff");
+      case "AUTOR": return ui("enumAuthor");
+      case "COAUTOR": return ui("enumCoauthor");
+      case "ORGANIZADOR": return ui("enumOrganizer");
+      case "TRADUTOR": return ui("enumTranslator");
+      case "REVISOR": return ui("enumReviewer");
+      case "ILUSTRADOR": return ui("enumIllustrator");
+      case "ALUNO": return ui("enumStudent");
+      case "PROFESSOR": return ui("enumTeacher");
+      case "FUNCIONARIO": return ui("enumEmployee");
+      default: return rotuloEnum(valor);
+    }
+  }
 
   const [item, setItem] = useState<ItemDetalhe | null>(null);
   const [formulario, setFormulario] =
@@ -969,7 +1068,7 @@ export default function BibliotecaItemPage() {
   const carregarItem = useCallback(
     async (signal?: AbortSignal) => {
       if (!Number.isInteger(itemId) || itemId <= 0) {
-        setErro("O identificador do item é inválido.");
+        setErro(ui("invalidItemId"));
         setCarregando(false);
         return;
       }
@@ -993,7 +1092,7 @@ export default function BibliotecaItemPage() {
           throw new Error(
             obterMensagemErro(
               resultado,
-              "Não foi possível carregar o item."
+              ui("loadItemError")
             )
           );
         }
@@ -1048,7 +1147,7 @@ export default function BibliotecaItemPage() {
         setErro(
           falha instanceof Error
             ? falha.message
-            : "Não foi possível carregar o item."
+            : ui("loadItemError")
         );
       } finally {
         if (!signal?.aborted) {
@@ -1092,7 +1191,7 @@ export default function BibliotecaItemPage() {
             throw new Error(
               resultado.error ||
               resultado.mensagem ||
-              "Não foi possível carregar os exemplares."
+              ui("loadCopiesError")
             );
           }
 
@@ -1148,7 +1247,7 @@ export default function BibliotecaItemPage() {
             mensagem:
               falha instanceof Error
                 ? falha.message
-                : "Não foi possível carregar os exemplares.",
+                : ui("loadCopiesError"),
           });
         } finally {
           if (!signal?.aborted) {
@@ -1371,7 +1470,7 @@ export default function BibliotecaItemPage() {
               throw new Error(
                 resultado.error ||
                 resultado.mensagem ||
-                "Não foi possível pesquisar usuários."
+                ui("searchUsersError")
               );
             }
 
@@ -1405,7 +1504,7 @@ export default function BibliotecaItemPage() {
             setErroBuscaUsuariosEmprestimo(
               falha instanceof Error
                 ? falha.message
-                : "Não foi possível pesquisar usuários."
+                : ui("searchUsersError")
             );
           } finally {
             if (
@@ -1495,7 +1594,7 @@ export default function BibliotecaItemPage() {
       setToast({
         tipo: "erro",
         mensagem:
-          "Não foi possível identificar a instituição da Biblioteca Virtual.",
+          ui("identifyInstitutionError"),
       });
 
       return;
@@ -1505,7 +1604,7 @@ export default function BibliotecaItemPage() {
       setToast({
         tipo: "erro",
         mensagem:
-          "Não foi possível consultar o armazenamento disponível.",
+          ui("storageQueryError"),
       });
 
       return;
@@ -1524,7 +1623,7 @@ export default function BibliotecaItemPage() {
       setToast({
         tipo: "erro",
         mensagem:
-          "Formato não permitido. Envie PDF, EPUB, áudio ou vídeo compatível.",
+          ui("invalidFileFormat"),
       });
 
       return;
@@ -1553,11 +1652,7 @@ export default function BibliotecaItemPage() {
       setToast({
         tipo: "erro",
         mensagem:
-          `O arquivo possui ${formatarBytes(
-            String(arquivo.size)
-          )}, mas existem apenas ${formatarBytes(
-            armazenamento.disponivelBytes
-          )} disponíveis.`,
+          ui("insufficientStorage", { fileSize: formatarBytes(String(arquivo.size)), available: formatarBytes(armazenamento.disponivelBytes) }),
       });
 
       return;
@@ -1629,7 +1724,7 @@ export default function BibliotecaItemPage() {
       setToast({
         tipo: "sucesso",
         mensagem:
-          "Arquivo enviado. O PHANYX está concluindo o registro no acervo.",
+          ui("uploadSuccess"),
       });
 
       /*
@@ -1666,7 +1761,7 @@ export default function BibliotecaItemPage() {
         mensagem:
           falha instanceof Error
             ? falha.message
-            : "Não foi possível enviar o arquivo.",
+            : ui("uploadError"),
       });
     } finally {
       setEnviandoArquivo(
@@ -1730,7 +1825,7 @@ export default function BibliotecaItemPage() {
             body: JSON.stringify({
               motivo:
                 motivoExclusao.trim() ||
-                "Arquivo removido pelo operador da Biblioteca Virtual.",
+                ui("defaultFileRemovalReason"),
             }),
           }
         );
@@ -1746,7 +1841,7 @@ export default function BibliotecaItemPage() {
       if (!resposta.ok) {
         throw new Error(
           resultado.error ||
-          "Não foi possível excluir o arquivo."
+          ui("deleteFileError")
         );
       }
 
@@ -1763,9 +1858,9 @@ export default function BibliotecaItemPage() {
         mensagem:
           liberado &&
             liberado !== "0 B"
-            ? `Arquivo removido. ${liberado} foram liberados do armazenamento.`
+            ? ui("storageReleased", { size: liberado })
             : resultado.mensagem ||
-            "Arquivo removido com sucesso.",
+            ui("deleteFileSuccess"),
       });
 
       setArquivoParaExcluir(
@@ -1785,7 +1880,7 @@ export default function BibliotecaItemPage() {
         mensagem:
           falha instanceof Error
             ? falha.message
-            : "Não foi possível excluir o arquivo.",
+            : ui("deleteFileError"),
       });
     } finally {
       setExcluindoArquivo(
@@ -1834,7 +1929,7 @@ export default function BibliotecaItemPage() {
       if (!resposta.ok) {
         throw new Error(
           resultado.error ||
-          "Não foi possível definir o arquivo principal."
+          ui("setPrimaryError")
         );
       }
 
@@ -1843,7 +1938,7 @@ export default function BibliotecaItemPage() {
 
         mensagem:
           resultado.mensagem ||
-          "Arquivo definido como principal.",
+          ui("setPrimarySuccess"),
       });
 
       setAtualizacao(
@@ -1857,7 +1952,7 @@ export default function BibliotecaItemPage() {
         mensagem:
           falha instanceof Error
             ? falha.message
-            : "Não foi possível definir o arquivo principal.",
+            : ui("setPrimaryError"),
       });
     } finally {
       setDefinindoPrincipalId(
@@ -1897,7 +1992,7 @@ export default function BibliotecaItemPage() {
         throw new Error(
           resultado.error ||
           resultado.mensagem ||
-          "Não foi possível carregar o histórico dos arquivos."
+          ui("loadFileHistoryError")
         );
       }
 
@@ -1916,7 +2011,7 @@ export default function BibliotecaItemPage() {
       setErroHistoricoArquivos(
         falha instanceof Error
           ? falha.message
-          : "Não foi possível carregar o histórico dos arquivos."
+          : ui("loadFileHistoryError")
       );
     } finally {
       setCarregandoHistoricoArquivos(
@@ -1971,7 +2066,7 @@ export default function BibliotecaItemPage() {
         throw new Error(
           obterMensagemErro(
             resultado,
-            "Não foi possível salvar o item."
+            ui("saveItemError")
           )
         );
       }
@@ -1983,7 +2078,7 @@ export default function BibliotecaItemPage() {
         tipo: "sucesso",
         mensagem:
           resultado.mensagem ||
-          "Item atualizado com sucesso.",
+          ui("saveItemSuccess"),
       });
     } catch (falha) {
       setToast({
@@ -1991,25 +2086,87 @@ export default function BibliotecaItemPage() {
         mensagem:
           falha instanceof Error
             ? falha.message
-            : "Não foi possível salvar o item.",
+            : ui("saveItemError"),
       });
     } finally {
       setSalvando(false);
     }
   }
 
+  const estilos = (
+    <style jsx global>{`
+      html[data-theme="system"] .phanyx-biblioteca-item-page {
+        background: #242424 !important;
+        color: #ffffff !important;
+        color-scheme: dark;
+      }
+
+      html[data-theme="system"] .phanyx-biblioteca-item-page .bib-hero,
+      html[data-theme="system"] .phanyx-biblioteca-item-page .bib-card,
+      html[data-theme="system"] .phanyx-biblioteca-item-page .bib-summary-card,
+      html[data-theme="system"] .phanyx-biblioteca-item-page .bib-modal,
+      html[data-theme="system"] .phanyx-biblioteca-item-page .bib-related-row,
+      html[data-theme="system"] .phanyx-biblioteca-item-page .bib-detail-savebar,
+      html[data-theme="system"] .phanyx-biblioteca-item-page .bib-detail-history {
+        background: #2d2d2d !important;
+        border-color: #505050 !important;
+        color: #ffffff !important;
+      }
+
+      html[data-theme="system"] .phanyx-biblioteca-item-page .bib-input,
+      html[data-theme="system"] .phanyx-biblioteca-item-page select,
+      html[data-theme="system"] .phanyx-biblioteca-item-page textarea,
+      html[data-theme="system"] .phanyx-biblioteca-item-page option,
+      html[data-theme="system"] .phanyx-biblioteca-item-page .bib-options,
+      html[data-theme="system"] .phanyx-biblioteca-item-page .bib-detail-cover,
+      html[data-theme="system"] .phanyx-biblioteca-item-page .bib-compact-empty {
+        background: #383838 !important;
+        border-color: #606060 !important;
+        color: #ffffff !important;
+        -webkit-text-fill-color: #ffffff !important;
+      }
+
+      html[data-theme="system"] .phanyx-biblioteca-item-page h1,
+      html[data-theme="system"] .phanyx-biblioteca-item-page h2,
+      html[data-theme="system"] .phanyx-biblioteca-item-page h3,
+      html[data-theme="system"] .phanyx-biblioteca-item-page label,
+      html[data-theme="system"] .phanyx-biblioteca-item-page strong {
+        color: #ffffff !important;
+        -webkit-text-fill-color: #ffffff !important;
+      }
+
+      html[data-theme="system"] .phanyx-biblioteca-item-page p,
+      html[data-theme="system"] .phanyx-biblioteca-item-page small,
+      html[data-theme="system"] .phanyx-biblioteca-item-page .bib-subtitle,
+      html[data-theme="system"] .phanyx-biblioteca-item-page .bib-readonly-chip {
+        color: #d1d5db !important;
+        -webkit-text-fill-color: #d1d5db !important;
+      }
+
+      html[data-theme="system"] .phanyx-biblioteca-item-page .bib-button-secondary,
+      html[data-theme="system"] .phanyx-biblioteca-item-page .bib-button-ghost,
+      html[data-theme="system"] .phanyx-biblioteca-item-page .bib-file-action {
+        background: #383838 !important;
+        border-color: #666666 !important;
+        color: #ffffff !important;
+        -webkit-text-fill-color: #ffffff !important;
+      }
+    `}</style>
+  );
+
   if (carregando) {
     return (
-      <main className="phanyx-biblioteca-acervo-page phanyx-biblioteca-item-page">
+      <main className="phanyx-biblioteca-acervo-page phanyx-biblioteca-item-page" data-locale={locale}>
+        {estilos}
         <div className="bib-page-shell">
           <section className="bib-hero bib-detail-loading">
             <div>
               <p className="bib-eyebrow">
-                Biblioteca Virtual PHANYX
+                {t("eyebrow")}
               </p>
-              <h1>Carregando item...</h1>
+              <h1>{t("loading.title")}</h1>
               <p className="bib-hero-description">
-                Buscando os dados do acervo desta instituição.
+                {t("loading.description")}
               </p>
             </div>
           </section>
@@ -2021,20 +2178,21 @@ export default function BibliotecaItemPage() {
 
   if (erro || !item || !formulario) {
     return (
-      <main className="phanyx-biblioteca-acervo-page phanyx-biblioteca-item-page">
+      <main className="phanyx-biblioteca-acervo-page phanyx-biblioteca-item-page" data-locale={locale}>
+        {estilos}
         <div className="bib-page-shell">
           <section className="bib-card bib-detail-error">
             <div className="bib-empty-icon" aria-hidden="true">
               ⚠️
             </div>
-            <h1>Não foi possível abrir o item</h1>
-            <p>{erro || "Item não encontrado."}</p>
+              <h1>{t("errors.openTitle")}</h1>
+              <p>{erro || t("errors.notFound")}</p>
             <div className="bib-detail-error-actions">
               <Link
                 href="/admin/biblioteca/acervo"
                 className="bib-button bib-button-secondary"
               >
-                ← Voltar ao acervo
+                {t("backToCollection")}
               </Link>
               <button
                 type="button"
@@ -2043,7 +2201,7 @@ export default function BibliotecaItemPage() {
                   setAtualizacao((valor) => valor + 1)
                 }
               >
-                Tentar novamente
+                {t("retry")}
               </button>
             </div>
           </section>
@@ -2260,7 +2418,7 @@ export default function BibliotecaItemPage() {
       setToast({
         tipo: "erro",
         mensagem:
-          "Informe o motivo da baixa do exemplar.",
+          ui("writeOffReasonRequired"),
       });
 
       return;
@@ -2294,7 +2452,7 @@ export default function BibliotecaItemPage() {
         throw new Error(
           resultado.error ||
           resultado.mensagem ||
-          "Não foi possível realizar a baixa do exemplar."
+          ui("writeOffError")
         );
       }
 
@@ -2305,7 +2463,7 @@ export default function BibliotecaItemPage() {
         tipo: "sucesso",
         mensagem:
           resultado.mensagem ||
-          "Baixa do exemplar realizada com sucesso.",
+          ui("writeOffSuccess"),
       });
 
       setAtualizacao(
@@ -2318,7 +2476,7 @@ export default function BibliotecaItemPage() {
         mensagem:
           falha instanceof Error
             ? falha.message
-            : "Não foi possível realizar a baixa do exemplar.",
+            : ui("writeOffError"),
       });
     } finally {
       setBaixandoExemplar(false);
@@ -2357,7 +2515,7 @@ export default function BibliotecaItemPage() {
       setToast({
         tipo: "erro",
         mensagem:
-          "Informe o código interno do exemplar.",
+          ui("internalCodeRequired"),
       });
 
       return;
@@ -2493,8 +2651,8 @@ export default function BibliotecaItemPage() {
           resultado.error ||
           resultado.mensagem ||
           (editandoExemplar
-            ? "Não foi possível atualizar o exemplar."
-            : "Não foi possível cadastrar o exemplar.")
+            ? ui("updateCopyError")
+            : ui("createCopyError"))
         );
       }
 
@@ -2512,8 +2670,8 @@ export default function BibliotecaItemPage() {
         mensagem:
           resultado.mensagem ||
           (editandoExemplar
-            ? "Exemplar atualizado com sucesso."
-            : "Exemplar cadastrado com sucesso."),
+            ? ui("updateCopySuccess")
+            : ui("createCopySuccess")),
       });
 
       setAtualizacao(
@@ -2526,7 +2684,7 @@ export default function BibliotecaItemPage() {
         mensagem:
           falha instanceof Error
             ? falha.message
-            : "Não foi possível salvar o exemplar.",
+            : ui("saveCopyError"),
       });
     } finally {
       setSalvandoExemplar(false);
@@ -2548,7 +2706,7 @@ export default function BibliotecaItemPage() {
       setToast({
         tipo: "erro",
         mensagem:
-          "Informe a data prevista para devolução.",
+          ui("dueDateRequired"),
       });
 
       return;
@@ -2569,7 +2727,7 @@ export default function BibliotecaItemPage() {
       setToast({
         tipo: "erro",
         mensagem:
-          "A data prevista para devolução deve ser futura.",
+          ui("futureDueDate"),
       });
 
       return;
@@ -2617,7 +2775,7 @@ export default function BibliotecaItemPage() {
         throw new Error(
           resultado.error ||
           resultado.mensagem ||
-          "Não foi possível registrar o empréstimo."
+          ui("loanError")
         );
       }
 
@@ -2648,7 +2806,7 @@ export default function BibliotecaItemPage() {
 
         mensagem:
           resultado.mensagem ||
-          "Empréstimo registrado com sucesso.",
+          ui("loanSuccess"),
       });
 
       setAtualizacao(
@@ -2661,7 +2819,7 @@ export default function BibliotecaItemPage() {
         mensagem:
           falha instanceof Error
             ? falha.message
-            : "Não foi possível registrar o empréstimo.",
+            : ui("loanError"),
       });
     } finally {
       setRegistrandoEmprestimo(
@@ -2763,7 +2921,7 @@ export default function BibliotecaItemPage() {
         throw new Error(
           resultado.error ||
           resultado.mensagem ||
-          "Não foi possível registrar a devolução."
+          ui("returnError")
         );
       }
 
@@ -2784,7 +2942,7 @@ export default function BibliotecaItemPage() {
 
         mensagem:
           resultado.mensagem ||
-          "Devolução registrada com sucesso.",
+          ui("returnSuccess"),
       });
 
       setAtualizacao(
@@ -2797,7 +2955,7 @@ export default function BibliotecaItemPage() {
         mensagem:
           falha instanceof Error
             ? falha.message
-            : "Não foi possível registrar a devolução.",
+            : ui("returnError"),
       });
     } finally {
       setDevolvendoExemplar(
@@ -2878,7 +3036,7 @@ export default function BibliotecaItemPage() {
       setToast({
         tipo: "erro",
         mensagem:
-          "Informe o motivo da manutenção.",
+          ui("maintenanceReasonRequired"),
       });
 
       return;
@@ -2937,7 +3095,7 @@ export default function BibliotecaItemPage() {
         throw new Error(
           resultado.error ||
           resultado.mensagem ||
-          "Não foi possível enviar o exemplar para manutenção."
+          ui("maintenanceSendError")
         );
       }
 
@@ -2962,7 +3120,7 @@ export default function BibliotecaItemPage() {
 
         mensagem:
           resultado.mensagem ||
-          "Exemplar enviado para manutenção com sucesso.",
+          ui("maintenanceSendSuccess"),
       });
 
       setAtualizacao(
@@ -2975,7 +3133,7 @@ export default function BibliotecaItemPage() {
         mensagem:
           falha instanceof Error
             ? falha.message
-            : "Não foi possível enviar o exemplar para manutenção.",
+            : ui("maintenanceSendError"),
       });
     } finally {
       setEnviandoParaManutencao(
@@ -2991,7 +3149,7 @@ export default function BibliotecaItemPage() {
       setToast({
         tipo: "erro",
         mensagem:
-          "Não foi encontrada uma manutenção aberta para este exemplar.",
+          ui("noOpenMaintenance"),
       });
 
       return;
@@ -3047,7 +3205,7 @@ export default function BibliotecaItemPage() {
       setToast({
         tipo: "erro",
         mensagem:
-          "Descreva por que o exemplar foi considerado irrecuperável.",
+          ui("irreparableDescriptionRequired"),
       });
 
       return;
@@ -3094,7 +3252,7 @@ export default function BibliotecaItemPage() {
         throw new Error(
           dados.error ||
           dados.mensagem ||
-          "Não foi possível concluir a manutenção."
+          ui("maintenanceCompleteError")
         );
       }
 
@@ -3112,7 +3270,7 @@ export default function BibliotecaItemPage() {
         tipo: "sucesso",
         mensagem:
           dados.mensagem ||
-          "Manutenção concluída com sucesso.",
+          ui("maintenanceCompleteSuccess"),
       });
 
       setAtualizacao(
@@ -3124,7 +3282,7 @@ export default function BibliotecaItemPage() {
         mensagem:
           falha instanceof Error
             ? falha.message
-            : "Não foi possível concluir a manutenção.",
+            : ui("maintenanceCompleteError"),
       });
     } finally {
       setConcluindoManutencao(false);
@@ -3138,7 +3296,7 @@ export default function BibliotecaItemPage() {
       setToast({
         tipo: "erro",
         mensagem:
-          "Não foi encontrada uma manutenção aberta para este exemplar.",
+          ui("noOpenMaintenance"),
       });
 
       return;
@@ -3196,7 +3354,7 @@ export default function BibliotecaItemPage() {
       setToast({
         tipo: "erro",
         mensagem:
-          "Informe o motivo do cancelamento da manutenção.",
+          ui("maintenanceCancelReasonRequired"),
       });
 
       return;
@@ -3237,7 +3395,7 @@ export default function BibliotecaItemPage() {
         throw new Error(
           dados.error ||
           dados.mensagem ||
-          "Não foi possível cancelar a manutenção."
+          ui("maintenanceCancelError")
         );
       }
 
@@ -3257,7 +3415,7 @@ export default function BibliotecaItemPage() {
         tipo: "sucesso",
         mensagem:
           dados.mensagem ||
-          "Manutenção cancelada com sucesso.",
+          ui("maintenanceCancelSuccess"),
       });
 
       setAtualizacao(
@@ -3269,7 +3427,7 @@ export default function BibliotecaItemPage() {
         mensagem:
           falha instanceof Error
             ? falha.message
-            : "Não foi possível cancelar a manutenção.",
+            : ui("maintenanceCancelError"),
       });
     } finally {
       setCancelandoManutencao(false);
@@ -3277,7 +3435,8 @@ export default function BibliotecaItemPage() {
   }
 
   return (
-    <main className="phanyx-biblioteca-acervo-page phanyx-biblioteca-item-page">
+    <main className="phanyx-biblioteca-acervo-page phanyx-biblioteca-item-page" data-locale={locale}>
+      {estilos}
       <div className="bib-page-shell">
         <section className="bib-hero bib-item-detail-hero">
           <div className="bib-item-detail-heading">
@@ -3294,17 +3453,16 @@ export default function BibliotecaItemPage() {
             </div>
             <div>
               <p className="bib-eyebrow">
-                Biblioteca Virtual PHANYX · Item #{item.id}
+                {t("eyebrowWithItem", { id: item.id })}
               </p>
               <div className="bib-detail-title-line">
                 <h1>{item.titulo}</h1>
                 <span className={classeStatus(item.status)}>
-                  {rotuloEnum(item.status)}
+                  {rotuloStatusItem(item.status)}
                 </span>
               </div>
               <p className="bib-hero-description">
-                Consulte e complete os dados bibliográficos, de
-                classificação e de acesso deste material.
+                {t("description")}
               </p>
             </div>
           </div>
@@ -3314,7 +3472,7 @@ export default function BibliotecaItemPage() {
               href="/admin/biblioteca/acervo"
               className="bib-button bib-button-secondary"
             >
-              ← Voltar ao acervo
+              {t("backToCollection")}
             </Link>
             {!editando && podeEditar ? (
               <button
@@ -3322,7 +3480,7 @@ export default function BibliotecaItemPage() {
                 className="bib-button bib-button-primary"
                 onClick={() => setEditando(true)}
               >
-                ✏️ Editar item
+                {t("editItem")}
               </button>
             ) : null}
           </div>
@@ -3331,23 +3489,22 @@ export default function BibliotecaItemPage() {
         {impersonacao ? (
           <div className="bib-feedback bib-feedback-warning">
             <div>
-              <strong>Sessão de suporte em andamento</strong>
+              <strong>{ui("supportTitle")}</strong>
               <p>
-                Os dados podem ser consultados, mas alterações estão
-                bloqueadas durante a impersonação.
+                {ui("supportDescription")}
               </p>
             </div>
           </div>
         ) : null}
 
-        <section className="bib-detail-summary" aria-label="Resumo do item">
+        <section className="bib-detail-summary" aria-label={ui("summaryLabel")}>
           <article className="bib-summary-card">
             <span className="bib-summary-icon" aria-hidden="true">
               🏷️
             </span>
             <div>
-              <span>Tipo</span>
-              <strong>{rotuloEnum(item.tipo)}</strong>
+              <span>{ui("type")}</span>
+              <strong>{rotuloTipoItem(item.tipo)}</strong>
             </div>
           </article>
           <article className="bib-summary-card">
@@ -3355,8 +3512,8 @@ export default function BibliotecaItemPage() {
               🔐
             </span>
             <div>
-              <span>Modalidade</span>
-              <strong>{rotuloEnum(item.modalidade)}</strong>
+              <span>{ui("modality")}</span>
+              <strong>{rotuloModalidade(item.modalidade)}</strong>
             </div>
           </article>
           <article className="bib-summary-card">
@@ -3364,7 +3521,7 @@ export default function BibliotecaItemPage() {
               📎
             </span>
             <div>
-              <span>Arquivos</span>
+              <span>{ui("files")}</span>
               <strong>{item._count.arquivos}</strong>
             </div>
           </article>
@@ -3373,7 +3530,7 @@ export default function BibliotecaItemPage() {
               📚
             </span>
             <div>
-              <span>Exemplares</span>
+              <span>{ui("copies")}</span>
               <strong>{item._count.exemplares}</strong>
             </div>
           </article>
@@ -3385,21 +3542,21 @@ export default function BibliotecaItemPage() {
               <div>
                 <span aria-hidden="true">📝</span>
                 <div>
-                  <h2>Identificação do material</h2>
+                  <h2>{ui("identificationTitle")}</h2>
                   <p>
-                    Informações usadas para apresentar e localizar a obra.
+                    {ui("identificationDescription")}
                   </p>
                 </div>
               </div>
               <span className="bib-readonly-chip">
-                Status: {rotuloEnum(item.status)}
+                {t("statusLabel")}: {rotuloStatusItem(item.status)}
               </span>
             </header>
 
             <div className="bib-detail-grid">
               <label className="bib-field bib-field-span-2">
                 <span>
-                  Título <b>*</b>
+                  {ui("title")} <b>*</b>
                 </span>
                 <input
                   className="bib-input"
@@ -3414,7 +3571,7 @@ export default function BibliotecaItemPage() {
               </label>
 
               <label className="bib-field">
-                <span>Tipo</span>
+                <span>{ui("type")}</span>
                 <select
                   className="bib-input"
                   value={formulario.tipo}
@@ -3425,14 +3582,14 @@ export default function BibliotecaItemPage() {
                 >
                   {TIPOS_ITEM.map((tipo) => (
                     <option key={tipo} value={tipo}>
-                      {rotuloEnum(tipo)}
+                      {rotuloTipoItem(tipo)}
                     </option>
                   ))}
                 </select>
               </label>
 
               <label className="bib-field bib-field-span-2">
-                <span>Subtítulo</span>
+                <span>{ui("subtitle")}</span>
                 <input
                   className="bib-input"
                   value={formulario.subtitulo}
@@ -3445,7 +3602,7 @@ export default function BibliotecaItemPage() {
               </label>
 
               <label className="bib-field">
-                <span>Título alternativo</span>
+                <span>{ui("alternativeTitle")}</span>
                 <input
                   className="bib-input"
                   value={formulario.tituloAlternativo}
@@ -3461,7 +3618,7 @@ export default function BibliotecaItemPage() {
               </label>
 
               <label className="bib-field bib-field-span-3">
-                <span>Sinopse</span>
+                <span>{ui("synopsis")}</span>
                 <textarea
                   className="bib-input bib-textarea"
                   value={formulario.sinopse}
@@ -3474,7 +3631,7 @@ export default function BibliotecaItemPage() {
               </label>
 
               <label className="bib-field bib-field-span-3">
-                <span>Descrição complementar</span>
+                <span>{ui("additionalDescription")}</span>
                 <textarea
                   className="bib-input bib-textarea"
                   value={formulario.descricao}
@@ -3487,18 +3644,18 @@ export default function BibliotecaItemPage() {
               </label>
 
               <label className="bib-field bib-field-span-3">
-                <span>Palavras-chave</span>
+                <span>{ui("keywords")}</span>
                 <input
                   className="bib-input"
                   value={formulario.palavrasChave}
                   onChange={(evento) =>
                     alterar("palavrasChave", evento.target.value)
                   }
-                  placeholder="educação, gestão, pesquisa"
+                  placeholder={ui("keywordsPlaceholder")}
                   disabled={camposBloqueados}
                 />
                 <small>
-                  Separe as palavras por vírgula. Máximo de 30 termos.
+                  {ui("keywordsHelp")}
                 </small>
               </label>
             </div>
@@ -3509,9 +3666,9 @@ export default function BibliotecaItemPage() {
               <div>
                 <span aria-hidden="true">🔎</span>
                 <div>
-                  <h2>Publicação e identificadores</h2>
+                  <h2>{ui("publicationTitle")}</h2>
                   <p>
-                    Dados técnicos para catalogação e pesquisa no acervo.
+                    {ui("publicationDescription")}
                   </p>
                 </div>
               </div>
@@ -3567,7 +3724,7 @@ export default function BibliotecaItemPage() {
                 />
               </label>
               <label className="bib-field">
-                <span>Idioma</span>
+                <span>{ui("language")}</span>
                 <input
                   className="bib-input"
                   value={formulario.idioma}
@@ -3579,7 +3736,7 @@ export default function BibliotecaItemPage() {
                 />
               </label>
               <label className="bib-field">
-                <span>País de publicação</span>
+                <span>{ui("publicationCountry")}</span>
                 <input
                   className="bib-input"
                   value={formulario.paisPublicacao}
@@ -3594,7 +3751,7 @@ export default function BibliotecaItemPage() {
                 />
               </label>
               <label className="bib-field">
-                <span>Ano</span>
+                <span>{ui("year")}</span>
                 <input
                   type="number"
                   className="bib-input"
@@ -3611,7 +3768,7 @@ export default function BibliotecaItemPage() {
                 />
               </label>
               <label className="bib-field">
-                <span>Data de publicação</span>
+                <span>{ui("publicationDate")}</span>
                 <input
                   type="date"
                   className="bib-input"
@@ -3626,7 +3783,7 @@ export default function BibliotecaItemPage() {
                 />
               </label>
               <label className="bib-field">
-                <span>Edição</span>
+                <span>{ui("edition")}</span>
                 <input
                   className="bib-input"
                   value={formulario.edicao}
@@ -3638,7 +3795,7 @@ export default function BibliotecaItemPage() {
                 />
               </label>
               <label className="bib-field">
-                <span>Volume</span>
+                <span>{ui("volume")}</span>
                 <input
                   className="bib-input"
                   value={formulario.volume}
@@ -3650,7 +3807,7 @@ export default function BibliotecaItemPage() {
                 />
               </label>
               <label className="bib-field">
-                <span>Número</span>
+                <span>{ui("number")}</span>
                 <input
                   className="bib-input"
                   value={formulario.numero}
@@ -3662,7 +3819,7 @@ export default function BibliotecaItemPage() {
                 />
               </label>
               <label className="bib-field">
-                <span>Número de páginas</span>
+                <span>{ui("pageCount")}</span>
                 <input
                   type="number"
                   className="bib-input"
@@ -3678,7 +3835,7 @@ export default function BibliotecaItemPage() {
                 />
               </label>
               <label className="bib-field">
-                <span>Duração em segundos</span>
+                <span>{ui("durationSeconds")}</span>
                 <input
                   type="number"
                   className="bib-input"
@@ -3701,9 +3858,9 @@ export default function BibliotecaItemPage() {
               <div>
                 <span aria-hidden="true">🗂️</span>
                 <div>
-                  <h2>Classificação e apresentação</h2>
+                  <h2>{ui("classificationTitle")}</h2>
                   <p>
-                    Organização física, capa e classificação indicativa.
+                    {ui("classificationDescription")}
                   </p>
                 </div>
               </div>
@@ -3711,7 +3868,7 @@ export default function BibliotecaItemPage() {
 
             <div className="bib-detail-grid">
               <label className="bib-field">
-                <span>Classificação bibliográfica</span>
+                <span>{ui("bibliographicClassification")}</span>
                 <input
                   className="bib-input"
                   value={formulario.classificacaoBibliografica}
@@ -3726,7 +3883,7 @@ export default function BibliotecaItemPage() {
                 />
               </label>
               <label className="bib-field">
-                <span>Código de chamada</span>
+                <span>{ui("callNumber")}</span>
                 <input
                   className="bib-input"
                   value={formulario.codigoChamada}
@@ -3741,7 +3898,7 @@ export default function BibliotecaItemPage() {
                 />
               </label>
               <label className="bib-field">
-                <span>Classificação indicativa</span>
+                <span>{ui("contentRating")}</span>
                 <input
                   className="bib-input"
                   value={formulario.classificacaoIndicativa}
@@ -3781,7 +3938,7 @@ export default function BibliotecaItemPage() {
               </label>
               <div className="bib-field" />
               <label className="bib-field bib-field-span-2">
-                <span>URL da capa</span>
+                <span>{ui("coverUrl")}</span>
                 <input
                   type="url"
                   className="bib-input"
@@ -3794,7 +3951,7 @@ export default function BibliotecaItemPage() {
                 />
               </label>
               <label className="bib-field">
-                <span>URL da miniatura</span>
+                <span>{ui("thumbnailUrl")}</span>
                 <input
                   type="url"
                   className="bib-input"
@@ -3814,9 +3971,9 @@ export default function BibliotecaItemPage() {
               <div>
                 <span aria-hidden="true">🔐</span>
                 <div>
-                  <h2>Acesso e recursos</h2>
+                  <h2>{ui("accessTitle")}</h2>
                   <p>
-                    Regras aplicadas quando o material for publicado.
+                    {ui("accessDescription")}
                   </p>
                 </div>
               </div>
@@ -3824,7 +3981,7 @@ export default function BibliotecaItemPage() {
 
             <div className="bib-detail-grid">
               <label className="bib-field bib-field-span-2">
-                <span>Modalidade de acesso</span>
+                <span>{ui("accessMode")}</span>
                 <select
                   className="bib-input"
                   value={formulario.modalidade}
@@ -3835,19 +3992,19 @@ export default function BibliotecaItemPage() {
                 >
                   {MODALIDADES.map((modalidade) => (
                     <option key={modalidade} value={modalidade}>
-                      {rotuloEnum(modalidade)}
+                      {rotuloModalidade(modalidade)}
                     </option>
                   ))}
                 </select>
               </label>
               <div className="bib-field">
-                <span>Slug interno</span>
+                <span>{ui("internalSlug")}</span>
                 <div className="bib-static-value">{item.slug}</div>
               </div>
             </div>
 
             <fieldset className="bib-options bib-detail-options">
-              <legend>Recursos do item</legend>
+              <legend>{ui("itemResources")}</legend>
               <label className="bib-check">
                 <input
                   type="checkbox"
@@ -3858,9 +4015,9 @@ export default function BibliotecaItemPage() {
                   disabled={camposBloqueados}
                 />
                 <span>
-                  <b>Destacar no catálogo</b>
+                  <b>{ui("featureCatalog")}</b>
                   <small>
-                    Permite exibir a obra em áreas de destaque.
+                    {ui("featureCatalogHelp")}
                   </small>
                 </span>
               </label>
@@ -3877,9 +4034,9 @@ export default function BibliotecaItemPage() {
                   disabled={camposBloqueados}
                 />
                 <span>
-                  <b>Permitir avaliações</b>
+                  <b>{ui("allowReviews")}</b>
                   <small>
-                    Alunos e professores poderão avaliar o item.
+                    {ui("allowReviewsHelp")}
                   </small>
                 </span>
               </label>
@@ -3893,9 +4050,9 @@ export default function BibliotecaItemPage() {
                   disabled={camposBloqueados}
                 />
                 <span>
-                  <b>Acesso livre</b>
+                  <b>{ui("openAccess")}</b>
                   <small>
-                    O acesso não exigirá empréstimo ou reserva.
+                    {ui("openAccessHelp")}
                   </small>
                 </span>
               </label>
@@ -3914,18 +4071,18 @@ export default function BibliotecaItemPage() {
                   }
                 />
                 <span>
-                  <b>Permitir download</b>
+                  <b>{ui("allowDownload")}</b>
                   <small>
                     {downloadPermitido
-                      ? "Autoriza o download conforme a licença da obra."
-                      : "O download está desativado na configuração da biblioteca."}
+                      ? ui("downloadAllowedHelp")
+                      : ui("downloadDisabledHelp")}
                   </small>
                 </span>
               </label>
             </fieldset>
 
             <label className="bib-field bib-detail-notes">
-              <span>Observações internas</span>
+              <span>{ui("internalNotes")}</span>
               <textarea
                 className="bib-input bib-textarea"
                 value={formulario.observacoesInternas}
@@ -3939,8 +4096,7 @@ export default function BibliotecaItemPage() {
                 disabled={camposBloqueados}
               />
               <small>
-                Visível apenas para a equipe administrativa da
-                biblioteca.
+                {ui("internalNotesHelp")}
               </small>
             </label>
           </section>
@@ -3950,30 +4106,30 @@ export default function BibliotecaItemPage() {
               <div>
                 <span aria-hidden="true">👥</span>
                 <div>
-                  <h2>Responsáveis e classificação temática</h2>
+                  <h2>{ui("relationshipsTitle")}</h2>
                   <p>
-                    Vínculos atuais com editora, autores e categorias.
+                    {ui("relationshipsDescription")}
                   </p>
                 </div>
               </div>
               <span className="bib-readonly-chip">
-                Gerenciamento em etapa própria
+                {ui("separateManagement")}
               </span>
             </header>
 
             <div className="bib-relationship-grid">
               <article className="bib-relationship-card">
-                <h3>Editora</h3>
+                <h3>{ui("publisher")}</h3>
                 {item.editora ? (
                   <span className="bib-tag">
                     🏢 {item.editora.nome}
                   </span>
                 ) : (
-                  <p>Nenhuma editora vinculada.</p>
+                  <p>{ui("noPublisher")}</p>
                 )}
               </article>
               <article className="bib-relationship-card">
-                <h3>Autores e colaboradores</h3>
+                <h3>{ui("authors")}</h3>
                 {item.autores.length ? (
                   <div className="bib-tag-list">
                     {item.autores.map((vinculo) => (
@@ -3981,16 +4137,16 @@ export default function BibliotecaItemPage() {
                         className="bib-tag"
                         key={`${vinculo.autor.id}-${vinculo.funcao}`}
                       >
-                        {vinculo.autor.nome} · {rotuloEnum(vinculo.funcao)}
+                        {vinculo.autor.nome} · {rotuloEnumLocalizado(vinculo.funcao)}
                       </span>
                     ))}
                   </div>
                 ) : (
-                  <p>Nenhum autor vinculado.</p>
+                  <p>{ui("noAuthors")}</p>
                 )}
               </article>
               <article className="bib-relationship-card">
-                <h3>Categorias</h3>
+                <h3>{ui("categories")}</h3>
                 {item.categorias.length ? (
                   <div className="bib-tag-list">
                     {item.categorias.map((vinculo) => (
@@ -4000,12 +4156,12 @@ export default function BibliotecaItemPage() {
                       >
                         {vinculo.categoria.icone || "🏷️"}{" "}
                         {vinculo.categoria.nome}
-                        {vinculo.principal ? " · Principal" : ""}
+                        {vinculo.principal ? ui("principalSuffix") : ""}
                       </span>
                     ))}
                   </div>
                 ) : (
-                  <p>Nenhuma categoria vinculada.</p>
+                  <p>{ui("noCategories")}</p>
                 )}
               </article>
             </div>
@@ -4021,7 +4177,7 @@ export default function BibliotecaItemPage() {
 
                   <div>
                     <h2>
-                      Arquivos digitais
+                      {ui("digitalFiles")}
                     </h2>
 
                     <p>
@@ -4035,7 +4191,7 @@ export default function BibliotecaItemPage() {
                           armazenamento
                             .utilizadoBytes
                         )}{" "}
-                        utilizados de{" "}
+                        {ui("usedOf")}{" "}
                         {formatarBytes(
                           armazenamento
                             .limiteBytes
@@ -4045,7 +4201,7 @@ export default function BibliotecaItemPage() {
                           armazenamento
                             .disponivelBytes
                         )}{" "}
-                        disponíveis
+                        {ui("storageAvailable")}
                       </small>
                     ) : null}
                   </div>
@@ -4061,7 +4217,7 @@ export default function BibliotecaItemPage() {
                         void abrirHistoricoArquivos()
                       }
                     >
-                      🕘 Histórico
+                      {ui("history")}
                     </button>
                   ) : null}
 
@@ -4096,8 +4252,8 @@ export default function BibliotecaItemPage() {
                         }
                       >
                         {enviandoArquivo
-                          ? `Enviando ${progressoUpload}%`
-                          : "⬆️ Enviar arquivo"}
+                          ? ui("uploadProgress", { progress: progressoUpload })
+                          : ui("uploadFile")}
                       </button>
                     </>
                   ) : null}
@@ -4112,12 +4268,10 @@ export default function BibliotecaItemPage() {
                     }}
                   >
                     <strong>
-                      Enviando arquivo...
+                      {ui("uploadingFile")}
                     </strong>
 
-                    <p>
-                      {progressoUpload}% concluído
-                    </p>
+                    <p>{ui("uploadProgress", { progress: progressoUpload })}</p>
 
                     <progress
                       value={
@@ -4158,7 +4312,7 @@ export default function BibliotecaItemPage() {
                         </strong>
 
                         <small>
-                          {rotuloEnum(
+                          {rotuloEnumLocalizado(
                             arquivo.tipo
                           )}
                           {" · "}
@@ -4166,16 +4320,16 @@ export default function BibliotecaItemPage() {
                             arquivo.tamanhoBytes
                           )}
                           {" · "}
-                          Versão {arquivo.versao}
+                          {ui("version")} {arquivo.versao}
                           {" · "}
-                          {rotuloEnum(
+                          {rotuloEnumLocalizado(
                             arquivo.status
                           )}
                         </small>
 
                         {arquivo.principal ? (
                           <span className="bib-file-primary-badge">
-                            ⭐ Principal
+                            {ui("primary")}
                           </span>
                         ) : null}
 
@@ -4188,14 +4342,14 @@ export default function BibliotecaItemPage() {
                               rel="noopener noreferrer"
                               className="bib-file-action"
                             >
-                              👁 Visualizar
+                              {ui("view")}
                             </a>
 
                             <a
                               href={`/api/admin/biblioteca/arquivos/${arquivo.id}/conteudo?download=1`}
                               className="bib-file-action"
                             >
-                              ⬇ Baixar
+                              {ui("download")}
                             </a>
 
                             {arquivo.status ===
@@ -4218,8 +4372,8 @@ export default function BibliotecaItemPage() {
                               >
                                 {definindoPrincipalId ===
                                   arquivo.id
-                                  ? "Definindo..."
-                                  : "☆ Definir como principal"}
+                                  ? ui("settingPrimary")
+                                  : ui("setPrimary")}
                               </button>
                             ) : null}
 
@@ -4234,15 +4388,14 @@ export default function BibliotecaItemPage() {
                                   )
                                 }
                               >
-                                🗑 Excluir
+                                {ui("delete")}
                               </button>
                             ) : null}
 
                           </div>
                         ) : (
                           <small className="bib-file-unavailable">
-                            O arquivo ainda não está
-                            disponível para acesso.
+                            {ui("fileUnavailable")}
                           </small>
                         )}
                       </div>
@@ -4251,7 +4404,7 @@ export default function BibliotecaItemPage() {
                 </div>
               ) : (
                 <div className="bib-compact-empty">
-                  Nenhum arquivo enviado para este item.
+                  {ui("noFiles")}
                 </div>
               )}
             </article>
@@ -4264,12 +4417,12 @@ export default function BibliotecaItemPage() {
                   </span>
 
                   <div>
-                    <h2>Exemplares</h2>
+                    <h2>{ui("copies")}</h2>
 
                     <p>
                       {carregandoExemplares
-                        ? "Carregando exemplares..."
-                        : `${exemplares.length} exemplar(es) cadastrado(s).`}
+                        ? ui("loadingCopies")
+                        : ui("copiesRegistered", { count: exemplares.length })}
                     </p>
                   </div>
                 </div>
@@ -4285,14 +4438,14 @@ export default function BibliotecaItemPage() {
                       abrirCadastroExemplar
                     }
                   >
-                    ＋ Cadastrar exemplar
+                    {ui("registerCopy")}
                   </button>
                 ) : null}
               </header>
 
               {carregandoExemplares ? (
                 <div className="bib-compact-empty">
-                  Carregando exemplares...
+                  {ui("loadingCopies")}
                 </div>
               ) : exemplares.length ? (
                 <div className="bib-related-list">
@@ -4319,19 +4472,19 @@ export default function BibliotecaItemPage() {
                           </strong>
 
                           <small>
-                            {rotuloEnum(
+                            {rotuloEnumLocalizado(
                               exemplar.tipo
                             )}
 
                             {" · "}
 
-                            {rotuloEnum(
+                            {rotuloEnumLocalizado(
                               exemplar.status
                             )}
 
                             {exemplar
                               .numeroTombo
-                              ? ` · Tombo ${exemplar.numeroTombo}`
+                              ? ui("tombSuffix", { number: exemplar.numeroTombo })
                               : ""}
 
                             {exemplar
@@ -4348,7 +4501,7 @@ export default function BibliotecaItemPage() {
                               )}
 
                               {exemplar.motivoBaixa
-                                ? ` · Motivo: ${exemplar.motivoBaixa}`
+                                ? ui("reasonSuffix", { reason: exemplar.motivoBaixa })
                                 : ""}
                             </small>
                           ) : null}
@@ -4367,7 +4520,7 @@ export default function BibliotecaItemPage() {
                                 )
                               }
                             >
-                              ✏️ Editar
+                              {ui("edit")}
                             </button>
                           ) : null}
 
@@ -4385,7 +4538,7 @@ export default function BibliotecaItemPage() {
                                 )
                               }
                             >
-                              🛠️ Concluir manutenção
+                              {ui("completeMaintenance")}
                             </button>
                           ) : null}
 
@@ -4403,7 +4556,7 @@ export default function BibliotecaItemPage() {
                                 )
                               }
                             >
-                              ✕ Cancelar manutenção
+                              {ui("cancelMaintenance")}
                             </button>
                           ) : null}
 
@@ -4424,7 +4577,7 @@ export default function BibliotecaItemPage() {
                                 )
                               }
                             >
-                              📤 Emprestar
+                              {ui("loan")}
                             </button>
                           ) : null}
 
@@ -4444,7 +4597,7 @@ export default function BibliotecaItemPage() {
                                 )
                               }
                             >
-                              📥 Registrar devolução
+                              {ui("registerReturn")}
                             </button>
                           ) : null}
 
@@ -4470,7 +4623,7 @@ export default function BibliotecaItemPage() {
                                 )
                               }
                             >
-                              🔧 Enviar para manutenção
+                              {ui("sendMaintenance")}
                             </button>
                           ) : null}
 
@@ -4489,7 +4642,7 @@ export default function BibliotecaItemPage() {
                                 )
                               }
                             >
-                              ⬇ Dar baixa
+                              {ui("writeOff")}
                             </button>
                           ) : null}
                         </div>
@@ -4501,8 +4654,7 @@ export default function BibliotecaItemPage() {
                 </div>
               ) : (
                 <div className="bib-compact-empty">
-                  Nenhum exemplar cadastrado
-                  para este item.
+                  {ui("noCopies")}
                 </div>
               )}
             </article>
@@ -4510,15 +4662,15 @@ export default function BibliotecaItemPage() {
 
           <section className="bib-card bib-detail-history">
             <div>
-              <span>Criado em</span>
+              <span>{ui("createdAt")}</span>
               <strong>{formatarData(item.criadoEm)}</strong>
             </div>
             <div>
-              <span>Última atualização</span>
+              <span>{ui("updatedAt")}</span>
               <strong>{formatarData(item.atualizadoEm)}</strong>
             </div>
             <div>
-              <span>Publicação</span>
+              <span>{ui("publication")}</span>
               <strong>{formatarData(item.publicadoEm)}</strong>
             </div>
           </section>
@@ -4528,11 +4680,11 @@ export default function BibliotecaItemPage() {
               <div>
                 <strong>
                   {alterado
-                    ? "Existem alterações não salvas"
-                    : "Nenhuma alteração realizada"}
+                    ? ui("unsavedChanges")
+                    : ui("noChanges")}
                 </strong>
                 <span>
-                  O status de publicação não será alterado por esta tela.
+                  {ui("publicationStatusUnchanged")}
                 </span>
               </div>
               <div>
@@ -4542,14 +4694,14 @@ export default function BibliotecaItemPage() {
                   onClick={cancelarEdicao}
                   disabled={salvando}
                 >
-                  Cancelar
+                  {ui("cancel")}
                 </button>
                 <button
                   type="submit"
                   className="bib-button bib-button-primary"
                   disabled={salvando || !alterado}
                 >
-                  {salvando ? "Salvando..." : "Salvar alterações"}
+                  {salvando ? ui("saving") : ui("saveChanges")}
                 </button>
               </div>
             </div>
@@ -4570,20 +4722,17 @@ export default function BibliotecaItemPage() {
               <header className="bib-modal-header">
                 <div>
                   <span className="bib-modal-kicker">
-                    Biblioteca Virtual
+                    {ui("virtualLibrary")}
                   </span>
 
                   <h2
                     id="titulo-historico-arquivos"
                   >
-                    Histórico de arquivos
+                    {ui("fileHistoryTitle")}
                   </h2>
 
                   <p>
-                    Consulte todas as versões
-                    enviadas para este item,
-                    inclusive arquivos já
-                    removidos.
+                    {ui("fileHistoryDescription")}
                   </p>
                 </div>
 
@@ -4596,7 +4745,7 @@ export default function BibliotecaItemPage() {
                   disabled={
                     carregandoHistoricoArquivos
                   }
-                  aria-label="Fechar"
+                  aria-label={ui("close")}
                 >
                   ×
                 </button>
@@ -4606,7 +4755,7 @@ export default function BibliotecaItemPage() {
                 <div className="bib-history-summary">
                   <div>
                     <small>
-                      Total de versões
+                      {ui("totalVersions")}
                     </small>
                     <strong>
                       {
@@ -4618,7 +4767,7 @@ export default function BibliotecaItemPage() {
 
                   <div>
                     <small>
-                      Ativas
+                      {ui("active")}
                     </small>
                     <strong>
                       {
@@ -4630,7 +4779,7 @@ export default function BibliotecaItemPage() {
 
                   <div>
                     <small>
-                      Excluídas
+                      {ui("deleted")}
                     </small>
                     <strong>
                       {
@@ -4644,20 +4793,18 @@ export default function BibliotecaItemPage() {
                 {carregandoHistoricoArquivos ? (
                   <div className="bib-history-loading">
                     <strong>
-                      Carregando histórico...
+                      {ui("loadingHistory")}
                     </strong>
 
                     <p>
-                      Consultando as versões
-                      deste item.
+                      {ui("loadingHistoryDescription")}
                     </p>
                   </div>
                 ) : erroHistoricoArquivos ? (
                   <div className="bib-feedback bib-feedback-error">
                     <div>
                       <strong>
-                        Não foi possível carregar
-                        o histórico
+                        {ui("historyLoadError")}
                       </strong>
 
                       <p>
@@ -4674,7 +4821,7 @@ export default function BibliotecaItemPage() {
                         void abrirHistoricoArquivos()
                       }
                     >
-                      Tentar novamente
+                      {ui("retry")}
                     </button>
                   </div>
                 ) : historicoArquivos.length ? (
@@ -4707,7 +4854,7 @@ export default function BibliotecaItemPage() {
                             <div className="bib-file-history-top">
                               <div>
                                 <span className="bib-history-version">
-                                  Versão{" "}
+                                  {ui("version")}{" "}
                                   {
                                     arquivo.versao
                                   }
@@ -4715,15 +4862,15 @@ export default function BibliotecaItemPage() {
 
                                 {arquivo.principalAtual ? (
                                   <span className="bib-history-badge bib-history-badge-primary">
-                                    ⭐ Principal atual
+                                    {ui("currentPrimary")}
                                   </span>
                                 ) : arquivo.arquivado ? (
                                   <span className="bib-history-badge bib-history-badge-archived">
-                                    🗑 Excluído
+                                    {ui("deletedBadge")}
                                   </span>
                                 ) : (
                                   <span className="bib-history-badge bib-history-badge-active">
-                                    Ativo
+                                    {ui("activeBadge")}
                                   </span>
                                 )}
                               </div>
@@ -4744,7 +4891,7 @@ export default function BibliotecaItemPage() {
 
                             <div className="bib-history-file-meta">
                               <span>
-                                {rotuloEnum(
+                                {rotuloEnumLocalizado(
                                   arquivo.tipo
                                 )}
                               </span>
@@ -4756,7 +4903,7 @@ export default function BibliotecaItemPage() {
                               </span>
 
                               <span>
-                                {rotuloEnum(
+                                {rotuloEnumLocalizado(
                                   arquivo.status
                                 )}
                               </span>
@@ -4765,7 +4912,7 @@ export default function BibliotecaItemPage() {
                             <div className="bib-history-event-grid">
                               <div>
                                 <small>
-                                  Enviado em
+                                  {ui("sentAt")}
                                 </small>
 
                                 <strong>
@@ -4777,13 +4924,13 @@ export default function BibliotecaItemPage() {
 
                               <div>
                                 <small>
-                                  Enviado por
+                                  {ui("sentBy")}
                                 </small>
 
                                 <strong>
                                   {arquivo.enviadoPor?.nome?.trim() ||
                                     arquivo.enviadoPor?.email?.trim() ||
-                                    "Usuário não disponível"}
+                                    ui("userUnavailable")}
                                 </strong>
                               </div>
 
@@ -4791,7 +4938,7 @@ export default function BibliotecaItemPage() {
                                 <>
                                   <div>
                                     <small>
-                                      Excluído em
+                                      {ui("deletedAt")}
                                     </small>
 
                                     <strong>
@@ -4803,13 +4950,13 @@ export default function BibliotecaItemPage() {
 
                                   <div>
                                     <small>
-                                      Excluído por
+                                      {ui("deletedBy")}
                                     </small>
 
                                     <strong>
                                       {arquivo.arquivadoPor?.nome?.trim() ||
                                         arquivo.arquivadoPor?.email?.trim() ||
-                                        "Usuário não disponível"}
+                                        ui("userUnavailable")}
                                     </strong>
                                   </div>
                                 </>
@@ -4820,7 +4967,7 @@ export default function BibliotecaItemPage() {
                               arquivo.motivoArquivamento ? (
                               <div className="bib-history-reason">
                                 <small>
-                                  Motivo da exclusão
+                                  {ui("deletionReason")}
                                 </small>
 
                                 <p>
@@ -4840,14 +4987,14 @@ export default function BibliotecaItemPage() {
                                   rel="noopener noreferrer"
                                   className="bib-file-action"
                                 >
-                                  👁 Visualizar
+                                  {ui("view")}
                                 </a>
 
                                 <a
                                   href={`/api/admin/biblioteca/arquivos/${arquivo.id}/conteudo?download=1`}
                                   className="bib-file-action"
                                 >
-                                  ⬇ Baixar
+                                  {ui("download")}
                                 </a>
                               </div>
                             ) : null}
@@ -4863,12 +5010,11 @@ export default function BibliotecaItemPage() {
                     </span>
 
                     <strong>
-                      Nenhuma versão registrada
+                      {ui("noVersions")}
                     </strong>
 
                     <p>
-                      Este item ainda não possui
-                      histórico de arquivos.
+                      {ui("noVersionsDescription")}
                     </p>
                   </div>
                 )}
@@ -4885,7 +5031,7 @@ export default function BibliotecaItemPage() {
                     carregandoHistoricoArquivos
                   }
                 >
-                  Fechar
+                  {ui("close")}
                 </button>
               </footer>
             </section>
@@ -4907,19 +5053,17 @@ export default function BibliotecaItemPage() {
             <header className="bib-modal-header">
               <div>
                 <span className="bib-modal-kicker">
-                  Biblioteca Virtual
+                  {ui("virtualLibrary")}
                 </span>
 
                 <h2
                   id="titulo-exclusao-arquivo"
                 >
-                  Excluir arquivo
+                  {ui("deleteFileTitle")}
                 </h2>
 
                 <p>
-                  O arquivo será removido do
-                  armazenamento privado e deixará
-                  de aparecer no acervo.
+                  {ui("deleteFileDescription")}
                 </p>
               </div>
 
@@ -4932,7 +5076,7 @@ export default function BibliotecaItemPage() {
                 disabled={
                   excluindoArquivo
                 }
-                aria-label="Fechar"
+                aria-label={ui("close")}
               >
                 ×
               </button>
@@ -4961,7 +5105,7 @@ export default function BibliotecaItemPage() {
                     </strong>
 
                     <small>
-                      {rotuloEnum(
+                      {rotuloEnumLocalizado(
                         arquivoParaExcluir
                           .tipo
                       )}
@@ -4976,27 +5120,19 @@ export default function BibliotecaItemPage() {
 
                 <div className="bib-delete-warning">
                   <strong>
-                    O espaço será devolvido à
-                    instituição.
+                    {ui("storageReturned")}
                   </strong>
 
                   <p>
-                    Serão liberados{" "}
-                    <b>
-                      {formatarBytes(
-                        arquivoParaExcluir
-                          .tamanhoBytes
-                      )}
-                    </b>{" "}
-                    do armazenamento contratado.
-                    O registro da operação será
-                    preservado para auditoria.
+                    {ui("storageReleaseAudit", {
+                      size: formatarBytes(arquivoParaExcluir.tamanhoBytes),
+                    })}
                   </p>
                 </div>
 
                 <label className="bib-field">
                   <span>
-                    Motivo da exclusão
+                    {ui("deletionReason")}
                   </span>
 
                   <textarea
@@ -5013,12 +5149,11 @@ export default function BibliotecaItemPage() {
                     disabled={
                       excluindoArquivo
                     }
-                    placeholder="Opcional. Ex.: arquivo enviado por engano."
+                    placeholder={ui("deleteReasonPlaceholder")}
                   />
 
                   <small>
-                    O motivo ficará registrado no
-                    histórico da Biblioteca Virtual.
+                    {ui("reasonRecorded")}
                   </small>
                 </label>
               </div>
@@ -5034,7 +5169,7 @@ export default function BibliotecaItemPage() {
                     excluindoArquivo
                   }
                 >
-                  Cancelar
+                  {ui("cancel")}
                 </button>
 
                 <button
@@ -5048,7 +5183,7 @@ export default function BibliotecaItemPage() {
                   }
                 >
                   {excluindoArquivo
-                    ? "Excluindo..."
+                    ? ui("deleting")
                     : "🗑 Excluir arquivo"}
                 </button>
               </footer>
@@ -5071,18 +5206,17 @@ export default function BibliotecaItemPage() {
             <header className="bib-modal-header">
               <div>
                 <span className="bib-modal-kicker">
-                  Biblioteca Virtual
+                  {ui("virtualLibrary")}
                 </span>
 
                 <h2
                   id="titulo-emprestimo-biblioteca"
                 >
-                  Registrar empréstimo
+                  {ui("loanTitle")}
                 </h2>
 
                 <p>
-                  Selecione quem receberá
-                  este exemplar.
+                  {ui("loanDescription")}
                 </p>
               </div>
 
@@ -5092,7 +5226,7 @@ export default function BibliotecaItemPage() {
                 onClick={
                   fecharEmprestimo
                 }
-                aria-label="Fechar"
+                aria-label={ui("close")}
               >
                 ×
               </button>
@@ -5110,11 +5244,11 @@ export default function BibliotecaItemPage() {
 
                   <p>
                     {item?.titulo ||
-                      "Item do acervo"}
+                      ui("collectionItem")}
 
                     {exemplarParaEmprestimo
                       .numeroTombo
-                      ? ` · Tombo ${exemplarParaEmprestimo.numeroTombo}`
+                      ? ui("tombSuffix", { number: exemplarParaEmprestimo.numeroTombo })
                       : ""}
                   </p>
                 </div>
@@ -5122,7 +5256,7 @@ export default function BibliotecaItemPage() {
 
               <label className="bib-field">
                 <span>
-                  Pesquisar pessoa
+                  {ui("searchPerson")}
                 </span>
 
                 <input
@@ -5140,14 +5274,13 @@ export default function BibliotecaItemPage() {
                       null
                     );
                   }}
-                  placeholder="Nome, e-mail, matrícula, CPF ou código funcional"
+                  placeholder={ui("searchPersonPlaceholder")}
                   autoComplete="off"
                   autoFocus
                 />
 
                 <small>
-                  Digite pelo menos 2
-                  caracteres.
+                  {ui("searchMinChars")}
                 </small>
               </label>
 
@@ -5155,7 +5288,7 @@ export default function BibliotecaItemPage() {
                 <div className="bib-feedback bib-feedback-success">
                   <div>
                     <strong>
-                      Tomador selecionado
+                      {ui("selectedBorrower")}
                     </strong>
 
                     <p>
@@ -5165,7 +5298,7 @@ export default function BibliotecaItemPage() {
 
                       {" · "}
 
-                      {rotuloEnum(
+                      {rotuloEnumLocalizado(
                         usuarioEmprestimoSelecionado.tipo
                       )}
 
@@ -5173,8 +5306,8 @@ export default function BibliotecaItemPage() {
                         .identificador
                         ? ` · ${usuarioEmprestimoSelecionado.tipo ===
                           "ALUNO"
-                          ? "Matrícula"
-                          : "Código"
+                          ? ui("enrollment")
+                          : ui("code")
                         } ${usuarioEmprestimoSelecionado.identificador
                         }`
                         : ""}
@@ -5187,7 +5320,7 @@ export default function BibliotecaItemPage() {
                 <>
                   <label className="bib-field">
                     <span>
-                      Data prevista para devolução{" "}
+                      {ui("expectedReturnDate")}{" "}
                       <b>*</b>
                     </span>
 
@@ -5208,15 +5341,13 @@ export default function BibliotecaItemPage() {
                     />
 
                     <small>
-                      Informe o último dia
-                      previsto para devolução
-                      deste exemplar.
+                      {ui("dueDateHelp")}
                     </small>
                   </label>
 
                   <label className="bib-field">
                     <span>
-                      Observação da retirada
+                      {ui("checkoutNotes")}
                     </span>
 
                     <textarea
@@ -5233,12 +5364,11 @@ export default function BibliotecaItemPage() {
                       disabled={
                         registrandoEmprestimo
                       }
-                      placeholder="Ex.: exemplar entregue em bom estado, acompanhado de material complementar..."
+                      placeholder={ui("checkoutNotesPlaceholder")}
                     />
 
                     <small>
-                      Campo opcional. A informação
-                      ficará registrada no empréstimo.
+                      {ui("optionalLoanNote")}
                     </small>
                   </label>
                 </>
@@ -5246,7 +5376,7 @@ export default function BibliotecaItemPage() {
 
               {buscandoUsuariosEmprestimo ? (
                 <div className="bib-compact-empty">
-                  Pesquisando pessoas...
+                  {ui("searchingPeople")}
                 </div>
               ) : null}
 
@@ -5254,8 +5384,7 @@ export default function BibliotecaItemPage() {
                 <div className="bib-feedback bib-feedback-danger">
                   <div>
                     <strong>
-                      Não foi possível
-                      pesquisar
+                      {ui("searchFailed")}
                     </strong>
 
                     <p>
@@ -5275,8 +5404,7 @@ export default function BibliotecaItemPage() {
                 usuariosEmprestimo.length ===
                 0 ? (
                 <div className="bib-compact-empty">
-                  Nenhuma pessoa encontrada
-                  com essa pesquisa.
+                  {ui("noPeopleFound")}
                 </div>
               ) : null}
 
@@ -5310,7 +5438,7 @@ export default function BibliotecaItemPage() {
                           </strong>
 
                           <small>
-                            {rotuloEnum(
+                            {rotuloEnumLocalizado(
                               usuarioBusca.tipo
                             )}
 
@@ -5318,8 +5446,8 @@ export default function BibliotecaItemPage() {
                               .identificador
                               ? ` · ${usuarioBusca.tipo ===
                                 "ALUNO"
-                                ? "Matrícula"
-                                : "Código"
+                                ? ui("enrollment")
+                                : ui("code")
                               } ${usuarioBusca.identificador
                               }`
                               : ""}
@@ -5353,8 +5481,8 @@ export default function BibliotecaItemPage() {
                           {usuarioEmprestimoSelecionado
                             ?.id ===
                             usuarioBusca.id
-                            ? "✓ Selecionado"
-                            : "Selecionar"}
+                            ? ui("selected")
+                            : ui("select")}
                         </button>
                       </div>
                     )
@@ -5374,7 +5502,7 @@ export default function BibliotecaItemPage() {
                   registrandoEmprestimo
                 }
               >
-                Cancelar
+                {ui("cancel")}
               </button>
 
               <button
@@ -5390,8 +5518,8 @@ export default function BibliotecaItemPage() {
                 }
               >
                 {registrandoEmprestimo
-                  ? "Registrando..."
-                  : "📤 Registrar empréstimo"}
+                  ? ui("registering")
+                  : ui("registerLoanAction")}
               </button>
             </footer>
           </section>
@@ -5412,18 +5540,17 @@ export default function BibliotecaItemPage() {
             <header className="bib-modal-header">
               <div>
                 <span className="bib-modal-kicker">
-                  Biblioteca Virtual
+                  {ui("virtualLibrary")}
                 </span>
 
                 <h2
                   id="titulo-devolucao-biblioteca"
                 >
-                  Registrar devolução
+                  {ui("returnTitle")}
                 </h2>
 
                 <p>
-                  Informe como o exemplar
-                  retornou à biblioteca.
+                  {ui("returnDescription")}
                 </p>
               </div>
 
@@ -5436,7 +5563,7 @@ export default function BibliotecaItemPage() {
                 disabled={
                   devolvendoExemplar
                 }
-                aria-label="Fechar"
+                aria-label={ui("close")}
               >
                 ×
               </button>
@@ -5464,7 +5591,7 @@ export default function BibliotecaItemPage() {
 
                       {exemplarParaDevolucao
                         .numeroTombo
-                        ? ` · Tombo ${exemplarParaDevolucao.numeroTombo}`
+                        ? ui("tombSuffix", { number: exemplarParaDevolucao.numeroTombo })
                         : ""}
                     </p>
                   </div>
@@ -5472,7 +5599,7 @@ export default function BibliotecaItemPage() {
 
                 <label className="bib-field">
                   <span>
-                    Condição na devolução{" "}
+                    {ui("returnCondition")}{" "}
                     <b>*</b>
                   </span>
 
@@ -5491,30 +5618,28 @@ export default function BibliotecaItemPage() {
                     }
                   >
                     <option value="NORMAL">
-                      Normal
+                      {ui("conditionNormal")}
                     </option>
 
                     <option value="DESGASTE">
-                      Desgaste de uso
+                      {ui("conditionWear")}
                     </option>
 
                     <option value="DANIFICADO">
-                      Danificado
+                      {ui("conditionDamaged")}
                     </option>
 
                     <option value="INCOMPLETO">
-                      Incompleto
+                      {ui("conditionIncomplete")}
                     </option>
 
                     <option value="PERDIDO">
-                      Perdido
+                      {ui("conditionLost")}
                     </option>
                   </select>
 
                   <small>
-                    A condição informada define
-                    se o exemplar voltará à
-                    circulação.
+                    {ui("conditionHelp")}
                   </small>
                 </label>
 
@@ -5523,12 +5648,11 @@ export default function BibliotecaItemPage() {
                   <div className="bib-feedback bib-feedback-success">
                     <div>
                       <strong>
-                        Voltará a ficar disponível
+                        {ui("availableAgain")}
                       </strong>
 
                       <p>
-                        O exemplar poderá ser
-                        emprestado novamente.
+                        {ui("availableAgainHelp")}
                       </p>
                     </div>
                   </div>
@@ -5539,12 +5663,11 @@ export default function BibliotecaItemPage() {
                   <div className="bib-feedback bib-feedback-warning">
                     <div>
                       <strong>
-                        Desgaste registrado
+                        {ui("wearRecorded")}
                       </strong>
 
                       <p>
-                        O exemplar continuará
-                        disponível para circulação.
+                        {ui("wearRecordedHelp")}
                       </p>
                     </div>
                   </div>
@@ -5555,13 +5678,11 @@ export default function BibliotecaItemPage() {
                   <div className="bib-feedback bib-feedback-warning">
                     <div>
                       <strong>
-                        Exemplar será marcado como
-                        danificado
+                        {ui("markedDamaged")}
                       </strong>
 
                       <p>
-                        Ele não ficará disponível
-                        para novo empréstimo.
+                        {ui("markedDamagedHelp")}
                       </p>
                     </div>
                   </div>
@@ -5572,13 +5693,11 @@ export default function BibliotecaItemPage() {
                   <div className="bib-feedback bib-feedback-warning">
                     <div>
                       <strong>
-                        Exemplar ficará indisponível
+                        {ui("markedUnavailable")}
                       </strong>
 
                       <p>
-                        Será necessária análise
-                        antes de retornar à
-                        circulação.
+                        {ui("markedUnavailableHelp")}
                       </p>
                     </div>
                   </div>
@@ -5589,14 +5708,11 @@ export default function BibliotecaItemPage() {
                   <div className="bib-feedback bib-feedback-danger">
                     <div>
                       <strong>
-                        Exemplar será marcado como
-                        extraviado
+                        {ui("markedLost")}
                       </strong>
 
                       <p>
-                        O empréstimo será encerrado
-                        como perdido e o exemplar
-                        sairá da circulação.
+                        {ui("markedLostHelp")}
                       </p>
                     </div>
                   </div>
@@ -5604,7 +5720,7 @@ export default function BibliotecaItemPage() {
 
                 <label className="bib-field">
                   <span>
-                    Observação da devolução
+                    {ui("returnNotes")}
                   </span>
 
                   <textarea
@@ -5621,13 +5737,11 @@ export default function BibliotecaItemPage() {
                     disabled={
                       devolvendoExemplar
                     }
-                    placeholder="Ex.: exemplar devolvido em bom estado."
+                    placeholder={ui("returnNotesPlaceholder")}
                   />
 
                   <small>
-                    Campo opcional. A informação
-                    ficará registrada no histórico
-                    do empréstimo.
+                    {ui("optionalReturnNote")}
                   </small>
                 </label>
               </div>
@@ -5643,7 +5757,7 @@ export default function BibliotecaItemPage() {
                     devolvendoExemplar
                   }
                 >
-                  Cancelar
+                  {ui("cancel")}
                 </button>
 
                 <button
@@ -5654,8 +5768,8 @@ export default function BibliotecaItemPage() {
                   }
                 >
                   {devolvendoExemplar
-                    ? "Registrando..."
-                    : "📥 Registrar devolução"}
+                    ? ui("registering")
+                    : ui("registerReturn")}
                 </button>
               </footer>
             </form>
@@ -5679,16 +5793,15 @@ export default function BibliotecaItemPage() {
             <header className="bib-modal-header">
               <div>
                 <span className="bib-modal-kicker">
-                  Biblioteca Virtual
+                  {ui("virtualLibrary")}
                 </span>
 
                 <h2 id="titulo-cancelamento-manutencao">
-                  Cancelar manutenção
+                  {ui("maintenanceCancelTitle")}
                 </h2>
 
                 <p>
-                  Informe por que o serviço de
-                  manutenção foi cancelado.
+                  {ui("maintenanceCancelDescription")}
                 </p>
               </div>
 
@@ -5699,7 +5812,7 @@ export default function BibliotecaItemPage() {
                   fecharCancelamentoManutencao
                 }
                 disabled={cancelandoManutencao}
-                aria-label="Fechar"
+                aria-label={ui("close")}
               >
                 ×
               </button>
@@ -5726,23 +5839,17 @@ export default function BibliotecaItemPage() {
 
                       {exemplarParaCancelamentoManutencao
                         .numeroTombo
-                        ? ` · Tombo ${exemplarParaCancelamentoManutencao.numeroTombo}`
+                        ? ui("tombSuffix", { number: exemplarParaCancelamentoManutencao.numeroTombo })
                         : ""}
                     </p>
 
-                    <p>
-                      Manutenção atual:{" "}
-                      {
-                        exemplarParaCancelamentoManutencao
-                          .manutencaoAberta.motivo
-                      }
-                    </p>
+                    <p>{ui("currentMaintenance", { reason: exemplarParaCancelamentoManutencao.manutencaoAberta.motivo })}</p>
                   </div>
                 </div>
 
                 <label className="bib-field">
                   <span>
-                    Motivo do cancelamento{" "}
+                    {ui("cancellationReason")}{" "}
                     <b aria-hidden="true">*</b>
                   </span>
 
@@ -5756,7 +5863,7 @@ export default function BibliotecaItemPage() {
                         evento.target.value
                       )
                     }
-                    placeholder="Ex.: serviço não autorizado, fornecedor indisponível ou registro aberto por engano."
+                    placeholder={ui("serviceCancelPlaceholder")}
                     maxLength={5000}
                     required
                     autoFocus
@@ -5766,8 +5873,7 @@ export default function BibliotecaItemPage() {
 
                 <label className="bib-field">
                   <span>
-                    Situação do exemplar após o
-                    cancelamento{" "}
+                    {ui("statusAfterCancellation")}{" "}
                     <b aria-hidden="true">*</b>
                   </span>
 
@@ -5786,31 +5892,27 @@ export default function BibliotecaItemPage() {
                     disabled={cancelandoManutencao}
                   >
                     <option value="DANIFICADO">
-                      Danificado
+                      {ui("conditionDamaged")}
                     </option>
 
                     <option value="INDISPONIVEL">
-                      Indisponível
+                      {ui("unavailable")}
                     </option>
                   </select>
 
                   <small>
-                    O exemplar não voltará
-                    automaticamente a ficar disponível.
+                    {ui("cancelNoAvailability")}
                   </small>
                 </label>
 
                 <div className="bib-feedback bib-feedback-warning">
                   <div>
                     <strong>
-                      O exemplar continuará fora de
-                      circulação
+                      {ui("remainOut")}
                     </strong>
 
                     <p>
-                      Depois do cancelamento, será
-                      necessária uma nova avaliação antes
-                      que ele possa ser emprestado.
+                      {ui("remainOutHelp")}
                     </p>
                   </div>
                 </div>
@@ -5825,7 +5927,7 @@ export default function BibliotecaItemPage() {
                   }
                   disabled={cancelandoManutencao}
                 >
-                  Voltar
+                  {ui("back")}
                 </button>
 
                 <button
@@ -5837,8 +5939,8 @@ export default function BibliotecaItemPage() {
                   }
                 >
                   {cancelandoManutencao
-                    ? "Cancelando..."
-                    : "✕ Cancelar manutenção"}
+                    ? ui("canceling")
+                    : ui("cancelMaintenance")}
                 </button>
               </footer>
             </form>
@@ -5862,16 +5964,15 @@ export default function BibliotecaItemPage() {
             <header className="bib-modal-header">
               <div>
                 <span className="bib-modal-kicker">
-                  Biblioteca Virtual
+                  {ui("virtualLibrary")}
                 </span>
 
                 <h2 id="titulo-conclusao-manutencao">
-                  Concluir manutenção
+                  {ui("maintenanceCompleteTitle")}
                 </h2>
 
                 <p>
-                  Informe o resultado do serviço
-                  realizado no exemplar.
+                  {ui("maintenanceCompleteDescription")}
                 </p>
               </div>
 
@@ -5882,7 +5983,7 @@ export default function BibliotecaItemPage() {
                   fecharConclusaoManutencao
                 }
                 disabled={concluindoManutencao}
-                aria-label="Fechar"
+                aria-label={ui("close")}
               >
                 ×
               </button>
@@ -5909,23 +6010,17 @@ export default function BibliotecaItemPage() {
 
                       {exemplarParaConclusaoManutencao
                         .numeroTombo
-                        ? ` · Tombo ${exemplarParaConclusaoManutencao.numeroTombo}`
+                        ? ui("tombSuffix", { number: exemplarParaConclusaoManutencao.numeroTombo })
                         : ""}
                     </p>
 
-                    <p>
-                      Motivo da manutenção:{" "}
-                      {
-                        exemplarParaConclusaoManutencao
-                          .manutencaoAberta.motivo
-                      }
-                    </p>
+                    <p>{ui("maintenanceReasonValue", { reason: exemplarParaConclusaoManutencao.manutencaoAberta.motivo })}</p>
                   </div>
                 </div>
 
                 <label className="bib-field">
                   <span>
-                    Resultado da manutenção{" "}
+                    {ui("maintenanceResult")}{" "}
                     <b aria-hidden="true">*</b>
                   </span>
 
@@ -5944,17 +6039,16 @@ export default function BibliotecaItemPage() {
                     }
                   >
                     <option value="REPARADO">
-                      Reparado
+                      {ui("repaired")}
                     </option>
 
                     <option value="IRRECUPERAVEL">
-                      Irrecuperável
+                      {ui("irreparable")}
                     </option>
                   </select>
 
                   <small>
-                    O resultado definirá se o exemplar
-                    poderá voltar à circulação.
+                    {ui("resultHelp")}
                   </small>
                 </label>
 
@@ -5963,12 +6057,11 @@ export default function BibliotecaItemPage() {
                   <div className="bib-feedback bib-feedback-success">
                     <div>
                       <strong>
-                        Voltará a ficar disponível
+                        {ui("availableAgain")}
                       </strong>
 
                       <p>
-                        O exemplar poderá ser
-                        emprestado novamente.
+                        {ui("availableAgainHelp")}
                       </p>
                     </div>
                   </div>
@@ -5976,13 +6069,11 @@ export default function BibliotecaItemPage() {
                   <div className="bib-feedback bib-feedback-danger">
                     <div>
                       <strong>
-                        Permanecerá fora de circulação
+                        {ui("remainUnavailable")}
                       </strong>
 
                       <p>
-                        O exemplar será marcado como
-                        danificado e não poderá ser
-                        emprestado.
+                        {ui("irreparableHelp")}
                       </p>
                     </div>
                   </div>
@@ -5990,7 +6081,7 @@ export default function BibliotecaItemPage() {
 
                 <label className="bib-field">
                   <span>
-                    Observação da conclusão
+                    {ui("completionNotes")}
 
                     {resultadoManutencao ===
                       "IRRECUPERAVEL" ? (
@@ -6011,8 +6102,8 @@ export default function BibliotecaItemPage() {
                     placeholder={
                       resultadoManutencao ===
                         "IRRECUPERAVEL"
-                        ? "Descreva por que o exemplar não pôde ser recuperado."
-                        : "Ex.: capa restaurada e páginas novamente fixadas."
+                        ? ui("irreparablePlaceholder")
+                        : ui("repairPlaceholder")
                     }
                     maxLength={5000}
                     required={
@@ -6026,7 +6117,7 @@ export default function BibliotecaItemPage() {
                 </label>
 
                 <label className="bib-field">
-                  <span>Custo final</span>
+                  <span>{ui("finalCost")}</span>
 
                   <input
                     className="bib-input"
@@ -6055,7 +6146,7 @@ export default function BibliotecaItemPage() {
                   }
                   disabled={concluindoManutencao}
                 >
-                  Cancelar
+                  {ui("cancel")}
                 </button>
 
                 <button
@@ -6073,10 +6164,10 @@ export default function BibliotecaItemPage() {
                   }
                 >
                   {concluindoManutencao
-                    ? "Concluindo..."
+                    ? ui("completing")
                     : resultadoManutencao ===
                       "IRRECUPERAVEL"
-                      ? "⚠️ Declarar irrecuperável"
+                      ? ui("declareIrreparable")
                       : "🛠️ Concluir como reparado"}
                 </button>
               </footer>
@@ -6095,22 +6186,21 @@ export default function BibliotecaItemPage() {
           >
             <header className="bib-modal-header">
               <div>
-                <span>Biblioteca Virtual</span>
+                <span>{ui("virtualLibrary")}</span>
 
                 <h2 id="titulo-manutencao-biblioteca">
-                  Enviar para manutenção
+                  {ui("maintenanceSendTitle")}
                 </h2>
 
                 <p>
-                  Registre o motivo e os dados de entrada
-                  do exemplar.
+                  {ui("maintenanceSendDescription")}
                 </p>
               </div>
 
               <button
                 type="button"
                 className="bib-modal-close"
-                aria-label="Fechar"
+                aria-label={ui("close")}
                 onClick={fecharManutencao}
                 disabled={enviandoParaManutencao}
               >
@@ -6137,22 +6227,17 @@ export default function BibliotecaItemPage() {
                       {item.titulo}
 
                       {exemplarParaManutencao.numeroTombo
-                        ? ` · Tombo ${exemplarParaManutencao.numeroTombo}`
+                        ? ui("tombSuffix", { number: exemplarParaManutencao.numeroTombo })
                         : ""}
                     </p>
 
-                    <p>
-                      Situação atual:{" "}
-                      {rotuloEnum(
-                        exemplarParaManutencao.status
-                      )}
-                    </p>
+                    <p>{ui("currentStatus", { status: rotuloEnumLocalizado(exemplarParaManutencao.status) })}</p>
                   </div>
                 </div>
 
                 <label className="bib-field">
                   <span>
-                    Motivo da manutenção{" "}
+                    {ui("maintenanceReason")}{" "}
                     <b aria-hidden="true">*</b>
                   </span>
 
@@ -6164,7 +6249,7 @@ export default function BibliotecaItemPage() {
                         evento.target.value
                       )
                     }
-                    placeholder="Ex.: capa danificada, páginas soltas ou necessidade de restauração."
+                    placeholder={ui("maintenanceReasonPlaceholder")}
                     maxLength={1000}
                     autoFocus
                     required
@@ -6172,7 +6257,7 @@ export default function BibliotecaItemPage() {
                 </label>
 
                 <label className="bib-field">
-                  <span>Observação de entrada</span>
+                  <span>{ui("intakeNotes")}</span>
 
                   <textarea
                     className="bib-input bib-textarea"
@@ -6184,13 +6269,13 @@ export default function BibliotecaItemPage() {
                         evento.target.value
                       )
                     }
-                    placeholder="Descreva o estado atual do exemplar."
+                    placeholder={ui("intakePlaceholder")}
                     maxLength={5000}
                   />
                 </label>
 
                 <label className="bib-field">
-                  <span>Fornecedor ou responsável</span>
+                  <span>{ui("providerResponsible")}</span>
 
                   <input
                     className="bib-input"
@@ -6201,13 +6286,13 @@ export default function BibliotecaItemPage() {
                         evento.target.value
                       )
                     }
-                    placeholder="Ex.: Encadernadora Central"
+                    placeholder={ui("providerPlaceholder")}
                     maxLength={200}
                   />
                 </label>
 
                 <label className="bib-field">
-                  <span>Custo estimado</span>
+                  <span>{ui("estimatedCost")}</span>
 
                   <input
                     className="bib-input"
@@ -6224,7 +6309,7 @@ export default function BibliotecaItemPage() {
                 </label>
 
                 <label className="bib-field">
-                  <span>Previsão de retorno</span>
+                  <span>{ui("expectedReturn")}</span>
 
                   <input
                     className="bib-input"
@@ -6241,12 +6326,11 @@ export default function BibliotecaItemPage() {
                 <div className="bib-feedback bib-feedback-warning">
                   <div>
                     <strong>
-                      O exemplar ficará em manutenção
+                      {ui("inMaintenance")}
                     </strong>
 
                     <p>
-                      Durante esse período, ele não poderá
-                      ser emprestado.
+                      {ui("inMaintenanceHelp")}
                     </p>
                   </div>
                 </div>
@@ -6259,7 +6343,7 @@ export default function BibliotecaItemPage() {
                   onClick={fecharManutencao}
                   disabled={enviandoParaManutencao}
                 >
-                  Cancelar
+                  {ui("cancel")}
                 </button>
 
                 <button
@@ -6271,8 +6355,8 @@ export default function BibliotecaItemPage() {
                   }
                 >
                   {enviandoParaManutencao
-                    ? "Enviando..."
-                    : "🔧 Enviar para manutenção"}
+                    ? ui("sending")
+                    : ui("sendMaintenance")}
                 </button>
               </footer>
             </form>
@@ -6294,20 +6378,20 @@ export default function BibliotecaItemPage() {
             <header className="bib-modal-header">
               <div>
                 <span className="bib-modal-kicker">
-                  Biblioteca Virtual
+                  {ui("virtualLibrary")}
                 </span>
 
                 <h2
                   id="titulo-cadastro-exemplar"
                 >
                   {exemplarEmEdicao
-                    ? "Editar exemplar"
-                    : "Cadastrar exemplar"}
+                    ? ui("editCopy")
+                    : ui("createCopy")}
                 </h2>
                 <p>
                   {exemplarEmEdicao
-                    ? "Atualize os dados deste exemplar do acervo."
-                    : "Registre a unidade física ou digital vinculada a este item do acervo."}
+                    ? ui("editCopyDescription")
+                    : ui("createCopyDescription")}
                 </p>
               </div>
 
@@ -6320,7 +6404,7 @@ export default function BibliotecaItemPage() {
                 disabled={
                   salvandoExemplar
                 }
-                aria-label="Fechar"
+                aria-label={ui("close")}
               >
                 ×
               </button>
@@ -6336,7 +6420,7 @@ export default function BibliotecaItemPage() {
                 <div className="bib-detail-grid">
                   <label className="bib-field">
                     <span>
-                      Tipo <b>*</b>
+                      {ui("type")} <b>*</b>
                     </span>
 
                     <select
@@ -6358,18 +6442,18 @@ export default function BibliotecaItemPage() {
                       }
                     >
                       <option value="FISICO">
-                        Físico
+                        {ui("physical")}
                       </option>
 
                       <option value="DIGITAL">
-                        Digital
+                        {ui("digital")}
                       </option>
                     </select>
                   </label>
 
                   <label className="bib-field">
                     <span>
-                      Código interno <b>*</b>
+                      {ui("internalCode")} <b>*</b>
                     </span>
 
                     <input
@@ -6388,13 +6472,13 @@ export default function BibliotecaItemPage() {
                       disabled={
                         salvandoExemplar
                       }
-                      placeholder="Ex.: LIV-0001"
+                      placeholder={ui("internalCodePlaceholder")}
                     />
                   </label>
 
                   <label className="bib-field">
                     <span>
-                      Código de barras
+                      {ui("barcode")}
                     </span>
 
                     <input
@@ -6417,7 +6501,7 @@ export default function BibliotecaItemPage() {
                   </label>
 
                   <label className="bib-field">
-                    <span>Número de tombo</span>
+                    <span>{ui("accessionNumber")}</span>
 
                     <input
                       className="bib-input"
@@ -6439,7 +6523,7 @@ export default function BibliotecaItemPage() {
                   </label>
 
                   <label className="bib-field">
-                    <span>Patrimônio</span>
+                    <span>{ui("assetNumber")}</span>
 
                     <input
                       className="bib-input"
@@ -6461,7 +6545,7 @@ export default function BibliotecaItemPage() {
                   </label>
 
                   <label className="bib-field">
-                    <span>Unidade / Polo</span>
+                    <span>{ui("unitCampus")}</span>
 
                     <input
                       className="bib-input"
@@ -6483,7 +6567,7 @@ export default function BibliotecaItemPage() {
                   </label>
 
                   <label className="bib-field">
-                    <span>Setor</span>
+                    <span>{ui("department")}</span>
 
                     <input
                       className="bib-input"
@@ -6500,12 +6584,12 @@ export default function BibliotecaItemPage() {
                       disabled={
                         salvandoExemplar
                       }
-                      placeholder="Ex.: Biblioteca"
+                      placeholder={ui("libraryPlaceholder")}
                     />
                   </label>
 
                   <label className="bib-field">
-                    <span>Sala</span>
+                    <span>{ui("room")}</span>
 
                     <input
                       className="bib-input"
@@ -6526,7 +6610,7 @@ export default function BibliotecaItemPage() {
                   </label>
 
                   <label className="bib-field">
-                    <span>Estante</span>
+                    <span>{ui("shelfUnit")}</span>
 
                     <input
                       className="bib-input"
@@ -6544,12 +6628,12 @@ export default function BibliotecaItemPage() {
                       disabled={
                         salvandoExemplar
                       }
-                      placeholder="Ex.: A"
+                      placeholder={ui("shelfUnitPlaceholder")}
                     />
                   </label>
 
                   <label className="bib-field">
-                    <span>Prateleira</span>
+                    <span>{ui("shelf")}</span>
 
                     <input
                       className="bib-input"
@@ -6567,13 +6651,13 @@ export default function BibliotecaItemPage() {
                       disabled={
                         salvandoExemplar
                       }
-                      placeholder="Ex.: 03"
+                      placeholder={ui("shelfPlaceholder")}
                     />
                   </label>
 
                   <label className="bib-field bib-field-span-3">
                     <span>
-                      Localização completa
+                      {ui("fullLocation")}
                     </span>
 
                     <input
@@ -6592,12 +6676,12 @@ export default function BibliotecaItemPage() {
                       disabled={
                         salvandoExemplar
                       }
-                      placeholder="Ex.: Biblioteca central · Estante A · Prateleira 03"
+                      placeholder={ui("locationPlaceholder")}
                     />
                   </label>
 
                   <label className="bib-field">
-                    <span>Data de aquisição</span>
+                    <span>{ui("acquisitionDate")}</span>
 
                     <input
                       className="bib-input"
@@ -6619,7 +6703,7 @@ export default function BibliotecaItemPage() {
                   </label>
 
                   <label className="bib-field">
-                    <span>Forma de aquisição</span>
+                    <span>{ui("acquisitionMethod")}</span>
 
                     <input
                       className="bib-input"
@@ -6637,12 +6721,12 @@ export default function BibliotecaItemPage() {
                       disabled={
                         salvandoExemplar
                       }
-                      placeholder="Ex.: Compra, doação"
+                      placeholder={ui("acquisitionPlaceholder")}
                     />
                   </label>
 
                   <label className="bib-field">
-                    <span>Fornecedor</span>
+                    <span>{ui("provider")}</span>
 
                     <input
                       className="bib-input"
@@ -6660,12 +6744,12 @@ export default function BibliotecaItemPage() {
                       disabled={
                         salvandoExemplar
                       }
-                      placeholder="Editora, livraria ou fornecedor"
+                      placeholder={ui("providerInputPlaceholder")}
                     />
                   </label>
 
                   <label className="bib-field">
-                    <span>Valor de aquisição</span>
+                    <span>{ui("acquisitionValue")}</span>
 
                     <input
                       className="bib-input"
@@ -6688,7 +6772,7 @@ export default function BibliotecaItemPage() {
                   </label>
 
                   <label className="bib-field bib-field-span-3">
-                    <span>Observações</span>
+                    <span>{ui("notes")}</span>
 
                     <textarea
                       className="bib-input bib-textarea"
@@ -6706,12 +6790,12 @@ export default function BibliotecaItemPage() {
                       disabled={
                         salvandoExemplar
                       }
-                      placeholder="Informações adicionais sobre este exemplar."
+                      placeholder={ui("copyNotesPlaceholder")}
                     />
                   </label>
                 </div>
                 <fieldset className="bib-options">
-                  <legend>Circulação</legend>
+                  <legend>{ui("circulation")}</legend>
 
                   <label className="bib-check">
                     <input
@@ -6732,11 +6816,10 @@ export default function BibliotecaItemPage() {
                     />
 
                     <span>
-                      <b>Permitir empréstimo</b>
+                      <b>{ui("allowLoan")}</b>
 
                       <small>
-                        Este exemplar poderá participar
-                        da circulação da biblioteca.
+                        {ui("allowLoanHelp")}
                       </small>
                     </span>
                   </label>
@@ -6754,7 +6837,7 @@ export default function BibliotecaItemPage() {
                     salvandoExemplar
                   }
                 >
-                  Cancelar
+                  {ui("cancel")}
                 </button>
 
                 <button
@@ -6769,11 +6852,11 @@ export default function BibliotecaItemPage() {
                 >
                   {salvandoExemplar
                     ? exemplarEmEdicao
-                      ? "Salvando..."
-                      : "Cadastrando..."
+                      ? ui("saving")
+                      : ui("registeringCopy")
                     : exemplarEmEdicao
-                      ? "Salvar alterações"
-                      : "Cadastrar exemplar"}
+                      ? ui("saveChanges")
+                      : ui("createCopy")}
                 </button>
               </footer>
             </form>
@@ -6795,20 +6878,17 @@ export default function BibliotecaItemPage() {
             <header className="bib-modal-header">
               <div>
                 <span className="bib-modal-kicker">
-                  Biblioteca Virtual
+                  {ui("virtualLibrary")}
                 </span>
 
                 <h2
                   id="titulo-baixa-exemplar"
                 >
-                  Dar baixa no exemplar
+                  {ui("writeOffTitle")}
                 </h2>
 
                 <p>
-                  O exemplar será retirado da
-                  circulação, mas permanecerá
-                  registrado no histórico do
-                  acervo.
+                  {ui("writeOffDescription")}
                 </p>
               </div>
 
@@ -6821,7 +6901,7 @@ export default function BibliotecaItemPage() {
                 disabled={
                   baixandoExemplar
                 }
-                aria-label="Fechar"
+                aria-label={ui("close")}
               >
                 ×
               </button>
@@ -6844,19 +6924,19 @@ export default function BibliotecaItemPage() {
                     </strong>
 
                     <p>
-                      {rotuloEnum(
+                      {rotuloEnumLocalizado(
                         exemplarParaBaixa.tipo
                       )}
 
                       {" · "}
 
-                      {rotuloEnum(
+                      {rotuloEnumLocalizado(
                         exemplarParaBaixa.status
                       )}
 
                       {exemplarParaBaixa
                         .numeroTombo
-                        ? ` · Tombo ${exemplarParaBaixa.numeroTombo}`
+                        ? ui("tombSuffix", { number: exemplarParaBaixa.numeroTombo })
                         : ""}
                     </p>
                   </div>
@@ -6864,7 +6944,7 @@ export default function BibliotecaItemPage() {
 
                 <label className="bib-field">
                   <span>
-                    Motivo da baixa <b>*</b>
+                    {ui("writeOffReason")} <b>*</b>
                   </span>
 
                   <textarea
@@ -6881,14 +6961,12 @@ export default function BibliotecaItemPage() {
                     disabled={
                       baixandoExemplar
                     }
-                    placeholder="Ex.: exemplar extraviado, dano irreparável, descarte patrimonial..."
+                    placeholder={ui("writeOffPlaceholder")}
                     autoFocus
                   />
 
                   <small>
-                    O motivo ficará registrado
-                    na auditoria e no histórico
-                    deste exemplar.
+                    {ui("writeOffReasonHelp")}
                   </small>
                 </label>
               </div>
@@ -6904,7 +6982,7 @@ export default function BibliotecaItemPage() {
                     baixandoExemplar
                   }
                 >
-                  Cancelar
+                  {ui("cancel")}
                 </button>
 
                 <button
@@ -6917,7 +6995,7 @@ export default function BibliotecaItemPage() {
                   }
                 >
                   {baixandoExemplar
-                    ? "Realizando baixa..."
+                    ? ui("writingOff")
                     : "⬇ Dar baixa no exemplar"}
                 </button>
               </footer>
@@ -6939,7 +7017,7 @@ export default function BibliotecaItemPage() {
           <button
             type="button"
             onClick={() => setToast(null)}
-            aria-label="Fechar aviso"
+            aria-label={ui("closeNotice")}
           >
             ×
           </button>

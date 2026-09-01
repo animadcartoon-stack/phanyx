@@ -31871,3 +31871,125 @@ html[data-theme="light"]
   dt {
   color: #64748b !important;
 }
+
+/* =========================================================
+   PHANYX — NOVA ATIVIDADE EXTERNA
+   CORREÇÕES DE CONTRASTE NO TEMA CLARO
+   ========================================================= */
+
+html[data-theme="light"] .phanyx-atividade-externa-nova-page {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-atividade-externa-nova-page .phanyx-theme-card {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+/* textos */
+html[data-theme="light"] .phanyx-atividade-externa-nova-page .text-slate-950 {
+  color: #020617 !important;
+}
+
+html[data-theme="light"] .phanyx-atividade-externa-nova-page .text-slate-900 {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-atividade-externa-nova-page .text-slate-800 {
+  color: #1e293b !important;
+}
+
+html[data-theme="light"] .phanyx-atividade-externa-nova-page .text-slate-700 {
+  color: #334155 !important;
+}
+
+html[data-theme="light"] .phanyx-atividade-externa-nova-page .text-slate-600 {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-atividade-externa-nova-page .text-slate-500 {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-atividade-externa-nova-page .text-slate-400 {
+  color: #94a3b8 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-atividade-externa-nova-page .text-blue-700 {
+  color: #1d4ed8 !important;
+}
+
+html[data-theme="light"] .phanyx-atividade-externa-nova-page .text-blue-300 {
+  color: #2563eb !important;
+}
+
+/* inputs */
+html[data-theme="light"] .phanyx-atividade-externa-nova-page input,
+html[data-theme="light"] .phanyx-atividade-externa-nova-page select,
+html[data-theme="light"] .phanyx-atividade-externa-nova-page textarea {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-atividade-externa-nova-page input::placeholder,
+html[data-theme="light"] .phanyx-atividade-externa-nova-page textarea::placeholder {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-atividade-externa-nova-page select option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+/* caixa de turmas participantes */
+html[data-theme="light"] .phanyx-atividade-externa-nova-page .phanyx-atividade-externa-box {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+/* switches/toggles — sem card azul escuro no claro */
+html[data-theme="light"] .phanyx-atividade-externa-nova-page .phanyx-atividade-externa-switch {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-atividade-externa-nova-page .phanyx-atividade-externa-switch:hover {
+  background-color: #f8fafc !important;
+  border-color: #94a3b8 !important;
+}
+
+html[data-theme="light"] .phanyx-atividade-externa-nova-page .phanyx-atividade-externa-switch[data-active="true"] {
+  background-color: #eff6ff !important;
+  border-color: #93c5fd !important;
+}
+
+html[data-theme="light"] .phanyx-atividade-externa-nova-page .phanyx-atividade-externa-switch-text strong {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-atividade-externa-nova-page .phanyx-atividade-externa-switch-description {
+  color: #475569 !important;
+}
+
+/* links e botões */
+html[data-theme="light"] .phanyx-atividade-externa-nova-page a {
+  color: inherit;
+}
+
+html[data-theme="light"] .phanyx-atividade-externa-nova-page .bg-blue-700 {
+  background-color: #1d4ed8 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .phanyx-atividade-externa-nova-page .bg-blue-700:hover {
+  background-color: #1e40af !important;
+}
