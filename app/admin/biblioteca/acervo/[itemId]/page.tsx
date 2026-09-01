@@ -4181,8 +4181,9 @@ export default function BibliotecaItemPage() {
                     </h2>
 
                     <p>
-                      {item._count.arquivos}{" "}
-                      arquivo(s) vinculado(s).
+                      {ui("linkedFiles", {
+                        count: item._count.arquivos,
+                      })}
                     </p>
 
                     {armazenamento ? (
@@ -4495,10 +4496,11 @@ export default function BibliotecaItemPage() {
 
                           {exemplar.baixadoEm ? (
                             <small>
-                              Baixado em{" "}
-                              {formatarData(
-                                exemplar.baixadoEm
-                              )}
+                              {ui("writtenOffAt", {
+                                date: formatarData(
+                                  exemplar.baixadoEm
+                                ),
+                              })}
 
                               {exemplar.motivoBaixa
                                 ? ui("reasonSuffix", { reason: exemplar.motivoBaixa })
@@ -5184,7 +5186,7 @@ export default function BibliotecaItemPage() {
                 >
                   {excluindoArquivo
                     ? ui("deleting")
-                    : "🗑 Excluir arquivo"}
+                    : `🗑 ${ui("deleteFileTitle")}`}
                 </button>
               </footer>
             </form>
@@ -6168,7 +6170,7 @@ export default function BibliotecaItemPage() {
                     : resultadoManutencao ===
                       "IRRECUPERAVEL"
                       ? ui("declareIrreparable")
-                      : "🛠️ Concluir como reparado"}
+                      : `🛠️ ${ui("completeAsRepaired")}`}
                 </button>
               </footer>
             </form>
@@ -6996,7 +6998,7 @@ export default function BibliotecaItemPage() {
                 >
                   {baixandoExemplar
                     ? ui("writingOff")
-                    : "⬇ Dar baixa no exemplar"}
+                    : `⬇ ${ui("writeOffTitle")}`}
                 </button>
               </footer>
             </form>
