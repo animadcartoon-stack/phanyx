@@ -2243,7 +2243,7 @@ function AdminAlunosPage() {
         throw new Error(
           data?.error ||
           t("documentOperations.uploadError")
-        ); 
+        );
       }
 
       setDocumentoArquivo(null);
@@ -2916,7 +2916,20 @@ function AdminAlunosPage() {
                         className="rounded-xl border border-slate-300 bg-white p-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
                       >
                         <span className="mb-2 block font-semibold">
-                          {tipo.replaceAll("_", " ")}
+                          {(
+                            {
+                              RG: t("documentPanel.typeRg"),
+                              CPF: t("documentPanel.typeCpf"),
+                              CNH: t("documentPanel.typeCnh"),
+                              HISTORICO_ESCOLAR: t("documentPanel.typeSchoolRecord"),
+                              COMPROVANTE_RESIDENCIA: t(
+                                "documentPanel.typeResidenceProof"
+                              ),
+                              TITULO_ELEITOR: t(
+                                "documentPanel.typeVoterRegistration"
+                              ),
+                            } as Record<string, string>
+                          )[tipo] ?? tipo.replaceAll("_", " ")}
                         </span>
 
                         <input
@@ -3049,7 +3062,20 @@ function AdminAlunosPage() {
                           className="rounded-xl border border-slate-300 bg-white p-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
                         >
                           <span className="mb-2 block font-semibold">
-                            {tipo.replaceAll("_", " ")}
+                            {(
+                              {
+                                RG: t("documentPanel.typeRg"),
+                                CPF: t("documentPanel.typeCpf"),
+                                CNH: t("documentPanel.typeCnh"),
+                                HISTORICO_ESCOLAR: t("documentPanel.typeSchoolRecord"),
+                                COMPROVANTE_RESIDENCIA: t(
+                                  "documentPanel.typeResidenceProof"
+                                ),
+                                TITULO_ELEITOR: t(
+                                  "documentPanel.typeVoterRegistration"
+                                ),
+                              } as Record<string, string>
+                            )[tipo] ?? tipo.replaceAll("_", " ")}
                           </span>
 
                           <input
