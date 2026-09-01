@@ -30983,3 +30983,224 @@ html[data-theme="light"]
   color: #5b21b6 !important;
   -webkit-text-fill-color: #5b21b6 !important;
 }
+
+/* =========================================================
+   STUDENT SUCCESS — MODAL DE INTERVENÇÃO
+   ========================================================= */
+
+/* ---------- LIGHT ---------- */
+
+html[data-theme="light"]
+  .phanyx-student-success-intervention-modal {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-intervention-modal h2 {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-intervention-modal p {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-intervention-modal label > span {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-intervention-modal select,
+html[data-theme="light"]
+  .phanyx-student-success-intervention-modal input,
+html[data-theme="light"]
+  .phanyx-student-success-intervention-modal textarea {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-intervention-modal textarea::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-intervention-modal select:focus,
+html[data-theme="light"]
+  .phanyx-student-success-intervention-modal input:focus,
+html[data-theme="light"]
+  .phanyx-student-success-intervention-modal textarea:focus {
+  border-color: #2563eb !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-intervention-cancel {
+  background: #ffffff !important;
+  border: 1px solid #94a3b8 !important;
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-intervention-cancel:hover {
+  background: #f1f5f9 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-intervention-save {
+  background: #1d4ed8 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-intervention-save:hover:not(:disabled) {
+  background: #1e40af !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-intervention-save:disabled {
+  background: #cbd5e1 !important;
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+
+/* ---------- DARK ---------- */
+
+html[data-theme="dark"]
+  .phanyx-student-success-intervention-modal {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-intervention-modal h2 {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-intervention-modal p {
+  color: #cbd5e1 !important;
+  -webkit-text-fill-color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-intervention-modal label > span {
+  color: #e2e8f0 !important;
+  -webkit-text-fill-color: #e2e8f0 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-intervention-modal select,
+html[data-theme="dark"]
+  .phanyx-student-success-intervention-modal input,
+html[data-theme="dark"]
+  .phanyx-student-success-intervention-modal textarea {
+  background: #111827 !important;
+  border-color: #475569 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-intervention-modal textarea::placeholder {
+  color: #94a3b8 !important;
+  -webkit-text-fill-color: #94a3b8 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-intervention-cancel {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-intervention-save {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+
+/* ---------- SYSTEM ---------- */
+
+html[data-theme="system"]
+  .phanyx-student-success-intervention-modal {
+  background: #303030 !important;
+  border-color: #525252 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-intervention-modal h2 {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-intervention-modal p {
+  color: #e5e7eb !important;
+  -webkit-text-fill-color: #e5e7eb !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-intervention-modal label > span {
+  color: #f3f4f6 !important;
+  -webkit-text-fill-color: #f3f4f6 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-intervention-modal select,
+html[data-theme="system"]
+  .phanyx-student-success-intervention-modal input,
+html[data-theme="system"]
+  .phanyx-student-success-intervention-modal textarea {
+  background: #3f3f3f !important;
+  border-color: #666666 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-intervention-modal textarea::placeholder {
+  color: #d1d5db !important;
+  -webkit-text-fill-color: #d1d5db !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-intervention-cancel {
+  background: #454545 !important;
+  border-color: #737373 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-intervention-save {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}

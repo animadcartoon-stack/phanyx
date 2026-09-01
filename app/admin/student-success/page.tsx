@@ -3275,20 +3275,21 @@ alunoSelecionado ? (
     "
   >
     <div
-      role="dialog"
-      aria-modal="true"
-      className="
-        w-full
-        max-w-2xl
-        rounded-2xl
-        border
-        border-slate-200
-        bg-white
-        shadow-2xl
-        dark:border-slate-700
-        dark:bg-slate-950
-      "
-    >
+  role="dialog"
+  aria-modal="true"
+  className="
+    phanyx-student-success-intervention-modal
+    w-full
+    max-w-2xl
+    rounded-2xl
+    border
+    border-slate-200
+    bg-white
+    shadow-2xl
+    dark:border-slate-700
+    dark:bg-slate-950
+  "
+>
       <div
         className="
           flex
@@ -3754,68 +3755,71 @@ alunoSelecionado ? (
         "
       >
         <button
-          type="button"
-          disabled={
-            salvandoIntervencao
-          }
-          onClick={() =>
-            setModalIntervencaoAberto(
-              false
-            )
-          }
-          className="
-            rounded-xl
-            border
-            border-slate-300
-            bg-white
-            px-4
-            py-2.5
-            text-sm
-            font-semibold
-            text-slate-700
-            dark:border-slate-700
-            dark:bg-slate-900
-            dark:text-slate-200
-          "
-        >
-          {t(
-            "intervention.cancel"
-          )}
-        </button>
+  type="button"
+  disabled={
+    salvandoIntervencao
+  }
+  onClick={() =>
+    setModalIntervencaoAberto(
+      false
+    )
+  }
+  className="
+    phanyx-student-success-intervention-cancel
+    rounded-xl
+    border
+    border-slate-300
+    bg-white
+    px-4
+    py-2.5
+    text-sm
+    font-semibold
+    text-slate-700
+    dark:border-slate-700
+    dark:bg-slate-900
+    dark:text-slate-200
+  "
+>
+  {t(
+    "intervention.cancel"
+  )}
+</button>
 
         <button
-          type="button"
-          disabled={
-            salvandoIntervencao ||
-            observacaoIntervencao
-              .trim()
-              .length < 3
-          }
-          onClick={() =>
-            void registrarIntervencao()
-          }
-          className="
-            rounded-xl
-            bg-blue-700
-            px-4
-            py-2.5
-            text-sm
-            font-bold
-            text-white
-            transition
-            hover:bg-blue-800
-            disabled:cursor-not-allowed
-            disabled:opacity-50
-          "
-        >
-          {salvandoIntervencao
-            ? t(
-                "intervention.saving"
-              )
-            : t(
-                "intervention.save"
-              )}
-        </button>
+  type="button"
+  disabled={
+    salvandoIntervencao ||
+    observacaoIntervencao
+      .trim()
+      .length < 3
+  }
+  onClick={() =>
+    void registrarIntervencao()
+  }
+  className="
+    phanyx-student-success-intervention-save
+    rounded-xl
+    bg-blue-700
+    px-4
+    py-2.5
+    text-sm
+    font-bold
+    text-white
+    transition
+    hover:bg-blue-800
+    disabled:cursor-not-allowed
+    disabled:opacity-50
+  "
+>
+  {salvandoIntervencao
+    ? t(
+        "intervention.saving"
+      )
+    : t(
+        "intervention.save"
+      )}
+</button>
+
       </div>
     </div>
   </div>
