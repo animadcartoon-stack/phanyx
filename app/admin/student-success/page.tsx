@@ -1458,15 +1458,14 @@ export default function AdminStudentSuccessPage() {
                           }
                           tabIndex={0}
                           className="
-    cursor-pointer
-    transition
-    hover:bg-blue-50
-    focus:outline-none
-    focus:ring-2
-    focus:ring-inset
-    focus:ring-blue-500
-    dark:hover:bg-slate-800/60
-  "
+  phanyx-student-success-row
+  cursor-pointer
+  transition-colors
+  focus:outline-none
+  focus:ring-2
+  focus:ring-inset
+  focus:ring-blue-500
+"
                         >
 
                           <td

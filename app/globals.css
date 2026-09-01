@@ -30822,3 +30822,95 @@ html[data-theme="system"]
   -webkit-text-fill-color: #ffffff !important;
   opacity: 1 !important;
 }
+
+/* =========================================================
+   STUDENT SUCCESS — HOVER DAS LINHAS
+========================================================= */
+
+/* CLARO */
+
+html[data-theme="light"]
+.phanyx-student-success-row:hover {
+  background: #eaf2ff !important;
+}
+
+html[data-theme="light"]
+.phanyx-student-success-row:hover td {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+.phanyx-student-success-row:hover
+.phanyx-student-success-student-name {
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+.phanyx-student-success-row:hover
+.phanyx-student-success-student-registration {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+  opacity: 1 !important;
+}
+
+
+/* ESCURO */
+
+html[data-theme="dark"]
+.phanyx-student-success-row:hover {
+  background: #1e293b !important;
+}
+
+html[data-theme="dark"]
+.phanyx-student-success-row:hover td {
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"]
+.phanyx-student-success-row:hover
+.phanyx-student-success-student-name {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="dark"]
+.phanyx-student-success-row:hover
+.phanyx-student-success-student-registration {
+  color: #cbd5e1 !important;
+  -webkit-text-fill-color: #cbd5e1 !important;
+}
+
+
+/* SISTEMA */
+
+html[data-theme="system"]
+.phanyx-student-success-row:hover {
+  background: #454545 !important;
+}
+
+html[data-theme="system"]
+.phanyx-student-success-row:hover td {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="system"]
+.phanyx-student-success-row:hover
+.phanyx-student-success-student-name {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="system"]
+.phanyx-student-success-row:hover
+.phanyx-student-success-student-registration {
+  color: #e5e7eb !important;
+  -webkit-text-fill-color: #e5e7eb !important;
+}
