@@ -266,7 +266,7 @@ export default function AdminAssinaturaPage() {
 
                   <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
                     {t("institution.currentPlan")}{" "}
-                    <strong className="text-slate-950 dark:text-white">
+                    <strong className="phanyx-assinatura-plano-atual text-slate-950 dark:text-white">
                       {rotuloPlano(planoAtual)}
                     </strong>
                   </p>
@@ -506,6 +506,27 @@ export default function AdminAssinaturaPage() {
           </div>
         </div>
       ) : null}
+
+      <style>{`
+        html[data-theme="light"]
+          .phanyx-assinatura-page
+          .phanyx-assinatura-plano-atual {
+          color: #0f172a !important;
+          -webkit-text-fill-color: #0f172a !important;
+          opacity: 1 !important;
+        }
+
+        html[data-theme="dark"]
+          .phanyx-assinatura-page
+          .phanyx-assinatura-plano-atual,
+        html[data-theme="system"]
+          .phanyx-assinatura-page
+          .phanyx-assinatura-plano-atual {
+          color: #ffffff !important;
+          -webkit-text-fill-color: #ffffff !important;
+          opacity: 1 !important;
+        }
+      `}</style>
     </main>
   );
 }

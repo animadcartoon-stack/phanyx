@@ -30673,3 +30673,152 @@ html[data-theme="system"]
   color: #d4d4d4 !important;
   -webkit-text-fill-color: #d4d4d4 !important;
 }
+
+/* =========================================================
+   STUDENT SUCCESS — DRAWER CONTRASTE FINAL
+========================================================= */
+
+/* =========================
+   TEMA CLARO
+========================= */
+
+html[data-theme="light"]
+.phanyx-student-success-drawer-close {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+.phanyx-student-success-drawer-close:hover {
+  background: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+}
+
+
+/* VALORES DOS CARDS */
+
+html[data-theme="light"]
+.phanyx-student-success-drawer-metric
+> div:not(.phanyx-student-success-drawer-muted) {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+
+/* CONTATO */
+
+html[data-theme="light"]
+.phanyx-student-success-drawer-card h4 {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+.phanyx-student-success-drawer-card dd {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+.phanyx-student-success-drawer-card p {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+  opacity: 1 !important;
+}
+
+
+/* PRINCIPAIS SINAIS */
+
+html[data-theme="light"]
+.phanyx-student-success-drawer-signal {
+  background: #fef3c7 !important;
+  border-color: #f59e0b !important;
+
+  color: #78350f !important;
+  -webkit-text-fill-color: #78350f !important;
+
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+.phanyx-student-success-drawer-signal
+div {
+  color: #78350f !important;
+  -webkit-text-fill-color: #78350f !important;
+  opacity: 1 !important;
+}
+
+
+/* DADOS AINDA NÃO DISPONÍVEIS */
+
+html[data-theme="light"]
+.phanyx-student-success-drawer-empty
+span {
+  background: #ffffff !important;
+  border-color: #94a3b8 !important;
+
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+
+  opacity: 1 !important;
+}
+
+
+/* =========================
+   TEMA ESCURO
+========================= */
+
+html[data-theme="dark"]
+.phanyx-student-success-drawer-close {
+  background: #111827 !important;
+  border-color: #475569 !important;
+
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="dark"]
+.phanyx-student-success-drawer-metric
+> div:not(.phanyx-student-success-drawer-muted),
+html[data-theme="dark"]
+.phanyx-student-success-drawer-card h4,
+html[data-theme="dark"]
+.phanyx-student-success-drawer-card dd {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+
+/* =========================
+   TEMA SISTEMA
+========================= */
+
+html[data-theme="system"]
+.phanyx-student-success-drawer-close {
+  background: #383838 !important;
+  border-color: #666666 !important;
+
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="system"]
+.phanyx-student-success-drawer-metric
+> div:not(.phanyx-student-success-drawer-muted),
+html[data-theme="system"]
+.phanyx-student-success-drawer-card h4,
+html[data-theme="system"]
+.phanyx-student-success-drawer-card dd {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
