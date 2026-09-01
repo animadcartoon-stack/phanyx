@@ -421,7 +421,7 @@ function AdminAlunosPage() {
         if (!res.ok) {
           throw new Error(
             data?.error ||
-            "Não foi possível carregar o lead."
+            t("loadingAndPhotoFeedback.leadLoadError")
           );
         }
 
@@ -485,9 +485,9 @@ function AdminAlunosPage() {
 
         abrirModalAviso(
           "erro",
-          "Não foi possível iniciar a conversão",
+          t("loadingAndPhotoFeedback.conversionStartErrorTitle"),
           error?.message ||
-          "Não foi possível carregar os dados do lead."
+          t("loadingAndPhotoFeedback.conversionLoadError")
         );
       } finally {
         if (requisicaoAtiva) {
@@ -731,8 +731,8 @@ function AdminAlunosPage() {
     if (!tiposPermitidos.includes(arquivo.type)) {
       abrirModalAviso(
         "erro",
-        "Formato inválido",
-        "Use uma imagem em JPG, JPEG, PNG ou WEBP para a foto oficial do aluno."
+        t("loadingAndPhotoFeedback.photoInvalidFormatTitle"),
+        t("loadingAndPhotoFeedback.photoInvalidType")
       );
       return;
     }
@@ -740,8 +740,8 @@ function AdminAlunosPage() {
     if (arquivo.size > tamanhoMaximoBytes) {
       abrirModalAviso(
         "erro",
-        "Foto muito grande",
-        "Envie uma foto com no máximo 2 MB. Recomendado: imagem quadrada, no mínimo 600x600 px, com rosto centralizado."
+        t("loadingAndPhotoFeedback.photoTooLargeTitle"),
+        t("loadingAndPhotoFeedback.photoTooLargeDescription")
       );
       return;
     }
@@ -765,7 +765,9 @@ function AdminAlunosPage() {
       const data = await res.json().catch(() => null);
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao enviar foto.");
+        throw new Error(
+          t("loadingAndPhotoFeedback.photoUrlMissing")
+        );
       }
 
       const url =
@@ -793,13 +795,16 @@ function AdminAlunosPage() {
         );
       }
 
-      mostrarFeedback("sucesso", "Foto oficial do aluno enviada com sucesso.");
+      mostrarFeedback(
+        "sucesso",
+        t("loadingAndPhotoFeedback.photoUploadSuccess")
+      );
     } catch (error: any) {
       abrirModalAviso(
         "erro",
-        "Erro ao enviar foto",
+        t("loadingAndPhotoFeedback.photoUploadErrorTitle"),
         error?.message ||
-        "Não foi possível enviar a foto. Verifique o formato e o tamanho do arquivo."
+        t("loadingAndPhotoFeedback.photoUploadErrorDescription")
       );
     } finally {
       setEnviandoFotoPerfil(false);
@@ -842,7 +847,8 @@ function AdminAlunosPage() {
         console.error("Erro ao buscar alunos:", data);
         mostrarFeedback(
           "erro",
-          data?.error || "Não foi possível carregar a lista de alunos."
+          data?.error ||
+          t("loadingAndPhotoFeedback.studentsLoadError")
         );
         setAlunos([]);
         setTotalAlunos(0);
@@ -910,7 +916,10 @@ function AdminAlunosPage() {
       setTotalPaginas(Number(data?.meta?.totalPages || 1));
     } catch (error) {
       console.error("Erro ao carregar alunos:", error);
-      mostrarFeedback("erro", "Erro ao carregar alunos.");
+      mostrarFeedback(
+        "erro",
+        t("loadingAndPhotoFeedback.studentsLoadException")
+      );
       setAlunos([]);
       setTotalAlunos(0);
       setTotalPaginas(1);
@@ -1411,8 +1420,8 @@ function AdminAlunosPage() {
     if (idade === null) {
       abrirModalAviso(
         "erro",
-        "Data de nascimento obrigatória",
-        "Informe uma data de nascimento válida para calcular a idade do aluno."
+        t("registrationFeedback.birthDateRequiredTitle"),
+        t("registrationFeedback.birthDateRequiredDescription")
       );
 
       return;
@@ -1424,8 +1433,8 @@ function AdminAlunosPage() {
     ) {
       abrirModalAviso(
         "erro",
-        "Data de nascimento inválida",
-        "Revise a data de nascimento antes de continuar."
+        t("registrationFeedback.birthDateInvalidTitle"),
+        t("registrationFeedback.birthDateInvalidDescription")
       );
 
       return;
@@ -1615,7 +1624,10 @@ function AdminAlunosPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Erro ao atualizar");
+        throw new Error(
+          data.error ||
+          t("studentActionFeedback.updateError")
+        );
       }
 
       const alunoAtualizado: AlunoComResumo = {
@@ -1681,16 +1693,28 @@ function AdminAlunosPage() {
 
       await carregarTudo();
 
-      mostrarFeedback("sucesso", "Aluno atualizado com sucesso.");
+      mostrarFeedback(
+        "sucesso",
+        t("studentActionFeedback.updateSuccess")
+      );
+
       abrirModalAviso(
         "sucesso",
-        "Aluno atualizado",
-        "As informações do aluno foram atualizadas com sucesso."
+        t("studentActionFeedback.updatedTitle"),
+        t("studentActionFeedback.updatedDescription")
       );
     } catch (error: any) {
-      const mensagem = error?.message || "Erro ao atualizar";
+      const mensagem =
+        error?.message ||
+        t("studentActionFeedback.updateError");
+
       mostrarFeedback("erro", mensagem);
-      abrirModalAviso("erro", "Erro ao atualizar", mensagem);
+
+      abrirModalAviso(
+        "erro",
+        t("studentActionFeedback.updateError"),
+        mensagem
+      );
     } finally {
       setSalvandoId(null);
     }
@@ -1710,23 +1734,45 @@ function AdminAlunosPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        const mensagem = data?.error || "Erro ao cancelar aluno.";
+        const mensagem =
+          data?.error ||
+          t("studentActionFeedback.cancelError");
+
         mostrarFeedback("erro", mensagem);
-        abrirModalAviso("erro", "Não foi possível cancelar", mensagem);
+
+        abrirModalAviso(
+          "erro",
+          t("studentActionFeedback.cancelUnavailableTitle"),
+          mensagem
+        );
+
         return;
       }
 
       await carregarTudo();
-      mostrarFeedback("sucesso", "Aluno cancelado com sucesso.");
+
+      mostrarFeedback(
+        "sucesso",
+        t("studentActionFeedback.cancelSuccess")
+      );
+
       abrirModalAviso(
         "sucesso",
-        "Aluno cancelado",
-        "O aluno foi mantido no sistema com status Cancelado."
+        t("studentActionFeedback.cancelledTitle"),
+        t("studentActionFeedback.cancelledDescription")
       );
     } catch (error: any) {
-      const mensagem = error?.message || "Erro ao cancelar aluno.";
+      const mensagem =
+        error?.message ||
+        t("studentActionFeedback.cancelError");
+
       mostrarFeedback("erro", mensagem);
-      abrirModalAviso("erro", "Erro ao cancelar", mensagem);
+
+      abrirModalAviso(
+        "erro",
+        t("studentActionFeedback.cancelExceptionTitle"),
+        mensagem
+      );
     }
   }
 
@@ -1744,23 +1790,44 @@ function AdminAlunosPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        const mensagem = data?.error || "Erro ao reativar aluno.";
+        const mensagem =
+          data?.error ||
+          t("studentActionFeedback.reactivateError");
+
         mostrarFeedback("erro", mensagem);
-        abrirModalAviso("erro", "Não foi possível reativar", mensagem);
+
+        abrirModalAviso(
+          "erro",
+          t("studentActionFeedback.reactivateUnavailableTitle"),
+          mensagem
+        );
+
         return;
       }
-
       await carregarTudo();
-      mostrarFeedback("sucesso", "Aluno reativado com sucesso.");
+
+      mostrarFeedback(
+        "sucesso",
+        t("studentActionFeedback.reactivateSuccess")
+      );
+
       abrirModalAviso(
         "sucesso",
-        "Aluno reativado",
-        "O aluno voltou a ficar com status Ativo."
+        t("studentActionFeedback.reactivatedTitle"),
+        t("studentActionFeedback.reactivatedDescription")
       );
     } catch (error: any) {
-      const mensagem = error?.message || "Erro ao reativar aluno.";
+      const mensagem =
+        error?.message ||
+        t("studentActionFeedback.reactivateError");
+
       mostrarFeedback("erro", mensagem);
-      abrirModalAviso("erro", "Erro ao reativar", mensagem);
+
+      abrirModalAviso(
+        "erro",
+        t("studentActionFeedback.reactivateExceptionTitle"),
+        mensagem
+      );
     }
   }
 
@@ -1850,7 +1917,10 @@ function AdminAlunosPage() {
       setCidade(data.localidade || "");
       setEstado(data.uf || "");
     } catch {
-      mostrarFeedback("erro", "Não foi possível buscar o endereço pelo CEP.");
+      mostrarFeedback(
+        "erro",
+        t("studentActionFeedback.addressLookupError")
+      );
     }
   }
 
@@ -1873,7 +1943,10 @@ function AdminAlunosPage() {
       setEditCidade(data.localidade || "");
       setEditEstado(data.uf || "");
     } catch {
-      mostrarFeedback("erro", "Não foi possível buscar o endereço pelo CEP.");
+      mostrarFeedback(
+        "erro",
+        t("studentActionFeedback.addressLookupError")
+      );
     }
   }
 
@@ -1988,7 +2061,7 @@ function AdminAlunosPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao carregar documentos arquivados.");
+        throw new Error(data?.error || t("documentOperations.archivedLoadError"));
       }
 
       setDocumentosArquivadosAluno(Array.isArray(data) ? data : []);
@@ -1996,7 +2069,7 @@ function AdminAlunosPage() {
       setDocumentosArquivadosAluno([]);
       mostrarFeedback(
         "erro",
-        error?.message || "Erro ao carregar documentos arquivados."
+        error?.message || t("documentOperations.archivedLoadError")
       );
     } finally {
       setCarregandoArquivadosAluno(false);
@@ -2015,13 +2088,13 @@ function AdminAlunosPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao carregar documentos.");
+        throw new Error(data?.error || t("documentOperations.activeLoadError"));
       }
 
       setDocumentosAluno(Array.isArray(data) ? data : []);
     } catch (error: any) {
       setDocumentosAluno([]);
-      mostrarFeedback("erro", error?.message || "Erro ao carregar documentos.");
+      mostrarFeedback("erro", error?.message || t("documentOperations.activeLoadError"));
     } finally {
       setCarregandoDocumentosAluno(false);
     }
@@ -2047,7 +2120,7 @@ function AdminAlunosPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao restaurar documento.");
+        throw new Error(data?.error || t("documentOperations.restoreError"));
       }
 
       await carregarDocumentosAluno(alunoSelecionado.id);
@@ -2055,14 +2128,15 @@ function AdminAlunosPage() {
 
       abrirModalAviso(
         "sucesso",
-        "Documento restaurado",
-        "O documento voltou para a lista ativa."
+        t("documentOperations.restoredTitle"),
+        t("documentOperations.restoredDescription")
       );
     } catch (error: any) {
       abrirModalAviso(
         "erro",
-        "Erro ao restaurar",
-        error?.message || "Não foi possível restaurar o documento."
+        t("documentOperations.restoreErrorTitle"),
+        error?.message ||
+        t("documentOperations.restoreUnavailable")
       );
     }
   }
@@ -2087,22 +2161,26 @@ function AdminAlunosPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao arquivar documento.");
+        throw new Error(data?.error || t("documentOperations.archiveError"));
       }
 
       await carregarDocumentosAluno(alunoSelecionado.id);
 
-      mostrarFeedback("sucesso", "Documento arquivado com sucesso.");
+      mostrarFeedback(
+        "sucesso",
+        t("documentOperations.archiveSuccess")
+      );
       abrirModalAviso(
         "sucesso",
-        "Documento arquivado",
-        "O documento foi arquivado e não aparece mais na lista ativa."
+        t("documentOperations.archivedTitle"),
+        t("documentOperations.archivedDescription")
       );
     } catch (error: any) {
       abrirModalAviso(
         "erro",
-        "Erro ao arquivar",
-        error?.message || "Não foi possível arquivar o documento."
+        t("documentOperations.archiveErrorTitle"),
+        error?.message ||
+        t("documentOperations.archiveUnavailable")
       );
     }
   }
@@ -2113,8 +2191,8 @@ function AdminAlunosPage() {
     if (!documentoArquivo) {
       abrirModalAviso(
         "erro",
-        "Arquivo obrigatório",
-        "Selecione um arquivo antes de enviar."
+        t("documentOperations.fileRequiredTitle"),
+        t("documentOperations.fileRequiredDescription")
       );
       return;
     }
@@ -2125,7 +2203,9 @@ function AdminAlunosPage() {
       const formData = new FormData();
       formData.append(
         "titulo",
-        `${documentoTipo} - ${documentoProprietario === "ALUNO" ? "Aluno" : "Responsável"
+        `${documentoTipo} - ${documentoProprietario === "ALUNO"
+          ? t("documentPanel.ownerStudent")
+          : t("documentPanel.ownerGuardian")
         }`
       );
       formData.append("tipo", documentoTipo);
@@ -2150,17 +2230,21 @@ function AdminAlunosPage() {
       setDocumentoArquivo(null);
       await carregarDocumentosAluno(alunoSelecionado.id);
 
-      mostrarFeedback("sucesso", "Documento enviado com sucesso.");
+      mostrarFeedback(
+        "sucesso",
+        t("documentOperations.uploadSuccess")
+      );
       abrirModalAviso(
         "sucesso",
-        "Documento enviado",
-        "O documento foi salvo no cadastro do aluno."
+        t("documentOperations.uploadedTitle"),
+        t("documentOperations.uploadedDescription")
       );
     } catch (error: any) {
       abrirModalAviso(
         "erro",
-        "Erro ao enviar documento",
-        error?.message || "Não foi possível enviar o documento."
+        t("documentOperations.uploadErrorTitle"),
+        error?.message ||
+        t("documentOperations.uploadUnavailable")
       );
     } finally {
       setEnviandoDocumentoAluno(false);
@@ -2193,7 +2277,8 @@ function AdminAlunosPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao carregar desempenho.");
+        throw new Error(data?.error ||
+          t("documentOperations.performanceLoadError"));
       }
 
       setDesempenhoAluno(data);
@@ -2201,7 +2286,8 @@ function AdminAlunosPage() {
       setDesempenhoAluno(null);
       mostrarFeedback(
         "erro",
-        error?.message || "Erro ao carregar desempenho acadêmico."
+        error?.message ||
+        t("documentOperations.performanceLoadError")
       );
     } finally {
       setCarregandoDesempenho(false);
@@ -4865,7 +4951,7 @@ function AdminAlunosPage() {
                   : "bg-blue-600 hover:bg-blue-700"
                   }`}
               >
-                Fechar
+                {t("registrationFeedback.close")}
               </button>
             </div>
           </div>
