@@ -40,18 +40,28 @@ function CardResumo({
   return (
     <div
       className={[
+        "phanyx-student-success-summary-card",
+        `phanyx-student-success-${variante}`,
         "rounded-2xl border p-5 shadow-sm transition",
         estilos[variante],
       ].join(" ")}
     >
       <div
-        className="text-3xl font-bold tracking-tight"
+        className="
+          text-3xl
+          font-bold
+          tracking-tight
+        "
       >
         {valor}
       </div>
 
       <div
-        className="mt-2 text-sm font-semibold"
+        className="
+          mt-2
+          text-sm
+          font-semibold
+        "
       >
         {titulo}
       </div>
@@ -68,6 +78,7 @@ export default function AdminStudentSuccessPage() {
   return (
     <main
       className="
+        phanyx-student-success-page
         min-h-full
         bg-slate-50
         text-slate-950
@@ -86,7 +97,7 @@ export default function AdminStudentSuccessPage() {
           lg:p-8
         "
       >
-        {/* Cabeçalho */}
+        {/* CABEÇALHO */}
         <section
           className="
             overflow-hidden
@@ -117,7 +128,9 @@ export default function AdminStudentSuccessPage() {
             "
           >
             <div
-              className="max-w-3xl"
+              className="
+                max-w-3xl
+              "
             >
               <div
                 className="
@@ -234,13 +247,16 @@ export default function AdminStudentSuccessPage() {
           </div>
         </section>
 
-        {/* Visão geral */}
+        {/* VISÃO GERAL */}
         <section>
           <div
-            className="mb-4"
+            className="
+              mb-4
+            "
           >
             <h2
               className="
+                phanyx-student-success-section-title
                 text-lg
                 font-bold
                 text-slate-950
@@ -253,12 +269,6 @@ export default function AdminStudentSuccessPage() {
             </h2>
           </div>
 
-          {/*
-            Usamos “—” enquanto a API ainda
-            não estiver conectada.
-
-            Não exibimos números fictícios.
-          */}
           <div
             className="
               grid
@@ -309,9 +319,10 @@ export default function AdminStudentSuccessPage() {
           </div>
         </section>
 
-        {/* Alunos que precisam de atenção */}
+        {/* ALUNOS QUE PRECISAM DE ATENÇÃO */}
         <section
           className="
+            phanyx-student-success-panel
             overflow-hidden
             rounded-2xl
             border
@@ -334,6 +345,7 @@ export default function AdminStudentSuccessPage() {
           >
             <h2
               className="
+                phanyx-student-success-panel-title
                 text-lg
                 font-bold
                 text-slate-950
@@ -347,6 +359,7 @@ export default function AdminStudentSuccessPage() {
 
             <p
               className="
+                phanyx-student-success-muted
                 mt-1
                 text-sm
                 leading-6
@@ -397,7 +410,10 @@ export default function AdminStudentSuccessPage() {
                 <svg
                   viewBox="0 0 24 24"
                   fill="none"
-                  className="h-7 w-7"
+                  className="
+                    h-7
+                    w-7
+                  "
                   stroke="currentColor"
                   strokeWidth="1.8"
                 >
@@ -423,6 +439,7 @@ export default function AdminStudentSuccessPage() {
 
               <p
                 className="
+                  phanyx-student-success-muted
                   mt-4
                   text-sm
                   font-semibold
@@ -439,7 +456,7 @@ export default function AdminStudentSuccessPage() {
           </div>
         </section>
 
-        {/* Aviso de apoio à decisão */}
+        {/* APOIO À DECISÃO */}
         <section
           className="
             rounded-2xl
@@ -480,7 +497,10 @@ export default function AdminStudentSuccessPage() {
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
-                className="h-5 w-5"
+                className="
+                  h-5
+                  w-5
+                "
                 stroke="currentColor"
                 strokeWidth="2"
               >

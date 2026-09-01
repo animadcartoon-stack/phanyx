@@ -2576,13 +2576,23 @@ function AdminAlunosPage() {
                   onChange={(e) => setGenero(e.target.value)}
                   className="w-full rounded-xl border p-2.5"
                 >
-                  <option value="">Gênero</option>
-                  <option value="FEMININO">Feminino</option>
-                  <option value="MASCULINO">Masculino</option>
-                  <option value="NAO_BINARIO">Não binário</option>
-                  <option value="OUTRO">Outro</option>
+                  <option value="">
+                    {t("fields.gender")}
+                  </option>
+                  <option value="FEMININO">
+                    {t("fields.female")}
+                  </option>
+                  <option value="MASCULINO">
+                    {t("fields.male")}
+                  </option>
+                  <option value="NAO_BINARIO">
+                    {t("fields.nonBinary")}
+                  </option>
+                  <option value="OUTRO">
+                    {t("fields.other")}
+                  </option>
                   <option value="PREFIRO_NAO_INFORMAR">
-                    Prefiro não informar
+                    {t("fields.preferNotSay")}
                   </option>
                 </select>
 
@@ -3507,16 +3517,36 @@ function AdminAlunosPage() {
                           }
                           className="rounded-xl border p-2.5"
                         >
-                          <option value="ATIVO">Ativo</option>
-                          <option value="TRANCADO">Trancado</option>
-                          <option value="SUSPENSO">Suspenso</option>
-                          <option value="INADIMPLENTE">Inadimplente</option>
-                          <option value="TRANSFERIDO">Transferido</option>
-                          <option value="DESLIGADO">Desligado</option>
-                          <option value="FORMADO">Formado</option>
-                          <option value="CANCELADO">Cancelado</option>
-                          <option value="PAUSA_MEDICA">Pausa médica</option>
-                          <option value="FALTANTE">Faltante</option>
+                          <option value="ATIVO">
+                            {t("statuses.active")}
+                          </option>
+                          <option value="TRANCADO">
+                            {t("statuses.locked")}
+                          </option>
+                          <option value="SUSPENSO">
+                            {t("statuses.suspended")}
+                          </option>
+                          <option value="INADIMPLENTE">
+                            {t("statuses.delinquent")}
+                          </option>
+                          <option value="TRANSFERIDO">
+                            {t("statuses.transferred")}
+                          </option>
+                          <option value="DESLIGADO">
+                            {t("statuses.inactive")}
+                          </option>
+                          <option value="FORMADO">
+                            {t("statuses.graduated")}
+                          </option>
+                          <option value="CANCELADO">
+                            {t("statuses.canceled")}
+                          </option>
+                          <option value="PAUSA_MEDICA">
+                            {t("statuses.medicalLeave")}
+                          </option>
+                          <option value="FALTANTE">
+                            {t("statuses.absent")}
+                          </option>
                         </select>
 
                         <select
@@ -3524,7 +3554,9 @@ function AdminAlunosPage() {
                           onChange={(e) => setEditPoloId(e.target.value)}
                           className="rounded-xl border p-2.5"
                         >
-                          <option value="">Selecione o polo do aluno</option>
+                          <option value="">
+                            {t("fields.selectCampus")}
+                          </option>
                           {polos.map((polo) => (
                             <option key={polo.id} value={polo.id}>
                               {polo.nome}
@@ -3599,8 +3631,8 @@ function AdminAlunosPage() {
                       </div>
 
                       <div className="mt-5 border-t pt-4">
-                        <h4 className="mb-3 font-semibold text-slate-900">
-                          Necessidades especiais e acessibilidade
+                        <h4 className="mb-3 font-semibold text-slate-900 dark:text-white">
+                          {t("accessibility.title")}
                         </h4>
 
                         <div className="space-y-4">
@@ -3612,7 +3644,7 @@ function AdminAlunosPage() {
                                 setEditPossuiNecessidadeEspecial(e.target.checked)
                               }
                             />
-                            Possui necessidade especial
+                            {t("accessibility.hasSpecialNeed")}
                           </label>
 
                           <textarea
@@ -3621,7 +3653,7 @@ function AdminAlunosPage() {
                               setEditDescricaoNecessidadeEspecial(e.target.value)
                             }
                             className="min-h-[100px] w-full rounded-xl border p-2.5"
-                            placeholder="Descreva a necessidade especial do aluno"
+                            placeholder={t("accessibility.specialNeedPlaceholder")}
                           />
 
                           <textarea
@@ -3630,7 +3662,7 @@ function AdminAlunosPage() {
                               setEditObservacoesAcessibilidade(e.target.value)
                             }
                             className="min-h-[100px] w-full rounded-xl border p-2.5"
-                            placeholder="Observações de acessibilidade"
+                            placeholder={t("accessibility.notesPlaceholder")}
                           />
                         </div>
                       </div>

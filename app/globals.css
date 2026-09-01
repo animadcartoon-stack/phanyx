@@ -29924,3 +29924,148 @@ html[data-theme="light"]
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
 }
+
+/* =========================================================
+   PHANYX STUDENT SUCCESS
+   Temas: Claro / Escuro / Sistema
+========================================================= */
+
+/* ---------- CLARO ---------- */
+
+html[data-theme="light"] .phanyx-student-success-page {
+  background: #f3f4f6 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-student-success-section-title,
+html[data-theme="light"] .phanyx-student-success-panel-title {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-student-success-muted {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-student-success-panel {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+/* Cards semânticos - claro */
+
+html[data-theme="light"] .phanyx-student-success-critical {
+  background: #fee2e2 !important;
+  border-color: #f87171 !important;
+  color: #7f1d1d !important;
+}
+
+html[data-theme="light"] .phanyx-student-success-risk {
+  background: #ffedd5 !important;
+  border-color: #fb923c !important;
+  color: #7c2d12 !important;
+}
+
+html[data-theme="light"] .phanyx-student-success-attention {
+  background: #fef3c7 !important;
+  border-color: #fbbf24 !important;
+  color: #78350f !important;
+}
+
+html[data-theme="light"] .phanyx-student-success-normal {
+  background: #d1fae5 !important;
+  border-color: #34d399 !important;
+  color: #064e3b !important;
+}
+
+html[data-theme="light"] .phanyx-student-success-insufficient {
+  background: #e2e8f0 !important;
+  border-color: #94a3b8 !important;
+  color: #1e293b !important;
+}
+
+html[data-theme="light"] .phanyx-student-success-summary-card,
+html[data-theme="light"] .phanyx-student-success-summary-card * {
+  opacity: 1 !important;
+}
+
+
+/* ---------- ESCURO ---------- */
+
+html[data-theme="dark"] .phanyx-student-success-page {
+  background: #020617 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-student-success-section-title,
+html[data-theme="dark"] .phanyx-student-success-panel-title {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-student-success-muted {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .phanyx-student-success-panel {
+  background: #111827 !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+
+/* ---------- SISTEMA ----------
+   PHANYX usa cinza premium neste modo
+--------------------------------------------------------- */
+
+html[data-theme="system"] .phanyx-student-success-page {
+  background: #262626 !important;
+  color: #f5f5f5 !important;
+}
+
+html[data-theme="system"] .phanyx-student-success-section-title,
+html[data-theme="system"] .phanyx-student-success-panel-title {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-student-success-muted {
+  color: #d4d4d4 !important;
+}
+
+html[data-theme="system"] .phanyx-student-success-panel {
+  background: #1f1f1f !important;
+  border-color: #525252 !important;
+  color: #f5f5f5 !important;
+}
+
+/*
+  No modo Sistema mantemos os cards em cinza,
+  conforme a identidade atual da PHANYX.
+*/
+
+html[data-theme="system"] .phanyx-student-success-summary-card {
+  background: #383838 !important;
+  border-color: #5f5f5f !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-student-success-critical {
+  border-color: #7f4545 !important;
+}
+
+html[data-theme="system"] .phanyx-student-success-risk {
+  border-color: #80583e !important;
+}
+
+html[data-theme="system"] .phanyx-student-success-attention {
+  border-color: #806f3e !important;
+}
+
+html[data-theme="system"] .phanyx-student-success-normal {
+  border-color: #3f7567 !important;
+}
+
+html[data-theme="system"] .phanyx-student-success-insufficient {
+  border-color: #666666 !important;
+}
