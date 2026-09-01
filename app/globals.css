@@ -31204,3 +31204,13 @@ html[data-theme="system"]
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
 }
+
+html[data-theme="light"]
+  .phanyx-student-success-intervention-modal
+  button[aria-label="Fechar"],
+html[data-theme="light"]
+  .phanyx-student-success-intervention-modal
+  button[aria-label="Close"] {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}

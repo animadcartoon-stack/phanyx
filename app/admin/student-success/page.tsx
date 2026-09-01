@@ -3342,35 +3342,36 @@ alunoSelecionado ? (
         </div>
 
         <button
-          type="button"
-          disabled={
-            salvandoIntervencao
-          }
-          onClick={() =>
-            setModalIntervencaoAberto(
-              false
-            )
-          }
-          className="
-            flex
-            h-9
-            w-9
-            items-center
-            justify-center
-            rounded-xl
-            border
-            border-slate-300
-            bg-white
-            text-lg
-            font-bold
-            text-slate-700
-            dark:border-slate-700
-            dark:bg-slate-900
-            dark:text-white
-          "
-        >
-          ×
-        </button>
+  type="button"
+  aria-label={t("drawer.close")}
+  disabled={
+    salvandoIntervencao
+  }
+  onClick={() =>
+    setModalIntervencaoAberto(
+      false
+    )
+  }
+  className="
+    flex
+    h-9
+    w-9
+    items-center
+    justify-center
+    rounded-xl
+    border
+    border-slate-300
+    bg-white
+    text-lg
+    font-bold
+    text-slate-700
+    dark:border-slate-700
+    dark:bg-slate-900
+    dark:text-white
+  "
+>
+  ×
+</button>
       </div>
 
       <div
