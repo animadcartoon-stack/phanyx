@@ -3805,6 +3805,18 @@
                                                        "understood":  "Entendido",
                                                        "useAndContinue":  "Usar este estudiante y continuar",
                                                        "alreadyRegisteredFallback":  "Este estudiante ya está registrado."
+                                                   },
+                          "registrationFeedback":  {
+                                                       "createError":  "Error al crear el estudiante",
+                                                       "createUnavailableTitle":  "No se pudo crear el estudiante",
+                                                       "createSuccess":  "Estudiante creado correctamente.",
+                                                       "createdTitle":  "Estudiante creado",
+                                                       "createdDescription":  "El estudiante fue creado correctamente en el sistema.",
+                                                       "birthDateRequiredTitle":  "Fecha de nacimiento obligatoria",
+                                                       "birthDateRequiredDescription":  "Introduzca una fecha de nacimiento válida para calcular la edad del estudiante.",
+                                                       "birthDateInvalidTitle":  "Fecha de nacimiento no válida",
+                                                       "birthDateInvalidDescription":  "Revise la fecha de nacimiento antes de continuar.",
+                                                       "close":  "Cerrar"
                                                    }
                       },
     "AdminStudentSuccess":  {

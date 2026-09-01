@@ -3806,6 +3806,18 @@
                                                        "understood":  "Understood",
                                                        "useAndContinue":  "Use this student and continue",
                                                        "alreadyRegisteredFallback":  "This student is already registered."
+                                                   },
+                          "registrationFeedback":  {
+                                                       "createError":  "Error creating student",
+                                                       "createUnavailableTitle":  "Unable to create student",
+                                                       "createSuccess":  "Student created successfully.",
+                                                       "createdTitle":  "Student created",
+                                                       "createdDescription":  "The student was successfully created in the system.",
+                                                       "birthDateRequiredTitle":  "Date of birth required",
+                                                       "birthDateRequiredDescription":  "Enter a valid date of birth to calculate the student\u0027s age.",
+                                                       "birthDateInvalidTitle":  "Invalid date of birth",
+                                                       "birthDateInvalidDescription":  "Review the date of birth before continuing.",
+                                                       "close":  "Close"
                                                    }
                       },
     "AdminStudentSuccess":  {

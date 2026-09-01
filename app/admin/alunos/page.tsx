@@ -1239,7 +1239,7 @@ function AdminAlunosPage() {
           if (!leadParaConversao) {
             const mensagem =
               data?.error ||
-              "Este aluno já está cadastrado.";
+              t("existingStudentModal.alreadyRegisteredFallback");
 
             mostrarFeedback(
               "erro",
@@ -1248,7 +1248,7 @@ function AdminAlunosPage() {
 
             abrirModalAviso(
               "erro",
-              "Aluno já cadastrado",
+              t("existingStudentModal.title"),
               mensagem
             );
 
@@ -1264,7 +1264,7 @@ function AdminAlunosPage() {
 
             nome: String(
               data.aluno.nome ||
-              "Aluno já cadastrado"
+              t("existingStudentModal.title")
             ),
 
             statusAluno: String(
@@ -1283,7 +1283,7 @@ function AdminAlunosPage() {
         const mensagem =
           data?.error ||
           data?.detalhe ||
-          "Erro ao criar aluno";
+          t("registrationFeedback.createError");
 
         mostrarFeedback(
           "erro",
@@ -1292,7 +1292,7 @@ function AdminAlunosPage() {
 
         abrirModalAviso(
           "erro",
-          "Não foi possível criar",
+          t("registrationFeedback.createUnavailableTitle"),
           mensagem
         );
 
@@ -1364,14 +1364,13 @@ function AdminAlunosPage() {
 
       mostrarFeedback(
         "sucesso",
-        "Aluno criado com sucesso."
+        t("registrationFeedback.createSuccess")
       );
 
       abrirModalAviso(
         "sucesso",
-        "Aluno criado",
-        data?.avisoEmail ||
-        "O aluno foi criado com sucesso no sistema."
+        t("registrationFeedback.createdTitle"),
+        t("registrationFeedback.createdDescription")
       );
 
       window.scrollTo({
@@ -1382,9 +1381,17 @@ function AdminAlunosPage() {
     } catch (error: any) {
 
 
-      const mensagem = error?.message || "Erro ao criar aluno";
+      const mensagem =
+        error?.message ||
+        t("registrationFeedback.createError");
+
       mostrarFeedback("erro", mensagem);
-      abrirModalAviso("erro", "Erro ao criar aluno", mensagem);
+
+      abrirModalAviso(
+        "erro",
+        t("registrationFeedback.createError"),
+        mensagem
+      );
       window.scrollTo({ top: 0, behavior: "smooth" });
     } finally {
       setCriando(false);
@@ -4756,47 +4763,40 @@ function AdminAlunosPage() {
                     id="titulo-aluno-existente"
                     className="text-xl font-black text-slate-950 dark:text-white"
                   >
-                    Aluno já cadastrado
+                    {t("existingStudentModal.title")}
                   </h2>
 
                   <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                    Já existe um cadastro para{" "}
-                    <strong className="text-slate-900 dark:text-white">
-                      {alunoExistenteConversao.nome}
-                    </strong>
-                    .
+                    {t("existingStudentModal.description", {
+                      name: alunoExistenteConversao.nome,
+                    })}
                   </p>
 
                   <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-700 dark:bg-slate-950">
                     <p className="text-slate-700 dark:text-slate-200">
-                      Cadastro localizado por:{" "}
-                      <strong>
-                        {alunoExistenteConversao.campo === "CPF"
-                          ? "CPF"
-                          : "e-mail"}
-                      </strong>
+                      {t("existingStudentModal.locatedBy", {
+                        field:
+                          alunoExistenteConversao.campo === "CPF"
+                            ? t("existingStudentModal.cpf")
+                            : t("existingStudentModal.email"),
+                      })}
                     </p>
 
                     <p className="mt-1 text-slate-700 dark:text-slate-200">
-                      Status atual:{" "}
-                      <strong>
-                        {alunoExistenteConversao.statusAluno}
-                      </strong>
+                      {t("existingStudentModal.currentStatus", {
+                        status: alunoExistenteConversao.statusAluno,
+                      })}
                     </p>
                   </div>
 
                   {alunoExistenteConversao.statusAluno ===
                     "ATIVO" ? (
                     <p className="mt-4 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                      Você pode aproveitar este cadastro e continuar
-                      diretamente para a matrícula, mantendo o
-                      responsável comercial do lead.
+                      {t("existingStudentModal.activeDescription")}
                     </p>
                   ) : (
                     <div className="mt-4 rounded-2xl border border-slate-300 bg-white p-4 text-sm font-semibold leading-6 text-slate-900 shadow-sm dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100">
-                      Este aluno não está ativo. Reative o cadastro na
-                      listagem de alunos antes de iniciar uma nova
-                      matrícula.
+                      {t("existingStudentModal.inactiveDescription")}
                     </div>
                   )}
                 </div>
@@ -4813,8 +4813,8 @@ function AdminAlunosPage() {
               >
                 {alunoExistenteConversao.statusAluno ===
                   "ATIVO"
-                  ? "Voltar ao cadastro"
-                  : "Entendi"}
+                  ? t("existingStudentModal.backToRegistration")
+                  : t("existingStudentModal.understood")}
               </button>
 
               {alunoExistenteConversao.statusAluno ===
@@ -4824,7 +4824,7 @@ function AdminAlunosPage() {
                     onClick={continuarComAlunoExistente}
                     className="rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-emerald-700"
                   >
-                    Usar este aluno e continuar
+                    {t("existingStudentModal.useAndContinue")}
                   </button>
                 )}
             </div>

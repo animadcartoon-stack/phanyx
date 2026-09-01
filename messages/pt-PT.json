@@ -3805,6 +3805,18 @@
                                                        "understood":  "Compreendi",
                                                        "useAndContinue":  "Utilizar este aluno e continuar",
                                                        "alreadyRegisteredFallback":  "Este aluno já está registado."
+                                                   },
+                          "registrationFeedback":  {
+                                                       "createError":  "Erro ao criar aluno",
+                                                       "createUnavailableTitle":  "Não foi possível criar",
+                                                       "createSuccess":  "Aluno criado com sucesso.",
+                                                       "createdTitle":  "Aluno criado",
+                                                       "createdDescription":  "O aluno foi criado com sucesso no sistema.",
+                                                       "birthDateRequiredTitle":  "Data de nascimento obrigatória",
+                                                       "birthDateRequiredDescription":  "Indique uma data de nascimento válida para calcular a idade do aluno.",
+                                                       "birthDateInvalidTitle":  "Data de nascimento inválida",
+                                                       "birthDateInvalidDescription":  "Reveja a data de nascimento antes de continuar.",
+                                                       "close":  "Fechar"
                                                    }
                       },
     "AdminStudentSuccess":  {
