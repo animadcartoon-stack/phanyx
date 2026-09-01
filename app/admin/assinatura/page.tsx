@@ -211,7 +211,7 @@ export default function AdminAssinaturaPage() {
   const planoAtual = assinatura?.plano || instituicao?.plano;
 
   return (
-    <main className="phanyx-assinatura-page min-h-screen px-6 py-8 text-slate-950 dark:text-slate-100">
+    <main className="min-h-screen bg-slate-50 px-6 py-8 text-slate-950 dark:bg-slate-950 dark:text-slate-100">
       <div className="mx-auto max-w-6xl">
         <div className="mb-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <p className="text-sm font-black uppercase tracking-[0.22em] text-blue-700 dark:text-blue-300">
