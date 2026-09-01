@@ -366,7 +366,12 @@ function AdminAlunosPage() {
   const [gerandoCertificado, setGerandoCertificado] = useState(false);
   const [baixandoCertificado, setBaixandoCertificado] = useState(false);
 
-  const FORMATOS_FOTO_ALUNO_ACEITOS = ["image/jpeg", "image/jpg", "image/png"];
+  const FORMATOS_FOTO_ALUNO_ACEITOS = [
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "image/webp",
+  ];
   const TAMANHO_MAXIMO_FOTO_ALUNO_MB = 2;
   const TAMANHO_MAXIMO_FOTO_ALUNO_BYTES =
     TAMANHO_MAXIMO_FOTO_ALUNO_MB * 1024 * 1024;
@@ -374,13 +379,13 @@ function AdminAlunosPage() {
   function validarFotoOficialAluno(file: File) {
     if (!FORMATOS_FOTO_ALUNO_ACEITOS.includes(file.type)) {
       throw new Error(
-        "Formato inválido. Envie uma foto em JPG, JPEG ou PNG."
+        t("loadingAndPhotoFeedback.photoInvalidType")
       );
     }
 
     if (file.size > TAMANHO_MAXIMO_FOTO_ALUNO_BYTES) {
       throw new Error(
-        `Arquivo muito grande. Envie uma foto com no máximo ${TAMANHO_MAXIMO_FOTO_ALUNO_MB} MB.`
+        t("loadingAndPhotoFeedback.photoTooLargeDescription")
       );
     }
   }
@@ -777,7 +782,9 @@ function AdminAlunosPage() {
         data?.publicUrl;
 
       if (!url) {
-        throw new Error("Upload realizado, mas a URL da foto não retornou.");
+        throw new Error(
+          t("loadingAndPhotoFeedback.photoUrlMissing")
+        );
       }
 
       if (modo === "CRIACAO") {
@@ -1066,7 +1073,10 @@ function AdminAlunosPage() {
 
       formData.append(
         "titulo",
-        `${doc.tipo} - ${doc.proprietario === "ALUNO" ? "Aluno" : "Responsável"}`
+        `${doc.tipo} - ${doc.proprietario === "ALUNO"
+          ? t("documentPanel.ownerStudent")
+          : t("documentPanel.ownerGuardian")
+        }`
       );
       formData.append("tipo", doc.tipo);
       formData.append("proprietario", doc.proprietario);
@@ -1908,7 +1918,10 @@ function AdminAlunosPage() {
       const data = await res.json();
 
       if (data?.erro) {
-        mostrarFeedback("erro", "CEP não encontrado.");
+        mostrarFeedback(
+          "erro",
+          t("studentActionFeedback.addressLookupError")
+        );
         return;
       }
 
@@ -1934,7 +1947,10 @@ function AdminAlunosPage() {
       const data = await res.json();
 
       if (data?.erro) {
-        mostrarFeedback("erro", "CEP não encontrado.");
+        mostrarFeedback(
+          "erro",
+          t("studentActionFeedback.addressLookupError")
+        );
         return;
       }
 
@@ -2224,7 +2240,10 @@ function AdminAlunosPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao enviar documento.");
+        throw new Error(
+          data?.error ||
+          t("documentOperations.uploadError")
+        ); 
       }
 
       setDocumentoArquivo(null);
@@ -2357,7 +2376,11 @@ function AdminAlunosPage() {
         t("certificatePanel.generateException");
 
       mostrarFeedback("erro", mensagem);
-      abrirModalAviso("erro", "Erro ao gerar certificado", mensagem);
+      abrirModalAviso(
+        "erro",
+        t("certificatePanel.generateErrorTitle"),
+        mensagem
+      );
     } finally {
       setGerandoCertificado(false);
     }
@@ -2415,7 +2438,11 @@ function AdminAlunosPage() {
         t("certificatePanel.downloadException");
 
       mostrarFeedback("erro", mensagem);
-      abrirModalAviso("erro", "Erro ao baixar certificado", mensagem);
+      abrirModalAviso(
+        "erro",
+        t("certificatePanel.downloadErrorTitle"),
+        mensagem
+      );
     } finally {
       setBaixandoCertificado(false);
     }
