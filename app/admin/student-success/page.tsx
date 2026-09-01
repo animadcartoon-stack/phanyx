@@ -963,7 +963,8 @@ export default function AdminStudentSuccessPage() {
             dark:text-white
           "
                   />
-                </div>
+               </div>
+
 <div
   className="
     flex
@@ -1019,11 +1020,11 @@ export default function AdminStudentSuccessPage() {
           )
         }
         className={[
-          "phanyx-student-success-filter rounded-full border px-4 py-2 text-sm font-semibold opacity-100 transition",
+          "phanyx-student-success-filter rounded-full border px-4 py-2 text-sm font-semibold transition",
 
           filtroNivel === valor
-            ? "phanyx-student-success-filter-active !border-blue-600 !bg-blue-600 !text-white shadow-sm"
-            : "phanyx-student-success-filter-inactive !border-slate-400 !bg-white !text-slate-700 hover:!border-blue-500 hover:!bg-blue-50 hover:!text-blue-700 dark:!border-slate-600 dark:!bg-slate-900 dark:!text-slate-200 dark:hover:!bg-slate-800",
+            ? "phanyx-student-success-filter-active"
+            : "phanyx-student-success-filter-inactive",
         ].join(" ")}
       >
         {titulo}
@@ -1031,7 +1032,7 @@ export default function AdminStudentSuccessPage() {
         <span
           className="
             ml-2
-            !opacity-100
+            opacity-100
           "
         >
           {quantidade}
@@ -1040,9 +1041,10 @@ export default function AdminStudentSuccessPage() {
     )
   )}
 </div>
-            </div>
-            </div>
-          ) : null}
+
+</div>
+</div>
+) : null}
 
       {carregando ? (
         <div

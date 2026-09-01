@@ -30499,3 +30499,100 @@ button.phanyx-student-success-filter-active span {
   -webkit-text-fill-color: #ffffff !important;
   opacity: 1 !important;
 }
+
+/* =========================================================
+   STUDENT SUCCESS — FILTROS POR TEMA
+========================================================= */
+
+/* CLARO */
+
+html[data-theme="light"]
+.phanyx-student-success-filter-inactive {
+  background: #ffffff !important;
+  border-color: #94a3b8 !important;
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+.phanyx-student-success-filter-inactive span {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+.phanyx-student-success-filter-inactive:hover {
+  background: #eff6ff !important;
+  border-color: #3b82f6 !important;
+  color: #1d4ed8 !important;
+  -webkit-text-fill-color: #1d4ed8 !important;
+}
+
+html[data-theme="light"]
+.phanyx-student-success-filter-active {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+.phanyx-student-success-filter-active span {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+
+/* ESCURO */
+
+html[data-theme="dark"]
+.phanyx-student-success-filter-inactive {
+  background: #172033 !important;
+  border-color: #475569 !important;
+  color: #e2e8f0 !important;
+  -webkit-text-fill-color: #e2e8f0 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"]
+.phanyx-student-success-filter-inactive span {
+  color: #cbd5e1 !important;
+  -webkit-text-fill-color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"]
+.phanyx-student-success-filter-active {
+  background: #2563eb !important;
+  border-color: #3b82f6 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+
+/* SISTEMA */
+
+html[data-theme="system"]
+.phanyx-student-success-filter-inactive {
+  background: #383838 !important;
+  border-color: #666666 !important;
+  color: #f5f5f5 !important;
+  -webkit-text-fill-color: #f5f5f5 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="system"]
+.phanyx-student-success-filter-inactive span {
+  color: #d4d4d4 !important;
+  -webkit-text-fill-color: #d4d4d4 !important;
+}
+
+html[data-theme="system"]
+.phanyx-student-success-filter-active {
+  background: #2563eb !important;
+  border-color: #3b82f6 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
