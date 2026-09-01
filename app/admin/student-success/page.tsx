@@ -964,120 +964,82 @@ export default function AdminStudentSuccessPage() {
           "
                   />
                 </div>
+<div
+  className="
+    flex
+    flex-wrap
+    gap-2
+  "
+>
+  {(
+    [
+      [
+        "TODOS",
+        t("filters.all"),
+        dados?.resumo.monitorados ?? 0,
+      ],
+      [
+        "CRITICO",
+        t("levels.CRITICO"),
+        dados?.resumo.critico ?? 0,
+      ],
+      [
+        "RISCO",
+        t("levels.RISCO"),
+        dados?.resumo.risco ?? 0,
+      ],
+      [
+        "ATENCAO",
+        t("levels.ATENCAO"),
+        dados?.resumo.atencao ?? 0,
+      ],
+      [
+        "NORMAL",
+        t("levels.NORMAL"),
+        dados?.resumo.normal ?? 0,
+      ],
+      [
+        "DADOS_INSUFICIENTES",
+        t("levels.DADOS_INSUFICIENTES"),
+        dados?.resumo.dadosInsuficientes ?? 0,
+      ],
+    ] as const
+  ).map(
+    ([
+      valor,
+      titulo,
+      quantidade,
+    ]) => (
+      <button
+        key={valor}
+        type="button"
+        onClick={() =>
+          setFiltroNivel(
+            valor
+          )
+        }
+        className={[
+          "phanyx-student-success-filter rounded-full border px-4 py-2 text-sm font-semibold opacity-100 transition",
 
-                <div
-                  className="
-          flex
-          flex-wrap
-          gap-2
-        "
-                >
-                  {(
-                    [
-                      [
-                        "TODOS",
-                        t(
-                          "filters.all"
-                        ),
-                        dados?.resumo
-                          .monitorados ??
-                        0,
-                      ],
+          filtroNivel === valor
+            ? "phanyx-student-success-filter-active !border-blue-600 !bg-blue-600 !text-white shadow-sm"
+            : "phanyx-student-success-filter-inactive !border-slate-400 !bg-white !text-slate-700 hover:!border-blue-500 hover:!bg-blue-50 hover:!text-blue-700 dark:!border-slate-600 dark:!bg-slate-900 dark:!text-slate-200 dark:hover:!bg-slate-800",
+        ].join(" ")}
+      >
+        {titulo}
 
-                      [
-                        "CRITICO",
-                        t(
-                          "levels.CRITICO"
-                        ),
-                        dados?.resumo
-                          .critico ??
-                        0,
-                      ],
-
-                      [
-                        "RISCO",
-                        t(
-                          "levels.RISCO"
-                        ),
-                        dados?.resumo
-                          .risco ??
-                        0,
-                      ],
-
-                      [
-                        "ATENCAO",
-                        t(
-                          "levels.ATENCAO"
-                        ),
-                        dados?.resumo
-                          .atencao ??
-                        0,
-                      ],
-
-                      [
-                        "NORMAL",
-                        t(
-                          "levels.NORMAL"
-                        ),
-                        dados?.resumo
-                          .normal ??
-                        0,
-                      ],
-
-                      [
-                        "DADOS_INSUFICIENTES",
-                        t(
-                          "levels.DADOS_INSUFICIENTES"
-                        ),
-                        dados?.resumo
-                          .dadosInsuficientes ??
-                        0,
-                      ],
-                    ] as const
-                  ).map(
-                    ([
-                      valor,
-                      titulo,
-                      quantidade,
-                    ]) => (
-                      <button
-                        key={
-                          valor
-                        }
-                        type="button"
-                        onClick={
-                          () =>
-                            setFiltroNivel(
-                              valor
-                            )
-                        }
-                        className={[
-                          "phanyx-student-success-filter rounded-full border px-4 py-2 text-sm font-semibold transition",
-
-                        filtroNivel ===
-                        valor
-                        ? "border-blue-600 bg-blue-600 text-white shadow-sm"
-                        : "border-slate-300 bg-white text-slate-700 hover:border-blue-400 hover:bg-blue-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800",
-                        ].join(
-                  " "
-                        )}
-                      >
-                  {titulo}
-
-                  <span
-                    className="
-                  ml-2
-                  opacity-80
-                "
-                  >
-                    {
-                      quantidade
-                    }
-                  </span>
-                </button>
-                )
-                  )}
-              </div>
+        <span
+          className="
+            ml-2
+            !opacity-100
+          "
+        >
+          {quantidade}
+        </span>
+      </button>
+    )
+  )}
+</div>
             </div>
             </div>
           ) : null}
