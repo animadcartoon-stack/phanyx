@@ -334,6 +334,78 @@ export async function GET() {
                 )
             );
 
+        const [
+            totalPresencasInstituicao,
+            presencasDosAlunos,
+            presencasNasTurmasAtuais,
+
+            totalNotasInstituicao,
+            notasDosAlunos,
+            notasNasTurmasAtuais,
+        ] = await Promise.all([
+            prisma.presencaAula.count({
+                where: {
+                    instituicaoId,
+                },
+            }),
+
+            prisma.presencaAula.count({
+                where: {
+                    instituicaoId,
+
+                    alunoId: {
+                        in: alunoIds,
+                    },
+                },
+            }),
+
+            prisma.presencaAula.count({
+                where: {
+                    instituicaoId,
+
+                    alunoId: {
+                        in: alunoIds,
+                    },
+
+                    aula: {
+                        turmaId: {
+                            in: turmaIds,
+                        },
+                    },
+                },
+            }),
+
+            prisma.nota.count({
+                where: {
+                    instituicaoId,
+                },
+            }),
+
+            prisma.nota.count({
+                where: {
+                    instituicaoId,
+
+                    alunoId: {
+                        in: alunoIds,
+                    },
+                },
+            }),
+
+            prisma.nota.count({
+                where: {
+                    instituicaoId,
+
+                    alunoId: {
+                        in: alunoIds,
+                    },
+
+                    turmaId: {
+                        in: turmaIds,
+                    },
+                },
+            }),
+        ]);
+
         /*
          * Se ainda não existem alunos
          * acadêmicos elegíveis, podemos
@@ -1093,7 +1165,7 @@ export async function GET() {
                     "DADOS_INSUFICIENTES"
             ).length;
 
-               return NextResponse.json(
+        return NextResponse.json(
             {
                 ok: true,
 
@@ -1118,6 +1190,20 @@ export async function GET() {
 
                     atividadesVencidasCarregadas:
                         atividades.length,
+
+                    investigacao: {
+                        totalPresencasInstituicao,
+
+                        presencasDosAlunos,
+
+                        presencasNasTurmasAtuais,
+
+                        totalNotasInstituicao,
+
+                        notasDosAlunos,
+
+                        notasNasTurmasAtuais,
+                    },
                 },
 
                 resumo: {

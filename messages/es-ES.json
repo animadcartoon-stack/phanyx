@@ -3734,7 +3734,20 @@
                                                    "noAssessments":  "No hay evaluaciones registradas para esta asignatura.",
                                                    "noSubjects":  "No se encontraron asignaturas.",
                                                    "noData":  "No se encontraron datos académicos."
-                                               }
+                                               },
+                          "historyPanel":  {
+                                               "title":  "Historial académico",
+                                               "description":  "Resumen académico del estudiante generado a partir de las asignaturas, evaluaciones y promedios registrados en PHANYX.",
+                                               "loading":  "Cargando el historial académico...",
+                                               "empty":  "Aún no hay asignaturas evaluadas para crear el historial académico.",
+                                               "subjectDescription":  "Asignatura cursada y evaluada en PHANYX",
+                                               "average":  "Promedio: {value}",
+                                               "status":  "Situación",
+                                               "approved":  "Aprobado",
+                                               "inProgress":  "En curso",
+                                               "attendance":  "Asistencia",
+                                               "workload":  "Carga horaria"
+                                           }
                       },
     "AdminStudentSuccess":  {
                                 "title":  "Student Success",

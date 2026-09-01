@@ -3734,7 +3734,20 @@
                                                    "noAssessments":  "Nenhuma avaliação registrada nesta disciplina.",
                                                    "noSubjects":  "Nenhuma disciplina encontrada.",
                                                    "noData":  "Nenhum dado acadêmico encontrado."
-                                               }
+                                               },
+                          "historyPanel":  {
+                                               "title":  "Histórico acadêmico",
+                                               "description":  "Resumo acadêmico do aluno gerado a partir das disciplinas, avaliações e médias registradas no PHANYX.",
+                                               "loading":  "Carregando histórico acadêmico...",
+                                               "empty":  "Ainda não há disciplinas avaliadas para compor o histórico acadêmico.",
+                                               "subjectDescription":  "Disciplina cursada/avaliada no PHANYX",
+                                               "average":  "Média: {value}",
+                                               "status":  "Situação",
+                                               "approved":  "Aprovado",
+                                               "inProgress":  "Em andamento",
+                                               "attendance":  "Frequência",
+                                               "workload":  "Carga horária"
+                                           }
                       },
     "AdminStudentSuccess":  {
                                 "title":  "Student Success",

@@ -3734,7 +3734,20 @@
                                                    "noAssessments":  "Aucune évaluation enregistrée pour cette matière.",
                                                    "noSubjects":  "Aucune matière trouvée.",
                                                    "noData":  "Aucune donnée académique trouvée."
-                                               }
+                                               },
+                          "historyPanel":  {
+                                               "title":  "Dossier académique",
+                                               "description":  "Résumé académique de l\u0027étudiant généré à partir des matières, évaluations et moyennes enregistrées dans PHANYX.",
+                                               "loading":  "Chargement du dossier académique...",
+                                               "empty":  "Aucune matière évaluée n\u0027est encore disponible pour constituer le dossier académique.",
+                                               "subjectDescription":  "Matière suivie et évaluée dans PHANYX",
+                                               "average":  "Moyenne : {value}",
+                                               "status":  "Statut",
+                                               "approved":  "Validé",
+                                               "inProgress":  "En cours",
+                                               "attendance":  "Assiduité",
+                                               "workload":  "Volume horaire"
+                                           }
                       },
     "AdminStudentSuccess":  {
                                 "title":  "Student Success",

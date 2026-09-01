@@ -3735,7 +3735,20 @@
                                                    "noAssessments":  "No assessments have been recorded for this subject.",
                                                    "noSubjects":  "No subjects found.",
                                                    "noData":  "No academic data found."
-                                               }
+                                               },
+                          "historyPanel":  {
+                                               "title":  "Academic record",
+                                               "description":  "Student academic summary generated from the subjects, assessments and averages recorded in PHANYX.",
+                                               "loading":  "Loading academic record...",
+                                               "empty":  "There are no assessed subjects available for the academic record yet.",
+                                               "subjectDescription":  "Subject taken and assessed in PHANYX",
+                                               "average":  "Average: {value}",
+                                               "status":  "Status",
+                                               "approved":  "Passed",
+                                               "inProgress":  "In progress",
+                                               "attendance":  "Attendance",
+                                               "workload":  "Workload"
+                                           }
                       },
     "AdminStudentSuccess":  {
                                 "title":  "Student Success",

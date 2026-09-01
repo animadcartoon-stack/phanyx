@@ -4445,20 +4445,20 @@ function AdminAlunosPage() {
               {abaPainelAluno === "HISTORICO" && (
                 <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
                   <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                    Histórico acadêmico
+                    {t("historyPanel.title")}
                   </h3>
 
                   <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    Resumo acadêmico do aluno gerado a partir das disciplinas, avaliações e médias registradas no PHANYX.
+                    {t("historyPanel.description")}
                   </p>
 
                   {carregandoDesempenho ? (
                     <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
-                      Carregando histórico acadêmico...
+                      {t("historyPanel.loading")}
                     </p>
                   ) : !desempenhoAluno?.disciplinas?.length ? (
                     <div className="mt-4 rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
-                      Ainda não há disciplinas avaliadas para compor o histórico acadêmico.
+                      {t("historyPanel.empty")}
                     </div>
                   ) : (
                     <div className="mt-5 space-y-3">
@@ -4473,12 +4473,12 @@ function AdminAlunosPage() {
                                 {disciplina.disciplinaNome}
                               </p>
                               <p className="text-xs text-slate-500 dark:text-slate-400">
-                                Disciplina cursada/avaliada no PHANYX
+                                {t("historyPanel.subjectDescription")}
                               </p>
                             </div>
 
                             <span className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
-                              {t("performancePanel.average", {
+                              {t("historyPanel.average", {
                                 value: disciplina.media ?? "-",
                               })}
                             </span>
@@ -4486,14 +4486,17 @@ function AdminAlunosPage() {
 
                           <div className="mt-3 grid grid-cols-1 gap-2 text-sm text-slate-600 dark:text-slate-300 md:grid-cols-3">
                             <p>
-                              <strong>Situação:</strong>{" "}
-                              {Number(disciplina.media || 0) >= 7 ? "Aprovado" : "Em andamento"}
+                              <strong>{t("historyPanel.status")}:</strong>{" "}
+                              {Number(disciplina.media || 0) >= 7
+                                ? t("historyPanel.approved")
+                                : t("historyPanel.inProgress")}
                             </p>
                             <p>
-                              <strong>Frequência:</strong> -
+                              <strong>{t("historyPanel.attendance")}:</strong> -
                             </p>
+
                             <p>
-                              <strong>Carga horária:</strong> -
+                              <strong>{t("historyPanel.workload")}:</strong> -
                             </p>
                           </div>
                         </div>
