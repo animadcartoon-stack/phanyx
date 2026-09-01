@@ -114,9 +114,13 @@ export default function AdminAniversariantesPage() {
   const [enviandoMensagem, setEnviandoMensagem] = useState(false);
   const [sucesso, setSucesso] = useState("");
 
-  const TITULO_ANIVERSARIO_PADRAO = t("messageDefaults.title");
+  const TITULO_ANIVERSARIO_PADRAO = String(
+    t.raw("messageDefaults.title")
+  );
 
-  const MENSAGEM_ANIVERSARIO_PADRAO = t("messageDefaults.body");
+  const MENSAGEM_ANIVERSARIO_PADRAO = String(
+    t.raw("messageDefaults.body")
+  );
 
   const [tituloMensagem, setTituloMensagem] = useState(
     TITULO_ANIVERSARIO_PADRAO
@@ -543,8 +547,8 @@ export default function AdminAniversariantesPage() {
                 {carregando
                   ? t("common.loading")
                   : t("list.recordsFound", {
-                      count: aniversariantes.length,
-                    })}
+                    count: aniversariantes.length,
+                  })}
               </p>
             </div>
 

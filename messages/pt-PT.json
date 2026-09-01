@@ -3960,5 +3960,112 @@
                                                    "title":  "Apoio à decisão académica",
                                                    "text":  "Os indicadores apoiam a equipa pedagógica na identificação de sinais académicos. As decisões e intervenções permanecem sob responsabilidade dos profissionais da instituição."
                                                }
-                            }
+                            },
+    "AdminBirthdays":  {
+                           "common":  {
+                                          "all":  "Todos",
+                                          "loading":  "A carregar...",
+                                          "cancel":  "Cancelar",
+                                          "close":  "Fechar",
+                                          "sending":  "A enviar..."
+                                      },
+                           "hero":  {
+                                        "eyebrow":  "AdministraÃ§Ã£o",
+                                        "title":  "Aniversariantes",
+                                        "description":  "Consulte os aniversariantes por mÃªs, perfil, estado, WhatsApp e departamento. A lista Ã© gerada automaticamente a partir dos registos de alunos, professores e funcionÃ¡rios.",
+                                        "selected":  "Selecionados"
+                                    },
+                           "filters":  {
+                                           "month":  "MÃªs",
+                                           "type":  "Tipo",
+                                           "status":  "Estado",
+                                           "whatsapp":  "WhatsApp",
+                                           "withWhatsapp":  "Com WhatsApp",
+                                           "withoutWhatsapp":  "Sem WhatsApp",
+                                           "department":  "Departamento",
+                                           "search":  "Pesquisar",
+                                           "searchPlaceholder":  "Nome..."
+                                       },
+                           "personTypes":  {
+                                               "student":  "Aluno",
+                                               "students":  "Alunos",
+                                               "teacher":  "Professor",
+                                               "teachers":  "Professores",
+                                               "employee":  "FuncionÃ¡rio",
+                                               "employees":  "FuncionÃ¡rios"
+                                           },
+                           "statuses":  {
+                                            "active":  "Ativo",
+                                            "inactive":  "Inativo",
+                                            "cancelled":  "Cancelado",
+                                            "onLeave":  "Afastado",
+                                            "medicalLeave":  "Baixa mÃ©dica",
+                                            "suspended":  "Suspenso"
+                                        },
+                           "actions":  {
+                                           "sendMessage":  "Enviar mensagem",
+                                           "generateWhatsappLinks":  "Gerar ligaÃ§Ãµes do WhatsApp"
+                                       },
+                           "list":  {
+                                        "title":  "Lista de aniversariantes",
+                                        "recordsFound":  "{count} registo(s) encontrado(s).",
+                                        "loadingBirthdays":  "A carregar aniversariantes...",
+                                        "empty":  "NÃ£o foram encontrados aniversariantes para os filtros selecionados."
+                                    },
+                           "reports":  {
+                                           "downloadPdf":  "Descarregar PDF",
+                                           "downloadExcel":  "Descarregar Excel",
+                                           "fileBase":  "aniversariantes-mes-{month}"
+                                       },
+                           "table":  {
+                                         "name":  "Nome",
+                                         "type":  "Tipo",
+                                         "birthday":  "AniversÃ¡rio",
+                                         "departmentContext":  "Departamento / Contexto",
+                                         "whatsapp":  "WhatsApp",
+                                         "status":  "Estado",
+                                         "identifiers":  "ID {id} Â· Utilizador {userId}",
+                                         "hasNumber":  "Possui nÃºmero",
+                                         "incompleteNumber":  "NÃºmero incompleto",
+                                         "noPhone":  "Sem telefone",
+                                         "noRegisteredPhone":  "Sem telefone registado"
+                                     },
+                           "messageDefaults":  {
+                                                   "title":  "Feliz aniversÃ¡rio, {{primeiroNome}}!",
+                                                   "body":  "OlÃ¡, {{primeiroNome}}! Hoje Ã© uma data especial: {{dataAniversario}}.\n\nA equipa da instituiÃ§Ã£o deseja-lhe um feliz aniversÃ¡rio, com muita saÃºde, alegria e bÃªnÃ§Ã£os.\n\nReceba o nosso carinho neste dia tÃ£o importante!"
+                                               },
+                           "messageModal":  {
+                                                "title":  "Enviar mensagem",
+                                                "description":  "A mensagem serÃ¡ enviada para o acesso individual dos aniversariantes selecionados.",
+                                                "subject":  "TÃ­tulo",
+                                                "message":  "Mensagem",
+                                                "availableTags":  "Etiquetas disponÃ­veis",
+                                                "restoreDefault":  "Repor mensagem predefinida",
+                                                "selectedCount":  "Selecionados: {count}",
+                                                "preview":  "PrÃ©-visualizaÃ§Ã£o",
+                                                "sendNow":  "Enviar agora"
+                                            },
+                           "whatsappModal":  {
+                                                 "title":  "Gerar ligaÃ§Ãµes do WhatsApp",
+                                                 "description":  "O PHANYX gera ligaÃ§Ãµes personalizadas do WhatsApp com a mensagem jÃ¡ preenchida. Nesta fase, o envio ainda tem de ser confirmado manualmente no WhatsApp.",
+                                                 "institutionalNumber":  "NÃºmero institucional registado",
+                                                 "connectedDeviceWarning":  "AtenÃ§Ã£o: estas ligaÃ§Ãµes serÃ£o enviadas pelo WhatsApp que estiver ligado neste computador ou telemÃ³vel. Para utilizar o nÃºmero institucional, o WhatsApp Web tem de estar ligado ao nÃºmero da instituiÃ§Ã£o.",
+                                                 "futureIntegration":  "O envio automÃ¡tico em massa serÃ¡ disponibilizado futuramente atravÃ©s da integraÃ§Ã£o oficial do WhatsApp da prÃ³pria instituiÃ§Ã£o.",
+                                                 "openWhatsapp":  "Abrir WhatsApp",
+                                                 "invalidNumber":  "Sem nÃºmero vÃ¡lido"
+                                             },
+                           "feedback":  {
+                                            "selectAtLeastOne":  "Selecione pelo menos um aniversariante.",
+                                            "sendError":  "Erro ao enviar a mensagem.",
+                                            "sent":  "Mensagem enviada para {count} aniversariante(s).",
+                                            "loadError":  "Erro ao carregar os aniversariantes.",
+                                            "pdfError":  "Erro ao gerar o PDF.",
+                                            "excelError":  "Erro ao gerar o Excel.",
+                                            "downloadError":  "Erro ao descarregar o relatÃ³rio."
+                                        },
+                           "fallback":  {
+                                            "institution":  "instituiÃ§Ã£o",
+                                            "notInformed":  "nÃ£o indicado"
+                                        }
+                       }
 }

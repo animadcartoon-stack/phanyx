@@ -3960,5 +3960,112 @@
                                                    "title":  "Apoyo a la decisión académica",
                                                    "text":  "Los indicadores ayudan al equipo educativo a identificar señales académicas. Las decisiones e intervenciones siguen siendo responsabilidad de los profesionales de la institución."
                                                }
-                            }
+                            },
+    "AdminBirthdays":  {
+                           "common":  {
+                                          "all":  "Todos",
+                                          "loading":  "Cargando...",
+                                          "cancel":  "Cancelar",
+                                          "close":  "Cerrar",
+                                          "sending":  "Enviando..."
+                                      },
+                           "hero":  {
+                                        "eyebrow":  "AdministraciÃ³n",
+                                        "title":  "CumpleaÃ±os",
+                                        "description":  "Consulte los cumpleaÃ±os por mes, perfil, estado, disponibilidad de WhatsApp y departamento. La lista se genera automÃ¡ticamente a partir de los registros de estudiantes, profesores y empleados.",
+                                        "selected":  "Seleccionados"
+                                    },
+                           "filters":  {
+                                           "month":  "Mes",
+                                           "type":  "Tipo",
+                                           "status":  "Estado",
+                                           "whatsapp":  "WhatsApp",
+                                           "withWhatsapp":  "Con WhatsApp",
+                                           "withoutWhatsapp":  "Sin WhatsApp",
+                                           "department":  "Departamento",
+                                           "search":  "Buscar",
+                                           "searchPlaceholder":  "Nombre..."
+                                       },
+                           "personTypes":  {
+                                               "student":  "Estudiante",
+                                               "students":  "Estudiantes",
+                                               "teacher":  "Profesor",
+                                               "teachers":  "Profesores",
+                                               "employee":  "Empleado",
+                                               "employees":  "Empleados"
+                                           },
+                           "statuses":  {
+                                            "active":  "Activo",
+                                            "inactive":  "Inactivo",
+                                            "cancelled":  "Cancelado",
+                                            "onLeave":  "De baja",
+                                            "medicalLeave":  "Baja mÃ©dica",
+                                            "suspended":  "Suspendido"
+                                        },
+                           "actions":  {
+                                           "sendMessage":  "Enviar mensaje",
+                                           "generateWhatsappLinks":  "Generar enlaces de WhatsApp"
+                                       },
+                           "list":  {
+                                        "title":  "Lista de cumpleaÃ±os",
+                                        "recordsFound":  "{count} registro(s) encontrado(s).",
+                                        "loadingBirthdays":  "Cargando cumpleaÃ±os...",
+                                        "empty":  "No se encontraron cumpleaÃ±os para los filtros seleccionados."
+                                    },
+                           "reports":  {
+                                           "downloadPdf":  "Descargar PDF",
+                                           "downloadExcel":  "Descargar Excel",
+                                           "fileBase":  "cumpleanos-mes-{month}"
+                                       },
+                           "table":  {
+                                         "name":  "Nombre",
+                                         "type":  "Tipo",
+                                         "birthday":  "CumpleaÃ±os",
+                                         "departmentContext":  "Departamento / Contexto",
+                                         "whatsapp":  "WhatsApp",
+                                         "status":  "Estado",
+                                         "identifiers":  "ID {id} Â· Usuario {userId}",
+                                         "hasNumber":  "Tiene nÃºmero",
+                                         "incompleteNumber":  "NÃºmero incompleto",
+                                         "noPhone":  "Sin telÃ©fono",
+                                         "noRegisteredPhone":  "Sin telÃ©fono registrado"
+                                     },
+                           "messageDefaults":  {
+                                                   "title":  "Â¡Feliz cumpleaÃ±os, {{primeiroNome}}!",
+                                                   "body":  "Â¡Hola, {{primeiroNome}}! Hoy es un dÃ­a especial: {{dataAniversario}}.\n\nEl equipo de la instituciÃ³n te desea un feliz cumpleaÃ±os, con mucha salud, alegrÃ­a y bendiciones.\n\nÂ¡Recibe nuestro cariÃ±o en este dÃ­a tan importante!"
+                                               },
+                           "messageModal":  {
+                                                "title":  "Enviar mensaje",
+                                                "description":  "El mensaje se enviarÃ¡ a la cuenta individual de las personas seleccionadas.",
+                                                "subject":  "TÃ­tulo",
+                                                "message":  "Mensaje",
+                                                "availableTags":  "Etiquetas disponibles",
+                                                "restoreDefault":  "Restaurar mensaje predeterminado",
+                                                "selectedCount":  "Seleccionados: {count}",
+                                                "preview":  "Vista previa",
+                                                "sendNow":  "Enviar ahora"
+                                            },
+                           "whatsappModal":  {
+                                                 "title":  "Generar enlaces de WhatsApp",
+                                                 "description":  "PHANYX genera enlaces personalizados de WhatsApp con el mensaje ya completado. En esta etapa, el envÃ­o todavÃ­a debe confirmarse manualmente en WhatsApp.",
+                                                 "institutionalNumber":  "NÃºmero institucional registrado",
+                                                 "connectedDeviceWarning":  "AtenciÃ³n: estos enlaces utilizarÃ¡n la cuenta de WhatsApp conectada en este ordenador o telÃ©fono mÃ³vil. Para enviar desde el nÃºmero institucional, WhatsApp Web debe estar conectado a la cuenta de la instituciÃ³n.",
+                                                 "futureIntegration":  "El envÃ­o masivo automÃ¡tico estarÃ¡ disponible en el futuro mediante la integraciÃ³n oficial de WhatsApp de la instituciÃ³n.",
+                                                 "openWhatsapp":  "Abrir WhatsApp",
+                                                 "invalidNumber":  "Sin nÃºmero vÃ¡lido"
+                                             },
+                           "feedback":  {
+                                            "selectAtLeastOne":  "Seleccione al menos una persona.",
+                                            "sendError":  "Error al enviar el mensaje.",
+                                            "sent":  "Mensaje enviado a {count} persona(s).",
+                                            "loadError":  "Error al cargar los cumpleaÃ±os.",
+                                            "pdfError":  "Error al generar el PDF.",
+                                            "excelError":  "Error al generar el archivo de Excel.",
+                                            "downloadError":  "Error al descargar el informe."
+                                        },
+                           "fallback":  {
+                                            "institution":  "instituciÃ³n",
+                                            "notInformed":  "no informado"
+                                        }
+                       }
 }

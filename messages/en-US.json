@@ -3961,5 +3961,112 @@
                                                    "title":  "Academic decision support",
                                                    "text":  "These indicators help educational teams identify academic signals. Decisions and interventions remain the responsibility of the institution\u0027s professionals."
                                                }
-                            }
+                            },
+    "AdminBirthdays":  {
+                           "common":  {
+                                          "all":  "All",
+                                          "loading":  "Loading...",
+                                          "cancel":  "Cancel",
+                                          "close":  "Close",
+                                          "sending":  "Sending..."
+                                      },
+                           "hero":  {
+                                        "eyebrow":  "Administration",
+                                        "title":  "Birthdays",
+                                        "description":  "View birthdays by month, profile, status, WhatsApp availability, and department. The list is generated automatically from student, teacher, and employee records.",
+                                        "selected":  "Selected"
+                                    },
+                           "filters":  {
+                                           "month":  "Month",
+                                           "type":  "Type",
+                                           "status":  "Status",
+                                           "whatsapp":  "WhatsApp",
+                                           "withWhatsapp":  "With WhatsApp",
+                                           "withoutWhatsapp":  "Without WhatsApp",
+                                           "department":  "Department",
+                                           "search":  "Search",
+                                           "searchPlaceholder":  "Name..."
+                                       },
+                           "personTypes":  {
+                                               "student":  "Student",
+                                               "students":  "Students",
+                                               "teacher":  "Teacher",
+                                               "teachers":  "Teachers",
+                                               "employee":  "Employee",
+                                               "employees":  "Employees"
+                                           },
+                           "statuses":  {
+                                            "active":  "Active",
+                                            "inactive":  "Inactive",
+                                            "cancelled":  "Cancelled",
+                                            "onLeave":  "On leave",
+                                            "medicalLeave":  "Medical leave",
+                                            "suspended":  "Suspended"
+                                        },
+                           "actions":  {
+                                           "sendMessage":  "Send message",
+                                           "generateWhatsappLinks":  "Generate WhatsApp links"
+                                       },
+                           "list":  {
+                                        "title":  "Birthday list",
+                                        "recordsFound":  "{count} record(s) found.",
+                                        "loadingBirthdays":  "Loading birthdays...",
+                                        "empty":  "No birthdays were found for the selected filters."
+                                    },
+                           "reports":  {
+                                           "downloadPdf":  "Download PDF",
+                                           "downloadExcel":  "Download Excel",
+                                           "fileBase":  "birthdays-month-{month}"
+                                       },
+                           "table":  {
+                                         "name":  "Name",
+                                         "type":  "Type",
+                                         "birthday":  "Birthday",
+                                         "departmentContext":  "Department / Context",
+                                         "whatsapp":  "WhatsApp",
+                                         "status":  "Status",
+                                         "identifiers":  "ID {id} Â· User {userId}",
+                                         "hasNumber":  "Number available",
+                                         "incompleteNumber":  "Incomplete number",
+                                         "noPhone":  "No phone number",
+                                         "noRegisteredPhone":  "No phone number registered"
+                                     },
+                           "messageDefaults":  {
+                                                   "title":  "Happy birthday, {{primeiroNome}}!",
+                                                   "body":  "Hello, {{primeiroNome}}! Today is a special day: {{dataAniversario}}.\n\nThe institution\u0027s team wishes you a happy birthday filled with health, joy, and blessings.\n\nPlease accept our warmest wishes on this important day!"
+                                               },
+                           "messageModal":  {
+                                                "title":  "Send message",
+                                                "description":  "The message will be sent to the individual account of each selected birthday recipient.",
+                                                "subject":  "Title",
+                                                "message":  "Message",
+                                                "availableTags":  "Available tags",
+                                                "restoreDefault":  "Restore default message",
+                                                "selectedCount":  "Selected: {count}",
+                                                "preview":  "Preview",
+                                                "sendNow":  "Send now"
+                                            },
+                           "whatsappModal":  {
+                                                 "title":  "Generate WhatsApp links",
+                                                 "description":  "PHANYX generates personalized WhatsApp links with the message already filled in. At this stage, each message must still be confirmed manually in WhatsApp.",
+                                                 "institutionalNumber":  "Registered institutional number",
+                                                 "connectedDeviceWarning":  "Important: these links will use the WhatsApp account connected on this computer or mobile device. To send from the institutional number, WhatsApp Web must be connected to the institution\u0027s account.",
+                                                 "futureIntegration":  "Automated bulk sending will be available in the future through the institution\u0027s official WhatsApp integration.",
+                                                 "openWhatsapp":  "Open WhatsApp",
+                                                 "invalidNumber":  "No valid number"
+                                             },
+                           "feedback":  {
+                                            "selectAtLeastOne":  "Select at least one birthday recipient.",
+                                            "sendError":  "Could not send the message.",
+                                            "sent":  "Message sent to {count} birthday recipient(s).",
+                                            "loadError":  "Could not load birthdays.",
+                                            "pdfError":  "Could not generate the PDF.",
+                                            "excelError":  "Could not generate the Excel file.",
+                                            "downloadError":  "Could not download the report."
+                                        },
+                           "fallback":  {
+                                            "institution":  "institution",
+                                            "notInformed":  "not provided"
+                                        }
+                       }
 }
