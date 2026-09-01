@@ -31371,3 +31371,56 @@ html[data-theme="system"]
   color: #e5e7eb !important;
   -webkit-text-fill-color: #e5e7eb !important;
 }
+
+/* STUDENT SUCCESS — ATUALIZAÇÃO DO ACOMPANHAMENTO */
+
+html[data-theme="light"]
+  .phanyx-student-success-history-update-button {
+  background: #eff6ff !important;
+  border-color: #93c5fd !important;
+  color: #1d4ed8 !important;
+  -webkit-text-fill-color: #1d4ed8 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-history-update-button:hover {
+  background: #dbeafe !important;
+  border-color: #60a5fa !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-history-result {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-history-update-button {
+  background: #172554 !important;
+  border-color: #1d4ed8 !important;
+  color: #bfdbfe !important;
+  -webkit-text-fill-color: #bfdbfe !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-history-result {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-history-update-button {
+  background: #1e3a5f !important;
+  border-color: #3b82f6 !important;
+  color: #dbeafe !important;
+  -webkit-text-fill-color: #dbeafe !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-history-result {
+  background: #303030 !important;
+  border-color: #5f5f5f !important;
+  color: #ffffff !important;
+}

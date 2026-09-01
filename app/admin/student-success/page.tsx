@@ -560,6 +560,55 @@ const [
     | null
   >(null);
 
+  const [
+  intervencaoEmEdicao,
+  setIntervencaoEmEdicao,
+] =
+  useState<StudentSuccessIntervencao | null>(
+    null
+  );
+
+const [
+  statusAtualizacaoIntervencao,
+  setStatusAtualizacaoIntervencao,
+] =
+  useState<StatusIntervencao>(
+    "REGISTRADA"
+  );
+
+const [
+  retornoAtualizacaoIntervencao,
+  setRetornoAtualizacaoIntervencao,
+] =
+  useState("");
+
+const [
+  resultadoAtualizacaoIntervencao,
+  setResultadoAtualizacaoIntervencao,
+] =
+  useState("");
+
+const [
+  salvandoAtualizacaoIntervencao,
+  setSalvandoAtualizacaoIntervencao,
+] =
+  useState(false);
+
+const [
+  mensagemAtualizacaoIntervencao,
+  setMensagemAtualizacaoIntervencao,
+] =
+  useState<
+    | {
+        tipo:
+          | "sucesso"
+          | "erro";
+
+        texto: string;
+      }
+    | null
+  >(null);
+
   const carregarDados =
     useCallback(
       async () => {
@@ -1059,6 +1108,203 @@ const [
     }
     finally {
       setSalvandoIntervencao(
+        false
+      );
+    }
+  };
+
+  const abrirAtualizacaoIntervencao =
+  (
+    intervencao:
+      StudentSuccessIntervencao
+  ) => {
+    setIntervencaoEmEdicao(
+      intervencao
+    );
+
+    setStatusAtualizacaoIntervencao(
+      intervencao.status
+    );
+
+    setRetornoAtualizacaoIntervencao(
+      intervencao.retornoEm
+        ? intervencao.retornoEm.slice(
+            0,
+            10
+          )
+        : ""
+    );
+
+    setResultadoAtualizacaoIntervencao(
+      intervencao.resultado ??
+        ""
+    );
+
+    setMensagemAtualizacaoIntervencao(
+      null
+    );
+  };
+
+const salvarAtualizacaoIntervencao =
+  async () => {
+    if (
+      !intervencaoEmEdicao ||
+      salvandoAtualizacaoIntervencao
+    ) {
+      return;
+    }
+
+    const resultado =
+      resultadoAtualizacaoIntervencao
+        .trim();
+
+    const exigeResultado =
+      statusAtualizacaoIntervencao ===
+        "RESOLVIDA" ||
+      statusAtualizacaoIntervencao ===
+        "CANCELADA";
+
+    if (
+      exigeResultado &&
+      resultado.length < 3
+    ) {
+      setMensagemAtualizacaoIntervencao({
+        tipo:
+          "erro",
+
+        texto:
+          statusAtualizacaoIntervencao ===
+          "RESOLVIDA"
+            ? t(
+                "intervention.update.resultRequiredResolved"
+              )
+            : t(
+                "intervention.update.resultRequiredCancelled"
+              ),
+      });
+
+      return;
+    }
+
+    setSalvandoAtualizacaoIntervencao(
+      true
+    );
+
+    setMensagemAtualizacaoIntervencao(
+      null
+    );
+
+    try {
+      const retornoEm =
+        retornoAtualizacaoIntervencao
+          ? new Date(
+              `${retornoAtualizacaoIntervencao}T12:00:00`
+            ).toISOString()
+          : null;
+
+      const resposta =
+        await fetch(
+          `/api/admin/student-success/intervencoes/${intervencaoEmEdicao.id}`,
+          {
+            method:
+              "PATCH",
+
+            credentials:
+              "include",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                status:
+                  statusAtualizacaoIntervencao,
+
+                retornoEm,
+
+                resultado,
+              }),
+          }
+        );
+
+      const json =
+        await resposta.json();
+
+      if (
+        !resposta.ok ||
+        !json?.ok
+      ) {
+        throw new Error(
+          json?.error ??
+            "INTERVENTION_UPDATE_ERROR"
+        );
+      }
+
+      setIntervencoes(
+        (
+          atuais
+        ) =>
+          atuais.map(
+            (
+              item
+            ) =>
+              item.id ===
+              json.intervencao.id
+                ? json.intervencao
+                : item
+          )
+      );
+
+      setMensagemAtualizacaoIntervencao({
+        tipo:
+          "sucesso",
+
+        texto:
+          t(
+            "intervention.update.success"
+          ),
+      });
+
+      setVersaoIntervencoes(
+        (
+          valor
+        ) =>
+          valor + 1
+      );
+
+      setTimeout(
+        () => {
+          setIntervencaoEmEdicao(
+            null
+          );
+
+          setMensagemAtualizacaoIntervencao(
+            null
+          );
+        },
+        800
+      );
+    }
+    catch (error) {
+      console.error(
+        "[STUDENT_SUCCESS_INTERVENTION_UPDATE]",
+        error
+      );
+
+      setMensagemAtualizacaoIntervencao({
+        tipo:
+          "erro",
+
+        texto:
+          t(
+            "intervention.update.error"
+          ),
+      });
+    }
+    finally {
+      setSalvandoAtualizacaoIntervencao(
         false
       );
     }
@@ -3745,6 +3991,98 @@ const [
                 %
               </p>
             </div>
+            {intervencao.resultado ? (
+  <div
+    className="
+      phanyx-student-success-history-result
+      mt-3
+      rounded-xl
+      border
+      p-3
+    "
+  >
+    <div
+      className="
+        text-xs
+        font-bold
+        uppercase
+        tracking-wide
+      "
+    >
+      {t(
+        "intervention.history.result"
+      )}
+    </div>
+
+    <p
+      className="
+        mt-1
+        whitespace-pre-wrap
+        text-sm
+      "
+    >
+      {
+        intervencao.resultado
+      }
+    </p>
+  </div>
+) : null}
+
+{intervencao.concluidoEm ? (
+  <p
+    className="
+      phanyx-student-success-history-completed
+      mt-2
+      text-xs
+    "
+  >
+    <strong>
+      {t(
+        "intervention.history.completedAt"
+      )}
+      :
+    </strong>{" "}
+    {new Intl.DateTimeFormat(
+      undefined,
+      {
+        dateStyle:
+          "medium",
+
+        timeStyle:
+          "short",
+      }
+    ).format(
+      new Date(
+        intervencao.concluidoEm
+      )
+    )}
+  </p>
+) : null}
+
+<button
+  type="button"
+  onClick={() =>
+    abrirAtualizacaoIntervencao(
+      intervencao
+    )
+  }
+  className="
+    phanyx-student-success-history-update-button
+    mt-3
+    w-full
+    rounded-xl
+    border
+    px-3
+    py-2
+    text-sm
+    font-bold
+    transition
+  "
+>
+  {t(
+    "intervention.history.update"
+  )}
+</button>
           </article>
         )
       )}
@@ -4317,6 +4655,435 @@ alunoSelecionado ? (
       )}
 </button>
 
+      </div>
+    </div>
+  </div>
+) : null}
+{intervencaoEmEdicao ? (
+  <div
+    className="
+      fixed
+      inset-0
+      z-[160]
+      flex
+      items-center
+      justify-center
+      bg-black/55
+      p-4
+    "
+  >
+    <div
+      role="dialog"
+      aria-modal="true"
+      className="
+        phanyx-student-success-intervention-modal
+        w-full
+        max-w-xl
+        rounded-2xl
+        border
+        border-slate-200
+        bg-white
+        shadow-2xl
+        dark:border-slate-700
+        dark:bg-slate-950
+      "
+    >
+      <div
+        className="
+          flex
+          items-start
+          justify-between
+          gap-4
+          border-b
+          border-slate-200
+          p-5
+          dark:border-slate-800
+        "
+      >
+        <div>
+          <h2
+            className="
+              text-lg
+              font-bold
+              text-slate-950
+              dark:text-white
+            "
+          >
+            {t(
+              "intervention.update.edit"
+            )}
+          </h2>
+
+          <p
+            className="
+              mt-1
+              text-sm
+              text-slate-600
+              dark:text-slate-300
+            "
+          >
+            {t(
+              `intervention.types.${intervencaoEmEdicao.tipo}`
+            )}
+            {" · "}
+            {t(
+              `intervention.channels.${intervencaoEmEdicao.canal}`
+            )}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          aria-label={t(
+            "drawer.close"
+          )}
+          disabled={
+            salvandoAtualizacaoIntervencao
+          }
+          onClick={() =>
+            setIntervencaoEmEdicao(
+              null
+            )
+          }
+          className="
+            flex
+            h-9
+            w-9
+            items-center
+            justify-center
+            rounded-xl
+            border
+            border-slate-300
+            bg-white
+            text-lg
+            font-bold
+            text-slate-700
+            dark:border-slate-700
+            dark:bg-slate-900
+            dark:text-white
+          "
+        >
+          ×
+        </button>
+      </div>
+
+      <div
+        className="
+          space-y-4
+          p-5
+        "
+      >
+        <label
+          className="
+            block
+          "
+        >
+          <span
+            className="
+              mb-1
+              block
+              text-sm
+              font-semibold
+            "
+          >
+            {t(
+              "intervention.status"
+            )}
+          </span>
+
+          <select
+            value={
+              statusAtualizacaoIntervencao
+            }
+            onChange={
+              (
+                event
+              ) =>
+                setStatusAtualizacaoIntervencao(
+                  event.target
+                    .value as StatusIntervencao
+                )
+            }
+            className="
+              w-full
+              rounded-xl
+              border
+              border-slate-300
+              bg-white
+              px-3
+              py-2.5
+              text-sm
+              text-slate-900
+              dark:border-slate-700
+              dark:bg-slate-900
+              dark:text-white
+            "
+          >
+            {[
+              "REGISTRADA",
+              "AGUARDANDO_RETORNO",
+              "EM_ACOMPANHAMENTO",
+              "RESOLVIDA",
+              "CANCELADA",
+            ].map(
+              (
+                status
+              ) => (
+                <option
+                  key={
+                    status
+                  }
+                  value={
+                    status
+                  }
+                >
+                  {t(
+                    `intervention.statuses.${status}`
+                  )}
+                </option>
+              )
+            )}
+          </select>
+        </label>
+
+        <label
+          className="
+            block
+          "
+        >
+          <span
+            className="
+              mb-1
+              block
+              text-sm
+              font-semibold
+            "
+          >
+            {t(
+              "intervention.returnDate"
+            )}
+          </span>
+
+          <input
+            type="date"
+            value={
+              retornoAtualizacaoIntervencao
+            }
+            onChange={
+              (
+                event
+              ) =>
+                setRetornoAtualizacaoIntervencao(
+                  event.target
+                    .value
+                )
+            }
+            className="
+              w-full
+              rounded-xl
+              border
+              border-slate-300
+              bg-white
+              px-3
+              py-2.5
+              text-sm
+              text-slate-900
+              dark:border-slate-700
+              dark:bg-slate-900
+              dark:text-white
+            "
+          />
+        </label>
+
+        <label
+          className="
+            block
+          "
+        >
+          <span
+            className="
+              mb-1
+              block
+              text-sm
+              font-semibold
+            "
+          >
+            {t(
+              "intervention.update.result"
+            )}
+          </span>
+
+          <textarea
+            value={
+              resultadoAtualizacaoIntervencao
+            }
+            onChange={
+              (
+                event
+              ) =>
+                setResultadoAtualizacaoIntervencao(
+                  event.target
+                    .value
+                )
+            }
+            rows={5}
+            maxLength={5000}
+            placeholder={t(
+              "intervention.update.resultPlaceholder"
+            )}
+            className="
+              w-full
+              resize-y
+              rounded-xl
+              border
+              border-slate-300
+              bg-white
+              px-3
+              py-3
+              text-sm
+              text-slate-900
+              placeholder:text-slate-400
+              dark:border-slate-700
+              dark:bg-slate-900
+              dark:text-white
+            "
+          />
+        </label>
+
+        {statusAtualizacaoIntervencao ===
+          "RESOLVIDA" &&
+        resultadoAtualizacaoIntervencao
+          .trim()
+          .length < 3 ? (
+          <p
+            className="
+              text-sm
+              font-semibold
+              text-amber-700
+              dark:text-amber-300
+            "
+          >
+            {t(
+              "intervention.update.resultRequiredResolved"
+            )}
+          </p>
+        ) : null}
+
+        {statusAtualizacaoIntervencao ===
+          "CANCELADA" &&
+        resultadoAtualizacaoIntervencao
+          .trim()
+          .length < 3 ? (
+          <p
+            className="
+              text-sm
+              font-semibold
+              text-amber-700
+              dark:text-amber-300
+            "
+          >
+            {t(
+              "intervention.update.resultRequiredCancelled"
+            )}
+          </p>
+        ) : null}
+
+        {mensagemAtualizacaoIntervencao ? (
+          <div
+            className={[
+              "rounded-xl border px-4 py-3 text-sm font-semibold",
+
+              mensagemAtualizacaoIntervencao
+                .tipo ===
+              "sucesso"
+                ? "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-200"
+                : "border-red-300 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-950/30 dark:text-red-200",
+            ].join(
+              " "
+            )}
+          >
+            {
+              mensagemAtualizacaoIntervencao
+                .texto
+            }
+          </div>
+        ) : null}
+      </div>
+
+      <div
+        className="
+          flex
+          justify-end
+          gap-3
+          border-t
+          border-slate-200
+          p-5
+          dark:border-slate-800
+        "
+      >
+        <button
+          type="button"
+          disabled={
+            salvandoAtualizacaoIntervencao
+          }
+          onClick={() =>
+            setIntervencaoEmEdicao(
+              null
+            )
+          }
+          className="
+            phanyx-student-success-intervention-cancel
+            rounded-xl
+            border
+            px-4
+            py-2.5
+            text-sm
+            font-semibold
+          "
+        >
+          {t(
+            "intervention.cancel"
+          )}
+        </button>
+
+        <button
+          type="button"
+          disabled={
+            salvandoAtualizacaoIntervencao ||
+            (
+              (
+                statusAtualizacaoIntervencao ===
+                  "RESOLVIDA" ||
+                statusAtualizacaoIntervencao ===
+                  "CANCELADA"
+              ) &&
+              resultadoAtualizacaoIntervencao
+                .trim()
+                .length < 3
+            )
+          }
+          onClick={() =>
+            void salvarAtualizacaoIntervencao()
+          }
+          className="
+            phanyx-student-success-intervention-save
+            rounded-xl
+            px-4
+            py-2.5
+            text-sm
+            font-bold
+            transition
+            disabled:cursor-not-allowed
+          "
+        >
+          {salvandoAtualizacaoIntervencao
+            ? t(
+                "intervention.update.saving"
+              )
+            : t(
+                "intervention.update.save"
+              )}
+        </button>
       </div>
     </div>
   </div>
