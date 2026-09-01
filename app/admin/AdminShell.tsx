@@ -121,6 +121,7 @@ export default function AdminShell({
     if (pathname.startsWith("/admin/contratos")) return "documentos";
     if (pathname.startsWith("/admin/documentos")) return "documentos";
     if (pathname.startsWith("/admin/crachas")) return "documentos";
+    if (pathname.startsWith("/admin/auditoria-validacoes")) return "documentos";
     if (pathname.startsWith("/admin/validacoes")) return "documentos";
 
     if (pathname.startsWith("/admin/visitantes")) return "acesso";
@@ -674,6 +675,23 @@ export default function AdminShell({
     "w-full flex items-center justify-between gap-2 p-2 rounded hover:bg-gray-100 font-semibold text-left";
   const sectionTitleClass =
     "text-xs text-gray-500 font-semibold uppercase tracking-wide";
+
+  const emailsAuditoriaValidacoes = [
+    "academicophanyx@gmail.com",
+    "ibe.polosj@gmail.com",
+  ];
+
+  const emailUsuarioNormalizado = String(usuario?.email || "")
+    .trim()
+    .toLowerCase();
+
+  const podeVerAuditoriaValidacoes =
+    !carregandoUsuario &&
+    (
+      usuario?.isMasterAdmin === true ||
+      roleUsuario === "SUPER_ADMIN" ||
+      emailsAuditoriaValidacoes.includes(emailUsuarioNormalizado)
+    );
 
   const emailsComercialPhanyx = ["atendimento@institutobatista.com"];
 
@@ -1468,6 +1486,15 @@ export default function AdminShell({
                         🔐 {tNav("validation")}
                       </Link>
 
+                      {podeVerAuditoriaValidacoes && (
+                        <Link
+                          href="/admin/auditoria-validacoes"
+                          className={getLinkClass("/admin/auditoria-validacoes")}
+                        >
+                          🛡️ {tNav("validationAudit")}
+                        </Link>
+                      )}
+
                       <Link
                         href="/admin/crachas"
                         className={getLinkClass("/admin/crachas")}
@@ -1987,6 +2014,14 @@ export default function AdminShell({
                     <Link href="/admin/validacoes" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
                       🔐 {tNav("validation")}
                     </Link>
+                    {podeVerAuditoriaValidacoes && (
+                      <Link
+                        href="/admin/auditoria-validacoes"
+                        className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+                      >
+                        🛡️ {tNav("validationAudit")}
+                      </Link>
+                    )}
                     <Link
                       href="/admin/crachas"
                       className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
