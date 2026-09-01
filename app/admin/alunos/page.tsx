@@ -2240,25 +2240,28 @@ function AdminAlunosPage() {
         const mensagem =
           data?.detalhe ||
           data?.error ||
-          "Não foi possível gerar o certificado.";
+          t("certificatePanel.generateUnavailable");
 
         mostrarFeedback("erro", mensagem);
-        abrirModalAviso("erro", "Erro ao gerar certificado", mensagem);
+        abrirModalAviso("erro", t("certificatePanel.generateErrorTitle"), mensagem);
         return;
       }
 
-      mostrarFeedback("sucesso", "Certificado gerado com sucesso.");
+      mostrarFeedback(
+        "sucesso",
+        t("certificatePanel.generatedSuccess")
+      );
       abrirModalAviso(
         "sucesso",
-        "Certificado gerado",
-        "O certificado foi gerado e já deve ficar disponível na área do aluno."
+        t("certificatePanel.generatedTitle"),
+        t("certificatePanel.generatedDescription")
       );
     } catch (error: any) {
       console.error("Erro ao gerar certificado do aluno:", error);
 
       const mensagem =
         error?.message ||
-        "Erro ao gerar certificado. Verifique se o aluno possui matrícula e disciplina vinculadas.";
+        t("certificatePanel.generateException");
 
       mostrarFeedback("erro", mensagem);
       abrirModalAviso("erro", "Erro ao gerar certificado", mensagem);
@@ -2290,10 +2293,10 @@ function AdminAlunosPage() {
         const mensagem =
           data?.error ||
           data?.detalhe ||
-          "Não foi possível baixar o certificado.";
+          t("certificatePanel.downloadUnavailable");
 
         mostrarFeedback("erro", mensagem);
-        abrirModalAviso("erro", "Erro ao baixar certificado", mensagem);
+        abrirModalAviso("erro", t("certificatePanel.downloadErrorTitle"), mensagem);
         return;
       }
 
@@ -2309,9 +2312,14 @@ function AdminAlunosPage() {
 
       window.URL.revokeObjectURL(url);
 
-      mostrarFeedback("sucesso", "Certificado baixado com sucesso.");
+      mostrarFeedback(
+        "sucesso",
+        t("certificatePanel.downloadedSuccess")
+      );
     } catch (error: any) {
-      const mensagem = error?.message || "Erro ao baixar certificado.";
+      const mensagem =
+        error?.message ||
+        t("certificatePanel.downloadException");
 
       mostrarFeedback("erro", mensagem);
       abrirModalAviso("erro", "Erro ao baixar certificado", mensagem);

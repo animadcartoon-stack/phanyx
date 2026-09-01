@@ -30125,3 +30125,77 @@ html[data-theme="dark"] .phanyx-student-success-hero p:last-of-type,
 html[data-theme="system"] .phanyx-student-success-hero p:last-of-type {
   color: #e2e8f0 !important;
 }
+
+/* =========================================================
+   PHANYX STUDENT SUCCESS — CONTRASTE DE TABELA E BOTÕES
+========================================================= */
+
+/* TEMA CLARO */
+
+html[data-theme="light"]
+  .phanyx-student-success-student-name {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-student-registration {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-table
+  tbody
+  td:not(:nth-child(2)) {
+  color: #1e293b !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-table
+  thead
+  th {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-refresh-button {
+  background: #ffffff !important;
+  border-color: #94a3b8 !important;
+  color: #1e3a8a !important;
+  -webkit-text-fill-color: #1e3a8a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-refresh-button:hover {
+  background: #eff6ff !important;
+  border-color: #60a5fa !important;
+  color: #1d4ed8 !important;
+  -webkit-text-fill-color: #1d4ed8 !important;
+}
+
+/* TEMA ESCURO */
+
+html[data-theme="dark"]
+  .phanyx-student-success-student-name,
+html[data-theme="system"]
+  .phanyx-student-success-student-name {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-student-registration,
+html[data-theme="system"]
+  .phanyx-student-success-student-registration {
+  color: #cbd5e1 !important;
+  -webkit-text-fill-color: #cbd5e1 !important;
+  opacity: 1 !important;
+}

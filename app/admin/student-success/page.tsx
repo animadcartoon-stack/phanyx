@@ -25,11 +25,11 @@ type Confiabilidade =
 
 type ComponenteAnalise = {
   codigo:
-    | "FREQUENCIA"
-    | "DESEMPENHO"
-    | "PENDENCIAS"
-    | "QUEDA_DESEMPENHO"
-    | "PARTICIPACAO";
+  | "FREQUENCIA"
+  | "DESEMPENHO"
+  | "PENDENCIAS"
+  | "QUEDA_DESEMPENHO"
+  | "PARTICIPACAO";
 
   titulo: string;
   pontos: number;
@@ -44,66 +44,66 @@ type AlunoStudentSuccess = {
   nome: string;
 
   matricula:
-    | string
-    | null;
+  | string
+  | null;
 
   indicadores: {
     frequenciaPercentual:
-      | number
-      | null;
+    | number
+    | null;
 
     quantidadeAulas:
-      number;
+    number;
 
     mediaPercentual:
-      | number
-      | null;
+    | number
+    | null;
 
     quantidadeAvaliacoes:
-      number;
+    number;
 
     atividadesVencidas:
-      number;
+    number;
 
     totalAtividadesConsideradas:
-      number;
+    number;
 
     mediaAnteriorPercentual:
-      | number
-      | null;
+    | number
+    | null;
 
     mediaRecentePercentual:
-      | number
-      | null;
+    | number
+    | null;
 
     quedaDesempenhoPercentual:
-      | number
-      | null;
+    | number
+    | null;
   };
 
   analise: {
     pontuacao: number;
 
     pontuacaoBruta:
-      number;
+    number;
 
     maximoDisponivel:
-      number;
+    number;
 
     nivel:
-      NivelRisco;
+    NivelRisco;
 
     coberturaPercentual:
-      number;
+    number;
 
     confiabilidade:
-      Confiabilidade;
+    Confiabilidade;
 
     componentes:
-      ComponenteAnalise[];
+    ComponenteAnalise[];
 
     fatoresPrincipais:
-      ComponenteAnalise[];
+    ComponenteAnalise[];
   };
 };
 
@@ -111,48 +111,48 @@ type StudentSuccessResponse = {
   ok: boolean;
 
   geradoEm:
-    string;
+  string;
 
   resumo: {
     monitorados:
-      number;
+    number;
 
     critico:
-      number;
+    number;
 
     risco:
-      number;
+    number;
 
     atencao:
-      number;
+    number;
 
     normal:
-      number;
+    number;
 
     dadosInsuficientes:
-      number;
+    number;
 
     alunosComSinais:
-      number;
+    number;
   };
 
   alunos:
-    AlunoStudentSuccess[];
+  AlunoStudentSuccess[];
 };
 
 type CardResumoProps = {
   valor:
-    string;
+  string;
 
   titulo:
-    string;
+  string;
 
   variante:
-    | "critical"
-    | "risk"
-    | "attention"
-    | "normal"
-    | "insufficient";
+  | "critical"
+  | "risk"
+  | "attention"
+  | "normal"
+  | "insufficient";
 };
 
 function CardResumo({
@@ -334,7 +334,7 @@ export default function AdminStudentSuccessPage() {
           );
         }
         catch (
-          error
+        error
         ) {
           console.error(
             "[STUDENT_SUCCESS_PAGE]",
@@ -602,6 +602,7 @@ export default function AdminStudentSuccessPage() {
                 carregando
               }
               className="
+              phanyx-student-success-refresh-button
                 inline-flex
                 items-center
                 justify-center
@@ -644,10 +645,10 @@ export default function AdminStudentSuccessPage() {
                 carregando
                   ? "—"
                   : String(
-                      resumo
-                        ?.critico ??
-                        0
-                    )
+                    resumo
+                      ?.critico ??
+                    0
+                  )
               }
               titulo={t(
                 "cards.critical"
@@ -660,10 +661,10 @@ export default function AdminStudentSuccessPage() {
                 carregando
                   ? "—"
                   : String(
-                      resumo
-                        ?.risco ??
-                        0
-                    )
+                    resumo
+                      ?.risco ??
+                    0
+                  )
               }
               titulo={t(
                 "cards.risk"
@@ -676,10 +677,10 @@ export default function AdminStudentSuccessPage() {
                 carregando
                   ? "—"
                   : String(
-                      resumo
-                        ?.atencao ??
-                        0
-                    )
+                    resumo
+                      ?.atencao ??
+                    0
+                  )
               }
               titulo={t(
                 "cards.attention"
@@ -692,10 +693,10 @@ export default function AdminStudentSuccessPage() {
                 carregando
                   ? "—"
                   : String(
-                      resumo
-                        ?.normal ??
-                        0
-                    )
+                    resumo
+                      ?.normal ??
+                    0
+                  )
               }
               titulo={t(
                 "cards.normal"
@@ -708,10 +709,10 @@ export default function AdminStudentSuccessPage() {
                 carregando
                   ? "—"
                   : String(
-                      resumo
-                        ?.dadosInsuficientes ??
-                        0
-                    )
+                    resumo
+                      ?.dadosInsuficientes ??
+                    0
+                  )
               }
               titulo={t(
                 "cards.insufficient"
@@ -910,10 +911,11 @@ export default function AdminStudentSuccessPage() {
             >
               <table
                 className="
-                  w-full
-                  min-w-[900px]
-                  border-collapse
-                "
+    phanyx-student-success-table
+    w-full
+    min-w-[900px]
+    border-collapse
+  "
               >
                 <thead
                   className="
@@ -1068,10 +1070,11 @@ export default function AdminStudentSuccessPage() {
                           >
                             <div
                               className="
-                                font-semibold
-                                text-slate-950
-                                dark:text-white
-                              "
+    phanyx-student-success-student-name
+    font-semibold
+    text-slate-950
+    dark:text-white
+  "
                             >
                               {
                                 aluno.nome
@@ -1081,11 +1084,12 @@ export default function AdminStudentSuccessPage() {
                             {aluno.matricula ? (
                               <div
                                 className="
-                                  mt-1
-                                  text-xs
-                                  text-slate-500
-                                  dark:text-slate-400
-                                "
+    phanyx-student-success-student-registration
+    mt-1
+    text-xs
+    text-slate-500
+    dark:text-slate-400
+  "
                               >
                                 {
                                   aluno.matricula
@@ -1132,8 +1136,8 @@ export default function AdminStudentSuccessPage() {
                             {dadosInsuficientes
                               ? "—"
                               : aluno
-                                  .analise
-                                  .pontuacao}
+                                .analise
+                                .pontuacao}
                           </td>
 
                           <td
