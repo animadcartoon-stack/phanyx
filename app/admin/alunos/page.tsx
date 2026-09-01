@@ -3677,13 +3677,13 @@ function AdminAlunosPage() {
                             value={editNomeResponsavel}
                             onChange={(e) => setEditNomeResponsavel(e.target.value)}
                             className="rounded-xl border p-2.5"
-                            placeholder="Nome do responsável"
+                            placeholder={t("guardian.name")}
                           />
                           <input
                             value={editCpfResponsavel}
                             onChange={(e) => setEditCpfResponsavel(e.target.value)}
                             className="rounded-xl border p-2.5"
-                            placeholder="CPF do responsável"
+                            placeholder={t("guardian.cpf")}
                           />
                           <CampoTelefoneInternacional
                             id="edit-telefone-responsavel"
@@ -3713,7 +3713,7 @@ function AdminAlunosPage() {
                               setEditEmailResponsavel(e.target.value)
                             }
                             className="rounded-xl border p-2.5"
-                            placeholder="Email do responsável"
+                            placeholder={t("guardian.email")}
                           />
                           <input
                             value={editParentescoResponsavel}
@@ -3721,7 +3721,7 @@ function AdminAlunosPage() {
                               setEditParentescoResponsavel(e.target.value)
                             }
                             className="rounded-xl border p-2.5 md:col-span-2"
-                            placeholder="Parentesco do responsável"
+                            placeholder={t("guardian.relationship")}
                           />
                         </div>
                       </div>

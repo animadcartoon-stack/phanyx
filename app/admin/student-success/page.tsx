@@ -8,11 +8,11 @@ type CardResumoProps = {
   valor: string;
   titulo: string;
   variante:
-    | "critical"
-    | "risk"
-    | "attention"
-    | "normal"
-    | "insufficient";
+  | "critical"
+  | "risk"
+  | "attention"
+  | "normal"
+  | "insufficient";
 };
 
 function CardResumo({
@@ -100,22 +100,14 @@ export default function AdminStudentSuccessPage() {
         {/* CABEÇALHO */}
         <section
           className="
-            overflow-hidden
-            rounded-3xl
-            border
-            border-blue-200
-            bg-gradient-to-br
-            from-blue-50
-            via-white
-            to-sky-50
-            p-6
-            shadow-sm
-            dark:border-blue-900/60
-            dark:from-blue-950/50
-            dark:via-slate-950
-            dark:to-sky-950/30
-            sm:p-8
-          "
+    phanyx-student-success-hero
+    overflow-hidden
+    rounded-3xl
+    border
+    p-6
+    shadow-sm
+    sm:p-8
+  "
         >
           <div
             className="

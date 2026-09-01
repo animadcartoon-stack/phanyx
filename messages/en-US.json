@@ -82,7 +82,7 @@
     "completeTour": "Complete tour",
     "tourCelebratingAlt": "Formix mascot celebrating",
     "tourCompleted": "Tour completed successfully",
-    "tourCongratulations": "Congratulations! Your institution is ready to get started 🚀",
+    "tourCongratulations": "Congratulations! Your institution is ready to get started ðŸš€",
     "tourCompletedDescription": "You have completed the initial PHANYX tour. Your team can now continue the setup with greater confidence.",
     "recommendedNextSteps": "Recommended next steps",
     "configureInstitutionData": "Configure institution details",
@@ -202,11 +202,12 @@
     "generateIbeInvoice": "Generate IBE payment slip",
     "campusManagementDisabled": "Campus and unit management is unavailable",
     "campusManagementDisabledDescription": "This institution ID is not authorized to create or manage campuses or units. This permission is controlled by the network's contracting institution.",
-    "backToDashboard": "Back to dashboard"
+    "backToDashboard": "Back to dashboard",
+    "studentSuccess": "Student Success"
   },
   "MonthlyCampaign": {
     "origin": "Monthly Awareness Campaign",
-    "genericTitle": "{month} — Health and well-being",
+    "genericTitle": "{month} â€” Health and well-being",
     "genericDescription": "Monthly health and well-being awareness campaign.",
     "genericPhrase": "Information, prevention and care make a difference every day.",
     "health": "Health",
@@ -237,7 +238,7 @@
     "importantDescription": "After the payment is recorded in the system, access may be restored automatically according to the institution's rules.",
     "backToLogin": "Back to login",
     "logout": "Log out",
-    "footer": "PHANYX • Academic and financial management",
+    "footer": "PHANYX â€¢ Academic and financial management",
     "dashboard": "Dashboard",
     "reenrollmentShort": "Re-enroll",
     "subjects": "Subjects",
@@ -431,16 +432,16 @@
     "examUnavailable": "Assessment unavailable",
     "examAlreadyCompleted": "You have already completed this assessment",
     "takeExam": "Take assessment",
-    "examLocked": "Assessment locked — complete all classes",
+    "examLocked": "Assessment locked â€” complete all classes",
     "finalResult": "Final Result",
     "grade": "Grade: {grade}",
-    "approved": "Passed 🎉",
-    "failed": "Failed ❌",
+    "approved": "Passed ðŸŽ‰",
+    "failed": "Failed âŒ",
     "watchedTime": "Watch time",
     "lessonCompleted": "Class already completed.",
     "minimumWatchHint": "{minutes, plural, one {Watch at least # minute to unlock completion.} other {Watch at least # minutes to unlock completion.}}",
     "noVideoHint": "This class has no video. Completion is available.",
-    "completedButton": "✅ Completed",
+    "completedButton": "âœ… Completed",
     "saving": "Saving...",
     "markCompleted": "Mark as completed",
     "watchToComplete": "{minutes, plural, one {Watch # min to complete} other {Watch # min to complete}}",
@@ -499,8 +500,8 @@
     "resultTitle": "Exam result",
     "partialResultTitle": "Partial exam result",
     "grade": "Grade",
-    "passed": "Passed 🎉",
-    "failed": "Failed ❌",
+    "passed": "Passed ðŸŽ‰",
+    "failed": "Failed âŒ",
     "awaitingTeacherCorrection": "Waiting for the teacher to grade the written-response questions.",
     "reviewTitle": "Exam review",
     "essayPending": "Written-response question awaiting teacher grading.",
@@ -533,14 +534,14 @@
     "awaitingTeacherCorrection": "The written-response questions still need to be graded by the teacher.",
     "resultPending": "Final result awaiting teacher grading.",
     "grade": "Grade",
-    "passed": "Passed ✅",
-    "failed": "Failed ❌",
+    "passed": "Passed âœ…",
+    "failed": "Failed âŒ",
     "backToSubject": "Back to subject",
     "instructions": "Answer every question and submit the exam when you are finished.",
-    "questionMeta": "Question {number} • {points} pts",
+    "questionMeta": "Question {number} â€¢ {points} pts",
     "save": "Save",
     "saving": "Saving...",
-    "saved": "Saved ✓",
+    "saved": "Saved âœ“",
     "answerPlaceholder": "Enter your answer...",
     "essayCorrectionInformation": "The written-response question will be graded by the teacher.",
     "back": "Back",
@@ -610,7 +611,7 @@
     "updateSubmission": "Update submission",
     "sendAssignment": "Submit assignment",
     "success": "Assignment submitted successfully!",
-    "backToAssignments": "← Back to assignments",
+    "backToAssignments": "â† Back to assignments",
     "notProvidedFeminine": "Not provided",
     "guidanceTitle": "Assignment instructions",
     "noGuidance": "No detailed instructions were provided.",
@@ -652,10 +653,10 @@
       "label": "Deadline",
       "noDeadline": "No deadline",
       "undefined": "No deadline set",
-      "closed": "❌ Deadline closed",
-      "daysRemaining": "🟢 {count, plural, one {# day} other {# days}} remaining",
-      "hoursRemaining": "🟠 {count, plural, one {# hour} other {# hours}} remaining",
-      "lessThanHour": "⚠️ Due in less than 1 hour"
+      "closed": "âŒ Deadline closed",
+      "daysRemaining": "ðŸŸ¢ {count, plural, one {# day} other {# days}} remaining",
+      "hoursRemaining": "ðŸŸ  {count, plural, one {# hour} other {# hours}} remaining",
+      "lessThanHour": "âš ï¸ Due in less than 1 hour"
     },
     "score": {
       "label": "Value",
@@ -663,19 +664,19 @@
     },
     "status": {
       "label": "Submission status",
-      "graded": "⭐ Graded",
-      "submitted": "✅ Submitted",
+      "graded": "â­ Graded",
+      "submitted": "âœ… Submitted",
       "submittedAt": "Submitted on: {date}",
       "evaluated": "The teacher has graded this assignment.",
       "awaitingReview": "Your response was submitted and is awaiting review.",
       "evaluation": "Assessment",
       "feedback": "Teacher feedback",
-      "closed": "❌ The deadline has closed. This assignment can no longer be submitted.",
-      "notSubmitted": "📤 Not submitted yet. You can submit text, a link, or a file."
+      "closed": "âŒ The deadline has closed. This assignment can no longer be submitted.",
+      "notSubmitted": "ðŸ“¤ Not submitted yet. You can submit text, a link, or a file."
     },
     "instructions": "Instructions",
     "attachments": {
-      "title": "📎 Assignment files ({count})",
+      "title": "ðŸ“Ž Assignment files ({count})",
       "file": "File"
     },
     "previous": {
@@ -697,8 +698,8 @@
       "remove": "Remove",
       "declaration": "By submitting this assignment, you confirm that the content is your own work and that you understand the institution's academic policies.",
       "sending": "Submitting...",
-      "update": "📤 Update submission",
-      "submit": "📤 Submit assignment"
+      "update": "ðŸ“¤ Update submission",
+      "submit": "ðŸ“¤ Submit assignment"
     },
     "errors": {
       "load": "Unable to load assignment.",
@@ -834,8 +835,8 @@
     "exam": {
       "subjectId": "Subject ID {id}",
       "gradeLabel": "Grade",
-      "approved": "Passed 🎉",
-      "failed": "Failed ❌",
+      "approved": "Passed ðŸŽ‰",
+      "failed": "Failed âŒ",
       "dateLabel": "Date",
       "durationLabel": "Time",
       "duration": "{minutes, plural, =0 {0 min} one {# min} other {# min}} {seconds, plural, =0 {0 sec} one {# sec} other {# sec}}",
@@ -928,7 +929,7 @@
     "blocked": {
       "title": "Lesson access unavailable",
       "statusPrefix": "Your enrollment status is",
-      "reason": "Access to this lesson’s content is temporarily blocked.",
+      "reason": "Access to this lessonâ€™s content is temporarily blocked.",
       "availableResources": "You can still access the student portal to view your status, grades and other academic information."
     },
     "lessonTitle": "Lesson {id}",
@@ -1130,7 +1131,7 @@
       "change": "Change photo",
       "tips": "Photo tips",
       "instructions": "For the best profile display, use a square image (1:1), preferably 500x500 px or larger.",
-      "formats": "Accepted formats: PNG, JPG, JPEG and WEBP • Maximum size: 5 MB."
+      "formats": "Accepted formats: PNG, JPG, JPEG and WEBP â€¢ Maximum size: 5 MB."
     },
     "statuses": {
       "published": "Published",
@@ -1203,7 +1204,7 @@
     "description": "Review student grades, status, and performance. Use search and filters to quickly find students in large classes.",
     "exportHelp": "CSV file. Use Excel to view it correctly.",
     "common": {
-      "notProvided": "—"
+      "notProvided": "â€”"
     },
     "disciplines": {
       "count": "{count} discipline(s)",
@@ -1251,9 +1252,9 @@
       "next": "Next"
     },
     "actions": {
-      "back": "← Back",
+      "back": "â† Back",
       "retry": "Try again",
-      "exportCsv": "⬇ Export to Excel"
+      "exportCsv": "â¬‡ Export to Excel"
     },
     "feedback": {
       "invalidClass": "Invalid class.",
@@ -1267,7 +1268,7 @@
     "loading": "Loading attendance...",
     "errorTitle": "Attendance could not be loaded",
     "common": {
-      "notProvided": "—"
+      "notProvided": "â€”"
     },
     "fields": {
       "class": "Class",
@@ -1324,7 +1325,7 @@
       "observation": "Example: arrived late, provided a medical certificate..."
     },
     "actions": {
-      "back": "← Back",
+      "back": "â† Back",
       "retry": "Try again",
       "allPresent": "Mark all present",
       "allAbsent": "Mark all absent",
@@ -1392,7 +1393,7 @@
       "warning": "This action cannot be undone."
     },
     "actions": {
-      "back": "← Back",
+      "back": "â† Back",
       "retry": "Try again",
       "saving": "Saving...",
       "addLesson": "Add lesson",
@@ -1462,7 +1463,7 @@
       "emptyDescription": "For now, view students through the professor's general student area."
     },
     "actions": {
-      "back": "← Back to classes",
+      "back": "â† Back to classes",
       "viewStudents": "View students"
     },
     "safetyNotice": "No fictional student, grade, or status will be displayed as real academic data on this page."
@@ -1470,7 +1471,7 @@
   "ProfessorClassStudent": {
     "eyebrow": "Class student",
     "title": "Student academic record",
-    "description": "This page represents individual access to a student within the professor’s classes, but it still needs to be linked to real academic data before grade entry can be enabled.",
+    "description": "This page represents individual access to a student within the professorâ€™s classes, but it still needs to be linked to real academic data before grade entry can be enabled.",
     "studentReference": "Student reference: {id}",
     "invalid": {
       "title": "Invalid student",
@@ -1496,7 +1497,7 @@
     },
     "safetyNotice": "No fictional grade or grade without an academic link will be saved by this page.",
     "actions": {
-      "backToClasses": "← Back to classes"
+      "backToClasses": "â† Back to classes"
     }
   },
   "ProfessorWorkSubmissionDetail": {
@@ -1506,7 +1507,7 @@
     "loading": "Loading submission...",
     "errorTitle": "Error loading submission",
     "common": {
-      "notProvided": "—"
+      "notProvided": "â€”"
     },
     "fields": {
       "student": "Student",
@@ -1556,7 +1557,7 @@
       "empty": "No previous versions recorded."
     },
     "actions": {
-      "back": "← Back to assignments",
+      "back": "â† Back to assignments",
       "retry": "Try again",
       "openSubmittedLink": "Open submitted link",
       "openSubmittedFile": "Open submitted file",
@@ -1585,7 +1586,7 @@
     "description": "Track the academic modules related to student development and access real class and student data.",
     "integration": {
       "title": "Progress integration in preparation",
-      "description": "This page does not yet have a complete academic link for recording each student’s individual progress. To avoid fictional information or data saved only in the browser, use the integrated areas available below."
+      "description": "This page does not yet have a complete academic link for recording each studentâ€™s individual progress. To avoid fictional information or data saved only in the browser, use the integrated areas available below."
     },
     "available": {
       "title": "Available areas",
@@ -1642,7 +1643,7 @@
     },
     "safetyNotice": "No fictional grade or grade without an academic link will be saved by this page.",
     "actions": {
-      "back": "← Back to grades"
+      "back": "â† Back to grades"
     }
   },
   "ProfessorGrades": {
@@ -1700,7 +1701,7 @@
     "studentFallback": "Student",
     "studentFallbackWithId": "Student {id}",
     "date": {
-      "notProvided": "—"
+      "notProvided": "â€”"
     },
     "grade": {
       "notProvided": "Not provided"
@@ -1720,7 +1721,7 @@
       "text": "Text",
       "link": "Link",
       "file": "File",
-      "empty": "—"
+      "empty": "â€”"
     },
     "correction": {
       "eyebrow": "Grading",
@@ -1728,7 +1729,7 @@
       "description": "Enter the grade and feedback that will be recorded for this submission."
     },
     "actions": {
-      "back": "← Back to submissions",
+      "back": "â† Back to submissions",
       "retry": "Try again",
       "openLink": "Open link",
       "openFile": "Open file",
@@ -1793,7 +1794,7 @@
   },
   "ProfessorDisciplineExam": {
     "eyebrow": "Evaluation",
-    "title": "Exam — {discipline}",
+    "title": "Exam â€” {discipline}",
     "description": "Create and edit the questions for the exam linked to this discipline.",
     "notFound": {
       "title": "Discipline not found",
@@ -1816,7 +1817,7 @@
       "alternatives": "Options"
     },
     "actions": {
-      "back": "← Back",
+      "back": "â† Back",
       "addQuestion": "+ Add question",
       "removeQuestion": "Remove question",
       "save": "Save exam",
@@ -1860,7 +1861,7 @@
       "videoUrl": "Video URL"
     },
     "actions": {
-      "back": "← Back",
+      "back": "â† Back",
       "uploadFile": "Upload file",
       "uploading": "Uploading...",
       "open": "Open",
@@ -1999,10 +2000,10 @@
       "videoUrlPlaceholder": "https://youtube.com/..."
     },
     "actions": {
-      "back": "← Back",
+      "back": "â† Back",
       "addLesson": "Add lesson",
       "addingLesson": "Adding...",
-      "openLesson": "Open lesson →"
+      "openLesson": "Open lesson â†’"
     },
     "validation": {
       "lessonTitleRequired": "Enter the lesson title.",
@@ -2015,7 +2016,7 @@
     }
   },
   "ProfessorNewDiscipline": {
-    "back": "← Back",
+    "back": "â† Back",
     "eyebrow": "Discipline",
     "title": "New discipline",
     "description": "Create a new discipline and enter the basic information to start organizing it.",
@@ -2059,7 +2060,7 @@
     },
     "actions": {
       "new": "New discipline",
-      "open": "Open discipline →",
+      "open": "Open discipline â†’",
       "delete": "Delete",
       "deleting": "Deleting...",
       "cancel": "Cancel"
@@ -2092,17 +2093,17 @@
       "grade": "Grade"
     },
     "answer": {
-      "empty": "—"
+      "empty": "â€”"
     },
     "grade": {
-      "empty": "—"
+      "empty": "â€”"
     },
     "empty": {
       "title": "No answers found",
       "description": "This attempt does not have any recorded answers yet."
     },
     "actions": {
-      "back": "← Back",
+      "back": "â† Back",
       "retry": "Try again"
     },
     "feedback": {
@@ -2132,7 +2133,7 @@
     },
     "actions": {
       "retry": "Try again",
-      "viewAnswers": "View answers →"
+      "viewAnswers": "View answers â†’"
     },
     "feedback": {
       "loadError": "Error loading evaluations.",
@@ -2140,7 +2141,7 @@
     }
   },
   "ProfessorLessonMaterials": {
-    "back": "← Back",
+    "back": "â† Back",
     "title": "Lesson materials",
     "description": "View, add, edit, or delete the materials for this lesson.",
     "materialTypes": {
@@ -2182,7 +2183,7 @@
       "noneSelected": "No file selected.",
       "progress": "Upload: {progress}%",
       "success": "File uploaded successfully.",
-      "fileInfo": "{name} • {size} bytes"
+      "fileInfo": "{name} â€¢ {size} bytes"
     },
     "actions": {
       "open": "Open",
@@ -2280,7 +2281,7 @@
   },
   "ProfessorActivityDetail": {
     "loading": "Loading activity...",
-    "back": "← Back to activities",
+    "back": "â† Back to activities",
     "closedMessage": "Activity closed",
     "studentFallback": "Student {id}",
     "studentUnknown": "Unidentified student",
@@ -2334,7 +2335,7 @@
   },
   "ProfessorNewActivity": {
     "loading": "Loading data...",
-    "back": "← Back to activities",
+    "back": "â† Back to activities",
     "title": "New activity",
     "description": "Create a new activity for your subject.",
     "classFallback": "Class {id}",
@@ -2400,10 +2401,10 @@
   },
   "ProfessorExamGradebook": {
     "loading": "Loading gradebook...",
-    "back": "← Back to the exam",
+    "back": "â† Back to the exam",
     "title": "Exam gradebook",
     "description": "View student performance for this assessment.",
-    "examSummary": "Maximum grade: {max} • Status: {status}",
+    "examSummary": "Maximum grade: {max} â€¢ Status: {status}",
     "summary": {
       "students": "Students with attempts",
       "average": "Class average",
@@ -2484,7 +2485,7 @@
   "ProfessorAttemptDetail": {
     "loading": "Loading attempt...",
     "notFound": "Attempt not found",
-    "back": "← Back",
+    "back": "â† Back",
     "title": "Attempt #{id}",
     "exam": "Exam: {title}",
     "studentFallback": "Student {id}",
@@ -2699,7 +2700,7 @@
       "free": "No time limit",
       "questions": "Questions",
       "types": "Types",
-      "typeCounts": "{multiple} multiple choice • {discursive} discursive"
+      "typeCounts": "{multiple} multiple choice â€¢ {discursive} discursive"
     },
     "questions": {
       "title": "Questions",
@@ -2791,7 +2792,7 @@
       "description": "Choose whether the student will see the grade immediately after finishing the exam or only on a future date.",
       "showImmediately": "Show the grade to the student as soon as the exam is finished",
       "dateLabel": "Date and time to release the grade",
-      "pendingHint": "Until this date arrives, the student will only see “Grade not released yet”."
+      "pendingHint": "Until this date arrives, the student will only see â€œGrade not released yetâ€."
     },
     "actions": {
       "cancel": "Cancel",
@@ -2953,11 +2954,11 @@
       "versions": "Versions"
     },
     "attachments": {
-      "sent": "📎 Submitted",
+      "sent": "ðŸ“Ž Submitted",
       "notSent": "Not submitted"
     },
     "links": {
-      "sent": "🌐 Submitted",
+      "sent": "ðŸŒ Submitted",
       "notSent": "Not submitted"
     },
     "versions": {
@@ -3527,7 +3528,7 @@
       "withoutEnrollment": "Without enrollment",
       "allClasses": "All classes",
       "classFallback": "Class",
-      "resultSummary": "Showing {displayed} of {total} students — current filter: {currentFilter}"
+      "resultSummary": "Showing {displayed} of {total} students â€” current filter: {currentFilter}"
     },
     "table": {
       "student": "Student",
@@ -3546,7 +3547,7 @@
       "cancel": "Cancel"
     },
     "pagination": {
-      "summary": "Page {current} of {pages} — {total} students in total",
+      "summary": "Page {current} of {pages} â€” {total} students in total",
       "previous": "Previous",
       "next": "Next"
     },
@@ -3675,6 +3676,33 @@
         "specialNeed": "Special need description",
         "notes": "Notes"
       }
+    },
+    "documentPanel": {
+      "studentTitle": "Student documents",
+      "studentEmpty": "No student documents have been uploaded.",
+      "guardianTitle": "Guardian documents",
+      "guardianEmpty": "No guardian documents have been uploaded.",
+      "fileFallback": "File",
+      "open": "Open",
+      "archive": "Archive",
+      "uploadTitle": "Upload new document",
+      "archivedTitle": "Archived documents",
+      "archivedLoading": "Loading archived documents...",
+      "archivedEmpty": "No archived documents.",
+      "archivedMeta": "{owner} • Archived on {date}",
+      "restore": "Restore",
+      "uploadDescription": "Upload optional documents in PDF, PNG, JPG or JPEG format.",
+      "ownerStudent": "Student",
+      "ownerGuardian": "Guardian",
+      "typeRg": "Identity card (RG)",
+      "typeCpf": "Tax ID (CPF)",
+      "typeCnh": "Driver's license (CNH)",
+      "typeSchoolRecord": "Academic transcript",
+      "typeResidenceProof": "Proof of address",
+      "typeVoterRegistration": "Voter registration card",
+      "typeOther": "Other",
+      "uploading": "Uploading...",
+      "upload": "Upload document"
     }
   },
   "AdminStudentSuccess": {

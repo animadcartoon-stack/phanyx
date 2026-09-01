@@ -111,6 +111,10 @@ export default function AdminShell({
       return "academico";
     }
 
+    if (pathname.startsWith("/admin/student-success")) {
+      return "academico";
+    }
+
     if (pathname.startsWith("/admin/financeiro")) return "financeiro";
     if (pathname.startsWith("/admin/rh")) return "rh";
 
@@ -1037,6 +1041,15 @@ export default function AdminShell({
                       </Link>
 
                       <Link
+                        href="/admin/student-success"
+                        className={getLinkClass(
+                          "/admin/student-success"
+                        )}
+                      >
+                        🧠 {tNav("studentSuccess")}
+                      </Link>
+
+                      <Link
                         href="/admin/professores"
                         className={getLinkClass("/admin/professores")}
                         data-tour="menu-professores"
@@ -1637,6 +1650,19 @@ export default function AdminShell({
                   <div className="grid grid-cols-2 gap-2">
                     <Link href="/admin/alunos" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
                       🎓 {tNav("students")}
+                    </Link>
+                    <Link
+                      href="/admin/student-success"
+                      className="
+    rounded-2xl
+    border
+    p-3
+    text-sm
+    font-semibold
+    text-slate-700
+  "
+                    >
+                      🧠 {tNav("studentSuccess")}
                     </Link>
                     <Link href="/admin/professores" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
                       👩‍🏫 {tNav("teachers")}

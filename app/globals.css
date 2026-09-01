@@ -30069,3 +30069,59 @@ html[data-theme="system"] .phanyx-student-success-normal {
 html[data-theme="system"] .phanyx-student-success-insufficient {
   border-color: #666666 !important;
 }
+
+/* =========================================================
+   PHANYX STUDENT SUCCESS — HERO
+========================================================= */
+
+html[data-theme="light"] .phanyx-student-success-hero {
+  background:
+    linear-gradient(
+      135deg,
+      #0f2a5f 0%,
+      #10204a 48%,
+      #38577c 100%
+    ) !important;
+
+  border-color: #1e4f9a !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-student-success-hero {
+  background:
+    linear-gradient(
+      135deg,
+      #07132d 0%,
+      #061127 55%,
+      #102a46 100%
+    ) !important;
+
+  border-color: #173f73 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-student-success-hero {
+  background:
+    linear-gradient(
+      135deg,
+      #101b33 0%,
+      #111827 55%,
+      #25354a 100%
+    ) !important;
+
+  border-color: #334a68 !important;
+  color: #ffffff !important;
+}
+
+/* Mantém os textos internos do hero sempre legíveis */
+html[data-theme="light"] .phanyx-student-success-hero h1,
+html[data-theme="dark"] .phanyx-student-success-hero h1,
+html[data-theme="system"] .phanyx-student-success-hero h1 {
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .phanyx-student-success-hero p:last-of-type,
+html[data-theme="dark"] .phanyx-student-success-hero p:last-of-type,
+html[data-theme="system"] .phanyx-student-success-hero p:last-of-type {
+  color: #e2e8f0 !important;
+}
