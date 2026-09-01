@@ -130,6 +130,16 @@ export default function AdminAniversariantesPage() {
     MENSAGEM_ANIVERSARIO_PADRAO
   );
 
+  useEffect(() => {
+    setTituloMensagem(
+      String(t.raw("messageDefaults.title"))
+    );
+
+    setTextoMensagem(
+      String(t.raw("messageDefaults.body"))
+    );
+  }, [locale, t]);
+
   const selecionadosSet = useMemo(
     () => new Set(selecionados),
     [selecionados]
@@ -183,7 +193,10 @@ export default function AdminAniversariantesPage() {
       .replaceAll("{{tipoPessoa}}", nomeTipo(item.tipo))
       .replaceAll("{{departamento}}", item.departamento || "")
       .replaceAll("{{contexto}}", item.contexto || "")
-      .replaceAll("{{status}}", item.status || "");
+      .replaceAll(
+        "{{status}}",
+        nomeStatus(item.status)
+      );
   }
 
   function textoWhatsapp(item: Aniversariante) {

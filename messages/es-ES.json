@@ -3970,9 +3970,9 @@
                                           "sending":  "Enviando..."
                                       },
                            "hero":  {
-                                        "eyebrow":  "AdministraciÃ³n",
-                                        "title":  "CumpleaÃ±os",
-                                        "description":  "Consulte los cumpleaÃ±os por mes, perfil, estado, disponibilidad de WhatsApp y departamento. La lista se genera automÃ¡ticamente a partir de los registros de estudiantes, profesores y empleados.",
+                                        "eyebrow":  "Administración",
+                                        "title":  "Cumpleaños",
+                                        "description":  "Consulte los cumpleaños por mes, perfil, estado, disponibilidad de WhatsApp y departamento. La lista se genera automáticamente a partir de los registros de estudiantes, profesores y empleados.",
                                         "selected":  "Seleccionados"
                                     },
                            "filters":  {
@@ -3999,7 +3999,7 @@
                                             "inactive":  "Inactivo",
                                             "cancelled":  "Cancelado",
                                             "onLeave":  "De baja",
-                                            "medicalLeave":  "Baja mÃ©dica",
+                                            "medicalLeave":  "Baja médica",
                                             "suspended":  "Suspendido"
                                         },
                            "actions":  {
@@ -4007,10 +4007,10 @@
                                            "generateWhatsappLinks":  "Generar enlaces de WhatsApp"
                                        },
                            "list":  {
-                                        "title":  "Lista de cumpleaÃ±os",
+                                        "title":  "Lista de cumpleaños",
                                         "recordsFound":  "{count} registro(s) encontrado(s).",
-                                        "loadingBirthdays":  "Cargando cumpleaÃ±os...",
-                                        "empty":  "No se encontraron cumpleaÃ±os para los filtros seleccionados."
+                                        "loadingBirthdays":  "Cargando cumpleaños...",
+                                        "empty":  "No se encontraron cumpleaños para los filtros seleccionados."
                                     },
                            "reports":  {
                                            "downloadPdf":  "Descargar PDF",
@@ -4020,24 +4020,24 @@
                            "table":  {
                                          "name":  "Nombre",
                                          "type":  "Tipo",
-                                         "birthday":  "CumpleaÃ±os",
+                                         "birthday":  "Cumpleaños",
                                          "departmentContext":  "Departamento / Contexto",
                                          "whatsapp":  "WhatsApp",
                                          "status":  "Estado",
-                                         "identifiers":  "ID {id} Â· Usuario {userId}",
-                                         "hasNumber":  "Tiene nÃºmero",
-                                         "incompleteNumber":  "NÃºmero incompleto",
-                                         "noPhone":  "Sin telÃ©fono",
-                                         "noRegisteredPhone":  "Sin telÃ©fono registrado"
+                                         "identifiers":  "ID {id} · Usuario {userId}",
+                                         "hasNumber":  "Tiene número",
+                                         "incompleteNumber":  "Número incompleto",
+                                         "noPhone":  "Sin teléfono",
+                                         "noRegisteredPhone":  "Sin teléfono registrado"
                                      },
                            "messageDefaults":  {
-                                                   "title":  "Â¡Feliz cumpleaÃ±os, {{primeiroNome}}!",
-                                                   "body":  "Â¡Hola, {{primeiroNome}}! Hoy es un dÃ­a especial: {{dataAniversario}}.\n\nEl equipo de la instituciÃ³n te desea un feliz cumpleaÃ±os, con mucha salud, alegrÃ­a y bendiciones.\n\nÂ¡Recibe nuestro cariÃ±o en este dÃ­a tan importante!"
+                                                   "title":  "¡Feliz cumpleaños, {{primeiroNome}}!",
+                                                   "body":  "¡Hola, {{primeiroNome}}! Hoy es un día especial: {{dataAniversario}}.\n\nEl equipo de la institución te desea un feliz cumpleaños, con mucha salud, alegría y bendiciones.\n\n¡Recibe nuestro cariño en este día tan importante!"
                                                },
                            "messageModal":  {
                                                 "title":  "Enviar mensaje",
-                                                "description":  "El mensaje se enviarÃ¡ a la cuenta individual de las personas seleccionadas.",
-                                                "subject":  "TÃ­tulo",
+                                                "description":  "El mensaje se enviará a la cuenta individual de las personas seleccionadas.",
+                                                "subject":  "Título",
                                                 "message":  "Mensaje",
                                                 "availableTags":  "Etiquetas disponibles",
                                                 "restoreDefault":  "Restaurar mensaje predeterminado",
@@ -4047,24 +4047,24 @@
                                             },
                            "whatsappModal":  {
                                                  "title":  "Generar enlaces de WhatsApp",
-                                                 "description":  "PHANYX genera enlaces personalizados de WhatsApp con el mensaje ya completado. En esta etapa, el envÃ­o todavÃ­a debe confirmarse manualmente en WhatsApp.",
-                                                 "institutionalNumber":  "NÃºmero institucional registrado",
-                                                 "connectedDeviceWarning":  "AtenciÃ³n: estos enlaces utilizarÃ¡n la cuenta de WhatsApp conectada en este ordenador o telÃ©fono mÃ³vil. Para enviar desde el nÃºmero institucional, WhatsApp Web debe estar conectado a la cuenta de la instituciÃ³n.",
-                                                 "futureIntegration":  "El envÃ­o masivo automÃ¡tico estarÃ¡ disponible en el futuro mediante la integraciÃ³n oficial de WhatsApp de la instituciÃ³n.",
+                                                 "description":  "PHANYX genera enlaces personalizados de WhatsApp con el mensaje ya completado. En esta etapa, el envío todavía debe confirmarse manualmente en WhatsApp.",
+                                                 "institutionalNumber":  "Número institucional registrado",
+                                                 "connectedDeviceWarning":  "Atención: estos enlaces utilizarán la cuenta de WhatsApp conectada en este ordenador o teléfono móvil. Para enviar desde el número institucional, WhatsApp Web debe estar conectado a la cuenta de la institución.",
+                                                 "futureIntegration":  "El envío masivo automático estará disponible en el futuro mediante la integración oficial de WhatsApp de la institución.",
                                                  "openWhatsapp":  "Abrir WhatsApp",
-                                                 "invalidNumber":  "Sin nÃºmero vÃ¡lido"
+                                                 "invalidNumber":  "Sin número válido"
                                              },
                            "feedback":  {
                                             "selectAtLeastOne":  "Seleccione al menos una persona.",
                                             "sendError":  "Error al enviar el mensaje.",
                                             "sent":  "Mensaje enviado a {count} persona(s).",
-                                            "loadError":  "Error al cargar los cumpleaÃ±os.",
+                                            "loadError":  "Error al cargar los cumpleaños.",
                                             "pdfError":  "Error al generar el PDF.",
                                             "excelError":  "Error al generar el archivo de Excel.",
                                             "downloadError":  "Error al descargar el informe."
                                         },
                            "fallback":  {
-                                            "institution":  "instituciÃ³n",
+                                            "institution":  "institución",
                                             "notInformed":  "no informado"
                                         }
                        }

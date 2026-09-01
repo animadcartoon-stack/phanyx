@@ -3972,8 +3972,8 @@
                            "hero":  {
                                         "eyebrow":  "Administration",
                                         "title":  "Anniversaires",
-                                        "description":  "Consultez les anniversaires par mois, profil, statut, disponibilitÃ© WhatsApp et dÃ©partement. La liste est gÃ©nÃ©rÃ©e automatiquement Ã  partir des dossiers des Ã©tudiants, enseignants et employÃ©s.",
-                                        "selected":  "SÃ©lectionnÃ©s"
+                                        "description":  "Consultez les anniversaires par mois, profil, statut, disponibilité WhatsApp et département. La liste est générée automatiquement à partir des dossiers des étudiants, enseignants et employés.",
+                                        "selected":  "Sélectionnés"
                                     },
                            "filters":  {
                                            "month":  "Mois",
@@ -3982,90 +3982,90 @@
                                            "whatsapp":  "WhatsApp",
                                            "withWhatsapp":  "Avec WhatsApp",
                                            "withoutWhatsapp":  "Sans WhatsApp",
-                                           "department":  "DÃ©partement",
+                                           "department":  "Département",
                                            "search":  "Rechercher",
                                            "searchPlaceholder":  "Nom..."
                                        },
                            "personTypes":  {
-                                               "student":  "Ã‰tudiant",
-                                               "students":  "Ã‰tudiants",
+                                               "student":  "Étudiant",
+                                               "students":  "Étudiants",
                                                "teacher":  "Enseignant",
                                                "teachers":  "Enseignants",
-                                               "employee":  "EmployÃ©",
-                                               "employees":  "EmployÃ©s"
+                                               "employee":  "Employé",
+                                               "employees":  "Employés"
                                            },
                            "statuses":  {
                                             "active":  "Actif",
                                             "inactive":  "Inactif",
-                                            "cancelled":  "AnnulÃ©",
-                                            "onLeave":  "En congÃ©",
-                                            "medicalLeave":  "CongÃ© maladie",
+                                            "cancelled":  "Annulé",
+                                            "onLeave":  "En congé",
+                                            "medicalLeave":  "Congé maladie",
                                             "suspended":  "Suspendu"
                                         },
                            "actions":  {
                                            "sendMessage":  "Envoyer un message",
-                                           "generateWhatsappLinks":  "GÃ©nÃ©rer les liens WhatsApp"
+                                           "generateWhatsappLinks":  "Générer les liens WhatsApp"
                                        },
                            "list":  {
                                         "title":  "Liste des anniversaires",
-                                        "recordsFound":  "{count} rÃ©sultat(s) trouvÃ©(s).",
+                                        "recordsFound":  "{count} résultat(s) trouvé(s).",
                                         "loadingBirthdays":  "Chargement des anniversaires...",
-                                        "empty":  "Aucun anniversaire ne correspond aux filtres sÃ©lectionnÃ©s."
+                                        "empty":  "Aucun anniversaire ne correspond aux filtres sélectionnés."
                                     },
                            "reports":  {
-                                           "downloadPdf":  "TÃ©lÃ©charger le PDF",
-                                           "downloadExcel":  "TÃ©lÃ©charger le fichier Excel",
+                                           "downloadPdf":  "Télécharger le PDF",
+                                           "downloadExcel":  "Télécharger le fichier Excel",
                                            "fileBase":  "anniversaires-mois-{month}"
                                        },
                            "table":  {
                                          "name":  "Nom",
                                          "type":  "Type",
                                          "birthday":  "Anniversaire",
-                                         "departmentContext":  "DÃ©partement / Contexte",
+                                         "departmentContext":  "Département / Contexte",
                                          "whatsapp":  "WhatsApp",
                                          "status":  "Statut",
-                                         "identifiers":  "ID {id} Â· Utilisateur {userId}",
-                                         "hasNumber":  "NumÃ©ro disponible",
-                                         "incompleteNumber":  "NumÃ©ro incomplet",
-                                         "noPhone":  "Aucun tÃ©lÃ©phone",
-                                         "noRegisteredPhone":  "Aucun tÃ©lÃ©phone enregistrÃ©"
+                                         "identifiers":  "ID {id} · Utilisateur {userId}",
+                                         "hasNumber":  "Numéro disponible",
+                                         "incompleteNumber":  "Numéro incomplet",
+                                         "noPhone":  "Aucun téléphone",
+                                         "noRegisteredPhone":  "Aucun téléphone enregistré"
                                      },
                            "messageDefaults":  {
                                                    "title":  "Joyeux anniversaire, {{primeiroNome}} !",
-                                                   "body":  "Bonjour {{primeiroNome}} ! Aujourd\u0027hui est un jour spÃ©cial : {{dataAniversario}}.\n\nL\u0027Ã©quipe de l\u0027institution vous souhaite un joyeux anniversaire, plein de santÃ©, de joie et de bÃ©nÃ©dictions.\n\nRecevez toute notre affection en ce jour si important !"
+                                                   "body":  "Bonjour {{primeiroNome}} ! Aujourd\u0027hui est un jour spécial : {{dataAniversario}}.\n\nL\u0027équipe de l\u0027institution vous souhaite un joyeux anniversaire, plein de santé, de joie et de bénédictions.\n\nRecevez toute notre affection en ce jour si important !"
                                                },
                            "messageModal":  {
                                                 "title":  "Envoyer un message",
-                                                "description":  "Le message sera envoyÃ© au compte individuel de chaque personne sÃ©lectionnÃ©e.",
+                                                "description":  "Le message sera envoyé au compte individuel de chaque personne sélectionnée.",
                                                 "subject":  "Titre",
                                                 "message":  "Message",
                                                 "availableTags":  "Balises disponibles",
-                                                "restoreDefault":  "Restaurer le message par dÃ©faut",
-                                                "selectedCount":  "SÃ©lectionnÃ©s : {count}",
-                                                "preview":  "AperÃ§u",
+                                                "restoreDefault":  "Restaurer le message par défaut",
+                                                "selectedCount":  "Sélectionnés : {count}",
+                                                "preview":  "Aperçu",
                                                 "sendNow":  "Envoyer maintenant"
                                             },
                            "whatsappModal":  {
-                                                 "title":  "GÃ©nÃ©rer les liens WhatsApp",
-                                                 "description":  "PHANYX gÃ©nÃ¨re des liens WhatsApp personnalisÃ©s avec le message dÃ©jÃ  rempli. Ã€ ce stade, chaque envoi doit encore Ãªtre confirmÃ© manuellement dans WhatsApp.",
-                                                 "institutionalNumber":  "NumÃ©ro institutionnel enregistrÃ©",
-                                                 "connectedDeviceWarning":  "Attention : ces liens utiliseront le compte WhatsApp connectÃ© sur cet ordinateur ou ce tÃ©lÃ©phone. Pour envoyer depuis le numÃ©ro institutionnel, WhatsApp Web doit Ãªtre connectÃ© au compte de l\u0027institution.",
-                                                 "futureIntegration":  "L\u0027envoi groupÃ© automatique sera proposÃ© ultÃ©rieurement grÃ¢ce Ã  l\u0027intÃ©gration WhatsApp officielle de l\u0027institution.",
+                                                 "title":  "Générer les liens WhatsApp",
+                                                 "description":  "PHANYX génère des liens WhatsApp personnalisés avec le message déjà rempli. À ce stade, chaque envoi doit encore être confirmé manuellement dans WhatsApp.",
+                                                 "institutionalNumber":  "Numéro institutionnel enregistré",
+                                                 "connectedDeviceWarning":  "Attention : ces liens utiliseront le compte WhatsApp connecté sur cet ordinateur ou ce téléphone. Pour envoyer depuis le numéro institutionnel, WhatsApp Web doit être connecté au compte de l\u0027institution.",
+                                                 "futureIntegration":  "L\u0027envoi groupé automatique sera proposé ultérieurement grâce à l\u0027intégration WhatsApp officielle de l\u0027institution.",
                                                  "openWhatsapp":  "Ouvrir WhatsApp",
-                                                 "invalidNumber":  "Aucun numÃ©ro valide"
+                                                 "invalidNumber":  "Aucun numéro valide"
                                              },
                            "feedback":  {
-                                            "selectAtLeastOne":  "SÃ©lectionnez au moins une personne.",
+                                            "selectAtLeastOne":  "Sélectionnez au moins une personne.",
                                             "sendError":  "Erreur lors de l\u0027envoi du message.",
-                                            "sent":  "Message envoyÃ© Ã  {count} personne(s).",
+                                            "sent":  "Message envoyé à {count} personne(s).",
                                             "loadError":  "Erreur lors du chargement des anniversaires.",
-                                            "pdfError":  "Erreur lors de la gÃ©nÃ©ration du PDF.",
-                                            "excelError":  "Erreur lors de la gÃ©nÃ©ration du fichier Excel.",
-                                            "downloadError":  "Erreur lors du tÃ©lÃ©chargement du rapport."
+                                            "pdfError":  "Erreur lors de la génération du PDF.",
+                                            "excelError":  "Erreur lors de la génération du fichier Excel.",
+                                            "downloadError":  "Erreur lors du téléchargement du rapport."
                                         },
                            "fallback":  {
                                             "institution":  "institution",
-                                            "notInformed":  "non renseignÃ©"
+                                            "notInformed":  "non renseigné"
                                         }
                        }
 }

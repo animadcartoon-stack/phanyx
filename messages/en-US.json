@@ -4025,7 +4025,7 @@
                                          "departmentContext":  "Department / Context",
                                          "whatsapp":  "WhatsApp",
                                          "status":  "Status",
-                                         "identifiers":  "ID {id} Â· User {userId}",
+                                         "identifiers":  "ID {id} · User {userId}",
                                          "hasNumber":  "Number available",
                                          "incompleteNumber":  "Incomplete number",
                                          "noPhone":  "No phone number",

@@ -3970,13 +3970,13 @@
                                           "sending":  "Enviando..."
                                       },
                            "hero":  {
-                                        "eyebrow":  "AdministraÃ§Ã£o",
+                                        "eyebrow":  "Administração",
                                         "title":  "Aniversariantes",
-                                        "description":  "Consulte aniversariantes por mÃªs, perfil, status, WhatsApp e departamento. A lista Ã© gerada automaticamente pelos cadastros de alunos, professores e funcionÃ¡rios.",
+                                        "description":  "Consulte aniversariantes por mês, perfil, status, WhatsApp e departamento. A lista é gerada automaticamente pelos cadastros de alunos, professores e funcionários.",
                                         "selected":  "Selecionados"
                                     },
                            "filters":  {
-                                           "month":  "MÃªs",
+                                           "month":  "Mês",
                                            "type":  "Tipo",
                                            "status":  "Status",
                                            "whatsapp":  "WhatsApp",
@@ -3991,15 +3991,15 @@
                                                "students":  "Alunos",
                                                "teacher":  "Professor",
                                                "teachers":  "Professores",
-                                               "employee":  "FuncionÃ¡rio",
-                                               "employees":  "FuncionÃ¡rios"
+                                               "employee":  "Funcionário",
+                                               "employees":  "Funcionários"
                                            },
                            "statuses":  {
                                             "active":  "Ativo",
                                             "inactive":  "Inativo",
                                             "cancelled":  "Cancelado",
                                             "onLeave":  "Afastado",
-                                            "medicalLeave":  "Atestado mÃ©dico",
+                                            "medicalLeave":  "Atestado médico",
                                             "suspended":  "Suspenso"
                                         },
                            "actions":  {
@@ -4020,39 +4020,39 @@
                            "table":  {
                                          "name":  "Nome",
                                          "type":  "Tipo",
-                                         "birthday":  "AniversÃ¡rio",
+                                         "birthday":  "Aniversário",
                                          "departmentContext":  "Departamento / Contexto",
                                          "whatsapp":  "WhatsApp",
                                          "status":  "Status",
-                                         "identifiers":  "ID {id} Â· UsuÃ¡rio {userId}",
-                                         "hasNumber":  "Possui nÃºmero",
-                                         "incompleteNumber":  "NÃºmero incompleto",
+                                         "identifiers":  "ID {id} · Usuário {userId}",
+                                         "hasNumber":  "Possui número",
+                                         "incompleteNumber":  "Número incompleto",
                                          "noPhone":  "Sem telefone",
                                          "noRegisteredPhone":  "Sem telefone cadastrado"
                                      },
                            "messageDefaults":  {
-                                                   "title":  "Feliz aniversÃ¡rio, {{primeiroNome}}!",
-                                                   "body":  "OlÃ¡, {{primeiroNome}}! Hoje Ã© uma data especial: {{dataAniversario}}.\n\nA equipe da instituiÃ§Ã£o deseja a vocÃª um feliz aniversÃ¡rio, com muita saÃºde, alegria e bÃªnÃ§Ã£os.\n\nReceba nosso carinho neste dia tÃ£o importante!"
+                                                   "title":  "Feliz aniversário, {{primeiroNome}}!",
+                                                   "body":  "Olá, {{primeiroNome}}! Hoje é uma data especial: {{dataAniversario}}.\n\nA equipe da instituição deseja a você um feliz aniversário, com muita saúde, alegria e bênçãos.\n\nReceba nosso carinho neste dia tão importante!"
                                                },
                            "messageModal":  {
                                                 "title":  "Enviar mensagem",
-                                                "description":  "A mensagem serÃ¡ enviada no login individual dos aniversariantes selecionados.",
-                                                "subject":  "TÃ­tulo",
+                                                "description":  "A mensagem será enviada no login individual dos aniversariantes selecionados.",
+                                                "subject":  "Título",
                                                 "message":  "Mensagem",
-                                                "availableTags":  "Tags disponÃ­veis",
-                                                "restoreDefault":  "Restaurar mensagem padrÃ£o",
+                                                "availableTags":  "Tags disponíveis",
+                                                "restoreDefault":  "Restaurar mensagem padrão",
                                                 "selectedCount":  "Selecionados: {count}",
-                                                "preview":  "PrÃ©via",
+                                                "preview":  "Prévia",
                                                 "sendNow":  "Enviar agora"
                                             },
                            "whatsappModal":  {
                                                  "title":  "Gerar links do WhatsApp",
-                                                 "description":  "O PHANYX gera links personalizados do WhatsApp com a mensagem jÃ¡ preenchida. Nesta etapa, o envio ainda precisa ser confirmado manualmente no WhatsApp.",
-                                                 "institutionalNumber":  "NÃºmero institucional cadastrado",
-                                                 "connectedDeviceWarning":  "AtenÃ§Ã£o: estes links serÃ£o enviados pelo WhatsApp que estiver conectado neste computador ou celular. Para sair pelo nÃºmero institucional, o WhatsApp Web precisa estar conectado ao nÃºmero da instituiÃ§Ã£o.",
-                                                 "futureIntegration":  "O envio automÃ¡tico em massa serÃ¡ liberado futuramente por meio da integraÃ§Ã£o oficial do WhatsApp da prÃ³pria instituiÃ§Ã£o.",
+                                                 "description":  "O PHANYX gera links personalizados do WhatsApp com a mensagem já preenchida. Nesta etapa, o envio ainda precisa ser confirmado manualmente no WhatsApp.",
+                                                 "institutionalNumber":  "Número institucional cadastrado",
+                                                 "connectedDeviceWarning":  "Atenção: estes links serão enviados pelo WhatsApp que estiver conectado neste computador ou celular. Para sair pelo número institucional, o WhatsApp Web precisa estar conectado ao número da instituição.",
+                                                 "futureIntegration":  "O envio automático em massa será liberado futuramente por meio da integração oficial do WhatsApp da própria instituição.",
                                                  "openWhatsapp":  "Abrir WhatsApp",
-                                                 "invalidNumber":  "Sem nÃºmero vÃ¡lido"
+                                                 "invalidNumber":  "Sem número válido"
                                              },
                            "feedback":  {
                                             "selectAtLeastOne":  "Selecione pelo menos um aniversariante.",
@@ -4061,11 +4061,11 @@
                                             "loadError":  "Erro ao carregar aniversariantes.",
                                             "pdfError":  "Erro ao gerar PDF.",
                                             "excelError":  "Erro ao gerar Excel.",
-                                            "downloadError":  "Erro ao baixar relatÃ³rio."
+                                            "downloadError":  "Erro ao baixar relatório."
                                         },
                            "fallback":  {
-                                            "institution":  "instituiÃ§Ã£o",
-                                            "notInformed":  "nÃ£o informado"
+                                            "institution":  "instituição",
+                                            "notInformed":  "não informado"
                                         }
                        }
 }

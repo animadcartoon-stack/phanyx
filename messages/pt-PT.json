@@ -3970,13 +3970,13 @@
                                           "sending":  "A enviar..."
                                       },
                            "hero":  {
-                                        "eyebrow":  "AdministraÃ§Ã£o",
+                                        "eyebrow":  "Administração",
                                         "title":  "Aniversariantes",
-                                        "description":  "Consulte os aniversariantes por mÃªs, perfil, estado, WhatsApp e departamento. A lista Ã© gerada automaticamente a partir dos registos de alunos, professores e funcionÃ¡rios.",
+                                        "description":  "Consulte os aniversariantes por mês, perfil, estado, WhatsApp e departamento. A lista é gerada automaticamente a partir dos registos de alunos, professores e funcionários.",
                                         "selected":  "Selecionados"
                                     },
                            "filters":  {
-                                           "month":  "MÃªs",
+                                           "month":  "Mês",
                                            "type":  "Tipo",
                                            "status":  "Estado",
                                            "whatsapp":  "WhatsApp",
@@ -3991,26 +3991,26 @@
                                                "students":  "Alunos",
                                                "teacher":  "Professor",
                                                "teachers":  "Professores",
-                                               "employee":  "FuncionÃ¡rio",
-                                               "employees":  "FuncionÃ¡rios"
+                                               "employee":  "Funcionário",
+                                               "employees":  "Funcionários"
                                            },
                            "statuses":  {
                                             "active":  "Ativo",
                                             "inactive":  "Inativo",
                                             "cancelled":  "Cancelado",
                                             "onLeave":  "Afastado",
-                                            "medicalLeave":  "Baixa mÃ©dica",
+                                            "medicalLeave":  "Baixa médica",
                                             "suspended":  "Suspenso"
                                         },
                            "actions":  {
                                            "sendMessage":  "Enviar mensagem",
-                                           "generateWhatsappLinks":  "Gerar ligaÃ§Ãµes do WhatsApp"
+                                           "generateWhatsappLinks":  "Gerar ligações do WhatsApp"
                                        },
                            "list":  {
                                         "title":  "Lista de aniversariantes",
                                         "recordsFound":  "{count} registo(s) encontrado(s).",
                                         "loadingBirthdays":  "A carregar aniversariantes...",
-                                        "empty":  "NÃ£o foram encontrados aniversariantes para os filtros selecionados."
+                                        "empty":  "Não foram encontrados aniversariantes para os filtros selecionados."
                                     },
                            "reports":  {
                                            "downloadPdf":  "Descarregar PDF",
@@ -4020,39 +4020,39 @@
                            "table":  {
                                          "name":  "Nome",
                                          "type":  "Tipo",
-                                         "birthday":  "AniversÃ¡rio",
+                                         "birthday":  "Aniversário",
                                          "departmentContext":  "Departamento / Contexto",
                                          "whatsapp":  "WhatsApp",
                                          "status":  "Estado",
-                                         "identifiers":  "ID {id} Â· Utilizador {userId}",
-                                         "hasNumber":  "Possui nÃºmero",
-                                         "incompleteNumber":  "NÃºmero incompleto",
+                                         "identifiers":  "ID {id} · Utilizador {userId}",
+                                         "hasNumber":  "Possui número",
+                                         "incompleteNumber":  "Número incompleto",
                                          "noPhone":  "Sem telefone",
                                          "noRegisteredPhone":  "Sem telefone registado"
                                      },
                            "messageDefaults":  {
-                                                   "title":  "Feliz aniversÃ¡rio, {{primeiroNome}}!",
-                                                   "body":  "OlÃ¡, {{primeiroNome}}! Hoje Ã© uma data especial: {{dataAniversario}}.\n\nA equipa da instituiÃ§Ã£o deseja-lhe um feliz aniversÃ¡rio, com muita saÃºde, alegria e bÃªnÃ§Ã£os.\n\nReceba o nosso carinho neste dia tÃ£o importante!"
+                                                   "title":  "Feliz aniversário, {{primeiroNome}}!",
+                                                   "body":  "Olá, {{primeiroNome}}! Hoje é uma data especial: {{dataAniversario}}.\n\nA equipa da instituição deseja-lhe um feliz aniversário, com muita saúde, alegria e bênçãos.\n\nReceba o nosso carinho neste dia tão importante!"
                                                },
                            "messageModal":  {
                                                 "title":  "Enviar mensagem",
-                                                "description":  "A mensagem serÃ¡ enviada para o acesso individual dos aniversariantes selecionados.",
-                                                "subject":  "TÃ­tulo",
+                                                "description":  "A mensagem será enviada para o acesso individual dos aniversariantes selecionados.",
+                                                "subject":  "Título",
                                                 "message":  "Mensagem",
-                                                "availableTags":  "Etiquetas disponÃ­veis",
+                                                "availableTags":  "Etiquetas disponíveis",
                                                 "restoreDefault":  "Repor mensagem predefinida",
                                                 "selectedCount":  "Selecionados: {count}",
-                                                "preview":  "PrÃ©-visualizaÃ§Ã£o",
+                                                "preview":  "Pré-visualização",
                                                 "sendNow":  "Enviar agora"
                                             },
                            "whatsappModal":  {
-                                                 "title":  "Gerar ligaÃ§Ãµes do WhatsApp",
-                                                 "description":  "O PHANYX gera ligaÃ§Ãµes personalizadas do WhatsApp com a mensagem jÃ¡ preenchida. Nesta fase, o envio ainda tem de ser confirmado manualmente no WhatsApp.",
-                                                 "institutionalNumber":  "NÃºmero institucional registado",
-                                                 "connectedDeviceWarning":  "AtenÃ§Ã£o: estas ligaÃ§Ãµes serÃ£o enviadas pelo WhatsApp que estiver ligado neste computador ou telemÃ³vel. Para utilizar o nÃºmero institucional, o WhatsApp Web tem de estar ligado ao nÃºmero da instituiÃ§Ã£o.",
-                                                 "futureIntegration":  "O envio automÃ¡tico em massa serÃ¡ disponibilizado futuramente atravÃ©s da integraÃ§Ã£o oficial do WhatsApp da prÃ³pria instituiÃ§Ã£o.",
+                                                 "title":  "Gerar ligações do WhatsApp",
+                                                 "description":  "O PHANYX gera ligações personalizadas do WhatsApp com a mensagem já preenchida. Nesta fase, o envio ainda tem de ser confirmado manualmente no WhatsApp.",
+                                                 "institutionalNumber":  "Número institucional registado",
+                                                 "connectedDeviceWarning":  "Atenção: estas ligações serão enviadas pelo WhatsApp que estiver ligado neste computador ou telemóvel. Para utilizar o número institucional, o WhatsApp Web tem de estar ligado ao número da instituição.",
+                                                 "futureIntegration":  "O envio automático em massa será disponibilizado futuramente através da integração oficial do WhatsApp da própria instituição.",
                                                  "openWhatsapp":  "Abrir WhatsApp",
-                                                 "invalidNumber":  "Sem nÃºmero vÃ¡lido"
+                                                 "invalidNumber":  "Sem número válido"
                                              },
                            "feedback":  {
                                             "selectAtLeastOne":  "Selecione pelo menos um aniversariante.",
@@ -4061,11 +4061,11 @@
                                             "loadError":  "Erro ao carregar os aniversariantes.",
                                             "pdfError":  "Erro ao gerar o PDF.",
                                             "excelError":  "Erro ao gerar o Excel.",
-                                            "downloadError":  "Erro ao descarregar o relatÃ³rio."
+                                            "downloadError":  "Erro ao descarregar o relatório."
                                         },
                            "fallback":  {
-                                            "institution":  "instituiÃ§Ã£o",
-                                            "notInformed":  "nÃ£o indicado"
+                                            "institution":  "instituição",
+                                            "notInformed":  "não indicado"
                                         }
                        }
 }
