@@ -211,7 +211,7 @@ export default function AdminAssinaturaPage() {
   const planoAtual = assinatura?.plano || instituicao?.plano;
 
   return (
-    <main className="min-h-screen bg-slate-50 px-6 py-8 text-slate-950 dark:bg-slate-950 dark:text-slate-100">
+    <main className="phanyx-assinatura-page min-h-screen bg-slate-50 px-6 py-8 text-slate-950 dark:bg-slate-950 dark:text-slate-100">
       <div className="mx-auto max-w-6xl">
         <div className="mb-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <p className="text-sm font-black uppercase tracking-[0.22em] text-blue-700 dark:text-blue-300">
@@ -220,7 +220,7 @@ export default function AdminAssinaturaPage() {
 
           <h1 className="mt-2 text-3xl font-black">{t("hero.title")}</h1>
 
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-700 dark:text-slate-300">
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600 dark:text-slate-300">
             {t("hero.description")}
           </p>
         </div>
@@ -244,7 +244,7 @@ export default function AdminAssinaturaPage() {
         ) : null}
 
         {loading ? (
-          <div className="rounded-3xl border border-slate-200 bg-white p-8 text-sm text-slate-700 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
+          <div className="rounded-3xl border border-slate-200 bg-white p-8 text-sm text-slate-600 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
             {t("feedback.loading")}
           </div>
         ) : !instituicao ? (
@@ -264,7 +264,7 @@ export default function AdminAssinaturaPage() {
                     {instituicao.nome}
                   </h2>
 
-                  <p className="mt-2 text-sm text-slate-700 dark:text-slate-300">
+                  <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
                     {t("institution.currentPlan")}{" "}
                     <strong className="text-slate-950 dark:text-white">
                       {rotuloPlano(planoAtual)}
@@ -378,7 +378,7 @@ export default function AdminAssinaturaPage() {
 
                 <div className="mt-5 space-y-4 text-sm">
                   <div className="flex items-center justify-between gap-4 border-b border-slate-200 pb-3 dark:border-slate-800">
-                    <span className="text-slate-700 dark:text-slate-300">
+                    <span className="text-slate-600 dark:text-slate-300">
                       {t("values.currentMonthly")}
                     </span>
                     <strong>
@@ -387,7 +387,7 @@ export default function AdminAssinaturaPage() {
                   </div>
 
                   <div className="flex items-center justify-between gap-4 border-b border-slate-200 pb-3 dark:border-slate-800">
-                    <span className="text-slate-700 dark:text-slate-300">
+                    <span className="text-slate-600 dark:text-slate-300">
                       {t("values.perStudent")}
                     </span>
                     <strong>
@@ -396,7 +396,7 @@ export default function AdminAssinaturaPage() {
                   </div>
 
                   <div className="flex items-center justify-between gap-4">
-                    <span className="text-slate-700 dark:text-slate-300">
+                    <span className="text-slate-600 dark:text-slate-300">
                       {t("values.extraCampus")}
                     </span>
                     <strong>
@@ -463,7 +463,7 @@ export default function AdminAssinaturaPage() {
               {t("cancellation.modal.title")}
             </h2>
 
-            <p className="mt-3 text-sm leading-7 text-slate-700 dark:text-slate-300">
+            <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
               {t("cancellation.modal.description")}
             </p>
 

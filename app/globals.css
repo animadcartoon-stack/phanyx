@@ -30596,3 +30596,80 @@ html[data-theme="system"]
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
 }
+
+/* =========================================================
+   STUDENT SUCCESS — DRAWER
+========================================================= */
+
+html[data-theme="light"]
+.phanyx-student-success-drawer {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"]
+.phanyx-student-success-drawer-header,
+html[data-theme="light"]
+.phanyx-student-success-drawer-card,
+html[data-theme="light"]
+.phanyx-student-success-drawer-metric {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+.phanyx-student-success-drawer-name,
+html[data-theme="light"]
+.phanyx-student-success-drawer-title {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+.phanyx-student-success-drawer-muted {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+.phanyx-student-success-drawer-empty {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+html[data-theme="system"]
+.phanyx-student-success-drawer {
+  background: #242424 !important;
+  border-color: #525252 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+.phanyx-student-success-drawer-header,
+html[data-theme="system"]
+.phanyx-student-success-drawer-card,
+html[data-theme="system"]
+.phanyx-student-success-drawer-metric,
+html[data-theme="system"]
+.phanyx-student-success-drawer-empty {
+  background: #303030 !important;
+  border-color: #525252 !important;
+}
+
+html[data-theme="system"]
+.phanyx-student-success-drawer-name,
+html[data-theme="system"]
+.phanyx-student-success-drawer-title {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="system"]
+.phanyx-student-success-drawer-muted {
+  color: #d4d4d4 !important;
+  -webkit-text-fill-color: #d4d4d4 !important;
+}

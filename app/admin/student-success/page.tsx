@@ -291,6 +291,55 @@ function classeNivel(
   }
 }
 
+function emailPodeSerUsado(
+  email:
+    | string
+    | null
+) {
+  if (!email) {
+    return false;
+  }
+
+  const normalizado =
+    email
+      .trim()
+      .toLowerCase();
+
+  if (
+    !normalizado ||
+    normalizado.endsWith(
+      "@px.local"
+    )
+  ) {
+    return false;
+  }
+
+  return normalizado.includes(
+    "@"
+  );
+}
+
+function telefoneParaLink(
+  telefone:
+    | string
+    | null
+) {
+  if (!telefone) {
+    return null;
+  }
+
+  const limpo =
+    telefone.replace(
+      /[^\d+]/g,
+      ""
+    );
+
+  return (
+    limpo ||
+    null
+  );
+}
+
 export default function AdminStudentSuccessPage() {
   const t =
     useTranslations(
@@ -333,6 +382,14 @@ export default function AdminStudentSuccessPage() {
   ] =
     useState<FiltroNivel>(
       "TODOS"
+    );
+
+  const [
+    alunoSelecionado,
+    setAlunoSelecionado,
+  ] =
+    useState<AlunoStudentSuccess | null>(
+      null
     );
 
   const carregarDados =
@@ -414,6 +471,56 @@ export default function AdminStudentSuccessPage() {
     },
     [
       carregarDados,
+    ]
+  );
+
+  useEffect(
+    () => {
+      if (
+        !alunoSelecionado
+      ) {
+        return;
+      }
+
+      const fecharComEsc =
+        (
+          event:
+            KeyboardEvent
+        ) => {
+          if (
+            event.key ===
+            "Escape"
+          ) {
+            setAlunoSelecionado(
+              null
+            );
+          }
+        };
+
+      const overflowAnterior =
+        document.body.style
+          .overflow;
+
+      document.body.style.overflow =
+        "hidden";
+
+      window.addEventListener(
+        "keydown",
+        fecharComEsc
+      );
+
+      return () => {
+        document.body.style.overflow =
+          overflowAnterior;
+
+        window.removeEventListener(
+          "keydown",
+          fecharComEsc
+        );
+      };
+    },
+    [
+      alunoSelecionado,
     ]
   );
 
@@ -963,107 +1070,107 @@ export default function AdminStudentSuccessPage() {
             dark:text-white
           "
                   />
-               </div>
+                </div>
 
-<div
-  className="
+                <div
+                  className="
     flex
     flex-wrap
     gap-2
   "
->
-  {(
-    [
-      [
-        "TODOS",
-        t("filters.all"),
-        dados?.resumo.monitorados ?? 0,
-      ],
-      [
-        "CRITICO",
-        t("levels.CRITICO"),
-        dados?.resumo.critico ?? 0,
-      ],
-      [
-        "RISCO",
-        t("levels.RISCO"),
-        dados?.resumo.risco ?? 0,
-      ],
-      [
-        "ATENCAO",
-        t("levels.ATENCAO"),
-        dados?.resumo.atencao ?? 0,
-      ],
-      [
-        "NORMAL",
-        t("levels.NORMAL"),
-        dados?.resumo.normal ?? 0,
-      ],
-      [
-        "DADOS_INSUFICIENTES",
-        t("levels.DADOS_INSUFICIENTES"),
-        dados?.resumo.dadosInsuficientes ?? 0,
-      ],
-    ] as const
-  ).map(
-    ([
-      valor,
-      titulo,
-      quantidade,
-    ]) => (
-      <button
-        key={valor}
-        type="button"
-        onClick={() =>
-          setFiltroNivel(
-            valor
-          )
-        }
-        className={[
-          "phanyx-student-success-filter rounded-full border px-4 py-2 text-sm font-semibold transition",
+                >
+                  {(
+                    [
+                      [
+                        "TODOS",
+                        t("filters.all"),
+                        dados?.resumo.monitorados ?? 0,
+                      ],
+                      [
+                        "CRITICO",
+                        t("levels.CRITICO"),
+                        dados?.resumo.critico ?? 0,
+                      ],
+                      [
+                        "RISCO",
+                        t("levels.RISCO"),
+                        dados?.resumo.risco ?? 0,
+                      ],
+                      [
+                        "ATENCAO",
+                        t("levels.ATENCAO"),
+                        dados?.resumo.atencao ?? 0,
+                      ],
+                      [
+                        "NORMAL",
+                        t("levels.NORMAL"),
+                        dados?.resumo.normal ?? 0,
+                      ],
+                      [
+                        "DADOS_INSUFICIENTES",
+                        t("levels.DADOS_INSUFICIENTES"),
+                        dados?.resumo.dadosInsuficientes ?? 0,
+                      ],
+                    ] as const
+                  ).map(
+                    ([
+                      valor,
+                      titulo,
+                      quantidade,
+                    ]) => (
+                      <button
+                        key={valor}
+                        type="button"
+                        onClick={() =>
+                          setFiltroNivel(
+                            valor
+                          )
+                        }
+                        className={[
+                          "phanyx-student-success-filter rounded-full border px-4 py-2 text-sm font-semibold transition",
 
-          filtroNivel === valor
-            ? "phanyx-student-success-filter-active"
-            : "phanyx-student-success-filter-inactive",
-        ].join(" ")}
-      >
-        {titulo}
+                          filtroNivel === valor
+                            ? "phanyx-student-success-filter-active"
+                            : "phanyx-student-success-filter-inactive",
+                        ].join(" ")}
+                      >
+                        {titulo}
 
-        <span
-          className="
+                        <span
+                          className="
             ml-2
             opacity-100
           "
-        >
-          {quantidade}
-        </span>
-      </button>
-    )
-  )}
-</div>
+                        >
+                          {quantidade}
+                        </span>
+                      </button>
+                    )
+                  )}
+                </div>
 
-</div>
-</div>
-) : null}
+              </div>
+            </div>
+          ) : null}
 
-      {carregando ? (
-        <div
-          className="
+          {carregando ? (
+            <div
+              className="
                 flex
                 min-h-[280px]
                 items-center
                 justify-center
                 p-6
               "
-        >
-          <div
-            className="
+            >
+              <div
+                className="
                   max-w-md
                   text-center
                 "
-          >
-            <div
-              className="
+              >
+                <div
+                  className="
                     mx-auto
                     h-10
                     w-10
@@ -1075,11 +1182,11 @@ export default function AdminStudentSuccessPage() {
                     dark:border-slate-700
                     dark:border-t-blue-400
                   "
-              aria-hidden="true"
-            />
+                  aria-hidden="true"
+                />
 
-            <p
-              className="
+                <p
+                  className="
                     phanyx-student-success-muted
                     mt-4
                     text-sm
@@ -1087,48 +1194,48 @@ export default function AdminStudentSuccessPage() {
                     text-slate-700
                     dark:text-slate-200
                   "
-            >
-              {t(
-                "states.loading"
-              )}
-            </p>
-          </div>
-        </div>
-      ) : erro ? (
-        <div
-          className="
+                >
+                  {t(
+                    "states.loading"
+                  )}
+                </p>
+              </div>
+            </div>
+          ) : erro ? (
+            <div
+              className="
                 flex
                 min-h-[240px]
                 items-center
                 justify-center
                 p-6
               "
-        >
-          <div
-            className="
+            >
+              <div
+                className="
                   max-w-md
                   text-center
                 "
-          >
-            <p
-              className="
+              >
+                <p
+                  className="
                     font-semibold
                     text-red-700
                     dark:text-red-300
                   "
-            >
-              {t(
-                "states.error"
-              )}
-            </p>
+                >
+                  {t(
+                    "states.error"
+                  )}
+                </p>
 
-            <button
-              type="button"
-              onClick={
-                () =>
-                  void carregarDados()
-              }
-              className="
+                <button
+                  type="button"
+                  onClick={
+                    () =>
+                      void carregarDados()
+                  }
+                  className="
                     mt-4
                     rounded-xl
                     bg-blue-700
@@ -1140,26 +1247,26 @@ export default function AdminStudentSuccessPage() {
                     transition
                     hover:bg-blue-800
                   "
-            >
-              {t(
-                "actions.refresh"
-              )}
-            </button>
-          </div>
-        </div>
-      ) : alunosFiltrados.length ===
-        0 ? (
-        <div
-          className="
+                >
+                  {t(
+                    "actions.refresh"
+                  )}
+                </button>
+              </div>
+            </div>
+          ) : alunosFiltrados.length ===
+            0 ? (
+            <div
+              className="
                 flex
                 min-h-[240px]
                 items-center
                 justify-center
                 p-6
               "
-        >
-          <p
-            className="
+            >
+              <p
+                className="
                   phanyx-student-success-muted
                   text-center
                   text-sm
@@ -1167,35 +1274,35 @@ export default function AdminStudentSuccessPage() {
                   text-slate-700
                   dark:text-slate-200
                 "
-          >
-            {t(
-              "states.noRisk"
-            )}
-          </p>
-        </div>
-      ) : (
-        <div
-          className="
+              >
+                {t(
+                  "states.noRisk"
+                )}
+              </p>
+            </div>
+          ) : (
+            <div
+              className="
                 overflow-x-auto
               "
-        >
-          <table
-            className="
+            >
+              <table
+                className="
     phanyx-student-success-table
     w-full
     min-w-[900px]
     border-collapse
   "
-          >
-            <thead
-              className="
+              >
+                <thead
+                  className="
                     bg-slate-50
                     dark:bg-slate-950/60
                   "
-            >
-              <tr>
-                <th
-                  className="
+                >
+                  <tr>
+                    <th
+                      className="
                         px-5
                         py-3
                         text-left
@@ -1206,14 +1313,14 @@ export default function AdminStudentSuccessPage() {
                         text-slate-600
                         dark:text-slate-300
                       "
-                >
-                  {t(
-                    "table.student"
-                  )}
-                </th>
+                    >
+                      {t(
+                        "table.student"
+                      )}
+                    </th>
 
-                <th
-                  className="
+                    <th
+                      className="
                         px-4
                         py-3
                         text-left
@@ -1224,14 +1331,14 @@ export default function AdminStudentSuccessPage() {
                         text-slate-600
                         dark:text-slate-300
                       "
-                >
-                  {t(
-                    "table.risk"
-                  )}
-                </th>
+                    >
+                      {t(
+                        "table.risk"
+                      )}
+                    </th>
 
-                <th
-                  className="
+                    <th
+                      className="
                         px-4
                         py-3
                         text-center
@@ -1242,14 +1349,14 @@ export default function AdminStudentSuccessPage() {
                         text-slate-600
                         dark:text-slate-300
                       "
-                >
-                  {t(
-                    "table.score"
-                  )}
-                </th>
+                    >
+                      {t(
+                        "table.score"
+                      )}
+                    </th>
 
-                <th
-                  className="
+                    <th
+                      className="
                         px-4
                         py-3
                         text-center
@@ -1260,14 +1367,14 @@ export default function AdminStudentSuccessPage() {
                         text-slate-600
                         dark:text-slate-300
                       "
-                >
-                  {t(
-                    "table.frequency"
-                  )}
-                </th>
+                    >
+                      {t(
+                        "table.frequency"
+                      )}
+                    </th>
 
-                <th
-                  className="
+                    <th
+                      className="
                         px-4
                         py-3
                         text-center
@@ -1278,14 +1385,14 @@ export default function AdminStudentSuccessPage() {
                         text-slate-600
                         dark:text-slate-300
                       "
-                >
-                  {t(
-                    "table.performance"
-                  )}
-                </th>
+                    >
+                      {t(
+                        "table.performance"
+                      )}
+                    </th>
 
-                <th
-                  className="
+                    <th
+                      className="
                         px-4
                         py-3
                         text-center
@@ -1296,186 +1403,216 @@ export default function AdminStudentSuccessPage() {
                         text-slate-600
                         dark:text-slate-300
                       "
-                >
-                  {t(
-                    "table.pendingActivities"
-                  )}
-                </th>
-              </tr>
-            </thead>
+                    >
+                      {t(
+                        "table.pendingActivities"
+                      )}
+                    </th>
+                  </tr>
+                </thead>
 
-            <tbody
-              className="
+                <tbody
+                  className="
                     divide-y
                     divide-slate-200
                     dark:divide-slate-800
                   "
-            >
-              {alunosFiltrados.map(
-                (
-                  aluno
-                ) => {
-                  const dadosInsuficientes =
-                    aluno
-                      .analise
-                      .nivel ===
-                    "DADOS_INSUFICIENTES";
+                >
+                  {alunosFiltrados.map(
+                    (
+                      aluno
+                    ) => {
+                      const dadosInsuficientes =
+                        aluno
+                          .analise
+                          .nivel ===
+                        "DADOS_INSUFICIENTES";
 
-                  return (
-                    <tr
-                      key={
-                        aluno.alunoId
-                      }
-                      className="
-                            transition
-                            hover:bg-slate-50
-                            dark:hover:bg-slate-800/40
-                          "
-                    >
-                      <td
-                        className="
+                      return (
+                        <tr
+                          key={
+                            aluno.alunoId
+                          }
+                          onClick={() =>
+                            setAlunoSelecionado(
+                              aluno
+                            )
+                          }
+                          onKeyDown={
+                            (
+                              event
+                            ) => {
+                              if (
+                                event.key ===
+                                "Enter" ||
+                                event.key ===
+                                " "
+                              ) {
+                                event.preventDefault();
+
+                                setAlunoSelecionado(
+                                  aluno
+                                );
+                              }
+                            }
+                          }
+                          tabIndex={0}
+                          className="
+    cursor-pointer
+    transition
+    hover:bg-blue-50
+    focus:outline-none
+    focus:ring-2
+    focus:ring-inset
+    focus:ring-blue-500
+    dark:hover:bg-slate-800/60
+  "
+                        >
+
+                          <td
+                            className="
                               px-5
                               py-4
                             "
-                      >
-                        <div
-                          className="
+                          >
+                            <div
+                              className="
     phanyx-student-success-student-name
     font-semibold
     text-slate-950
     dark:text-white
   "
-                        >
-                          {
-                            aluno.nome
-                          }
-                        </div>
+                            >
+                              {
+                                aluno.nome
+                              }
+                            </div>
 
-                        {aluno.matricula ? (
-                          <div
-                            className="
+                            {aluno.matricula ? (
+                              <div
+                                className="
     phanyx-student-success-student-registration
     mt-1
     text-xs
     text-slate-500
     dark:text-slate-400
   "
+                              >
+                                {
+                                  aluno.matricula
+                                }
+                              </div>
+                            ) : null}
+                          </td>
+
+                          <td
+                            className="
+                              px-4
+                              py-4
+                            "
+                          >
+                            <span
+                              className={[
+                                "inline-flex rounded-full border px-3 py-1 text-xs font-bold",
+                                classeNivel(
+                                  aluno
+                                    .analise
+                                    .nivel
+                                ),
+                              ].join(
+                                " "
+                              )}
+                            >
+                              {t(
+                                `levels.${aluno.analise.nivel}`
+                              )}
+                            </span>
+                          </td>
+
+                          <td
+                            className="
+                              px-4
+                              py-4
+                              text-center
+                              text-sm
+                              font-bold
+                              text-slate-800
+                              dark:text-slate-100
+                            "
+                          >
+                            {dadosInsuficientes
+                              ? "—"
+                              : aluno
+                                .analise
+                                .pontuacao}
+                          </td>
+
+                          <td
+                            className="
+                              px-4
+                              py-4
+                              text-center
+                              text-sm
+                              font-semibold
+                              text-slate-700
+                              dark:text-slate-200
+                            "
+                          >
+                            {formatarPercentual(
+                              aluno
+                                .indicadores
+                                .frequenciaPercentual
+                            )}
+                          </td>
+
+                          <td
+                            className="
+                              px-4
+                              py-4
+                              text-center
+                              text-sm
+                              font-semibold
+                              text-slate-700
+                              dark:text-slate-200
+                            "
+                          >
+                            {formatarPercentual(
+                              aluno
+                                .indicadores
+                                .mediaPercentual
+                            )}
+                          </td>
+
+                          <td
+                            className="
+                              px-4
+                              py-4
+                              text-center
+                              text-sm
+                              font-bold
+                              text-slate-800
+                              dark:text-slate-100
+                            "
                           >
                             {
-                              aluno.matricula
-                            }
-                          </div>
-                        ) : null}
-                      </td>
-
-                      <td
-                        className="
-                              px-4
-                              py-4
-                            "
-                      >
-                        <span
-                          className={[
-                            "inline-flex rounded-full border px-3 py-1 text-xs font-bold",
-                            classeNivel(
                               aluno
-                                .analise
-                                .nivel
-                            ),
-                          ].join(
-                            " "
-                          )}
-                        >
-                          {t(
-                            `levels.${aluno.analise.nivel}`
-                          )}
-                        </span>
-                      </td>
+                                .indicadores
+                                .atividadesVencidas
+                            }
+                          </td>
+                        </tr>
+                      );
+                    }
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
 
-                      <td
-                        className="
-                              px-4
-                              py-4
-                              text-center
-                              text-sm
-                              font-bold
-                              text-slate-800
-                              dark:text-slate-100
-                            "
-                      >
-                        {dadosInsuficientes
-                          ? "—"
-                          : aluno
-                            .analise
-                            .pontuacao}
-                      </td>
-
-                      <td
-                        className="
-                              px-4
-                              py-4
-                              text-center
-                              text-sm
-                              font-semibold
-                              text-slate-700
-                              dark:text-slate-200
-                            "
-                      >
-                        {formatarPercentual(
-                          aluno
-                            .indicadores
-                            .frequenciaPercentual
-                        )}
-                      </td>
-
-                      <td
-                        className="
-                              px-4
-                              py-4
-                              text-center
-                              text-sm
-                              font-semibold
-                              text-slate-700
-                              dark:text-slate-200
-                            "
-                      >
-                        {formatarPercentual(
-                          aluno
-                            .indicadores
-                            .mediaPercentual
-                        )}
-                      </td>
-
-                      <td
-                        className="
-                              px-4
-                              py-4
-                              text-center
-                              text-sm
-                              font-bold
-                              text-slate-800
-                              dark:text-slate-100
-                            "
-                      >
-                        {
-                          aluno
-                            .indicadores
-                            .atividadesVencidas
-                        }
-                      </td>
-                    </tr>
-                  );
-                }
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </section>
-
-        {/* APOIO À DECISÃO */ }
-  <section
-    className="
+        {/* APOIO À DECISÃO */}
+        <section
+          className="
           phanyx-student-success-disclaimer
             rounded-2xl
             border
@@ -1487,16 +1624,16 @@ export default function AdminStudentSuccessPage() {
             dark:bg-blue-950/30
             dark:text-blue-100
           "
-  >
-    <div
-      className="
+        >
+          <div
+            className="
               flex
               items-start
               gap-3
             "
-    >
-      <div
-        className="
+          >
+            <div
+              className="
               phanyx-student-success-disclaimer-icon
                 mt-0.5
                 flex
@@ -1511,50 +1648,50 @@ export default function AdminStudentSuccessPage() {
                 dark:bg-blue-900/70
                 dark:text-blue-200
               "
-        aria-hidden="true"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          className="
+              aria-hidden="true"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                className="
                   h-5
                   w-5
                 "
-          stroke="currentColor"
-          strokeWidth="2"
-        >
-          <circle
-            cx="12"
-            cy="12"
-            r="9"
-          />
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="9"
+                />
 
-          <path
-            strokeLinecap="round"
-            d="M12 10v6"
-          />
+                <path
+                  strokeLinecap="round"
+                  d="M12 10v6"
+                />
 
-          <path
-            strokeLinecap="round"
-            d="M12 7h.01"
-          />
-        </svg>
-      </div>
+                <path
+                  strokeLinecap="round"
+                  d="M12 7h.01"
+                />
+              </svg>
+            </div>
 
-      <div>
-        <h3
-          className="
+            <div>
+              <h3
+                className="
     phanyx-student-success-disclaimer-title
     font-bold
   "
-        >
-          {t(
-            "disclaimer.title"
-          )}
-        </h3>
+              >
+                {t(
+                  "disclaimer.title"
+                )}
+              </h3>
 
-        <p
-          className="
+              <p
+                className="
                 phanyx-student-success-disclaimer-text
                   mt-1
                   text-sm
@@ -1562,15 +1699,1269 @@ export default function AdminStudentSuccessPage() {
                   text-blue-900
                   dark:text-blue-200
                 "
-        >
-          {t(
-            "disclaimer.text"
-          )}
-        </p>
-      </div>
-    </div>
-  </section>
+              >
+                {t(
+                  "disclaimer.text"
+                )}
+              </p>
+            </div>
+          </div>
+        </section>
       </div >
+      {alunoSelecionado ? (
+        <div
+          className="
+      fixed
+      inset-0
+      z-[120]
+      flex
+      justify-end
+    "
+          role="presentation"
+        >
+          {/* FUNDO */}
+          <button
+            type="button"
+            aria-label={t(
+              "drawer.close"
+            )}
+            onClick={() =>
+              setAlunoSelecionado(
+                null
+              )
+            }
+            className="
+        absolute
+        inset-0
+        cursor-default
+        bg-black/45
+        backdrop-blur-[1px]
+      "
+          />
+
+          {/* DRAWER */}
+          <aside
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="student-success-drawer-title"
+            className="
+        phanyx-student-success-drawer
+        relative
+        z-10
+        flex
+        h-full
+        w-full
+        max-w-[560px]
+        flex-col
+        overflow-hidden
+        border-l
+        border-slate-200
+        bg-white
+        shadow-2xl
+        dark:border-slate-700
+        dark:bg-slate-950
+      "
+          >
+            {/* CABEÇALHO */}
+            <div
+              className="
+          phanyx-student-success-drawer-header
+          flex
+          items-start
+          justify-between
+          gap-4
+          border-b
+          border-slate-200
+          px-5
+          py-5
+          dark:border-slate-800
+          sm:px-6
+        "
+            >
+              <div
+                className="
+            min-w-0
+          "
+              >
+                <p
+                  className="
+              text-xs
+              font-bold
+              uppercase
+              tracking-[0.14em]
+              text-blue-600
+              dark:text-blue-300
+            "
+                >
+                  {t(
+                    "drawer.analysis"
+                  )}
+                </p>
+
+                <h2
+                  id="student-success-drawer-title"
+                  className="
+              phanyx-student-success-drawer-name
+              mt-1
+              break-words
+              text-xl
+              font-bold
+              text-slate-950
+              dark:text-white
+            "
+                >
+                  {
+                    alunoSelecionado.nome
+                  }
+                </h2>
+
+                {alunoSelecionado.matricula ? (
+                  <p
+                    className="
+                phanyx-student-success-drawer-muted
+                mt-1
+                text-sm
+                text-slate-500
+                dark:text-slate-400
+              "
+                  >
+                    {
+                      alunoSelecionado.matricula
+                    }
+                  </p>
+                ) : null}
+              </div>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setAlunoSelecionado(
+                    null
+                  )
+                }
+                aria-label={t(
+                  "drawer.close"
+                )}
+                className="
+            phanyx-student-success-drawer-close
+            flex
+            h-10
+            w-10
+            shrink-0
+            items-center
+            justify-center
+            rounded-xl
+            border
+            border-slate-300
+            bg-white
+            text-xl
+            font-bold
+            text-slate-700
+            transition
+            hover:bg-slate-100
+            dark:border-slate-700
+            dark:bg-slate-900
+            dark:text-white
+            dark:hover:bg-slate-800
+          "
+              >
+                ×
+              </button>
+            </div>
+
+            {/* CONTEÚDO */}
+            <div
+              className="
+          flex-1
+          space-y-5
+          overflow-y-auto
+          p-5
+          sm:p-6
+        "
+            >
+              {/* CLASSIFICAÇÃO */}
+              <section
+                className="
+            phanyx-student-success-drawer-card
+            rounded-2xl
+            border
+            border-slate-200
+            bg-slate-50
+            p-4
+            dark:border-slate-800
+            dark:bg-slate-900
+          "
+              >
+                <div
+                  className="
+              flex
+              flex-wrap
+              items-center
+              justify-between
+              gap-3
+            "
+                >
+                  <span
+                    className={[
+                      "inline-flex rounded-full border px-3 py-1.5 text-xs font-bold",
+                      classeNivel(
+                        alunoSelecionado
+                          .analise
+                          .nivel
+                      ),
+                    ].join(
+                      " "
+                    )}
+                  >
+                    {t(
+                      `levels.${alunoSelecionado.analise.nivel}`
+                    )}
+                  </span>
+
+                  {alunoSelecionado.analise
+                    .nivel !==
+                    "DADOS_INSUFICIENTES" ? (
+                    <div
+                      className="
+                  text-right
+                "
+                    >
+                      <div
+                        className="
+                    phanyx-student-success-drawer-muted
+                    text-xs
+                    font-semibold
+                    text-slate-500
+                    dark:text-slate-400
+                  "
+                      >
+                        {t(
+                          "drawer.score"
+                        )}
+                      </div>
+
+                      <div
+                        className="
+                    text-2xl
+                    font-bold
+                    text-slate-950
+                    dark:text-white
+                  "
+                      >
+                        {
+                          alunoSelecionado
+                            .analise
+                            .pontuacao
+                        }
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+
+                {alunoSelecionado.analise
+                  .nivel ===
+                  "DADOS_INSUFICIENTES" ? (
+                  <p
+                    className="
+                phanyx-student-success-drawer-muted
+                mt-3
+                text-sm
+                leading-6
+                text-slate-600
+                dark:text-slate-300
+              "
+                  >
+                    {t(
+                      "drawer.scoreUnavailable"
+                    )}
+                  </p>
+                ) : null}
+
+                <div
+                  className="
+              mt-4
+              grid
+              grid-cols-2
+              gap-3
+            "
+                >
+                  <div
+                    className="
+                phanyx-student-success-drawer-metric
+                rounded-xl
+                border
+                border-slate-200
+                bg-white
+                p-3
+                dark:border-slate-700
+                dark:bg-slate-950
+              "
+                  >
+                    <div
+                      className="
+                  phanyx-student-success-drawer-muted
+                  text-xs
+                  font-semibold
+                  text-slate-500
+                  dark:text-slate-400
+                "
+                    >
+                      {t(
+                        "drawer.dataCoverage"
+                      )}
+                    </div>
+
+                    <div
+                      className="
+                  mt-1
+                  text-lg
+                  font-bold
+                  text-slate-950
+                  dark:text-white
+                "
+                    >
+                      {
+                        alunoSelecionado
+                          .analise
+                          .coberturaPercentual
+                      }%
+                    </div>
+                  </div>
+
+                  <div
+                    className="
+                phanyx-student-success-drawer-metric
+                rounded-xl
+                border
+                border-slate-200
+                bg-white
+                p-3
+                dark:border-slate-700
+                dark:bg-slate-950
+              "
+                  >
+                    <div
+                      className="
+                  phanyx-student-success-drawer-muted
+                  text-xs
+                  font-semibold
+                  text-slate-500
+                  dark:text-slate-400
+                "
+                    >
+                      {t(
+                        "drawer.reliability"
+                      )}
+                    </div>
+
+                    <div
+                      className="
+                  mt-1
+                  text-lg
+                  font-bold
+                  text-slate-950
+                  dark:text-white
+                "
+                    >
+                      {t(
+                        `reliability.${alunoSelecionado.analise.confiabilidade}`
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  className="
+              mt-4
+              overflow-hidden
+              rounded-full
+              bg-slate-200
+              dark:bg-slate-800
+            "
+                >
+                  <div
+                    className="
+                h-2
+                rounded-full
+                bg-blue-600
+                transition-all
+              "
+                    style={{
+                      width:
+                        `${Math.max(
+                          0,
+                          Math.min(
+                            100,
+                            alunoSelecionado
+                              .analise
+                              .coberturaPercentual
+                          )
+                        )}%`,
+                    }}
+                  />
+                </div>
+              </section>
+
+              {/* INDICADORES */}
+              <section>
+                <h3
+                  className="
+              phanyx-student-success-drawer-title
+              text-sm
+              font-bold
+              uppercase
+              tracking-wide
+              text-slate-950
+              dark:text-white
+            "
+                >
+                  {t(
+                    "drawer.indicators"
+                  )}
+                </h3>
+
+                <div
+                  className="
+              mt-3
+              grid
+              gap-3
+              sm:grid-cols-2
+            "
+                >
+                  <div
+                    className="
+                phanyx-student-success-drawer-metric
+                rounded-xl
+                border
+                border-slate-200
+                bg-white
+                p-4
+                dark:border-slate-800
+                dark:bg-slate-900
+              "
+                  >
+                    <div
+                      className="
+                  phanyx-student-success-drawer-muted
+                  text-xs
+                  font-semibold
+                  text-slate-500
+                  dark:text-slate-400
+                "
+                    >
+                      {t(
+                        "components.FREQUENCIA"
+                      )}
+                    </div>
+
+                    <div
+                      className="
+                  mt-1
+                  text-xl
+                  font-bold
+                  text-slate-950
+                  dark:text-white
+                "
+                    >
+                      {formatarPercentual(
+                        alunoSelecionado
+                          .indicadores
+                          .frequenciaPercentual
+                      )}
+                    </div>
+
+                    <div
+                      className="
+                  phanyx-student-success-drawer-muted
+                  mt-1
+                  text-xs
+                  text-slate-500
+                  dark:text-slate-400
+                "
+                    >
+                      {t(
+                        "drawer.classes"
+                      )}:{" "}
+                      {
+                        alunoSelecionado
+                          .indicadores
+                          .quantidadeAulas
+                      }
+                    </div>
+                  </div>
+
+                  <div
+                    className="
+                phanyx-student-success-drawer-metric
+                rounded-xl
+                border
+                border-slate-200
+                bg-white
+                p-4
+                dark:border-slate-800
+                dark:bg-slate-900
+              "
+                  >
+                    <div
+                      className="
+                  phanyx-student-success-drawer-muted
+                  text-xs
+                  font-semibold
+                  text-slate-500
+                  dark:text-slate-400
+                "
+                    >
+                      {t(
+                        "components.DESEMPENHO"
+                      )}
+                    </div>
+
+                    <div
+                      className="
+                  mt-1
+                  text-xl
+                  font-bold
+                  text-slate-950
+                  dark:text-white
+                "
+                    >
+                      {formatarPercentual(
+                        alunoSelecionado
+                          .indicadores
+                          .mediaPercentual
+                      )}
+                    </div>
+
+                    <div
+                      className="
+                  phanyx-student-success-drawer-muted
+                  mt-1
+                  text-xs
+                  text-slate-500
+                  dark:text-slate-400
+                "
+                    >
+                      {t(
+                        "drawer.assessments"
+                      )}:{" "}
+                      {
+                        alunoSelecionado
+                          .indicadores
+                          .quantidadeAvaliacoes
+                      }
+                    </div>
+                  </div>
+
+                  <div
+                    className="
+                phanyx-student-success-drawer-metric
+                rounded-xl
+                border
+                border-slate-200
+                bg-white
+                p-4
+                dark:border-slate-800
+                dark:bg-slate-900
+              "
+                  >
+                    <div
+                      className="
+                  phanyx-student-success-drawer-muted
+                  text-xs
+                  font-semibold
+                  text-slate-500
+                  dark:text-slate-400
+                "
+                    >
+                      {t(
+                        "drawer.pendingActivities"
+                      )}
+                    </div>
+
+                    <div
+                      className="
+                  mt-1
+                  text-xl
+                  font-bold
+                  text-slate-950
+                  dark:text-white
+                "
+                    >
+                      {
+                        alunoSelecionado
+                          .indicadores
+                          .atividadesVencidas
+                      }
+                    </div>
+                  </div>
+
+                  <div
+                    className="
+                phanyx-student-success-drawer-metric
+                rounded-xl
+                border
+                border-slate-200
+                bg-white
+                p-4
+                dark:border-slate-800
+                dark:bg-slate-900
+              "
+                  >
+                    <div
+                      className="
+                  phanyx-student-success-drawer-muted
+                  text-xs
+                  font-semibold
+                  text-slate-500
+                  dark:text-slate-400
+                "
+                    >
+                      {t(
+                        "drawer.recentEvolution"
+                      )}
+                    </div>
+
+                    <div
+                      className="
+                  mt-1
+                  text-xl
+                  font-bold
+                  text-slate-950
+                  dark:text-white
+                "
+                    >
+                      {alunoSelecionado
+                        .indicadores
+                        .quedaDesempenhoPercentual ===
+                        null
+                        ? "—"
+                        : `${Math.round(
+                          alunoSelecionado
+                            .indicadores
+                            .quedaDesempenhoPercentual
+                        )}%`}
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* SINAIS */}
+              <section>
+                <h3
+                  className="
+              phanyx-student-success-drawer-title
+              text-sm
+              font-bold
+              uppercase
+              tracking-wide
+              text-slate-950
+              dark:text-white
+            "
+                >
+                  {t(
+                    "drawer.mainSignals"
+                  )}
+                </h3>
+
+                <div
+                  className="
+              mt-3
+              space-y-2
+            "
+                >
+                  {alunoSelecionado
+                    .analise
+                    .fatoresPrincipais
+                    .length > 0 ? (
+                    alunoSelecionado
+                      .analise
+                      .fatoresPrincipais
+                      .map(
+                        (
+                          fator
+                        ) => (
+                          <div
+                            key={
+                              fator.codigo
+                            }
+                            className="
+                        phanyx-student-success-drawer-signal
+                        flex
+                        items-start
+                        gap-3
+                        rounded-xl
+                        border
+                        border-amber-200
+                        bg-amber-50
+                        p-3
+                        text-amber-950
+                        dark:border-amber-900/60
+                        dark:bg-amber-950/30
+                        dark:text-amber-100
+                      "
+                          >
+                            <span
+                              aria-hidden="true"
+                            >
+                              ⚠️
+                            </span>
+
+                            <div>
+                              <div
+                                className="
+                            font-semibold
+                          "
+                              >
+                                {t(
+                                  `components.${fator.codigo}`
+                                )}
+                              </div>
+
+                              {fator.codigo ===
+                                "PENDENCIAS" ? (
+                                <div
+                                  className="
+                              mt-1
+                              text-sm
+                            "
+                                >
+                                  {
+                                    alunoSelecionado
+                                      .indicadores
+                                      .atividadesVencidas
+                                  }{" "}
+                                  {t(
+                                    "drawer.pendingActivities"
+                                  ).toLocaleLowerCase()}
+                                </div>
+                              ) : null}
+                            </div>
+                          </div>
+                        )
+                      )
+                  ) : (
+                    <div
+                      className="
+                  phanyx-student-success-drawer-empty
+                  rounded-xl
+                  border
+                  border-slate-200
+                  bg-slate-50
+                  p-4
+                  text-sm
+                  text-slate-600
+                  dark:border-slate-800
+                  dark:bg-slate-900
+                  dark:text-slate-300
+                "
+                    >
+                      {t(
+                        "drawer.noMainSignals"
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {alunoSelecionado
+                  .analise
+                  .componentes
+                  .some(
+                    (
+                      componente
+                    ) =>
+                      !componente.disponivel
+                  ) ? (
+                  <div
+                    className="
+                phanyx-student-success-drawer-empty
+                mt-3
+                rounded-xl
+                border
+                border-slate-200
+                bg-slate-50
+                p-4
+                dark:border-slate-800
+                dark:bg-slate-900
+              "
+                  >
+                    <div
+                      className="
+                  phanyx-student-success-drawer-title
+                  text-sm
+                  font-bold
+                  text-slate-900
+                  dark:text-white
+                "
+                    >
+                      {t(
+                        "drawer.missingData"
+                      )}
+                    </div>
+
+                    <div
+                      className="
+                  mt-2
+                  flex
+                  flex-wrap
+                  gap-2
+                "
+                    >
+                      {alunoSelecionado
+                        .analise
+                        .componentes
+                        .filter(
+                          (
+                            componente
+                          ) =>
+                            !componente.disponivel
+                        )
+                        .map(
+                          (
+                            componente
+                          ) => (
+                            <span
+                              key={
+                                componente.codigo
+                              }
+                              className="
+                          rounded-full
+                          border
+                          border-slate-300
+                          bg-white
+                          px-3
+                          py-1
+                          text-xs
+                          font-semibold
+                          text-slate-700
+                          dark:border-slate-700
+                          dark:bg-slate-950
+                          dark:text-slate-200
+                        "
+                            >
+                              {t(
+                                `components.${componente.codigo}`
+                              )}
+                            </span>
+                          )
+                        )}
+                    </div>
+                  </div>
+                ) : null}
+              </section>
+
+              {/* CONTATO */}
+              <section>
+                <h3
+                  className="
+              phanyx-student-success-drawer-title
+              text-sm
+              font-bold
+              uppercase
+              tracking-wide
+              text-slate-950
+              dark:text-white
+            "
+                >
+                  {t(
+                    "drawer.contact"
+                  )}
+                </h3>
+
+                <div
+                  className="
+              phanyx-student-success-drawer-card
+              mt-3
+              rounded-2xl
+              border
+              border-slate-200
+              bg-white
+              p-4
+              dark:border-slate-800
+              dark:bg-slate-900
+            "
+                >
+                  <h4
+                    className="
+                font-bold
+                text-slate-950
+                dark:text-white
+              "
+                  >
+                    {t(
+                      "drawer.studentContact"
+                    )}
+                  </h4>
+
+                  <dl
+                    className="
+                mt-3
+                space-y-3
+                text-sm
+              "
+                  >
+                    <div>
+                      <dt
+                        className="
+                    phanyx-student-success-drawer-muted
+                    text-xs
+                    font-semibold
+                    text-slate-500
+                    dark:text-slate-400
+                  "
+                      >
+                        {t(
+                          "drawer.phone"
+                        )}
+                      </dt>
+
+                      <dd
+                        className="
+                    mt-1
+                    font-semibold
+                    text-slate-900
+                    dark:text-white
+                  "
+                      >
+                        {alunoSelecionado
+                          .contato
+                          .telefone ??
+                          t(
+                            "drawer.unavailable"
+                          )}
+                      </dd>
+                    </div>
+
+                    <div>
+                      <dt
+                        className="
+                    phanyx-student-success-drawer-muted
+                    text-xs
+                    font-semibold
+                    text-slate-500
+                    dark:text-slate-400
+                  "
+                      >
+                        {t(
+                          "drawer.email"
+                        )}
+                      </dt>
+
+                      <dd
+                        className="
+                    mt-1
+                    break-all
+                    font-semibold
+                    text-slate-900
+                    dark:text-white
+                  "
+                      >
+                        {emailPodeSerUsado(
+                          alunoSelecionado
+                            .contato
+                            .email
+                        )
+                          ? alunoSelecionado
+                            .contato
+                            .email
+                          : t(
+                            "drawer.unavailable"
+                          )}
+                      </dd>
+                    </div>
+                  </dl>
+
+                  {alunoSelecionado
+                    .contato
+                    .responsavel
+                    .nome ||
+                    alunoSelecionado
+                      .contato
+                      .responsavel
+                      .telefone ||
+                    alunoSelecionado
+                      .contato
+                      .responsavel
+                      .email ? (
+                    <div
+                      className="
+                  mt-5
+                  border-t
+                  border-slate-200
+                  pt-4
+                  dark:border-slate-700
+                "
+                    >
+                      <h4
+                        className="
+                    font-bold
+                    text-slate-950
+                    dark:text-white
+                  "
+                      >
+                        {t(
+                          "drawer.responsibleContact"
+                        )}
+                      </h4>
+
+                      <div
+                        className="
+                    mt-3
+                    space-y-2
+                    text-sm
+                    text-slate-800
+                    dark:text-slate-200
+                  "
+                      >
+                        <p>
+                          <strong>
+                            {t(
+                              "drawer.responsible"
+                            )}:
+                          </strong>{" "}
+                          {alunoSelecionado
+                            .contato
+                            .responsavel
+                            .nome ??
+                            t(
+                              "drawer.unavailable"
+                            )}
+                        </p>
+
+                        <p>
+                          <strong>
+                            {t(
+                              "drawer.relationship"
+                            )}:
+                          </strong>{" "}
+                          {alunoSelecionado
+                            .contato
+                            .responsavel
+                            .parentesco ??
+                            t(
+                              "drawer.unavailable"
+                            )}
+                        </p>
+
+                        <p>
+                          <strong>
+                            {t(
+                              "drawer.phone"
+                            )}:
+                          </strong>{" "}
+                          {alunoSelecionado
+                            .contato
+                            .responsavel
+                            .telefone ??
+                            t(
+                              "drawer.unavailable"
+                            )}
+                        </p>
+
+                        <p>
+                          <strong>
+                            {t(
+                              "drawer.email"
+                            )}:
+                          </strong>{" "}
+                          {alunoSelecionado
+                            .contato
+                            .responsavel
+                            .email ??
+                            t(
+                              "drawer.unavailable"
+                            )}
+                        </p>
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              </section>
+
+              {/* AÇÕES */}
+              <section>
+                <h3
+                  className="
+              phanyx-student-success-drawer-title
+              text-sm
+              font-bold
+              uppercase
+              tracking-wide
+              text-slate-950
+              dark:text-white
+            "
+                >
+                  {t(
+                    "drawer.actions"
+                  )}
+                </h3>
+
+                <div
+                  className="
+              mt-3
+              grid
+              gap-2
+              sm:grid-cols-3
+            "
+                >
+                  <button
+                    type="button"
+                    disabled
+                    title={t(
+                      "drawer.actionComingSoon"
+                    )}
+                    className="
+                rounded-xl
+                border
+                border-emerald-300
+                bg-emerald-50
+                px-3
+                py-3
+                text-sm
+                font-bold
+                text-emerald-800
+                opacity-60
+                dark:border-emerald-900
+                dark:bg-emerald-950/30
+                dark:text-emerald-200
+              "
+                  >
+                    💬{" "}
+                    {t(
+                      "drawer.whatsapp"
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={
+                      !telefoneParaLink(
+                        alunoSelecionado
+                          .contato
+                          .telefone
+                      )
+                    }
+                    onClick={() => {
+                      const telefone =
+                        telefoneParaLink(
+                          alunoSelecionado
+                            .contato
+                            .telefone
+                        );
+
+                      if (!telefone) {
+                        return;
+                      }
+
+                      window.location.href =
+                        `tel:${telefone}`;
+                    }}
+                    className="
+                rounded-xl
+                border
+                border-blue-300
+                bg-blue-50
+                px-3
+                py-3
+                text-sm
+                font-bold
+                text-blue-800
+                transition
+                hover:bg-blue-100
+                disabled:cursor-not-allowed
+                disabled:opacity-40
+                dark:border-blue-900
+                dark:bg-blue-950/30
+                dark:text-blue-200
+              "
+                  >
+                    📞{" "}
+                    {t(
+                      "drawer.call"
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={
+                      !emailPodeSerUsado(
+                        alunoSelecionado
+                          .contato
+                          .email
+                      )
+                    }
+                    onClick={() => {
+                      const email =
+                        alunoSelecionado
+                          .contato
+                          .email;
+
+                      if (
+                        !emailPodeSerUsado(
+                          email
+                        ) ||
+                        !email
+                      ) {
+                        return;
+                      }
+
+                      window.location.href =
+                        `mailto:${email}`;
+                    }}
+                    className="
+                rounded-xl
+                border
+                border-violet-300
+                bg-violet-50
+                px-3
+                py-3
+                text-sm
+                font-bold
+                text-violet-800
+                transition
+                hover:bg-violet-100
+                disabled:cursor-not-allowed
+                disabled:opacity-40
+                dark:border-violet-900
+                dark:bg-violet-950/30
+                dark:text-violet-200
+              "
+                  >
+                    ✉️{" "}
+                    {t(
+                      "drawer.sendEmail"
+                    )}
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  disabled
+                  title={t(
+                    "drawer.actionComingSoon"
+                  )}
+                  className="
+              mt-3
+              w-full
+              rounded-xl
+              bg-blue-700
+              px-4
+              py-3
+              text-sm
+              font-bold
+              text-white
+              opacity-60
+            "
+                >
+                  +{" "}
+                  {t(
+                    "drawer.registerIntervention"
+                  )}
+                </button>
+              </section>
+            </div>
+          </aside>
+        </div>
+      ) : null}
     </main >
   );
 }
