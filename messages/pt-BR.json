@@ -4067,5 +4067,81 @@
                                             "institution":  "instituição",
                                             "notInformed":  "não informado"
                                         }
-                       }
+                       },
+    "AdminSubscription":  {
+                              "hero":  {
+                                           "eyebrow":  "Assinatura PHANYX",
+                                           "title":  "Plano e cobrança da instituição",
+                                           "description":  "Acompanhe o plano contratado, o período gratuito, a primeira cobrança e a forma de cobrança da instituição. Durante o teste gratuito, a instituição pode cancelar antes da primeira cobrança."
+                                       },
+                              "feedback":  {
+                                               "loading":  "Carregando assinatura...",
+                                               "institutionUnavailable":  "Não foi possível carregar os dados da instituição."
+                                           },
+                              "institution":  {
+                                                  "label":  "Instituição",
+                                                  "currentPlan":  "Plano atual:",
+                                                  "exemptNotice":  "Esta instituição está marcada como isenta de pagamento. Não há assinatura comercial para cancelar.",
+                                                  "notFound":  "Nenhuma assinatura PHANYX foi encontrada para esta instituição."
+                                              },
+                              "details":  {
+                                              "trialStart":  "Início do teste",
+                                              "trialEnd":  "Fim do teste grátis",
+                                              "firstCharge":  "Primeira cobrança",
+                                              "billingMethod":  "Forma de cobrança"
+                                          },
+                              "cancellation":  {
+                                                   "howTitle":  "Como funciona o cancelamento?",
+                                                   "howDescription":  "Se a instituição cancelar antes da primeira cobrança, a recorrência será cancelada no Asaas e nenhuma cobrança futura será gerada por essa assinatura.",
+                                                   "cancelledTitle":  "Assinatura cancelada",
+                                                   "cancelledAt":  "Cancelada em: {date}",
+                                                   "reason":  "Motivo: {reason}",
+                                                   "openButton":  "Cancelar teste gratuito",
+                                                   "modal":  {
+                                                                 "eyebrow":  "Cancelar teste gratuito",
+                                                                 "title":  "Deseja cancelar a assinatura?",
+                                                                 "description":  "Ao confirmar, o PHANYX tentará cancelar a recorrência no Asaas. Se o cancelamento for concluído, nenhuma cobrança futura será gerada por essa assinatura.",
+                                                                 "reasonLabel":  "Motivo do cancelamento",
+                                                                 "reasonPlaceholder":  "Opcional. Exemplo: a instituição desistiu durante o período gratuito.",
+                                                                 "backButton":  "Voltar",
+                                                                 "cancelling":  "Cancelando...",
+                                                                 "confirmButton":  "Sim, cancelar assinatura"
+                                                             }
+                                               },
+                              "values":  {
+                                             "title":  "Valores",
+                                             "currentMonthly":  "Valor mensal atual",
+                                             "perStudent":  "Valor por aluno",
+                                             "extraCampus":  "Polo extra"
+                                         },
+                              "usage":  {
+                                            "title":  "Referência de uso",
+                                            "activeStudents":  "Alunos ativos",
+                                            "campuses":  "Polos"
+                                        },
+                              "billingTypes":  {
+                                                   "creditCard":  "Cartão de crédito",
+                                                   "boleto":  "Boleto mensal",
+                                                   "pix":  "Pix mensal"
+                                               },
+                              "statuses":  {
+                                               "freeTrial":  "Teste grátis",
+                                               "active":  "Ativa",
+                                               "overdue":  "Em atraso",
+                                               "cancelled":  "Cancelada"
+                                           },
+                              "plans":  {
+                                            "essential":  "Essencial",
+                                            "professional":  "Profissional",
+                                            "enterprise":  "Enterprise"
+                                        },
+                              "errors":  {
+                                             "invalidResponse":  "A API de assinatura não retornou uma resposta válida.",
+                                             "load":  "Erro ao carregar assinatura.",
+                                             "cancel":  "Erro ao cancelar assinatura."
+                                         },
+                              "success":  {
+                                              "cancelled":  "Assinatura cancelada com sucesso. Nenhuma cobrança futura será gerada."
+                                          }
+                          }
 }

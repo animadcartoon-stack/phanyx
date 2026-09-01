@@ -4067,5 +4067,81 @@
                                             "institution":  "institution",
                                             "notInformed":  "non renseigné"
                                         }
-                       }
+                       },
+    "AdminSubscription":  {
+                              "hero":  {
+                                           "eyebrow":  "Abonnement PHANYX",
+                                           "title":  "Offre et facturation de l\u0027établissement",
+                                           "description":  "Consultez l\u0027offre souscrite, la période d\u0027essai gratuite, le premier prélèvement et le mode de facturation de l\u0027établissement. Pendant l\u0027essai gratuit, l\u0027établissement peut résilier avant le premier prélèvement."
+                                       },
+                              "feedback":  {
+                                               "loading":  "Chargement de l\u0027abonnement...",
+                                               "institutionUnavailable":  "Impossible de charger les informations de l\u0027établissement."
+                                           },
+                              "institution":  {
+                                                  "label":  "Établissement",
+                                                  "currentPlan":  "Offre actuelle :",
+                                                  "exemptNotice":  "Cet établissement est exonéré de paiement. Il n\u0027existe aucun abonnement commercial à résilier.",
+                                                  "notFound":  "Aucun abonnement PHANYX n\u0027a été trouvé pour cet établissement."
+                                              },
+                              "details":  {
+                                              "trialStart":  "Début de l\u0027essai",
+                                              "trialEnd":  "Fin de l\u0027essai gratuit",
+                                              "firstCharge":  "Premier prélèvement",
+                                              "billingMethod":  "Mode de facturation"
+                                          },
+                              "cancellation":  {
+                                                   "howTitle":  "Comment fonctionne la résiliation ?",
+                                                   "howDescription":  "Si l\u0027établissement résilie avant le premier prélèvement, l\u0027abonnement récurrent sera annulé dans Asaas et aucun prélèvement futur ne sera généré pour cet abonnement.",
+                                                   "cancelledTitle":  "Abonnement résilié",
+                                                   "cancelledAt":  "Résilié le : {date}",
+                                                   "reason":  "Motif : {reason}",
+                                                   "openButton":  "Résilier l\u0027essai gratuit",
+                                                   "modal":  {
+                                                                 "eyebrow":  "Résilier l\u0027essai gratuit",
+                                                                 "title":  "Souhaitez-vous résilier l\u0027abonnement ?",
+                                                                 "description":  "Après confirmation, PHANYX tentera d\u0027annuler l\u0027abonnement récurrent dans Asaas. Si la résiliation aboutit, aucun prélèvement futur ne sera généré pour cet abonnement.",
+                                                                 "reasonLabel":  "Motif de la résiliation",
+                                                                 "reasonPlaceholder":  "Facultatif. Exemple : l\u0027établissement a décidé de ne pas poursuivre pendant l\u0027essai gratuit.",
+                                                                 "backButton":  "Retour",
+                                                                 "cancelling":  "Résiliation...",
+                                                                 "confirmButton":  "Oui, résilier l\u0027abonnement"
+                                                             }
+                                               },
+                              "values":  {
+                                             "title":  "Tarifs",
+                                             "currentMonthly":  "Montant mensuel actuel",
+                                             "perStudent":  "Montant par élève",
+                                             "extraCampus":  "Campus supplémentaire"
+                                         },
+                              "usage":  {
+                                            "title":  "Référence d\u0027utilisation",
+                                            "activeStudents":  "Élèves actifs",
+                                            "campuses":  "Campus"
+                                        },
+                              "billingTypes":  {
+                                                   "creditCard":  "Carte de crédit",
+                                                   "boleto":  "Boleto mensuel",
+                                                   "pix":  "Pix mensuel"
+                                               },
+                              "statuses":  {
+                                               "freeTrial":  "Essai gratuit",
+                                               "active":  "Actif",
+                                               "overdue":  "En retard",
+                                               "cancelled":  "Résilié"
+                                           },
+                              "plans":  {
+                                            "essential":  "Essentiel",
+                                            "professional":  "Professionnel",
+                                            "enterprise":  "Enterprise"
+                                        },
+                              "errors":  {
+                                             "invalidResponse":  "L\u0027API d\u0027abonnement n\u0027a pas renvoyé de réponse valide.",
+                                             "load":  "Impossible de charger l\u0027abonnement.",
+                                             "cancel":  "Impossible de résilier l\u0027abonnement."
+                                         },
+                              "success":  {
+                                              "cancelled":  "Abonnement résilié. Aucun prélèvement futur ne sera généré."
+                                          }
+                          }
 }

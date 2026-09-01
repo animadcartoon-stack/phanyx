@@ -4067,5 +4067,81 @@
                                             "institution":  "instituição",
                                             "notInformed":  "não indicado"
                                         }
-                       }
+                       },
+    "AdminSubscription":  {
+                              "hero":  {
+                                           "eyebrow":  "Subscrição PHANYX",
+                                           "title":  "Plano e faturação da instituição",
+                                           "description":  "Consulte o plano contratado, o período gratuito, a primeira cobrança e a forma de pagamento da instituição. Durante o período experimental gratuito, a instituição pode cancelar antes da primeira cobrança."
+                                       },
+                              "feedback":  {
+                                               "loading":  "A carregar a subscrição...",
+                                               "institutionUnavailable":  "Não foi possível carregar os dados da instituição."
+                                           },
+                              "institution":  {
+                                                  "label":  "Instituição",
+                                                  "currentPlan":  "Plano atual:",
+                                                  "exemptNotice":  "Esta instituição está assinalada como isenta de pagamento. Não existe uma subscrição comercial para cancelar.",
+                                                  "notFound":  "Não foi encontrada nenhuma subscrição PHANYX para esta instituição."
+                                              },
+                              "details":  {
+                                              "trialStart":  "Início do período experimental",
+                                              "trialEnd":  "Fim do período gratuito",
+                                              "firstCharge":  "Primeira cobrança",
+                                              "billingMethod":  "Forma de pagamento"
+                                          },
+                              "cancellation":  {
+                                                   "howTitle":  "Como funciona o cancelamento?",
+                                                   "howDescription":  "Se a instituição cancelar antes da primeira cobrança, a recorrência será cancelada no Asaas e não serão geradas cobranças futuras para esta subscrição.",
+                                                   "cancelledTitle":  "Subscrição cancelada",
+                                                   "cancelledAt":  "Cancelada em: {date}",
+                                                   "reason":  "Motivo: {reason}",
+                                                   "openButton":  "Cancelar período gratuito",
+                                                   "modal":  {
+                                                                 "eyebrow":  "Cancelar período gratuito",
+                                                                 "title":  "Pretende cancelar a subscrição?",
+                                                                 "description":  "Ao confirmar, o PHANYX tentará cancelar a recorrência no Asaas. Se o cancelamento for concluído, não serão geradas cobranças futuras para esta subscrição.",
+                                                                 "reasonLabel":  "Motivo do cancelamento",
+                                                                 "reasonPlaceholder":  "Opcional. Exemplo: a instituição desistiu durante o período gratuito.",
+                                                                 "backButton":  "Voltar",
+                                                                 "cancelling":  "A cancelar...",
+                                                                 "confirmButton":  "Sim, cancelar subscrição"
+                                                             }
+                                               },
+                              "values":  {
+                                             "title":  "Valores",
+                                             "currentMonthly":  "Valor mensal atual",
+                                             "perStudent":  "Valor por aluno",
+                                             "extraCampus":  "Polo adicional"
+                                         },
+                              "usage":  {
+                                            "title":  "Referência de utilização",
+                                            "activeStudents":  "Alunos ativos",
+                                            "campuses":  "Polos"
+                                        },
+                              "billingTypes":  {
+                                                   "creditCard":  "Cartão de crédito",
+                                                   "boleto":  "Boleto mensal",
+                                                   "pix":  "Pix mensal"
+                                               },
+                              "statuses":  {
+                                               "freeTrial":  "Período gratuito",
+                                               "active":  "Ativa",
+                                               "overdue":  "Em atraso",
+                                               "cancelled":  "Cancelada"
+                                           },
+                              "plans":  {
+                                            "essential":  "Essencial",
+                                            "professional":  "Profissional",
+                                            "enterprise":  "Enterprise"
+                                        },
+                              "errors":  {
+                                             "invalidResponse":  "A API de subscrição não devolveu uma resposta válida.",
+                                             "load":  "Erro ao carregar a subscrição.",
+                                             "cancel":  "Erro ao cancelar a subscrição."
+                                         },
+                              "success":  {
+                                              "cancelled":  "Subscrição cancelada com sucesso. Não serão geradas cobranças futuras."
+                                          }
+                          }
 }

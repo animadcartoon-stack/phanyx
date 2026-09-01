@@ -4068,5 +4068,81 @@
                                             "institution":  "institution",
                                             "notInformed":  "not provided"
                                         }
-                       }
+                       },
+    "AdminSubscription":  {
+                              "hero":  {
+                                           "eyebrow":  "PHANYX subscription",
+                                           "title":  "Institution plan and billing",
+                                           "description":  "Review the institution\u0027s current plan, free trial period, first charge, and billing method. During the free trial, the institution may cancel before the first charge."
+                                       },
+                              "feedback":  {
+                                               "loading":  "Loading subscription...",
+                                               "institutionUnavailable":  "The institution\u0027s information could not be loaded."
+                                           },
+                              "institution":  {
+                                                  "label":  "Institution",
+                                                  "currentPlan":  "Current plan:",
+                                                  "exemptNotice":  "This institution is marked as exempt from payment. There is no commercial subscription to cancel.",
+                                                  "notFound":  "No PHANYX subscription was found for this institution."
+                                              },
+                              "details":  {
+                                              "trialStart":  "Trial start",
+                                              "trialEnd":  "Free trial end",
+                                              "firstCharge":  "First charge",
+                                              "billingMethod":  "Billing method"
+                                          },
+                              "cancellation":  {
+                                                   "howTitle":  "How does cancellation work?",
+                                                   "howDescription":  "If the institution cancels before the first charge, the recurring subscription will be cancelled in Asaas and no future charges will be generated for this subscription.",
+                                                   "cancelledTitle":  "Subscription cancelled",
+                                                   "cancelledAt":  "Cancelled on: {date}",
+                                                   "reason":  "Reason: {reason}",
+                                                   "openButton":  "Cancel free trial",
+                                                   "modal":  {
+                                                                 "eyebrow":  "Cancel free trial",
+                                                                 "title":  "Do you want to cancel the subscription?",
+                                                                 "description":  "After confirmation, PHANYX will attempt to cancel the recurring subscription in Asaas. If cancellation is completed, no future charges will be generated for this subscription.",
+                                                                 "reasonLabel":  "Cancellation reason",
+                                                                 "reasonPlaceholder":  "Optional. Example: the institution decided not to continue during the free trial.",
+                                                                 "backButton":  "Go back",
+                                                                 "cancelling":  "Cancelling...",
+                                                                 "confirmButton":  "Yes, cancel subscription"
+                                                             }
+                                               },
+                              "values":  {
+                                             "title":  "Pricing",
+                                             "currentMonthly":  "Current monthly amount",
+                                             "perStudent":  "Amount per student",
+                                             "extraCampus":  "Additional campus"
+                                         },
+                              "usage":  {
+                                            "title":  "Usage reference",
+                                            "activeStudents":  "Active students",
+                                            "campuses":  "Campuses"
+                                        },
+                              "billingTypes":  {
+                                                   "creditCard":  "Credit card",
+                                                   "boleto":  "Monthly boleto",
+                                                   "pix":  "Monthly Pix"
+                                               },
+                              "statuses":  {
+                                               "freeTrial":  "Free trial",
+                                               "active":  "Active",
+                                               "overdue":  "Overdue",
+                                               "cancelled":  "Cancelled"
+                                           },
+                              "plans":  {
+                                            "essential":  "Essential",
+                                            "professional":  "Professional",
+                                            "enterprise":  "Enterprise"
+                                        },
+                              "errors":  {
+                                             "invalidResponse":  "The subscription API did not return a valid response.",
+                                             "load":  "The subscription could not be loaded.",
+                                             "cancel":  "The subscription could not be cancelled."
+                                         },
+                              "success":  {
+                                              "cancelled":  "Subscription cancelled successfully. No future charges will be generated."
+                                          }
+                          }
 }
