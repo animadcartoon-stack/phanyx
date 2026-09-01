@@ -3748,7 +3748,32 @@
                                                "inProgress":  "In progress",
                                                "attendance":  "Attendance",
                                                "workload":  "Workload"
-                                           }
+                                           },
+                          "certificatePanel":  {
+                                                   "title":  "Student certificates",
+                                                   "description":  "Generate or download certificates linked to this student. Manual issuance should only be used by the administrative office or school management when authorized by the institution.",
+                                                   "ruleTitle":  "PHANYX rule",
+                                                   "ruleDescription":  "Automatic release to the student must follow the institution\u0027s settings: after completing a subject, completing a semester, or only after completing the course. This area is intended for manual administrative issuance.",
+                                                   "student":  "Student",
+                                                   "noEmail":  "No email",
+                                                   "enrollmentAndCourse":  "Enrollment / course",
+                                                   "noEnrollment":  "No enrollment",
+                                                   "enrollmentNotProvided":  "Enrollment not provided",
+                                                   "generating":  "Generating...",
+                                                   "generate":  "Generate certificate",
+                                                   "downloading":  "Downloading...",
+                                                   "download":  "Download certificate",
+                                                   "generateUnavailable":  "The certificate could not be generated.",
+                                                   "generateErrorTitle":  "Error generating certificate",
+                                                   "generatedSuccess":  "Certificate generated successfully.",
+                                                   "generatedTitle":  "Certificate generated",
+                                                   "generatedDescription":  "The certificate has been generated and should now be available in the student\u0027s area.",
+                                                   "generateException":  "Error generating certificate. Check whether the student has an enrollment and a linked subject.",
+                                                   "downloadUnavailable":  "The certificate could not be downloaded.",
+                                                   "downloadErrorTitle":  "Error downloading certificate",
+                                                   "downloadedSuccess":  "Certificate downloaded successfully.",
+                                                   "downloadException":  "Error downloading certificate."
+                                               }
                       },
     "AdminStudentSuccess":  {
                                 "title":  "Student Success",

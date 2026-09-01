@@ -3747,7 +3747,32 @@
                                                "inProgress":  "En curso",
                                                "attendance":  "Asistencia",
                                                "workload":  "Carga horaria"
-                                           }
+                                           },
+                          "certificatePanel":  {
+                                                   "title":  "Certificados del estudiante",
+                                                   "description":  "Genere o descargue certificados vinculados a este estudiante. La emisión manual debe ser utilizada por la secretaría o dirección únicamente cuando exista autorización de la institución.",
+                                                   "ruleTitle":  "Regla PHANYX",
+                                                   "ruleDescription":  "La liberación automática al estudiante debe respetar la configuración de la institución: por asignatura finalizada, por semestre finalizado o únicamente después de finalizar el curso. Esta área está destinada a la emisión manual administrativa.",
+                                                   "student":  "Estudiante",
+                                                   "noEmail":  "Sin correo electrónico",
+                                                   "enrollmentAndCourse":  "Matrícula / curso",
+                                                   "noEnrollment":  "Sin matrícula",
+                                                   "enrollmentNotProvided":  "Matrícula no informada",
+                                                   "generating":  "Generando...",
+                                                   "generate":  "Generar certificado",
+                                                   "downloading":  "Descargando...",
+                                                   "download":  "Descargar certificado",
+                                                   "generateUnavailable":  "No se pudo generar el certificado.",
+                                                   "generateErrorTitle":  "Error al generar el certificado",
+                                                   "generatedSuccess":  "Certificado generado correctamente.",
+                                                   "generatedTitle":  "Certificado generado",
+                                                   "generatedDescription":  "El certificado fue generado y ya debería estar disponible en el área del estudiante.",
+                                                   "generateException":  "Error al generar el certificado. Verifique si el estudiante tiene una matrícula y una asignatura vinculadas.",
+                                                   "downloadUnavailable":  "No se pudo descargar el certificado.",
+                                                   "downloadErrorTitle":  "Error al descargar el certificado",
+                                                   "downloadedSuccess":  "Certificado descargado correctamente.",
+                                                   "downloadException":  "Error al descargar el certificado."
+                                               }
                       },
     "AdminStudentSuccess":  {
                                 "title":  "Student Success",

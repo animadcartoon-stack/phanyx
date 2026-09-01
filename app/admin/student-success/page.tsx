@@ -1,18 +1,158 @@
 "use client";
 
 import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
+import {
   useTranslations,
 } from "next-intl";
 
-type CardResumoProps = {
-  valor: string;
+type NivelRisco =
+  | "NORMAL"
+  | "ATENCAO"
+  | "RISCO"
+  | "CRITICO"
+  | "DADOS_INSUFICIENTES";
+
+type Confiabilidade =
+  | "BAIXA"
+  | "MEDIA"
+  | "ALTA";
+
+type ComponenteAnalise = {
+  codigo:
+    | "FREQUENCIA"
+    | "DESEMPENHO"
+    | "PENDENCIAS"
+    | "QUEDA_DESEMPENHO"
+    | "PARTICIPACAO";
+
   titulo: string;
+  pontos: number;
+  maximo: number;
+  disponivel: boolean;
+  detalhe: string;
+};
+
+type AlunoStudentSuccess = {
+  alunoId: number;
+
+  nome: string;
+
+  matricula:
+    | string
+    | null;
+
+  indicadores: {
+    frequenciaPercentual:
+      | number
+      | null;
+
+    quantidadeAulas:
+      number;
+
+    mediaPercentual:
+      | number
+      | null;
+
+    quantidadeAvaliacoes:
+      number;
+
+    atividadesVencidas:
+      number;
+
+    totalAtividadesConsideradas:
+      number;
+
+    mediaAnteriorPercentual:
+      | number
+      | null;
+
+    mediaRecentePercentual:
+      | number
+      | null;
+
+    quedaDesempenhoPercentual:
+      | number
+      | null;
+  };
+
+  analise: {
+    pontuacao: number;
+
+    pontuacaoBruta:
+      number;
+
+    maximoDisponivel:
+      number;
+
+    nivel:
+      NivelRisco;
+
+    coberturaPercentual:
+      number;
+
+    confiabilidade:
+      Confiabilidade;
+
+    componentes:
+      ComponenteAnalise[];
+
+    fatoresPrincipais:
+      ComponenteAnalise[];
+  };
+};
+
+type StudentSuccessResponse = {
+  ok: boolean;
+
+  geradoEm:
+    string;
+
+  resumo: {
+    monitorados:
+      number;
+
+    critico:
+      number;
+
+    risco:
+      number;
+
+    atencao:
+      number;
+
+    normal:
+      number;
+
+    dadosInsuficientes:
+      number;
+
+    alunosComSinais:
+      number;
+  };
+
+  alunos:
+    AlunoStudentSuccess[];
+};
+
+type CardResumoProps = {
+  valor:
+    string;
+
+  titulo:
+    string;
+
   variante:
-  | "critical"
-  | "risk"
-  | "attention"
-  | "normal"
-  | "insufficient";
+    | "critical"
+    | "risk"
+    | "attention"
+    | "normal"
+    | "insufficient";
 };
 
 function CardResumo({
@@ -69,11 +209,195 @@ function CardResumo({
   );
 }
 
+function formatarPercentual(
+  valor:
+    | number
+    | null
+) {
+  if (
+    valor === null ||
+    !Number.isFinite(
+      valor
+    )
+  ) {
+    return "—";
+  }
+
+  return `${Math.round(
+    valor
+  )}%`;
+}
+
+function classeNivel(
+  nivel:
+    NivelRisco
+) {
+  switch (nivel) {
+    case "CRITICO":
+      return "border-red-300 bg-red-100 text-red-900 dark:border-red-900 dark:bg-red-950/60 dark:text-red-200";
+
+    case "RISCO":
+      return "border-orange-300 bg-orange-100 text-orange-900 dark:border-orange-900 dark:bg-orange-950/60 dark:text-orange-200";
+
+    case "ATENCAO":
+      return "border-amber-300 bg-amber-100 text-amber-900 dark:border-amber-900 dark:bg-amber-950/60 dark:text-amber-200";
+
+    case "NORMAL":
+      return "border-emerald-300 bg-emerald-100 text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-200";
+
+    case "DADOS_INSUFICIENTES":
+    default:
+      return "border-slate-300 bg-slate-100 text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200";
+  }
+}
+
 export default function AdminStudentSuccessPage() {
   const t =
     useTranslations(
       "AdminStudentSuccess"
     );
+
+  const [
+    dados,
+    setDados,
+  ] =
+    useState<StudentSuccessResponse | null>(
+      null
+    );
+
+  const [
+    carregando,
+    setCarregando,
+  ] =
+    useState(
+      true
+    );
+
+  const [
+    erro,
+    setErro,
+  ] =
+    useState(
+      false
+    );
+
+  const carregarDados =
+    useCallback(
+      async () => {
+        setCarregando(
+          true
+        );
+
+        setErro(
+          false
+        );
+
+        try {
+          const resposta =
+            await fetch(
+              "/api/admin/student-success",
+              {
+                method:
+                  "GET",
+
+                credentials:
+                  "include",
+
+                cache:
+                  "no-store",
+              }
+            );
+
+          if (
+            !resposta.ok
+          ) {
+            throw new Error(
+              `HTTP ${resposta.status}`
+            );
+          }
+
+          const json =
+            (
+              await resposta.json()
+            ) as StudentSuccessResponse;
+
+          if (
+            !json.ok
+          ) {
+            throw new Error(
+              "STUDENT_SUCCESS_LOAD_ERROR"
+            );
+          }
+
+          setDados(
+            json
+          );
+        }
+        catch (
+          error
+        ) {
+          console.error(
+            "[STUDENT_SUCCESS_PAGE]",
+            error
+          );
+
+          setErro(
+            true
+          );
+        }
+        finally {
+          setCarregando(
+            false
+          );
+        }
+      },
+      []
+    );
+
+  useEffect(
+    () => {
+      void carregarDados();
+    },
+    [
+      carregarDados,
+    ]
+  );
+
+  /*
+   * Mostramos aqui:
+   *
+   * - risco crítico
+   * - risco
+   * - atenção
+   * - dados insuficientes
+   *
+   * DADOS_INSUFICIENTES NÃO significa
+   * risco acadêmico.
+   *
+   * Ele aparece porque a instituição
+   * precisa saber quais alunos ainda
+   * não possuem dados suficientes para
+   * uma análise confiável.
+   */
+  const alunosParaAcompanhamento =
+    useMemo(
+      () =>
+        (
+          dados?.alunos ??
+          []
+        ).filter(
+          (aluno) =>
+            aluno.analise
+              .nivel !==
+            "NORMAL"
+        ),
+      [
+        dados,
+      ]
+    );
+
+  const resumo =
+    dados?.resumo;
 
   return (
     <main
@@ -100,14 +424,14 @@ export default function AdminStudentSuccessPage() {
         {/* CABEÇALHO */}
         <section
           className="
-    phanyx-student-success-hero
-    overflow-hidden
-    rounded-3xl
-    border
-    p-6
-    shadow-sm
-    sm:p-8
-  "
+            phanyx-student-success-hero
+            overflow-hidden
+            rounded-3xl
+            border
+            p-6
+            shadow-sm
+            sm:p-8
+          "
         >
           <div
             className="
@@ -157,7 +481,9 @@ export default function AdminStudentSuccessPage() {
                   sm:text-3xl
                 "
               >
-                {t("title")}
+                {t(
+                  "title"
+                )}
               </h1>
 
               <p
@@ -244,6 +570,12 @@ export default function AdminStudentSuccessPage() {
           <div
             className="
               mb-4
+              flex
+              flex-col
+              gap-3
+              sm:flex-row
+              sm:items-center
+              sm:justify-between
             "
           >
             <h2
@@ -259,6 +591,44 @@ export default function AdminStudentSuccessPage() {
                 "overview.title"
               )}
             </h2>
+
+            <button
+              type="button"
+              onClick={
+                () =>
+                  void carregarDados()
+              }
+              disabled={
+                carregando
+              }
+              className="
+                inline-flex
+                items-center
+                justify-center
+                rounded-xl
+                border
+                border-slate-300
+                bg-white
+                px-4
+                py-2
+                text-sm
+                font-semibold
+                text-slate-700
+                shadow-sm
+                transition
+                hover:bg-slate-50
+                disabled:cursor-not-allowed
+                disabled:opacity-50
+                dark:border-slate-700
+                dark:bg-slate-900
+                dark:text-slate-200
+                dark:hover:bg-slate-800
+              "
+            >
+              {t(
+                "actions.refresh"
+              )}
+            </button>
           </div>
 
           <div
@@ -270,7 +640,15 @@ export default function AdminStudentSuccessPage() {
             "
           >
             <CardResumo
-              valor="—"
+              valor={
+                carregando
+                  ? "—"
+                  : String(
+                      resumo
+                        ?.critico ??
+                        0
+                    )
+              }
               titulo={t(
                 "cards.critical"
               )}
@@ -278,7 +656,15 @@ export default function AdminStudentSuccessPage() {
             />
 
             <CardResumo
-              valor="—"
+              valor={
+                carregando
+                  ? "—"
+                  : String(
+                      resumo
+                        ?.risco ??
+                        0
+                    )
+              }
               titulo={t(
                 "cards.risk"
               )}
@@ -286,7 +672,15 @@ export default function AdminStudentSuccessPage() {
             />
 
             <CardResumo
-              valor="—"
+              valor={
+                carregando
+                  ? "—"
+                  : String(
+                      resumo
+                        ?.atencao ??
+                        0
+                    )
+              }
               titulo={t(
                 "cards.attention"
               )}
@@ -294,7 +688,15 @@ export default function AdminStudentSuccessPage() {
             />
 
             <CardResumo
-              valor="—"
+              valor={
+                carregando
+                  ? "—"
+                  : String(
+                      resumo
+                        ?.normal ??
+                        0
+                    )
+              }
               titulo={t(
                 "cards.normal"
               )}
@@ -302,7 +704,15 @@ export default function AdminStudentSuccessPage() {
             />
 
             <CardResumo
-              valor="—"
+              valor={
+                carregando
+                  ? "—"
+                  : String(
+                      resumo
+                        ?.dadosInsuficientes ??
+                        0
+                    )
+              }
               titulo={t(
                 "cards.insufficient"
               )}
@@ -311,7 +721,7 @@ export default function AdminStudentSuccessPage() {
           </div>
         </section>
 
-        {/* ALUNOS QUE PRECISAM DE ATENÇÃO */}
+        {/* ALUNOS PARA ACOMPANHAMENTO */}
         <section
           className="
             phanyx-student-success-panel
@@ -365,87 +775,428 @@ export default function AdminStudentSuccessPage() {
             </p>
           </div>
 
-          <div
-            className="
-              flex
-              min-h-[280px]
-              items-center
-              justify-center
-              p-6
-            "
-          >
+          {carregando ? (
             <div
               className="
-                max-w-md
-                text-center
+                flex
+                min-h-[280px]
+                items-center
+                justify-center
+                p-6
               "
             >
               <div
                 className="
-                  mx-auto
-                  flex
-                  h-14
-                  w-14
-                  items-center
-                  justify-center
-                  rounded-2xl
-                  border
-                  border-slate-200
-                  bg-slate-100
-                  text-slate-700
-                  dark:border-slate-700
-                  dark:bg-slate-800
-                  dark:text-slate-200
+                  max-w-md
+                  text-center
                 "
-                aria-hidden="true"
               >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
+                <div
                   className="
-                    h-7
-                    w-7
+                    mx-auto
+                    h-10
+                    w-10
+                    animate-spin
+                    rounded-full
+                    border-4
+                    border-slate-200
+                    border-t-blue-600
+                    dark:border-slate-700
+                    dark:border-t-blue-400
                   "
-                  stroke="currentColor"
-                  strokeWidth="1.8"
+                  aria-hidden="true"
+                />
+
+                <p
+                  className="
+                    phanyx-student-success-muted
+                    mt-4
+                    text-sm
+                    font-semibold
+                    text-slate-700
+                    dark:text-slate-200
+                  "
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
-                  />
-
-                  <circle
-                    cx="9"
-                    cy="7"
-                    r="4"
-                  />
-
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M19 8v6m-3-3h6"
-                  />
-                </svg>
+                  {t(
+                    "states.loading"
+                  )}
+                </p>
               </div>
+            </div>
+          ) : erro ? (
+            <div
+              className="
+                flex
+                min-h-[240px]
+                items-center
+                justify-center
+                p-6
+              "
+            >
+              <div
+                className="
+                  max-w-md
+                  text-center
+                "
+              >
+                <p
+                  className="
+                    font-semibold
+                    text-red-700
+                    dark:text-red-300
+                  "
+                >
+                  {t(
+                    "states.error"
+                  )}
+                </p>
 
+                <button
+                  type="button"
+                  onClick={
+                    () =>
+                      void carregarDados()
+                  }
+                  className="
+                    mt-4
+                    rounded-xl
+                    bg-blue-700
+                    px-4
+                    py-2
+                    text-sm
+                    font-semibold
+                    text-white
+                    transition
+                    hover:bg-blue-800
+                  "
+                >
+                  {t(
+                    "actions.refresh"
+                  )}
+                </button>
+              </div>
+            </div>
+          ) : alunosParaAcompanhamento.length ===
+            0 ? (
+            <div
+              className="
+                flex
+                min-h-[240px]
+                items-center
+                justify-center
+                p-6
+              "
+            >
               <p
                 className="
                   phanyx-student-success-muted
-                  mt-4
+                  text-center
                   text-sm
                   font-semibold
-                  leading-6
                   text-slate-700
                   dark:text-slate-200
                 "
               >
                 {t(
-                  "states.loading"
+                  "states.noRisk"
                 )}
               </p>
             </div>
-          </div>
+          ) : (
+            <div
+              className="
+                overflow-x-auto
+              "
+            >
+              <table
+                className="
+                  w-full
+                  min-w-[900px]
+                  border-collapse
+                "
+              >
+                <thead
+                  className="
+                    bg-slate-50
+                    dark:bg-slate-950/60
+                  "
+                >
+                  <tr>
+                    <th
+                      className="
+                        px-5
+                        py-3
+                        text-left
+                        text-xs
+                        font-bold
+                        uppercase
+                        tracking-wide
+                        text-slate-600
+                        dark:text-slate-300
+                      "
+                    >
+                      {t(
+                        "table.student"
+                      )}
+                    </th>
+
+                    <th
+                      className="
+                        px-4
+                        py-3
+                        text-left
+                        text-xs
+                        font-bold
+                        uppercase
+                        tracking-wide
+                        text-slate-600
+                        dark:text-slate-300
+                      "
+                    >
+                      {t(
+                        "table.risk"
+                      )}
+                    </th>
+
+                    <th
+                      className="
+                        px-4
+                        py-3
+                        text-center
+                        text-xs
+                        font-bold
+                        uppercase
+                        tracking-wide
+                        text-slate-600
+                        dark:text-slate-300
+                      "
+                    >
+                      {t(
+                        "table.score"
+                      )}
+                    </th>
+
+                    <th
+                      className="
+                        px-4
+                        py-3
+                        text-center
+                        text-xs
+                        font-bold
+                        uppercase
+                        tracking-wide
+                        text-slate-600
+                        dark:text-slate-300
+                      "
+                    >
+                      {t(
+                        "table.frequency"
+                      )}
+                    </th>
+
+                    <th
+                      className="
+                        px-4
+                        py-3
+                        text-center
+                        text-xs
+                        font-bold
+                        uppercase
+                        tracking-wide
+                        text-slate-600
+                        dark:text-slate-300
+                      "
+                    >
+                      {t(
+                        "table.performance"
+                      )}
+                    </th>
+
+                    <th
+                      className="
+                        px-4
+                        py-3
+                        text-center
+                        text-xs
+                        font-bold
+                        uppercase
+                        tracking-wide
+                        text-slate-600
+                        dark:text-slate-300
+                      "
+                    >
+                      {t(
+                        "table.pendingActivities"
+                      )}
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody
+                  className="
+                    divide-y
+                    divide-slate-200
+                    dark:divide-slate-800
+                  "
+                >
+                  {alunosParaAcompanhamento.map(
+                    (
+                      aluno
+                    ) => {
+                      const dadosInsuficientes =
+                        aluno
+                          .analise
+                          .nivel ===
+                        "DADOS_INSUFICIENTES";
+
+                      return (
+                        <tr
+                          key={
+                            aluno.alunoId
+                          }
+                          className="
+                            transition
+                            hover:bg-slate-50
+                            dark:hover:bg-slate-800/40
+                          "
+                        >
+                          <td
+                            className="
+                              px-5
+                              py-4
+                            "
+                          >
+                            <div
+                              className="
+                                font-semibold
+                                text-slate-950
+                                dark:text-white
+                              "
+                            >
+                              {
+                                aluno.nome
+                              }
+                            </div>
+
+                            {aluno.matricula ? (
+                              <div
+                                className="
+                                  mt-1
+                                  text-xs
+                                  text-slate-500
+                                  dark:text-slate-400
+                                "
+                              >
+                                {
+                                  aluno.matricula
+                                }
+                              </div>
+                            ) : null}
+                          </td>
+
+                          <td
+                            className="
+                              px-4
+                              py-4
+                            "
+                          >
+                            <span
+                              className={[
+                                "inline-flex rounded-full border px-3 py-1 text-xs font-bold",
+                                classeNivel(
+                                  aluno
+                                    .analise
+                                    .nivel
+                                ),
+                              ].join(
+                                " "
+                              )}
+                            >
+                              {t(
+                                `levels.${aluno.analise.nivel}`
+                              )}
+                            </span>
+                          </td>
+
+                          <td
+                            className="
+                              px-4
+                              py-4
+                              text-center
+                              text-sm
+                              font-bold
+                              text-slate-800
+                              dark:text-slate-100
+                            "
+                          >
+                            {dadosInsuficientes
+                              ? "—"
+                              : aluno
+                                  .analise
+                                  .pontuacao}
+                          </td>
+
+                          <td
+                            className="
+                              px-4
+                              py-4
+                              text-center
+                              text-sm
+                              font-semibold
+                              text-slate-700
+                              dark:text-slate-200
+                            "
+                          >
+                            {formatarPercentual(
+                              aluno
+                                .indicadores
+                                .frequenciaPercentual
+                            )}
+                          </td>
+
+                          <td
+                            className="
+                              px-4
+                              py-4
+                              text-center
+                              text-sm
+                              font-semibold
+                              text-slate-700
+                              dark:text-slate-200
+                            "
+                          >
+                            {formatarPercentual(
+                              aluno
+                                .indicadores
+                                .mediaPercentual
+                            )}
+                          </td>
+
+                          <td
+                            className="
+                              px-4
+                              py-4
+                              text-center
+                              text-sm
+                              font-bold
+                              text-slate-800
+                              dark:text-slate-100
+                            "
+                          >
+                            {
+                              aluno
+                                .indicadores
+                                .atividadesVencidas
+                            }
+                          </td>
+                        </tr>
+                      );
+                    }
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
         </section>
 
         {/* APOIO À DECISÃO */}

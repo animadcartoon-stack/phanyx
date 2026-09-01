@@ -4509,31 +4509,27 @@ function AdminAlunosPage() {
               {abaPainelAluno === "CERTIFICADOS" && (
                 <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
                   <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                    Certificados do aluno
+                    {t("certificatePanel.title")}
                   </h3>
 
                   <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">
-                    Gere ou baixe certificados vinculados a este aluno. A emissão manual deve
-                    ser usada pela secretaria/diretoria somente quando houver autorização da
-                    instituição.
+                    {t("certificatePanel.description")}
                   </p>
 
                   <div className="mt-5 rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-100">
                     <p className="font-semibold">
-                      Regra PHANYX
+                      {t("certificatePanel.ruleTitle")}
                     </p>
 
                     <p className="mt-1 leading-6">
-                      A liberação automática para o aluno deverá respeitar a configuração da
-                      instituição: por disciplina concluída, por semestre concluído ou somente
-                      após conclusão do curso. Esta área é para emissão manual administrativa.
+                      {t("certificatePanel.ruleDescription")}
                     </p>
                   </div>
 
                   <div className="mt-5 grid gap-4 md:grid-cols-2">
                     <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
                       <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                        Aluno
+                        {t("certificatePanel.student")}
                       </p>
 
                       <p className="mt-2 font-bold text-slate-900 dark:text-slate-100">
@@ -4541,23 +4537,25 @@ function AdminAlunosPage() {
                       </p>
 
                       <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                        {alunoSelecionado.user?.email || "Sem email"}
+                        {alunoSelecionado.user?.email ||
+                          t("certificatePanel.noEmail")}
                       </p>
                     </div>
 
                     <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
                       <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                        Matrícula / curso
+                        {t("certificatePanel.enrollmentAndCourse")}
                       </p>
 
                       <p className="mt-2 font-bold text-slate-900 dark:text-slate-100">
-                        {alunoSelecionado.resumoMatricula?.cursoNome || "Sem matrícula"}
+                        {alunoSelecionado.resumoMatricula?.cursoNome ||
+                          t("certificatePanel.noEnrollment")}
                       </p>
 
                       <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
                         {alunoSelecionado.resumoMatricula?.numeroMatricula ||
                           alunoSelecionado.matricula ||
-                          "Matrícula não informada"}
+                          t("certificatePanel.enrollmentNotProvided")}
                       </p>
                     </div>
                   </div>
@@ -4569,7 +4567,9 @@ function AdminAlunosPage() {
                       onClick={gerarCertificadoAlunoSelecionado}
                       className="rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      {gerandoCertificado ? "Gerando..." : "Gerar certificado"}
+                      {gerandoCertificado
+                        ? t("certificatePanel.generating")
+                        : t("certificatePanel.generate")}
                     </button>
 
                     <button
@@ -4578,7 +4578,9 @@ function AdminAlunosPage() {
                       onClick={baixarCertificadoAlunoSelecionado}
                       className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      {baixandoCertificado ? "Baixando..." : "Baixar certificado"}
+                      {baixandoCertificado
+                        ? t("certificatePanel.downloading")
+                        : t("certificatePanel.download")}
                     </button>
                   </div>
 

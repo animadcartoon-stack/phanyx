@@ -3747,7 +3747,32 @@
                                                "inProgress":  "Em andamento",
                                                "attendance":  "Frequência",
                                                "workload":  "Carga horária"
-                                           }
+                                           },
+                          "certificatePanel":  {
+                                                   "title":  "Certificados do aluno",
+                                                   "description":  "Gere ou baixe certificados vinculados a este aluno. A emissão manual deve ser usada pela secretaria/diretoria somente quando houver autorização da instituição.",
+                                                   "ruleTitle":  "Regra PHANYX",
+                                                   "ruleDescription":  "A liberação automática para o aluno deverá respeitar a configuração da instituição: por disciplina concluída, por semestre concluído ou somente após a conclusão do curso. Esta área é destinada à emissão manual administrativa.",
+                                                   "student":  "Aluno",
+                                                   "noEmail":  "Sem e-mail",
+                                                   "enrollmentAndCourse":  "Matrícula / curso",
+                                                   "noEnrollment":  "Sem matrícula",
+                                                   "enrollmentNotProvided":  "Matrícula não informada",
+                                                   "generating":  "Gerando...",
+                                                   "generate":  "Gerar certificado",
+                                                   "downloading":  "Baixando...",
+                                                   "download":  "Baixar certificado",
+                                                   "generateUnavailable":  "Não foi possível gerar o certificado.",
+                                                   "generateErrorTitle":  "Erro ao gerar certificado",
+                                                   "generatedSuccess":  "Certificado gerado com sucesso.",
+                                                   "generatedTitle":  "Certificado gerado",
+                                                   "generatedDescription":  "O certificado foi gerado e já deve estar disponível na área do aluno.",
+                                                   "generateException":  "Erro ao gerar certificado. Verifique se o aluno possui matrícula e disciplina vinculadas.",
+                                                   "downloadUnavailable":  "Não foi possível baixar o certificado.",
+                                                   "downloadErrorTitle":  "Erro ao baixar certificado",
+                                                   "downloadedSuccess":  "Certificado baixado com sucesso.",
+                                                   "downloadException":  "Erro ao baixar certificado."
+                                               }
                       },
     "AdminStudentSuccess":  {
                                 "title":  "Student Success",

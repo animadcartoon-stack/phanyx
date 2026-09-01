@@ -3747,7 +3747,32 @@
                                                "inProgress":  "En cours",
                                                "attendance":  "Assiduité",
                                                "workload":  "Volume horaire"
-                                           }
+                                           },
+                          "certificatePanel":  {
+                                                   "title":  "Certificats de l\u0027étudiant",
+                                                   "description":  "Générez ou téléchargez les certificats associés à cet étudiant. L\u0027émission manuelle ne doit être utilisée par le secrétariat ou la direction qu\u0027avec l\u0027autorisation de l\u0027établissement.",
+                                                   "ruleTitle":  "Règle PHANYX",
+                                                   "ruleDescription":  "La mise à disposition automatique à l\u0027étudiant doit respecter la configuration de l\u0027établissement : après validation d\u0027une matière, d\u0027un semestre ou uniquement après la fin de la formation. Cet espace est destiné à l\u0027émission administrative manuelle.",
+                                                   "student":  "Étudiant",
+                                                   "noEmail":  "Aucune adresse e-mail",
+                                                   "enrollmentAndCourse":  "Inscription / formation",
+                                                   "noEnrollment":  "Aucune inscription",
+                                                   "enrollmentNotProvided":  "Inscription non renseignée",
+                                                   "generating":  "Génération...",
+                                                   "generate":  "Générer le certificat",
+                                                   "downloading":  "Téléchargement...",
+                                                   "download":  "Télécharger le certificat",
+                                                   "generateUnavailable":  "Le certificat n\u0027a pas pu être généré.",
+                                                   "generateErrorTitle":  "Erreur lors de la génération du certificat",
+                                                   "generatedSuccess":  "Certificat généré avec succès.",
+                                                   "generatedTitle":  "Certificat généré",
+                                                   "generatedDescription":  "Le certificat a été généré et devrait maintenant être disponible dans l\u0027espace de l\u0027étudiant.",
+                                                   "generateException":  "Erreur lors de la génération du certificat. Vérifiez que l\u0027étudiant possède une inscription et une matière associée.",
+                                                   "downloadUnavailable":  "Le certificat n\u0027a pas pu être téléchargé.",
+                                                   "downloadErrorTitle":  "Erreur lors du téléchargement du certificat",
+                                                   "downloadedSuccess":  "Certificat téléchargé avec succès.",
+                                                   "downloadException":  "Erreur lors du téléchargement du certificat."
+                                               }
                       },
     "AdminStudentSuccess":  {
                                 "title":  "Student Success",
