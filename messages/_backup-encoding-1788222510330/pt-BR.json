@@ -3702,39 +3702,7 @@
                                                 "typeOther":  "Outro",
                                                 "uploading":  "Enviando...",
                                                 "upload":  "Enviar documento"
-                                            },
-                          "enrollmentPanel":  {
-                                                  "title":  "Matrícula e vínculo acadêmico",
-                                                  "course":  "Curso",
-                                                  "status":  "Status",
-                                                  "semester":  "Semestre",
-                                                  "enrollmentNumber":  "Número da matrícula",
-                                                  "enrollmentDate":  "Data da matrícula",
-                                                  "campus":  "Polo",
-                                                  "modality":  "Modalidade",
-                                                  "academicPeriod":  "Horário letivo / Período",
-                                                  "expectedCompletion":  "Previsão de conclusão",
-                                                  "classesAndSubjects":  "Turmas e disciplinas ({count})",
-                                                  "searchPlaceholder":  "Buscar turma, disciplina, professor ou status...",
-                                                  "subject":  "Disciplina",
-                                                  "teacher":  "Professor",
-                                                  "subjectStatus":  "Status da disciplina",
-                                                  "empty":  "Este aluno ainda não possui matrícula vinculada."
-                                              },
-                          "performancePanel":  {
-                                                   "title":  "Desempenho acadêmico",
-                                                   "description":  "Médias, avaliações, notas e feedbacks do aluno.",
-                                                   "searchPlaceholder":  "Buscar disciplina...",
-                                                   "loading":  "Carregando desempenho...",
-                                                   "overallAverage":  "Média geral",
-                                                   "subjects":  "Disciplinas",
-                                                   "average":  "Média: {value}",
-                                                   "grade":  "Nota: {grade} / {maximum}",
-                                                   "feedback":  "Feedback: {feedback}",
-                                                   "noAssessments":  "Nenhuma avaliação registrada nesta disciplina.",
-                                                   "noSubjects":  "Nenhuma disciplina encontrada.",
-                                                   "noData":  "Nenhum dado acadêmico encontrado."
-                                               }
+                                            }
                       },
     "AdminStudentSuccess":  {
                                 "title":  "Student Success",

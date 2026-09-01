@@ -3942,13 +3942,13 @@ function AdminAlunosPage() {
                 <div className="space-y-6">
                   <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
                     <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                      Documentos do aluno
+                      {t("documentPanel.studentTitle")}
                     </h3>
 
                     <div className="mt-4 space-y-2">
                       {documentosAluno.filter((doc) => doc.proprietario !== "RESPONSAVEL").length === 0 ? (
                         <p className="rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
-                          Nenhum documento do aluno enviado.
+                          {t("documentPanel.studentEmpty")}
                         </p>
                       ) : (
                         documentosAluno
@@ -3963,7 +3963,7 @@ function AdminAlunosPage() {
                                   {doc.titulo}
                                 </p>
                                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                                  {doc.arquivoNome || "Arquivo"}
+                                  {doc.arquivoNome || t("documentPanel.fileFallback")}
                                 </p>
                               </div>
 
@@ -3975,7 +3975,7 @@ function AdminAlunosPage() {
                                     rel="noreferrer"
                                     className="rounded-xl bg-blue-600 px-3 py-2 text-center text-xs font-semibold text-white transition hover:bg-blue-700"
                                   >
-                                    Abrir
+                                    {t("documentPanel.open")}
                                   </a>
                                 )}
 
@@ -3984,7 +3984,7 @@ function AdminAlunosPage() {
                                   onClick={() => arquivarDocumentoAluno(doc.id)}
                                   className="rounded-xl border border-orange-200 bg-orange-50 px-3 py-2 text-center text-xs font-semibold text-orange-700 transition hover:bg-orange-100"
                                 >
-                                  Arquivar
+                                  {t("documentPanel.archive")}
                                 </button>
                               </div>
 
@@ -3996,13 +3996,13 @@ function AdminAlunosPage() {
 
                   <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
                     <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                      Documentos do responsável
+                      {t("documentPanel.guardianTitle")}
                     </h3>
 
                     <div className="mt-4 space-y-2">
                       {documentosAluno.filter((doc) => doc.proprietario === "RESPONSAVEL").length === 0 ? (
                         <p className="rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
-                          Nenhum documento do responsável enviado.
+                          {t("documentPanel.guardianEmpty")}
                         </p>
                       ) : (
                         documentosAluno
@@ -4017,7 +4017,7 @@ function AdminAlunosPage() {
                                   {doc.titulo}
                                 </p>
                                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                                  {doc.arquivoNome || "Arquivo"}
+                                  {doc.arquivoNome || t("documentPanel.fileFallback")}
                                 </p>
                               </div>
 
@@ -4029,7 +4029,7 @@ function AdminAlunosPage() {
                                     rel="noreferrer"
                                     className="rounded-xl bg-blue-600 px-3 py-2 text-center text-xs font-semibold text-white transition hover:bg-blue-700"
                                   >
-                                    Abrir
+                                    {t("documentPanel.open")}
                                   </a>
                                 )}
 
@@ -4038,7 +4038,7 @@ function AdminAlunosPage() {
                                   onClick={() => arquivarDocumentoAluno(doc.id)}
                                   className="rounded-xl border border-orange-200 bg-orange-50 px-3 py-2 text-center text-xs font-semibold text-orange-700 transition hover:bg-orange-100"
                                 >
-                                  Arquivar
+                                  {t("documentPanel.archive")}
                                 </button>
                               </div>
 
@@ -4050,22 +4050,22 @@ function AdminAlunosPage() {
 
                   <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
                     <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                      Enviar novo documento
+                      {t("documentPanel.uploadTitle")}
                     </h3>
 
                     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
                       <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                        Documentos arquivados
+                        {t("documentPanel.archivedTitle")}
                       </h3>
 
                       <div className="mt-4 space-y-2">
                         {carregandoArquivadosAluno ? (
                           <p className="text-sm text-slate-500 dark:text-slate-400">
-                            Carregando documentos arquivados...
+                            {t("documentPanel.archivedLoading")}
                           </p>
                         ) : documentosArquivadosAluno.length === 0 ? (
                           <p className="rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
-                            Nenhum documento arquivado.
+                            {t("documentPanel.archivedEmpty")}
                           </p>
                         ) : (
                           documentosArquivadosAluno.map((doc) => (
@@ -4078,8 +4078,15 @@ function AdminAlunosPage() {
                                   {doc.titulo}
                                 </p>
                                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                                  {doc.proprietario === "RESPONSAVEL" ? "Responsável" : "Aluno"} •{" "}
-                                  Arquivado em {doc.arquivadoEm ? formatarData(doc.arquivadoEm) : "-"}
+                                  {t("documentPanel.archivedMeta", {
+                                    owner:
+                                      doc.proprietario === "RESPONSAVEL"
+                                        ? t("documentPanel.ownerGuardian")
+                                        : t("documentPanel.ownerStudent"),
+                                    date: doc.arquivadoEm
+                                      ? formatarData(doc.arquivadoEm)
+                                      : "-",
+                                  })}
                                 </p>
                               </div>
 
@@ -4088,7 +4095,7 @@ function AdminAlunosPage() {
                                 onClick={() => restaurarDocumentoAluno(doc.id)}
                                 className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-center text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100"
                               >
-                                Restaurar
+                                {t("documentPanel.restore")}
                               </button>
                             </div>
                           ))
@@ -4097,7 +4104,7 @@ function AdminAlunosPage() {
                     </section>
 
                     <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                      Envie documentos opcionais em PDF, PNG, JPG ou JPEG.
+                      {t("documentPanel.uploadDescription")}
                     </p>
 
                     <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
@@ -4108,8 +4115,12 @@ function AdminAlunosPage() {
                         }
                         className="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                       >
-                        <option value="ALUNO">Aluno</option>
-                        <option value="RESPONSAVEL">Responsável</option>
+                        <option value="ALUNO">
+                          {t("documentPanel.ownerStudent")}
+                        </option>
+                        <option value="RESPONSAVEL">
+                          {t("documentPanel.ownerGuardian")}
+                        </option>
                       </select>
 
                       <select
@@ -4117,15 +4128,27 @@ function AdminAlunosPage() {
                         onChange={(e) => setDocumentoTipo(e.target.value)}
                         className="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                       >
-                        <option value="RG">RG</option>
-                        <option value="CPF">CPF</option>
-                        <option value="CNH">CNH</option>
-                        <option value="HISTORICO_ESCOLAR">Histórico Escolar</option>
-                        <option value="COMPROVANTE_RESIDENCIA">
-                          Comprovante de Residência
+                        <option value="RG">
+                          {t("documentPanel.typeRg")}
                         </option>
-                        <option value="TITULO_ELEITOR">Título de Eleitor</option>
-                        <option value="OUTRO">Outro</option>
+                        <option value="CPF">
+                          {t("documentPanel.typeCpf")}
+                        </option>
+                        <option value="CNH">
+                          {t("documentPanel.typeCnh")}
+                        </option>
+                        <option value="HISTORICO_ESCOLAR">
+                          {t("documentPanel.typeSchoolRecord")}
+                        </option>
+                        <option value="COMPROVANTE_RESIDENCIA">
+                          {t("documentPanel.typeResidenceProof")}
+                        </option>
+                        <option value="TITULO_ELEITOR">
+                          {t("documentPanel.typeVoterRegistration")}
+                        </option>
+                        <option value="OUTRO">
+                          {t("documentPanel.typeOther")}
+                        </option>
                       </select>
 
                       <input
@@ -4142,7 +4165,9 @@ function AdminAlunosPage() {
                       disabled={enviandoDocumentoAluno}
                       className="mt-4 rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
                     >
-                      {enviandoDocumentoAluno ? "Enviando..." : "Enviar documento"}
+                      {enviandoDocumentoAluno
+                        ? t("documentPanel.uploading")
+                        : t("documentPanel.upload")}
                     </button>
                   </section>
                 </div>
@@ -4151,46 +4176,58 @@ function AdminAlunosPage() {
               {abaPainelAluno === "MATRICULAS" && (
                 <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
                   <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                    Matrícula e vínculo acadêmico
+                    {t("enrollmentPanel.title")}
                   </h3>
 
                   {alunoSelecionado.resumoMatricula ? (
                     <div className="mt-4 space-y-4 text-sm text-slate-600 dark:text-slate-300">
                       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                        <p><strong>Curso:</strong> {alunoSelecionado.resumoMatricula.cursoNome || "-"}</p>
-                        <p><strong>Status:</strong> {alunoSelecionado.resumoMatricula.status || "-"}</p>
-                        <p><strong>Semestre:</strong> {alunoSelecionado.resumoMatricula.semestre || "-"}</p>
                         <p>
-                          <strong>Número da matrícula:</strong>{" "}
+                          <strong>{t("enrollmentPanel.course")}:</strong>{" "}
+                          {alunoSelecionado.resumoMatricula.cursoNome || "-"}
+                        </p>
+
+                        <p>
+                          <strong>{t("enrollmentPanel.status")}:</strong>{" "}
+                          {alunoSelecionado.resumoMatricula.status || "-"}
+                        </p>
+
+                        <p>
+                          <strong>{t("enrollmentPanel.semester")}:</strong>{" "}
+                          {alunoSelecionado.resumoMatricula.semestre || "-"}
+                        </p>
+
+                        <p>
+                          <strong>{t("enrollmentPanel.enrollmentNumber")}:</strong>{" "}
                           {alunoSelecionado.resumoMatricula?.numeroMatricula ||
                             alunoSelecionado.matricula ||
                             "-"}
                         </p>
 
                         <p>
-                          <strong>Data da matrícula:</strong>{" "}
+                          <strong>{t("enrollmentPanel.enrollmentDate")}:</strong>{" "}
                           {formatarData(alunoSelecionado.resumoMatricula?.dataMatricula)}
                         </p>
 
                         <p>
-                          <strong>Polo:</strong>{" "}
+                          <strong>{t("enrollmentPanel.campus")}:</strong>{" "}
                           {alunoSelecionado.resumoMatricula?.polo?.nome ||
                             alunoSelecionado.polo?.nome ||
                             "-"}
                         </p>
 
                         <p>
-                          <strong>Modalidade:</strong>{" "}
+                          <strong>{t("enrollmentPanel.modality")}:</strong>{" "}
                           {alunoSelecionado.resumoMatricula?.modalidade || "-"}
                         </p>
 
                         <p>
-                          <strong>Horário letivo / Período:</strong>{" "}
+                          <strong>{t("enrollmentPanel.academicPeriod")}:</strong>{" "}
                           {alunoSelecionado.resumoMatricula?.periodoLetivo || "-"}
                         </p>
 
                         <p>
-                          <strong>Previsão de conclusão:</strong>{" "}
+                          <strong>{t("enrollmentPanel.expectedCompletion")}:</strong>{" "}
                           {formatarData(alunoSelecionado.resumoMatricula?.previsaoConclusao)}
                         </p>
                       </div>
@@ -4202,8 +4239,11 @@ function AdminAlunosPage() {
                           className="flex w-full items-center justify-between rounded-xl border border-slate-700 px-4 py-3 text-left font-semibold text-slate-900 dark:text-slate-100"
                         >
                           <span>
-                            Turmas e disciplinas (
-                            {alunoSelecionado.resumoMatricula.turmas?.length || 0})
+                            {t("enrollmentPanel.classesAndSubjects", {
+                              count:
+                                alunoSelecionado.resumoMatricula.turmas?.length ||
+                                0,
+                            })}
                           </span>
 
                           <span>{matriculaExpandida ? "⌃" : "⌄"}</span>
@@ -4213,7 +4253,7 @@ function AdminAlunosPage() {
                           <div className="mt-4">
                             <input
                               type="text"
-                              placeholder="Buscar turma, disciplina, professor ou status..."
+                              placeholder={t("enrollmentPanel.searchPlaceholder")}
                               value={buscaMatricula}
                               onChange={(e) => setBuscaMatricula(e.target.value)}
                               className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
@@ -4253,15 +4293,18 @@ function AdminAlunosPage() {
                                     </p>
 
                                     <p className="text-sm text-slate-600 dark:text-slate-300">
-                                      Disciplina: {turma.disciplinaNome || "-"}
+                                      {t("enrollmentPanel.subject")}:{" "}
+                                      {turma.disciplinaNome || "-"}
                                     </p>
 
                                     <p className="text-sm text-slate-500 dark:text-slate-400">
-                                      Professor: {turma.professorNome || "-"}
+                                      {t("enrollmentPanel.teacher")}:{" "}
+                                      {turma.professorNome || "-"}
                                     </p>
 
                                     <p className="text-xs text-slate-400">
-                                      Status da disciplina: {turma.status || "-"}
+                                      {t("enrollmentPanel.subjectStatus")}:{" "}
+                                      {turma.status || "-"}
                                     </p>
                                   </div>
                                 ))}
@@ -4272,7 +4315,7 @@ function AdminAlunosPage() {
                     </div>
                   ) : (
                     <div className="mt-4 rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
-                      Este aluno ainda não possui matrícula vinculada.
+                      {t("enrollmentPanel.empty")}
                     </div>
                   )}
                 </section>
@@ -4281,17 +4324,17 @@ function AdminAlunosPage() {
               {abaPainelAluno === "DESEMPENHO" && (
                 <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
                   <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                    Desempenho acadêmico
+                    {t("performancePanel.title")}
                   </h3>
 
                   <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    Médias, avaliações, notas e feedbacks do aluno.
+                    {t("performancePanel.description")}
                   </p>
 
                   <div className="mt-4">
                     <input
                       type="text"
-                      placeholder="Buscar disciplina..."
+                      placeholder={t("performancePanel.searchPlaceholder")}
                       value={buscaDisciplina}
                       onChange={(e) => {
                         const valor = e.target.value;
@@ -4308,14 +4351,14 @@ function AdminAlunosPage() {
 
                   {carregandoDesempenho ? (
                     <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
-                      Carregando desempenho...
+                      {t("performancePanel.loading")}
                     </p>
                   ) : desempenhoAluno ? (
                     <div className="mt-5 space-y-4">
                       <div className="grid grid-cols-2 gap-3">
                         <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
                           <p className="text-xs text-slate-500 dark:text-slate-400">
-                            Média Geral
+                            {t("performancePanel.overallAverage")}
                           </p>
                           <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-slate-100">
                             {desempenhoAluno.mediaGeral ?? "-"}
@@ -4324,7 +4367,7 @@ function AdminAlunosPage() {
 
                         <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
                           <p className="text-xs text-slate-500 dark:text-slate-400">
-                            Disciplinas
+                            {t("performancePanel.subjects")}
                           </p>
                           <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-slate-100">
                             {desempenhoAluno.totalDisciplinas ?? 0}

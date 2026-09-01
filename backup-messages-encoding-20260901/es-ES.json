@@ -1,0 +1,3790 @@
+{
+  "Common": {
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "loading": "Cargando...",
+    "language": "Idioma",
+    "close": "Cerrar",
+    "changingLanguage": "Cambiando idioma...",
+    "languageChangeError": "No se pudo cambiar el idioma. IntÃ©ntalo de nuevo.",
+    "theme": "Tema",
+    "lightTheme": "Claro",
+    "darkTheme": "Oscuro",
+    "systemTheme": "Sistema",
+    "sessionExpired": "SesiÃ³n finalizada",
+    "sessionExpiredDescription": "Tu sesiÃ³n se cerrÃ³ por seguridad debido a la inactividad. SerÃ¡s redirigido a la pÃ¡gina de inicio de sesiÃ³n.",
+    "goToLogin": "Ir al inicio de sesiÃ³n"
+  },
+  "AdminDashboard": {
+    "profile": "Perfil administrativo",
+    "institutionPanel": "Panel de la instituciÃ³n",
+    "title": "Panel Administrativo",
+    "description": "Gestiona las actividades acadÃ©micas, financieras, documentales y operativas de tu instituciÃ³n en un solo lugar.",
+    "searchPlaceholder": "Buscar estudiantes, profesores, cursos, asignaturas, clases o matrÃ­culas...",
+    "guidedTutorial": "Tutorial guiado",
+    "firstSteps": "Primeros pasos",
+    "tutorialDescription": "Utiliza el tutorial guiado para conocer rÃ¡pidamente las principales Ã¡reas de PHANYX.",
+    "viewTour": "Iniciar recorrido",
+    "quickActions": "Acciones rÃ¡pidas",
+    "quickActionsDescription": "Atajos para acelerar la configuraciÃ³n de tu instituciÃ³n.",
+    "newStudent": "Nuevo Estudiante",
+    "newTeacher": "Nuevo Profesor",
+    "newCourse": "Nuevo Curso",
+    "newDepartment": "Nuevo Departamento",
+    "manageEnrollments": "Gestionar MatrÃ­culas",
+    "operationOverview": "Resumen de operaciones",
+    "operationOverviewDescription": "Resumen de los principales registros acadÃ©micos.",
+    "loadingStatistics": "Cargando estadÃ­sticas...",
+    "students": "Estudiantes",
+    "studentsDescription": "Total de estudiantes registrados en la instituciÃ³n.",
+    "teachers": "Profesores",
+    "teachersDescription": "Equipo docente registrado en el sistema.",
+    "courses": "Cursos",
+    "coursesDescription": "CatÃ¡logo acadÃ©mico creado hasta el momento.",
+    "subjects": "Asignaturas",
+    "subjectsDescription": "Estructura curricular registrada.",
+    "certificates": "Certificados",
+    "certificatesDescription": "Certificados emitidos o registrados en la base.",
+    "mainAccess": "Accesos principales",
+    "mainAccessDescription": "Accesos rÃ¡pidos a los mÃ³dulos de configuraciÃ³n mÃ¡s utilizados.",
+    "openModule": "Abrir mÃ³dulo",
+    "noResults": "No se encontraron resultados",
+    "searchSuggestion": "Intenta buscar por nombre, cÃ³digo o identificaciÃ³n.",
+    "studentResult": "Estudiante",
+    "teacherResult": "Profesor",
+    "courseResult": "Curso",
+    "subjectResult": "Asignatura",
+    "classResult": "Clase",
+    "enrollmentResult": "MatrÃ­cula",
+    "tourMascotAlt": "Mascota Formix guiando el tutorial",
+    "tourDashboardTitle": "Panel administrativo",
+    "tourDashboardDescription": "Esta es la visiÃ³n general de tu operaciÃ³n. Cuando quieras volver al inicio, haz clic aquÃ­.",
+    "tourDashboardHighlight": "Comencemos por el panel principal.",
+    "tourSettingsTitle": "ConfiguraciÃ³n de la instituciÃ³n",
+    "tourSettingsDescription": "Comienza aquÃ­. AquÃ­ puedes configurar el logotipo, los datos institucionales, la identidad visual y la informaciÃ³n principal.",
+    "tourSettingsHighlight": "Primero, configura la identidad de tu instituciÃ³n.",
+    "tourDepartmentsTitle": "Sectores y departamentos",
+    "tourDepartmentsDescription": "DespuÃ©s, organiza la instituciÃ³n en sectores como secretarÃ­a, finanzas, Ã¡rea acadÃ©mica y coordinaciÃ³n.",
+    "tourDepartmentsHighlight": "Ahora vamos a estructurar la operaciÃ³n interna.",
+    "tourTeachersTitle": "Registro de profesores",
+    "tourTeachersDescription": "AquÃ­ puedes registrar a los profesores que gestionarÃ¡n el Ã¡rea acadÃ©mica y accederÃ¡n al sistema.",
+    "tourTeachersHighlight": "Es hora de formar el equipo docente.",
+    "tourStudentsTitle": "Registro de estudiantes",
+    "tourStudentsDescription": "DespuÃ©s, registra a los estudiantes y prepara la base para las matrÃ­culas y el seguimiento acadÃ©mico.",
+    "tourStudentsHighlight": "Ahora vamos a preparar la base de estudiantes.",
+    "tourEnrollmentsTitle": "MatrÃ­culas",
+    "tourEnrollmentsDescription": "AquÃ­ puedes vincular estudiantes, cursos y clases para iniciar la operaciÃ³n real de la instituciÃ³n.",
+    "tourEnrollmentsHighlight": "Casi listo: aquÃ­ comienza la operaciÃ³n real.",
+    "tourStepProgress": "Paso {current} de {total}",
+    "dontShowAgain": "No volver a mostrar",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "completeTour": "Completar recorrido",
+    "tourCelebratingAlt": "Mascota Formix celebrando",
+    "tourCompleted": "Recorrido completado correctamente",
+    "tourCongratulations": "Â¡Felicidades! Tu instituciÃ³n ya puede comenzar ðŸš€",
+    "tourCompletedDescription": "Has completado el recorrido inicial de PHANYX. Tu equipo ya puede continuar la configuraciÃ³n con mayor seguridad.",
+    "recommendedNextSteps": "PrÃ³ximos pasos recomendados",
+    "configureInstitutionData": "Configurar los datos de la instituciÃ³n",
+    "organizeDepartments": "Organizar sectores y departamentos",
+    "registerTeachers": "Registrar profesores",
+    "registerStudents": "Registrar estudiantes",
+    "startEnrollments": "Iniciar matrÃ­culas",
+    "startWithSettings": "Comenzar por la configuraciÃ³n",
+    "finishAndHide": "Finalizar y no volver a mostrar",
+    "continueDashboard": "Continuar al panel",
+    "administratorFallback": "Administrador",
+    "employeePhotoAlt": "Empleado",
+    "uploadingPhoto": "Subiendo...",
+    "changePhoto": "Cambiar foto",
+    "unnamed": "Sin nombre"
+  },
+  "AdminNavigation": {
+    "adminPanel": "Panel Administrativo",
+    "openGuidedTutorial": "Abrir tutorial guiado",
+    "administrative": "Administrativo",
+    "administrator": "Administrador",
+    "employee": "Empleado",
+    "dashboard": "Panel Administrativo",
+    "myProfile": "Mi Perfil",
+    "subscription": "SuscripciÃ³n PHANYX",
+    "master": "Master PHANYX",
+    "accessControl": "Control de Acceso",
+    "commercialPhanyx": "Comercial PHANYX",
+    "commercial": "Comercial",
+    "academic": "AcadÃ©mico",
+    "virtualLibrary": "Biblioteca Virtual",
+    "financial": "Finanzas",
+    "humanResources": "Personal / RR. HH.",
+    "documents": "Documentos",
+    "communication": "ComunicaciÃ³n",
+    "settings": "ConfiguraciÃ³n",
+    "students": "Estudiantes",
+    "teachers": "Profesores",
+    "teacherSubstitutions": "Sustituciones Docentes",
+    "employees": "Empleados",
+    "departments": "Departamentos",
+    "subjects": "Asignaturas",
+    "enrollments": "MatrÃ­culas",
+    "semesterReenrollments": "Renovaciones semestrales",
+    "classes": "Clases",
+    "operationalSchedule": "Agenda / Turnos",
+    "academicPublications": "Publicaciones AcadÃ©micas",
+    "visitors": "Visitantes",
+    "overview": "Resumen general",
+    "collection": "ColecciÃ³n",
+    "receipts": "Cobros",
+    "cashRegister": "Caja",
+    "reports": "Informes",
+    "overdueAccounts": "Morosos",
+    "generalClosing": "Cierre General",
+    "generateInvoiceForProspect": "Generar comprobante para interesado",
+    "variableCompensation": "RemuneraciÃ³n Variable",
+    "salesCommissions": "Comisiones comerciales",
+    "timeTracking": "Control Horario",
+    "timeTrackingSettings": "ConfiguraciÃ³n del Control Horario",
+    "mobileTimeTracking": "Control Horario MÃ³vil",
+    "afdImport": "ImportaciÃ³n AFD",
+    "timeBank": "Banco de Horas",
+    "payslips": "Recibos de NÃ³mina",
+    "payrollEvents": "Eventos de NÃ³mina",
+    "benefits": "Beneficios",
+    "vacation": "Vacaciones",
+    "medicalExams": "ExÃ¡menes MÃ©dicos",
+    "terminations": "Desvinculaciones",
+    "employmentHistory": "Historial Laboral",
+    "archivedHR": "Registros Archivados de RR. HH.",
+    "occurrences": "Incidencias",
+    "accountingReports": "Informes Contables",
+    "hrDocuments": "Documentos de RR. HH.",
+    "contracts": "Contratos",
+    "generatedDocuments": "Documentos Generados",
+    "generateDocument": "Generar Documento",
+    "validation": "ValidaciÃ³n",
+    "badges": "Credenciales",
+    "meetings": "Reuniones",
+    "birthdays": "CumpleaÃ±os",
+    "ombudsman": "DefensorÃ­a",
+    "institution": "InstituciÃ³n",
+    "institutionalLogos": "Logotipos institucionales",
+    "institutionalEmail": "Correo institucional",
+    "institutionalWhatsapp": "WhatsApp institucional",
+    "campusesAndUnits": "Sedes y unidades",
+    "departmentPermissions": "Permisos por departamento",
+    "institutionalDocuments": "Documentos institucionales",
+    "portalVisibility": "Visibilidad de los Portales",
+    "certificateManagement": "GestiÃ³n de Certificados",
+    "certificateEditor": "Editor de Certificados",
+    "logout": "Cerrar sesiÃ³n",
+    "phanyxLeads": "Leads PHANYX",
+    "leadGenerationCenter": "Central de CaptaciÃ³n",
+    "salesFunnels": "Embudos comerciales",
+    "salesPipeline": "Pipeline comercial",
+    "salesAgenda": "Agenda comercial",
+    "leadsAndOpportunities": "Leads y oportunidades",
+    "salesTeams": "Equipos comerciales",
+    "salesTargets": "Metas comerciales",
+    "commissionPlans": "Planes de comisiÃ³n",
+    "dashboardShort": "Panel",
+    "academicShort": "Acad.",
+    "commercialShort": "Comerc.",
+    "financialShort": "Finanzas",
+    "hrShort": "RR. HH.",
+    "documentsShort": "Docs",
+    "settingsShort": "Config.",
+    "communicationShort": "Comun.",
+    "notifications": "Notificaciones",
+    "notificationsDescription": "Actualizaciones importantes de PHANYX",
+    "viewAllNotifications": "Ver todas las notificaciones",
+    "masterDashboard": "Panel Master",
+    "signInAsUser": "Iniciar sesiÃ³n como usuario",
+    "phanyxPlatform": "Plataforma PHANYX",
+    "generateIbeInvoice": "Generar recibo de pago IBE",
+    "campusManagementDisabled": "GestiÃ³n de sedes no habilitada",
+    "campusManagementDisabledDescription": "Este identificador institucional no estÃ¡ autorizado para crear o gestionar sedes o unidades. Este permiso estÃ¡ controlado por la instituciÃ³n contratante de la red.",
+    "backToDashboard": "Volver al panel",
+    "studentSuccess": "Student Success"
+  },
+  "MonthlyCampaign": {
+    "origin": "CampaÃ±a mensual de concienciaciÃ³n",
+    "genericTitle": "{month} â€” Salud y bienestar",
+    "genericDescription": "CampaÃ±a mensual de concienciaciÃ³n sobre salud y bienestar.",
+    "genericPhrase": "La informaciÃ³n, la prevenciÃ³n y el cuidado marcan la diferencia cada dÃ­a.",
+    "health": "Salud",
+    "upcomingHoliday": "PrÃ³ximo festivo",
+    "monthlyCampaign": "CampaÃ±a del mes"
+  },
+  "InternationalPhone": {
+    "selectCountry": "Seleccionar paÃ­s del telÃ©fono",
+    "searchCountry": "Buscar paÃ­s o prefijo",
+    "noCountryFound": "No se encontrÃ³ ningÃºn paÃ­s.",
+    "placeholder": "Introduce el nÃºmero de telÃ©fono",
+    "required": "Introduce el nÃºmero de telÃ©fono.",
+    "invalid": "Introduce un telÃ©fono vÃ¡lido para el paÃ­s seleccionado.",
+    "invalidTitle": "NÃºmero de telÃ©fono no vÃ¡lido",
+    "studentInvalid": "El telÃ©fono del estudiante no es vÃ¡lido para el paÃ­s seleccionado. Corrige el nÃºmero o selecciona otro paÃ­s.",
+    "guardianInvalid": "El telÃ©fono del responsable no es vÃ¡lido para el paÃ­s seleccionado. Corrige el nÃºmero o selecciona otro paÃ­s."
+  },
+  "StudentLayout": {
+    "academicAccessBlocked": "Acceso acadÃ©mico bloqueado",
+    "financialRegularizationRequired": "RegularizaciÃ³n financiera necesaria",
+    "greeting": "Hola, {name}.",
+    "blockedDescription": "Tu acceso al entorno acadÃ©mico estÃ¡ bloqueado temporalmente debido a una deuda registrada por la instituciÃ³n.",
+    "meaningTitle": "QuÃ© significa esto",
+    "meaningDescription": "Mientras la deuda siga pendiente, el acceso a las Ã¡reas acadÃ©micas podrÃ¡ permanecer deshabilitado.",
+    "unlockTitle": "CÃ³mo recuperar el acceso",
+    "unlockDescription": "Ponte en contacto con el departamento financiero o la secretarÃ­a de tu instituciÃ³n para regularizar la situaciÃ³n.",
+    "importantTitle": "Importante",
+    "importantDescription": "DespuÃ©s de registrar el pago en el sistema, el acceso podrÃ¡ restablecerse automÃ¡ticamente segÃºn las normas de la instituciÃ³n.",
+    "backToLogin": "Volver al inicio de sesiÃ³n",
+    "logout": "Cerrar sesiÃ³n",
+    "footer": "PHANYX â€¢ GestiÃ³n acadÃ©mica y financiera",
+    "dashboard": "Panel",
+    "reenrollmentShort": "RematrÃ­cula",
+    "subjects": "Asignaturas",
+    "progress": "Progreso",
+    "assignments": "Trabajos",
+    "attendance": "Asistencia",
+    "grades": "Calificaciones",
+    "certificates": "Certificados",
+    "meetings": "Reuniones",
+    "registrationData": "Datos de registro",
+    "registrationDescription": "MantÃ©n tus datos actualizados para contratos, documentos y registros acadÃ©micos.",
+    "updateMyData": "Actualizar mis datos"
+  },
+  "StudentSidebar": {
+    "areaTitle": "Ãrea del Estudiante",
+    "student": "Estudiante",
+    "profilePhoto": "Foto de perfil de {name}",
+    "academicDashboard": "Panel acadÃ©mico",
+    "semesterReenrollment": "RematrÃ­cula semestral",
+    "subjects": "Asignaturas",
+    "progress": "Progreso",
+    "assignments": "Trabajos",
+    "attendance": "Asistencia",
+    "grades": "Calificaciones",
+    "academicHistory": "Historial acadÃ©mico",
+    "meetings": "Reuniones",
+    "certificates": "Certificados",
+    "ombudsman": "DefensorÃ­a"
+  },
+  "StudentDashboard": {
+    "errors": {
+      "imageUpload": "No se pudo enviar la imagen.",
+      "missingImageUrl": "La carga finalizÃ³, pero no se recibiÃ³ la URL de la imagen.",
+      "savePhoto": "No se pudo guardar la foto de perfil.",
+      "changePhoto": "No se pudo cambiar la foto.",
+      "paymentBlocked": "Acceso bloqueado por un pago pendiente.",
+      "loadDashboard": "No se pudo cargar el panel."
+    },
+    "greetings": {
+      "morning": "Buenos dÃ­as",
+      "afternoon": "Buenas tardes",
+      "evening": "Buenas noches"
+    },
+    "performance": {
+      "excellent": "Excelente rendimiento. ContinÃºa a este ritmo.",
+      "veryGood": "EstÃ¡s avanzando muy bien en tu trayectoria.",
+      "good": "Buen progreso. Conviene revisar los contenidos recientes.",
+      "needsImprovement": "Es momento de reforzar tus estudios y recuperar el ritmo."
+    },
+    "nextStep": {
+      "regularizeTitle": "Regularizar acceso",
+      "regularizeDescription": "El acceso a tu panel acadÃ©mico estÃ¡ restringido. Regulariza tu situaciÃ³n para continuar normalmente.",
+      "openSupport": "Abrir soporte",
+      "continueTitle": "Continuar estudiando",
+      "continueDescription": "Retoma tu rutina acadÃ©mica accediendo a la asignatura disponible.",
+      "openSubject": "Abrir asignatura",
+      "reviewTitle": "Revisar resultados",
+      "reviewDescription": "Consulta tu rendimiento mÃ¡s reciente y sigue tu evoluciÃ³n acadÃ©mica.",
+      "viewGrades": "Ver calificaciones",
+      "exploreTitle": "Explorar panel",
+      "exploreDescription": "Consulta tus indicadores acadÃ©micos y mantÃ©n organizada tu rutina.",
+      "refreshDashboard": "Actualizar panel"
+    },
+    "hero": {
+      "eyebrow": "Panel acadÃ©mico del estudiante",
+      "student": "Estudiante",
+      "sendingPhoto": "Enviando...",
+      "changePhoto": "Cambiar foto",
+      "photoTips": "Consejos para la foto",
+      "heading": "{greeting}, sigue tu trayectoria acadÃ©mica con claridad, rendimiento y enfoque",
+      "description": "Consulta tu curso, rendimiento, asignaturas y prÃ³ximos pasos en un panel diseÃ±ado para una experiencia acadÃ©mica moderna, organizada y profesional.",
+      "continueStudies": "Continuar estudiando",
+      "viewGrades": "Ver calificaciones",
+      "openGrades": "Abrir calificaciones",
+      "refreshDashboard": "Actualizar panel",
+      "currentCourse": "Curso actual",
+      "unknownCourse": "Curso no identificado",
+      "status": "Estado",
+      "notInformed": "No informado",
+      "currentPerformance": "Rendimiento actual",
+      "performanceBasis": "Basado en tu promedio general actual.",
+      "loading": "Cargando el panel..."
+    },
+    "restricted": {
+      "eyebrow": "Acceso restringido",
+      "title": "Tu acceso estÃ¡ bloqueado temporalmente",
+      "institutionInstruction": "Ponte en contacto con la instituciÃ³n para regularizar tu situaciÃ³n financiera y recuperar el acceso al entorno acadÃ©mico.",
+      "contactSupport": "Contactar con soporte",
+      "refreshDashboard": "Actualizar panel"
+    },
+    "stats": {
+      "enrolledSubjects": "Asignaturas matriculadas",
+      "enrolledSubjectsDescription": "Cantidad actual de asignaturas vinculadas a tu matrÃ­cula.",
+      "overallAverage": "Promedio general",
+      "overallAverageDescription": "Rendimiento acadÃ©mico consolidado hasta el momento.",
+      "completedExams": "Evaluaciones completadas",
+      "completedExamsDescription": "Cantidad de evaluaciones ya finalizadas.",
+      "higherPlans": "Disponible en planes superiores.",
+      "enrollmentStatus": "Estado de la matrÃ­cula",
+      "enrollmentStatusDescription": "SituaciÃ³n acadÃ©mica actual de tu vÃ­nculo institucional."
+    },
+    "enrollmentStatuses": {
+      "active": "Activa",
+      "pending": "Pendiente",
+      "locked": "Suspendida",
+      "cancelled": "Cancelada",
+      "completed": "Completada",
+      "inactive": "Inactiva",
+      "suspended": "Suspendida"
+    },
+    "subjects": {
+      "title": "Tus asignaturas",
+      "description": "Accede rÃ¡pidamente a contenidos, materiales y actividades.",
+      "count": "{count, plural, =0 {Ninguna asignatura} one {# asignatura} other {# asignaturas}}",
+      "empty": "No hay asignaturas disponibles en este momento.",
+      "cardDescription": "Accede a los contenidos disponibles y sigue tus actividades acadÃ©micas.",
+      "availableSoon": "Clase disponible prÃ³ximamente",
+      "blockedDefault": "Esta asignatura se desbloquearÃ¡ automÃ¡ticamente cuando la instituciÃ³n publique el contenido.",
+      "access": "Abrir asignatura"
+    },
+    "exams": {
+      "title": "Ãšltimas evaluaciones",
+      "description": "Tus evaluaciones completadas mÃ¡s recientes.",
+      "viewGrades": "Ver calificaciones",
+      "higherPlans": "Los detalles de las evaluaciones completadas estÃ¡n disponibles en planes superiores.",
+      "empty": "TodavÃ­a no has completado ninguna evaluaciÃ³n.",
+      "subject": "Asignatura",
+      "completedAt": "FinalizaciÃ³n",
+      "grade": "CalificaciÃ³n"
+    },
+    "side": {
+      "nextStep": "PrÃ³ximo paso",
+      "visualProgress": "Progreso visual",
+      "currentPerformance": "Rendimiento actual",
+      "quickLinks": "Accesos rÃ¡pidos",
+      "continueStudies": "Continuar estudiando",
+      "refreshDashboard": "Actualizar panel",
+      "openGrades": "Abrir calificaciones",
+      "academicSummary": "Resumen acadÃ©mico",
+      "enrolledSubjects": "{count, plural, =0 {No tienes asignaturas matriculadas.} one {Tienes # asignatura matriculada.} other {Tienes # asignaturas matriculadas.}}",
+      "completedExams": "{count, plural, =0 {TodavÃ­a no has completado evaluaciones.} one {Has completado # evaluaciÃ³n.} other {Has completado # evaluaciones.}}",
+      "currentAverage": "Tu promedio general actual es {average}.",
+      "currentCourse": "Curso actual: {course}.",
+      "unknownCourse": "No identificado",
+      "enrollmentStatus": "Estado de la matrÃ­cula: {status}.",
+      "institutionalSituation": "SituaciÃ³n institucional",
+      "institutionalDescription": "Tu entorno acadÃ©mico estÃ¡ vinculado al curso y a la matrÃ­cula activos en el sistema. Utiliza este panel para consultar tus calificaciones, asignaturas y actualizaciones."
+    },
+    "photoModal": {
+      "eyebrow": "Consejo PHANYX",
+      "title": "Foto de perfil ideal",
+      "closeAria": "Cerrar consejos para la foto",
+      "square": "Utiliza una imagen cuadrada con proporciÃ³n 1:1.",
+      "resolution": "Recomendado: 500x500 px o superior.",
+      "formats": "Formatos aceptados: PNG, JPG, JPEG y WEBP.",
+      "size": "TamaÃ±o mÃ¡ximo: 5 MB.",
+      "understood": "Entendido"
+    }
+  },
+  "StudentSubjects": {
+    "title": "Mis Asignaturas",
+    "description": "Consulta tus asignaturas, sigue las clases publicadas y revisa el historial de asistencia.",
+    "loading": "Cargando...",
+    "count": "{count, plural, one {# asignatura} other {# asignaturas}}",
+    "searchPlaceholder": "Buscar asignatura o clase...",
+    "loadingList": "Cargando asignaturas...",
+    "empty": "TodavÃ­a no estÃ¡s matriculado en ninguna asignatura.",
+    "noResults": "No se encontrÃ³ ninguna asignatura para esta bÃºsqueda.",
+    "classesCount": "{count, plural, one {# clase} other {# clases}}",
+    "attendanceRecorded": "Registros de asistencia:",
+    "classGroup": "Clase:",
+    "notInformed": "No informada",
+    "blockedDefault": "El acceso se habilitarÃ¡ automÃ¡ticamente cuando se publique la clase.",
+    "access": "Acceder a la asignatura"
+  },
+  "StudentSubjectDetail": {
+    "loadingDiscipline": "Cargando asignatura...",
+    "invalidId": "La asignatura seleccionada no es vÃ¡lida.",
+    "loadError": "No se pudo cargar la asignatura.",
+    "notFound": "Asignatura no encontrada.",
+    "seekBlocked": "No estÃ¡ permitido adelantar la clase.",
+    "watchMinimumWarning": "Mira el tiempo mÃ­nimo requerido para completar la clase.",
+    "completeError": "No se pudo completar la clase.",
+    "progress": "Progreso",
+    "classCount": "{count, plural, one {# clase} other {# clases}}",
+    "durationMinutes": "{minutes} min",
+    "activities": "Actividades",
+    "loadingPlan": "Cargando plan...",
+    "examPlanRequired": "Las evaluaciones solo estÃ¡n disponibles en los planes Profesional y Enterprise.",
+    "loadingExam": "Cargando evaluaciÃ³n...",
+    "examUnavailable": "EvaluaciÃ³n no disponible",
+    "examAlreadyCompleted": "Ya has completado esta evaluaciÃ³n",
+    "takeExam": "Realizar evaluaciÃ³n",
+    "examLocked": "EvaluaciÃ³n bloqueada â€” completa todas las clases",
+    "finalResult": "Resultado final",
+    "grade": "CalificaciÃ³n: {grade}",
+    "approved": "Aprobado ðŸŽ‰",
+    "failed": "Suspenso âŒ",
+    "watchedTime": "Tiempo visualizado",
+    "lessonCompleted": "Clase ya completada.",
+    "minimumWatchHint": "{minutes, plural, one {Mira al menos # minuto para habilitar la finalizaciÃ³n.} other {Mira al menos # minutos para habilitar la finalizaciÃ³n.}}",
+    "noVideoHint": "Esta clase no tiene vÃ­deo. La finalizaciÃ³n estÃ¡ disponible.",
+    "completedButton": "âœ… Completada",
+    "saving": "Guardando...",
+    "markCompleted": "Marcar como completada",
+    "watchToComplete": "{minutes, plural, one {Mira # min para completar} other {Mira # min para completar}}",
+    "noVideoPlayer": "Esta clase no tiene vÃ­deo.",
+    "materialsTitle": "Materiales de la clase",
+    "materialsDescription": "Archivos, enlaces y contenidos de apoyo proporcionados por el profesor.",
+    "materialVideo": "VÃ­deo",
+    "materialLink": "Enlace",
+    "materialFile": "Archivo",
+    "materialGeneric": "Material",
+    "fileName": "Archivo: {name}",
+    "openVideo": "Abrir vÃ­deo",
+    "openLink": "Abrir enlace",
+    "openMaterial": "Abrir",
+    "downloadMaterial": "Descargar material",
+    "previousLesson": "Clase anterior",
+    "nextLesson": "Siguiente clase",
+    "noLessons": "No se encontraron clases."
+  },
+  "StudentLesson": {
+    "subjectNotFound": "Asignatura no encontrada.",
+    "lessonNotFound": "Clase no encontrada.",
+    "loadingEnrollmentStatus": "Cargando el estado de la matrÃ­cula...",
+    "accessUnavailableTitle": "Acceso a la clase no disponible",
+    "accessUnavailableStatus": "Tu matrÃ­cula tiene el estado {status}.",
+    "accessUnavailableDescription": "Por este motivo, el acceso a las clases estÃ¡ bloqueado temporalmente. AÃºn puedes acceder al Ã¡rea del estudiante, consultar tu estado y ver informaciÃ³n acadÃ©mica.",
+    "contactOffice": "Para regularizar la situaciÃ³n, ponte en contacto con secretarÃ­a.",
+    "videoUnavailable": "El vÃ­deo de esta clase aÃºn no estÃ¡ disponible.",
+    "savingProgress": "Guardando el progreso...",
+    "markCompleted": "Marcar como completada",
+    "saveProgressError": "No se ha podido guardar el progreso de la clase. IntÃ©ntalo de nuevo.",
+    "lessonCompleted": "Clase completada",
+    "status": {
+      "active": "Activa",
+      "locked": "Suspendida temporalmente",
+      "cancelled": "Cancelada",
+      "completed": "Completada",
+      "notStarted": "Pendiente de inicio",
+      "suspended": "Suspendida",
+      "unavailable": "No disponible"
+    }
+  },
+  "StudentExam": {
+    "invalidSubject": "Asignatura no vÃ¡lida.",
+    "loadingExam": "Cargando el examen...",
+    "loadError": "No se ha podido cargar el examen. IntÃ©ntalo de nuevo.",
+    "examUnavailable": "El examen aÃºn no estÃ¡ disponible.",
+    "accessUnavailable": "El acceso a este examen no estÃ¡ disponible. Comprueba las clases obligatorias, el perÃ­odo de disponibilidad y el lÃ­mite de intentos.",
+    "authenticationRequired": "Tu sesiÃ³n ha caducado. Inicia sesiÃ³n de nuevo para continuar.",
+    "attemptUnavailable": "Este intento ya no estÃ¡ disponible o ya se ha completado.",
+    "saveAnswerError": "No se ha podido guardar la respuesta. Comprueba tu conexiÃ³n antes de entregar el examen.",
+    "finishError": "No se ha podido entregar el examen. IntÃ©ntalo de nuevo.",
+    "answerAllQuestions": "Responde todas las preguntas antes de entregar el examen.",
+    "back": "Volver",
+    "errorTitle": "No se ha podido completar el examen",
+    "resultTitle": "Resultado del examen",
+    "partialResultTitle": "Resultado parcial del examen",
+    "grade": "Nota",
+    "passed": "Aprobado ðŸŽ‰",
+    "failed": "Suspenso âŒ",
+    "awaitingTeacherCorrection": "A la espera de que el profesor corrija las preguntas de desarrollo.",
+    "reviewTitle": "RevisiÃ³n del examen",
+    "essayPending": "Pregunta de desarrollo pendiente de correcciÃ³n por el profesor.",
+    "yourAnswer": "Tu respuesta",
+    "objectiveProcessed": "La respuesta de opciÃ³n mÃºltiple se ha procesado en el resultado del examen.",
+    "timeSpent": "Tiempo empleado: {minutes} min {seconds} s",
+    "certificateInformation": "Has aprobado este examen. La disponibilidad del certificado depende de las normas de tu instituciÃ³n.",
+    "backToSubject": "Volver a la asignatura",
+    "answerPlaceholder": "Escribe tu respuesta...",
+    "essayCorrectionInformation": "Pregunta de desarrollo: serÃ¡ corregida por el profesor.",
+    "finishingExam": "Entregando examen...",
+    "finishExam": "Entregar examen"
+  },
+  "StudentExamExecution": {
+    "invalidExam": "Examen no vÃ¡lido.",
+    "loadingExam": "Cargando el examen...",
+    "loadError": "No se ha podido cargar el examen. IntÃ©ntalo de nuevo.",
+    "examNotFound": "Examen no encontrado.",
+    "accessUnavailable": "El acceso a este examen no estÃ¡ disponible. Comprueba el perÃ­odo, las clases obligatorias y tu lÃ­mite de intentos.",
+    "authenticationRequired": "Tu sesiÃ³n ha caducado. Inicia sesiÃ³n de nuevo para continuar.",
+    "attemptUnavailable": "Este intento ya no estÃ¡ disponible o se ha alcanzado el lÃ­mite de intentos.",
+    "answerRequired": "Responde esta pregunta antes de guardarla.",
+    "answerAllQuestions": "Responde todas las preguntas antes de entregar el examen.",
+    "saveAnswerError": "No se ha podido guardar la respuesta. Comprueba tu conexiÃ³n e intÃ©ntalo de nuevo.",
+    "finishError": "No se ha podido entregar el examen. IntÃ©ntalo de nuevo.",
+    "errorTitle": "No se ha podido completar",
+    "resultTitle": "Resultado del examen",
+    "partialResultTitle": "Resultado parcial del examen",
+    "completedSuccessfully": "Â¡Examen entregado correctamente!",
+    "awaitingTeacherCorrection": "Las preguntas de desarrollo aÃºn deben ser corregidas por el profesor.",
+    "resultPending": "Resultado final pendiente de correcciÃ³n por el profesor.",
+    "grade": "Nota",
+    "passed": "Aprobado âœ…",
+    "failed": "Suspenso âŒ",
+    "backToSubject": "Volver a la asignatura",
+    "instructions": "Responde todas las preguntas y entrega el examen cuando hayas terminado.",
+    "questionMeta": "Pregunta {number} â€¢ {points} pts",
+    "save": "Guardar",
+    "saving": "Guardando...",
+    "saved": "Guardado âœ“",
+    "answerPlaceholder": "Escribe tu respuesta...",
+    "essayCorrectionInformation": "La pregunta de desarrollo serÃ¡ corregida por el profesor.",
+    "back": "Volver",
+    "finishingExam": "Entregando...",
+    "finishExam": "Entregar examen"
+  },
+  "StudentProgress": {
+    "title": "Progreso acadÃ©mico",
+    "description": "Consulta tu progreso en cada asignatura segÃºn las clases registradas y los datos acadÃ©micos vinculados a tu perfil.",
+    "loading": "Cargando el progreso...",
+    "loadError": "No se ha podido cargar tu progreso acadÃ©mico. Comprueba tu conexiÃ³n e intÃ©ntalo de nuevo.",
+    "retry": "Intentar de nuevo",
+    "empty": "No hay progreso acadÃ©mico disponible en este momento.",
+    "classLabel": "Clase",
+    "notInformed": "No indicada",
+    "totalLessons": "Total de clases",
+    "attendanceRecords": "Asistencias registradas",
+    "completed": "Completado",
+    "inProgress": "En curso",
+    "progressPercentage": "Porcentaje de seguimiento",
+    "completedMessage": "Seguimiento de la asignatura completado."
+  },
+  "StudentAssignments": {
+    "title": "Trabajos y actividades",
+    "description": "Consulta las actividades publicadas y envÃ­a tu entrega como texto, enlace o archivo.",
+    "loading": "Cargando actividades...",
+    "retry": "Intentar de nuevo",
+    "publishedAssignments": "Actividades publicadas",
+    "assignmentCount": "{count, plural, =0 {Ninguna actividad} one {# actividad} other {# actividdes}}",
+    "empty": "No hay actividades publicadas en este momento.",
+    "subject": "Asignatura",
+    "classLabel": "Clase",
+    "deadline": "Fecha lÃ­mite",
+    "noDeadline": "Sin fecha lÃ­mite",
+    "notInformed": "No indicada",
+    "deadlineClosed": "Plazo finalizado",
+    "dueToday": "Vence hoy",
+    "daysRemaining": "{count, plural, one {Queda # dÃ­a} other {Quedan # dÃ¥as}}",
+    "maximumGrade": "Nota mÃ¡xima",
+    "delivered": "Actividad entregada",
+    "awaitingSubmission": "Pendiente de entrega",
+    "viewSubmission": "Ver entrega",
+    "viewAssignment": "Ver actividad",
+    "answerAssignment": "Responder actividad",
+    "attachmentCount": "{count, plural, one {# archivo adjunto} other {# archivos adjuntos}}",
+    "assignmentFiles": "Archivos de la actividad",
+    "sendSubmission": "Enviar entrega",
+    "sendDescription": "Seleccciona una actividad y envÃ­a tu respuesta.",
+    "assignment": "Actividad",
+    "selectAssignment": "Selecciona una actividad",
+    "alreadySubmitted": "Ya has enviado esta actividad.",
+    "textLabel": "Texto",
+    "linkLabel": "Enlace",
+    "fileLabel": "Archivo",
+    "viewSubmittedFile": "Ver archivo enviado",
+    "statusLabel": "Estado",
+    "corrected": "Corregida",
+    "submitted": "Entregada",
+    "gradeLabel": "Nota",
+    "teacherFeedback": "Comentarios del profesor",
+    "closedEditMessage": "El plazo ha finalizado. No es posible editar esta entrega.",
+    "textPlaceholder": "Escribe aquÃ­ tu respuesta, observaciones o contenido adicional",
+    "selectFile": "Seleccionar archivo",
+    "selectedFile": "Archivo seleccionado: {name}",
+    "fileLimit": "TamaÃ±o mÃ¡ximo: 500 MB.",
+    "sending": "Enviando...",
+    "updateSubmission": "Actualizar entrega",
+    "sendAssignment": "Enviar trabajo",
+    "success": "Â¡Trabajo enviado correctamente!",
+    "backToAssignments": "â† Volver a los trabajos",
+    "notProvidedFeminine": "No informada",
+    "guidanceTitle": "Indicaciones de la actividad",
+    "noGuidance": "No se proporcionaron indicaciones detalladas.",
+    "noAttachment": "No se adjuntÃ³ ningÃºn archivo a esta actividad.",
+    "mySubmission": "Mi entrega",
+    "evaluatedMessage": "El profesor ya ha evaluado esta actividad.",
+    "awaitingCorrectionMessage": "Tu respuesta se ha enviado y estÃ¡ pendiente de correcciÃ³n.",
+    "submittedAt": "Enviado el",
+    "submittedFile": "Archivo enviado",
+    "openFile": "Abrir archivo",
+    "assessment": "EvaluaciÃ³n",
+    "notSubmittedYet": "AÃºn no has enviado esta actividad.",
+    "sendNewVersion": "Enviar nueva versiÃ³n",
+    "errors": {
+      "load": "No se han podido cargar las actividades. Comprueba tu conexiÃ³n e intÃ©ntalo de nuevo.",
+      "selectAssignment": "Selecciona una actividad.",
+      "answerRequired": "EnvÃ­a al menos un texto, enlace o archivo.",
+      "fileTooLarge": "El archivo supera el lÃ­mite de 500 MB. Elie un archivo mÃ¡s pequeÃ±o.",
+      "prepareUpload": "No se ha podido preparar el envÃ­o del archivo. IntÃ©ntalo de nuevo.",
+      "upload": "No se ha podido enviar el archivo (cÃ³digo {status}).",
+      "submit": "No se ha podido enviar la actividad. IntÃ©ntalo de nuevo."
+    }
+  },
+  "StudentAssignmentSubmission": {
+    "common": {
+      "notProvided": "No informado",
+      "retry": "Intentar de nuevo"
+    },
+    "loading": "Cargando actividad...",
+    "back": "Volver a los detalles",
+    "title": "Enviar actividad",
+    "success": "Actividad enviada correctamente.",
+    "activity": {
+      "label": "Actividad",
+      "subjectUnknown": "Asignatura no informada",
+      "class": "Clase"
+    },
+    "deadline": {
+      "label": "Plazo",
+      "noDeadline": "Sin plazo",
+      "undefined": "Sin plazo definido",
+      "closed": "âŒ Plazo finalizado",
+      "daysRemaining": "ðŸŸ¢ Quedan {count, plural, one {# dÃ­a} other {# dÃ­as}}",
+      "hoursRemaining": "ðŸŸ  Quedan {count, plural, one {# hora} other {# horas}}",
+      "lessThanHour": "âš ï¸ Vence en menos de 1 hora"
+    },
+    "score": {
+      "label": "Valor",
+      "points": "puntos"
+    },
+    "status": {
+      "label": "Estado de la entrega",
+      "graded": "â­ Corregida",
+      "submitted": "âœ… Entregada",
+      "submittedAt": "Enviada el: {date}",
+      "evaluated": "El profesor ya ha evaluado esta actividad.",
+      "awaitingReview": "Tu respuesta fue enviada y estÃ¡ pendiente de correcciÃ³n.",
+      "evaluation": "EvaluaciÃ³n",
+      "feedback": "Comentarios del profesor",
+      "closed": "âŒ El plazo ha finalizado. No es posible enviar esta actividad.",
+      "notSubmitted": "ðŸ“¤ AÃºn no enviada. Puedes enviar texto, un enlace o un archivo."
+    },
+    "instructions": "Instrucciones",
+    "attachments": {
+      "title": "ðŸ“Ž Archivos de la actividad ({count})",
+      "file": "Archivo"
+    },
+    "previous": {
+      "title": "Mi Ãºltima entrega",
+      "text": "Texto enviado",
+      "link": "Enlace enviado",
+      "file": "Archivo enviado",
+      "openFile": "Abrir {name}"
+    },
+    "form": {
+      "title": "Tu respuesta",
+      "textLabel": "Texto de la respuesta",
+      "textPlaceholder": "Escribe aquÃ­ tu respuesta al profesor...",
+      "linkLabel": "Enlace externo",
+      "linkPlaceholder": "Pega un enlace de Google Drive, OneDrive, YouTube u otro recurso en lÃ­nea.",
+      "fileLabel": "Archivo",
+      "selectFile": "Seleccionar archivo",
+      "fileHelp": "EnvÃ­a un PDF, imagen, documento, hoja de cÃ¡lculo, vÃ­deo o archivo comprimido. LÃ­mite: 500 MB.",
+      "remove": "Eliminar",
+      "declaration": "Al enviar esta actividad, confirmas que el contenido presentado es de tu autorÃ­a y que conoces las normas acadÃ©micas de la instituciÃ³n.",
+      "sending": "Enviando...",
+      "update": "ðŸ“¤ Actualizar entrega",
+      "submit": "ðŸ“¤ Enviar actividad"
+    },
+    "errors": {
+      "load": "Error al cargar la actividad.",
+      "notFound": "Actividad no encontrada.",
+      "fileTooLarge": "El archivo seleccionado tiene {size}, pero el lÃ­mite es 500 MB.",
+      "prepareUpload": "Error al preparar la carga.",
+      "upload": "Error al cargar el archivo.",
+      "submit": "Error al enviar la actividad."
+    }
+  },
+  "StudentAttendance": {
+    "common": {
+      "notProvided": "No informado"
+    },
+    "title": "Mi asistencia",
+    "subtitle": "Consulta tu asistencia por clase y revisa el resumen de asistencia.",
+    "loading": "Cargando tus registros de asistencia...",
+    "emptyData": "No hay datos de asistencia disponibles.",
+    "errors": {
+      "load": "Error al cargar la asistencia"
+    },
+    "summary": {
+      "total": "Total",
+      "present": "Presentes",
+      "absences": "Faltas",
+      "excused": "Justificadas",
+      "medicalCertificates": "Justificantes mÃ©dicos"
+    },
+    "frequency": {
+      "title": "Asistencia",
+      "description": "Las asistencias, faltas justificadas y justificantes mÃ©dicos cuentan como asistencia vÃ¡lida."
+    },
+    "history": {
+      "title": "Historial de asistencia",
+      "records": "{count, plural, =0 {NingÃºn registro} one {# registro} other {# registros}}",
+      "empty": "No se encontraron registros de asistencia."
+    },
+    "statuses": {
+      "present": "Presente",
+      "absent": "Falta",
+      "excused": "Justificada",
+      "medicalCertificate": "Justificante mÃ©dico"
+    },
+    "item": {
+      "lessonUnknown": "Clase no informada",
+      "classLabel": "Grupo",
+      "dateLabel": "Fecha",
+      "observation": "ObservaciÃ³n"
+    }
+  },
+  "StudentGradebook": {
+    "common": {
+      "notProvided": "No informado"
+    },
+    "hero": {
+      "eyebrow": "BoletÃ­n acadÃ©mico",
+      "title": "Consulta tus notas, promedios y rendimiento por asignatura",
+      "description": "Consulta las evaluaciones completadas, tu promedio por asignatura y tu panorama acadÃ©mico en un entorno claro, organizado y profesional."
+    },
+    "actions": {
+      "backToDashboard": "Volver al panel",
+      "refreshGradebook": "Actualizar boletÃ­n"
+    },
+    "metrics": {
+      "subjects": {
+        "title": "Asignaturas",
+        "heroDescription": "Total de asignaturas en tu boletÃ­n.",
+        "cardDescription": "Cantidad de asignaturas con notas registradas."
+      },
+      "exams": {
+        "title": "Evaluaciones registradas",
+        "cardDescription": "Total de evaluaciones vinculadas a tu historial actual."
+      },
+      "overallAverage": {
+        "title": "Promedio general",
+        "heroDescription": "Promedio consolidado de las asignaturas registradas.",
+        "cardDescription": "Resumen consolidado de tu rendimiento acadÃ©mico."
+      }
+    },
+    "loading": "Cargando boletÃ­n...",
+    "errors": {
+      "load": "Error al cargar el boletÃ­n"
+    },
+    "empty": {
+      "title": "No se encontraron notas",
+      "description": "Cuando completes evaluaciones, aparecerÃ¡n aquÃ­ en tu boletÃ­n."
+    },
+    "subject": {
+      "examCount": "{count, plural, =0 {Ninguna evaluaciÃ³n registrada} one {# evaluaciÃ³n registrada} other {# evaluaciones registradas}}",
+      "average": "Promedio: {value}"
+    },
+    "exam": {
+      "gradeLabel": "Nota",
+      "gradeNotReleased": "Nota aÃºn no publicada",
+      "statusLabel": "Estado",
+      "status": {
+        "finished": "Finalizada",
+        "inProgress": "En curso"
+      },
+      "finishedAtLabel": "FinalizaciÃ³n",
+      "awaitingRelease": "Pendiente de publicaciÃ³n"
+    },
+    "performance": {
+      "good": "Buen rendimiento",
+      "attention": "AtenciÃ³n",
+      "low": "Bajo rendimiento"
+    }
+  },
+  "StudentAcademicHistory": {
+    "common": {
+      "notProvided": "No informado"
+    },
+    "official": {
+      "title": "Expediente AcadÃ©mico Oficial",
+      "description": "Consulta e imprime tu expediente acadÃ©mico actualizado.",
+      "generate": "Generar expediente acadÃ©mico",
+      "generating": "Generando...",
+      "print": "Imprimir expediente",
+      "fileName": "expediente-academico.pdf"
+    },
+    "errors": {
+      "generateUnavailable": "No se puede generar el expediente acadÃ©mico ahora. Comprueba que exista una plantilla de Expediente activa.",
+      "generateFailed": "Error al generar el expediente acadÃ©mico. IntÃ©ntalo de nuevo en unos instantes."
+    },
+    "examHistory": {
+      "title": "Historial de Evaluaciones"
+    },
+    "average": "Promedio general: {value}",
+    "chart": {
+      "title": "Rendimiento por Asignatura",
+      "grade": "Nota"
+    },
+    "exam": {
+      "subjectId": "Asignatura ID {id}",
+      "gradeLabel": "Nota",
+      "approved": "Aprobado ðŸŽ‰",
+      "failed": "Suspenso âŒ",
+      "dateLabel": "Fecha",
+      "durationLabel": "Tiempo",
+      "duration": "{minutes, plural, =0 {0 min} one {# min} other {# min}} {seconds, plural, =0 {0 s} one {# s} other {# s}}",
+      "viewDetails": "Ver detalles"
+    },
+    "modal": {
+      "eyebrow": "Aviso PHANYX",
+      "title": "Expediente acadÃ©mico",
+      "understood": "Entendido"
+    }
+  },
+  "StudentMeetings": {
+    "common": {
+      "notProvided": "No informado"
+    },
+    "title": "Mis reuniones",
+    "description": "Consulta las reuniones a las que has sido invitado.",
+    "loading": "Cargando reuniones...",
+    "empty": "No hay reuniones disponibles en este momento.",
+    "join": "Entrar en la reuniÃ³n",
+    "errors": {
+      "load": "Error al cargar las reuniones."
+    }
+  },
+  "StudentNotes": {
+    "title": "Mis calificaciones",
+    "empty": "TodavÃ­a no se ha publicado ninguna calificaciÃ³n.",
+    "labels": {
+      "grade": "CalificaciÃ³n",
+      "status": "SituaciÃ³n",
+      "feedback": "Comentarios"
+    },
+    "situations": {
+      "approved": "Aprobado",
+      "recovery": "RecuperaciÃ³n",
+      "failed": "Reprobado"
+    }
+  },
+  "StudentCertificates": {
+    "common": {
+      "notProvided": "No informado"
+    },
+    "title": "Mis certificados",
+    "description": "AquÃ­ encontrarÃ¡s los certificados generados automÃ¡ticamente despuÃ©s de aprobar.",
+    "loading": "Cargando certificados...",
+    "empty": "TodavÃ­a no tienes certificados disponibles.",
+    "subjectFallback": "Asignatura",
+    "code": "CÃ³digo",
+    "issuedOn": "Emitido el",
+    "download": "Descargar certificado",
+    "validate": "Validar",
+    "errors": {
+      "load": "No se han podido cargar tus certificados."
+    }
+  },
+  "StudentCertificateDetail": {
+    "title": "Certificado de finalizaciÃ³n",
+    "certifyThat": "Certificamos que",
+    "completedSubject": "ha completado y aprobado la asignatura",
+    "workload": "Carga horaria: {hours, plural, one {# hora} other {# horas}}",
+    "completionDate": "Fecha de finalizaciÃ³n: {date}",
+    "registrationNumber": "Registro n.Âº {number}",
+    "printOrSave": "Imprimir / Guardar PDF",
+    "backToCertificates": "Volver a certificados",
+    "notFound": "Certificado no encontrado.",
+    "back": "Volver",
+    "notProvided": "No informada"
+  },
+  "StudentFinancialBlock": {
+    "title": "Acceso bloqueado por pagos pendientes",
+    "greeting": "Hola, {name}.",
+    "studentFallback": "estudiante",
+    "pendingDescription": "Tu acceso acadÃ©mico estÃ¡ bloqueado temporalmente porque existen pagos pendientes.",
+    "releaseDescription": "El acceso se restablecerÃ¡ automÃ¡ticamente cuando se regularice el pago y se actualice tu situaciÃ³n financiera.",
+    "goToLogin": "Ir al inicio de sesiÃ³n",
+    "tryAgain": "Intentar de nuevo"
+  },
+  "StudentLessonPage": {
+    "common": {
+      "unavailable": "no disponible"
+    },
+    "enrollmentStatus": {
+      "active": "Activa",
+      "pending": "Pendiente",
+      "overdue": "Pago pendiente",
+      "suspended": "Suspendida",
+      "cancelled": "Cancelada",
+      "completed": "Finalizada"
+    },
+    "blocked": {
+      "title": "Acceso a la clase no disponible",
+      "statusPrefix": "El estado de tu matrÃ­cula es",
+      "reason": "Por este motivo, el acceso al contenido de la clase estÃ¡ bloqueado temporalmente.",
+      "availableResources": "TodavÃ­a puedes acceder al Ã¡rea del estudiante para consultar tu estado, calificaciones y demÃ¡s informaciÃ³n acadÃ©mica."
+    },
+    "lessonTitle": "Clase {id}",
+    "description": "Consulta los materiales y sigue el contenido de la clase.",
+    "noMainMaterial": "No hay material disponible para esta clase.",
+    "materialsTitle": "Materiales de la clase",
+    "noMaterials": "No se ha aÃ±adido ningÃºn material.",
+    "typeLabel": "Tipo",
+    "open": "Abrir",
+    "materialTypes": {
+      "video": "VÃ­deo",
+      "audio": "Audio",
+      "document": "Documento",
+      "image": "Imagen",
+      "link": "Enlace",
+      "file": "Archivo"
+    },
+    "progress": {
+      "title": "Progreso",
+      "completed": "{percent}% completado"
+    },
+    "nextSteps": {
+      "title": "PrÃ³ximos pasos",
+      "watchMain": "Ver el contenido principal",
+      "openSupplementary": "Abrir los materiales complementarios",
+      "markCompleted": "Marcar la clase como completada"
+    }
+  },
+  "StudentActivityDetail": {
+    "back": "Volver a las actividades",
+    "loading": "Cargando actividad...",
+    "noDeadline": "Sin fecha lÃ­mite",
+    "labels": {
+      "subject": "Asignatura",
+      "deadline": "Fecha lÃ­mite",
+      "maximumScore": "PuntuaciÃ³n mÃ¡xima",
+      "class": "Clase"
+    },
+    "submission": {
+      "title": "Enviar actividad",
+      "description": "Puedes enviar una respuesta escrita, un enlace y la URL de un archivo.",
+      "textLabel": "Texto de la entrega",
+      "textPlaceholder": "Escribe tu respuesta u observaciones",
+      "linkLabel": "Enlace",
+      "fileUrlLabel": "URL del archivo",
+      "fileUrlPlaceholder": "https://archivo...",
+      "submitting": "Enviando...",
+      "submit": "Enviar actividad",
+      "success": "Actividad enviada correctamente."
+    },
+    "errors": {
+      "load": "No se pudo cargar la actividad.",
+      "notFound": "Actividad no encontrada.",
+      "submit": "No se pudo enviar la actividad. IntÃ©ntalo de nuevo."
+    }
+  },
+  "StudentProfileCompletion": {
+    "title": "Completa tu perfil",
+    "description": "MantÃ©n tus documentos, contratos y registros acadÃ©micos correctos con datos vÃ¡lidos para tu paÃ­s.",
+    "loading": "Cargando perfil...",
+    "saving": "Guardando...",
+    "save": "Guardar perfil",
+    "success": "Perfil actualizado correctamente.",
+    "common": {
+      "select": "Selecciona"
+    },
+    "modal": {
+      "title": "No se pudo completar el perfil",
+      "close": "Cerrar",
+      "help": "Revisa el problema indicado, corrige el campo correspondiente e intÃ©ntalo de nuevo.",
+      "understood": "Entendido"
+    },
+    "personal": {
+      "title": "Datos personales",
+      "officialName": "Nombre completo oficial",
+      "officialNameHelp": "Para cambiar el nombre oficial, contacta con secretarÃ­a.",
+      "socialName": "Nombre social",
+      "socialNamePlaceholder": "Indica tu nombre social, si lo deseas",
+      "gender": "GÃ©nero",
+      "birthDate": "Fecha de nacimiento",
+      "birthCountry": "PaÃ­s de nacimiento",
+      "nationality": "Nacionalidad",
+      "nationalityPlaceholder": "Ej.: espaÃ±ola",
+      "documentType": "Tipo de documento",
+      "documentNumber": "NÃºmero de documento",
+      "documentNumberPlaceholder": "Indica un documento emitido por tu paÃ­s",
+      "phone": "TelÃ©fono / WhatsApp"
+    },
+    "gender": {
+      "female": "Femenino",
+      "male": "Masculino",
+      "notInform": "Prefiero no indicarlo",
+      "other": "Otro"
+    },
+    "address": {
+      "title": "DirecciÃ³n",
+      "country": "PaÃ­s de residencia",
+      "postalCode": "CÃ³digo postal",
+      "postalCodePlaceholder": "Indica el cÃ³digo postal",
+      "street": "DirecciÃ³n",
+      "number": "NÃºmero",
+      "complement": "Complemento",
+      "district": "Barrio / Distrito",
+      "city": "Ciudad",
+      "region": "Estado / Provincia / RegiÃ³n",
+      "regionPlaceholder": "Indica el estado, provincia o regiÃ³n"
+    },
+    "guardian": {
+      "title": "Responsable",
+      "name": "Nombre del responsable",
+      "relationship": "Parentesco / vÃ­nculo",
+      "documentType": "Tipo de documento del responsable",
+      "documentNumber": "NÃºmero de documento del responsable",
+      "phone": "TelÃ©fono del responsable",
+      "email": "Correo del responsable"
+    },
+    "accessibility": {
+      "title": "Accesibilidad",
+      "hasNeed": "Tengo una necesidad especial o de accesibilidad",
+      "description": "DescripciÃ³n de la necesidad especial",
+      "notes": "Observaciones de accesibilidad"
+    },
+    "documents": {
+      "CPF": "CPF brasileÃ±o",
+      "RG": "RG brasileÃ±o",
+      "NIF": "NIF",
+      "CARTAO_CIDADAO": "Tarjeta de Ciudadano",
+      "SSN": "SSN",
+      "STATE_ID": "Documento estatal",
+      "DNI": "DNI",
+      "NIE": "NIE",
+      "CNI": "Documento nacional de identidad",
+      "PASSPORT": "Pasaporte",
+      "NATIONAL_ID": "Documento nacional de identidad",
+      "TAX_ID": "Documento fiscal",
+      "RESIDENCE_PERMIT": "Permiso de residencia",
+      "OTHER": "Otro documento"
+    },
+    "errors": {
+      "forbidden": "No tienes permiso para modificar este perfil.",
+      "studentNotFound": "No se encontrÃ³ el perfil del estudiante.",
+      "required": "Completa el tipo y nÃºmero de documento, el telÃ©fono y la fecha de nacimiento.",
+      "invalidPhone": "El telÃ©fono no es vÃ¡lido para el paÃ­s seleccionado.",
+      "invalidGuardianPhone": "El telÃ©fono del responsable no es vÃ¡lido para el paÃ­s seleccionado.",
+      "invalidPostalCode": "El cÃ³digo postal no corresponde al formato del paÃ­s seleccionado.",
+      "invalidDate": "La fecha de nacimiento no es vÃ¡lida.",
+      "invalidCountry": "Selecciona un paÃ­s vÃ¡lido.",
+      "load": "No se pudo cargar el perfil.",
+      "save": "No se pudo guardar el perfil.",
+      "generic": "Se produjo un problema inesperado. IntÃ©ntalo de nuevo."
+    }
+  },
+  "StudentOmbudsman": {
+    "eyebrow": "CANAL DE COMUNICACIÃ“N",
+    "title": "DefensorÃ­a",
+    "description": "Utiliza este espacio para enviar sugerencias, elogios, reclamaciones o informar de situaciones relacionadas con tus clases, atenciÃ³n, secretarÃ­a, finanzas o cualquier experiencia con la instituciÃ³n.",
+    "form": {
+      "typeLabel": "Tipo de comunicaciÃ³n",
+      "messageLabel": "Mensaje",
+      "messagePlaceholder": "Describe tu sugerencia, elogio, reclamaciÃ³n o informe...",
+      "submitting": "Enviando...",
+      "submit": "Enviar comunicaciÃ³n"
+    },
+    "types": {
+      "suggestion": "Sugerencia",
+      "complaint": "ReclamaciÃ³n",
+      "compliment": "Elogio",
+      "report": "Informe"
+    },
+    "validation": {
+      "messageRequired": "Escribe tu mensaje antes de enviarlo."
+    },
+    "errors": {
+      "submit": "No se pudo enviar tu comunicaciÃ³n."
+    },
+    "success": "Tu comunicaciÃ³n se enviÃ³ correctamente.",
+    "howItWorks": {
+      "title": "Â¿CÃ³mo funciona?",
+      "forwarded": "Tu comunicaciÃ³n serÃ¡ enviada al departamento responsable.",
+      "tracking": "PodrÃ¡s consultar su progreso posteriormente en esta Ã¡rea.",
+      "suggestions": "Las sugerencias ayudan a mejorar la experiencia de los estudiantes.",
+      "analysis": "Las reclamaciones y los informes serÃ¡n revisados por la instituciÃ³n."
+    }
+  },
+  "ProfessorDashboard": {
+    "title": "Panel del Profesor",
+    "professor": "Profesor",
+    "description": "Consulta tus exÃ¡menes, intentos y el rendimiento de las clases.",
+    "loading": "Cargando el panel...",
+    "errors": {
+      "imageUpload": "No se ha podido subir la imagen.",
+      "missingImageUrl": "La carga se completÃ³, pero no se devolviÃ³ la URL de la imagen.",
+      "savePhoto": "No se ha podido guardar la foto de perfil.",
+      "changePhoto": "No se ha podido cambiar la foto.",
+      "loadDashboard": "No se ha podido cargar el panel."
+    },
+    "photo": {
+      "uploading": "Subiendo...",
+      "change": "Cambiar foto",
+      "tips": "Consejos para la foto",
+      "instructions": "Para que tu foto quede bien centrada en el perfil, utiliza una imagen cuadrada (1:1), preferiblemente de 500x500 px o superior.",
+      "formats": "Formatos admitidos: PNG, JPG, JPEG y WEBP â€¢ TamaÃ±o mÃ¡ximo: 5 MB."
+    },
+    "statuses": {
+      "published": "Publicado",
+      "closed": "Cerrado",
+      "draft": "Borrador"
+    },
+    "stats": {
+      "totalExams": "Total de exÃ¡menes",
+      "drafts": "Borradores",
+      "published": "Publicados",
+      "closed": "Cerrados",
+      "completedAttempts": "Intentos finalizados",
+      "approved": "Aprobados",
+      "failed": "Suspensos",
+      "overallAverage": "Media general"
+    },
+    "recent": {
+      "title": "ExÃ¡menes recientes",
+      "description": "Vista rÃ¡pida de tus exÃ¡menes mÃ¡s recientes.",
+      "viewAll": "Ver todos",
+      "empty": "TodavÃ­a no se ha creado ningÃºn examen.",
+      "subject": "Asignatura",
+      "attempts": "Intentos",
+      "average": "Media",
+      "open": "Abrir",
+      "gradebook": "Calificaciones"
+    },
+    "shortcuts": {
+      "title": "Accesos directos",
+      "newExam": "Nuevo examen",
+      "manageExams": "Gestionar exÃ¡menes"
+    },
+    "summary": {
+      "title": "Resumen acadÃ©mico",
+      "totalExams": "{count, plural, =0 {No tienes exÃ¡menes registrados.} one {Tienes # examen registrado.} other {Tienes # exÃ¡menes registrados.}}",
+      "publishedExams": "{count, plural, =0 {No hay exÃ¡menes publicados en este momento.} one {Hay # examen publicado en este momento.} other {Hay # exÃ¡menes publicados en este momento.}}",
+      "completedAttempts": "{count, plural, =0 {No se ha registrado ningÃºn intento finalizado.} one {Se ha registrado # intento finalizado.} other {Se han registrado # intentos finalizados.}}",
+      "results": "{approved, plural, one {# alumno aprobado} other {# alumnos aprobados}} y {failed, plural, one {# alumno suspenso} other {# alumnos suspensos}}.",
+      "overallAverage": "La media general actual es {average}."
+    }
+  },
+  "Header": {
+    "studentPortal": "Portal del Estudiante",
+    "teacherPortal": "Portal del Profesor",
+    "adminArea": "Ãrea administrativa",
+    "academicPlatform": "Plataforma acadÃ©mica SaaS"
+  },
+  "ProfessorLayout": {
+    "logout": "Salir",
+    "mobileNav": {
+      "ariaLabel": "NavegaciÃ³n principal del profesor",
+      "dashboard": "Panel",
+      "classes": "Clases",
+      "substitutions": "Sustituciones",
+      "students": "Alumnos",
+      "lessons": "Clases",
+      "activities": "Actividades",
+      "assessments": "Evaluaciones",
+      "assignments": "Trabajos",
+      "meetings": "Reuniones",
+      "ombudsman": "DefensorÃ­a"
+    }
+  },
+  "ProfessorClassGradebook": {
+    "eyebrow": "BoletÃ­n acadÃ©mico",
+    "title": "BoletÃ­n de la clase {className}",
+    "loading": "Cargando boletÃ­n...",
+    "errorTitle": "Error al cargar el boletÃ­n",
+    "notFound": "BoletÃ­n no encontrado.",
+    "description": "Consulte las calificaciones, el estado y el rendimiento de los alumnos. Utilice la bÃºsqueda y los filtros para encontrar rÃ¡pidamente alumnos en clases numerosas.",
+    "exportHelp": "Archivo CSV. Utilice Excel para visualizarlo correctamente.",
+    "common": {
+      "notProvided": "â€”"
+    },
+    "disciplines": {
+      "count": "{count} disciplina(s)",
+      "linked": "Disciplinas vinculadas a la clase",
+      "show": "Ver disciplinas de la clase",
+      "empty": "No se ha informado ninguna disciplina."
+    },
+    "summary": {
+      "totalStudents": "Total de alumnos",
+      "classAverage": "Promedio de la clase",
+      "highestGrade": "Mejor calificaciÃ³n",
+      "lowestGrade": "CalificaciÃ³n mÃ¡s baja"
+    },
+    "students": {
+      "title": "Alumnos",
+      "displaying": "Mostrando {filtered} de {total} alumno(s).",
+      "emptyFiltered": "No se han encontrado alumnos con los filtros actuales."
+    },
+    "search": {
+      "label": "Buscar alumnos",
+      "placeholder": "Buscar por alumno, correo electrÃ³nico, calificaciÃ³n o estado..."
+    },
+    "filters": {
+      "all": "Todos ({count})",
+      "noExam": "Sin examen ({count})",
+      "approved": "Aprobados ({count})",
+      "failed": "Reprobados ({count})"
+    },
+    "status": {
+      "approved": "Aprobado",
+      "failed": "Reprobado",
+      "noExam": "Sin examen",
+      "unknown": "No informado"
+    },
+    "table": {
+      "student": "Alumno",
+      "email": "Correo electrÃ³nico",
+      "grade": "CalificaciÃ³n",
+      "status": "Estado",
+      "studentId": "ID del alumno: {id}"
+    },
+    "pagination": {
+      "page": "PÃ¡gina {current} de {total}",
+      "previous": "Anterior",
+      "next": "Siguiente"
+    },
+    "actions": {
+      "back": "â† Volver",
+      "retry": "Intentar de nuevo",
+      "exportCsv": "â¬‡ Exportar a Excel"
+    },
+    "feedback": {
+      "invalidClass": "Clase no vÃ¡lida.",
+      "loadError": "Error al cargar el boletÃ­n.",
+      "invalidResponse": "No se han podido interpretar los datos del boletÃ­n."
+    }
+  },
+  "ProfessorClassAttendance": {
+    "eyebrow": "Asistencia",
+    "title": "Asistencia de la clase",
+    "loading": "Cargando asistencia...",
+    "errorTitle": "No se ha podido cargar la asistencia",
+    "common": {
+      "notProvided": "â€”"
+    },
+    "fields": {
+      "class": "Clase",
+      "lesson": "Clase",
+      "enrollment": "MatrÃ­cula",
+      "email": "Correo electrÃ³nico",
+      "studentStatus": "Estado del alumno",
+      "disciplineStatus": "Estado de la disciplina",
+      "attendance": "Asistencia",
+      "observation": "ObservaciÃ³n"
+    },
+    "summary": {
+      "total": "Total",
+      "present": "Presentes",
+      "absent": "Ausentes",
+      "justified": "Justificadas",
+      "medicalCertificates": "Justificantes mÃ©dicos"
+    },
+    "attendanceEntry": {
+      "title": "Registro de asistencia",
+      "description": "Marque la asistencia individualmente o utilice las acciones rÃ¡pidas."
+    },
+    "attendance": {
+      "present": "Presente",
+      "absent": "Ausente",
+      "justified": "Justificada",
+      "medicalCertificate": "Justificante mÃ©dico"
+    },
+    "studentStatus": {
+      "active": "Activo",
+      "locked": "Suspendido temporalmente",
+      "suspended": "Suspendido",
+      "delinquent": "Moroso",
+      "transferred": "Transferido",
+      "inactive": "Desvinculado",
+      "graduated": "Graduado",
+      "cancelled": "Cancelado",
+      "medicalLeave": "Baja mÃ©dica",
+      "missing": "Ausente"
+    },
+    "disciplineStatus": {
+      "toTake": "Pendiente de cursar",
+      "inProgress": "En curso",
+      "completed": "Completado",
+      "locked": "Suspendido temporalmente",
+      "failed": "Reprobado",
+      "cancelled": "Cancelado"
+    },
+    "empty": {
+      "title": "No hay alumnos matriculados en esta clase",
+      "description": "No hay alumnos disponibles para registrar la asistencia en esta clase."
+    },
+    "placeholders": {
+      "observation": "Ej.: llegÃ³ tarde, presentÃ³ un justificante mÃ©dico..."
+    },
+    "actions": {
+      "back": "â† Volver",
+      "retry": "Intentar de nuevo",
+      "allPresent": "Todos presentes",
+      "allAbsent": "Todos ausentes",
+      "allJustified": "Todos justificados",
+      "save": "Guardar asistencia",
+      "saving": "Guardando asistencia..."
+    },
+    "feedback": {
+      "invalidClass": "Clase no vÃ¡lida.",
+      "invalidLesson": "Clase no vÃ¡lida.",
+      "loadError": "Error al cargar la asistencia.",
+      "invalidResponse": "No se han podido interpretar los datos de asistencia.",
+      "saveError": "Error al guardar la asistencia.",
+      "saveSuccess": "Â¡Asistencia guardada correctamente!"
+    }
+  },
+  "ProfessorClassLessons": {
+    "eyebrow": "Clase",
+    "title": "Clases de la turma",
+    "loading": "Cargando clases...",
+    "errorTitle": "Error al cargar las clases",
+    "classFallback": "Turma {id}",
+    "fields": {
+      "class": "Turma",
+      "discipline": "Disciplina",
+      "lessonTitle": "TÃ­tulo",
+      "description": "DescripciÃ³n",
+      "duration": "DuraciÃ³n (minutos)",
+      "lessonUrl": "Enlace de la clase, vÃ­deo o transmisiÃ³n en directo"
+    },
+    "discipline": {
+      "notSelected": "No se ha seleccionado ninguna disciplina",
+      "title": "Seleccione la disciplina",
+      "description": "Elija una disciplina de esta turma para visualizar y gestionar las clases correspondientes.",
+      "empty": "No se ha encontrado ninguna disciplina vinculada a esta turma para el profesor.",
+      "open": "Abrir clases",
+      "fallbackWithId": "Disciplina {id}"
+    },
+    "newLesson": {
+      "eyebrow": "Nueva clase",
+      "title": "AÃ±adir clase",
+      "urlHelp": "Opcional. Utilice este campo para una clase grabada, una clase en directo o una transmisiÃ³n. Los materiales y enlaces de apoyo estÃ¡n disponibles en el Ã¡rea de Materiales."
+    },
+    "placeholders": {
+      "title": "Ej.: IntroducciÃ³n al Derecho Constitucional",
+      "description": "Resumen del contenido de la clase",
+      "duration": "Ej.: 20",
+      "url": "Pegue el enlace de YouTube, Google Meet, Zoom, Teams o una transmisiÃ³n en directo"
+    },
+    "lessons": {
+      "title": "Clases registradas",
+      "description": "Consulte y gestione las clases vinculadas a la disciplina seleccionada.",
+      "emptyTitle": "TodavÃ­a no se ha creado ninguna clase",
+      "emptyDescription": "AÃ±ada la primera clase de esta disciplina utilizando el formulario anterior.",
+      "duration": "{minutes} min",
+      "noDuration": "DuraciÃ³n no indicada",
+      "materialsHelp": "En esta clase, el profesor puede aÃ±adir archivos, PDF, documentos, imÃ¡genes y enlaces de apoyo desde el Ã¡rea de Materiales."
+    },
+    "edit": {
+      "title": "Editar clase"
+    },
+    "deleteModal": {
+      "title": "Confirmar eliminaciÃ³n",
+      "description": "Â¿EstÃ¡ seguro de que desea eliminar la clase \"{title}\"?",
+      "warning": "Esta acciÃ³n no se puede deshacer."
+    },
+    "actions": {
+      "back": "â† Volver",
+      "retry": "Intentar de nuevo",
+      "saving": "Guardando...",
+      "addLesson": "AÃ±adir clase",
+      "edit": "Editar",
+      "attendance": "Tomar asistencia",
+      "materials": "Materiales",
+      "deleting": "Eliminando...",
+      "delete": "Eliminar",
+      "openLesson": "Abrir clase / transmisiÃ³n",
+      "close": "Cerrar",
+      "cancel": "Cancelar",
+      "saveChanges": "Guardar cambios",
+      "confirmDelete": "Confirmar eliminaciÃ³n"
+    },
+    "validation": {
+      "titleRequired": "Introduzca el tÃ­tulo de la clase.",
+      "invalidDuration": "Introduzca una duraciÃ³n vÃ¡lida mayor que cero.",
+      "invalidUrl": "Introduzca un enlace vÃ¡lido que comience por http:// o https://."
+    },
+    "feedback": {
+      "invalidClass": "Turma no vÃ¡lida.",
+      "invalidDiscipline": "Disciplina no vÃ¡lida. Vuelva a Mis Turmas y abra la disciplina correcta.",
+      "loadClassesError": "Error al cargar las turmas.",
+      "invalidClassesResponse": "No se ha podido interpretar la lista de turmas.",
+      "classNotFound": "No se ha encontrado la turma para este profesor.",
+      "disciplineNotFound": "No se ha encontrado la disciplina para este profesor en esta turma. Compruebe si la disciplina estÃ¡ vinculada al profesor en el Ã¡rea de administraciÃ³n.",
+      "loadLessonsError": "Error al cargar las clases.",
+      "invalidLessonsResponse": "No se ha podido interpretar la lista de clases.",
+      "loadPageError": "Error al cargar la pÃ¡gina.",
+      "createError": "No se ha podido crear la clase.",
+      "createSuccess": "Â¡Clase creada correctamente!",
+      "editError": "No se ha podido editar la clase.",
+      "editSuccess": "Â¡Clase actualizada correctamente!",
+      "deleteError": "No se ha podido eliminar la clase.",
+      "deleteSuccess": "Clase eliminada correctamente."
+    }
+  },
+  "ProfessorClassDetail": {
+    "eyebrow": "Clase",
+    "title": "Detalles de la clase",
+    "description": "Acceda a las Ã¡reas acadÃ©micas relacionadas con esta clase y consulte los recursos disponibles para el profesor.",
+    "classReference": "Referencia de la clase: {id}",
+    "invalid": {
+      "title": "Clase no vÃ¡lida",
+      "description": "No se ha podido identificar correctamente la clase indicada en esta ruta."
+    },
+    "modules": {
+      "lessons": {
+        "title": "Clases de la turma",
+        "description": "Acceda y gestione las clases vinculadas a esta turma.",
+        "action": "Gestionar clases"
+      },
+      "gradebook": {
+        "title": "BoletÃ­n de la turma",
+        "description": "Consulte el boletÃ­n y los registros acadÃ©micos disponibles de esta turma.",
+        "action": "Ver boletÃ­n"
+      }
+    },
+    "studentsIntegration": {
+      "title": "IntegraciÃ³n de la lista de alumnos en curso",
+      "description": "Esta pÃ¡gina todavÃ­a no dispone de una fuente real de alumnos vinculados a la turma. Se eliminaron los alumnos simulados y las calificaciones almacenadas Ãºnicamente en el navegador para evitar datos incorrectos."
+    },
+    "students": {
+      "title": "Alumnos de la turma",
+      "description": "Los alumnos vinculados a esta turma aparecerÃ¡n aquÃ­ cuando la integraciÃ³n acadÃ©mica estÃ© disponible.",
+      "emptyTitle": "No hay alumnos cargados en esta pÃ¡gina",
+      "emptyDescription": "Por ahora, consulte los alumnos desde el Ã¡rea general de alumnos del profesor."
+    },
+    "actions": {
+      "back": "â† Volver a clases",
+      "viewStudents": "Ver alumnos"
+    },
+    "safetyNotice": "No se mostrarÃ¡ ningÃºn alumno, calificaciÃ³n o estado ficticio como dato acadÃ©mico real en esta pÃ¡gina."
+  },
+  "ProfessorClassStudent": {
+    "eyebrow": "Alumno de la clase",
+    "title": "Registro acadÃ©mico del alumno",
+    "description": "Esta pÃ¡gina representa el acceso individual a un alumno dentro de las clases del profesor, pero todavÃ­a debe estar vinculada a datos acadÃ©micos reales antes de permitir el registro de calificaciones.",
+    "studentReference": "Referencia del alumno: {id}",
+    "invalid": {
+      "title": "Alumno no vÃ¡lido",
+      "description": "No se ha podido identificar correctamente al alumno indicado en esta ruta."
+    },
+    "integration": {
+      "title": "VinculaciÃ³n acadÃ©mica necesaria",
+      "description": "Para registrar una calificaciÃ³n de forma segura, es necesario identificar la clase, la disciplina y la evaluaciÃ³n o actividad correspondiente. Esta pÃ¡gina no guardarÃ¡ ningÃºn dato hasta que estos vÃ­nculos estÃ©n correctamente establecidos."
+    },
+    "available": {
+      "title": "Ãreas disponibles",
+      "description": "Utilice los mÃ³dulos que ya trabajan con datos acadÃ©micos reales.",
+      "classes": {
+        "title": "Clases",
+        "description": "Consulte sus clases, los alumnos vinculados y la informaciÃ³n acadÃ©mica disponible.",
+        "action": "Ver clases"
+      },
+      "exams": {
+        "title": "Evaluaciones",
+        "description": "Acceda a evaluaciones, intentos y calificaciones vinculadas a las evaluaciones de los alumnos.",
+        "action": "Ver evaluaciones"
+      }
+    },
+    "safetyNotice": "Esta pÃ¡gina no guardarÃ¡ ninguna calificaciÃ³n ficticia ni sin vinculaciÃ³n acadÃ©mica.",
+    "actions": {
+      "backToClasses": "â† Volver a clases"
+    }
+  },
+  "ProfessorWorkSubmissionDetail": {
+    "eyebrow": "Trabajos",
+    "title": "CorrecciÃ³n de la entrega",
+    "submissionReference": "Entrega #{id}",
+    "loading": "Cargando entrega...",
+    "errorTitle": "Error al cargar la entrega",
+    "common": {
+      "notProvided": "â€”"
+    },
+    "fields": {
+      "student": "Alumno",
+      "class": "Clase",
+      "course": "Curso",
+      "status": "Estado",
+      "submittedAt": "Fecha de entrega",
+      "correctedAt": "Fecha de correcciÃ³n",
+      "activityTitle": "TÃ­tulo",
+      "maximumGrade": "CalificaciÃ³n mÃ¡xima",
+      "deadline": "Fecha lÃ­mite",
+      "enrollment": "MatrÃ­cula",
+      "semester": "Semestre",
+      "academicPeriod": "PerÃ­odo acadÃ©mico",
+      "grade": "CalificaciÃ³n",
+      "feedback": "Comentario para el alumno"
+    },
+    "status": {
+      "sent": "Enviado",
+      "graded": "Evaluado",
+      "review": "En revisiÃ³n"
+    },
+    "activity": {
+      "title": "Actividad",
+      "noDescription": "No se ha proporcionado una descripciÃ³n."
+    },
+    "academic": {
+      "title": "Datos acadÃ©micos"
+    },
+    "submission": {
+      "title": "Entrega del alumno",
+      "noText": "El alumno no ha enviado texto.",
+      "noLink": "No se ha enviado ningÃºn enlace",
+      "noFile": "No se ha enviado ningÃºn archivo"
+    },
+    "grading": {
+      "title": "EvaluaciÃ³n",
+      "maximumGrade": "CalificaciÃ³n mÃ¡xima: {maximum}",
+      "gradePlaceholder": "Introduzca la calificaciÃ³n",
+      "gradeHelp": "La calificaciÃ³n debe estar entre 0 y {maximum}.",
+      "feedbackPlaceholder": "Introduzca el comentario de la correcciÃ³n..."
+    },
+    "history": {
+      "title": "Historial de versiones",
+      "version": "VersiÃ³n {version}",
+      "submittedAt": "Enviada el: {date}",
+      "empty": "No hay versiones anteriores registradas."
+    },
+    "actions": {
+      "back": "â† Volver a trabajos",
+      "retry": "Intentar de nuevo",
+      "openSubmittedLink": "Abrir enlace enviado",
+      "openSubmittedFile": "Abrir archivo enviado",
+      "openLink": "Abrir enlace",
+      "openFile": "Abrir archivo",
+      "save": "Guardar correcciÃ³n",
+      "saving": "Guardando..."
+    },
+    "validation": {
+      "gradeRequired": "Introduzca la calificaciÃ³n.",
+      "invalidGrade": "Introduzca una calificaciÃ³n vÃ¡lida igual o mayor que cero.",
+      "gradeAboveMaximum": "La calificaciÃ³n no puede ser mayor que {maximum}."
+    },
+    "feedback": {
+      "invalidSubmission": "Entrega no vÃ¡lida.",
+      "loadError": "Error al cargar la entrega.",
+      "invalidResponse": "No se han podido interpretar los datos de la entrega.",
+      "notFound": "Entrega no encontrada.",
+      "saveError": "No se ha podido guardar la correcciÃ³n.",
+      "saveSuccess": "CorrecciÃ³n guardada correctamente."
+    }
+  },
+  "ProfessorProgress": {
+    "eyebrow": "Progreso acadÃ©mico",
+    "title": "Progreso de los alumnos",
+    "description": "Supervise los mÃ³dulos acadÃ©micos relacionados con el desarrollo de los alumnos y acceda a datos reales de clases y estudiantes.",
+    "integration": {
+      "title": "IntegraciÃ³n de progreso en preparaciÃ³n",
+      "description": "Esta pÃ¡gina todavÃ­a no cuenta con una vinculaciÃ³n acadÃ©mica completa para registrar el progreso individual de cada alumno. Para evitar informaciÃ³n ficticia o datos guardados Ãºnicamente en el navegador, utilice las Ã¡reas integradas disponibles a continuaciÃ³n."
+    },
+    "available": {
+      "title": "Ãreas disponibles",
+      "description": "Consulte los mÃ³dulos que ya trabajan con alumnos y clases reales.",
+      "classes": {
+        "title": "Clases",
+        "description": "Acceda a sus clases, alumnos vinculados y demÃ¡s informaciÃ³n acadÃ©mica relacionada.",
+        "action": "Ver clases"
+      },
+      "students": {
+        "title": "Alumnos",
+        "description": "Consulte los alumnos vinculados al profesor y acceda a sus registros disponibles.",
+        "action": "Ver alumnos"
+      }
+    },
+    "progress": {
+      "title": "Seguimiento del progreso",
+      "description": "El progreso individual aparecerÃ¡ en esta Ã¡rea cuando estÃ© correctamente vinculado al alumno, curso y perÃ­odo acadÃ©mico.",
+      "emptyTitle": "No hay progreso consolidado disponible",
+      "emptyDescription": "Por ahora, consulte los datos de los alumnos y las clases directamente en los mÃ³dulos acadÃ©micos disponibles."
+    },
+    "actions": {
+      "viewClasses": "Ver clases",
+      "viewStudents": "Ver alumnos"
+    },
+    "safetyNotice": "Esta pÃ¡gina no guardarÃ¡ ningÃºn progreso ficticio ni sin vinculaciÃ³n acadÃ©mica."
+  },
+  "ProfessorStudentGrade": {
+    "eyebrow": "Registro de calificaciÃ³n",
+    "title": "CalificaciÃ³n del alumno",
+    "description": "Esta pÃ¡gina representa un registro individual de calificaciÃ³n, pero todavÃ­a debe estar vinculada a datos acadÃ©micos reales antes de permitir el guardado.",
+    "studentReference": "Referencia del alumno: {id}",
+    "invalid": {
+      "title": "Alumno no vÃ¡lido",
+      "description": "No se ha podido identificar correctamente al alumno indicado en esta ruta."
+    },
+    "integration": {
+      "title": "VinculaciÃ³n acadÃ©mica necesaria",
+      "description": "Para registrar una calificaciÃ³n de forma segura, es necesario identificar al alumno, la disciplina y la evaluaciÃ³n o actividad correspondiente. Esta pÃ¡gina no guardarÃ¡ ningÃºn dato hasta que estos vÃ­nculos estÃ©n correctamente establecidos."
+    },
+    "available": {
+      "title": "Utilice los mÃ³dulos ya integrados",
+      "description": "Mientras esta ruta individual no disponga de una integraciÃ³n completa, utilice las Ã¡reas que ya trabajan con datos acadÃ©micos reales.",
+      "exams": {
+        "title": "Evaluaciones",
+        "description": "Acceda a evaluaciones, intentos y calificaciones vinculadas a las evaluaciones de los alumnos.",
+        "action": "Ver evaluaciones"
+      },
+      "classes": {
+        "title": "Clases",
+        "description": "Consulte las clases y los alumnos vinculados antes de acceder a los registros acadÃ©micos.",
+        "action": "Ver clases"
+      }
+    },
+    "safetyNotice": "Esta pÃ¡gina no guardarÃ¡ ninguna calificaciÃ³n ficticia ni sin vinculaciÃ³n acadÃ©mica.",
+    "actions": {
+      "back": "â† Volver a calificaciones"
+    }
+  },
+  "ProfessorGrades": {
+    "eyebrow": "Ãrea del Profesor",
+    "title": "Centro de calificaciones",
+    "description": "Supervise las Ã¡reas en las que se generan calificaciones y acceda a los mÃ³dulos acadÃ©micos relacionados.",
+    "integration": {
+      "title": "Centro consolidado en preparaciÃ³n",
+      "description": "Esta pÃ¡gina todavÃ­a no cuenta con una integraciÃ³n consolidada de todas las calificaciones de las clases. Para evitar mostrar datos incompletos o ficticios, utilice los mÃ³dulos acadÃ©micos disponibles a continuaciÃ³n."
+    },
+    "available": {
+      "title": "Ãreas disponibles",
+      "description": "Acceda directamente a los mÃ³dulos que ya contienen datos reales de clases, evaluaciones, actividades y entregas."
+    },
+    "modules": {
+      "classes": {
+        "title": "Clases",
+        "description": "Consulte sus clases, los alumnos vinculados y demÃ¡s informaciÃ³n acadÃ©mica.",
+        "action": "Ver clases"
+      },
+      "exams": {
+        "title": "Evaluaciones",
+        "description": "Cree evaluaciones, supervise los intentos y consulte las calificaciones obtenidas por los alumnos.",
+        "action": "Ver evaluaciones"
+      },
+      "activities": {
+        "title": "Actividades",
+        "description": "Gestione actividades acadÃ©micas y supervise lo que se ha publicado para los alumnos.",
+        "action": "Ver actividades"
+      },
+      "submissions": {
+        "title": "Entregas",
+        "description": "Supervise las entregas de los alumnos y realice o revise las correcciones.",
+        "action": "Ver entregas"
+      }
+    },
+    "consolidated": {
+      "title": "Vista consolidada de calificaciones",
+      "description": "La consolidaciÃ³n automÃ¡tica de calificaciones de evaluaciones, actividades y otras valoraciones aparecerÃ¡ aquÃ­ cuando la integraciÃ³n estÃ© disponible.",
+      "emptyTitle": "No hay datos consolidados disponibles",
+      "emptyDescription": "Por ahora, consulte las calificaciones y correcciones directamente en los mÃ³dulos de evaluaciones, actividades, entregas y clases."
+    },
+    "actions": {
+      "viewExams": "Ver evaluaciones",
+      "viewClasses": "Ver clases"
+    }
+  },
+  "ProfessorSubmissionDetail": {
+    "eyebrow": "Entrega",
+    "title": "CorrecciÃ³n de la entrega",
+    "loading": "Cargando entrega...",
+    "errorTitle": "Error al cargar la entrega",
+    "notFound": "Entrega no encontrada.",
+    "activityFallback": "Actividad",
+    "studentFallback": "Alumno",
+    "studentFallbackWithId": "Alumno {id}",
+    "date": {
+      "notProvided": "â€”"
+    },
+    "grade": {
+      "notProvided": "No indicada"
+    },
+    "fields": {
+      "student": "Alumno",
+      "submittedAt": "Entregado el",
+      "maximumGrade": "CalificaciÃ³n mÃ¡xima",
+      "correctedAt": "Corregida el",
+      "grade": "CalificaciÃ³n",
+      "gradePlaceholder": "Ej.: 8,5",
+      "maximumGradeHelp": "La calificaciÃ³n mÃ¡xima de esta actividad es {maximum}.",
+      "feedback": "Feedback",
+      "feedbackPlaceholder": "Escriba un comentario para el alumno"
+    },
+    "content": {
+      "text": "Texto",
+      "link": "Enlace",
+      "file": "Archivo",
+      "empty": "â€”"
+    },
+    "correction": {
+      "eyebrow": "CorrecciÃ³n",
+      "title": "Corregir entrega",
+      "description": "Introduzca la calificaciÃ³n y el comentario que se registrarÃ¡n para esta entrega."
+    },
+    "actions": {
+      "back": "â† Volver a entregas",
+      "retry": "Intentar de nuevo",
+      "openLink": "Abrir enlace",
+      "openFile": "Abrir archivo",
+      "save": "Guardar correcciÃ³n",
+      "saving": "Guardando..."
+    },
+    "validation": {
+      "invalidGrade": "Introduzca una calificaciÃ³n vÃ¡lida igual o mayor que cero.",
+      "gradeAboveMaximum": "La calificaciÃ³n no puede ser mayor que {maximum}."
+    },
+    "feedback": {
+      "invalidSubmission": "Entrega no vÃ¡lida.",
+      "loadError": "Error al cargar la entrega.",
+      "invalidResponse": "No se han podido interpretar los datos de la entrega.",
+      "missingCorrectionData": "No se ha podido identificar la actividad o el alumno de esta entrega.",
+      "saveError": "No se ha podido guardar la correcciÃ³n.",
+      "saveSuccess": "CorrecciÃ³n guardada correctamente."
+    },
+    "toast": {
+      "successTitle": "Todo listo",
+      "errorTitle": "No se ha podido guardar"
+    }
+  },
+  "ProfessorSubmissions": {
+    "eyebrow": "Entregas",
+    "title": "Entregas de los alumnos",
+    "description": "Realice el seguimiento de las actividades enviadas por los alumnos y acceda a cada entrega para corregirla o revisar la correcciÃ³n.",
+    "loading": "Cargando entregas...",
+    "activityFallback": "Actividad",
+    "studentFallback": "Alumno",
+    "studentFallbackWithId": "Alumno {id}",
+    "date": {
+      "notProvided": "Fecha no indicada"
+    },
+    "fields": {
+      "student": "Alumno",
+      "activity": "Actividad",
+      "submittedAt": "Entregado el"
+    },
+    "status": {
+      "corrected": "Corregida",
+      "pending": "Pendiente de correcciÃ³n"
+    },
+    "grade": {
+      "withMaximum": "CalificaciÃ³n: {grade} / {maximum}",
+      "withoutMaximum": "CalificaciÃ³n: {grade}"
+    },
+    "empty": {
+      "title": "No se encontraron entregas",
+      "description": "Las entregas enviadas por los alumnos aparecerÃ¡n aquÃ­ para su correcciÃ³n."
+    },
+    "actions": {
+      "retry": "Intentar de nuevo",
+      "correct": "Corregir entrega",
+      "review": "Revisar correcciÃ³n",
+      "viewActivity": "Ver actividad"
+    },
+    "feedback": {
+      "loadError": "Error al cargar las entregas.",
+      "invalidActivitiesResponse": "No se ha podido interpretar la lista de actividades."
+    }
+  },
+  "ProfessorDisciplineExam": {
+    "eyebrow": "EvaluaciÃ³n",
+    "title": "Examen â€” {discipline}",
+    "description": "Cree y edite las preguntas del examen vinculado a esta disciplina.",
+    "notFound": {
+      "title": "Disciplina no encontrada",
+      "description": "No se ha podido localizar esta disciplina."
+    },
+    "empty": {
+      "title": "No se han aÃ±adido preguntas",
+      "description": "AÃ±ada la primera pregunta para empezar a preparar el examen."
+    },
+    "question": {
+      "number": "Pregunta {number}",
+      "title": "Pregunta",
+      "alternative": "OpciÃ³n {number}",
+      "markCorrect": "Marcar la opciÃ³n {number} como correcta",
+      "correct": "Correcta"
+    },
+    "fields": {
+      "statement": "Enunciado",
+      "statementPlaceholder": "Introduzca el enunciado de la pregunta",
+      "alternatives": "Opciones"
+    },
+    "actions": {
+      "back": "â† Volver",
+      "addQuestion": "+ AÃ±adir pregunta",
+      "removeQuestion": "Eliminar pregunta",
+      "save": "Guardar examen",
+      "saving": "Guardando..."
+    },
+    "validation": {
+      "questionRequired": "AÃ±ada al menos una pregunta al examen.",
+      "statementRequired": "Introduzca el enunciado de la pregunta {number}.",
+      "alternativesRequired": "La pregunta {number} debe tener al menos dos opciones.",
+      "emptyAlternative": "Complete todas las opciones de la pregunta {number}.",
+      "correctAlternativeRequired": "Seleccione una opciÃ³n correcta para la pregunta {number}."
+    },
+    "feedback": {
+      "saveError": "No se ha podido guardar el examen."
+    }
+  },
+  "ProfessorDisciplineLessonDetail": {
+    "eyebrow": "Clase",
+    "notFound": {
+      "title": "Clase no encontrada",
+      "description": "No se ha podido localizar esta clase."
+    },
+    "video": {
+      "frameTitle": "VÃ­deo de la clase",
+      "unavailable": "No hay ningÃºn vÃ­deo disponible para esta clase."
+    },
+    "materials": {
+      "eyebrow": "Materiales",
+      "title": "Materiales de la clase",
+      "description": "Suba y acceda a los materiales de apoyo de esta clase.",
+      "selectFile": "Seleccionar archivo",
+      "selectedFile": "Archivo seleccionado: {name}",
+      "empty": "No se han aÃ±adido materiales."
+    },
+    "edit": {
+      "eyebrow": "EdiciÃ³n",
+      "title": "Editar clase"
+    },
+    "fields": {
+      "title": "TÃ­tulo de la clase",
+      "videoUrl": "URL del vÃ­deo"
+    },
+    "actions": {
+      "back": "â† Volver",
+      "uploadFile": "Subir archivo",
+      "uploading": "Subiendo...",
+      "open": "Abrir",
+      "editLesson": "Editar clase",
+      "deleteLesson": "Eliminar clase",
+      "save": "Guardar cambios",
+      "saving": "Guardando...",
+      "cancel": "Cancelar",
+      "deleting": "Eliminando..."
+    },
+    "validation": {
+      "titleRequired": "Introduzca el tÃ­tulo de la clase.",
+      "videoRequired": "Introduzca la URL del vÃ­deo.",
+      "invalidVideoUrl": "Introduzca una URL vÃ¡lida que comience por http:// o https://."
+    },
+    "feedback": {
+      "updateSuccess": "Clase actualizada correctamente.",
+      "updateError": "No se ha podido actualizar la clase.",
+      "deleteError": "No se ha podido eliminar la clase.",
+      "uploadPrepareError": "No se ha podido preparar la subida del archivo.",
+      "invalidUploadResponse": "La respuesta del servidor para la subida no es vÃ¡lida.",
+      "storageUploadError": "Error al subir el archivo al almacenamiento.",
+      "uploadSuccess": "Archivo subido correctamente.",
+      "uploadError": "No se ha podido subir el archivo."
+    },
+    "deleteModal": {
+      "title": "Confirmar eliminaciÃ³n",
+      "message": "Â¿EstÃ¡ seguro de que desea eliminar la clase \"{title}\"?",
+      "warning": "Esta acciÃ³n no se puede deshacer.",
+      "confirm": "Confirmar eliminaciÃ³n"
+    }
+  },
+  "ProfessorDisciplineLessons": {
+    "eyebrow": "Disciplina",
+    "title": "Clases de la disciplina",
+    "description": "Cree y gestione las clases de esta disciplina.",
+    "newLesson": {
+      "eyebrow": "Nueva clase",
+      "title": "Crear clase",
+      "description": "Introduzca los datos de la clase que se vincularÃ¡ a esta disciplina."
+    },
+    "fields": {
+      "title": "TÃ­tulo",
+      "titlePlaceholder": "Ej.: IntroducciÃ³n a la disciplina",
+      "description": "DescripciÃ³n",
+      "descriptionPlaceholder": "Resumen u orientaciones de la clase",
+      "duration": "DuraciÃ³n (min)",
+      "durationPlaceholder": "Ej.: 60",
+      "videoUrl": "URL del vÃ­deo",
+      "videoUrlPlaceholder": "https://...",
+      "videoUrlHelp": "Opcional. Introduzca un enlace vÃ¡lido que comience por http:// o https://."
+    },
+    "actions": {
+      "create": "Crear clase",
+      "saving": "Guardando...",
+      "openVideo": "Abrir vÃ­deo"
+    },
+    "validation": {
+      "titleRequired": "Introduzca el tÃ­tulo de la clase.",
+      "invalidDuration": "Introduzca una duraciÃ³n vÃ¡lida mayor que cero.",
+      "invalidVideoUrl": "Introduzca una URL vÃ¡lida que comience por http:// o https://."
+    },
+    "feedback": {
+      "invalidDiscipline": "Disciplina no vÃ¡lida.",
+      "loadError": "Error al cargar las clases.",
+      "invalidResponse": "No se ha podido interpretar la lista de clases.",
+      "createError": "Error al crear la clase.",
+      "createSuccess": "Clase creada correctamente."
+    },
+    "lessonList": {
+      "eyebrow": "Contenido",
+      "title": "Clases creadas",
+      "loading": "Cargando clases...",
+      "emptyTitle": "No hay clases creadas",
+      "emptyDescription": "Cree la primera clase de esta disciplina.",
+      "duration": "DuraciÃ³n: {minutes} min",
+      "durationNotProvided": "DuraciÃ³n no indicada",
+      "videoAvailable": "VÃ­deo disponible",
+      "videoUnavailable": "Sin vÃ­deo"
+    }
+  },
+  "ProfessorDisciplineActivities": {
+    "eyebrow": "Disciplina",
+    "title": "Actividades de la disciplina",
+    "description": "Acceda al mÃ³dulo de actividades para crear y gestionar actividades relacionadas con esta disciplina.",
+    "empty": {
+      "title": "No se muestran actividades en esta pÃ¡gina",
+      "description": "Actualmente, las actividades se gestionan desde el mÃ³dulo de Actividades del profesor."
+    },
+    "actions": {
+      "newActivity": "+ Nueva actividad",
+      "createFirst": "Crear actividad"
+    },
+    "integration": {
+      "title": "IntegraciÃ³n con actividades",
+      "description": "Esta pÃ¡gina todavÃ­a no dispone de una fuente de datos propia para mostrar Ãºnicamente las actividades de esta disciplina. Utilice el mÃ³dulo de Actividades para crear, publicar y realizar el seguimiento de las actividades."
+    }
+  },
+  "ProfessorDisciplineDetail": {
+    "eyebrow": "Disciplina",
+    "noDescription": "Esta disciplina todavÃ­a no tiene una descripciÃ³n registrada.",
+    "notFound": {
+      "title": "Disciplina no encontrada",
+      "description": "No se ha podido localizar esta disciplina."
+    },
+    "students": {
+      "eyebrow": "Alumnos",
+      "title": "Alumnos matriculados",
+      "description": "Realice el seguimiento de los alumnos vinculados a esta disciplina y de sus calificaciones.",
+      "empty": "No hay alumnos matriculados.",
+      "grade": "CalificaciÃ³n: {grade}",
+      "approved": "Aprobado",
+      "failed": "Reprobado",
+      "noGrade": "Sin calificaciÃ³n"
+    },
+    "exam": {
+      "eyebrow": "EvaluaciÃ³n",
+      "title": "Examen de la disciplina",
+      "description": "Cree o edite el examen vinculado a esta disciplina.",
+      "action": "Crear / editar examen"
+    },
+    "newLesson": {
+      "eyebrow": "Clase",
+      "title": "Nueva clase",
+      "description": "AÃ±ada una nueva clase a la disciplina."
+    },
+    "lessons": {
+      "eyebrow": "Contenido",
+      "title": "Clases",
+      "empty": "TodavÃ­a no se han creado clases."
+    },
+    "fields": {
+      "lessonTitle": "TÃ­tulo de la clase",
+      "lessonTitlePlaceholder": "Ej.: IntroducciÃ³n al contenido",
+      "videoUrl": "Enlace del vÃ­deo",
+      "videoUrlPlaceholder": "https://youtube.com/..."
+    },
+    "actions": {
+      "back": "â† Volver",
+      "addLesson": "AÃ±adir clase",
+      "addingLesson": "AÃ±adiendo...",
+      "openLesson": "Abrir clase â†’"
+    },
+    "validation": {
+      "lessonTitleRequired": "Introduzca el tÃ­tulo de la clase.",
+      "videoRequired": "Introduzca el enlace del vÃ­deo.",
+      "invalidVideoUrl": "Introduzca una URL vÃ¡lida que comience por http:// o https://."
+    },
+    "feedback": {
+      "lessonAdded": "Clase aÃ±adida correctamente.",
+      "lessonAddError": "No se ha podido aÃ±adir la clase."
+    }
+  },
+  "ProfessorNewDiscipline": {
+    "back": "â† Volver",
+    "eyebrow": "Disciplina",
+    "title": "Nueva disciplina",
+    "description": "Cree una nueva disciplina e introduzca los datos bÃ¡sicos para empezar a organizarla.",
+    "fields": {
+      "name": "Nombre",
+      "namePlaceholder": "Ej.: TeologÃ­a SistemÃ¡tica",
+      "description": "DescripciÃ³n",
+      "descriptionPlaceholder": "Describa los objetivos, contenidos o informaciÃ³n importante de la disciplina.",
+      "professorEmail": "Correo electrÃ³nico del profesor",
+      "professorEmailPlaceholder": "profesor@institucion.com",
+      "professorEmailHelp": "Introduzca el correo electrÃ³nico del profesor responsable de la disciplina.",
+      "workload": "Carga horaria",
+      "workloadPlaceholder": "Ej.: 40",
+      "hours": "horas"
+    },
+    "actions": {
+      "cancel": "Cancelar",
+      "create": "Crear disciplina",
+      "creating": "Creando..."
+    },
+    "validation": {
+      "nameRequired": "Introduzca el nombre de la disciplina.",
+      "emailRequired": "Introduzca el correo electrÃ³nico del profesor.",
+      "invalidEmail": "Introduzca una direcciÃ³n de correo electrÃ³nico vÃ¡lida.",
+      "invalidWorkload": "Introduzca una carga horaria vÃ¡lida."
+    },
+    "feedback": {
+      "createError": "No se ha podido crear la disciplina."
+    }
+  },
+  "ProfessorDisciplines": {
+    "eyebrow": "Disciplinas",
+    "title": "Disciplinas",
+    "description": "Acceda, cree y gestione las disciplinas vinculadas a su Ã¡rea de profesor.",
+    "card": {
+      "label": "Disciplina"
+    },
+    "empty": {
+      "title": "TodavÃ­a no se han creado disciplinas",
+      "description": "Cree una nueva disciplina para empezar a organizar clases, actividades y evaluaciones."
+    },
+    "actions": {
+      "new": "Nueva disciplina",
+      "open": "Abrir disciplina â†’",
+      "delete": "Eliminar",
+      "deleting": "Eliminando...",
+      "cancel": "Cancelar"
+    },
+    "deleteModal": {
+      "title": "Confirmar eliminaciÃ³n",
+      "message": "Â¿EstÃ¡ seguro de que desea eliminar la disciplina \"{name}\"?",
+      "warning": "Esta acciÃ³n no se puede deshacer.",
+      "confirm": "Confirmar eliminaciÃ³n"
+    },
+    "feedback": {
+      "deleteError": "Error al eliminar la disciplina.",
+      "deleteSuccess": "Disciplina eliminada correctamente."
+    }
+  },
+  "ProfessorEvaluationAttemptDetail": {
+    "eyebrow": "EvaluaciÃ³n",
+    "title": "Respuestas del alumno",
+    "description": "Consulte las respuestas enviadas por el alumno en este intento.",
+    "loading": "Cargando respuestas...",
+    "errorTitle": "Error",
+    "notFound": "Intento no encontrado.",
+    "studentFallback": "Alumno",
+    "examFallback": "-",
+    "questionNumber": "Pregunta {number}",
+    "fields": {
+      "student": "Alumno",
+      "exam": "Examen",
+      "studentAnswer": "Respuesta del alumno",
+      "grade": "CalificaciÃ³n"
+    },
+    "answer": {
+      "empty": "â€”"
+    },
+    "grade": {
+      "empty": "â€”"
+    },
+    "empty": {
+      "title": "No se encontraron respuestas",
+      "description": "Este intento todavÃ­a no tiene respuestas registradas."
+    },
+    "actions": {
+      "back": "â† Volver",
+      "retry": "Intentar de nuevo"
+    },
+    "feedback": {
+      "invalidAttempt": "Intento no vÃ¡lido.",
+      "loadError": "Error al cargar el intento.",
+      "invalidResponse": "No se han podido interpretar los datos del intento."
+    }
+  },
+  "ProfessorEvaluationsResults": {
+    "eyebrow": "Evaluaciones",
+    "title": "Resultados de los exÃ¡menes",
+    "description": "Realice el seguimiento de los intentos enviados por los alumnos y consulte las respuestas de cada evaluaciÃ³n.",
+    "loading": "Cargando evaluaciones...",
+    "empty": "No se encontraron resultados.",
+    "fields": {
+      "student": "Alumno",
+      "exam": "Examen",
+      "grade": "CalificaciÃ³n"
+    },
+    "grade": {
+      "empty": "-"
+    },
+    "status": {
+      "approved": "Aprobado",
+      "failed": "Reprobado",
+      "pending": "Pendiente"
+    },
+    "actions": {
+      "retry": "Intentar de nuevo",
+      "viewAnswers": "Ver respuestas â†’"
+    },
+    "feedback": {
+      "loadError": "Error al cargar las evaluaciones.",
+      "invalidResponse": "No se han podido interpretar los resultados de las evaluaciones."
+    }
+  },
+  "ProfessorLessonMaterials": {
+    "back": "â† Volver",
+    "title": "Materiales de la clase",
+    "description": "Consulte, aÃ±ada, edite o elimine los materiales de esta clase.",
+    "materialTypes": {
+      "file": "Archivo",
+      "pdf": "PDF",
+      "document": "Documento",
+      "presentation": "PresentaciÃ³n",
+      "link": "Enlace",
+      "video": "VÃ­deo"
+    },
+    "library": {
+      "eyebrow": "Biblioteca de la clase",
+      "title": "Materiales guardados",
+      "description": "Archivos, enlaces, vÃ­deos y documentos de apoyo de esta clase.",
+      "count": "{count} material(es)",
+      "loading": "Cargando materiales...",
+      "emptyTitle": "TodavÃ­a no se han aÃ±adido materiales",
+      "emptyDescription": "AÃ±ada apuntes, vÃ­deos, PDFs, enlaces o documentos para los alumnos.",
+      "secureStorage": "Material almacenado de forma segura en PHANYX"
+    },
+    "newMaterial": {
+      "title": "AÃ±adir nuevo material"
+    },
+    "fields": {
+      "title": "TÃ­tulo",
+      "titlePlaceholder": "Ej.: Material de la clase",
+      "type": "Tipo",
+      "url": "URL",
+      "urlPlaceholder": "https://...",
+      "videoUrlPlaceholder": "https://youtube.com/..."
+    },
+    "upload": {
+      "title": "Subida del archivo",
+      "description": "El archivo se enviarÃ¡ al almacenamiento de PHANYX.",
+      "select": "Seleccionar archivo",
+      "send": "Subir archivo",
+      "uploading": "Subiendo...",
+      "selected": "Archivo seleccionado: {name}",
+      "noneSelected": "NingÃºn archivo seleccionado.",
+      "progress": "Subida: {progress}%",
+      "success": "Archivo enviado correctamente.",
+      "fileInfo": "{name} â€¢ {size} bytes"
+    },
+    "actions": {
+      "open": "Abrir",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "save": "Guardar material",
+      "saving": "Guardando...",
+      "cancel": "Cancelar",
+      "saveChanges": "Guardar cambios",
+      "deleting": "Eliminando..."
+    },
+    "editModal": {
+      "title": "Editar material",
+      "close": "Cerrar"
+    },
+    "deleteModal": {
+      "title": "Confirmar eliminaciÃ³n",
+      "message": "Â¿EstÃ¡ seguro de que desea eliminar el material \"{title}\"?",
+      "warning": "Esta acciÃ³n no se puede deshacer.",
+      "confirm": "Confirmar eliminaciÃ³n"
+    },
+    "validation": {
+      "fileRequired": "Seleccione un archivo para subir.",
+      "titleRequired": "Introduzca el tÃ­tulo del material.",
+      "linkUrlRequired": "Introduzca la URL del enlace.",
+      "videoUrlRequired": "Introduzca la URL del vÃ­deo.",
+      "urlRequired": "Introduzca la URL del material.",
+      "invalidUrl": "Introduzca una URL vÃ¡lida que comience por http:// o https://.",
+      "uploadBeforeSave": "Suba el archivo antes de guardar."
+    },
+    "feedback": {
+      "invalidLesson": "Clase no vÃ¡lida.",
+      "loadError": "Error al cargar los materiales.",
+      "invalidResponse": "No se ha podido interpretar la lista de materiales.",
+      "uploadError": "Error al subir el archivo.",
+      "uploadNoUrl": "La subida se completÃ³, pero no se devolviÃ³ ninguna URL.",
+      "uploadSuccess": "Archivo enviado correctamente.",
+      "createError": "Error al guardar el material.",
+      "createSuccess": "Material creado correctamente.",
+      "editError": "Error al editar el material.",
+      "editSuccess": "Material editado correctamente.",
+      "deleteError": "Error al eliminar el material.",
+      "deleteSuccess": "Material eliminado correctamente."
+    }
+  },
+  "ProfessorEditActivity": {
+    "eyebrow": "Actividad",
+    "title": "Editar actividad",
+    "description": "Configure los detalles de la actividad que estarÃ¡ disponible para los alumnos.",
+    "loading": "Cargando actividad...",
+    "classFallback": "Clase {id}",
+    "currentClassFallback": "Clase actual #{id}",
+    "blockedMessage": "Esta actividad tiene actualmente el estado {status}. SegÃºn la regla actual del sistema, solo se pueden editar las actividades en borrador.",
+    "statusHelp": "La publicaciÃ³n, retirada de publicaciÃ³n y cierre de la actividad se realizan desde la pÃ¡gina de detalles.",
+    "status": {
+      "draft": "Borrador",
+      "published": "Publicada",
+      "closed": "Cerrada",
+      "unknown": "Estado no identificado"
+    },
+    "fields": {
+      "title": "TÃ­tulo de la actividad",
+      "titlePlaceholder": "Ej.: Trabajo sobre escatologÃ­a",
+      "description": "DescripciÃ³n",
+      "descriptionPlaceholder": "Explique lo que el alumno debe hacer...",
+      "deadline": "Fecha lÃ­mite",
+      "class": "Clase",
+      "classPlaceholder": "Seleccione una clase",
+      "maximumGrade": "CalificaciÃ³n mÃ¡xima",
+      "status": "Estado"
+    },
+    "actions": {
+      "retry": "Intentar de nuevo",
+      "save": "Actualizar actividad",
+      "saving": "Guardando...",
+      "blocked": "EdiciÃ³n bloqueada",
+      "cancel": "Cancelar"
+    },
+    "validation": {
+      "titleRequired": "Introduzca el tÃ­tulo de la actividad.",
+      "classRequired": "Seleccione una clase vÃ¡lida.",
+      "invalidMaximumGrade": "La calificaciÃ³n mÃ¡xima debe ser mayor que cero.",
+      "invalidDeadline": "Introduzca una fecha lÃ­mite vÃ¡lida.",
+      "formInvalid": "Corrija los campos obligatorios para continuar."
+    },
+    "feedback": {
+      "loadError": "Error al cargar la actividad.",
+      "classesLoadError": "Error al cargar las clases.",
+      "invalidResponse": "No se han podido interpretar los datos de la actividad.",
+      "classesInvalidResponse": "No se ha podido interpretar la lista de clases.",
+      "editBlocked": "Esta actividad no puede editarse mientras no estÃ© en estado de borrador.",
+      "saveError": "Error al guardar la actividad.",
+      "saveSuccess": "Actividad actualizada correctamente."
+    }
+  },
+  "ProfessorActivityDetail": {
+    "loading": "Cargando actividad...",
+    "back": "â† Volver a actividades",
+    "closedMessage": "Actividad cerrada",
+    "studentFallback": "Alumno {id}",
+    "studentUnknown": "Alumno no identificado",
+    "dates": {
+      "noDate": "Sin fecha"
+    },
+    "status": {
+      "published": "Publicada",
+      "closed": "Cerrada",
+      "draft": "Borrador",
+      "unknown": "Estado no identificado"
+    },
+    "details": {
+      "subject": "Asignatura:",
+      "deadline": "Fecha lÃ­mite:",
+      "maximumGrade": "CalificaciÃ³n mÃ¡xima:",
+      "class": "Clase:",
+      "notProvided": "No informada"
+    },
+    "submissions": {
+      "title": "Entregas",
+      "description": "Lista de entregas enviadas por los alumnos.",
+      "empty": "TodavÃ­a no se han registrado entregas.",
+      "submittedAt": "Entregado el:",
+      "grade": "CalificaciÃ³n:",
+      "text": "Texto:",
+      "feedback": "Comentarios:"
+    },
+    "actions": {
+      "retry": "Intentar de nuevo",
+      "publish": "Publicar",
+      "publishing": "Publicando...",
+      "unpublish": "Retirar publicaciÃ³n",
+      "unpublishing": "Retirando publicaciÃ³n...",
+      "close": "Cerrar",
+      "closing": "Cerrando...",
+      "openLink": "Abrir enlace",
+      "openFile": "Abrir archivo",
+      "gradeSubmission": "Corregir entrega"
+    },
+    "feedback": {
+      "loadError": "Error al cargar la actividad.",
+      "invalidResponse": "No se han podido interpretar los datos de la actividad.",
+      "publishError": "Error al publicar la actividad.",
+      "publishSuccess": "Actividad publicada correctamente.",
+      "unpublishError": "Error al devolver la actividad al estado de borrador.",
+      "unpublishSuccess": "La actividad volviÃ³ al estado de borrador correctamente.",
+      "closeError": "Error al cerrar la actividad.",
+      "closeSuccess": "Actividad cerrada correctamente."
+    }
+  },
+  "ProfessorNewActivity": {
+    "loading": "Cargando datos...",
+    "back": "â† Volver a actividades",
+    "title": "Nueva actividad",
+    "description": "Cree una nueva actividad para su asignatura.",
+    "classFallback": "Clase {id}",
+    "classesEmpty": "No hay clases disponibles para crear esta actividad.",
+    "fields": {
+      "title": "TÃ­tulo",
+      "titlePlaceholder": "Ej.: Trabajo sobre la RevoluciÃ³n Industrial",
+      "description": "DescripciÃ³n",
+      "descriptionPlaceholder": "Describa la actividad",
+      "class": "Clase",
+      "classPlaceholder": "Seleccione una clase",
+      "deadline": "Fecha lÃ­mite",
+      "maximumGrade": "CalificaciÃ³n mÃ¡xima"
+    },
+    "attachment": {
+      "title": "Archivo adjunto de la actividad",
+      "description": "Suba un PDF, una imagen o un documento para acompaÃ±ar la actividad.",
+      "select": "Seleccionar archivo",
+      "selected": "Archivo seleccionado: {name}",
+      "upload": "Subir archivo adjunto",
+      "uploading": "Subiendo archivo...",
+      "bytes": "bytes",
+      "uploaded": {
+        "file": "Archivo enviado:",
+        "type": "Tipo:",
+        "size": "TamaÃ±o:"
+      }
+    },
+    "actions": {
+      "retry": "Intentar de nuevo",
+      "create": "Crear actividad",
+      "saving": "Guardando..."
+    },
+    "publishModal": {
+      "title": "Â¿Publicar actividad?",
+      "description": "La actividad se creÃ³ como borrador. Â¿Desea publicarla ahora para los alumnos?",
+      "keepDraft": "Mantener como borrador",
+      "publishNow": "Publicar ahora",
+      "publishing": "Publicando..."
+    },
+    "validation": {
+      "fileRequired": "Seleccione un archivo para subir.",
+      "titleRequired": "Introduzca el tÃ­tulo de la actividad.",
+      "classRequired": "Seleccione una clase.",
+      "subjectRequired": "La clase seleccionada debe estar vinculada a una asignatura.",
+      "invalidMaximumGrade": "La calificaciÃ³n mÃ¡xima debe ser mayor que cero.",
+      "invalidDeadline": "Introduzca una fecha lÃ­mite vÃ¡lida."
+    },
+    "feedback": {
+      "classesLoadError": "Error al cargar las clases.",
+      "classesInvalidResponse": "No se ha podido interpretar la lista de clases.",
+      "loadError": "Error al cargar los datos.",
+      "uploadError": "Error al subir el archivo.",
+      "uploadInvalidResponse": "No se han podido interpretar los datos del archivo enviado.",
+      "uploadSuccess": "Archivo enviado correctamente.",
+      "createError": "Error al crear la actividad.",
+      "createInvalidResponse": "La actividad se creÃ³, pero no se pudo identificar el registro generado.",
+      "createSuccess": "Actividad creada correctamente.",
+      "createWithAttachmentSuccess": "Actividad creada correctamente con el archivo adjunto vinculado.",
+      "publishError": "Error al publicar la actividad.",
+      "publishSuccess": "Actividad publicada correctamente."
+    }
+  },
+  "ProfessorExamGradebook": {
+    "loading": "Cargando boletÃ­n...",
+    "back": "â† Volver al examen",
+    "title": "BoletÃ­n del examen",
+    "description": "Consulte el rendimiento de los alumnos en esta evaluaciÃ³n.",
+    "examSummary": "Nota mÃ¡xima: {max} â€¢ Estado: {status}",
+    "summary": {
+      "students": "Alumnos con intentos",
+      "average": "Media de la clase",
+      "performance": "Nivel de rendimiento"
+    },
+    "performance": {
+      "good": "Buen rendimiento",
+      "attention": "AtenciÃ³n",
+      "low": "Bajo rendimiento"
+    },
+    "attemptStatus": {
+      "finished": "Finalizado",
+      "inProgress": "En curso"
+    },
+    "examStatus": {
+      "draft": "Borrador",
+      "published": "Publicado",
+      "closed": "Cerrado",
+      "cancelled": "Cancelado"
+    },
+    "students": {
+      "title": "Rendimiento de los alumnos",
+      "description": "Lista de alumnos con un intento registrado en el examen.",
+      "empty": "No se han encontrado intentos.",
+      "status": "Estado:",
+      "finishedAt": "FinalizaciÃ³n:",
+      "grade": "CalificaciÃ³n: {grade}"
+    },
+    "actions": {
+      "retry": "Intentar de nuevo",
+      "viewAttempt": "Ver intento"
+    },
+    "feedback": {
+      "loadError": "Error al cargar el boletÃ­n del examen.",
+      "invalidResponse": "No se han podido interpretar los datos del boletÃ­n."
+    }
+  },
+  "ProfessorEditAlternative": {
+    "loading": "Cargando alternativa...",
+    "notFound": "Alternativa no encontrada",
+    "title": "Editar alternativa",
+    "description": "Actualice el texto y defina si esta es la alternativa correcta.",
+    "back": "Volver a la pregunta",
+    "fields": {
+      "text": "Texto de la alternativa",
+      "placeholder": "Introduzca el texto de la alternativa",
+      "correct": "Marcar como alternativa correcta"
+    },
+    "actions": {
+      "retry": "Intentar de nuevo",
+      "save": "Guardar alternativa",
+      "saving": "Guardando...",
+      "delete": "Eliminar alternativa",
+      "deleting": "Eliminando..."
+    },
+    "deleteModal": {
+      "title": "Confirmar eliminaciÃ³n",
+      "message": "Â¿EstÃ¡ seguro de que desea eliminar esta alternativa?",
+      "warning": "Esta acciÃ³n no se puede deshacer.",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar eliminaciÃ³n"
+    },
+    "validation": {
+      "textRequired": "Introduzca el texto de la alternativa."
+    },
+    "feedback": {
+      "examLoadError": "Error al cargar el examen.",
+      "invalidResponse": "No se han podido interpretar los datos del examen.",
+      "questionNotFound": "Pregunta no encontrada.",
+      "notFound": "Alternativa no encontrada.",
+      "loadError": "Error al cargar la alternativa.",
+      "saveError": "Error al guardar la alternativa.",
+      "saveSuccess": "Alternativa actualizada correctamente.",
+      "deleteError": "Error al eliminar la alternativa.",
+      "deleteSuccess": "Alternativa eliminada correctamente."
+    }
+  },
+  "ProfessorAttemptDetail": {
+    "loading": "Cargando intento...",
+    "notFound": "Intento no encontrado",
+    "back": "â† Volver",
+    "title": "Intento #{id}",
+    "exam": "Examen: {title}",
+    "studentFallback": "Alumno {id}",
+    "studentUnknown": "Alumno no identificado",
+    "status": {
+      "finished": "Finalizado",
+      "inProgress": "En curso"
+    },
+    "summary": {
+      "student": "Alumno",
+      "currentGrade": "CalificaciÃ³n actual",
+      "answers": "Respuestas",
+      "objective": "Objetivas",
+      "discursive": "Discursivas"
+    },
+    "dates": {
+      "startedAt": "Inicio",
+      "finishedAt": "FinalizaciÃ³n"
+    },
+    "questionTypes": {
+      "multipleChoice": "OpciÃ³n mÃºltiple",
+      "discursive": "Discursiva"
+    },
+    "answers": {
+      "title": "Respuestas del intento",
+      "description": "Revise cada respuesta antes de corregir las preguntas discursivas.",
+      "empty": "No hay respuestas registradas en este intento.",
+      "questionNumber": "Pregunta {number}",
+      "value": "Valor {value}",
+      "currentGrade": "CalificaciÃ³n actual:",
+      "selectedAlternative": "Alternativa seleccionada",
+      "noAlternative": "No se seleccionÃ³ ninguna alternativa",
+      "studentAnswer": "Respuesta del alumno",
+      "noAnswer": "Sin respuesta"
+    },
+    "grading": {
+      "title": "CorrecciÃ³n de las preguntas discursivas",
+      "description": "Asigne una calificaciÃ³n y comentarios a cada respuesta discursiva.",
+      "discursiveNumber": "Discursiva {number}",
+      "maximumValue": "Valor mÃ¡ximo: {value}",
+      "grade": "CalificaciÃ³n",
+      "maximumPlaceholder": "MÃ¡ximo: {value}",
+      "feedback": "Comentarios",
+      "feedbackPlaceholder": "Comentario opcional"
+    },
+    "actions": {
+      "retry": "Intentar de nuevo",
+      "save": "Guardar correcciÃ³n",
+      "saving": "Guardando correcciÃ³n..."
+    },
+    "validation": {
+      "gradeRequired": "Introduzca la calificaciÃ³n de la pregunta discursiva {number}.",
+      "invalidGrade": "La calificaciÃ³n debe estar entre 0 y {max}."
+    },
+    "feedback": {
+      "loadError": "Error al cargar el intento.",
+      "invalidResponse": "No se han podido interpretar los datos del intento.",
+      "saveError": "Error al corregir las respuestas discursivas.",
+      "saveSuccess": "CorrecciÃ³n guardada correctamente."
+    }
+  },
+  "ProfessorExamAttempts": {
+    "loading": "Cargando intentos...",
+    "title": "Intentos del examen",
+    "description": "Consulte los intentos realizados por los alumnos y revise las calificaciones registradas.",
+    "empty": "TodavÃ­a no se ha registrado ningÃºn intento.",
+    "studentFallback": "Alumno {id}",
+    "studentUnknown": "Alumno no identificado",
+    "grade": "CalificaciÃ³n: {grade}",
+    "status": {
+      "finished": "Finalizado",
+      "inProgress": "En curso"
+    },
+    "actions": {
+      "view": "Ver intento",
+      "retry": "Intentar de nuevo"
+    },
+    "feedback": {
+      "loadError": "Error al cargar los intentos.",
+      "invalidResponse": "No se ha podido interpretar la lista de intentos."
+    }
+  },
+  "ProfessorEditQuestion": {
+    "loading": "Cargando pregunta...",
+    "notFound": "Pregunta no encontrada",
+    "title": "Editar pregunta",
+    "questionNumber": "Pregunta {number} del examen",
+    "back": "Volver al examen",
+    "fields": {
+      "statement": "Enunciado",
+      "complementaryQuestion": "Pregunta complementaria",
+      "optional": "Opcional",
+      "type": "Tipo",
+      "value": "Valor"
+    },
+    "questionTypes": {
+      "multipleChoice": "OpciÃ³n mÃºltiple",
+      "discursive": "Discursiva"
+    },
+    "actions": {
+      "save": "Guardar pregunta",
+      "saving": "Guardando...",
+      "delete": "Eliminar pregunta",
+      "deleting": "Eliminando...",
+      "edit": "Editar"
+    },
+    "alternatives": {
+      "title": "Alternativas",
+      "description": "AÃ±ada las alternativas de la pregunta.",
+      "textLabel": "Texto de la alternativa",
+      "placeholder": "Introduzca la alternativa",
+      "markCorrect": "Marcar como correcta",
+      "add": "AÃ±adir alternativa",
+      "adding": "AÃ±adiendo...",
+      "correct": "Alternativa correcta",
+      "incorrect": "Alternativa incorrecta",
+      "empty": "TodavÃ­a no se han aÃ±adido alternativas."
+    },
+    "deleteModal": {
+      "title": "Confirmar eliminaciÃ³n",
+      "message": "Â¿EstÃ¡ seguro de que desea eliminar esta pregunta?",
+      "warning": "Esta acciÃ³n no se puede deshacer.",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar eliminaciÃ³n"
+    },
+    "validation": {
+      "statementRequired": "Introduzca el enunciado de la pregunta.",
+      "invalidValue": "El valor de la pregunta debe ser mayor que cero.",
+      "alternativeRequired": "Introduzca el texto de la alternativa."
+    },
+    "feedback": {
+      "examLoadError": "Error al cargar el examen.",
+      "loadError": "Error al cargar la pregunta.",
+      "notFound": "Pregunta no encontrada.",
+      "saveError": "Error al guardar la pregunta.",
+      "saveSuccess": "Pregunta actualizada correctamente.",
+      "deleteError": "Error al eliminar la pregunta.",
+      "deleteSuccess": "Pregunta eliminada correctamente.",
+      "alternativeCreateError": "Error al crear la alternativa.",
+      "alternativeCreateSuccess": "Alternativa aÃ±adida correctamente."
+    }
+  },
+  "ProfessorNewQuestion": {
+    "back": "Volver al examen",
+    "title": "Nueva pregunta",
+    "description": "Cree preguntas de opciÃ³n mÃºltiple o discursivas. Al combinar ambos tipos, el examen se convertirÃ¡ automÃ¡ticamente en hÃ­brido.",
+    "questionType": {
+      "label": "Tipo de pregunta",
+      "multipleChoice": "OpciÃ³n mÃºltiple",
+      "discursive": "Discursiva",
+      "descriptions": {
+        "multipleChoice": "Pregunta con alternativas. Marque una respuesta correcta.",
+        "discursive": "Pregunta abierta respondida en texto libre. Requiere correcciÃ³n manual por parte del profesor."
+      }
+    },
+    "value": {
+      "label": "Valor de la pregunta"
+    },
+    "statement": {
+      "label": "Enunciado / pregunta",
+      "placeholder": "Introduzca la pregunta"
+    },
+    "alternatives": {
+      "title": "Alternativas",
+      "description": "Complete las opciones y marque una como correcta.",
+      "correct": "Correcta",
+      "placeholder": "Alternativa {number}",
+      "remove": "Eliminar",
+      "add": "AÃ±adir alternativa"
+    },
+    "modelAnswer": {
+      "label": "Respuesta modelo",
+      "placeholder": "Opcional. UtilÃ­cela como referencia para la correcciÃ³n manual."
+    },
+    "actions": {
+      "cancel": "Cancelar",
+      "creating": "Creando...",
+      "create": "Crear pregunta"
+    },
+    "validation": {
+      "statementRequired": "Introduzca el enunciado de la pregunta.",
+      "invalidValue": "El valor de la pregunta debe ser mayor que cero.",
+      "minimumAlternatives": "Introduzca al menos 2 alternativas.",
+      "oneCorrectAlternative": "Marque exactamente una respuesta correcta."
+    },
+    "feedback": {
+      "createError": "Error al crear la pregunta."
+    }
+  },
+  "ProfessorExamDetail": {
+    "loading": "Cargando examen...",
+    "notFound": "Examen no encontrado",
+    "back": "Volver a los exÃ¡menes",
+    "description": "Gestione los datos del examen y prepare las preguntas.",
+    "statuses": {
+      "published": "Publicado",
+      "closed": "Cerrado",
+      "draft": "Borrador"
+    },
+    "actions": {
+      "viewAttempts": "Ver intentos",
+      "publish": "Publicar examen",
+      "publishing": "Publicando...",
+      "close": "Cerrar examen",
+      "closing": "Cerrando...",
+      "edit": "Editar"
+    },
+    "summary": {
+      "maximumGrade": "Nota mÃ¡xima",
+      "time": "Tiempo",
+      "minutes": "{count} min",
+      "free": "Sin lÃ­mite de tiempo",
+      "questions": "Preguntas",
+      "types": "Tipos",
+      "typeCounts": "{multiple} opciÃ³n mÃºltiple â€¢ {discursive} discursiva"
+    },
+    "questions": {
+      "title": "Preguntas",
+      "description": "AÃ±ada, revise y organice las preguntas de este examen.",
+      "new": "Nueva pregunta",
+      "empty": "TodavÃ­a no hay preguntas registradas.",
+      "number": "Pregunta {number}",
+      "value": "Valor {value}",
+      "alternatives": "{count, plural, one {# alternativa registrada} other {# alternativas registradas}}"
+    },
+    "questionTypes": {
+      "discursive": "Discursiva",
+      "multipleChoice": "OpciÃ³n mÃºltiple"
+    },
+    "publishWarning": "Para publicar el examen, aÃ±ada al menos 1 pregunta.",
+    "closeModal": {
+      "title": "Confirmar cierre",
+      "message": "Â¿EstÃ¡ seguro de que desea cerrar el examen <strong>{title}</strong>?",
+      "warning": "Una vez cerrado, el examen no podrÃ¡ recibir nuevos intentos.",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar cierre"
+    },
+    "feedback": {
+      "loadError": "Error al cargar el examen",
+      "publishError": "Error al publicar el examen",
+      "publishSuccess": "Examen publicado correctamente",
+      "closeError": "Error al cerrar el examen",
+      "closeSuccess": "Examen cerrado correctamente"
+    }
+  },
+  "ProfessorNewExam": {
+    "back": "Volver a los exÃ¡menes",
+    "title": "Nuevo examen",
+    "description": "Cree una nueva evaluaciÃ³n y despuÃ©s aÃ±ada las preguntas.",
+    "draftNotice": "El examen se crearÃ¡ inicialmente como borrador.",
+    "loadingForm": "Cargando formulario...",
+    "examData": {
+      "title": "Datos del examen",
+      "description": "Complete la informaciÃ³n principal de la evaluaciÃ³n."
+    },
+    "fields": {
+      "title": "TÃ­tulo",
+      "description": "DescripciÃ³n",
+      "subject": "Asignatura",
+      "class": "Clase",
+      "maximumGrade": "Nota mÃ¡xima",
+      "timeMinutes": "Tiempo (minutos)",
+      "maxAttempts": "MÃ¡x. intentos",
+      "availableAt": "Disponible desde",
+      "closesAt": "Finaliza el"
+    },
+    "placeholders": {
+      "title": "Ej.: Examen 1 - IntroducciÃ³n al Derecho",
+      "description": "Instrucciones del examen, contenido evaluado, observaciones...",
+      "time": "Ej.: 60"
+    },
+    "options": {
+      "selectSubject": "Seleccione una asignatura",
+      "selectClass": "Seleccione una clase"
+    },
+    "fallbacks": {
+      "subject": "Asignatura {id}",
+      "class": "Clase {id}",
+      "course": "Curso {id}"
+    },
+    "hints": {
+      "selectSubjectFirst": "Seleccione una asignatura para mostrar las clases."
+    },
+    "audience": {
+      "title": "Disponibilidad del examen",
+      "description": "Elija si el examen estarÃ¡ disponible para toda la clase o solo para alumnos especÃ­ficos.",
+      "wholeClass": "Para toda la clase",
+      "selectedStudents": "Solo alumnos seleccionados",
+      "requireLessons": "Exigir la finalizaciÃ³n de las clases antes de habilitar el examen"
+    },
+    "students": {
+      "title": "Alumnos autorizados",
+      "description": "Filtre por curso, clase, asignatura o busque directamente al alumno.",
+      "loading": "Cargando...",
+      "allCourses": "Todos los cursos",
+      "allClasses": "Todas las clases",
+      "allSubjects": "Todas las asignaturas",
+      "search": "Buscar alumno...",
+      "noneFound": "No se encontraron alumnos con los filtros seleccionados.",
+      "noRegistration": "Sin matrÃ­cula"
+    },
+    "gradeRelease": {
+      "title": "PublicaciÃ³n de la nota para el alumno",
+      "description": "Defina si el alumno verÃ¡ la nota al finalizar el examen o solamente en una fecha futura.",
+      "showImmediately": "Mostrar la nota al alumno en cuanto finalice el examen",
+      "dateLabel": "Fecha y hora para publicar la nota",
+      "pendingHint": "Hasta que llegue esta fecha, el alumno solo verÃ¡ â€œNota aÃºn no publicadaâ€."
+    },
+    "actions": {
+      "cancel": "Cancelar",
+      "creating": "Creando...",
+      "create": "Crear examen"
+    },
+    "summary": {
+      "title": "Resumen",
+      "notDefined": "AÃºn no definido",
+      "noDescription": "Sin descripciÃ³n",
+      "notSelected": "No seleccionada",
+      "time": "Tiempo",
+      "minutes": "{value} min",
+      "noTimeLimit": "Sin lÃ­mite",
+      "attempts": "Intentos",
+      "opening": "Apertura",
+      "immediate": "Inmediata",
+      "closing": "Cierre",
+      "noDeadline": "Sin fecha lÃ­mite",
+      "initialStatus": "Estado inicial"
+    },
+    "statuses": {
+      "draft": "Borrador"
+    },
+    "nextStep": {
+      "title": "Siguiente paso",
+      "description": "DespuÃ©s de crear el examen, podrÃ¡ aÃ±adir preguntas, alternativas y publicarlo cuando estÃ© listo."
+    },
+    "validation": {
+      "subjectRequired": "Seleccione una asignatura.",
+      "classRequired": "Seleccione una clase.",
+      "studentRequired": "Seleccione al menos un alumno para habilitar este examen.",
+      "invalidPeriod": "La fecha de cierre debe ser posterior a la fecha de apertura."
+    },
+    "feedback": {
+      "loadFormError": "Error al cargar los datos del formulario.",
+      "loadStudentsError": "Error al cargar los alumnos de la clase.",
+      "createError": "Error al crear el examen."
+    }
+  },
+  "ProfessorOmbudsman": {
+    "eyebrow": "Canal de comunicaciÃ³n",
+    "title": "DefensorÃ­a",
+    "description": "Utilice este espacio para enviar sugerencias, elogios, reclamaciones o informar de situaciones que puedan contribuir a mejorar la instituciÃ³n.",
+    "form": {
+      "typeLabel": "Tipo de manifestaciÃ³n",
+      "messageLabel": "Mensaje",
+      "messagePlaceholder": "Describa su sugerencia, elogio, reclamaciÃ³n o informe...",
+      "sending": "Enviando...",
+      "send": "Enviar manifestaciÃ³n"
+    },
+    "types": {
+      "suggestion": "Sugerencia",
+      "complaint": "ReclamaciÃ³n",
+      "praise": "Elogio",
+      "report": "Informe"
+    },
+    "feedback": {
+      "messageRequired": "Escriba su mensaje antes de enviarlo.",
+      "sendError": "No fue posible enviar su manifestaciÃ³n.",
+      "sendSuccess": "Su manifestaciÃ³n se enviÃ³ correctamente."
+    },
+    "howItWorks": {
+      "title": "Â¿CÃ³mo funciona?",
+      "forwarded": "Su manifestaciÃ³n serÃ¡ enviada a la administraciÃ³n.",
+      "tracking": "El seguimiento estarÃ¡ disponible en esta Ã¡rea en el futuro.",
+      "suggestions": "Las sugerencias contribuyen a la mejora continua de la instituciÃ³n.",
+      "complaints": "Las reclamaciones y los informes serÃ¡n analizados con la prioridad adecuada."
+    }
+  },
+  "ProfessorMeetings": {
+    "title": "Reuniones",
+    "description": "Programe reuniones por departamento, equipo, participante individual, clase, curso o todos los alumnos.",
+    "form": {
+      "title": "Nueva reuniÃ³n",
+      "meetingTitle": "TÃ­tulo",
+      "meetingLink": "Enlace de la reuniÃ³n",
+      "dateTime": "Fecha y hora de la reuniÃ³n",
+      "audience": "PÃºblico de la reuniÃ³n",
+      "selectDepartment": "Seleccione el departamento",
+      "selectClass": "Seleccione la clase",
+      "selectCourse": "Seleccione el curso",
+      "description": "DescripciÃ³n",
+      "creating": "Creando...",
+      "create": "Crear reuniÃ³n"
+    },
+    "audiences": {
+      "department": "Departamento",
+      "wholeTeam": "Todo el equipo",
+      "individual": "Individual",
+      "class": "Clase",
+      "course": "Curso",
+      "allStudents": "Todos los alumnos matriculados"
+    },
+    "roles": {
+      "student": "Alumno",
+      "teacher": "Profesor",
+      "employee": "Empleado",
+      "person": "Persona"
+    },
+    "participants": {
+      "select": "Seleccione los participantes",
+      "search": "Buscar por nombre, matrÃ­cula, email o departamento",
+      "selected": "Seleccionado",
+      "add": "AÃ±adir",
+      "noneFound": "No se encontraron personas."
+    },
+    "scheduled": {
+      "title": "Reuniones programadas",
+      "loading": "Cargando reuniones...",
+      "empty": "No hay reuniones programadas.",
+      "participants": "{count, plural, =0 {NingÃºn participante} one {# participante} other {# participantes}}",
+      "join": "Entrar en la reuniÃ³n"
+    },
+    "feedback": {
+      "loadError": "Error al cargar las reuniones.",
+      "optionsError": "Error al cargar las opciones de la reuniÃ³n.",
+      "createError": "Error al crear la reuniÃ³n.",
+      "createSuccess": "ReuniÃ³n creada correctamente."
+    }
+  },
+  "ProfessorWorks": {
+    "eyebrow": "Trabajos",
+    "title": "EvaluaciÃ³n de Trabajos",
+    "description": "Busque, organice por perÃ­odo, semestre y clase, y evalÃºe los trabajos enviados por los alumnos.",
+    "loading": "Cargando trabajos...",
+    "errorLoad": "Error al cargar los trabajos",
+    "empty": "No se encontraron trabajos.",
+    "search": {
+      "label": "Buscar trabajos",
+      "placeholder": "Introduzca alumno, clase, semestre, estado, nota o feedback..."
+    },
+    "grouping": {
+      "yearPeriod": "AÃ±o / perÃ­odo"
+    },
+    "fallbacks": {
+      "periodUnavailable": "PerÃ­odo no informado",
+      "semesterUnavailable": "Semestre no informado",
+      "classUnavailable": "Clase no informada"
+    },
+    "counts": {
+      "works": "{count, plural, one {# trabajo} other {# trabajos}}"
+    },
+    "statuses": {
+      "sent": "Enviado",
+      "evaluated": "Evaluado",
+      "pending": "Pendiente"
+    },
+    "student": "Alumno",
+    "labels": {
+      "work": "Trabajo",
+      "registration": "MatrÃ­cula",
+      "deliveredAt": "Entregado el"
+    },
+    "summary": {
+      "correction": "CorrecciÃ³n",
+      "file": "Archivo",
+      "link": "Enlace",
+      "versions": "Versiones"
+    },
+    "attachments": {
+      "sent": "ðŸ“Ž Enviado",
+      "notSent": "No enviado"
+    },
+    "links": {
+      "sent": "ðŸŒ Enviado",
+      "notSent": "No enviado"
+    },
+    "versions": {
+      "previous": "{count, plural, one {# anterior} other {# anteriores}}",
+      "none": "Sin versiones anteriores"
+    },
+    "grade": "Nota",
+    "feedback": "Feedback",
+    "noFeedback": "Sin feedback registrado.",
+    "correctionPending": "CorrecciÃ³n pendiente.",
+    "history": {
+      "title": "Ver historial de entregas",
+      "version": "VersiÃ³n {number}",
+      "sentAt": "Enviada el",
+      "openFile": "Abrir archivo de esta versiÃ³n",
+      "openLink": "Abrir enlace de esta versiÃ³n"
+    },
+    "actions": {
+      "openFile": "Abrir archivo",
+      "openLink": "Abrir enlace",
+      "editCorrection": "Editar correcciÃ³n",
+      "correctSubmission": "Corregir entrega"
+    }
+  },
+  "ProfessorExams": {
+    "title": "ExÃ¡menes",
+    "description": "Gestione los exÃ¡menes de sus asignaturas, publique evaluaciones y siga los intentos de los alumnos.",
+    "newExam": "Nuevo examen",
+    "loading": "Cargando exÃ¡menes...",
+    "summary": {
+      "total": "Total de exÃ¡menes",
+      "drafts": "Borradores",
+      "published": "Publicados",
+      "closed": "Cerrados"
+    },
+    "empty": {
+      "title": "TodavÃ­a no hay exÃ¡menes registrados",
+      "description": "Cree su primer examen para comenzar a preparar evaluaciones, aÃ±adir preguntas y seguir los intentos de los alumnos.",
+      "createFirst": "Crear primer examen"
+    },
+    "list": {
+      "title": "Lista de exÃ¡menes",
+      "description": "Consulte el estado y acceda rÃ¡pidamente a las principales acciones."
+    },
+    "statuses": {
+      "published": "Publicado",
+      "closed": "Cerrado",
+      "draft": "Borrador"
+    },
+    "labels": {
+      "subject": "Asignatura",
+      "class": "Clase",
+      "maximumGrade": "Nota mÃ¡x.",
+      "time": "Tiempo",
+      "minutes": "{count} min",
+      "free": "Sin lÃ­mite de tiempo",
+      "createdAt": "Creado el"
+    },
+    "actions": {
+      "edit": "Editar",
+      "attempts": "Intentos",
+      "publish": "Publicar",
+      "publishing": "Publicando...",
+      "delete": "Eliminar",
+      "deleting": "Eliminando...",
+      "unpublish": "Despublicar",
+      "close": "Cerrar",
+      "closing": "Cerrando...",
+      "examClosed": "Examen cerrado"
+    },
+    "confirm": {
+      "cancel": "Cancelar",
+      "close": {
+        "title": "Cerrar examen",
+        "message": "Â¿EstÃ¡ seguro de que desea cerrar este examen?",
+        "confirm": "Cerrar"
+      },
+      "delete": {
+        "title": "Eliminar examen",
+        "message": "Â¿EstÃ¡ seguro de que desea eliminar este examen? Esta acciÃ³n no se puede deshacer.",
+        "confirm": "Eliminar"
+      },
+      "unpublish": {
+        "title": "Despublicar examen",
+        "message": "Â¿Desea despublicar este examen?",
+        "confirm": "Despublicar"
+      }
+    },
+    "feedback": {
+      "loadError": "Error al cargar los exÃ¡menes",
+      "publishError": "Error al publicar el examen",
+      "publishSuccess": "Examen publicado correctamente",
+      "closeError": "Error al cerrar el examen",
+      "closeSuccess": "Examen cerrado correctamente",
+      "deleteError": "Error al eliminar el examen",
+      "deleteSuccess": "Examen eliminado correctamente",
+      "unpublishError": "Error al despublicar el examen",
+      "unpublishSuccess": "Examen despublicado correctamente"
+    }
+  },
+  "ProfessorActivities": {
+    "title": "Actividades",
+    "description": "Gestione actividades, plazos y entregas de los alumnos.",
+    "newActivity": "Nueva actividad",
+    "loading": "Cargando actividades...",
+    "errorLoad": "Error al cargar las actividades",
+    "search": {
+      "placeholder": "Buscar por alumno, clase, tarea, perÃ­odo, plazo o asignatura...",
+      "noSuggestions": "No se encontraron sugerencias."
+    },
+    "empty": {
+      "title": "No hay actividades registradas",
+      "description": "Cree la primera actividad para empezar a recibir entregas."
+    },
+    "class": "Clase {name}",
+    "classLabel": "Clase",
+    "students": "Alumnos",
+    "subject": "Asignatura",
+    "deadline": "Plazo",
+    "maximumGrade": "Nota mÃ¡xima",
+    "createdAt": "Creado el",
+    "attachments": "Archivos adjuntos",
+    "open": "Abrir",
+    "fallbacks": {
+      "classUnavailable": "Clase no informada",
+      "subjectUnavailable": "Asignatura no informada",
+      "notInformed": "No informada",
+      "noDeadline": "Sin plazo",
+      "file": "Archivo"
+    },
+    "statuses": {
+      "published": "Publicada",
+      "awaitingPublication": "Pendiente de publicaciÃ³n",
+      "closed": "Cerrada",
+      "draft": "Borrador"
+    },
+    "support": {
+      "sent": "Enviado a Apoyo Docente",
+      "sentAt": "Enviado el",
+      "published": "Publicada por Apoyo Docente",
+      "publishedBy": "Publicado por",
+      "publishedAt": "Publicado el"
+    },
+    "actions": {
+      "publish": "Publicar",
+      "publishing": "Publicando...",
+      "sendSupport": "Enviar a Apoyo Docente",
+      "sending": "Enviando...",
+      "returnDraft": "Volver a borrador",
+      "returning": "Volviendo...",
+      "delete": "Eliminar",
+      "deleting": "Eliminando..."
+    },
+    "feedback": {
+      "publishError": "Error al publicar la actividad",
+      "publishSuccess": "Actividad publicada correctamente",
+      "supportError": "Error al enviar la actividad a Apoyo Docente",
+      "supportSuccess": "Actividad enviada a Apoyo Docente",
+      "returnDraftError": "Error al volver la actividad a borrador",
+      "returnDraftSuccess": "La actividad volviÃ³ a borrador",
+      "deleteError": "Error al eliminar la actividad",
+      "deleteSuccess": "Actividad eliminada correctamente"
+    }
+  },
+  "ProfessorLessons": {
+    "eyebrow": "Clases",
+    "title": "Mis clases",
+    "description": "Acceda a las clases vinculadas a sus grupos y gestione los materiales.",
+    "loading": "Cargando clases...",
+    "errorLoad": "Error al cargar las clases",
+    "empty": "No se encontraron clases para este profesor.",
+    "lesson": "Clase",
+    "untitled": "Clase sin tÃ­tulo",
+    "subject": "Asignatura",
+    "class": "Clase",
+    "addMaterial": "AÃ±adir material",
+    "addMaterialAsSubstitute": "AÃ±adir material como profesor sustituto",
+    "substitution": {
+      "title": "SustituciÃ³n en curso",
+      "holder": "Profesor titular",
+      "period": "PerÃ­odo",
+      "until": "hasta",
+      "noForecast": "sin previsiÃ³n"
+    }
+  },
+  "ProfessorStudents": {
+    "title": "Alumnos del Profesor",
+    "description": "Consulte notas, asistencia, faltas, certificados mÃ©dicos y rendimiento acadÃ©mico.",
+    "loading": "Cargando alumnos...",
+    "errorLoad": "Error al cargar los alumnos",
+    "empty": "No se encontraron alumnos.",
+    "summary": {
+      "students": "Alumnos",
+      "withAbsences": "Con faltas",
+      "withMedicalCertificates": "Con certificado mÃ©dico",
+      "overallAverage": "Media general"
+    },
+    "search": {
+      "placeholder": "Buscar por alumno, clase, tarea, perÃ­odo o asignatura",
+      "noSuggestions": "No se encontraron sugerencias.",
+      "allClasses": "Todas las clases"
+    },
+    "fallbacks": {
+      "classUnavailable": "Clase no informada",
+      "subjectUnavailable": "Asignatura no informada",
+      "periodUnavailable": "PerÃ­odo no informado"
+    },
+    "class": "Clase {name}",
+    "registration": "MatrÃ­cula",
+    "studentStatus": "Estado del alumno",
+    "subjectStatus": "Estado de la asignatura",
+    "classLabel": "Clase",
+    "subject": "Asignatura",
+    "semester": "Semestre",
+    "grades": {
+      "title": "Calificaciones",
+      "entered": "Registradas",
+      "average": "Media",
+      "values": "Valores"
+    },
+    "attendance": {
+      "title": "Asistencia",
+      "percentage": "Porcentaje",
+      "presences": "Presencias",
+      "absences": "Faltas"
+    },
+    "justifications": {
+      "title": "Justificaciones",
+      "justified": "Justificadas",
+      "medicalCertificates": "Certificados mÃ©dicos",
+      "totalRecords": "Total de registros"
+    },
+    "studentStatuses": {
+      "active": "Activo",
+      "locked": "Suspendido temporalmente",
+      "suspended": "Suspendido",
+      "delinquent": "Moroso",
+      "transferred": "Transferido",
+      "disconnected": "Desvinculado",
+      "graduated": "Graduado",
+      "canceled": "Cancelado",
+      "medicalLeave": "Baja mÃ©dica",
+      "missing": "Ausente"
+    },
+    "subjectStatuses": {
+      "toTake": "Pendiente",
+      "inProgress": "En curso",
+      "completed": "Finalizada",
+      "locked": "Suspendida temporalmente",
+      "failed": "Suspensa",
+      "canceled": "Cancelada"
+    }
+  },
+  "ProfessorSubstitutions": {
+    "eyebrow": "Portal del Profesor",
+    "title": "Sustituciones Docentes",
+    "description": "Consulte las clases y asignaturas en las que estÃ¡ actuando como profesor sustituto. Utilice siempre su propio inicio de sesiÃ³n.",
+    "loading": "Cargando sustituciones...",
+    "errorLoad": "Error al cargar las sustituciones.",
+    "empty": {
+      "title": "No hay sustituciones activas en este momento.",
+      "description": "Cuando la instituciÃ³n le asigne una sustituciÃ³n activa, aparecerÃ¡ aquÃ­ automÃ¡ticamente."
+    },
+    "badge": "EN SUSTITUCIÃ“N",
+    "subjectUnavailable": "Asignatura no informada",
+    "class": "Clase {name}",
+    "courseUnavailable": "Curso no informado",
+    "holderTeacher": "Profesor titular",
+    "period": "PerÃ­odo",
+    "until": "hasta",
+    "noForecast": "sin previsiÃ³n",
+    "reason": "Motivo",
+    "enterSubject": "Entrar en la asignatura",
+    "status": {
+      "active": "ACTIVA"
+    }
+  },
+  "ProfessorClasses": {
+    "loading": "Cargando clases...",
+    "error": {
+      "title": "Error",
+      "load": "Error al cargar las clases",
+      "retry": "Intentar de nuevo"
+    },
+    "back": "Volver",
+    "eyebrow": "Agenda docente",
+    "title": "Mis clases",
+    "description": "OrganizaciÃ³n por clase, perÃ­odo y asignatura para facilitar la rutina del profesor.",
+    "today": "Hoy es {day}.",
+    "holiday": {
+      "greeting": "Â¡Feliz festivo!",
+      "message": "Hoy es {holiday}. Verifique si su instituciÃ³n mantiene clases presenciales, clases en lÃ­nea, reposiciones o actividades grabadas."
+    },
+    "todayClassesHint": "Las clases programadas para hoy se destacan en verde para ayudar en la preparaciÃ³n.",
+    "search": {
+      "placeholder": "Buscar por clase, curso, asignatura, perÃ­odo o estado...",
+      "noSuggestions": "No se encontraron sugerencias."
+    },
+    "groups": {
+      "currentSemester": "Semestre actual",
+      "nextSemester": "PrÃ³ximo semestre",
+      "completedClasses": "Clases finalizadas"
+    },
+    "class": "Clase {name}",
+    "classToday": "Clase hoy",
+    "statusUnavailable": "Estado no informado",
+    "course": "Curso",
+    "courseUnavailable": "Curso no informado",
+    "subjectUnavailable": "Asignatura no informada",
+    "period": "PerÃ­odo",
+    "periodUnavailable": "En lÃ­nea / Flexible",
+    "start": "Inicio",
+    "end": "Fin",
+    "todayBadge": "Hoy",
+    "open": "Abrir",
+    "close": "Cerrar",
+    "classTodayNotice": "Esta clase tiene actividad hoy. Prepare los materiales, actividades o clases correspondientes.",
+    "actions": {
+      "students": "Ver alumnos",
+      "lessons": "Gestionar clases",
+      "gradebook": "Ver calificaciones"
+    },
+    "emptyGroup": "No se encontraron clases en este grupo.",
+    "empty": "No se encontraron clases.",
+    "counts": {
+      "classes": "{count, plural, =0 {ninguna clase} one {# clase} other {# clases}}",
+      "subjects": "{count, plural, =0 {ninguna asignatura} one {# asignatura} other {# asignaturas}}",
+      "students": "{count, plural, =0 {ningÃºn alumno} one {# alumno} other {# alumnos}}"
+    },
+    "holidays": {
+      "newYear": "AÃ±o Nuevo",
+      "tiradentes": "DÃ­a de Tiradentes",
+      "laborDay": "DÃ­a del Trabajo",
+      "independence": "DÃ­a de la Independencia de Brasil",
+      "aparecida": "Nuestra SeÃ±ora de Aparecida",
+      "allSouls": "DÃ­a de los Difuntos",
+      "republic": "ProclamaciÃ³n de la RepÃºblica",
+      "christmas": "Navidad",
+      "carnival": "Carnaval",
+      "goodFriday": "Viernes Santo",
+      "corpusChristi": "Corpus Christi"
+    },
+    "weekdays": {
+      "sunday": "Domingo",
+      "monday": "Lunes",
+      "tuesday": "Martes",
+      "wednesday": "MiÃ©rcoles",
+      "thursday": "Jueves",
+      "friday": "Viernes",
+      "saturday": "SÃ¡bado"
+    }
+  },
+  "ProfessorSidebar": {
+    "title": "Profesor",
+    "role": "DOCENTE",
+    "logout": "Cerrar sesiÃ³n",
+    "menu": {
+      "dashboard": "Panel docente",
+      "classes": "Clases",
+      "substitutions": "Sustituciones docentes",
+      "students": "Alumnos",
+      "materials": "Materiales/Clases",
+      "activities": "Actividades",
+      "assessments": "Evaluaciones",
+      "assignments": "Trabajos",
+      "meetings": "Reuniones",
+      "ombudsman": "DefensorÃ­a"
+    }
+  },
+  "StudentReenrollment": {
+    "loading": "Cargando la rematrÃ­cula...",
+    "errorTitle": "No se pudo cargar la rematrÃ­cula",
+    "academic": "AcadÃ©mico",
+    "title": "RematrÃ­cula semestral",
+    "unavailable": {
+      "title": "RematrÃ­cula no disponible",
+      "description": "La rematrÃ­cula no estÃ¡ disponible para este estudiante."
+    },
+    "closed": {
+      "title": "PerÃ­odo de rematrÃ­cula cerrado",
+      "description": "No hay ningÃºn perÃ­odo de rematrÃ­cula abierto en este momento."
+    },
+    "hero": {
+      "available": "RematrÃ­cula disponible",
+      "description": "Selecciona las asignaturas y los grupos que deseas cursar en el semestre {semester}.",
+      "deadline": "Fecha lÃ­mite"
+    },
+    "blocked": {
+      "title": "RematrÃ­cula bloqueada"
+    },
+    "common": {
+      "notInformed": "No informado",
+      "invalidDate": "Fecha no vÃ¡lida",
+      "semesterNumber": "Semestre {number}",
+      "hoursValue": "{hours} h",
+      "hoursLong": "{hours} horas"
+    },
+    "summary": {
+      "course": "Curso",
+      "destinationSemester": "Semestre de destino",
+      "classStart": "Inicio de las clases",
+      "status": "Estado"
+    },
+    "institutionInstructions": {
+      "title": "Indicaciones de la instituciÃ³n"
+    },
+    "groups": {
+      "nextSemester": {
+        "title": "Asignaturas del semestre {semester}",
+        "description": "Asignaturas previstas para tu progresiÃ³n acadÃ©mica."
+      },
+      "pending": {
+        "title": "Pendientes de semestres anteriores",
+        "description": "Asignaturas todavÃ­a no superadas o suspendidas."
+      },
+      "extras": {
+        "title": "Asignaturas extracurriculares",
+        "description": "Opciones adicionales autorizadas para tu curso y semestre."
+      }
+    },
+    "selectionSummary": {
+      "title": "Resumen de la selecciÃ³n",
+      "subjects": "Asignaturas",
+      "selectedLoad": "Carga seleccionada",
+      "minimumLoad": "Carga mÃ­nima",
+      "maximumLoad": "Carga mÃ¡xima",
+      "noLimit": "Sin lÃ­mite definido",
+      "minimumProgress": "Progreso de la carga mÃ­nima",
+      "needMore": "Selecciona {hours} horas mÃ¡s para alcanzar la carga mÃ­nima.",
+      "maximumExceeded": "La selecciÃ³n supera la carga mÃ¡xima permitida."
+    },
+    "declaration": "Declaro que he revisado las asignaturas, los grupos, los horarios y las reglas de esta rematrÃ­cula.",
+    "afterSendNotice": "DespuÃ©s del envÃ­o, la selecciÃ³n no podrÃ¡ modificarse hasta que la instituciÃ³n la devuelva para su correcciÃ³n.",
+    "curriculum": {
+      "title": "Plan de estudios",
+      "description": "Consulta los grupos, docentes, aulas y horarios antes de confirmar.",
+      "openPdf": "Abrir PDF del plan",
+      "pdfPreparing": "PDF en preparaciÃ³n"
+    },
+    "actions": {
+      "retry": "Intentar de nuevo",
+      "savingDraft": "Guardando borrador...",
+      "updateDraft": "Actualizar borrador",
+      "saveDraft": "Guardar borrador",
+      "sending": "Enviando...",
+      "sendForReview": "Enviar para revisiÃ³n",
+      "confirm": "Confirmar rematrÃ­cula",
+      "back": "Volver"
+    },
+    "tooltips": {
+      "selectOneSubject": "Selecciona al menos una asignatura.",
+      "minimumNotReached": "TodavÃ­a no se ha alcanzado la carga mÃ­nima.",
+      "maximumExceeded": "Se ha superado la carga mÃ¡xima.",
+      "acceptDeclaration": "Acepta la declaraciÃ³n antes de enviar.",
+      "send": "Enviar rematrÃ­cula."
+    },
+    "confirmation": {
+      "reviewTitle": "Enviar rematrÃ­cula para revisiÃ³n",
+      "confirmTitle": "Confirmar rematrÃ­cula",
+      "reviewMessage": "Asignaturas seleccionadas: {count}. Carga: {hours} horas. DespuÃ©s del envÃ­o, la instituciÃ³n revisarÃ¡ tu selecciÃ³n.",
+      "confirmMessage": "Asignaturas seleccionadas: {count}. Carga: {hours} horas. Confirma para completar la rematrÃ­cula."
+    },
+    "subjects": {
+      "emptyCategory": "No hay asignaturas disponibles en esta categorÃ­a.",
+      "required": "Obligatoria",
+      "class": "Grupo",
+      "noSeats": "Sin plazas"
+    },
+    "classInfo": {
+      "teacher": "Docente",
+      "seats": "Plazas",
+      "schedule": "Horario",
+      "location": "UbicaciÃ³n",
+      "noLimitInformed": "Sin lÃ­mite informado",
+      "availableSeats": "Plazas disponibles: {count}"
+    },
+    "disciplineTypes": {
+      "nextSemester": "PrÃ³ximo semestre",
+      "previousPending": "Pendiente anterior",
+      "extracurricular": "Extracurricular"
+    },
+    "status": {
+      "draft": "Borrador",
+      "sent": "Enviada",
+      "underReview": "En revisiÃ³n",
+      "approved": "Aprobada",
+      "returned": "Devuelta para correcciÃ³n",
+      "rejected": "Rechazada",
+      "cancelled": "Cancelada",
+      "expired": "Caducada",
+      "notStarted": "No iniciada"
+    },
+    "days": {
+      "sunday": "domingo",
+      "monday": "lunes",
+      "tuesday": "martes",
+      "wednesday": "miÃ©rcoles",
+      "thursday": "jueves",
+      "friday": "viernes",
+      "saturday": "sÃ¡bado",
+      "fallback": "dÃ­a {number}"
+    },
+    "schedule": {
+      "notInformed": "Horario no informado",
+      "range": "{day}, de {start} a {end}",
+      "start": "{day}, {start}"
+    },
+    "location": {
+      "floor": "Planta {floor}",
+      "room": "Aula {room}",
+      "notInformed": "UbicaciÃ³n no informada"
+    },
+    "conflicts": {
+      "slot": "{day} a las {time}"
+    },
+    "errors": {
+      "load": "No se pudo cargar la rematrÃ­cula.",
+      "pendingPrerequisite": "Prerrequisito pendiente: {subjects}.",
+      "noAvailableClass": "No hay ningÃºn grupo con plazas disponibles para esta asignatura.",
+      "wouldExceedMaximum": "Esta asignatura superarÃ­a la carga mÃ¡xima de {hours} h.",
+      "scheduleConflict": "Conflicto de horario con {subject}: {schedule}.",
+      "selectedClassFull": "El grupo seleccionado no tiene plazas disponibles.",
+      "periodNotFound": "No se encontrÃ³ el perÃ­odo de rematrÃ­cula.",
+      "editNotAllowed": "Esta rematrÃ­cula no puede modificarse ahora.",
+      "draftNotAllowed": "Este perÃ­odo no permite guardar borradores.",
+      "selectOneSubject": "Selecciona al menos una asignatura.",
+      "minimumLoad": "TodavÃ­a no se ha alcanzado la carga mÃ­nima de {hours} h.",
+      "maximumLoadExceeded": "Se ha superado la carga mÃ¡xima permitida.",
+      "acceptDeclaration": "Acepta la declaraciÃ³n antes de enviar.",
+      "save": "No se pudo guardar la rematrÃ­cula."
+    },
+    "success": {
+      "sent": "RematrÃ­cula enviada correctamente.",
+      "sentForReview": "RematrÃ­cula enviada para revisiÃ³n por la instituciÃ³n.",
+      "draftSaved": "Borrador guardado correctamente."
+    }
+  },
+  "AdminStudents": {
+    "eyebrow": "GestiÃ³n de estudiantes",
+    "title": "Estudiantes",
+    "description": "Organiza a los estudiantes creados, matriculados y cancelados por clase en una vista mÃ¡s profesional y operativa.",
+    "actions": {
+      "hideRegistration": "Ocultar formulario",
+      "newStudent": "Nuevo estudiante",
+      "clearFilters": "Limpiar filtros"
+    },
+    "stats": {
+      "total": "Total de estudiantes",
+      "enrolled": "Matriculados",
+      "withoutEnrollment": "Sin matrÃ­cula",
+      "canceled": "Cancelados",
+      "delinquent": "Morosos"
+    },
+    "filters": {
+      "title": "Buscar y organizar estudiantes",
+      "description": "Filtra por estado, situaciÃ³n acadÃ©mica, clase y texto libre.",
+      "searchPlaceholder": "Buscar por nombre, email, matrÃ­cula, identificaciÃ³n...",
+      "allStatuses": "Todos los estados",
+      "active": "Activos",
+      "canceled": "Cancelados",
+      "delinquent": "Morosos",
+      "suspended": "MatrÃ­cula suspendida",
+      "graduated": "Graduados",
+      "all": "Todos",
+      "enrolled": "Matriculados",
+      "withoutEnrollment": "Sin matrÃ­cula",
+      "allClasses": "Todas las clases",
+      "classFallback": "Clase",
+      "resultSummary": "Mostrando {displayed} de {total} estudiantes â€” filtro actual: {currentFilter}"
+    },
+    "table": {
+      "student": "Estudiante",
+      "status": "Estado",
+      "course": "Curso",
+      "classes": "Clases",
+      "enrollment": "MatrÃ­cula",
+      "actions": "Acciones",
+      "empty": "No se encontraron estudiantes con los filtros seleccionados.",
+      "withoutEnrollment": "Sin matrÃ­cula",
+      "withoutLink": "Sin vÃ­nculo acadÃ©mico",
+      "moreClasses": "+{count} clase(s)",
+      "view": "Ver",
+      "contract": "Contrato",
+      "reactivate": "Reactivar",
+      "cancel": "Cancelar"
+    },
+    "pagination": {
+      "summary": "PÃ¡gina {current} de {pages} â€” {total} estudiantes en total",
+      "previous": "Anterior",
+      "next": "Siguiente"
+    },
+    "registration": {
+      "title": "Nuevo estudiante",
+      "description": "Registra nuevos estudiantes con datos personales, del responsable y de accesibilidad.",
+      "loadingLead": "Cargando lead...",
+      "creating": "Creando estudiante...",
+      "createAndContinue": "Crear estudiante y continuar",
+      "create": "Crear estudiante"
+    },
+    "lead": {
+      "title": "Convirtiendo lead en estudiante",
+      "description": "Los datos de {name} se han completado desde el CRM. Completa los datos personales obligatorios antes de crear al estudiante.",
+      "commercialOwner": "Responsable comercial: {name}",
+      "interest": "InterÃ©s: {interest}"
+    },
+    "photo": {
+      "alt": "Foto oficial del estudiante",
+      "title": "Foto oficial del estudiante",
+      "description": "Esta foto institucional se utiliza en credenciales, registros de identificaciÃ³n y documentos oficiales. No es la foto personal que el estudiante modifica en su perfil.",
+      "uploading": "Enviando...",
+      "upload": "Enviar foto",
+      "remove": "Eliminar foto"
+    },
+    "fields": {
+      "name": "Nombre del estudiante",
+      "socialName": "Nombre preferido",
+      "gender": "GÃ©nero",
+      "female": "Femenino",
+      "male": "Masculino",
+      "nonBinary": "No binario",
+      "other": "Otro",
+      "preferNotSay": "Prefiero no informar",
+      "email": "Email",
+      "enrollmentNumber": "NÃºmero de matrÃ­cula",
+      "enrollmentGenerated": "Se generarÃ¡ automÃ¡ticamente despuÃ©s de la matrÃ­cula oficial del estudiante.",
+      "postalCode": "CÃ³digo postal",
+      "address": "DirecciÃ³n",
+      "number": "NÃºmero",
+      "complement": "InformaciÃ³n adicional",
+      "district": "Barrio",
+      "city": "Ciudad",
+      "state": "Provincia o regiÃ³n",
+      "selectCampus": "Selecciona la sede del estudiante"
+    },
+    "statuses": {
+      "active": "Activo",
+      "locked": "MatrÃ­cula suspendida",
+      "suspended": "Suspendido",
+      "delinquent": "Moroso",
+      "transferred": "Transferido",
+      "inactive": "Desvinculado",
+      "graduated": "Graduado",
+      "canceled": "Cancelado",
+      "medicalLeave": "Baja mÃ©dica",
+      "absent": "Ausente"
+    },
+    "documents": {
+      "studentTitle": "Documentos del estudiante",
+      "studentDescription": "Opcional. EnvÃ­a documentos de identificaciÃ³n, expediente acadÃ©mico, comprobante de domicilio o tÃ­tulo electoral."
+    },
+    "accessibility": {
+      "title": "Necesidades especiales y accesibilidad",
+      "hasSpecialNeed": "Tiene una necesidad especial",
+      "specialNeedPlaceholder": "Describe la necesidad especial del estudiante",
+      "notesPlaceholder": "Observaciones de accesibilidad, apoyo pedagÃ³gico o adaptaciones"
+    },
+    "guardian": {
+      "title": "Datos del responsable",
+      "name": "Nombre del responsable",
+      "cpf": "IdentificaciÃ³n del responsable",
+      "email": "Email del responsable",
+      "relationship": "RelaciÃ³n con el estudiante",
+      "documentsTitle": "Documentos del responsable",
+      "documentsDescription": "Opcional. EnvÃ­a documentos del titular o responsable del estudiante."
+    },
+    "drawer": {
+      "title": "Detalles del estudiante",
+      "close": "Cerrar",
+      "tabs": {
+        "data": "Datos",
+        "documents": "Documentos",
+        "enrollments": "MatrÃ­culas",
+        "performance": "Rendimiento",
+        "history": "Historial",
+        "certificates": "Certificados"
+      },
+      "editTitle": "Editar estudiante",
+      "institutionalPhoto": "Foto gestionada por la instituciÃ³n y utilizada en la credencial oficial.",
+      "changePhoto": "Cambiar foto",
+      "automaticEnrollment": "MatrÃ­cula generada automÃ¡ticamente por el sistema.",
+      "documentUrl": "URL del documento",
+      "guardianTitle": "Responsable",
+      "saving": "Guardando...",
+      "saveChanges": "Guardar cambios",
+      "cancelEditing": "Cancelar ediciÃ³n",
+      "reactivateStudent": "Reactivar estudiante",
+      "editRegistration": "Editar registro",
+      "cancelStudent": "Cancelar estudiante",
+      "mainData": "Datos principales",
+      "addressTitle": "DirecciÃ³n",
+      "accessibilityTitle": "Accesibilidad",
+      "yes": "SÃ­",
+      "no": "No",
+      "labels": {
+        "name": "Nombre",
+        "socialName": "Nombre preferido",
+        "email": "Email",
+        "gender": "GÃ©nero",
+        "birthDate": "Fecha de nacimiento",
+        "enrollment": "MatrÃ­cula",
+        "cpf": "IdentificaciÃ³n",
+        "rg": "Documento de identidad",
+        "phone": "TelÃ©fono",
+        "campus": "Sede",
+        "postalCode": "CÃ³digo postal",
+        "address": "DirecciÃ³n",
+        "number": "NÃºmero",
+        "complement": "InformaciÃ³n adicional",
+        "district": "Barrio",
+        "city": "Ciudad",
+        "state": "Provincia o regiÃ³n",
+        "relationship": "RelaciÃ³n",
+        "hasSpecialNeed": "Tiene una necesidad especial",
+        "specialNeed": "DescripciÃ³n de la necesidad",
+        "notes": "Observaciones"
+      }
+    },
+    "documentPanel": {
+      "studentTitle": "Documentos del estudiante",
+      "studentEmpty": "No se ha enviado ningún documento del estudiante.",
+      "guardianTitle": "Documentos del responsable",
+      "guardianEmpty": "No se ha enviado ningún documento del responsable.",
+      "fileFallback": "Archivo",
+      "open": "Abrir",
+      "archive": "Archivar",
+      "uploadTitle": "Enviar nuevo documento",
+      "archivedTitle": "Documentos archivados",
+      "archivedLoading": "Cargando documentos archivados...",
+      "archivedEmpty": "No hay documentos archivados.",
+      "archivedMeta": "{owner} • Archivado el {date}",
+      "restore": "Restaurar",
+      "uploadDescription": "Envía documentos opcionales en formato PDF, PNG, JPG o JPEG.",
+      "ownerStudent": "Estudiante",
+      "ownerGuardian": "Responsable",
+      "typeRg": "Documento de identidad",
+      "typeCpf": "Identificación fiscal",
+      "typeCnh": "Permiso de conducir",
+      "typeSchoolRecord": "Expediente académico",
+      "typeResidenceProof": "Comprobante de domicilio",
+      "typeVoterRegistration": "Credencial electoral",
+      "typeOther": "Otro",
+      "uploading": "Enviando...",
+      "upload": "Enviar documento"
+    }
+  },
+  "AdminStudentSuccess": {
+    "title": "Student Success",
+    "subtitle": "Inteligencia y seguimiento acadÃ©mico",
+    "description": "Identifique seÃ±ales acadÃ©micas que requieren atenciÃ³n y supervise la evoluciÃ³n de los estudiantes.",
+    "cards": {
+      "critical": "Riesgo crÃ­tico",
+      "risk": "En riesgo",
+      "attention": "AtenciÃ³n",
+      "normal": "SituaciÃ³n normal",
+      "insufficient": "Datos insuficientes"
+    },
+    "studentsAttention": {
+      "title": "Estudiantes que requieren atenciÃ³n",
+      "description": "Supervise las principales seÃ±ales acadÃ©micas identificadas por PHANYX."
+    },
+    "table": {
+      "student": "Estudiante",
+      "risk": "Riesgo",
+      "score": "PuntuaciÃ³n",
+      "frequency": "Asistencia",
+      "performance": "Rendimiento",
+      "pendingActivities": "Pendientes",
+      "trend": "EvoluciÃ³n",
+      "actions": "Acciones"
+    },
+    "levels": {
+      "NORMAL": "Normal",
+      "ATENCAO": "AtenciÃ³n",
+      "RISCO": "Riesgo",
+      "CRITICO": "CrÃ­tico",
+      "DADOS_INSUFICIENTES": "Datos insuficientes"
+    },
+    "reliability": {
+      "label": "Fiabilidad",
+      "BAIXA": "Baja",
+      "MEDIA": "Media",
+      "ALTA": "Alta"
+    },
+    "components": {
+      "FREQUENCIA": "Asistencia",
+      "DESEMPENHO": "Rendimiento",
+      "PENDENCIAS": "Actividades pendientes",
+      "QUEDA_DESEMPENHO": "EvoluciÃ³n reciente",
+      "PARTICIPACAO": "ParticipaciÃ³n"
+    },
+    "actions": {
+      "viewStudent": "Ver anÃ¡lisis",
+      "viewDetails": "Ver detalles",
+      "filters": "Filtros",
+      "refresh": "Actualizar anÃ¡lisis",
+      "clearFilters": "Limpiar filtros"
+    },
+    "filters": {
+      "title": "Filtros",
+      "search": "Buscar estudiante",
+      "searchPlaceholder": "Nombre o matrÃ­cula",
+      "course": "Curso",
+      "class": "Clase",
+      "subject": "Asignatura",
+      "level": "Nivel de riesgo",
+      "all": "Todos"
+    },
+    "states": {
+      "loading": "Cargando anÃ¡lisis...",
+      "empty": "No se encontraron estudiantes para los filtros seleccionados.",
+      "noRisk": "Actualmente ningÃºn estudiante presenta seÃ±ales relevantes de riesgo.",
+      "error": "No fue posible cargar los anÃ¡lisis acadÃ©micos."
+    },
+    "score": {
+      "label": "Ãndice de riesgo",
+      "outOf": "de 100",
+      "coverage": "Cobertura de datos"
+    },
+    "overview": {
+      "title": "Vista general",
+      "monitoredStudents": "Estudiantes supervisados",
+      "studentsWithSignals": "Estudiantes con seÃ±ales de atenciÃ³n"
+    },
+    "disclaimer": {
+      "title": "Apoyo a la decisiÃ³n acadÃ©mica",
+      "text": "Los indicadores ayudan al equipo educativo a identificar seÃ±ales acadÃ©micas. Las decisiones e intervenciones siguen siendo responsabilidad de los profesionales de la instituciÃ³n."
+    }
+  }
+}

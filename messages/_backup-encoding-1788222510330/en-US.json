@@ -3703,39 +3703,7 @@
                                                 "typeOther":  "Other",
                                                 "uploading":  "Uploading...",
                                                 "upload":  "Upload document"
-                                            },
-                          "enrollmentPanel":  {
-                                                  "title":  "Enrollment and academic record",
-                                                  "course":  "Course",
-                                                  "status":  "Status",
-                                                  "semester":  "Semester",
-                                                  "enrollmentNumber":  "Enrollment number",
-                                                  "enrollmentDate":  "Enrollment date",
-                                                  "campus":  "Campus",
-                                                  "modality":  "Learning modality",
-                                                  "academicPeriod":  "Class schedule / Academic period",
-                                                  "expectedCompletion":  "Expected completion",
-                                                  "classesAndSubjects":  "Classes and subjects ({count})",
-                                                  "searchPlaceholder":  "Search by class, subject, teacher or status...",
-                                                  "subject":  "Subject",
-                                                  "teacher":  "Teacher",
-                                                  "subjectStatus":  "Subject status",
-                                                  "empty":  "This student does not have an associated enrollment yet."
-                                              },
-                          "performancePanel":  {
-                                                   "title":  "Academic performance",
-                                                   "description":  "Student averages, assessments, grades and feedback.",
-                                                   "searchPlaceholder":  "Search subjects...",
-                                                   "loading":  "Loading performance...",
-                                                   "overallAverage":  "Overall average",
-                                                   "subjects":  "Subjects",
-                                                   "average":  "Average: {value}",
-                                                   "grade":  "Grade: {grade} / {maximum}",
-                                                   "feedback":  "Feedback: {feedback}",
-                                                   "noAssessments":  "No assessments have been recorded for this subject.",
-                                                   "noSubjects":  "No subjects found.",
-                                                   "noData":  "No academic data found."
-                                               }
+                                            }
                       },
     "AdminStudentSuccess":  {
                                 "title":  "Student Success",

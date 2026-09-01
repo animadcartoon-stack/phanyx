@@ -3702,39 +3702,7 @@
                                                 "typeOther":  "Autre",
                                                 "uploading":  "Envoi en cours...",
                                                 "upload":  "Envoyer le document"
-                                            },
-                          "enrollmentPanel":  {
-                                                  "title":  "Inscription et dossier académique",
-                                                  "course":  "Formation",
-                                                  "status":  "Statut",
-                                                  "semester":  "Semestre",
-                                                  "enrollmentNumber":  "Numéro d\u0027inscription",
-                                                  "enrollmentDate":  "Date d\u0027inscription",
-                                                  "campus":  "Campus",
-                                                  "modality":  "Modalité",
-                                                  "academicPeriod":  "Horaire des cours / Période",
-                                                  "expectedCompletion":  "Fin prévue",
-                                                  "classesAndSubjects":  "Classes et matières ({count})",
-                                                  "searchPlaceholder":  "Rechercher une classe, une matière, un enseignant ou un statut...",
-                                                  "subject":  "Matière",
-                                                  "teacher":  "Enseignant",
-                                                  "subjectStatus":  "Statut de la matière",
-                                                  "empty":  "Cet étudiant ne possède pas encore d\u0027inscription associée."
-                                              },
-                          "performancePanel":  {
-                                                   "title":  "Résultats académiques",
-                                                   "description":  "Moyennes, évaluations, notes et commentaires de l\u0027étudiant.",
-                                                   "searchPlaceholder":  "Rechercher une matière...",
-                                                   "loading":  "Chargement des résultats...",
-                                                   "overallAverage":  "Moyenne générale",
-                                                   "subjects":  "Matières",
-                                                   "average":  "Moyenne : {value}",
-                                                   "grade":  "Note : {grade} / {maximum}",
-                                                   "feedback":  "Commentaire : {feedback}",
-                                                   "noAssessments":  "Aucune évaluation enregistrée pour cette matière.",
-                                                   "noSubjects":  "Aucune matière trouvée.",
-                                                   "noData":  "Aucune donnée académique trouvée."
-                                               }
+                                            }
                       },
     "AdminStudentSuccess":  {
                                 "title":  "Student Success",

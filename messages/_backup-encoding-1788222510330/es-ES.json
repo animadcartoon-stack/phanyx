@@ -3702,39 +3702,7 @@
                                                 "typeOther":  "Otro",
                                                 "uploading":  "Enviando...",
                                                 "upload":  "Enviar documento"
-                                            },
-                          "enrollmentPanel":  {
-                                                  "title":  "Matrícula y vínculo académico",
-                                                  "course":  "Curso",
-                                                  "status":  "Estado",
-                                                  "semester":  "Semestre",
-                                                  "enrollmentNumber":  "Número de matrícula",
-                                                  "enrollmentDate":  "Fecha de matrícula",
-                                                  "campus":  "Sede",
-                                                  "modality":  "Modalidad",
-                                                  "academicPeriod":  "Horario lectivo / Período",
-                                                  "expectedCompletion":  "Fecha prevista de finalización",
-                                                  "classesAndSubjects":  "Clases y asignaturas ({count})",
-                                                  "searchPlaceholder":  "Buscar clase, asignatura, profesor o estado...",
-                                                  "subject":  "Asignatura",
-                                                  "teacher":  "Profesor",
-                                                  "subjectStatus":  "Estado de la asignatura",
-                                                  "empty":  "Este estudiante aún no tiene una matrícula asociada."
-                                              },
-                          "performancePanel":  {
-                                                   "title":  "Rendimiento académico",
-                                                   "description":  "Promedios, evaluaciones, calificaciones y comentarios del estudiante.",
-                                                   "searchPlaceholder":  "Buscar asignatura...",
-                                                   "loading":  "Cargando el rendimiento...",
-                                                   "overallAverage":  "Promedio general",
-                                                   "subjects":  "Asignaturas",
-                                                   "average":  "Promedio: {value}",
-                                                   "grade":  "Calificación: {grade} / {maximum}",
-                                                   "feedback":  "Comentario: {feedback}",
-                                                   "noAssessments":  "No hay evaluaciones registradas para esta asignatura.",
-                                                   "noSubjects":  "No se encontraron asignaturas.",
-                                                   "noData":  "No se encontraron datos académicos."
-                                               }
+                                            }
                       },
     "AdminStudentSuccess":  {
                                 "title":  "Student Success",
