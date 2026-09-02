@@ -363,6 +363,54 @@ type CardResumoProps = {
   | "insufficient";
 };
 
+type ResumoIntervencoesStudentSuccess = {
+  ok: boolean;
+
+  acompanhamento: {
+    total: number;
+
+    abertas: number;
+
+    registradas: number;
+
+    aguardandoRetorno: number;
+
+    emAcompanhamento: number;
+
+    resolvidas: number;
+
+    canceladas: number;
+  };
+
+  efetividade: {
+    resolvidasMensuraveis: number;
+
+    evolucaoPositiva: number;
+
+    evolucaoNegativa: number;
+
+    evolucaoNeutra: number;
+
+    naoMensuravel: number;
+
+    percentualEvolucaoPositiva:
+    | number
+    | null;
+
+    tempoMedioResolucaoDias:
+    | number
+    | null;
+
+    alunosComPiora: number;
+
+    amostraSuficiente:
+    boolean;
+
+    amostraMinima:
+    number;
+  };
+};
+
 function CardResumo({
   valor,
   titulo,
@@ -705,6 +753,28 @@ export default function AdminStudentSuccessPage() {
       | null
     >(null);
 
+  const [
+    resumoIntervencoes,
+    setResumoIntervencoes,
+  ] =
+    useState<ResumoIntervencoesStudentSuccess | null>(
+      null
+    );
+
+  const [
+    carregandoResumoIntervencoes,
+    setCarregandoResumoIntervencoes,
+  ] =
+    useState(true);
+
+  const [
+    erroResumoIntervencoes,
+    setErroResumoIntervencoes,
+  ] =
+    useState<string | null>(
+      null
+    );
+
   const carregarDados =
     useCallback(
       async () => {
@@ -937,6 +1007,99 @@ export default function AdminStudentSuccessPage() {
     },
     [
       alunoSelecionado,
+      versaoIntervencoes,
+      t,
+    ]
+  );
+
+  useEffect(
+    () => {
+      let cancelado =
+        false;
+
+      const carregarResumoIntervencoes =
+        async () => {
+          setCarregandoResumoIntervencoes(
+            true
+          );
+
+          setErroResumoIntervencoes(
+            null
+          );
+
+          try {
+            const resposta =
+              await fetch(
+                "/api/admin/student-success/intervencoes/resumo",
+                {
+                  credentials:
+                    "include",
+
+                  cache:
+                    "no-store",
+                }
+              );
+
+            const json =
+              await resposta.json();
+
+            if (
+              !resposta.ok ||
+              !json?.ok
+            ) {
+              throw new Error(
+                json?.error ??
+                "INTERVENTION_SUMMARY_ERROR"
+              );
+            }
+
+            if (
+              !cancelado
+            ) {
+              setResumoIntervencoes(
+                json
+              );
+            }
+          }
+          catch (error) {
+            console.error(
+              "[STUDENT_SUCCESS_INTERVENTION_SUMMARY]",
+              error
+            );
+
+            if (
+              !cancelado
+            ) {
+              setResumoIntervencoes(
+                null
+              );
+
+              setErroResumoIntervencoes(
+                t(
+                  "intervention.dashboard.error"
+                )
+              );
+            }
+          }
+          finally {
+            if (
+              !cancelado
+            ) {
+              setCarregandoResumoIntervencoes(
+                false
+              );
+            }
+          }
+        };
+
+      void carregarResumoIntervencoes();
+
+      return () => {
+        cancelado =
+          true;
+      };
+    },
+    [
       versaoIntervencoes,
       t,
     ]
@@ -1317,50 +1480,50 @@ export default function AdminStudentSuccessPage() {
                   "application/json",
               },
 
-             body:
-  JSON.stringify({
-    status:
-      statusAtualizacaoIntervencao,
+              body:
+                JSON.stringify({
+                  status:
+                    statusAtualizacaoIntervencao,
 
-    retornoEm,
+                  retornoEm,
 
-    resultado,
+                  resultado,
 
-    analiseAtual:
-      alunoSelecionado
-        ? {
-            nivel:
-              alunoSelecionado
-                .analise
-                .nivel,
+                  analiseAtual:
+                    alunoSelecionado
+                      ? {
+                        nivel:
+                          alunoSelecionado
+                            .analise
+                            .nivel,
 
-            pontuacao:
-              alunoSelecionado
-                .analise
-                .pontuacao,
+                        pontuacao:
+                          alunoSelecionado
+                            .analise
+                            .pontuacao,
 
-            coberturaPercentual:
-              alunoSelecionado
-                .analise
-                .coberturaPercentual,
+                        coberturaPercentual:
+                          alunoSelecionado
+                            .analise
+                            .coberturaPercentual,
 
-            confiabilidade:
-              alunoSelecionado
-                .analise
-                .confiabilidade,
+                        confiabilidade:
+                          alunoSelecionado
+                            .analise
+                            .confiabilidade,
 
-            fatoresPrincipais:
-              alunoSelecionado
-                .analise
-                .fatoresPrincipais,
-          }
-        : null,
+                        fatoresPrincipais:
+                          alunoSelecionado
+                            .analise
+                            .fatoresPrincipais,
+                      }
+                      : null,
 
-    indicadoresAtuais:
-      alunoSelecionado
-        ?.indicadores ??
-      null,
-  }),
+                  indicadoresAtuais:
+                    alunoSelecionado
+                      ?.indicadores ??
+                    null,
+                }),
             }
           );
 
@@ -1445,484 +1608,652 @@ export default function AdminStudentSuccessPage() {
       }
     };
 
-    const renderComparacaoAcademica =
-  (
-    intervencao:
-      StudentSuccessIntervencao
-  ) => {
-    /*
-     * Só existe comparação quando
-     * a intervenção possui uma fotografia
-     * acadêmica de encerramento.
-     *
-     * Intervenções antigas continuam
-     * funcionando normalmente.
-     */
-    if (
-      !intervencao
-        .nivelRiscoNoEncerramento
-    ) {
-      return null;
-    }
+  const renderComparacaoAcademica =
+    (
+      intervencao:
+        StudentSuccessIntervencao
+    ) => {
+      /*
+       * Só existe comparação quando
+       * a intervenção possui uma fotografia
+       * acadêmica de encerramento.
+       *
+       * Intervenções antigas continuam
+       * funcionando normalmente.
+       */
+      if (
+        !intervencao
+          .nivelRiscoNoEncerramento
+      ) {
+        return null;
+      }
 
-    const inicio =
-      intervencao
-        .indicadoresNoRegistro;
+      const inicio =
+        intervencao
+          .indicadoresNoRegistro;
 
-    const fim =
-      intervencao
-        .indicadoresNoEncerramento;
+      const fim =
+        intervencao
+          .indicadoresNoEncerramento;
 
-    type Mudanca = {
-      texto: string;
+      type Mudanca = {
+        texto: string;
 
-      tipo:
+        tipo:
         | "positiva"
         | "negativa";
-    };
+      };
 
-    const mudancas:
-      Mudanca[] =
-      [];
+      const mudancas:
+        Mudanca[] =
+        [];
 
-    /* ---------------------------------------
-       COBERTURA
-       --------------------------------------- */
+      /* ---------------------------------------
+   NÍVEL DE RISCO
+   --------------------------------------- */
 
-    if (
-      intervencao
-        .coberturaNoEncerramento !==
-      null
-    ) {
-      const antes =
+      /*
+       * DADOS_INSUFICIENTES não é considerado
+       * um nível de risco maior ou menor.
+       *
+       * Ele representa ausência de evidência
+       * suficiente para classificar o aluno.
+       */
+      const ordemRisco:
+        Partial<
+          Record<
+            NivelRisco,
+            number
+          >
+        > = {
+        NORMAL: 0,
+        ATENCAO: 1,
+        RISCO: 2,
+        CRITICO: 3,
+      };
+
+      const nivelAntes =
         intervencao
-          .coberturaNoRegistro;
+          .nivelRiscoNoRegistro as NivelRisco;
 
-      const depois =
+      const nivelDepois =
         intervencao
-          .coberturaNoEncerramento;
+          .nivelRiscoNoEncerramento as NivelRisco;
 
-      const diferenca =
-        depois -
-        antes;
+      const ordemAntes =
+        ordemRisco[
+        nivelAntes
+        ];
 
-      if (
-        diferenca > 0
-      ) {
-        mudancas.push({
-          tipo:
-            "positiva",
-
-          texto:
-            `${t(
-              "intervention.comparison.coverageImproved"
-            )}: ${antes}% → ${depois}% (+${diferenca} ${t(
-              "intervention.comparison.percentagePoints"
-            )})`,
-        });
-      }
+      const ordemDepois =
+        ordemRisco[
+        nivelDepois
+        ];
 
       if (
-        diferenca < 0
-      ) {
-        mudancas.push({
-          tipo:
-            "negativa",
-
-          texto:
-            `${t(
-              "intervention.comparison.coverageReduced"
-            )}: ${antes}% → ${depois}% (${diferenca} ${t(
-              "intervention.comparison.percentagePoints"
-            )})`,
-        });
-      }
-    }
-
-    /* ---------------------------------------
-       ATIVIDADES PENDENTES
-       --------------------------------------- */
-
-    if (
-      inicio &&
-      fim
-    ) {
-      const antes =
-        inicio
-          .atividadesVencidas;
-
-      const depois =
-        fim
-          .atividadesVencidas;
-
-      if (
-        depois <
-        antes
-      ) {
-        mudancas.push({
-          tipo:
-            "positiva",
-
-          texto:
-            `${t(
-              "intervention.comparison.pendingReduced"
-            )}: ${antes} → ${depois}`,
-        });
-      }
-
-      if (
-        depois >
-        antes
-      ) {
-        mudancas.push({
-          tipo:
-            "negativa",
-
-          texto:
-            `${t(
-              "intervention.comparison.pendingIncreased"
-            )}: ${antes} → ${depois}`,
-        });
-      }
-    }
-
-    /* ---------------------------------------
-       FREQUÊNCIA
-       --------------------------------------- */
-
-    if (
-      inicio
-        ?.frequenciaPercentual !==
-        null &&
-      inicio
-        ?.frequenciaPercentual !==
+        ordemAntes !==
         undefined &&
-      fim
-        ?.frequenciaPercentual !==
-        null &&
-      fim
-        ?.frequenciaPercentual !==
-        undefined
-    ) {
-      const antes =
-        inicio
-          .frequenciaPercentual;
-
-      const depois =
-        fim
-          .frequenciaPercentual;
-
-      const diferenca =
-        Math.round(
-          depois -
-            antes
-        );
-
-      if (
-        diferenca > 0
-      ) {
-        mudancas.push({
-          tipo:
-            "positiva",
-
-          texto:
-            `${t(
-              "intervention.comparison.attendanceImproved"
-            )}: ${Math.round(
-              antes
-            )}% → ${Math.round(
-              depois
-            )}% (+${diferenca} ${t(
-              "intervention.comparison.percentagePoints"
-            )})`,
-        });
-      }
-
-      if (
-        diferenca < 0
-      ) {
-        mudancas.push({
-          tipo:
-            "negativa",
-
-          texto:
-            `${t(
-              "intervention.comparison.attendanceReduced"
-            )}: ${Math.round(
-              antes
-            )}% → ${Math.round(
-              depois
-            )}% (${diferenca} ${t(
-              "intervention.comparison.percentagePoints"
-            )})`,
-        });
-      }
-    }
-
-    /* ---------------------------------------
-       DESEMPENHO
-       --------------------------------------- */
-
-    if (
-      inicio
-        ?.mediaPercentual !==
-        null &&
-      inicio
-        ?.mediaPercentual !==
+        ordemDepois !==
         undefined &&
-      fim
-        ?.mediaPercentual !==
+        ordemAntes !==
+        ordemDepois
+      ) {
+        if (
+          ordemDepois <
+          ordemAntes
+        ) {
+          mudancas.push({
+            tipo:
+              "positiva",
+
+            texto:
+              `${t(
+                "intervention.comparison.riskImproved"
+              )}: ${t(
+                `levels.${nivelAntes}`
+              )} → ${t(
+                `levels.${nivelDepois}`
+              )}`,
+          });
+        }
+        else {
+          mudancas.push({
+            tipo:
+              "negativa",
+
+            texto:
+              `${t(
+                "intervention.comparison.riskIncreased"
+              )}: ${t(
+                `levels.${nivelAntes}`
+              )} → ${t(
+                `levels.${nivelDepois}`
+              )}`,
+          });
+        }
+      }
+
+      /* ---------------------------------------
+         PONTUAÇÃO DE RISCO
+         --------------------------------------- */
+
+      if (
+        intervencao
+          .pontuacaoNoRegistro !==
         null &&
-      fim
-        ?.mediaPercentual !==
-        undefined
-    ) {
-      const antes =
-        inicio
-          .mediaPercentual;
+        intervencao
+          .pontuacaoNoEncerramento !==
+        null
+      ) {
+        const antes =
+          intervencao
+            .pontuacaoNoRegistro;
 
-      const depois =
-        fim
-          .mediaPercentual;
+        const depois =
+          intervencao
+            .pontuacaoNoEncerramento;
 
-      const diferenca =
-        Math.round(
+        const diferenca =
           depois -
+          antes;
+
+        /*
+         * Na pontuação de risco:
+         * quanto menor, melhor.
+         */
+        if (
+          diferenca < 0
+        ) {
+          mudancas.push({
+            tipo:
+              "positiva",
+
+            texto:
+              `${t(
+                "intervention.comparison.scoreReduced"
+              )}: ${antes} → ${depois} (${diferenca})`,
+          });
+        }
+
+        if (
+          diferenca > 0
+        ) {
+          mudancas.push({
+            tipo:
+              "negativa",
+
+            texto:
+              `${t(
+                "intervention.comparison.scoreIncreased"
+              )}: ${antes} → ${depois} (+${diferenca})`,
+          });
+        }
+      }
+
+      /* ---------------------------------------
+         COBERTURA
+         --------------------------------------- */
+
+      if (
+        intervencao
+          .coberturaNoEncerramento !==
+        null
+      ) {
+        const antes =
+          intervencao
+            .coberturaNoRegistro;
+
+        const depois =
+          intervencao
+            .coberturaNoEncerramento;
+
+        const diferenca =
+          depois -
+          antes;
+
+        if (
+          diferenca > 0
+        ) {
+          mudancas.push({
+            tipo:
+              "positiva",
+
+            texto:
+              `${t(
+                "intervention.comparison.coverageImproved"
+              )}: ${antes}% → ${depois}% (+${diferenca} ${t(
+                "intervention.comparison.percentagePoints"
+              )})`,
+          });
+        }
+
+        if (
+          diferenca < 0
+        ) {
+          mudancas.push({
+            tipo:
+              "negativa",
+
+            texto:
+              `${t(
+                "intervention.comparison.coverageReduced"
+              )}: ${antes}% → ${depois}% (${diferenca} ${t(
+                "intervention.comparison.percentagePoints"
+              )})`,
+          });
+        }
+      }
+
+      /* ---------------------------------------
+         ATIVIDADES PENDENTES
+         --------------------------------------- */
+
+      if (
+        inicio &&
+        fim
+      ) {
+        const antes =
+          inicio
+            .atividadesVencidas;
+
+        const depois =
+          fim
+            .atividadesVencidas;
+
+        if (
+          depois <
+          antes
+        ) {
+          mudancas.push({
+            tipo:
+              "positiva",
+
+            texto:
+              `${t(
+                "intervention.comparison.pendingReduced"
+              )}: ${antes} → ${depois}`,
+          });
+        }
+
+        if (
+          depois >
+          antes
+        ) {
+          mudancas.push({
+            tipo:
+              "negativa",
+
+            texto:
+              `${t(
+                "intervention.comparison.pendingIncreased"
+              )}: ${antes} → ${depois}`,
+          });
+        }
+      }
+
+      /* ---------------------------------------
+         FREQUÊNCIA
+         --------------------------------------- */
+
+      if (
+        inicio
+          ?.frequenciaPercentual !==
+        null &&
+        inicio
+          ?.frequenciaPercentual !==
+        undefined &&
+        fim
+          ?.frequenciaPercentual !==
+        null &&
+        fim
+          ?.frequenciaPercentual !==
+        undefined
+      ) {
+        const antes =
+          inicio
+            .frequenciaPercentual;
+
+        const depois =
+          fim
+            .frequenciaPercentual;
+
+        const diferenca =
+          Math.round(
+            depois -
             antes
-        );
+          );
 
-      if (
-        diferenca > 0
-      ) {
-        mudancas.push({
-          tipo:
-            "positiva",
+        if (
+          diferenca > 0
+        ) {
+          mudancas.push({
+            tipo:
+              "positiva",
 
-          texto:
-            `${t(
-              "intervention.comparison.performanceImproved"
-            )}: ${Math.round(
-              antes
-            )}% → ${Math.round(
-              depois
-            )}% (+${diferenca} ${t(
-              "intervention.comparison.percentagePoints"
-            )})`,
-        });
+            texto:
+              `${t(
+                "intervention.comparison.attendanceImproved"
+              )}: ${Math.round(
+                antes
+              )}% → ${Math.round(
+                depois
+              )}% (+${diferenca} ${t(
+                "intervention.comparison.percentagePoints"
+              )})`,
+          });
+        }
+
+        if (
+          diferenca < 0
+        ) {
+          mudancas.push({
+            tipo:
+              "negativa",
+
+            texto:
+              `${t(
+                "intervention.comparison.attendanceReduced"
+              )}: ${Math.round(
+                antes
+              )}% → ${Math.round(
+                depois
+              )}% (${diferenca} ${t(
+                "intervention.comparison.percentagePoints"
+              )})`,
+          });
+        }
       }
 
+      /* ---------------------------------------
+         DESEMPENHO
+         --------------------------------------- */
+
       if (
-        diferenca < 0
+        inicio
+          ?.mediaPercentual !==
+        null &&
+        inicio
+          ?.mediaPercentual !==
+        undefined &&
+        fim
+          ?.mediaPercentual !==
+        null &&
+        fim
+          ?.mediaPercentual !==
+        undefined
       ) {
-        mudancas.push({
-          tipo:
-            "negativa",
+        const antes =
+          inicio
+            .mediaPercentual;
 
-          texto:
-            `${t(
-              "intervention.comparison.performanceReduced"
-            )}: ${Math.round(
-              antes
-            )}% → ${Math.round(
-              depois
-            )}% (${diferenca} ${t(
-              "intervention.comparison.percentagePoints"
-            )})`,
-        });
+        const depois =
+          fim
+            .mediaPercentual;
+
+        const diferenca =
+          Math.round(
+            depois -
+            antes
+          );
+
+        if (
+          diferenca > 0
+        ) {
+          mudancas.push({
+            tipo:
+              "positiva",
+
+            texto:
+              `${t(
+                "intervention.comparison.performanceImproved"
+              )}: ${Math.round(
+                antes
+              )}% → ${Math.round(
+                depois
+              )}% (+${diferenca} ${t(
+                "intervention.comparison.percentagePoints"
+              )})`,
+          });
+        }
+
+        if (
+          diferenca < 0
+        ) {
+          mudancas.push({
+            tipo:
+              "negativa",
+
+            texto:
+              `${t(
+                "intervention.comparison.performanceReduced"
+              )}: ${Math.round(
+                antes
+              )}% → ${Math.round(
+                depois
+              )}% (${diferenca} ${t(
+                "intervention.comparison.percentagePoints"
+              )})`,
+          });
+        }
       }
-    }
 
-    return (
-      <div
-        className="
+      return (
+        <div
+          className="
           phanyx-student-success-comparison
           mt-4
           rounded-xl
           border
           p-3
         "
-      >
-        <div
-          className="
+        >
+          <div
+            className="
             phanyx-student-success-comparison-title
             text-xs
             font-bold
             uppercase
             tracking-wide
           "
-        >
-          {t(
-            "intervention.comparison.title"
-          )}
-        </div>
+          >
+            {t(
+              "intervention.comparison.title"
+            )}
+          </div>
 
-        <div
-          className="
+          <div
+            className="
             mt-3
             grid
             gap-3
             sm:grid-cols-[1fr_auto_1fr]
             sm:items-stretch
           "
-        >
-          {/* NO REGISTRO */}
+          >
+            {/* NO REGISTRO */}
 
-          <div
-            className="
+            <div
+              className="
               phanyx-student-success-comparison-snapshot
               rounded-xl
               border
               p-3
             "
-          >
-            <div
-              className="
+            >
+              <div
+                className="
                 text-xs
                 font-bold
                 uppercase
                 tracking-wide
               "
-            >
-              {t(
-                "intervention.comparison.registration"
-              )}
-            </div>
+              >
+                {t(
+                  "intervention.comparison.registration"
+                )}
+              </div>
 
-            <dl
-              className="
+              <dl
+                className="
                 mt-3
                 space-y-2
                 text-xs
               "
-            >
-              <div>
-                <dt
-                  className="
+              >
+                <div>
+                  <dt
+                    className="
                     font-semibold
                   "
-                >
-                  {t(
-                    "intervention.comparison.risk"
-                  )}
-                </dt>
+                  >
+                    {t(
+                      "intervention.comparison.risk"
+                    )}
+                  </dt>
 
-                <dd
-                  className="
+                  <dd
+                    className="
                     mt-0.5
                     font-bold
                   "
-                >
-                  {t(
-                    `levels.${intervencao.nivelRiscoNoRegistro as NivelRisco}`
-                  )}
-                </dd>
-              </div>
+                  >
+                    {t(
+                      `levels.${intervencao.nivelRiscoNoRegistro as NivelRisco}`
+                    )}
+                  </dd>
+                </div>
 
-              <div>
-                <dt
-                  className="
-                    font-semibold
-                  "
-                >
-                  {t(
-                    "intervention.comparison.coverage"
-                  )}
-                </dt>
+                <div>
+                  <dt
+                    className="
+      font-semibold
+    "
+                  >
+                    {t(
+                      "intervention.comparison.score"
+                    )}
+                  </dt>
 
-                <dd
-                  className="
-                    mt-0.5
-                    font-bold
-                  "
-                >
-                  {
-                    intervencao
-                      .coberturaNoRegistro
-                  }
-                  %
-                </dd>
-              </div>
-
-              <div>
-                <dt
-                  className="
-                    font-semibold
-                  "
-                >
-                  {t(
-                    "intervention.comparison.attendance"
-                  )}
-                </dt>
-
-                <dd
-                  className="
-                    mt-0.5
-                    font-bold
-                  "
-                >
-                  {formatarPercentual(
-                    inicio
-                      ?.frequenciaPercentual ??
+                  <dd
+                    className="
+      mt-0.5
+      font-bold
+    "
+                  >
+                    {intervencao
+                      .pontuacaoNoRegistro !==
                       null
-                  )}
-                </dd>
-              </div>
+                      ? intervencao
+                        .pontuacaoNoRegistro
+                      : "—"}
+                  </dd>
+                </div>
 
-              <div>
-                <dt
-                  className="
+                <div>
+                  <dt
+                    className="
                     font-semibold
                   "
-                >
-                  {t(
-                    "intervention.comparison.performance"
-                  )}
-                </dt>
+                  >
+                    {t(
+                      "intervention.comparison.coverage"
+                    )}
+                  </dt>
 
-                <dd
-                  className="
+                  <dd
+                    className="
                     mt-0.5
                     font-bold
                   "
-                >
-                  {formatarPercentual(
-                    inicio
-                      ?.mediaPercentual ??
+                  >
+                    {
+                      intervencao
+                        .coberturaNoRegistro
+                    }
+                    %
+                  </dd>
+                </div>
+
+                <div>
+                  <dt
+                    className="
+                    font-semibold
+                  "
+                  >
+                    {t(
+                      "intervention.comparison.attendance"
+                    )}
+                  </dt>
+
+                  <dd
+                    className="
+                    mt-0.5
+                    font-bold
+                  "
+                  >
+                    {formatarPercentual(
+                      inicio
+                        ?.frequenciaPercentual ??
                       null
-                  )}
-                </dd>
-              </div>
+                    )}
+                  </dd>
+                </div>
 
-              <div>
-                <dt
-                  className="
+                <div>
+                  <dt
+                    className="
                     font-semibold
                   "
-                >
-                  {t(
-                    "intervention.comparison.pending"
-                  )}
-                </dt>
+                  >
+                    {t(
+                      "intervention.comparison.performance"
+                    )}
+                  </dt>
 
-                <dd
-                  className="
+                  <dd
+                    className="
                     mt-0.5
                     font-bold
                   "
-                >
-                  {inicio
-                    ? inicio
+                  >
+                    {formatarPercentual(
+                      inicio
+                        ?.mediaPercentual ??
+                      null
+                    )}
+                  </dd>
+                </div>
+
+                <div>
+                  <dt
+                    className="
+                    font-semibold
+                  "
+                  >
+                    {t(
+                      "intervention.comparison.pending"
+                    )}
+                  </dt>
+
+                  <dd
+                    className="
+                    mt-0.5
+                    font-bold
+                  "
+                  >
+                    {inicio
+                      ? inicio
                         .atividadesVencidas
-                    : "—"}
-                </dd>
-              </div>
-            </dl>
-          </div>
+                      : "—"}
+                  </dd>
+                </div>
+              </dl>
+            </div>
 
-          {/* SETA */}
+            {/* SETA */}
 
-          <div
-            className="
+            <div
+              className="
               phanyx-student-success-comparison-arrow
               flex
               items-center
@@ -1930,252 +2261,278 @@ export default function AdminStudentSuccessPage() {
               text-xl
               font-bold
             "
-            aria-hidden="true"
-          >
-            →
-          </div>
+              aria-hidden="true"
+            >
+              →
+            </div>
 
-          {/* NO ENCERRAMENTO */}
+            {/* NO ENCERRAMENTO */}
 
-          <div
-            className="
+            <div
+              className="
               phanyx-student-success-comparison-snapshot
               rounded-xl
               border
               p-3
             "
-          >
-            <div
-              className="
+            >
+              <div
+                className="
                 text-xs
                 font-bold
                 uppercase
                 tracking-wide
               "
-            >
-              {t(
-                "intervention.comparison.closure"
-              )}
-            </div>
+              >
+                {t(
+                  "intervention.comparison.closure"
+                )}
+              </div>
 
-            <dl
-              className="
+              <dl
+                className="
                 mt-3
                 space-y-2
                 text-xs
               "
-            >
-              <div>
-                <dt
-                  className="
+              >
+                <div>
+                  <dt
+                    className="
                     font-semibold
                   "
-                >
-                  {t(
-                    "intervention.comparison.risk"
-                  )}
-                </dt>
+                  >
+                    {t(
+                      "intervention.comparison.risk"
+                    )}
+                  </dt>
 
-                <dd
-                  className="
+                  <dd
+                    className="
                     mt-0.5
                     font-bold
                   "
-                >
-                  {t(
-                    `levels.${intervencao.nivelRiscoNoEncerramento as NivelRisco}`
-                  )}
-                </dd>
-              </div>
+                  >
+                    {t(
+                      `levels.${intervencao.nivelRiscoNoEncerramento as NivelRisco}`
+                    )}
+                  </dd>
+                </div>
 
-              <div>
-                <dt
-                  className="
-                    font-semibold
-                  "
-                >
-                  {t(
-                    "intervention.comparison.coverage"
-                  )}
-                </dt>
+                <div>
+                  <dt
+                    className="
+      font-semibold
+    "
+                  >
+                    {t(
+                      "intervention.comparison.score"
+                    )}
+                  </dt>
 
-                <dd
-                  className="
-                    mt-0.5
-                    font-bold
-                  "
-                >
-                  {
-                    intervencao
-                      .coberturaNoEncerramento ??
-                    0
-                  }
-                  %
-                </dd>
-              </div>
-
-              <div>
-                <dt
-                  className="
-                    font-semibold
-                  "
-                >
-                  {t(
-                    "intervention.comparison.attendance"
-                  )}
-                </dt>
-
-                <dd
-                  className="
-                    mt-0.5
-                    font-bold
-                  "
-                >
-                  {formatarPercentual(
-                    fim
-                      ?.frequenciaPercentual ??
+                  <dd
+                    className="
+      mt-0.5
+      font-bold
+    "
+                  >
+                    {intervencao
+                      .pontuacaoNoEncerramento !==
                       null
-                  )}
-                </dd>
-              </div>
+                      ? intervencao
+                        .pontuacaoNoEncerramento
+                      : "—"}
+                  </dd>
+                </div>
 
-              <div>
-                <dt
-                  className="
+                <div>
+                  <dt
+                    className="
                     font-semibold
                   "
-                >
-                  {t(
-                    "intervention.comparison.performance"
-                  )}
-                </dt>
+                  >
+                    {t(
+                      "intervention.comparison.coverage"
+                    )}
+                  </dt>
 
-                <dd
-                  className="
+                  <dd
+                    className="
                     mt-0.5
                     font-bold
                   "
-                >
-                  {formatarPercentual(
-                    fim
-                      ?.mediaPercentual ??
+                  >
+                    {
+                      intervencao
+                        .coberturaNoEncerramento ??
+                      0
+                    }
+                    %
+                  </dd>
+                </div>
+
+                <div>
+                  <dt
+                    className="
+                    font-semibold
+                  "
+                  >
+                    {t(
+                      "intervention.comparison.attendance"
+                    )}
+                  </dt>
+
+                  <dd
+                    className="
+                    mt-0.5
+                    font-bold
+                  "
+                  >
+                    {formatarPercentual(
+                      fim
+                        ?.frequenciaPercentual ??
                       null
-                  )}
-                </dd>
-              </div>
+                    )}
+                  </dd>
+                </div>
 
-              <div>
-                <dt
-                  className="
+                <div>
+                  <dt
+                    className="
                     font-semibold
                   "
-                >
-                  {t(
-                    "intervention.comparison.pending"
-                  )}
-                </dt>
+                  >
+                    {t(
+                      "intervention.comparison.performance"
+                    )}
+                  </dt>
 
-                <dd
-                  className="
+                  <dd
+                    className="
                     mt-0.5
                     font-bold
                   "
-                >
-                  {fim
-                    ? fim
+                  >
+                    {formatarPercentual(
+                      fim
+                        ?.mediaPercentual ??
+                      null
+                    )}
+                  </dd>
+                </div>
+
+                <div>
+                  <dt
+                    className="
+                    font-semibold
+                  "
+                  >
+                    {t(
+                      "intervention.comparison.pending"
+                    )}
+                  </dt>
+
+                  <dd
+                    className="
+                    mt-0.5
+                    font-bold
+                  "
+                  >
+                    {fim
+                      ? fim
                         .atividadesVencidas
-                    : "—"}
-                </dd>
-              </div>
-            </dl>
+                      : "—"}
+                  </dd>
+                </div>
+              </dl>
+            </div>
           </div>
-        </div>
 
-        {/* EVOLUÇÃO CALCULADA */}
+          {/* EVOLUÇÃO CALCULADA */}
 
-        <div
-          className="
+          <div
+            className="
             phanyx-student-success-comparison-evolution
             mt-3
             rounded-xl
             border
             p-3
           "
-        >
-          <div
-            className="
+          >
+            <div
+              className="
               text-xs
               font-bold
               uppercase
               tracking-wide
             "
-          >
-            {t(
-              "intervention.comparison.evolution"
-            )}
-          </div>
+            >
+              {t(
+                "intervention.comparison.evolution"
+              )}
+            </div>
 
-          {mudancas.length >
-          0 ? (
-            <div
-              className="
+            {mudancas.length >
+              0 ? (
+              <div
+                className="
                 mt-2
                 space-y-2
               "
-            >
-              {mudancas.map(
-                (
-                  mudanca,
-                  indice
-                ) => (
-                  <div
-                    key={
-                      `${mudanca.tipo}-${indice}`
-                    }
-                    className={[
-                      "phanyx-student-success-comparison-change rounded-lg border px-3 py-2 text-xs font-semibold",
+              >
+                {mudancas.map(
+                  (
+                    mudanca,
+                    indice
+                  ) => (
+                    <div
+                      key={
+                        `${mudanca.tipo}-${indice}`
+                      }
+                      className={[
+                        "phanyx-student-success-comparison-change rounded-lg border px-3 py-2 text-xs font-semibold",
 
-                      mudanca.tipo ===
-                      "positiva"
-                        ? "phanyx-student-success-comparison-positive"
-                        : "phanyx-student-success-comparison-negative",
-                    ].join(
-                      " "
-                    )}
-                  >
-                    <span
-                      aria-hidden="true"
+                        mudanca.tipo ===
+                          "positiva"
+                          ? "phanyx-student-success-comparison-positive"
+                          : "phanyx-student-success-comparison-negative",
+                      ].join(
+                        " "
+                      )}
                     >
-                      {mudanca.tipo ===
-                      "positiva"
-                        ? "✓"
-                        : "⚠"}
-                    </span>{" "}
-                    {
-                      mudanca.texto
-                    }
-                  </div>
-                )
-              )}
-            </div>
-          ) : (
-            <p
-              className="
+                      <span
+                        aria-hidden="true"
+                      >
+                        {mudanca.tipo ===
+                          "positiva"
+                          ? "✓"
+                          : "⚠"}
+                      </span>{" "}
+                      {
+                        mudanca.texto
+                      }
+                    </div>
+                  )
+                )}
+              </div>
+            ) : (
+              <p
+                className="
                 phanyx-student-success-comparison-neutral
                 mt-2
                 text-xs
                 font-semibold
               "
-            >
-              {t(
-                "intervention.comparison.noMeasurableChange"
-              )}
-            </p>
-          )}
+              >
+                {t(
+                  "intervention.comparison.noMeasurableChange"
+                )}
+              </p>
+            )}
+          </div>
         </div>
-      </div>
-    );
-  };
+      );
+    };
 
   const resumo =
     dados?.resumo;
@@ -2501,6 +2858,513 @@ export default function AdminStudentSuccessPage() {
               variante="insufficient"
             />
           </div>
+        </section>
+
+        <section
+          className="
+    phanyx-student-success-effectiveness
+    mt-6
+    rounded-2xl
+    border
+    p-5
+  "
+        >
+          <div>
+            <h2
+              className="
+        phanyx-student-success-effectiveness-title
+        text-lg
+        font-bold
+      "
+            >
+              {t(
+                "intervention.dashboard.title"
+              )}
+            </h2>
+
+            <p
+              className="
+        phanyx-student-success-effectiveness-description
+        mt-1
+        text-sm
+      "
+            >
+              {t(
+                "intervention.dashboard.description"
+              )}
+            </p>
+          </div>
+
+          {carregandoResumoIntervencoes ? (
+            <div
+              className="
+        phanyx-student-success-effectiveness-state
+        mt-4
+        rounded-xl
+        border
+        p-4
+        text-sm
+      "
+            >
+              {t(
+                "intervention.dashboard.loading"
+              )}
+            </div>
+          ) : erroResumoIntervencoes ? (
+            <div
+              className="
+        mt-4
+        rounded-xl
+        border
+        border-red-300
+        bg-red-50
+        p-4
+        text-sm
+        font-semibold
+        text-red-800
+      "
+            >
+              {
+                erroResumoIntervencoes
+              }
+            </div>
+          ) : resumoIntervencoes ? (
+            <>
+              <div
+                className="
+          mt-5
+          grid
+          gap-3
+          sm:grid-cols-2
+          xl:grid-cols-5
+        "
+              >
+                <div
+                  className="
+            phanyx-student-success-management-card
+            rounded-xl
+            border
+            p-4
+          "
+                >
+                  <div
+                    className="
+              text-2xl
+              font-bold
+            "
+                  >
+                    {
+                      resumoIntervencoes
+                        .acompanhamento
+                        .total
+                    }
+                  </div>
+
+                  <div
+                    className="
+              mt-1
+              text-sm
+              font-semibold
+            "
+                  >
+                    {t(
+                      "intervention.dashboard.total"
+                    )}
+                  </div>
+                </div>
+
+                <div
+                  className="
+            phanyx-student-success-management-card
+            rounded-xl
+            border
+            p-4
+          "
+                >
+                  <div
+                    className="
+              text-2xl
+              font-bold
+            "
+                  >
+                    {
+                      resumoIntervencoes
+                        .acompanhamento
+                        .abertas
+                    }
+                  </div>
+
+                  <div
+                    className="
+              mt-1
+              text-sm
+              font-semibold
+            "
+                  >
+                    {t(
+                      "intervention.dashboard.open"
+                    )}
+                  </div>
+                </div>
+
+                <div
+                  className="
+            phanyx-student-success-management-card
+            rounded-xl
+            border
+            p-4
+          "
+                >
+                  <div
+                    className="
+              text-2xl
+              font-bold
+            "
+                  >
+                    {
+                      resumoIntervencoes
+                        .acompanhamento
+                        .aguardandoRetorno
+                    }
+                  </div>
+
+                  <div
+                    className="
+              mt-1
+              text-sm
+              font-semibold
+            "
+                  >
+                    {t(
+                      "intervention.dashboard.awaitingResponse"
+                    )}
+                  </div>
+                </div>
+
+                <div
+                  className="
+            phanyx-student-success-management-card
+            rounded-xl
+            border
+            p-4
+          "
+                >
+                  <div
+                    className="
+              text-2xl
+              font-bold
+            "
+                  >
+                    {
+                      resumoIntervencoes
+                        .acompanhamento
+                        .emAcompanhamento
+                    }
+                  </div>
+
+                  <div
+                    className="
+              mt-1
+              text-sm
+              font-semibold
+            "
+                  >
+                    {t(
+                      "intervention.dashboard.inProgress"
+                    )}
+                  </div>
+                </div>
+
+                <div
+                  className="
+            phanyx-student-success-management-card
+            rounded-xl
+            border
+            p-4
+          "
+                >
+                  <div
+                    className="
+              text-2xl
+              font-bold
+            "
+                  >
+                    {
+                      resumoIntervencoes
+                        .acompanhamento
+                        .resolvidas
+                    }
+                  </div>
+
+                  <div
+                    className="
+              mt-1
+              text-sm
+              font-semibold
+            "
+                  >
+                    {t(
+                      "intervention.dashboard.resolved"
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div
+                className="
+          mt-7
+        "
+              >
+                <h3
+                  className="
+            phanyx-student-success-effectiveness-title
+            text-base
+            font-bold
+          "
+                >
+                  {t(
+                    "intervention.dashboard.effectivenessTitle"
+                  )}
+                </h3>
+
+                <p
+                  className="
+            phanyx-student-success-effectiveness-description
+            mt-1
+            text-sm
+          "
+                >
+                  {t(
+                    "intervention.dashboard.effectivenessDescription"
+                  )}
+                </p>
+              </div>
+
+              <div
+                className="
+          mt-4
+          grid
+          gap-3
+          sm:grid-cols-2
+          xl:grid-cols-4
+        "
+              >
+                <div
+                  className="
+            phanyx-student-success-effectiveness-card
+            phanyx-student-success-effectiveness-positive
+            rounded-xl
+            border
+            p-4
+          "
+                >
+                  <div
+                    className="
+              text-2xl
+              font-bold
+            "
+                  >
+                    {resumoIntervencoes
+                      .efetividade
+                      .percentualEvolucaoPositiva !==
+                      null
+                      ? `${resumoIntervencoes.efetividade.percentualEvolucaoPositiva}%`
+                      : t(
+                        "intervention.dashboard.unavailable"
+                      )}
+                  </div>
+
+                  <div
+                    className="
+              mt-1
+              text-sm
+              font-bold
+            "
+                  >
+                    {t(
+                      "intervention.dashboard.positiveEvolution"
+                    )}
+                  </div>
+
+                  <div
+                    className="
+    mt-1
+    text-xs
+  "
+                  >
+                    {resumoIntervencoes
+                      .efetividade
+                      .amostraSuficiente
+                      ? t(
+                        "intervention.dashboard.positiveEvolutionSubtitle",
+                        {
+                          count:
+                            resumoIntervencoes
+                              .efetividade
+                              .resolvidasMensuraveis,
+                        }
+                      )
+                      : t(
+                        "intervention.dashboard.sampleInsufficient",
+                        {
+                          count:
+                            resumoIntervencoes
+                              .efetividade
+                              .resolvidasMensuraveis,
+                        }
+                      )}
+                  </div>
+                </div>
+
+                <div
+                  className="
+            phanyx-student-success-effectiveness-card
+            rounded-xl
+            border
+            p-4
+          "
+                >
+                  <div
+                    className="
+              text-2xl
+              font-bold
+            "
+                  >
+                    {resumoIntervencoes
+                      .efetividade
+                      .tempoMedioResolucaoDias ===
+                      null
+                      ? t(
+                        "intervention.dashboard.unavailable"
+                      )
+                      : resumoIntervencoes
+                        .efetividade
+                        .tempoMedioResolucaoDias <
+                        1
+                        ? t(
+                          "intervention.dashboard.lessThanOneDay"
+                        )
+                        : t(
+                          "intervention.dashboard.days",
+                          {
+                            value:
+                              Math.round(
+                                resumoIntervencoes
+                                  .efetividade
+                                  .tempoMedioResolucaoDias *
+                                10
+                              ) /
+                              10,
+                          }
+                        )}
+                  </div>
+
+                  <div
+                    className="
+              mt-1
+              text-sm
+              font-bold
+            "
+                  >
+                    {t(
+                      "intervention.dashboard.averageResolutionTime"
+                    )}
+                  </div>
+                </div>
+
+                <div
+                  className="
+            phanyx-student-success-effectiveness-card
+            phanyx-student-success-effectiveness-negative
+            rounded-xl
+            border
+            p-4
+          "
+                >
+                  <div
+                    className="
+              text-2xl
+              font-bold
+            "
+                  >
+                    {
+                      resumoIntervencoes
+                        .efetividade
+                        .alunosComPiora
+                    }
+                  </div>
+
+                  <div
+                    className="
+              mt-1
+              text-sm
+              font-bold
+            "
+                  >
+                    {t(
+                      "intervention.dashboard.studentsWorsened"
+                    )}
+                  </div>
+
+                  <div
+                    className="
+              mt-1
+              text-xs
+            "
+                  >
+                    {t(
+                      "intervention.dashboard.studentsWorsenedSubtitle"
+                    )}
+                  </div>
+                </div>
+
+                <div
+                  className="
+            phanyx-student-success-effectiveness-card
+            rounded-xl
+            border
+            p-4
+          "
+                >
+                  <div
+                    className="
+              text-2xl
+              font-bold
+            "
+                  >
+                    {
+                      resumoIntervencoes
+                        .efetividade
+                        .naoMensuravel
+                    }
+                  </div>
+
+                  <div
+                    className="
+              mt-1
+              text-sm
+              font-bold
+            "
+                  >
+                    {t(
+                      "intervention.dashboard.notMeasurable"
+                    )}
+                  </div>
+
+                  <div
+                    className="
+              mt-1
+              text-xs
+            "
+                  >
+                    {t(
+                      "intervention.dashboard.notMeasurableSubtitle"
+                    )}
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : null}
         </section>
 
         {/* ALUNOS PARA ACOMPANHAMENTO */}
@@ -4896,8 +5760,8 @@ export default function AdminStudentSuccessPage() {
                           ) : null}
 
                           {renderComparacaoAcademica(
-  intervencao
-)}
+                            intervencao
+                          )}
 
                           {intervencao.concluidoEm ? (
                             <p

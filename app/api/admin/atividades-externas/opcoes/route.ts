@@ -178,10 +178,10 @@ export async function GET() {
           };
 
     const [
-      polos,
-      turmas,
-      responsaveis,
-    ] = await Promise.all([
+  polos,
+  turmas,
+  responsaveisBrutos,
+] = await Promise.all([
       prisma.polo.findMany({
         where: {
           instituicaoId:
@@ -231,48 +231,73 @@ export async function GET() {
       }),
 
       prisma.user.findMany({
-        where: {
-          instituicaoId:
-            usuario.instituicaoId,
-          ativo: true,
+  where: {
+    instituicaoId:
+      usuario.instituicaoId,
+    ativo: true,
+  },
 
-          OR: [
-            {
-              role: {
-                in: [
-                  "ADMIN",
-                  "SUPER_ADMIN",
-                  "COORDENADOR",
-                  "SECRETARIA",
-                  "GERENCIA",
-                ],
-              },
-            },
+  select: {
+    id: true,
+    nome: true,
+    email: true,
+    role: true,
 
-            {
-              funcionario: {
-                is: {
-                  ativo: true,
-                  statusFuncionario:
-                    "ATIVO",
-                },
-              },
-            },
-          ],
-        },
+    funcionario: {
+  select: {
+    nome: true,
+    ativo: true,
+    statusFuncionario: true,
+  },
+},
+  },
 
-        select: {
-          id: true,
-          nome: true,
-          email: true,
-          role: true,
-        },
-
-        orderBy: {
-          nome: "asc",
-        },
-      }),
+  orderBy: {
+    nome: "asc",
+  },
+}),
     ]);
+
+const rolesResponsaveis =
+  new Set([
+    "ADMIN",
+    "SUPER_ADMIN",
+    "COORDENADOR",
+    "SECRETARIA",
+    "GERENCIA",
+  ]);
+
+const responsaveis =
+  responsaveisBrutos
+    .filter((item) => {
+      const role = String(
+        item.role || ""
+      ).toUpperCase();
+
+      const funcionarioAtivo =
+        item.funcionario?.ativo ===
+          true &&
+        item.funcionario
+          ?.statusFuncionario ===
+          "ATIVO";
+
+      return (
+        rolesResponsaveis.has(role) ||
+        funcionarioAtivo
+      );
+    })
+    .map((item) => ({
+  id: item.id,
+
+  nome:
+    item.nome?.trim() ||
+    item.funcionario?.nome?.trim() ||
+    item.email?.trim() ||
+    "",
+
+  email: item.email,
+  role: item.role,
+}));
 
     return NextResponse.json({
       ok: true,
@@ -288,19 +313,30 @@ export async function GET() {
       responsaveis,
     });
   } catch (error) {
-    console.error(
-      "[ATIVIDADES_EXTERNAS_OPCOES]",
-      error
-    );
+  console.error(
+    "[ATIVIDADES_EXTERNAS_OPCOES]",
+    error
+  );
 
-    return NextResponse.json(
-      {
-        ok: false,
-        error: "ERRO_INTERNO",
-      },
-      {
-        status: 500,
-      }
-    );
-  }
+  const mensagem =
+    error instanceof Error
+      ? error.message
+      : String(error);
+
+  return NextResponse.json(
+    {
+      ok: false,
+      error: "ERRO_INTERNO",
+
+      ...(process.env.NODE_ENV !== "production"
+        ? {
+            detalhe: mensagem,
+          }
+        : {}),
+    },
+    {
+      status: 500,
+    }
+  );
+}
 }

@@ -467,7 +467,7 @@ export default function NovaAtividadeExternaPage() {
         </section>
 
         {erro ? (
-          <section className="rounded-3xl border border-red-300 bg-red-50 p-5 text-sm font-semibold text-red-800 dark:border-red-900 dark:bg-red-950/30 dark:text-red-200">
+          <section className="phanyx-atividade-externa-alerta-erro rounded-3xl border border-red-300 bg-red-50 p-5 text-sm font-semibold text-red-800 dark:border-red-900 dark:bg-red-950/30 dark:text-red-200">
             {erro}
           </section>
         ) : null}

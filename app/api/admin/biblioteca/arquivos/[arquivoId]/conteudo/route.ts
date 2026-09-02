@@ -374,8 +374,13 @@ export async function GET(
       }
     );
   } catch (erro) {
-    return responderErro(
-      erro
-    );
-  }
+  console.error(
+    "[BIBLIOTECA_CONTEUDO] Falha ao entregar arquivo:",
+    erro
+  );
+
+  return responderErro(
+    erro
+  );
+}
 }

@@ -19,8 +19,12 @@ type Polo = {
 
 type Responsavel = {
   id: number;
-  nome: string;
+  nome?: string | null;
   email?: string | null;
+
+  funcionario?: {
+    nome?: string | null;
+  } | null;
 };
 
 type TurmaVinculada = {
@@ -385,6 +389,26 @@ export default function AtividadesExternasPage() {
       "labels.noDestination"
     );
   }
+
+  function nomeDoResponsavel(
+  atividade: AtividadeExterna
+) {
+  const responsavel =
+    atividade.responsavelPrincipal;
+
+  if (!responsavel) {
+    return t(
+      "labels.noResponsible"
+    );
+  }
+
+  return (
+    responsavel.nome?.trim() ||
+    responsavel.funcionario?.nome?.trim() ||
+    responsavel.email?.trim() ||
+    t("labels.noResponsible")
+  );
+}
 
   async function carregar() {
     try {
@@ -894,12 +918,9 @@ export default function AtividadesExternasPage() {
                         </dt>
 
                         <dd className="mt-1 text-sm font-semibold text-slate-800 dark:text-slate-100">
-                          {atividade
-                            .responsavelPrincipal
-                            ?.nome ||
-                            t(
-                              "labels.noResponsible"
-                            )}
+                          {nomeDoResponsavel(
+  atividade
+)}
                         </dd>
                       </div>
                     </dl>

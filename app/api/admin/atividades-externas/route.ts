@@ -270,7 +270,7 @@ async function carregarContextoAcesso(
       !funcionario ||
       !funcionario.ativo ||
       funcionario.statusFuncionario !==
-        "ATIVO"
+      "ATIVO"
     ) {
       throw new ErroHttp(
         403,
@@ -302,7 +302,7 @@ async function carregarContextoAcesso(
 
     if (
       permissaoNecessaria ===
-        PERMISSAO_VER &&
+      PERMISSAO_VER &&
       !podeVer
     ) {
       throw new ErroHttp(
@@ -314,7 +314,7 @@ async function carregarContextoAcesso(
 
     if (
       permissaoNecessaria ===
-        PERMISSAO_GERENCIAR &&
+      PERMISSAO_GERENCIAR &&
       !podeGerenciar
     ) {
       throw new ErroHttp(
@@ -402,7 +402,7 @@ export async function GET(
         1,
         Number(
           searchParams.get("limite") ||
-            24
+          24
         ) || 24
       )
     );
@@ -460,7 +460,7 @@ export async function GET(
     if (
       poloId &&
       contexto.polosPermitidos !==
-        null &&
+      null &&
       !contexto.polosPermitidos.includes(
         poloId
       )
@@ -473,65 +473,65 @@ export async function GET(
     }
 
     const where: Prisma.AtividadeExternaWhereInput =
-      {
-        instituicaoId:
-          contexto.instituicaoId,
+    {
+      instituicaoId:
+        contexto.instituicaoId,
 
-        ...filtroPoloPermitido(
-          contexto.polosPermitidos
-        ),
+      ...filtroPoloPermitido(
+        contexto.polosPermitidos
+      ),
 
-        ...(poloId
-          ? {
-              poloId,
-            }
-          : {}),
+      ...(poloId
+        ? {
+          poloId,
+        }
+        : {}),
 
-        ...(statusParam
-          ? {
-              status:
-                statusParam as StatusAtividadeExterna,
-            }
-          : {}),
+      ...(statusParam
+        ? {
+          status:
+            statusParam as StatusAtividadeExterna,
+        }
+        : {}),
 
-        ...(tipoParam
-          ? {
-              tipo:
-                tipoParam as TipoAtividadeExterna,
-            }
-          : {}),
+      ...(tipoParam
+        ? {
+          tipo:
+            tipoParam as TipoAtividadeExterna,
+        }
+        : {}),
 
-        ...(busca
-          ? {
-              OR: [
-                {
-                  titulo: {
-                    contains: busca,
-                    mode: "insensitive",
-                  },
-                },
-                {
-                  destinoNome: {
-                    contains: busca,
-                    mode: "insensitive",
-                  },
-                },
-                {
-                  cidadeDestino: {
-                    contains: busca,
-                    mode: "insensitive",
-                  },
-                },
-                {
-                  paisDestino: {
-                    contains: busca,
-                    mode: "insensitive",
-                  },
-                },
-              ],
-            }
-          : {}),
-      };
+      ...(busca
+        ? {
+          OR: [
+            {
+              titulo: {
+                contains: busca,
+                mode: "insensitive",
+              },
+            },
+            {
+              destinoNome: {
+                contains: busca,
+                mode: "insensitive",
+              },
+            },
+            {
+              cidadeDestino: {
+                contains: busca,
+                mode: "insensitive",
+              },
+            },
+            {
+              paisDestino: {
+                contains: busca,
+                mode: "insensitive",
+              },
+            },
+          ],
+        }
+        : {}),
+    };
 
     const [total, atividades] =
       await prisma.$transaction([
@@ -570,6 +570,12 @@ export async function GET(
                 id: true,
                 nome: true,
                 email: true,
+
+                funcionario: {
+                  select: {
+                    nome: true,
+                  },
+                },
               },
             },
 
@@ -616,8 +622,8 @@ export async function GET(
           total === 0
             ? 0
             : Math.ceil(
-                total / limite
-              ),
+              total / limite
+            ),
       },
     });
   } catch (error) {
@@ -858,11 +864,11 @@ export async function POST(
             ...(contexto
               .polosPermitidos !== null
               ? {
-                  poloId: {
-                    in:
-                      contexto.polosPermitidos,
-                  },
-                }
+                poloId: {
+                  in:
+                    contexto.polosPermitidos,
+                },
+              }
               : {}),
           },
           select: {
@@ -1043,6 +1049,12 @@ export async function POST(
                     id: true,
                     nome: true,
                     email: true,
+
+                    funcionario: {
+                      select: {
+                        nome: true,
+                      },
+                    },
                   },
                 },
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import PhanyxToast from "@/components/ui/PhanyxToast";
 
 type AlunoItem = {
@@ -119,23 +120,26 @@ function alunoCombinaComBusca(aluno: AlunoItem, termoOriginal: string) {
 
 function corStatus(status?: AlunoItem["statusCertificado"]) {
   if (status === "PRONTO") {
-    return "bg-emerald-100 text-emerald-700 border-emerald-200";
+    return "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-200 dark:border-emerald-800";
   }
 
   if (status === "PENDENTE") {
-    return "bg-amber-100 text-amber-700 border-amber-200";
+    return "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/60 dark:text-amber-200 dark:border-amber-800";
   }
 
-  return "bg-slate-100 text-slate-600 border-slate-200";
-}
-
-function labelStatus(status?: AlunoItem["statusCertificado"]) {
-  if (status === "PRONTO") return "Pronto";
-  if (status === "PENDENTE") return "Pendente";
-  return "Não elegível";
+  return "bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700";
 }
 
 export default function AdminCertificadosPage() {
+  const t = useTranslations("AdminCertificates");
+  const locale = useLocale();
+
+  function labelStatus(status?: AlunoItem["statusCertificado"]) {
+    if (status === "PRONTO") return t("status.ready");
+    if (status === "PENDENTE") return t("status.pending");
+    return t("status.notEligible");
+  }
+
   const [busca, setBusca] = useState("");
   const [buscaAplicada, setBuscaAplicada] = useState("");
   const [alunos, setAlunos] = useState<AlunoItem[]>([]);
@@ -150,7 +154,8 @@ export default function AdminCertificadosPage() {
   const [alunoSelecionado, setAlunoSelecionado] = useState<AlunoItem | null>(null);
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
-  const [visualizandoCertificado, setVisualizandoCertificado] = useState(false);
+  const [visualizandoCertificadoId, setVisualizandoCertificadoId] =
+    useState<number | null>(null);
   const [certificadoPreviewUrl, setCertificadoPreviewUrl] = useState("");
   const [certificadoPreviewNome, setCertificadoPreviewNome] = useState("");
   const [salvandoConfiguracao, setSalvandoConfiguracao] = useState(false);
@@ -175,7 +180,7 @@ export default function AdminCertificadosPage() {
     const data = await res.json().catch(() => null);
 
     if (!res.ok) {
-      setErro(data?.detalhe || data?.error || "Erro ao buscar alunos.");
+      setErro(data?.detalhe || data?.error || t("errors.searchStudents"));
       setAlunos([]);
       setTodosAlunos([]);
       return;
@@ -183,7 +188,7 @@ export default function AdminCertificadosPage() {
 
     const lista = normalizarListaAlunos(data).map((item: any) => ({
       id: Number(item.id),
-      nome: item.nome || "Aluno sem nome",
+      nome: item.nome || t("fallback.unnamedStudent"),
       email: item.email ?? item.user?.email ?? null,
       matricula:
         item.matricula ??
@@ -201,7 +206,7 @@ export default function AdminCertificadosPage() {
     }));
 
     const listaOrdenada = lista.sort((a, b) =>
-      a.nome.localeCompare(b.nome, "pt-BR", {
+      a.nome.localeCompare(b.nome, locale, {
         sensitivity: "base",
       })
     );
@@ -229,7 +234,7 @@ export default function AdminCertificadosPage() {
       .sort((a, b) => {
         if (a.score !== b.score) return a.score - b.score;
 
-        return a.aluno.nome.localeCompare(b.aluno.nome, "pt-BR", {
+        return a.aluno.nome.localeCompare(b.aluno.nome, locale, {
           sensitivity: "base",
         });
       })
@@ -237,7 +242,7 @@ export default function AdminCertificadosPage() {
 
     setAlunos(listaFiltrada);
   } catch {
-    setErro("Erro ao carregar alunos.");
+    setErro(t("errors.loadStudents"));
     setAlunos([]);
     setTodosAlunos([]);
   } finally {
@@ -292,7 +297,7 @@ export default function AdminCertificadosPage() {
     .sort((a, b) => {
       if (a.score !== b.score) return a.score - b.score;
 
-      return a.aluno.nome.localeCompare(b.aluno.nome, "pt-BR", {
+      return a.aluno.nome.localeCompare(b.aluno.nome, locale, {
         sensitivity: "base",
       });
     })
@@ -308,11 +313,9 @@ export default function AdminCertificadosPage() {
   setAlunos(todosAlunos);
 }
 
-  function acaoAindaNaoLigada(nomeAcao: string, aluno: AlunoItem) {
+  function acaoAindaNaoLigada(aluno: AlunoItem) {
     setAlunoSelecionado(aluno);
-    setSucesso(
-  `${nomeAcao} do certificado de ${aluno.nome} será ligado no próximo passo.`
-);
+    setSucesso(t("messages.emailComingSoon", { name: aluno.nome }));
   }
 
   async function carregarConfiguracaoCertificados() {
@@ -324,7 +327,7 @@ export default function AdminCertificadosPage() {
     const data = await res.json().catch(() => null);
 
     if (!res.ok) {
-      setErro(data?.error || "Erro ao carregar configuração de certificados.");
+      setErro(data?.error || t("errors.loadConfiguration"));
       return;
     }
 
@@ -341,7 +344,7 @@ export default function AdminCertificadosPage() {
       data?.liberarCertificadoAutomatico !== false
     );
   } catch {
-    setErro("Erro ao carregar configuração de certificados.");
+    setErro(t("errors.loadConfiguration"));
   }
 }
 
@@ -365,13 +368,13 @@ async function salvarConfiguracaoCertificados() {
     const data = await res.json().catch(() => null);
 
     if (!res.ok || !data?.sucesso) {
-      setErro(data?.error || "Erro ao salvar configuração.");
+      setErro(data?.error || t("errors.saveConfiguration"));
       return;
     }
 
-    setSucesso("Configuração de certificados salva com sucesso.");
+    setSucesso(t("messages.configurationSaved"));
   } catch {
-    setErro("Erro ao salvar configuração de certificados.");
+    setErro(t("errors.saveConfiguration"));
   } finally {
     setSalvandoConfiguracao(false);
   }
@@ -379,7 +382,7 @@ async function salvarConfiguracaoCertificados() {
 
 async function visualizarCertificadoAluno(aluno: AlunoItem) {
   try {
-    setVisualizandoCertificado(true);
+    setVisualizandoCertificadoId(aluno.id);
     setErro("");
 
     const res = await fetch("/api/admin/certificados/gerar", {
@@ -400,7 +403,7 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
       setErro(
         data?.detalhe ||
           data?.error ||
-          "Não foi possível visualizar o certificado."
+          t("errors.viewCertificate")
       );
       return;
     }
@@ -418,10 +421,10 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
   } catch (error: any) {
     setErro(
       error?.message ||
-        "Erro ao visualizar certificado."
+        t("errors.viewCertificate")
     );
   } finally {
-    setVisualizandoCertificado(false);
+    setVisualizandoCertificadoId(null);
   }
 }
 
@@ -435,7 +438,7 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
     color: #0f172a !important;
   }
 
-  .phanyx-certificados-page .cert-card :is(h1,h2,h3,h4,p,span,label,div) {
+  .phanyx-certificados-page .cert-card :is(h1,h2,h3,h4,p,label,div) {
     color: #0f172a !important;
     opacity: 1 !important;
   }
@@ -489,6 +492,32 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
     color: #0f172a !important;
   }
 
+  .phanyx-certificados-page .cert-email-button {
+    background: #0f172a !important;
+    border-color: #0f172a !important;
+    color: #ffffff !important;
+  }
+
+  .phanyx-certificados-page .cert-email-button:hover {
+    background: #1e293b !important;
+    border-color: #1e293b !important;
+    color: #ffffff !important;
+  }
+
+  .phanyx-certificados-page .cert-subtle,
+  .phanyx-certificados-page .cert-table-head {
+    background: #f8fafc !important;
+    border-color: #cbd5e1 !important;
+  }
+
+  .phanyx-certificados-page .cert-table-row {
+    border-color: #e2e8f0 !important;
+  }
+
+  .phanyx-certificados-page .cert-table :is(th,td) {
+    color: #334155;
+  }
+
   html.dark:not([data-theme="system"]) .phanyx-certificados-page .cert-card,
   html.dark:not([data-theme="system"]) .phanyx-certificados-page .cert-option {
     background: #0f172a !important;
@@ -496,7 +525,7 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
     color: #f8fafc !important;
   }
 
-  html.dark:not([data-theme="system"]) .phanyx-certificados-page .cert-card :is(h1,h2,h3,h4,p,span,label,div),
+  html.dark:not([data-theme="system"]) .phanyx-certificados-page .cert-card :is(h1,h2,h3,h4,p,label,div),
   html.dark:not([data-theme="system"]) .phanyx-certificados-page .cert-option :is(h1,h2,h3,h4,p,span,div) {
     color: #f8fafc !important;
     opacity: 1 !important;
@@ -522,6 +551,20 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
     color: #f8fafc !important;
   }
 
+  html.dark:not([data-theme="system"]) .phanyx-certificados-page .cert-subtle,
+  html.dark:not([data-theme="system"]) .phanyx-certificados-page .cert-table-head {
+    background: #020617 !important;
+    border-color: #334155 !important;
+  }
+
+  html.dark:not([data-theme="system"]) .phanyx-certificados-page .cert-table-row {
+    border-color: #334155 !important;
+  }
+
+  html.dark:not([data-theme="system"]) .phanyx-certificados-page .cert-table :is(th,td) {
+    color: #e2e8f0;
+  }
+
   html[data-theme="system"] .phanyx-certificados-page .cert-card,
   html[data-theme="system"] .phanyx-certificados-page .cert-option {
     background: #262626 !important;
@@ -529,7 +572,7 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
     color: #f8fafc !important;
   }
 
-  html[data-theme="system"] .phanyx-certificados-page .cert-card :is(h1,h2,h3,h4,p,span,label,div),
+  html[data-theme="system"] .phanyx-certificados-page .cert-card :is(h1,h2,h3,h4,p,label,div),
   html[data-theme="system"] .phanyx-certificados-page .cert-option :is(h1,h2,h3,h4,p,span,div) {
     color: #f8fafc !important;
     opacity: 1 !important;
@@ -554,12 +597,26 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
     border-color: #525252 !important;
     color: #f8fafc !important;
   }
+
+  html[data-theme="system"] .phanyx-certificados-page .cert-subtle,
+  html[data-theme="system"] .phanyx-certificados-page .cert-table-head {
+    background: #303030 !important;
+    border-color: #525252 !important;
+  }
+
+  html[data-theme="system"] .phanyx-certificados-page .cert-table-row {
+    border-color: #525252 !important;
+  }
+
+  html[data-theme="system"] .phanyx-certificados-page .cert-table :is(th,td) {
+    color: #e5e5e5;
+  }
 `}</style>
 
     {erro && (
       <PhanyxToast
         tipo="erro"
-        titulo="Não foi possível concluir"
+        titulo={t("toast.errorTitle")}
         mensagem={erro}
         onClose={() => setErro("")}
       />
@@ -568,23 +625,22 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
     {sucesso && (
       <PhanyxToast
         tipo="sucesso"
-        titulo="Tudo certo"
+        titulo={t("toast.successTitle")}
         mensagem={sucesso}
         onClose={() => setSucesso("")}
       />
     )}
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="cert-card rounded-3xl border p-6 shadow-sm">
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-700">
-          Admin • Certificados
+          {t("header.kicker")}
         </p>
 
         <h1 className="mt-2 text-3xl font-bold text-slate-900">
-          Gestão de certificados
+          {t("header.title")}
         </h1>
 
         <p className="mt-2 max-w-4xl text-slate-600">
-          Busque alunos, veja o status do certificado, abra o documento pronto
-          quando existir e prepare o fluxo de baixar ou enviar por email.
+          {t("header.description")}
         </p>
       </div>
 
@@ -592,16 +648,15 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
     <div>
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700 dark:text-blue-400">
-        Configuração da instituição
+        {t("settings.kicker")}
       </p>
 
       <h2 className="mt-2 text-2xl font-bold">
-        Liberação automática de certificados
+        {t("settings.title")}
       </h2>
 
       <p className="cert-muted mt-2 max-w-3xl text-sm leading-6">
-        Defina quando o certificado ficará disponível automaticamente na área do aluno.
-        A emissão manual continua disponível para secretaria/diretoria quando houver autorização.
+        {t("settings.description")}
       </p>
     </div>
 
@@ -611,7 +666,7 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
         checked={liberarCertificadoAutomatico}
         onChange={(e) => setLiberarCertificadoAutomatico(e.target.checked)}
       />
-      Liberar automaticamente
+      {t("settings.autoRelease")}
     </label>
   </div>
 
@@ -625,9 +680,9 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
         : "cert-option"
     }`}
   >
-    <p className="font-bold">Por disciplina</p>
+    <p className="font-bold">{t("rules.subject.title")}</p>
     <p className="mt-1 text-xs leading-5">
-      O aluno recebe certificado quando concluir uma disciplina.
+      {t("rules.subject.description")}
     </p>
   </button>
 
@@ -640,9 +695,9 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
         : "cert-option"
     }`}
   >
-    <p className="font-bold">Por semestre</p>
+    <p className="font-bold">{t("rules.semester.title")}</p>
     <p className="mt-1 text-xs leading-5">
-      O aluno recebe certificado quando concluir o semestre.
+      {t("rules.semester.description")}
     </p>
   </button>
 
@@ -655,9 +710,9 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
         : "cert-option"
     }`}
   >
-    <p className="font-bold">Curso completo</p>
+    <p className="font-bold">{t("rules.course.title")}</p>
     <p className="mt-1 text-xs leading-5">
-      O aluno recebe certificado apenas ao concluir o curso.
+      {t("rules.course.description")}
     </p>
   </button>
 
@@ -670,9 +725,9 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
         : "cert-option"
     }`}
   >
-    <p className="font-bold">Manual</p>
+    <p className="font-bold">{t("rules.manual.title")}</p>
     <p className="mt-1 text-xs leading-5">
-      O certificado só aparece quando for emitido pela equipe autorizada.
+      {t("rules.manual.description")}
     </p>
   </button>
 </div>
@@ -680,7 +735,7 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
   <div className="mt-5 grid gap-4 md:grid-cols-3">
   <label className="block">
     <span className="mb-2 block text-sm font-semibold">
-      Média mínima
+      {t("settings.minimumGrade")}
     </span>
 
     <input
@@ -696,7 +751,7 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
 
   <label className="block">
     <span className="mb-2 block text-sm font-semibold">
-      Frequência mínima (%)
+      {t("settings.minimumAttendance")}
     </span>
 
     <input
@@ -717,30 +772,32 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
       onClick={salvarConfiguracaoCertificados}
       className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
     >
-      {salvandoConfiguracao ? "Salvando..." : "Salvar configuração"}
+      {salvandoConfiguracao
+        ? t("settings.saving")
+        : t("settings.save")}
     </button>
   </div>
 </div>
 </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="cert-card rounded-2xl border p-5 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Certificados prontos
+            {t("stats.ready")}
           </p>
           <p className="mt-3 text-3xl font-bold text-slate-900">{totalProntos}</p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="cert-card rounded-2xl border p-5 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Pendentes
+            {t("stats.pending")}
           </p>
           <p className="mt-3 text-3xl font-bold text-slate-900">{totalPendentes}</p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="cert-card rounded-2xl border p-5 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Não elegíveis
+            {t("stats.notEligible")}
           </p>
           <p className="mt-3 text-3xl font-bold text-slate-900">{totalNaoElegiveis}</p>
         </div>
@@ -750,7 +807,7 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
   <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
     <div className="flex-1">
       <label className="mb-2 block text-sm font-medium">
-        Buscar aluno
+        {t("search.label")}
       </label>
 
       <input
@@ -785,7 +842,7 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
             .sort((a, b) => {
               if (a.score !== b.score) return a.score - b.score;
 
-              return a.aluno.nome.localeCompare(b.aluno.nome, "pt-BR", {
+              return a.aluno.nome.localeCompare(b.aluno.nome, locale, {
                 sensitivity: "base",
               });
             })
@@ -803,7 +860,7 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
             setMostrarSugestoesBusca(false);
           }
         }}
-        placeholder="Digite nome, matrícula ou email"
+        placeholder={t("search.placeholder")}
         autoComplete="off"
         autoCorrect="off"
         autoCapitalize="none"
@@ -829,7 +886,7 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
             .sort((a, b) => {
               if (a.score !== b.score) return a.score - b.score;
 
-              return a.aluno.nome.localeCompare(b.aluno.nome, "pt-BR", {
+              return a.aluno.nome.localeCompare(b.aluno.nome, locale, {
                 sensitivity: "base",
               });
             })
@@ -850,7 +907,7 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
                 <span className="font-semibold">{item.aluno.nome}</span>
 
                 <span className="phanyx-cert-sugestao-email ml-2 text-xs">
-                  {item.aluno.email || "Sem email"}
+                  {item.aluno.email || t("fallback.noEmail")}
                 </span>
               </button>
             ))}
@@ -859,7 +916,7 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
             .map((aluno) => alunoCombinaComBusca(aluno, busca))
             .filter((resultado) => resultado.combina).length === 0 && (
             <div className="cert-muted px-3 py-2 text-sm">
-              Nenhuma sugestão encontrada.
+              {t("search.noSuggestions")}
             </div>
           )}
         </div>
@@ -871,7 +928,7 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
       onClick={aplicarBusca}
       className="rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700"
     >
-      Buscar
+      {t("search.searchButton")}
     </button>
 
     <button
@@ -879,35 +936,40 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
       onClick={limparBusca}
       className="cert-clear-button rounded-xl border px-5 py-3 font-semibold"
     >
-      Limpar
+      {t("search.clearButton")}
     </button>
   </div>
 
   {buscaAplicada && (
     <p className="cert-muted mt-3 text-sm">
-      Resultado da busca por:{" "}
-      <span className="font-semibold">{buscaAplicada}</span>
+      {t.rich("search.result", {
+        term: () => (
+          <span className="font-semibold">{buscaAplicada}</span>
+        ),
+      })}
     </p>
   )}
 </div>
 
-      <div className="rounded-3xl border border-slate-200 bg-white shadow-sm">
+      <div className="cert-card rounded-3xl border shadow-sm">
         <div className="border-b border-slate-200 px-6 py-4">
-          <h2 className="text-xl font-bold text-slate-900">Alunos e certificados</h2>
+          <h2 className="text-xl font-bold text-slate-900">
+            {t("table.title")}
+          </h2>
           <p className="mt-1 text-sm text-slate-500">
-            Clique em um aluno para visualizar melhor as ações disponíveis.
+            {t("table.description")}
           </p>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="min-w-full">
-            <thead className="bg-slate-50">
+          <table className="cert-table min-w-full">
+            <thead className="cert-table-head">
               <tr className="text-left text-sm text-slate-600">
-                <th className="px-6 py-4 font-semibold">Aluno</th>
-                <th className="px-6 py-4 font-semibold">Curso</th>
-                <th className="px-6 py-4 font-semibold">Matrícula</th>
-                <th className="px-6 py-4 font-semibold">Status</th>
-                <th className="px-6 py-4 font-semibold">Ações</th>
+                <th className="px-6 py-4 font-semibold">{t("table.student")}</th>
+                <th className="px-6 py-4 font-semibold">{t("table.course")}</th>
+                <th className="px-6 py-4 font-semibold">{t("table.enrollment")}</th>
+                <th className="px-6 py-4 font-semibold">{t("table.status")}</th>
+                <th className="px-6 py-4 font-semibold">{t("table.actions")}</th>
               </tr>
             </thead>
 
@@ -915,22 +977,22 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
               {carregando ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-8 text-sm text-slate-500">
-                    Carregando alunos...
+                    {t("table.loading")}
                   </td>
                 </tr>
               ) : alunos.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-8 text-sm text-slate-500">
                     {buscaAplicada
-  ? "Nenhum aluno encontrado. Tente parte do nome, email, matrícula ou uma grafia parecida."
-  : "Nenhum aluno encontrado."}
+                      ? t("table.noResultsSearch")
+                      : t("table.noResults")}
                   </td>
                 </tr>
               ) : (
                 alunos.map((aluno) => (
                   <tr
                     key={aluno.id}
-                    className="phanyx-cert-tabela-linha border-t"
+                    className="phanyx-cert-tabela-linha cert-table-row border-t"
                   >
                     <td className="px-6 py-4">
                       <button
@@ -940,13 +1002,13 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
                       >
                         <div className="phanyx-cert-nome font-semibold">{aluno.nome}</div>
                         <div className="phanyx-cert-email text-sm">
-  {aluno.email || "Sem email"}
+  {aluno.email || t("fallback.noEmail")}
 </div>
                       </button>
                     </td>
 
                     <td className="phanyx-cert-texto px-6 py-4 text-sm">
-                      {aluno.curso || "Não informado"}
+                      {aluno.curso || t("fallback.notInformed")}
                     </td>
 
                     <td className="phanyx-cert-texto px-6 py-4 text-sm">
@@ -984,12 +1046,12 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
         setErro(
           data?.detalhe ||
             data?.error ||
-            "Erro ao emitir certificado."
+            t("errors.issueCertificate")
         );
         return;
       }
 
-      setSucesso(`Certificado de ${aluno.nome} emitido com sucesso.`);
+      setSucesso(t("messages.certificateIssued", { name: aluno.nome }));
 
       setAlunos((prev) =>
         prev.map((item) =>
@@ -1024,7 +1086,7 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
     } catch (error: any) {
       setErro(
         error?.message ||
-          "Erro ao emitir certificado. Verifique se o aluno possui matrícula e disciplina vinculada."
+          t("errors.issueCertificateRequirements")
       );
     }
   }}
@@ -1035,17 +1097,19 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
   }`}
 >
   {aluno.statusCertificado === "PRONTO"
-    ? "Certificado emitido"
-    : "Emitir certificado"}
+    ? t("table.certificateIssued")
+    : t("table.issueCertificate")}
 </button>
 
                        <button
   type="button"
-  disabled={visualizandoCertificado}
+  disabled={visualizandoCertificadoId !== null}
   onClick={() => visualizarCertificadoAluno(aluno)}
   className="phanyx-cert-botao-secundario rounded-lg border px-3 py-2 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-60"
 >
-  {visualizandoCertificado ? "Abrindo..." : "Visualizar"}
+  {visualizandoCertificadoId === aluno.id
+    ? t("table.opening")
+    : t("table.view")}
 </button>
 
                         <button
@@ -1062,7 +1126,7 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
 
       if (!res.ok) {
         const erro = await res.json().catch(() => null);
-        setErro(erro?.error || "Não foi possível baixar o certificado.");
+        setErro(erro?.error || t("errors.downloadCertificate"));
         return;
       }
 
@@ -1070,26 +1134,26 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `certificado-${aluno.nome}.pdf`;
+      link.download = t("download.fileName", { name: aluno.nome });
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      setErro("Erro ao baixar certificado.");
+      setErro(t("errors.downloadCertificate"));
     }
   }}
   className="rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white hover:bg-green-700"
 >
-  Baixar
+  {t("table.download")}
 </button>
 
                         <button
                           type="button"
-                          onClick={() => acaoAindaNaoLigada("Enviar por email", aluno)}
-                          className="rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white hover:bg-slate-800"
+                          onClick={() => acaoAindaNaoLigada(aluno)}
+                          className="cert-email-button rounded-lg border px-3 py-2 text-xs font-semibold transition"
                         >
-                          Email
+                          {t("table.email")}
                         </button>
                       </div>
                     </td>
@@ -1101,37 +1165,39 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
         </div>
       </div>
 
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-xl font-bold text-slate-900">Aluno selecionado</h2>
+      <div className="cert-card rounded-3xl border p-6 shadow-sm">
+        <h2 className="text-xl font-bold text-slate-900">
+          {t("selected.title")}
+        </h2>
 
         {alunoSelecionado ? (
           <div className="mt-4 grid gap-4 md:grid-cols-2">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div className="cert-subtle rounded-2xl border p-4">
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Nome
+                {t("selected.name")}
               </p>
               <p className="mt-2 text-lg font-bold text-slate-900">
                 {alunoSelecionado.nome}
               </p>
 
               <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Email
+                {t("selected.email")}
               </p>
               <p className="mt-2 text-sm text-slate-700">
-                {alunoSelecionado.email || "Sem email"}
+                {alunoSelecionado.email || t("fallback.noEmail")}
               </p>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div className="cert-subtle rounded-2xl border p-4">
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Curso
+                {t("selected.course")}
               </p>
               <p className="mt-2 text-lg font-bold text-slate-900">
-                {alunoSelecionado.curso || "Não informado"}
+                {alunoSelecionado.curso || t("fallback.notInformed")}
               </p>
 
               <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Status do certificado
+                {t("selected.certificateStatus")}
               </p>
               <p className="mt-2 text-sm text-slate-700">
                 {labelStatus(alunoSelecionado.statusCertificado)}
@@ -1140,7 +1206,7 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
           </div>
         ) : (
           <p className="mt-4 text-sm text-slate-500">
-            Selecione um aluno na tabela acima.
+            {t("selected.instruction")}
           </p>
         )}
       </div>
@@ -1150,7 +1216,7 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
       <div className="flex items-center justify-between border-b border-slate-800 px-5 py-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-400">
-            Visualização do certificado
+            {t("preview.kicker")}
           </p>
           <h2 className="text-lg font-bold text-white">
             {certificadoPreviewNome}
@@ -1166,18 +1232,19 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
           }}
           className="rounded-xl bg-red-600 px-4 py-2 text-sm font-bold text-white hover:bg-red-700"
         >
-          Fechar ✕
+          {t("preview.close")} ✕
         </button>
       </div>
 
       <iframe
         src={certificadoPreviewUrl}
         className="h-full w-full bg-white"
-        title="Visualização do certificado"
+        title={t("preview.title")}
       />
     </div>
   </div>
 )}
     </div>
   );
+
 }

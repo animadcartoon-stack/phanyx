@@ -130,7 +130,6 @@
     "classes": "Classes",
     "operationalSchedule": "Schedule / Roster",
     "externalActivities": "External activities",
-
     "academicPublications": "Academic Publications",
     "visitors": "Visitors",
     "overview": "Overview",
@@ -4075,7 +4074,39 @@
         "attendanceReduced": "Attendance decreased",
         "performanceImproved": "Performance improved",
         "performanceReduced": "Performance decreased",
-        "percentagePoints": "pp"
+        "percentagePoints": "pp",
+        "score": "Risk score",
+        "riskImproved": "Risk level improved",
+        "riskIncreased": "Risk level increased",
+        "scoreReduced": "Risk score decreased",
+        "scoreIncreased": "Risk score increased"
+      },
+      "dashboard": {
+        "title": "Intervention follow-up",
+        "description": "Track the progress and effectiveness of actions taken with students.",
+        "total": "Total interventions",
+        "open": "Open interventions",
+        "awaitingResponse": "Awaiting response",
+        "inProgress": "In follow-up",
+        "resolved": "Resolved",
+        "effectivenessTitle": "Intervention effectiveness",
+        "effectivenessDescription": "Indicators calculated only from real interventions and academic data.",
+        "positiveEvolution": "Positive progress",
+        "positiveEvolutionSubtitle": "{count, plural, one {# measurable intervention} other {# measurable interventions}}",
+        "averageResolutionTime": "Average resolution time",
+        "days": "{value, plural, one {# day} other {# days}}",
+        "studentsWorsened": "Students with decline",
+        "studentsWorsenedSubtitle": "Distinct students after intervention",
+        "notMeasurable": "Not yet measurable",
+        "notMeasurableSubtitle": "Resolved interventions without sufficient academic comparison",
+        "measurableResolved": "Measurable resolved",
+        "neutralEvolution": "No measurable change",
+        "negativeEvolution": "Negative progress",
+        "unavailable": "—",
+        "loading": "Loading indicators...",
+        "error": "The intervention indicators could not be loaded.",
+        "sampleInsufficient": "Insufficient sample · {count, plural, one {# measurable intervention} other {# measurable interventions}}",
+        "lessThanOneDay": "< 1 day"
       }
     }
   },
@@ -4755,8 +4786,7 @@
       "streaming": "Streaming",
       "externalLink": "External link"
     }
-  }
-,
+  },
   "AdminExternalActivities": {
     "eyebrow": "Academic management",
     "title": "External activities",
@@ -4827,8 +4857,7 @@
     "errors": {
       "load": "External activities could not be loaded."
     }
-  }
-,
+  },
   "AdminExternalActivityNew": {
     "eyebrow": "Academic management",
     "title": "New external activity",
@@ -5259,5 +5288,261 @@
     "enumStudent": "Student",
     "enumTeacher": "Teacher",
     "enumEmployee": "Employee"
+  },
+  "AdminCertificates": {
+    "status": {
+      "ready": "Ready",
+      "pending": "Pending",
+      "notEligible": "Not eligible"
+    },
+    "fallback": {
+      "unnamedStudent": "Unnamed student",
+      "noEmail": "No email",
+      "notInformed": "Not provided"
+    },
+    "errors": {
+      "searchStudents": "Unable to search for students.",
+      "loadStudents": "Unable to load students.",
+      "loadConfiguration": "Unable to load the certificate settings.",
+      "saveConfiguration": "Unable to save the certificate settings.",
+      "viewCertificate": "Unable to preview the certificate.",
+      "issueCertificate": "Unable to issue the certificate.",
+      "issueCertificateRequirements": "Unable to issue the certificate. Check whether the student has an enrollment and a linked subject.",
+      "downloadCertificate": "Unable to download the certificate."
+    },
+    "messages": {
+      "configurationSaved": "Certificate settings saved successfully.",
+      "certificateIssued": "The certificate for {name} was issued successfully.",
+      "emailComingSoon": "Email delivery for {name}’s certificate will be connected in the next step."
+    },
+    "toast": {
+      "errorTitle": "Unable to complete the action",
+      "successTitle": "All set"
+    },
+    "header": {
+      "kicker": "Admin • Certificates",
+      "title": "Certificate management",
+      "description": "Search for students, track certificate status, preview available documents, and manage issuing, downloading, and email delivery."
+    },
+    "settings": {
+      "kicker": "Institution settings",
+      "title": "Automatic certificate release",
+      "description": "Define when certificates become automatically available in the student area. Manual issuing remains available to authorized administrative staff.",
+      "autoRelease": "Release automatically",
+      "minimumGrade": "Minimum grade",
+      "minimumAttendance": "Minimum attendance (%)",
+      "saving": "Saving...",
+      "save": "Save settings"
+    },
+    "rules": {
+      "subject": {
+        "title": "By subject",
+        "description": "The student receives a certificate after completing a subject."
+      },
+      "semester": {
+        "title": "By semester",
+        "description": "The student receives a certificate after completing the semester."
+      },
+      "course": {
+        "title": "Full course",
+        "description": "The student receives a certificate only after completing the course."
+      },
+      "manual": {
+        "title": "Manual",
+        "description": "The certificate appears only after it is issued by authorized staff."
+      }
+    },
+    "stats": {
+      "ready": "Certificates ready",
+      "pending": "Pending",
+      "notEligible": "Not eligible"
+    },
+    "search": {
+      "label": "Search for a student",
+      "placeholder": "Enter a name, enrollment number, or email",
+      "noSuggestions": "No suggestions found.",
+      "searchButton": "Search",
+      "clearButton": "Clear",
+      "result": "Search results for: <term></term>"
+    },
+    "table": {
+      "title": "Students and certificates",
+      "description": "Select a student to view the available actions.",
+      "student": "Student",
+      "course": "Course",
+      "enrollment": "Enrollment",
+      "status": "Status",
+      "actions": "Actions",
+      "loading": "Loading students...",
+      "noResults": "No students found.",
+      "noResultsSearch": "No students found. Try part of the name, email, enrollment number, or a similar spelling.",
+      "certificateIssued": "Certificate issued",
+      "issueCertificate": "Issue certificate",
+      "opening": "Opening...",
+      "view": "Preview",
+      "download": "Download",
+      "email": "Email"
+    },
+    "selected": {
+      "title": "Selected student",
+      "name": "Name",
+      "email": "Email",
+      "course": "Course",
+      "certificateStatus": "Certificate status",
+      "instruction": "Select a student from the table above."
+    },
+    "preview": {
+      "kicker": "Certificate preview",
+      "close": "Close",
+      "title": "Certificate preview"
+    },
+    "download": {
+      "fileName": "certificate-{name}.pdf"
+    }
+  },
+  "AdminExternalActivityDetail": {
+    "back": "Back to external activities",
+    "loading": "Loading activity...",
+    "notFound": "Activity not found.",
+    "retry": "Try again",
+    "status": "Status",
+    "destination": "Destination",
+    "departure": "Departure",
+    "expectedReturn": "Expected return",
+    "responsible": "Lead",
+    "campus": "Campus / Unit",
+    "classes": "Participating classes",
+    "noCampus": "No specific campus",
+    "noResponsible": "Not provided",
+    "noDestination": "Destination not provided yet",
+    "noDate": "Not defined yet",
+    "curricular": "Curricular",
+    "mandatory": "Mandatory",
+    "international": "International",
+    "tabs": {
+      "overview": "Overview",
+      "participants": "Participants",
+      "permissions": "Permissions",
+      "team": "Team",
+      "transport": "Transportation",
+      "safety": "Safety",
+      "health": "Health",
+      "documents": "Documents"
+    },
+    "counters": {
+      "participants": "Participants",
+      "permissions": "Permissions",
+      "team": "Team",
+      "legs": "Travel legs",
+      "risks": "Risks",
+      "documents": "Documents",
+      "checkpoints": "Checkpoints"
+    },
+    "overview": {
+      "planning": "Activity planning",
+      "planningDescription": "Summary of the main information registered.",
+      "educationalObjective": "Educational objective",
+      "description": "Description",
+      "rules": "Rules and participation",
+      "requiresAuthorization": "Permission required",
+      "payment": "Participant fee",
+      "checkin": "Attendance tracking",
+      "yes": "Yes",
+      "no": "No",
+      "capacity": "Capacity"
+    },
+    "sectionPlaceholder": {
+      "title": "Area being prepared",
+      "description": "This area is already part of the activity structure and will be enabled as its specific features are configured."
+    },
+    "statusValues": {
+      "RASCUNHO": "Draft",
+      "PLANEJAMENTO": "Planning",
+      "AGUARDANDO_AUTORIZACOES": "Awaiting permissions",
+      "CONFIRMADA": "Confirmed",
+      "EM_ANDAMENTO": "In progress",
+      "CONCLUIDA": "Completed",
+      "CANCELADA": "Cancelled",
+      "ARQUIVADA": "Archived"
+    },
+    "types": {
+      "EXCURSAO": "Field trip",
+      "VISITA_TECNICA": "Technical visit",
+      "VIAGEM_PEDAGOGICA": "Educational trip",
+      "ACAMPAMENTO": "Camp",
+      "RETIRO": "Retreat",
+      "COMPETICAO": "Competition",
+      "INTERCAMBIO": "Exchange program",
+      "EVENTO_ESPORTIVO": "Sports event",
+      "ATIVIDADE_COMUNITARIA": "Community activity",
+      "VIAGEM_INTERNACIONAL": "International trip",
+      "OUTRA": "Other"
+    }
+  }
+,
+  "AdminExternalActivityParticipants": {
+    "title": "Participants",
+    "description": "Manage students invited to this activity and track participation, permission, attendance and payment.",
+    "loading": "Loading participants...",
+    "loadError": "Participants could not be loaded.",
+    "retry": "Try again",
+    "current": {
+      "title": "Activity participants",
+      "count": "{count} participant(s)",
+      "empty": "No participants have been added yet."
+    },
+    "available": {
+      "title": "Available students",
+      "description": "Active students from classes linked to this activity.",
+      "count": "{count} student(s) available",
+      "empty": "There are no other available students in this activity's classes.",
+      "search": "Search by name, registration or class...",
+      "selectAll": "Select all",
+      "clearSelection": "Clear selection",
+      "selected": "{count} selected",
+      "addSelected": "Add selected",
+      "adding": "Adding..."
+    },
+    "fields": {
+      "registration": "Registration",
+      "classes": "Classes",
+      "participation": "Participation",
+      "attendance": "Attendance",
+      "payment": "Payment",
+      "origin": "Source"
+    },
+    "noRegistration": "No registration provided",
+    "participation": {
+      "CONVIDADO": "Invited",
+      "AGUARDANDO_AUTORIZACAO": "Awaiting permission",
+      "CONFIRMADO": "Confirmed",
+      "RECUSADO": "Declined",
+      "CANCELADO": "Cancelled"
+    },
+    "attendance": {
+      "NAO_REGISTRADA": "Not recorded",
+      "PRESENTE": "Present",
+      "AUSENTE": "Absent",
+      "SAIDA_ANTECIPADA": "Left early"
+    },
+    "payment": {
+      "NAO_APLICAVEL": "Not applicable",
+      "PENDENTE": "Pending",
+      "PARCIAL": "Partial",
+      "PAGO": "Paid",
+      "ISENTO": "Waived",
+      "REEMBOLSADO": "Refunded",
+      "CANCELADO": "Cancelled"
+    },
+    "origin": {
+      "TURMA": "Class",
+      "MANUAL": "Manual",
+      "IMPORTACAO": "Import"
+    },
+    "messages": {
+      "added": "{count} participant(s) added.",
+      "noneAdded": "No new participants were added.",
+      "addError": "Participants could not be added."
+    }
   }
 }

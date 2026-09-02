@@ -31993,3 +31993,593 @@ html[data-theme="light"] .phanyx-atividade-externa-nova-page .bg-blue-700 {
 html[data-theme="light"] .phanyx-atividade-externa-nova-page .bg-blue-700:hover {
   background-color: #1e40af !important;
 }
+
+/* =========================================================
+   PHANYX — NOVA ATIVIDADE EXTERNA
+   ALERTA DE ERRO — TEMA CLARO
+   ========================================================= */
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-nova-page
+  .phanyx-atividade-externa-alerta-erro {
+  background-color: #fef2f2 !important;
+  border-color: #ef4444 !important;
+  color: #991b1b !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-nova-page
+  .phanyx-atividade-externa-alerta-erro * {
+  color: #991b1b !important;
+}
+
+/* =========================================================
+   STUDENT SUCCESS — PAINEL DE EFETIVIDADE
+   ========================================================= */
+
+/* LIGHT */
+
+html[data-theme="light"]
+  .phanyx-student-success-effectiveness {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-effectiveness-title {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-effectiveness-description {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-management-card,
+html[data-theme="light"]
+  .phanyx-student-success-effectiveness-card {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-effectiveness-positive {
+  background: #ecfdf5 !important;
+  border-color: #86efac !important;
+  color: #166534 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-effectiveness-negative {
+  background: #fff7ed !important;
+  border-color: #fdba74 !important;
+  color: #9a3412 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-effectiveness-state {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #475569 !important;
+}
+
+
+/* DARK */
+
+html[data-theme="dark"]
+  .phanyx-student-success-effectiveness {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-effectiveness-title {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-effectiveness-description {
+  color: #cbd5e1 !important;
+  -webkit-text-fill-color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-management-card,
+html[data-theme="dark"]
+  .phanyx-student-success-effectiveness-card {
+  background: #111827 !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-effectiveness-positive {
+  background: #052e16 !important;
+  border-color: #166534 !important;
+  color: #bbf7d0 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-effectiveness-negative {
+  background: #431407 !important;
+  border-color: #9a3412 !important;
+  color: #fed7aa !important;
+}
+
+
+/* SYSTEM */
+
+html[data-theme="system"]
+  .phanyx-student-success-effectiveness {
+  background: #303030 !important;
+  border-color: #5f5f5f !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-effectiveness-title {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-effectiveness-description {
+  color: #e5e7eb !important;
+  -webkit-text-fill-color: #e5e7eb !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-management-card,
+html[data-theme="system"]
+  .phanyx-student-success-effectiveness-card {
+  background: #383838 !important;
+  border-color: #5f5f5f !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-effectiveness-positive {
+  background: #163a29 !important;
+  border-color: #31875b !important;
+  color: #d1fae5 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-effectiveness-negative {
+  background: #4a2c20 !important;
+  border-color: #a65f38 !important;
+  color: #ffedd5 !important;
+}
+
+/* =========================================================
+   PHANYX — DETALHE DE ATIVIDADE EXTERNA
+   TEMA CLARO
+   ========================================================= */
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+
+/* Cards principais */
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  .phanyx-theme-card {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+
+/* Textos */
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  .text-slate-950 {
+  color: #020617 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  .text-slate-900 {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  .text-slate-800 {
+  color: #1e293b !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  .text-slate-700 {
+  color: #334155 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  .text-slate-600 {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  .text-slate-500 {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  .text-slate-400 {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  .text-blue-700 {
+  color: #1d4ed8 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  .text-blue-300 {
+  color: #2563eb !important;
+}
+
+
+/* Ícones dos cards de resumo */
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  .phanyx-atividade-detalhe-icone {
+  background-color: #eff6ff !important;
+  border: 1px solid #bfdbfe !important;
+  color: #1e40af !important;
+}
+
+
+/* Contadores */
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  .phanyx-atividade-detalhe-contador {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  .phanyx-atividade-detalhe-contador strong {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  .phanyx-atividade-detalhe-contador span {
+  color: #475569 !important;
+}
+
+
+/* Planejamento */
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  .phanyx-atividade-detalhe-planejamento {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  .phanyx-atividade-detalhe-planejamento dt {
+  color: #64748b !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  .phanyx-atividade-detalhe-planejamento dd {
+  color: #0f172a !important;
+}
+
+
+/* Regras */
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  .phanyx-atividade-detalhe-regra {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  .phanyx-atividade-detalhe-regra > span:first-child {
+  color: #334155 !important;
+}
+
+
+/* Capacidade */
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  .phanyx-atividade-detalhe-capacidade {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  .phanyx-atividade-detalhe-capacidade p {
+  color: #0f172a !important;
+}
+
+
+/* Turmas */
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  .phanyx-atividade-detalhe-turma {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  .phanyx-atividade-detalhe-turma p:first-child {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  .phanyx-atividade-detalhe-turma p:last-child {
+  color: #64748b !important;
+}
+
+
+/* Abas não selecionadas */
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  button.text-slate-600 {
+  color: #475569 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  button.text-slate-600:hover {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+
+/* Aba selecionada */
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  button.bg-blue-700 {
+  background-color: #1d4ed8 !important;
+  color: #ffffff !important;
+}
+
+
+/* Badge de status no cabeçalho */
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  .bg-slate-50 {
+  color: #0f172a;
+}
+
+
+/* Separadores */
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  .border-slate-200 {
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  .phanyx-atividade-detalhe-status {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  .phanyx-atividade-detalhe-status p {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  .phanyx-atividade-detalhe-regra-status {
+  background-color: #e2e8f0 !important;
+  color: #334155 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-atividade-externa-detalhe-page
+  .phanyx-atividade-detalhe-regra-status.bg-emerald-100 {
+  background-color: #d1fae5 !important;
+  color: #065f46 !important;
+}
+
+/* =========================================================
+   PHANYX — ATIVIDADE EXTERNA — PARTICIPANTES
+   TEMA CLARO
+   ========================================================= */
+
+html[data-theme="light"]
+  .phanyx-participantes-atividade
+  .phanyx-participantes-card {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-participantes-atividade
+  .phanyx-participante-item {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-participantes-atividade
+  .phanyx-participante-disponivel {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-participantes-atividade
+  .phanyx-participante-disponivel:hover {
+  background-color: #f8fafc !important;
+}
+
+html[data-theme="light"]
+  .phanyx-participantes-atividade
+  .phanyx-participante-disponivel.border-blue-400 {
+  background-color: #eff6ff !important;
+  border-color: #60a5fa !important;
+}
+
+html[data-theme="light"]
+  .phanyx-participantes-atividade
+  .text-slate-950,
+html[data-theme="light"]
+  .phanyx-participantes-atividade
+  .text-slate-900 {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-participantes-atividade
+  .text-slate-600 {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-participantes-atividade
+  .text-slate-500 {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+
+/* =========================================================
+   PHANYX — ATIVIDADE EXTERNA — PARTICIPANTES
+   CORREÇÕES DO TEMA CLARO
+   ========================================================= */
+
+html[data-theme="light"] .phanyx-participantes-atividade {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-participantes-atividade .phanyx-participantes-card {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-participantes-atividade .phanyx-participantes-empty {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-participantes-atividade .phanyx-participantes-empty p {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-participantes-atividade .phanyx-participantes-toolbar {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-participantes-atividade .phanyx-participantes-toolbar-button {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+html[data-theme="light"] .phanyx-participantes-atividade .phanyx-participantes-toolbar-button:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-participantes-atividade .phanyx-participantes-add-button {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border: 1px solid #2563eb !important;
+}
+
+html[data-theme="light"] .phanyx-participantes-atividade .phanyx-participantes-add-button:hover {
+  background: #1d4ed8 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .phanyx-participantes-atividade .phanyx-participante-card {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-participantes-atividade .phanyx-participante-card:hover {
+  background: #f8fafc !important;
+  border-color: #94a3b8 !important;
+}
+
+html[data-theme="light"] .phanyx-participantes-atividade .phanyx-participante-disponivel.border-blue-400 {
+  background: #eff6ff !important;
+  border-color: #60a5fa !important;
+}
+
+html[data-theme="light"] .phanyx-participantes-atividade .phanyx-participantes-chip {
+  background: #eff6ff !important;
+  border-color: #bfdbfe !important;
+  color: #1d4ed8 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-participantes-atividade .text-slate-950,
+html[data-theme="light"] .phanyx-participantes-atividade .text-slate-900 {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-participantes-atividade .text-slate-700 {
+  color: #334155 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-participantes-atividade .text-slate-600 {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-participantes-atividade .text-slate-500 {
+  color: #64748b !important;
+  opacity: 1 !important;
+}

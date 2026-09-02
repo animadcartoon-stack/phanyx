@@ -130,7 +130,6 @@
     "classes": "Classes",
     "operationalSchedule": "Agenda / Planning",
     "externalActivities": "Activités extérieures",
-
     "academicPublications": "Publications académiques",
     "visitors": "Visiteurs",
     "overview": "Vue d'ensemble",
@@ -4074,7 +4073,39 @@
         "attendanceReduced": "L'assiduité a diminué",
         "performanceImproved": "La performance s'est améliorée",
         "performanceReduced": "La performance a diminué",
-        "percentagePoints": "pts"
+        "percentagePoints": "pts",
+        "score": "Score de risque",
+        "riskImproved": "Le niveau de risque s'est amélioré",
+        "riskIncreased": "Le niveau de risque a augmenté",
+        "scoreReduced": "Le score de risque a diminué",
+        "scoreIncreased": "Le score de risque a augmenté"
+      },
+      "dashboard": {
+        "title": "Suivi des interventions",
+        "description": "Suivez l'avancement et l'efficacité des actions réalisées auprès des étudiants.",
+        "total": "Total des interventions",
+        "open": "Interventions ouvertes",
+        "awaitingResponse": "En attente de réponse",
+        "inProgress": "En cours de suivi",
+        "resolved": "Résolues",
+        "effectivenessTitle": "Efficacité des interventions",
+        "effectivenessDescription": "Indicateurs calculés uniquement à partir d'interventions et de données académiques réelles.",
+        "positiveEvolution": "Évolution positive",
+        "positiveEvolutionSubtitle": "{count, plural, one {# intervention mesurable} other {# interventions mesurables}}",
+        "averageResolutionTime": "Temps moyen de résolution",
+        "days": "{value, plural, one {# jour} other {# jours}}",
+        "studentsWorsened": "Étudiants en difficulté accrue",
+        "studentsWorsenedSubtitle": "Étudiants distincts après intervention",
+        "notMeasurable": "Pas encore mesurables",
+        "notMeasurableSubtitle": "Interventions résolues sans comparaison académique suffisante",
+        "measurableResolved": "Résolues mesurables",
+        "neutralEvolution": "Aucun changement mesurable",
+        "negativeEvolution": "Évolution négative",
+        "unavailable": "—",
+        "loading": "Chargement des indicateurs...",
+        "error": "Impossible de charger les indicateurs des interventions.",
+        "sampleInsufficient": "Échantillon insuffisant · {count, plural, one {# intervention mesurable} other {# interventions mesurables}}",
+        "lessThanOneDay": "< 1 jour"
       }
     }
   },
@@ -4754,8 +4785,7 @@
       "streaming": "Streaming",
       "externalLink": "Lien externe"
     }
-  }
-,
+  },
   "AdminExternalActivities": {
     "eyebrow": "Gestion académique",
     "title": "Activités extérieures",
@@ -4826,8 +4856,7 @@
     "errors": {
       "load": "Impossible de charger les activités extérieures."
     }
-  }
-,
+  },
   "AdminExternalActivityNew": {
     "eyebrow": "Gestion académique",
     "title": "Nouvelle activité extérieure",
@@ -5258,5 +5287,261 @@
     "enumStudent": "Élève",
     "enumTeacher": "Enseignant",
     "enumEmployee": "Employé"
+  },
+  "AdminCertificates": {
+    "status": {
+      "ready": "Prêt",
+      "pending": "En attente",
+      "notEligible": "Non admissible"
+    },
+    "fallback": {
+      "unnamedStudent": "Élève sans nom",
+      "noEmail": "Aucune adresse e-mail",
+      "notInformed": "Non renseigné"
+    },
+    "errors": {
+      "searchStudents": "Impossible de rechercher les élèves.",
+      "loadStudents": "Impossible de charger les élèves.",
+      "loadConfiguration": "Impossible de charger les paramètres des certificats.",
+      "saveConfiguration": "Impossible d’enregistrer les paramètres des certificats.",
+      "viewCertificate": "Impossible d’afficher le certificat.",
+      "issueCertificate": "Impossible d’émettre le certificat.",
+      "issueCertificateRequirements": "Impossible d’émettre le certificat. Vérifiez que l’élève possède une inscription et une matière associée.",
+      "downloadCertificate": "Impossible de télécharger le certificat."
+    },
+    "messages": {
+      "configurationSaved": "Les paramètres des certificats ont été enregistrés.",
+      "certificateIssued": "Le certificat de {name} a été émis avec succès.",
+      "emailComingSoon": "L’envoi par e-mail du certificat de {name} sera connecté à l’étape suivante."
+    },
+    "toast": {
+      "errorTitle": "Impossible de terminer l’action",
+      "successTitle": "Tout est prêt"
+    },
+    "header": {
+      "kicker": "Admin • Certificats",
+      "title": "Gestion des certificats",
+      "description": "Recherchez des élèves, suivez l’état des certificats, affichez les documents disponibles et gérez leur émission, leur téléchargement et leur envoi par e-mail."
+    },
+    "settings": {
+      "kicker": "Paramètres de l’établissement",
+      "title": "Publication automatique des certificats",
+      "description": "Définissez quand les certificats seront automatiquement disponibles dans l’espace élève. L’émission manuelle restera accessible au personnel administratif autorisé.",
+      "autoRelease": "Publier automatiquement",
+      "minimumGrade": "Note minimale",
+      "minimumAttendance": "Assiduité minimale (%)",
+      "saving": "Enregistrement...",
+      "save": "Enregistrer les paramètres"
+    },
+    "rules": {
+      "subject": {
+        "title": "Par matière",
+        "description": "L’élève reçoit un certificat après avoir terminé une matière."
+      },
+      "semester": {
+        "title": "Par semestre",
+        "description": "L’élève reçoit un certificat après avoir terminé le semestre."
+      },
+      "course": {
+        "title": "Formation complète",
+        "description": "L’élève reçoit un certificat uniquement après avoir terminé la formation."
+      },
+      "manual": {
+        "title": "Manuel",
+        "description": "Le certificat apparaît uniquement après son émission par le personnel autorisé."
+      }
+    },
+    "stats": {
+      "ready": "Certificats prêts",
+      "pending": "En attente",
+      "notEligible": "Non admissibles"
+    },
+    "search": {
+      "label": "Rechercher un élève",
+      "placeholder": "Saisissez un nom, un numéro d’inscription ou une adresse e-mail",
+      "noSuggestions": "Aucune suggestion trouvée.",
+      "searchButton": "Rechercher",
+      "clearButton": "Effacer",
+      "result": "Résultat de la recherche pour : <term></term>"
+    },
+    "table": {
+      "title": "Élèves et certificats",
+      "description": "Sélectionnez un élève pour afficher les actions disponibles.",
+      "student": "Élève",
+      "course": "Formation",
+      "enrollment": "Inscription",
+      "status": "État",
+      "actions": "Actions",
+      "loading": "Chargement des élèves...",
+      "noResults": "Aucun élève trouvé.",
+      "noResultsSearch": "Aucun élève trouvé. Essayez une partie du nom, de l’adresse e-mail, du numéro d’inscription ou une orthographe similaire.",
+      "certificateIssued": "Certificat émis",
+      "issueCertificate": "Émettre le certificat",
+      "opening": "Ouverture...",
+      "view": "Afficher",
+      "download": "Télécharger",
+      "email": "E-mail"
+    },
+    "selected": {
+      "title": "Élève sélectionné",
+      "name": "Nom",
+      "email": "E-mail",
+      "course": "Formation",
+      "certificateStatus": "État du certificat",
+      "instruction": "Sélectionnez un élève dans le tableau ci-dessus."
+    },
+    "preview": {
+      "kicker": "Aperçu du certificat",
+      "close": "Fermer",
+      "title": "Aperçu du certificat"
+    },
+    "download": {
+      "fileName": "certificat-{name}.pdf"
+    }
+  },
+  "AdminExternalActivityDetail": {
+    "back": "Retour aux activités extérieures",
+    "loading": "Chargement de l’activité...",
+    "notFound": "Activité introuvable.",
+    "retry": "Réessayer",
+    "status": "Statut",
+    "destination": "Destination",
+    "departure": "Départ",
+    "expectedReturn": "Retour prévu",
+    "responsible": "Responsable principal",
+    "campus": "Campus / Unité",
+    "classes": "Classes participantes",
+    "noCampus": "Aucun campus spécifique",
+    "noResponsible": "Non renseigné",
+    "noDestination": "Destination non renseignée",
+    "noDate": "Pas encore définie",
+    "curricular": "Pédagogique",
+    "mandatory": "Obligatoire",
+    "international": "International",
+    "tabs": {
+      "overview": "Vue générale",
+      "participants": "Participants",
+      "permissions": "Autorisations",
+      "team": "Équipe",
+      "transport": "Transport",
+      "safety": "Sécurité",
+      "health": "Santé",
+      "documents": "Documents"
+    },
+    "counters": {
+      "participants": "Participants",
+      "permissions": "Autorisations",
+      "team": "Équipe",
+      "legs": "Trajets",
+      "risks": "Risques",
+      "documents": "Documents",
+      "checkpoints": "Checkpoints"
+    },
+    "overview": {
+      "planning": "Planification de l’activité",
+      "planningDescription": "Résumé des principales informations enregistrées.",
+      "educationalObjective": "Objectif pédagogique",
+      "description": "Description",
+      "rules": "Règles et participation",
+      "requiresAuthorization": "Autorisation requise",
+      "payment": "Participation financière",
+      "checkin": "Contrôle de présence",
+      "yes": "Oui",
+      "no": "Non",
+      "capacity": "Capacité"
+    },
+    "sectionPlaceholder": {
+      "title": "Zone en préparation",
+      "description": "Cette zone fait déjà partie de la structure de l’activité et sera activée au fur et à mesure de la configuration de ses fonctionnalités."
+    },
+    "statusValues": {
+      "RASCUNHO": "Brouillon",
+      "PLANEJAMENTO": "Planification",
+      "AGUARDANDO_AUTORIZACOES": "En attente des autorisations",
+      "CONFIRMADA": "Confirmée",
+      "EM_ANDAMENTO": "En cours",
+      "CONCLUIDA": "Terminée",
+      "CANCELADA": "Annulée",
+      "ARQUIVADA": "Archivée"
+    },
+    "types": {
+      "EXCURSAO": "Sortie scolaire",
+      "VISITA_TECNICA": "Visite technique",
+      "VIAGEM_PEDAGOGICA": "Voyage pédagogique",
+      "ACAMPAMENTO": "Camp",
+      "RETIRO": "Retraite",
+      "COMPETICAO": "Compétition",
+      "INTERCAMBIO": "Échange",
+      "EVENTO_ESPORTIVO": "Événement sportif",
+      "ATIVIDADE_COMUNITARIA": "Activité communautaire",
+      "VIAGEM_INTERNACIONAL": "Voyage international",
+      "OUTRA": "Autre"
+    }
+  }
+,
+  "AdminExternalActivityParticipants": {
+    "title": "Participants",
+    "description": "Gérez les élèves invités à cette activité et suivez la participation, les autorisations, la présence et le paiement.",
+    "loading": "Chargement des participants...",
+    "loadError": "Impossible de charger les participants.",
+    "retry": "Réessayer",
+    "current": {
+      "title": "Participants à l’activité",
+      "count": "{count} participant(s)",
+      "empty": "Aucun participant n’a encore été ajouté."
+    },
+    "available": {
+      "title": "Élèves disponibles",
+      "description": "Élèves actifs des classes associées à cette activité.",
+      "count": "{count} élève(s) disponible(s)",
+      "empty": "Aucun autre élève n’est disponible dans les classes de cette activité.",
+      "search": "Rechercher par nom, inscription ou classe...",
+      "selectAll": "Tout sélectionner",
+      "clearSelection": "Effacer la sélection",
+      "selected": "{count} sélectionné(s)",
+      "addSelected": "Ajouter la sélection",
+      "adding": "Ajout en cours..."
+    },
+    "fields": {
+      "registration": "Inscription",
+      "classes": "Classes",
+      "participation": "Participation",
+      "attendance": "Présence",
+      "payment": "Paiement",
+      "origin": "Origine"
+    },
+    "noRegistration": "Aucune inscription renseignée",
+    "participation": {
+      "CONVIDADO": "Invité",
+      "AGUARDANDO_AUTORIZACAO": "En attente d’autorisation",
+      "CONFIRMADO": "Confirmé",
+      "RECUSADO": "Refusé",
+      "CANCELADO": "Annulé"
+    },
+    "attendance": {
+      "NAO_REGISTRADA": "Non enregistrée",
+      "PRESENTE": "Présent",
+      "AUSENTE": "Absent",
+      "SAIDA_ANTECIPADA": "Départ anticipé"
+    },
+    "payment": {
+      "NAO_APLICAVEL": "Non applicable",
+      "PENDENTE": "En attente",
+      "PARCIAL": "Partiel",
+      "PAGO": "Payé",
+      "ISENTO": "Exonéré",
+      "REEMBOLSADO": "Remboursé",
+      "CANCELADO": "Annulé"
+    },
+    "origin": {
+      "TURMA": "Classe",
+      "MANUAL": "Manuel",
+      "IMPORTACAO": "Importation"
+    },
+    "messages": {
+      "added": "{count} participant(s) ajouté(s).",
+      "noneAdded": "Aucun nouveau participant n’a été ajouté.",
+      "addError": "Impossible d’ajouter les participants."
+    }
   }
 }
