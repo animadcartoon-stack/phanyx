@@ -7388,5 +7388,120 @@
         "reprocessed": "Envío reprocesado correctamente."
       }
     }
+  },
+  "AdminCommercialLeadGenerationCenter": {
+    "header": {
+      "section": "Comercial",
+      "title": "Centro de Captación",
+      "description": "Supervisa la entrada de leads, formularios, campañas, reglas de distribución e integraciones de la institución.",
+      "period": "Período: {month} de {year}"
+    },
+    "actions": {
+      "refresh": "↻ Actualizar",
+      "updating": "Actualizando...",
+      "tryAgain": "Intentar de nuevo"
+    },
+    "errors": {
+      "load": "No se pudo cargar el Centro de Captación.",
+      "openTitle": "No se pudo abrir el Centro de Captación"
+    },
+    "statuses": {
+      "received": "Recibida",
+      "validating": "Validando",
+      "processing": "Procesando",
+      "processed": "Procesada",
+      "duplicate": "Duplicada",
+      "rejected": "Rechazada",
+      "spam": "Spam",
+      "error": "Error"
+    },
+    "indicators": {
+      "submissionsToday": {
+        "title": "Envíos de hoy",
+        "detail": "{count} este mes"
+      },
+      "newLeads": {
+        "title": "Nuevos leads",
+        "detail": "{count} leads impactados"
+      },
+      "processing": {
+        "title": "Procesamiento",
+        "detail": "{count} procesadas"
+      },
+      "pending": {
+        "title": "Pendientes",
+        "withErrors": "{count} con error",
+        "noErrors": "Sin errores este mes"
+      }
+    },
+    "quickAccess": {
+      "heading": "Accesos rápidos",
+      "description": "Configura y supervisa los componentes del Centro de Captación.",
+      "channels": {
+        "title": "Canales",
+        "description": "{active} activos de {total}"
+      },
+      "campaigns": {
+        "title": "Campañas",
+        "description": "{active} activas de {total}"
+      },
+      "forms": {
+        "title": "Formularios",
+        "description": "{published} publicados de {total}"
+      },
+      "submissions": {
+        "title": "Envíos",
+        "description": "{count} recibidos este mes"
+      },
+      "distribution": {
+        "title": "Distribución",
+        "description": "{count} reglas activas"
+      },
+      "integrations": {
+        "title": "Integraciones",
+        "description": "{active} activas de {total}"
+      }
+    },
+    "performance": {
+      "title": "Rendimiento del mes",
+      "description": "Situación de los envíos recibidos.",
+      "processed": "Procesadas",
+      "duplicates": "Duplicadas",
+      "rejected": "Rechazadas",
+      "spam": "Spam",
+      "withErrors": "Con error",
+      "processingRate": "Tasa de procesamiento",
+      "errorRate": "Tasa de error"
+    },
+    "structure": {
+      "title": "Estructura activa",
+      "description": "Recursos disponibles actualmente para la captación.",
+      "activeChannels": "Canales activos",
+      "activeCampaigns": "Campañas activas",
+      "publishedForms": "Formularios publicados",
+      "distributionRules": "Reglas de distribución",
+      "activeIntegrations": "Integraciones activas",
+      "integrationErrorSingular": "{count} integración con error.",
+      "integrationErrorPlural": "{count} integraciones con errores."
+    },
+    "latest": {
+      "title": "Últimos envíos",
+      "description": "Las 10 entradas más recientes del Centro.",
+      "viewAll": "Ver todos",
+      "emptyTitle": "No se han recibido envíos",
+      "emptyDescription": "En cuanto entre un lead, aparecerá aquí.",
+      "columns": {
+        "lead": "Lead",
+        "source": "Origen",
+        "campaign": "Campaña",
+        "status": "Estado",
+        "linkedLead": "Lead vinculado",
+        "receivedAt": "Recibido el",
+        "action": "Acción"
+      },
+      "noName": "Sin nombre",
+      "noEmail": "Sin correo electrónico",
+      "open": "Abrir"
+    }
   }
 }

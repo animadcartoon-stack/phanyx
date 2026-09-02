@@ -7,6 +7,10 @@ import {
   useMemo,
   useState,
 } from "react";
+import {
+  useLocale,
+  useTranslations,
+} from "next-intl";
 
 type Tema =
   | "light"
@@ -180,20 +184,22 @@ type RespostaErro = {
 };
 
 function formatarNumero(
-  valor: number
+  valor: number,
+  locale: string
 ) {
   return new Intl.NumberFormat(
-    "pt-BR"
+    locale
   ).format(
     Number(valor || 0)
   );
 }
 
 function formatarPercentual(
-  valor: number
+  valor: number,
+  locale: string
 ) {
   return new Intl.NumberFormat(
-    "pt-BR",
+    locale,
     {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
@@ -207,7 +213,8 @@ function formatarDataHora(
   valor:
     string |
     null |
-    undefined
+    undefined,
+  locale: string
 ) {
   if (!valor) {
     return "—";
@@ -225,89 +232,53 @@ function formatarDataHora(
   }
 
   return new Intl.DateTimeFormat(
-    "pt-BR",
+    locale,
     {
-      timeZone:
-        "America/Sao_Paulo",
+      dateStyle:
+        "short",
 
-      day:
-        "2-digit",
-
-      month:
-        "2-digit",
-
-      year:
-        "numeric",
-
-      hour:
-        "2-digit",
-
-      minute:
-        "2-digit",
+      timeStyle:
+        "short",
     }
   ).format(data);
 }
 
 function nomeMes(
-  mes: number
+  mes: number,
+  locale: string
 ) {
-  const nomes = [
-    "Janeiro",
-    "Fevereiro",
-    "Março",
-    "Abril",
-    "Maio",
-    "Junho",
-    "Julho",
-    "Agosto",
-    "Setembro",
-    "Outubro",
-    "Novembro",
-    "Dezembro",
-  ];
+  if (
+    !Number.isInteger(
+      mes
+    ) ||
+    mes < 1 ||
+    mes > 12
+  ) {
+    return String(mes);
+  }
+
+  const data =
+    new Date(
+      2024,
+      mes - 1,
+      1
+    );
+
+  const nome =
+    new Intl.DateTimeFormat(
+      locale,
+      {
+        month:
+          "long",
+      }
+    ).format(data);
 
   return (
-    nomes[mes - 1] ??
-    `Mês ${mes}`
-  );
-}
-
-function textoStatus(
-  status: string
-) {
-  const mapa:
-    Record<
-      string,
-      string
-    > = {
-    RECEBIDA:
-      "Recebida",
-
-    VALIDANDO:
-      "Validando",
-
-    PROCESSANDO:
-      "Processando",
-
-    PROCESSADA:
-      "Processada",
-
-    DUPLICADA:
-      "Duplicada",
-
-    REJEITADA:
-      "Rejeitada",
-
-    SPAM:
-      "Spam",
-
-    ERRO:
-      "Erro",
-  };
-
-  return (
-    mapa[status] ??
-    status
+    nome.charAt(0)
+      .toLocaleUpperCase(
+        locale
+      ) +
+    nome.slice(1)
   );
 }
 
@@ -359,10 +330,27 @@ function classesStatus(
 }
 
 export default function CentralCaptacaoPage() {
+  const t =
+    useTranslations(
+      "AdminCommercialLeadGenerationCenter"
+    );
+
+  const locale =
+    useLocale();
+
   const [
-    temaEscuro,
-    setTemaEscuro,
-  ] = useState(false);
+    temaAtual,
+    setTemaAtual,
+  ] =
+    useState<Tema>(
+      "light"
+    );
+
+  const [
+    sistemaEscuro,
+    setSistemaEscuro,
+  ] =
+    useState(false);
 
   const [
     dados,
@@ -391,27 +379,39 @@ export default function CentralCaptacaoPage() {
     useState("");
 
   useEffect(() => {
+    const media =
+      window.matchMedia(
+        "(prefers-color-scheme: dark)"
+      );
+
     function calcularTema() {
-      const tema =
+      const valorSalvo =
+        localStorage.getItem(
+          "phanyx_tema"
+        );
+
+      const escolha =
         (
-          localStorage.getItem(
-            "phanyx_tema"
-          ) ||
-          "system"
+          valorSalvo ===
+            "light" ||
+          valorSalvo ===
+            "dark" ||
+          valorSalvo ===
+            "system"
+            ? valorSalvo
+            : document
+                .documentElement
+                .dataset
+                .themeChoice ||
+              "system"
         ) as Tema;
 
-      const sistemaEscuro =
-        window.matchMedia(
-          "(prefers-color-scheme: dark)"
-        ).matches;
+      setTemaAtual(
+        escolha
+      );
 
-      setTemaEscuro(
-        tema === "dark" ||
-          (
-            tema ===
-              "system" &&
-            sistemaEscuro
-          )
+      setSistemaEscuro(
+        media.matches
       );
     }
 
@@ -422,14 +422,33 @@ export default function CentralCaptacaoPage() {
       calcularTema
     );
 
-    const media =
-      window.matchMedia(
-        "(prefers-color-scheme: dark)"
-      );
+    window.addEventListener(
+      "phanyx-theme-change",
+      calcularTema
+    );
 
     media.addEventListener(
       "change",
       calcularTema
+    );
+
+    const observer =
+      new MutationObserver(
+        calcularTema
+      );
+
+    observer.observe(
+      document.documentElement,
+      {
+        attributes:
+          true,
+
+        attributeFilter: [
+          "class",
+          "data-theme",
+          "data-theme-choice",
+        ],
+      }
     );
 
     return () => {
@@ -438,12 +457,31 @@ export default function CentralCaptacaoPage() {
         calcularTema
       );
 
+      window.removeEventListener(
+        "phanyx-theme-change",
+        calcularTema
+      );
+
       media.removeEventListener(
         "change",
         calcularTema
       );
+
+      observer.disconnect();
     };
   }, []);
+
+  const temaAzul =
+    temaAtual ===
+    "dark";
+
+  const temaEscuro =
+    temaAzul ||
+    (
+      temaAtual ===
+        "system" &&
+      sistemaEscuro
+    );
 
   const carregar =
     useCallback(
@@ -502,7 +540,9 @@ export default function CentralCaptacaoPage() {
                 json as
                   RespostaErro
               ).error ||
-                "Não foi possível carregar a Central de Captação."
+                t(
+                  "errors.load"
+                )
             );
           }
 
@@ -516,7 +556,9 @@ export default function CentralCaptacaoPage() {
             error instanceof
               Error
               ? error.message
-              : "Não foi possível carregar a Central de Captação."
+              : t(
+                  "errors.load"
+                )
           );
         } finally {
           setCarregando(
@@ -528,7 +570,9 @@ export default function CentralCaptacaoPage() {
           );
         }
       },
-      []
+      [
+        t,
+      ]
     );
 
   useEffect(() => {
@@ -539,19 +583,25 @@ export default function CentralCaptacaoPage() {
     useMemo(
       () => ({
         pagina:
-          temaEscuro
-            ? "bg-slate-950 text-slate-100"
-            : "bg-slate-100 text-slate-900",
+          temaAzul
+            ? "bg-[#071525] text-blue-50"
+            : temaEscuro
+              ? "bg-neutral-900 text-neutral-100"
+              : "bg-slate-100 text-slate-900",
 
         card:
-          temaEscuro
-            ? "border-slate-800 bg-slate-900"
-            : "border-slate-200 bg-white",
+          temaAzul
+            ? "border-blue-900 bg-[#0b1f36]"
+            : temaEscuro
+              ? "border-neutral-700 bg-neutral-800"
+              : "border-slate-200 bg-white",
 
         subCard:
-          temaEscuro
-            ? "border-slate-800 bg-slate-950"
-            : "border-slate-200 bg-slate-50",
+          temaAzul
+            ? "border-blue-900 bg-[#08192d]"
+            : temaEscuro
+              ? "border-neutral-600 bg-neutral-700"
+              : "border-slate-200 bg-slate-50",
 
         titulo:
           temaEscuro
@@ -559,32 +609,98 @@ export default function CentralCaptacaoPage() {
             : "text-slate-900",
 
         texto:
-          temaEscuro
-            ? "text-slate-300"
-            : "text-slate-700",
+          temaAzul
+            ? "text-blue-100"
+            : temaEscuro
+              ? "text-neutral-200"
+              : "text-slate-700",
 
         muted:
-          temaEscuro
-            ? "text-slate-400"
-            : "text-slate-500",
+          temaAzul
+            ? "text-blue-300/75"
+            : temaEscuro
+              ? "text-neutral-400"
+              : "text-slate-500",
 
         divisoria:
-          temaEscuro
-            ? "border-slate-800"
-            : "border-slate-200",
+          temaAzul
+            ? "border-blue-900"
+            : temaEscuro
+              ? "border-neutral-700"
+              : "border-slate-200",
 
         botao:
-          temaEscuro
-            ? "border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-800"
-            : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50",
+          temaAzul
+            ? "border-blue-800 bg-blue-950 text-blue-50 hover:bg-blue-900"
+            : temaEscuro
+              ? "border-neutral-600 bg-neutral-700 text-white hover:bg-neutral-600"
+              : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50",
 
         tabelaHover:
-          temaEscuro
-            ? "hover:bg-slate-800/60"
-            : "hover:bg-slate-50",
+          temaAzul
+            ? "hover:bg-blue-900/40"
+            : temaEscuro
+              ? "hover:bg-neutral-700/70"
+              : "hover:bg-slate-50",
+
+        tabelaCabecalho:
+          temaAzul
+            ? "bg-blue-950/80 text-blue-300"
+            : temaEscuro
+              ? "bg-neutral-900 text-neutral-400"
+              : "bg-slate-50 text-slate-500",
       }),
       [
+        temaAzul,
         temaEscuro,
+      ]
+    );
+
+  const textoStatus =
+    useCallback(
+      (
+        status:
+          string
+      ) => {
+        const mapa:
+          Record<
+            string,
+            string
+          > = {
+          RECEBIDA:
+            "statuses.received",
+
+          VALIDANDO:
+            "statuses.validating",
+
+          PROCESSANDO:
+            "statuses.processing",
+
+          PROCESSADA:
+            "statuses.processed",
+
+          DUPLICADA:
+            "statuses.duplicate",
+
+          REJEITADA:
+            "statuses.rejected",
+
+          SPAM:
+            "statuses.spam",
+
+          ERRO:
+            "statuses.error",
+        };
+
+        const chave =
+          mapa[status];
+
+        return chave
+          ? t(chave)
+          : status;
+      },
+      [
+        t,
       ]
     );
 
@@ -594,7 +710,7 @@ export default function CentralCaptacaoPage() {
   ) {
     return (
       <div
-        className={`min-h-screen p-6 ${c.pagina}`}
+        className={`captacao-central-page min-h-screen p-6 ${c.pagina}`}
       >
         <div className="mx-auto max-w-7xl space-y-5">
           <div
@@ -633,7 +749,7 @@ export default function CentralCaptacaoPage() {
   ) {
     return (
       <div
-        className={`min-h-screen p-6 ${c.pagina}`}
+        className={`captacao-central-page min-h-screen p-6 ${c.pagina}`}
       >
         <div
           className={`mx-auto max-w-2xl rounded-3xl border p-6 shadow-sm ${c.card}`}
@@ -645,9 +761,9 @@ export default function CentralCaptacaoPage() {
           <h1
             className={`mt-4 text-xl font-bold ${c.titulo}`}
           >
-            Não foi possível
-            abrir a Central de
-            Captação
+            {t(
+              "errors.openTitle"
+            )}
           </h1>
 
           <p
@@ -663,7 +779,9 @@ export default function CentralCaptacaoPage() {
             }
             className={`mt-5 rounded-xl border px-4 py-2 text-sm font-semibold transition ${c.botao}`}
           >
-            Tentar novamente
+            {t(
+              "actions.tryAgain"
+            )}
           </button>
         </div>
       </div>
@@ -687,14 +805,27 @@ export default function CentralCaptacaoPage() {
         "canais",
 
       titulo:
-        "Canais",
+        t(
+          "quickAccess.channels.title"
+        ),
 
       descricao:
-        `${formatarNumero(
-          resumo.canais.ativos
-        )} ativos de ${formatarNumero(
-          resumo.canais.total
-        )}`,
+        t(
+          "quickAccess.channels.description",
+          {
+            active:
+              formatarNumero(
+                resumo.canais.ativos,
+                locale
+              ),
+
+            total:
+              formatarNumero(
+                resumo.canais.total,
+                locale
+              ),
+          }
+        ),
 
       href:
         "/admin/comercial/captacao/canais",
@@ -711,14 +842,27 @@ export default function CentralCaptacaoPage() {
         "campanhas",
 
       titulo:
-        "Campanhas",
+        t(
+          "quickAccess.campaigns.title"
+        ),
 
       descricao:
-        `${formatarNumero(
-          resumo.campanhas.ativas
-        )} ativas de ${formatarNumero(
-          resumo.campanhas.total
-        )}`,
+        t(
+          "quickAccess.campaigns.description",
+          {
+            active:
+              formatarNumero(
+                resumo.campanhas.ativas,
+                locale
+              ),
+
+            total:
+              formatarNumero(
+                resumo.campanhas.total,
+                locale
+              ),
+          }
+        ),
 
       href:
         "/admin/comercial/captacao/campanhas",
@@ -735,15 +879,28 @@ export default function CentralCaptacaoPage() {
         "formularios",
 
       titulo:
-        "Formulários",
+        t(
+          "quickAccess.forms.title"
+        ),
 
       descricao:
-        `${formatarNumero(
-          resumo.formularios
-            .publicados
-        )} publicados de ${formatarNumero(
-          resumo.formularios.total
-        )}`,
+        t(
+          "quickAccess.forms.description",
+          {
+            published:
+              formatarNumero(
+                resumo.formularios
+                  .publicados,
+                locale
+              ),
+
+            total:
+              formatarNumero(
+                resumo.formularios.total,
+                locale
+              ),
+          }
+        ),
 
       href:
         "/admin/comercial/captacao/formularios",
@@ -760,12 +917,21 @@ export default function CentralCaptacaoPage() {
         "submissoes",
 
       titulo:
-        "Submissões",
+        t(
+          "quickAccess.submissions.title"
+        ),
 
       descricao:
-        `${formatarNumero(
-          resumo.submissoes.mes
-        )} recebidas no mês`,
+        t(
+          "quickAccess.submissions.description",
+          {
+            count:
+              formatarNumero(
+                resumo.submissoes.mes,
+                locale
+              ),
+          }
+        ),
 
       href:
         "/admin/comercial/captacao/submissoes",
@@ -782,13 +948,22 @@ export default function CentralCaptacaoPage() {
         "distribuicao",
 
       titulo:
-        "Distribuição",
+        t(
+          "quickAccess.distribution.title"
+        ),
 
       descricao:
-        `${formatarNumero(
-          resumo.distribuicao
-            .regrasAtivas
-        )} regras ativas`,
+        t(
+          "quickAccess.distribution.description",
+          {
+            count:
+              formatarNumero(
+                resumo.distribuicao
+                  .regrasAtivas,
+                locale
+              ),
+          }
+        ),
 
       href:
         "/admin/comercial/captacao/distribuicao",
@@ -805,14 +980,27 @@ export default function CentralCaptacaoPage() {
         "integracoes",
 
       titulo:
-        "Integrações",
+        t(
+          "quickAccess.integrations.title"
+        ),
 
       descricao:
-        `${formatarNumero(
-          resumo.integracoes.ativas
-        )} ativas de ${formatarNumero(
-          resumo.integracoes.total
-        )}`,
+        t(
+          "quickAccess.integrations.description",
+          {
+            active:
+              formatarNumero(
+                resumo.integracoes.ativas,
+                locale
+              ),
+
+            total:
+              formatarNumero(
+                resumo.integracoes.total,
+                locale
+              ),
+          }
+        ),
 
       href:
         "/admin/comercial/captacao/integracoes",
@@ -833,17 +1021,27 @@ export default function CentralCaptacaoPage() {
   const indicadores = [
     {
       titulo:
-        "Submissões hoje",
+        t(
+          "indicators.submissionsToday.title"
+        ),
 
       valor:
         formatarNumero(
-          resumo.submissoes.hoje
+          resumo.submissoes.hoje,
+          locale
         ),
 
       detalhe:
-        `${formatarNumero(
-          resumo.submissoes.mes
-        )} no mês`,
+        t(
+          "indicators.submissionsToday.detail",
+          {
+            count:
+              formatarNumero(
+                resumo.submissoes.mes,
+                locale
+              ),
+          }
+        ),
 
       icone:
         "📥",
@@ -851,18 +1049,28 @@ export default function CentralCaptacaoPage() {
 
     {
       titulo:
-        "Novos leads",
+        t(
+          "indicators.newLeads.title"
+        ),
 
       valor:
         formatarNumero(
-          resumo.leads.novos
+          resumo.leads.novos,
+          locale
         ),
 
       detalhe:
-        `${formatarNumero(
-          resumo.leads
-            .totalGerados
-        )} leads impactados`,
+        t(
+          "indicators.newLeads.detail",
+          {
+            count:
+              formatarNumero(
+                resumo.leads
+                  .totalGerados,
+                locale
+              ),
+          }
+        ),
 
       icone:
         "👤",
@@ -870,19 +1078,29 @@ export default function CentralCaptacaoPage() {
 
     {
       titulo:
-        "Processamento",
+        t(
+          "indicators.processing.title"
+        ),
 
       valor:
         `${formatarPercentual(
           resumo.taxas
-            .processamento
+            .processamento,
+          locale
         )}%`,
 
       detalhe:
-        `${formatarNumero(
-          resumo.submissoes
-            .processadas
-        )} processadas`,
+        t(
+          "indicators.processing.detail",
+          {
+            count:
+              formatarNumero(
+                resumo.submissoes
+                  .processadas,
+                locale
+              ),
+          }
+        ),
 
       icone:
         "✅",
@@ -890,23 +1108,35 @@ export default function CentralCaptacaoPage() {
 
     {
       titulo:
-        "Pendências",
+        t(
+          "indicators.pending.title"
+        ),
 
       valor:
         formatarNumero(
           resumo.submissoes
-            .pendentes
+            .pendentes,
+          locale
         ),
 
       detalhe:
         resumo.submissoes
             .comErro >
           0
-          ? `${formatarNumero(
-              resumo.submissoes
-                .comErro
-            )} com erro`
-          : "Sem erros no mês",
+          ? t(
+              "indicators.pending.withErrors",
+              {
+                count:
+                  formatarNumero(
+                    resumo.submissoes
+                      .comErro,
+                    locale
+                  ),
+              }
+            )
+          : t(
+              "indicators.pending.noErrors"
+            ),
 
       icone:
         "⏳",
@@ -915,7 +1145,7 @@ export default function CentralCaptacaoPage() {
 
   return (
     <div
-      className={`min-h-screen p-4 sm:p-6 ${c.pagina}`}
+      className={`captacao-central-page min-h-screen p-4 sm:p-6 ${c.pagina}`}
     >
       <div className="mx-auto max-w-7xl space-y-6">
         <section
@@ -926,38 +1156,44 @@ export default function CentralCaptacaoPage() {
               <div
                 className={`text-xs font-bold uppercase tracking-[0.18em] ${c.muted}`}
               >
-                Comercial
+                {t(
+                  "header.section"
+                )}
               </div>
 
               <h1
                 className={`mt-2 text-2xl font-bold tracking-tight sm:text-3xl ${c.titulo}`}
               >
-                🎯 Central de
-                Captação
+                🎯{" "}
+                {t(
+                  "header.title"
+                )}
               </h1>
 
               <p
                 className={`mt-2 max-w-3xl text-sm leading-6 ${c.texto}`}
               >
-                Acompanhe a
-                entrada de leads,
-                formulários,
-                campanhas,
-                distribuição e
-                integrações da
-                instituição.
+                {t(
+                  "header.description"
+                )}
               </p>
 
               <p
                 className={`mt-2 text-xs ${c.muted}`}
               >
-                Período:
-                {" "}
-                {nomeMes(
-                  periodo.mes
+                {t(
+                  "header.period",
+                  {
+                    month:
+                      nomeMes(
+                        periodo.mes,
+                        locale
+                      ),
+
+                    year:
+                      periodo.ano,
+                  }
                 )}
-                {" de "}
-                {periodo.ano}
               </p>
             </div>
 
@@ -974,8 +1210,12 @@ export default function CentralCaptacaoPage() {
               className={`inline-flex items-center justify-center rounded-xl border px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${c.botao}`}
             >
               {atualizando
-                ? "Atualizando..."
-                : "↻ Atualizar"}
+                ? t(
+                    "actions.updating"
+                  )
+                : t(
+                    "actions.refresh"
+                  )}
             </button>
           </div>
         </section>
@@ -1050,15 +1290,17 @@ export default function CentralCaptacaoPage() {
             <h2
               className={`text-lg font-bold ${c.titulo}`}
             >
-              Acessos rápidos
+              {t(
+                "quickAccess.heading"
+              )}
             </h2>
 
             <p
               className={`mt-1 text-sm ${c.muted}`}
             >
-              Configure e acompanhe
-              os componentes da
-              Central de Captação.
+              {t(
+                "quickAccess.description"
+              )}
             </p>
           </div>
 
@@ -1075,9 +1317,11 @@ export default function CentralCaptacaoPage() {
                     item.href
                   }
                   className={`group rounded-2xl border p-4 transition ${c.subCard} ${
-                    temaEscuro
-                      ? "hover:border-slate-600 hover:bg-slate-800"
-                      : "hover:border-slate-300 hover:bg-white"
+                    temaAzul
+                      ? "hover:border-blue-700 hover:bg-blue-900/50"
+                      : temaEscuro
+                        ? "hover:border-neutral-500 hover:bg-neutral-600"
+                        : "hover:border-slate-300 hover:bg-white"
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -1125,14 +1369,17 @@ export default function CentralCaptacaoPage() {
               <h2
                 className={`text-lg font-bold ${c.titulo}`}
               >
-                Desempenho do mês
+                {t(
+                  "performance.title"
+                )}
               </h2>
 
               <p
                 className={`mt-1 text-sm ${c.muted}`}
               >
-                Situação das
-                submissões recebidas.
+                {t(
+                  "performance.description"
+                )}
               </p>
             </div>
 
@@ -1140,7 +1387,9 @@ export default function CentralCaptacaoPage() {
               {[
                 {
                   nome:
-                    "Processadas",
+                    t(
+                      "performance.processed"
+                    ),
 
                   valor:
                     resumo
@@ -1150,7 +1399,9 @@ export default function CentralCaptacaoPage() {
 
                 {
                   nome:
-                    "Duplicadas",
+                    t(
+                      "performance.duplicates"
+                    ),
 
                   valor:
                     resumo
@@ -1160,7 +1411,9 @@ export default function CentralCaptacaoPage() {
 
                 {
                   nome:
-                    "Rejeitadas",
+                    t(
+                      "performance.rejected"
+                    ),
 
                   valor:
                     resumo
@@ -1170,7 +1423,9 @@ export default function CentralCaptacaoPage() {
 
                 {
                   nome:
-                    "Spam",
+                    t(
+                      "performance.spam"
+                    ),
 
                   valor:
                     resumo
@@ -1180,7 +1435,9 @@ export default function CentralCaptacaoPage() {
 
                 {
                   nome:
-                    "Com erro",
+                    t(
+                      "performance.withErrors"
+                    ),
 
                   valor:
                     resumo
@@ -1211,7 +1468,8 @@ export default function CentralCaptacaoPage() {
                       }
                     >
                       {formatarNumero(
-                        item.valor
+                        item.valor,
+                        locale
                       )}
                     </strong>
                   </div>
@@ -1228,8 +1486,9 @@ export default function CentralCaptacaoPage() {
                 <p
                   className={`text-xs ${c.muted}`}
                 >
-                  Taxa de
-                  processamento
+                  {t(
+                    "performance.processingRate"
+                  )}
                 </p>
 
                 <p
@@ -1237,7 +1496,8 @@ export default function CentralCaptacaoPage() {
                 >
                   {formatarPercentual(
                     resumo.taxas
-                      .processamento
+                      .processamento,
+                    locale
                   )}
                   %
                 </p>
@@ -1249,7 +1509,9 @@ export default function CentralCaptacaoPage() {
                 <p
                   className={`text-xs ${c.muted}`}
                 >
-                  Taxa de erro
+                  {t(
+                    "performance.errorRate"
+                  )}
                 </p>
 
                 <p
@@ -1257,7 +1519,8 @@ export default function CentralCaptacaoPage() {
                 >
                   {formatarPercentual(
                     resumo.taxas
-                      .erro
+                      .erro,
+                    locale
                   )}
                   %
                 </p>
@@ -1271,22 +1534,26 @@ export default function CentralCaptacaoPage() {
             <h2
               className={`text-lg font-bold ${c.titulo}`}
             >
-              Estrutura ativa
+              {t(
+                "structure.title"
+              )}
             </h2>
 
             <p
               className={`mt-1 text-sm ${c.muted}`}
             >
-              Recursos atualmente
-              disponíveis para
-              captação.
+              {t(
+                "structure.description"
+              )}
             </p>
 
             <div className="mt-5 space-y-3">
               {[
                 {
                   nome:
-                    "Canais ativos",
+                    t(
+                      "structure.activeChannels"
+                    ),
 
                   valor:
                     resumo.canais
@@ -1295,7 +1562,9 @@ export default function CentralCaptacaoPage() {
 
                 {
                   nome:
-                    "Campanhas ativas",
+                    t(
+                      "structure.activeCampaigns"
+                    ),
 
                   valor:
                     resumo.campanhas
@@ -1304,7 +1573,9 @@ export default function CentralCaptacaoPage() {
 
                 {
                   nome:
-                    "Formulários publicados",
+                    t(
+                      "structure.publishedForms"
+                    ),
 
                   valor:
                     resumo
@@ -1314,7 +1585,9 @@ export default function CentralCaptacaoPage() {
 
                 {
                   nome:
-                    "Regras de distribuição",
+                    t(
+                      "structure.distributionRules"
+                    ),
 
                   valor:
                     resumo
@@ -1324,7 +1597,9 @@ export default function CentralCaptacaoPage() {
 
                 {
                   nome:
-                    "Integrações ativas",
+                    t(
+                      "structure.activeIntegrations"
+                    ),
 
                   valor:
                     resumo
@@ -1355,7 +1630,8 @@ export default function CentralCaptacaoPage() {
                       }
                     >
                       {formatarNumero(
-                        item.valor
+                        item.valor,
+                        locale
                       )}
                     </strong>
                   </div>
@@ -1374,19 +1650,34 @@ export default function CentralCaptacaoPage() {
                   }
                 >
                   ⚠️{" "}
-                  {formatarNumero(
-                    resumo
-                      .integracoes
-                      .comErro
-                  )}{" "}
-                  integração
                   {resumo
                     .integracoes
                     .comErro ===
                   1
-                    ? ""
-                    : "ões"}{" "}
-                  com erro.
+                    ? t(
+                        "structure.integrationErrorSingular",
+                        {
+                          count:
+                            formatarNumero(
+                              resumo
+                                .integracoes
+                                .comErro,
+                              locale
+                            ),
+                        }
+                      )
+                    : t(
+                        "structure.integrationErrorPlural",
+                        {
+                          count:
+                            formatarNumero(
+                              resumo
+                                .integracoes
+                                .comErro,
+                              locale
+                            ),
+                        }
+                      )}
                 </div>
               )}
             </div>
@@ -1404,14 +1695,17 @@ export default function CentralCaptacaoPage() {
                 <h2
                   className={`text-lg font-bold ${c.titulo}`}
                 >
-                  Últimas submissões
+                  {t(
+                    "latest.title"
+                  )}
                 </h2>
 
                 <p
                   className={`mt-1 text-sm ${c.muted}`}
                 >
-                  As 10 entradas mais
-                  recentes da Central.
+                  {t(
+                    "latest.description"
+                  )}
                 </p>
               </div>
 
@@ -1419,7 +1713,9 @@ export default function CentralCaptacaoPage() {
                 href="/admin/comercial/captacao/submissoes"
                 className={`inline-flex rounded-xl border px-4 py-2 text-sm font-semibold transition ${c.botao}`}
               >
-                Ver todas
+                {t(
+                  "latest.viewAll"
+                )}
               </Link>
             </div>
 
@@ -1433,16 +1729,17 @@ export default function CentralCaptacaoPage() {
                 <p
                   className={`mt-3 font-semibold ${c.titulo}`}
                 >
-                  Nenhuma submissão
-                  recebida
+                  {t(
+                    "latest.emptyTitle"
+                  )}
                 </p>
 
                 <p
                   className={`mt-1 text-sm ${c.muted}`}
                 >
-                  Assim que um lead
-                  entrar, ele aparecerá
-                  aqui.
+                  {t(
+                    "latest.emptyDescription"
+                  )}
                 </p>
               </div>
             ) : (
@@ -1450,39 +1747,50 @@ export default function CentralCaptacaoPage() {
                 <table className="min-w-full text-left text-sm">
                   <thead
                     className={
-                      temaEscuro
-                        ? "bg-slate-950 text-slate-400"
-                        : "bg-slate-50 text-slate-500"
+                      c.tabelaCabecalho
                     }
                   >
                     <tr>
                       <th className="px-5 py-3 font-semibold">
-                        Lead
+                        {t(
+                          "latest.columns.lead"
+                        )}
                       </th>
 
                       <th className="px-5 py-3 font-semibold">
-                        Origem
+                        {t(
+                          "latest.columns.source"
+                        )}
                       </th>
 
                       <th className="px-5 py-3 font-semibold">
-                        Campanha
+                        {t(
+                          "latest.columns.campaign"
+                        )}
                       </th>
 
                       <th className="px-5 py-3 font-semibold">
-                        Status
+                        {t(
+                          "latest.columns.status"
+                        )}
                       </th>
 
                       <th className="px-5 py-3 font-semibold">
-                        Lead
-                        vinculado
+                        {t(
+                          "latest.columns.linkedLead"
+                        )}
                       </th>
 
                       <th className="px-5 py-3 font-semibold">
-                        Recebido em
+                        {t(
+                          "latest.columns.receivedAt"
+                        )}
                       </th>
 
                       <th className="px-5 py-3 text-right font-semibold">
-                        Ação
+                        {t(
+                          "latest.columns.action"
+                        )}
                       </th>
                     </tr>
                   </thead>
@@ -1503,14 +1811,18 @@ export default function CentralCaptacaoPage() {
                               className={`font-semibold ${c.titulo}`}
                             >
                               {submissao.nomeSnapshot ||
-                                "Sem nome"}
+                                t(
+                                  "latest.noName"
+                                )}
                             </div>
 
                             <div
                               className={`mt-1 text-xs ${c.muted}`}
                             >
                               {submissao.emailSnapshot ||
-                                "Sem e-mail"}
+                                t(
+                                  "latest.noEmail"
+                                )}
                             </div>
                           </td>
 
@@ -1589,7 +1901,8 @@ export default function CentralCaptacaoPage() {
                             className={`whitespace-nowrap px-5 py-4 ${c.texto}`}
                           >
                             {formatarDataHora(
-                              submissao.recebidoEm
+                              submissao.recebidoEm,
+                              locale
                             )}
                           </td>
 
@@ -1598,7 +1911,9 @@ export default function CentralCaptacaoPage() {
                               href={`/admin/comercial/captacao/submissoes/${submissao.id}`}
                               className={`inline-flex rounded-lg border px-3 py-1.5 text-xs font-semibold transition ${c.botao}`}
                             >
-                              Abrir
+                              {t(
+                                "latest.open"
+                              )}
                             </Link>
                           </td>
                         </tr>

@@ -7397,5 +7397,120 @@
         "reprocessed": "Submission reprocessed successfully."
       }
     }
+  },
+  "AdminCommercialLeadGenerationCenter": {
+    "header": {
+      "section": "Sales",
+      "title": "Lead Generation Center",
+      "description": "Track incoming leads, forms, campaigns, distribution rules, and integrations for the institution.",
+      "period": "Period: {month} {year}"
+    },
+    "actions": {
+      "refresh": "↻ Refresh",
+      "updating": "Refreshing...",
+      "tryAgain": "Try again"
+    },
+    "errors": {
+      "load": "Could not load the Lead Generation Center.",
+      "openTitle": "Could not open the Lead Generation Center"
+    },
+    "statuses": {
+      "received": "Received",
+      "validating": "Validating",
+      "processing": "Processing",
+      "processed": "Processed",
+      "duplicate": "Duplicate",
+      "rejected": "Rejected",
+      "spam": "Spam",
+      "error": "Error"
+    },
+    "indicators": {
+      "submissionsToday": {
+        "title": "Submissions today",
+        "detail": "{count} this month"
+      },
+      "newLeads": {
+        "title": "New leads",
+        "detail": "{count} leads impacted"
+      },
+      "processing": {
+        "title": "Processing",
+        "detail": "{count} processed"
+      },
+      "pending": {
+        "title": "Pending",
+        "withErrors": "{count} with errors",
+        "noErrors": "No errors this month"
+      }
+    },
+    "quickAccess": {
+      "heading": "Quick access",
+      "description": "Configure and monitor the components of the Lead Generation Center.",
+      "channels": {
+        "title": "Channels",
+        "description": "{active} active of {total}"
+      },
+      "campaigns": {
+        "title": "Campaigns",
+        "description": "{active} active of {total}"
+      },
+      "forms": {
+        "title": "Forms",
+        "description": "{published} published of {total}"
+      },
+      "submissions": {
+        "title": "Submissions",
+        "description": "{count} received this month"
+      },
+      "distribution": {
+        "title": "Distribution",
+        "description": "{count} active rules"
+      },
+      "integrations": {
+        "title": "Integrations",
+        "description": "{active} active of {total}"
+      }
+    },
+    "performance": {
+      "title": "Monthly performance",
+      "description": "Status of received submissions.",
+      "processed": "Processed",
+      "duplicates": "Duplicates",
+      "rejected": "Rejected",
+      "spam": "Spam",
+      "withErrors": "With errors",
+      "processingRate": "Processing rate",
+      "errorRate": "Error rate"
+    },
+    "structure": {
+      "title": "Active setup",
+      "description": "Resources currently available for lead generation.",
+      "activeChannels": "Active channels",
+      "activeCampaigns": "Active campaigns",
+      "publishedForms": "Published forms",
+      "distributionRules": "Distribution rules",
+      "activeIntegrations": "Active integrations",
+      "integrationErrorSingular": "{count} integration with an error.",
+      "integrationErrorPlural": "{count} integrations with errors."
+    },
+    "latest": {
+      "title": "Latest submissions",
+      "description": "The 10 most recent entries in the Center.",
+      "viewAll": "View all",
+      "emptyTitle": "No submissions received",
+      "emptyDescription": "As soon as a lead comes in, it will appear here.",
+      "columns": {
+        "lead": "Lead",
+        "source": "Source",
+        "campaign": "Campaign",
+        "status": "Status",
+        "linkedLead": "Linked lead",
+        "receivedAt": "Received at",
+        "action": "Action"
+      },
+      "noName": "No name",
+      "noEmail": "No email",
+      "open": "Open"
+    }
   }
 }

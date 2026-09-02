@@ -7388,5 +7388,120 @@
         "reprocessed": "Soumission retraitée avec succès."
       }
     }
+  },
+  "AdminCommercialLeadGenerationCenter": {
+    "header": {
+      "section": "Commercial",
+      "title": "Centre d’acquisition",
+      "description": "Suivez l’arrivée des prospects, formulaires, campagnes, règles de distribution et intégrations de l’établissement.",
+      "period": "Période : {month} {year}"
+    },
+    "actions": {
+      "refresh": "↻ Actualiser",
+      "updating": "Actualisation...",
+      "tryAgain": "Réessayer"
+    },
+    "errors": {
+      "load": "Impossible de charger le Centre d’acquisition.",
+      "openTitle": "Impossible d’ouvrir le Centre d’acquisition"
+    },
+    "statuses": {
+      "received": "Reçue",
+      "validating": "Validation",
+      "processing": "Traitement",
+      "processed": "Traitée",
+      "duplicate": "Doublon",
+      "rejected": "Rejetée",
+      "spam": "Spam",
+      "error": "Erreur"
+    },
+    "indicators": {
+      "submissionsToday": {
+        "title": "Soumissions aujourd’hui",
+        "detail": "{count} ce mois-ci"
+      },
+      "newLeads": {
+        "title": "Nouveaux prospects",
+        "detail": "{count} prospects concernés"
+      },
+      "processing": {
+        "title": "Traitement",
+        "detail": "{count} traitées"
+      },
+      "pending": {
+        "title": "En attente",
+        "withErrors": "{count} avec erreur",
+        "noErrors": "Aucune erreur ce mois-ci"
+      }
+    },
+    "quickAccess": {
+      "heading": "Accès rapides",
+      "description": "Configurez et suivez les composants du Centre d’acquisition.",
+      "channels": {
+        "title": "Canaux",
+        "description": "{active} actifs sur {total}"
+      },
+      "campaigns": {
+        "title": "Campagnes",
+        "description": "{active} actives sur {total}"
+      },
+      "forms": {
+        "title": "Formulaires",
+        "description": "{published} publiés sur {total}"
+      },
+      "submissions": {
+        "title": "Soumissions",
+        "description": "{count} reçues ce mois-ci"
+      },
+      "distribution": {
+        "title": "Distribution",
+        "description": "{count} règles actives"
+      },
+      "integrations": {
+        "title": "Intégrations",
+        "description": "{active} actives sur {total}"
+      }
+    },
+    "performance": {
+      "title": "Performance du mois",
+      "description": "État des soumissions reçues.",
+      "processed": "Traitées",
+      "duplicates": "Doublons",
+      "rejected": "Rejetées",
+      "spam": "Spam",
+      "withErrors": "Avec erreur",
+      "processingRate": "Taux de traitement",
+      "errorRate": "Taux d’erreur"
+    },
+    "structure": {
+      "title": "Structure active",
+      "description": "Ressources actuellement disponibles pour l’acquisition.",
+      "activeChannels": "Canaux actifs",
+      "activeCampaigns": "Campagnes actives",
+      "publishedForms": "Formulaires publiés",
+      "distributionRules": "Règles de distribution",
+      "activeIntegrations": "Intégrations actives",
+      "integrationErrorSingular": "{count} intégration en erreur.",
+      "integrationErrorPlural": "{count} intégrations en erreur."
+    },
+    "latest": {
+      "title": "Dernières soumissions",
+      "description": "Les 10 entrées les plus récentes du Centre.",
+      "viewAll": "Tout afficher",
+      "emptyTitle": "Aucune soumission reçue",
+      "emptyDescription": "Dès qu’un prospect arrivera, il apparaîtra ici.",
+      "columns": {
+        "lead": "Prospect",
+        "source": "Origine",
+        "campaign": "Campagne",
+        "status": "Statut",
+        "linkedLead": "Prospect associé",
+        "receivedAt": "Reçu le",
+        "action": "Action"
+      },
+      "noName": "Sans nom",
+      "noEmail": "Sans e-mail",
+      "open": "Ouvrir"
+    }
   }
 }
