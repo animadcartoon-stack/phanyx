@@ -411,6 +411,67 @@ type ResumoIntervencoesStudentSuccess = {
   };
 };
 
+type RetornoStudentSuccess = {
+  id: number;
+
+  alunoId: number;
+
+  tipo:
+  TipoIntervencao;
+
+  canal:
+  CanalIntervencao;
+
+  status:
+  StatusIntervencao;
+
+  observacao:
+  string;
+
+  retornoEm:
+  | string
+  | null;
+
+  criadoEm:
+  string;
+
+  atualizadoEm:
+  string;
+
+  aluno: {
+    id: number;
+
+    nome: string;
+
+    matricula:
+    | string
+    | null;
+  };
+
+  criadoPor:
+  | {
+    id: number;
+    nome: string;
+    email?: string;
+  }
+  | null;
+};
+
+type RetornosStudentSuccessResponse = {
+  ok: boolean;
+
+  resumo: {
+    abertas: number;
+
+    comRetorno: number;
+
+    semRetorno: number;
+  };
+
+  intervencoes:
+  RetornoStudentSuccess[];
+};
+
 function CardResumo({
   valor,
   titulo,
@@ -713,6 +774,14 @@ export default function AdminStudentSuccessPage() {
     );
 
   const [
+    alunoAtualizacaoIntervencao,
+    setAlunoAtualizacaoIntervencao,
+  ] =
+    useState<AlunoStudentSuccess | null>(
+      null
+    );
+
+  const [
     statusAtualizacaoIntervencao,
     setStatusAtualizacaoIntervencao,
   ] =
@@ -770,6 +839,28 @@ export default function AdminStudentSuccessPage() {
   const [
     erroResumoIntervencoes,
     setErroResumoIntervencoes,
+  ] =
+    useState<string | null>(
+      null
+    );
+
+  const [
+    retornos,
+    setRetornos,
+  ] =
+    useState<
+      RetornoStudentSuccess[]
+    >([]);
+
+  const [
+    carregandoRetornos,
+    setCarregandoRetornos,
+  ] =
+    useState(true);
+
+  const [
+    erroRetornos,
+    setErroRetornos,
   ] =
     useState<string | null>(
       null
@@ -1105,6 +1196,216 @@ export default function AdminStudentSuccessPage() {
     ]
   );
 
+  useEffect(
+    () => {
+      let cancelado =
+        false;
+
+      const carregarRetornos =
+        async () => {
+          setCarregandoRetornos(
+            true
+          );
+
+          setErroRetornos(
+            null
+          );
+
+          try {
+            const resposta =
+              await fetch(
+                "/api/admin/student-success/intervencoes/retornos",
+                {
+                  credentials:
+                    "include",
+
+                  cache:
+                    "no-store",
+                }
+              );
+
+            const json =
+              (
+                await resposta.json()
+              ) as RetornosStudentSuccessResponse;
+
+            if (
+              !resposta.ok ||
+              !json?.ok
+            ) {
+              throw new Error(
+                "RETURNS_LOAD_ERROR"
+              );
+            }
+
+            if (
+              !cancelado
+            ) {
+              setRetornos(
+                Array.isArray(
+                  json.intervencoes
+                )
+                  ? json.intervencoes
+                  : []
+              );
+            }
+          }
+          catch (error) {
+            console.error(
+              "[STUDENT_SUCCESS_RETURNS]",
+              error
+            );
+
+            if (
+              !cancelado
+            ) {
+              setRetornos(
+                []
+              );
+
+              setErroRetornos(
+                t(
+                  "intervention.returns.error"
+                )
+              );
+            }
+          }
+          finally {
+            if (
+              !cancelado
+            ) {
+              setCarregandoRetornos(
+                false
+              );
+            }
+          }
+        };
+
+      void carregarRetornos();
+
+      return () => {
+        cancelado =
+          true;
+      };
+    },
+    [
+      versaoIntervencoes,
+      t,
+    ]
+  );
+
+  const retornosClassificados =
+    useMemo(
+      () => {
+        const agora =
+          new Date();
+
+        const inicioHoje =
+          new Date(
+            agora.getFullYear(),
+            agora.getMonth(),
+            agora.getDate()
+          );
+
+        const inicioAmanha =
+          new Date(
+            inicioHoje
+          );
+
+        inicioAmanha.setDate(
+          inicioAmanha.getDate() +
+          1
+        );
+
+        const limite7Dias =
+          new Date(
+            inicioHoje
+          );
+
+        limite7Dias.setDate(
+          limite7Dias.getDate() +
+          8
+        );
+
+        const atrasados:
+          RetornoStudentSuccess[] =
+          [];
+
+        const hoje:
+          RetornoStudentSuccess[] =
+          [];
+
+        const proximos7Dias:
+          RetornoStudentSuccess[] =
+          [];
+
+        const semRetorno:
+          RetornoStudentSuccess[] =
+          [];
+
+        for (
+          const intervencao
+          of retornos
+        ) {
+          if (
+            !intervencao.retornoEm
+          ) {
+            semRetorno.push(
+              intervencao
+            );
+
+            continue;
+          }
+
+          const data =
+            new Date(
+              intervencao.retornoEm
+            );
+
+          if (
+            data <
+            inicioHoje
+          ) {
+            atrasados.push(
+              intervencao
+            );
+
+            continue;
+          }
+
+          if (
+            data <
+            inicioAmanha
+          ) {
+            hoje.push(
+              intervencao
+            );
+
+            continue;
+          }
+
+          if (
+            data <
+            limite7Dias
+          ) {
+            proximos7Dias.push(
+              intervencao
+            );
+          }
+        }
+
+        return {
+          atrasados,
+          hoje,
+          proximos7Dias,
+          semRetorno,
+        };
+      },
+      [
+        retornos,
+      ]
+    );
+
   /*
    * Mostramos aqui:
    *
@@ -1190,6 +1491,116 @@ export default function AdminStudentSuccessPage() {
         filtroNivel,
       ]
     );
+
+  const abrirAlunoDaFila =
+    (
+      alunoId:
+        number
+    ) => {
+      const aluno =
+        dados?.alunos.find(
+          (
+            item
+          ) =>
+            item.alunoId ===
+            alunoId
+        );
+
+      if (!aluno) {
+        return;
+      }
+
+      setAlunoSelecionado(
+        aluno
+      );
+    };
+
+  const atualizarIntervencaoDaFila =
+    async (
+      retorno:
+        RetornoStudentSuccess
+    ) => {
+      const aluno =
+        dados?.alunos.find(
+          (
+            item
+          ) =>
+            item.alunoId ===
+            retorno.alunoId
+        );
+
+      if (!aluno) {
+        return;
+      }
+
+      /*
+       * Precisamos do objeto completo da intervenção,
+       * porque a fila possui apenas os dados resumidos.
+       */
+      try {
+        const resposta =
+          await fetch(
+            `/api/admin/student-success/intervencoes?alunoId=${retorno.alunoId}`,
+            {
+              credentials:
+                "include",
+
+              cache:
+                "no-store",
+            }
+          );
+
+        const json =
+          await resposta.json();
+
+        if (
+          !resposta.ok ||
+          !json?.ok ||
+          !Array.isArray(
+            json.intervencoes
+          )
+        ) {
+          throw new Error(
+            "INTERVENTION_LOAD_ERROR"
+          );
+        }
+
+        const intervencao =
+          (
+            json.intervencoes as
+            StudentSuccessIntervencao[]
+          ).find(
+            (
+              item
+            ) =>
+              item.id ===
+              retorno.id
+          );
+
+        if (!intervencao) {
+          throw new Error(
+            "INTERVENTION_NOT_FOUND"
+          );
+        }
+
+        /*
+         * O aluno precisa estar selecionado
+         * para que, ao encerrar a intervenção,
+         * a fotografia acadêmica atual seja
+         * enviada ao PATCH.
+         */
+        abrirAtualizacaoIntervencao(
+          intervencao,
+          aluno
+        );
+      }
+      catch (error) {
+        console.error(
+          "[STUDENT_SUCCESS_RETURN_UPDATE]",
+          error
+        );
+      }
+    };
 
   const registrarIntervencao =
     async () => {
@@ -1379,10 +1790,18 @@ export default function AdminStudentSuccessPage() {
   const abrirAtualizacaoIntervencao =
     (
       intervencao:
-        StudentSuccessIntervencao
+        StudentSuccessIntervencao,
+
+      alunoContexto?:
+        AlunoStudentSuccess | null
     ) => {
       setIntervencaoEmEdicao(
         intervencao
+      );
+
+      setAlunoAtualizacaoIntervencao(
+        alunoContexto ??
+        alunoSelecionado
       );
 
       setStatusAtualizacaoIntervencao(
@@ -1490,37 +1909,37 @@ export default function AdminStudentSuccessPage() {
                   resultado,
 
                   analiseAtual:
-                    alunoSelecionado
+                    alunoAtualizacaoIntervencao
                       ? {
                         nivel:
-                          alunoSelecionado
+                          alunoAtualizacaoIntervencao
                             .analise
                             .nivel,
 
                         pontuacao:
-                          alunoSelecionado
+                          alunoAtualizacaoIntervencao
                             .analise
                             .pontuacao,
 
                         coberturaPercentual:
-                          alunoSelecionado
+                          alunoAtualizacaoIntervencao
                             .analise
                             .coberturaPercentual,
 
                         confiabilidade:
-                          alunoSelecionado
+                          alunoAtualizacaoIntervencao
                             .analise
                             .confiabilidade,
 
                         fatoresPrincipais:
-                          alunoSelecionado
+                          alunoAtualizacaoIntervencao
                             .analise
                             .fatoresPrincipais,
                       }
                       : null,
 
                   indicadoresAtuais:
-                    alunoSelecionado
+                    alunoAtualizacaoIntervencao
                       ?.indicadores ??
                     null,
                 }),
@@ -1575,6 +1994,10 @@ export default function AdminStudentSuccessPage() {
         setTimeout(
           () => {
             setIntervencaoEmEdicao(
+              null
+            );
+
+            setAlunoAtualizacaoIntervencao(
               null
             );
 
@@ -3365,6 +3788,610 @@ export default function AdminStudentSuccessPage() {
               </div>
             </>
           ) : null}
+        </section>
+
+        {/* RETORNOS E ACOMPANHAMENTOS */}
+        <section
+          className="
+            phanyx-student-success-returns
+            rounded-2xl
+            border
+            p-5
+          "
+        >
+          <div>
+            <h2
+              className="
+                phanyx-student-success-returns-title
+                text-lg
+                font-bold
+              "
+            >
+              {t(
+                "intervention.returns.title"
+              )}
+            </h2>
+
+            <p
+              className="
+                phanyx-student-success-returns-description
+                mt-1
+                text-sm
+              "
+            >
+              {t(
+                "intervention.returns.description"
+              )}
+            </p>
+          </div>
+
+          {carregandoRetornos ? (
+            <div
+              className="
+                phanyx-student-success-returns-state
+                mt-4
+                rounded-xl
+                border
+                p-4
+                text-sm
+              "
+            >
+              {t(
+                "intervention.returns.loading"
+              )}
+            </div>
+          ) : erroRetornos ? (
+            <div
+              className="
+                mt-4
+                rounded-xl
+                border
+                border-red-300
+                bg-red-50
+                p-4
+                text-sm
+                font-semibold
+                text-red-800
+              "
+            >
+              {
+                erroRetornos
+              }
+            </div>
+          ) : (
+            <>
+              {/* RESUMO */}
+              <div
+                className="
+                  mt-5
+                  grid
+                  gap-3
+                  sm:grid-cols-2
+                  xl:grid-cols-4
+                "
+              >
+                <div
+                  className="
+                    phanyx-student-success-return-summary
+                    phanyx-student-success-return-overdue
+                    rounded-xl
+                    border
+                    p-4
+                  "
+                >
+                  <div
+                    className="
+                      text-2xl
+                      font-bold
+                    "
+                  >
+                    {
+                      retornosClassificados
+                        .atrasados
+                        .length
+                    }
+                  </div>
+
+                  <div
+                    className="
+                      mt-1
+                      text-sm
+                      font-bold
+                    "
+                  >
+                    {t(
+                      "intervention.returns.overdue"
+                    )}
+                  </div>
+                </div>
+
+                <div
+                  className="
+                    phanyx-student-success-return-summary
+                    phanyx-student-success-return-today
+                    rounded-xl
+                    border
+                    p-4
+                  "
+                >
+                  <div
+                    className="
+                      text-2xl
+                      font-bold
+                    "
+                  >
+                    {
+                      retornosClassificados
+                        .hoje
+                        .length
+                    }
+                  </div>
+
+                  <div
+                    className="
+                      mt-1
+                      text-sm
+                      font-bold
+                    "
+                  >
+                    {t(
+                      "intervention.returns.today"
+                    )}
+                  </div>
+                </div>
+
+                <div
+                  className="
+                    phanyx-student-success-return-summary
+                    phanyx-student-success-return-upcoming
+                    rounded-xl
+                    border
+                    p-4
+                  "
+                >
+                  <div
+                    className="
+                      text-2xl
+                      font-bold
+                    "
+                  >
+                    {
+                      retornosClassificados
+                        .proximos7Dias
+                        .length
+                    }
+                  </div>
+
+                  <div
+                    className="
+                      mt-1
+                      text-sm
+                      font-bold
+                    "
+                  >
+                    {t(
+                      "intervention.returns.next7Days"
+                    )}
+                  </div>
+                </div>
+
+                <div
+                  className="
+                    phanyx-student-success-return-summary
+                    phanyx-student-success-return-unscheduled
+                    rounded-xl
+                    border
+                    p-4
+                  "
+                >
+                  <div
+                    className="
+                      text-2xl
+                      font-bold
+                    "
+                  >
+                    {
+                      retornosClassificados
+                        .semRetorno
+                        .length
+                    }
+                  </div>
+
+                  <div
+                    className="
+                      mt-1
+                      text-sm
+                      font-bold
+                    "
+                  >
+                    {t(
+                      "intervention.returns.unscheduled"
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* FILA */}
+              {retornosClassificados
+                .atrasados.length ===
+                0 &&
+                retornosClassificados
+                  .hoje.length ===
+                0 &&
+                retornosClassificados
+                  .proximos7Dias.length ===
+                0 &&
+                retornosClassificados
+                  .semRetorno.length ===
+                0 ? (
+                <div
+                  className="
+                    phanyx-student-success-returns-empty
+                    mt-4
+                    rounded-xl
+                    border
+                    p-4
+                    text-sm
+                    font-semibold
+                  "
+                >
+                  {t(
+                    "intervention.returns.empty"
+                  )}
+                </div>
+              ) : (
+                <div
+                  className="
+                    mt-5
+                    grid
+                    gap-4
+                    xl:grid-cols-2
+                  "
+                >
+                  {[
+                    {
+                      chave:
+                        "atrasados",
+
+                      titulo:
+                        t(
+                          "intervention.returns.overdue"
+                        ),
+
+                      itens:
+                        retornosClassificados
+                          .atrasados,
+
+                      classe:
+                        "phanyx-student-success-return-group-overdue",
+                    },
+
+                    {
+                      chave:
+                        "hoje",
+
+                      titulo:
+                        t(
+                          "intervention.returns.today"
+                        ),
+
+                      itens:
+                        retornosClassificados
+                          .hoje,
+
+                      classe:
+                        "phanyx-student-success-return-group-today",
+                    },
+
+                    {
+                      chave:
+                        "proximos",
+
+                      titulo:
+                        t(
+                          "intervention.returns.next7Days"
+                        ),
+
+                      itens:
+                        retornosClassificados
+                          .proximos7Dias,
+
+                      classe:
+                        "phanyx-student-success-return-group-upcoming",
+                    },
+
+                    {
+                      chave:
+                        "sem-retorno",
+
+                      titulo:
+                        t(
+                          "intervention.returns.unscheduled"
+                        ),
+
+                      itens:
+                        retornosClassificados
+                          .semRetorno,
+
+                      classe:
+                        "phanyx-student-success-return-group-unscheduled",
+                    },
+                  ]
+                    .filter(
+                      (
+                        grupo
+                      ) =>
+                        grupo
+                          .itens
+                          .length >
+                        0
+                    )
+                    .map(
+                      (
+                        grupo
+                      ) => (
+                        <div
+                          key={
+                            grupo.chave
+                          }
+                          className={[
+                            "phanyx-student-success-return-group rounded-xl border p-4",
+                            grupo.classe,
+                          ].join(
+                            " "
+                          )}
+                        >
+                          <div
+                            className="
+                              flex
+                              items-center
+                              justify-between
+                              gap-3
+                            "
+                          >
+                            <h3
+                              className="
+                                text-sm
+                                font-bold
+                              "
+                            >
+                              {
+                                grupo.titulo
+                              }
+                            </h3>
+
+                            <span
+                              className="
+                                phanyx-student-success-return-count
+                                inline-flex
+                                min-w-7
+                                items-center
+                                justify-center
+                                rounded-full
+                                border
+                                px-2
+                                py-1
+                                text-xs
+                                font-bold
+                              "
+                            >
+                              {
+                                grupo
+                                  .itens
+                                  .length
+                              }
+                            </span>
+                          </div>
+
+                          <div
+                            className="
+                              mt-3
+                              space-y-2
+                            "
+                          >
+                            {grupo.itens.map(
+                              (
+                                intervencao
+                              ) => (
+                                <div
+                                  key={
+                                    intervencao.id
+                                  }
+                                  className="
+                                    phanyx-student-success-return-item
+                                    rounded-xl
+                                    border
+                                    p-3
+                                  "
+                                >
+                                  <div
+                                    className="
+                                      flex
+                                      flex-col
+                                      gap-2
+                                      sm:flex-row
+                                      sm:items-start
+                                      sm:justify-between
+                                    "
+                                  >
+                                    <div
+                                      className="
+                                        min-w-0
+                                      "
+                                    >
+                                      <div
+                                        className="
+                                          phanyx-student-success-return-student
+                                          font-bold
+                                        "
+                                      >
+                                        {
+                                          intervencao
+                                            .aluno
+                                            .nome
+                                        }
+                                      </div>
+
+                                      {intervencao
+                                        .aluno
+                                        .matricula ? (
+                                        <div
+                                          className="
+                                            phanyx-student-success-return-muted
+                                            mt-0.5
+                                            text-xs
+                                          "
+                                        >
+                                          {
+                                            intervencao
+                                              .aluno
+                                              .matricula
+                                          }
+                                        </div>
+                                      ) : null}
+                                    </div>
+
+                                    <span
+                                      className="
+                                        phanyx-student-success-return-status
+                                        inline-flex
+                                        self-start
+                                        rounded-full
+                                        border
+                                        px-2.5
+                                        py-1
+                                        text-xs
+                                        font-bold
+                                      "
+                                    >
+                                      {t(
+                                        `intervention.statuses.${intervencao.status}`
+                                      )}
+                                    </span>
+                                  </div>
+
+                                  <div
+                                    className="
+                                      phanyx-student-success-return-muted
+                                      mt-3
+                                      text-xs
+                                    "
+                                  >
+                                    {intervencao
+                                      .retornoEm ? (
+                                      <>
+                                        <strong>
+                                          {t(
+                                            "intervention.returns.scheduledFor"
+                                          )}
+                                          :
+                                        </strong>{" "}
+
+                                        {new Intl.DateTimeFormat(
+                                          undefined,
+                                          {
+                                            dateStyle:
+                                              "medium",
+                                          }
+                                        ).format(
+                                          new Date(
+                                            intervencao
+                                              .retornoEm
+                                          )
+                                        )}
+                                      </>
+                                    ) : (
+                                      t(
+                                        "intervention.returns.noScheduledDate"
+                                      )
+                                    )}
+                                  </div>
+
+                                  <div
+                                    className="
+                                      phanyx-student-success-return-muted
+                                      mt-2
+                                      text-xs
+                                      font-semibold
+                                    "
+                                  >
+                                    {t(
+                                      `intervention.types.${intervencao.tipo}`
+                                    )}
+
+                                    {" · "}
+
+                                    {t(
+                                      `intervention.channels.${intervencao.canal}`
+                                    )}
+                                  </div>
+                                  <div
+                                    className="
+    mt-3
+    grid
+    gap-2
+    sm:grid-cols-2
+  "
+                                  >
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        abrirAlunoDaFila(
+                                          intervencao.alunoId
+                                        )
+                                      }
+                                      className="
+      phanyx-student-success-return-action
+      phanyx-student-success-return-view
+      rounded-lg
+      border
+      px-3
+      py-2
+      text-xs
+      font-bold
+      transition
+    "
+                                    >
+                                      {t(
+                                        "intervention.returns.viewStudent"
+                                      )}
+                                    </button>
+
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        void atualizarIntervencaoDaFila(
+                                          intervencao
+                                        )
+                                      }
+                                      className="
+      phanyx-student-success-return-action
+      phanyx-student-success-return-update
+      rounded-lg
+      border
+      px-3
+      py-2
+      text-xs
+      font-bold
+      transition
+    "
+                                    >
+                                      {t(
+                                        "intervention.returns.update"
+                                      )}
+                                    </button>
+                                  </div>
+                                </div>
+                              )
+                            )}
+                          </div>
+                        </div>
+                      )
+                    )}
+                </div>
+              )}
+            </>
+          )}
         </section>
 
         {/* ALUNOS PARA ACOMPANHAMENTO */}
@@ -6475,28 +7502,32 @@ export default function AdminStudentSuccessPage() {
                 disabled={
                   salvandoAtualizacaoIntervencao
                 }
-                onClick={() =>
+                onClick={() => {
                   setIntervencaoEmEdicao(
                     null
-                  )
-                }
+                  );
+
+                  setAlunoAtualizacaoIntervencao(
+                    null
+                  );
+                }}
                 className="
-            flex
-            h-9
-            w-9
-            items-center
-            justify-center
-            rounded-xl
-            border
-            border-slate-300
-            bg-white
-            text-lg
-            font-bold
-            text-slate-700
-            dark:border-slate-700
-            dark:bg-slate-900
-            dark:text-white
-          "
+              flex
+              h-9
+              w-9
+              items-center
+              justify-center
+              rounded-xl
+              border
+              border-slate-300
+              bg-white
+              text-lg
+              font-bold
+              text-slate-700
+              dark:border-slate-700
+              dark:bg-slate-900
+              dark:text-white
+              "
               >
                 ×
               </button>
@@ -6761,11 +7792,15 @@ export default function AdminStudentSuccessPage() {
                 disabled={
                   salvandoAtualizacaoIntervencao
                 }
-                onClick={() =>
+                onClick={() => {
                   setIntervencaoEmEdicao(
                     null
-                  )
-                }
+                  );
+
+                  setAlunoAtualizacaoIntervencao(
+                    null
+                  );
+                }}
                 className="
             phanyx-student-success-intervention-cancel
             rounded-xl
@@ -6774,7 +7809,7 @@ export default function AdminStudentSuccessPage() {
             py-2.5
             text-sm
             font-semibold
-          "
+            "
               >
                 {t(
                   "intervention.cancel"
@@ -6821,8 +7856,9 @@ export default function AdminStudentSuccessPage() {
               </button>
             </div>
           </div>
-        </div>
-      ) : null}
+        </div >
+      ) : null
+      }
     </main >
   );
 }

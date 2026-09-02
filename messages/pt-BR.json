@@ -4106,6 +4106,22 @@
         "error": "Não foi possível carregar os indicadores das intervenções.",
         "sampleInsufficient": "Amostra insuficiente · {count, plural, one {# intervenção mensurável} other {# intervenções mensuráveis}}",
         "lessThanOneDay": "< 1 dia"
+      },
+      "returns": {
+        "title": "Retornos e acompanhamentos",
+        "description": "Organize os próximos contatos e acompanhe intervenções que precisam de atenção.",
+        "overdue": "Atrasados",
+        "today": "Para hoje",
+        "next7Days": "Próximos 7 dias",
+        "unscheduled": "Sem retorno agendado",
+        "scheduledFor": "Retorno previsto",
+        "noScheduledDate": "Sem data de retorno",
+        "overdueLabel": "Retorno atrasado",
+        "empty": "Nenhum retorno ou acompanhamento pendente.",
+        "loading": "Carregando retornos...",
+        "error": "Não foi possível carregar os retornos.",
+        "viewStudent": "Ver aluno",
+        "update": "Atualizar"
       }
     }
   },
@@ -5477,8 +5493,7 @@
       "VIAGEM_INTERNACIONAL": "Viagem internacional",
       "OUTRA": "Outra"
     }
-  }
-,
+  },
   "AdminExternalActivityParticipants": {
     "title": "Participantes",
     "description": "Gerencie os alunos convidados para esta atividade e acompanhe participação, autorização, presença e pagamento.",
@@ -5542,6 +5557,301 @@
       "added": "{count} participante(s) adicionado(s).",
       "noneAdded": "Nenhum novo participante foi adicionado.",
       "addError": "Não foi possível adicionar os participantes."
+    }
+  },
+  "AdminExternalActivityAuthorizations": {
+    "title": "Autorizações",
+    "description": "Acompanhe o consentimento dos responsáveis e mantenha o histórico das decisões registradas.",
+    "loading": "Carregando autorizações...",
+    "loadError": "Não foi possível carregar as autorizações.",
+    "retry": "Tentar novamente",
+    "summary": {
+      "total": "Participantes",
+      "pending": "Pendentes",
+      "authorized": "Autorizados",
+      "denied": "Não autorizados",
+      "waived": "Dispensados"
+    },
+    "noAuthorizationRequired": {
+      "title": "Autorização não exigida",
+      "description": "Esta atividade não está configurada para exigir autorização do responsável."
+    },
+    "empty": {
+      "title": "Nenhum participante",
+      "description": "Adicione participantes à atividade para começar a controlar as autorizações."
+    },
+    "participant": {
+      "currentStatus": "Situação atual",
+      "noRecord": "Ainda não há resposta registada.",
+      "history": "Histórico",
+      "noHistory": "Nenhum histórico de autorização.",
+      "registration": "Matrícula",
+      "noRegistration": "Sem matrícula informada"
+    },
+    "actions": {
+      "register": "Registrar resposta",
+      "authorize": "Autorizar",
+      "deny": "Não autorizar",
+      "waive": "Dispensar",
+      "revoke": "Revogar autorização",
+      "expire": "Marcar como expirada",
+      "cancel": "Cancelar",
+      "save": "Salvar resposta",
+      "saving": "Salvando..."
+    },
+    "form": {
+      "title": "Registrar autorização",
+      "description": "Registre a decisão do responsável ou uma decisão administrativa devidamente justificada.",
+      "status": "Decisão",
+      "method": "Método",
+      "guardianName": "Nome do responsável",
+      "guardianRelationship": "Parentesco / relação",
+      "guardianEmail": "E-mail",
+      "guardianPhone": "Telefone",
+      "termVersion": "Versão do termo",
+      "observation": "Observação",
+      "guardianNamePlaceholder": "Nome completo do responsável",
+      "relationshipPlaceholder": "Ex.: mãe, pai, tutor legal...",
+      "emailPlaceholder": "responsavel@exemplo.com",
+      "phonePlaceholder": "Telefone do responsável",
+      "termVersionPlaceholder": "Ex.: v1.0",
+      "observationPlaceholder": "Informações adicionais sobre esta autorização..."
+    },
+    "status": {
+      "PENDENTE": "Pendente",
+      "AUTORIZADO": "Autorizado",
+      "NAO_AUTORIZADO": "Não autorizado",
+      "REVOGADO": "Revogado",
+      "DISPENSADO": "Dispensado",
+      "EXPIRADO": "Expirado"
+    },
+    "methods": {
+      "PORTAL": "Portal",
+      "LINK_SEGURO": "Link seguro",
+      "PRESENCIAL": "Presencial",
+      "IMPORTADO": "Importado",
+      "ADMINISTRATIVO": "Administrativo",
+      "OUTRO": "Outro"
+    },
+    "history": {
+      "registeredAt": "Registrada em",
+      "answeredAt": "Respondida em",
+      "revokedAt": "Revogada em",
+      "guardian": "Responsável",
+      "method": "Método",
+      "observation": "Observação"
+    },
+    "messages": {
+      "saved": "Autorização registrada com sucesso.",
+      "saveError": "Não foi possível registrar a autorização."
+    }
+  },
+  "AdminCommercialAgenda": {
+    "common": {
+      "select": "Selecione",
+      "close": "Fechar",
+      "cancel": "Cancelar"
+    },
+    "dates": {
+      "today": "Hoje",
+      "tomorrow": "Amanhã",
+      "notInformed": "Data não informada"
+    },
+    "groups": {
+      "overdue": "Atrasadas"
+    },
+    "taskTypes": {
+      "LIGACAO": {
+        "name": "Ligação",
+        "title": "Realizar ligação"
+      },
+      "WHATSAPP": {
+        "name": "WhatsApp",
+        "title": "Enviar mensagem pelo WhatsApp"
+      },
+      "EMAIL": {
+        "name": "E-mail",
+        "title": "Enviar e-mail"
+      },
+      "REUNIAO": {
+        "name": "Reunião",
+        "title": "Realizar reunião"
+      },
+      "RETORNO": {
+        "name": "Retorno",
+        "title": "Retornar contato"
+      },
+      "ENVIAR_PROPOSTA": {
+        "name": "Enviar proposta",
+        "title": "Enviar proposta comercial"
+      },
+      "SOLICITAR_DOCUMENTOS": {
+        "name": "Solicitar documentos",
+        "title": "Solicitar documentos"
+      },
+      "CONFIRMAR_PAGAMENTO": {
+        "name": "Confirmar pagamento",
+        "title": "Confirmar pagamento"
+      },
+      "OUTRA": {
+        "name": "Outra ação",
+        "title": "Realizar próxima ação"
+      }
+    },
+    "priorities": {
+      "BAIXA": "Baixa",
+      "MEDIA": "Média",
+      "ALTA": "Alta",
+      "URGENTE": "Urgente"
+    },
+    "periods": {
+      "TODAS": "Todas",
+      "ATRASADAS": "Atrasadas",
+      "HOJE": "Hoje",
+      "AMANHA": "Amanhã",
+      "SEMANA": "7 dias",
+      "PROXIMAS": "Próximas"
+    },
+    "statuses": {
+      "TODOS": "Todos os status",
+      "PENDENTE": "Pendente",
+      "EM_ANDAMENTO": "Em andamento",
+      "CONCLUIDA": "Concluída",
+      "CANCELADA": "Cancelada"
+    },
+    "loading": {
+      "title": "Organizando a Agenda Comercial...",
+      "description": "Carregando tarefas, responsáveis e próximos contatos."
+    },
+    "errorPage": {
+      "title": "Não foi possível abrir a Agenda Comercial",
+      "description": "Verifique suas permissões e tente novamente.",
+      "retry": "Tentar novamente"
+    },
+    "errors": {
+      "load": "Não foi possível carregar a Agenda Comercial.",
+      "selectLead": "Selecione o lead relacionado à tarefa.",
+      "selectAssignee": "Selecione o responsável pela tarefa.",
+      "title": "Informe o título da tarefa.",
+      "dateTime": "Informe uma data e um horário válidos.",
+      "save": "Não foi possível salvar a tarefa.",
+      "update": "Não foi possível atualizar a tarefa."
+    },
+    "toast": {
+      "created": "Tarefa criada com sucesso.",
+      "updated": "Tarefa atualizada com sucesso.",
+      "saved": "Tarefa atualizada."
+    },
+    "header": {
+      "commercial": "Comercial",
+      "agenda": "Agenda comercial",
+      "title": "Agenda Comercial",
+      "description": "Organize ligações, retornos, reuniões, propostas, documentos e todas as próximas ações da equipe de vendas.",
+      "pipeline": "Pipeline",
+      "refreshing": "Atualizando...",
+      "refresh": "Atualizar",
+      "newTask": "Nova tarefa"
+    },
+    "kpis": {
+      "overdueTitle": "Atrasadas",
+      "overdueDescription": "Exigem atenção imediata",
+      "todayTitle": "Para hoje",
+      "todayDescription": "Ações programadas",
+      "upcomingTitle": "Próximas",
+      "upcomingDescription": "Depois de hoje",
+      "inProgressTitle": "Em andamento",
+      "inProgressDescription": "Atendimento iniciado",
+      "completedTodayTitle": "Concluídas hoje",
+      "completedTodayDescription": "Resultados registrados"
+    },
+    "filters": {
+      "searchLabel": "Buscar na agenda",
+      "searchPlaceholder": "Tarefa, lead, e-mail ou responsável...",
+      "status": "Status",
+      "statusAria": "Filtrar por status",
+      "priority": "Prioridade",
+      "priorityAria": "Filtrar por prioridade",
+      "all": "Todas",
+      "type": "Tipo",
+      "typeAria": "Filtrar por tipo de ação",
+      "allMasculine": "Todos",
+      "responsible": "Responsável",
+      "responsibleAria": "Filtrar por responsável",
+      "allTeam": "Toda a equipe",
+      "periodAria": "Período da agenda",
+      "onlyMine": "Somente minhas tarefas"
+    },
+    "list": {
+      "eyebrow": "Programação comercial",
+      "title": "Tarefas e próximas ações",
+      "records": "{count, plural, =0 {Nenhum registro} one {# registro} other {# registros}}",
+      "emptyTitle": "Nenhuma tarefa encontrada",
+      "emptyDescription": "Ajuste os filtros ou crie uma nova ação para organizar o próximo atendimento comercial.",
+      "createFirst": "Criar primeira tarefa",
+      "page": "Página {page} de {total}",
+      "previous": "Anterior",
+      "next": "Próxima"
+    },
+    "taskModal": {
+      "eyebrow": "Agenda comercial",
+      "editTitle": "Editar tarefa",
+      "newTitle": "Nova tarefa",
+      "description": "Registre a ação, o responsável e o horário do próximo contato.",
+      "relatedLead": "Lead relacionado",
+      "relatedLeadAria": "Selecionar lead relacionado",
+      "selectLead": "Selecione o lead",
+      "assignee": "Responsável",
+      "assigneeAria": "Selecionar responsável",
+      "selectAssignee": "Selecione o responsável",
+      "assigneeHelp": "A tarefa será atribuída ao seu usuário.",
+      "actionType": "Tipo de ação",
+      "actionTypeAria": "Selecionar tipo de ação",
+      "priority": "Prioridade",
+      "priorityAria": "Selecionar prioridade",
+      "title": "Título",
+      "titlePlaceholder": "Ex.: Retornar contato sobre a proposta",
+      "instructions": "Orientações para o atendimento",
+      "instructionsPlaceholder": "Contexto, documentos necessários, assunto da conversa...",
+      "scheduledFor": "Agendada para",
+      "dueDate": "Prazo final",
+      "reminder": "Lembrete",
+      "nextLeadAction": "Definir como próxima ação do lead",
+      "nextLeadActionHelp": "A data aparecerá no Pipeline e na Ficha 360°.",
+      "saving": "Salvando...",
+      "saveChanges": "Salvar alterações",
+      "create": "Criar tarefa"
+    },
+    "specialModal": {
+      "resultEyebrow": "Resultado da ação",
+      "cancelEyebrow": "Cancelamento auditável",
+      "completeTitle": "Concluir tarefa",
+      "cancelTitle": "Cancelar tarefa",
+      "resultLabel": "Resultado alcançado",
+      "cancelReasonLabel": "Motivo do cancelamento",
+      "resultPlaceholder": "Ex.: o interessado confirmou o recebimento da proposta e solicitou prazo...",
+      "cancelReasonPlaceholder": "Explique por que esta tarefa não será mais realizada...",
+      "back": "Voltar",
+      "processing": "Registrando...",
+      "confirmComplete": "Confirmar conclusão",
+      "confirmCancel": "Confirmar cancelamento"
+    },
+    "card": {
+      "due": "Prazo {date}",
+      "nextAction": "Próxima ação",
+      "overdue": "Atrasada",
+      "lead": "Lead #{id}",
+      "leadUnavailable": "Lead indisponível",
+      "assignee": "Responsável",
+      "unassigned": "Não atribuído",
+      "type": "Tipo",
+      "reminder": "Lembrete",
+      "result": "Resultado",
+      "cancelReason": "Motivo do cancelamento",
+      "leadProfile": "Ficha 360°",
+      "edit": "Editar",
+      "start": "Iniciar",
+      "complete": "Concluir",
+      "reopen": "Reabrir"
     }
   }
 }

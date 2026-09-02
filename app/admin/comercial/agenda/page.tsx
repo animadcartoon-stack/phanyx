@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 import {
   type FormEvent,
   type KeyboardEvent,
@@ -143,51 +144,83 @@ type SelectAgendaProps = {
 
 const TIPOS: Array<{
   valor: TipoTarefa;
-  nome: string;
   icone: string;
-  titulo: string;
 }> = [
-  { valor: "LIGACAO", nome: "Ligação", icone: "📞", titulo: "Realizar ligação" },
-  { valor: "WHATSAPP", nome: "WhatsApp", icone: "💬", titulo: "Enviar mensagem pelo WhatsApp" },
-  { valor: "EMAIL", nome: "E-mail", icone: "✉️", titulo: "Enviar e-mail" },
-  { valor: "REUNIAO", nome: "Reunião", icone: "👥", titulo: "Realizar reunião" },
-  { valor: "RETORNO", nome: "Retorno", icone: "↩️", titulo: "Retornar contato" },
-  { valor: "ENVIAR_PROPOSTA", nome: "Enviar proposta", icone: "📄", titulo: "Enviar proposta comercial" },
-  { valor: "SOLICITAR_DOCUMENTOS", nome: "Solicitar documentos", icone: "📎", titulo: "Solicitar documentos" },
-  { valor: "CONFIRMAR_PAGAMENTO", nome: "Confirmar pagamento", icone: "💳", titulo: "Confirmar pagamento" },
-  { valor: "OUTRA", nome: "Outra ação", icone: "📌", titulo: "Realizar próxima ação" },
+  { valor: "LIGACAO", icone: "📞" },
+  { valor: "WHATSAPP", icone: "💬" },
+  { valor: "EMAIL", icone: "✉️" },
+  { valor: "REUNIAO", icone: "👥" },
+  { valor: "RETORNO", icone: "↩️" },
+  { valor: "ENVIAR_PROPOSTA", icone: "📄" },
+  { valor: "SOLICITAR_DOCUMENTOS", icone: "📎" },
+  { valor: "CONFIRMAR_PAGAMENTO", icone: "💳" },
+  { valor: "OUTRA", icone: "📌" },
 ];
 
 const TIPO_VISUAL_PADRAO = {
   valor: "OUTRA" as const,
-  nome: "Outra ação",
   icone: "📌",
-  titulo: "Realizar próxima ação",
 };
 
-const PRIORIDADES: Array<{ valor: PrioridadeTarefa; nome: string }> = [
-  { valor: "BAIXA", nome: "Baixa" },
-  { valor: "MEDIA", nome: "Média" },
-  { valor: "ALTA", nome: "Alta" },
-  { valor: "URGENTE", nome: "Urgente" },
+const PRIORIDADES: Array<{ valor: PrioridadeTarefa }> = [
+  { valor: "BAIXA" },
+  { valor: "MEDIA" },
+  { valor: "ALTA" },
+  { valor: "URGENTE" },
 ];
 
 const PERIODOS = [
-  { valor: "TODAS", nome: "Todas" },
-  { valor: "ATRASADAS", nome: "Atrasadas" },
-  { valor: "HOJE", nome: "Hoje" },
-  { valor: "AMANHA", nome: "Amanhã" },
-  { valor: "SEMANA", nome: "7 dias" },
-  { valor: "PROXIMAS", nome: "Próximas" },
+  { valor: "TODAS" },
+  { valor: "ATRASADAS" },
+  { valor: "HOJE" },
+  { valor: "AMANHA" },
+  { valor: "SEMANA" },
+  { valor: "PROXIMAS" },
 ] as const;
 
 const STATUS = [
-  { valor: "TODOS", nome: "Todos os status" },
-  { valor: "PENDENTE", nome: "Pendente" },
-  { valor: "EM_ANDAMENTO", nome: "Em andamento" },
-  { valor: "CONCLUIDA", nome: "Concluída" },
-  { valor: "CANCELADA", nome: "Cancelada" },
+  { valor: "TODOS" },
+  { valor: "PENDENTE" },
+  { valor: "EM_ANDAMENTO" },
+  { valor: "CONCLUIDA" },
+  { valor: "CANCELADA" },
 ] as const;
+
+const CHAVES_TIPO = {
+  LIGACAO: { nome: "taskTypes.LIGACAO.name", titulo: "taskTypes.LIGACAO.title" },
+  WHATSAPP: { nome: "taskTypes.WHATSAPP.name", titulo: "taskTypes.WHATSAPP.title" },
+  EMAIL: { nome: "taskTypes.EMAIL.name", titulo: "taskTypes.EMAIL.title" },
+  REUNIAO: { nome: "taskTypes.REUNIAO.name", titulo: "taskTypes.REUNIAO.title" },
+  RETORNO: { nome: "taskTypes.RETORNO.name", titulo: "taskTypes.RETORNO.title" },
+  ENVIAR_PROPOSTA: { nome: "taskTypes.ENVIAR_PROPOSTA.name", titulo: "taskTypes.ENVIAR_PROPOSTA.title" },
+  SOLICITAR_DOCUMENTOS: { nome: "taskTypes.SOLICITAR_DOCUMENTOS.name", titulo: "taskTypes.SOLICITAR_DOCUMENTOS.title" },
+  CONFIRMAR_PAGAMENTO: { nome: "taskTypes.CONFIRMAR_PAGAMENTO.name", titulo: "taskTypes.CONFIRMAR_PAGAMENTO.title" },
+  OUTRA: { nome: "taskTypes.OUTRA.name", titulo: "taskTypes.OUTRA.title" },
+} as const;
+
+const CHAVES_PRIORIDADE = {
+  BAIXA: "priorities.BAIXA",
+  MEDIA: "priorities.MEDIA",
+  ALTA: "priorities.ALTA",
+  URGENTE: "priorities.URGENTE",
+} as const;
+
+const CHAVES_PERIODO = {
+  TODAS: "periods.TODAS",
+  ATRASADAS: "periods.ATRASADAS",
+  HOJE: "periods.HOJE",
+  AMANHA: "periods.AMANHA",
+  SEMANA: "periods.SEMANA",
+  PROXIMAS: "periods.PROXIMAS",
+} as const;
+
+const CHAVES_STATUS = {
+  TODOS: "statuses.TODOS",
+  PENDENTE: "statuses.PENDENTE",
+  EM_ANDAMENTO: "statuses.EM_ANDAMENTO",
+  CONCLUIDA: "statuses.CONCLUIDA",
+  CANCELADA: "statuses.CANCELADA",
+} as const;
 
 function doisDigitos(valor: number) {
   return String(valor).padStart(2, "0");
@@ -213,20 +246,26 @@ function paraIsoBrasilia(valor: string) {
   return Number.isNaN(data.getTime()) ? null : data.toISOString();
 }
 
-function formatarDataHora(valor?: string | null) {
+function formatarDataHora(valor: string | null | undefined, locale: string) {
   if (!valor) return "—";
   const data = new Date(valor);
   if (Number.isNaN(data.getTime())) return "—";
 
-  return data.toLocaleString("pt-BR", {
+  return data.toLocaleString(locale, {
     dateStyle: "short",
     timeStyle: "short",
   });
 }
 
-function formatarDia(valor: string) {
+function formatarDia(
+  valor: string,
+  locale: string,
+  hojeTraduzido: string,
+  amanhaTraduzido: string,
+  dataNaoInformada: string
+) {
   const data = new Date(valor);
-  if (Number.isNaN(data.getTime())) return "Data não informada";
+  if (Number.isNaN(data.getTime())) return dataNaoInformada;
 
   const hoje = new Date();
   const amanha = new Date();
@@ -235,10 +274,10 @@ function formatarDia(valor: string) {
   const chave = (item: Date) =>
     `${item.getFullYear()}-${item.getMonth()}-${item.getDate()}`;
 
-  if (chave(data) === chave(hoje)) return "Hoje";
-  if (chave(data) === chave(amanha)) return "Amanhã";
+  if (chave(data) === chave(hoje)) return hojeTraduzido;
+  if (chave(data) === chave(amanha)) return amanhaTraduzido;
 
-  return data.toLocaleDateString("pt-BR", {
+  return data.toLocaleDateString(locale, {
     weekday: "long",
     day: "2-digit",
     month: "long",
@@ -263,21 +302,13 @@ function chaveDiaBrasilia(valor: string) {
   return ano && mes && dia ? `${ano}-${mes}-${dia}` : valor;
 }
 
-function formatarHora(valor: string) {
+function formatarHora(valor: string, locale: string) {
   const data = new Date(valor);
   if (Number.isNaN(data.getTime())) return "—";
-  return data.toLocaleTimeString("pt-BR", {
+  return data.toLocaleTimeString(locale, {
     hour: "2-digit",
     minute: "2-digit",
   });
-}
-
-function rotulo(valor?: string | null) {
-  if (!valor) return "Não informado";
-  return valor
-    .toLowerCase()
-    .replaceAll("_", " ")
-    .replace(/(^|\s)\S/g, (letra) => letra.toUpperCase());
 }
 
 function tipoVisual(tipo: TipoTarefa) {
@@ -286,14 +317,15 @@ function tipoVisual(tipo: TipoTarefa) {
 
 function formularioVazio(
   leadId = "",
-  responsavelId = ""
+  responsavelId = "",
+  tituloPadrao = ""
 ): FormularioTarefa {
   return {
     leadId,
     responsavelFuncionarioId: responsavelId,
     tipo: "RETORNO",
     prioridade: "MEDIA",
-    titulo: "Retornar contato",
+    titulo: tituloPadrao,
     descricao: "",
     agendadaPara: paraInputDataHora(null, 60),
     prazoEm: "",
@@ -326,6 +358,7 @@ function SelectAgenda({
   ariaLabel,
   disabled = false,
 }: SelectAgendaProps) {
+  const t = useTranslations("AdminCommercialAgenda");
   const [aberto, setAberto] = useState(false);
   const [indiceAtivo, setIndiceAtivo] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -452,7 +485,7 @@ function SelectAgenda({
         onClick={() => (aberto ? setAberto(false) : abrirLista())}
         onKeyDown={manipularTeclado}
       >
-        <span>{opcaoSelecionada?.label ?? "Selecione"}</span>
+        <span>{opcaoSelecionada?.label ?? t("common.select")}</span>
         <span className="agenda-select-arrow" aria-hidden="true">
           ▾
         </span>
@@ -484,6 +517,8 @@ function SelectAgenda({
 }
 
 export default function AgendaComercialPage() {
+  const t = useTranslations("AdminCommercialAgenda");
+  const locale = useLocale();
   const [dados, setDados] = useState<RespostaAgenda | null>(null);
   const [carregandoInicial, setCarregandoInicial] = useState(true);
   const [atualizando, setAtualizando] = useState(false);
@@ -503,7 +538,7 @@ export default function AgendaComercialPage() {
   const [modalTarefaAberto, setModalTarefaAberto] = useState(false);
   const [tarefaEditando, setTarefaEditando] = useState<Tarefa | null>(null);
   const [formulario, setFormulario] = useState<FormularioTarefa>(() =>
-    formularioVazio()
+    formularioVazio("", "", t(CHAVES_TIPO.RETORNO.titulo))
   );
   const [salvando, setSalvando] = useState(false);
   const [erroFormulario, setErroFormulario] = useState("");
@@ -617,7 +652,7 @@ export default function AgendaComercialPage() {
 
         if (!resposta.ok || !payload?.success) {
           throw new Error(
-            payload?.error ?? "Não foi possível carregar a Agenda Comercial."
+            payload?.error ?? t("errors.load")
           );
         }
 
@@ -633,7 +668,7 @@ export default function AgendaComercialPage() {
         setErro(
           error instanceof Error
             ? error.message
-            : "Não foi possível carregar a Agenda Comercial."
+            : t("errors.load")
         );
       } finally {
         setCarregandoInicial(false);
@@ -653,6 +688,7 @@ export default function AgendaComercialPage() {
     responsavelId,
     somenteMinhas,
     atualizacao,
+    t,
   ]);
 
   useEffect(() => {
@@ -669,8 +705,14 @@ export default function AgendaComercialPage() {
         ? "000-atrasadas"
         : chaveDiaBrasilia(tarefa.agendadaPara);
       const tituloGrupo = tarefa.atrasada
-        ? "Atrasadas"
-        : formatarDia(tarefa.agendadaPara);
+        ? t("groups.overdue")
+        : formatarDia(
+            tarefa.agendadaPara,
+            locale,
+            t("dates.today"),
+            t("dates.tomorrow"),
+            t("dates.notInformed")
+          );
 
       const grupo = mapa.get(chave) ?? { titulo: tituloGrupo, tarefas: [] };
       grupo.tarefas.push(tarefa);
@@ -680,7 +722,7 @@ export default function AgendaComercialPage() {
     return [...mapa.entries()]
       .sort(([chaveA], [chaveB]) => chaveA.localeCompare(chaveB))
       .map(([, grupo]) => grupo);
-  }, [dados?.tarefas]);
+  }, [dados?.tarefas, locale, t]);
 
   function selecionarPeriodo(novoPeriodo: string) {
     setPeriodo(novoPeriodo);
@@ -693,7 +735,8 @@ export default function AgendaComercialPage() {
     setFormulario(
       formularioVazio(
         "",
-        funcionarioId ? String(funcionarioId) : ""
+        funcionarioId ? String(funcionarioId) : "",
+        t(CHAVES_TIPO.RETORNO.titulo)
       )
     );
     setErroFormulario("");
@@ -708,14 +751,17 @@ export default function AgendaComercialPage() {
   }
 
   function alterarTipo(novoTipo: TipoTarefa) {
-    const visual = tipoVisual(novoTipo);
+    const tituloPadrao = t(CHAVES_TIPO[novoTipo].titulo);
+    const titulosPadrao = TIPOS.map((item) =>
+      t(CHAVES_TIPO[item.valor].titulo)
+    );
     setFormulario((atual) => ({
       ...atual,
       tipo: novoTipo,
       titulo:
         !atual.titulo.trim() ||
-        TIPOS.some((item) => item.titulo === atual.titulo)
-          ? visual.titulo
+        titulosPadrao.includes(atual.titulo)
+          ? tituloPadrao
           : atual.titulo,
     }));
   }
@@ -740,15 +786,15 @@ export default function AgendaComercialPage() {
     setErroFormulario("");
 
     if (!formulario.leadId) {
-      setErroFormulario("Selecione o lead relacionado à tarefa.");
+      setErroFormulario(t("errors.selectLead"));
       return;
     }
     if (!formulario.responsavelFuncionarioId) {
-      setErroFormulario("Selecione o responsável pela tarefa.");
+      setErroFormulario(t("errors.selectAssignee"));
       return;
     }
     if (!formulario.titulo.trim()) {
-      setErroFormulario("Informe o título da tarefa.");
+      setErroFormulario(t("errors.title"));
       return;
     }
 
@@ -757,7 +803,7 @@ export default function AgendaComercialPage() {
     const lembreteEm = paraIsoBrasilia(formulario.lembreteEm);
 
     if (!agendadaPara) {
-      setErroFormulario("Informe uma data e um horário válidos.");
+      setErroFormulario(t("errors.dateTime"));
       return;
     }
 
@@ -794,7 +840,7 @@ export default function AgendaComercialPage() {
         | null;
 
       if (!resposta.ok || !payload?.success) {
-        throw new Error(payload?.error ?? "Não foi possível salvar a tarefa.");
+        throw new Error(payload?.error ?? t("errors.save"));
       }
 
       setModalTarefaAberto(false);
@@ -804,16 +850,13 @@ export default function AgendaComercialPage() {
       setToast({
         tipo: "sucesso",
         mensagem:
-          payload.message ??
-          (tarefaEditando
-            ? "Tarefa atualizada com sucesso."
-            : "Tarefa criada com sucesso."),
+          tarefaEditando ? t("toast.updated") : t("toast.created"),
       });
     } catch (error) {
       setErroFormulario(
         error instanceof Error
           ? error.message
-          : "Não foi possível salvar a tarefa."
+          : t("errors.save")
       );
     } finally {
       setSalvando(false);
@@ -844,7 +887,7 @@ export default function AgendaComercialPage() {
 
       if (!resposta.ok || !payload?.success) {
         throw new Error(
-          payload?.error ?? "Não foi possível atualizar a tarefa."
+          payload?.error ?? t("errors.update")
         );
       }
 
@@ -853,7 +896,7 @@ export default function AgendaComercialPage() {
       setAtualizacao((valor) => valor + 1);
       setToast({
         tipo: "sucesso",
-        mensagem: payload.message ?? "Tarefa atualizada.",
+        mensagem: t("toast.saved"),
       });
     } catch (error) {
       setToast({
@@ -861,7 +904,7 @@ export default function AgendaComercialPage() {
         mensagem:
           error instanceof Error
             ? error.message
-            : "Não foi possível atualizar a tarefa.",
+            : t("errors.update"),
       });
     } finally {
       setProcessandoAcao(null);
@@ -888,8 +931,8 @@ export default function AgendaComercialPage() {
       <main className="agenda-page">
         <div className="agenda-container agenda-loading">
           <div className="agenda-spinner" />
-          <strong>Organizando a Agenda Comercial...</strong>
-          <span>Carregando tarefas, responsáveis e próximos contatos.</span>
+          <strong>{t("loading.title")}</strong>
+          <span>{t("loading.description")}</span>
         </div>
         <EstilosAgenda />
       </main>
@@ -902,14 +945,14 @@ export default function AgendaComercialPage() {
         <div className="agenda-container">
           <section className="agenda-surface agenda-empty-page">
             <div className="agenda-empty-icon">!</div>
-            <h1>Não foi possível abrir a Agenda Comercial</h1>
-            <p>{erro || "Verifique suas permissões e tente novamente."}</p>
+            <h1>{t("errorPage.title")}</h1>
+            <p>{erro || t("errorPage.description")}</p>
             <button
               type="button"
               className="agenda-button agenda-button-primary"
               onClick={() => setAtualizacao((valor) => valor + 1)}
             >
-              Tentar novamente
+              {t("errorPage.retry")}
             </button>
           </section>
         </div>
@@ -924,13 +967,10 @@ export default function AgendaComercialPage() {
         <header className="agenda-surface agenda-header">
           <div>
             <div className="agenda-breadcrumb">
-              Comercial <span>/</span> Agenda comercial
+              {t("header.commercial")} <span>/</span> {t("header.agenda")}
             </div>
-            <h1>Agenda Comercial</h1>
-            <p>
-              Organize ligações, retornos, reuniões, propostas, documentos e
-              todas as próximas ações da equipe de vendas.
-            </p>
+            <h1>{t("header.title")}</h1>
+            <p>{t("header.description")}</p>
           </div>
 
           <div className="agenda-header-actions">
@@ -938,7 +978,7 @@ export default function AgendaComercialPage() {
               href="/admin/comercial/pipeline"
               className="agenda-button agenda-button-secondary"
             >
-              Pipeline
+              {t("header.pipeline")}
             </Link>
             <button
               type="button"
@@ -946,7 +986,7 @@ export default function AgendaComercialPage() {
               disabled={atualizando}
               onClick={() => setAtualizacao((valor) => valor + 1)}
             >
-              {atualizando ? "Atualizando..." : "Atualizar"}
+              {atualizando ? t("header.refreshing") : t("header.refresh")}
             </button>
             {dados.permissoes.podeCriar ? (
               <button
@@ -954,7 +994,7 @@ export default function AgendaComercialPage() {
                 className="agenda-button agenda-button-primary"
                 onClick={abrirNovaTarefa}
               >
-                + Nova tarefa
+                + {t("header.newTask")}
               </button>
             ) : null}
           </div>
@@ -968,27 +1008,27 @@ export default function AgendaComercialPage() {
             className="agenda-surface agenda-kpi agenda-kpi-danger"
             onClick={() => selecionarPeriodo("ATRASADAS")}
           >
-            <span>⚠️ Atrasadas</span>
+            <span>⚠️ {t("kpis.overdueTitle")}</span>
             <strong>{dados.resumo.atrasadas}</strong>
-            <small>Exigem atenção imediata</small>
+            <small>{t("kpis.overdueDescription")}</small>
           </button>
           <button
             type="button"
             className="agenda-surface agenda-kpi"
             onClick={() => selecionarPeriodo("HOJE")}
           >
-            <span>📅 Para hoje</span>
+            <span>📅 {t("kpis.todayTitle")}</span>
             <strong>{dados.resumo.hoje}</strong>
-            <small>Ações programadas</small>
+            <small>{t("kpis.todayDescription")}</small>
           </button>
           <button
             type="button"
             className="agenda-surface agenda-kpi"
             onClick={() => selecionarPeriodo("PROXIMAS")}
           >
-            <span>🗓️ Próximas</span>
+            <span>🗓️ {t("kpis.upcomingTitle")}</span>
             <strong>{dados.resumo.proximas}</strong>
-            <small>Depois de hoje</small>
+            <small>{t("kpis.upcomingDescription")}</small>
           </button>
           <button
             type="button"
@@ -998,9 +1038,9 @@ export default function AgendaComercialPage() {
               setPagina(1);
             }}
           >
-            <span>⏱️ Em andamento</span>
+            <span>⏱️ {t("kpis.inProgressTitle")}</span>
             <strong>{dados.resumo.emAndamento}</strong>
-            <small>Atendimento iniciado</small>
+            <small>{t("kpis.inProgressDescription")}</small>
           </button>
           <button
             type="button"
@@ -1010,31 +1050,31 @@ export default function AgendaComercialPage() {
               setPagina(1);
             }}
           >
-            <span>✅ Concluídas hoje</span>
+            <span>✅ {t("kpis.completedTodayTitle")}</span>
             <strong>{dados.resumo.concluidasHoje}</strong>
-            <small>Resultados registrados</small>
+            <small>{t("kpis.completedTodayDescription")}</small>
           </button>
         </section>
 
         <section className="agenda-surface agenda-filters">
           <div className="agenda-filter-top">
             <label className="agenda-search">
-              <span>Buscar na agenda</span>
+              <span>{t("filters.searchLabel")}</span>
               <input
                 value={buscaDigitada}
                 onChange={(evento) => setBuscaDigitada(evento.target.value)}
-                placeholder="Tarefa, lead, e-mail ou responsável..."
+                placeholder={t("filters.searchPlaceholder")}
               />
             </label>
 
             <div className="agenda-filter-field">
-              <span>Status</span>
+              <span>{t("filters.status")}</span>
               <SelectAgenda
                 value={status}
-                ariaLabel="Filtrar por status"
+                ariaLabel={t("filters.statusAria")}
                 options={STATUS.map((item) => ({
                   value: item.valor,
-                  label: item.nome,
+                  label: t(CHAVES_STATUS[item.valor]),
                 }))}
                 onChange={(novoStatus) => {
                   setStatus(novoStatus);
@@ -1044,15 +1084,15 @@ export default function AgendaComercialPage() {
             </div>
 
             <div className="agenda-filter-field">
-              <span>Prioridade</span>
+              <span>{t("filters.priority")}</span>
               <SelectAgenda
                 value={prioridade}
-                ariaLabel="Filtrar por prioridade"
+                ariaLabel={t("filters.priorityAria")}
                 options={[
-                  { value: "TODAS", label: "Todas" },
+                  { value: "TODAS", label: t("filters.all") },
                   ...PRIORIDADES.map((item) => ({
                     value: item.valor,
-                    label: item.nome,
+                    label: t(CHAVES_PRIORIDADE[item.valor]),
                   })),
                 ]}
                 onChange={(novaPrioridade) => {
@@ -1063,15 +1103,15 @@ export default function AgendaComercialPage() {
             </div>
 
             <div className="agenda-filter-field">
-              <span>Tipo</span>
+              <span>{t("filters.type")}</span>
               <SelectAgenda
                 value={tipo}
-                ariaLabel="Filtrar por tipo de ação"
+                ariaLabel={t("filters.typeAria")}
                 options={[
-                  { value: "TODOS", label: "Todos" },
+                  { value: "TODOS", label: t("filters.allMasculine") },
                   ...TIPOS.map((item) => ({
                     value: item.valor,
-                    label: item.nome,
+                    label: t(CHAVES_TIPO[item.valor].nome),
                   })),
                 ]}
                 onChange={(novoTipo) => {
@@ -1083,12 +1123,12 @@ export default function AgendaComercialPage() {
 
             {dados.permissoes.podeVerTodas ? (
               <div className="agenda-filter-field">
-                <span>Responsável</span>
+                <span>{t("filters.responsible")}</span>
                 <SelectAgenda
                   value={responsavelId}
-                  ariaLabel="Filtrar por responsável"
+                  ariaLabel={t("filters.responsibleAria")}
                   options={[
-                    { value: "", label: "Toda a equipe" },
+                    { value: "", label: t("filters.allTeam") },
                     ...dados.referencias.responsaveis.map((item) => ({
                       value: String(item.id),
                       label: item.nome,
@@ -1105,7 +1145,7 @@ export default function AgendaComercialPage() {
           </div>
 
           <div className="agenda-filter-bottom">
-            <div className="agenda-periods" aria-label="Período da agenda">
+            <div className="agenda-periods" aria-label={t("filters.periodAria")}>
               {PERIODOS.map((item) => (
                 <button
                   type="button"
@@ -1113,7 +1153,7 @@ export default function AgendaComercialPage() {
                   className={periodo === item.valor ? "active" : ""}
                   onClick={() => selecionarPeriodo(item.valor)}
                 >
-                  {item.nome}
+                  {t(CHAVES_PERIODO[item.valor])}
                 </button>
               ))}
             </div>
@@ -1130,7 +1170,7 @@ export default function AgendaComercialPage() {
                     setPagina(1);
                   }}
                 />
-                <span>Somente minhas tarefas</span>
+                <span>{t("filters.onlyMine")}</span>
               </label>
             ) : null}
           </div>
@@ -1139,10 +1179,10 @@ export default function AgendaComercialPage() {
         <section className="agenda-list-section">
           <div className="agenda-list-heading">
             <div>
-              <span className="agenda-eyebrow">Programação comercial</span>
-              <h2>Tarefas e próximas ações</h2>
+              <span className="agenda-eyebrow">{t("list.eyebrow")}</span>
+              <h2>{t("list.title")}</h2>
             </div>
-            <strong>{dados.paginacao.totalItens} registro(s)</strong>
+            <strong>{t("list.records", { count: dados.paginacao.totalItens })}</strong>
           </div>
 
           {grupos.length ? (
@@ -1151,7 +1191,7 @@ export default function AgendaComercialPage() {
                 <section
                   key={grupo.titulo}
                   className={`agenda-group ${
-                    grupo.titulo === "Atrasadas" ? "agenda-group-overdue" : ""
+                    grupo.titulo === t("groups.overdue") ? "agenda-group-overdue" : ""
                   }`}
                 >
                   <header>
@@ -1188,18 +1228,15 @@ export default function AgendaComercialPage() {
           ) : (
             <div className="agenda-surface agenda-empty-list">
               <div>📭</div>
-              <h3>Nenhuma tarefa encontrada</h3>
-              <p>
-                Ajuste os filtros ou crie uma nova ação para organizar o
-                próximo atendimento comercial.
-              </p>
+              <h3>{t("list.emptyTitle")}</h3>
+              <p>{t("list.emptyDescription")}</p>
               {dados.permissoes.podeCriar ? (
                 <button
                   type="button"
                   className="agenda-button agenda-button-primary"
                   onClick={abrirNovaTarefa}
                 >
-                  Criar primeira tarefa
+                  {t("list.createFirst")}
                 </button>
               ) : null}
             </div>
@@ -1207,7 +1244,10 @@ export default function AgendaComercialPage() {
 
           <footer className="agenda-pagination">
             <span>
-              Página {dados.paginacao.pagina} de {dados.paginacao.totalPaginas}
+              {t("list.page", {
+                page: dados.paginacao.pagina,
+                total: dados.paginacao.totalPaginas,
+              })}
             </span>
             <div>
               <button
@@ -1216,7 +1256,7 @@ export default function AgendaComercialPage() {
                 disabled={!dados.paginacao.temAnterior || atualizando}
                 onClick={() => setPagina((valor) => Math.max(1, valor - 1))}
               >
-                Anterior
+                {t("list.previous")}
               </button>
               <button
                 type="button"
@@ -1224,7 +1264,7 @@ export default function AgendaComercialPage() {
                 disabled={!dados.paginacao.temProxima || atualizando}
                 onClick={() => setPagina((valor) => valor + 1)}
               >
-                Próxima
+                {t("list.next")}
               </button>
             </div>
           </footer>
@@ -1249,20 +1289,18 @@ export default function AgendaComercialPage() {
           >
             <header>
               <div>
-                <span className="agenda-eyebrow">Agenda comercial</span>
+                <span className="agenda-eyebrow">{t("taskModal.eyebrow")}</span>
                 <h2 id="agenda-modal-title">
-                  {tarefaEditando ? "Editar tarefa" : "Nova tarefa"}
+                  {tarefaEditando ? t("taskModal.editTitle") : t("taskModal.newTitle")}
                 </h2>
-                <p>
-                  Registre a ação, o responsável e o horário do próximo contato.
-                </p>
+                <p>{t("taskModal.description")}</p>
               </div>
               <button
                 type="button"
                 className="agenda-modal-close"
                 disabled={salvando}
                 onClick={() => setModalTarefaAberto(false)}
-                aria-label="Fechar"
+                aria-label={t("common.close")}
               >
                 ×
               </button>
@@ -1271,12 +1309,12 @@ export default function AgendaComercialPage() {
             <form onSubmit={salvarTarefa}>
               <div className="agenda-form-grid">
                 <div className="agenda-field agenda-field-wide">
-                  <span>Lead relacionado *</span>
+                  <span>{t("taskModal.relatedLead")} *</span>
                   <SelectAgenda
                     value={formulario.leadId}
-                    ariaLabel="Selecionar lead relacionado"
+                    ariaLabel={t("taskModal.relatedLeadAria")}
                     options={[
-                      { value: "", label: "Selecione o lead" },
+                      { value: "", label: t("taskModal.selectLead") },
                       ...dados.referencias.leads.map((lead) => ({
                         value: String(lead.id),
                         label: `#${lead.id} · ${lead.nome} · ${lead.email}`,
@@ -1287,13 +1325,13 @@ export default function AgendaComercialPage() {
                 </div>
 
                 <div className="agenda-field agenda-field-wide">
-                  <span>Responsável *</span>
+                  <span>{t("taskModal.assignee")} *</span>
                   <SelectAgenda
                     value={formulario.responsavelFuncionarioId}
                     disabled={!dados.permissoes.podeAtribuir}
-                    ariaLabel="Selecionar responsável"
+                    ariaLabel={t("taskModal.assigneeAria")}
                     options={[
-                      { value: "", label: "Selecione o responsável" },
+                      { value: "", label: t("taskModal.selectAssignee") },
                       ...dados.referencias.responsaveis.map((responsavel) => ({
                         value: String(responsavel.id),
                         label: `${responsavel.nome}${
@@ -1309,18 +1347,18 @@ export default function AgendaComercialPage() {
                     }
                   />
                   {!dados.permissoes.podeAtribuir ? (
-                    <small>A tarefa será atribuída ao seu usuário.</small>
+                    <small>{t("taskModal.assigneeHelp")}</small>
                   ) : null}
                 </div>
 
                 <div className="agenda-field">
-                  <span>Tipo de ação *</span>
+                  <span>{t("taskModal.actionType")} *</span>
                   <SelectAgenda
                     value={formulario.tipo}
-                    ariaLabel="Selecionar tipo de ação"
+                    ariaLabel={t("taskModal.actionTypeAria")}
                     options={TIPOS.map((item) => ({
                       value: item.valor,
-                      label: `${item.icone} ${item.nome}`,
+                      label: `${item.icone} ${t(CHAVES_TIPO[item.valor].nome)}`,
                     }))}
                     onChange={(novoTipo) =>
                       alterarTipo(novoTipo as TipoTarefa)
@@ -1329,13 +1367,13 @@ export default function AgendaComercialPage() {
                 </div>
 
                 <div className="agenda-field">
-                  <span>Prioridade *</span>
+                  <span>{t("taskModal.priority")} *</span>
                   <SelectAgenda
                     value={formulario.prioridade}
-                    ariaLabel="Selecionar prioridade"
+                    ariaLabel={t("taskModal.priorityAria")}
                     options={PRIORIDADES.map((item) => ({
                       value: item.valor,
-                      label: item.nome,
+                      label: t(CHAVES_PRIORIDADE[item.valor]),
                     }))}
                     onChange={(novaPrioridade) =>
                       setFormulario((atual) => ({
@@ -1347,7 +1385,7 @@ export default function AgendaComercialPage() {
                 </div>
 
                 <label className="agenda-field agenda-field-wide">
-                  <span>Título *</span>
+                  <span>{t("taskModal.title")} *</span>
                   <input
                     required
                     maxLength={180}
@@ -1358,12 +1396,12 @@ export default function AgendaComercialPage() {
                         titulo: evento.target.value,
                       }))
                     }
-                    placeholder="Ex.: Retornar contato sobre a proposta"
+                    placeholder={t("taskModal.titlePlaceholder")}
                   />
                 </label>
 
                 <label className="agenda-field agenda-field-wide">
-                  <span>Orientações para o atendimento</span>
+                  <span>{t("taskModal.instructions")}</span>
                   <textarea
                     rows={3}
                     value={formulario.descricao}
@@ -1373,12 +1411,12 @@ export default function AgendaComercialPage() {
                         descricao: evento.target.value,
                       }))
                     }
-                    placeholder="Contexto, documentos necessários, assunto da conversa..."
+                    placeholder={t("taskModal.instructionsPlaceholder")}
                   />
                 </label>
 
                 <label className="agenda-field">
-                  <span>Agendada para *</span>
+                  <span>{t("taskModal.scheduledFor")} *</span>
                   <input
                     required
                     type="datetime-local"
@@ -1393,7 +1431,7 @@ export default function AgendaComercialPage() {
                 </label>
 
                 <label className="agenda-field">
-                  <span>Prazo final</span>
+                  <span>{t("taskModal.dueDate")}</span>
                   <input
                     type="datetime-local"
                     value={formulario.prazoEm}
@@ -1407,7 +1445,7 @@ export default function AgendaComercialPage() {
                 </label>
 
                 <label className="agenda-field agenda-field-wide">
-                  <span>Lembrete</span>
+                  <span>{t("taskModal.reminder")}</span>
                   <input
                     type="datetime-local"
                     value={formulario.lembreteEm}
@@ -1432,9 +1470,9 @@ export default function AgendaComercialPage() {
                     }
                   />
                   <span>
-                    Definir como próxima ação do lead
+                    {t("taskModal.nextLeadAction")}
                     <small>
-                      A data aparecerá no Pipeline e na Ficha 360°.
+                      {t("taskModal.nextLeadActionHelp")}
                     </small>
                   </span>
                 </label>
@@ -1451,7 +1489,7 @@ export default function AgendaComercialPage() {
                   disabled={salvando}
                   onClick={() => setModalTarefaAberto(false)}
                 >
-                  Cancelar
+                  {t("common.cancel")}
                 </button>
                 <button
                   type="submit"
@@ -1459,10 +1497,10 @@ export default function AgendaComercialPage() {
                   disabled={salvando}
                 >
                   {salvando
-                    ? "Salvando..."
+                    ? t("taskModal.saving")
                     : tarefaEditando
-                      ? "Salvar alterações"
-                      : "Criar tarefa"}
+                      ? t("taskModal.saveChanges")
+                      : t("taskModal.create")}
                 </button>
               </footer>
             </form>
@@ -1481,13 +1519,13 @@ export default function AgendaComercialPage() {
               <div>
                 <span className="agenda-eyebrow">
                   {acaoEspecial.tipo === "CONCLUIR"
-                    ? "Resultado da ação"
-                    : "Cancelamento auditável"}
+                    ? t("specialModal.resultEyebrow")
+                    : t("specialModal.cancelEyebrow")}
                 </span>
                 <h2>
                   {acaoEspecial.tipo === "CONCLUIR"
-                    ? "Concluir tarefa"
-                    : "Cancelar tarefa"}
+                    ? t("specialModal.completeTitle")
+                    : t("specialModal.cancelTitle")}
                 </h2>
                 <p>{acaoEspecial.tarefa.titulo}</p>
               </div>
@@ -1496,6 +1534,7 @@ export default function AgendaComercialPage() {
                 className="agenda-modal-close"
                 disabled={processandoAcao !== null}
                 onClick={() => setAcaoEspecial(null)}
+                aria-label={t("common.close")}
               >
                 ×
               </button>
@@ -1505,8 +1544,8 @@ export default function AgendaComercialPage() {
               <label className="agenda-field">
                 <span>
                   {acaoEspecial.tipo === "CONCLUIR"
-                    ? "Resultado alcançado *"
-                    : "Motivo do cancelamento *"}
+                    ? `${t("specialModal.resultLabel")} *`
+                    : `${t("specialModal.cancelReasonLabel")} *`}
                 </span>
                 <textarea
                   required
@@ -1516,8 +1555,8 @@ export default function AgendaComercialPage() {
                   onChange={(evento) => setTextoAcao(evento.target.value)}
                   placeholder={
                     acaoEspecial.tipo === "CONCLUIR"
-                      ? "Ex.: interessado confirmou o recebimento da proposta e solicitou prazo..."
-                      : "Explique por que esta tarefa não será mais realizada..."
+                      ? t("specialModal.resultPlaceholder")
+                      : t("specialModal.cancelReasonPlaceholder")
                   }
                 />
               </label>
@@ -1528,7 +1567,7 @@ export default function AgendaComercialPage() {
                   disabled={processandoAcao !== null}
                   onClick={() => setAcaoEspecial(null)}
                 >
-                  Voltar
+                  {t("specialModal.back")}
                 </button>
                 <button
                   type="submit"
@@ -1540,10 +1579,10 @@ export default function AgendaComercialPage() {
                   disabled={!textoAcao.trim() || processandoAcao !== null}
                 >
                   {processandoAcao !== null
-                    ? "Registrando..."
+                    ? t("specialModal.processing")
                     : acaoEspecial.tipo === "CONCLUIR"
-                      ? "Confirmar conclusão"
-                      : "Confirmar cancelamento"}
+                      ? t("specialModal.confirmComplete")
+                      : t("specialModal.confirmCancel")}
                 </button>
               </footer>
             </form>
@@ -1582,6 +1621,8 @@ function CartaoTarefa({
   onCancelar: () => void;
   onReabrir: () => void;
 }) {
+  const t = useTranslations("AdminCommercialAgenda");
+  const locale = useLocale();
   const visual = tipoVisual(tarefa.tipo);
   const aberta = tarefa.status === "PENDENTE" || tarefa.status === "EM_ANDAMENTO";
 
@@ -1593,58 +1634,60 @@ function CartaoTarefa({
     >
       <div className="agenda-task-time">
         <span>{visual.icone}</span>
-        <strong>{formatarHora(tarefa.agendadaPara)}</strong>
-        {tarefa.prazoEm ? <small>Prazo {formatarDataHora(tarefa.prazoEm)}</small> : null}
+        <strong>{formatarHora(tarefa.agendadaPara, locale)}</strong>
+        {tarefa.prazoEm ? (
+          <small>{t("card.due", { date: formatarDataHora(tarefa.prazoEm, locale) })}</small>
+        ) : null}
       </div>
 
       <div className="agenda-task-content">
         <div className="agenda-task-badges">
           <span className={`agenda-badge agenda-priority-${tarefa.prioridade.toLowerCase()}`}>
-            {rotulo(tarefa.prioridade)}
+            {t(CHAVES_PRIORIDADE[tarefa.prioridade])}
           </span>
           <span className={`agenda-badge agenda-status-${tarefa.status.toLowerCase()}`}>
-            {rotulo(tarefa.status)}
+            {t(CHAVES_STATUS[tarefa.status])}
           </span>
           {tarefa.proximaAcao ? (
-            <span className="agenda-badge agenda-next-badge">Próxima ação</span>
+            <span className="agenda-badge agenda-next-badge">{t("card.nextAction")}</span>
           ) : null}
           {tarefa.atrasada ? (
-            <span className="agenda-badge agenda-overdue-badge">Atrasada</span>
+            <span className="agenda-badge agenda-overdue-badge">{t("card.overdue")}</span>
           ) : null}
         </div>
 
         <h4>{tarefa.titulo}</h4>
         <p className="agenda-task-lead">
-          Lead #{tarefa.leadId} · {tarefa.lead?.nome ?? "Lead indisponível"}
+          {t("card.lead", { id: tarefa.leadId })} · {tarefa.lead?.nome ?? t("card.leadUnavailable")}
         </p>
         {tarefa.descricao ? <p>{tarefa.descricao}</p> : null}
 
         <dl>
           <div>
-            <dt>Responsável</dt>
-            <dd>{tarefa.responsavel?.nome ?? "Não atribuído"}</dd>
+            <dt>{t("card.assignee")}</dt>
+            <dd>{tarefa.responsavel?.nome ?? t("card.unassigned")}</dd>
           </div>
           <div>
-            <dt>Tipo</dt>
-            <dd>{visual.nome}</dd>
+            <dt>{t("card.type")}</dt>
+            <dd>{t(CHAVES_TIPO[tarefa.tipo].nome)}</dd>
           </div>
           {tarefa.lembreteEm ? (
             <div>
-              <dt>Lembrete</dt>
-              <dd>{formatarDataHora(tarefa.lembreteEm)}</dd>
+              <dt>{t("card.reminder")}</dt>
+              <dd>{formatarDataHora(tarefa.lembreteEm, locale)}</dd>
             </div>
           ) : null}
         </dl>
 
         {tarefa.resultado ? (
           <div className="agenda-result">
-            <strong>Resultado</strong>
+            <strong>{t("card.result")}</strong>
             <span>{tarefa.resultado}</span>
           </div>
         ) : null}
         {tarefa.motivoCancelamento ? (
           <div className="agenda-cancel-reason">
-            <strong>Motivo do cancelamento</strong>
+            <strong>{t("card.cancelReason")}</strong>
             <span>{tarefa.motivoCancelamento}</span>
           </div>
         ) : null}
@@ -1655,16 +1698,16 @@ function CartaoTarefa({
           href={`/admin/comercial/leads/${tarefa.leadId}`}
           className="agenda-mini-button"
         >
-          Ficha 360°
+          {t("card.leadProfile")}
         </Link>
         {aberta && permissoes.podeEditar ? (
           <button type="button" disabled={processando} onClick={onEditar}>
-            Editar
+            {t("card.edit")}
           </button>
         ) : null}
         {tarefa.status === "PENDENTE" && permissoes.podeEditar ? (
           <button type="button" disabled={processando} onClick={onIniciar}>
-            Iniciar
+            {t("card.start")}
           </button>
         ) : null}
         {aberta && permissoes.podeConcluir ? (
@@ -1674,7 +1717,7 @@ function CartaoTarefa({
             disabled={processando}
             onClick={onConcluir}
           >
-            Concluir
+            {t("card.complete")}
           </button>
         ) : null}
         {aberta && permissoes.podeCancelar ? (
@@ -1684,12 +1727,12 @@ function CartaoTarefa({
             disabled={processando}
             onClick={onCancelar}
           >
-            Cancelar
+            {t("common.cancel")}
           </button>
         ) : null}
         {!aberta && permissoes.podeEditar ? (
           <button type="button" disabled={processando} onClick={onReabrir}>
-            Reabrir
+            {t("card.reopen")}
           </button>
         ) : null}
       </div>

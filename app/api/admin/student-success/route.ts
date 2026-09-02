@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
+import {
+    verificarAcessoStudentSuccess,
+} from "@/lib/student-success/verificar-acesso-student-success";
 
 import {
     calcularRiscoAcademico,
@@ -84,111 +87,29 @@ export async function GET() {
             );
         }
 
-        const instituicaoId =
-            Number(
-                user.instituicaoId
-            );
+        const acesso =
+    await verificarAcessoStudentSuccess(
+        user,
+        "VER"
+    );
 
-        if (
-            !Number.isInteger(
-                instituicaoId
-            ) ||
-            instituicaoId <= 0
-        ) {
-            return NextResponse.json(
-                {
-                    error:
-                        "INSTITUTION_NOT_AVAILABLE",
-                },
-                {
-                    status: 403,
-                }
-            );
+if (
+    acesso.permitido ===
+    false
+) {
+    return NextResponse.json(
+        {
+            error:
+                acesso.motivo,
+        },
+        {
+            status: 403,
         }
+    );
+}
 
-        const role =
-            String(
-                user.role ?? ""
-            ).toUpperCase();
-
-        /*
-         * ADMIN, SUPER_ADMIN e GERENCIA
-         * possuem acesso administrativo
-         * direto.
-         *
-         * Os demais perfis precisam ter
-         * permissão explícita.
-         */
-        const adminGeral =
-            role === "ADMIN" ||
-            role === "SUPER_ADMIN" ||
-            role === "GERENCIA" ||
-            (user as any)
-                ?.isMasterAdmin ===
-            true;
-
-        if (!adminGeral) {
-            const permissoes =
-                await prisma.departamentoPermissao.findMany(
-                    {
-                        where: {
-                            departamento: {
-                                funcionarios: {
-                                    some: {
-                                        userId:
-                                            user.id,
-
-                                        instituicaoId,
-                                    },
-                                },
-                            },
-
-                            chave: {
-                                in: [
-                                    "*",
-                                    "academico.studentSuccess.ver",
-                                    "academico.studentSuccess.gerenciar",
-                                ],
-                            },
-
-                            ativo: true,
-                        },
-
-                        select: {
-                            chave: true,
-                        },
-                    }
-                );
-
-            const temAcesso =
-                permissoes.some(
-                    (item) =>
-                        item.chave ===
-                        "*"
-                ) ||
-                permissoes.some(
-                    (item) =>
-                        item.chave ===
-                        "academico.studentSuccess.ver"
-                ) ||
-                permissoes.some(
-                    (item) =>
-                        item.chave ===
-                        "academico.studentSuccess.gerenciar"
-                );
-
-            if (!temAcesso) {
-                return NextResponse.json(
-                    {
-                        error:
-                            "FORBIDDEN",
-                    },
-                    {
-                        status: 403,
-                    }
-                );
-            }
-        }
+const instituicaoId =
+    acesso.instituicaoId;
 
         /*
          * =====================================================

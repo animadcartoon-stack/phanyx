@@ -15,6 +15,10 @@ import {
   getUserFromToken,
 } from "@/lib/server-auth";
 
+import {
+  verificarAcessoStudentSuccess,
+} from "@/lib/student-success/verificar-acesso-student-success";
+
 const STATUS_VALIDOS = [
   "REGISTRADA",
   "AGUARDANDO_RETORNO",
@@ -73,21 +77,29 @@ export async function PATCH(
       );
     }
 
-    if (
-      !usuarioAdmin(
-        user.role
-      )
-    ) {
-      return NextResponse.json(
-        {
-          error:
-            "Sem permissão",
-        },
-        {
-          status: 403,
-        }
-      );
+    const acesso =
+  await verificarAcessoStudentSuccess(
+    user,
+    "GERENCIAR"
+  );
+
+if (
+  acesso.permitido ===
+  false
+) {
+  return NextResponse.json(
+    {
+      error:
+        acesso.motivo,
+    },
+    {
+      status: 403,
     }
+  );
+}
+
+const instituicaoId =
+  acesso.instituicaoId;
 
     /* =====================================================
        INTERVENÇÃO
@@ -129,7 +141,7 @@ export async function PATCH(
               intervencaoId,
 
             instituicaoId:
-              user.instituicaoId,
+              instituicaoId,
           },
         });
 

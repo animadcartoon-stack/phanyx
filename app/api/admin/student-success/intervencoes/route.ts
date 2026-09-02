@@ -11,6 +11,10 @@ import {
   getUserFromToken,
 } from "@/lib/server-auth";
 
+import {
+  verificarAcessoStudentSuccess,
+} from "@/lib/student-success/verificar-acesso-student-success";
+
 const TIPOS_VALIDOS = [
   "CONTATO",
   "ORIENTACAO",
@@ -38,25 +42,6 @@ const STATUS_VALIDOS = [
   "CANCELADA",
 ] as const;
 
-function usuarioAdmin(
-  role:
-    | string
-    | null
-    | undefined
-) {
-  const normalizado =
-    String(
-      role ?? ""
-    ).toUpperCase();
-
-  return (
-    normalizado ===
-      "ADMIN" ||
-    normalizado ===
-      "SUPER_ADMIN"
-  );
-}
-
 /* =========================================================
    GET
    Histórico de intervenções de um aluno
@@ -66,65 +51,73 @@ export async function GET(
   request: NextRequest
 ) {
   try {
-    const user =
-      await getUserFromToken();
+   const user =
+  await getUserFromToken();
 
-    if (!user) {
-      return NextResponse.json(
-        {
-          error:
-            "Não autenticado",
-        },
-        {
-          status: 401,
-        }
-      );
+if (!user) {
+  return NextResponse.json(
+    {
+      error:
+        "Não autenticado",
+    },
+    {
+      status: 401,
     }
+  );
+}
 
-    if (
-      !usuarioAdmin(
-        user.role
-      )
-    ) {
-      return NextResponse.json(
-        {
-          error:
-            "Sem permissão",
-        },
-        {
-          status: 403,
-        }
-      );
+const acesso =
+  await verificarAcessoStudentSuccess(
+    user,
+    "VER"
+  );
+
+if (
+  acesso.permitido ===
+  false
+) {
+  return NextResponse.json(
+    {
+      error:
+        acesso.motivo,
+    },
+    {
+      status: 403,
     }
+  );
+}
 
-    const alunoIdTexto =
-      request.nextUrl
-        .searchParams
-        .get(
-          "alunoId"
-        );
+const instituicaoId =
+  acesso.instituicaoId;
 
-    const alunoId =
-      Number(
-        alunoIdTexto
-      );
+const alunoIdTexto =
+  request.nextUrl
+    .searchParams
+    .get(
+      "alunoId"
+    );
 
-    if (
-      !Number.isInteger(
-        alunoId
-      ) ||
-      alunoId <= 0
-    ) {
-      return NextResponse.json(
-        {
-          error:
-            "Aluno inválido",
-        },
-        {
-          status: 400,
-        }
-      );
+const alunoId =
+  Number(
+    alunoIdTexto
+  );
+
+if (
+  !Number.isInteger(
+    alunoId
+  ) ||
+  alunoId <= 0
+) {
+  return NextResponse.json(
+    {
+      error:
+        "Aluno inválido",
+    },
+    {
+      status: 400,
     }
+  );
+}
 
     /*
      * Garante o isolamento
@@ -136,8 +129,7 @@ export async function GET(
           id:
             alunoId,
 
-          instituicaoId:
-            user.instituicaoId,
+          instituicaoId,
         },
 
         select: {
@@ -166,8 +158,7 @@ export async function GET(
         .studentSuccessIntervencao
         .findMany({
           where: {
-            instituicaoId:
-              user.instituicaoId,
+            instituicaoId,
 
             alunoId:
               aluno.id,
@@ -323,22 +314,29 @@ export async function POST(
       );
     }
 
-    if (
-      !usuarioAdmin(
-        user.role
-      )
-    ) {
-      return NextResponse.json(
-        {
-          error:
-            "Sem permissão",
-        },
-        {
-          status: 403,
-        }
-      );
-    }
+   const acesso =
+  await verificarAcessoStudentSuccess(
+    user,
+    "GERENCIAR"
+  );
 
+if (
+  acesso.permitido ===
+  false
+) {
+  return NextResponse.json(
+    {
+      error:
+        acesso.motivo,
+    },
+    {
+      status: 403,
+    }
+  );
+}
+
+const instituicaoId =
+  acesso.instituicaoId;
     const body =
       await request.json();
 
@@ -489,8 +487,7 @@ export async function POST(
           id:
             alunoId,
 
-          instituicaoId:
-            user.instituicaoId,
+          instituicaoId,
 
           ativo:
             true,
@@ -652,8 +649,7 @@ export async function POST(
         .studentSuccessIntervencao
         .create({
           data: {
-            instituicaoId:
-              user.instituicaoId,
+            instituicaoId,
 
             alunoId:
               aluno.id,

@@ -32583,3 +32583,514 @@ html[data-theme="light"] .phanyx-participantes-atividade .text-slate-500 {
   color: #64748b !important;
   opacity: 1 !important;
 }
+
+/* =========================================================
+   PHANYX — PARTICIPANTES
+   STATUS CHIPS — TEMA CLARO
+   ========================================================= */
+
+html[data-theme="light"]
+  .phanyx-participantes-atividade
+  .phanyx-participante-status-tag {
+  opacity: 1 !important;
+}
+
+/* neutro */
+html[data-theme="light"]
+  .phanyx-participantes-atividade
+  .phanyx-participante-status-tag[data-tipo="neutral"] {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+/* azul */
+html[data-theme="light"]
+  .phanyx-participantes-atividade
+  .phanyx-participante-status-tag[data-tipo="blue"] {
+  background-color: #eff6ff !important;
+  border-color: #bfdbfe !important;
+  color: #1d4ed8 !important;
+}
+
+/* verde */
+html[data-theme="light"]
+  .phanyx-participantes-atividade
+  .phanyx-participante-status-tag[data-tipo="green"] {
+  background-color: #ecfdf5 !important;
+  border-color: #a7f3d0 !important;
+  color: #047857 !important;
+}
+
+/* amarelo */
+html[data-theme="light"]
+  .phanyx-participantes-atividade
+  .phanyx-participante-status-tag[data-tipo="amber"] {
+  background-color: #fffbeb !important;
+  border-color: #fde68a !important;
+  color: #b45309 !important;
+}
+
+/* =========================================================
+   STUDENT SUCCESS — RETORNOS E ACOMPANHAMENTOS
+   ========================================================= */
+
+/* LIGHT */
+
+html[data-theme="light"]
+  .phanyx-student-success-returns {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-returns-title {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-returns-description,
+html[data-theme="light"]
+  .phanyx-student-success-return-muted {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-return-summary {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-return-overdue {
+  background: #fef2f2 !important;
+  border-color: #fca5a5 !important;
+  color: #991b1b !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-return-today {
+  background: #fffbeb !important;
+  border-color: #fcd34d !important;
+  color: #92400e !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-return-upcoming {
+  background: #eff6ff !important;
+  border-color: #93c5fd !important;
+  color: #1e40af !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-return-unscheduled {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-return-group {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-return-group-overdue {
+  border-left: 4px solid #dc2626 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-return-group-today {
+  border-left: 4px solid #d97706 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-return-group-upcoming {
+  border-left: 4px solid #2563eb !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-return-group-unscheduled {
+  border-left: 4px solid #64748b !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-return-item {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-return-student {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-return-status,
+html[data-theme="light"]
+  .phanyx-student-success-return-count {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-returns-empty,
+html[data-theme="light"]
+  .phanyx-student-success-returns-state {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #475569 !important;
+}
+
+
+/* DARK */
+
+html[data-theme="dark"]
+  .phanyx-student-success-returns {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-returns-title,
+html[data-theme="dark"]
+  .phanyx-student-success-return-student {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-returns-description,
+html[data-theme="dark"]
+  .phanyx-student-success-return-muted {
+  color: #cbd5e1 !important;
+  -webkit-text-fill-color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-return-summary,
+html[data-theme="dark"]
+  .phanyx-student-success-return-group,
+html[data-theme="dark"]
+  .phanyx-student-success-return-item {
+  background: #111827 !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-return-overdue {
+  background: #450a0a !important;
+  border-color: #991b1b !important;
+  color: #fecaca !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-return-today {
+  background: #451a03 !important;
+  border-color: #92400e !important;
+  color: #fde68a !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-return-upcoming {
+  background: #172554 !important;
+  border-color: #1d4ed8 !important;
+  color: #bfdbfe !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-return-unscheduled {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+  color: #e2e8f0 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-return-status,
+html[data-theme="dark"]
+  .phanyx-student-success-return-count {
+  background: #0f172a !important;
+  border-color: #475569 !important;
+  color: #e2e8f0 !important;
+}
+
+
+/* SYSTEM */
+
+html[data-theme="system"]
+  .phanyx-student-success-returns {
+  background: #303030 !important;
+  border-color: #5f5f5f !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-returns-title,
+html[data-theme="system"]
+  .phanyx-student-success-return-student {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-returns-description,
+html[data-theme="system"]
+  .phanyx-student-success-return-muted {
+  color: #e5e7eb !important;
+  -webkit-text-fill-color: #e5e7eb !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-return-summary,
+html[data-theme="system"]
+  .phanyx-student-success-return-group,
+html[data-theme="system"]
+  .phanyx-student-success-return-item {
+  background: #383838 !important;
+  border-color: #5f5f5f !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-return-overdue {
+  background: #4b2222 !important;
+  border-color: #a34a4a !important;
+  color: #fee2e2 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-return-today {
+  background: #4b3718 !important;
+  border-color: #a67c31 !important;
+  color: #fef3c7 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-return-upcoming {
+  background: #253755 !important;
+  border-color: #4f78b8 !important;
+  color: #dbeafe !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-return-unscheduled {
+  background: #3d3d3d !important;
+  border-color: #666666 !important;
+  color: #f3f4f6 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-return-status,
+html[data-theme="system"]
+  .phanyx-student-success-return-count {
+  background: #303030 !important;
+  border-color: #686868 !important;
+  color: #ffffff !important;
+}
+
+/* =========================================================
+   PHANYX — ATIVIDADE EXTERNA — AUTORIZAÇÕES
+   TEMA CLARO
+   ========================================================= */
+
+html[data-theme="light"] .phanyx-autorizacoes-atividade {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-autorizacoes-atividade .phanyx-autorizacao-card,
+html[data-theme="light"] .phanyx-autorizacoes-atividade .phanyx-autorizacao-resumo {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-autorizacoes-atividade .phanyx-autorizacao-form,
+html[data-theme="light"] .phanyx-autorizacoes-atividade .phanyx-autorizacao-historico {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-autorizacoes-atividade .phanyx-autorizacao-input {
+  width: 100%;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 0.875rem;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  padding: 0.75rem 0.875rem;
+  font-size: 0.875rem;
+  outline: none;
+}
+
+html[data-theme="light"] .phanyx-autorizacoes-atividade .phanyx-autorizacao-input::placeholder {
+  color: #94a3b8 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-autorizacoes-atividade .phanyx-autorizacao-input:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+html[data-theme="light"] .phanyx-autorizacoes-atividade .phanyx-autorizacao-botao {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .phanyx-autorizacoes-atividade .phanyx-autorizacao-botao:hover {
+  background-color: #1d4ed8 !important;
+}
+
+html[data-theme="light"] .phanyx-autorizacoes-atividade .phanyx-autorizacao-status[data-status="PENDENTE"] {
+  background-color: #fffbeb !important;
+  border-color: #fde68a !important;
+  color: #92400e !important;
+}
+
+html[data-theme="light"] .phanyx-autorizacoes-atividade .phanyx-autorizacao-status[data-status="AUTORIZADO"] {
+  background-color: #ecfdf5 !important;
+  border-color: #a7f3d0 !important;
+  color: #047857 !important;
+}
+
+html[data-theme="light"] .phanyx-autorizacoes-atividade .phanyx-autorizacao-status[data-status="NAO_AUTORIZADO"],
+html[data-theme="light"] .phanyx-autorizacoes-atividade .phanyx-autorizacao-status[data-status="REVOGADO"] {
+  background-color: #fef2f2 !important;
+  border-color: #fecaca !important;
+  color: #b91c1c !important;
+}
+
+html[data-theme="light"] .phanyx-autorizacoes-atividade .phanyx-autorizacao-status[data-status="DISPENSADO"] {
+  background-color: #eff6ff !important;
+  border-color: #bfdbfe !important;
+  color: #1d4ed8 !important;
+}
+
+html[data-theme="light"] .phanyx-autorizacoes-atividade .phanyx-autorizacao-status[data-status="EXPIRADO"] {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #475569 !important;
+}
+
+html[data-theme="light"] .phanyx-autorizacoes-atividade .text-slate-950,
+html[data-theme="light"] .phanyx-autorizacoes-atividade .text-slate-900 {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-autorizacoes-atividade .text-slate-700,
+html[data-theme="light"] .phanyx-autorizacoes-atividade .text-slate-600 {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-autorizacoes-atividade .text-slate-500 {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+
+/* STUDENT SUCCESS — AÇÕES DA FILA DE RETORNOS */
+
+/* LIGHT */
+
+html[data-theme="light"]
+  .phanyx-student-success-return-view {
+  background: #ffffff !important;
+  border-color: #93c5fd !important;
+  color: #1d4ed8 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-return-view:hover {
+  background: #eff6ff !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-return-update {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-return-update:hover {
+  background: #1d4ed8 !important;
+}
+
+
+/* DARK */
+
+html[data-theme="dark"]
+  .phanyx-student-success-return-view {
+  background: #0f172a !important;
+  border-color: #3b82f6 !important;
+  color: #bfdbfe !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-return-view:hover {
+  background: #172554 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-return-update {
+  background: #2563eb !important;
+  border-color: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-return-update:hover {
+  background: #1d4ed8 !important;
+}
+
+
+/* SYSTEM */
+
+html[data-theme="system"]
+  .phanyx-student-success-return-view {
+  background: #303030 !important;
+  border-color: #5b8bd9 !important;
+  color: #dbeafe !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-return-view:hover {
+  background: #38455a !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-return-update {
+  background: #2563eb !important;
+  border-color: #4f78b8 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-return-update:hover {
+  background: #1d4ed8 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-autorizacoes-atividade
+  .phanyx-autorizacao-cancelar {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-autorizacoes-atividade
+  .phanyx-autorizacao-cancelar:hover {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}

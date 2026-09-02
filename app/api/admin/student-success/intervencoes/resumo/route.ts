@@ -14,27 +14,12 @@ import {
   avaliarEvolucaoIntervencao,
 } from "@/lib/student-success/avaliar-evolucao-intervencao";
 
+import {
+  verificarAcessoStudentSuccess,
+} from "@/lib/student-success/verificar-acesso-student-success";
+
 const AMOSTRA_MINIMA_EFETIVIDADE =
   5;
-
-function usuarioAdmin(
-  role:
-    | string
-    | null
-    | undefined
-) {
-  const normalizado =
-    String(
-      role ?? ""
-    ).toUpperCase();
-
-  return (
-    normalizado ===
-    "ADMIN" ||
-    normalizado ===
-    "SUPER_ADMIN"
-  );
-}
 
 function arredondar(
   valor:
@@ -72,15 +57,20 @@ export async function GET() {
       );
     }
 
+    const acesso =
+      await verificarAcessoStudentSuccess(
+        user,
+        "VER"
+      );
+
     if (
-      !usuarioAdmin(
-        user.role
-      )
+      acesso.permitido ===
+      false
     ) {
       return NextResponse.json(
         {
           error:
-            "Sem permissão",
+            acesso.motivo,
         },
         {
           status: 403,
@@ -88,13 +78,15 @@ export async function GET() {
       );
     }
 
+    const instituicaoId =
+      acesso.instituicaoId;
+
     const intervencoes =
       await prisma
         .studentSuccessIntervencao
         .findMany({
           where: {
-            instituicaoId:
-              user.instituicaoId,
+            instituicaoId,
           },
 
           select: {

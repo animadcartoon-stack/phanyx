@@ -4106,6 +4106,22 @@
         "error": "Impossible de charger les indicateurs des interventions.",
         "sampleInsufficient": "Échantillon insuffisant · {count, plural, one {# intervention mesurable} other {# interventions mesurables}}",
         "lessThanOneDay": "< 1 jour"
+      },
+      "returns": {
+        "title": "Retours et suivis",
+        "description": "Organisez les prochains contacts et suivez les interventions nécessitant une attention particulière.",
+        "overdue": "En retard",
+        "today": "Pour aujourd'hui",
+        "next7Days": "7 prochains jours",
+        "unscheduled": "Aucun retour programmé",
+        "scheduledFor": "Retour prévu",
+        "noScheduledDate": "Aucune date de retour",
+        "overdueLabel": "Retour en retard",
+        "empty": "Aucun retour ou suivi en attente.",
+        "loading": "Chargement des retours...",
+        "error": "Impossible de charger les retours.",
+        "viewStudent": "Voir l'étudiant",
+        "update": "Mettre à jour"
       }
     }
   },
@@ -5477,8 +5493,7 @@
       "VIAGEM_INTERNACIONAL": "Voyage international",
       "OUTRA": "Autre"
     }
-  }
-,
+  },
   "AdminExternalActivityParticipants": {
     "title": "Participants",
     "description": "Gérez les élèves invités à cette activité et suivez la participation, les autorisations, la présence et le paiement.",
@@ -5542,6 +5557,301 @@
       "added": "{count} participant(s) ajouté(s).",
       "noneAdded": "Aucun nouveau participant n’a été ajouté.",
       "addError": "Impossible d’ajouter les participants."
+    }
+  },
+  "AdminExternalActivityAuthorizations": {
+    "title": "Autorisations",
+    "description": "Suivez le consentement des responsables et conservez l’historique de chaque décision enregistrée.",
+    "loading": "Chargement des autorisations...",
+    "loadError": "Impossible de charger les autorisations.",
+    "retry": "Réessayer",
+    "summary": {
+      "total": "Participants",
+      "pending": "En attente",
+      "authorized": "Autorisés",
+      "denied": "Non autorisés",
+      "waived": "Dispensés"
+    },
+    "noAuthorizationRequired": {
+      "title": "Autorisation non requise",
+      "description": "Cette activité n’est pas configurée pour exiger l’autorisation du responsable."
+    },
+    "empty": {
+      "title": "Aucun participant",
+      "description": "Ajoutez des participants à l’activité pour commencer le suivi des autorisations."
+    },
+    "participant": {
+      "currentStatus": "Statut actuel",
+      "noRecord": "Aucune réponse n’a encore été enregistrée.",
+      "history": "Historique",
+      "noHistory": "Aucun historique d’autorisation.",
+      "registration": "Inscription",
+      "noRegistration": "Aucune inscription renseignée"
+    },
+    "actions": {
+      "register": "Enregistrer une réponse",
+      "authorize": "Autoriser",
+      "deny": "Ne pas autoriser",
+      "waive": "Dispenser",
+      "revoke": "Révoquer l’autorisation",
+      "expire": "Marquer comme expirée",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "saving": "Enregistrement..."
+    },
+    "form": {
+      "title": "Enregistrer une autorisation",
+      "description": "Enregistrez la décision du responsable ou une décision administrative dûment justifiée.",
+      "status": "Décision",
+      "method": "Méthode",
+      "guardianName": "Nom du responsable",
+      "guardianRelationship": "Lien avec l’élève",
+      "guardianEmail": "E-mail",
+      "guardianPhone": "Téléphone",
+      "termVersion": "Version du formulaire",
+      "observation": "Observation",
+      "guardianNamePlaceholder": "Nom complet du responsable",
+      "relationshipPlaceholder": "Ex. : mère, père, tuteur légal...",
+      "emailPlaceholder": "responsable@exemple.com",
+      "phonePlaceholder": "Téléphone du responsable",
+      "termVersionPlaceholder": "Ex. : v1.0",
+      "observationPlaceholder": "Informations supplémentaires sur cette autorisation..."
+    },
+    "status": {
+      "PENDENTE": "En attente",
+      "AUTORIZADO": "Autorisé",
+      "NAO_AUTORIZADO": "Non autorisé",
+      "REVOGADO": "Révoqué",
+      "DISPENSADO": "Dispensé",
+      "EXPIRADO": "Expiré"
+    },
+    "methods": {
+      "PORTAL": "Portail",
+      "LINK_SEGURO": "Lien sécurisé",
+      "PRESENCIAL": "En personne",
+      "IMPORTADO": "Importé",
+      "ADMINISTRATIVO": "Administratif",
+      "OUTRO": "Autre"
+    },
+    "history": {
+      "registeredAt": "Enregistrée le",
+      "answeredAt": "Répondue le",
+      "revokedAt": "Révoquée le",
+      "guardian": "Responsable",
+      "method": "Méthode",
+      "observation": "Observation"
+    },
+    "messages": {
+      "saved": "Autorisation enregistrée avec succès.",
+      "saveError": "Impossible d’enregistrer l’autorisation."
+    }
+  },
+  "AdminCommercialAgenda": {
+    "common": {
+      "select": "Sélectionner",
+      "close": "Fermer",
+      "cancel": "Annuler"
+    },
+    "dates": {
+      "today": "Aujourd’hui",
+      "tomorrow": "Demain",
+      "notInformed": "Date non renseignée"
+    },
+    "groups": {
+      "overdue": "En retard"
+    },
+    "taskTypes": {
+      "LIGACAO": {
+        "name": "Appel",
+        "title": "Passer un appel"
+      },
+      "WHATSAPP": {
+        "name": "WhatsApp",
+        "title": "Envoyer un message WhatsApp"
+      },
+      "EMAIL": {
+        "name": "E-mail",
+        "title": "Envoyer un e-mail"
+      },
+      "REUNIAO": {
+        "name": "Réunion",
+        "title": "Organiser une réunion"
+      },
+      "RETORNO": {
+        "name": "Relance",
+        "title": "Relancer le contact"
+      },
+      "ENVIAR_PROPOSTA": {
+        "name": "Envoyer une proposition",
+        "title": "Envoyer une proposition commerciale"
+      },
+      "SOLICITAR_DOCUMENTOS": {
+        "name": "Demander des documents",
+        "title": "Demander des documents"
+      },
+      "CONFIRMAR_PAGAMENTO": {
+        "name": "Confirmer le paiement",
+        "title": "Confirmer le paiement"
+      },
+      "OUTRA": {
+        "name": "Autre action",
+        "title": "Réaliser la prochaine action"
+      }
+    },
+    "priorities": {
+      "BAIXA": "Faible",
+      "MEDIA": "Moyenne",
+      "ALTA": "Élevée",
+      "URGENTE": "Urgente"
+    },
+    "periods": {
+      "TODAS": "Toutes",
+      "ATRASADAS": "En retard",
+      "HOJE": "Aujourd’hui",
+      "AMANHA": "Demain",
+      "SEMANA": "7 jours",
+      "PROXIMAS": "À venir"
+    },
+    "statuses": {
+      "TODOS": "Tous les statuts",
+      "PENDENTE": "En attente",
+      "EM_ANDAMENTO": "En cours",
+      "CONCLUIDA": "Terminée",
+      "CANCELADA": "Annulée"
+    },
+    "loading": {
+      "title": "Organisation de l’agenda commercial...",
+      "description": "Chargement des tâches, des responsables et des prochains contacts."
+    },
+    "errorPage": {
+      "title": "Impossible d’ouvrir l’agenda commercial",
+      "description": "Vérifiez vos autorisations et réessayez.",
+      "retry": "Réessayer"
+    },
+    "errors": {
+      "load": "Impossible de charger l’agenda commercial.",
+      "selectLead": "Sélectionnez le prospect associé à la tâche.",
+      "selectAssignee": "Sélectionnez le responsable de la tâche.",
+      "title": "Saisissez le titre de la tâche.",
+      "dateTime": "Saisissez une date et une heure valides.",
+      "save": "Impossible d’enregistrer la tâche.",
+      "update": "Impossible de mettre à jour la tâche."
+    },
+    "toast": {
+      "created": "Tâche créée avec succès.",
+      "updated": "Tâche mise à jour avec succès.",
+      "saved": "Tâche mise à jour."
+    },
+    "header": {
+      "commercial": "Commercial",
+      "agenda": "Agenda commercial",
+      "title": "Agenda Commercial",
+      "description": "Organisez les appels, les relances, les réunions, les propositions, les documents et toutes les prochaines actions de l’équipe commerciale.",
+      "pipeline": "Pipeline",
+      "refreshing": "Actualisation...",
+      "refresh": "Actualiser",
+      "newTask": "Nouvelle tâche"
+    },
+    "kpis": {
+      "overdueTitle": "En retard",
+      "overdueDescription": "Nécessitent une attention immédiate",
+      "todayTitle": "Pour aujourd’hui",
+      "todayDescription": "Actions planifiées",
+      "upcomingTitle": "À venir",
+      "upcomingDescription": "Après aujourd’hui",
+      "inProgressTitle": "En cours",
+      "inProgressDescription": "Traitement commencé",
+      "completedTodayTitle": "Terminées aujourd’hui",
+      "completedTodayDescription": "Résultats enregistrés"
+    },
+    "filters": {
+      "searchLabel": "Rechercher dans l’agenda",
+      "searchPlaceholder": "Tâche, prospect, e-mail ou responsable...",
+      "status": "Statut",
+      "statusAria": "Filtrer par statut",
+      "priority": "Priorité",
+      "priorityAria": "Filtrer par priorité",
+      "all": "Toutes",
+      "type": "Type",
+      "typeAria": "Filtrer par type d’action",
+      "allMasculine": "Tous",
+      "responsible": "Responsable",
+      "responsibleAria": "Filtrer par responsable",
+      "allTeam": "Toute l’équipe",
+      "periodAria": "Période de l’agenda",
+      "onlyMine": "Uniquement mes tâches"
+    },
+    "list": {
+      "eyebrow": "Planification commerciale",
+      "title": "Tâches et prochaines actions",
+      "records": "{count, plural, =0 {Aucun enregistrement} one {# enregistrement} other {# enregistrements}}",
+      "emptyTitle": "Aucune tâche trouvée",
+      "emptyDescription": "Modifiez les filtres ou créez une nouvelle action pour organiser le prochain contact commercial.",
+      "createFirst": "Créer la première tâche",
+      "page": "Page {page} sur {total}",
+      "previous": "Précédente",
+      "next": "Suivante"
+    },
+    "taskModal": {
+      "eyebrow": "Agenda commercial",
+      "editTitle": "Modifier la tâche",
+      "newTitle": "Nouvelle tâche",
+      "description": "Enregistrez l’action, le responsable et l’heure du prochain contact.",
+      "relatedLead": "Prospect associé",
+      "relatedLeadAria": "Sélectionner le prospect associé",
+      "selectLead": "Sélectionnez le prospect",
+      "assignee": "Responsable",
+      "assigneeAria": "Sélectionner le responsable",
+      "selectAssignee": "Sélectionnez le responsable",
+      "assigneeHelp": "La tâche sera attribuée à votre compte utilisateur.",
+      "actionType": "Type d’action",
+      "actionTypeAria": "Sélectionner le type d’action",
+      "priority": "Priorité",
+      "priorityAria": "Sélectionner la priorité",
+      "title": "Titre",
+      "titlePlaceholder": "Ex. : Relancer au sujet de la proposition",
+      "instructions": "Consignes pour le contact",
+      "instructionsPlaceholder": "Contexte, documents nécessaires, objet de la conversation...",
+      "scheduledFor": "Planifiée pour",
+      "dueDate": "Échéance",
+      "reminder": "Rappel",
+      "nextLeadAction": "Définir comme prochaine action du prospect",
+      "nextLeadActionHelp": "La date apparaîtra dans le Pipeline et la Fiche 360°.",
+      "saving": "Enregistrement...",
+      "saveChanges": "Enregistrer les modifications",
+      "create": "Créer la tâche"
+    },
+    "specialModal": {
+      "resultEyebrow": "Résultat de l’action",
+      "cancelEyebrow": "Annulation traçable",
+      "completeTitle": "Terminer la tâche",
+      "cancelTitle": "Annuler la tâche",
+      "resultLabel": "Résultat obtenu",
+      "cancelReasonLabel": "Motif de l’annulation",
+      "resultPlaceholder": "Ex. : le prospect a confirmé la réception de la proposition et demandé un délai...",
+      "cancelReasonPlaceholder": "Expliquez pourquoi cette tâche ne sera plus réalisée...",
+      "back": "Retour",
+      "processing": "Enregistrement...",
+      "confirmComplete": "Confirmer la fin",
+      "confirmCancel": "Confirmer l’annulation"
+    },
+    "card": {
+      "due": "Échéance {date}",
+      "nextAction": "Prochaine action",
+      "overdue": "En retard",
+      "lead": "Prospect n° {id}",
+      "leadUnavailable": "Prospect indisponible",
+      "assignee": "Responsable",
+      "unassigned": "Non attribué",
+      "type": "Type",
+      "reminder": "Rappel",
+      "result": "Résultat",
+      "cancelReason": "Motif de l’annulation",
+      "leadProfile": "Fiche 360°",
+      "edit": "Modifier",
+      "start": "Démarrer",
+      "complete": "Terminer",
+      "reopen": "Rouvrir"
     }
   }
 }

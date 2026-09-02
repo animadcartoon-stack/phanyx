@@ -28,31 +28,31 @@ type Participante = {
   alunoId: number;
 
   origem:
-    | "TURMA"
-    | "MANUAL"
-    | "IMPORTACAO";
+  | "TURMA"
+  | "MANUAL"
+  | "IMPORTACAO";
 
   statusParticipacao:
-    | "CONVIDADO"
-    | "AGUARDANDO_AUTORIZACAO"
-    | "CONFIRMADO"
-    | "RECUSADO"
-    | "CANCELADO";
+  | "CONVIDADO"
+  | "AGUARDANDO_AUTORIZACAO"
+  | "CONFIRMADO"
+  | "RECUSADO"
+  | "CANCELADO";
 
   statusPresenca:
-    | "NAO_REGISTRADA"
-    | "PRESENTE"
-    | "AUSENTE"
-    | "SAIDA_ANTECIPADA";
+  | "NAO_REGISTRADA"
+  | "PRESENTE"
+  | "AUSENTE"
+  | "SAIDA_ANTECIPADA";
 
   statusPagamento:
-    | "NAO_APLICAVEL"
-    | "PENDENTE"
-    | "PARCIAL"
-    | "PAGO"
-    | "ISENTO"
-    | "REEMBOLSADO"
-    | "CANCELADO";
+  | "NAO_APLICAVEL"
+  | "PENDENTE"
+  | "PARCIAL"
+  | "PAGO"
+  | "ISENTO"
+  | "REEMBOLSADO"
+  | "CANCELADO";
 
   grupoNome?: string | null;
   observacao?: string | null;
@@ -87,9 +87,9 @@ type Props = {
   atividadeId: number;
 
   onParticipantesAlterados?:
-    () =>
-      | void
-      | Promise<void>;
+  () =>
+    | void
+    | Promise<void>;
 };
 
 function normalizarBusca(
@@ -226,8 +226,8 @@ export default function ParticipantesAtividadeExterna({
       if (!resposta.ok) {
         throw new Error(
           dados.message ||
-            dados.detalhe ||
-            t("loadError")
+          dados.detalhe ||
+          t("loadError")
         );
       }
 
@@ -249,7 +249,7 @@ export default function ParticipantesAtividadeExterna({
 
       setPodeGerenciar(
         dados.podeGerenciar ===
-          true
+        true
       );
     } catch (error) {
       setErro(
@@ -421,17 +421,17 @@ export default function ParticipantesAtividadeExterna({
       if (!resposta.ok) {
         throw new Error(
           dados?.message ||
-            dados?.detalhe ||
-            t(
-              "messages.addError"
-            )
+          dados?.detalhe ||
+          t(
+            "messages.addError"
+          )
         );
       }
 
       const adicionados =
         Number(
           dados?.adicionados ||
-            0
+          0
         );
 
       if (
@@ -466,8 +466,8 @@ export default function ParticipantesAtividadeExterna({
         error instanceof Error
           ? error.message
           : t(
-              "messages.addError"
-            )
+            "messages.addError"
+          )
       );
     } finally {
       setAdicionando(false);
@@ -557,7 +557,7 @@ export default function ParticipantesAtividadeExterna({
         </div>
 
         {participantes.length ===
-        0 ? (
+          0 ? (
           <div className="phanyx-participantes-empty mt-5 rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-10 text-center dark:border-slate-700 dark:bg-slate-800">
             <div className="text-3xl">
               👥
@@ -634,7 +634,7 @@ export default function ParticipantesAtividadeExterna({
                             )}
                             tipo={
                               participante.statusPresenca ===
-                              "PRESENTE"
+                                "PRESENTE"
                                 ? "green"
                                 : "neutral"
                             }
@@ -649,10 +649,10 @@ export default function ParticipantesAtividadeExterna({
                             )}
                             tipo={
                               participante.statusPagamento ===
-                              "PAGO"
+                                "PAGO"
                                 ? "green"
                                 : participante.statusPagamento ===
-                                    "PENDENTE"
+                                  "PENDENTE"
                                   ? "amber"
                                   : "neutral"
                             }
@@ -731,7 +731,7 @@ export default function ParticipantesAtividadeExterna({
         </div>
 
         {podeGerenciar &&
-        disponiveis.length >
+          disponiveis.length >
           0 ? (
           <div className="phanyx-participantes-toolbar mt-5 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800 sm:flex-row sm:items-center sm:justify-between">
 
@@ -748,15 +748,15 @@ export default function ParticipantesAtividadeExterna({
               >
                 {todosFiltradosSelecionados
                   ? t(
-                      "available.clearSelection"
-                    )
+                    "available.clearSelection"
+                  )
                   : t(
-                      "available.selectAll"
-                    )}
+                    "available.selectAll"
+                  )}
               </button>
 
               {selecionados.size >
-              0 ? (
+                0 ? (
                 <span className="inline-flex items-center rounded-xl bg-blue-50 px-3 py-2 text-xs font-bold text-blue-700 dark:bg-blue-950/30 dark:text-blue-200">
                   {t(
                     "available.selected",
@@ -778,24 +778,24 @@ export default function ParticipantesAtividadeExterna({
               disabled={
                 adicionando ||
                 selecionados.size ===
-                  0
+                0
               }
               className="phanyx-participantes-add-button inline-flex min-h-10 items-center justify-center rounded-xl bg-blue-700 px-4 text-xs font-black text-white shadow-sm transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {adicionando
                 ? t(
-                    "available.adding"
-                  )
+                  "available.adding"
+                )
                 : `＋ ${t(
-                    "available.addSelected"
-                  )}`}
+                  "available.addSelected"
+                )}`}
             </button>
 
           </div>
         ) : null}
 
         {disponiveisFiltrados.length ===
-        0 ? (
+          0 ? (
           <div className="mt-5 rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-10 text-center dark:border-slate-700 dark:bg-slate-800">
 
             <div className="text-3xl">
@@ -830,7 +830,7 @@ export default function ParticipantesAtividadeExterna({
                       aluno.alunoId
                     }
                     className={[
-  "phanyx-participante-disponivel phanyx-participante-card flex gap-4 rounded-2xl border p-4 transition",
+                      "phanyx-participante-disponivel phanyx-participante-card flex gap-4 rounded-2xl border p-4 transition",
                       podeGerenciar
                         ? "cursor-pointer"
                         : "cursor-default",
@@ -882,7 +882,7 @@ export default function ParticipantesAtividadeExterna({
                       </p>
 
                       {aluno.turmas.length >
-                      0 ? (
+                        0 ? (
                         <div className="mt-3 flex flex-wrap gap-1.5">
 
                           {aluno.turmas.map(
@@ -925,8 +925,8 @@ function AvatarAluno({
 }: {
   nome: string;
   fotoPerfil?:
-    | string
-    | null;
+  | string
+  | null;
 }) {
   return (
     <div className="h-12 w-12 flex-none overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800">
@@ -957,10 +957,10 @@ function StatusTag({
   valor: string;
 
   tipo:
-    | "neutral"
-    | "blue"
-    | "green"
-    | "amber";
+  | "neutral"
+  | "blue"
+  | "green"
+  | "amber";
 }) {
   const classe =
     tipo === "green"
@@ -973,8 +973,9 @@ function StatusTag({
 
   return (
     <span
+      data-tipo={tipo}
       className={[
-        "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-bold",
+        "phanyx-participante-status-tag inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-bold",
         classe,
       ].join(" ")}
       title={titulo}

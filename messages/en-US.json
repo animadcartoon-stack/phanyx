@@ -4107,6 +4107,22 @@
         "error": "The intervention indicators could not be loaded.",
         "sampleInsufficient": "Insufficient sample · {count, plural, one {# measurable intervention} other {# measurable interventions}}",
         "lessThanOneDay": "< 1 day"
+      },
+      "returns": {
+        "title": "Returns and follow-ups",
+        "description": "Organize upcoming contacts and track interventions that need attention.",
+        "overdue": "Overdue",
+        "today": "Due today",
+        "next7Days": "Next 7 days",
+        "unscheduled": "No return scheduled",
+        "scheduledFor": "Scheduled return",
+        "noScheduledDate": "No return date",
+        "overdueLabel": "Overdue return",
+        "empty": "No pending returns or follow-ups.",
+        "loading": "Loading returns...",
+        "error": "Returns could not be loaded.",
+        "viewStudent": "View student",
+        "update": "Update"
       }
     }
   },
@@ -5478,8 +5494,7 @@
       "VIAGEM_INTERNACIONAL": "International trip",
       "OUTRA": "Other"
     }
-  }
-,
+  },
   "AdminExternalActivityParticipants": {
     "title": "Participants",
     "description": "Manage students invited to this activity and track participation, permission, attendance and payment.",
@@ -5543,6 +5558,301 @@
       "added": "{count} participant(s) added.",
       "noneAdded": "No new participants were added.",
       "addError": "Participants could not be added."
+    }
+  },
+  "AdminExternalActivityAuthorizations": {
+    "title": "Permissions",
+    "description": "Track guardian consent and keep a history of every recorded decision.",
+    "loading": "Loading permissions...",
+    "loadError": "Permissions could not be loaded.",
+    "retry": "Try again",
+    "summary": {
+      "total": "Participants",
+      "pending": "Pending",
+      "authorized": "Authorized",
+      "denied": "Not authorized",
+      "waived": "Waived"
+    },
+    "noAuthorizationRequired": {
+      "title": "Permission not required",
+      "description": "This activity is not configured to require guardian permission."
+    },
+    "empty": {
+      "title": "No participants",
+      "description": "Add participants to the activity to start tracking permissions."
+    },
+    "participant": {
+      "currentStatus": "Current status",
+      "noRecord": "No response has been recorded yet.",
+      "history": "History",
+      "noHistory": "No permission history.",
+      "registration": "Registration",
+      "noRegistration": "No registration provided"
+    },
+    "actions": {
+      "register": "Record response",
+      "authorize": "Authorize",
+      "deny": "Do not authorize",
+      "waive": "Waive requirement",
+      "revoke": "Revoke permission",
+      "expire": "Mark as expired",
+      "cancel": "Cancel",
+      "save": "Save response",
+      "saving": "Saving..."
+    },
+    "form": {
+      "title": "Record permission",
+      "description": "Record the guardian's decision or a properly justified administrative decision.",
+      "status": "Decision",
+      "method": "Method",
+      "guardianName": "Guardian name",
+      "guardianRelationship": "Relationship",
+      "guardianEmail": "Email",
+      "guardianPhone": "Phone",
+      "termVersion": "Term version",
+      "observation": "Notes",
+      "guardianNamePlaceholder": "Guardian's full name",
+      "relationshipPlaceholder": "E.g. mother, father, legal guardian...",
+      "emailPlaceholder": "guardian@example.com",
+      "phonePlaceholder": "Guardian phone number",
+      "termVersionPlaceholder": "E.g. v1.0",
+      "observationPlaceholder": "Additional information about this permission..."
+    },
+    "status": {
+      "PENDENTE": "Pending",
+      "AUTORIZADO": "Authorized",
+      "NAO_AUTORIZADO": "Not authorized",
+      "REVOGADO": "Revoked",
+      "DISPENSADO": "Waived",
+      "EXPIRADO": "Expired"
+    },
+    "methods": {
+      "PORTAL": "Portal",
+      "LINK_SEGURO": "Secure link",
+      "PRESENCIAL": "In person",
+      "IMPORTADO": "Imported",
+      "ADMINISTRATIVO": "Administrative",
+      "OUTRO": "Other"
+    },
+    "history": {
+      "registeredAt": "Recorded on",
+      "answeredAt": "Answered on",
+      "revokedAt": "Revoked on",
+      "guardian": "Guardian",
+      "method": "Method",
+      "observation": "Notes"
+    },
+    "messages": {
+      "saved": "Permission recorded successfully.",
+      "saveError": "Permission could not be recorded."
+    }
+  },
+  "AdminCommercialAgenda": {
+    "common": {
+      "select": "Select",
+      "close": "Close",
+      "cancel": "Cancel"
+    },
+    "dates": {
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "notInformed": "Date not provided"
+    },
+    "groups": {
+      "overdue": "Overdue"
+    },
+    "taskTypes": {
+      "LIGACAO": {
+        "name": "Call",
+        "title": "Make a call"
+      },
+      "WHATSAPP": {
+        "name": "WhatsApp",
+        "title": "Send a WhatsApp message"
+      },
+      "EMAIL": {
+        "name": "Email",
+        "title": "Send an email"
+      },
+      "REUNIAO": {
+        "name": "Meeting",
+        "title": "Hold a meeting"
+      },
+      "RETORNO": {
+        "name": "Follow-up",
+        "title": "Follow up with contact"
+      },
+      "ENVIAR_PROPOSTA": {
+        "name": "Send proposal",
+        "title": "Send sales proposal"
+      },
+      "SOLICITAR_DOCUMENTOS": {
+        "name": "Request documents",
+        "title": "Request documents"
+      },
+      "CONFIRMAR_PAGAMENTO": {
+        "name": "Confirm payment",
+        "title": "Confirm payment"
+      },
+      "OUTRA": {
+        "name": "Other action",
+        "title": "Complete next action"
+      }
+    },
+    "priorities": {
+      "BAIXA": "Low",
+      "MEDIA": "Medium",
+      "ALTA": "High",
+      "URGENTE": "Urgent"
+    },
+    "periods": {
+      "TODAS": "All",
+      "ATRASADAS": "Overdue",
+      "HOJE": "Today",
+      "AMANHA": "Tomorrow",
+      "SEMANA": "7 days",
+      "PROXIMAS": "Upcoming"
+    },
+    "statuses": {
+      "TODOS": "All statuses",
+      "PENDENTE": "Pending",
+      "EM_ANDAMENTO": "In progress",
+      "CONCLUIDA": "Completed",
+      "CANCELADA": "Canceled"
+    },
+    "loading": {
+      "title": "Organizing the Sales Schedule...",
+      "description": "Loading tasks, assignees, and upcoming contacts."
+    },
+    "errorPage": {
+      "title": "Unable to open the Sales Schedule",
+      "description": "Check your permissions and try again.",
+      "retry": "Try again"
+    },
+    "errors": {
+      "load": "Unable to load the Sales Schedule.",
+      "selectLead": "Select the lead associated with the task.",
+      "selectAssignee": "Select the task assignee.",
+      "title": "Enter the task title.",
+      "dateTime": "Enter a valid date and time.",
+      "save": "Unable to save the task.",
+      "update": "Unable to update the task."
+    },
+    "toast": {
+      "created": "Task created successfully.",
+      "updated": "Task updated successfully.",
+      "saved": "Task updated."
+    },
+    "header": {
+      "commercial": "Sales",
+      "agenda": "Sales schedule",
+      "title": "Sales Schedule",
+      "description": "Organize calls, follow-ups, meetings, proposals, documents, and every next action for the sales team.",
+      "pipeline": "Pipeline",
+      "refreshing": "Refreshing...",
+      "refresh": "Refresh",
+      "newTask": "New task"
+    },
+    "kpis": {
+      "overdueTitle": "Overdue",
+      "overdueDescription": "Require immediate attention",
+      "todayTitle": "Due today",
+      "todayDescription": "Scheduled actions",
+      "upcomingTitle": "Upcoming",
+      "upcomingDescription": "After today",
+      "inProgressTitle": "In progress",
+      "inProgressDescription": "Work has started",
+      "completedTodayTitle": "Completed today",
+      "completedTodayDescription": "Results recorded"
+    },
+    "filters": {
+      "searchLabel": "Search schedule",
+      "searchPlaceholder": "Task, lead, email, or assignee...",
+      "status": "Status",
+      "statusAria": "Filter by status",
+      "priority": "Priority",
+      "priorityAria": "Filter by priority",
+      "all": "All",
+      "type": "Type",
+      "typeAria": "Filter by action type",
+      "allMasculine": "All",
+      "responsible": "Assignee",
+      "responsibleAria": "Filter by assignee",
+      "allTeam": "Entire team",
+      "periodAria": "Schedule period",
+      "onlyMine": "My tasks only"
+    },
+    "list": {
+      "eyebrow": "Sales plan",
+      "title": "Tasks and next actions",
+      "records": "{count, plural, =0 {No records} one {# record} other {# records}}",
+      "emptyTitle": "No tasks found",
+      "emptyDescription": "Adjust the filters or create a new action to organize the next sales contact.",
+      "createFirst": "Create first task",
+      "page": "Page {page} of {total}",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "taskModal": {
+      "eyebrow": "Sales schedule",
+      "editTitle": "Edit task",
+      "newTitle": "New task",
+      "description": "Record the action, assignee, and time of the next contact.",
+      "relatedLead": "Related lead",
+      "relatedLeadAria": "Select related lead",
+      "selectLead": "Select a lead",
+      "assignee": "Assignee",
+      "assigneeAria": "Select assignee",
+      "selectAssignee": "Select an assignee",
+      "assigneeHelp": "The task will be assigned to your user account.",
+      "actionType": "Action type",
+      "actionTypeAria": "Select action type",
+      "priority": "Priority",
+      "priorityAria": "Select priority",
+      "title": "Title",
+      "titlePlaceholder": "E.g., Follow up about the proposal",
+      "instructions": "Contact instructions",
+      "instructionsPlaceholder": "Context, required documents, subject of the conversation...",
+      "scheduledFor": "Scheduled for",
+      "dueDate": "Due date",
+      "reminder": "Reminder",
+      "nextLeadAction": "Set as the lead's next action",
+      "nextLeadActionHelp": "The date will appear in the Pipeline and 360° Profile.",
+      "saving": "Saving...",
+      "saveChanges": "Save changes",
+      "create": "Create task"
+    },
+    "specialModal": {
+      "resultEyebrow": "Action result",
+      "cancelEyebrow": "Auditable cancellation",
+      "completeTitle": "Complete task",
+      "cancelTitle": "Cancel task",
+      "resultLabel": "Result achieved",
+      "cancelReasonLabel": "Cancellation reason",
+      "resultPlaceholder": "E.g., the prospect confirmed receipt of the proposal and requested more time...",
+      "cancelReasonPlaceholder": "Explain why this task will no longer be completed...",
+      "back": "Back",
+      "processing": "Recording...",
+      "confirmComplete": "Confirm completion",
+      "confirmCancel": "Confirm cancellation"
+    },
+    "card": {
+      "due": "Due {date}",
+      "nextAction": "Next action",
+      "overdue": "Overdue",
+      "lead": "Lead #{id}",
+      "leadUnavailable": "Lead unavailable",
+      "assignee": "Assignee",
+      "unassigned": "Unassigned",
+      "type": "Type",
+      "reminder": "Reminder",
+      "result": "Result",
+      "cancelReason": "Cancellation reason",
+      "leadProfile": "360° Profile",
+      "edit": "Edit",
+      "start": "Start",
+      "complete": "Complete",
+      "reopen": "Reopen"
     }
   }
 }
