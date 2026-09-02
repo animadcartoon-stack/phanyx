@@ -2320,54 +2320,46 @@ export default function FormulariosCaptacaoPage() {
                                         {t("common.channel")}
                                     </label>
 
-                                    <select
+                                    <SeletorFiltroTema
                                         value={
-                                            formulario
-                                                .canalId
+                                            formulario.canalId
                                         }
-                                        onChange={(
-                                            event
-                                        ) =>
-                                            selecionarCanal(
-                                                event
-                                                    .target
-                                                    .value
-                                            )
+                                        onChange={
+                                            selecionarCanal
                                         }
-                                        className={`mt-2 w-full rounded-xl border px-3 py-2.5 text-sm ${c.input}`}
-                                        style={{
-                                            colorScheme:
-                                                temaEscuro
-                                                    ? "dark"
-                                                    : "light",
-                                        }}
-                                    >
-                                        <option value="">
-                                            {t("list.modal.noSpecificChannel")}
-                                        </option>
+                                        temaEscuro={
+                                            temaEscuro
+                                        }
+                                        temaAzul={
+                                            temaAzul
+                                        }
+                                        options={[
+                                            {
+                                                value: "",
+                                                label:
+                                                    t(
+                                                        "list.modal.noSpecificChannel"
+                                                    ),
+                                            },
 
-                                        {dados
-                                            .referencias
-                                            .canais
-                                            .map(
-                                                (
-                                                    canal
-                                                ) => (
-                                                    <option
-                                                        key={
-                                                            canal.id
-                                                        }
-                                                        value={
-                                                            canal.id
-                                                        }
-                                                    >
-                                                        {
-                                                            canal.nome
-                                                        }
-                                                    </option>
-                                                )
-                                            )}
-                                    </select>
+                                            ...dados
+                                                .referencias
+                                                .canais
+                                                .map(
+                                                    (
+                                                        canal
+                                                    ) => ({
+                                                        value:
+                                                            String(
+                                                                canal.id
+                                                            ),
+
+                                                        label:
+                                                            canal.nome,
+                                                    })
+                                                ),
+                                        ]}
+                                    />
                                 </div>
 
                                 <div>
@@ -2377,51 +2369,43 @@ export default function FormulariosCaptacaoPage() {
                                         {t("common.campaign")}
                                     </label>
 
-                                    <select
+                                    <SeletorFiltroTema
                                         value={
-                                            formulario
-                                                .campanhaId
+                                            formulario.campanhaId
                                         }
-                                        onChange={(
-                                            event
-                                        ) =>
-                                            selecionarCampanha(
-                                                event
-                                                    .target
-                                                    .value
-                                            )
+                                        onChange={
+                                            selecionarCampanha
                                         }
-                                        className={`mt-2 w-full rounded-xl border px-3 py-2.5 text-sm ${c.input}`}
-                                        style={{
-                                            colorScheme:
-                                                temaEscuro
-                                                    ? "dark"
-                                                    : "light",
-                                        }}
-                                    >
-                                        <option value="">
-                                            {t("list.modal.noSpecificCampaign")}
-                                        </option>
+                                        temaEscuro={
+                                            temaEscuro
+                                        }
+                                        temaAzul={
+                                            temaAzul
+                                        }
+                                        options={[
+                                            {
+                                                value: "",
+                                                label:
+                                                    t(
+                                                        "list.modal.noSpecificCampaign"
+                                                    ),
+                                            },
 
-                                        {campanhasFormulario.map(
-                                            (
-                                                campanha
-                                            ) => (
-                                                <option
-                                                    key={
-                                                        campanha.id
-                                                    }
-                                                    value={
-                                                        campanha.id
-                                                    }
-                                                >
-                                                    {
-                                                        campanha.nome
-                                                    }
-                                                </option>
-                                            )
-                                        )}
-                                    </select>
+                                            ...campanhasFormulario.map(
+                                                (
+                                                    campanha
+                                                ) => ({
+                                                    value:
+                                                        String(
+                                                            campanha.id
+                                                        ),
+
+                                                    label:
+                                                        campanha.nome,
+                                                })
+                                            ),
+                                        ]}
+                                    />
                                 </div>
                             </div>
 

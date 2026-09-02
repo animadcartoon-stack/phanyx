@@ -1181,6 +1181,100 @@
     "adminArea": "Área administrativa",
     "academicPlatform": "Plataforma acadêmica SaaS"
   },
+  "AdminExternalActivityTransport": {
+    "loading": "Carregando transporte...",
+    "title": "Transporte",
+    "description": "Planeje os trajetos, horários, prestadores, veículos e condutores da atividade externa.",
+    "actions": {
+      "addSegment": "+ Adicionar trecho",
+      "cancel": "Cancelar",
+      "saveSegment": "Adicionar trecho",
+      "saving": "Salvando..."
+    },
+    "summary": {
+      "segments": "Trechos",
+      "vehicles": "Veículos",
+      "drivers": "Condutores",
+      "passengers": "Passageiros"
+    },
+    "form": {
+      "title": "Adicionar trecho",
+      "description": "Informe como será realizado este deslocamento.",
+      "segmentTitle": "Nome do trecho",
+      "segmentTitlePlaceholder": "Ex.: Ida ao museu",
+      "modal": "Modal de transporte",
+      "provider": "Prestador de transporte",
+      "noProvider": "Sem prestador definido",
+      "reference": "Referência",
+      "referencePlaceholder": "Voo, linha, reserva ou outra referência",
+      "origin": "Origem",
+      "destination": "Destino",
+      "placeName": "Nome do local",
+      "address": "Endereço",
+      "city": "Cidade",
+      "region": "Estado / região",
+      "country": "País",
+      "departure": "Partida prevista",
+      "arrival": "Chegada prevista",
+      "notes": "Observação",
+      "notesPlaceholder": "Informações adicionais sobre este trecho..."
+    },
+    "segments": {
+      "title": "Trechos da viagem",
+      "description": "Acompanhe cada deslocamento planejado para a atividade.",
+      "emptyTitle": "Nenhum trecho cadastrado",
+      "emptyDescription": "Adicione o primeiro deslocamento desta atividade.",
+      "segmentNumber": "Trecho {number}",
+      "origin": "Origem",
+      "destination": "Destino",
+      "departure": "Partida prevista",
+      "arrival": "Chegada prevista",
+      "provider": "Prestador",
+      "vehicles": "Veículos",
+      "reference": "Referência"
+    },
+    "common": {
+      "notInformed": "Não informado",
+      "notDefined": "Não definido"
+    },
+    "success": {
+      "created": "Trecho adicionado com sucesso."
+    },
+    "errors": {
+      "load": "Não foi possível carregar os dados de transporte.",
+      "save": "Não foi possível adicionar o trecho.",
+      "originRequired": "Informe o local de origem.",
+      "destinationRequired": "Informe o local de destino.",
+      "arrivalBeforeDeparture": "A chegada prevista não pode ocorrer antes da partida."
+    },
+    "statuses": {
+      "PLANEJADO": "Planejado",
+      "CONFIRMADO": "Confirmado",
+      "EM_EMBARQUE": "Em embarque",
+      "EM_TRANSITO": "Em trânsito",
+      "CONCLUIDO": "Concluído",
+      "CANCELADO": "Cancelado"
+    },
+    "modals": {
+      "ONIBUS": "Ônibus",
+      "MICRO_ONIBUS": "Micro-ônibus",
+      "VAN": "Van",
+      "AUTOMOVEL": "Automóvel",
+      "VEICULO_AUTONOMO": "Veículo autônomo",
+      "AVIAO": "Avião",
+      "HELICOPTERO": "Helicóptero",
+      "TREM": "Trem",
+      "METRO": "Metrô",
+      "BONDE": "Bonde",
+      "BARCO": "Barco",
+      "FERRY": "Ferry",
+      "NAVIO": "Navio",
+      "TRANSPORTE_PUBLICO": "Transporte público",
+      "BICICLETA": "Bicicleta",
+      "CAMINHADA": "Caminhada",
+      "OUTRO": "Outro"
+    }
+  },
   "ProfessorLayout": {
     "logout": "Sair",
     "mobileNav": {
@@ -6750,6 +6844,549 @@
       "privacyPolicy": "Consultar Política de Privacidade",
       "submit": "Enviar formulário",
       "footer": "Pré-visualização administrativa — nenhum dado será enviado."
+    }
+  },
+  "AdminCommercialIntegrations": {
+    "common": {
+      "search": "Buscar",
+      "type": "Tipo",
+      "status": "Situação",
+      "availability": "Disponibilidade",
+      "channel": "Canal",
+      "campaign": "Campanha",
+      "form": "Formulário",
+      "clear": "Limpar",
+      "filter": "Filtrar",
+      "refresh": "↻ Atualizar",
+      "refreshing": "Atualizando...",
+      "cancel": "Cancelar",
+      "never": "Nunca",
+      "notInformed": "Não informado",
+      "noLink": "Sem vínculo",
+      "notLinkedMasculine": "Não vinculado",
+      "notLinkedFeminine": "Não vinculada",
+      "viewDetails": "Ver detalhes",
+      "integrationName": "Nome da integração",
+      "lastSuccess": "Último sucesso",
+      "lastError": "Último erro",
+      "lastUpdate": "Última atualização",
+      "createdAt": "Criada em",
+      "whatHappened": "O que aconteceu",
+      "copy": "Copiar",
+      "close": "Fechar",
+      "allFeminine": "Todas",
+      "wait": "Aguarde...",
+      "saveChanges": "Salvar alterações",
+      "saving": "Salvando...",
+      "creating": "Criando...",
+      "previous": "Anterior",
+      "next": "Próxima",
+      "notYet": "Ainda não"
+    },
+    "list": {
+      "loading": "Carregando integrações...",
+      "back": "← Central de Captação",
+      "title": "Integrações da Captação",
+      "description": "Conecte o PHANYX a anúncios, sites e outros sistemas para receber ou enviar dados automaticamente.",
+      "newIntegration": "+ Nova integração",
+      "summary": {
+        "total": "Total",
+        "totalHelp": "Integrações cadastradas",
+        "active": "Ativas",
+        "activeHelp": "Funcionando normalmente",
+        "paused": "Pausadas",
+        "pausedHelp": "Temporariamente interrompidas",
+        "error": "Com problema",
+        "errorHelp": "Exigem atenção",
+        "revoked": "Revogadas",
+        "revokedHelp": "Credenciais encerradas"
+      },
+      "filters": {
+        "searchPlaceholder": "Nome ou endereço da integração...",
+        "allTypes": "Todos os tipos",
+        "enabled": "Habilitadas",
+        "disabled": "Desabilitadas"
+      },
+      "types": {
+        "webhookIn": "Receber dados por webhook",
+        "webhookOut": "Enviar dados por webhook",
+        "metaLeadAds": "Meta Lead Ads",
+        "googleLeadForm": "Google Lead Forms",
+        "api": "Integração por API",
+        "import": "Importação de dados",
+        "other": "Outra integração"
+      },
+      "typeDescriptions": {
+        "webhookIn": "Receba automaticamente contatos enviados por outro sistema.",
+        "webhookOut": "Envie eventos e dados da captação para outro sistema.",
+        "metaLeadAds": "Receba interessados captados em formulários de anúncios da Meta.",
+        "googleLeadForm": "Receba interessados captados em formulários de anúncios do Google.",
+        "api": "Permita que outro sistema envie dados diretamente ao PHANYX.",
+        "import": "Identifique integrações usadas em processos de importação.",
+        "other": "Use para integrações que não se enquadram nas opções anteriores."
+      },
+      "statuses": {
+        "inactive": "Inativa",
+        "active": "Ativa",
+        "paused": "Pausada",
+        "error": "Com problema",
+        "revoked": "Revogada"
+      },
+      "configured": {
+        "title": "Integrações configuradas",
+        "results": "{count, plural, =0 {Nenhuma integração encontrada} one {# integração encontrada} other {# integrações encontradas}}.",
+        "emptyTitle": "Nenhuma integração encontrada",
+        "emptyDescription": "Crie uma integração para conectar anúncios, sites ou outros sistemas ao PHANYX."
+      },
+      "card": {
+        "receipts": "Recebimentos",
+        "credentialConfigured": "🔐 Credencial configurada",
+        "credentialNotRequired": "Credencial não necessária"
+      },
+      "modal": {
+        "title": "Nova integração",
+        "description": "Informe apenas o necessário. O PHANYX cuidará automaticamente das credenciais técnicas quando elas forem exigidas.",
+        "namePlaceholder": "Ex.: Meta - Vestibular 2027",
+        "integrationMethod": "Como os dados serão integrados?",
+        "destinationAddress": "Para qual endereço o PHANYX deverá enviar?",
+        "captureOrganization": "Organização da captação",
+        "captureOrganizationHelp": "Estes vínculos ajudam o PHANYX a saber de onde os interessados chegaram.",
+        "activateNow": "Ativar integração agora",
+        "activateHelp": "Se deixar desmarcado, a integração será salva como inativa para você concluir a configuração depois.",
+        "create": "Criar integração"
+      }
+    },
+    "credentials": {
+      "saveNow": "Guarde estas informações agora",
+      "secretWarning": "Por segurança, o segredo desta integração não poderá ser exibido novamente.",
+      "publicKey": "Chave pública",
+      "secret": "Segredo",
+      "saved": "Já guardei as informações"
+    },
+    "detail": {
+      "loading": "Carregando integração...",
+      "notFound": {
+        "title": "Integração não encontrada",
+        "description": "Não foi possível localizar esta integração.",
+        "back": "← Voltar para integrações"
+      },
+      "back": "← Integrações da Captação",
+      "heroDescription": "Acompanhe a conexão, os recebimentos e o histórico desta integração.",
+      "actions": {
+        "pause": "Pausar integração",
+        "activate": "Ativar integração"
+      },
+      "summary": {
+        "receipts": "Recebimentos",
+        "receiptsHelp": "Submissões vinculadas",
+        "events": "Eventos",
+        "eventsHelp": "Registros da integração",
+        "lastSuccessHelp": "Último processamento concluído",
+        "activeHelp": "Funcionando normalmente",
+        "revokedHelp": "Credencial encerrada",
+        "inactiveHelp": "Não está recebendo normalmente"
+      },
+      "attention": "O que precisa de atenção",
+      "config": {
+        "eyebrow": "CONFIGURAÇÃO",
+        "title": "Dados da integração",
+        "descriptionOut": "Configure como o PHANYX enviará os dados para o sistema externo.",
+        "descriptionIn": "Estas informações organizam como os contatos entram no PHANYX.",
+        "method": "Como os dados são integrados?",
+        "captureOrganization": "Organização da captação",
+        "captureOrganizationHelp": "Vincule a origem para identificar de onde cada interessado chegou.",
+        "destinationAddress": "Endereço de destino",
+        "destinationHelp": "Endereço do sistema que receberá os dados enviados pelo PHANYX."
+      },
+      "history": {
+        "eyebrow": "HISTÓRICO",
+        "title": "Eventos da integração",
+        "description": "Veja as entradas, processamentos e possíveis falhas desta conexão.",
+        "searchPlaceholder": "Evento, tipo ou erro...",
+        "direction": "Direção",
+        "loading": "Carregando eventos...",
+        "emptyTitle": "Nenhum evento encontrado",
+        "emptyDescription": "Os eventos desta integração aparecerão aqui conforme os dados forem recebidos ou enviados.",
+        "attempts": "Tentativas",
+        "submission": "Submissão",
+        "processed": "Processado",
+        "openLead": "Abrir lead →",
+        "eventNumber": "Evento #{id}",
+        "unnamedProspect": "Interessado sem nome",
+        "opening": "Abrindo...",
+        "pagination": "Página {page} de {pages} · {total, plural, one {# evento} other {# eventos}}"
+      },
+      "credential": {
+        "eyebrow": "CREDENCIAL",
+        "titleOut": "Autenticação do envio",
+        "titleIn": "Conexão com o PHANYX",
+        "descriptionOut": "Use estas informações para identificar e autenticar os dados enviados pelo PHANYX.",
+        "descriptionIn": "Use estas informações para conectar o sistema externo ao PHANYX.",
+        "receiveAddress": "Endereço para receber dados",
+        "copyAddress": "Copiar endereço",
+        "secretConfigured": "Segredo configurado",
+        "secretNotConfigured": "Segredo não configurado",
+        "secretHelp": "O segredo atual nunca é exibido novamente depois de criado.",
+        "generateSecret": "Gerar novo segredo",
+        "generating": "Gerando..."
+      },
+      "links": {
+        "eyebrow": "VÍNCULOS",
+        "title": "Origem da captação"
+      },
+      "record": {
+        "eyebrow": "REGISTRO",
+        "title": "Informações da integração"
+      },
+      "security": {
+        "eyebrow": "SEGURANÇA",
+        "title": "Credencial da integração",
+        "revokedTitle": "Credencial revogada",
+        "revokedDescription": "Esta integração não pode ser reativada. Para voltar a utilizá-la, crie uma nova integração.",
+        "description": "Revogue somente quando esta conexão não puder mais ser utilizada.",
+        "revoke": "Revogar credencial"
+      },
+      "eventStatuses": {
+        "received": "Recebido",
+        "pending": "Pendente",
+        "processing": "Processando",
+        "processed": "Processado",
+        "delivered": "Entregue",
+        "discarded": "Descartado"
+      },
+      "directions": {
+        "in": "Entrada",
+        "out": "Saída"
+      },
+      "eventModal": {
+        "eyebrow": "EVENTO DA INTEGRAÇÃO",
+        "description": "Informações sobre o recebimento e processamento deste evento.",
+        "closeAria": "Fechar detalhes do evento",
+        "loading": "Carregando detalhes do evento...",
+        "dateTime": "Data e hora",
+        "direction": "Entrada ou saída",
+        "attemptCount": "Número de tentativas",
+        "processedAt": "Processado em",
+        "lead": "Lead",
+        "prospect": "Interessado",
+        "notGenerated": "Não gerado",
+        "openLead": "Abrir lead",
+        "nameNotInformed": "Nome não informado",
+        "contactNotInformed": "Contato não informado",
+        "pendingMessage": "O evento foi recebido e ainda está aguardando a conclusão do processamento.",
+        "successMessage": "O evento foi concluído sem falhas registradas.",
+        "nextAttempt": "Próxima tentativa:",
+        "canRetryTitle": "O processamento pode ser tentado novamente",
+        "canRetryDescription": "O PHANYX usará novamente os dados já recebidos nesta submissão.",
+        "retrying": "Tentando novamente...",
+        "retry": "Tentar novamente",
+        "technicalDetails": "Detalhes técnicos",
+        "identification": "Identificação",
+        "event": "Evento",
+        "identifier": "Identificador",
+        "integration": "Integração",
+        "headers": "Headers",
+        "payload": "Payload recebido",
+        "response": "Resposta",
+        "integrationConfig": "Configuração da integração",
+        "originalData": "Dados originais",
+        "normalizedData": "Dados normalizados",
+        "trackingAudit": "Rastreamento e auditoria",
+        "cannotDisplay": "Não foi possível exibir este evento."
+      },
+      "revokeModal": {
+        "title": "Revogar esta credencial?",
+        "description": "A integração deixará de funcionar imediatamente. Uma credencial revogada não poderá ser reativada.",
+        "revoking": "Revogando...",
+        "confirm": "Sim, revogar"
+      },
+      "secretModal": {
+        "warning": "Por segurança, o novo segredo não poderá ser exibido novamente.",
+        "newSecret": "Novo segredo",
+        "copyKey": "Copiar chave",
+        "copySecret": "Copiar segredo"
+      }
+    },
+    "errors": {
+      "load": "Não foi possível consultar as integrações.",
+      "nameRequired": "Informe um nome para a integração.",
+      "endpointRequired": "Informe para qual endereço o PHANYX deverá enviar os dados.",
+      "create": "Não foi possível criar a integração.",
+      "invalidResponse": "O servidor retornou uma resposta inválida.",
+      "invalidIntegration": "Integração inválida.",
+      "loadIntegration": "Não foi possível carregar a integração.",
+      "loadEvents": "Não foi possível carregar os eventos.",
+      "noEditPermission": "Você não possui permissão para editar esta integração.",
+      "saveIntegration": "Não foi possível salvar a integração.",
+      "changeStatus": "Não foi possível alterar a situação da integração.",
+      "generateSecret": "Não foi possível gerar uma nova credencial.",
+      "secretMissing": "O servidor não retornou o novo segredo.",
+      "revoke": "Não foi possível revogar a integração.",
+      "copy": "Não foi possível copiar automaticamente.",
+      "noAuditPermission": "Você não possui permissão para consultar os detalhes técnicos deste evento.",
+      "loadEventDetail": "Não foi possível carregar os detalhes do evento.",
+      "cannotReprocess": "Esta submissão não pode ser processada novamente.",
+      "reprocess": "Não foi possível tentar o processamento novamente."
+    },
+    "success": {
+      "created": "Integração criada com sucesso.",
+      "updated": "Integração atualizada com sucesso.",
+      "paused": "Integração pausada.",
+      "activated": "Integração ativada.",
+      "revoked": "Credencial revogada.",
+      "reprocessed": "Submissão processada novamente com sucesso.",
+      "publicKeyCopied": "Chave pública copiada.",
+      "addressCopied": "Endereço copiado.",
+      "secretCopied": "Segredo copiado."
+    }
+  },
+  "AdminCommercialSubmissions": {
+    "common": {
+      "backToLeadGenerationCenter": "← Central de Captação",
+      "refresh": "↻ Atualizar",
+      "refreshing": "Atualizando...",
+      "search": "Buscar",
+      "status": "Situação",
+      "allFeminine": "Todas",
+      "allMasculine": "Todos",
+      "channel": "Canal",
+      "campaign": "Campanha",
+      "form": "Formulário",
+      "integration": "Integração",
+      "clear": "Limpar",
+      "filter": "Filtrar",
+      "origin": "Origem",
+      "interest": "Interesse",
+      "unit": "Unidade",
+      "notInformed": "Não informado",
+      "consentRecorded": "Consentimento registrado",
+      "consentNotRecorded": "Consentimento não registrado",
+      "whatHappened": "O que aconteceu",
+      "viewDetails": "Ver detalhes",
+      "openLead": "Abrir lead",
+      "retry": "Tentar novamente",
+      "processing": "Processando...",
+      "previous": "Anterior",
+      "next": "Próxima",
+      "cancel": "Cancelar",
+      "pagination": "Página {page} de {pages}",
+      "name": "Nome",
+      "email": "E-mail",
+      "phone": "Telefone",
+      "language": "Idioma",
+      "inbound": "Entrada",
+      "outbound": "Saída",
+      "result": "Resultado",
+      "attempts": "Tentativas",
+      "received": "Recebido",
+      "processed": "Processado",
+      "lastUpdate": "Última atualização",
+      "lead": "Lead",
+      "course": "Curso",
+      "owner": "Responsável",
+      "team": "Equipe",
+      "submissionNumber": "Submissão #{id}"
+    },
+    "statuses": {
+      "received": {
+        "name": "Recebida",
+        "description": "Os dados foram recebidos e aguardam processamento."
+      },
+      "validating": {
+        "name": "Validando dados",
+        "description": "O PHANYX está verificando os dados recebidos."
+      },
+      "processing": {
+        "name": "Em processamento",
+        "description": "O PHANYX está criando ou atualizando o lead."
+      },
+      "processed": {
+        "name": "Processada",
+        "description": "Os dados foram processados com sucesso."
+      },
+      "duplicate": {
+        "name": "Duplicada",
+        "description": "Esta entrada já havia sido recebida anteriormente."
+      },
+      "rejected": {
+        "name": "Não processada",
+        "description": "Os dados não puderam ser processados."
+      },
+      "spam": {
+        "name": "Bloqueada como spam",
+        "description": "A entrada foi bloqueada pelos mecanismos de proteção."
+      },
+      "error": {
+        "name": "Com erro",
+        "description": "Ocorreu um problema durante o processamento."
+      }
+    },
+    "results": {
+      "waiting": "Aguardando resultado",
+      "notChecked": "Ainda não verificado",
+      "newLead": "Novo lead criado",
+      "existingLeadUpdated": "Lead existente atualizado",
+      "duplicateIgnored": "Entrada duplicada ignorada",
+      "manualReview": "Necessita revisão"
+    },
+    "eventStatuses": {
+      "received": "Recebido",
+      "pending": "Pendente",
+      "processing": "Processando",
+      "processed": "Processado",
+      "delivered": "Entregue",
+      "discarded": "Descartado",
+      "error": "Com erro"
+    },
+    "persistedErrors": {
+      "requiredField": "O campo \"{field}\" é obrigatório.",
+      "fields": {
+        "fullName": "Nome completo",
+        "email": "E-mail",
+        "phone": "Telefone"
+      }
+    },
+    "errors": {
+      "load": "Não foi possível carregar as submissões.",
+      "loadDetail": "Não foi possível consultar esta submissão.",
+      "invalidSubmission": "Submissão inválida.",
+      "retry": "Não foi possível tentar novamente."
+    },
+    "list": {
+      "loading": "Carregando submissões...",
+      "header": {
+        "title": "Submissões recebidas",
+        "description": "Acompanhe os dados enviados pelos interessados e o resultado de cada processamento."
+      },
+      "summary": {
+        "total": "Total recebido",
+        "totalHelp": "Todas as submissões",
+        "processed": "Processadas",
+        "processedHelp": "Concluídas com sucesso",
+        "inProgress": "Em andamento",
+        "inProgressHelp": "Aguardando ou processando",
+        "attention": "Exigem atenção",
+        "attentionHelp": "Rejeitadas ou com erro"
+      },
+      "filters": {
+        "searchPlaceholder": "Nome, e-mail ou telefone...",
+        "leadResult": "Resultado do lead",
+        "allChannels": "Todos os canais",
+        "allCampaigns": "Todas as campanhas",
+        "allForms": "Todos os formulários",
+        "allIntegrations": "Todas as integrações"
+      },
+      "received": {
+        "title": "Envios recebidos",
+        "results": "{count, plural, one {# submissão encontrada.} other {# submissões encontradas.}}"
+      },
+      "empty": {
+        "title": "Nenhuma submissão encontrada",
+        "description": "Ajuste os filtros ou aguarde novos interessados enviarem seus dados."
+      },
+      "item": {
+        "unnamedProspect": "Interessado sem nome",
+        "unknownOrigin": "Origem não identificada",
+        "receivedAt": "Recebido em",
+        "processedPrefix": "Processado"
+      },
+      "retryModal": {
+        "title": "Tentar processar novamente?",
+        "description": "O PHANYX verificará novamente os dados enviados por {name}.",
+        "thisProspect": "este interessado",
+        "deduplication": "Caso já exista um lead correspondente, as regras de deduplicação serão respeitadas."
+      },
+      "success": {
+        "requeued": "Submissão enviada novamente para processamento."
+      }
+    },
+    "detail": {
+      "loading": "Carregando submissão...",
+      "loadError": {
+        "back": "← Voltar às submissões",
+        "title": "Não foi possível abrir esta submissão"
+      },
+      "header": {
+        "back": "← Submissões recebidas",
+        "receivedAt": "Submissão #{id} recebida em {date}"
+      },
+      "summary": {
+        "resultingLead": "Lead resultante",
+        "unknownOrigin": "Não identificada",
+        "noCampaign": "Sem campanha vinculada",
+        "unitNotInformed": "Unidade não informada",
+        "unitValue": "Unidade: {name}",
+        "notCreatedYet": "Ainda não criado",
+        "noOwner": "Sem responsável definido"
+      },
+      "prospect": {
+        "eyebrow": "INTERESSADO",
+        "title": "Dados recebidos",
+        "description": "Informações principais enviadas pelo interessado."
+      },
+      "source": {
+        "eyebrow": "CAPTAÇÃO",
+        "title": "Origem do interessado",
+        "description": "Veja de onde este envio chegou ao PHANYX.",
+        "originPage": "Página de origem",
+        "referrer": "Referência"
+      },
+      "privacy": {
+        "eyebrow": "PRIVACIDADE",
+        "title": "Consentimento e proteção de dados",
+        "consentText": "Texto apresentado ao interessado",
+        "registeredAt": "Registrado em {date}",
+        "versionSuffix": " · Versão {version}"
+      },
+      "marketing": {
+        "eyebrow": "MARKETING",
+        "title": "Rastreamento da campanha",
+        "description": "Dados utilizados para identificar a origem da campanha.",
+        "adIdentifiers": "Identificadores de anúncios",
+        "source": "Origem da campanha",
+        "medium": "Meio",
+        "content": "Conteúdo",
+        "term": "Termo"
+      },
+      "integrationHistory": {
+        "eyebrow": "INTEGRAÇÕES",
+        "title": "Histórico de integração",
+        "description": "Eventos relacionados à entrada ou saída desta submissão.",
+        "technicalInformation": "Informações técnicas",
+        "headers": "Cabeçalhos",
+        "sentData": "Dados enviados",
+        "response": "Resposta"
+      },
+      "processing": {
+        "eyebrow": "PROCESSAMENTO",
+        "title": "Situação atual"
+      },
+      "commercial": {
+        "title": "Resultado comercial",
+        "open360": "Abrir Ficha 360°",
+        "noLeadTitle": "Nenhum lead vinculado",
+        "noLeadDescription": "O processamento ainda não gerou ou vinculou um lead a esta submissão."
+      },
+      "technical": {
+        "title": "Dados técnicos",
+        "description": "Informações para suporte, auditoria e diagnóstico.",
+        "externalIdentifier": "Identificador externo",
+        "errorCode": "Código do erro",
+        "deduplicationKey": "Chave de deduplicação",
+        "protectedIp": "IP protegido",
+        "originalData": "Dados originalmente recebidos",
+        "normalizedData": "Dados normalizados pelo PHANYX",
+        "noData": "Sem dados.",
+        "cannotDisplayData": "Não foi possível exibir estes dados."
+      },
+      "retryModal": {
+        "title": "Tentar processar novamente?",
+        "description": "O PHANYX verificará novamente os dados desta submissão.",
+        "deduplication": "Se já existir um lead correspondente, as regras de deduplicação serão respeitadas."
+      },
+      "success": {
+        "reprocessed": "Submissão reprocessada com sucesso."
+      }
     }
   }
 }

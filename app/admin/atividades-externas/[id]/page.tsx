@@ -14,6 +14,7 @@ import {
 import ParticipantesAtividadeExterna from "@/components/admin/atividades-externas/ParticipantesAtividadeExterna";
 import AutorizacoesAtividadeExterna from "@/components/admin/atividades-externas/AutorizacoesAtividadeExterna";
 import EquipeAtividadeExterna from "@/components/admin/atividades-externas/EquipeAtividadeExterna";
+import TransporteAtividadeExterna from "@/components/admin/atividades-externas/TransporteAtividadeExterna";
 
 type Responsavel = {
     id: number;
@@ -863,52 +864,57 @@ export default function AtividadeExternaDetalhePage() {
                         </div>
                     </div>
 
-       <div className="p-5 sm:p-6">
+                    <div className="p-5 sm:p-6">
 
-  {abaAtiva === "overview" ? (
-    <VisaoGeral
-      atividade={atividade}
-      t={t}
-      formatarData={formatarData}
-      nomeResponsavel={nomeResponsavel}
-      destinoCompleto={destinoCompleto}
-    />
-  ) : abaAtiva === "participants" ? (
-    <ParticipantesAtividadeExterna
-      atividadeId={atividade.id}
-      onParticipantesAlterados={carregar}
-    />
-  ) : abaAtiva === "permissions" ? (
-    <AutorizacoesAtividadeExterna
-      atividadeId={atividade.id}
-      onAutorizacoesAlteradas={carregar}
-    />
-  ) : abaAtiva === "team" ? (
-    <EquipeAtividadeExterna
-      atividadeId={atividade.id}
-      onEquipeAlterada={carregar}
-    />
-  ) : (
-    <AreaEmPreparacao
-      icone={
-        ABAS.find(
-          (item) =>
-            item.id === abaAtiva
-        )?.icone || "📋"
-      }
-      titulo={t(
-        `tabs.${abaAtiva}`
-      )}
-      descricao={t(
-        "sectionPlaceholder.description"
-      )}
-      rotulo={t(
-        "sectionPlaceholder.title"
-      )}
-    />
-  )}
+                        {abaAtiva === "overview" ? (
+                            <VisaoGeral
+                                atividade={atividade}
+                                t={t}
+                                formatarData={formatarData}
+                                nomeResponsavel={nomeResponsavel}
+                                destinoCompleto={destinoCompleto}
+                            />
+                        ) : abaAtiva === "participants" ? (
+                            <ParticipantesAtividadeExterna
+                                atividadeId={atividade.id}
+                                onParticipantesAlterados={carregar}
+                            />
+                        ) : abaAtiva === "permissions" ? (
+                            <AutorizacoesAtividadeExterna
+                                atividadeId={atividade.id}
+                                onAutorizacoesAlteradas={carregar}
+                            />
+                        ) : abaAtiva === "team" ? (
+                            <EquipeAtividadeExterna
+                                atividadeId={atividade.id}
+                                onEquipeAlterada={carregar}
+                            />
+                        ) : abaAtiva === "transport" ? (
+                            <TransporteAtividadeExterna
+                                atividadeId={atividade.id}
+                                onTransporteAlterado={carregar}
+                            />
+                        ) : (
+                            <AreaEmPreparacao
+                                icone={
+                                    ABAS.find(
+                                        (item) =>
+                                            item.id === abaAtiva
+                                    )?.icone || "📋"
+                                }
+                                titulo={t(
+                                    `tabs.${abaAtiva}`
+                                )}
+                                descricao={t(
+                                    "sectionPlaceholder.description"
+                                )}
+                                rotulo={t(
+                                    "sectionPlaceholder.title"
+                                )}
+                            />
+                        )}
 
-</div>
+                    </div>
                 </section>
             </div>
         </main>

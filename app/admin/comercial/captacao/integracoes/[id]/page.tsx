@@ -5,8 +5,13 @@ import {
   FormEvent,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
+import {
+  useLocale,
+  useTranslations,
+} from "next-intl";
 import { useParams } from "next/navigation";
 
 type CanalReferencia = {
@@ -361,63 +366,104 @@ type Toast = {
   mensagem: string;
 } | null;
 
-function formatarRotulo(valor?: string | null) {
+const CHAVES_ROTULO = {
+  WEBHOOK_ENTRADA:
+    "list.types.webhookIn",
+  WEBHOOK_SAIDA:
+    "list.types.webhookOut",
+  META_LEAD_ADS:
+    "list.types.metaLeadAds",
+  GOOGLE_LEAD_FORM:
+    "list.types.googleLeadForm",
+  API:
+    "list.types.api",
+  IMPORTACAO:
+    "list.types.import",
+  OUTRA:
+    "list.types.other",
+
+  ATIVA:
+    "list.statuses.active",
+  INATIVA:
+    "list.statuses.inactive",
+  PAUSADA:
+    "list.statuses.paused",
+  ERRO:
+    "list.statuses.error",
+  REVOGADA:
+    "list.statuses.revoked",
+
+  RECEBIDO:
+    "detail.eventStatuses.received",
+  PENDENTE:
+    "detail.eventStatuses.pending",
+  PROCESSANDO:
+    "detail.eventStatuses.processing",
+  PROCESSADO:
+    "detail.eventStatuses.processed",
+  ENTREGUE:
+    "detail.eventStatuses.delivered",
+  DESCARTADO:
+    "detail.eventStatuses.discarded",
+
+  ENTRADA:
+    "detail.directions.in",
+  SAIDA:
+    "detail.directions.out",
+} as const;
+
+function chaveRotulo(
+  valor?: string | null
+) {
   if (!valor) {
-    return "Não informado";
+    return null;
   }
 
-  const especiais: Record<string, string> = {
-    WEBHOOK_ENTRADA: "Receber dados por webhook",
-    WEBHOOK_SAIDA: "Enviar dados por webhook",
+  return CHAVES_ROTULO[
+    valor as keyof typeof CHAVES_ROTULO
+  ] ?? null;
+}
 
-    ATIVA: "Ativa",
-    INATIVA: "Inativa",
-    PAUSADA: "Pausada",
-    ERRO: "Com problema",
-    REVOGADA: "Revogada",
-
-    RECEBIDO: "Recebido",
-    PENDENTE: "Pendente",
-    PROCESSANDO: "Processando",
-    PROCESSADO: "Processado",
-    ENTREGUE: "Entregue",
-    DESCARTADO: "Descartado",
-
-    ENTRADA: "Entrada",
-    SAIDA: "Saída",
-  };
-
-  if (especiais[valor]) {
-    return especiais[valor];
+function formatarRotuloFallback(
+  valor?: string | null
+) {
+  if (!valor) {
+    return "";
   }
 
   return valor
     .replaceAll("_", " ")
     .toLowerCase()
-    .replace(/\b\w/g, (letra) =>
-      letra.toUpperCase()
+    .replace(
+      /\b\w/g,
+      (letra) =>
+        letra.toUpperCase()
     );
 }
 
 function formatarData(
-  valor?: string | null
+  valor: string | null | undefined,
+  locale: string,
+  nunca: string,
+  naoInformado: string
 ) {
   if (!valor) {
-    return "Nunca";
+    return nunca;
   }
 
-  const data = new Date(valor);
+  const data =
+    new Date(valor);
 
   if (
     Number.isNaN(
       data.getTime()
     )
   ) {
-    return "Não informado";
+    return naoInformado;
   }
 
   return data.toLocaleString(
-    "pt-BR",
+    locale,
     {
       dateStyle: "short",
       timeStyle: "short",
@@ -469,7 +515,8 @@ function classeStatus(
 }
 
 async function lerJson(
-  resposta: Response
+  resposta: Response,
+  mensagemInvalida: string
 ) {
   return resposta
     .json()
@@ -477,20 +524,21 @@ async function lerJson(
       () => ({
         success: false,
         error:
-          "O servidor retornou uma resposta inválida.",
+          mensagemInvalida,
       })
     );
 }
 
 function formatarConteudoTecnico(
-  valor: unknown
+  valor: unknown,
+  naoInformado = "—"
 ) {
   if (
     valor === null ||
     valor === undefined ||
     valor === ""
   ) {
-    return "Não informado";
+    return naoInformado;
   }
 
   if (
@@ -524,7 +572,193 @@ function formatarConteudoTecnico(
   }
 }
 
+type OpcaoSeletor = {
+  value: string;
+  label: string;
+};
+
+function SeletorDetalheIntegracao({
+  value,
+  options,
+  onChange,
+  disabled = false,
+}: {
+  value: string;
+  options: OpcaoSeletor[];
+  onChange: (value: string) => void;
+  disabled?: boolean;
+}) {
+  const [
+    aberto,
+    setAberto,
+  ] =
+    useState(false);
+
+  const ref =
+    useRef<HTMLDivElement>(
+      null
+    );
+
+  useEffect(() => {
+    function fecharFora(
+      event: MouseEvent
+    ) {
+      if (
+        ref.current &&
+        !ref.current.contains(
+          event.target as Node
+        )
+      ) {
+        setAberto(false);
+      }
+    }
+
+    document.addEventListener(
+      "mousedown",
+      fecharFora
+    );
+
+    return () => {
+      document.removeEventListener(
+        "mousedown",
+        fecharFora
+      );
+    };
+  }, []);
+
+  const selecionada =
+    options.find(
+      (option) =>
+        option.value ===
+        value
+    ) ?? options[0];
+
+  return (
+    <div
+      ref={ref}
+      className="ci-theme-select"
+    >
+      <button
+        type="button"
+        disabled={disabled}
+        aria-haspopup="listbox"
+        aria-expanded={aberto}
+        className="ci-theme-select-button"
+        onClick={() =>
+          setAberto(
+            (atual) =>
+              !atual
+          )
+        }
+      >
+        <span>
+          {selecionada?.label ?? ""}
+        </span>
+
+        <span
+          aria-hidden="true"
+          className="ci-theme-select-arrow"
+        >
+          {aberto
+            ? "▲"
+            : "▼"}
+        </span>
+      </button>
+
+      {aberto &&
+        !disabled && (
+          <div
+            role="listbox"
+            className="ci-theme-select-menu"
+          >
+            {options.map(
+              (option) => {
+                const selecionado =
+                  option.value ===
+                  value;
+
+                return (
+                  <button
+                    key={
+                      option.value
+                    }
+                    type="button"
+                    role="option"
+                    aria-selected={
+                      selecionado
+                    }
+                    className={`ci-theme-select-option ${selecionado
+                      ? "is-selected"
+                      : ""
+                      }`}
+                    onClick={() => {
+                      onChange(
+                        option.value
+                      );
+
+                      setAberto(
+                        false
+                      );
+                    }}
+                  >
+                    {
+                      option.label
+                    }
+                  </button>
+                );
+              }
+            )}
+          </div>
+        )}
+    </div>
+  );
+}
+
 export default function IntegracaoDetalhePage() {
+  const t =
+    useTranslations(
+      "AdminCommercialIntegrations"
+    );
+
+  const locale =
+    useLocale();
+
+  function rotulo(
+    valor?: string | null
+  ) {
+    if (!valor) {
+      return t(
+        "common.notInformed"
+      );
+    }
+
+    const chave =
+      chaveRotulo(
+        valor
+      );
+
+    if (chave) {
+      return t(chave);
+    }
+
+    return formatarRotuloFallback(
+      valor
+    );
+  }
+
+  function dataUi(
+    valor?: string | null
+  ) {
+    return formatarData(
+      valor,
+      locale,
+      t("common.never"),
+      t(
+        "common.notInformed"
+      )
+    );
+  }
+
   const params =
     useParams<{
       id: string;
@@ -877,7 +1111,7 @@ export default function IntegracaoDetalhePage() {
       id <= 0
     ) {
       mostrarErro(
-        "Integração inválida."
+        t("errors.invalidIntegration")
       );
 
       setCarregando(
@@ -899,7 +1133,8 @@ export default function IntegracaoDetalhePage() {
 
       const dados =
         (await lerJson(
-          resposta
+          resposta,
+          t("errors.invalidResponse")
         )) as RespostaIntegracao;
 
       if (
@@ -909,7 +1144,7 @@ export default function IntegracaoDetalhePage() {
         throw new Error(
           dados.error ||
           dados.message ||
-          "Não foi possível carregar a integração."
+          t("errors.loadIntegration")
         );
       }
 
@@ -981,7 +1216,7 @@ export default function IntegracaoDetalhePage() {
         error instanceof
           Error
           ? error.message
-          : "Erro ao carregar integração."
+          : t("errors.loadIntegration")
       );
     } finally {
       setCarregando(
@@ -1061,7 +1296,8 @@ export default function IntegracaoDetalhePage() {
 
       const dados =
         (await lerJson(
-          resposta
+          resposta,
+          t("errors.invalidResponse")
         )) as RespostaEventos;
 
       if (
@@ -1071,7 +1307,7 @@ export default function IntegracaoDetalhePage() {
         throw new Error(
           dados.error ||
           dados.message ||
-          "Não foi possível carregar os eventos."
+          t("errors.loadEvents")
         );
       }
 
@@ -1105,7 +1341,7 @@ export default function IntegracaoDetalhePage() {
         error instanceof
           Error
           ? error.message
-          : "Erro ao carregar eventos."
+          : t("errors.loadEvents")
       );
     } finally {
       setCarregandoEventos(
@@ -1131,7 +1367,7 @@ export default function IntegracaoDetalhePage() {
       !permissoes.podeGerenciar
     ) {
       mostrarErro(
-        "Você não possui permissão para editar esta integração."
+        t("errors.noEditPermission")
       );
 
       return;
@@ -1141,7 +1377,7 @@ export default function IntegracaoDetalhePage() {
       !formulario.nome.trim()
     ) {
       mostrarErro(
-        "Informe o nome da integração."
+        t("errors.nameRequired")
       );
 
       return;
@@ -1201,7 +1437,8 @@ export default function IntegracaoDetalhePage() {
 
       const dados =
         (await lerJson(
-          resposta
+          resposta,
+          t("errors.invalidResponse")
         )) as RespostaPatch;
 
       if (
@@ -1211,12 +1448,12 @@ export default function IntegracaoDetalhePage() {
         throw new Error(
           dados.error ||
           dados.message ||
-          "Não foi possível salvar a integração."
+          t("errors.saveIntegration")
         );
       }
 
       mostrarSucesso(
-        "Integração atualizada com sucesso."
+        t("success.updated")
       );
 
       await carregarIntegracao();
@@ -1225,7 +1462,7 @@ export default function IntegracaoDetalhePage() {
         error instanceof
           Error
           ? error.message
-          : "Erro ao salvar integração."
+          : t("errors.saveIntegration")
       );
     } finally {
       setSalvando(
@@ -1285,7 +1522,8 @@ export default function IntegracaoDetalhePage() {
 
       const dados =
         (await lerJson(
-          resposta
+          resposta,
+          t("errors.invalidResponse")
         )) as RespostaPatch;
 
       if (
@@ -1295,14 +1533,14 @@ export default function IntegracaoDetalhePage() {
         throw new Error(
           dados.error ||
           dados.message ||
-          "Não foi possível alterar a situação da integração."
+          t("errors.changeStatus")
         );
       }
 
       mostrarSucesso(
         estaAtiva
-          ? "Integração pausada."
-          : "Integração ativada."
+          ? t("success.paused")
+          : t("success.activated")
       );
 
       await carregarIntegracao();
@@ -1311,7 +1549,7 @@ export default function IntegracaoDetalhePage() {
         error instanceof
           Error
           ? error.message
-          : "Erro ao alterar integração."
+          : t("errors.changeStatus")
       );
     } finally {
       setProcessandoStatus(
@@ -1353,7 +1591,8 @@ export default function IntegracaoDetalhePage() {
 
       const dados =
         (await lerJson(
-          resposta
+          resposta,
+          t("errors.invalidResponse")
         )) as RespostaPatch;
 
       if (
@@ -1363,7 +1602,7 @@ export default function IntegracaoDetalhePage() {
         throw new Error(
           dados.error ||
           dados.message ||
-          "Não foi possível gerar uma nova credencial."
+          t("errors.generateSecret")
         );
       }
 
@@ -1373,7 +1612,7 @@ export default function IntegracaoDetalhePage() {
 
       if (!segredo) {
         throw new Error(
-          "O servidor não retornou o novo segredo."
+          t("errors.secretMissing")
         );
       }
 
@@ -1398,7 +1637,7 @@ export default function IntegracaoDetalhePage() {
         error instanceof
           Error
           ? error.message
-          : "Erro ao gerar nova credencial."
+          : t("errors.generateSecret")
       );
     } finally {
       setGerandoSegredo(
@@ -1436,7 +1675,8 @@ export default function IntegracaoDetalhePage() {
 
       const dados =
         (await lerJson(
-          resposta
+          resposta,
+          t("errors.invalidResponse")
         )) as RespostaPatch;
 
       if (
@@ -1446,7 +1686,7 @@ export default function IntegracaoDetalhePage() {
         throw new Error(
           dados.error ||
           dados.message ||
-          "Não foi possível revogar a integração."
+          t("errors.revoke")
         );
       }
 
@@ -1455,7 +1695,7 @@ export default function IntegracaoDetalhePage() {
       );
 
       mostrarSucesso(
-        "Credencial revogada."
+        t("success.revoked")
       );
 
       await carregarIntegracao();
@@ -1464,7 +1704,7 @@ export default function IntegracaoDetalhePage() {
         error instanceof
           Error
           ? error.message
-          : "Erro ao revogar integração."
+          : t("errors.revoke")
       );
     } finally {
       setProcessandoStatus(
@@ -1491,7 +1731,7 @@ export default function IntegracaoDetalhePage() {
       );
     } catch {
       mostrarErro(
-        "Não foi possível copiar automaticamente."
+        t("errors.copy")
       );
     }
   }
@@ -1503,7 +1743,7 @@ export default function IntegracaoDetalhePage() {
       !permissoes.podeAuditar
     ) {
       mostrarErro(
-        "Você não possui permissão para consultar os detalhes técnicos deste evento."
+        t("errors.noAuditPermission")
       );
 
       return;
@@ -1537,7 +1777,8 @@ export default function IntegracaoDetalhePage() {
 
       const dados =
         (await lerJson(
-          resposta
+          resposta,
+          t("errors.invalidResponse")
         )) as RespostaEventoDetalhe;
 
       if (
@@ -1547,7 +1788,7 @@ export default function IntegracaoDetalhePage() {
         throw new Error(
           dados.error ||
           dados.message ||
-          "Não foi possível carregar os detalhes do evento."
+          t("errors.loadEventDetail")
         );
       }
 
@@ -1566,7 +1807,7 @@ export default function IntegracaoDetalhePage() {
       mostrarErro(
         error instanceof Error
           ? error.message
-          : "Erro ao carregar os detalhes do evento."
+          : t("errors.loadEventDetail")
       );
     } finally {
       setCarregandoDetalheEvento(
@@ -1606,7 +1847,7 @@ export default function IntegracaoDetalhePage() {
         .submissaoPodeSerReprocessada
     ) {
       mostrarErro(
-        "Esta submissão não pode ser processada novamente."
+        t("errors.cannotReprocess")
       );
 
       return;
@@ -1628,7 +1869,8 @@ export default function IntegracaoDetalhePage() {
 
       const dados =
         (await lerJson(
-          resposta
+          resposta,
+          t("errors.invalidResponse")
         )) as {
           success: boolean;
           message?: string;
@@ -1642,13 +1884,13 @@ export default function IntegracaoDetalhePage() {
         throw new Error(
           dados.error ||
           dados.message ||
-          "Não foi possível tentar o processamento novamente."
+          t("errors.reprocess")
         );
       }
 
       mostrarSucesso(
         dados.message ||
-        "Submissão processada novamente com sucesso."
+        t("success.reprocessed")
       );
 
       await Promise.all([
@@ -1669,7 +1911,7 @@ export default function IntegracaoDetalhePage() {
       const mensagem =
         error instanceof Error
           ? error.message
-          : "Erro ao tentar processar novamente.";
+          : t("errors.reprocess");
 
       await Promise.all([
         carregarEventos(
@@ -1735,7 +1977,7 @@ export default function IntegracaoDetalhePage() {
     return (
       <div className="captacao-integracao-detalhe-page">
         <div className="ci-loading">
-          Carregando integração...
+          {t("detail.loading")}
         </div>
       </div>
     );
@@ -1749,18 +1991,18 @@ export default function IntegracaoDetalhePage() {
         <div className="ci-container">
           <div className="ci-card ci-empty">
             <h1>
-              Integração não encontrada
+              {t("detail.notFound.title")}
             </h1>
 
             <p>
-              Não foi possível localizar esta integração.
+              {t("detail.notFound.description")}
             </p>
 
             <Link
               href="/admin/comercial/captacao/integracoes"
               className="ci-button ci-secondary"
             >
-              ← Voltar para integrações
+              {t("detail.notFound.back")}
             </Link>
           </div>
         </div>
@@ -1779,6 +2021,58 @@ export default function IntegracaoDetalhePage() {
   const integracaoSaida =
     integracao.tipo ===
     "WEBHOOK_SAIDA";
+
+  function traduzirErroPersistido(
+    mensagem:
+      | string
+      | null
+      | undefined
+  ) {
+    if (!mensagem) {
+      return "";
+    }
+
+    const campoObrigatorio =
+      mensagem.match(
+        /^O campo ["“](.+?)["”] é obrigatório\.?$/i
+      );
+
+    if (campoObrigatorio) {
+      const campo =
+        campoObrigatorio[1];
+
+      const campos: Record<
+        string,
+        string
+      > = {
+        "Nome completo":
+          t(
+            "detail.persistedErrors.fields.fullName"
+          ),
+
+        "E-mail":
+          t(
+            "detail.persistedErrors.fields.email"
+          ),
+
+        "Telefone":
+          t(
+            "detail.persistedErrors.fields.phone"
+          ),
+      };
+
+      return t(
+        "detail.persistedErrors.requiredField",
+        {
+          field:
+            campos[campo] ||
+            campo,
+        }
+      );
+    }
+
+    return mensagem;
+  }
 
   return (
     <div className="captacao-integracao-detalhe-page">
@@ -1801,7 +2095,7 @@ export default function IntegracaoDetalhePage() {
               href="/admin/comercial/captacao/integracoes"
               className="ci-back"
             >
-              ← Integrações da Captação
+              {t("detail.back")}
             </Link>
 
             <div className="ci-title-row">
@@ -1820,14 +2114,14 @@ export default function IntegracaoDetalhePage() {
                       integracao.status
                     )}
                   >
-                    {formatarRotulo(
+                    {rotulo(
                       integracao.status
                     )}
                   </span>
                 </div>
 
                 <p>
-                  Acompanhe a conexão, os recebimentos e o histórico desta integração.
+                  {t("detail.heroDescription")}
                 </p>
               </div>
             </div>
@@ -1846,7 +2140,7 @@ export default function IntegracaoDetalhePage() {
                 ]);
               }}
             >
-              ↻ Atualizar
+              {t("common.refresh")}
             </button>
 
             {permissoes.podeGerenciar &&
@@ -1865,10 +2159,10 @@ export default function IntegracaoDetalhePage() {
                   }
                 >
                   {processandoStatus
-                    ? "Aguarde..."
+                    ? t("common.wait")
                     : ativa
-                      ? "Pausar integração"
-                      : "Ativar integração"}
+                      ? t("detail.actions.pause")
+                      : t("detail.actions.activate")}
                 </button>
               )}
           </div>
@@ -1877,27 +2171,27 @@ export default function IntegracaoDetalhePage() {
         <section className="ci-summary-grid">
           <div className="ci-card ci-summary-card">
             <span>
-              Situação
+              {t("common.status")}
             </span>
 
             <strong>
-              {formatarRotulo(
+              {rotulo(
                 integracao.status
               )}
             </strong>
 
             <small>
               {ativa
-                ? "Funcionando normalmente"
+                ? t("detail.summary.activeHelp")
                 : revogada
-                  ? "Credencial encerrada"
-                  : "Não está recebendo normalmente"}
+                  ? t("detail.summary.revokedHelp")
+                  : t("detail.summary.inactiveHelp")}
             </small>
           </div>
 
           <div className="ci-card ci-summary-card">
             <span>
-              Recebimentos
+              {t("detail.summary.receipts")}
             </span>
 
             <strong>
@@ -1909,13 +2203,13 @@ export default function IntegracaoDetalhePage() {
             </strong>
 
             <small>
-              Submissões vinculadas
+              {t("detail.summary.receiptsHelp")}
             </small>
           </div>
 
           <div className="ci-card ci-summary-card">
             <span>
-              Eventos
+              {t("detail.summary.events")}
             </span>
 
             <strong>
@@ -1927,23 +2221,23 @@ export default function IntegracaoDetalhePage() {
             </strong>
 
             <small>
-              Registros da integração
+              {t("detail.summary.eventsHelp")}
             </small>
           </div>
 
           <div className="ci-card ci-summary-card">
             <span>
-              Último sucesso
+              {t("common.lastSuccess")}
             </span>
 
             <strong className="ci-summary-date">
-              {formatarData(
+              {dataUi(
                 integracao.ultimoSucessoEm
               )}
             </strong>
 
             <small>
-              Último processamento concluído
+              {t("detail.summary.lastSuccessHelp")}
             </small>
           </div>
         </section>
@@ -1952,19 +2246,19 @@ export default function IntegracaoDetalhePage() {
           <section className="ci-error-panel">
             <div>
               <strong>
-                O que precisa de atenção
+                {t("detail.attention")}
               </strong>
 
               <p>
-                {
+                {traduzirErroPersistido(
                   integracao.ultimoErro
-                }
+                )}
               </p>
             </div>
 
             {integracao.ultimoErroEm && (
               <span>
-                {formatarData(
+                {dataUi(
                   integracao.ultimoErroEm
                 )}
               </span>
@@ -1978,17 +2272,17 @@ export default function IntegracaoDetalhePage() {
               <div className="ci-section-header">
                 <div>
                   <span className="ci-eyebrow">
-                    CONFIGURAÇÃO
+                    {t("detail.config.eyebrow")}
                   </span>
 
                   <h2>
-                    Dados da integração
+                    {t("detail.config.title")}
                   </h2>
 
                   <p>
                     {integracaoSaida
-                      ? "Configure como o PHANYX enviará os dados para o sistema externo."
-                      : "Estas informações organizam como os contatos entram no PHANYX."}
+                      ? t("detail.config.descriptionOut")
+                      : t("detail.config.descriptionIn")}
                   </p>
                 </div>
               </div>
@@ -2001,7 +2295,7 @@ export default function IntegracaoDetalhePage() {
               >
                 <div className="ci-field">
                   <label>
-                    Nome da integração
+                    {t("common.integrationName")}
                   </label>
 
                   <input
@@ -2033,10 +2327,10 @@ export default function IntegracaoDetalhePage() {
 
                 <div className="ci-field">
                   <label>
-                    Como os dados são integrados?
+                    {t("detail.config.method")}
                   </label>
 
-                  <select
+                  <SeletorDetalheIntegracao
                     value={
                       formulario.tipo
                     }
@@ -2044,59 +2338,48 @@ export default function IntegracaoDetalhePage() {
                       revogada ||
                       !permissoes.podeGerenciar
                     }
-                    onChange={(
-                      event
-                    ) =>
+                    onChange={(value) =>
                       setFormulario(
                         (
                           atual
                         ) => ({
                           ...atual,
                           tipo:
-                            event
-                              .target
-                              .value,
+                            value,
                         })
                       )
                     }
-                  >
-                    {tiposDisponiveis.map(
-                      (tipo) => (
-                        <option
-                          key={
+                    options={tiposDisponiveis.map(
+                      (tipo) => ({
+                        value:
+                          tipo,
+                        label:
+                          rotulo(
                             tipo
-                          }
-                          value={
-                            tipo
-                          }
-                        >
-                          {formatarRotulo(
-                            tipo
-                          )}
-                        </option>
-                      )
+                          ),
+                      })
                     )}
-                  </select>
+                  />
                 </div>
 
                 <div className="ci-subcard">
                   <div className="ci-subcard-title">
                     <h3>
-                      Organização da captação
+                      {t("detail.config.captureOrganization")}
                     </h3>
 
                     <p>
-                      Vincule a origem para identificar de onde cada interessado chegou.
+                      {t("detail.config.captureOrganizationHelp")}
                     </p>
                   </div>
 
                   <div className="ci-form-grid">
                     <div className="ci-field">
                       <label>
-                        Canal
+                        {t("common.channel")}
                       </label>
 
-                      <select
+                      <SeletorDetalheIntegracao
                         value={
                           formulario.canalId
                         }
@@ -2104,18 +2387,14 @@ export default function IntegracaoDetalhePage() {
                           revogada ||
                           !permissoes.podeGerenciar
                         }
-                        onChange={(
-                          event
-                        ) =>
+                        onChange={(value) =>
                           setFormulario(
                             (
                               atual
                             ) => ({
                               ...atual,
                               canalId:
-                                event
-                                  .target
-                                  .value,
+                                value,
                               campanhaId:
                                 "",
                               formularioId:
@@ -2123,38 +2402,36 @@ export default function IntegracaoDetalhePage() {
                             })
                           )
                         }
-                      >
-                        <option value="">
-                          Sem vínculo
-                        </option>
-
-                        {referencias.canais.map(
-                          (
-                            canal
-                          ) => (
-                            <option
-                              key={
-                                canal.id
-                              }
-                              value={
-                                canal.id
-                              }
-                            >
-                              {
-                                canal.nome
-                              }
-                            </option>
-                          )
-                        )}
-                      </select>
+                        options={[
+                          {
+                            value: "",
+                            label:
+                              t(
+                                "common.noLink"
+                              ),
+                          },
+                          ...referencias.canais.map(
+                            (
+                              canal
+                            ) => ({
+                              value:
+                                String(
+                                  canal.id
+                                ),
+                              label:
+                                canal.nome,
+                            })
+                          ),
+                        ]}
+                      />
                     </div>
 
                     <div className="ci-field">
                       <label>
-                        Campanha
+                        {t("common.campaign")}
                       </label>
 
-                      <select
+                      <SeletorDetalheIntegracao
                         value={
                           formulario.campanhaId
                         }
@@ -2162,55 +2439,49 @@ export default function IntegracaoDetalhePage() {
                           revogada ||
                           !permissoes.podeGerenciar
                         }
-                        onChange={(
-                          event
-                        ) =>
+                        onChange={(value) =>
                           setFormulario(
                             (
                               atual
                             ) => ({
                               ...atual,
                               campanhaId:
-                                event
-                                  .target
-                                  .value,
+                                value,
                               formularioId:
                                 "",
                             })
                           )
                         }
-                      >
-                        <option value="">
-                          Sem vínculo
-                        </option>
-
-                        {campanhasFiltradas.map(
-                          (
-                            campanha
-                          ) => (
-                            <option
-                              key={
-                                campanha.id
-                              }
-                              value={
-                                campanha.id
-                              }
-                            >
-                              {
-                                campanha.nome
-                              }
-                            </option>
-                          )
-                        )}
-                      </select>
+                        options={[
+                          {
+                            value: "",
+                            label:
+                              t(
+                                "common.noLink"
+                              ),
+                          },
+                          ...campanhasFiltradas.map(
+                            (
+                              campanha
+                            ) => ({
+                              value:
+                                String(
+                                  campanha.id
+                                ),
+                              label:
+                                campanha.nome,
+                            })
+                          ),
+                        ]}
+                      />
                     </div>
 
                     <div className="ci-field ci-field-full">
                       <label>
-                        Formulário
+                        {t("common.form")}
                       </label>
 
-                      <select
+                      <SeletorDetalheIntegracao
                         value={
                           formulario.formularioId
                         }
@@ -2218,44 +2489,40 @@ export default function IntegracaoDetalhePage() {
                           revogada ||
                           !permissoes.podeGerenciar
                         }
-                        onChange={(
-                          event
-                        ) =>
+                        onChange={(value) =>
                           setFormulario(
                             (
                               atual
                             ) => ({
                               ...atual,
                               formularioId:
-                                event
-                                  .target
-                                  .value,
+                                value,
                             })
                           )
                         }
-                      >
-                        <option value="">
-                          Sem vínculo
-                        </option>
-
-                        {formulariosFiltrados.map(
-                          (
-                            item
-                          ) => (
-                            <option
-                              key={
-                                item.id
-                              }
-                              value={
-                                item.id
-                              }
-                            >
-                              {item.titulo ||
-                                item.nome}
-                            </option>
-                          )
-                        )}
-                      </select>
+                        options={[
+                          {
+                            value: "",
+                            label:
+                              t(
+                                "common.noLink"
+                              ),
+                          },
+                          ...formulariosFiltrados.map(
+                            (
+                              item
+                            ) => ({
+                              value:
+                                String(
+                                  item.id
+                                ),
+                              label:
+                                item.titulo ||
+                                item.nome,
+                            })
+                          ),
+                        ]}
+                      />
                     </div>
                   </div>
                 </div>
@@ -2265,7 +2532,7 @@ export default function IntegracaoDetalhePage() {
                 ) && (
                     <div className="ci-field">
                       <label>
-                        Endereço de destino
+                        {t("detail.config.destinationAddress")}
                       </label>
 
                       <input
@@ -2296,7 +2563,7 @@ export default function IntegracaoDetalhePage() {
                       />
 
                       <small>
-                        Endereço do sistema que receberá os dados enviados pelo PHANYX.
+                        {t("detail.config.destinationHelp")}
                       </small>
                     </div>
                   )}
@@ -2312,8 +2579,8 @@ export default function IntegracaoDetalhePage() {
                         }
                       >
                         {salvando
-                          ? "Salvando..."
-                          : "Salvar alterações"}
+                          ? t("common.saving")
+                          : t("common.saveChanges")}
                       </button>
                     </div>
                   )}
@@ -2324,15 +2591,15 @@ export default function IntegracaoDetalhePage() {
               <div className="ci-section-header">
                 <div>
                   <span className="ci-eyebrow">
-                    HISTÓRICO
+                    {t("detail.history.eyebrow")}
                   </span>
 
                   <h2>
-                    Eventos da integração
+                    {t("detail.history.title")}
                   </h2>
 
                   <p>
-                    Veja as entradas, processamentos e possíveis falhas desta conexão.
+                    {t("detail.history.description")}
                   </p>
                 </div>
               </div>
@@ -2345,12 +2612,12 @@ export default function IntegracaoDetalhePage() {
               >
                 <div className="ci-field">
                   <label>
-                    Buscar
+                    {t("common.search")}
                   </label>
 
                   <input
                     type="text"
-                    placeholder="Evento, tipo ou erro..."
+                    placeholder={t("detail.history.searchPlaceholder")}
                     value={
                       buscaEvento
                     }
@@ -2368,90 +2635,74 @@ export default function IntegracaoDetalhePage() {
 
                 <div className="ci-field">
                   <label>
-                    Situação
+                    {t("common.status")}
                   </label>
 
-                  <select
+                  <SeletorDetalheIntegracao
                     value={
                       statusEvento
                     }
-                    onChange={(
-                      event
-                    ) =>
-                      setStatusEvento(
-                        event
-                          .target
-                          .value
-                      )
+                    onChange={
+                      setStatusEvento
                     }
-                  >
-                    <option value="">
-                      Todas
-                    </option>
-
-                    {statusDisponiveisEventos.map(
-                      (
-                        status
-                      ) => (
-                        <option
-                          key={
-                            status
-                          }
-                          value={
-                            status
-                          }
-                        >
-                          {formatarRotulo(
-                            status
-                          )}
-                        </option>
-                      )
-                    )}
-                  </select>
+                    options={[
+                      {
+                        value: "",
+                        label:
+                          t(
+                            "common.allFeminine"
+                          ),
+                      },
+                      ...statusDisponiveisEventos.map(
+                        (
+                          status
+                        ) => ({
+                          value:
+                            status,
+                          label:
+                            rotulo(
+                              status
+                            ),
+                        })
+                      ),
+                    ]}
+                  />
                 </div>
 
                 <div className="ci-field">
                   <label>
-                    Direção
+                    {t("detail.history.direction")}
                   </label>
 
-                  <select
+                  <SeletorDetalheIntegracao
                     value={
                       direcaoEvento
                     }
-                    onChange={(
-                      event
-                    ) =>
-                      setDirecaoEvento(
-                        event
-                          .target
-                          .value
-                      )
+                    onChange={
+                      setDirecaoEvento
                     }
-                  >
-                    <option value="">
-                      Todas
-                    </option>
-
-                    {direcoesDisponiveis.map(
-                      (
-                        direcao
-                      ) => (
-                        <option
-                          key={
-                            direcao
-                          }
-                          value={
-                            direcao
-                          }
-                        >
-                          {formatarRotulo(
-                            direcao
-                          )}
-                        </option>
-                      )
-                    )}
-                  </select>
+                    options={[
+                      {
+                        value: "",
+                        label:
+                          t(
+                            "common.allFeminine"
+                          ),
+                      },
+                      ...direcoesDisponiveis.map(
+                        (
+                          direcao
+                        ) => ({
+                          value:
+                            direcao,
+                          label:
+                            rotulo(
+                              direcao
+                            ),
+                        })
+                      ),
+                    ]}
+                  />
                 </div>
 
                 <div className="ci-event-filter-actions">
@@ -2462,14 +2713,14 @@ export default function IntegracaoDetalhePage() {
                       limparFiltrosEventos
                     }
                   >
-                    Limpar
+                    {t("common.clear")}
                   </button>
 
                   <button
                     type="submit"
                     className="ci-button ci-primary"
                   >
-                    Filtrar
+                    {t("common.filter")}
                   </button>
                 </div>
               </form>
@@ -2477,17 +2728,17 @@ export default function IntegracaoDetalhePage() {
               <div className="ci-events-list">
                 {carregandoEventos ? (
                   <div className="ci-empty">
-                    Carregando eventos...
+                    {t("detail.history.loading")}
                   </div>
                 ) : eventos.length ===
                   0 ? (
                   <div className="ci-empty">
                     <strong>
-                      Nenhum evento encontrado
+                      {t("detail.history.emptyTitle")}
                     </strong>
 
                     <p>
-                      Os eventos desta integração aparecerão aqui conforme os dados forem recebidos ou enviados.
+                      {t("detail.history.emptyDescription")}
                     </p>
                   </div>
                 ) : (
@@ -2509,13 +2760,13 @@ export default function IntegracaoDetalhePage() {
                                   evento.status
                                 )}
                               >
-                                {formatarRotulo(
+                                {rotulo(
                                   evento.status
                                 )}
                               </span>
 
                               <span className="ci-badge">
-                                {formatarRotulo(
+                                {rotulo(
                                   evento.direcao
                                 )}
                               </span>
@@ -2524,7 +2775,7 @@ export default function IntegracaoDetalhePage() {
                             <h3>
                               {evento.tipoEvento ||
                                 evento.identificadorEvento ||
-                                `Evento #${evento.id}`}
+                                t("detail.history.eventNumber", { id: evento.id })}
                             </h3>
 
                             {evento.identificadorEvento && (
@@ -2537,7 +2788,7 @@ export default function IntegracaoDetalhePage() {
                           </div>
 
                           <time>
-                            {formatarData(
+                            {dataUi(
                               evento.recebidoEm ||
                               evento.criadoEm
                             )}
@@ -2547,7 +2798,7 @@ export default function IntegracaoDetalhePage() {
                         <div className="ci-event-meta">
                           <div>
                             <span>
-                              Tentativas
+                              {t("detail.history.attempts")}
                             </span>
 
                             <strong>
@@ -2570,7 +2821,7 @@ export default function IntegracaoDetalhePage() {
 
                           <div>
                             <span>
-                              Submissão
+                              {t("detail.history.submission")}
                             </span>
 
                             <strong>
@@ -2582,15 +2833,15 @@ export default function IntegracaoDetalhePage() {
 
                           <div>
                             <span>
-                              Processado
+                              {t("detail.history.processed")}
                             </span>
 
                             <strong>
                               {evento.processadoEm
-                                ? formatarData(
+                                ? dataUi(
                                   evento.processadoEm
                                 )
-                                : "Ainda não"}
+                                : t("common.notYet")}
                             </strong>
                           </div>
                         </div>
@@ -2600,7 +2851,7 @@ export default function IntegracaoDetalhePage() {
                             <strong>
                               {evento.submissao
                                 .nomeSnapshot ||
-                                "Interessado sem nome"}
+                                t("detail.history.unnamedProspect")}
                             </strong>
 
                             <span>
@@ -2624,7 +2875,7 @@ export default function IntegracaoDetalhePage() {
                                   href={`/admin/comercial/leads/${evento.submissao.leadId}`}
                                   className="ci-inline-link"
                                 >
-                                  Abrir lead →
+                                  {t("detail.history.openLead")}
                                 </Link>
                               )}
                           </div>
@@ -2633,7 +2884,7 @@ export default function IntegracaoDetalhePage() {
                         {evento.mensagemErro && (
                           <div className="ci-event-error">
                             <strong>
-                              O que aconteceu
+                              {t("common.whatHappened")}
                             </strong>
 
                             <p>
@@ -2660,8 +2911,8 @@ export default function IntegracaoDetalhePage() {
                               {carregandoDetalheEvento &&
                                 eventoDetalheAberto ===
                                 evento.id
-                                ? "Abrindo..."
-                                : "Ver detalhes"}
+                                ? t("detail.history.opening")
+                                : t("common.viewDetails")}
                             </button>
                           </div>
                         )}
@@ -2676,20 +2927,20 @@ export default function IntegracaoDetalhePage() {
                 0 && (
                   <div className="ci-pagination">
                     <span>
-                      Página{" "}
-                      {
-                        paginacao.pagina
-                      }{" "}
-                      de{" "}
-                      {Math.max(
-                        1,
-                        paginacao.totalPaginas
+                      {t(
+                        "detail.history.pagination",
+                        {
+                          page:
+                            paginacao.pagina,
+                          pages:
+                            Math.max(
+                              1,
+                              paginacao.totalPaginas
+                            ),
+                          total:
+                            paginacao.total,
+                        }
                       )}
-                      {" · "}
-                      {
-                        paginacao.total
-                      }{" "}
-                      evento(s)
                     </span>
 
                     <div>
@@ -2707,7 +2958,7 @@ export default function IntegracaoDetalhePage() {
                           )
                         }
                       >
-                        Anterior
+                        {t("common.previous")}
                       </button>
 
                       <button
@@ -2724,7 +2975,7 @@ export default function IntegracaoDetalhePage() {
                           )
                         }
                       >
-                        Próxima
+                        {t("common.next")}
                       </button>
                     </div>
                   </div>
@@ -2735,24 +2986,24 @@ export default function IntegracaoDetalhePage() {
           <aside className="ci-side-column">
             <section className="ci-card ci-section">
               <span className="ci-eyebrow">
-                CREDENCIAL
+                {t("detail.credential.eyebrow")}
               </span>
 
               <h2>
                 {integracaoSaida
-                  ? "Autenticação do envio"
-                  : "Conexão com o PHANYX"}
+                  ? t("detail.credential.titleOut")
+                  : t("detail.credential.titleIn")}
               </h2>
 
               <p className="ci-section-description">
                 {integracaoSaida
-                  ? "Use estas informações para identificar e autenticar os dados enviados pelo PHANYX."
-                  : "Use estas informações para conectar o sistema externo ao PHANYX."}
+                  ? t("detail.credential.descriptionOut")
+                  : t("detail.credential.descriptionIn")}
               </p>
 
               <div className="ci-credential-block">
                 <label>
-                  Chave pública
+                  {t("credentials.publicKey")}
                 </label>
 
                 <div className="ci-copy-row">
@@ -2767,11 +3018,11 @@ export default function IntegracaoDetalhePage() {
                     onClick={() =>
                       void copiar(
                         integracao.chavePublica,
-                        "Chave pública copiada."
+                        t("success.publicKeyCopied")
                       )
                     }
                   >
-                    Copiar
+                    {t("common.copy")}
                   </button>
                 </div>
               </div>
@@ -2779,7 +3030,7 @@ export default function IntegracaoDetalhePage() {
               {!integracaoSaida && endpointRecebimento && (
                 <div className="ci-credential-block">
                   <label>
-                    Endereço para receber dados
+                    {t("detail.credential.receiveAddress")}
                   </label>
 
                   <div className="ci-copy-row ci-copy-row-column">
@@ -2794,11 +3045,11 @@ export default function IntegracaoDetalhePage() {
                       onClick={() =>
                         void copiar(
                           endpointRecebimento,
-                          "Endereço copiado."
+                          t("success.addressCopied")
                         )
                       }
                     >
-                      Copiar endereço
+                      {t("detail.credential.copyAddress")}
                     </button>
                   </div>
                 </div>
@@ -2812,12 +3063,12 @@ export default function IntegracaoDetalhePage() {
                 <div>
                   <strong>
                     {integracao.possuiSegredo
-                      ? "Segredo configurado"
-                      : "Segredo não configurado"}
+                      ? t("detail.credential.secretConfigured")
+                      : t("detail.credential.secretNotConfigured")}
                   </strong>
 
                   <p>
-                    O segredo atual nunca é exibido novamente depois de criado.
+                    {t("detail.credential.secretHelp")}
                   </p>
                 </div>
               </div>
@@ -2835,49 +3086,49 @@ export default function IntegracaoDetalhePage() {
                     }
                   >
                     {gerandoSegredo
-                      ? "Gerando..."
-                      : "Gerar novo segredo"}
+                      ? t("detail.credential.generating")
+                      : t("detail.credential.generateSecret")}
                   </button>
                 )}
             </section>
 
             <section className="ci-card ci-section">
               <span className="ci-eyebrow">
-                VÍNCULOS
+                {t("detail.links.eyebrow")}
               </span>
 
               <h2>
-                Origem da captação
+                {t("detail.links.title")}
               </h2>
 
               <dl className="ci-details-list">
                 <div>
                   <dt>
-                    Canal
+                    {t("common.channel")}
                   </dt>
 
                   <dd>
                     {integracao.canal
                       ?.nome ||
-                      "Sem vínculo"}
+                      t("common.noLink")}
                   </dd>
                 </div>
 
                 <div>
                   <dt>
-                    Campanha
+                    {t("common.campaign")}
                   </dt>
 
                   <dd>
                     {integracao.campanha
                       ?.nome ||
-                      "Sem vínculo"}
+                      t("common.noLink")}
                   </dd>
                 </div>
 
                 <div>
                   <dt>
-                    Formulário
+                    {t("common.form")}
                   </dt>
 
                   <dd>
@@ -2885,17 +3136,17 @@ export default function IntegracaoDetalhePage() {
                       ?.titulo ||
                       integracao.formulario
                         ?.nome ||
-                      "Sem vínculo"}
+                      t("common.noLink")}
                   </dd>
                 </div>
 
                 <div>
                   <dt>
-                    Tipo
+                    {t("common.type")}
                   </dt>
 
                   <dd>
-                    {formatarRotulo(
+                    {rotulo(
                       integracao.tipo
                     )}
                   </dd>
@@ -2905,21 +3156,21 @@ export default function IntegracaoDetalhePage() {
 
             <section className="ci-card ci-section">
               <span className="ci-eyebrow">
-                REGISTRO
+                {t("detail.record.eyebrow")}
               </span>
 
               <h2>
-                Informações da integração
+                {t("detail.record.title")}
               </h2>
 
               <dl className="ci-details-list">
                 <div>
                   <dt>
-                    Criada em
+                    {t("common.createdAt")}
                   </dt>
 
                   <dd>
-                    {formatarData(
+                    {dataUi(
                       integracao.criadoEm
                     )}
                   </dd>
@@ -2927,11 +3178,11 @@ export default function IntegracaoDetalhePage() {
 
                 <div>
                   <dt>
-                    Última atualização
+                    {t("common.lastUpdate")}
                   </dt>
 
                   <dd>
-                    {formatarData(
+                    {dataUi(
                       integracao.atualizadoEm
                     )}
                   </dd>
@@ -2939,11 +3190,11 @@ export default function IntegracaoDetalhePage() {
 
                 <div>
                   <dt>
-                    Último sucesso
+                    {t("common.lastSuccess")}
                   </dt>
 
                   <dd>
-                    {formatarData(
+                    {dataUi(
                       integracao.ultimoSucessoEm
                     )}
                   </dd>
@@ -2951,11 +3202,11 @@ export default function IntegracaoDetalhePage() {
 
                 <div>
                   <dt>
-                    Último erro
+                    {t("common.lastError")}
                   </dt>
 
                   <dd>
-                    {formatarData(
+                    {dataUi(
                       integracao.ultimoErroEm
                     )}
                   </dd>
@@ -2966,27 +3217,27 @@ export default function IntegracaoDetalhePage() {
             {permissoes.podeGerenciar && (
               <section className="ci-card ci-section ci-danger-zone">
                 <span className="ci-eyebrow">
-                  SEGURANÇA
+                  {t("detail.security.eyebrow")}
                 </span>
 
                 <h2>
-                  Credencial da integração
+                  {t("detail.security.title")}
                 </h2>
 
                 {revogada ? (
                   <div className="ci-revoked-message">
                     <strong>
-                      Credencial revogada
+                      {t("detail.security.revokedTitle")}
                     </strong>
 
                     <p>
-                      Esta integração não pode ser reativada. Para voltar a utilizá-la, crie uma nova integração.
+                      {t("detail.security.revokedDescription")}
                     </p>
                   </div>
                 ) : (
                   <>
                     <p className="ci-section-description">
-                      Revogue somente quando esta conexão não puder mais ser utilizada.
+                      {t("detail.security.description")}
                     </p>
 
                     <button
@@ -2998,7 +3249,7 @@ export default function IntegracaoDetalhePage() {
                         )
                       }
                     >
-                      Revogar credencial
+                      {t("detail.security.revoke")}
                     </button>
                   </>
                 )}
@@ -3032,25 +3283,25 @@ export default function IntegracaoDetalhePage() {
               <div className="ci-event-detail-header">
                 <div>
                   <span className="ci-eyebrow">
-                    EVENTO DA INTEGRAÇÃO
+                    {t("detail.eventModal.eyebrow")}
                   </span>
 
                   <h2 id="ci-event-detail-title">
                     {detalheEvento
                       ?.evento
                       .tipoEvento ||
-                      `Evento #${eventoDetalheAberto}`}
+                      t("detail.history.eventNumber", { id: eventoDetalheAberto })}
                   </h2>
 
                   <p>
-                    Informações sobre o recebimento e processamento deste evento.
+                    {t("detail.eventModal.description")}
                   </p>
                 </div>
 
                 <button
                   type="button"
                   className="ci-modal-close"
-                  aria-label="Fechar detalhes do evento"
+                  aria-label={t("detail.eventModal.closeAria")}
                   disabled={
                     reprocessandoSubmissao
                   }
@@ -3064,7 +3315,7 @@ export default function IntegracaoDetalhePage() {
 
               {carregandoDetalheEvento ? (
                 <div className="ci-event-detail-loading">
-                  Carregando detalhes do evento...
+                  {t("detail.eventModal.loading")}
                 </div>
               ) : detalheEvento ? (
                 <>
@@ -3076,7 +3327,7 @@ export default function IntegracaoDetalhePage() {
                           .status
                       )}
                     >
-                      {formatarRotulo(
+                      {rotulo(
                         detalheEvento
                           .evento
                           .status
@@ -3084,7 +3335,7 @@ export default function IntegracaoDetalhePage() {
                     </span>
 
                     <span className="ci-badge">
-                      {formatarRotulo(
+                      {rotulo(
                         detalheEvento
                           .evento
                           .direcao
@@ -3095,11 +3346,11 @@ export default function IntegracaoDetalhePage() {
                   <div className="ci-event-detail-grid">
                     <div>
                       <span>
-                        Data e hora
+                        {t("detail.eventModal.dateTime")}
                       </span>
 
                       <strong>
-                        {formatarData(
+                        {dataUi(
                           detalheEvento
                             .evento
                             .recebidoEm ||
@@ -3112,11 +3363,11 @@ export default function IntegracaoDetalhePage() {
 
                     <div>
                       <span>
-                        Tipo
+                        {t("common.type")}
                       </span>
 
                       <strong>
-                        {formatarRotulo(
+                        {rotulo(
                           detalheEvento
                             .evento
                             .tipoEvento
@@ -3126,11 +3377,11 @@ export default function IntegracaoDetalhePage() {
 
                     <div>
                       <span>
-                        Entrada ou saída
+                        {t("detail.eventModal.direction")}
                       </span>
 
                       <strong>
-                        {formatarRotulo(
+                        {rotulo(
                           detalheEvento
                             .evento
                             .direcao
@@ -3140,7 +3391,7 @@ export default function IntegracaoDetalhePage() {
 
                     <div>
                       <span>
-                        Número de tentativas
+                        {t("detail.eventModal.attemptCount")}
                       </span>
 
                       <strong>
@@ -3161,31 +3412,31 @@ export default function IntegracaoDetalhePage() {
                         {detalheEvento
                           .evento
                           .codigoHttp ??
-                          "Não informado"}
+                          t("common.notInformed")}
                       </strong>
                     </div>
 
                     <div>
                       <span>
-                        Processado em
+                        {t("detail.eventModal.processedAt")}
                       </span>
 
                       <strong>
                         {detalheEvento
                           .evento
                           .processadoEm
-                          ? formatarData(
+                          ? dataUi(
                             detalheEvento
                               .evento
                               .processadoEm
                           )
-                          : "Ainda não"}
+                          : t("common.notYet")}
                       </strong>
                     </div>
 
                     <div>
                       <span>
-                        Submissão
+                        {t("detail.history.submission")}
                       </span>
 
                       {detalheEvento
@@ -3205,14 +3456,14 @@ export default function IntegracaoDetalhePage() {
                         </Link>
                       ) : (
                         <strong>
-                          Não vinculada
+                          {t("common.notLinkedFeminine")}
                         </strong>
                       )}
                     </div>
 
                     <div>
                       <span>
-                        Lead
+                        {t("detail.eventModal.lead")}
                       </span>
 
                       {detalheEvento
@@ -3223,7 +3474,7 @@ export default function IntegracaoDetalhePage() {
                           href={`/admin/comercial/leads/${detalheEvento.evento.submissao.leadId}`}
                           className="ci-inline-link"
                         >
-                          Abrir lead #
+                          {t("detail.eventModal.openLead")} #
                           {
                             detalheEvento
                               .evento
@@ -3233,7 +3484,7 @@ export default function IntegracaoDetalhePage() {
                         </Link>
                       ) : (
                         <strong>
-                          Não gerado
+                          {t("detail.eventModal.notGenerated")}
                         </strong>
                       )}
                     </div>
@@ -3244,7 +3495,7 @@ export default function IntegracaoDetalhePage() {
                     .submissao && (
                       <div className="ci-event-detail-person">
                         <span>
-                          Interessado
+                          {t("detail.eventModal.prospect")}
                         </span>
 
                         <strong>
@@ -3252,7 +3503,7 @@ export default function IntegracaoDetalhePage() {
                             .evento
                             .submissao
                             .nomeSnapshot ||
-                            "Nome não informado"}
+                            t("detail.eventModal.nameNotInformed")}
                         </strong>
 
                         <p>
@@ -3268,7 +3519,7 @@ export default function IntegracaoDetalhePage() {
                           ]
                             .filter(Boolean)
                             .join(" · ") ||
-                            "Contato não informado"}
+                            t("detail.eventModal.contactNotInformed")}
                         </p>
                       </div>
                     )}
@@ -3286,26 +3537,32 @@ export default function IntegracaoDetalhePage() {
                       }`}
                   >
                     <strong>
-                      O que aconteceu
+                      {t("common.whatHappened")}
                     </strong>
 
                     <p>
-                      {detalheEvento
-                        .evento
-                        .mensagemErro ||
+                      {traduzirErroPersistido(
+                        detalheEvento
+                          .evento
+                          .mensagemErro
+                      ) ||
                         (detalheEvento
                           .acoes
                           .eventoPendente
-                          ? "O evento foi recebido e ainda está aguardando a conclusão do processamento."
-                          : "O evento foi concluído sem falhas registradas.")}
+                          ? t(
+                            "detail.eventModal.pendingMessage"
+                          )
+                          : t(
+                            "detail.eventModal.successMessage"
+                          ))}
                     </p>
 
                     {detalheEvento
                       .evento
                       .proximaTentativaEm && (
                         <small>
-                          Próxima tentativa:{" "}
-                          {formatarData(
+                          {t("detail.eventModal.nextAttempt")}{" "}
+                          {dataUi(
                             detalheEvento
                               .evento
                               .proximaTentativaEm
@@ -3320,11 +3577,11 @@ export default function IntegracaoDetalhePage() {
                       <div className="ci-event-retry">
                         <div>
                           <strong>
-                            O processamento pode ser tentado novamente
+                            {t("detail.eventModal.canRetryTitle")}
                           </strong>
 
                           <p>
-                            O PHANYX usará novamente os dados já recebidos nesta submissão.
+                            {t("detail.eventModal.canRetryDescription")}
                           </p>
                         </div>
 
@@ -3339,8 +3596,8 @@ export default function IntegracaoDetalhePage() {
                           }
                         >
                           {reprocessandoSubmissao
-                            ? "Tentando novamente..."
-                            : "Tentar novamente"}
+                            ? t("detail.eventModal.retrying")
+                            : t("detail.eventModal.retry")}
                         </button>
                       </div>
                     )}
@@ -3365,7 +3622,7 @@ export default function IntegracaoDetalhePage() {
                           }
                         >
                           <span>
-                            Detalhes técnicos
+                            {t("detail.eventModal.technicalDetails")}
                           </span>
 
                           <span aria-hidden="true">
@@ -3379,13 +3636,13 @@ export default function IntegracaoDetalhePage() {
                           <div className="ci-technical-content">
                             <section>
                               <h3>
-                                Identificação
+                                {t("detail.eventModal.identification")}
                               </h3>
 
                               <dl>
                                 <div>
                                   <dt>
-                                    Evento
+                                    {t("detail.eventModal.event")}
                                   </dt>
 
                                   <dd>
@@ -3400,20 +3657,20 @@ export default function IntegracaoDetalhePage() {
 
                                 <div>
                                   <dt>
-                                    Identificador
+                                    {t("detail.eventModal.identifier")}
                                   </dt>
 
                                   <dd>
                                     {detalheEvento
                                       .evento
                                       .identificadorEvento ||
-                                      "Não informado"}
+                                      t("common.notInformed")}
                                   </dd>
                                 </div>
 
                                 <div>
                                   <dt>
-                                    Integração
+                                    {t("detail.eventModal.integration")}
                                   </dt>
 
                                   <dd>
@@ -3428,7 +3685,7 @@ export default function IntegracaoDetalhePage() {
 
                                 <div>
                                   <dt>
-                                    Chave pública
+                                    {t("credentials.publicKey")}
                                   </dt>
 
                                   <dd>
@@ -3445,7 +3702,7 @@ export default function IntegracaoDetalhePage() {
 
                             <section>
                               <h3>
-                                Headers
+                                {t("detail.eventModal.headers")}
                               </h3>
 
                               <pre>
@@ -3459,7 +3716,7 @@ export default function IntegracaoDetalhePage() {
 
                             <section>
                               <h3>
-                                Payload recebido
+                                {t("detail.eventModal.payload")}
                               </h3>
 
                               <pre>
@@ -3473,7 +3730,7 @@ export default function IntegracaoDetalhePage() {
 
                             <section>
                               <h3>
-                                Resposta
+                                {t("detail.eventModal.response")}
                               </h3>
 
                               <pre>
@@ -3487,7 +3744,7 @@ export default function IntegracaoDetalhePage() {
 
                             <section>
                               <h3>
-                                Configuração da integração
+                                {t("detail.eventModal.integrationConfig")}
                               </h3>
 
                               <pre>
@@ -3519,7 +3776,7 @@ export default function IntegracaoDetalhePage() {
                                 <>
                                   <section>
                                     <h3>
-                                      Dados originais
+                                      {t("detail.eventModal.originalData")}
                                     </h3>
 
                                     <pre>
@@ -3534,7 +3791,7 @@ export default function IntegracaoDetalhePage() {
 
                                   <section>
                                     <h3>
-                                      Dados normalizados
+                                      {t("detail.eventModal.normalizedData")}
                                     </h3>
 
                                     <pre>
@@ -3549,7 +3806,7 @@ export default function IntegracaoDetalhePage() {
 
                                   <section>
                                     <h3>
-                                      Rastreamento e auditoria
+                                      {t("detail.eventModal.trackingAudit")}
                                     </h3>
 
                                     <pre>
@@ -3646,13 +3903,13 @@ export default function IntegracaoDetalhePage() {
                         fecharDetalheEvento
                       }
                     >
-                      Fechar
+                      {t("common.close")}
                     </button>
                   </div>
                 </>
               ) : (
                 <div className="ci-event-detail-loading">
-                  Não foi possível exibir este evento.
+                  {t("detail.eventModal.cannotDisplay")}
                 </div>
               )}
             </div>
@@ -3667,11 +3924,11 @@ export default function IntegracaoDetalhePage() {
             </div>
 
             <h2>
-              Revogar esta credencial?
+              {t("detail.revokeModal.title")}
             </h2>
 
             <p>
-              A integração deixará de funcionar imediatamente. Uma credencial revogada não poderá ser reativada.
+              {t("detail.revokeModal.description")}
             </p>
 
             <div className="ci-modal-actions">
@@ -3687,7 +3944,7 @@ export default function IntegracaoDetalhePage() {
                   )
                 }
               >
-                Cancelar
+                {t("common.cancel")}
               </button>
 
               <button
@@ -3701,8 +3958,8 @@ export default function IntegracaoDetalhePage() {
                 }
               >
                 {processandoStatus
-                  ? "Revogando..."
-                  : "Sim, revogar"}
+                  ? t("detail.revokeModal.revoking")
+                  : t("detail.revokeModal.confirm")}
               </button>
             </div>
           </div>
@@ -3715,17 +3972,17 @@ export default function IntegracaoDetalhePage() {
             <div className="ci-modal ci-secret-modal">
               <div className="ci-secret-warning">
                 <strong>
-                  Guarde estas informações agora
+                  {t("credentials.saveNow")}
                 </strong>
 
                 <p>
-                  Por segurança, o novo segredo não poderá ser exibido novamente.
+                  {t("detail.secretModal.warning")}
                 </p>
               </div>
 
               <div className="ci-secret-field">
                 <label>
-                  Chave pública
+                  {t("credentials.publicKey")}
                 </label>
 
                 <code>
@@ -3740,17 +3997,17 @@ export default function IntegracaoDetalhePage() {
                   onClick={() =>
                     void copiar(
                       credenciaisGeradas.chavePublica,
-                      "Chave pública copiada."
+                      t("success.publicKeyCopied")
                     )
                   }
                 >
-                  Copiar chave
+                  {t("detail.secretModal.copyKey")}
                 </button>
               </div>
 
               <div className="ci-secret-field">
                 <label>
-                  Novo segredo
+                  {t("detail.secretModal.newSecret")}
                 </label>
 
                 <code>
@@ -3765,11 +4022,11 @@ export default function IntegracaoDetalhePage() {
                   onClick={() =>
                     void copiar(
                       credenciaisGeradas.segredo,
-                      "Segredo copiado."
+                      t("success.secretCopied")
                     )
                   }
                 >
-                  Copiar segredo
+                  {t("detail.secretModal.copySecret")}
                 </button>
               </div>
 
@@ -3787,12 +4044,89 @@ export default function IntegracaoDetalhePage() {
                     );
                   }}
                 >
-                  Já guardei as informações
+                  {t("credentials.saved")}
                 </button>
               </div>
             </div>
           </div>
         )}
+      <style jsx global>{`
+        .captacao-integracao-detalhe-page
+          .ci-theme-select {
+          position: relative;
+          width: 100%;
+        }
+
+        .captacao-integracao-detalhe-page
+          .ci-theme-select-button {
+          width: 100%;
+          min-height: 42px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
+          padding: 10px 12px;
+          border: 1px solid var(--ci-border);
+          border-radius: 12px;
+          background: var(--ci-input);
+          color: var(--ci-text);
+          font: inherit;
+          text-align: left;
+          cursor: pointer;
+        }
+
+        .captacao-integracao-detalhe-page
+          .ci-theme-select-button:disabled {
+          cursor: not-allowed;
+          opacity: 0.58;
+        }
+
+        .captacao-integracao-detalhe-page
+          .ci-theme-select-arrow {
+          flex: 0 0 auto;
+          font-size: 10px;
+        }
+
+        .captacao-integracao-detalhe-page
+          .ci-theme-select-menu {
+          position: absolute;
+          z-index: 5200;
+          left: 0;
+          right: 0;
+          top: calc(100% + 5px);
+          max-height: 260px;
+          overflow-y: auto;
+          padding: 5px;
+          border: 1px solid var(--ci-border);
+          border-radius: 12px;
+          background: var(--ci-card);
+          color: var(--ci-text);
+          box-shadow:
+            0 18px 38px rgba(0, 0, 0, 0.28);
+        }
+
+        .captacao-integracao-detalhe-page
+          .ci-theme-select-option {
+          width: 100%;
+          display: block;
+          padding: 9px 10px;
+          border: 0;
+          border-radius: 8px;
+          background: transparent;
+          color: var(--ci-text);
+          font: inherit;
+          text-align: left;
+          cursor: pointer;
+        }
+
+        .captacao-integracao-detalhe-page
+          .ci-theme-select-option:hover,
+        .captacao-integracao-detalhe-page
+          .ci-theme-select-option.is-selected {
+          background: var(--ci-soft-strong);
+        }
+      `}</style>
+
     </div>
   );
 }

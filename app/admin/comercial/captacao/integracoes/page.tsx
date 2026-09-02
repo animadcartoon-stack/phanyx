@@ -6,8 +6,13 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
+import {
+  useLocale,
+  useTranslations,
+} from "next-intl";
 
 type TipoIntegracao =
   | "WEBHOOK_ENTRADA"
@@ -141,94 +146,71 @@ type CredenciaisCriadas = {
   exibirUmaUnicaVez: boolean;
 };
 
-function nomeTipo(
+const CHAVES_TIPO = {
+  WEBHOOK_ENTRADA:
+    "list.types.webhookIn",
+  WEBHOOK_SAIDA:
+    "list.types.webhookOut",
+  META_LEAD_ADS:
+    "list.types.metaLeadAds",
+  GOOGLE_LEAD_FORM:
+    "list.types.googleLeadForm",
+  API:
+    "list.types.api",
+  IMPORTACAO:
+    "list.types.import",
+  OUTRA:
+    "list.types.other",
+} as const;
+
+const CHAVES_DESCRICAO_TIPO = {
+  WEBHOOK_ENTRADA:
+    "list.typeDescriptions.webhookIn",
+  WEBHOOK_SAIDA:
+    "list.typeDescriptions.webhookOut",
+  META_LEAD_ADS:
+    "list.typeDescriptions.metaLeadAds",
+  GOOGLE_LEAD_FORM:
+    "list.typeDescriptions.googleLeadForm",
+  API:
+    "list.typeDescriptions.api",
+  IMPORTACAO:
+    "list.typeDescriptions.import",
+  OUTRA:
+    "list.typeDescriptions.other",
+} as const;
+
+const CHAVES_STATUS = {
+  INATIVA:
+    "list.statuses.inactive",
+  ATIVA:
+    "list.statuses.active",
+  PAUSADA:
+    "list.statuses.paused",
+  ERRO:
+    "list.statuses.error",
+  REVOGADA:
+    "list.statuses.revoked",
+} as const;
+
+function chaveTipo(
   tipo: TipoIntegracao
 ) {
-  const mapa: Record<
-    TipoIntegracao,
-    string
-  > = {
-    WEBHOOK_ENTRADA:
-      "Receber dados por webhook",
-
-    WEBHOOK_SAIDA:
-      "Enviar dados por webhook",
-
-    META_LEAD_ADS:
-      "Meta Lead Ads",
-
-    GOOGLE_LEAD_FORM:
-      "Google Lead Forms",
-
-    API:
-      "Integração por API",
-
-    IMPORTACAO:
-      "Importação de dados",
-
-    OUTRA:
-      "Outra integração",
-  };
-
-  return mapa[tipo];
+  return CHAVES_TIPO[tipo];
 }
 
-function descricaoTipo(
+function chaveDescricaoTipo(
   tipo: TipoIntegracao
 ) {
-  const mapa: Record<
-    TipoIntegracao,
-    string
-  > = {
-    WEBHOOK_ENTRADA:
-      "Receba automaticamente contatos enviados por outro sistema.",
-
-    WEBHOOK_SAIDA:
-      "Envie eventos e dados da captação para outro sistema.",
-
-    META_LEAD_ADS:
-      "Receba interessados captados em formulários de anúncios da Meta.",
-
-    GOOGLE_LEAD_FORM:
-      "Receba interessados captados em formulários de anúncios do Google.",
-
-    API:
-      "Permita que outro sistema envie dados diretamente ao PHANYX.",
-
-    IMPORTACAO:
-      "Identifique integrações usadas em processos de importação.",
-
-    OUTRA:
-      "Use para integrações que não se enquadram nas opções anteriores.",
-  };
-
-  return mapa[tipo];
+  return CHAVES_DESCRICAO_TIPO[
+    tipo
+  ];
 }
 
-function nomeStatus(
+function chaveStatus(
   status: StatusIntegracao
 ) {
-  const mapa: Record<
-    StatusIntegracao,
-    string
-  > = {
-    INATIVA:
-      "Inativa",
-
-    ATIVA:
-      "Ativa",
-
-    PAUSADA:
-      "Pausada",
-
-    ERRO:
-      "Com problema",
-
-    REVOGADA:
-      "Revogada",
-  };
-
-  return mapa[status];
+  return CHAVES_STATUS[status];
 }
 
 function classeStatus(
@@ -254,10 +236,12 @@ function classeStatus(
 }
 
 function formatarData(
-  valor?: string | null
+  valor: string | null | undefined,
+  locale: string,
+  nunca: string
 ) {
   if (!valor) {
-    return "Nunca";
+    return nunca;
   }
 
   const data = new Date(valor);
@@ -267,11 +251,11 @@ function formatarData(
       data.getTime()
     )
   ) {
-    return "Nunca";
+    return nunca;
   }
 
   return new Intl.DateTimeFormat(
-    "pt-BR",
+    locale,
     {
       dateStyle: "short",
       timeStyle: "short",
@@ -279,7 +263,155 @@ function formatarData(
   ).format(data);
 }
 
+type OpcaoSeletor = {
+  value: string;
+  label: string;
+};
+
+function SeletorIntegracao({
+  value,
+  options,
+  onChange,
+  disabled = false,
+}: {
+  value: string;
+  options: OpcaoSeletor[];
+  onChange: (value: string) => void;
+  disabled?: boolean;
+}) {
+  const [
+    aberto,
+    setAberto,
+  ] = useState(false);
+
+  const ref =
+    useRef<HTMLDivElement>(
+      null
+    );
+
+  useEffect(() => {
+    function fecharFora(
+      event: MouseEvent
+    ) {
+      if (
+        ref.current &&
+        !ref.current.contains(
+          event.target as Node
+        )
+      ) {
+        setAberto(false);
+      }
+    }
+
+    document.addEventListener(
+      "mousedown",
+      fecharFora
+    );
+
+    return () => {
+      document.removeEventListener(
+        "mousedown",
+        fecharFora
+      );
+    };
+  }, []);
+
+  const selecionada =
+    options.find(
+      (option) =>
+        option.value === value
+    ) ?? options[0];
+
+  return (
+    <div
+      ref={ref}
+      className="phanyx-integracao-select relative"
+    >
+      <button
+        type="button"
+        disabled={disabled}
+        aria-haspopup="listbox"
+        aria-expanded={aberto}
+        onClick={() =>
+          setAberto(
+            (atual) =>
+              !atual
+          )
+        }
+        className="phanyx-integracao-select-button flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        <span className="truncate">
+          {selecionada?.label ?? ""}
+        </span>
+
+        <span
+          aria-hidden="true"
+          className="text-[10px]"
+        >
+          {aberto
+            ? "▲"
+            : "▼"}
+        </span>
+      </button>
+
+      {aberto &&
+        !disabled && (
+          <div
+            role="listbox"
+            className="phanyx-integracao-select-menu absolute left-0 right-0 top-full z-[220] mt-1 max-h-64 overflow-y-auto rounded-xl p-1 shadow-2xl"
+          >
+            {options.map(
+              (option) => {
+                const ativa =
+                  option.value ===
+                  value;
+
+                return (
+                  <button
+                    key={
+                      option.value
+                    }
+                    type="button"
+                    role="option"
+                    aria-selected={
+                      ativa
+                    }
+                    onClick={() => {
+                      onChange(
+                        option.value
+                      );
+                      setAberto(
+                        false
+                      );
+                    }}
+                    className={`phanyx-integracao-select-option block w-full rounded-lg px-3 py-2 text-left text-sm ${
+                      ativa
+                        ? "is-selected"
+                        : ""
+                    }`}
+                  >
+                    {
+                      option.label
+                    }
+                  </button>
+                );
+              }
+            )}
+          </div>
+        )}
+    </div>
+  );
+}
+
 export default function IntegracoesCaptacaoPage() {
+  const t =
+    useTranslations(
+      "AdminCommercialIntegrations"
+    );
+
+  const locale =
+    useLocale();
+
   const [
     dados,
     setDados,
@@ -491,8 +623,8 @@ export default function IntegracoesCaptacaoPage() {
               json &&
                 "error" in json
                 ? json.error ||
-                "Não foi possível consultar as integrações."
-                : "Não foi possível consultar as integrações."
+                t("errors.load")
+                : t("errors.load")
             );
           }
 
@@ -506,7 +638,7 @@ export default function IntegracoesCaptacaoPage() {
             error instanceof
               Error
               ? error.message
-              : "Não foi possível consultar as integrações."
+              : t("errors.load")
           );
         } finally {
           setCarregando(
@@ -523,6 +655,7 @@ export default function IntegracoesCaptacaoPage() {
         filtroTipo,
         filtroStatus,
         filtroAtivo,
+        t,
       ]
     );
 
@@ -640,7 +773,7 @@ export default function IntegracoesCaptacaoPage() {
 
     if (!nome.trim()) {
       setErro(
-        "Informe um nome para a integração."
+        t("errors.nameRequired")
       );
 
       return;
@@ -652,7 +785,7 @@ export default function IntegracoesCaptacaoPage() {
       !urlEndpoint.trim()
     ) {
       setErro(
-        "Informe para qual endereço o PHANYX deverá enviar os dados."
+        t("errors.endpointRequired")
       );
 
       return;
@@ -749,7 +882,7 @@ export default function IntegracoesCaptacaoPage() {
       ) {
         throw new Error(
           json?.error ||
-          "Não foi possível criar a integração."
+          t("errors.create")
         );
       }
 
@@ -771,7 +904,7 @@ export default function IntegracoesCaptacaoPage() {
 
       setMensagem(
         json.message ||
-        "Integração criada com sucesso."
+        t("success.created")
       );
 
       await carregar(
@@ -784,7 +917,7 @@ export default function IntegracoesCaptacaoPage() {
         error instanceof
           Error
           ? error.message
-          : "Não foi possível criar a integração."
+          : t("errors.create")
       );
     } finally {
       setSalvando(
@@ -820,8 +953,8 @@ export default function IntegracoesCaptacaoPage() {
         <div className="mx-auto max-w-7xl">
           <div className="phanyx-card rounded-3xl p-8 shadow-sm">
             <p className="font-semibold">
-              Carregando integrações...
-            </p>
+                  {t("list.loading")}
+                </p>
           </div>
         </div>
       </div>
@@ -839,8 +972,8 @@ export default function IntegracoesCaptacaoPage() {
                 href="/admin/comercial/captacao"
                 className="text-sm font-bold text-slate-500"
               >
-                ← Central de Captação
-              </Link>
+                  {t("list.back")}
+                </Link>
 
               <div className="mt-4 flex items-center gap-3">
                 <div className="captacao-integracoes-hero-icon flex h-14 w-14 items-center justify-center rounded-2xl text-2xl text-white">
@@ -849,12 +982,12 @@ export default function IntegracoesCaptacaoPage() {
 
                 <div>
                   <h1 className="text-3xl font-black text-slate-900">
-                    Integrações da Captação
-                  </h1>
+                  {t("list.title")}
+                </h1>
 
                   <p className="mt-1 text-sm text-slate-600">
-                    Conecte o PHANYX a anúncios, sites e outros sistemas para receber ou enviar dados automaticamente.
-                  </p>
+                  {t("list.description")}
+                </p>
                 </div>
               </div>
             </div>
@@ -869,8 +1002,8 @@ export default function IntegracoesCaptacaoPage() {
                     }
                     className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-blue-700"
                   >
-                    + Nova integração
-                  </button>
+                  {t("list.newIntegration")}
+                </button>
                 )}
 
               <button
@@ -886,8 +1019,8 @@ export default function IntegracoesCaptacaoPage() {
                 className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-900 shadow-sm disabled:opacity-60"
               >
                 {atualizando
-                  ? "Atualizando..."
-                  : "↻ Atualizar"}
+                  ? t("common.refreshing")
+                  : t("common.refresh")}
               </button>
             </div>
           </div>
@@ -910,7 +1043,7 @@ export default function IntegracoesCaptacaoPage() {
             <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
               <div className="phanyx-card rounded-3xl p-5 shadow-sm">
                 <p className="phanyx-muted text-sm">
-                  Total
+                  {t("list.summary.total")}
                 </p>
 
                 <strong className="mt-2 block text-3xl">
@@ -918,13 +1051,13 @@ export default function IntegracoesCaptacaoPage() {
                 </strong>
 
                 <p className="phanyx-muted mt-2 text-xs">
-                  Integrações cadastradas
+                  {t("list.summary.totalHelp")}
                 </p>
               </div>
 
               <div className="phanyx-card rounded-3xl p-5 shadow-sm">
                 <p className="phanyx-muted text-sm">
-                  Ativas
+                  {t("list.summary.active")}
                 </p>
 
                 <strong className="mt-2 block text-3xl">
@@ -932,13 +1065,13 @@ export default function IntegracoesCaptacaoPage() {
                 </strong>
 
                 <p className="phanyx-muted mt-2 text-xs">
-                  Funcionando normalmente
+                  {t("list.summary.activeHelp")}
                 </p>
               </div>
 
               <div className="phanyx-card rounded-3xl p-5 shadow-sm">
                 <p className="phanyx-muted text-sm">
-                  Pausadas
+                  {t("list.summary.paused")}
                 </p>
 
                 <strong className="mt-2 block text-3xl">
@@ -946,13 +1079,13 @@ export default function IntegracoesCaptacaoPage() {
                 </strong>
 
                 <p className="phanyx-muted mt-2 text-xs">
-                  Temporariamente interrompidas
+                  {t("list.summary.pausedHelp")}
                 </p>
               </div>
 
               <div className="phanyx-card rounded-3xl p-5 shadow-sm">
                 <p className="phanyx-muted text-sm">
-                  Com problema
+                  {t("list.summary.error")}
                 </p>
 
                 <strong className="mt-2 block text-3xl">
@@ -960,13 +1093,13 @@ export default function IntegracoesCaptacaoPage() {
                 </strong>
 
                 <p className="phanyx-muted mt-2 text-xs">
-                  Exigem atenção
+                  {t("list.summary.errorHelp")}
                 </p>
               </div>
 
               <div className="phanyx-card rounded-3xl p-5 shadow-sm">
                 <p className="phanyx-muted text-sm">
-                  Revogadas
+                  {t("list.summary.revoked")}
                 </p>
 
                 <strong className="mt-2 block text-3xl">
@@ -974,7 +1107,7 @@ export default function IntegracoesCaptacaoPage() {
                 </strong>
 
                 <p className="phanyx-muted mt-2 text-xs">
-                  Credenciais encerradas
+                  {t("list.summary.revokedHelp")}
                 </p>
               </div>
             </section>
@@ -988,8 +1121,8 @@ export default function IntegracoesCaptacaoPage() {
               <div className="grid gap-4 lg:grid-cols-[1.6fr_1fr_1fr_1fr]">
                 <div>
                   <label className="mb-2 block text-sm font-bold">
-                    Buscar
-                  </label>
+                  {t("common.search")}
+                </label>
 
                   <input
                     type="text"
@@ -999,117 +1132,121 @@ export default function IntegracoesCaptacaoPage() {
                         e.target.value
                       )
                     }
-                    placeholder="Nome ou endereço da integração..."
+                    placeholder={t("list.filters.searchPlaceholder")}
                     className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm"
                   />
                 </div>
 
                 <div>
                   <label className="mb-2 block text-sm font-bold">
-                    Tipo
-                  </label>
+                  {t("common.type")}
+                </label>
 
-                  <select
+                  <SeletorIntegracao
                     value={
                       filtroTipo
                     }
-                    onChange={(e) =>
-                      setFiltroTipo(
-                        e.target.value
-                      )
+                    onChange={
+                      setFiltroTipo
                     }
-                    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm"
-                  >
-                    <option value="">
-                      Todos os tipos
-                    </option>
-
-                    {dados.tiposDisponiveis.map(
-                      (item) => (
-                        <option
-                          key={
-                            item
-                          }
-                          value={
-                            item
-                          }
-                        >
-                          {nomeTipo(
-                            item
-                          )}
-                        </option>
-                      )
-                    )}
-                  </select>
+                    options={[
+                      {
+                        value: "",
+                        label:
+                          t(
+                            "list.filters.allTypes"
+                          ),
+                      },
+                      ...dados.tiposDisponiveis.map(
+                        (item) => ({
+                          value:
+                            item,
+                          label:
+                            t(
+                              chaveTipo(
+                                item
+                              )
+                            ),
+                        })
+                      ),
+                    ]}
+                  />
                 </div>
 
                 <div>
                   <label className="mb-2 block text-sm font-bold">
-                    Situação
-                  </label>
+                  {t("common.status")}
+                </label>
 
-                  <select
+                  <SeletorIntegracao
                     value={
                       filtroStatus
                     }
-                    onChange={(e) =>
-                      setFiltroStatus(
-                        e.target.value
-                      )
+                    onChange={
+                      setFiltroStatus
                     }
-                    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm"
-                  >
-                    <option value="">
-                      Todas
-                    </option>
-
-                    {dados.statusDisponiveis.map(
-                      (item) => (
-                        <option
-                          key={
-                            item
-                          }
-                          value={
-                            item
-                          }
-                        >
-                          {nomeStatus(
-                            item
-                          )}
-                        </option>
-                      )
-                    )}
-                  </select>
+                    options={[
+                      {
+                        value: "",
+                        label:
+                          t(
+                            "common.allFeminine"
+                          ),
+                      },
+                      ...dados.statusDisponiveis.map(
+                        (item) => ({
+                          value:
+                            item,
+                          label:
+                            t(
+                              chaveStatus(
+                                item
+                              )
+                            ),
+                        })
+                      ),
+                    ]}
+                  />
                 </div>
 
                 <div>
                   <label className="mb-2 block text-sm font-bold">
-                    Disponibilidade
-                  </label>
+                  {t("common.availability")}
+                </label>
 
-                  <select
+                  <SeletorIntegracao
                     value={
                       filtroAtivo
                     }
-                    onChange={(e) =>
-                      setFiltroAtivo(
-                        e.target.value
-                      )
+                    onChange={
+                      setFiltroAtivo
                     }
-                    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm"
-                  >
-                    <option value="">
-                      Todas
-                    </option>
-
-                    <option value="true">
-                      Habilitadas
-                    </option>
-
-                    <option value="false">
-                      Desabilitadas
-                    </option>
-                  </select>
+                    options={[
+                      {
+                        value: "",
+                        label:
+                          t(
+                            "common.allFeminine"
+                          ),
+                      },
+                      {
+                        value:
+                          "true",
+                        label:
+                          t(
+                            "list.filters.enabled"
+                          ),
+                      },
+                      {
+                        value:
+                          "false",
+                        label:
+                          t(
+                            "list.filters.disabled"
+                          ),
+                      },
+                    ]}
+                  />
                 </div>
               </div>
 
@@ -1121,14 +1258,14 @@ export default function IntegracoesCaptacaoPage() {
                   }
                   className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-bold"
                 >
-                  Limpar
+                  {t("common.clear")}
                 </button>
 
                 <button
                   type="submit"
                   className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-blue-700"
                 >
-                  Filtrar
+                  {t("common.filter")}
                 </button>
               </div>
             </form>
@@ -1136,11 +1273,17 @@ export default function IntegracoesCaptacaoPage() {
             <section className="phanyx-card overflow-hidden rounded-3xl shadow-sm">
               <div className="border-b border-slate-200 p-5">
                 <h2 className="text-xl font-black">
-                  Integrações configuradas
+                  {t("list.configured.title")}
                 </h2>
 
                 <p className="phanyx-muted mt-1 text-sm">
-                  {dados.integracoes.length} integração(ões) encontrada(s).
+                  {t(
+                    "list.configured.results",
+                    {
+                      count:
+                        dados.integracoes.length,
+                    }
+                  )}
                 </p>
               </div>
 
@@ -1152,12 +1295,12 @@ export default function IntegracoesCaptacaoPage() {
                   </div>
 
                   <h3 className="mt-3 text-lg font-black">
-                    Nenhuma integração encontrada
-                  </h3>
+                  {t("list.configured.emptyTitle")}
+                </h3>
 
                   <p className="phanyx-muted mx-auto mt-2 max-w-lg text-sm leading-6">
-                    Crie uma integração para conectar anúncios, sites ou outros sistemas ao PHANYX.
-                  </p>
+                  {t("list.configured.emptyDescription")}
+                </p>
                 </div>
               ) : (
                 <div className="divide-y divide-slate-200">
@@ -1183,51 +1326,45 @@ export default function IntegracoesCaptacaoPage() {
                                   integracao.status
                                 )}`}
                               >
-                                {nomeStatus(
-                                  integracao.status
-                                )}
+                                {t(chaveStatus(integracao.status))}
                               </span>
                             </div>
 
                             <p className="phanyx-muted mt-1 text-sm">
-                              {nomeTipo(
-                                integracao.tipo
-                              )}
+                              {t(chaveTipo(integracao.tipo))}
                             </p>
 
                             <p className="phanyx-muted mt-1 text-xs leading-5">
-                              {descricaoTipo(
-                                integracao.tipo
-                              )}
+                              {t(chaveDescricaoTipo(integracao.tipo))}
                             </p>
 
                             <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
                                 <p className="text-xs font-bold uppercase text-slate-500">
-                                  Canal
-                                </p>
+                  {t("common.channel")}
+                </p>
 
                                 <p className="mt-1 text-sm font-bold">
                                   {integracao.canal?.nome ||
-                                    "Não vinculado"}
+                                    t("common.notLinkedMasculine")}
                                 </p>
                               </div>
 
                               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
                                 <p className="text-xs font-bold uppercase text-slate-500">
-                                  Campanha
-                                </p>
+                  {t("common.campaign")}
+                </p>
 
                                 <p className="mt-1 text-sm font-bold">
                                   {integracao.campanha?.nome ||
-                                    "Não vinculada"}
+                                    t("common.notLinkedFeminine")}
                                 </p>
                               </div>
 
                               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
                                 <p className="text-xs font-bold uppercase text-slate-500">
-                                  Recebimentos
-                                </p>
+                  {t("list.card.receipts")}
+                </p>
 
                                 <p className="mt-1 text-sm font-bold">
                                   {
@@ -1240,12 +1377,14 @@ export default function IntegracoesCaptacaoPage() {
 
                               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
                                 <p className="text-xs font-bold uppercase text-slate-500">
-                                  Último sucesso
-                                </p>
+                  {t("common.lastSuccess")}
+                </p>
 
                                 <p className="mt-1 text-sm font-bold">
                                   {formatarData(
-                                    integracao.ultimoSucessoEm
+                                    integracao.ultimoSucessoEm,
+                                    locale,
+                                    t("common.never")
                                   )}
                                 </p>
                               </div>
@@ -1256,8 +1395,8 @@ export default function IntegracoesCaptacaoPage() {
                               integracao.ultimoErro && (
                                 <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
                                   <p className="font-bold">
-                                    O que aconteceu
-                                  </p>
+                  {t("common.whatHappened")}
+                </p>
 
                                   <p className="mt-1 leading-6">
                                     {
@@ -1273,13 +1412,13 @@ export default function IntegracoesCaptacaoPage() {
                               href={`/admin/comercial/captacao/integracoes/${integracao.id}`}
                               className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-bold transition hover:bg-slate-100"
                             >
-                              Ver detalhes
-                            </Link>
+                  {t("common.viewDetails")}
+                </Link>
 
                             <span className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-bold">
                               {integracao.possuiSegredo
-                                ? "🔐 Credencial configurada"
-                                : "Credencial não necessária"}
+                                ? t("list.card.credentialConfigured")
+                                : t("list.card.credentialNotRequired")}
                             </span>
                           </div>
                         </div>
@@ -1302,17 +1441,17 @@ export default function IntegracoesCaptacaoPage() {
             className="phanyx-card max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-3xl p-6 shadow-2xl"
           >
             <h2 className="text-2xl font-black">
-              Nova integração
-            </h2>
+                  {t("list.modal.title")}
+                </h2>
 
             <p className="phanyx-muted mt-1 text-sm leading-6">
-              Informe apenas o necessário. O PHANYX cuidará automaticamente das credenciais técnicas quando elas forem exigidas.
-            </p>
+                  {t("list.modal.description")}
+                </p>
 
             <div className="mt-6 space-y-5 pb-32">
               <div>
                 <label className="mb-2 block text-sm font-bold">
-                  Nome da integração
+                  {t("common.integrationName")}
                 </label>
 
                 <input
@@ -1323,7 +1462,7 @@ export default function IntegracoesCaptacaoPage() {
                       e.target.value
                     )
                   }
-                  placeholder="Ex.: Meta - Vestibular 2027"
+                  placeholder={t("list.modal.namePlaceholder")}
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm"
                   autoFocus
                 />
@@ -1331,37 +1470,32 @@ export default function IntegracoesCaptacaoPage() {
 
               <div>
                 <label className="mb-2 block text-sm font-bold">
-                  Como os dados serão integrados?
+                  {t("list.modal.integrationMethod")}
                 </label>
 
-                <select
+                <SeletorIntegracao
                   value={tipo}
-                  onChange={(e) =>
+                  onChange={(value) =>
                     setTipo(
-                      e.target
-                        .value as TipoIntegracao
+                      value as TipoIntegracao
                     )
                   }
-                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm"
-                >
-                  {dados.tiposDisponiveis.map(
-                    (item) => (
-                      <option
-                        key={item}
-                        value={item}
-                      >
-                        {nomeTipo(
-                          item
-                        )}
-                      </option>
-                    )
+                  options={dados.tiposDisponiveis.map(
+                    (item) => ({
+                      value:
+                        item,
+                      label:
+                        t(
+                          chaveTipo(
+                            item
+                          )
+                        ),
+                    })
                   )}
-                </select>
+                />
 
                 <p className="phanyx-muted mt-2 text-xs leading-5">
-                  {descricaoTipo(
-                    tipo
-                  )}
+                  {t(chaveDescricaoTipo(tipo))}
                 </p>
               </div>
 
@@ -1369,8 +1503,8 @@ export default function IntegracoesCaptacaoPage() {
                 "WEBHOOK_SAIDA" && (
                   <div>
                     <label className="mb-2 block text-sm font-bold">
-                      Para qual endereço o PHANYX deverá enviar?
-                    </label>
+                  {t("list.modal.destinationAddress")}
+                </label>
 
                     <input
                       type="url"
@@ -1390,26 +1524,26 @@ export default function IntegracoesCaptacaoPage() {
 
               <div className="rounded-2xl border border-slate-200 p-4">
                 <h3 className="font-black">
-                  Organização da captação
+                  {t("list.modal.captureOrganization")}
                 </h3>
 
                 <p className="phanyx-muted mt-1 text-xs leading-5">
-                  Estes vínculos ajudam o PHANYX a saber de onde os interessados chegaram.
+                  {t("list.modal.captureOrganizationHelp")}
                 </p>
 
                 <div className="mt-4 grid gap-4 md:grid-cols-2">
                   <div>
                     <label className="mb-2 block text-sm font-bold">
-                      Canal
-                    </label>
+                  {t("common.channel")}
+                </label>
 
-                    <select
+                    <SeletorIntegracao
                       value={
                         canalId
                       }
-                      onChange={(e) => {
+                      onChange={(value) => {
                         setCanalId(
-                          e.target.value
+                          value
                         );
 
                         setCampanhaId(
@@ -1420,110 +1554,101 @@ export default function IntegracoesCaptacaoPage() {
                           ""
                         );
                       }}
-                      className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm"
-                    >
-                      <option value="">
-                        Sem vínculo
-                      </option>
-
-                      {dados.referencias.canais.map(
-                        (item) => (
-                          <option
-                            key={
-                              item.id
-                            }
-                            value={
-                              item.id
-                            }
-                          >
-                            {
-                              item.nome
-                            }
-                          </option>
-                        )
-                      )}
-                    </select>
+                      options={[
+                        {
+                          value: "",
+                          label:
+                            t(
+                              "common.noLink"
+                            ),
+                        },
+                        ...dados.referencias.canais.map(
+                          (item) => ({
+                            value:
+                              String(
+                                item.id
+                              ),
+                            label:
+                              item.nome,
+                          })
+                        ),
+                      ]}
+                    />
                   </div>
 
                   <div>
                     <label className="mb-2 block text-sm font-bold">
-                      Campanha
-                    </label>
+                  {t("common.campaign")}
+                </label>
 
-                    <select
+                    <SeletorIntegracao
                       value={
                         campanhaId
                       }
-                      onChange={(e) => {
+                      onChange={(value) => {
                         setCampanhaId(
-                          e.target.value
+                          value
                         );
 
                         setFormularioId(
                           ""
                         );
                       }}
-                      className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm"
-                    >
-                      <option value="">
-                        Sem vínculo
-                      </option>
-
-                      {campanhasDisponiveis.map(
-                        (item) => (
-                          <option
-                            key={
-                              item.id
-                            }
-                            value={
-                              item.id
-                            }
-                          >
-                            {
-                              item.nome
-                            }
-                          </option>
-                        )
-                      )}
-                    </select>
+                      options={[
+                        {
+                          value: "",
+                          label:
+                            t(
+                              "common.noLink"
+                            ),
+                        },
+                        ...campanhasDisponiveis.map(
+                          (item) => ({
+                            value:
+                              String(
+                                item.id
+                              ),
+                            label:
+                              item.nome,
+                          })
+                        ),
+                      ]}
+                    />
                   </div>
 
                   <div className="md:col-span-2">
                     <label className="mb-2 block text-sm font-bold">
-                      Formulário
-                    </label>
+                  {t("common.form")}
+                </label>
 
-                    <select
+                    <SeletorIntegracao
                       value={
                         formularioId
                       }
-                      onChange={(e) =>
-                        setFormularioId(
-                          e.target.value
-                        )
+                      onChange={
+                        setFormularioId
                       }
-                      className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm"
-                    >
-                      <option value="">
-                        Sem vínculo
-                      </option>
-
-                      {formulariosDisponiveis.map(
-                        (item) => (
-                          <option
-                            key={
-                              item.id
-                            }
-                            value={
-                              item.id
-                            }
-                          >
-                            {item.titulo ||
-                              item.nome}
-                          </option>
-                        )
-                      )}
-                    </select>
+                      options={[
+                        {
+                          value: "",
+                          label:
+                            t(
+                              "common.noLink"
+                            ),
+                        },
+                        ...formulariosDisponiveis.map(
+                          (item) => ({
+                            value:
+                              String(
+                                item.id
+                              ),
+                            label:
+                              item.titulo ||
+                              item.nome,
+                          })
+                        ),
+                      ]}
+                    />
                   </div>
                 </div>
               </div>
@@ -1544,12 +1669,12 @@ export default function IntegracoesCaptacaoPage() {
 
                 <span>
                   <span className="block font-bold">
-                    Ativar integração agora
-                  </span>
+                  {t("list.modal.activateNow")}
+                </span>
 
                   <span className="phanyx-muted mt-1 block text-xs leading-5">
-                    Se deixar desmarcado, a integração será salva como inativa para você concluir a configuração depois.
-                  </span>
+                  {t("list.modal.activateHelp")}
+                </span>
                 </span>
               </label>
             </div>
@@ -1567,8 +1692,8 @@ export default function IntegracoesCaptacaoPage() {
                 }
                 className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-bold"
               >
-                Cancelar
-              </button>
+                  {t("common.cancel")}
+                </button>
 
               <button
                 type="submit"
@@ -1578,8 +1703,8 @@ export default function IntegracoesCaptacaoPage() {
                 className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-blue-700 disabled:opacity-60"
               >
                 {salvando
-                  ? "Criando..."
-                  : "Criar integração"}
+                  ? t("common.creating")
+                  : t("list.modal.create")}
               </button>
             </div>
           </form>
@@ -1591,18 +1716,18 @@ export default function IntegracoesCaptacaoPage() {
           <div className="phanyx-card w-full max-w-xl rounded-3xl p-6 shadow-2xl">
             <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-900">
               <p className="font-black">
-                Guarde estas informações agora
-              </p>
+                  {t("credentials.saveNow")}
+                </p>
 
               <p className="mt-1 text-sm leading-6">
-                Por segurança, o segredo desta integração não poderá ser exibido novamente.
-              </p>
+                  {t("credentials.secretWarning")}
+                </p>
             </div>
 
             <div className="mt-5 space-y-4">
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <p className="text-xs font-bold uppercase text-slate-500">
-                  Chave pública
+                  {t("credentials.publicKey")}
                 </p>
 
                 <p className="mt-2 break-all font-mono text-sm font-bold">
@@ -1615,8 +1740,8 @@ export default function IntegracoesCaptacaoPage() {
               {credenciais.segredo && (
                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                   <p className="text-xs font-bold uppercase text-slate-500">
-                    Segredo
-                  </p>
+                  {t("credentials.secret")}
+                </p>
 
                   <p className="mt-2 break-all font-mono text-sm font-bold">
                     {
@@ -1637,12 +1762,85 @@ export default function IntegracoesCaptacaoPage() {
                 }
                 className="rounded-xl bg-neutral-800 px-4 py-2.5 text-sm font-bold text-white hover:bg-neutral-700"
               >
-                Já guardei as informações
-              </button>
+                  {t("credentials.saved")}
+                </button>
             </div>
           </div>
         </div>
       )}
+      <style jsx global>{`
+        .captacao-integracoes-page
+          .phanyx-integracao-select-button {
+          border: 1px solid #cbd5e1;
+          background: #ffffff;
+          color: #0f172a;
+        }
+
+        .captacao-integracoes-page
+          .phanyx-integracao-select-menu {
+          border: 1px solid #cbd5e1;
+          background: #ffffff;
+          color: #0f172a;
+        }
+
+        .captacao-integracoes-page
+          .phanyx-integracao-select-option:hover,
+        .captacao-integracoes-page
+          .phanyx-integracao-select-option.is-selected {
+          background: #e2e8f0;
+        }
+
+        html[data-theme="dark"]
+          .captacao-integracoes-page
+          .phanyx-integracao-select-button {
+          border-color: #1e3a8a;
+          background: #0f172a;
+          color: #f8fafc;
+        }
+
+        html[data-theme="dark"]
+          .captacao-integracoes-page
+          .phanyx-integracao-select-menu {
+          border-color: #1e3a8a;
+          background: #111827;
+          color: #f8fafc;
+        }
+
+        html[data-theme="dark"]
+          .captacao-integracoes-page
+          .phanyx-integracao-select-option:hover,
+        html[data-theme="dark"]
+          .captacao-integracoes-page
+          .phanyx-integracao-select-option.is-selected {
+          background: #1e3a8a;
+        }
+
+        html[data-theme="system"]
+          .captacao-integracoes-page
+          .phanyx-integracao-select-button {
+          border-color: #686868;
+          background: #414141;
+          color: #ffffff;
+        }
+
+        html[data-theme="system"]
+          .captacao-integracoes-page
+          .phanyx-integracao-select-menu {
+          border-color: #686868;
+          background: #383838;
+          color: #ffffff;
+        }
+
+        html[data-theme="system"]
+          .captacao-integracoes-page
+          .phanyx-integracao-select-option:hover,
+        html[data-theme="system"]
+          .captacao-integracoes-page
+          .phanyx-integracao-select-option.is-selected {
+          background: #666666;
+        }
+      `}</style>
+
     </div>
   );
 }

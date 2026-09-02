@@ -5498,8 +5498,7 @@ export default function AdminStudentSuccessPage() {
                         "unscheduled",
 
                       filtro:
-                        "HOJE" as const,
-
+                        "SEM_RETORNO" as const,
 
                       titulo:
                         t(

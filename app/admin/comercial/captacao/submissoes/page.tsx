@@ -6,8 +6,14 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
+
+import {
+  useLocale,
+  useTranslations,
+} from "next-intl";
 
 type Filtros = {
   busca: string;
@@ -204,39 +210,37 @@ const FILTROS_VAZIOS: Filtros = {
   integracaoId: "",
 };
 
-function nomeStatus(status: string) {
+function nomeStatus(
+  status: string,
+  t: any
+) {
   const mapa: Record<string, string> = {
-    RECEBIDA: "Recebida",
-    VALIDANDO: "Validando dados",
-    PROCESSANDO: "Em processamento",
-    PROCESSADA: "Processada",
-    DUPLICADA: "Duplicada",
-    REJEITADA: "Não processada",
-    SPAM: "Bloqueada como spam",
-    ERRO: "Com erro",
+    RECEBIDA: t("statuses.received.name"),
+    VALIDANDO: t("statuses.validating.name"),
+    PROCESSANDO: t("statuses.processing.name"),
+    PROCESSADA: t("statuses.processed.name"),
+    DUPLICADA: t("statuses.duplicate.name"),
+    REJEITADA: t("statuses.rejected.name"),
+    SPAM: t("statuses.spam.name"),
+    ERRO: t("statuses.error.name"),
   };
 
   return mapa[status] || status;
 }
 
-function descricaoStatus(status: string) {
+function descricaoStatus(
+  status: string,
+  t: any
+) {
   const mapa: Record<string, string> = {
-    RECEBIDA:
-      "Os dados foram recebidos e aguardam processamento.",
-    VALIDANDO:
-      "O PHANYX está verificando os dados recebidos.",
-    PROCESSANDO:
-      "O PHANYX está criando ou atualizando o lead.",
-    PROCESSADA:
-      "Os dados foram processados com sucesso.",
-    DUPLICADA:
-      "Esta entrada já havia sido recebida anteriormente.",
-    REJEITADA:
-      "Os dados não puderam ser processados.",
-    SPAM:
-      "A entrada foi bloqueada pelos mecanismos de proteção.",
-    ERRO:
-      "Ocorreu um problema durante o processamento.",
+    RECEBIDA: t("statuses.received.description"),
+    VALIDANDO: t("statuses.validating.description"),
+    PROCESSANDO: t("statuses.processing.description"),
+    PROCESSADA: t("statuses.processed.description"),
+    DUPLICADA: t("statuses.duplicate.description"),
+    REJEITADA: t("statuses.rejected.description"),
+    SPAM: t("statuses.spam.description"),
+    ERRO: t("statuses.error.description"),
   };
 
   return mapa[status] || "";
@@ -272,26 +276,32 @@ function classeStatus(status: string) {
   return "border-slate-200 bg-slate-100 text-slate-700";
 }
 
-function nomeResultado(resultado?: string | null) {
+function nomeResultado(
+  resultado: string | null | undefined,
+  t: any
+) {
   if (!resultado) {
-    return "Aguardando resultado";
+    return t("results.waiting");
   }
 
   const mapa: Record<string, string> = {
-    NAO_VERIFICADA: "Ainda não verificado",
-    NOVO_LEAD: "Novo lead criado",
+    NAO_VERIFICADA: t("results.notChecked"),
+    NOVO_LEAD: t("results.newLead"),
     LEAD_EXISTENTE_ATUALIZADO:
-      "Lead existente atualizado",
+      t("results.existingLeadUpdated"),
     DUPLICADA_IGNORADA:
-      "Entrada duplicada ignorada",
+      t("results.duplicateIgnored"),
     REVISAO_MANUAL:
-      "Necessita revisão",
+      t("results.manualReview"),
   };
 
   return mapa[resultado] || resultado;
 }
 
-function formatarData(valor?: string | null) {
+function formatarData(
+  valor: string | null | undefined,
+  locale: string
+) {
   if (!valor) {
     return "—";
   }
@@ -303,7 +313,7 @@ function formatarData(valor?: string | null) {
   }
 
   return new Intl.DateTimeFormat(
-    "pt-BR",
+    locale,
     {
       dateStyle: "short",
       timeStyle: "short",
@@ -312,7 +322,8 @@ function formatarData(valor?: string | null) {
 }
 
 function origemSubmissao(
-  submissao: Submissao
+  submissao: Submissao,
+  t: any
 ) {
   if (submissao.canal?.nome) {
     return submissao.canal.nome;
@@ -322,10 +333,308 @@ function origemSubmissao(
     return submissao.integracao.nome;
   }
 
-  return "Origem não identificada";
+  return t("list.item.unknownOrigin");
+}
+
+type OpcaoSeletor = {
+  value: string;
+  label: string;
+};
+
+function SeletorSubmissao({
+  value,
+  options,
+  onChange,
+}: {
+  value: string;
+  options: OpcaoSeletor[];
+  onChange: (value: string) => void;
+}) {
+  const [
+    aberto,
+    setAberto,
+  ] = useState(false);
+
+  const ref =
+    useRef<HTMLDivElement>(
+      null
+    );
+
+  useEffect(() => {
+    function fecharFora(
+      event: MouseEvent
+    ) {
+      if (
+        ref.current &&
+        !ref.current.contains(
+          event.target as Node
+        )
+      ) {
+        setAberto(false);
+      }
+    }
+
+    document.addEventListener(
+      "mousedown",
+      fecharFora
+    );
+
+    return () => {
+      document.removeEventListener(
+        "mousedown",
+        fecharFora
+      );
+    };
+  }, []);
+
+  const selecionada =
+    options.find(
+      (option) =>
+        option.value === value
+    ) ?? options[0];
+
+  return (
+    <div
+      ref={ref}
+      className="phanyx-submissao-select relative"
+    >
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={aberto}
+        onClick={() =>
+          setAberto(
+            (atual) =>
+              !atual
+          )
+        }
+        className="phanyx-submissao-select-button flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-left text-sm outline-none"
+      >
+        <span className="truncate">
+          {selecionada?.label ?? ""}
+        </span>
+
+        <span
+          aria-hidden="true"
+          className="text-[10px]"
+        >
+          {aberto
+            ? "▲"
+            : "▼"}
+        </span>
+      </button>
+
+      {aberto && (
+        <div
+          role="listbox"
+          className="phanyx-submissao-select-menu absolute left-0 right-0 top-full z-[220] mt-1 max-h-64 overflow-y-auto rounded-xl p-1 shadow-2xl"
+        >
+          {options.map(
+            (option) => {
+              const ativa =
+                option.value ===
+                value;
+
+              return (
+                <button
+                  key={
+                    option.value
+                  }
+                  type="button"
+                  role="option"
+                  aria-selected={
+                    ativa
+                  }
+                  onClick={() => {
+                    onChange(
+                      option.value
+                    );
+                    setAberto(
+                      false
+                    );
+                  }}
+                  className={`phanyx-submissao-select-option block w-full rounded-lg px-3 py-2 text-left text-sm ${
+                    ativa
+                      ? "is-selected"
+                      : ""
+                  }`}
+                >
+                  {
+                    option.label
+                  }
+                </button>
+              );
+            }
+          )}
+        </div>
+      )}
+      <style jsx global>{`
+        .captacao-submissoes-page
+          .phanyx-submissao-select-button {
+          border: 1px solid #cbd5e1;
+          background: #ffffff;
+          color: #0f172a;
+        }
+
+        .captacao-submissoes-page
+          .phanyx-submissao-select-menu {
+          border: 1px solid #cbd5e1;
+          background: #ffffff;
+          color: #0f172a;
+        }
+
+        .captacao-submissoes-page
+          .phanyx-submissao-select-option:hover,
+        .captacao-submissoes-page
+          .phanyx-submissao-select-option.is-selected {
+          background: #e2e8f0;
+        }
+
+        html[data-theme="dark"]
+          .captacao-submissoes-page {
+          background: #020b2a;
+          color: #f8fafc;
+        }
+
+        html[data-theme="dark"]
+          .captacao-submissoes-page
+          .phanyx-submissao-select-button {
+          border-color: #1e3a8a;
+          background: #0f172a;
+          color: #f8fafc;
+        }
+
+        html[data-theme="dark"]
+          .captacao-submissoes-page
+          .phanyx-submissao-select-menu {
+          border-color: #1e3a8a;
+          background: #111827;
+          color: #f8fafc;
+        }
+
+        html[data-theme="dark"]
+          .captacao-submissoes-page
+          .phanyx-submissao-select-option:hover,
+        html[data-theme="dark"]
+          .captacao-submissoes-page
+          .phanyx-submissao-select-option.is-selected {
+          background: #1e3a8a;
+        }
+
+        html[data-theme="system"].dark
+          .captacao-submissoes-page {
+          background: #262626;
+          color: #ffffff;
+        }
+
+        html[data-theme="system"].dark
+          .captacao-submissoes-page
+          .phanyx-admin-hero,
+        html[data-theme="system"].dark
+          .captacao-submissoes-page
+          .phanyx-card {
+          background: #171717 !important;
+          border-color: #404040 !important;
+          color: #ffffff !important;
+        }
+
+        html[data-theme="system"].dark
+          .captacao-submissoes-page
+          .bg-slate-50 {
+          background: #262626 !important;
+          border-color: #525252 !important;
+        }
+
+        html[data-theme="system"].dark
+          .captacao-submissoes-page
+          .bg-white {
+          background: #262626 !important;
+          color: #ffffff !important;
+        }
+
+        html[data-theme="system"].dark
+          .captacao-submissoes-page
+          .text-slate-900,
+        html[data-theme="system"].dark
+          .captacao-submissoes-page
+          .text-slate-950 {
+          color: #ffffff !important;
+        }
+
+        html[data-theme="system"].dark
+          .captacao-submissoes-page
+          .text-slate-600,
+        html[data-theme="system"].dark
+          .captacao-submissoes-page
+          .text-slate-500,
+        html[data-theme="system"].dark
+          .captacao-submissoes-page
+          .phanyx-muted {
+          color: #b3b3b3 !important;
+        }
+
+        html[data-theme="system"].dark
+          .captacao-submissoes-page
+          .border-slate-200,
+        html[data-theme="system"].dark
+          .captacao-submissoes-page
+          .border-slate-300 {
+          border-color: #525252 !important;
+        }
+
+        html[data-theme="system"].dark
+          .captacao-submissoes-page
+          .phanyx-input {
+          background: #414141 !important;
+          border-color: #686868 !important;
+          color: #ffffff !important;
+        }
+
+        html[data-theme="system"].dark
+          .captacao-submissoes-page
+          .phanyx-input::placeholder {
+          color: #b3b3b3 !important;
+        }
+
+        html[data-theme="system"].dark
+          .captacao-submissoes-page
+          .phanyx-submissao-select-button {
+          border-color: #686868;
+          background: #414141;
+          color: #ffffff;
+        }
+
+        html[data-theme="system"].dark
+          .captacao-submissoes-page
+          .phanyx-submissao-select-menu {
+          border-color: #686868;
+          background: #383838;
+          color: #ffffff;
+        }
+
+        html[data-theme="system"].dark
+          .captacao-submissoes-page
+          .phanyx-submissao-select-option:hover,
+        html[data-theme="system"].dark
+          .captacao-submissoes-page
+          .phanyx-submissao-select-option.is-selected {
+          background: #666666;
+        }
+      `}</style>
+
+    </div>
+  );
 }
 
 export default function SubmissoesCaptacaoPage() {
+  const t =
+    useTranslations(
+      "AdminCommercialSubmissions"
+    );
+
+  const locale =
+    useLocale();
+
   const [
     dados,
     setDados,
@@ -489,8 +798,8 @@ export default function SubmissoesCaptacaoPage() {
               json &&
                 "error" in json
                 ? json.error ||
-                "Não foi possível carregar as submissões."
-                : "Não foi possível carregar as submissões."
+                t("errors.load")
+                : t("errors.load")
             );
           }
 
@@ -499,7 +808,7 @@ export default function SubmissoesCaptacaoPage() {
           setErro(
             error instanceof Error
               ? error.message
-              : "Não foi possível carregar as submissões."
+              : t("errors.load")
           );
         } finally {
           setCarregando(false);
@@ -509,6 +818,7 @@ export default function SubmissoesCaptacaoPage() {
       [
         filtros,
         pagina,
+        t,
       ]
     );
 
@@ -568,6 +878,56 @@ export default function SubmissoesCaptacaoPage() {
     });
   }
 
+  function traduzirErroPersistido(
+    mensagem:
+      | string
+      | null
+      | undefined
+  ) {
+    if (!mensagem) {
+      return "";
+    }
+
+    const campoObrigatorio =
+      mensagem.match(
+        /^O campo ["“](.+?)["”] é obrigatório\.?$/i
+      );
+
+    if (campoObrigatorio) {
+      const campo =
+        campoObrigatorio[1];
+
+      const campos: Record<
+        string,
+        string
+      > = {
+        "Nome completo":
+          t(
+            "persistedErrors.fields.fullName"
+          ),
+        "E-mail":
+          t(
+            "persistedErrors.fields.email"
+          ),
+        "Telefone":
+          t(
+            "persistedErrors.fields.phone"
+          ),
+      };
+
+      return t(
+        "persistedErrors.requiredField",
+        {
+          field:
+            campos[campo] ||
+            campo,
+        }
+      );
+    }
+
+    return mensagem;
+  }
+
   async function reprocessarSubmissao() {
     if (
       !submissaoReprocessar
@@ -610,7 +970,7 @@ export default function SubmissoesCaptacaoPage() {
       if (!resposta.ok) {
         throw new Error(
           json?.error ||
-          "Não foi possível tentar novamente."
+          t("errors.retry")
         );
       }
 
@@ -619,7 +979,7 @@ export default function SubmissoesCaptacaoPage() {
       );
 
       setMensagem(
-        "Submissão enviada novamente para processamento."
+        t("list.success.requeued")
       );
 
       await carregar(true);
@@ -627,7 +987,7 @@ export default function SubmissoesCaptacaoPage() {
       setErro(
         error instanceof Error
           ? error.message
-          : "Não foi possível tentar novamente."
+          : t("errors.retry")
       );
     } finally {
       setReprocessandoId(
@@ -641,11 +1001,11 @@ export default function SubmissoesCaptacaoPage() {
     !dados
   ) {
     return (
-      <div className="min-h-screen p-6">
+      <div className="captacao-submissoes-page min-h-screen p-6">
         <div className="mx-auto max-w-7xl">
           <div className="phanyx-card rounded-3xl p-8 shadow-sm">
             <p className="font-semibold">
-              Carregando submissões...
+              {t("list.loading")}
             </p>
           </div>
         </div>
@@ -664,7 +1024,7 @@ export default function SubmissoesCaptacaoPage() {
                 href="/admin/comercial/captacao"
                 className="text-sm font-semibold text-slate-500"
               >
-                ← Central de Captação
+                {t("common.backToLeadGenerationCenter")}
               </Link>
 
               <div className="mt-4 flex items-center gap-3">
@@ -674,11 +1034,11 @@ export default function SubmissoesCaptacaoPage() {
 
                 <div>
                   <h1 className="text-3xl font-black text-slate-900">
-                    Submissões recebidas
+                    {t("list.header.title")}
                   </h1>
 
                   <p className="mt-1 text-sm text-slate-600">
-                    Acompanhe os dados enviados pelos interessados e o resultado de cada processamento.
+                    {t("list.header.description")}
                   </p>
                 </div>
               </div>
@@ -697,8 +1057,8 @@ export default function SubmissoesCaptacaoPage() {
               className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-900 shadow-sm disabled:opacity-60"
             >
               {atualizando
-                ? "Atualizando..."
-                : "↻ Atualizar"}
+                ? t("common.refreshing")
+                : t("common.refresh")}
             </button>
           </div>
         </section>
@@ -720,7 +1080,7 @@ export default function SubmissoesCaptacaoPage() {
             <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               <div className="phanyx-card rounded-3xl p-5 shadow-sm">
                 <p className="phanyx-muted text-sm">
-                  Total recebido
+                  {t("list.summary.total")}
                 </p>
 
                 <strong className="mt-2 block text-3xl">
@@ -728,13 +1088,13 @@ export default function SubmissoesCaptacaoPage() {
                 </strong>
 
                 <p className="phanyx-muted mt-2 text-xs">
-                  Todas as submissões
+                  {t("list.summary.totalHelp")}
                 </p>
               </div>
 
               <div className="phanyx-card rounded-3xl p-5 shadow-sm">
                 <p className="phanyx-muted text-sm">
-                  Processadas
+                  {t("list.summary.processed")}
                 </p>
 
                 <strong className="mt-2 block text-3xl">
@@ -742,13 +1102,13 @@ export default function SubmissoesCaptacaoPage() {
                 </strong>
 
                 <p className="phanyx-muted mt-2 text-xs">
-                  Concluídas com sucesso
+                  {t("list.summary.processedHelp")}
                 </p>
               </div>
 
               <div className="phanyx-card rounded-3xl p-5 shadow-sm">
                 <p className="phanyx-muted text-sm">
-                  Em andamento
+                  {t("list.summary.inProgress")}
                 </p>
 
                 <strong className="mt-2 block text-3xl">
@@ -757,13 +1117,13 @@ export default function SubmissoesCaptacaoPage() {
                 </strong>
 
                 <p className="phanyx-muted mt-2 text-xs">
-                  Aguardando ou processando
+                  {t("list.summary.inProgressHelp")}
                 </p>
               </div>
 
               <div className="phanyx-card rounded-3xl p-5 shadow-sm">
                 <p className="phanyx-muted text-sm">
-                  Exigem atenção
+                  {t("list.summary.attention")}
                 </p>
 
                 <strong className="mt-2 block text-3xl">
@@ -771,7 +1131,7 @@ export default function SubmissoesCaptacaoPage() {
                 </strong>
 
                 <p className="phanyx-muted mt-2 text-xs">
-                  Rejeitadas ou com erro
+                  {t("list.summary.attentionHelp")}
                 </p>
               </div>
             </section>
@@ -785,7 +1145,7 @@ export default function SubmissoesCaptacaoPage() {
               <div className="grid gap-4 lg:grid-cols-4">
                 <div className="lg:col-span-2">
                   <label className="mb-2 block text-sm font-bold">
-                    Buscar
+                    {t("common.search")}
                   </label>
 
                   <input
@@ -809,21 +1169,21 @@ export default function SubmissoesCaptacaoPage() {
                       )
                     }
                     className="phanyx-input w-full rounded-xl px-4 py-3 text-sm outline-none"
-                    placeholder="Nome, e-mail ou telefone..."
+                    placeholder={t("list.filters.searchPlaceholder")}
                   />
                 </div>
 
                 <div>
                   <label className="mb-2 block text-sm font-bold">
-                    Situação
+                    {t("common.status")}
                   </label>
 
-                  <select
+                  <SeletorSubmissao
                     value={
                       filtrosEdicao.status
                     }
                     onChange={(
-                      event
+                      value
                     ) =>
                       setFiltrosEdicao(
                         (
@@ -831,50 +1191,46 @@ export default function SubmissoesCaptacaoPage() {
                         ) => ({
                           ...atual,
                           status:
-                            event
-                              .target
-                              .value,
+                            value,
                         })
                       )
                     }
-                    className="phanyx-select w-full rounded-xl px-4 py-3 text-sm outline-none"
-                  >
-                    <option value="">
-                      Todas
-                    </option>
-
-                    {dados.statusDisponiveis.map(
-                      (
-                        item
-                      ) => (
-                        <option
-                          key={
-                            item
-                          }
-                          value={
-                            item
-                          }
-                        >
-                          {nomeStatus(
-                            item
-                          )}
-                        </option>
-                      )
-                    )}
-                  </select>
+                    options={[
+                      {
+                        value: "",
+                        label:
+                          t(
+                            "common.allFeminine"
+                          ),
+                      },
+                      ...dados.statusDisponiveis.map(
+                        (
+                          item
+                        ) => ({
+                          value:
+                            item,
+                          label:
+                            nomeStatus(
+                              item,
+                              t
+                            ),
+                        })
+                      ),
+                    ]}
+                  />
                 </div>
 
                 <div>
                   <label className="mb-2 block text-sm font-bold">
-                    Resultado do lead
+                    {t("list.filters.leadResult")}
                   </label>
 
-                  <select
+                  <SeletorSubmissao
                     value={
                       filtrosEdicao.resultado
                     }
                     onChange={(
-                      event
+                      value
                     ) =>
                       setFiltrosEdicao(
                         (
@@ -882,50 +1238,44 @@ export default function SubmissoesCaptacaoPage() {
                         ) => ({
                           ...atual,
                           resultado:
-                            event
-                              .target
-                              .value,
+                            value,
                         })
                       )
                     }
-                    className="phanyx-select w-full rounded-xl px-4 py-3 text-sm outline-none"
-                  >
-                    <option value="">
-                      Todos
-                    </option>
-
-                    {dados.resultadosDeduplicacaoDisponiveis.map(
-                      (
-                        item
-                      ) => (
-                        <option
-                          key={
-                            item
-                          }
-                          value={
-                            item
-                          }
-                        >
-                          {nomeResultado(
-                            item
-                          )}
-                        </option>
-                      )
-                    )}
-                  </select>
+                    options={[
+                      {
+                        value: "",
+                        label:
+                          t(
+                            "common.allMasculine"
+                          ),
+                      },
+                      ...dados.resultadosDeduplicacaoDisponiveis.map(
+                        (
+                          item
+                        ) => ({
+                          value:
+                            item,
+                          label:
+                            nomeResultado(
+                              item,
+                              t
+                            ),
+                        })
+                      ),
+                    ]}
+                  />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-bold">
-                    Canal
-                  </label>
+                  <label className="mb-2 block text-sm font-bold">{t("common.channel")}</label>
 
-                  <select
+                  <SeletorSubmissao
                     value={
                       filtrosEdicao.canalId
                     }
                     onChange={(
-                      event
+                      value
                     ) =>
                       setFiltrosEdicao(
                         (
@@ -933,48 +1283,43 @@ export default function SubmissoesCaptacaoPage() {
                         ) => ({
                           ...atual,
                           canalId:
-                            event
-                              .target
-                              .value,
+                            value,
                         })
                       )
                     }
-                    className="phanyx-select w-full rounded-xl px-4 py-3 text-sm outline-none"
-                  >
-                    <option value="">
-                      Todos os canais
-                    </option>
-
-                    {dados.referencias.canais.map(
-                      (
-                        item
-                      ) => (
-                        <option
-                          key={
-                            item.id
-                          }
-                          value={
-                            item.id
-                          }
-                        >
-                          {item.nome}
-                        </option>
-                      )
-                    )}
-                  </select>
+                    options={[
+                      {
+                        value: "",
+                        label:
+                          t(
+                            "list.filters.allChannels"
+                          ),
+                      },
+                      ...dados.referencias.canais.map(
+                        (
+                          item
+                        ) => ({
+                          value:
+                            String(
+                              item.id
+                            ),
+                          label:
+                            item.nome,
+                        })
+                      ),
+                    ]}
+                  />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-bold">
-                    Campanha
-                  </label>
+                  <label className="mb-2 block text-sm font-bold">{t("common.campaign")}</label>
 
-                  <select
+                  <SeletorSubmissao
                     value={
                       filtrosEdicao.campanhaId
                     }
                     onChange={(
-                      event
+                      value
                     ) =>
                       setFiltrosEdicao(
                         (
@@ -982,48 +1327,43 @@ export default function SubmissoesCaptacaoPage() {
                         ) => ({
                           ...atual,
                           campanhaId:
-                            event
-                              .target
-                              .value,
+                            value,
                         })
                       )
                     }
-                    className="phanyx-select w-full rounded-xl px-4 py-3 text-sm outline-none"
-                  >
-                    <option value="">
-                      Todas as campanhas
-                    </option>
-
-                    {dados.referencias.campanhas.map(
-                      (
-                        item
-                      ) => (
-                        <option
-                          key={
-                            item.id
-                          }
-                          value={
-                            item.id
-                          }
-                        >
-                          {item.nome}
-                        </option>
-                      )
-                    )}
-                  </select>
+                    options={[
+                      {
+                        value: "",
+                        label:
+                          t(
+                            "list.filters.allCampaigns"
+                          ),
+                      },
+                      ...dados.referencias.campanhas.map(
+                        (
+                          item
+                        ) => ({
+                          value:
+                            String(
+                              item.id
+                            ),
+                          label:
+                            item.nome,
+                        })
+                      ),
+                    ]}
+                  />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-bold">
-                    Formulário
-                  </label>
+                  <label className="mb-2 block text-sm font-bold">{t("common.form")}</label>
 
-                  <select
+                  <SeletorSubmissao
                     value={
                       filtrosEdicao.formularioId
                     }
                     onChange={(
-                      event
+                      value
                     ) =>
                       setFiltrosEdicao(
                         (
@@ -1031,49 +1371,44 @@ export default function SubmissoesCaptacaoPage() {
                         ) => ({
                           ...atual,
                           formularioId:
-                            event
-                              .target
-                              .value,
+                            value,
                         })
                       )
                     }
-                    className="phanyx-select w-full rounded-xl px-4 py-3 text-sm outline-none"
-                  >
-                    <option value="">
-                      Todos os formulários
-                    </option>
-
-                    {dados.referencias.formularios.map(
-                      (
-                        item
-                      ) => (
-                        <option
-                          key={
-                            item.id
-                          }
-                          value={
-                            item.id
-                          }
-                        >
-                          {item.titulo ||
-                            item.nome}
-                        </option>
-                      )
-                    )}
-                  </select>
+                    options={[
+                      {
+                        value: "",
+                        label:
+                          t(
+                            "list.filters.allForms"
+                          ),
+                      },
+                      ...dados.referencias.formularios.map(
+                        (
+                          item
+                        ) => ({
+                          value:
+                            String(
+                              item.id
+                            ),
+                          label:
+                            item.titulo ||
+                            item.nome,
+                        })
+                      ),
+                    ]}
+                  />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-bold">
-                    Integração
-                  </label>
+                  <label className="mb-2 block text-sm font-bold">{t("common.integration")}</label>
 
-                  <select
+                  <SeletorSubmissao
                     value={
                       filtrosEdicao.integracaoId
                     }
                     onChange={(
-                      event
+                      value
                     ) =>
                       setFiltrosEdicao(
                         (
@@ -1081,35 +1416,32 @@ export default function SubmissoesCaptacaoPage() {
                         ) => ({
                           ...atual,
                           integracaoId:
-                            event
-                              .target
-                              .value,
+                            value,
                         })
                       )
                     }
-                    className="phanyx-select w-full rounded-xl px-4 py-3 text-sm outline-none"
-                  >
-                    <option value="">
-                      Todas as integrações
-                    </option>
-
-                    {dados.referencias.integracoes.map(
-                      (
-                        item
-                      ) => (
-                        <option
-                          key={
-                            item.id
-                          }
-                          value={
-                            item.id
-                          }
-                        >
-                          {item.nome}
-                        </option>
-                      )
-                    )}
-                  </select>
+                    options={[
+                      {
+                        value: "",
+                        label:
+                          t(
+                            "list.filters.allIntegrations"
+                          ),
+                      },
+                      ...dados.referencias.integracoes.map(
+                        (
+                          item
+                        ) => ({
+                          value:
+                            String(
+                              item.id
+                            ),
+                          label:
+                            item.nome,
+                        })
+                      ),
+                    ]}
+                  />
                 </div>
               </div>
 
@@ -1121,14 +1453,14 @@ export default function SubmissoesCaptacaoPage() {
                   }
                   className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-bold"
                 >
-                  Limpar
+                  {t("common.clear")}
                 </button>
 
                 <button
                   type="submit"
                   className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-blue-700"
                 >
-                  Filtrar
+                  {t("common.filter")}
                 </button>
               </div>
             </form>
@@ -1136,15 +1468,11 @@ export default function SubmissoesCaptacaoPage() {
             <section className="phanyx-card overflow-hidden rounded-3xl shadow-sm">
               <div className="border-b border-slate-200 px-5 py-5">
                 <h2 className="text-xl font-black">
-                  Envios recebidos
+                  {t("list.received.title")}
                 </h2>
 
                 <p className="phanyx-muted mt-1 text-sm">
-                  {dados.paginacao.total}{" "}
-                  {dados.paginacao.total ===
-                    1
-                    ? "submissão encontrada."
-                    : "submissões encontradas."}
+                  {t("list.received.results", { count: dados.paginacao.total })}
                 </p>
               </div>
 
@@ -1156,11 +1484,11 @@ export default function SubmissoesCaptacaoPage() {
                   </div>
 
                   <h3 className="mt-4 text-lg font-black">
-                    Nenhuma submissão encontrada
+                    {t("list.empty.title")}
                   </h3>
 
                   <p className="phanyx-muted mt-2 text-sm">
-                    Ajuste os filtros ou aguarde novos interessados enviarem seus dados.
+                    {t("list.empty.description")}
                   </p>
                 </div>
               ) : (
@@ -1192,20 +1520,16 @@ export default function SubmissoesCaptacaoPage() {
                               <div className="flex flex-wrap items-center gap-2">
                                 <h3 className="text-lg font-black">
                                   {submissao.nomeSnapshot ||
-                                    "Interessado sem nome"}
+                                    t("list.item.unnamedProspect")}
                                 </h3>
 
                                 <span
                                   className={`rounded-full border px-2.5 py-1 text-xs font-bold ${classeStatus(
                                     submissao.status
                                   )}`}
-                                  title={descricaoStatus(
-                                    submissao.status
-                                  )}
+                                  title={descricaoStatus(submissao.status, t)}
                                 >
-                                  {nomeStatus(
-                                    submissao.status
-                                  )}
+                                  {nomeStatus(submissao.status, t)}
                                 </span>
                               </div>
 
@@ -1230,18 +1554,16 @@ export default function SubmissoesCaptacaoPage() {
                               <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
                                   <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
-                                    Origem
+                                    {t("common.origin")}
                                   </p>
 
                                   <p className="mt-1 text-sm font-bold">
-                                    {origemSubmissao(
-                                      submissao
-                                    )}
+                                    {origemSubmissao(submissao, t)}
                                   </p>
 
                                   {submissao.campanha?.nome && (
                                     <p className="phanyx-muted mt-1 text-xs">
-                                      Campanha:{" "}
+                                      {t("common.campaign")}:{" "}
                                       {
                                         submissao
                                           .campanha
@@ -1252,30 +1574,28 @@ export default function SubmissoesCaptacaoPage() {
                                 </div>
 
                                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                                  <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
-                                    Formulário
-                                  </p>
+                                  <p className="text-xs font-bold uppercase tracking-wide text-slate-500">{t("common.form")}</p>
 
                                   <p className="mt-1 text-sm font-bold">
                                     {submissao.formulario?.titulo ||
                                       submissao.formulario?.nome ||
-                                      "Não informado"}
+                                      t("common.notInformed")}
                                   </p>
                                 </div>
 
                                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
                                   <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
-                                    Interesse
+                                    {t("common.interest")}
                                   </p>
 
                                   <p className="mt-1 text-sm font-bold">
                                     {submissao.lead?.cursoInteresse?.nome ||
-                                      "Não informado"}
+                                      t("common.notInformed")}
                                   </p>
 
                                   {submissao.lead?.poloInteresse?.nome && (
                                     <p className="phanyx-muted mt-1 text-xs">
-                                      Unidade:{" "}
+                                      {t("common.unit")}:{" "}
                                       {
                                         submissao
                                           .lead
@@ -1288,21 +1608,17 @@ export default function SubmissoesCaptacaoPage() {
 
                                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
                                   <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
-                                    Recebido em
+                                    {t("list.item.receivedAt")}
                                   </p>
 
                                   <p className="mt-1 text-sm font-bold">
-                                    {formatarData(
-                                      submissao.recebidoEm
-                                    )}
+                                    {formatarData(submissao.recebidoEm, locale)}
                                   </p>
 
                                   {submissao.processadoEm && (
                                     <p className="phanyx-muted mt-1 text-xs">
-                                      Processado:{" "}
-                                      {formatarData(
-                                        submissao.processadoEm
-                                      )}
+                                      {t("list.item.processedPrefix")}:{" "}
+                                      {formatarData(submissao.processadoEm, locale)}
                                     </p>
                                   )}
                                 </div>
@@ -1310,18 +1626,16 @@ export default function SubmissoesCaptacaoPage() {
 
                               <div className="mt-4 flex flex-wrap items-center gap-2">
                                 <span className="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold">
-                                  {nomeResultado(
-                                    submissao.resultadoDeduplicacao
-                                  )}
+                                  {nomeResultado(submissao.resultadoDeduplicacao, t)}
                                 </span>
 
                                 {submissao.consentimentoLgpd ? (
                                   <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800">
-                                    ✓ Consentimento registrado
+                                    ✓ {t("common.consentRecorded")}
                                   </span>
                                 ) : (
                                   <span className="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold">
-                                    Consentimento não registrado
+                                    {t("common.consentNotRecorded")}
                                   </span>
                                 )}
                               </div>
@@ -1333,13 +1647,13 @@ export default function SubmissoesCaptacaoPage() {
                                 submissao.mensagemErro && (
                                   <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3">
                                     <p className="text-xs font-bold uppercase tracking-wide text-red-700">
-                                      O que aconteceu
+                                      {t("common.whatHappened")}
                                     </p>
 
                                     <p className="mt-1 text-sm text-red-800">
-                                      {
+                                      {traduzirErroPersistido(
                                         submissao.mensagemErro
-                                      }
+                                      )}
                                     </p>
                                   </div>
                                 )}
@@ -1351,7 +1665,7 @@ export default function SubmissoesCaptacaoPage() {
                                 href={`/admin/comercial/captacao/submissoes/${submissao.id}`}
                                 className="rounded-xl border border-slate-300 px-4 py-2.5 text-center text-sm font-bold"
                               >
-                                Ver detalhes
+                                {t("common.viewDetails")}
                               </Link>
 
                               {submissao.leadId && (
@@ -1359,7 +1673,7 @@ export default function SubmissoesCaptacaoPage() {
                                   href={`/admin/comercial/leads/${submissao.leadId}`}
                                   className="rounded-xl border border-slate-300 px-4 py-2.5 text-center text-sm font-bold"
                                 >
-                                  Abrir lead
+                                  {t("common.openLead")}
                                 </Link>
                               )}
 
@@ -1377,7 +1691,7 @@ export default function SubmissoesCaptacaoPage() {
                                   }
                                   className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-blue-700 disabled:opacity-60"
                                 >
-                                  Tentar novamente
+                                  {t("common.retry")}
                                 </button>
                               )}
                             </div>
@@ -1393,18 +1707,7 @@ export default function SubmissoesCaptacaoPage() {
                 1 && (
                   <div className="flex flex-col gap-3 border-t border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
                     <p className="phanyx-muted text-sm">
-                      Página{" "}
-                      {
-                        dados
-                          .paginacao
-                          .pagina
-                      }{" "}
-                      de{" "}
-                      {
-                        dados
-                          .paginacao
-                          .totalPaginas
-                      }
+                      {t("common.pagination", { page: dados.paginacao.pagina, pages: dados.paginacao.totalPaginas })}
                     </p>
 
                     <div className="flex gap-2">
@@ -1429,7 +1732,7 @@ export default function SubmissoesCaptacaoPage() {
                         }
                         className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-bold disabled:opacity-40"
                       >
-                        Anterior
+                        {t("common.previous")}
                       </button>
 
                       <button
@@ -1450,7 +1753,7 @@ export default function SubmissoesCaptacaoPage() {
                         }
                         className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-bold disabled:opacity-40"
                       >
-                        Próxima
+                        {t("common.next")}
                       </button>
                     </div>
                   </div>
@@ -1464,20 +1767,19 @@ export default function SubmissoesCaptacaoPage() {
         <div className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/60 p-4">
           <div className="phanyx-card w-full max-w-lg rounded-3xl p-6 shadow-2xl">
             <h2 className="text-xl font-black">
-              Tentar processar novamente?
+              {t("list.retryModal.title")}
             </h2>
 
             <p className="phanyx-muted mt-2 text-sm leading-6">
-              O PHANYX verificará novamente os dados enviados por{" "}
-              <strong>
-                {submissaoReprocessar.nomeSnapshot ||
-                  "este interessado"}
-              </strong>
-              .
+              {t("list.retryModal.description", {
+                name:
+                  submissaoReprocessar.nomeSnapshot ||
+                  t("list.retryModal.thisProspect"),
+              })}
             </p>
 
             <p className="phanyx-muted mt-2 text-sm leading-6">
-              Caso já exista um lead correspondente, as regras de deduplicação serão respeitadas.
+              {t("list.retryModal.deduplication")}
             </p>
 
             <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
@@ -1494,7 +1796,7 @@ export default function SubmissoesCaptacaoPage() {
                 }
                 className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-bold"
               >
-                Cancelar
+                {t("common.cancel")}
               </button>
 
               <button
@@ -1510,8 +1812,8 @@ export default function SubmissoesCaptacaoPage() {
               >
                 {reprocessandoId !==
                   null
-                  ? "Processando..."
-                  : "Tentar novamente"}
+                  ? t("common.processing")
+                  : t("common.retry")}
               </button>
             </div>
           </div>

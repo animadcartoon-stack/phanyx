@@ -8,6 +8,11 @@ import {
     useState,
 } from "react";
 
+import {
+    useLocale,
+    useTranslations,
+} from "next-intl";
+
 type EventoIntegracao = {
     id: number;
     integracaoId: number;
@@ -212,7 +217,8 @@ type RespostaErro = {
 };
 
 function formatarData(
-    valor?: string | null
+    valor: string | null | undefined,
+    locale: string
 ) {
     if (!valor) {
         return "—";
@@ -229,7 +235,7 @@ function formatarData(
     }
 
     return new Intl.DateTimeFormat(
-        "pt-BR",
+        locale,
         {
             dateStyle: "short",
             timeStyle: "short",
@@ -238,28 +244,29 @@ function formatarData(
 }
 
 function nomeStatus(
-    status: string
+    status: string,
+    t: any
 ) {
     const mapa: Record<
         string,
         string
     > = {
         RECEBIDA:
-            "Recebida",
+            t("statuses.received.name"),
         VALIDANDO:
-            "Validando dados",
+            t("statuses.validating.name"),
         PROCESSANDO:
-            "Em processamento",
+            t("statuses.processing.name"),
         PROCESSADA:
-            "Processada",
+            t("statuses.processed.name"),
         DUPLICADA:
-            "Duplicada",
+            t("statuses.duplicate.name"),
         REJEITADA:
-            "Não processada",
+            t("statuses.rejected.name"),
         SPAM:
-            "Bloqueada como spam",
+            t("statuses.spam.name"),
         ERRO:
-            "Com erro",
+            t("statuses.error.name"),
     };
 
     return (
@@ -288,8 +295,7 @@ function classeStatus(
     }
 
     if (
-        status ===
-        "ERRO" ||
+        status === "ERRO" ||
         status ===
         "REJEITADA"
     ) {
@@ -306,10 +312,11 @@ function classeStatus(
 }
 
 function nomeResultado(
-    resultado?: string | null
+    resultado: string | null | undefined,
+    t: any
 ) {
     if (!resultado) {
-        return "Ainda não verificado";
+        return t("results.notChecked");
     }
 
     const mapa: Record<
@@ -317,19 +324,19 @@ function nomeResultado(
         string
     > = {
         NAO_VERIFICADA:
-            "Ainda não verificado",
+            t("results.notChecked"),
 
         NOVO_LEAD:
-            "Novo lead criado",
+            t("results.newLead"),
 
         LEAD_EXISTENTE_ATUALIZADO:
-            "Lead existente atualizado",
+            t("results.existingLeadUpdated"),
 
         DUPLICADA_IGNORADA:
-            "Entrada duplicada ignorada",
+            t("results.duplicateIgnored"),
 
         REVISAO_MANUAL:
-            "Necessita revisão",
+            t("results.manualReview"),
     };
 
     return (
@@ -339,17 +346,35 @@ function nomeResultado(
 }
 
 function nomeDirecao(
-    valor: string
+    valor: string,
+    t: any
 ) {
     if (valor === "ENTRADA") {
-        return "Entrada";
+        return t("common.inbound");
     }
 
     if (valor === "SAIDA") {
-        return "Saída";
+        return t("common.outbound");
     }
 
     return valor;
+}
+
+function nomeStatusEvento(
+    valor: string,
+    t: any
+) {
+    const mapa: Record<string, string> = {
+        RECEBIDO: t("eventStatuses.received"),
+        PENDENTE: t("eventStatuses.pending"),
+        PROCESSANDO: t("eventStatuses.processing"),
+        PROCESSADO: t("eventStatuses.processed"),
+        ENTREGUE: t("eventStatuses.delivered"),
+        DESCARTADO: t("eventStatuses.discarded"),
+        ERRO: t("eventStatuses.error"),
+    };
+
+    return mapa[valor] || valor;
 }
 
 function JsonVisual({
@@ -357,7 +382,15 @@ function JsonVisual({
 }: {
     valor: unknown;
 }) {
-    let texto = "Sem dados.";
+    const t =
+        useTranslations(
+            "AdminCommercialSubmissions"
+        );
+
+    let texto =
+        t(
+            "detail.technical.noData"
+        );
 
     try {
         if (
@@ -372,7 +405,9 @@ function JsonVisual({
         }
     } catch {
         texto =
-            "Não foi possível exibir estes dados.";
+            t(
+                "detail.technical.cannotDisplayData"
+            );
     }
 
     return (
@@ -395,6 +430,11 @@ function ItemInformacao({
     | undefined;
     complemento?: string | null;
 }) {
+    const t =
+        useTranslations(
+            "AdminCommercialSubmissions"
+        );
+
     return (
         <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
             <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
@@ -403,7 +443,9 @@ function ItemInformacao({
 
             <p className="mt-1 break-words text-sm font-bold text-slate-900">
                 {valor ??
-                    "Não informado"}
+                    t(
+                        "common.notInformed"
+                    )}
             </p>
 
             {complemento && (
@@ -411,6 +453,75 @@ function ItemInformacao({
                     {complemento}
                 </p>
             )}
+            <style jsx global>{`
+                html[data-theme="dark"]
+                    .captacao-submissao-detalhe-page {
+                    background: #020b2a;
+                    color: #f8fafc;
+                }
+
+                html[data-theme="system"].dark
+                    .captacao-submissao-detalhe-page {
+                    background: #262626;
+                    color: #ffffff;
+                }
+
+                html[data-theme="system"].dark
+                    .captacao-submissao-detalhe-page
+                    .phanyx-admin-hero,
+                html[data-theme="system"].dark
+                    .captacao-submissao-detalhe-page
+                    .phanyx-card {
+                    background: #171717 !important;
+                    border-color: #404040 !important;
+                    color: #ffffff !important;
+                }
+
+                html[data-theme="system"].dark
+                    .captacao-submissao-detalhe-page
+                    .bg-slate-50 {
+                    background: #262626 !important;
+                    border-color: #525252 !important;
+                }
+
+                html[data-theme="system"].dark
+                    .captacao-submissao-detalhe-page
+                    .bg-white {
+                    background: #262626 !important;
+                    color: #ffffff !important;
+                }
+
+                html[data-theme="system"].dark
+                    .captacao-submissao-detalhe-page
+                    .text-slate-900,
+                html[data-theme="system"].dark
+                    .captacao-submissao-detalhe-page
+                    .text-slate-950 {
+                    color: #ffffff !important;
+                }
+
+                html[data-theme="system"].dark
+                    .captacao-submissao-detalhe-page
+                    .text-slate-600,
+                html[data-theme="system"].dark
+                    .captacao-submissao-detalhe-page
+                    .text-slate-500,
+                html[data-theme="system"].dark
+                    .captacao-submissao-detalhe-page
+                    .phanyx-muted {
+                    color: #b3b3b3 !important;
+                }
+
+                html[data-theme="system"].dark
+                    .captacao-submissao-detalhe-page
+                    .border-slate-200,
+                html[data-theme="system"].dark
+                    .captacao-submissao-detalhe-page
+                    .border-slate-300 {
+                    border-color: #525252 !important;
+                }
+            `}</style>
+
         </div>
     );
 }
@@ -422,6 +533,14 @@ export default function DetalheSubmissaoPage({
         id: string;
     };
 }) {
+    const t =
+        useTranslations(
+            "AdminCommercialSubmissions"
+        );
+
+    const locale =
+        useLocale();
+
     const submissaoId =
         Number(params.id);
 
@@ -481,7 +600,7 @@ export default function DetalheSubmissaoPage({
                     submissaoId <= 0
                 ) {
                     setErro(
-                        "Submissão inválida."
+                        t("errors.invalidSubmission")
                     );
 
                     setCarregando(
@@ -532,8 +651,8 @@ export default function DetalheSubmissaoPage({
                             json &&
                                 "error" in json
                                 ? json.error ||
-                                "Não foi possível consultar esta submissão."
-                                : "Não foi possível consultar esta submissão."
+                                t("errors.loadDetail")
+                                : t("errors.loadDetail")
                         );
                     }
 
@@ -547,7 +666,7 @@ export default function DetalheSubmissaoPage({
                         error instanceof
                             Error
                             ? error.message
-                            : "Não foi possível consultar esta submissão."
+                            : t("errors.loadDetail")
                     );
                 } finally {
                     setCarregando(
@@ -559,7 +678,10 @@ export default function DetalheSubmissaoPage({
                     );
                 }
             },
-            [submissaoId]
+            [
+                submissaoId,
+                t,
+            ]
         );
 
     useEffect(() => {
@@ -606,6 +728,58 @@ export default function DetalheSubmissaoPage({
             );
         }, [dados]);
 
+    function traduzirErroPersistido(
+        mensagem:
+        | string
+        | null
+        | undefined
+    ) {
+        if (!mensagem) {
+            return "";
+        }
+
+        const campoObrigatorio =
+            mensagem.match(
+                /^O campo ["“](.+?)["”] é obrigatório\.?$/i
+            );
+
+        if (
+            campoObrigatorio
+        ) {
+            const campo =
+                campoObrigatorio[1];
+
+            const campos: Record<
+                string,
+                string
+            > = {
+                "Nome completo":
+                    t(
+                        "persistedErrors.fields.fullName"
+                    ),
+                "E-mail":
+                    t(
+                        "persistedErrors.fields.email"
+                    ),
+                "Telefone":
+                    t(
+                        "persistedErrors.fields.phone"
+                    ),
+            };
+
+            return t(
+                "persistedErrors.requiredField",
+                {
+                    field:
+                        campos[campo] ||
+                        campo,
+                }
+            );
+        }
+
+        return mensagem;
+    }
+
     async function reprocessar() {
         if (
             !dados ||
@@ -651,7 +825,7 @@ export default function DetalheSubmissaoPage({
             ) {
                 throw new Error(
                     json?.error ||
-                    "Não foi possível tentar novamente."
+                    t("errors.retry")
                 );
             }
 
@@ -661,7 +835,7 @@ export default function DetalheSubmissaoPage({
 
             setMensagem(
                 json.message ||
-                "Submissão reprocessada com sucesso."
+                t("detail.success.reprocessed")
             );
 
             await carregar(
@@ -674,7 +848,7 @@ export default function DetalheSubmissaoPage({
                 error instanceof
                     Error
                     ? error.message
-                    : "Não foi possível tentar novamente."
+                    : t("errors.retry")
             );
         } finally {
             setReprocessando(
@@ -692,7 +866,7 @@ export default function DetalheSubmissaoPage({
                 <div className="mx-auto max-w-7xl">
                     <div className="phanyx-card rounded-3xl p-8 shadow-sm">
                         <p className="font-semibold">
-                            Carregando submissão...
+                            {t("detail.loading")}
                         </p>
                     </div>
                 </div>
@@ -711,12 +885,12 @@ export default function DetalheSubmissaoPage({
                         href="/admin/comercial/captacao/submissoes"
                         className="text-sm font-bold text-slate-600"
                     >
-                        ← Voltar às submissões
+                        {t("detail.loadError.back")}
                     </Link>
 
                     <div className="phanyx-card rounded-3xl p-8 shadow-sm">
                         <h1 className="text-2xl font-black">
-                            Não foi possível abrir esta submissão
+                            {t("detail.loadError.title")}
                         </h1>
 
                         <p className="phanyx-muted mt-3">
@@ -748,7 +922,7 @@ export default function DetalheSubmissaoPage({
                                 href="/admin/comercial/captacao/submissoes"
                                 className="text-sm font-bold text-slate-500"
                             >
-                                ← Submissões recebidas
+                                {t("detail.header.back")}
                             </Link>
 
                             <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -760,7 +934,7 @@ export default function DetalheSubmissaoPage({
                                     <div className="flex flex-wrap items-center gap-2">
                                         <h1 className="text-3xl font-black text-slate-900">
                                             {submissao.nomeSnapshot ||
-                                                `Submissão #${submissao.id}`}
+                                                t("common.submissionNumber", { id: submissao.id })}
                                         </h1>
 
                                         <span
@@ -768,17 +942,12 @@ export default function DetalheSubmissaoPage({
                                                 submissao.status
                                             )}`}
                                         >
-                                            {nomeStatus(
-                                                submissao.status
-                                            )}
+                                            {nomeStatus(submissao.status, t)}
                                         </span>
                                     </div>
 
                                     <p className="mt-1 text-sm text-slate-600">
-                                        Submissão #{submissao.id} recebida em{" "}
-                                        {formatarData(
-                                            submissao.recebidoEm
-                                        )}
+                                        {t("detail.header.receivedAt", { id: submissao.id, date: formatarData(submissao.recebidoEm, locale) })}
                                     </p>
                                 </div>
                             </div>
@@ -790,7 +959,7 @@ export default function DetalheSubmissaoPage({
                                     href={`/admin/comercial/leads/${submissao.lead.id}`}
                                     className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-900 shadow-sm"
                                 >
-                                    Abrir lead
+                                    {t("common.openLead")}
                                 </Link>
                             )}
 
@@ -804,7 +973,7 @@ export default function DetalheSubmissaoPage({
                                     }
                                     className="rounded-xl bg-neutral-800 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-neutral-700"
                                 >
-                                    Tentar novamente
+                                    {t("common.retry")}
                                 </button>
                             )}
 
@@ -821,8 +990,8 @@ export default function DetalheSubmissaoPage({
                                 className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-900 shadow-sm disabled:opacity-60"
                             >
                                 {atualizando
-                                    ? "Atualizando..."
-                                    : "↻ Atualizar"}
+                                    ? t("common.refreshing")
+                                    : t("common.refresh")}
                             </button>
                         </div>
                     </div>
@@ -843,70 +1012,66 @@ export default function DetalheSubmissaoPage({
                 <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                     <div className="phanyx-card rounded-3xl p-5 shadow-sm">
                         <p className="phanyx-muted text-sm">
-                            Situação
+                            {t("common.status")}
                         </p>
 
                         <strong className="mt-2 block text-xl">
-                            {nomeStatus(
-                                submissao.status
-                            )}
+                            {nomeStatus(submissao.status, t)}
                         </strong>
 
                         <p className="phanyx-muted mt-2 text-xs">
-                            {nomeResultado(
-                                submissao.resultadoDeduplicacao
-                            )}
+                            {nomeResultado(submissao.resultadoDeduplicacao, t)}
                         </p>
                     </div>
 
                     <div className="phanyx-card rounded-3xl p-5 shadow-sm">
                         <p className="phanyx-muted text-sm">
-                            Origem
+                            {t("common.origin")}
                         </p>
 
                         <strong className="mt-2 block text-xl">
                             {submissao.canal?.nome ||
                                 submissao.integracao?.nome ||
-                                "Não identificada"}
+                                t("detail.summary.unknownOrigin")}
                         </strong>
 
                         <p className="phanyx-muted mt-2 text-xs">
                             {submissao.campanha?.nome ||
-                                "Sem campanha vinculada"}
+                                t("detail.summary.noCampaign")}
                         </p>
                     </div>
 
                     <div className="phanyx-card rounded-3xl p-5 shadow-sm">
                         <p className="phanyx-muted text-sm">
-                            Interesse
+                            {t("common.interest")}
                         </p>
 
                         <strong className="mt-2 block text-lg">
                             {submissao.lead?.cursoInteresse?.nome ||
-                                "Não informado"}
+                                t("common.notInformed")}
                         </strong>
 
                         <p className="phanyx-muted mt-2 text-xs">
                             {submissao.lead?.poloInteresse?.nome
-                                ? `Unidade: ${submissao.lead.poloInteresse.nome}`
-                                : "Unidade não informada"}
+                                ? t("detail.summary.unitValue", { name: submissao.lead.poloInteresse.nome })
+                                : t("detail.summary.unitNotInformed")}
                         </p>
                     </div>
 
                     <div className="phanyx-card rounded-3xl p-5 shadow-sm">
                         <p className="phanyx-muted text-sm">
-                            Lead resultante
+                            {t("detail.summary.resultingLead")}
                         </p>
 
                         <strong className="mt-2 block text-xl">
                             {submissao.lead
                                 ? `#${submissao.lead.id}`
-                                : "Ainda não criado"}
+                                : t("detail.summary.notCreatedYet")}
                         </strong>
 
                         <p className="phanyx-muted mt-2 text-xs">
                             {submissao.lead?.responsavelFuncionario?.nome ||
-                                "Sem responsável definido"}
+                                t("detail.summary.noOwner")}
                         </p>
                     </div>
                 </section>
@@ -918,42 +1083,42 @@ export default function DetalheSubmissaoPage({
                         <section className="phanyx-card rounded-3xl p-6 shadow-sm">
                             <div>
                                 <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                                    Interessado
+                                    {t("detail.prospect.eyebrow")}
                                 </p>
 
                                 <h2 className="mt-1 text-2xl font-black">
-                                    Dados recebidos
+                                    {t("detail.prospect.title")}
                                 </h2>
 
                                 <p className="phanyx-muted mt-1 text-sm">
-                                    Informações principais enviadas pelo interessado.
+                                    {t("detail.prospect.description")}
                                 </p>
                             </div>
 
                             <div className="mt-5 grid gap-4 md:grid-cols-2">
                                 <ItemInformacao
-                                    titulo="Nome"
+                                    titulo={t("common.name")}
                                     valor={
                                         submissao.nomeSnapshot
                                     }
                                 />
 
                                 <ItemInformacao
-                                    titulo="E-mail"
+                                    titulo={t("common.email")}
                                     valor={
                                         submissao.emailSnapshot
                                     }
                                 />
 
                                 <ItemInformacao
-                                    titulo="Telefone"
+                                    titulo={t("common.phone")}
                                     valor={
                                         submissao.telefoneSnapshot
                                     }
                                 />
 
                                 <ItemInformacao
-                                    titulo="Idioma"
+                                    titulo={t("common.language")}
                                     valor={
                                         submissao.idioma
                                     }
@@ -964,35 +1129,35 @@ export default function DetalheSubmissaoPage({
                         <section className="phanyx-card rounded-3xl p-6 shadow-sm">
                             <div>
                                 <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                                    Captação
+                                    {t("detail.source.eyebrow")}
                                 </p>
 
                                 <h2 className="mt-1 text-2xl font-black">
-                                    Origem do interessado
+                                    {t("detail.source.title")}
                                 </h2>
 
                                 <p className="phanyx-muted mt-1 text-sm">
-                                    Veja de onde este envio chegou ao PHANYX.
+                                    {t("detail.source.description")}
                                 </p>
                             </div>
 
                             <div className="mt-5 grid gap-4 md:grid-cols-2">
                                 <ItemInformacao
-                                    titulo="Canal"
+                                    titulo={t("common.channel")}
                                     valor={
                                         submissao.canal?.nome
                                     }
                                 />
 
                                 <ItemInformacao
-                                    titulo="Campanha"
+                                    titulo={t("common.campaign")}
                                     valor={
                                         submissao.campanha?.nome
                                     }
                                 />
 
                                 <ItemInformacao
-                                    titulo="Formulário"
+                                    titulo={t("common.form")}
                                     valor={
                                         submissao.formulario?.titulo ||
                                         submissao.formulario?.nome
@@ -1000,7 +1165,7 @@ export default function DetalheSubmissaoPage({
                                 />
 
                                 <ItemInformacao
-                                    titulo="Integração"
+                                    titulo={t("common.integration")}
                                     valor={
                                         submissao.integracao?.nome
                                     }
@@ -1011,14 +1176,14 @@ export default function DetalheSubmissaoPage({
                                 submissao.referrer) && (
                                     <div className="mt-4 grid gap-4 md:grid-cols-2">
                                         <ItemInformacao
-                                            titulo="Página de origem"
+                                            titulo={t("detail.source.originPage")}
                                             valor={
                                                 submissao.paginaOrigem
                                             }
                                         />
 
                                         <ItemInformacao
-                                            titulo="Referência"
+                                            titulo={t("detail.source.referrer")}
                                             valor={
                                                 submissao.referrer
                                             }
@@ -1030,11 +1195,11 @@ export default function DetalheSubmissaoPage({
                         <section className="phanyx-card rounded-3xl p-6 shadow-sm">
                             <div>
                                 <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                                    Privacidade
+                                    {t("detail.privacy.eyebrow")}
                                 </p>
 
                                 <h2 className="mt-1 text-2xl font-black">
-                                    Consentimento e proteção de dados
+                                    {t("detail.privacy.title")}
                                 </h2>
                             </div>
 
@@ -1042,23 +1207,20 @@ export default function DetalheSubmissaoPage({
                                 {submissao.consentimentoLgpd ? (
                                     <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900">
                                         <p className="font-bold">
-                                            ✓ Consentimento registrado
+                                            ✓ {t("common.consentRecorded")}
                                         </p>
 
                                         <p className="mt-1 text-sm">
-                                            Registrado em{" "}
-                                            {formatarData(
-                                                submissao.consentimentoEm
-                                            )}
+                                            {t("detail.privacy.registeredAt", { date: formatarData(submissao.consentimentoEm, locale) })}
                                             {submissao.versaoConsentimento
-                                                ? ` · Versão ${submissao.versaoConsentimento}`
+                                                ? t("detail.privacy.versionSuffix", { version: submissao.versaoConsentimento })
                                                 : ""}
                                         </p>
                                     </div>
                                 ) : (
                                     <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-900">
                                         <p className="font-bold">
-                                            Consentimento não registrado
+                                            {t("common.consentNotRecorded")}
                                         </p>
                                     </div>
                                 )}
@@ -1066,7 +1228,7 @@ export default function DetalheSubmissaoPage({
                                 {submissao.textoConsentimentoSnapshot && (
                                     <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
                                         <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
-                                            Texto apresentado ao interessado
+                                            {t("detail.privacy.consentText")}
                                         </p>
 
                                         <p className="mt-2 whitespace-pre-wrap text-sm leading-6">
@@ -1083,49 +1245,49 @@ export default function DetalheSubmissaoPage({
                             <section className="phanyx-card rounded-3xl p-6 shadow-sm">
                                 <div>
                                     <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                                        Marketing
+                                        {t("detail.marketing.eyebrow")}
                                     </p>
 
                                     <h2 className="mt-1 text-2xl font-black">
-                                        Rastreamento da campanha
+                                        {t("detail.marketing.title")}
                                     </h2>
 
                                     <p className="phanyx-muted mt-1 text-sm">
-                                        Dados utilizados para identificar a origem da campanha.
+                                        {t("detail.marketing.description")}
                                     </p>
                                 </div>
 
                                 <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                                     <ItemInformacao
-                                        titulo="Origem da campanha"
+                                        titulo={t("detail.marketing.source")}
                                         valor={
                                             submissao.utmSource
                                         }
                                     />
 
                                     <ItemInformacao
-                                        titulo="Meio"
+                                        titulo={t("detail.marketing.medium")}
                                         valor={
                                             submissao.utmMedium
                                         }
                                     />
 
                                     <ItemInformacao
-                                        titulo="Campanha"
+                                        titulo={t("common.campaign")}
                                         valor={
                                             submissao.utmCampaign
                                         }
                                     />
 
                                     <ItemInformacao
-                                        titulo="Conteúdo"
+                                        titulo={t("detail.marketing.content")}
                                         valor={
                                             submissao.utmContent
                                         }
                                     />
 
                                     <ItemInformacao
-                                        titulo="Termo"
+                                        titulo={t("detail.marketing.term")}
                                         valor={
                                             submissao.utmTerm
                                         }
@@ -1137,7 +1299,7 @@ export default function DetalheSubmissaoPage({
                                     submissao.msclkid) && (
                                         <details className="mt-5 rounded-2xl border border-slate-200 p-4">
                                             <summary className="cursor-pointer font-bold">
-                                                Identificadores de anúncios
+                                                {t("detail.marketing.adIdentifiers")}
                                             </summary>
 
                                             <div className="mt-4 grid gap-4 md:grid-cols-3">
@@ -1172,15 +1334,15 @@ export default function DetalheSubmissaoPage({
                                 <section className="phanyx-card rounded-3xl p-6 shadow-sm">
                                     <div>
                                         <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                                            Integrações
+                                            {t("detail.integrationHistory.eyebrow")}
                                         </p>
 
                                         <h2 className="mt-1 text-2xl font-black">
-                                            Histórico de integração
+                                            {t("detail.integrationHistory.title")}
                                         </h2>
 
                                         <p className="phanyx-muted mt-1 text-sm">
-                                            Eventos relacionados à entrada ou saída desta submissão.
+                                            {t("detail.integrationHistory.description")}
                                         </p>
                                     </div>
 
@@ -1201,15 +1363,11 @@ export default function DetalheSubmissaoPage({
                                                             </p>
 
                                                             <p className="phanyx-muted mt-1 text-xs">
-                                                                {nomeDirecao(
-                                                                    evento.direcao
-                                                                )}{" "}
+                                                                {nomeDirecao(evento.direcao, t)}{" "}
                                                                 ·{" "}
-                                                                {evento.status}{" "}
+                                                                {nomeStatusEvento(evento.status, t)}{" "}
                                                                 ·{" "}
-                                                                {formatarData(
-                                                                    evento.recebidoEm
-                                                                )}
+                                                                {formatarData(evento.recebidoEm, locale)}
                                                             </p>
                                                         </div>
 
@@ -1225,9 +1383,9 @@ export default function DetalheSubmissaoPage({
 
                                                     {evento.mensagemErro && (
                                                         <div className="mt-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
-                                                            {
+                                                            {traduzirErroPersistido(
                                                                 evento.mensagemErro
-                                                            }
+                                                            )}
                                                         </div>
                                                     )}
 
@@ -1240,7 +1398,7 @@ export default function DetalheSubmissaoPage({
                                                             undefined) && (
                                                             <details className="mt-4">
                                                                 <summary className="cursor-pointer text-sm font-bold">
-                                                                    Informações técnicas
+                                                                    {t("detail.integrationHistory.technicalInformation")}
                                                                 </summary>
 
                                                                 <div className="mt-3 space-y-3">
@@ -1248,7 +1406,7 @@ export default function DetalheSubmissaoPage({
                                                                         undefined && (
                                                                             <div>
                                                                                 <p className="mb-2 text-xs font-bold uppercase text-slate-500">
-                                                                                    Cabeçalhos
+                                                                                    {t("detail.integrationHistory.headers")}
                                                                                 </p>
 
                                                                                 <JsonVisual
@@ -1263,7 +1421,7 @@ export default function DetalheSubmissaoPage({
                                                                         undefined && (
                                                                             <div>
                                                                                 <p className="mb-2 text-xs font-bold uppercase text-slate-500">
-                                                                                    Dados enviados
+                                                                                    {t("detail.integrationHistory.sentData")}
                                                                                 </p>
 
                                                                                 <JsonVisual
@@ -1278,7 +1436,7 @@ export default function DetalheSubmissaoPage({
                                                                         undefined && (
                                                                             <div>
                                                                                 <p className="mb-2 text-xs font-bold uppercase text-slate-500">
-                                                                                    Resposta
+                                                                                    {t("detail.integrationHistory.response")}
                                                                                 </p>
 
                                                                                 <JsonVisual
@@ -1303,67 +1461,57 @@ export default function DetalheSubmissaoPage({
 
                         <section className="phanyx-card rounded-3xl p-6 shadow-sm">
                             <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                                Processamento
+                                {t("detail.processing.eyebrow")}
                             </p>
 
                             <h2 className="mt-1 text-xl font-black">
-                                Situação atual
+                                {t("detail.processing.title")}
                             </h2>
 
                             <div className="mt-5 space-y-4">
                                 <ItemInformacao
-                                    titulo="Status"
-                                    valor={nomeStatus(
-                                        submissao.status
-                                    )}
+                                    titulo={t("common.status")}
+                                    valor={nomeStatus(submissao.status, t)}
                                 />
 
                                 <ItemInformacao
-                                    titulo="Resultado"
-                                    valor={nomeResultado(
-                                        submissao.resultadoDeduplicacao
-                                    )}
+                                    titulo={t("common.result")}
+                                    valor={nomeResultado(submissao.resultadoDeduplicacao, t)}
                                 />
 
                                 <ItemInformacao
-                                    titulo="Tentativas"
+                                    titulo={t("common.attempts")}
                                     valor={
                                         submissao.tentativasProcessamento
                                     }
                                 />
 
                                 <ItemInformacao
-                                    titulo="Recebido"
-                                    valor={formatarData(
-                                        submissao.recebidoEm
-                                    )}
+                                    titulo={t("common.received")}
+                                    valor={formatarData(submissao.recebidoEm, locale)}
                                 />
 
                                 <ItemInformacao
-                                    titulo="Processado"
-                                    valor={formatarData(
-                                        submissao.processadoEm
-                                    )}
+                                    titulo={t("common.processed")}
+                                    valor={formatarData(submissao.processadoEm, locale)}
                                 />
 
                                 <ItemInformacao
-                                    titulo="Última atualização"
-                                    valor={formatarData(
-                                        submissao.atualizadoEm
-                                    )}
+                                    titulo={t("common.lastUpdate")}
+                                    valor={formatarData(submissao.atualizadoEm, locale)}
                                 />
                             </div>
 
                             {submissao.mensagemErro && (
                                 <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 p-4 text-red-900">
                                     <p className="text-xs font-bold uppercase tracking-wide">
-                                        O que aconteceu
+                                        {t("common.whatHappened")}
                                     </p>
 
                                     <p className="mt-2 text-sm leading-6">
-                                        {
+                                        {traduzirErroPersistido(
                                             submissao.mensagemErro
-                                        }
+                                        )}
                                     </p>
                                 </div>
                             )}
@@ -1371,17 +1519,17 @@ export default function DetalheSubmissaoPage({
 
                         <section className="phanyx-card rounded-3xl p-6 shadow-sm">
                             <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                                Lead
+                                {t("common.lead")}
                             </p>
 
                             <h2 className="mt-1 text-xl font-black">
-                                Resultado comercial
+                                {t("detail.commercial.title")}
                             </h2>
 
                             {submissao.lead ? (
                                 <div className="mt-5 space-y-4">
                                     <ItemInformacao
-                                        titulo="Lead"
+                                        titulo={t("common.lead")}
                                         valor={
                                             submissao.lead.nome
                                         }
@@ -1389,28 +1537,28 @@ export default function DetalheSubmissaoPage({
                                     />
 
                                     <ItemInformacao
-                                        titulo="Curso"
+                                        titulo={t("common.course")}
                                         valor={
                                             submissao.lead.cursoInteresse?.nome
                                         }
                                     />
 
                                     <ItemInformacao
-                                        titulo="Unidade"
+                                        titulo={t("common.unit")}
                                         valor={
                                             submissao.lead.poloInteresse?.nome
                                         }
                                     />
 
                                     <ItemInformacao
-                                        titulo="Responsável"
+                                        titulo={t("common.owner")}
                                         valor={
                                             submissao.lead.responsavelFuncionario?.nome
                                         }
                                     />
 
                                     <ItemInformacao
-                                        titulo="Equipe"
+                                        titulo={t("common.team")}
                                         valor={
                                             submissao.lead.equipeResponsavel?.nome
                                         }
@@ -1420,17 +1568,17 @@ export default function DetalheSubmissaoPage({
                                         href={`/admin/comercial/leads/${submissao.lead.id}`}
                                         className="block rounded-xl bg-neutral-800 px-4 py-3 text-center text-sm font-bold text-white hover:bg-neutral-700"
                                     >
-                                        Abrir Ficha 360°
+                                        {t("detail.commercial.open360")}
                                     </Link>
                                 </div>
                             ) : (
                                 <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
                                     <p className="font-bold">
-                                        Nenhum lead vinculado
+                                        {t("detail.commercial.noLeadTitle")}
                                     </p>
 
                                     <p className="phanyx-muted mt-1 text-sm leading-6">
-                                        O processamento ainda não gerou ou vinculou um lead a esta submissão.
+                                        {t("detail.commercial.noLeadDescription")}
                                     </p>
                                 </div>
                             )}
@@ -1438,23 +1586,23 @@ export default function DetalheSubmissaoPage({
 
                         <details className="phanyx-card rounded-3xl p-6 shadow-sm">
                             <summary className="cursor-pointer text-lg font-black">
-                                Dados técnicos
+                                {t("detail.technical.title")}
                             </summary>
 
                             <p className="phanyx-muted mt-2 text-sm">
-                                Informações para suporte, auditoria e diagnóstico.
+                                {t("detail.technical.description")}
                             </p>
 
                             <div className="mt-5 space-y-4">
                                 <ItemInformacao
-                                    titulo="Identificador externo"
+                                    titulo={t("detail.technical.externalIdentifier")}
                                     valor={
                                         submissao.identificadorExterno
                                     }
                                 />
 
                                 <ItemInformacao
-                                    titulo="Código do erro"
+                                    titulo={t("detail.technical.errorCode")}
                                     valor={
                                         submissao.codigoErro
                                     }
@@ -1463,14 +1611,14 @@ export default function DetalheSubmissaoPage({
                                 {permissoes.podeVerAuditoria && (
                                     <>
                                         <ItemInformacao
-                                            titulo="Chave de deduplicação"
+                                            titulo={t("detail.technical.deduplicationKey")}
                                             valor={
                                                 submissao.chaveDeduplicacao
                                             }
                                         />
 
                                         <ItemInformacao
-                                            titulo="IP protegido"
+                                            titulo={t("detail.technical.protectedIp")}
                                             valor={
                                                 submissao.ipHash
                                             }
@@ -1478,7 +1626,7 @@ export default function DetalheSubmissaoPage({
 
                                         <div>
                                             <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-                                                Dados originalmente recebidos
+                                                {t("detail.technical.originalData")}
                                             </p>
 
                                             <JsonVisual
@@ -1490,7 +1638,7 @@ export default function DetalheSubmissaoPage({
 
                                         <div>
                                             <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-                                                Dados normalizados pelo PHANYX
+                                                {t("detail.technical.normalizedData")}
                                             </p>
 
                                             <JsonVisual
@@ -1511,15 +1659,15 @@ export default function DetalheSubmissaoPage({
                 <div className="fixed inset-0 z-[150] flex items-center justify-center bg-slate-950/65 p-4">
                     <div className="phanyx-card w-full max-w-lg rounded-3xl p-6 shadow-2xl">
                         <h2 className="text-xl font-black">
-                            Tentar processar novamente?
+                            {t("detail.retryModal.title")}
                         </h2>
 
                         <p className="phanyx-muted mt-2 text-sm leading-6">
-                            O PHANYX verificará novamente os dados desta submissão.
+                            {t("detail.retryModal.description")}
                         </p>
 
                         <p className="phanyx-muted mt-2 text-sm leading-6">
-                            Se já existir um lead correspondente, as regras de deduplicação serão respeitadas.
+                            {t("detail.retryModal.deduplication")}
                         </p>
 
                         <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
@@ -1535,7 +1683,7 @@ export default function DetalheSubmissaoPage({
                                 }
                                 className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-bold"
                             >
-                                Cancelar
+                                {t("common.cancel")}
                             </button>
 
                             <button
@@ -1549,8 +1697,8 @@ export default function DetalheSubmissaoPage({
                                 className="rounded-xl bg-neutral-800 px-4 py-2.5 text-sm font-bold text-white hover:bg-neutral-700 disabled:opacity-60"
                             >
                                 {reprocessando
-                                    ? "Processando..."
-                                    : "Tentar novamente"}
+                                    ? t("common.processing")
+                                    : t("common.retry")}
                             </button>
                         </div>
                     </div>

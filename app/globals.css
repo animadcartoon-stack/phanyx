@@ -34467,3 +34467,344 @@ html[data-theme="system"]
   border-color: #686868 !important;
   color: #ffffff !important;
 }
+
+/* =========================================================
+   PHANYX — ATIVIDADES EXTERNAS / TRANSPORTE
+   ========================================================= */
+
+.phanyx-transporte {
+  color: #0f172a;
+}
+
+.phanyx-transporte-card,
+.phanyx-transporte-resumo,
+.phanyx-transporte-form,
+.phanyx-transporte-segment {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.phanyx-transporte-local,
+.phanyx-transporte-location,
+.phanyx-transporte-info,
+.phanyx-transporte-empty,
+.phanyx-transporte-note,
+.phanyx-transporte-loading {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.phanyx-transporte-modal-icon {
+  background: #e2e8f0;
+}
+
+.phanyx-transporte-input {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.75rem;
+  background: #ffffff;
+  color: #0f172a;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.875rem;
+  outline: none;
+}
+
+.phanyx-transporte-input::placeholder {
+  color: #64748b;
+}
+
+.phanyx-transporte-input:focus {
+  border-color: #64748b;
+  box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.12);
+}
+
+.phanyx-transporte-select-trigger {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.phanyx-transporte-select-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: #ffffff;
+  border-color: #cbd5e1;
+}
+
+.phanyx-transporte-select-option {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-radius: 0.65rem;
+  padding: 0.7rem 0.75rem;
+  text-align: left;
+  font-size: 0.875rem;
+  color: #0f172a;
+}
+
+.phanyx-transporte-select-option:hover {
+  background: #f1f5f9;
+}
+
+.phanyx-transporte-select-option.is-selected {
+  background: #e2e8f0;
+  font-weight: 800;
+}
+
+.phanyx-transporte-chip,
+.phanyx-transporte-status {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.phanyx-transporte-error {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
+.phanyx-transporte-success {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #166534;
+}
+
+
+/* =========================================================
+   TEMA ESCURO
+   ========================================================= */
+
+html[data-theme="dark"] .phanyx-transporte {
+  color: #f5f5f5;
+}
+
+html[data-theme="dark"] .phanyx-transporte-card,
+html[data-theme="dark"] .phanyx-transporte-resumo,
+html[data-theme="dark"] .phanyx-transporte-form,
+html[data-theme="dark"] .phanyx-transporte-segment {
+  background: #242424;
+  border-color: #525252;
+  color: #f5f5f5;
+}
+
+html[data-theme="dark"] .phanyx-transporte-local,
+html[data-theme="dark"] .phanyx-transporte-location,
+html[data-theme="dark"] .phanyx-transporte-info,
+html[data-theme="dark"] .phanyx-transporte-empty,
+html[data-theme="dark"] .phanyx-transporte-note,
+html[data-theme="dark"] .phanyx-transporte-loading {
+  background: #303030;
+  border-color: #555555;
+  color: #f5f5f5;
+}
+
+html[data-theme="dark"] .phanyx-transporte-modal-icon {
+  background: #383838;
+}
+
+html[data-theme="dark"] .phanyx-transporte-input,
+html[data-theme="dark"] .phanyx-transporte-select-trigger {
+  background: #292929;
+  border-color: #5f5f5f;
+  color: #ffffff;
+}
+
+html[data-theme="dark"] .phanyx-transporte-input::placeholder {
+  color: #b5b5b5;
+}
+
+html[data-theme="dark"] .phanyx-transporte-select-menu {
+  background: #242424;
+  border-color: #555555;
+}
+
+html[data-theme="dark"] .phanyx-transporte-select-option {
+  color: #f5f5f5;
+}
+
+html[data-theme="dark"] .phanyx-transporte-select-option:hover {
+  background: #353535;
+}
+
+html[data-theme="dark"] .phanyx-transporte-select-option.is-selected {
+  background: #414141;
+}
+
+html[data-theme="dark"] .phanyx-transporte-chip,
+html[data-theme="dark"] .phanyx-transporte-status {
+  background: #303030;
+  border-color: #5a5a5a;
+}
+
+
+/* =========================================================
+   TEMA SISTEMA QUANDO O SISTEMA OPERACIONAL ESTÁ ESCURO
+   CINZAS NEUTROS — SEM CARDS AZUL-MARINHO
+   ========================================================= */
+
+@media (prefers-color-scheme: dark) {
+
+  html[data-theme="system"] .phanyx-transporte {
+    color: #f5f5f5;
+  }
+
+  html[data-theme="system"] .phanyx-transporte-card,
+  html[data-theme="system"] .phanyx-transporte-resumo,
+  html[data-theme="system"] .phanyx-transporte-form,
+  html[data-theme="system"] .phanyx-transporte-segment {
+    background: #242424;
+    border-color: #525252;
+    color: #f5f5f5;
+  }
+
+  html[data-theme="system"] .phanyx-transporte-local,
+  html[data-theme="system"] .phanyx-transporte-location,
+  html[data-theme="system"] .phanyx-transporte-info,
+  html[data-theme="system"] .phanyx-transporte-empty,
+  html[data-theme="system"] .phanyx-transporte-note,
+  html[data-theme="system"] .phanyx-transporte-loading {
+    background: #303030;
+    border-color: #555555;
+    color: #f5f5f5;
+  }
+
+  html[data-theme="system"] .phanyx-transporte-modal-icon {
+    background: #383838;
+  }
+
+  html[data-theme="system"] .phanyx-transporte-input,
+  html[data-theme="system"] .phanyx-transporte-select-trigger {
+    background: #292929;
+    border-color: #5f5f5f;
+    color: #ffffff;
+  }
+
+  html[data-theme="system"] .phanyx-transporte-input::placeholder {
+    color: #b5b5b5;
+  }
+
+  html[data-theme="system"] .phanyx-transporte-input:focus,
+  html[data-theme="system"] .phanyx-transporte-select-trigger:focus,
+  html[data-theme="system"] .phanyx-transporte-select-trigger:focus-visible {
+    border-color: #787878;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.07);
+  }
+
+  html[data-theme="system"] .phanyx-transporte-select-menu {
+    background: #242424;
+    border-color: #555555;
+  }
+
+  html[data-theme="system"] .phanyx-transporte-select-option {
+    color: #f5f5f5;
+  }
+
+  html[data-theme="system"] .phanyx-transporte-select-option:hover {
+    background: #353535;
+  }
+
+  html[data-theme="system"] .phanyx-transporte-select-option.is-selected {
+    background: #414141;
+  }
+
+  html[data-theme="system"] .phanyx-transporte-chip,
+  html[data-theme="system"] .phanyx-transporte-status {
+    background: #303030;
+    border-color: #5a5a5a;
+  }
+}
+
+/* =========================================================
+   CAPTAÇÃO — DETALHE DA SUBMISSÃO
+   TEMA SISTEMA QUANDO O SISTEMA OPERACIONAL ESTÁ ESCURO
+   ========================================================= */
+
+html[data-theme="system"].dark .captacao-submissao-detalhe-page {
+  background: #262626;
+  color: #ffffff;
+}
+
+html[data-theme="system"].dark
+  .captacao-submissao-detalhe-page
+  .phanyx-admin-hero,
+html[data-theme="system"].dark
+  .captacao-submissao-detalhe-page
+  .phanyx-card {
+  background: #171717 !important;
+  border-color: #404040 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"].dark
+  .captacao-submissao-detalhe-page
+  .bg-slate-50 {
+  background: #262626 !important;
+  border-color: #525252 !important;
+}
+
+html[data-theme="system"].dark
+  .captacao-submissao-detalhe-page
+  .bg-white {
+  background: #262626 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"].dark
+  .captacao-submissao-detalhe-page
+  .text-slate-900,
+html[data-theme="system"].dark
+  .captacao-submissao-detalhe-page
+  .text-slate-950 {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"].dark
+  .captacao-submissao-detalhe-page
+  .text-slate-600,
+html[data-theme="system"].dark
+  .captacao-submissao-detalhe-page
+  .text-slate-500,
+html[data-theme="system"].dark
+  .captacao-submissao-detalhe-page
+  .phanyx-muted {
+  color: #b3b3b3 !important;
+}
+
+html[data-theme="system"].dark
+  .captacao-submissao-detalhe-page
+  .border-slate-200,
+html[data-theme="system"].dark
+  .captacao-submissao-detalhe-page
+  .border-slate-300 {
+  border-color: #525252 !important;
+}
+
+html[data-theme="system"].dark
+  .captacao-submissao-detalhe-page
+  input,
+html[data-theme="system"].dark
+  .captacao-submissao-detalhe-page
+  select,
+html[data-theme="system"].dark
+  .captacao-submissao-detalhe-page
+  textarea {
+  background: #303030 !important;
+  border-color: #5a5a5a !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"].dark
+  .captacao-submissao-detalhe-page
+  input::placeholder,
+html[data-theme="system"].dark
+  .captacao-submissao-detalhe-page
+  textarea::placeholder {
+  color: #a3a3a3 !important;
+}
