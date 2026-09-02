@@ -504,6 +504,22 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
     color: #ffffff !important;
   }
 
+  .phanyx-certificados-page .cert-preview-panel,
+  .phanyx-certificados-page .cert-preview-header {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+  }
+
+  .phanyx-certificados-page .cert-preview-kicker {
+    color: #60a5fa !important;
+    opacity: 1 !important;
+  }
+
+  .phanyx-certificados-page .cert-preview-name {
+    color: #ffffff !important;
+    opacity: 1 !important;
+  }
+
   .phanyx-certificados-page .cert-subtle,
   .phanyx-certificados-page .cert-table-head {
     background: #f8fafc !important;
@@ -1212,13 +1228,13 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
       </div>
       {certificadoPreviewUrl && (
   <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/80 p-4">
-    <div className="flex h-[90vh] w-full max-w-6xl flex-col overflow-hidden rounded-3xl border border-slate-700 bg-slate-950 shadow-2xl">
-      <div className="flex items-center justify-between border-b border-slate-800 px-5 py-3">
+    <div className="cert-preview-panel flex h-[90vh] w-full max-w-6xl flex-col overflow-hidden rounded-3xl border shadow-2xl">
+      <div className="cert-preview-header flex items-center justify-between border-b px-5 py-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-400">
+          <p className="cert-preview-kicker text-xs font-semibold uppercase tracking-[0.18em]">
             {t("preview.kicker")}
           </p>
-          <h2 className="text-lg font-bold text-white">
+          <h2 className="cert-preview-name text-lg font-bold">
             {certificadoPreviewNome}
           </h2>
         </div>

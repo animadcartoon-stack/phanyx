@@ -255,11 +255,14 @@ await prisma.certificado.update({
   },
 });
 
-return new NextResponse(pdfBuffer as any, {
+const pdfBytes = Uint8Array.from(pdfBuffer);
+
+return new NextResponse(pdfBytes, {
   status: 200,
   headers: {
     "Content-Type": "application/pdf",
-    "Content-Disposition": `attachment; filename="${nomeFinal}"`,
+    "Content-Disposition": `inline; filename="${nomeFinal}"`,
+    "Content-Length": String(pdfBytes.byteLength),
     "Cache-Control": "no-store",
   },
 });
