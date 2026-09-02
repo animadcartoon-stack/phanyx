@@ -604,6 +604,139 @@ type PrioridadesStudentSuccessResponse = {
   PrioridadePioraIntervencao[];
 };
 
+type TipoEventoTimeline =
+  | "INTERVENCAO_REGISTRADA"
+  | "RETORNO_AGENDADO"
+  | "INTERVENCAO_ENCERRADA";
+
+type EventoTimelineStudentSuccess = {
+  id: string;
+
+  tipo:
+  TipoEventoTimeline;
+
+  data:
+  string;
+
+  intervencaoId:
+  number;
+
+  tipoIntervencao:
+  TipoIntervencao;
+
+  canal:
+  CanalIntervencao;
+
+  status:
+  StatusIntervencao |
+  null;
+
+  observacao:
+  string |
+  null;
+
+  resultado:
+  string |
+  null;
+
+  risco:
+  | {
+    nivel:
+    string |
+    null;
+
+    pontuacao:
+    number |
+    null;
+
+    cobertura:
+    number |
+    null;
+
+    confiabilidade:
+    string |
+    null;
+  }
+  | null;
+
+  indicadores:
+  | {
+    frequenciaPercentual?:
+    number |
+    null;
+
+    mediaPercentual?:
+    number |
+    null;
+
+    atividadesVencidas?:
+    number;
+
+    quantidadeAulas?:
+    number;
+
+    quantidadeAvaliacoes?:
+    number;
+  }
+  | null;
+
+  evolucao:
+  | {
+    classificacao:
+    | "POSITIVA"
+    | "NEGATIVA"
+    | "NEUTRA"
+    | "NAO_MENSURAVEL";
+
+    saldo:
+    number;
+
+    criteriosComparados:
+    number;
+
+    melhorias:
+    unknown[];
+
+    pioras:
+    unknown[];
+  }
+  | null;
+};
+
+type TimelineStudentSuccessResponse = {
+  ok:
+  boolean;
+
+  aluno: {
+    id:
+    number;
+
+    nome:
+    string;
+
+    matricula:
+    string |
+    null;
+  };
+
+  resumo: {
+    intervencoes:
+    number;
+
+    eventos:
+    number;
+
+    abertas:
+    number;
+
+    encerradas:
+    number;
+  };
+
+  eventos:
+  EventoTimelineStudentSuccess[];
+};
+
 function CardResumo({
   valor,
   titulo,
@@ -929,6 +1062,42 @@ export default function AdminStudentSuccessPage() {
     useState<
       StudentSuccessIntervencao[]
     >([]);
+
+  const [
+    timeline,
+    setTimeline,
+  ] =
+    useState<
+      EventoTimelineStudentSuccess[]
+    >([]);
+
+  const [
+    resumoTimeline,
+    setResumoTimeline,
+  ] =
+    useState<
+      TimelineStudentSuccessResponse["resumo"] |
+      null
+    >(null);
+
+  const [
+    carregandoTimeline,
+    setCarregandoTimeline,
+  ] =
+    useState(
+      false
+    );
+
+  const [
+    erroTimeline,
+    setErroTimeline,
+  ] =
+    useState<
+      string |
+      null
+    >(
+      null
+    );
 
   const [
     carregandoIntervencoes,
@@ -1350,6 +1519,134 @@ export default function AdminStudentSuccessPage() {
       alunoSelecionado,
       versaoIntervencoes,
       t,
+    ]
+  );
+
+  useEffect(
+    () => {
+      if (
+        !alunoSelecionado
+      ) {
+        setTimeline(
+          []
+        );
+
+        setResumoTimeline(
+          null
+        );
+
+        setErroTimeline(
+          null
+        );
+
+        return;
+      }
+
+      let cancelado =
+        false;
+
+      const carregarTimeline =
+        async () => {
+          setCarregandoTimeline(
+            true
+          );
+
+          setErroTimeline(
+            null
+          );
+
+          try {
+            const resposta =
+              await fetch(
+                `/api/admin/student-success/alunos/${alunoSelecionado.alunoId}/timeline`,
+                {
+                  method:
+                    "GET",
+
+                  credentials:
+                    "include",
+
+                  cache:
+                    "no-store",
+                }
+              );
+
+            const json =
+              (
+                await resposta.json()
+              ) as TimelineStudentSuccessResponse;
+
+            if (
+              !resposta.ok ||
+              !json?.ok
+            ) {
+              throw new Error(
+                "TIMELINE_LOAD_ERROR"
+              );
+            }
+
+            if (
+              cancelado
+            ) {
+              return;
+            }
+
+            setTimeline(
+              Array.isArray(
+                json.eventos
+              )
+                ? json.eventos
+                : []
+            );
+
+            setResumoTimeline(
+              json.resumo ??
+              null
+            );
+          }
+          catch (error) {
+            console.error(
+              "[STUDENT_SUCCESS_TIMELINE]",
+              error
+            );
+
+            if (
+              !cancelado
+            ) {
+              setTimeline(
+                []
+              );
+
+              setResumoTimeline(
+                null
+              );
+
+              setErroTimeline(
+                "TIMELINE_LOAD_ERROR"
+              );
+            }
+          }
+          finally {
+            if (
+              !cancelado
+            ) {
+              setCarregandoTimeline(
+                false
+              );
+            }
+          }
+        };
+
+      void carregarTimeline();
+
+      return () => {
+        cancelado =
+          true;
+      };
+    },
+    [
+      alunoSelecionado,
+      versaoIntervencoes,
     ]
   );
 
@@ -5469,7 +5766,7 @@ export default function AdminStudentSuccessPage() {
                         "overdue",
 
                       filtro:
-                        "HOJE" as const,
+                        "ATRASADOS" as const,
 
 
                       titulo:

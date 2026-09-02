@@ -7512,5 +7512,1270 @@
       "noEmail": "No email",
       "open": "Open"
     }
+  },
+  "AdminCommercialCommissionSettings": {
+    "overview": {
+      "common": {
+        "noLimit": "No limit",
+        "invalidDate": "Invalid date",
+        "until": "to"
+      },
+      "header": {
+        "section": "Sales",
+        "title": "Commission plans",
+        "description": "Define how sales are evaluated before commissions are generated for salespeople."
+      },
+      "errors": {
+        "load": "Could not load the commission plans.",
+        "nameRequired": "Enter a name for the commission plan.",
+        "create": "Could not create the commission plan."
+      },
+      "success": {
+        "created": "Commission plan created successfully."
+      },
+      "form": {
+        "title": "New commission plan",
+        "description": "Creating the plan does not make salespeople eligible immediately. The plan still needs active rules and linked salespeople.",
+        "name": {
+          "label": "Plan name",
+          "placeholder": "e.g. Sales commission 2026"
+        },
+        "descriptionField": {
+          "label": "Description",
+          "placeholder": "e.g. Standard sales team plan"
+        },
+        "startDate": "Effective start date",
+        "endDate": "Effective end date",
+        "active": {
+          "title": "Active plan",
+          "description": "Allows the plan to be used while it is in effect."
+        },
+        "confirmedPayment": {
+          "title": "Require confirmed payment",
+          "description": "Enrollment alone does not make the commission eligible."
+        },
+        "sharedSale": {
+          "title": "Allow shared sales",
+          "description": "Allows a commission to be split among participating salespeople."
+        },
+        "creating": "Creating plan...",
+        "create": "Create commission plan"
+      },
+      "list": {
+        "title": "Registered plans",
+        "description": "A plan is ready only when it has at least one active rule.",
+        "loading": "Loading plans...",
+        "emptyTitle": "No plans registered",
+        "emptyDescription": "Create the first plan using the form above.",
+        "noDescription": "No description provided.",
+        "configured": "Configured",
+        "pendingConfiguration": "Configuration pending",
+        "validity": "Effective period",
+        "activeRules": "Active rules",
+        "linkedSellers": "Linked salespeople",
+        "confirmedPayment": "Confirmed payment",
+        "required": "Required",
+        "notRequired": "Not required",
+        "warning": "This plan does not make salespeople eligible yet because it has no active rule.",
+        "configureRules": "Configure rules"
+      }
+    },
+    "plan": {
+      "invalidPlan": "Invalid plan.",
+      "common": {
+        "noLimit": "No limit",
+        "invalidDate": "Invalid date",
+        "until": "to",
+        "course": "Course",
+        "department": "Department",
+        "role": "Role or position",
+        "employee": "Employee",
+        "description": "Description",
+        "startDate": "Effective start date",
+        "endDate": "Effective end date",
+        "notes": "Notes",
+        "notesLabel": "Notes:",
+        "validityLabel": "Effective period:",
+        "active": "Active",
+        "ended": "Ended",
+        "activeFeminine": "Active",
+        "inactiveFeminine": "Inactive",
+        "noDescription": "No description.",
+        "all": "All",
+        "yes": "Yes",
+        "no": "No",
+        "selectDepartment": "Select the department...",
+        "selectRole": "Select the role or position...",
+        "selectEmployee": "Select the employee...",
+        "activeEmployees": "{count, plural, one {# active employee} other {# active employees}}"
+      },
+      "header": {
+        "back": "← Back to plans",
+        "section": "Commission plan",
+        "configureRulesFallback": "Configure rules",
+        "description": "Define who participates and which rule applies to each department, role, or employee."
+      },
+      "participation": {
+        "title": "👥 Who receives commission in this plan",
+        "description": "This choice determines whether only the people responsible for the enrollment or all employees linked to the plan receive commission.",
+        "onlyEnrollment": {
+          "title": "🎯 Enrollment participants only",
+          "description": "Only the responsible salesperson and commercial participants recorded on that enrollment receive commission."
+        },
+        "allLinked": {
+          "title": "🏢 Everyone linked to the plan",
+          "description": "All active employees linked to the plan participate, even without a login, according to the rule that applies to the role, department, or person."
+        },
+        "warning": "To give managers, coordinators, salespeople, lead-generation staff, and other roles different percentages within the same plan, create a general rule and then add specific exceptions."
+      },
+      "ruleForm": {
+        "editTitle": "Edit commission rule",
+        "newGeneralTitle": "New general commission rule",
+        "newExceptionTitle": "New commission exception",
+        "editDescription": "Change the information below and save. The edit affects only future commission calculations.",
+        "precedenceDescription": "Precedence is: specific employee, role or position, department, and finally the general rule.",
+        "application": "Rule application",
+        "scope": {
+          "general": {
+            "title": "🌐 General rule",
+            "description": "Applied when no more specific rule exists."
+          },
+          "department": {
+            "title": "🏢 Department",
+            "description": "Exception for all employees in a department."
+          },
+          "role": {
+            "title": "🪪 Role or position",
+            "description": "Exception for manager, coordinator, salesperson, leads, etc."
+          },
+          "employee": {
+            "title": "👤 Specific employee",
+            "description": "Highest priority for an individual condition."
+          }
+        },
+        "createGeneralFirst": "Create a general rule first. The exception options will then be enabled.",
+        "baseRule": "Source general rule",
+        "selectBaseRule": "Select the commission group...",
+        "inheritedBase": "Inherited basis",
+        "inheritedTrigger": "Inherited trigger",
+        "currentGeneralValue": "Current general value",
+        "ruleName": "Rule name",
+        "specificCourse": "Specific course",
+        "allCourses": "All courses",
+        "commissionType": "Commission type",
+        "percentage": "Percentage",
+        "fixedValue": "Fixed amount",
+        "calculationBase": "Calculation basis",
+        "trigger": "Commission trigger",
+        "minimumQuantity": "Minimum quantity",
+        "maximumQuantity": "Maximum quantity",
+        "refundGrace": "Clawback grace period",
+        "applicationOrder": "Application order",
+        "noMinimum": "No minimum",
+        "noMaximum": "No maximum",
+        "placeholders": {
+          "generalRule": "e.g. Main commission",
+          "managerRule": "e.g. Sales manager commission",
+          "exceptionRule": "e.g. Commission exception",
+          "description": "Explain when this rule should apply."
+        },
+        "useNetReceived": {
+          "title": "Use net amount received",
+          "description": "Prevents commission on amounts that did not actually enter cash flow."
+        },
+        "refundCancellation": {
+          "title": "Claw back on cancellation",
+          "description": "Protects the institution against canceled sales."
+        },
+        "refundDelinquency": {
+          "title": "Claw back on delinquency",
+          "description": "Allows the commission to be recovered when a payment is no longer valid."
+        },
+        "activeRule": {
+          "title": "Active rule",
+          "description": "Only active rules take part in the calculation."
+        },
+        "activeException": {
+          "title": "Active exception",
+          "description": "When active, this rule replaces the general rule for the selected target."
+        },
+        "savingChanges": "Saving changes...",
+        "savingRule": "Saving rule...",
+        "saveChanges": "Save changes",
+        "createGeneral": "Create general rule",
+        "createException": "Create commission exception",
+        "cancelEdit": "Cancel editing"
+      },
+      "participants": {
+        "title": "👥 Link participants",
+        "description": "Add a specific employee or all active employees in a department. The employee does not need a PHANYX login.",
+        "warning": "Linking defines who may participate. The applied percentage is selected by precedence: employee, role, department, then general rule.",
+        "linkType": "Link type",
+        "individual": {
+          "title": "👤 Individual employee",
+          "description": "Choose one specific person to participate in the plan."
+        },
+        "department": {
+          "title": "🏢 Entire department",
+          "description": "Add all active employees in the department at once."
+        },
+        "selectParticipant": "Select the participant...",
+        "duplicateNote": "Employees who already have another active plan in the same period will not be duplicated.",
+        "endDateHelp": "Leave blank to keep the link without an end date.",
+        "placeholders": {
+          "departmentBatch": "e.g. Sales team linked in bulk",
+          "individual": "e.g. Participant with an individual condition"
+        },
+        "linking": "Linking participants...",
+        "linkDepartment": "Link department to plan",
+        "linkEmployee": "Link employee to plan",
+        "linkedTitle": "Linked participants",
+        "empty": "No participants linked to this plan.",
+        "roleNotProvided": "Role not provided",
+        "includedByDepartment": "🏢 Added through department: {name}",
+        "individualLink": "👤 Individual link"
+      },
+      "rules": {
+        "title": "Registered rules",
+        "description": "Within the same group, only the most specific rule is used for each employee.",
+        "loading": "Loading rules...",
+        "empty": "No rules registered in this plan.",
+        "group": "Group: {name}",
+        "exceptions": "{count, plural, one {# exception} other {# exceptions}}",
+        "application": "Application",
+        "commission": "Commission",
+        "base": "Basis",
+        "trigger": "Trigger",
+        "course": "Course: {name}",
+        "refundGrace": "Clawback grace period: {count, plural, one {# day} other {# days}}",
+        "refundCancellation": "Clawback on cancellation: {value}",
+        "refundDelinquency": "Clawback on delinquency: {value}",
+        "edit": "✏️ Edit rule"
+      },
+      "labels": {
+        "base": {
+          "enrollmentValue": "Enrollment value",
+          "monthlyFeeValue": "Monthly fee value",
+          "totalContractValue": "Total contract value",
+          "receivedValue": "Amount actually received",
+          "profit": "Calculated profit",
+          "enrollmentCount": "Number of enrollments"
+        },
+        "trigger": {
+          "enrollmentConfirmed": "Enrollment confirmed",
+          "enrollmentPaymentConfirmed": "Enrollment payment confirmed",
+          "firstMonthlyFeePaid": "First monthly fee paid",
+          "eachMonthlyFeePaid": "Each monthly fee paid",
+          "manual": "Manual release by HR/Sales"
+        },
+        "scope": {
+          "general": "General rule",
+          "department": "Department",
+          "role": "Role or position",
+          "employee": "Specific employee"
+        }
+      },
+      "targets": {
+        "departmentUnknown": "Department not identified",
+        "roleUnknown": "Role not identified",
+        "employeeUnknown": "Employee not identified",
+        "general": "All participants without a more specific rule"
+      },
+      "validation": {
+        "ruleName": "Enter the rule name.",
+        "baseRule": "Select the general rule that will receive this exception.",
+        "department": "Select the department for this rule.",
+        "role": "Select the role or position for this rule.",
+        "employee": "Select the employee for this rule.",
+        "percentage": "Enter a percentage greater than zero and no more than 100%.",
+        "fixedValue": "Enter the fixed commission amount.",
+        "participantEmployee": "Select the participating employee.",
+        "participantDepartment": "Select the participating department.",
+        "linkStartDate": "Enter the start date for the link."
+      },
+      "errors": {
+        "loadRules": "Could not load the rules.",
+        "loadParticipants": "Could not load the plan participants.",
+        "loadConfiguration": "Could not load the configuration.",
+        "updateParticipationMode": "Could not change the participation mode.",
+        "updateRule": "Could not update the rule.",
+        "createRule": "Could not create the rule.",
+        "linkParticipants": "Could not link the participants."
+      },
+      "success": {
+        "participationModeUpdated": "Participation mode updated successfully.",
+        "ruleUpdated": "Rule updated successfully.",
+        "ruleCreated": "Rule created successfully.",
+        "participantsLinked": "Participants linked to the plan successfully."
+      }
+    }
+  },
+  "AdminCommercialOverview": {
+    "header": {
+      "kicker": "Institutional management",
+      "title": "Sales",
+      "description": "Manage leads, salespeople, goals, sales, enrollments, commissions, and your institution's sales results."
+    },
+    "errors": {
+      "loadSummary": "The sales summary could not be loaded."
+    },
+    "metrics": {
+      "activeLeads": {
+        "title": "Active leads",
+        "description": "Leads currently moving through the sales funnel."
+      },
+      "periodSales": {
+        "title": "Sales in the period",
+        "description": "Enrollments confirmed in the current month."
+      },
+      "goals": {
+        "title": "Goals achieved",
+        "progress": "{achieved} of {total} goal(s) for the period.",
+        "none": "No active goals for this period."
+      },
+      "pendingCommissions": {
+        "title": "Pending commissions",
+        "pending": "{count, plural, one {# entry awaiting review.} other {# entries awaiting review.}}",
+        "none": "No pending commissions for this period."
+      }
+    },
+    "resources": {
+      "title": "Sales resources",
+      "description": "Resources are released gradually and follow the department and individual permissions already configured."
+    },
+    "statuses": {
+      "available": "Available",
+      "integrated": "Integration active"
+    },
+    "modules": {
+      "leads": {
+        "title": "Leads and opportunities",
+        "description": "Register prospects and track contacts, funnel stages, and owners.",
+        "action": "Open leads and opportunities"
+      },
+      "salespeople": {
+        "title": "Salespeople",
+        "description": "Manage employees authorized to work with sales and enrollments.",
+        "action": "Open employees"
+      },
+      "teams": {
+        "title": "Sales teams",
+        "description": "Organize salespeople into teams, define leaders, and manage members.",
+        "action": "Open sales teams"
+      },
+      "goals": {
+        "title": "Sales goals",
+        "description": "Set goals by salesperson, team, course, campus, and period.",
+        "action": "Open sales goals"
+      },
+      "salesEnrollments": {
+        "title": "Sales and enrollments",
+        "description": "Track enrollments, negotiated amounts, and responsible salespeople.",
+        "action": "Open enrollments"
+      },
+      "commissions": {
+        "title": "Commissions",
+        "description": "Configure plans and rules to calculate and approve salesperson commissions.",
+        "action": "Open commission plans"
+      },
+      "reports": {
+        "title": "Reports",
+        "description": "Analyze conversion, performance, leads, enrollments, sales, and sales results.",
+        "action": "Open sales reports"
+      }
+    },
+    "hrIntegration": {
+      "title": "HR integration",
+      "description": "Commissions generated from sales and enrollments are calculated and approved in Sales. They can then be sent to HR and included in the corresponding payroll period. Bonuses, awards, and profit-sharing remain under Variable Compensation."
+    }
+  },
+  "AdminCommercialTeams": {
+    "header": {
+      "kicker": "Sales",
+      "title": "Sales teams",
+      "description": "Organize salespeople into teams, define leaders, and prepare the structure for team and individual goals."
+    },
+    "common": {
+      "employee": "Employee",
+      "noDepartment": "No department",
+      "noDescription": "No description provided.",
+      "noRole": "Role not provided"
+    },
+    "metrics": {
+      "total": "Total teams",
+      "active": "Active teams",
+      "inactive": "Inactive teams",
+      "activeMembers": "Active members",
+      "linkedGoals": "Linked goals"
+    },
+    "filters": {
+      "searchPlaceholder": "Search by team, leader, or member",
+      "active": "Active teams",
+      "inactive": "Inactive teams",
+      "all": "All teams"
+    },
+    "states": {
+      "loading": "Loading sales teams...",
+      "emptyTitle": "No teams found",
+      "emptyDescription": "Create a team or adjust the list filters.",
+      "loadingEmployees": "Loading employees...",
+      "noEmployees": "No employees found."
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "card": {
+      "teamLeader": "Team leader",
+      "noLeader": "No leader assigned",
+      "members": "Members",
+      "noMembers": "No active members."
+    },
+    "actions": {
+      "newTeam": "+ New team",
+      "edit": "Edit team",
+      "deactivate": "Deactivate",
+      "reactivate": "Reactivate",
+      "close": "Close",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "saveChanges": "Save changes",
+      "createTeam": "Create team",
+      "keepTeam": "Keep team",
+      "deactivating": "Deactivating...",
+      "deactivateTeam": "Deactivate team"
+    },
+    "modal": {
+      "newTitle": "New sales team",
+      "editTitle": "Edit sales team",
+      "teamName": "Team name",
+      "teamNamePlaceholder": "e.g. Downtown Sales Team",
+      "description": "Description",
+      "descriptionPlaceholder": "Describe this team's responsibilities.",
+      "teamLeader": "Team leader",
+      "noLeader": "No leader assigned",
+      "leaderHelp": "The leader will automatically be included as a team member.",
+      "members": "Team members",
+      "membersDescription": "Select the employees who will be part of this team.",
+      "selectedCount": "{count, plural, one {# selected} other {# selected}}",
+      "searchEmployees": "Search employee, role, or department",
+      "leaderBadge": "Leader",
+      "activeTeam": "Active team",
+      "activeTeamHelp": "Inactive teams should not receive new goals."
+    },
+    "validation": {
+      "teamName": "Enter the sales team name."
+    },
+    "errors": {
+      "loadTeams": "The sales teams could not be loaded.",
+      "loadEmployees": "The sales employees could not be loaded.",
+      "saveTeam": "The sales team could not be saved.",
+      "deactivate": "The team could not be deactivated.",
+      "reactivate": "The team could not be reactivated."
+    },
+    "success": {
+      "created": "Team created successfully.",
+      "updated": "Team updated successfully.",
+      "deactivated": "Team deactivated successfully.",
+      "reactivated": "Team reactivated successfully."
+    },
+    "deactivateModal": {
+      "title": "Deactivate sales team",
+      "description": "The team <team></team> will be deactivated. Its history and already-linked goals will be preserved."
+    }
+  },
+  "AdminCommercialFunnels": {
+    "breadcrumb": {
+      "commercial": "Sales",
+      "salesFunnels": "Sales funnels"
+    },
+    "header": {
+      "title": "Sales funnel configuration",
+      "description": "Organize service stages, deadlines, conversion probabilities, and reasons for lost opportunities."
+    },
+    "actions": {
+      "refresh": "Refresh",
+      "refreshing": "Refreshing...",
+      "processing": "Processing...",
+      "createStructure": "Create sales structure",
+      "linkPendingLeads": "Link pending leads",
+      "checkStructure": "Check structure",
+      "initializeNow": "Initialize now",
+      "initializing": "Initializing...",
+      "tryAgain": "Try again",
+      "closeMessage": "Close message"
+    },
+    "errors": {
+      "load": "The funnels could not be loaded.",
+      "initialize": "The funnel could not be initialized.",
+      "operationTitle": "The operation could not be completed"
+    },
+    "success": {
+      "initialized": "Sales structure initialized."
+    },
+    "states": {
+      "loading": "Loading sales configuration..."
+    },
+    "common": {
+      "dateUnavailable": "Date unavailable",
+      "noMaximumDeadline": "No maximum deadline",
+      "hours": "{count}h",
+      "days": "{count, plural, one {# day} other {# days}}",
+      "active": "Active",
+      "archived": "Archived",
+      "required": "Required",
+      "optional": "Optional",
+      "manual": "Manual",
+      "automatic": "Automatic"
+    },
+    "summary": {
+      "status": {
+        "title": "Status",
+        "configured": "Configured",
+        "pending": "Pending",
+        "available": "Default funnel available",
+        "initializationRequired": "Initialization required"
+      },
+      "funnels": {
+        "title": "Funnels",
+        "description": "Registered for this institution"
+      },
+      "stages": {
+        "title": "Stages",
+        "description": "In the default sales funnel"
+      },
+      "lossReasons": {
+        "title": "Loss reasons",
+        "description": "Available reasons"
+      },
+      "pendingLeads": {
+        "title": "Pending leads",
+        "description": "Out of {count} registered leads"
+      }
+    },
+    "initialization": {
+      "title": "The CRM still needs to be initialized",
+      "description": "Initialization will create the default funnel, its stages, loss reasons, and link existing leads. No leads will be deleted.",
+      "noPermission": "You do not have permission to initialize this structure."
+    },
+    "funnel": {
+      "default": "Default funnel",
+      "updatedAt": "Updated {date}"
+    },
+    "stages": {
+      "title": "Sales process stages",
+      "count": "{count, plural, one {# stage configured} other {# stages configured}}",
+      "empty": "No stages are registered in this funnel."
+    },
+    "stageMetrics": {
+      "conversion": "Conversion",
+      "deadline": "Deadline",
+      "nextAction": "Next action",
+      "movement": "Movement"
+    },
+    "emptyFunnels": {
+      "title": "No sales funnels registered",
+      "description": "Initialize the structure to create the institution's default funnel."
+    },
+    "lossReasons": {
+      "title": "Loss reasons",
+      "description": "Reasons used to understand why opportunities were not converted.",
+      "requiresObservation": "⚠ Additional note required",
+      "empty": "No loss reasons registered."
+    },
+    "stageCategories": {
+      "entry": "Entry",
+      "firstContact": "First contact",
+      "inService": "In progress",
+      "qualification": "Qualification",
+      "presentation": "Presentation",
+      "proposal": "Proposal",
+      "negotiation": "Negotiation",
+      "documentation": "Documentation",
+      "payment": "Payment",
+      "conversion": "Conversion",
+      "loss": "Loss",
+      "pause": "Paused",
+      "discard": "Discard"
+    },
+    "stageResults": {
+      "open": "Open",
+      "won": "Won",
+      "lost": "Lost",
+      "discarded": "Discarded"
+    },
+    "lossCategories": {
+      "noInterest": "Not interested",
+      "price": "Price",
+      "competition": "Competition",
+      "noContact": "No contact",
+      "courseUnavailable": "Course unavailable",
+      "scheduleConflict": "Schedule conflict",
+      "location": "Location",
+      "documentation": "Documentation",
+      "financial": "Financial",
+      "withdrawal": "Withdrawal",
+      "duplicate": "Duplicate",
+      "outOfProfile": "Outside target profile",
+      "other": "Other"
+    }
+  },
+  "AdminCommercialLead360": {
+    "breadcrumb": {
+      "commercial": "Sales",
+      "leads": "Leads",
+      "lead360": "360° Lead View"
+    },
+    "header": {
+      "leadNumber": "Lead #{id}",
+      "description": "Complete sales history, service data, and opportunity status in one place."
+    },
+    "actions": {
+      "pipeline": "← Pipeline",
+      "leadList": "Lead list",
+      "refresh": "Refresh",
+      "refreshing": "Refreshing...",
+      "registerInteraction": "+ Log interaction",
+      "registerInteractionPlain": "Log interaction",
+      "registering": "Logging...",
+      "tryAgain": "Try again",
+      "backToPipeline": "Back to Pipeline",
+      "cancel": "Cancel",
+      "close": "Close"
+    },
+    "errors": {
+      "invalidLeadId": "The lead identifier is invalid.",
+      "loadLead": "The lead record could not be loaded."
+    },
+    "loading": {
+      "title": "Building the 360° Lead View...",
+      "description": "Gathering contacts, funnel activity, tasks, and enrollment data."
+    },
+    "empty": {
+      "title": "The 360° Lead View could not be opened",
+      "notFound": "The lead was not found."
+    },
+    "common": {
+      "notProvided": "Not provided",
+      "notDefined": "Not defined",
+      "unassigned": "Unassigned",
+      "noResponsible": "No owner",
+      "noTeam": "No team",
+      "noStage": "No stage defined",
+      "noFunnel": "No funnel defined",
+      "noSalesTeam": "No sales team"
+    },
+    "enum": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "urgent": "Urgent",
+      "new": "New",
+      "inService": "In progress",
+      "qualified": "Qualified",
+      "converted": "Converted",
+      "lost": "Lost",
+      "archived": "Archived",
+      "active": "Active",
+      "inactive": "Inactive",
+      "pending": "Pending",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "summary": {
+      "currentStage": "Current stage",
+      "responsible": "Owner",
+      "estimatedValue": "Estimated value",
+      "nextAction": "Next action",
+      "pendingTasks": "{count, plural, one {# pending task} other {# pending tasks}}"
+    },
+    "quickContact": {
+      "kicker": "Quick contact",
+      "title": "Contact the prospect",
+      "call": "Call",
+      "email": "Email",
+      "addNote": "Add note"
+    },
+    "timeline": {
+      "eventCount": "{count, plural, one {# event recorded} other {# events recorded}}",
+      "title": "Sales timeline",
+      "description": "Contacts, funnel movements, tasks, and decisions in chronological order.",
+      "filterAria": "Filter events",
+      "scheduledFor": "Scheduled for {date}",
+      "registeredBy": "Recorded by {name}",
+      "systemRecord": "Automatic system record",
+      "emptyTitle": "No events of this type on this page",
+      "emptyDescription": "Choose another filter or browse the other pages.",
+      "filters": {
+        "all": "All",
+        "contacts": "Contacts",
+        "funnel": "Funnel",
+        "tasks": "Tasks",
+        "transfers": "Transfers",
+        "conversion": "Conversion"
+      },
+      "eventTypes": {
+        "creation": "Creation",
+        "contact": "Contact",
+        "funnel": "Funnel",
+        "transfer": "Transfer",
+        "task": "Task",
+        "loss": "Loss",
+        "archiving": "Archiving",
+        "restoration": "Restoration",
+        "conversion": "Conversion"
+      }
+    },
+    "pagination": {
+      "page": "Page {current} of {total}",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "commercialSummary": {
+      "kicker": "Current status",
+      "title": "Sales summary",
+      "status": "Status",
+      "stage": "Stage",
+      "funnel": "Funnel",
+      "responsible": "Owner",
+      "team": "Team"
+    },
+    "interest": {
+      "kicker": "Interest",
+      "title": "Course and campus",
+      "course": "Course",
+      "campus": "Campus",
+      "organization": "Company / institution",
+      "source": "Source",
+      "initialNotes": "Initial notes"
+    },
+    "milestones": {
+      "kicker": "Progress",
+      "title": "Relationship milestones",
+      "created": "Lead created",
+      "firstContact": "First contact",
+      "qualified": "Qualified",
+      "converted": "Converted",
+      "notRecorded": "Not recorded yet"
+    },
+    "enrollment": {
+      "kicker": "Conversion completed",
+      "title": "Linked enrollment",
+      "convertedAt": "Converted on",
+      "open": "Open enrollment"
+    },
+    "loss": {
+      "kicker": "Lost opportunity",
+      "noAdditionalNote": "No additional note was recorded."
+    },
+    "interaction": {
+      "validationDescription": "Describe the contact or note you want to record.",
+      "errorRegister": "The interaction could not be recorded.",
+      "successRegistered": "Interaction added to the timeline."
+    },
+    "interactionTypes": {
+      "whatsapp": "WhatsApp",
+      "call": "Call",
+      "email": "Email",
+      "meeting": "Meeting",
+      "note": "Note"
+    },
+    "interactionModal": {
+      "kicker": "Sales history",
+      "title": "Log a new interaction",
+      "description": "This record will appear in {name}'s 360° Lead View.",
+      "type": "Interaction type",
+      "descriptionLabel": "Interaction description *",
+      "placeholder": "e.g. We discussed pricing and the prospect asked for a follow-up next week..."
+    }
+  },
+  "AdminCommercialGoals": {
+    "header": {
+      "kicker": "Sales",
+      "title": "Sales goals",
+      "description": "Set goals for the entire institution, teams, or employees, with optional period, indicator, course, and campus filters.",
+      "newGoal": "+ New goal"
+    },
+    "metrics": {
+      "total": "Total goals",
+      "active": "Active goals",
+      "drafts": "Drafts",
+      "closed": "Closed",
+      "canceled": "Canceled"
+    },
+    "filters": {
+      "searchPlaceholder": "Search goal, team, employee, course, or campus",
+      "allStatuses": "All statuses",
+      "allScopes": "All scopes",
+      "allIndicators": "All indicators",
+      "statusAria": "Filter by status",
+      "scopeAria": "Filter by scope",
+      "indicatorAria": "Filter by indicator"
+    },
+    "scope": {
+      "institution": "Institution",
+      "team": "Team",
+      "employee": "Employee"
+    },
+    "indicator": {
+      "enrollments": "Number of enrollments",
+      "enrollmentsShort": "Enrollments",
+      "soldAmount": "Amount sold",
+      "receivedAmount": "Amount received",
+      "convertedLeads": "Converted leads"
+    },
+    "periodicity": {
+      "monthly": "Monthly",
+      "quarterly": "Quarterly",
+      "semiannual": "Semiannual",
+      "annual": "Annual",
+      "custom": "Custom"
+    },
+    "status": {
+      "draft": "Draft",
+      "active": "Active",
+      "closed": "Closed",
+      "canceled": "Canceled"
+    },
+    "common": {
+      "teamNotProvided": "Team not provided",
+      "employeeNotProvided": "Employee not provided",
+      "wholeInstitution": "Entire institution",
+      "invalidDate": "Invalid date",
+      "to": "to",
+      "allCourses": "All courses",
+      "allCampuses": "All campuses",
+      "roleNotProvided": "Role not provided",
+      "memberCount": "{count, plural, one {# member} other {# members}}",
+      "selectedCount": "{count, plural, one {# selected} other {# selected}}"
+    },
+    "loading": "Loading sales goals...",
+    "empty": {
+      "title": "No goals found",
+      "description": "Create a sales goal or adjust the list filters."
+    },
+    "card": {
+      "noDescription": "No description provided.",
+      "definedGoal": "Target",
+      "progressTitle": "Goal tracking",
+      "progressAuto": "Result calculated automatically from PHANYX data.",
+      "achieved": "Goal achieved",
+      "actual": "Completed",
+      "remaining": "Remaining",
+      "progress": "Progress",
+      "progressLabel": "Goal progress",
+      "reached": "Goal reached",
+      "aboveGoal": "{value}% above target",
+      "indicator": "Indicator",
+      "responsible": "Responsible",
+      "period": "Period",
+      "segmentation": "Segmentation",
+      "notes": "Notes"
+    },
+    "actions": {
+      "edit": "Edit",
+      "activate": "Activate",
+      "close": "Close",
+      "cancel": "Cancel goal",
+      "deleteDraft": "Delete draft"
+    },
+    "modal": {
+      "kicker": "Sales",
+      "editTitle": "Edit sales goal",
+      "newTitle": "New sales goal",
+      "close": "Close",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "saveChanges": "Save changes",
+      "createGoal": "Create goal",
+      "fields": {
+        "name": "Goal name",
+        "description": "Description",
+        "scope": "Scope",
+        "indicator": "Indicator",
+        "team": "Responsible team",
+        "employee": "Responsible employee",
+        "periodicity": "Periodicity",
+        "target": "Target value",
+        "startDate": "Start date",
+        "endDate": "End date",
+        "course": "Course",
+        "campus": "Campus",
+        "initialStatus": "Initial status",
+        "notes": "Internal notes"
+      },
+      "placeholders": {
+        "name": "e.g. First-semester enrollment goal",
+        "description": "Describe the purpose of this goal.",
+        "moneyTarget": "e.g. 25,000.00",
+        "quantityTarget": "e.g. 100",
+        "notes": "Record criteria, guidance, or internal information about this goal."
+      },
+      "scopeOptions": {
+        "institution": "Entire institution",
+        "team": "Sales team",
+        "employee": "Individual employee"
+      },
+      "selectTeam": "Select the team",
+      "selectEmployee": "Select the employee",
+      "helpers": {
+        "moneyTarget": "Enter a monetary amount.",
+        "quantityTarget": "Enter a whole number."
+      },
+      "initialStatus": {
+        "draftTitle": "Save as draft",
+        "draftDescription": "Lets you review the goal before activating it.",
+        "activeTitle": "Create as active",
+        "activeDescription": "The goal becomes effective immediately for the defined period."
+      }
+    },
+    "participants": {
+      "title": "Participants in this goal",
+      "description": "Team members are suggested automatically, but you can include other institution employees only for this goal.",
+      "selectTeamMembers": "Select team members",
+      "clearSelection": "Clear selection",
+      "closeEmployees": "Close employees",
+      "addOtherEmployees": "+ Add other employees",
+      "teamMembers": "Team members",
+      "teamMember": "Team member",
+      "noActiveMembers": "This team has no active members. You can still add other employees to the goal.",
+      "additionalParticipants": "Additional participants",
+      "additionalParticipant": "Additional participant",
+      "addOtherEmployeesTitle": "Add other employees",
+      "addOtherEmployeesDescription": "Selecting an employee here does not add them to the sales team. They will participate only in this goal.",
+      "searchPlaceholder": "Search by name, role, or department",
+      "noOtherEmployees": "No other employees found."
+    },
+    "confirmation": {
+      "kicker": "Confirmation",
+      "back": "Back",
+      "processing": "Processing...",
+      "activate": {
+        "title": "Activate sales goal",
+        "message": "The goal “{name}” will officially begin tracking the defined period.",
+        "action": "Activate goal"
+      },
+      "close": {
+        "title": "Close sales goal",
+        "message": "The goal “{name}” will be closed and can no longer be reopened or edited.",
+        "action": "Close goal"
+      },
+      "cancel": {
+        "title": "Cancel sales goal",
+        "message": "The goal “{name}” will be canceled and its history will be preserved.",
+        "action": "Cancel goal"
+      },
+      "delete": {
+        "title": "Delete goal draft",
+        "message": "The draft “{name}” will be permanently deleted. This action is allowed only for goals that have never been activated.",
+        "action": "Delete draft"
+      }
+    },
+    "errors": {
+      "load": "Could not load sales goals.",
+      "loadGeneric": "Error loading sales goals.",
+      "lockedGoal": "Closed or canceled goals can no longer be changed.",
+      "name": "Enter the sales goal name.",
+      "dates": "Enter the goal start and end dates.",
+      "endBeforeStart": "The end date cannot be earlier than the start date.",
+      "targetPositive": "Enter a target value greater than zero.",
+      "integerTarget": "For quantity goals, enter a whole number.",
+      "team": "Select the team responsible for the goal.",
+      "participant": "Select at least one participant for the team goal.",
+      "employee": "Select the employee responsible for the goal.",
+      "save": "Could not save the sales goal.",
+      "saveGeneric": "Error saving the sales goal.",
+      "action": "Could not complete the action for this goal.",
+      "actionGeneric": "Error processing the sales goal."
+    },
+    "success": {
+      "updated": "Sales goal updated successfully.",
+      "created": "Sales goal created successfully.",
+      "action": "Action completed successfully."
+    }
+  },
+  "AdminCommercialPipeline": {
+    "header": {
+      "sales": "Sales",
+      "pipeline": "Pipeline",
+      "title": "Sales pipeline",
+      "description": "Track every opportunity, identify delays, and organize the sales team's next actions.",
+      "viewLeadList": "View lead list",
+      "configureFunnel": "Configure funnel",
+      "updating": "Updating...",
+      "update": "Update"
+    },
+    "filters": {
+      "searchLabel": "Search opportunities",
+      "searchPlaceholder": "Name, email, phone, interest...",
+      "priority": "Priority",
+      "allPriorities": "All",
+      "onlyMine": "Only my leads"
+    },
+    "summary": {
+      "activeFunnel": "Active funnel",
+      "opportunities": "Opportunities",
+      "estimatedValue": "Estimated value",
+      "view": "View",
+      "myLeads": "My leads",
+      "wholeTeam": "Entire team"
+    },
+    "stages": {
+      "title": "Funnel stages",
+      "scrollHelp": "Scroll horizontally to view all stages.",
+      "updatingData": "Updating data...",
+      "stage": "Stage {number}",
+      "value": "Value",
+      "probability": "Probability",
+      "empty": "No opportunities in this stage.",
+      "moreLeads": "There are more leads in this stage"
+    },
+    "lead": {
+      "noInterest": "Interest not provided",
+      "responsible": "Responsible",
+      "course": "Course",
+      "campus": "Campus",
+      "value": "Value",
+      "stageOverdue": "Stage deadline overdue",
+      "followUpOverdue": "Follow-up overdue",
+      "noNextAction": "Next action not defined",
+      "nextAction": "Next action",
+      "enrollment": "Enrollment",
+      "moveStage": "Move stage"
+    },
+    "common": {
+      "notDefined": "Not defined",
+      "invalidDate": "Invalid date"
+    },
+    "loading": "Loading sales pipeline...",
+    "priority": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "urgent": "Urgent"
+    },
+    "taskTypes": {
+      "call": "Call",
+      "email": "Email",
+      "meeting": "Meeting",
+      "followUp": "Follow-up",
+      "sendProposal": "Send proposal",
+      "requestDocuments": "Request documents",
+      "confirmPayment": "Confirm payment",
+      "other": "Other"
+    },
+    "categories": {
+      "entry": "Entry",
+      "firstContact": "First contact",
+      "inService": "In progress",
+      "qualification": "Qualification",
+      "presentation": "Presentation",
+      "proposal": "Proposal",
+      "negotiation": "Negotiation",
+      "documentation": "Documentation",
+      "payment": "Payment",
+      "conversion": "Conversion",
+      "loss": "Loss",
+      "pause": "Paused",
+      "discard": "Discarded"
+    },
+    "errors": {
+      "load": "Could not load the pipeline.",
+      "loadTitle": "Could not load the pipeline",
+      "tryAgain": "Try again",
+      "noMovePermission": "You do not have permission to move leads."
+    },
+    "movement": {
+      "kicker": "Pipeline movement",
+      "title": "Move {name}",
+      "description": "The change will be recorded in the lead's sales history.",
+      "closeAria": "Close movement",
+      "currentStage": "Current stage",
+      "responsible": "Responsible",
+      "destinationStage": "Destination stage",
+      "selectStage": "Select the new stage",
+      "movementNote": "Movement note",
+      "movementNotePlaceholder": "e.g. lead replied, proposal accepted, documents received...",
+      "selectLossReason": "Select the reason",
+      "stageSuffix": {
+        "automatic": " — automatic",
+        "noPermission": " — no permission",
+        "requiresEnrollment": " — requires enrollment"
+      },
+      "loss": {
+        "title": "Loss record",
+        "description": "The reason will be used in conversion and sales-improvement reports.",
+        "reason": "Loss reason",
+        "observation": "Additional note",
+        "observationPlaceholder": "Record details that will help explain the loss.",
+        "observationRequired": "This reason requires a note."
+      },
+      "nextAction": {
+        "title": "Next action",
+        "description": "Keep lead follow-up organized with a defined date, channel, and priority.",
+        "alreadyDefined": "Next action already defined",
+        "required": "Next action required",
+        "schedule": "Schedule a next action",
+        "requiredDescription": "The selected stage requires a pending task.",
+        "noResponsible": "This lead does not have a responsible person yet. Assign one before moving it to this stage.",
+        "actionType": "Action type",
+        "priority": "Priority",
+        "taskTitle": "Title",
+        "taskTitlePlaceholder": "Next action — {stage}",
+        "scheduledFor": "Scheduled for",
+        "deadline": "Deadline",
+        "reminder": "Reminder",
+        "responsible": "Responsible",
+        "instructions": "Task instructions",
+        "instructionsPlaceholder": "Describe what should be done during the next contact."
+      },
+      "errors": {
+        "selectStage": "Select the destination stage.",
+        "automaticStage": "This stage is controlled automatically by the system.",
+        "requiresEnrollment": "The lead can only be converted after a valid enrollment is created.",
+        "enrollmentKeepsConverted": "This lead has a valid enrollment and must remain converted.",
+        "noLossPermission": "You do not have permission to record sales losses.",
+        "lossReason": "Select the loss reason.",
+        "lossObservation": "This loss reason requires an additional note.",
+        "responsibleBeforeTask": "Assign a responsible person to the lead before scheduling the next action.",
+        "schedule": "Specify when the next action should be performed.",
+        "invalidSchedule": "The next action date is invalid.",
+        "scheduleInPast": "The next action cannot be scheduled in the past.",
+        "invalidDeadline": "The deadline is invalid.",
+        "invalidReminder": "The reminder date is invalid.",
+        "deadlineBeforeSchedule": "The deadline cannot be earlier than the scheduled time.",
+        "reminderAfterSchedule": "The reminder cannot occur after the scheduled time.",
+        "save": "Could not move the lead."
+      },
+      "success": "Lead moved successfully.",
+      "cancel": "Cancel",
+      "moving": "Moving...",
+      "confirm": "Confirm movement"
+    }
+  },
+  "AdminCommercialReports": {
+    "header": {
+      "kicker": "Sales",
+      "title": "Sales reports",
+      "description": "Track leads, conversions, enrollments, sales, and sales-team performance.",
+      "updating": "Updating...",
+      "update": "Update report"
+    },
+    "filters": {
+      "title": "Filters",
+      "description": "The indicators below follow the selected filters.",
+      "clear": "Clear",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "salesperson": "Salesperson",
+      "course": "Course",
+      "campus": "Campus",
+      "all": "All"
+    },
+    "tabs": {
+      "overview": "Overview",
+      "salespeople": "Salespeople",
+      "leads": "Leads",
+      "enrollments": "Enrollments",
+      "courses": "Courses"
+    },
+    "indicators": {
+      "leadsReceived": "Leads received",
+      "leadsConverted": "Leads converted",
+      "conversionRate": "Conversion rate",
+      "enrollments": "Enrollments",
+      "soldAmount": "Amount sold",
+      "receivedAtEnrollment": "Received at enrollment",
+      "averageTicket": "Average ticket",
+      "cancellations": "Cancellations",
+      "enrollmentsDescription": "Active, upcoming, or completed",
+      "soldAmountDescription": "Enrollment fee and tuition from valid sales",
+      "receivedDescription": "Payments recorded at enrollment",
+      "averageTicketDescription": "Amount sold divided by valid enrollments",
+      "cancellationsDescription": "Enrollments from the period that are currently canceled"
+    },
+    "salespeople": {
+      "title": "Performance by salesperson",
+      "description": "Individual sales performance for the selected period.",
+      "columns": {
+        "salesperson": "Salesperson",
+        "leads": "Leads",
+        "conversions": "Conversions",
+        "enrollments": "Enrollments",
+        "conversion": "Conversion",
+        "sold": "Sold",
+        "received": "Received"
+      },
+      "empty": "No results found for this period."
+    },
+    "leads": {
+      "title": "Leads received",
+      "description": "Leads received during the period and their sales status. When filtering by course or campus, conversion considers the corresponding linked enrollment.",
+      "columns": {
+        "lead": "Lead",
+        "contact": "Contact",
+        "source": "Source",
+        "responsible": "Responsible",
+        "status": "Status",
+        "receivedAt": "Received on",
+        "conversion": "Conversion"
+      },
+      "empty": "No leads were found for this period.",
+      "converted": "Converted",
+      "notConverted": "Not converted"
+    },
+    "enrollments": {
+      "title": "Enrollments in the period",
+      "description": "Enrollments completed during the selected period, including salesperson, source, and sales amounts.",
+      "columns": {
+        "enrollment": "Enrollment",
+        "student": "Student",
+        "courseCampus": "Course / Campus",
+        "salesperson": "Salesperson",
+        "source": "Source",
+        "status": "Status",
+        "sold": "Sold",
+        "received": "Received"
+      },
+      "empty": "No enrollments found for this period.",
+      "notCounted": "Not counted",
+      "expected": "Expected"
+    },
+    "courses": {
+      "title": "Performance by course",
+      "description": "Sales performance of courses during the selected period.",
+      "columns": {
+        "course": "Course",
+        "enrollments": "Enrollments",
+        "convertedLeads": "Converted leads",
+        "share": "Share",
+        "sold": "Sold",
+        "received": "Received",
+        "averageTicket": "Average ticket",
+        "cancellations": "Cancellations"
+      },
+      "empty": "No course results found for this period."
+    },
+    "common": {
+      "noResponsible": "No responsible person",
+      "noCourse": "No course",
+      "noCampus": "No campus",
+      "notProvided": "Not provided",
+      "noCourseProvided": "No course provided"
+    },
+    "status": {
+      "active": "Active",
+      "toStart": "Upcoming",
+      "completed": "Completed",
+      "canceled": "Canceled",
+      "pending": "Pending",
+      "converted": "Converted",
+      "lost": "Lost",
+      "new": "New"
+    },
+    "errors": {
+      "load": "Could not load the sales report.",
+      "loadGeneric": "Error loading the sales report."
+    }
   }
 }

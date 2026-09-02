@@ -1,8 +1,17 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
-import PhanyxToast from "@/components/ui/PhanyxToast";
 import Link from "next/link";
+import {
+  FormEvent,
+  useEffect,
+  useState,
+} from "react";
+import {
+  useLocale,
+  useTranslations,
+} from "next-intl";
+
+import PhanyxToast from "@/components/ui/PhanyxToast";
 
 type PlanoComissao = {
   id: number;
@@ -45,19 +54,203 @@ const FORM_INICIAL: PlanoForm = {
   permiteCompartilhamento: false,
 };
 
-function formatarData(valor?: string | null) {
-  if (!valor) return "Sem limite";
+
+const ESTILOS_TEMA_CONFIGURACOES = `
+.phanyx-comercial-config-page[data-theme-mode="dark"] {
+  color: #eff6ff;
+}
+
+.phanyx-comercial-config-page[data-theme-mode="dark"] .phanyx-comercial-config-section,
+.phanyx-comercial-config-page[data-theme-mode="dark"] .phanyx-comercial-config-plan-card,
+.phanyx-comercial-config-page[data-theme-mode="dark"] .phanyx-comissao-painel-excecao,
+.phanyx-comercial-config-page[data-theme-mode="dark"] .phanyx-comercial-config-option,
+.phanyx-comercial-config-page[data-theme-mode="dark"] .phanyx-comercial-config-stat,
+.phanyx-comercial-config-page[data-theme-mode="dark"] .phanyx-comercial-config-empty,
+.phanyx-comercial-config-page[data-theme-mode="dark"] .phanyx-comissao-card-opcao-inativa {
+  background: #0b1f36 !important;
+  border-color: #27496b !important;
+}
+
+.phanyx-comercial-config-page[data-theme-mode="dark"] .phanyx-comissao-card-opcao-ativa {
+  background: #12355b !important;
+  border-color: #3b82f6 !important;
+}
+
+.phanyx-comercial-config-page[data-theme-mode="dark"] input:not([type="checkbox"]),
+.phanyx-comercial-config-page[data-theme-mode="dark"] select,
+.phanyx-comercial-config-page[data-theme-mode="dark"] textarea {
+  background: #071525 !important;
+  border-color: #31506f !important;
+  color: #ffffff !important;
+  color-scheme: dark;
+}
+
+.phanyx-comercial-config-page[data-theme-mode="dark"] select option {
+  background: #071525;
+  color: #ffffff;
+}
+
+.phanyx-comercial-config-page[data-theme-mode="dark"] [class*="dark:bg-slate-950"],
+.phanyx-comercial-config-page[data-theme-mode="dark"] [class*="dark:bg-slate-900"],
+.phanyx-comercial-config-page[data-theme-mode="dark"] [class*="dark:bg-slate-800"] {
+  background: #08192d !important;
+}
+
+.phanyx-comercial-config-page[data-theme-mode="dark"] [class*="dark:border-slate-700"] {
+  border-color: #31506f !important;
+}
+
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] {
+  color: #f5f5f5;
+}
+
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] .phanyx-comercial-config-section,
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] .phanyx-comercial-config-plan-card,
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] .phanyx-comissao-painel-excecao,
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] .phanyx-comercial-config-option,
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] .phanyx-comercial-config-stat,
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] .phanyx-comercial-config-empty,
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] .phanyx-comissao-card-opcao-inativa {
+  background: #1f1f1f !important;
+  border-color: #525252 !important;
+}
+
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] .phanyx-comissao-card-opcao-ativa {
+  background: #303030 !important;
+  border-color: #737373 !important;
+}
+
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] input:not([type="checkbox"]),
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] select,
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] textarea {
+  background: #303030 !important;
+  border-color: #5a5a5a !important;
+  color: #ffffff !important;
+  color-scheme: dark;
+}
+
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] select option {
+  background: #303030;
+  color: #ffffff;
+}
+
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] [class*="dark:bg-slate-950"],
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] [class*="dark:bg-slate-900"],
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] [class*="dark:bg-slate-800"],
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] [class*="bg-white"],
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] [class*="bg-slate-50"] {
+  background: #262626 !important;
+}
+
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] [class*="dark:border-slate-700"],
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] [class*="border-slate-200"],
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] [class*="border-slate-300"] {
+  border-color: #525252 !important;
+}
+
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] [class*="text-slate-950"],
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] [class*="text-slate-900"],
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] [class*="dark:text-white"] {
+  color: #ffffff !important;
+}
+
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] [class*="text-slate-700"],
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] [class*="text-slate-600"],
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] [class*="text-slate-500"],
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] [class*="dark:text-slate-300"],
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] [class*="dark:text-slate-400"] {
+  color: #d4d4d4 !important;
+}
+`;
+
+type Tema = "light" | "dark" | "system";
+
+function useTemaConfiguracoesComerciais() {
+  const [temaAtual, setTemaAtual] = useState<Tema>("light");
+  const [sistemaEscuro, setSistemaEscuro] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+
+    function sincronizarTema() {
+      const salvo = localStorage.getItem("phanyx_tema");
+
+      const escolha = (
+        salvo === "light" ||
+          salvo === "dark" ||
+          salvo === "system"
+          ? salvo
+          : document.documentElement.dataset.themeChoice || "system"
+      ) as Tema;
+
+      setTemaAtual(escolha);
+      setSistemaEscuro(media.matches);
+    }
+
+    sincronizarTema();
+
+    window.addEventListener("storage", sincronizarTema);
+    window.addEventListener("phanyx-theme-change", sincronizarTema);
+    media.addEventListener("change", sincronizarTema);
+
+    const observer = new MutationObserver(sincronizarTema);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class", "data-theme", "data-theme-choice"],
+    });
+
+    return () => {
+      window.removeEventListener("storage", sincronizarTema);
+      window.removeEventListener("phanyx-theme-change", sincronizarTema);
+      media.removeEventListener("change", sincronizarTema);
+      observer.disconnect();
+    };
+  }, []);
+
+  const modoTema =
+    temaAtual === "dark"
+      ? "dark"
+      : temaAtual === "system" && sistemaEscuro
+        ? "system-dark"
+        : "light";
+
+  return {
+    temaAtual,
+    sistemaEscuro,
+    modoTema,
+  };
+}
+
+
+function formatarData(
+  valor: string | null | undefined,
+  locale: string,
+  semLimite: string,
+  dataInvalida: string,
+) {
+  if (!valor) {
+    return semLimite;
+  }
 
   const data = new Date(valor);
 
   if (Number.isNaN(data.getTime())) {
-    return "Data inválida";
+    return dataInvalida;
   }
 
-  return data.toLocaleDateString("pt-BR");
+  return new Intl.DateTimeFormat(locale, {
+    dateStyle: "short",
+  }).format(data);
 }
 
 export default function ConfiguracoesComerciaisPage() {
+  const t = useTranslations(
+    "AdminCommercialCommissionSettings.overview",
+  );
+
+  const locale = useLocale();
+  const { modoTema } = useTemaConfiguracoesComerciais();
+
   const [planos, setPlanos] = useState<PlanoComissao[]>([]);
   const [form, setForm] = useState<PlanoForm>(FORM_INICIAL);
 
@@ -78,7 +271,7 @@ export default function ConfiguracoesComerciaisPage() {
         {
           credentials: "include",
           cache: "no-store",
-        }
+        },
       );
 
       const dados = await resposta.json();
@@ -86,7 +279,7 @@ export default function ConfiguracoesComerciaisPage() {
       if (!resposta.ok) {
         throw new Error(
           dados?.error ||
-            "Não foi possível carregar os planos de comissão."
+          t("errors.load"),
         );
       }
 
@@ -98,7 +291,7 @@ export default function ConfiguracoesComerciaisPage() {
         tipo: "erro",
         mensagem:
           error?.message ||
-          "Não foi possível carregar os planos de comissão.",
+          t("errors.load"),
       });
     } finally {
       setCarregando(false);
@@ -106,16 +299,20 @@ export default function ConfiguracoesComerciaisPage() {
   }
 
   useEffect(() => {
-    carregarPlanos();
+    void carregarPlanos();
   }, []);
 
-  async function criarPlano(evento: FormEvent<HTMLFormElement>) {
+  async function criarPlano(
+    evento: FormEvent<HTMLFormElement>,
+  ) {
     evento.preventDefault();
 
     if (!form.nome.trim()) {
       setToast({
         tipo: "erro",
-        mensagem: "Informe o nome do plano de comissão.",
+        mensagem: t(
+          "errors.nameRequired",
+        ),
       });
 
       return;
@@ -143,7 +340,7 @@ export default function ConfiguracoesComerciaisPage() {
             permiteCompartilhamento:
               form.permiteCompartilhamento,
           }),
-        }
+        },
       );
 
       const dados = await resposta.json();
@@ -151,7 +348,7 @@ export default function ConfiguracoesComerciaisPage() {
       if (!resposta.ok) {
         throw new Error(
           dados?.error ||
-            "Não foi possível criar o plano de comissão."
+          t("errors.create"),
         );
       }
 
@@ -161,7 +358,7 @@ export default function ConfiguracoesComerciaisPage() {
         tipo: "sucesso",
         mensagem:
           dados?.message ||
-          "Plano de comissão criado com sucesso.",
+          t("success.created"),
       });
 
       await carregarPlanos();
@@ -170,7 +367,7 @@ export default function ConfiguracoesComerciaisPage() {
         tipo: "erro",
         mensagem:
           error?.message ||
-          "Não foi possível criar o plano de comissão.",
+          t("errors.create"),
       });
     } finally {
       setSalvando(false);
@@ -178,7 +375,16 @@ export default function ConfiguracoesComerciaisPage() {
   }
 
   return (
-    <main className="phanyx-comercial-config-page mx-auto w-full max-w-7xl space-y-7 p-6 lg:p-8">
+    <main
+      data-theme-mode={modoTema}
+      className="phanyx-comercial-config-page mx-auto min-h-screen w-full max-w-7xl space-y-7 p-6 lg:p-8"
+    >
+      <style
+        dangerouslySetInnerHTML={{
+          __html: ESTILOS_TEMA_CONFIGURACOES,
+        }}
+      />
+
       {toast && (
         <PhanyxToast
           tipo={toast.tipo}
@@ -189,29 +395,26 @@ export default function ConfiguracoesComerciaisPage() {
 
       <header>
         <p className="text-xs font-black uppercase tracking-[0.22em] text-blue-700 dark:text-blue-300">
-          Comercial
+          {t("header.section")}
         </p>
 
         <h1 className="mt-2 text-3xl font-black text-slate-950 dark:text-white">
-          ⚙️ Planos de comissão
+          ⚙️ {t("header.title")}
         </h1>
 
         <p className="mt-2 max-w-4xl text-sm leading-6 text-slate-600 dark:text-slate-300">
-          Defina como as vendas serão avaliadas antes de gerar
-          comissão para os vendedores.
+          {t("header.description")}
         </p>
       </header>
 
       <section className="phanyx-comercial-config-section rounded-3xl border p-6 shadow-sm">
         <div>
           <h2 className="text-xl font-black text-slate-950 dark:text-white">
-            Novo plano de comissão
+            {t("form.title")}
           </h2>
 
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-            Criar o plano não libera vendedores imediatamente. O
-            plano ainda precisará ter regras ativas e vendedores
-            vinculados.
+            {t("form.description")}
           </p>
         </div>
 
@@ -222,7 +425,7 @@ export default function ConfiguracoesComerciaisPage() {
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <label className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-200">
-                Nome do plano
+                {t("form.name.label")}
               </label>
 
               <input
@@ -233,14 +436,16 @@ export default function ConfiguracoesComerciaisPage() {
                     nome: evento.target.value,
                   }))
                 }
-                placeholder="Ex.: Comissão vendedores 2026"
+                placeholder={t(
+                  "form.name.placeholder",
+                )}
                 className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-950 outline-none transition focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
               />
             </div>
 
             <div>
               <label className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-200">
-                Descrição
+                {t("form.descriptionField.label")}
               </label>
 
               <input
@@ -251,14 +456,16 @@ export default function ConfiguracoesComerciaisPage() {
                     descricao: evento.target.value,
                   }))
                 }
-                placeholder="Ex.: Plano padrão da equipe comercial"
+                placeholder={t(
+                  "form.descriptionField.placeholder",
+                )}
                 className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-950 outline-none transition focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
               />
             </div>
 
             <div>
               <label className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-200">
-                Início da vigência
+                {t("form.startDate")}
               </label>
 
               <input
@@ -276,7 +483,7 @@ export default function ConfiguracoesComerciaisPage() {
 
             <div>
               <label className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-200">
-                Fim da vigência
+                {t("form.endDate")}
               </label>
 
               <input
@@ -309,12 +516,11 @@ export default function ConfiguracoesComerciaisPage() {
 
               <span>
                 <strong className="block text-sm text-slate-950 dark:text-white">
-                  Plano ativo
+                  {t("form.active.title")}
                 </strong>
 
                 <span className="mt-1 block text-xs leading-5 text-slate-600 dark:text-slate-400">
-                  Permite que o plano seja usado durante sua
-                  vigência.
+                  {t("form.active.description")}
                 </span>
               </span>
             </label>
@@ -335,12 +541,11 @@ export default function ConfiguracoesComerciaisPage() {
 
               <span>
                 <strong className="block text-sm text-slate-950 dark:text-white">
-                  Exigir pagamento confirmado
+                  {t("form.confirmedPayment.title")}
                 </strong>
 
                 <span className="mt-1 block text-xs leading-5 text-slate-600 dark:text-slate-400">
-                  A matrícula sozinha não torna a comissão
-                  elegível.
+                  {t("form.confirmedPayment.description")}
                 </span>
               </span>
             </label>
@@ -361,12 +566,11 @@ export default function ConfiguracoesComerciaisPage() {
 
               <span>
                 <strong className="block text-sm text-slate-950 dark:text-white">
-                  Permitir venda compartilhada
+                  {t("form.sharedSale.title")}
                 </strong>
 
                 <span className="mt-1 block text-xs leading-5 text-slate-600 dark:text-slate-400">
-                  Permite dividir uma comissão entre vendedores
-                  participantes.
+                  {t("form.sharedSale.description")}
                 </span>
               </span>
             </label>
@@ -378,8 +582,8 @@ export default function ConfiguracoesComerciaisPage() {
             className="rounded-2xl bg-blue-600 px-6 py-3 text-sm font-black text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {salvando
-              ? "Criando plano..."
-              : "Criar plano de comissão"}
+              ? t("form.creating")
+              : t("form.create")}
           </button>
         </form>
       </section>
@@ -387,27 +591,26 @@ export default function ConfiguracoesComerciaisPage() {
       <section className="phanyx-comercial-config-section rounded-3xl border p-6 shadow-sm">
         <div>
           <h2 className="text-xl font-black text-slate-950 dark:text-white">
-            Planos cadastrados
+            {t("list.title")}
           </h2>
 
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-            Um plano só fica pronto quando possui pelo menos uma
-            regra ativa.
+            {t("list.description")}
           </p>
         </div>
 
         {carregando ? (
           <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-6 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300">
-            Carregando planos...
+            {t("list.loading")}
           </div>
         ) : planos.length === 0 ? (
           <div className="phanyx-comercial-config-empty mt-6 rounded-2xl border border-dashed p-8 text-center">
             <p className="font-bold text-slate-950 dark:text-white">
-              Nenhum plano cadastrado
+              {t("list.emptyTitle")}
             </p>
 
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-              Cadastre o primeiro plano usando o formulário acima.
+              {t("list.emptyDescription")}
             </p>
           </div>
         ) : (
@@ -424,40 +627,53 @@ export default function ConfiguracoesComerciaisPage() {
                     </h3>
 
                     <p className="phanyx-comercial-config-plan-description mt-1 text-sm">
-  {plano.descricao || "Sem descrição cadastrada."}
-</p>
+                      {plano.descricao ||
+                        t("list.noDescription")}
+                    </p>
                   </div>
 
                   <span
-  className={[
-    "phanyx-comercial-config-status rounded-full border px-3 py-1 text-xs font-black",
-    plano.resumo?.configurado
-      ? "phanyx-comercial-config-status-ok"
-      : "phanyx-comercial-config-status-pendente",
-  ].join(" ")}
->
-  {plano.resumo?.configurado
-    ? "Configurado"
-    : "Configuração pendente"}
-</span>
+                    className={[
+                      "phanyx-comercial-config-status rounded-full border px-3 py-1 text-xs font-black",
+                      plano.resumo?.configurado
+                        ? "phanyx-comercial-config-status-ok"
+                        : "phanyx-comercial-config-status-pendente",
+                    ].join(" ")}
+                  >
+                    {plano.resumo?.configurado
+                      ? t("list.configured")
+                      : t("list.pendingConfiguration")}
+                  </span>
                 </div>
 
                 <dl className="mt-5 grid gap-3 sm:grid-cols-2">
                   <div className="phanyx-comercial-config-stat rounded-2xl border p-3">
                     <dt className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                      Vigência
+                      {t("list.validity")}
                     </dt>
 
                     <dd className="mt-1 text-sm font-semibold text-slate-950 dark:text-white">
-                      {formatarData(plano.inicioVigencia)}
-                      {" até "}
-                      {formatarData(plano.fimVigencia)}
+                      {formatarData(
+                        plano.inicioVigencia,
+                        locale,
+                        t("common.noLimit"),
+                        t("common.invalidDate"),
+                      )}
+                      {" "}
+                      {t("common.until")}
+                      {" "}
+                      {formatarData(
+                        plano.fimVigencia,
+                        locale,
+                        t("common.noLimit"),
+                        t("common.invalidDate"),
+                      )}
                     </dd>
                   </div>
 
                   <div className="phanyx-comercial-config-stat rounded-2xl border p-3">
                     <dt className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                      Regras ativas
+                      {t("list.activeRules")}
                     </dt>
 
                     <dd className="mt-1 text-sm font-semibold text-slate-950 dark:text-white">
@@ -467,7 +683,7 @@ export default function ConfiguracoesComerciaisPage() {
 
                   <div className="phanyx-comercial-config-stat rounded-2xl border p-3">
                     <dt className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                      Vendedores vinculados
+                      {t("list.linkedSellers")}
                     </dt>
 
                     <dd className="mt-1 text-sm font-semibold text-slate-950 dark:text-white">
@@ -477,33 +693,31 @@ export default function ConfiguracoesComerciaisPage() {
 
                   <div className="phanyx-comercial-config-stat rounded-2xl border p-3">
                     <dt className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                      Pagamento confirmado
+                      {t("list.confirmedPayment")}
                     </dt>
 
                     <dd className="mt-1 text-sm font-semibold text-slate-950 dark:text-white">
                       {plano.exigePagamentoConfirmado
-                        ? "Obrigatório"
-                        : "Não obrigatório"}
+                        ? t("list.required")
+                        : t("list.notRequired")}
                     </dd>
                   </div>
                 </dl>
 
                 {!plano.resumo?.configurado && (
                   <div className="phanyx-comercial-config-warning mt-4 rounded-2xl border px-4 py-3 text-sm">
-                    Este plano ainda não libera vendedores porque
-                    não possui regra ativa.
+                    {t("list.warning")}
                   </div>
                 )}
 
-<div className="mt-4">
-  <Link
-    href={`/admin/comercial/configuracoes/planos/${plano.id}`}
-    className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-5 py-3 text-sm font-black text-white transition hover:bg-blue-700"
-  >
-    ⚙️ Configurar regras
-  </Link>
-</div>
-
+                <div className="mt-4">
+                  <Link
+                    href={`/admin/comercial/configuracoes/planos/${plano.id}`}
+                    className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-5 py-3 text-sm font-black text-white transition hover:bg-blue-700"
+                  >
+                    ⚙️ {t("list.configureRules")}
+                  </Link>
+                </div>
               </article>
             ))}
           </div>

@@ -7503,5 +7503,1270 @@
       "noEmail": "Sans e-mail",
       "open": "Ouvrir"
     }
+  },
+  "AdminCommercialCommissionSettings": {
+    "overview": {
+      "common": {
+        "noLimit": "Sans limite",
+        "invalidDate": "Date invalide",
+        "until": "au"
+      },
+      "header": {
+        "section": "Commercial",
+        "title": "Plans de commission",
+        "description": "Définissez la manière dont les ventes seront évaluées avant de générer les commissions des commerciaux."
+      },
+      "errors": {
+        "load": "Impossible de charger les plans de commission.",
+        "nameRequired": "Indiquez le nom du plan de commission.",
+        "create": "Impossible de créer le plan de commission."
+      },
+      "success": {
+        "created": "Plan de commission créé avec succès."
+      },
+      "form": {
+        "title": "Nouveau plan de commission",
+        "description": "La création du plan ne rend pas immédiatement les commerciaux éligibles. Le plan doit encore comporter des règles actives et des commerciaux associés.",
+        "name": {
+          "label": "Nom du plan",
+          "placeholder": "Ex. : Commission commerciaux 2026"
+        },
+        "descriptionField": {
+          "label": "Description",
+          "placeholder": "Ex. : Plan standard de l’équipe commerciale"
+        },
+        "startDate": "Début de validité",
+        "endDate": "Fin de validité",
+        "active": {
+          "title": "Plan actif",
+          "description": "Permet d’utiliser le plan pendant sa période de validité."
+        },
+        "confirmedPayment": {
+          "title": "Exiger un paiement confirmé",
+          "description": "L’inscription seule ne rend pas la commission éligible."
+        },
+        "sharedSale": {
+          "title": "Autoriser une vente partagée",
+          "description": "Permet de répartir une commission entre plusieurs commerciaux participants."
+        },
+        "creating": "Création du plan...",
+        "create": "Créer le plan de commission"
+      },
+      "list": {
+        "title": "Plans enregistrés",
+        "description": "Un plan n’est prêt que lorsqu’il comporte au moins une règle active.",
+        "loading": "Chargement des plans...",
+        "emptyTitle": "Aucun plan enregistré",
+        "emptyDescription": "Créez le premier plan à l’aide du formulaire ci-dessus.",
+        "noDescription": "Aucune description enregistrée.",
+        "configured": "Configuré",
+        "pendingConfiguration": "Configuration en attente",
+        "validity": "Période de validité",
+        "activeRules": "Règles actives",
+        "linkedSellers": "Commerciaux associés",
+        "confirmedPayment": "Paiement confirmé",
+        "required": "Obligatoire",
+        "notRequired": "Non obligatoire",
+        "warning": "Ce plan ne rend pas encore les commerciaux éligibles car il ne comporte aucune règle active.",
+        "configureRules": "Configurer les règles"
+      }
+    },
+    "plan": {
+      "invalidPlan": "Plan invalide.",
+      "common": {
+        "noLimit": "Sans limite",
+        "invalidDate": "Date invalide",
+        "until": "au",
+        "course": "Cours",
+        "department": "Département",
+        "role": "Poste ou fonction",
+        "employee": "Employé",
+        "description": "Description",
+        "startDate": "Début de validité",
+        "endDate": "Fin de validité",
+        "notes": "Observations",
+        "notesLabel": "Observations :",
+        "validityLabel": "Validité :",
+        "active": "Actif",
+        "ended": "Terminé",
+        "activeFeminine": "Active",
+        "inactiveFeminine": "Inactive",
+        "noDescription": "Aucune description.",
+        "all": "Tous",
+        "yes": "Oui",
+        "no": "Non",
+        "selectDepartment": "Sélectionnez le département...",
+        "selectRole": "Sélectionnez le poste ou la fonction...",
+        "selectEmployee": "Sélectionnez l’employé...",
+        "activeEmployees": "{count, plural, one {# employé actif} other {# employés actifs}}"
+      },
+      "header": {
+        "back": "← Retour aux plans",
+        "section": "Plan de commission",
+        "configureRulesFallback": "Configurer les règles",
+        "description": "Définissez qui participe et quelle règle s’applique à chaque département, poste ou employé."
+      },
+      "participation": {
+        "title": "👥 Qui reçoit une commission dans ce plan",
+        "description": "Ce choix détermine si seuls les responsables de l’inscription ou tous les employés associés au plan reçoivent une commission.",
+        "onlyEnrollment": {
+          "title": "🎯 Participants à l’inscription uniquement",
+          "description": "Seuls le commercial responsable et les participants commerciaux enregistrés sur cette inscription reçoivent une commission."
+        },
+        "allLinked": {
+          "title": "🏢 Tous les employés associés au plan",
+          "description": "Tous les employés actifs associés au plan participent, même sans compte, selon la règle applicable au poste, au département ou à la personne."
+        },
+        "warning": "Pour attribuer des pourcentages différents aux responsables, coordinateurs, commerciaux, équipes d’acquisition de prospects et autres fonctions dans un même plan, créez une règle générale puis ajoutez les exceptions spécifiques."
+      },
+      "ruleForm": {
+        "editTitle": "Modifier la règle de commission",
+        "newGeneralTitle": "Nouvelle règle générale de commission",
+        "newExceptionTitle": "Nouvelle exception de commission",
+        "editDescription": "Modifiez les données ci-dessous puis enregistrez. La modification n’affecte que les prochains calculs de commission.",
+        "precedenceDescription": "L’ordre de priorité est : employé spécifique, poste ou fonction, département, puis règle générale.",
+        "application": "Application de la règle",
+        "scope": {
+          "general": {
+            "title": "🌐 Règle générale",
+            "description": "Appliquée lorsqu’aucune règle plus spécifique n’existe."
+          },
+          "department": {
+            "title": "🏢 Département",
+            "description": "Exception pour tous les employés d’un département."
+          },
+          "role": {
+            "title": "🪪 Poste ou fonction",
+            "description": "Exception pour responsable, coordinateur, commercial, leads, etc."
+          },
+          "employee": {
+            "title": "👤 Employé spécifique",
+            "description": "Priorité maximale pour une condition individuelle."
+          }
+        },
+        "createGeneralFirst": "Créez d’abord une règle générale. Les options d’exception seront ensuite disponibles.",
+        "baseRule": "Règle générale d’origine",
+        "selectBaseRule": "Sélectionnez le groupe de commission...",
+        "inheritedBase": "Base héritée",
+        "inheritedTrigger": "Déclencheur hérité",
+        "currentGeneralValue": "Valeur générale actuelle",
+        "ruleName": "Nom de la règle",
+        "specificCourse": "Cours spécifique",
+        "allCourses": "Tous les cours",
+        "commissionType": "Type de commission",
+        "percentage": "Pourcentage",
+        "fixedValue": "Montant fixe",
+        "calculationBase": "Base de calcul",
+        "trigger": "Déclencheur de commission",
+        "minimumQuantity": "Quantité minimale",
+        "maximumQuantity": "Quantité maximale",
+        "refundGrace": "Délai de reprise",
+        "applicationOrder": "Ordre d’application",
+        "noMinimum": "Sans minimum",
+        "noMaximum": "Sans maximum",
+        "placeholders": {
+          "generalRule": "Ex. : Commission principale",
+          "managerRule": "Ex. : Commission du responsable commercial",
+          "exceptionRule": "Ex. : Exception de commission",
+          "description": "Expliquez quand cette règle doit être appliquée."
+        },
+        "useNetReceived": {
+          "title": "Utiliser le montant net encaissé",
+          "description": "Évite de calculer une commission sur des montants qui ne sont pas réellement entrés en caisse."
+        },
+        "refundCancellation": {
+          "title": "Reprendre en cas d’annulation",
+          "description": "Protège l’établissement contre les ventes annulées."
+        },
+        "refundDelinquency": {
+          "title": "Reprendre en cas d’impayé",
+          "description": "Permet de récupérer la commission lorsque le paiement n’est plus valide."
+        },
+        "activeRule": {
+          "title": "Règle active",
+          "description": "Seules les règles actives participent au calcul."
+        },
+        "activeException": {
+          "title": "Exception active",
+          "description": "Lorsqu’elle est active, cette règle remplace la règle générale pour la cible sélectionnée."
+        },
+        "savingChanges": "Enregistrement des modifications...",
+        "savingRule": "Enregistrement de la règle...",
+        "saveChanges": "Enregistrer les modifications",
+        "createGeneral": "Créer la règle générale",
+        "createException": "Créer l’exception de commission",
+        "cancelEdit": "Annuler la modification"
+      },
+      "participants": {
+        "title": "👥 Associer des participants",
+        "description": "Ajoutez un employé précis ou tous les employés actifs d’un département. L’employé n’a pas besoin d’un compte PHANYX.",
+        "warning": "L’association définit qui peut participer. Le pourcentage appliqué est choisi selon la priorité : employé, poste, département, puis règle générale.",
+        "linkType": "Mode d’association",
+        "individual": {
+          "title": "👤 Employé individuel",
+          "description": "Choisissez une personne précise pour participer au plan."
+        },
+        "department": {
+          "title": "🏢 Département entier",
+          "description": "Ajoutez tous les employés actifs du département en une seule fois."
+        },
+        "selectParticipant": "Sélectionnez le participant...",
+        "duplicateNote": "Les employés qui disposent déjà d’un autre plan actif sur la même période ne seront pas dupliqués.",
+        "endDateHelp": "Laissez vide pour conserver l’association sans date de fin.",
+        "placeholders": {
+          "departmentBatch": "Ex. : Équipe commerciale associée en lot",
+          "individual": "Ex. : Participant avec condition individuelle"
+        },
+        "linking": "Association des participants...",
+        "linkDepartment": "Associer le département au plan",
+        "linkEmployee": "Associer l’employé au plan",
+        "linkedTitle": "Participants associés",
+        "empty": "Aucun participant associé à ce plan.",
+        "roleNotProvided": "Poste non renseigné",
+        "includedByDepartment": "🏢 Ajouté via le département : {name}",
+        "individualLink": "👤 Association individuelle"
+      },
+      "rules": {
+        "title": "Règles enregistrées",
+        "description": "Dans un même groupe, seule la règle la plus spécifique est utilisée pour chaque employé.",
+        "loading": "Chargement des règles...",
+        "empty": "Aucune règle enregistrée dans ce plan.",
+        "group": "Groupe : {name}",
+        "exceptions": "{count, plural, one {# exception} other {# exceptions}}",
+        "application": "Application",
+        "commission": "Commission",
+        "base": "Base",
+        "trigger": "Déclencheur",
+        "course": "Cours : {name}",
+        "refundGrace": "Délai de reprise : {count, plural, one {# jour} other {# jours}}",
+        "refundCancellation": "Reprise en cas d’annulation : {value}",
+        "refundDelinquency": "Reprise en cas d’impayé : {value}",
+        "edit": "✏️ Modifier la règle"
+      },
+      "labels": {
+        "base": {
+          "enrollmentValue": "Montant de l’inscription",
+          "monthlyFeeValue": "Montant de la mensualité",
+          "totalContractValue": "Montant total du contrat",
+          "receivedValue": "Montant effectivement encaissé",
+          "profit": "Bénéfice calculé",
+          "enrollmentCount": "Nombre d’inscriptions"
+        },
+        "trigger": {
+          "enrollmentConfirmed": "Inscription confirmée",
+          "enrollmentPaymentConfirmed": "Paiement de l’inscription confirmé",
+          "firstMonthlyFeePaid": "Première mensualité payée",
+          "eachMonthlyFeePaid": "Chaque mensualité payée",
+          "manual": "Déblocage manuel par RH/Commercial"
+        },
+        "scope": {
+          "general": "Règle générale",
+          "department": "Département",
+          "role": "Poste ou fonction",
+          "employee": "Employé spécifique"
+        }
+      },
+      "targets": {
+        "departmentUnknown": "Département non identifié",
+        "roleUnknown": "Poste non identifié",
+        "employeeUnknown": "Employé non identifié",
+        "general": "Tous les participants sans règle plus spécifique"
+      },
+      "validation": {
+        "ruleName": "Indiquez le nom de la règle.",
+        "baseRule": "Sélectionnez la règle générale qui recevra cette exception.",
+        "department": "Sélectionnez le département de cette règle.",
+        "role": "Sélectionnez le poste ou la fonction de cette règle.",
+        "employee": "Sélectionnez l’employé de cette règle.",
+        "percentage": "Indiquez un pourcentage supérieur à zéro et inférieur ou égal à 100 %.",
+        "fixedValue": "Indiquez le montant fixe de la commission.",
+        "participantEmployee": "Sélectionnez l’employé participant.",
+        "participantDepartment": "Sélectionnez le département participant.",
+        "linkStartDate": "Indiquez la date de début de validité de l’association."
+      },
+      "errors": {
+        "loadRules": "Impossible de charger les règles.",
+        "loadParticipants": "Impossible de charger les participants du plan.",
+        "loadConfiguration": "Impossible de charger la configuration.",
+        "updateParticipationMode": "Impossible de modifier le mode de participation.",
+        "updateRule": "Impossible de mettre à jour la règle.",
+        "createRule": "Impossible de créer la règle.",
+        "linkParticipants": "Impossible d’associer les participants."
+      },
+      "success": {
+        "participationModeUpdated": "Mode de participation mis à jour avec succès.",
+        "ruleUpdated": "Règle mise à jour avec succès.",
+        "ruleCreated": "Règle créée avec succès.",
+        "participantsLinked": "Participants associés au plan avec succès."
+      }
+    }
+  },
+  "AdminCommercialOverview": {
+    "header": {
+      "kicker": "Gestion institutionnelle",
+      "title": "Commercial",
+      "description": "Gérez les prospects, les commerciaux, les objectifs, les ventes, les inscriptions, les commissions et les résultats commerciaux de l’établissement."
+    },
+    "errors": {
+      "loadSummary": "Impossible de charger le résumé commercial."
+    },
+    "metrics": {
+      "activeLeads": {
+        "title": "Prospects actifs",
+        "description": "Prospects actuellement en cours dans l’entonnoir commercial."
+      },
+      "periodSales": {
+        "title": "Ventes sur la période",
+        "description": "Inscriptions confirmées pendant le mois en cours."
+      },
+      "goals": {
+        "title": "Objectifs atteints",
+        "progress": "{achieved} sur {total} objectif(s) de la période.",
+        "none": "Aucun objectif actif sur cette période."
+      },
+      "pendingCommissions": {
+        "title": "Commissions en attente",
+        "pending": "{count, plural, one {# élément en attente d’analyse.} other {# éléments en attente d’analyse.}}",
+        "none": "Aucune commission en attente sur cette période."
+      }
+    },
+    "resources": {
+      "title": "Ressources du service Commercial",
+      "description": "Les ressources sont activées progressivement et respectent les autorisations départementales et individuelles déjà configurées."
+    },
+    "statuses": {
+      "available": "Disponible",
+      "integrated": "Intégration active"
+    },
+    "modules": {
+      "leads": {
+        "title": "Prospects et opportunités",
+        "description": "Enregistrez les prospects et suivez les contacts, les étapes de l’entonnoir et les responsables.",
+        "action": "Ouvrir les prospects et opportunités"
+      },
+      "salespeople": {
+        "title": "Commerciaux",
+        "description": "Gérez les employés autorisés à intervenir sur les ventes et les inscriptions.",
+        "action": "Ouvrir les employés"
+      },
+      "teams": {
+        "title": "Équipes commerciales",
+        "description": "Organisez les commerciaux en équipes, définissez les responsables et gérez les membres.",
+        "action": "Ouvrir les équipes commerciales"
+      },
+      "goals": {
+        "title": "Objectifs commerciaux",
+        "description": "Définissez des objectifs par commercial, équipe, cours, site et période.",
+        "action": "Ouvrir les objectifs commerciaux"
+      },
+      "salesEnrollments": {
+        "title": "Ventes et inscriptions",
+        "description": "Suivez les inscriptions, les montants négociés et les commerciaux responsables.",
+        "action": "Ouvrir les inscriptions"
+      },
+      "commissions": {
+        "title": "Commissions",
+        "description": "Configurez les plans et règles pour calculer et approuver les commissions des commerciaux.",
+        "action": "Ouvrir les plans de commission"
+      },
+      "reports": {
+        "title": "Rapports",
+        "description": "Analysez la conversion, les performances, les prospects, les inscriptions, les ventes et les résultats commerciaux.",
+        "action": "Ouvrir les rapports commerciaux"
+      }
+    },
+    "hrIntegration": {
+      "title": "Intégration avec les RH",
+      "description": "Les commissions issues des ventes et des inscriptions sont calculées et approuvées dans le module Commercial. Elles peuvent ensuite être transmises aux RH et intégrées à la paie de la période correspondante. Les primes, récompenses et participations restent gérées dans la rémunération variable."
+    }
+  },
+  "AdminCommercialTeams": {
+    "header": {
+      "kicker": "Commercial",
+      "title": "Équipes commerciales",
+      "description": "Organisez les commerciaux en équipes, définissez les responsables et préparez la structure pour les objectifs collectifs et individuels."
+    },
+    "common": {
+      "employee": "Employé",
+      "noDepartment": "Sans département",
+      "noDescription": "Aucune description enregistrée.",
+      "noRole": "Poste non renseigné"
+    },
+    "metrics": {
+      "total": "Total des équipes",
+      "active": "Équipes actives",
+      "inactive": "Équipes inactives",
+      "activeMembers": "Membres actifs",
+      "linkedGoals": "Objectifs associés"
+    },
+    "filters": {
+      "searchPlaceholder": "Rechercher par équipe, responsable ou membre",
+      "active": "Équipes actives",
+      "inactive": "Équipes inactives",
+      "all": "Toutes les équipes"
+    },
+    "states": {
+      "loading": "Chargement des équipes commerciales...",
+      "emptyTitle": "Aucune équipe trouvée",
+      "emptyDescription": "Créez une équipe ou ajustez les filtres de la liste.",
+      "loadingEmployees": "Chargement des employés...",
+      "noEmployees": "Aucun employé trouvé."
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "card": {
+      "teamLeader": "Responsable de l’équipe",
+      "noLeader": "Aucun responsable défini",
+      "members": "Membres",
+      "noMembers": "Aucun membre actif."
+    },
+    "actions": {
+      "newTeam": "+ Nouvelle équipe",
+      "edit": "Modifier l’équipe",
+      "deactivate": "Désactiver",
+      "reactivate": "Réactiver",
+      "close": "Fermer",
+      "cancel": "Annuler",
+      "saving": "Enregistrement...",
+      "saveChanges": "Enregistrer les modifications",
+      "createTeam": "Créer l’équipe",
+      "keepTeam": "Conserver l’équipe",
+      "deactivating": "Désactivation...",
+      "deactivateTeam": "Désactiver l’équipe"
+    },
+    "modal": {
+      "newTitle": "Nouvelle équipe commerciale",
+      "editTitle": "Modifier l’équipe commerciale",
+      "teamName": "Nom de l’équipe",
+      "teamNamePlaceholder": "Ex. : Équipe commerciale Centre",
+      "description": "Description",
+      "descriptionPlaceholder": "Décrivez le rôle de cette équipe.",
+      "teamLeader": "Responsable de l’équipe",
+      "noLeader": "Aucun responsable défini",
+      "leaderHelp": "Le responsable sera automatiquement ajouté comme membre de l’équipe.",
+      "members": "Membres de l’équipe",
+      "membersDescription": "Sélectionnez les employés qui feront partie de l’équipe.",
+      "selectedCount": "{count, plural, one {# sélectionné} other {# sélectionnés}}",
+      "searchEmployees": "Rechercher un employé, un poste ou un département",
+      "leaderBadge": "Responsable",
+      "activeTeam": "Équipe active",
+      "activeTeamHelp": "Les équipes inactives ne doivent pas recevoir de nouveaux objectifs."
+    },
+    "validation": {
+      "teamName": "Saisissez le nom de l’équipe commerciale."
+    },
+    "errors": {
+      "loadTeams": "Impossible de charger les équipes commerciales.",
+      "loadEmployees": "Impossible de charger les employés commerciaux.",
+      "saveTeam": "Impossible d’enregistrer l’équipe commerciale.",
+      "deactivate": "Impossible de désactiver l’équipe.",
+      "reactivate": "Impossible de réactiver l’équipe."
+    },
+    "success": {
+      "created": "Équipe créée avec succès.",
+      "updated": "Équipe mise à jour avec succès.",
+      "deactivated": "Équipe désactivée avec succès.",
+      "reactivated": "Équipe réactivée avec succès."
+    },
+    "deactivateModal": {
+      "title": "Désactiver l’équipe commerciale",
+      "description": "L’équipe <team></team> sera désactivée. Son historique et les objectifs déjà associés seront conservés."
+    }
+  },
+  "AdminCommercialFunnels": {
+    "breadcrumb": {
+      "commercial": "Commercial",
+      "salesFunnels": "Entonnoirs commerciaux"
+    },
+    "header": {
+      "title": "Configuration de l’entonnoir commercial",
+      "description": "Organisez les étapes de suivi, les délais, les probabilités de conversion et les motifs de perte des opportunités."
+    },
+    "actions": {
+      "refresh": "Actualiser",
+      "refreshing": "Actualisation...",
+      "processing": "Traitement...",
+      "createStructure": "Créer la structure commerciale",
+      "linkPendingLeads": "Associer les prospects en attente",
+      "checkStructure": "Vérifier la structure",
+      "initializeNow": "Initialiser maintenant",
+      "initializing": "Initialisation...",
+      "tryAgain": "Réessayer",
+      "closeMessage": "Fermer le message"
+    },
+    "errors": {
+      "load": "Impossible de charger les entonnoirs.",
+      "initialize": "Impossible d’initialiser l’entonnoir.",
+      "operationTitle": "Impossible de terminer l’opération"
+    },
+    "success": {
+      "initialized": "Structure commerciale initialisée."
+    },
+    "states": {
+      "loading": "Chargement de la configuration commerciale..."
+    },
+    "common": {
+      "dateUnavailable": "Date indisponible",
+      "noMaximumDeadline": "Aucun délai maximal",
+      "hours": "{count} h",
+      "days": "{count, plural, one {# jour} other {# jours}}",
+      "active": "Actif",
+      "archived": "Archivé",
+      "required": "Obligatoire",
+      "optional": "Facultative",
+      "manual": "Manuel",
+      "automatic": "Automatique"
+    },
+    "summary": {
+      "status": {
+        "title": "Statut",
+        "configured": "Configuré",
+        "pending": "En attente",
+        "available": "Entonnoir par défaut disponible",
+        "initializationRequired": "Initialisation requise"
+      },
+      "funnels": {
+        "title": "Entonnoirs",
+        "description": "Enregistrés pour l’établissement"
+      },
+      "stages": {
+        "title": "Étapes",
+        "description": "Dans l’entonnoir commercial par défaut"
+      },
+      "lossReasons": {
+        "title": "Motifs de perte",
+        "description": "Motifs disponibles"
+      },
+      "pendingLeads": {
+        "title": "Prospects en attente",
+        "description": "Sur {count} prospects enregistrés"
+      }
+    },
+    "initialization": {
+      "title": "Le CRM doit encore être initialisé",
+      "description": "L’initialisation créera l’entonnoir par défaut, ses étapes, les motifs de perte et associera les anciens prospects. Aucun prospect ne sera supprimé.",
+      "noPermission": "Vous n’avez pas l’autorisation d’initialiser cette structure."
+    },
+    "funnel": {
+      "default": "Entonnoir par défaut",
+      "updatedAt": "Mis à jour le {date}"
+    },
+    "stages": {
+      "title": "Étapes du processus commercial",
+      "count": "{count, plural, one {# étape configurée} other {# étapes configurées}}",
+      "empty": "Aucune étape enregistrée dans cet entonnoir."
+    },
+    "stageMetrics": {
+      "conversion": "Conversion",
+      "deadline": "Délai",
+      "nextAction": "Prochaine action",
+      "movement": "Déplacement"
+    },
+    "emptyFunnels": {
+      "title": "Aucun entonnoir commercial enregistré",
+      "description": "Initialisez la structure pour créer l’entonnoir par défaut de l’établissement."
+    },
+    "lossReasons": {
+      "title": "Motifs de perte",
+      "description": "Motifs utilisés pour comprendre pourquoi les opportunités n’ont pas été converties.",
+      "requiresObservation": "⚠ Observation complémentaire requise",
+      "empty": "Aucun motif de perte enregistré."
+    },
+    "stageCategories": {
+      "entry": "Entrée",
+      "firstContact": "Premier contact",
+      "inService": "En cours",
+      "qualification": "Qualification",
+      "presentation": "Présentation",
+      "proposal": "Proposition",
+      "negotiation": "Négociation",
+      "documentation": "Documentation",
+      "payment": "Paiement",
+      "conversion": "Conversion",
+      "loss": "Perte",
+      "pause": "Pause",
+      "discard": "Écart"
+    },
+    "stageResults": {
+      "open": "Ouverte",
+      "won": "Gagnée",
+      "lost": "Perdue",
+      "discarded": "Écartée"
+    },
+    "lossCategories": {
+      "noInterest": "Sans intérêt",
+      "price": "Prix",
+      "competition": "Concurrence",
+      "noContact": "Sans contact",
+      "courseUnavailable": "Cours indisponible",
+      "scheduleConflict": "Horaire incompatible",
+      "location": "Localisation",
+      "documentation": "Documentation",
+      "financial": "Financier",
+      "withdrawal": "Abandon",
+      "duplicate": "Doublon",
+      "outOfProfile": "Hors profil",
+      "other": "Autre"
+    }
+  },
+  "AdminCommercialLead360": {
+    "breadcrumb": {
+      "commercial": "Commercial",
+      "leads": "Prospects",
+      "lead360": "Fiche 360°"
+    },
+    "header": {
+      "leadNumber": "Prospect #{id}",
+      "description": "Historique commercial complet, données de suivi et statut de l’opportunité réunis au même endroit."
+    },
+    "actions": {
+      "pipeline": "← Pipeline",
+      "leadList": "Liste des prospects",
+      "refresh": "Actualiser",
+      "refreshing": "Actualisation...",
+      "registerInteraction": "+ Enregistrer une interaction",
+      "registerInteractionPlain": "Enregistrer l’interaction",
+      "registering": "Enregistrement...",
+      "tryAgain": "Réessayer",
+      "backToPipeline": "Retour au Pipeline",
+      "cancel": "Annuler",
+      "close": "Fermer"
+    },
+    "errors": {
+      "invalidLeadId": "L’identifiant du prospect est invalide.",
+      "loadLead": "Impossible de charger la fiche du prospect."
+    },
+    "loading": {
+      "title": "Préparation de la Fiche 360°...",
+      "description": "Récupération des contacts, de l’entonnoir, des tâches et de l’inscription."
+    },
+    "empty": {
+      "title": "Impossible d’ouvrir la Fiche 360°",
+      "notFound": "Le prospect est introuvable."
+    },
+    "common": {
+      "notProvided": "Non renseigné",
+      "notDefined": "Non défini",
+      "unassigned": "Non attribué",
+      "noResponsible": "Sans responsable",
+      "noTeam": "Sans équipe",
+      "noStage": "Aucune étape définie",
+      "noFunnel": "Aucun entonnoir défini",
+      "noSalesTeam": "Aucune équipe commerciale"
+    },
+    "enum": {
+      "low": "Basse",
+      "medium": "Moyenne",
+      "high": "Haute",
+      "urgent": "Urgente",
+      "new": "Nouveau",
+      "inService": "En cours",
+      "qualified": "Qualifié",
+      "converted": "Converti",
+      "lost": "Perdu",
+      "archived": "Archivé",
+      "active": "Actif",
+      "inactive": "Inactif",
+      "pending": "En attente",
+      "completed": "Terminé",
+      "cancelled": "Annulé"
+    },
+    "summary": {
+      "currentStage": "Étape actuelle",
+      "responsible": "Responsable",
+      "estimatedValue": "Valeur estimée",
+      "nextAction": "Prochaine action",
+      "pendingTasks": "{count, plural, one {# tâche en attente} other {# tâches en attente}}"
+    },
+    "quickContact": {
+      "kicker": "Contact rapide",
+      "title": "Contacter le prospect",
+      "call": "Appeler",
+      "email": "E-mail",
+      "addNote": "Ajouter une observation"
+    },
+    "timeline": {
+      "eventCount": "{count, plural, one {# événement enregistré} other {# événements enregistrés}}",
+      "title": "Chronologie commerciale",
+      "description": "Contacts, changements d’étape, tâches et décisions dans l’ordre chronologique.",
+      "filterAria": "Filtrer les événements",
+      "scheduledFor": "Planifiée pour le {date}",
+      "registeredBy": "Enregistré par {name}",
+      "systemRecord": "Enregistrement automatique du système",
+      "emptyTitle": "Aucun événement de ce type sur cette page",
+      "emptyDescription": "Sélectionnez un autre filtre ou parcourez les autres pages.",
+      "filters": {
+        "all": "Tout",
+        "contacts": "Contacts",
+        "funnel": "Entonnoir",
+        "tasks": "Tâches",
+        "transfers": "Transferts",
+        "conversion": "Conversion"
+      },
+      "eventTypes": {
+        "creation": "Création",
+        "contact": "Contact",
+        "funnel": "Entonnoir",
+        "transfer": "Transfert",
+        "task": "Tâche",
+        "loss": "Perte",
+        "archiving": "Archivage",
+        "restoration": "Restauration",
+        "conversion": "Conversion"
+      }
+    },
+    "pagination": {
+      "page": "Page {current} sur {total}",
+      "previous": "Précédente",
+      "next": "Suivante"
+    },
+    "commercialSummary": {
+      "kicker": "Statut actuel",
+      "title": "Résumé commercial",
+      "status": "Statut",
+      "stage": "Étape",
+      "funnel": "Entonnoir",
+      "responsible": "Responsable",
+      "team": "Équipe"
+    },
+    "interest": {
+      "kicker": "Intérêt",
+      "title": "Cours et site",
+      "course": "Cours",
+      "campus": "Site",
+      "organization": "Entreprise / établissement",
+      "source": "Origine",
+      "initialNotes": "Observations initiales"
+    },
+    "milestones": {
+      "kicker": "Évolution",
+      "title": "Étapes de la relation",
+      "created": "Prospect créé",
+      "firstContact": "Premier contact",
+      "qualified": "Qualifié",
+      "converted": "Converti",
+      "notRecorded": "Pas encore enregistré"
+    },
+    "enrollment": {
+      "kicker": "Conversion terminée",
+      "title": "Inscription associée",
+      "convertedAt": "Converti le",
+      "open": "Ouvrir l’inscription"
+    },
+    "loss": {
+      "kicker": "Opportunité perdue",
+      "noAdditionalNote": "Aucune observation complémentaire enregistrée."
+    },
+    "interaction": {
+      "validationDescription": "Décrivez le contact ou l’observation effectuée.",
+      "errorRegister": "Impossible d’enregistrer l’interaction.",
+      "successRegistered": "Interaction ajoutée à la chronologie."
+    },
+    "interactionTypes": {
+      "whatsapp": "WhatsApp",
+      "call": "Appel",
+      "email": "E-mail",
+      "meeting": "Réunion",
+      "note": "Observation"
+    },
+    "interactionModal": {
+      "kicker": "Historique commercial",
+      "title": "Enregistrer une nouvelle interaction",
+      "description": "L’enregistrement sera visible dans la Fiche 360° de {name}.",
+      "type": "Type d’interaction",
+      "descriptionLabel": "Description de l’interaction *",
+      "placeholder": "Ex. : nous avons parlé des tarifs et le prospect a demandé un rappel la semaine prochaine..."
+    }
+  },
+  "AdminCommercialGoals": {
+    "header": {
+      "kicker": "Commercial",
+      "title": "Objectifs commerciaux",
+      "description": "Définissez des objectifs pour l’ensemble de l’établissement, les équipes ou les employés, avec période, indicateur, cours et site facultatifs.",
+      "newGoal": "+ Nouvel objectif"
+    },
+    "metrics": {
+      "total": "Total des objectifs",
+      "active": "Objectifs actifs",
+      "drafts": "Brouillons",
+      "closed": "Clôturés",
+      "canceled": "Annulés"
+    },
+    "filters": {
+      "searchPlaceholder": "Rechercher un objectif, une équipe, un employé, un cours ou un site",
+      "allStatuses": "Tous les statuts",
+      "allScopes": "Tous les périmètres",
+      "allIndicators": "Tous les indicateurs",
+      "statusAria": "Filtrer par statut",
+      "scopeAria": "Filtrer par périmètre",
+      "indicatorAria": "Filtrer par indicateur"
+    },
+    "scope": {
+      "institution": "Établissement",
+      "team": "Équipe",
+      "employee": "Employé"
+    },
+    "indicator": {
+      "enrollments": "Nombre d’inscriptions",
+      "enrollmentsShort": "Inscriptions",
+      "soldAmount": "Montant vendu",
+      "receivedAmount": "Montant encaissé",
+      "convertedLeads": "Prospects convertis"
+    },
+    "periodicity": {
+      "monthly": "Mensuelle",
+      "quarterly": "Trimestrielle",
+      "semiannual": "Semestrielle",
+      "annual": "Annuelle",
+      "custom": "Personnalisée"
+    },
+    "status": {
+      "draft": "Brouillon",
+      "active": "Actif",
+      "closed": "Clôturé",
+      "canceled": "Annulé"
+    },
+    "common": {
+      "teamNotProvided": "Équipe non renseignée",
+      "employeeNotProvided": "Employé non renseigné",
+      "wholeInstitution": "Tout l’établissement",
+      "invalidDate": "Date invalide",
+      "to": "au",
+      "allCourses": "Tous les cours",
+      "allCampuses": "Tous les sites",
+      "roleNotProvided": "Poste non renseigné",
+      "memberCount": "{count, plural, one {# membre} other {# membres}}",
+      "selectedCount": "{count, plural, one {# sélectionné} other {# sélectionnés}}"
+    },
+    "loading": "Chargement des objectifs commerciaux...",
+    "empty": {
+      "title": "Aucun objectif trouvé",
+      "description": "Créez un objectif commercial ou ajustez les filtres de la liste."
+    },
+    "card": {
+      "noDescription": "Aucune description renseignée.",
+      "definedGoal": "Objectif défini",
+      "progressTitle": "Suivi de l’objectif",
+      "progressAuto": "Résultat calculé automatiquement à partir des données PHANYX.",
+      "achieved": "Objectif atteint",
+      "actual": "Réalisé",
+      "remaining": "Restant",
+      "progress": "Progression",
+      "progressLabel": "Progression de l’objectif",
+      "reached": "Objectif atteint",
+      "aboveGoal": "{value}% au-dessus de l’objectif",
+      "indicator": "Indicateur",
+      "responsible": "Responsable",
+      "period": "Période",
+      "segmentation": "Segmentation",
+      "notes": "Observations"
+    },
+    "actions": {
+      "edit": "Modifier",
+      "activate": "Activer",
+      "close": "Clôturer",
+      "cancel": "Annuler l’objectif",
+      "deleteDraft": "Supprimer le brouillon"
+    },
+    "modal": {
+      "kicker": "Commercial",
+      "editTitle": "Modifier l’objectif commercial",
+      "newTitle": "Nouvel objectif commercial",
+      "close": "Fermer",
+      "cancel": "Annuler",
+      "saving": "Enregistrement...",
+      "saveChanges": "Enregistrer les modifications",
+      "createGoal": "Créer l’objectif",
+      "fields": {
+        "name": "Nom de l’objectif",
+        "description": "Description",
+        "scope": "Périmètre",
+        "indicator": "Indicateur",
+        "team": "Équipe responsable",
+        "employee": "Employé responsable",
+        "periodicity": "Périodicité",
+        "target": "Valeur cible",
+        "startDate": "Date de début",
+        "endDate": "Date de fin",
+        "course": "Cours",
+        "campus": "Site",
+        "initialStatus": "Statut initial",
+        "notes": "Observations internes"
+      },
+      "placeholders": {
+        "name": "Ex. : Objectif d’inscriptions du premier semestre",
+        "description": "Décrivez l’objectif visé.",
+        "moneyTarget": "Ex. : 25 000,00",
+        "quantityTarget": "Ex. : 100",
+        "notes": "Consignez les critères, consignes ou informations internes concernant l’objectif."
+      },
+      "scopeOptions": {
+        "institution": "Tout l’établissement",
+        "team": "Équipe commerciale",
+        "employee": "Employé individuel"
+      },
+      "selectTeam": "Sélectionnez l’équipe",
+      "selectEmployee": "Sélectionnez l’employé",
+      "helpers": {
+        "moneyTarget": "Saisissez un montant monétaire.",
+        "quantityTarget": "Saisissez une quantité entière."
+      },
+      "initialStatus": {
+        "draftTitle": "Enregistrer comme brouillon",
+        "draftDescription": "Permet de vérifier l’objectif avant de l’activer.",
+        "activeTitle": "Créer comme actif",
+        "activeDescription": "L’objectif entre immédiatement en vigueur pour la période définie."
+      }
+    },
+    "participants": {
+      "title": "Participants à cet objectif",
+      "description": "Les membres de l’équipe sont proposés automatiquement, mais vous pouvez inclure d’autres employés de l’établissement uniquement pour cet objectif.",
+      "selectTeamMembers": "Sélectionner les membres de l’équipe",
+      "clearSelection": "Effacer la sélection",
+      "closeEmployees": "Fermer les employés",
+      "addOtherEmployees": "+ Ajouter d’autres employés",
+      "teamMembers": "Membres de l’équipe",
+      "teamMember": "Membre de l’équipe",
+      "noActiveMembers": "Cette équipe ne compte aucun membre actif. Vous pouvez néanmoins ajouter d’autres employés à l’objectif.",
+      "additionalParticipants": "Participants supplémentaires",
+      "additionalParticipant": "Participant supplémentaire",
+      "addOtherEmployeesTitle": "Ajouter d’autres employés",
+      "addOtherEmployeesDescription": "Sélectionner un employé ici ne l’ajoute pas à l’équipe commerciale. Il participera uniquement à cet objectif.",
+      "searchPlaceholder": "Rechercher par nom, poste ou département",
+      "noOtherEmployees": "Aucun autre employé trouvé."
+    },
+    "confirmation": {
+      "kicker": "Confirmation",
+      "back": "Retour",
+      "processing": "Traitement...",
+      "activate": {
+        "title": "Activer l’objectif commercial",
+        "message": "L’objectif « {name} » commencera officiellement à suivre la période définie.",
+        "action": "Activer l’objectif"
+      },
+      "close": {
+        "title": "Clôturer l’objectif commercial",
+        "message": "L’objectif « {name} » sera clôturé et ne pourra plus être rouvert ni modifié.",
+        "action": "Clôturer l’objectif"
+      },
+      "cancel": {
+        "title": "Annuler l’objectif commercial",
+        "message": "L’objectif « {name} » sera annulé et son historique sera conservé.",
+        "action": "Annuler l’objectif"
+      },
+      "delete": {
+        "title": "Supprimer le brouillon de l’objectif",
+        "message": "Le brouillon « {name} » sera définitivement supprimé. Cette action n’est autorisée que pour les objectifs qui n’ont jamais été activés.",
+        "action": "Supprimer le brouillon"
+      }
+    },
+    "errors": {
+      "load": "Impossible de charger les objectifs commerciaux.",
+      "loadGeneric": "Erreur lors du chargement des objectifs commerciaux.",
+      "lockedGoal": "Les objectifs clôturés ou annulés ne peuvent plus être modifiés.",
+      "name": "Saisissez le nom de l’objectif commercial.",
+      "dates": "Saisissez les dates de début et de fin de l’objectif.",
+      "endBeforeStart": "La date de fin ne peut pas être antérieure à la date de début.",
+      "targetPositive": "Saisissez une valeur cible supérieure à zéro.",
+      "integerTarget": "Pour les objectifs quantitatifs, saisissez un nombre entier.",
+      "team": "Sélectionnez l’équipe responsable de l’objectif.",
+      "participant": "Sélectionnez au moins un participant pour l’objectif de l’équipe.",
+      "employee": "Sélectionnez l’employé responsable de l’objectif.",
+      "save": "Impossible d’enregistrer l’objectif commercial.",
+      "saveGeneric": "Erreur lors de l’enregistrement de l’objectif commercial.",
+      "action": "Impossible d’effectuer l’action sur cet objectif.",
+      "actionGeneric": "Erreur lors du traitement de l’objectif commercial."
+    },
+    "success": {
+      "updated": "Objectif commercial mis à jour avec succès.",
+      "created": "Objectif commercial créé avec succès.",
+      "action": "Action effectuée avec succès."
+    }
+  },
+  "AdminCommercialPipeline": {
+    "header": {
+      "sales": "Commercial",
+      "pipeline": "Pipeline",
+      "title": "Pipeline commercial",
+      "description": "Suivez chaque opportunité, identifiez les retards et organisez les prochaines actions de l’équipe commerciale.",
+      "viewLeadList": "Voir la liste des prospects",
+      "configureFunnel": "Configurer l’entonnoir",
+      "updating": "Mise à jour...",
+      "update": "Mettre à jour"
+    },
+    "filters": {
+      "searchLabel": "Rechercher des opportunités",
+      "searchPlaceholder": "Nom, e-mail, téléphone, intérêt...",
+      "priority": "Priorité",
+      "allPriorities": "Toutes",
+      "onlyMine": "Uniquement mes prospects"
+    },
+    "summary": {
+      "activeFunnel": "Entonnoir actif",
+      "opportunities": "Opportunités",
+      "estimatedValue": "Valeur estimée",
+      "view": "Vue",
+      "myLeads": "Mes prospects",
+      "wholeTeam": "Toute l’équipe"
+    },
+    "stages": {
+      "title": "Étapes de l’entonnoir",
+      "scrollHelp": "Faites défiler horizontalement pour afficher toutes les étapes.",
+      "updatingData": "Mise à jour des données...",
+      "stage": "Étape {number}",
+      "value": "Valeur",
+      "probability": "Probabilité",
+      "empty": "Aucune opportunité à cette étape.",
+      "moreLeads": "D’autres prospects existent à cette étape"
+    },
+    "lead": {
+      "noInterest": "Intérêt non renseigné",
+      "responsible": "Responsable",
+      "course": "Cours",
+      "campus": "Site",
+      "value": "Valeur",
+      "stageOverdue": "Délai de l’étape dépassé",
+      "followUpOverdue": "Suivi en retard",
+      "noNextAction": "Prochaine action non définie",
+      "nextAction": "Prochaine action",
+      "enrollment": "Inscription",
+      "moveStage": "Changer d’étape"
+    },
+    "common": {
+      "notDefined": "Non défini",
+      "invalidDate": "Date invalide"
+    },
+    "loading": "Chargement du pipeline commercial...",
+    "priority": {
+      "low": "Faible",
+      "medium": "Moyenne",
+      "high": "Élevée",
+      "urgent": "Urgente"
+    },
+    "taskTypes": {
+      "call": "Appel",
+      "email": "E-mail",
+      "meeting": "Réunion",
+      "followUp": "Suivi",
+      "sendProposal": "Envoyer une proposition",
+      "requestDocuments": "Demander des documents",
+      "confirmPayment": "Confirmer le paiement",
+      "other": "Autre"
+    },
+    "categories": {
+      "entry": "Entrée",
+      "firstContact": "Premier contact",
+      "inService": "En traitement",
+      "qualification": "Qualification",
+      "presentation": "Présentation",
+      "proposal": "Proposition",
+      "negotiation": "Négociation",
+      "documentation": "Documentation",
+      "payment": "Paiement",
+      "conversion": "Conversion",
+      "loss": "Perte",
+      "pause": "Pause",
+      "discard": "Rejet"
+    },
+    "errors": {
+      "load": "Impossible de charger le pipeline.",
+      "loadTitle": "Impossible de charger le pipeline",
+      "tryAgain": "Réessayer",
+      "noMovePermission": "Vous n’avez pas l’autorisation de déplacer des prospects."
+    },
+    "movement": {
+      "kicker": "Déplacement dans le pipeline",
+      "title": "Déplacer {name}",
+      "description": "La modification sera enregistrée dans l’historique commercial du prospect.",
+      "closeAria": "Fermer le déplacement",
+      "currentStage": "Étape actuelle",
+      "responsible": "Responsable",
+      "destinationStage": "Étape de destination",
+      "selectStage": "Sélectionnez la nouvelle étape",
+      "movementNote": "Observation sur le déplacement",
+      "movementNotePlaceholder": "Ex. : le prospect a répondu, proposition acceptée, documents reçus...",
+      "selectLossReason": "Sélectionnez le motif",
+      "stageSuffix": {
+        "automatic": " — automatique",
+        "noPermission": " — sans autorisation",
+        "requiresEnrollment": " — inscription requise"
+      },
+      "loss": {
+        "title": "Enregistrement de la perte",
+        "description": "Le motif sera utilisé dans les rapports de conversion et d’amélioration commerciale.",
+        "reason": "Motif de la perte",
+        "observation": "Observation complémentaire",
+        "observationPlaceholder": "Consignez les détails permettant de comprendre la perte.",
+        "observationRequired": "Ce motif nécessite une observation."
+      },
+      "nextAction": {
+        "title": "Prochaine action",
+        "description": "Assurez le suivi du prospect avec une date, un canal et une priorité définis.",
+        "alreadyDefined": "Prochaine action déjà définie",
+        "required": "Prochaine action obligatoire",
+        "schedule": "Planifier une prochaine action",
+        "requiredDescription": "L’étape sélectionnée exige une tâche en attente.",
+        "noResponsible": "Ce prospect n’a pas encore de responsable. Définissez-en un avant de le déplacer vers cette étape.",
+        "actionType": "Type d’action",
+        "priority": "Priorité",
+        "taskTitle": "Titre",
+        "taskTitlePlaceholder": "Prochaine action — {stage}",
+        "scheduledFor": "Planifiée pour",
+        "deadline": "Date limite",
+        "reminder": "Rappel",
+        "responsible": "Responsable",
+        "instructions": "Consignes de la tâche",
+        "instructionsPlaceholder": "Décrivez ce qui devra être fait lors du prochain contact."
+      },
+      "errors": {
+        "selectStage": "Sélectionnez l’étape de destination.",
+        "automaticStage": "Cette étape est contrôlée automatiquement par le système.",
+        "requiresEnrollment": "Le prospect ne peut être converti qu’après la création d’une inscription valide.",
+        "enrollmentKeepsConverted": "Ce prospect possède une inscription valide et doit rester converti.",
+        "noLossPermission": "Vous n’avez pas l’autorisation d’enregistrer des pertes commerciales.",
+        "lossReason": "Sélectionnez le motif de la perte.",
+        "lossObservation": "Ce motif de perte nécessite une observation complémentaire.",
+        "responsibleBeforeTask": "Définissez un responsable pour le prospect avant de planifier la prochaine action.",
+        "schedule": "Indiquez quand la prochaine action doit être effectuée.",
+        "invalidSchedule": "La date de la prochaine action est invalide.",
+        "scheduleInPast": "La prochaine action ne peut pas être planifiée dans le passé.",
+        "invalidDeadline": "La date limite est invalide.",
+        "invalidReminder": "La date du rappel est invalide.",
+        "deadlineBeforeSchedule": "La date limite ne peut pas être antérieure à la date planifiée.",
+        "reminderAfterSchedule": "Le rappel ne peut pas avoir lieu après la date planifiée.",
+        "save": "Impossible de déplacer le prospect."
+      },
+      "success": "Prospect déplacé avec succès.",
+      "cancel": "Annuler",
+      "moving": "Déplacement...",
+      "confirm": "Confirmer le déplacement"
+    }
+  },
+  "AdminCommercialReports": {
+    "header": {
+      "kicker": "Commercial",
+      "title": "Rapports commerciaux",
+      "description": "Suivez les prospects, les conversions, les inscriptions, les ventes et les performances de l’équipe commerciale.",
+      "updating": "Mise à jour...",
+      "update": "Mettre à jour le rapport"
+    },
+    "filters": {
+      "title": "Filtres",
+      "description": "Les indicateurs ci-dessous respectent les filtres sélectionnés.",
+      "clear": "Effacer",
+      "startDate": "Date de début",
+      "endDate": "Date de fin",
+      "salesperson": "Commercial",
+      "course": "Cours",
+      "campus": "Site",
+      "all": "Tous"
+    },
+    "tabs": {
+      "overview": "Vue d’ensemble",
+      "salespeople": "Commerciaux",
+      "leads": "Prospects",
+      "enrollments": "Inscriptions",
+      "courses": "Cours"
+    },
+    "indicators": {
+      "leadsReceived": "Prospects reçus",
+      "leadsConverted": "Prospects convertis",
+      "conversionRate": "Taux de conversion",
+      "enrollments": "Inscriptions",
+      "soldAmount": "Montant vendu",
+      "receivedAtEnrollment": "Reçu à l’inscription",
+      "averageTicket": "Panier moyen",
+      "cancellations": "Annulations",
+      "enrollmentsDescription": "Actives, à venir ou terminées",
+      "soldAmountDescription": "Frais d’inscription et mensualités des ventes valides",
+      "receivedDescription": "Paiements enregistrés lors de l’inscription",
+      "averageTicketDescription": "Montant vendu divisé par les inscriptions valides",
+      "cancellationsDescription": "Inscriptions de la période actuellement annulées"
+    },
+    "salespeople": {
+      "title": "Performance par commercial",
+      "description": "Résultat commercial individuel sur la période sélectionnée.",
+      "columns": {
+        "salesperson": "Commercial",
+        "leads": "Prospects",
+        "conversions": "Conversions",
+        "enrollments": "Inscriptions",
+        "conversion": "Conversion",
+        "sold": "Vendu",
+        "received": "Reçu"
+      },
+      "empty": "Aucun résultat trouvé pour cette période."
+    },
+    "leads": {
+      "title": "Prospects reçus",
+      "description": "Prospects reçus pendant la période et leur situation commerciale. Lors d’un filtrage par cours ou site, la conversion tient compte de l’inscription correspondante.",
+      "columns": {
+        "lead": "Prospect",
+        "contact": "Contact",
+        "source": "Origine",
+        "responsible": "Responsable",
+        "status": "Statut",
+        "receivedAt": "Reçu le",
+        "conversion": "Conversion"
+      },
+      "empty": "Aucun prospect trouvé pour cette période.",
+      "converted": "Converti",
+      "notConverted": "Non converti"
+    },
+    "enrollments": {
+      "title": "Inscriptions de la période",
+      "description": "Inscriptions réalisées pendant la période sélectionnée, avec commercial, origine et montants commerciaux.",
+      "columns": {
+        "enrollment": "Inscription",
+        "student": "Élève",
+        "courseCampus": "Cours / Site",
+        "salesperson": "Commercial",
+        "source": "Origine",
+        "status": "Statut",
+        "sold": "Vendu",
+        "received": "Reçu"
+      },
+      "empty": "Aucune inscription trouvée pour cette période.",
+      "notCounted": "Non comptabilisée",
+      "expected": "Prévu"
+    },
+    "courses": {
+      "title": "Performance par cours",
+      "description": "Résultat commercial des cours pendant la période sélectionnée.",
+      "columns": {
+        "course": "Cours",
+        "enrollments": "Inscriptions",
+        "convertedLeads": "Prospects convertis",
+        "share": "Part",
+        "sold": "Vendu",
+        "received": "Reçu",
+        "averageTicket": "Panier moyen",
+        "cancellations": "Annulations"
+      },
+      "empty": "Aucun résultat par cours trouvé pour cette période."
+    },
+    "common": {
+      "noResponsible": "Sans responsable",
+      "noCourse": "Sans cours",
+      "noCampus": "Sans site",
+      "notProvided": "Non renseigné",
+      "noCourseProvided": "Cours non renseigné"
+    },
+    "status": {
+      "active": "Active",
+      "toStart": "À venir",
+      "completed": "Terminée",
+      "canceled": "Annulée",
+      "pending": "En attente",
+      "converted": "Converti",
+      "lost": "Perdu",
+      "new": "Nouveau"
+    },
+    "errors": {
+      "load": "Impossible de charger le rapport commercial.",
+      "loadGeneric": "Erreur lors du chargement du rapport commercial."
+    }
   }
 }

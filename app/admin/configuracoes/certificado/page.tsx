@@ -6220,6 +6220,7 @@ export default function ConfiguracaoCertificadoPage() {
           </p>
         </div>
         <button
+          type="button"
           onClick={() => {
             if (!podeUsarEditorCertificados) {
               setMensagemErro(
@@ -6228,10 +6229,14 @@ export default function ConfiguracaoCertificadoPage() {
               return;
             }
 
-            document.getElementById("editor-certificado")?.scrollIntoView({
-              behavior: "smooth",
-              block: "start",
-            });
+            const urlEditor =
+              `${window.location.origin}${window.location.pathname}${window.location.search}#editor-certificado`;
+
+            window.open(
+              urlEditor,
+              "_blank",
+              "noopener,noreferrer",
+            );
           }}
           className="mt-4 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700"
         >

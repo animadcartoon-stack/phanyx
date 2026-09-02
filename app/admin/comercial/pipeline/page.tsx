@@ -1,14 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 
 import {
   type FormEvent,
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
+
+type TemaEscolhido = "light" | "dark" | "system";
+type ModoTema = "light" | "dark" | "system-dark";
 
 type Responsavel = {
   id: number;
@@ -156,83 +161,42 @@ type ToastPipeline = {
   mensagem: string;
 };
 
-const TIPOS_TAREFA = [
-  { valor: "LIGACAO", nome: "Ligação" },
-  { valor: "WHATSAPP", nome: "WhatsApp" },
-  { valor: "EMAIL", nome: "E-mail" },
-  { valor: "REUNIAO", nome: "Reunião" },
-  { valor: "RETORNO", nome: "Retorno" },
-  { valor: "ENVIAR_PROPOSTA", nome: "Enviar proposta" },
-  { valor: "SOLICITAR_DOCUMENTOS", nome: "Solicitar documentos" },
-  { valor: "CONFIRMAR_PAGAMENTO", nome: "Confirmar pagamento" },
-  { valor: "OUTRA", nome: "Outra" },
-] as const;
-
-const PRIORIDADES_TAREFA = [
-  { valor: "BAIXA", nome: "Baixa" },
-  { valor: "MEDIA", nome: "Média" },
-  { valor: "ALTA", nome: "Alta" },
-  { valor: "URGENTE", nome: "Urgente" },
-] as const;
-
-const CATEGORIAS: Record<string, string> = {
-  ENTRADA: "Entrada",
-  PRIMEIRO_CONTATO: "Primeiro contato",
-  EM_ATENDIMENTO: "Em atendimento",
-  QUALIFICACAO: "Qualificação",
-  APRESENTACAO: "Apresentação",
-  PROPOSTA: "Proposta",
-  NEGOCIACAO: "Negociação",
-  DOCUMENTACAO: "Documentação",
-  PAGAMENTO: "Pagamento",
-  CONVERSAO: "Conversão",
-  PERDA: "Perda",
-  PAUSA: "Pausa",
-  DESCARTE: "Descarte",
+type OpcaoSelectTema = {
+  value: string;
+  label: string;
+  disabled?: boolean;
 };
 
-function formatarMoeda(valor: number | null | undefined) {
-  return Number(valor ?? 0).toLocaleString("pt-BR", {
+function formatarMoeda(
+  valor: number | null | undefined,
+  locale: string
+) {
+  return Number(valor ?? 0).toLocaleString(locale, {
     style: "currency",
     currency: "BRL",
   });
 }
 
-function formatarDataHora(valor: string | null | undefined) {
+function formatarDataHora(
+  valor: string | null | undefined,
+  locale: string,
+  naoDefinida: string,
+  dataInvalida: string
+) {
   if (!valor) {
-    return "Não definida";
+    return naoDefinida;
   }
 
   const data = new Date(valor);
 
   if (Number.isNaN(data.getTime())) {
-    return "Data inválida";
+    return dataInvalida;
   }
 
-  return data.toLocaleString("pt-BR", {
+  return data.toLocaleString(locale, {
     dateStyle: "short",
     timeStyle: "short",
   });
-}
-
-function classePrioridade(prioridade: string) {
-  switch (String(prioridade).toUpperCase()) {
-    case "URGENTE":
-      return "border-red-300 bg-red-50 text-red-900 dark:border-red-900 dark:bg-red-950 dark:text-red-100";
-
-    case "ALTA":
-      return "border-orange-300 bg-orange-50 text-orange-900 dark:border-orange-900 dark:bg-orange-950 dark:text-orange-100";
-
-    case "MEDIA":
-      return "border-amber-300 bg-amber-50 text-amber-950 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-100";
-
-    default:
-      return "border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200";
-  }
-}
-
-function telefoneSomenteNumeros(telefone: string) {
-  return telefone.replace(/\D/g, "");
 }
 
 function formatarDataParaInput(data: Date) {
@@ -265,21 +229,388 @@ function etapaRepresentaPerda(etapa: EtapaKanban | null) {
   );
 }
 
+function telefoneParaWhatsApp(telefone: string | null | undefined) {
+  const original = String(telefone || "").trim();
+
+  if (!original) {
+    return "";
+  }
+
+  const apenasNumeros = original.replace(/\D/g, "");
+
+  if (!apenasNumeros) {
+    return "";
+  }
+
+  if (original.startsWith("00")) {
+    return apenasNumeros.replace(/^00/, "");
+  }
+
+  return apenasNumeros;
+}
+
+function SelectTema({
+  value,
+  options,
+  onChange,
+  modoTema,
+  disabled = false,
+  ariaLabel,
+  required = false,
+}: {
+  value: string;
+  options: OpcaoSelectTema[];
+  onChange: (value: string) => void;
+  modoTema: ModoTema;
+  disabled?: boolean;
+  ariaLabel?: string;
+  required?: boolean;
+}) {
+  const [aberto, setAberto] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function fecharAoClicarFora(event: MouseEvent) {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        setAberto(false);
+      }
+    }
+
+    function fecharComEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setAberto(false);
+      }
+    }
+
+    document.addEventListener("mousedown", fecharAoClicarFora);
+    window.addEventListener("keydown", fecharComEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", fecharAoClicarFora);
+      window.removeEventListener("keydown", fecharComEscape);
+    };
+  }, []);
+
+  const selecionada =
+    options.find((option) => option.value === value) ?? options[0];
+
+  const botao =
+    modoTema === "dark"
+      ? "border-blue-800 bg-blue-950 text-blue-50"
+      : modoTema === "system-dark"
+        ? "border-neutral-600 bg-neutral-800 text-white"
+        : "border-slate-300 bg-white text-slate-950";
+
+  const menu =
+    modoTema === "dark"
+      ? "border-blue-800 bg-blue-950"
+      : modoTema === "system-dark"
+        ? "border-neutral-600 bg-neutral-800"
+        : "border-slate-300 bg-white";
+
+  function classeOpcao(ativa: boolean, opcaoDesabilitada: boolean) {
+    if (opcaoDesabilitada) {
+      return modoTema === "light"
+        ? "cursor-not-allowed text-slate-400"
+        : "cursor-not-allowed text-slate-500";
+    }
+
+    if (modoTema === "dark") {
+      return ativa
+        ? "bg-blue-800 text-white"
+        : "text-blue-50 hover:bg-blue-900";
+    }
+
+    if (modoTema === "system-dark") {
+      return ativa
+        ? "bg-neutral-600 text-white"
+        : "text-neutral-100 hover:bg-neutral-700";
+    }
+
+    return ativa
+      ? "bg-slate-200 text-slate-950"
+      : "text-slate-900 hover:bg-slate-100";
+  }
+
+  return (
+    <div ref={ref} className="relative">
+      {required && (
+        <input
+          tabIndex={-1}
+          aria-hidden="true"
+          value={value}
+          onChange={() => undefined}
+          required
+          className="pointer-events-none absolute h-px w-px opacity-0"
+        />
+      )}
+
+      <button
+        type="button"
+        disabled={disabled}
+        aria-label={ariaLabel}
+        aria-expanded={aberto}
+        onClick={() => {
+          if (!disabled) {
+            setAberto((atual) => !atual);
+          }
+        }}
+        className={`flex min-h-12 w-full items-center justify-between gap-3 rounded-xl border px-4 text-left text-sm outline-none transition disabled:cursor-not-allowed disabled:opacity-60 ${botao}`}
+      >
+        <span className="truncate">{selecionada?.label ?? ""}</span>
+        <span aria-hidden="true" className="shrink-0 text-xs">
+          {aberto ? "▲" : "▼"}
+        </span>
+      </button>
+
+      {aberto && !disabled && (
+        <div
+          className={`absolute left-0 right-0 top-full z-[180] mt-1 max-h-72 overflow-y-auto rounded-xl border p-1 shadow-2xl ${menu}`}
+        >
+          {options.map((option) => {
+            const ativa = option.value === value;
+            const opcaoDesabilitada = Boolean(option.disabled);
+
+            return (
+              <button
+                key={option.value}
+                type="button"
+                disabled={opcaoDesabilitada}
+                onClick={() => {
+                  if (opcaoDesabilitada) {
+                    return;
+                  }
+
+                  onChange(option.value);
+                  setAberto(false);
+                }}
+                className={`block w-full rounded-lg px-3 py-2.5 text-left text-sm transition ${classeOpcao(
+                  ativa,
+                  opcaoDesabilitada
+                )}`}
+              >
+                {option.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function PipelineComercialPage() {
+  const t = useTranslations("AdminCommercialPipeline");
+  const locale = useLocale();
+
+  const [temaAtual, setTemaAtual] =
+    useState<TemaEscolhido>("light");
+  const [sistemaEscuro, setSistemaEscuro] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+
+    function sincronizarTema() {
+      const html = document.documentElement;
+      const armazenado = window.localStorage.getItem("phanyx_tema");
+      const candidato =
+        html.dataset.themeChoice ||
+        armazenado ||
+        "system";
+
+      const tema: TemaEscolhido =
+        candidato === "light" ||
+        candidato === "dark" ||
+        candidato === "system"
+          ? candidato
+          : "system";
+
+      setTemaAtual(tema);
+      setSistemaEscuro(media.matches);
+    }
+
+    sincronizarTema();
+
+    const observer = new MutationObserver(sincronizarTema);
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: [
+        "class",
+        "data-theme",
+        "data-theme-choice",
+      ],
+    });
+
+    window.addEventListener("storage", sincronizarTema);
+    window.addEventListener("phanyx-theme-change", sincronizarTema);
+
+    const listenerMedia = () => sincronizarTema();
+    media.addEventListener("change", listenerMedia);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("storage", sincronizarTema);
+      window.removeEventListener(
+        "phanyx-theme-change",
+        sincronizarTema
+      );
+      media.removeEventListener("change", listenerMedia);
+    };
+  }, []);
+
+  const modoTema: ModoTema =
+    temaAtual === "dark"
+      ? "dark"
+      : temaAtual === "system" && sistemaEscuro
+        ? "system-dark"
+        : "light";
+
+  const c = useMemo(() => {
+    if (modoTema === "dark") {
+      return {
+        page: "bg-[#020617] text-white",
+        panel: "border-blue-900/80 bg-blue-950/70",
+        panelStrong: "border-blue-800 bg-blue-950",
+        panelSoft: "border-blue-900/70 bg-blue-950/45",
+        columnBody: "bg-blue-950/35",
+        input:
+          "border-blue-800 bg-blue-950 text-blue-50 placeholder:text-blue-200/50",
+        primary: "text-white",
+        secondary: "text-blue-100/80",
+        muted: "text-blue-200/60",
+        divider: "border-blue-900/80",
+        ghostButton:
+          "border-blue-800 bg-blue-950 text-blue-50 hover:bg-blue-900",
+        kicker: "text-emerald-300",
+      };
+    }
+
+    if (modoTema === "system-dark") {
+      return {
+        page: "bg-neutral-900 text-white",
+        panel: "border-neutral-700 bg-neutral-900",
+        panelStrong: "border-neutral-600 bg-neutral-800",
+        panelSoft: "border-neutral-700 bg-neutral-800/70",
+        columnBody: "bg-neutral-800/50",
+        input:
+          "border-neutral-600 bg-neutral-800 text-white placeholder:text-neutral-400",
+        primary: "text-white",
+        secondary: "text-neutral-200",
+        muted: "text-neutral-400",
+        divider: "border-neutral-700",
+        ghostButton:
+          "border-neutral-600 bg-neutral-800 text-white hover:bg-neutral-700",
+        kicker: "text-emerald-300",
+      };
+    }
+
+    return {
+      page: "bg-slate-50 text-slate-950",
+      panel: "border-slate-200 bg-white",
+      panelStrong: "border-slate-300 bg-white",
+      panelSoft: "border-slate-200 bg-slate-50",
+      columnBody: "bg-slate-50",
+      input:
+        "border-slate-300 bg-white text-slate-950 placeholder:text-slate-400",
+      primary: "text-slate-950",
+      secondary: "text-slate-600",
+      muted: "text-slate-500",
+      divider: "border-slate-200",
+      ghostButton:
+        "border-slate-300 bg-white text-slate-800 hover:bg-slate-100",
+      kicker: "text-emerald-700",
+    };
+  }, [modoTema]);
+
+  const tiposTarefa = useMemo(
+    () => [
+      { valor: "LIGACAO", nome: t("taskTypes.call") },
+      { valor: "WHATSAPP", nome: "WhatsApp" },
+      { valor: "EMAIL", nome: t("taskTypes.email") },
+      { valor: "REUNIAO", nome: t("taskTypes.meeting") },
+      { valor: "RETORNO", nome: t("taskTypes.followUp") },
+      { valor: "ENVIAR_PROPOSTA", nome: t("taskTypes.sendProposal") },
+      {
+        valor: "SOLICITAR_DOCUMENTOS",
+        nome: t("taskTypes.requestDocuments"),
+      },
+      {
+        valor: "CONFIRMAR_PAGAMENTO",
+        nome: t("taskTypes.confirmPayment"),
+      },
+      { valor: "OUTRA", nome: t("taskTypes.other") },
+    ],
+    [t]
+  );
+
+  const prioridadesTarefa = useMemo(
+    () => [
+      { valor: "BAIXA", nome: t("priority.low") },
+      { valor: "MEDIA", nome: t("priority.medium") },
+      { valor: "ALTA", nome: t("priority.high") },
+      { valor: "URGENTE", nome: t("priority.urgent") },
+    ],
+    [t]
+  );
+
+  const categorias = useMemo<Record<string, string>>(
+    () => ({
+      ENTRADA: t("categories.entry"),
+      PRIMEIRO_CONTATO: t("categories.firstContact"),
+      EM_ATENDIMENTO: t("categories.inService"),
+      QUALIFICACAO: t("categories.qualification"),
+      APRESENTACAO: t("categories.presentation"),
+      PROPOSTA: t("categories.proposal"),
+      NEGOCIACAO: t("categories.negotiation"),
+      DOCUMENTACAO: t("categories.documentation"),
+      PAGAMENTO: t("categories.payment"),
+      CONVERSAO: t("categories.conversion"),
+      PERDA: t("categories.loss"),
+      PAUSA: t("categories.pause"),
+      DESCARTE: t("categories.discard"),
+    }),
+    [t]
+  );
+
+  function rotuloPrioridade(prioridade: string) {
+    const chave = String(prioridade || "").toUpperCase();
+
+    if (chave === "URGENTE") return t("priority.urgent");
+    if (chave === "ALTA") return t("priority.high");
+    if (chave === "MEDIA") return t("priority.medium");
+    if (chave === "BAIXA") return t("priority.low");
+
+    return prioridade;
+  }
+
+  function classePrioridade(prioridade: string) {
+    switch (String(prioridade).toUpperCase()) {
+      case "URGENTE":
+        return "border-red-500 bg-red-950/15 text-red-700 dark:text-red-100";
+
+      case "ALTA":
+        return "border-orange-500 bg-orange-950/15 text-orange-700 dark:text-orange-100";
+
+      case "MEDIA":
+        return "border-amber-500 bg-amber-950/15 text-amber-700 dark:text-amber-100";
+
+      default:
+        return `${c.panelStrong} ${c.secondary}`;
+    }
+  }
+
   const [dados, setDados] = useState<RespostaKanban | null>(null);
-
   const [carregando, setCarregando] = useState(true);
-
   const [erro, setErro] = useState("");
-
   const [buscaDigitada, setBuscaDigitada] = useState("");
-
   const [buscaAplicada, setBuscaAplicada] = useState("");
-
   const [prioridade, setPrioridade] = useState("");
-
   const [somenteMeus, setSomenteMeus] = useState(false);
-
   const [atualizacao, setAtualizacao] = useState(0);
 
   const [configuracaoFunis, setConfiguracaoFunis] =
@@ -289,33 +620,19 @@ export default function PipelineComercialPage() {
     useState<LeadKanban | null>(null);
 
   const [etapaNovaId, setEtapaNovaId] = useState("");
-
   const [motivoMovimentacao, setMotivoMovimentacao] = useState("");
-
   const [motivoPerdaId, setMotivoPerdaId] = useState("");
-
   const [motivoPerdaObservacao, setMotivoPerdaObservacao] = useState("");
-
   const [incluirProximaAcao, setIncluirProximaAcao] = useState(false);
-
   const [tipoTarefa, setTipoTarefa] = useState("RETORNO");
-
   const [prioridadeTarefa, setPrioridadeTarefa] = useState("MEDIA");
-
   const [tituloTarefa, setTituloTarefa] = useState("");
-
   const [descricaoTarefa, setDescricaoTarefa] = useState("");
-
   const [agendadaPara, setAgendadaPara] = useState(dataPadraoProximaAcao);
-
   const [prazoEm, setPrazoEm] = useState("");
-
   const [lembreteEm, setLembreteEm] = useState("");
-
   const [erroMovimentacao, setErroMovimentacao] = useState("");
-
   const [salvandoMovimentacao, setSalvandoMovimentacao] = useState(false);
-
   const [toast, setToast] = useState<ToastPipeline | null>(null);
 
   const etapaDestino = useMemo(() => {
@@ -338,15 +655,19 @@ export default function PipelineComercialPage() {
     }
 
     return (
-      configuracaoFunis.motivosPerda.find((motivo) => motivo.id === id) ?? null
+      configuracaoFunis.motivosPerda.find(
+        (motivo) => motivo.id === id
+      ) ?? null
     );
   }, [configuracaoFunis, motivoPerdaId]);
 
   const proximaAcaoObrigatoria = Boolean(
-    etapaDestino?.exigeProximaAcao && !leadEmMovimentacao?.proximaTarefa,
+    etapaDestino?.exigeProximaAcao &&
+      !leadEmMovimentacao?.proximaTarefa
   );
 
-  const deveEnviarProximaAcao = proximaAcaoObrigatoria || incluirProximaAcao;
+  const deveEnviarProximaAcao =
+    proximaAcaoObrigatoria || incluirProximaAcao;
 
   useEffect(() => {
     const temporizador = window.setTimeout(() => {
@@ -380,7 +701,10 @@ export default function PipelineComercialPage() {
 
         setConfiguracaoFunis(null);
       } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError") {
+        if (
+          error instanceof DOMException &&
+          error.name === "AbortError"
+        ) {
           return;
         }
 
@@ -428,7 +752,6 @@ export default function PipelineComercialPage() {
 
     return () => {
       document.body.style.overflow = overflowAnterior;
-
       window.removeEventListener("keydown", fecharComEscape);
     };
   }, [leadEmMovimentacao, salvandoMovimentacao]);
@@ -461,7 +784,7 @@ export default function PipelineComercialPage() {
             cache: "no-store",
             credentials: "include",
             signal,
-          },
+          }
         );
 
         const payload = (await resposta
@@ -469,21 +792,20 @@ export default function PipelineComercialPage() {
           .catch(() => null)) as RespostaKanban | null;
 
         if (!resposta.ok || !payload?.success) {
-          throw new Error(
-            payload?.error ?? "Não foi possível carregar o pipeline.",
-          );
+          throw new Error(payload?.error ?? t("errors.load"));
         }
 
         setDados(payload);
       } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError") {
+        if (
+          error instanceof DOMException &&
+          error.name === "AbortError"
+        ) {
           return;
         }
 
         setErro(
-          error instanceof Error
-            ? error.message
-            : "Não foi possível carregar o pipeline.",
+          error instanceof Error ? error.message : t("errors.load")
         );
       } finally {
         if (!signal?.aborted) {
@@ -491,7 +813,7 @@ export default function PipelineComercialPage() {
         }
       }
     },
-    [buscaAplicada, prioridade, somenteMeus, atualizacao],
+    [buscaAplicada, prioridade, somenteMeus, atualizacao, t]
   );
 
   useEffect(() => {
@@ -512,7 +834,7 @@ export default function PipelineComercialPage() {
     if (!configuracaoFunis?.permissoes.podeMovimentar) {
       setToast({
         tipo: "erro",
-        mensagem: "Você não possui permissão para movimentar leads.",
+        mensagem: t("errors.noMovePermission"),
       });
       return;
     }
@@ -549,25 +871,30 @@ export default function PipelineComercialPage() {
     setErroMovimentacao("");
 
     const etapa =
-      dados?.etapas.find((item) => item.id === Number(idTexto)) ?? null;
+      dados?.etapas.find(
+        (item) => item.id === Number(idTexto)
+      ) ?? null;
 
     setIncluirProximaAcao(
-      Boolean(etapa?.exigeProximaAcao && !leadEmMovimentacao?.proximaTarefa),
+      Boolean(
+        etapa?.exigeProximaAcao &&
+          !leadEmMovimentacao?.proximaTarefa
+      )
     );
   }
 
-  async function salvarMovimentacao(event: FormEvent<HTMLFormElement>) {
+  async function salvarMovimentacao(
+    event: FormEvent<HTMLFormElement>
+  ) {
     event.preventDefault();
 
     if (!leadEmMovimentacao || !etapaDestino) {
-      setErroMovimentacao("Selecione a etapa de destino.");
+      setErroMovimentacao(t("movement.errors.selectStage"));
       return;
     }
 
     if (!etapaDestino.permiteMovimentoManual) {
-      setErroMovimentacao(
-        "Esta etapa é controlada automaticamente pelo sistema.",
-      );
+      setErroMovimentacao(t("movement.errors.automaticStage"));
       return;
     }
 
@@ -576,7 +903,7 @@ export default function PipelineComercialPage() {
       !leadEmMovimentacao.matriculaConvertida
     ) {
       setErroMovimentacao(
-        "O lead somente pode ser convertido depois da criação de uma matrícula válida.",
+        t("movement.errors.requiresEnrollment")
       );
       return;
     }
@@ -586,7 +913,7 @@ export default function PipelineComercialPage() {
       etapaDestino.resultado !== "GANHA"
     ) {
       setErroMovimentacao(
-        "Este lead possui matrícula válida e deve permanecer convertido.",
+        t("movement.errors.enrollmentKeepsConverted")
       );
       return;
     }
@@ -594,13 +921,13 @@ export default function PipelineComercialPage() {
     if (destinoRepresentaPerda) {
       if (!configuracaoFunis?.permissoes.podeRegistrarPerda) {
         setErroMovimentacao(
-          "Você não possui permissão para registrar perdas comerciais.",
+          t("movement.errors.noLossPermission")
         );
         return;
       }
 
       if (!motivoPerdaId) {
-        setErroMovimentacao("Selecione o motivo da perda.");
+        setErroMovimentacao(t("movement.errors.lossReason"));
         return;
       }
 
@@ -609,7 +936,7 @@ export default function PipelineComercialPage() {
         !motivoPerdaObservacao.trim()
       ) {
         setErroMovimentacao(
-          "Este motivo de perda exige uma observação complementar.",
+          t("movement.errors.lossObservation")
         );
         return;
       }
@@ -620,54 +947,68 @@ export default function PipelineComercialPage() {
     if (deveEnviarProximaAcao) {
       if (!leadEmMovimentacao.responsavelFuncionarioId) {
         setErroMovimentacao(
-          "Defina um responsável para o lead antes de agendar a próxima ação.",
+          t("movement.errors.responsibleBeforeTask")
         );
         return;
       }
 
       if (!agendadaPara) {
-        setErroMovimentacao(
-          "Informe quando a próxima ação deverá ser realizada.",
-        );
+        setErroMovimentacao(t("movement.errors.schedule"));
         return;
       }
 
       const dataAgendamento = new Date(agendadaPara);
 
       if (Number.isNaN(dataAgendamento.getTime())) {
-        setErroMovimentacao("A data da próxima ação é inválida.");
-        return;
-      }
-
-      if (dataAgendamento.getTime() < Date.now() - 60_000) {
-        setErroMovimentacao("A próxima ação não pode ser agendada no passado.");
-        return;
-      }
-
-      const dataPrazo = prazoEm ? new Date(prazoEm) : null;
-
-      const dataLembrete = lembreteEm ? new Date(lembreteEm) : null;
-
-      if (dataPrazo && Number.isNaN(dataPrazo.getTime())) {
-        setErroMovimentacao("A data limite é inválida.");
-        return;
-      }
-
-      if (dataLembrete && Number.isNaN(dataLembrete.getTime())) {
-        setErroMovimentacao("A data do lembrete é inválida.");
-        return;
-      }
-
-      if (dataPrazo && dataPrazo.getTime() < dataAgendamento.getTime()) {
         setErroMovimentacao(
-          "A data limite não pode ser anterior ao agendamento.",
+          t("movement.errors.invalidSchedule")
         );
         return;
       }
 
-      if (dataLembrete && dataLembrete.getTime() > dataAgendamento.getTime()) {
+      if (dataAgendamento.getTime() < Date.now() - 60_000) {
         setErroMovimentacao(
-          "O lembrete não pode ocorrer depois do agendamento.",
+          t("movement.errors.scheduleInPast")
+        );
+        return;
+      }
+
+      const dataPrazo = prazoEm ? new Date(prazoEm) : null;
+      const dataLembrete = lembreteEm ? new Date(lembreteEm) : null;
+
+      if (dataPrazo && Number.isNaN(dataPrazo.getTime())) {
+        setErroMovimentacao(
+          t("movement.errors.invalidDeadline")
+        );
+        return;
+      }
+
+      if (
+        dataLembrete &&
+        Number.isNaN(dataLembrete.getTime())
+      ) {
+        setErroMovimentacao(
+          t("movement.errors.invalidReminder")
+        );
+        return;
+      }
+
+      if (
+        dataPrazo &&
+        dataPrazo.getTime() < dataAgendamento.getTime()
+      ) {
+        setErroMovimentacao(
+          t("movement.errors.deadlineBeforeSchedule")
+        );
+        return;
+      }
+
+      if (
+        dataLembrete &&
+        dataLembrete.getTime() > dataAgendamento.getTime()
+      ) {
+        setErroMovimentacao(
+          t("movement.errors.reminderAfterSchedule")
         );
         return;
       }
@@ -680,7 +1021,8 @@ export default function PipelineComercialPage() {
         agendadaPara: dataAgendamento.toISOString(),
         prazoEm: dataPrazo?.toISOString() ?? null,
         lembreteEm: dataLembrete?.toISOString() ?? null,
-        responsavelFuncionarioId: leadEmMovimentacao.responsavelFuncionarioId,
+        responsavelFuncionarioId:
+          leadEmMovimentacao.responsavelFuncionarioId,
       };
     }
 
@@ -707,10 +1049,12 @@ export default function PipelineComercialPage() {
               : null,
             proximaAcao,
           }),
-        },
+        }
       );
 
-      const payload = (await resposta.json().catch(() => null)) as {
+      const payload = (await resposta
+        .json()
+        .catch(() => null)) as {
         success?: boolean;
         error?: string;
         mensagem?: string;
@@ -718,955 +1062,1150 @@ export default function PipelineComercialPage() {
 
       if (!resposta.ok || !payload?.success) {
         throw new Error(
-          payload?.error ?? "Não foi possível movimentar o lead.",
+          payload?.error ?? t("movement.errors.save")
         );
       }
 
       setLeadEmMovimentacao(null);
       setToast({
         tipo: "sucesso",
-        mensagem: payload.mensagem ?? "Lead movimentado com sucesso.",
+        mensagem:
+          payload.mensagem ?? t("movement.success"),
       });
       atualizar();
     } catch (error) {
       setErroMovimentacao(
         error instanceof Error
           ? error.message
-          : "Não foi possível movimentar o lead.",
+          : t("movement.errors.save")
       );
     } finally {
       setSalvandoMovimentacao(false);
     }
   }
 
+  const opcoesFiltroPrioridade: OpcaoSelectTema[] = [
+    { value: "", label: t("filters.allPriorities") },
+    { value: "ALTA", label: t("priority.high") },
+    { value: "MEDIA", label: t("priority.medium") },
+    { value: "BAIXA", label: t("priority.low") },
+  ];
+
+  const opcoesEtapasDestino: OpcaoSelectTema[] = [
+    { value: "", label: t("movement.selectStage") },
+    ...(dados?.etapas
+      .filter(
+        (etapa) =>
+          etapa.id !== leadEmMovimentacao?.etapaFunilId
+      )
+      .map((etapa) => {
+        const perda = etapaRepresentaPerda(etapa);
+
+        const semPermissaoPerda =
+          perda &&
+          !configuracaoFunis?.permissoes.podeRegistrarPerda;
+
+        const conversaoSemMatricula =
+          etapa.resultado === "GANHA" &&
+          !leadEmMovimentacao?.matriculaConvertida;
+
+        const bloqueada =
+          !etapa.permiteMovimentoManual ||
+          semPermissaoPerda ||
+          conversaoSemMatricula;
+
+        const complemento = !etapa.permiteMovimentoManual
+          ? t("movement.stageSuffix.automatic")
+          : semPermissaoPerda
+            ? t("movement.stageSuffix.noPermission")
+            : conversaoSemMatricula
+              ? t("movement.stageSuffix.requiresEnrollment")
+              : "";
+
+        return {
+          value: String(etapa.id),
+          label: `${etapa.ordem}. ${etapa.nome}${complemento}`,
+          disabled: bloqueada,
+        };
+      }) ?? []),
+  ];
+
+  const opcoesMotivoPerda: OpcaoSelectTema[] = [
+    { value: "", label: t("movement.selectLossReason") },
+    ...(configuracaoFunis?.motivosPerda
+      .filter((motivo) => motivo.ativo && !motivo.arquivadoEm)
+      .map((motivo) => ({
+        value: String(motivo.id),
+        label: motivo.nome,
+      })) ?? []),
+  ];
+
   return (
-    <div className="phanyx-pipeline-page mx-auto max-w-[1800px] space-y-5 p-4 sm:p-6">
-      <header className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950 sm:p-7">
-        <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center">
-          <div>
-            <div className="flex flex-wrap items-center gap-2 text-sm font-semibold text-slate-600 dark:text-slate-300">
-              <Link
-                href="/admin/comercial"
-                className="transition hover:text-slate-950 dark:hover:text-white"
+    <main className={`min-h-screen w-full ${c.page}`}>
+      <div className="phanyx-pipeline-page mx-auto max-w-[1800px] space-y-5 p-4 sm:p-6">
+        <header
+          className={`rounded-3xl border p-5 shadow-sm sm:p-7 ${c.panel}`}
+        >
+          <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center">
+            <div>
+              <div
+                className={`flex flex-wrap items-center gap-2 text-sm font-semibold ${c.secondary}`}
               >
-                Comercial
-              </Link>
+                <Link
+                  href="/admin/comercial"
+                  className={`transition hover:underline ${c.secondary}`}
+                >
+                  {t("header.sales")}
+                </Link>
 
-              <span>/</span>
+                <span>/</span>
 
-              <span className="text-slate-950 dark:text-white">Pipeline</span>
+                <span className={c.primary}>
+                  {t("header.pipeline")}
+                </span>
+              </div>
+
+              <h1
+                className={`mt-3 text-2xl font-black sm:text-3xl ${c.primary}`}
+              >
+                {t("header.title")}
+              </h1>
+
+              <p
+                className={`mt-2 max-w-3xl text-sm leading-6 ${c.secondary}`}
+              >
+                {t("header.description")}
+              </p>
             </div>
 
-            <h1 className="mt-3 text-2xl font-black text-slate-950 dark:text-white sm:text-3xl">
-              Pipeline comercial
-            </h1>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/admin/leads"
+                className={`rounded-xl border px-4 py-3 text-sm font-bold transition ${c.ghostButton}`}
+              >
+                {t("header.viewLeadList")}
+              </Link>
 
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
-              Acompanhe cada oportunidade, identifique atrasos e organize as
-              próximas ações do setor comercial.
-            </p>
+              <Link
+                href="/admin/comercial/funis"
+                className={`rounded-xl border px-4 py-3 text-sm font-bold transition ${c.ghostButton}`}
+              >
+                {t("header.configureFunnel")}
+              </Link>
+
+              <button
+                type="button"
+                onClick={atualizar}
+                disabled={carregando}
+                className="rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-500"
+              >
+                {carregando
+                  ? t("header.updating")
+                  : t("header.update")}
+              </button>
+            </div>
           </div>
+        </header>
 
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/admin/leads"
-              className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
-            >
-              Ver lista de leads
-            </Link>
+        <section
+          className={`rounded-3xl border p-4 shadow-sm sm:p-5 ${c.panel}`}
+        >
+          <div className="grid gap-3 lg:grid-cols-[minmax(260px,1fr)_220px_auto]">
+            <div>
+              <label
+                htmlFor="busca-pipeline"
+                className={`mb-2 block text-xs font-bold uppercase tracking-wide ${c.secondary}`}
+              >
+                {t("filters.searchLabel")}
+              </label>
 
-            <Link
-              href="/admin/comercial/funis"
-              className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
-            >
-              Configurar funil
-            </Link>
+              <input
+                id="busca-pipeline"
+                value={buscaDigitada}
+                onChange={(event) =>
+                  setBuscaDigitada(event.target.value)
+                }
+                placeholder={t("filters.searchPlaceholder")}
+                className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition focus:border-emerald-500 ${c.input}`}
+              />
+            </div>
+
+            <div>
+              <label
+                className={`mb-2 block text-xs font-bold uppercase tracking-wide ${c.secondary}`}
+              >
+                {t("filters.priority")}
+              </label>
+
+              <SelectTema
+                value={prioridade}
+                onChange={setPrioridade}
+                modoTema={modoTema}
+                options={opcoesFiltroPrioridade}
+                ariaLabel={t("filters.priority")}
+              />
+            </div>
+
+            <div className="flex items-end">
+              <label
+                className={`flex w-full cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-sm font-bold ${c.panelSoft} ${c.primary}`}
+              >
+                <input
+                  type="checkbox"
+                  checked={somenteMeus}
+                  disabled={!dados?.permissoes.podeVerTodos}
+                  onChange={(event) =>
+                    setSomenteMeus(event.target.checked)
+                  }
+                  className="h-4 w-4 accent-emerald-600"
+                />
+                {t("filters.onlyMine")}
+              </label>
+            </div>
+          </div>
+        </section>
+
+        {erro ? (
+          <section className="rounded-2xl border border-red-700 bg-red-950/15 p-5 text-red-700 dark:text-red-100">
+            <h2 className="font-black">
+              {t("errors.loadTitle")}
+            </h2>
+
+            <p className="mt-1 text-sm">{erro}</p>
 
             <button
               type="button"
               onClick={atualizar}
-              disabled={carregando}
-              className="rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-400"
+              className="mt-4 rounded-xl border border-red-700 bg-red-700 px-4 py-2 text-sm font-bold text-white"
             >
-              {carregando ? "Atualizando..." : "Atualizar"}
+              {t("errors.tryAgain")}
             </button>
-          </div>
-        </div>
-      </header>
-
-      <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950 sm:p-5">
-        <div className="grid gap-3 lg:grid-cols-[minmax(260px,1fr)_220px_auto]">
-          <div>
-            <label
-              htmlFor="busca-pipeline"
-              className="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-600 dark:text-slate-300"
-            >
-              Buscar oportunidades
-            </label>
-
-            <input
-              id="busca-pipeline"
-              value={buscaDigitada}
-              onChange={(event) => setBuscaDigitada(event.target.value)}
-              placeholder="Nome, e-mail, telefone, interesse..."
-              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="prioridade-pipeline"
-              className="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-600 dark:text-slate-300"
-            >
-              Prioridade
-            </label>
-
-            <select
-              id="prioridade-pipeline"
-              value={prioridade}
-              onChange={(event) => setPrioridade(event.target.value)}
-              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-950 outline-none focus:border-emerald-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-            >
-              <option value="">Todas</option>
-              <option value="ALTA">Alta</option>
-              <option value="MEDIA">Média</option>
-              <option value="BAIXA">Baixa</option>
-            </select>
-          </div>
-
-          <div className="flex items-end">
-            <label className="flex w-full cursor-pointer items-center gap-3 rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-white">
-              <input
-                type="checkbox"
-                checked={somenteMeus}
-                disabled={!dados?.permissoes.podeVerTodos}
-                onChange={(event) => setSomenteMeus(event.target.checked)}
-                className="h-4 w-4 accent-emerald-600"
-              />
-              Somente meus leads
-            </label>
-          </div>
-        </div>
-      </section>
-
-      {erro ? (
-        <section className="rounded-2xl border border-red-300 bg-red-50 p-5 text-red-900 dark:border-red-900 dark:bg-red-950 dark:text-red-100">
-          <h2 className="font-black">Não foi possível carregar o pipeline</h2>
-
-          <p className="mt-1 text-sm">{erro}</p>
-
-          <button
-            type="button"
-            onClick={atualizar}
-            className="mt-4 rounded-xl border border-red-300 bg-white px-4 py-2 text-sm font-bold text-red-900 dark:border-red-800 dark:bg-red-950 dark:text-red-100"
-          >
-            Tentar novamente
-          </button>
-        </section>
-      ) : null}
-
-      {dados ? (
-        <>
-          <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-              <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Funil ativo
-              </p>
-
-              <p className="mt-2 text-lg font-black text-slate-950 dark:text-white">
-                {dados.funil.nome}
-              </p>
-            </article>
-
-            <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-              <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Oportunidades
-              </p>
-
-              <p className="mt-2 text-2xl font-black text-slate-950 dark:text-white">
-                {dados.resumo.totalLeads}
-              </p>
-            </article>
-
-            <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-              <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Valor estimado
-              </p>
-
-              <p className="mt-2 text-2xl font-black text-slate-950 dark:text-white">
-                {formatarMoeda(dados.resumo.valorEstimado)}
-              </p>
-            </article>
-
-            <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-              <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Visualização
-              </p>
-
-              <p className="mt-2 text-lg font-black text-slate-950 dark:text-white">
-                {dados.permissoes.somenteMeus ? "Meus leads" : "Toda a equipe"}
-              </p>
-            </article>
           </section>
+        ) : null}
 
-          <section>
-            <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <h2 className="text-xl font-black text-slate-950 dark:text-white">
-                  Etapas do funil
-                </h2>
-
-                <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                  Role horizontalmente para visualizar todas as etapas.
-                </p>
-              </div>
-
-              {carregando ? (
-                <span className="text-sm font-bold text-slate-600 dark:text-slate-300">
-                  Atualizando dados...
-                </span>
-              ) : null}
-            </div>
-
-            <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-5">
-              {dados.etapas.map((etapa) => (
-                <article
-                  key={etapa.id}
-                  className="w-[320px] shrink-0 snap-start overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950"
-                >
-                  <div
-                    className="h-1.5"
-                    style={{
-                      backgroundColor: etapa.cor,
-                    }}
-                  />
-
-                  <header className="border-b border-slate-200 p-4 dark:border-slate-800">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                          Etapa {etapa.ordem}
-                        </p>
-
-                        <h3 className="mt-1 font-black leading-5 text-slate-950 dark:text-white">
-                          {etapa.nome}
-                        </h3>
-
-                        <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
-                          {CATEGORIAS[etapa.categoria] ?? etapa.categoria}
-                        </p>
-                      </div>
-
-                      <span className="rounded-full border border-slate-300 bg-slate-50 px-2.5 py-1 text-xs font-black text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-white">
-                        {etapa.totalLeads}
-                      </span>
-                    </div>
-
-                    <div className="mt-4 grid grid-cols-2 gap-2">
-                      <div className="rounded-xl border border-slate-200 bg-slate-50 p-2.5 dark:border-slate-800 dark:bg-slate-900">
-                        <p className="text-[9px] font-bold uppercase text-slate-500">
-                          Valor
-                        </p>
-
-                        <p className="mt-1 text-xs font-black text-slate-950 dark:text-white">
-                          {formatarMoeda(etapa.valorEstimado)}
-                        </p>
-                      </div>
-
-                      <div className="rounded-xl border border-slate-200 bg-slate-50 p-2.5 dark:border-slate-800 dark:bg-slate-900">
-                        <p className="text-[9px] font-bold uppercase text-slate-500">
-                          Probabilidade
-                        </p>
-
-                        <p className="mt-1 text-xs font-black text-slate-950 dark:text-white">
-                          {etapa.probabilidadeConversao}%
-                        </p>
-                      </div>
-                    </div>
-                  </header>
-
-                  <div className="max-h-[620px] space-y-3 overflow-y-auto bg-slate-50 p-3 dark:bg-slate-900/40">
-                    {etapa.leads.map((lead) => {
-                      const telefone = lead.telefone
-                        ? telefoneSomenteNumeros(lead.telefone)
-                        : "";
-
-                      return (
-                        <div
-                          key={lead.id}
-                          className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-950"
-                        >
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="min-w-0">
-                              <h4 className="truncate font-black text-slate-950 dark:text-white">
-                                {lead.nome}
-                              </h4>
-
-                              <p className="mt-1 truncate text-xs text-slate-600 dark:text-slate-400">
-                                {lead.interesse || "Interesse não informado"}
-                              </p>
-                            </div>
-
-                            <span
-                              className={`shrink-0 rounded-full border px-2 py-1 text-[10px] font-bold ${classePrioridade(
-                                lead.prioridade,
-                              )}`}
-                            >
-                              {lead.prioridade}
-                            </span>
-                          </div>
-
-                          <div className="mt-3 space-y-1.5 text-xs text-slate-600 dark:text-slate-300">
-                            <p>
-                              <strong>Responsável:</strong>{" "}
-                              {lead.responsavel?.nome ?? "Não definido"}
-                            </p>
-
-                            {lead.curso ? (
-                              <p>
-                                <strong>Curso:</strong> {lead.curso.nome}
-                              </p>
-                            ) : null}
-
-                            {lead.polo ? (
-                              <p>
-                                <strong>Polo:</strong> {lead.polo.nome}
-                              </p>
-                            ) : null}
-
-                            <p>
-                              <strong>Valor:</strong>{" "}
-                              {formatarMoeda(lead.valorEstimado)}
-                            </p>
-                          </div>
-
-                          {lead.etapaAtrasada ? (
-                            <div className="mt-3 rounded-xl border border-red-300 bg-red-50 px-3 py-2 text-xs font-bold text-red-900 dark:border-red-900 dark:bg-red-950 dark:text-red-100">
-                              Etapa com prazo vencido
-                            </div>
-                          ) : null}
-
-                          {lead.acompanhamentoAtrasado ? (
-                            <div className="mt-2 rounded-xl border border-orange-300 bg-orange-50 px-3 py-2 text-xs font-bold text-orange-900 dark:border-orange-900 dark:bg-orange-950 dark:text-orange-100">
-                              Acompanhamento atrasado
-                            </div>
-                          ) : null}
-
-                          {lead.semProximaAcao ? (
-                            <div className="mt-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-950 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-100">
-                              Próxima ação não definida
-                            </div>
-                          ) : null}
-
-                          {lead.proximaTarefa ? (
-                            <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-900">
-                              <p className="text-[9px] font-bold uppercase text-slate-500">
-                                Próxima ação
-                              </p>
-
-                              <p className="mt-1 text-xs font-black text-slate-950 dark:text-white">
-                                {lead.proximaTarefa.titulo}
-                              </p>
-
-                              <p className="mt-1 text-[11px] text-slate-600 dark:text-slate-400">
-                                {formatarDataHora(
-                                  lead.proximaTarefa.agendadaPara,
-                                )}
-                              </p>
-                            </div>
-                          ) : null}
-
-                          {lead.matriculaConvertida ? (
-                            <div className="mt-3 rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-100">
-                              Matrícula{" "}
-                              {lead.matriculaConvertida.numeroMatricula ??
-                                `#${lead.matriculaConvertida.id}`}
-                            </div>
-                          ) : null}
-
-                          <div className="mt-4 flex flex-wrap gap-2">
-                            {configuracaoFunis?.permissoes.podeMovimentar &&
-                            !lead.matriculaConvertida ? (
-                              <button
-                                type="button"
-                                onClick={() => abrirMovimentacao(lead)}
-                                className="rounded-lg bg-emerald-600 px-3 py-2 text-[11px] font-bold text-white transition hover:bg-emerald-700"
-                              >
-                                Mover etapa
-                              </button>
-                            ) : null}
-
-                            {telefone ? (
-                              <a
-                                href={`https://wa.me/55${telefone}`}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="rounded-lg border border-emerald-300 bg-emerald-50 px-2.5 py-2 text-[11px] font-bold text-emerald-900 transition hover:bg-emerald-100 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-100"
-                              >
-                                WhatsApp
-                              </a>
-                            ) : null}
-
-                            <a
-                              href={`mailto:${lead.email}`}
-                              className="rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-[11px] font-bold text-slate-800 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-                            >
-                              E-mail
-                            </a>
-
-                            <span className="ml-auto self-center text-[10px] font-semibold text-slate-500">
-                              #{lead.id}
-                            </span>
-                          </div>
-                        </div>
-                      );
-                    })}
-
-                    {etapa.leads.length === 0 ? (
-                      <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center text-xs text-slate-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-400">
-                        Nenhuma oportunidade nesta etapa.
-                      </div>
-                    ) : null}
-
-                    {etapa.temMais ? (
-                      <div className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-center text-xs font-bold text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300">
-                        Existem mais leads nesta etapa
-                      </div>
-                    ) : null}
-                  </div>
-                </article>
-              ))}
-            </div>
-          </section>
-        </>
-      ) : null}
-
-      {carregando && !dados ? (
-        <section className="rounded-3xl border border-slate-200 bg-white p-10 text-center dark:border-slate-800 dark:bg-slate-950">
-          <div className="text-3xl">⏳</div>
-
-          <p className="mt-3 font-bold text-slate-900 dark:text-white">
-            Carregando pipeline comercial...
-          </p>
-        </section>
-      ) : null}
-
-      {toast ? (
-        <div
-          role="status"
-          aria-live="polite"
-          className={`fixed right-5 top-5 z-[120] max-w-sm rounded-2xl border px-5 py-4 text-sm font-bold shadow-xl ${
-            toast.tipo === "sucesso"
-              ? "border-emerald-300 bg-emerald-50 text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-100"
-              : "border-red-300 bg-red-50 text-red-900 dark:border-red-900 dark:bg-red-950 dark:text-red-100"
-          }`}
-        >
-          {toast.mensagem}
-        </div>
-      ) : null}
-
-      {leadEmMovimentacao ? (
-        <div
-          className="fixed inset-0 z-[110] flex items-center justify-center p-4"
-          style={{
-            backgroundColor: "rgba(15, 23, 42, 0.7)",
-          }}
-          role="presentation"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) {
-              fecharMovimentacao();
-            }
-          }}
-        >
-          <section
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="titulo-movimentar-lead"
-            className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-3xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-950"
-          >
-            <header className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-950 sm:p-6">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
-                  Movimentação do pipeline
-                </p>
-
-                <h2
-                  id="titulo-movimentar-lead"
-                  className="mt-1 text-xl font-black text-slate-950 dark:text-white"
-                >
-                  Mover {leadEmMovimentacao.nome}
-                </h2>
-
-                <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                  A alteração ficará registrada no histórico comercial do lead.
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={fecharMovimentacao}
-                disabled={salvandoMovimentacao}
-                aria-label="Fechar movimentação"
-                className="shrink-0 rounded-xl border border-slate-300 bg-white px-3 py-2 font-black text-slate-800 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+        {dados ? (
+          <>
+            <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              <article
+                className={`rounded-2xl border p-5 shadow-sm ${c.panel}`}
               >
-                ✕
-              </button>
-            </header>
+                <p
+                  className={`text-xs font-bold uppercase tracking-wide ${c.muted}`}
+                >
+                  {t("summary.activeFunnel")}
+                </p>
 
-            <form
-              onSubmit={salvarMovimentacao}
-              className="space-y-5 p-5 sm:p-6"
-            >
-              <div className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900 sm:grid-cols-2">
+                <p
+                  className={`mt-2 text-lg font-black ${c.primary}`}
+                >
+                  {dados.funil.nome}
+                </p>
+              </article>
+
+              <article
+                className={`rounded-2xl border p-5 shadow-sm ${c.panel}`}
+              >
+                <p
+                  className={`text-xs font-bold uppercase tracking-wide ${c.muted}`}
+                >
+                  {t("summary.opportunities")}
+                </p>
+
+                <p
+                  className={`mt-2 text-2xl font-black ${c.primary}`}
+                >
+                  {dados.resumo.totalLeads}
+                </p>
+              </article>
+
+              <article
+                className={`rounded-2xl border p-5 shadow-sm ${c.panel}`}
+              >
+                <p
+                  className={`text-xs font-bold uppercase tracking-wide ${c.muted}`}
+                >
+                  {t("summary.estimatedValue")}
+                </p>
+
+                <p
+                  className={`mt-2 text-2xl font-black ${c.primary}`}
+                >
+                  {formatarMoeda(
+                    dados.resumo.valorEstimado,
+                    locale
+                  )}
+                </p>
+              </article>
+
+              <article
+                className={`rounded-2xl border p-5 shadow-sm ${c.panel}`}
+              >
+                <p
+                  className={`text-xs font-bold uppercase tracking-wide ${c.muted}`}
+                >
+                  {t("summary.view")}
+                </p>
+
+                <p
+                  className={`mt-2 text-lg font-black ${c.primary}`}
+                >
+                  {dados.permissoes.somenteMeus
+                    ? t("summary.myLeads")
+                    : t("summary.wholeTeam")}
+                </p>
+              </article>
+            </section>
+
+            <section>
+              <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                    Etapa atual
-                  </p>
+                  <h2
+                    className={`text-xl font-black ${c.primary}`}
+                  >
+                    {t("stages.title")}
+                  </h2>
 
-                  <p className="mt-1 font-black text-slate-950 dark:text-white">
-                    {dados?.etapas.find(
-                      (etapa) => etapa.id === leadEmMovimentacao.etapaFunilId,
-                    )?.nome ?? "Não definida"}
+                  <p className={`mt-1 text-sm ${c.muted}`}>
+                    {t("stages.scrollHelp")}
                   </p>
                 </div>
 
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                    Responsável
-                  </p>
-
-                  <p className="mt-1 font-black text-slate-950 dark:text-white">
-                    {leadEmMovimentacao.responsavel?.nome ?? "Não definido"}
-                  </p>
-                </div>
-              </div>
-
-              <div>
-                <label
-                  htmlFor="etapa-destino"
-                  className="mb-2 block text-sm font-black text-slate-900 dark:text-white"
-                >
-                  Etapa de destino *
-                </label>
-
-                <select
-                  id="etapa-destino"
-                  value={etapaNovaId}
-                  onChange={(event) => alterarEtapaDestino(event.target.value)}
-                  required
-                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition focus:border-emerald-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                >
-                  <option value="">Selecione a nova etapa</option>
-
-                  {dados?.etapas
-                    .filter(
-                      (etapa) => etapa.id !== leadEmMovimentacao.etapaFunilId,
-                    )
-                    .map((etapa) => {
-                      const perda = etapaRepresentaPerda(etapa);
-
-                      const semPermissaoPerda =
-                        perda &&
-                        !configuracaoFunis?.permissoes.podeRegistrarPerda;
-
-                      const conversaoSemMatricula =
-                        etapa.resultado === "GANHA" &&
-                        !leadEmMovimentacao.matriculaConvertida;
-
-                      const bloqueada =
-                        !etapa.permiteMovimentoManual ||
-                        semPermissaoPerda ||
-                        conversaoSemMatricula;
-
-                      const complemento = !etapa.permiteMovimentoManual
-                        ? " — automática"
-                        : semPermissaoPerda
-                          ? " — sem permissão"
-                          : conversaoSemMatricula
-                            ? " — exige matrícula"
-                            : "";
-
-                      return (
-                        <option
-                          key={etapa.id}
-                          value={etapa.id}
-                          disabled={bloqueada}
-                        >
-                          {etapa.ordem}. {etapa.nome}
-                          {complemento}
-                        </option>
-                      );
-                    })}
-                </select>
-
-                {etapaDestino ? (
-                  <p className="mt-2 text-xs text-slate-600 dark:text-slate-400">
-                    {etapaDestino.descricao ??
-                      CATEGORIAS[etapaDestino.categoria] ??
-                      etapaDestino.categoria}
-                  </p>
+                {carregando ? (
+                  <span
+                    className={`text-sm font-bold ${c.secondary}`}
+                  >
+                    {t("stages.updatingData")}
+                  </span>
                 ) : null}
               </div>
 
-              <div>
-                <label
-                  htmlFor="motivo-movimentacao"
-                  className="mb-2 block text-sm font-black text-slate-900 dark:text-white"
-                >
-                  Observação da movimentação
-                </label>
-
-                <textarea
-                  id="motivo-movimentacao"
-                  value={motivoMovimentacao}
-                  onChange={(event) =>
-                    setMotivoMovimentacao(event.target.value)
-                  }
-                  rows={3}
-                  placeholder="Ex.: lead respondeu, proposta aceita, documentos recebidos..."
-                  className="w-full resize-y rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                />
-              </div>
-
-              {destinoRepresentaPerda ? (
-                <section className="space-y-4 rounded-2xl border border-red-200 bg-red-50 p-4 dark:border-red-900 dark:bg-red-950">
-                  <div>
-                    <h3 className="font-black text-red-900 dark:text-red-100">
-                      Registro da perda
-                    </h3>
-
-                    <p className="mt-1 text-xs text-red-800 dark:text-red-200">
-                      O motivo será usado nos relatórios de conversão e melhoria
-                      comercial.
-                    </p>
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="motivo-perda"
-                      className="mb-2 block text-sm font-black text-red-900 dark:text-red-100"
-                    >
-                      Motivo da perda *
-                    </label>
-
-                    <select
-                      id="motivo-perda"
-                      value={motivoPerdaId}
-                      onChange={(event) => {
-                        setMotivoPerdaId(event.target.value);
-                        setMotivoPerdaObservacao("");
+              <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-5">
+                {dados.etapas.map((etapa) => (
+                  <article
+                    key={etapa.id}
+                    className={`w-[320px] shrink-0 snap-start overflow-hidden rounded-3xl border shadow-sm ${c.panel}`}
+                  >
+                    <div
+                      className="h-1.5"
+                      style={{
+                        backgroundColor: etapa.cor,
                       }}
-                      required
-                      className="w-full rounded-xl border border-red-300 bg-white px-4 py-3 text-sm text-slate-950 outline-none focus:border-red-500 dark:border-red-800 dark:bg-slate-950 dark:text-white"
+                    />
+
+                    <header
+                      className={`border-b p-4 ${c.divider}`}
                     >
-                      <option value="">Selecione o motivo</option>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p
+                            className={`text-[10px] font-bold uppercase tracking-wide ${c.muted}`}
+                          >
+                            {t("stages.stage", {
+                              number: etapa.ordem,
+                            })}
+                          </p>
 
-                      {configuracaoFunis?.motivosPerda
-                        .filter((motivo) => motivo.ativo && !motivo.arquivadoEm)
-                        .map((motivo) => (
-                          <option key={motivo.id} value={motivo.id}>
-                            {motivo.nome}
-                          </option>
-                        ))}
-                    </select>
-                  </div>
+                          <h3
+                            className={`mt-1 font-black leading-5 ${c.primary}`}
+                          >
+                            {etapa.nome}
+                          </h3>
 
-                  {motivoPerdaSelecionado ? (
-                    <div>
-                      <label
-                        htmlFor="observacao-perda"
-                        className="mb-2 block text-sm font-black text-red-900 dark:text-red-100"
-                      >
-                        Observação complementar
-                        {motivoPerdaSelecionado.exigeObservacao ? " *" : ""}
-                      </label>
+                          <p
+                            className={`mt-1 text-xs ${c.muted}`}
+                          >
+                            {categorias[etapa.categoria] ??
+                              etapa.categoria}
+                          </p>
+                        </div>
 
-                      <textarea
-                        id="observacao-perda"
-                        value={motivoPerdaObservacao}
-                        onChange={(event) =>
-                          setMotivoPerdaObservacao(event.target.value)
-                        }
-                        required={motivoPerdaSelecionado.exigeObservacao}
-                        rows={3}
-                        placeholder="Registre os detalhes que ajudarão a compreender a perda."
-                        className="w-full resize-y rounded-xl border border-red-300 bg-white px-4 py-3 text-sm text-slate-950 outline-none placeholder:text-slate-400 focus:border-red-500 dark:border-red-800 dark:bg-slate-950 dark:text-white"
-                      />
+                        <span
+                          className={`rounded-full border px-2.5 py-1 text-xs font-black ${c.panelStrong} ${c.primary}`}
+                        >
+                          {etapa.totalLeads}
+                        </span>
+                      </div>
 
-                      {motivoPerdaSelecionado.exigeObservacao ? (
-                        <p className="mt-2 text-xs font-bold text-red-800 dark:text-red-200">
-                          Este motivo exige observação.
-                        </p>
-                      ) : null}
-                    </div>
-                  ) : null}
-                </section>
-              ) : null}
+                      <div className="mt-4 grid grid-cols-2 gap-2">
+                        <div
+                          className={`rounded-xl border p-2.5 ${c.panelSoft}`}
+                        >
+                          <p
+                            className={`text-[9px] font-bold uppercase ${c.muted}`}
+                          >
+                            {t("stages.value")}
+                          </p>
 
-              {etapaDestino?.resultado === "ABERTA" ? (
-                <section className="space-y-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
-                  <div>
-                    <h3 className="font-black text-slate-950 dark:text-white">
-                      Próxima ação
-                    </h3>
+                          <p
+                            className={`mt-1 text-xs font-black ${c.primary}`}
+                          >
+                            {formatarMoeda(
+                              etapa.valorEstimado,
+                              locale
+                            )}
+                          </p>
+                        </div>
 
-                    <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
-                      Mantenha o acompanhamento do lead com data, canal e
-                      prioridade definidos.
-                    </p>
-                  </div>
+                        <div
+                          className={`rounded-xl border p-2.5 ${c.panelSoft}`}
+                        >
+                          <p
+                            className={`text-[9px] font-bold uppercase ${c.muted}`}
+                          >
+                            {t("stages.probability")}
+                          </p>
 
-                  {etapaDestino.exigeProximaAcao &&
-                  leadEmMovimentacao.proximaTarefa ? (
-                    <div className="rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-100">
-                      <strong>Próxima ação já definida:</strong>{" "}
-                      {leadEmMovimentacao.proximaTarefa.titulo}, em{" "}
-                      {formatarDataHora(
-                        leadEmMovimentacao.proximaTarefa.agendadaPara,
-                      )}
-                      .
-                    </div>
-                  ) : (
-                    <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-300 bg-white p-3 text-sm text-slate-800 dark:border-slate-700 dark:bg-slate-950 dark:text-white">
-                      <input
-                        type="checkbox"
-                        checked={deveEnviarProximaAcao}
-                        disabled={proximaAcaoObrigatoria}
-                        onChange={(event) =>
-                          setIncluirProximaAcao(event.target.checked)
-                        }
-                        className="mt-0.5 h-4 w-4 accent-emerald-600"
-                      />
+                          <p
+                            className={`mt-1 text-xs font-black ${c.primary}`}
+                          >
+                            {etapa.probabilidadeConversao}%
+                          </p>
+                        </div>
+                      </div>
+                    </header>
 
-                      <span>
-                        <strong>
-                          {proximaAcaoObrigatoria
-                            ? "Próxima ação obrigatória"
-                            : "Agendar uma próxima ação"}
-                        </strong>
+                    <div
+                      className={`max-h-[620px] space-y-3 overflow-y-auto p-3 ${c.columnBody}`}
+                    >
+                      {etapa.leads.map((lead) => {
+                        const telefoneWhatsApp =
+                          telefoneParaWhatsApp(lead.telefone);
 
-                        {proximaAcaoObrigatoria ? (
-                          <span className="mt-1 block text-xs text-slate-600 dark:text-slate-400">
-                            A etapa selecionada exige uma tarefa pendente.
-                          </span>
-                        ) : null}
-                      </span>
-                    </label>
-                  )}
+                        return (
+                          <div
+                            key={lead.id}
+                            className={`rounded-2xl border p-4 shadow-sm ${c.panelStrong}`}
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <h4
+                                  className={`truncate font-black ${c.primary}`}
+                                >
+                                  {lead.nome}
+                                </h4>
 
-                  {deveEnviarProximaAcao ? (
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      {!leadEmMovimentacao.responsavelFuncionarioId ? (
-                        <div className="sm:col-span-2 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-950 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-100">
-                          O lead ainda não possui responsável. Defina o
-                          responsável antes de movimentá-lo para esta etapa.
+                                <p
+                                  className={`mt-1 truncate text-xs ${c.muted}`}
+                                >
+                                  {lead.interesse ||
+                                    t("lead.noInterest")}
+                                </p>
+                              </div>
+
+                              <span
+                                className={`shrink-0 rounded-full border px-2 py-1 text-[10px] font-bold ${classePrioridade(
+                                  lead.prioridade
+                                )}`}
+                              >
+                                {rotuloPrioridade(
+                                  lead.prioridade
+                                )}
+                              </span>
+                            </div>
+
+                            <div
+                              className={`mt-3 space-y-1.5 text-xs ${c.secondary}`}
+                            >
+                              <p>
+                                <strong>
+                                  {t("lead.responsible")}:
+                                </strong>{" "}
+                                {lead.responsavel?.nome ??
+                                  t("common.notDefined")}
+                              </p>
+
+                              {lead.curso ? (
+                                <p>
+                                  <strong>
+                                    {t("lead.course")}:
+                                  </strong>{" "}
+                                  {lead.curso.nome}
+                                </p>
+                              ) : null}
+
+                              {lead.polo ? (
+                                <p>
+                                  <strong>
+                                    {t("lead.campus")}:
+                                  </strong>{" "}
+                                  {lead.polo.nome}
+                                </p>
+                              ) : null}
+
+                              <p>
+                                <strong>
+                                  {t("lead.value")}:
+                                </strong>{" "}
+                                {formatarMoeda(
+                                  lead.valorEstimado,
+                                  locale
+                                )}
+                              </p>
+                            </div>
+
+                            {lead.etapaAtrasada ? (
+                              <div className="mt-3 rounded-xl border border-red-600 bg-red-950/15 px-3 py-2 text-xs font-bold text-red-700 dark:text-red-100">
+                                {t("lead.stageOverdue")}
+                              </div>
+                            ) : null}
+
+                            {lead.acompanhamentoAtrasado ? (
+                              <div className="mt-2 rounded-xl border border-orange-600 bg-orange-950/15 px-3 py-2 text-xs font-bold text-orange-700 dark:text-orange-100">
+                                {t("lead.followUpOverdue")}
+                              </div>
+                            ) : null}
+
+                            {lead.semProximaAcao ? (
+                              <div className="mt-2 rounded-xl border border-amber-600 bg-amber-950/15 px-3 py-2 text-xs font-bold text-amber-700 dark:text-amber-100">
+                                {t("lead.noNextAction")}
+                              </div>
+                            ) : null}
+
+                            {lead.proximaTarefa ? (
+                              <div
+                                className={`mt-3 rounded-xl border p-3 ${c.panelSoft}`}
+                              >
+                                <p
+                                  className={`text-[9px] font-bold uppercase ${c.muted}`}
+                                >
+                                  {t("lead.nextAction")}
+                                </p>
+
+                                <p
+                                  className={`mt-1 text-xs font-black ${c.primary}`}
+                                >
+                                  {lead.proximaTarefa.titulo}
+                                </p>
+
+                                <p
+                                  className={`mt-1 text-[11px] ${c.muted}`}
+                                >
+                                  {formatarDataHora(
+                                    lead.proximaTarefa
+                                      .agendadaPara,
+                                    locale,
+                                    t("common.notDefined"),
+                                    t("common.invalidDate")
+                                  )}
+                                </p>
+                              </div>
+                            ) : null}
+
+                            {lead.matriculaConvertida ? (
+                              <div className="mt-3 rounded-xl border border-emerald-600 bg-emerald-950/15 px-3 py-2 text-xs font-bold text-emerald-700 dark:text-emerald-100">
+                                {t("lead.enrollment")}{" "}
+                                {lead.matriculaConvertida
+                                  .numeroMatricula ??
+                                  `#${lead.matriculaConvertida.id}`}
+                              </div>
+                            ) : null}
+
+                            <div className="mt-4 flex flex-wrap gap-2">
+                              {configuracaoFunis?.permissoes
+                                .podeMovimentar &&
+                              !lead.matriculaConvertida ? (
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    abrirMovimentacao(lead)
+                                  }
+                                  className="rounded-lg bg-emerald-600 px-3 py-2 text-[11px] font-bold text-white transition hover:bg-emerald-700"
+                                >
+                                  {t("lead.moveStage")}
+                                </button>
+                              ) : null}
+
+                              {telefoneWhatsApp ? (
+                                <a
+                                  href={`https://wa.me/${telefoneWhatsApp}`}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="rounded-lg border border-emerald-600 bg-emerald-950/10 px-2.5 py-2 text-[11px] font-bold text-emerald-700 transition hover:bg-emerald-950/20 dark:text-emerald-100"
+                                >
+                                  WhatsApp
+                                </a>
+                              ) : null}
+
+                              <a
+                                href={`mailto:${lead.email}`}
+                                className={`rounded-lg border px-2.5 py-2 text-[11px] font-bold transition ${c.ghostButton}`}
+                              >
+                                {t("taskTypes.email")}
+                              </a>
+
+                              <span
+                                className={`ml-auto self-center text-[10px] font-semibold ${c.muted}`}
+                              >
+                                #{lead.id}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
+
+                      {etapa.leads.length === 0 ? (
+                        <div
+                          className={`rounded-2xl border border-dashed p-6 text-center text-xs ${c.panelStrong} ${c.secondary}`}
+                        >
+                          {t("stages.empty")}
                         </div>
                       ) : null}
 
-                      <div>
-                        <label
-                          htmlFor="tipo-tarefa"
-                          className="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-600 dark:text-slate-300"
+                      {etapa.temMais ? (
+                        <div
+                          className={`rounded-xl border px-3 py-2 text-center text-xs font-bold ${c.panelStrong} ${c.secondary}`}
                         >
-                          Tipo de ação *
-                        </label>
-
-                        <select
-                          id="tipo-tarefa"
-                          value={tipoTarefa}
-                          onChange={(event) =>
-                            setTipoTarefa(event.target.value)
-                          }
-                          className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-950 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-                        >
-                          {TIPOS_TAREFA.map((tipo) => (
-                            <option key={tipo.valor} value={tipo.valor}>
-                              {tipo.nome}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div>
-                        <label
-                          htmlFor="prioridade-tarefa"
-                          className="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-600 dark:text-slate-300"
-                        >
-                          Prioridade *
-                        </label>
-
-                        <select
-                          id="prioridade-tarefa"
-                          value={prioridadeTarefa}
-                          onChange={(event) =>
-                            setPrioridadeTarefa(event.target.value)
-                          }
-                          className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-950 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-                        >
-                          {PRIORIDADES_TAREFA.map((item) => (
-                            <option key={item.valor} value={item.valor}>
-                              {item.nome}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="sm:col-span-2">
-                        <label
-                          htmlFor="titulo-tarefa"
-                          className="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-600 dark:text-slate-300"
-                        >
-                          Título
-                        </label>
-
-                        <input
-                          id="titulo-tarefa"
-                          value={tituloTarefa}
-                          onChange={(event) =>
-                            setTituloTarefa(event.target.value)
-                          }
-                          placeholder={`Próxima ação — ${etapaDestino.nome}`}
-                          className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-950 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-                        />
-                      </div>
-
-                      <div>
-                        <label
-                          htmlFor="agendada-para"
-                          className="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-600 dark:text-slate-300"
-                        >
-                          Agendada para *
-                        </label>
-
-                        <input
-                          id="agendada-para"
-                          type="datetime-local"
-                          value={agendadaPara}
-                          min={formatarDataParaInput(new Date())}
-                          onChange={(event) =>
-                            setAgendadaPara(event.target.value)
-                          }
-                          required
-                          className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-950 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-                        />
-                      </div>
-
-                      <div>
-                        <label
-                          htmlFor="prazo-em"
-                          className="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-600 dark:text-slate-300"
-                        >
-                          Data limite
-                        </label>
-
-                        <input
-                          id="prazo-em"
-                          type="datetime-local"
-                          value={prazoEm}
-                          min={
-                            agendadaPara || formatarDataParaInput(new Date())
-                          }
-                          onChange={(event) => setPrazoEm(event.target.value)}
-                          className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-950 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-                        />
-                      </div>
-
-                      <div>
-                        <label
-                          htmlFor="lembrete-em"
-                          className="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-600 dark:text-slate-300"
-                        >
-                          Lembrete
-                        </label>
-
-                        <input
-                          id="lembrete-em"
-                          type="datetime-local"
-                          value={lembreteEm}
-                          max={agendadaPara}
-                          onChange={(event) =>
-                            setLembreteEm(event.target.value)
-                          }
-                          className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-950 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-                        />
-                      </div>
-
-                      <div>
-                        <label
-                          htmlFor="responsavel-proxima-acao"
-                          className="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-600 dark:text-slate-300"
-                        >
-                          Responsável
-                        </label>
-
-                        <input
-                          id="responsavel-proxima-acao"
-                          value={
-                            leadEmMovimentacao.responsavel?.nome ??
-                            "Não definido"
-                          }
-                          readOnly
-                          className="w-full cursor-not-allowed rounded-xl border border-slate-300 bg-slate-100 px-4 py-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
-                        />
-                      </div>
-
-                      <div className="sm:col-span-2">
-                        <label
-                          htmlFor="descricao-tarefa"
-                          className="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-600 dark:text-slate-300"
-                        >
-                          Orientações da tarefa
-                        </label>
-
-                        <textarea
-                          id="descricao-tarefa"
-                          value={descricaoTarefa}
-                          onChange={(event) =>
-                            setDescricaoTarefa(event.target.value)
-                          }
-                          rows={3}
-                          placeholder="Descreva o que deverá ser feito no próximo contato."
-                          className="w-full resize-y rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-950 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-                        />
-                      </div>
+                          {t("stages.moreLeads")}
+                        </div>
+                      ) : null}
                     </div>
-                  ) : null}
-                </section>
-              ) : null}
+                  </article>
+                ))}
+              </div>
+            </section>
+          </>
+        ) : null}
 
-              {erroMovimentacao ? (
-                <div
-                  role="alert"
-                  className="rounded-2xl border border-red-300 bg-red-50 px-4 py-3 text-sm font-bold text-red-900 dark:border-red-900 dark:bg-red-950 dark:text-red-100"
-                >
-                  {erroMovimentacao}
+        {carregando && !dados ? (
+          <section
+            className={`rounded-3xl border p-10 text-center ${c.panel}`}
+          >
+            <div className="text-3xl">⏳</div>
+
+            <p className={`mt-3 font-bold ${c.primary}`}>
+              {t("loading")}
+            </p>
+          </section>
+        ) : null}
+
+        {toast ? (
+          <div
+            role="status"
+            aria-live="polite"
+            className={`fixed right-5 top-5 z-[120] max-w-sm rounded-2xl border px-5 py-4 text-sm font-bold shadow-xl ${
+              toast.tipo === "sucesso"
+                ? "border-emerald-600 bg-emerald-950/20 text-emerald-700 dark:text-emerald-100"
+                : "border-red-600 bg-red-950/20 text-red-700 dark:text-red-100"
+            }`}
+          >
+            {toast.mensagem}
+          </div>
+        ) : null}
+
+        {leadEmMovimentacao ? (
+          <div
+            className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/70 p-4"
+            role="presentation"
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget) {
+                fecharMovimentacao();
+              }
+            }}
+          >
+            <section
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="titulo-movimentar-lead"
+              className={`max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-3xl border shadow-2xl ${c.panel}`}
+            >
+              <header
+                className={`sticky top-0 z-10 flex items-start justify-between gap-4 border-b p-5 sm:p-6 ${c.divider} ${c.panel}`}
+              >
+                <div>
+                  <p
+                    className={`text-xs font-bold uppercase tracking-wide ${c.kicker}`}
+                  >
+                    {t("movement.kicker")}
+                  </p>
+
+                  <h2
+                    id="titulo-movimentar-lead"
+                    className={`mt-1 text-xl font-black ${c.primary}`}
+                  >
+                    {t("movement.title", {
+                      name: leadEmMovimentacao.nome,
+                    })}
+                  </h2>
+
+                  <p
+                    className={`mt-1 text-sm ${c.secondary}`}
+                  >
+                    {t("movement.description")}
+                  </p>
                 </div>
-              ) : null}
 
-              <footer className="flex flex-col-reverse gap-3 border-t border-slate-200 pt-5 dark:border-slate-800 sm:flex-row sm:justify-end">
                 <button
                   type="button"
                   onClick={fecharMovimentacao}
                   disabled={salvandoMovimentacao}
-                  className="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                  aria-label={t("movement.closeAria")}
+                  className={`shrink-0 rounded-xl border px-3 py-2 font-black transition disabled:cursor-not-allowed disabled:opacity-50 ${c.ghostButton}`}
                 >
-                  Cancelar
+                  ✕
                 </button>
+              </header>
 
-                <button
-                  type="submit"
-                  disabled={salvandoMovimentacao || !etapaDestino}
-                  className="rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-400"
+              <form
+                onSubmit={salvarMovimentacao}
+                className="space-y-5 p-5 sm:p-6"
+              >
+                <div
+                  className={`grid gap-3 rounded-2xl border p-4 sm:grid-cols-2 ${c.panelSoft}`}
                 >
-                  {salvandoMovimentacao
-                    ? "Movimentando..."
-                    : "Confirmar movimentação"}
-                </button>
-              </footer>
-            </form>
-          </section>
-        </div>
-      ) : null}
-    </div>
+                  <div>
+                    <p
+                      className={`text-[10px] font-bold uppercase tracking-wide ${c.muted}`}
+                    >
+                      {t("movement.currentStage")}
+                    </p>
+
+                    <p
+                      className={`mt-1 font-black ${c.primary}`}
+                    >
+                      {dados?.etapas.find(
+                        (etapa) =>
+                          etapa.id ===
+                          leadEmMovimentacao.etapaFunilId
+                      )?.nome ?? t("common.notDefined")}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p
+                      className={`text-[10px] font-bold uppercase tracking-wide ${c.muted}`}
+                    >
+                      {t("movement.responsible")}
+                    </p>
+
+                    <p
+                      className={`mt-1 font-black ${c.primary}`}
+                    >
+                      {leadEmMovimentacao.responsavel?.nome ??
+                        t("common.notDefined")}
+                    </p>
+                  </div>
+                </div>
+
+                <div>
+                  <label
+                    className={`mb-2 block text-sm font-black ${c.primary}`}
+                  >
+                    {t("movement.destinationStage")} *
+                  </label>
+
+                  <SelectTema
+                    value={etapaNovaId}
+                    onChange={alterarEtapaDestino}
+                    modoTema={modoTema}
+                    options={opcoesEtapasDestino}
+                    required
+                  />
+
+                  {etapaDestino ? (
+                    <p className={`mt-2 text-xs ${c.muted}`}>
+                      {etapaDestino.descricao ??
+                        categorias[etapaDestino.categoria] ??
+                        etapaDestino.categoria}
+                    </p>
+                  ) : null}
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="motivo-movimentacao"
+                    className={`mb-2 block text-sm font-black ${c.primary}`}
+                  >
+                    {t("movement.movementNote")}
+                  </label>
+
+                  <textarea
+                    id="motivo-movimentacao"
+                    value={motivoMovimentacao}
+                    onChange={(event) =>
+                      setMotivoMovimentacao(event.target.value)
+                    }
+                    rows={3}
+                    placeholder={t(
+                      "movement.movementNotePlaceholder"
+                    )}
+                    className={`w-full resize-y rounded-xl border px-4 py-3 text-sm outline-none transition focus:border-emerald-500 ${c.input}`}
+                  />
+                </div>
+
+                {destinoRepresentaPerda ? (
+                  <section className="space-y-4 rounded-2xl border border-red-700 bg-red-950/10 p-4">
+                    <div>
+                      <h3 className="font-black text-red-700 dark:text-red-100">
+                        {t("movement.loss.title")}
+                      </h3>
+
+                      <p className="mt-1 text-xs text-red-700 dark:text-red-200">
+                        {t("movement.loss.description")}
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-black text-red-700 dark:text-red-100">
+                        {t("movement.loss.reason")} *
+                      </label>
+
+                      <SelectTema
+                        value={motivoPerdaId}
+                        onChange={(valor) => {
+                          setMotivoPerdaId(valor);
+                          setMotivoPerdaObservacao("");
+                        }}
+                        modoTema={modoTema}
+                        options={opcoesMotivoPerda}
+                        required
+                      />
+                    </div>
+
+                    {motivoPerdaSelecionado ? (
+                      <div>
+                        <label
+                          htmlFor="observacao-perda"
+                          className="mb-2 block text-sm font-black text-red-700 dark:text-red-100"
+                        >
+                          {t("movement.loss.observation")}
+                          {motivoPerdaSelecionado.exigeObservacao
+                            ? " *"
+                            : ""}
+                        </label>
+
+                        <textarea
+                          id="observacao-perda"
+                          value={motivoPerdaObservacao}
+                          onChange={(event) =>
+                            setMotivoPerdaObservacao(
+                              event.target.value
+                            )
+                          }
+                          required={
+                            motivoPerdaSelecionado.exigeObservacao
+                          }
+                          rows={3}
+                          placeholder={t(
+                            "movement.loss.observationPlaceholder"
+                          )}
+                          className={`w-full resize-y rounded-xl border border-red-700 px-4 py-3 text-sm outline-none focus:border-red-500 ${c.input}`}
+                        />
+
+                        {motivoPerdaSelecionado.exigeObservacao ? (
+                          <p className="mt-2 text-xs font-bold text-red-700 dark:text-red-200">
+                            {t("movement.loss.observationRequired")}
+                          </p>
+                        ) : null}
+                      </div>
+                    ) : null}
+                  </section>
+                ) : null}
+
+                {etapaDestino?.resultado === "ABERTA" ? (
+                  <section
+                    className={`space-y-4 rounded-2xl border p-4 ${c.panelSoft}`}
+                  >
+                    <div>
+                      <h3 className={`font-black ${c.primary}`}>
+                        {t("movement.nextAction.title")}
+                      </h3>
+
+                      <p className={`mt-1 text-xs ${c.muted}`}>
+                        {t("movement.nextAction.description")}
+                      </p>
+                    </div>
+
+                    {etapaDestino.exigeProximaAcao &&
+                    leadEmMovimentacao.proximaTarefa ? (
+                      <div className="rounded-xl border border-emerald-600 bg-emerald-950/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-100">
+                        <strong>
+                          {t("movement.nextAction.alreadyDefined")}:
+                        </strong>{" "}
+                        {leadEmMovimentacao.proximaTarefa.titulo},{" "}
+                        {formatarDataHora(
+                          leadEmMovimentacao.proximaTarefa
+                            .agendadaPara,
+                          locale,
+                          t("common.notDefined"),
+                          t("common.invalidDate")
+                        )}
+                        .
+                      </div>
+                    ) : (
+                      <label
+                        className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 text-sm ${c.panelStrong} ${c.primary}`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={deveEnviarProximaAcao}
+                          disabled={proximaAcaoObrigatoria}
+                          onChange={(event) =>
+                            setIncluirProximaAcao(
+                              event.target.checked
+                            )
+                          }
+                          className="mt-0.5 h-4 w-4 accent-emerald-600"
+                        />
+
+                        <span>
+                          <strong>
+                            {proximaAcaoObrigatoria
+                              ? t(
+                                  "movement.nextAction.required"
+                                )
+                              : t(
+                                  "movement.nextAction.schedule"
+                                )}
+                          </strong>
+
+                          {proximaAcaoObrigatoria ? (
+                            <span
+                              className={`mt-1 block text-xs ${c.muted}`}
+                            >
+                              {t(
+                                "movement.nextAction.requiredDescription"
+                              )}
+                            </span>
+                          ) : null}
+                        </span>
+                      </label>
+                    )}
+
+                    {deveEnviarProximaAcao ? (
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        {!leadEmMovimentacao.responsavelFuncionarioId ? (
+                          <div className="rounded-xl border border-amber-600 bg-amber-950/10 px-4 py-3 text-sm font-bold text-amber-700 dark:text-amber-100 sm:col-span-2">
+                            {t(
+                              "movement.nextAction.noResponsible"
+                            )}
+                          </div>
+                        ) : null}
+
+                        <div>
+                          <label
+                            className={`mb-2 block text-xs font-bold uppercase tracking-wide ${c.secondary}`}
+                          >
+                            {t(
+                              "movement.nextAction.actionType"
+                            )}{" "}
+                            *
+                          </label>
+
+                          <SelectTema
+                            value={tipoTarefa}
+                            onChange={setTipoTarefa}
+                            modoTema={modoTema}
+                            options={tiposTarefa.map((tipo) => ({
+                              value: tipo.valor,
+                              label: tipo.nome,
+                            }))}
+                          />
+                        </div>
+
+                        <div>
+                          <label
+                            className={`mb-2 block text-xs font-bold uppercase tracking-wide ${c.secondary}`}
+                          >
+                            {t("movement.nextAction.priority")} *
+                          </label>
+
+                          <SelectTema
+                            value={prioridadeTarefa}
+                            onChange={setPrioridadeTarefa}
+                            modoTema={modoTema}
+                            options={prioridadesTarefa.map(
+                              (item) => ({
+                                value: item.valor,
+                                label: item.nome,
+                              })
+                            )}
+                          />
+                        </div>
+
+                        <div className="sm:col-span-2">
+                          <label
+                            htmlFor="titulo-tarefa"
+                            className={`mb-2 block text-xs font-bold uppercase tracking-wide ${c.secondary}`}
+                          >
+                            {t("movement.nextAction.taskTitle")}
+                          </label>
+
+                          <input
+                            id="titulo-tarefa"
+                            value={tituloTarefa}
+                            onChange={(event) =>
+                              setTituloTarefa(event.target.value)
+                            }
+                            placeholder={t(
+                              "movement.nextAction.taskTitlePlaceholder",
+                              {
+                                stage: etapaDestino.nome,
+                              }
+                            )}
+                            className={`w-full rounded-xl border px-4 py-3 text-sm ${c.input}`}
+                          />
+                        </div>
+
+                        <div>
+                          <label
+                            htmlFor="agendada-para"
+                            className={`mb-2 block text-xs font-bold uppercase tracking-wide ${c.secondary}`}
+                          >
+                            {t(
+                              "movement.nextAction.scheduledFor"
+                            )}{" "}
+                            *
+                          </label>
+
+                          <input
+                            id="agendada-para"
+                            type="datetime-local"
+                            value={agendadaPara}
+                            min={formatarDataParaInput(new Date())}
+                            onChange={(event) =>
+                              setAgendadaPara(event.target.value)
+                            }
+                            required
+                            className={`w-full rounded-xl border px-4 py-3 text-sm ${c.input}`}
+                          />
+                        </div>
+
+                        <div>
+                          <label
+                            htmlFor="prazo-em"
+                            className={`mb-2 block text-xs font-bold uppercase tracking-wide ${c.secondary}`}
+                          >
+                            {t(
+                              "movement.nextAction.deadline"
+                            )}
+                          </label>
+
+                          <input
+                            id="prazo-em"
+                            type="datetime-local"
+                            value={prazoEm}
+                            min={
+                              agendadaPara ||
+                              formatarDataParaInput(new Date())
+                            }
+                            onChange={(event) =>
+                              setPrazoEm(event.target.value)
+                            }
+                            className={`w-full rounded-xl border px-4 py-3 text-sm ${c.input}`}
+                          />
+                        </div>
+
+                        <div>
+                          <label
+                            htmlFor="lembrete-em"
+                            className={`mb-2 block text-xs font-bold uppercase tracking-wide ${c.secondary}`}
+                          >
+                            {t(
+                              "movement.nextAction.reminder"
+                            )}
+                          </label>
+
+                          <input
+                            id="lembrete-em"
+                            type="datetime-local"
+                            value={lembreteEm}
+                            max={agendadaPara}
+                            onChange={(event) =>
+                              setLembreteEm(event.target.value)
+                            }
+                            className={`w-full rounded-xl border px-4 py-3 text-sm ${c.input}`}
+                          />
+                        </div>
+
+                        <div>
+                          <label
+                            htmlFor="responsavel-proxima-acao"
+                            className={`mb-2 block text-xs font-bold uppercase tracking-wide ${c.secondary}`}
+                          >
+                            {t(
+                              "movement.nextAction.responsible"
+                            )}
+                          </label>
+
+                          <input
+                            id="responsavel-proxima-acao"
+                            value={
+                              leadEmMovimentacao.responsavel?.nome ??
+                              t("common.notDefined")
+                            }
+                            readOnly
+                            className={`w-full cursor-not-allowed rounded-xl border px-4 py-3 text-sm ${c.panelSoft} ${c.secondary}`}
+                          />
+                        </div>
+
+                        <div className="sm:col-span-2">
+                          <label
+                            htmlFor="descricao-tarefa"
+                            className={`mb-2 block text-xs font-bold uppercase tracking-wide ${c.secondary}`}
+                          >
+                            {t(
+                              "movement.nextAction.instructions"
+                            )}
+                          </label>
+
+                          <textarea
+                            id="descricao-tarefa"
+                            value={descricaoTarefa}
+                            onChange={(event) =>
+                              setDescricaoTarefa(
+                                event.target.value
+                              )
+                            }
+                            rows={3}
+                            placeholder={t(
+                              "movement.nextAction.instructionsPlaceholder"
+                            )}
+                            className={`w-full resize-y rounded-xl border px-4 py-3 text-sm ${c.input}`}
+                          />
+                        </div>
+                      </div>
+                    ) : null}
+                  </section>
+                ) : null}
+
+                {erroMovimentacao ? (
+                  <div
+                    role="alert"
+                    className="rounded-2xl border border-red-600 bg-red-950/15 px-4 py-3 text-sm font-bold text-red-700 dark:text-red-100"
+                  >
+                    {erroMovimentacao}
+                  </div>
+                ) : null}
+
+                <footer
+                  className={`flex flex-col-reverse gap-3 border-t pt-5 sm:flex-row sm:justify-end ${c.divider}`}
+                >
+                  <button
+                    type="button"
+                    onClick={fecharMovimentacao}
+                    disabled={salvandoMovimentacao}
+                    className={`rounded-xl border px-5 py-3 text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-50 ${c.ghostButton}`}
+                  >
+                    {t("movement.cancel")}
+                  </button>
+
+                  <button
+                    type="submit"
+                    disabled={
+                      salvandoMovimentacao || !etapaDestino
+                    }
+                    className="rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-500"
+                  >
+                    {salvandoMovimentacao
+                      ? t("movement.moving")
+                      : t("movement.confirm")}
+                  </button>
+                </footer>
+              </form>
+            </section>
+          </div>
+        ) : null}
+      </div>
+    </main>
   );
 }

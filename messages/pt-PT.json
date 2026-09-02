@@ -7503,5 +7503,1270 @@
       "noEmail": "Sem e-mail",
       "open": "Abrir"
     }
+  },
+  "AdminCommercialCommissionSettings": {
+    "overview": {
+      "common": {
+        "noLimit": "Sem limite",
+        "invalidDate": "Data inválida",
+        "until": "até"
+      },
+      "header": {
+        "section": "Comercial",
+        "title": "Planos de comissão",
+        "description": "Defina como as vendas serão avaliadas antes de gerar comissão para os vendedores."
+      },
+      "errors": {
+        "load": "Não foi possível carregar os planos de comissão.",
+        "nameRequired": "Indique o nome do plano de comissão.",
+        "create": "Não foi possível criar o plano de comissão."
+      },
+      "success": {
+        "created": "Plano de comissão criado com sucesso."
+      },
+      "form": {
+        "title": "Novo plano de comissão",
+        "description": "Criar o plano não disponibiliza vendedores imediatamente. O plano ainda terá de ter regras ativas e vendedores associados.",
+        "name": {
+          "label": "Nome do plano",
+          "placeholder": "Ex.: Comissão vendedores 2026"
+        },
+        "descriptionField": {
+          "label": "Descrição",
+          "placeholder": "Ex.: Plano padrão da equipa comercial"
+        },
+        "startDate": "Início da vigência",
+        "endDate": "Fim da vigência",
+        "active": {
+          "title": "Plano ativo",
+          "description": "Permite que o plano seja utilizado durante a sua vigência."
+        },
+        "confirmedPayment": {
+          "title": "Exigir pagamento confirmado",
+          "description": "A matrícula, por si só, não torna a comissão elegível."
+        },
+        "sharedSale": {
+          "title": "Permitir venda partilhada",
+          "description": "Permite dividir uma comissão entre vendedores participantes."
+        },
+        "creating": "A criar plano...",
+        "create": "Criar plano de comissão"
+      },
+      "list": {
+        "title": "Planos registados",
+        "description": "Um plano só fica pronto quando possui pelo menos uma regra ativa.",
+        "loading": "A carregar planos...",
+        "emptyTitle": "Nenhum plano registado",
+        "emptyDescription": "Registe o primeiro plano utilizando o formulário acima.",
+        "noDescription": "Sem descrição registada.",
+        "configured": "Configurado",
+        "pendingConfiguration": "Configuração pendente",
+        "validity": "Vigência",
+        "activeRules": "Regras ativas",
+        "linkedSellers": "Vendedores associados",
+        "confirmedPayment": "Pagamento confirmado",
+        "required": "Obrigatório",
+        "notRequired": "Não obrigatório",
+        "warning": "Este plano ainda não disponibiliza vendedores porque não possui uma regra ativa.",
+        "configureRules": "Configurar regras"
+      }
+    },
+    "plan": {
+      "invalidPlan": "Plano inválido.",
+      "common": {
+        "noLimit": "Sem limite",
+        "invalidDate": "Data inválida",
+        "until": "até",
+        "course": "Curso",
+        "department": "Departamento",
+        "role": "Cargo ou função",
+        "employee": "Funcionário",
+        "description": "Descrição",
+        "startDate": "Início da vigência",
+        "endDate": "Fim da vigência",
+        "notes": "Observações",
+        "notesLabel": "Observações:",
+        "validityLabel": "Vigência:",
+        "active": "Ativo",
+        "ended": "Terminado",
+        "activeFeminine": "Ativa",
+        "inactiveFeminine": "Inativa",
+        "noDescription": "Sem descrição.",
+        "all": "Todos",
+        "yes": "Sim",
+        "no": "Não",
+        "selectDepartment": "Selecione o departamento...",
+        "selectRole": "Selecione o cargo ou a função...",
+        "selectEmployee": "Selecione o funcionário...",
+        "activeEmployees": "{count, plural, one {# funcionário ativo} other {# funcionários ativos}}"
+      },
+      "header": {
+        "back": "← Voltar aos planos",
+        "section": "Plano de comissão",
+        "configureRulesFallback": "Configurar regras",
+        "description": "Defina quem participa e qual regra será aplicada a cada departamento, cargo ou funcionário."
+      },
+      "participation": {
+        "title": "👥 Quem recebe comissão neste plano",
+        "description": "Esta escolha define se apenas os responsáveis pela matrícula ou todos os funcionários associados ao plano receberão comissão.",
+        "onlyEnrollment": {
+          "title": "🎯 Apenas participantes da matrícula",
+          "description": "Recebem apenas o vendedor responsável e os participantes comerciais registados nessa matrícula."
+        },
+        "allLinked": {
+          "title": "🏢 Todos os associados ao plano",
+          "description": "Todos os funcionários ativos associados ao plano participam, mesmo sem login, de acordo com a regra aplicável ao cargo, departamento ou pessoa."
+        },
+        "warning": "Para que gerente, coordenador, vendedores, captação de leads e outras funções recebam percentagens diferentes no mesmo plano, crie uma regra geral e depois registe as exceções específicas."
+      },
+      "ruleForm": {
+        "editTitle": "Editar regra de comissão",
+        "newGeneralTitle": "Nova regra geral de comissão",
+        "newExceptionTitle": "Nova exceção de comissão",
+        "editDescription": "Altere os dados abaixo e guarde. A edição afeta apenas os próximos cálculos de comissão.",
+        "precedenceDescription": "A precedência é: funcionário específico, cargo ou função, departamento e, por último, regra geral.",
+        "application": "Aplicação da regra",
+        "scope": {
+          "general": {
+            "title": "🌐 Regra geral",
+            "description": "Aplicada quando não existir uma regra mais específica."
+          },
+          "department": {
+            "title": "🏢 Departamento",
+            "description": "Exceção para todos os funcionários de um departamento."
+          },
+          "role": {
+            "title": "🪪 Cargo ou função",
+            "description": "Exceção para gerente, coordenador, vendedor, leads, etc."
+          },
+          "employee": {
+            "title": "👤 Funcionário específico",
+            "description": "Maior prioridade para uma condição individual."
+          }
+        },
+        "createGeneralFirst": "Crie primeiro uma regra geral. Depois serão disponibilizadas as opções de exceção.",
+        "baseRule": "Regra geral de origem",
+        "selectBaseRule": "Selecione o grupo de comissão...",
+        "inheritedBase": "Base herdada",
+        "inheritedTrigger": "Gatilho herdado",
+        "currentGeneralValue": "Valor geral atual",
+        "ruleName": "Nome da regra",
+        "specificCourse": "Curso específico",
+        "allCourses": "Todos os cursos",
+        "commissionType": "Tipo da comissão",
+        "percentage": "Percentagem",
+        "fixedValue": "Valor fixo",
+        "calculationBase": "Base de cálculo",
+        "trigger": "Gatilho para comissão",
+        "minimumQuantity": "Quantidade mínima",
+        "maximumQuantity": "Quantidade máxima",
+        "refundGrace": "Carência para estorno",
+        "applicationOrder": "Ordem de aplicação",
+        "noMinimum": "Sem mínimo",
+        "noMaximum": "Sem máximo",
+        "placeholders": {
+          "generalRule": "Ex.: Comissão principal",
+          "managerRule": "Ex.: Comissão do gerente comercial",
+          "exceptionRule": "Ex.: Exceção de comissão",
+          "description": "Explique quando esta regra deverá ser aplicada."
+        },
+        "useNetReceived": {
+          "title": "Utilizar valor líquido recebido",
+          "description": "Evita comissão sobre valores que não entraram em caixa."
+        },
+        "refundCancellation": {
+          "title": "Estornar em caso de cancelamento",
+          "description": "Protege a instituição contra vendas canceladas."
+        },
+        "refundDelinquency": {
+          "title": "Estornar em caso de incumprimento",
+          "description": "Permite recuperar a comissão quando o pagamento deixa de ser válido."
+        },
+        "activeRule": {
+          "title": "Regra ativa",
+          "description": "Apenas regras ativas participam no cálculo."
+        },
+        "activeException": {
+          "title": "Exceção ativa",
+          "description": "Quando ativa, esta regra substitui a regra geral para o alvo selecionado."
+        },
+        "savingChanges": "A guardar alterações...",
+        "savingRule": "A guardar regra...",
+        "saveChanges": "Guardar alterações",
+        "createGeneral": "Criar regra geral",
+        "createException": "Criar exceção de comissão",
+        "cancelEdit": "Cancelar edição"
+      },
+      "participants": {
+        "title": "👥 Associar participantes",
+        "description": "Inclua um funcionário específico ou todos os funcionários ativos de um departamento. Não é necessário que o funcionário tenha login no PHANYX.",
+        "warning": "A associação define quem poderá participar. A percentagem aplicada é escolhida pela precedência: funcionário, cargo, departamento e regra geral.",
+        "linkType": "Forma de associação",
+        "individual": {
+          "title": "👤 Funcionário individual",
+          "description": "Escolha uma pessoa específica para participar no plano."
+        },
+        "department": {
+          "title": "🏢 Departamento inteiro",
+          "description": "Inclua todos os funcionários ativos do departamento de uma só vez."
+        },
+        "selectParticipant": "Selecione o participante...",
+        "duplicateNote": "Os funcionários que já tenham outro plano ativo no mesmo período não serão duplicados.",
+        "endDateHelp": "Deixe vazio para manter a associação sem data final.",
+        "placeholders": {
+          "departmentBatch": "Ex.: Equipa comercial associada em lote",
+          "individual": "Ex.: Participante com condição individual"
+        },
+        "linking": "A associar participantes...",
+        "linkDepartment": "Associar departamento ao plano",
+        "linkEmployee": "Associar funcionário ao plano",
+        "linkedTitle": "Participantes associados",
+        "empty": "Nenhum participante associado a este plano.",
+        "roleNotProvided": "Cargo não indicado",
+        "includedByDepartment": "🏢 Incluído por departamento: {name}",
+        "individualLink": "👤 Associação individual"
+      },
+      "rules": {
+        "title": "Regras registadas",
+        "description": "Dentro do mesmo grupo, apenas a regra mais específica será utilizada para cada funcionário.",
+        "loading": "A carregar regras...",
+        "empty": "Nenhuma regra registada neste plano.",
+        "group": "Grupo: {name}",
+        "exceptions": "{count, plural, one {# exceção} other {# exceções}}",
+        "application": "Aplicação",
+        "commission": "Comissão",
+        "base": "Base",
+        "trigger": "Gatilho",
+        "course": "Curso: {name}",
+        "refundGrace": "Carência para estorno: {count, plural, one {# dia} other {# dias}}",
+        "refundCancellation": "Estorno por cancelamento: {value}",
+        "refundDelinquency": "Estorno por incumprimento: {value}",
+        "edit": "✏️ Editar regra"
+      },
+      "labels": {
+        "base": {
+          "enrollmentValue": "Valor da matrícula",
+          "monthlyFeeValue": "Valor da mensalidade",
+          "totalContractValue": "Valor total do contrato",
+          "receivedValue": "Valor efetivamente recebido",
+          "profit": "Lucro apurado",
+          "enrollmentCount": "Quantidade de matrículas"
+        },
+        "trigger": {
+          "enrollmentConfirmed": "Matrícula confirmada",
+          "enrollmentPaymentConfirmed": "Pagamento da matrícula confirmado",
+          "firstMonthlyFeePaid": "Primeira mensalidade paga",
+          "eachMonthlyFeePaid": "Cada mensalidade paga",
+          "manual": "Libertação manual pelo RH/Comercial"
+        },
+        "scope": {
+          "general": "Regra geral",
+          "department": "Departamento",
+          "role": "Cargo ou função",
+          "employee": "Funcionário específico"
+        }
+      },
+      "targets": {
+        "departmentUnknown": "Departamento não identificado",
+        "roleUnknown": "Cargo não identificado",
+        "employeeUnknown": "Funcionário não identificado",
+        "general": "Todos os participantes sem regra mais específica"
+      },
+      "validation": {
+        "ruleName": "Indique o nome da regra.",
+        "baseRule": "Selecione a regra geral que receberá esta exceção.",
+        "department": "Selecione o departamento desta regra.",
+        "role": "Selecione o cargo ou a função desta regra.",
+        "employee": "Selecione o funcionário desta regra.",
+        "percentage": "Indique uma percentagem superior a zero e, no máximo, 100%.",
+        "fixedValue": "Indique o valor fixo da comissão.",
+        "participantEmployee": "Selecione o funcionário participante.",
+        "participantDepartment": "Selecione o departamento participante.",
+        "linkStartDate": "Indique o início da vigência da associação."
+      },
+      "errors": {
+        "loadRules": "Não foi possível carregar as regras.",
+        "loadParticipants": "Não foi possível carregar os participantes do plano.",
+        "loadConfiguration": "Não foi possível carregar a configuração.",
+        "updateParticipationMode": "Não foi possível alterar o modo de participação.",
+        "updateRule": "Não foi possível atualizar a regra.",
+        "createRule": "Não foi possível criar a regra.",
+        "linkParticipants": "Não foi possível associar os participantes."
+      },
+      "success": {
+        "participationModeUpdated": "Modo de participação atualizado com sucesso.",
+        "ruleUpdated": "Regra atualizada com sucesso.",
+        "ruleCreated": "Regra criada com sucesso.",
+        "participantsLinked": "Participantes associados ao plano com sucesso."
+      }
+    }
+  },
+  "AdminCommercialOverview": {
+    "header": {
+      "kicker": "Gestão institucional",
+      "title": "Comercial",
+      "description": "Gira leads, comerciais, objetivos, vendas, matrículas, comissões e resultados comerciais da instituição."
+    },
+    "errors": {
+      "loadSummary": "Não foi possível carregar o resumo comercial."
+    },
+    "metrics": {
+      "activeLeads": {
+        "title": "Leads ativos",
+        "description": "Leads em acompanhamento no funil comercial."
+      },
+      "periodSales": {
+        "title": "Vendas no período",
+        "description": "Matrículas confirmadas no mês atual."
+      },
+      "goals": {
+        "title": "Objetivos atingidos",
+        "progress": "{achieved} de {total} objetivo(s) do período.",
+        "none": "Nenhum objetivo ativo no período."
+      },
+      "pendingCommissions": {
+        "title": "Comissões pendentes",
+        "pending": "{count, plural, one {# registo a aguardar análise.} other {# registos a aguardar análise.}}",
+        "none": "Nenhuma comissão pendente no período."
+      }
+    },
+    "resources": {
+      "title": "Recursos do setor Comercial",
+      "description": "Os recursos são disponibilizados gradualmente e respeitam as permissões departamentais e individuais já configuradas."
+    },
+    "statuses": {
+      "available": "Disponível",
+      "integrated": "Integração ativa"
+    },
+    "modules": {
+      "leads": {
+        "title": "Leads e oportunidades",
+        "description": "Registe interessados, acompanhe contactos, etapas do funil e responsáveis.",
+        "action": "Abrir leads e oportunidades"
+      },
+      "salespeople": {
+        "title": "Comerciais",
+        "description": "Gira os funcionários autorizados a atuar em vendas e matrículas.",
+        "action": "Abrir funcionários"
+      },
+      "teams": {
+        "title": "Equipas comerciais",
+        "description": "Organize comerciais em equipas, defina lideranças e gira os seus membros.",
+        "action": "Abrir equipas comerciais"
+      },
+      "goals": {
+        "title": "Objetivos comerciais",
+        "description": "Defina objetivos por comercial, equipa, curso, polo e período.",
+        "action": "Abrir objetivos comerciais"
+      },
+      "salesEnrollments": {
+        "title": "Vendas e matrículas",
+        "description": "Acompanhe matrículas, valores negociados e comerciais responsáveis.",
+        "action": "Abrir matrículas"
+      },
+      "commissions": {
+        "title": "Comissões",
+        "description": "Configure planos e regras para calcular e aprovar as comissões dos comerciais.",
+        "action": "Abrir planos de comissão"
+      },
+      "reports": {
+        "title": "Relatórios",
+        "description": "Analise conversão, desempenho, leads, matrículas, vendas e resultados comerciais.",
+        "action": "Abrir relatórios comerciais"
+      }
+    },
+    "hrIntegration": {
+      "title": "Integração com os RH",
+      "description": "As comissões originadas por vendas e matrículas são calculadas e aprovadas no Comercial. Depois, podem ser enviadas aos RH e incluídas no recibo de vencimento do período correspondente. Bónus, prémios e participações continuam a ser tratados em Remuneração Variável."
+    }
+  },
+  "AdminCommercialTeams": {
+    "header": {
+      "kicker": "Comercial",
+      "title": "Equipas comerciais",
+      "description": "Organize comerciais em equipas, defina lideranças e prepare a estrutura para objetivos coletivos e individuais."
+    },
+    "common": {
+      "employee": "Funcionário",
+      "noDepartment": "Sem departamento",
+      "noDescription": "Sem descrição registada.",
+      "noRole": "Cargo não indicado"
+    },
+    "metrics": {
+      "total": "Total de equipas",
+      "active": "Equipas ativas",
+      "inactive": "Equipas inativas",
+      "activeMembers": "Membros ativos",
+      "linkedGoals": "Objetivos associados"
+    },
+    "filters": {
+      "searchPlaceholder": "Pesquisar por equipa, líder ou membro",
+      "active": "Equipas ativas",
+      "inactive": "Equipas inativas",
+      "all": "Todas as equipas"
+    },
+    "states": {
+      "loading": "A carregar equipas comerciais...",
+      "emptyTitle": "Nenhuma equipa encontrada",
+      "emptyDescription": "Crie uma equipa ou ajuste os filtros da lista.",
+      "loadingEmployees": "A carregar funcionários...",
+      "noEmployees": "Nenhum funcionário encontrado."
+    },
+    "status": {
+      "active": "Ativa",
+      "inactive": "Inativa"
+    },
+    "card": {
+      "teamLeader": "Líder da equipa",
+      "noLeader": "Liderança não definida",
+      "members": "Membros",
+      "noMembers": "Nenhum membro ativo."
+    },
+    "actions": {
+      "newTeam": "+ Nova equipa",
+      "edit": "Editar equipa",
+      "deactivate": "Desativar",
+      "reactivate": "Reativar",
+      "close": "Fechar",
+      "cancel": "Cancelar",
+      "saving": "A guardar...",
+      "saveChanges": "Guardar alterações",
+      "createTeam": "Criar equipa",
+      "keepTeam": "Manter equipa",
+      "deactivating": "A desativar...",
+      "deactivateTeam": "Desativar equipa"
+    },
+    "modal": {
+      "newTitle": "Nova equipa comercial",
+      "editTitle": "Editar equipa comercial",
+      "teamName": "Nome da equipa",
+      "teamNamePlaceholder": "Ex.: Equipa Comercial Centro",
+      "description": "Descrição",
+      "descriptionPlaceholder": "Descreva a atuação desta equipa.",
+      "teamLeader": "Líder da equipa",
+      "noLeader": "Sem liderança definida",
+      "leaderHelp": "O líder será incluído automaticamente como membro da equipa.",
+      "members": "Membros da equipa",
+      "membersDescription": "Selecione os funcionários que farão parte da equipa.",
+      "selectedCount": "{count, plural, one {# selecionado} other {# selecionados}}",
+      "searchEmployees": "Pesquisar funcionário, cargo ou departamento",
+      "leaderBadge": "Líder",
+      "activeTeam": "Equipa ativa",
+      "activeTeamHelp": "As equipas inativas não devem receber novos objetivos."
+    },
+    "validation": {
+      "teamName": "Indique o nome da equipa comercial."
+    },
+    "errors": {
+      "loadTeams": "Não foi possível carregar as equipas comerciais.",
+      "loadEmployees": "Não foi possível carregar os funcionários comerciais.",
+      "saveTeam": "Não foi possível guardar a equipa comercial.",
+      "deactivate": "Não foi possível desativar a equipa.",
+      "reactivate": "Não foi possível reativar a equipa."
+    },
+    "success": {
+      "created": "Equipa criada com sucesso.",
+      "updated": "Equipa atualizada com sucesso.",
+      "deactivated": "Equipa desativada com sucesso.",
+      "reactivated": "Equipa reativada com sucesso."
+    },
+    "deactivateModal": {
+      "title": "Desativar equipa comercial",
+      "description": "A equipa <team></team> será desativada. O histórico e os objetivos já associados serão preservados."
+    }
+  },
+  "AdminCommercialFunnels": {
+    "breadcrumb": {
+      "commercial": "Comercial",
+      "salesFunnels": "Funis comerciais"
+    },
+    "header": {
+      "title": "Configuração do funil comercial",
+      "description": "Organize as etapas de atendimento, os prazos, as probabilidades de conversão e os motivos de perda das oportunidades."
+    },
+    "actions": {
+      "refresh": "Atualizar",
+      "refreshing": "A atualizar...",
+      "processing": "A processar...",
+      "createStructure": "Criar estrutura comercial",
+      "linkPendingLeads": "Associar leads pendentes",
+      "checkStructure": "Verificar estrutura",
+      "initializeNow": "Inicializar agora",
+      "initializing": "A inicializar...",
+      "tryAgain": "Tentar novamente",
+      "closeMessage": "Fechar mensagem"
+    },
+    "errors": {
+      "load": "Não foi possível carregar os funis.",
+      "initialize": "Não foi possível inicializar o funil.",
+      "operationTitle": "Não foi possível concluir a operação"
+    },
+    "success": {
+      "initialized": "Estrutura comercial inicializada."
+    },
+    "states": {
+      "loading": "A carregar configuração comercial..."
+    },
+    "common": {
+      "dateUnavailable": "Data indisponível",
+      "noMaximumDeadline": "Sem prazo máximo",
+      "hours": "{count}h",
+      "days": "{count, plural, one {# dia} other {# dias}}",
+      "active": "Ativo",
+      "archived": "Arquivado",
+      "required": "Obrigatória",
+      "optional": "Opcional",
+      "manual": "Manual",
+      "automatic": "Automático"
+    },
+    "summary": {
+      "status": {
+        "title": "Situação",
+        "configured": "Configurado",
+        "pending": "Pendente",
+        "available": "Funil predefinido disponível",
+        "initializationRequired": "Inicialização necessária"
+      },
+      "funnels": {
+        "title": "Funis",
+        "description": "Registados na instituição"
+      },
+      "stages": {
+        "title": "Etapas",
+        "description": "No funil comercial predefinido"
+      },
+      "lossReasons": {
+        "title": "Motivos de perda",
+        "description": "Motivos disponíveis"
+      },
+      "pendingLeads": {
+        "title": "Leads pendentes",
+        "description": "De {count} leads registados"
+      }
+    },
+    "initialization": {
+      "title": "O CRM ainda precisa de ser inicializado",
+      "description": "A inicialização criará o funil predefinido, as respetivas etapas, os motivos de perda e associará os leads antigos. Nenhum lead será apagado.",
+      "noPermission": "Não tem permissão para inicializar esta estrutura."
+    },
+    "funnel": {
+      "default": "Funil predefinido",
+      "updatedAt": "Atualizado em {date}"
+    },
+    "stages": {
+      "title": "Etapas do processo comercial",
+      "count": "{count, plural, one {# etapa configurada} other {# etapas configuradas}}",
+      "empty": "Nenhuma etapa registada neste funil."
+    },
+    "stageMetrics": {
+      "conversion": "Conversão",
+      "deadline": "Prazo",
+      "nextAction": "Próxima ação",
+      "movement": "Movimento"
+    },
+    "emptyFunnels": {
+      "title": "Nenhum funil comercial registado",
+      "description": "Inicialize a estrutura para criar o funil predefinido da instituição."
+    },
+    "lossReasons": {
+      "title": "Motivos de perda",
+      "description": "Motivos utilizados para compreender porque é que as oportunidades não foram convertidas.",
+      "requiresObservation": "⚠ Exige observação complementar",
+      "empty": "Nenhum motivo de perda registado."
+    },
+    "stageCategories": {
+      "entry": "Entrada",
+      "firstContact": "Primeiro contacto",
+      "inService": "Em atendimento",
+      "qualification": "Qualificação",
+      "presentation": "Apresentação",
+      "proposal": "Proposta",
+      "negotiation": "Negociação",
+      "documentation": "Documentação",
+      "payment": "Pagamento",
+      "conversion": "Conversão",
+      "loss": "Perda",
+      "pause": "Pausa",
+      "discard": "Descarte"
+    },
+    "stageResults": {
+      "open": "Em aberto",
+      "won": "Ganha",
+      "lost": "Perdida",
+      "discarded": "Descartada"
+    },
+    "lossCategories": {
+      "noInterest": "Sem interesse",
+      "price": "Preço",
+      "competition": "Concorrência",
+      "noContact": "Sem contacto",
+      "courseUnavailable": "Curso indisponível",
+      "scheduleConflict": "Horário incompatível",
+      "location": "Localização",
+      "documentation": "Documentação",
+      "financial": "Financeiro",
+      "withdrawal": "Desistência",
+      "duplicate": "Duplicidade",
+      "outOfProfile": "Fora do perfil",
+      "other": "Outro"
+    }
+  },
+  "AdminCommercialLead360": {
+    "breadcrumb": {
+      "commercial": "Comercial",
+      "leads": "Leads",
+      "lead360": "Ficha 360°"
+    },
+    "header": {
+      "leadNumber": "Lead #{id}",
+      "description": "Histórico comercial completo, dados de atendimento e situação da oportunidade num único local."
+    },
+    "actions": {
+      "pipeline": "← Pipeline",
+      "leadList": "Lista de leads",
+      "refresh": "Atualizar",
+      "refreshing": "A atualizar...",
+      "registerInteraction": "+ Registar interação",
+      "registerInteractionPlain": "Registar interação",
+      "registering": "A registar...",
+      "tryAgain": "Tentar novamente",
+      "backToPipeline": "Voltar ao Pipeline",
+      "cancel": "Cancelar",
+      "close": "Fechar"
+    },
+    "errors": {
+      "invalidLeadId": "O identificador do lead é inválido.",
+      "loadLead": "Não foi possível carregar a ficha do lead."
+    },
+    "loading": {
+      "title": "A preparar a Ficha 360°...",
+      "description": "A reunir contactos, funil, tarefas e matrícula."
+    },
+    "empty": {
+      "title": "Não foi possível abrir a Ficha 360°",
+      "notFound": "O lead não foi encontrado."
+    },
+    "common": {
+      "notProvided": "Não indicado",
+      "notDefined": "Não definido",
+      "unassigned": "Não atribuído",
+      "noResponsible": "Sem responsável",
+      "noTeam": "Sem equipa",
+      "noStage": "Sem etapa definida",
+      "noFunnel": "Funil não definido",
+      "noSalesTeam": "Sem equipa comercial"
+    },
+    "enum": {
+      "low": "Baixa",
+      "medium": "Média",
+      "high": "Alta",
+      "urgent": "Urgente",
+      "new": "Novo",
+      "inService": "Em atendimento",
+      "qualified": "Qualificado",
+      "converted": "Convertido",
+      "lost": "Perdido",
+      "archived": "Arquivado",
+      "active": "Ativo",
+      "inactive": "Inativo",
+      "pending": "Pendente",
+      "completed": "Concluído",
+      "cancelled": "Cancelado"
+    },
+    "summary": {
+      "currentStage": "Etapa atual",
+      "responsible": "Responsável",
+      "estimatedValue": "Valor estimado",
+      "nextAction": "Próxima ação",
+      "pendingTasks": "{count, plural, one {# tarefa pendente} other {# tarefas pendentes}}"
+    },
+    "quickContact": {
+      "kicker": "Contacto rápido",
+      "title": "Fale com o interessado",
+      "call": "Ligar",
+      "email": "E-mail",
+      "addNote": "Adicionar observação"
+    },
+    "timeline": {
+      "eventCount": "{count, plural, one {# evento registado} other {# eventos registados}}",
+      "title": "Linha cronológica comercial",
+      "description": "Contactos, movimentações, tarefas e decisões por ordem cronológica.",
+      "filterAria": "Filtrar eventos",
+      "scheduledFor": "Agendada para {date}",
+      "registeredBy": "Registado por {name}",
+      "systemRecord": "Registo automático do sistema",
+      "emptyTitle": "Nenhum evento deste tipo nesta página",
+      "emptyDescription": "Selecione outro filtro ou navegue pelas páginas.",
+      "filters": {
+        "all": "Tudo",
+        "contacts": "Contactos",
+        "funnel": "Funil",
+        "tasks": "Tarefas",
+        "transfers": "Transferências",
+        "conversion": "Conversão"
+      },
+      "eventTypes": {
+        "creation": "Criação",
+        "contact": "Contacto",
+        "funnel": "Funil",
+        "transfer": "Transferência",
+        "task": "Tarefa",
+        "loss": "Perda",
+        "archiving": "Arquivo",
+        "restoration": "Restauro",
+        "conversion": "Conversão"
+      }
+    },
+    "pagination": {
+      "page": "Página {current} de {total}",
+      "previous": "Anterior",
+      "next": "Seguinte"
+    },
+    "commercialSummary": {
+      "kicker": "Situação atual",
+      "title": "Resumo comercial",
+      "status": "Estado",
+      "stage": "Etapa",
+      "funnel": "Funil",
+      "responsible": "Responsável",
+      "team": "Equipa"
+    },
+    "interest": {
+      "kicker": "Interesse",
+      "title": "Curso e unidade",
+      "course": "Curso",
+      "campus": "Polo",
+      "organization": "Empresa / instituição",
+      "source": "Origem",
+      "initialNotes": "Observações iniciais"
+    },
+    "milestones": {
+      "kicker": "Evolução",
+      "title": "Marcos da relação",
+      "created": "Lead criado",
+      "firstContact": "Primeiro contacto",
+      "qualified": "Qualificado",
+      "converted": "Convertido",
+      "notRecorded": "Ainda não registado"
+    },
+    "enrollment": {
+      "kicker": "Conversão concluída",
+      "title": "Matrícula associada",
+      "convertedAt": "Convertido em",
+      "open": "Abrir matrícula"
+    },
+    "loss": {
+      "kicker": "Oportunidade perdida",
+      "noAdditionalNote": "Nenhuma observação complementar registada."
+    },
+    "interaction": {
+      "validationDescription": "Descreva o contacto ou a observação realizada.",
+      "errorRegister": "Não foi possível registar a interação.",
+      "successRegistered": "Interação registada na linha cronológica."
+    },
+    "interactionTypes": {
+      "whatsapp": "WhatsApp",
+      "call": "Chamada",
+      "email": "E-mail",
+      "meeting": "Reunião",
+      "note": "Observação"
+    },
+    "interactionModal": {
+      "kicker": "Histórico comercial",
+      "title": "Registar nova interação",
+      "description": "O registo ficará visível na Ficha 360° de {name}.",
+      "type": "Tipo de interação",
+      "descriptionLabel": "Descrição da interação *",
+      "placeholder": "Ex.: falámos sobre valores e o interessado pediu contacto na próxima semana..."
+    }
+  },
+  "AdminCommercialGoals": {
+    "header": {
+      "kicker": "Comercial",
+      "title": "Metas comerciais",
+      "description": "Defina objetivos para toda a instituição, equipas ou funcionários, com período, indicador, curso e polo opcionais.",
+      "newGoal": "+ Nova meta"
+    },
+    "metrics": {
+      "total": "Total de metas",
+      "active": "Metas ativas",
+      "drafts": "Rascunhos",
+      "closed": "Encerradas",
+      "canceled": "Canceladas"
+    },
+    "filters": {
+      "searchPlaceholder": "Pesquisar meta, equipa, funcionário, curso ou polo",
+      "allStatuses": "Todos os estados",
+      "allScopes": "Todos os âmbitos",
+      "allIndicators": "Todos os indicadores",
+      "statusAria": "Filtrar por estado",
+      "scopeAria": "Filtrar por âmbito",
+      "indicatorAria": "Filtrar por indicador"
+    },
+    "scope": {
+      "institution": "Instituição",
+      "team": "Equipa",
+      "employee": "Funcionário"
+    },
+    "indicator": {
+      "enrollments": "Quantidade de matrículas",
+      "enrollmentsShort": "Matrículas",
+      "soldAmount": "Valor vendido",
+      "receivedAmount": "Valor recebido",
+      "convertedLeads": "Leads convertidos"
+    },
+    "periodicity": {
+      "monthly": "Mensal",
+      "quarterly": "Trimestral",
+      "semiannual": "Semestral",
+      "annual": "Anual",
+      "custom": "Personalizada"
+    },
+    "status": {
+      "draft": "Rascunho",
+      "active": "Ativa",
+      "closed": "Encerrada",
+      "canceled": "Cancelada"
+    },
+    "common": {
+      "teamNotProvided": "Equipa não indicada",
+      "employeeNotProvided": "Funcionário não indicado",
+      "wholeInstitution": "Toda a instituição",
+      "invalidDate": "Data inválida",
+      "to": "a",
+      "allCourses": "Todos os cursos",
+      "allCampuses": "Todos os polos",
+      "roleNotProvided": "Cargo não indicado",
+      "memberCount": "{count, plural, one {# membro} other {# membros}}",
+      "selectedCount": "{count, plural, one {# selecionado} other {# selecionados}}"
+    },
+    "loading": "A carregar metas comerciais...",
+    "empty": {
+      "title": "Nenhuma meta encontrada",
+      "description": "Registe uma meta comercial ou ajuste os filtros da listagem."
+    },
+    "card": {
+      "noDescription": "Sem descrição registada.",
+      "definedGoal": "Meta definida",
+      "progressTitle": "Acompanhamento da meta",
+      "progressAuto": "Resultado calculado automaticamente com os dados do PHANYX.",
+      "achieved": "Meta atingida",
+      "actual": "Realizado",
+      "remaining": "Restante",
+      "progress": "Progresso",
+      "progressLabel": "Progresso da meta",
+      "reached": "Meta alcançada",
+      "aboveGoal": "{value}% acima do objetivo",
+      "indicator": "Indicador",
+      "responsible": "Responsável",
+      "period": "Período",
+      "segmentation": "Segmentação",
+      "notes": "Observações"
+    },
+    "actions": {
+      "edit": "Editar",
+      "activate": "Ativar",
+      "close": "Encerrar",
+      "cancel": "Cancelar meta",
+      "deleteDraft": "Eliminar rascunho"
+    },
+    "modal": {
+      "kicker": "Comercial",
+      "editTitle": "Editar meta comercial",
+      "newTitle": "Nova meta comercial",
+      "close": "Fechar",
+      "cancel": "Cancelar",
+      "saving": "A guardar...",
+      "saveChanges": "Guardar alterações",
+      "createGoal": "Criar meta",
+      "fields": {
+        "name": "Nome da meta",
+        "description": "Descrição",
+        "scope": "Âmbito",
+        "indicator": "Indicador",
+        "team": "Equipa responsável",
+        "employee": "Funcionário responsável",
+        "periodicity": "Periodicidade",
+        "target": "Valor-alvo",
+        "startDate": "Data inicial",
+        "endDate": "Data final",
+        "course": "Curso",
+        "campus": "Polo",
+        "initialStatus": "Estado inicial",
+        "notes": "Observações internas"
+      },
+      "placeholders": {
+        "name": "Ex.: Meta de matrículas do primeiro semestre",
+        "description": "Descreva o objetivo desta meta.",
+        "moneyTarget": "Ex.: 25.000,00",
+        "quantityTarget": "Ex.: 100",
+        "notes": "Registe critérios, orientações ou informações internas sobre a meta."
+      },
+      "scopeOptions": {
+        "institution": "Toda a instituição",
+        "team": "Equipa comercial",
+        "employee": "Funcionário individual"
+      },
+      "selectTeam": "Selecione a equipa",
+      "selectEmployee": "Selecione o funcionário",
+      "helpers": {
+        "moneyTarget": "Indique um valor monetário.",
+        "quantityTarget": "Indique uma quantidade inteira."
+      },
+      "initialStatus": {
+        "draftTitle": "Guardar como rascunho",
+        "draftDescription": "Permite rever a meta antes de a ativar.",
+        "activeTitle": "Criar como ativa",
+        "activeDescription": "A meta começa imediatamente a vigorar no período definido."
+      }
+    },
+    "participants": {
+      "title": "Participantes desta meta",
+      "description": "Os membros da equipa são sugeridos automaticamente, mas pode incluir outros funcionários da instituição apenas nesta meta.",
+      "selectTeamMembers": "Selecionar membros da equipa",
+      "clearSelection": "Limpar seleção",
+      "closeEmployees": "Fechar funcionários",
+      "addOtherEmployees": "+ Adicionar outros funcionários",
+      "teamMembers": "Membros da equipa",
+      "teamMember": "Membro da equipa",
+      "noActiveMembers": "Esta equipa não tem membros ativos. Ainda pode adicionar outros funcionários à meta.",
+      "additionalParticipants": "Participantes adicionais",
+      "additionalParticipant": "Participante adicional",
+      "addOtherEmployeesTitle": "Adicionar outros funcionários",
+      "addOtherEmployeesDescription": "Selecionar um funcionário aqui não o adiciona à equipa comercial. Participará apenas nesta meta.",
+      "searchPlaceholder": "Pesquisar por nome, cargo ou departamento",
+      "noOtherEmployees": "Nenhum outro funcionário encontrado."
+    },
+    "confirmation": {
+      "kicker": "Confirmação",
+      "back": "Voltar",
+      "processing": "A processar...",
+      "activate": {
+        "title": "Ativar meta comercial",
+        "message": "A meta “{name}” passará a acompanhar oficialmente o período definido.",
+        "action": "Ativar meta"
+      },
+      "close": {
+        "title": "Encerrar meta comercial",
+        "message": "A meta “{name}” será encerrada e não poderá ser reaberta nem editada.",
+        "action": "Encerrar meta"
+      },
+      "cancel": {
+        "title": "Cancelar meta comercial",
+        "message": "A meta “{name}” será cancelada e o respetivo histórico será preservado.",
+        "action": "Cancelar meta"
+      },
+      "delete": {
+        "title": "Eliminar rascunho da meta",
+        "message": "O rascunho “{name}” será eliminado definitivamente. Esta ação só é permitida para metas que ainda não foram ativadas.",
+        "action": "Eliminar rascunho"
+      }
+    },
+    "errors": {
+      "load": "Não foi possível carregar as metas comerciais.",
+      "loadGeneric": "Erro ao carregar metas comerciais.",
+      "lockedGoal": "As metas encerradas ou canceladas já não podem ser alteradas.",
+      "name": "Indique o nome da meta comercial.",
+      "dates": "Indique a data inicial e a data final da meta.",
+      "endBeforeStart": "A data final não pode ser anterior à data inicial.",
+      "targetPositive": "Indique um valor-alvo superior a zero.",
+      "integerTarget": "Para metas de quantidade, indique um número inteiro.",
+      "team": "Selecione a equipa responsável pela meta.",
+      "participant": "Selecione pelo menos um participante para a meta da equipa.",
+      "employee": "Selecione o funcionário responsável pela meta.",
+      "save": "Não foi possível guardar a meta comercial.",
+      "saveGeneric": "Erro ao guardar a meta comercial.",
+      "action": "Não foi possível concluir a ação sobre a meta.",
+      "actionGeneric": "Erro ao processar a meta comercial."
+    },
+    "success": {
+      "updated": "Meta comercial atualizada com sucesso.",
+      "created": "Meta comercial criada com sucesso.",
+      "action": "Ação concluída com sucesso."
+    }
+  },
+  "AdminCommercialPipeline": {
+    "header": {
+      "sales": "Comercial",
+      "pipeline": "Pipeline",
+      "title": "Pipeline comercial",
+      "description": "Acompanhe cada oportunidade, identifique atrasos e organize as próximas ações do setor comercial.",
+      "viewLeadList": "Ver lista de leads",
+      "configureFunnel": "Configurar funil",
+      "updating": "A atualizar...",
+      "update": "Atualizar"
+    },
+    "filters": {
+      "searchLabel": "Pesquisar oportunidades",
+      "searchPlaceholder": "Nome, e-mail, telefone, interesse...",
+      "priority": "Prioridade",
+      "allPriorities": "Todas",
+      "onlyMine": "Apenas os meus leads"
+    },
+    "summary": {
+      "activeFunnel": "Funil ativo",
+      "opportunities": "Oportunidades",
+      "estimatedValue": "Valor estimado",
+      "view": "Visualização",
+      "myLeads": "Os meus leads",
+      "wholeTeam": "Toda a equipa"
+    },
+    "stages": {
+      "title": "Etapas do funil",
+      "scrollHelp": "Desloque horizontalmente para visualizar todas as etapas.",
+      "updatingData": "A atualizar dados...",
+      "stage": "Etapa {number}",
+      "value": "Valor",
+      "probability": "Probabilidade",
+      "empty": "Nenhuma oportunidade nesta etapa.",
+      "moreLeads": "Existem mais leads nesta etapa"
+    },
+    "lead": {
+      "noInterest": "Interesse não indicado",
+      "responsible": "Responsável",
+      "course": "Curso",
+      "campus": "Polo",
+      "value": "Valor",
+      "stageOverdue": "Etapa com prazo expirado",
+      "followUpOverdue": "Acompanhamento em atraso",
+      "noNextAction": "Próxima ação não definida",
+      "nextAction": "Próxima ação",
+      "enrollment": "Matrícula",
+      "moveStage": "Mover etapa"
+    },
+    "common": {
+      "notDefined": "Não definido",
+      "invalidDate": "Data inválida"
+    },
+    "loading": "A carregar pipeline comercial...",
+    "priority": {
+      "low": "Baixa",
+      "medium": "Média",
+      "high": "Alta",
+      "urgent": "Urgente"
+    },
+    "taskTypes": {
+      "call": "Chamada",
+      "email": "E-mail",
+      "meeting": "Reunião",
+      "followUp": "Retorno",
+      "sendProposal": "Enviar proposta",
+      "requestDocuments": "Solicitar documentos",
+      "confirmPayment": "Confirmar pagamento",
+      "other": "Outra"
+    },
+    "categories": {
+      "entry": "Entrada",
+      "firstContact": "Primeiro contacto",
+      "inService": "Em atendimento",
+      "qualification": "Qualificação",
+      "presentation": "Apresentação",
+      "proposal": "Proposta",
+      "negotiation": "Negociação",
+      "documentation": "Documentação",
+      "payment": "Pagamento",
+      "conversion": "Conversão",
+      "loss": "Perda",
+      "pause": "Pausa",
+      "discard": "Descarte"
+    },
+    "errors": {
+      "load": "Não foi possível carregar o pipeline.",
+      "loadTitle": "Não foi possível carregar o pipeline",
+      "tryAgain": "Tentar novamente",
+      "noMovePermission": "Não possui permissão para movimentar leads."
+    },
+    "movement": {
+      "kicker": "Movimentação do pipeline",
+      "title": "Mover {name}",
+      "description": "A alteração ficará registada no histórico comercial do lead.",
+      "closeAria": "Fechar movimentação",
+      "currentStage": "Etapa atual",
+      "responsible": "Responsável",
+      "destinationStage": "Etapa de destino",
+      "selectStage": "Selecione a nova etapa",
+      "movementNote": "Observação da movimentação",
+      "movementNotePlaceholder": "Ex.: lead respondeu, proposta aceite, documentos recebidos...",
+      "selectLossReason": "Selecione o motivo",
+      "stageSuffix": {
+        "automatic": " — automática",
+        "noPermission": " — sem permissão",
+        "requiresEnrollment": " — exige matrícula"
+      },
+      "loss": {
+        "title": "Registo da perda",
+        "description": "O motivo será utilizado nos relatórios de conversão e melhoria comercial.",
+        "reason": "Motivo da perda",
+        "observation": "Observação complementar",
+        "observationPlaceholder": "Registe os detalhes que ajudarão a compreender a perda.",
+        "observationRequired": "Este motivo exige uma observação."
+      },
+      "nextAction": {
+        "title": "Próxima ação",
+        "description": "Mantenha o acompanhamento do lead com data, canal e prioridade definidos.",
+        "alreadyDefined": "Próxima ação já definida",
+        "required": "Próxima ação obrigatória",
+        "schedule": "Agendar uma próxima ação",
+        "requiredDescription": "A etapa selecionada exige uma tarefa pendente.",
+        "noResponsible": "O lead ainda não tem responsável. Defina o responsável antes de o movimentar para esta etapa.",
+        "actionType": "Tipo de ação",
+        "priority": "Prioridade",
+        "taskTitle": "Título",
+        "taskTitlePlaceholder": "Próxima ação — {stage}",
+        "scheduledFor": "Agendada para",
+        "deadline": "Data limite",
+        "reminder": "Lembrete",
+        "responsible": "Responsável",
+        "instructions": "Orientações da tarefa",
+        "instructionsPlaceholder": "Descreva o que deverá ser feito no próximo contacto."
+      },
+      "errors": {
+        "selectStage": "Selecione a etapa de destino.",
+        "automaticStage": "Esta etapa é controlada automaticamente pelo sistema.",
+        "requiresEnrollment": "O lead só pode ser convertido após a criação de uma matrícula válida.",
+        "enrollmentKeepsConverted": "Este lead possui uma matrícula válida e deve permanecer convertido.",
+        "noLossPermission": "Não possui permissão para registar perdas comerciais.",
+        "lossReason": "Selecione o motivo da perda.",
+        "lossObservation": "Este motivo de perda exige uma observação complementar.",
+        "responsibleBeforeTask": "Defina um responsável para o lead antes de agendar a próxima ação.",
+        "schedule": "Indique quando a próxima ação deverá ser realizada.",
+        "invalidSchedule": "A data da próxima ação é inválida.",
+        "scheduleInPast": "A próxima ação não pode ser agendada no passado.",
+        "invalidDeadline": "A data limite é inválida.",
+        "invalidReminder": "A data do lembrete é inválida.",
+        "deadlineBeforeSchedule": "A data limite não pode ser anterior ao agendamento.",
+        "reminderAfterSchedule": "O lembrete não pode ocorrer depois do agendamento.",
+        "save": "Não foi possível movimentar o lead."
+      },
+      "success": "Lead movimentado com sucesso.",
+      "cancel": "Cancelar",
+      "moving": "A movimentar...",
+      "confirm": "Confirmar movimentação"
+    }
+  },
+  "AdminCommercialReports": {
+    "header": {
+      "kicker": "Comercial",
+      "title": "Relatórios comerciais",
+      "description": "Acompanhe leads, conversões, matrículas, vendas e desempenho da equipa comercial.",
+      "updating": "A atualizar...",
+      "update": "Atualizar relatório"
+    },
+    "filters": {
+      "title": "Filtros",
+      "description": "Os indicadores abaixo respeitam os filtros selecionados.",
+      "clear": "Limpar",
+      "startDate": "Data inicial",
+      "endDate": "Data final",
+      "salesperson": "Vendedor",
+      "course": "Curso",
+      "campus": "Polo",
+      "all": "Todos"
+    },
+    "tabs": {
+      "overview": "Visão geral",
+      "salespeople": "Vendedores",
+      "leads": "Leads",
+      "enrollments": "Matrículas",
+      "courses": "Cursos"
+    },
+    "indicators": {
+      "leadsReceived": "Leads recebidos",
+      "leadsConverted": "Leads convertidos",
+      "conversionRate": "Taxa de conversão",
+      "enrollments": "Matrículas",
+      "soldAmount": "Valor vendido",
+      "receivedAtEnrollment": "Recebido no ato",
+      "averageTicket": "Ticket médio",
+      "cancellations": "Cancelamentos",
+      "enrollmentsDescription": "Ativas, a iniciar ou concluídas",
+      "soldAmountDescription": "Matrícula e mensalidades das vendas válidas",
+      "receivedDescription": "Pagamentos registados no ato da matrícula",
+      "averageTicketDescription": "Valor vendido dividido pelas matrículas válidas",
+      "cancellationsDescription": "Matrículas do período atualmente canceladas"
+    },
+    "salespeople": {
+      "title": "Desempenho por vendedor",
+      "description": "Resultado comercial individual no período selecionado.",
+      "columns": {
+        "salesperson": "Vendedor",
+        "leads": "Leads",
+        "conversions": "Conversões",
+        "enrollments": "Matrículas",
+        "conversion": "Conversão",
+        "sold": "Vendido",
+        "received": "Recebido"
+      },
+      "empty": "Nenhum resultado encontrado para este período."
+    },
+    "leads": {
+      "title": "Leads recebidos",
+      "description": "Leads recebidos no período e a respetiva situação comercial. Ao filtrar por curso ou polo, a conversão considera a matrícula associada correspondente.",
+      "columns": {
+        "lead": "Lead",
+        "contact": "Contacto",
+        "source": "Origem",
+        "responsible": "Responsável",
+        "status": "Estado",
+        "receivedAt": "Recebido em",
+        "conversion": "Conversão"
+      },
+      "empty": "Nenhum lead foi encontrado neste período.",
+      "converted": "Convertido",
+      "notConverted": "Não convertido"
+    },
+    "enrollments": {
+      "title": "Matrículas do período",
+      "description": "Matrículas realizadas no período selecionado, com vendedor, origem e valores comerciais.",
+      "columns": {
+        "enrollment": "Matrícula",
+        "student": "Aluno",
+        "courseCampus": "Curso / Polo",
+        "salesperson": "Vendedor",
+        "source": "Origem",
+        "status": "Estado",
+        "sold": "Vendido",
+        "received": "Recebido"
+      },
+      "empty": "Nenhuma matrícula encontrada no período.",
+      "notCounted": "Não contabilizada",
+      "expected": "Previsto"
+    },
+    "courses": {
+      "title": "Desempenho por curso",
+      "description": "Resultado comercial dos cursos no período selecionado.",
+      "columns": {
+        "course": "Curso",
+        "enrollments": "Matrículas",
+        "convertedLeads": "Leads convertidos",
+        "share": "Participação",
+        "sold": "Vendido",
+        "received": "Recebido",
+        "averageTicket": "Ticket médio",
+        "cancellations": "Cancelamentos"
+      },
+      "empty": "Nenhum resultado encontrado por curso neste período."
+    },
+    "common": {
+      "noResponsible": "Sem responsável",
+      "noCourse": "Sem curso",
+      "noCampus": "Sem polo",
+      "notProvided": "Não indicado",
+      "noCourseProvided": "Sem curso indicado"
+    },
+    "status": {
+      "active": "Ativa",
+      "toStart": "A iniciar",
+      "completed": "Concluída",
+      "canceled": "Cancelada",
+      "pending": "Pendente",
+      "converted": "Convertido",
+      "lost": "Perdido",
+      "new": "Novo"
+    },
+    "errors": {
+      "load": "Não foi possível carregar o relatório comercial.",
+      "loadGeneric": "Erro ao carregar o relatório comercial."
+    }
   }
 }

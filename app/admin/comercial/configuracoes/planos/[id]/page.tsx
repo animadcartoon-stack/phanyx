@@ -5,9 +5,14 @@ import {
   FormEvent,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { useParams } from "next/navigation";
+import {
+  useLocale,
+  useTranslations,
+} from "next-intl";
 
 import PhanyxToast from "@/components/ui/PhanyxToast";
 
@@ -177,40 +182,334 @@ const FORM_INICIAL: RegraForm = {
   ativo: true,
 };
 
-const ROTULOS_BASE: Record<Regra["baseCalculo"], string> = {
-  VALOR_MATRICULA: "Valor da matrícula",
-  VALOR_MENSALIDADE: "Valor da mensalidade",
-  VALOR_TOTAL_CONTRATO: "Valor total do contrato",
-  VALOR_RECEBIDO: "Valor efetivamente recebido",
-  LUCRO: "Lucro apurado",
-  QUANTIDADE_MATRICULAS: "Quantidade de matrículas",
+
+const ESTILOS_TEMA_CONFIGURACOES = `
+.phanyx-comercial-config-page[data-theme-mode="dark"] {
+  color: #eff6ff;
+}
+
+.phanyx-comercial-config-page[data-theme-mode="dark"] .phanyx-comercial-config-section,
+.phanyx-comercial-config-page[data-theme-mode="dark"] .phanyx-comercial-config-plan-card,
+.phanyx-comercial-config-page[data-theme-mode="dark"] .phanyx-comissao-painel-excecao,
+.phanyx-comercial-config-page[data-theme-mode="dark"] .phanyx-comercial-config-option,
+.phanyx-comercial-config-page[data-theme-mode="dark"] .phanyx-comercial-config-stat,
+.phanyx-comercial-config-page[data-theme-mode="dark"] .phanyx-comercial-config-empty,
+.phanyx-comercial-config-page[data-theme-mode="dark"] .phanyx-comissao-card-opcao-inativa {
+  background: #0b1f36 !important;
+  border-color: #27496b !important;
+}
+
+.phanyx-comercial-config-page[data-theme-mode="dark"] .phanyx-comissao-card-opcao-ativa {
+  background: #12355b !important;
+  border-color: #3b82f6 !important;
+}
+
+.phanyx-comercial-config-page[data-theme-mode="dark"] input:not([type="checkbox"]),
+.phanyx-comercial-config-page[data-theme-mode="dark"] select,
+.phanyx-comercial-config-page[data-theme-mode="dark"] textarea {
+  background: #071525 !important;
+  border-color: #31506f !important;
+  color: #ffffff !important;
+  color-scheme: dark;
+}
+
+.phanyx-comercial-config-page[data-theme-mode="dark"] select option {
+  background: #071525;
+  color: #ffffff;
+}
+
+.phanyx-comercial-config-page[data-theme-mode="dark"] [class*="dark:bg-slate-950"],
+.phanyx-comercial-config-page[data-theme-mode="dark"] [class*="dark:bg-slate-900"],
+.phanyx-comercial-config-page[data-theme-mode="dark"] [class*="dark:bg-slate-800"] {
+  background: #08192d !important;
+}
+
+.phanyx-comercial-config-page[data-theme-mode="dark"] [class*="dark:border-slate-700"] {
+  border-color: #31506f !important;
+}
+
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] {
+  color: #f5f5f5;
+}
+
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] .phanyx-comercial-config-section,
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] .phanyx-comercial-config-plan-card,
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] .phanyx-comissao-painel-excecao,
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] .phanyx-comercial-config-option,
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] .phanyx-comercial-config-stat,
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] .phanyx-comercial-config-empty,
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] .phanyx-comissao-card-opcao-inativa {
+  background: #1f1f1f !important;
+  border-color: #525252 !important;
+}
+
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] .phanyx-comissao-card-opcao-ativa {
+  background: #303030 !important;
+  border-color: #737373 !important;
+}
+
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] input:not([type="checkbox"]),
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] select,
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] textarea {
+  background: #303030 !important;
+  border-color: #5a5a5a !important;
+  color: #ffffff !important;
+  color-scheme: dark;
+}
+
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] select option {
+  background: #303030;
+  color: #ffffff;
+}
+
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] [class*="dark:bg-slate-950"],
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] [class*="dark:bg-slate-900"],
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] [class*="dark:bg-slate-800"],
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] [class*="bg-white"],
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] [class*="bg-slate-50"] {
+  background: #262626 !important;
+}
+
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] [class*="dark:border-slate-700"],
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] [class*="border-slate-200"],
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] [class*="border-slate-300"] {
+  border-color: #525252 !important;
+}
+
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] [class*="text-slate-950"],
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] [class*="text-slate-900"],
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] [class*="dark:text-white"] {
+  color: #ffffff !important;
+}
+
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] [class*="text-slate-700"],
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] [class*="text-slate-600"],
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] [class*="text-slate-500"],
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] [class*="dark:text-slate-300"],
+.phanyx-comercial-config-page[data-theme-mode="system-dark"] [class*="dark:text-slate-400"] {
+  color: #d4d4d4 !important;
+}
+`;
+
+type Tema = "light" | "dark" | "system";
+
+type ModoTemaConfiguracoes =
+  | "light"
+  | "dark"
+  | "system-dark";
+
+function useTemaConfiguracoesComerciais(): {
+  temaAtual: Tema;
+  sistemaEscuro: boolean;
+  modoTema: ModoTemaConfiguracoes;
+} {
+  const [temaAtual, setTemaAtual] = useState<Tema>("light");
+  const [sistemaEscuro, setSistemaEscuro] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+
+    function sincronizarTema() {
+      const salvo = localStorage.getItem("phanyx_tema");
+
+      const escolha = (
+        salvo === "light" ||
+          salvo === "dark" ||
+          salvo === "system"
+          ? salvo
+          : document.documentElement.dataset.themeChoice || "system"
+      ) as Tema;
+
+      setTemaAtual(escolha);
+      setSistemaEscuro(media.matches);
+    }
+
+    sincronizarTema();
+
+    window.addEventListener("storage", sincronizarTema);
+    window.addEventListener("phanyx-theme-change", sincronizarTema);
+    media.addEventListener("change", sincronizarTema);
+
+    const observer = new MutationObserver(sincronizarTema);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class", "data-theme", "data-theme-choice"],
+    });
+
+    return () => {
+      window.removeEventListener("storage", sincronizarTema);
+      window.removeEventListener("phanyx-theme-change", sincronizarTema);
+      media.removeEventListener("change", sincronizarTema);
+      observer.disconnect();
+    };
+  }, []);
+
+  const modoTema: ModoTemaConfiguracoes =
+    temaAtual === "dark"
+      ? "dark"
+      : temaAtual === "system" && sistemaEscuro
+        ? "system-dark"
+        : "light";
+
+  return {
+    temaAtual,
+    sistemaEscuro,
+    modoTema,
+  };
+}
+
+
+type OpcaoSelectTema = {
+  value: string;
+  label: string;
 };
 
-const ROTULOS_GATILHO: Record<Regra["gatilho"], string> = {
-  MATRICULA_CONFIRMADA: "Matrícula confirmada",
+function SelectTema({
+  value,
+  options,
+  onChange,
+  modoTema,
+  disabled = false,
+}: {
+  value: string;
+  options: OpcaoSelectTema[];
+  onChange: (value: string) => void;
+  modoTema: "light" | "dark" | "system-dark";
+  disabled?: boolean;
+}) {
+  const [aberto, setAberto] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function fecharAoClicarFora(evento: MouseEvent) {
+      if (
+        ref.current &&
+        !ref.current.contains(evento.target as Node)
+      ) {
+        setAberto(false);
+      }
+    }
+
+    document.addEventListener("mousedown", fecharAoClicarFora);
+    return () => {
+      document.removeEventListener("mousedown", fecharAoClicarFora);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (disabled) {
+      setAberto(false);
+    }
+  }, [disabled]);
+
+  const selecionada =
+    options.find((option) => option.value === value) ?? options[0];
+
+  const classesControle =
+    modoTema === "dark"
+      ? "border-[#31506f] bg-[#071525] text-white"
+      : modoTema === "system-dark"
+        ? "border-[#5a5a5a] bg-[#303030] text-white"
+        : "border-slate-300 bg-white text-slate-950";
+
+  const classesMenu =
+    modoTema === "dark"
+      ? "border-[#31506f] bg-[#071525]"
+      : modoTema === "system-dark"
+        ? "border-[#5a5a5a] bg-[#303030]"
+        : "border-slate-300 bg-white";
+
+  return (
+    <div ref={ref} className="relative w-full">
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => setAberto((atual) => !atual)}
+        className={`flex w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left disabled:cursor-not-allowed disabled:opacity-60 ${classesControle}`}
+      >
+        <span className="min-w-0 truncate">{selecionada?.label ?? "—"}</span>
+        <span aria-hidden="true" className="shrink-0 text-xs">
+          {aberto ? "▲" : "▼"}
+        </span>
+      </button>
+
+      {aberto && !disabled && (
+        <div
+          className={`absolute left-0 right-0 top-full z-[120] mt-1 max-h-72 overflow-y-auto rounded-2xl border p-1 shadow-2xl ${classesMenu}`}
+        >
+          {options.map((option) => {
+            const ativa = option.value === value;
+
+            return (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => {
+                  onChange(option.value);
+                  setAberto(false);
+                }}
+                className={`block w-full rounded-xl px-3 py-2.5 text-left text-sm transition ${modoTema === "dark"
+                  ? ativa
+                    ? "bg-blue-800 text-white"
+                    : "text-blue-50 hover:bg-blue-950"
+                  : modoTema === "system-dark"
+                    ? ativa
+                      ? "bg-neutral-500 text-white"
+                      : "text-neutral-100 hover:bg-neutral-600"
+                    : ativa
+                      ? "bg-slate-200 text-slate-950"
+                      : "text-slate-900 hover:bg-slate-100"
+                  }`}
+              >
+                {option.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const CHAVES_BASE: Record<Regra["baseCalculo"], string> = {
+  VALOR_MATRICULA: "labels.base.enrollmentValue",
+  VALOR_MENSALIDADE: "labels.base.monthlyFeeValue",
+  VALOR_TOTAL_CONTRATO: "labels.base.totalContractValue",
+  VALOR_RECEBIDO: "labels.base.receivedValue",
+  LUCRO: "labels.base.profit",
+  QUANTIDADE_MATRICULAS: "labels.base.enrollmentCount",
+};
+
+const CHAVES_GATILHO: Record<Regra["gatilho"], string> = {
+  MATRICULA_CONFIRMADA: "labels.trigger.enrollmentConfirmed",
   PAGAMENTO_MATRICULA_CONFIRMADO:
-    "Pagamento da matrícula confirmado",
-  PRIMEIRA_MENSALIDADE_PAGA: "Primeira mensalidade paga",
-  MENSALIDADE_PAGA: "Cada mensalidade paga",
-  MANUAL: "Liberação manual pelo RH/Comercial",
+    "labels.trigger.enrollmentPaymentConfirmed",
+  PRIMEIRA_MENSALIDADE_PAGA: "labels.trigger.firstMonthlyFeePaid",
+  MENSALIDADE_PAGA: "labels.trigger.eachMonthlyFeePaid",
+  MANUAL: "labels.trigger.manual",
 };
 
-const ROTULOS_ESCOPO: Record<EscopoRegra, string> = {
-  GERAL: "Regra geral",
-  DEPARTAMENTO: "Departamento",
-  CARGO: "Cargo ou função",
-  FUNCIONARIO: "Funcionário específico",
+const CHAVES_ESCOPO: Record<EscopoRegra, string> = {
+  GERAL: "labels.scope.general",
+  DEPARTAMENTO: "labels.scope.department",
+  CARGO: "labels.scope.role",
+  FUNCIONARIO: "labels.scope.employee",
 };
 
-function formatarValorRegra(regra: Regra) {
+function formatarValorRegra(
+  regra: Regra,
+  locale: string,
+) {
   if (regra.tipo === "PERCENTUAL") {
-    return `${Number(regra.percentual || 0).toLocaleString("pt-BR")}%`;
+    return `${new Intl.NumberFormat(locale, {
+      maximumFractionDigits: 4,
+    }).format(Number(regra.percentual || 0))}%`;
   }
 
-  return Number(regra.valorFixo || 0).toLocaleString("pt-BR", {
+  return new Intl.NumberFormat(locale, {
     style: "currency",
     currency: "BRL",
-  });
+  }).format(Number(regra.valorFixo || 0));
 }
 
 function dataHojeLocal() {
@@ -222,16 +521,25 @@ function dataHojeLocal() {
   return compensado.toISOString().slice(0, 10);
 }
 
-function formatarData(valor?: string | null) {
-  if (!valor) return "Sem limite";
+function formatarData(
+  valor: string | null | undefined,
+  locale: string,
+  semLimite: string,
+  dataInvalida: string,
+) {
+  if (!valor) {
+    return semLimite;
+  }
 
   const data = new Date(valor);
 
   if (Number.isNaN(data.getTime())) {
-    return "Data inválida";
+    return dataInvalida;
   }
 
-  return data.toLocaleDateString("pt-BR");
+  return new Intl.DateTimeFormat(locale, {
+    dateStyle: "short",
+  }).format(data);
 }
 
 function normalizarTexto(valor: unknown) {
@@ -243,35 +551,56 @@ function normalizarTexto(valor: unknown) {
     .replace(/\s+/g, " ");
 }
 
-function alvoDaRegra(regra: Regra) {
+function alvoDaRegra(
+  regra: Regra,
+  tr: (
+    chave: string,
+    valores?: Record<string, string | number>,
+  ) => string,
+) {
   switch (regra.escopoAplicacao) {
     case "DEPARTAMENTO":
       return (
         regra.departamentoAlvoNomeSnapshot ||
-        "Departamento não identificado"
+        tr("targets.departmentUnknown")
       );
 
     case "CARGO":
       return (
         regra.cargoAlvo ||
-        "Cargo não identificado"
+        tr("targets.roleUnknown")
       );
 
     case "FUNCIONARIO":
       return (
         regra.funcionarioAlvoNomeSnapshot ||
-        "Funcionário não identificado"
+        tr("targets.employeeUnknown")
       );
 
     case "GERAL":
     default:
-      return "Todos os participantes sem regra mais específica";
+      return tr("targets.general");
   }
 }
 
 export default function RegrasPlanoComissaoPage() {
   const params = useParams();
   const planoId = Number(params.id);
+
+  const t = useTranslations(
+    "AdminCommercialCommissionSettings.plan",
+  );
+  const locale = useLocale();
+  const { modoTema } = useTemaConfiguracoesComerciais();
+
+  const tr = (
+    chave: string,
+    valores?: Record<string, string | number>,
+  ) =>
+    t(
+      chave as any,
+      valores as any,
+    );
 
   const [plano, setPlano] = useState<Plano | null>(null);
   const [regras, setRegras] = useState<Regra[]>([]);
@@ -330,9 +659,9 @@ export default function RegrasPlanoComissaoPage() {
     }
 
     return [...cargos.values()].sort((a, b) =>
-      a.localeCompare(b, "pt-BR"),
+      a.localeCompare(b, locale),
     );
-  }, [funcionarios]);
+  }, [funcionarios, locale]);
 
   const regraBaseSelecionada = useMemo(
     () =>
@@ -376,14 +705,14 @@ export default function RegrasPlanoComissaoPage() {
       if (!resRegras.ok) {
         throw new Error(
           dadosRegras?.error ||
-          "Não foi possível carregar as regras.",
+          tr("errors.loadRules"),
         );
       }
 
       if (!resVendedores.ok) {
         throw new Error(
           dadosVendedores?.error ||
-          "Não foi possível carregar os participantes do plano.",
+          tr("errors.loadParticipants"),
         );
       }
 
@@ -398,7 +727,7 @@ export default function RegrasPlanoComissaoPage() {
         ? dadosCursos
           .map((curso: any) => ({
             id: Number(curso.id),
-            nome: String(curso.nome || "Curso"),
+            nome: String(curso.nome || tr("common.course")),
           }))
           .filter(
             (curso: CursoOption) =>
@@ -427,7 +756,7 @@ export default function RegrasPlanoComissaoPage() {
         tipo: "erro",
         mensagem:
           error?.message ||
-          "Não foi possível carregar a configuração.",
+          tr("errors.loadConfiguration"),
       });
     } finally {
       setCarregando(false);
@@ -535,7 +864,7 @@ export default function RegrasPlanoComissaoPage() {
       if (!resposta.ok) {
         throw new Error(
           dados?.error ||
-          "Não foi possível alterar o modo de participação.",
+          tr("errors.updateParticipationMode"),
         );
       }
 
@@ -552,14 +881,14 @@ export default function RegrasPlanoComissaoPage() {
         tipo: "sucesso",
         mensagem:
           dados?.message ||
-          "Modo de participação atualizado com sucesso.",
+          tr("success.participationModeUpdated"),
       });
     } catch (error: any) {
       setToast({
         tipo: "erro",
         mensagem:
           error?.message ||
-          "Não foi possível alterar o modo de participação.",
+          tr("errors.updateParticipationMode"),
       });
     } finally {
       setSalvandoModo(false);
@@ -599,12 +928,12 @@ export default function RegrasPlanoComissaoPage() {
         : "",
       quantidadeMinima:
         regra.quantidadeMinima === null ||
-        regra.quantidadeMinima === undefined
+          regra.quantidadeMinima === undefined
           ? ""
           : String(regra.quantidadeMinima),
       quantidadeMaxima:
         regra.quantidadeMaxima === null ||
-        regra.quantidadeMaxima === undefined
+          regra.quantidadeMaxima === undefined
           ? ""
           : String(regra.quantidadeMaxima),
       usarValorLiquidoRecebido:
@@ -615,7 +944,7 @@ export default function RegrasPlanoComissaoPage() {
         regra.estornarEmInadimplencia,
       diasCarenciaEstorno:
         regra.diasCarenciaEstorno === null ||
-        regra.diasCarenciaEstorno === undefined
+          regra.diasCarenciaEstorno === undefined
           ? ""
           : String(regra.diasCarenciaEstorno),
       ordem: String(regra.ordem ?? 0),
@@ -654,7 +983,7 @@ export default function RegrasPlanoComissaoPage() {
     if (!form.nome.trim()) {
       setToast({
         tipo: "erro",
-        mensagem: "Informe o nome da regra.",
+        mensagem: tr("validation.ruleName"),
       });
       return;
     }
@@ -666,7 +995,7 @@ export default function RegrasPlanoComissaoPage() {
       setToast({
         tipo: "erro",
         mensagem:
-          "Selecione a regra geral que receberá esta exceção.",
+          tr("validation.baseRule"),
       });
       return;
     }
@@ -677,7 +1006,7 @@ export default function RegrasPlanoComissaoPage() {
     ) {
       setToast({
         tipo: "erro",
-        mensagem: "Selecione o departamento desta regra.",
+        mensagem: tr("validation.department"),
       });
       return;
     }
@@ -688,7 +1017,7 @@ export default function RegrasPlanoComissaoPage() {
     ) {
       setToast({
         tipo: "erro",
-        mensagem: "Selecione o cargo ou a função desta regra.",
+        mensagem: tr("validation.role"),
       });
       return;
     }
@@ -699,7 +1028,7 @@ export default function RegrasPlanoComissaoPage() {
     ) {
       setToast({
         tipo: "erro",
-        mensagem: "Selecione o funcionário desta regra.",
+        mensagem: tr("validation.employee"),
       });
       return;
     }
@@ -711,7 +1040,7 @@ export default function RegrasPlanoComissaoPage() {
       setToast({
         tipo: "erro",
         mensagem:
-          "Informe um percentual maior que zero e de no máximo 100%.",
+          tr("validation.percentage"),
       });
       return;
     }
@@ -722,7 +1051,7 @@ export default function RegrasPlanoComissaoPage() {
     ) {
       setToast({
         tipo: "erro",
-        mensagem: "Informe o valor fixo da comissão.",
+        mensagem: tr("validation.fixedValue"),
       });
       return;
     }
@@ -807,9 +1136,9 @@ export default function RegrasPlanoComissaoPage() {
       if (!resposta.ok) {
         throw new Error(
           dados?.error ||
-            (editandoRegra
-              ? "Não foi possível atualizar a regra."
-              : "Não foi possível criar a regra."),
+          (editandoRegra
+            ? tr("errors.updateRule")
+            : tr("errors.createRule")),
         );
       }
 
@@ -821,8 +1150,8 @@ export default function RegrasPlanoComissaoPage() {
         mensagem:
           dados?.message ||
           (editandoRegra
-            ? "Regra atualizada com sucesso."
-            : "Regra criada com sucesso."),
+            ? tr("success.ruleUpdated")
+            : tr("success.ruleCreated")),
       });
 
       await carregarDados();
@@ -832,8 +1161,8 @@ export default function RegrasPlanoComissaoPage() {
         mensagem:
           error?.message ||
           (regraEmEdicaoId !== null
-            ? "Não foi possível atualizar a regra."
-            : "Não foi possível criar a regra."),
+            ? tr("errors.updateRule")
+            : tr("errors.createRule")),
       });
     } finally {
       setSalvando(false);
@@ -848,7 +1177,7 @@ export default function RegrasPlanoComissaoPage() {
     if (tipoVinculo === "INDIVIDUAL" && !funcionarioId) {
       setToast({
         tipo: "erro",
-        mensagem: "Selecione o funcionário participante.",
+        mensagem: tr("validation.participantEmployee"),
       });
       return;
     }
@@ -856,7 +1185,7 @@ export default function RegrasPlanoComissaoPage() {
     if (tipoVinculo === "DEPARTAMENTO" && !departamentoId) {
       setToast({
         tipo: "erro",
-        mensagem: "Selecione o departamento participante.",
+        mensagem: tr("validation.participantDepartment"),
       });
       return;
     }
@@ -864,7 +1193,7 @@ export default function RegrasPlanoComissaoPage() {
     if (!inicioVigenciaVendedor) {
       setToast({
         tipo: "erro",
-        mensagem: "Informe o início da vigência do vínculo.",
+        mensagem: tr("validation.linkStartDate"),
       });
       return;
     }
@@ -902,7 +1231,7 @@ export default function RegrasPlanoComissaoPage() {
       if (!resposta.ok) {
         throw new Error(
           dados?.error ||
-          "Não foi possível vincular os participantes.",
+          tr("errors.linkParticipants"),
         );
       }
 
@@ -916,7 +1245,7 @@ export default function RegrasPlanoComissaoPage() {
         tipo: "sucesso",
         mensagem:
           dados?.message ||
-          "Participantes vinculados ao plano com sucesso.",
+          tr("success.participantsLinked"),
       });
 
       await carregarDados();
@@ -925,7 +1254,7 @@ export default function RegrasPlanoComissaoPage() {
         tipo: "erro",
         mensagem:
           error?.message ||
-          "Não foi possível vincular os participantes.",
+          tr("errors.linkParticipants"),
       });
     } finally {
       setVinculandoVendedor(false);
@@ -934,8 +1263,16 @@ export default function RegrasPlanoComissaoPage() {
 
   if (!Number.isInteger(planoId) || planoId <= 0) {
     return (
-      <main className="p-6">
-        <p>Plano inválido.</p>
+      <main
+        data-theme-mode={modoTema}
+        className="phanyx-comercial-config-page min-h-screen p-6"
+      >
+        <style
+          dangerouslySetInnerHTML={{
+            __html: ESTILOS_TEMA_CONFIGURACOES,
+          }}
+        />
+        <p>{tr("invalidPlan")}</p>
       </main>
     );
   }
@@ -944,7 +1281,15 @@ export default function RegrasPlanoComissaoPage() {
   const semRegraGeral = regrasGerais.length === 0;
 
   return (
-    <main className="phanyx-comercial-config-page mx-auto w-full max-w-7xl space-y-7 p-6 lg:p-8">
+    <main
+      data-theme-mode={modoTema}
+      className="phanyx-comercial-config-page mx-auto min-h-screen w-full max-w-7xl space-y-7 p-6 lg:p-8"
+    >
+      <style
+        dangerouslySetInnerHTML={{
+          __html: ESTILOS_TEMA_CONFIGURACOES,
+        }}
+      />
       {toast && (
         <PhanyxToast
           tipo={toast.tipo}
@@ -957,33 +1302,21 @@ export default function RegrasPlanoComissaoPage() {
         <Link
           href="/admin/comercial/configuracoes"
           className="phanyx-comercial-voltar-planos mb-5 inline-flex items-center rounded-xl border px-4 py-2 text-sm font-bold transition"
-        >
-          ← Voltar aos planos
-        </Link>
+        >{tr("header.back")}</Link>
 
-        <p className="text-xs font-black uppercase tracking-[0.22em] text-blue-700 dark:text-blue-300">
-          Plano de comissão
-        </p>
+        <p className="text-xs font-black uppercase tracking-[0.22em] text-blue-700 dark:text-blue-300">{tr("header.section")}</p>
 
         <h1 className="mt-2 text-3xl font-black text-slate-950 dark:text-white">
-          ⚙️ {plano?.nome || "Configurar regras"}
+          ⚙️ {plano?.nome || tr("header.configureRulesFallback")}
         </h1>
 
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-          Defina quem participa e qual regra será aplicada a cada
-          departamento, cargo ou funcionário.
-        </p>
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{tr("header.description")}</p>
       </header>
 
       <section className="phanyx-comercial-config-section rounded-3xl border p-6 shadow-sm">
-        <h2 className="text-xl font-black">
-          👥 Quem recebe comissão neste plano
-        </h2>
+        <h2 className="text-xl font-black">{tr("participation.title")}</h2>
 
-        <p className="phanyx-comercial-regra-recomendacao mt-1 text-sm">
-          Esta escolha define se apenas os responsáveis pela matrícula ou
-          todos os funcionários vinculados ao plano receberão comissão.
-        </p>
+        <p className="phanyx-comercial-regra-recomendacao mt-1 text-sm">{tr("participation.description")}</p>
 
         <div className="mt-5 grid gap-4 lg:grid-cols-2">
           <button
@@ -1002,14 +1335,9 @@ export default function RegrasPlanoComissaoPage() {
                 : "phanyx-comissao-card-opcao-inativa",
             ].join(" ")}
           >
-            <strong className="phanyx-comissao-card-titulo block">
-              🎯 Somente participantes da matrícula
-            </strong>
+            <strong className="phanyx-comissao-card-titulo block">{tr("participation.onlyEnrollment.title")}</strong>
 
-            <span className="phanyx-comissao-card-descricao mt-2 block text-sm leading-6">
-              Recebem apenas o vendedor responsável e os participantes
-              comerciais registrados naquela matrícula.
-            </span>
+            <span className="phanyx-comissao-card-descricao mt-2 block text-sm leading-6">{tr("participation.onlyEnrollment.description")}</span>
           </button>
 
           <button
@@ -1028,37 +1356,27 @@ export default function RegrasPlanoComissaoPage() {
                 : "phanyx-comissao-card-opcao-inativa",
             ].join(" ")}
           >
-            <strong className="phanyx-comissao-card-titulo block">
-              🏢 Todos os vinculados ao plano
-            </strong>
-            <span className="phanyx-comissao-card-descricao mt-2 block text-sm leading-6">
-              Todos os funcionários ativos vinculados ao plano participam,
-              mesmo sem login, conforme a regra aplicável ao cargo,
-              departamento ou pessoa.
-            </span>
+            <strong className="phanyx-comissao-card-titulo block">{tr("participation.allLinked.title")}</strong>
+            <span className="phanyx-comissao-card-descricao mt-2 block text-sm leading-6">{tr("participation.allLinked.description")}</span>
           </button>
         </div>
 
-        <div className="phanyx-comissao-aviso mt-4 rounded-2xl border !border-amber-300 !bg-amber-50 p-4 text-sm !text-amber-950 dark:!border-amber-800 dark:!bg-amber-950/30 dark:!text-amber-100">
-          Para gerente, coordenador, vendedores, captação de leads e outras
-          funções receberem percentuais diferentes dentro do mesmo plano,
-          crie uma regra geral e depois cadastre as exceções específicas.
-        </div>
+        <div className="phanyx-comissao-aviso mt-4 rounded-2xl border !border-amber-300 !bg-amber-50 p-4 text-sm !text-amber-950 dark:!border-amber-800 dark:!bg-amber-950/30 dark:!text-amber-100">{tr("participation.warning")}</div>
       </section>
 
       <section className="phanyx-comercial-config-section rounded-3xl border p-6 shadow-sm">
         <h2 className="text-xl font-black">
           {regraEmEdicaoId !== null
-            ? "Editar regra de comissão"
+            ? tr("ruleForm.editTitle")
             : escopoEhGeral
-              ? "Nova regra geral de comissão"
-              : "Nova exceção de comissão"}
+              ? tr("ruleForm.newGeneralTitle")
+              : tr("ruleForm.newExceptionTitle")}
         </h2>
 
         <p className="phanyx-comercial-regra-recomendacao mt-1 text-sm">
           {regraEmEdicaoId !== null
-            ? "Altere os dados abaixo e salve. A edição afeta somente os próximos cálculos de comissão."
-            : "A precedência é: funcionário específico, cargo ou função, departamento e, por último, regra geral."}
+            ? tr("ruleForm.editDescription")
+            : tr("ruleForm.precedenceDescription")}
         </p>
 
         <form
@@ -1067,32 +1385,30 @@ export default function RegrasPlanoComissaoPage() {
           className="mt-6 space-y-6"
         >
           <div>
-            <label className="mb-2 block text-sm font-bold">
-              Aplicação da regra
-            </label>
+            <label className="mb-2 block text-sm font-bold">{tr("ruleForm.application")}</label>
 
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {(
                 [
                   [
                     "GERAL",
-                    "🌐 Regra geral",
-                    "Aplicada quando não existir uma regra mais específica.",
+                    tr("ruleForm.scope.general.title"),
+                    tr("ruleForm.scope.general.description"),
                   ],
                   [
                     "DEPARTAMENTO",
-                    "🏢 Departamento",
-                    "Exceção para todos os funcionários de um departamento.",
+                    tr("ruleForm.scope.department.title"),
+                    tr("ruleForm.scope.department.description"),
                   ],
                   [
                     "CARGO",
-                    "🪪 Cargo ou função",
-                    "Exceção para gerente, coordenador, vendedor, leads etc.",
+                    tr("ruleForm.scope.role.title"),
+                    tr("ruleForm.scope.role.description"),
                   ],
                   [
                     "FUNCIONARIO",
-                    "👤 Funcionário específico",
-                    "Maior prioridade para uma condição individual.",
+                    tr("ruleForm.scope.employee.title"),
+                    tr("ruleForm.scope.employee.description"),
                   ],
                 ] as const
               ).map(([valor, titulo, descricao]) => {
@@ -1130,10 +1446,7 @@ export default function RegrasPlanoComissaoPage() {
             </div>
 
             {semRegraGeral && (
-              <p className="mt-3 text-sm font-semibold text-amber-800 dark:text-amber-200">
-                Crie primeiro uma regra geral. Depois as opções de exceção
-                serão liberadas.
-              </p>
+              <p className="mt-3 text-sm font-semibold text-amber-800 dark:text-amber-200">{tr("ruleForm.createGeneralFirst")}</p>
             )}
           </div>
 
@@ -1141,129 +1454,98 @@ export default function RegrasPlanoComissaoPage() {
             <div className="phanyx-comissao-painel-excecao rounded-2xl border p-5">
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  <label className="mb-2 block text-sm font-bold">
-                    Regra geral de origem
-                  </label>
+                  <label className="mb-2 block text-sm font-bold">{tr("ruleForm.baseRule")}</label>
 
-                  <select
+                  <SelectTema
                     value={form.regraBaseId}
-                    disabled={
-                      regraEmEdicaoId !== null
-                    }
-                    onChange={(evento) =>
-                      selecionarRegraBase(evento.target.value)
-                    }
-                    className="w-full rounded-2xl border px-4 py-3 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    <option value="">
-                      Selecione o grupo de comissão...
-                    </option>
-
-                    {regrasGerais.map((regra) => (
-                      <option key={regra.id} value={String(regra.id)}>
-                        {regra.nome} — {formatarValorRegra(regra)}
-                      </option>
-                    ))}
-                  </select>
+                    disabled={regraEmEdicaoId !== null}
+                    onChange={selecionarRegraBase}
+                    modoTema={modoTema}
+                    options={[
+                      { value: "", label: tr("ruleForm.selectBaseRule") },
+                      ...regrasGerais.map((regra) => ({
+                        value: String(regra.id),
+                        label: `${regra.nome} — ${formatarValorRegra(regra, locale)}`,
+                      })),
+                    ]}
+                  />
                 </div>
 
                 {form.escopoAplicacao === "DEPARTAMENTO" && (
                   <div>
-                    <label className="mb-2 block text-sm font-bold">
-                      Departamento
-                    </label>
+                    <label className="mb-2 block text-sm font-bold">{tr("common.department")}</label>
 
-                    <select
+                    <SelectTema
                       value={form.departamentoAlvoId}
-                      onChange={(evento) =>
+                      onChange={(valor) =>
                         setForm((anterior) => ({
                           ...anterior,
-                          departamentoAlvoId: evento.target.value,
+                          departamentoAlvoId: valor,
                         }))
                       }
-                      className="w-full rounded-2xl border px-4 py-3"
-                    >
-                      <option value="">
-                        Selecione o departamento...
-                      </option>
-
-                      {departamentos.map((departamento) => (
-                        <option
-                          key={departamento.id}
-                          value={String(departamento.id)}
-                        >
-                          {departamento.nome} — {departamento.quantidadeFuncionarios}{" "}
-                          funcionário(s) ativo(s)
-                        </option>
-                      ))}
-                    </select>
+                      modoTema={modoTema}
+                      options={[
+                        { value: "", label: tr("common.selectDepartment") },
+                        ...departamentos.map((departamento) => ({
+                          value: String(departamento.id),
+                          label: `${departamento.nome} — ${tr("common.activeEmployees", {
+                            count: departamento.quantidadeFuncionarios,
+                          })}`,
+                        })),
+                      ]}
+                    />
                   </div>
                 )}
 
                 {form.escopoAplicacao === "CARGO" && (
                   <div>
-                    <label className="mb-2 block text-sm font-bold">
-                      Cargo ou função
-                    </label>
+                    <label className="mb-2 block text-sm font-bold">{tr("common.role")}</label>
 
-                    <select
+                    <SelectTema
                       value={form.cargoAlvo}
-                      onChange={(evento) =>
+                      onChange={(valor) =>
                         setForm((anterior) => ({
                           ...anterior,
-                          cargoAlvo: evento.target.value,
+                          cargoAlvo: valor,
                         }))
                       }
-                      className="w-full rounded-2xl border px-4 py-3"
-                    >
-                      <option value="">
-                        Selecione o cargo ou a função...
-                      </option>
-
-                      {cargosDisponiveis.map((cargo) => (
-                        <option key={cargo} value={cargo}>
-                          {cargo}
-                        </option>
-                      ))}
-                    </select>
+                      modoTema={modoTema}
+                      options={[
+                        { value: "", label: tr("common.selectRole") },
+                        ...cargosDisponiveis.map((cargo) => ({
+                          value: cargo,
+                          label: cargo,
+                        })),
+                      ]}
+                    />
                   </div>
                 )}
 
                 {form.escopoAplicacao === "FUNCIONARIO" && (
                   <div>
-                    <label className="mb-2 block text-sm font-bold">
-                      Funcionário
-                    </label>
+                    <label className="mb-2 block text-sm font-bold">{tr("common.employee")}</label>
 
-                    <select
+                    <SelectTema
                       value={form.funcionarioAlvoId}
-                      onChange={(evento) =>
+                      onChange={(valor) =>
                         setForm((anterior) => ({
                           ...anterior,
-                          funcionarioAlvoId: evento.target.value,
+                          funcionarioAlvoId: valor,
                         }))
                       }
-                      className="w-full rounded-2xl border px-4 py-3"
-                    >
-                      <option value="">
-                        Selecione o funcionário...
-                      </option>
-
-                      {funcionarios.map((funcionario) => (
-                        <option
-                          key={funcionario.id}
-                          value={String(funcionario.id)}
-                        >
-                          {funcionario.nome}
-                          {funcionario.cargo
-                            ? ` — ${funcionario.cargo}`
-                            : ""}
-                          {funcionario.departamento?.nome
-                            ? ` — ${funcionario.departamento.nome}`
-                            : ""}
-                        </option>
-                      ))}
-                    </select>
+                      modoTema={modoTema}
+                      options={[
+                        { value: "", label: tr("common.selectEmployee") },
+                        ...funcionarios.map((funcionario) => ({
+                          value: String(funcionario.id),
+                          label: `${funcionario.nome}${funcionario.cargo ? ` — ${funcionario.cargo}` : ""
+                            }${funcionario.departamento?.nome
+                              ? ` — ${funcionario.departamento.nome}`
+                              : ""
+                            }`,
+                        })),
+                      ]}
+                    />
                   </div>
                 )}
               </div>
@@ -1271,29 +1553,23 @@ export default function RegrasPlanoComissaoPage() {
               {regraBaseSelecionada && (
                 <div className="mt-4 grid gap-3 sm:grid-cols-3">
                   <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-950">
-                    <p className="text-xs font-bold uppercase text-slate-500">
-                      Base herdada
-                    </p>
+                    <p className="text-xs font-bold uppercase text-slate-500">{tr("ruleForm.inheritedBase")}</p>
                     <p className="mt-1 font-bold">
-                      {ROTULOS_BASE[regraBaseSelecionada.baseCalculo]}
+                      {tr(CHAVES_BASE[regraBaseSelecionada.baseCalculo])}
                     </p>
                   </div>
 
                   <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-950">
-                    <p className="text-xs font-bold uppercase text-slate-500">
-                      Gatilho herdado
-                    </p>
+                    <p className="text-xs font-bold uppercase text-slate-500">{tr("ruleForm.inheritedTrigger")}</p>
                     <p className="mt-1 font-bold">
-                      {ROTULOS_GATILHO[regraBaseSelecionada.gatilho]}
+                      {tr(CHAVES_GATILHO[regraBaseSelecionada.gatilho])}
                     </p>
                   </div>
 
                   <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-950">
-                    <p className="text-xs font-bold uppercase text-slate-500">
-                      Valor geral atual
-                    </p>
+                    <p className="text-xs font-bold uppercase text-slate-500">{tr("ruleForm.currentGeneralValue")}</p>
                     <p className="mt-1 font-bold">
-                      {formatarValorRegra(regraBaseSelecionada)}
+                      {formatarValorRegra(regraBaseSelecionada, locale)}
                     </p>
                   </div>
                 </div>
@@ -1303,9 +1579,7 @@ export default function RegrasPlanoComissaoPage() {
 
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="mb-2 block text-sm font-bold">
-                Nome da regra
-              </label>
+              <label className="mb-2 block text-sm font-bold">{tr("ruleForm.ruleName")}</label>
 
               <input
                 value={form.nome}
@@ -1317,10 +1591,10 @@ export default function RegrasPlanoComissaoPage() {
                 }
                 placeholder={
                   escopoEhGeral
-                    ? "Ex.: Comissão principal"
+                    ? tr("ruleForm.placeholders.generalRule")
                     : form.escopoAplicacao === "CARGO"
-                      ? "Ex.: Comissão do gerente comercial"
-                      : "Ex.: Exceção de comissão"
+                      ? tr("ruleForm.placeholders.managerRule")
+                      : tr("ruleForm.placeholders.exceptionRule")
                 }
                 className="w-full rounded-2xl border px-4 py-3"
               />
@@ -1328,35 +1602,30 @@ export default function RegrasPlanoComissaoPage() {
 
             {escopoEhGeral && (
               <div>
-                <label className="mb-2 block text-sm font-bold">
-                  Curso específico
-                </label>
+                <label className="mb-2 block text-sm font-bold">{tr("ruleForm.specificCourse")}</label>
 
-                <select
+                <SelectTema
                   value={form.cursoId}
-                  onChange={(evento) =>
+                  onChange={(valor) =>
                     setForm((anterior) => ({
                       ...anterior,
-                      cursoId: evento.target.value,
+                      cursoId: valor,
                     }))
                   }
-                  className="w-full rounded-2xl border px-4 py-3"
-                >
-                  <option value="">Todos os cursos</option>
-
-                  {cursos.map((curso) => (
-                    <option key={curso.id} value={String(curso.id)}>
-                      {curso.nome}
-                    </option>
-                  ))}
-                </select>
+                  modoTema={modoTema}
+                  options={[
+                    { value: "", label: tr("ruleForm.allCourses") },
+                    ...cursos.map((curso) => ({
+                      value: String(curso.id),
+                      label: curso.nome,
+                    })),
+                  ]}
+                />
               </div>
             )}
 
             <div className={escopoEhGeral ? "md:col-span-2" : ""}>
-              <label className="mb-2 block text-sm font-bold">
-                Descrição
-              </label>
+              <label className="mb-2 block text-sm font-bold">{tr("common.description")}</label>
 
               <textarea
                 rows={3}
@@ -1367,7 +1636,7 @@ export default function RegrasPlanoComissaoPage() {
                     descricao: evento.target.value,
                   }))
                 }
-                placeholder="Explique quando esta regra deverá ser aplicada."
+                placeholder={tr("ruleForm.placeholders.description")}
                 className="w-full rounded-2xl border px-4 py-3"
               />
             </div>
@@ -1377,62 +1646,54 @@ export default function RegrasPlanoComissaoPage() {
             {escopoEhGeral && (
               <>
                 <div>
-                  <label className="mb-2 block text-sm font-bold">
-                    Tipo da comissão
-                  </label>
+                  <label className="mb-2 block text-sm font-bold">{tr("ruleForm.commissionType")}</label>
 
-                  <select
+                  <SelectTema
                     value={form.tipo}
-                    onChange={(evento) =>
+                    onChange={(valor) =>
                       setForm((anterior) => ({
                         ...anterior,
-                        tipo: evento.target.value as RegraForm["tipo"],
+                        tipo: valor as RegraForm["tipo"],
                       }))
                     }
-                    className="w-full rounded-2xl border px-4 py-3"
-                  >
-                    <option value="PERCENTUAL">Percentual</option>
-                    <option value="VALOR_FIXO">Valor fixo</option>
-                  </select>
+                    modoTema={modoTema}
+                    options={[
+                      { value: "PERCENTUAL", label: tr("ruleForm.percentage") },
+                      { value: "VALOR_FIXO", label: tr("ruleForm.fixedValue") },
+                    ]}
+                  />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-bold">
-                    Base de cálculo
-                  </label>
+                  <label className="mb-2 block text-sm font-bold">{tr("ruleForm.calculationBase")}</label>
 
-                  <select
+                  <SelectTema
                     value={form.baseCalculo}
-                    onChange={(evento) =>
+                    onChange={(valor) =>
                       setForm((anterior) => ({
                         ...anterior,
-                        baseCalculo:
-                          evento.target.value as RegraForm["baseCalculo"],
+                        baseCalculo: valor as RegraForm["baseCalculo"],
                         tipo:
-                          evento.target.value === "QUANTIDADE_MATRICULAS"
+                          valor === "QUANTIDADE_MATRICULAS"
                             ? "VALOR_FIXO"
                             : anterior.tipo,
                       }))
                     }
-                    className="w-full rounded-2xl border px-4 py-3"
-                  >
-                    {Object.entries(ROTULOS_BASE).map(
-                      ([valor, rotulo]) => (
-                        <option key={valor} value={valor}>
-                          {rotulo}
-                        </option>
-                      ),
+                    modoTema={modoTema}
+                    options={Object.entries(CHAVES_BASE).map(
+                      ([valor, chave]) => ({
+                        value: valor,
+                        label: tr(chave),
+                      }),
                     )}
-                  </select>
+                  />
                 </div>
               </>
             )}
 
             {tipoEfetivo === "PERCENTUAL" ? (
               <div>
-                <label className="mb-2 block text-sm font-bold">
-                  Percentual
-                </label>
+                <label className="mb-2 block text-sm font-bold">{tr("ruleForm.percentage")}</label>
 
                 <input
                   type="number"
@@ -1451,9 +1712,7 @@ export default function RegrasPlanoComissaoPage() {
               </div>
             ) : (
               <div>
-                <label className="mb-2 block text-sm font-bold">
-                  Valor fixo
-                </label>
+                <label className="mb-2 block text-sm font-bold">{tr("ruleForm.fixedValue")}</label>
 
                 <input
                   type="number"
@@ -1473,29 +1732,24 @@ export default function RegrasPlanoComissaoPage() {
 
             {escopoEhGeral && (
               <div>
-                <label className="mb-2 block text-sm font-bold">
-                  Gatilho para comissão
-                </label>
+                <label className="mb-2 block text-sm font-bold">{tr("ruleForm.trigger")}</label>
 
-                <select
+                <SelectTema
                   value={form.gatilho}
-                  onChange={(evento) =>
+                  onChange={(valor) =>
                     setForm((anterior) => ({
                       ...anterior,
-                      gatilho:
-                        evento.target.value as RegraForm["gatilho"],
+                      gatilho: valor as RegraForm["gatilho"],
                     }))
                   }
-                  className="w-full rounded-2xl border px-4 py-3"
-                >
-                  {Object.entries(ROTULOS_GATILHO).map(
-                    ([valor, rotulo]) => (
-                      <option key={valor} value={valor}>
-                        {rotulo}
-                      </option>
-                    ),
+                  modoTema={modoTema}
+                  options={Object.entries(CHAVES_GATILHO).map(
+                    ([valor, chave]) => ({
+                      value: valor,
+                      label: tr(chave),
+                    }),
                   )}
-                </select>
+                />
               </div>
             )}
           </div>
@@ -1504,9 +1758,7 @@ export default function RegrasPlanoComissaoPage() {
             <>
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                 <div>
-                  <label className="mb-2 block text-sm font-bold">
-                    Quantidade mínima
-                  </label>
+                  <label className="mb-2 block text-sm font-bold">{tr("ruleForm.minimumQuantity")}</label>
 
                   <input
                     type="number"
@@ -1518,15 +1770,13 @@ export default function RegrasPlanoComissaoPage() {
                         quantidadeMinima: evento.target.value,
                       }))
                     }
-                    placeholder="Sem mínimo"
+                    placeholder={tr("ruleForm.noMinimum")}
                     className="w-full rounded-2xl border px-4 py-3"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-bold">
-                    Quantidade máxima
-                  </label>
+                  <label className="mb-2 block text-sm font-bold">{tr("ruleForm.maximumQuantity")}</label>
 
                   <input
                     type="number"
@@ -1538,15 +1788,13 @@ export default function RegrasPlanoComissaoPage() {
                         quantidadeMaxima: evento.target.value,
                       }))
                     }
-                    placeholder="Sem máximo"
+                    placeholder={tr("ruleForm.noMaximum")}
                     className="w-full rounded-2xl border px-4 py-3"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-bold">
-                    Carência para estorno
-                  </label>
+                  <label className="mb-2 block text-sm font-bold">{tr("ruleForm.refundGrace")}</label>
 
                   <input
                     type="number"
@@ -1563,9 +1811,7 @@ export default function RegrasPlanoComissaoPage() {
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-bold">
-                    Ordem de aplicação
-                  </label>
+                  <label className="mb-2 block text-sm font-bold">{tr("ruleForm.applicationOrder")}</label>
 
                   <input
                     type="number"
@@ -1597,12 +1843,8 @@ export default function RegrasPlanoComissaoPage() {
                   />
 
                   <span>
-                    <strong className="block text-sm">
-                      Usar valor líquido recebido
-                    </strong>
-                    <span className="mt-1 block text-xs">
-                      Evita comissão sobre valores que não entraram no caixa.
-                    </span>
+                    <strong className="block text-sm">{tr("ruleForm.useNetReceived.title")}</strong>
+                    <span className="mt-1 block text-xs">{tr("ruleForm.useNetReceived.description")}</span>
                   </span>
                 </label>
 
@@ -1620,12 +1862,8 @@ export default function RegrasPlanoComissaoPage() {
                   />
 
                   <span>
-                    <strong className="block text-sm">
-                      Estornar em cancelamento
-                    </strong>
-                    <span className="mt-1 block text-xs">
-                      Protege a instituição contra vendas canceladas.
-                    </span>
+                    <strong className="block text-sm">{tr("ruleForm.refundCancellation.title")}</strong>
+                    <span className="mt-1 block text-xs">{tr("ruleForm.refundCancellation.description")}</span>
                   </span>
                 </label>
 
@@ -1643,13 +1881,8 @@ export default function RegrasPlanoComissaoPage() {
                   />
 
                   <span>
-                    <strong className="block text-sm">
-                      Estornar em inadimplência
-                    </strong>
-                    <span className="mt-1 block text-xs">
-                      Permite recuperar comissão quando o pagamento deixa de
-                      ser válido.
-                    </span>
+                    <strong className="block text-sm">{tr("ruleForm.refundDelinquency.title")}</strong>
+                    <span className="mt-1 block text-xs">{tr("ruleForm.refundDelinquency.description")}</span>
                   </span>
                 </label>
 
@@ -1667,10 +1900,8 @@ export default function RegrasPlanoComissaoPage() {
                   />
 
                   <span>
-                    <strong className="block text-sm">Regra ativa</strong>
-                    <span className="mt-1 block text-xs">
-                      Somente regras ativas participam do cálculo.
-                    </span>
+                    <strong className="block text-sm">{tr("ruleForm.activeRule.title")}</strong>
+                    <span className="mt-1 block text-xs">{tr("ruleForm.activeRule.description")}</span>
                   </span>
                 </label>
               </div>
@@ -1692,11 +1923,8 @@ export default function RegrasPlanoComissaoPage() {
               />
 
               <span>
-                <strong className="block text-sm">Exceção ativa</strong>
-                <span className="mt-1 block text-xs">
-                  Quando ativa, esta regra substitui a regra geral para o alvo
-                  selecionado.
-                </span>
+                <strong className="block text-sm">{tr("ruleForm.activeException.title")}</strong>
+                <span className="mt-1 block text-xs">{tr("ruleForm.activeException.description")}</span>
               </span>
             </label>
           )}
@@ -1709,13 +1937,13 @@ export default function RegrasPlanoComissaoPage() {
             >
               {salvando
                 ? regraEmEdicaoId !== null
-                  ? "Salvando alterações..."
-                  : "Salvando regra..."
+                  ? tr("ruleForm.savingChanges")
+                  : tr("ruleForm.savingRule")
                 : regraEmEdicaoId !== null
-                  ? "Salvar alterações"
+                  ? tr("ruleForm.saveChanges")
                   : escopoEhGeral
-                    ? "Criar regra geral"
-                    : "Criar exceção de comissão"}
+                    ? tr("ruleForm.createGeneral")
+                    : tr("ruleForm.createException")}
             </button>
 
             {regraEmEdicaoId !== null && (
@@ -1724,9 +1952,7 @@ export default function RegrasPlanoComissaoPage() {
                 disabled={salvando}
                 onClick={cancelarEdicaoRegra}
                 className="phanyx-comissao-cancelar-edicao rounded-2xl border px-6 py-3 text-sm font-black transition disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                Cancelar edição
-              </button>
+              >{tr("ruleForm.cancelEdit")}</button>
             )}
           </div>
         </form>
@@ -1734,26 +1960,16 @@ export default function RegrasPlanoComissaoPage() {
 
       <section className="phanyx-comercial-config-section rounded-3xl border p-6 shadow-sm">
         <div>
-          <h2 className="text-xl font-black">👥 Vincular participantes</h2>
+          <h2 className="text-xl font-black">{tr("participants.title")}</h2>
 
-          <p className="phanyx-comercial-regra-recomendacao mt-1 text-sm">
-            Inclua um funcionário específico ou todos os funcionários ativos
-            de um departamento. Não é necessário que o funcionário possua login
-            no PHANYX.
-          </p>
+          <p className="phanyx-comercial-regra-recomendacao mt-1 text-sm">{tr("participants.description")}</p>
         </div>
 
-        <div className="phanyx-comissao-aviso mt-5 rounded-2xl border !border-amber-300 !bg-amber-50 p-4 text-sm !text-amber-950 dark:!border-amber-800 dark:!bg-amber-950/30 dark:!text-amber-100">
-          A vinculação define quem poderá participar. O percentual aplicado é
-          escolhido pela precedência: funcionário, cargo, departamento e regra
-          geral.
-        </div>
+        <div className="phanyx-comissao-aviso mt-5 rounded-2xl border !border-amber-300 !bg-amber-50 p-4 text-sm !text-amber-950 dark:!border-amber-800 dark:!bg-amber-950/30 dark:!text-amber-100">{tr("participants.warning")}</div>
 
         <form onSubmit={vincularVendedor} className="mt-6 space-y-5">
           <div>
-            <label className="mb-2 block text-sm font-bold">
-              Forma de vinculação
-            </label>
+            <label className="mb-2 block text-sm font-bold">{tr("participants.linkType")}</label>
 
             <div className="grid gap-3 sm:grid-cols-2">
               <button
@@ -1769,13 +1985,9 @@ export default function RegrasPlanoComissaoPage() {
                     : "phanyx-comissao-card-opcao-inativa",
                 ].join(" ")}
               >
-                <strong className="phanyx-comissao-card-titulo block text-sm">
-                  👤 Funcionário individual
-                </strong>
+                <strong className="phanyx-comissao-card-titulo block text-sm">{tr("participants.individual.title")}</strong>
 
-                <span className="phanyx-comissao-card-descricao mt-1 block text-xs">
-                  Escolha uma pessoa específica para participar do plano.
-                </span>
+                <span className="phanyx-comissao-card-descricao mt-1 block text-xs">{tr("participants.individual.description")}</span>
               </button>
 
               <button
@@ -1791,14 +2003,9 @@ export default function RegrasPlanoComissaoPage() {
                     : "phanyx-comissao-card-opcao-inativa",
                 ].join(" ")}
               >
-                <strong className="phanyx-comissao-card-titulo block text-sm">
-                  🏢 Departamento inteiro
-                </strong>
+                <strong className="phanyx-comissao-card-titulo block text-sm">{tr("participants.department.title")}</strong>
 
-                <span className="phanyx-comissao-card-descricao mt-1 block text-xs">
-                  Inclua todos os funcionários ativos do departamento de uma
-                  vez.
-                </span>
+                <span className="phanyx-comissao-card-descricao mt-1 block text-xs">{tr("participants.department.description")}</span>
               </button>
             </div>
           </div>
@@ -1806,72 +2013,50 @@ export default function RegrasPlanoComissaoPage() {
           <div className="grid gap-4 md:grid-cols-2">
             {tipoVinculo === "INDIVIDUAL" ? (
               <div>
-                <label className="mb-2 block text-sm font-bold">
-                  Funcionário
-                </label>
+                <label className="mb-2 block text-sm font-bold">{tr("common.employee")}</label>
 
-                <select
+                <SelectTema
                   value={funcionarioId}
-                  onChange={(evento) =>
-                    setFuncionarioId(evento.target.value)
-                  }
-                  className="w-full rounded-2xl border px-4 py-3"
-                >
-                  <option value="">Selecione o participante...</option>
-
-                  {funcionarios.map((funcionario) => (
-                    <option
-                      key={funcionario.id}
-                      value={String(funcionario.id)}
-                    >
-                      {funcionario.nome}
-                      {funcionario.cargo
-                        ? ` — ${funcionario.cargo}`
-                        : ""}
-                      {funcionario.departamento?.nome
-                        ? ` — ${funcionario.departamento.nome}`
-                        : ""}
-                    </option>
-                  ))}
-                </select>
+                  onChange={setFuncionarioId}
+                  modoTema={modoTema}
+                  options={[
+                    { value: "", label: tr("participants.selectParticipant") },
+                    ...funcionarios.map((funcionario) => ({
+                      value: String(funcionario.id),
+                      label: `${funcionario.nome}${funcionario.cargo ? ` — ${funcionario.cargo}` : ""
+                        }${funcionario.departamento?.nome
+                          ? ` — ${funcionario.departamento.nome}`
+                          : ""
+                        }`,
+                    })),
+                  ]}
+                />
               </div>
             ) : (
               <div>
-                <label className="mb-2 block text-sm font-bold">
-                  Departamento
-                </label>
+                <label className="mb-2 block text-sm font-bold">{tr("common.department")}</label>
 
-                <select
+                <SelectTema
                   value={departamentoId}
-                  onChange={(evento) =>
-                    setDepartamentoId(evento.target.value)
-                  }
-                  className="w-full rounded-2xl border px-4 py-3"
-                >
-                  <option value="">Selecione o departamento...</option>
+                  onChange={setDepartamentoId}
+                  modoTema={modoTema}
+                  options={[
+                    { value: "", label: tr("common.selectDepartment") },
+                    ...departamentos.map((departamento) => ({
+                      value: String(departamento.id),
+                      label: `${departamento.nome} — ${tr("common.activeEmployees", {
+                        count: departamento.quantidadeFuncionarios,
+                      })}`,
+                    })),
+                  ]}
+                />
 
-                  {departamentos.map((departamento) => (
-                    <option
-                      key={departamento.id}
-                      value={String(departamento.id)}
-                    >
-                      {departamento.nome} — {departamento.quantidadeFuncionarios}{" "}
-                      funcionário(s) ativo(s)
-                    </option>
-                  ))}
-                </select>
-
-                <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
-                  Funcionários que já possuam outro plano ativo no mesmo
-                  período não serão duplicados.
-                </p>
+                <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">{tr("participants.duplicateNote")}</p>
               </div>
             )}
 
             <div>
-              <label className="mb-2 block text-sm font-bold">
-                Início da vigência
-              </label>
+              <label className="mb-2 block text-sm font-bold">{tr("common.startDate")}</label>
 
               <input
                 type="date"
@@ -1884,9 +2069,7 @@ export default function RegrasPlanoComissaoPage() {
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-bold">
-                Fim da vigência
-              </label>
+              <label className="mb-2 block text-sm font-bold">{tr("common.endDate")}</label>
 
               <input
                 type="date"
@@ -1897,15 +2080,11 @@ export default function RegrasPlanoComissaoPage() {
                 className="w-full rounded-2xl border px-4 py-3"
               />
 
-              <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
-                Deixe vazio para manter o vínculo sem data final.
-              </p>
+              <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">{tr("participants.endDateHelp")}</p>
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-bold">
-                Observações
-              </label>
+              <label className="mb-2 block text-sm font-bold">{tr("common.notes")}</label>
 
               <input
                 value={observacoesVendedor}
@@ -1914,8 +2093,8 @@ export default function RegrasPlanoComissaoPage() {
                 }
                 placeholder={
                   tipoVinculo === "DEPARTAMENTO"
-                    ? "Ex.: Equipe comercial vinculada em lote"
-                    : "Ex.: Participante com condição individual"
+                    ? tr("participants.placeholders.departmentBatch")
+                    : tr("participants.placeholders.individual")
                 }
                 className="w-full rounded-2xl border px-4 py-3"
               />
@@ -1928,20 +2107,18 @@ export default function RegrasPlanoComissaoPage() {
             className="rounded-2xl bg-blue-600 px-6 py-3 text-sm font-black text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {vinculandoVendedor
-              ? "Vinculando participantes..."
+              ? tr("participants.linking")
               : tipoVinculo === "DEPARTAMENTO"
-                ? "Vincular departamento ao plano"
-                : "Vincular funcionário ao plano"}
+                ? tr("participants.linkDepartment")
+                : tr("participants.linkEmployee")}
           </button>
         </form>
 
         <div className="mt-7 border-t border-slate-200 pt-6 dark:border-slate-700">
-          <h3 className="text-lg font-black">Participantes vinculados</h3>
+          <h3 className="text-lg font-black">{tr("participants.linkedTitle")}</h3>
 
           {vinculos.length === 0 ? (
-            <div className="phanyx-comercial-config-empty mt-4 rounded-2xl border border-dashed p-6 text-center">
-              Nenhum participante vinculado a este plano.
-            </div>
+            <div className="phanyx-comercial-config-empty mt-4 rounded-2xl border border-dashed p-6 text-center">{tr("participants.empty")}</div>
           ) : (
             <div className="mt-4 grid gap-4 lg:grid-cols-2">
               {vinculos.map((vinculo) => (
@@ -1957,7 +2134,7 @@ export default function RegrasPlanoComissaoPage() {
 
                       <p className="mt-1 text-sm">
                         {vinculo.funcionario.cargo ||
-                          "Cargo não informado"}
+                          tr("participants.roleNotProvided")}
                         {vinculo.funcionario.departamento?.nome
                           ? ` • ${vinculo.funcionario.departamento.nome}`
                           : ""}
@@ -1972,33 +2149,49 @@ export default function RegrasPlanoComissaoPage() {
                           : "border-slate-300 bg-slate-100 text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300",
                       ].join(" ")}
                     >
-                      {vinculo.ativo ? "Ativo" : "Encerrado"}
+                      {vinculo.ativo
+                        ? tr("common.active")
+                        : tr("common.ended")}
                     </span>
                   </div>
 
                   <div className="mt-3 flex flex-wrap gap-2">
                     <span className="rounded-full border border-slate-300 bg-slate-50 px-3 py-1 text-xs font-bold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
                       {vinculo.origemVinculo === "DEPARTAMENTO"
-                        ? `🏢 Incluído por departamento: ${vinculo.departamentoNomeSnapshot ||
-                        vinculo.funcionario.departamento?.nome ||
-                        "Departamento"
-                        }`
-                        : "👤 Vínculo individual"}
+                        ? tr("participants.includedByDepartment", {
+                          name:
+                            vinculo.departamentoNomeSnapshot ||
+                            vinculo.funcionario.departamento?.nome ||
+                            tr("common.department"),
+                        })
+                        : tr("participants.individualLink")}
                     </span>
                   </div>
 
                   <div className="mt-4 text-sm">
                     <p>
-                      Vigência:{" "}
+                      {tr("common.validityLabel")}{" "}
                       <strong>
-                        {formatarData(vinculo.inicioVigencia)} até{" "}
-                        {formatarData(vinculo.fimVigencia)}
+                        {formatarData(
+                          vinculo.inicioVigencia,
+                          locale,
+                          tr("common.noLimit"),
+                          tr("common.invalidDate"),
+                        )}{" "}
+                        {tr("common.until")}{" "}
+                        {formatarData(
+                          vinculo.fimVigencia,
+                          locale,
+                          tr("common.noLimit"),
+                          tr("common.invalidDate"),
+                        )}
                       </strong>
                     </p>
 
                     {vinculo.observacoes && (
                       <p className="mt-2">
-                        Observações: {vinculo.observacoes}
+                        {tr("common.notesLabel")}{" "}
+                        {vinculo.observacoes}
                       </p>
                     )}
                   </div>
@@ -2010,19 +2203,14 @@ export default function RegrasPlanoComissaoPage() {
       </section>
 
       <section className="phanyx-comercial-config-section rounded-3xl border p-6 shadow-sm">
-        <h2 className="text-xl font-black">Regras cadastradas</h2>
+        <h2 className="text-xl font-black">{tr("rules.title")}</h2>
 
-        <p className="phanyx-comercial-regra-recomendacao mt-1 text-sm">
-          Dentro do mesmo grupo, somente a regra mais específica será usada
-          para cada funcionário.
-        </p>
+        <p className="phanyx-comercial-regra-recomendacao mt-1 text-sm">{tr("rules.description")}</p>
 
         {carregando ? (
-          <p className="mt-5 text-sm">Carregando regras...</p>
+          <p className="mt-5 text-sm">{tr("rules.loading")}</p>
         ) : regras.length === 0 ? (
-          <div className="phanyx-comercial-config-empty mt-5 rounded-2xl border border-dashed p-8 text-center">
-            Nenhuma regra cadastrada neste plano.
-          </div>
+          <div className="phanyx-comercial-config-empty mt-5 rounded-2xl border border-dashed p-8 text-center">{tr("rules.empty")}</div>
         ) : (
           <div className="mt-5 grid gap-4 lg:grid-cols-2">
             {regras.map((regra) => (
@@ -2040,7 +2228,7 @@ export default function RegrasPlanoComissaoPage() {
                     <h3 className="text-lg font-black">{regra.nome}</h3>
 
                     <p className="mt-1 text-sm">
-                      {regra.descricao || "Sem descrição."}
+                      {regra.descricao || tr("common.noDescription")}
                     </p>
                   </div>
 
@@ -2052,72 +2240,79 @@ export default function RegrasPlanoComissaoPage() {
                         : "border-slate-300 bg-slate-100 text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300",
                     ].join(" ")}
                   >
-                    {regra.ativo ? "Ativa" : "Inativa"}
+                    {regra.ativo
+                      ? tr("common.activeFeminine")
+                      : tr("common.inactiveFeminine")}
                   </span>
                 </div>
 
                 <div className="mt-3 flex flex-wrap gap-2">
                   <span className="phanyx-comissao-chip-escopo rounded-full border px-3 py-1 text-xs font-bold">
-                    {ROTULOS_ESCOPO[regra.escopoAplicacao]}
+                    {tr(CHAVES_ESCOPO[regra.escopoAplicacao])}
                   </span>
 
                   {regra.regraBase && (
                     <span className="phanyx-comissao-chip-grupo rounded-full border px-3 py-1 text-xs font-bold">
-                      Grupo: {regra.regraBase.nome}
+                      {tr("rules.group", { name: regra.regraBase.nome })}
                     </span>
                   )}
 
                   {regra.escopoAplicacao === "GERAL" &&
                     Number(regra._count?.variacoes || 0) > 0 && (
                       <span className="phanyx-comissao-chip-excecoes rounded-full border px-3 py-1 text-xs font-bold">
-                        {regra._count?.variacoes} exceção(ões)
+                        {tr("rules.exceptions", { count: regra._count?.variacoes || 0 })}
                       </span>
                     )}
                 </div>
 
                 <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 text-sm dark:border-slate-700 dark:bg-slate-950">
-                  <p className="text-xs font-bold uppercase text-slate-500">
-                    Aplicação
-                  </p>
-                  <p className="mt-1 font-black">{alvoDaRegra(regra)}</p>
+                  <p className="text-xs font-bold uppercase text-slate-500">{tr("rules.application")}</p>
+                  <p className="mt-1 font-black">{alvoDaRegra(regra, tr)}</p>
                 </div>
 
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
                   <div className="phanyx-comercial-config-stat rounded-2xl border p-3">
-                    <p className="text-xs font-bold uppercase">Comissão</p>
+                    <p className="text-xs font-bold uppercase">{tr("rules.commission")}</p>
                     <p className="mt-1 font-black">
-                      {formatarValorRegra(regra)}
+                      {formatarValorRegra(regra, locale)}
                     </p>
                   </div>
 
                   <div className="phanyx-comercial-config-stat rounded-2xl border p-3">
-                    <p className="text-xs font-bold uppercase">Base</p>
+                    <p className="text-xs font-bold uppercase">{tr("rules.base")}</p>
                     <p className="mt-1 font-black">
-                      {ROTULOS_BASE[regra.baseCalculo]}
+                      {tr(CHAVES_BASE[regra.baseCalculo])}
                     </p>
                   </div>
 
                   <div className="phanyx-comercial-config-stat rounded-2xl border p-3 sm:col-span-2">
-                    <p className="text-xs font-bold uppercase">Gatilho</p>
+                    <p className="text-xs font-bold uppercase">{tr("rules.trigger")}</p>
                     <p className="mt-1 font-black">
-                      {ROTULOS_GATILHO[regra.gatilho]}
+                      {tr(CHAVES_GATILHO[regra.gatilho])}
                     </p>
                   </div>
                 </div>
 
                 <div className="mt-4 space-y-1 text-sm">
-                  <p>Curso: {regra.curso?.nome || "Todos"}</p>
+                  <p>{tr("rules.course", { name: regra.curso?.nome || tr("common.all") })}</p>
                   <p>
-                    Carência para estorno:{" "}
-                    {regra.diasCarenciaEstorno ?? 0} dia(s)
+                    {tr("rules.refundGrace", {
+                      count: regra.diasCarenciaEstorno ?? 0,
+                    })}
                   </p>
                   <p>
-                    Estorno por cancelamento:{" "}
-                    {regra.estornarEmCancelamento ? "Sim" : "Não"}
+                    {tr("rules.refundCancellation", {
+                      value: regra.estornarEmCancelamento
+                        ? tr("common.yes")
+                        : tr("common.no"),
+                    })}
                   </p>
                   <p>
-                    Estorno por inadimplência:{" "}
-                    {regra.estornarEmInadimplencia ? "Sim" : "Não"}
+                    {tr("rules.refundDelinquency", {
+                      value: regra.estornarEmInadimplencia
+                        ? tr("common.yes")
+                        : tr("common.no"),
+                    })}
                   </p>
                 </div>
 
@@ -2129,9 +2324,7 @@ export default function RegrasPlanoComissaoPage() {
                       iniciarEdicaoRegra(regra)
                     }
                     className="phanyx-comissao-editar-regra inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-black transition"
-                  >
-                    ✏️ Editar regra
-                  </button>
+                  >{tr("rules.edit")}</button>
                 </div>
               </article>
             ))}

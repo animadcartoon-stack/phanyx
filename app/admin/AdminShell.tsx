@@ -612,11 +612,11 @@ export default function AdminShell({
       "comercial.configuracoes.gerenciar"
     );
 
-    const podeVerAtividadesExternas =
-  podeAcessar(
-    "atividades-externas.ver",
-    "atividades-externas.gerenciar"
-  );
+  const podeVerAtividadesExternas =
+    podeAcessar(
+      "atividades-externas.ver",
+      "atividades-externas.gerenciar"
+    );
 
   const podeVerPublicacoesAcademicas =
     usuarioAdmin || temPermissao("academico.publicacoes.ver");
@@ -1144,13 +1144,13 @@ export default function AdminShell({
                       </Link>
 
                       {podeVerAtividadesExternas && (
-  <Link
-    href="/admin/atividades-externas"
-    className={getLinkClass("/admin/atividades-externas")}
-  >
-    🚌 {tNav("externalActivities")}
-  </Link>
-)}
+                        <Link
+                          href="/admin/atividades-externas"
+                          className={getLinkClass("/admin/atividades-externas")}
+                        >
+                          🚌 {tNav("externalActivities")}
+                        </Link>
+                      )}
 
                       {podeVerPublicacoesAcademicas && (
                         <Link
@@ -1644,6 +1644,8 @@ export default function AdminShell({
                       </Link>
                       <Link
                         href="/admin/configuracoes/certificado"
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className={getLinkClass(
                           "/admin/configuracoes/certificado"
                         )}
@@ -1751,13 +1753,13 @@ export default function AdminShell({
                       🗓️ {tNav("operationalSchedule")}
                     </Link>
                     {podeVerAtividadesExternas && (
-  <Link
-    href="/admin/atividades-externas"
-    className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-  >
-    🚌 {tNav("externalActivities")}
-  </Link>
-)}
+                      <Link
+                        href="/admin/atividades-externas"
+                        className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                      >
+                        🚌 {tNav("externalActivities")}
+                      </Link>
+                    )}
                     {podeVerPublicacoesAcademicas && (
                       <Link
                         href="/admin/academico/publicacoes"
@@ -2107,7 +2109,12 @@ export default function AdminShell({
                     <Link href="/admin/certificados" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
                       🏅 {tNav("certificateManagement")}
                     </Link>
-                    <Link href="/admin/configuracoes/certificado" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
+                    <Link
+                      href="/admin/configuracoes/certificado"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+                    >
                       🎨 {tNav("certificateEditor")}
                     </Link>
                     <Link href="/admin/ouvidoria" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">

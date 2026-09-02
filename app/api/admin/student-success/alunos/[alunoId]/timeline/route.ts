@@ -1,553 +1,553 @@
 import {
-  NextRequest,
-  NextResponse,
+    NextRequest,
+    NextResponse,
 } from "next/server";
 
 import {
-  prisma,
+    prisma,
 } from "@/lib/prisma";
 
 import {
-  getUserFromToken,
+    getUserFromToken,
 } from "@/lib/server-auth";
 
 import {
-  verificarAcessoStudentSuccess,
+    verificarAcessoStudentSuccess,
 } from "@/lib/student-success/verificar-acesso-student-success";
 
 import {
-  avaliarEvolucaoIntervencao,
+    avaliarEvolucaoIntervencao,
 } from "@/lib/student-success/avaliar-evolucao-intervencao";
 
 type ContextoRota = {
-  params: {
-    alunoId:
-      string;
-  };
+    params: {
+        alunoId:
+        string;
+    };
 };
 
 type EventoTimeline = {
-  id:
+    id:
     string;
 
-  tipo:
+    tipo:
     | "INTERVENCAO_REGISTRADA"
     | "RETORNO_AGENDADO"
     | "INTERVENCAO_ENCERRADA";
 
-  data:
+    data:
     string;
 
-  intervencaoId:
+    intervencaoId:
     number;
 
-  tipoIntervencao:
+    tipoIntervencao:
     string;
 
-  canal:
+    canal:
     string;
 
-  status:
-    string;
-
-  observacao:
+    status:
     string | null;
 
-  resultado:
+    observacao:
     string | null;
 
-  risco: {
-    nivel:
-      string | null;
+    resultado:
+    string | null;
 
-    pontuacao:
-      number | null;
+    risco: {
+        nivel:
+        string | null;
 
-    cobertura:
-      number | null;
+        pontuacao:
+        number | null;
 
-    confiabilidade:
-      string | null;
-  } | null;
+        cobertura:
+        number | null;
 
-  indicadores:
+        confiabilidade:
+        string | null;
+    } | null;
+
+    indicadores:
     unknown;
 
-  evolucao:
+    evolucao:
     ReturnType<
-      typeof avaliarEvolucaoIntervencao
+        typeof avaliarEvolucaoIntervencao
     > | null;
 };
 
 export async function GET(
-  request:
-    NextRequest,
-  contexto:
-    ContextoRota
+    request:
+        NextRequest,
+    contexto:
+        ContextoRota
 ) {
-  try {
-    const user =
-      await getUserFromToken();
+    try {
+        const user =
+            await getUserFromToken();
 
-    if (!user) {
-      return NextResponse.json(
-        {
-          error:
-            "Não autenticado",
-        },
-        {
-          status: 401,
+        if (!user) {
+            return NextResponse.json(
+                {
+                    error:
+                        "Não autenticado",
+                },
+                {
+                    status: 401,
+                }
+            );
         }
-      );
-    }
 
-    const acesso =
-      await verificarAcessoStudentSuccess(
-        user,
-        "VER"
-      );
+        const acesso =
+            await verificarAcessoStudentSuccess(
+                user,
+                "VER"
+            );
 
-    if (
-      acesso.permitido ===
-      false
-    ) {
-      return NextResponse.json(
-        {
-          error:
-            acesso.motivo,
-        },
-        {
-          status: 403,
+        if (
+            acesso.permitido ===
+            false
+        ) {
+            return NextResponse.json(
+                {
+                    error:
+                        acesso.motivo,
+                },
+                {
+                    status: 403,
+                }
+            );
         }
-      );
-    }
 
-    const instituicaoId =
-      acesso.instituicaoId;
+        const instituicaoId =
+            acesso.instituicaoId;
 
-    const alunoId =
-      Number(
-        contexto.params
-          .alunoId
-      );
+        const alunoId =
+            Number(
+                contexto.params
+                    .alunoId
+            );
 
-    if (
-      !Number.isInteger(
-        alunoId
-      ) ||
-      alunoId <= 0
-    ) {
-      return NextResponse.json(
-        {
-          error:
-            "Aluno inválido",
-        },
-        {
-          status: 400,
+        if (
+            !Number.isInteger(
+                alunoId
+            ) ||
+            alunoId <= 0
+        ) {
+            return NextResponse.json(
+                {
+                    error:
+                        "Aluno inválido",
+                },
+                {
+                    status: 400,
+                }
+            );
         }
-      );
-    }
 
-    /*
-     * Confirma que o aluno pertence
-     * à instituição autorizada.
-     */
-    const aluno =
-      await prisma.aluno
-        .findFirst({
-          where: {
-            id:
-              alunoId,
+        /*
+         * Confirma que o aluno pertence
+         * à instituição autorizada.
+         */
+        const aluno =
+            await prisma.aluno
+                .findFirst({
+                    where: {
+                        id:
+                            alunoId,
 
-            instituicaoId,
-          },
+                        instituicaoId,
+                    },
 
-          select: {
-            id:
-              true,
+                    select: {
+                        id:
+                            true,
 
-            nome:
-              true,
+                        nome:
+                            true,
 
-            matricula:
-              true,
-          },
-        });
+                        matricula:
+                            true,
+                    },
+                });
 
-    if (!aluno) {
-      return NextResponse.json(
-        {
-          error:
-            "Aluno não encontrado",
-        },
-        {
-          status: 404,
+        if (!aluno) {
+            return NextResponse.json(
+                {
+                    error:
+                        "Aluno não encontrado",
+                },
+                {
+                    status: 404,
+                }
+            );
         }
-      );
-    }
 
-    /*
-     * Usamos apenas dados realmente
-     * persistidos nas intervenções.
-     */
-    const intervencoes =
-      await prisma
-        .studentSuccessIntervencao
-        .findMany({
-          where: {
-            instituicaoId,
+        /*
+         * Usamos apenas dados realmente
+         * persistidos nas intervenções.
+         */
+        const intervencoes =
+            await prisma
+                .studentSuccessIntervencao
+                .findMany({
+                    where: {
+                        instituicaoId,
 
-            alunoId,
-          },
+                        alunoId,
+                    },
 
-          orderBy: {
-            criadoEm:
-              "asc",
-          },
+                    orderBy: {
+                        criadoEm:
+                            "asc",
+                    },
 
-          select: {
-            id:
-              true,
+                    select: {
+                        id:
+                            true,
 
-            tipo:
-              true,
+                        tipo:
+                            true,
 
-            canal:
-              true,
+                        canal:
+                            true,
 
-            status:
-              true,
+                        status:
+                            true,
 
-            observacao:
-              true,
+                        observacao:
+                            true,
 
-            resultado:
-              true,
+                        resultado:
+                            true,
 
-            retornoEm:
-              true,
+                        retornoEm:
+                            true,
 
-            criadoEm:
-              true,
+                        criadoEm:
+                            true,
 
-            concluidoEm:
-              true,
+                        concluidoEm:
+                            true,
 
-            nivelRiscoNoRegistro:
-              true,
+                        nivelRiscoNoRegistro:
+                            true,
 
-            pontuacaoNoRegistro:
-              true,
+                        pontuacaoNoRegistro:
+                            true,
 
-            coberturaNoRegistro:
-              true,
-
-            confiabilidadeNoRegistro:
-              true,
-
-            indicadoresNoRegistro:
-              true,
-
-            nivelRiscoNoEncerramento:
-              true,
-
-            pontuacaoNoEncerramento:
-              true,
-
-            coberturaNoEncerramento:
-              true,
-
-            confiabilidadeNoEncerramento:
-              true,
-
-            indicadoresNoEncerramento:
-              true,
-          },
-        });
-
-    const eventos:
-      EventoTimeline[] =
-      [];
-
-    for (
-      const intervencao
-      of intervencoes
-    ) {
-      /*
-       * 1. REGISTRO DA INTERVENÇÃO
-       */
-      eventos.push({
-        id:
-          `intervencao-${intervencao.id}-registro`,
+                        coberturaNoRegistro:
+                            true,
 
-        tipo:
-          "INTERVENCAO_REGISTRADA",
+                        confiabilidadeNoRegistro:
+                            true,
+
+                        indicadoresNoRegistro:
+                            true,
+
+                        nivelRiscoNoEncerramento:
+                            true,
+
+                        pontuacaoNoEncerramento:
+                            true,
+
+                        coberturaNoEncerramento:
+                            true,
+
+                        confiabilidadeNoEncerramento:
+                            true,
+
+                        indicadoresNoEncerramento:
+                            true,
+                    },
+                });
 
-        data:
-          intervencao
-            .criadoEm
-            .toISOString(),
-
-        intervencaoId:
-          intervencao.id,
-
-        tipoIntervencao:
-          intervencao.tipo,
-
-        canal:
-          intervencao.canal,
-
-        status:
-          intervencao.status,
-
-        observacao:
-          intervencao
-            .observacao,
-
-        resultado:
-          null,
-
-        risco: {
-          nivel:
-            intervencao
-              .nivelRiscoNoRegistro,
-
-          pontuacao:
-            intervencao
-              .pontuacaoNoRegistro,
-
-          cobertura:
-            intervencao
-              .coberturaNoRegistro,
-
-          confiabilidade:
-            intervencao
-              .confiabilidadeNoRegistro,
-        },
-
-        indicadores:
-          intervencao
-            .indicadoresNoRegistro,
-
-        evolucao:
-          null,
-      });
-
-      /*
-       * 2. RETORNO PROGRAMADO
-       *
-       * Isso representa a agenda conhecida
-       * atualmente. Não afirmamos que houve
-       * contato nessa data.
-       */
-      if (
-        intervencao.retornoEm
-      ) {
-        eventos.push({
-          id:
-            `intervencao-${intervencao.id}-retorno`,
-
-          tipo:
-            "RETORNO_AGENDADO",
-
-          data:
-            intervencao
-              .retornoEm
-              .toISOString(),
-
-          intervencaoId:
-            intervencao.id,
-
-          tipoIntervencao:
-            intervencao.tipo,
-
-          canal:
-            intervencao.canal,
-
-          status:
-            intervencao.status,
-
-          observacao:
-            intervencao
-              .observacao,
-
-          resultado:
-            null,
-
-          risco:
-            null,
-
-          indicadores:
-            null,
-
-          evolucao:
-            null,
-        });
-      }
-
-      /*
-       * 3. ENCERRAMENTO
-       */
-      if (
-        intervencao.concluidoEm
-      ) {
-        const evolucao =
-          avaliarEvolucaoIntervencao({
-            nivelRiscoNoRegistro:
-              intervencao
-                .nivelRiscoNoRegistro,
-
-            pontuacaoNoRegistro:
-              intervencao
-                .pontuacaoNoRegistro,
-
-            indicadoresNoRegistro:
-              intervencao
-                .indicadoresNoRegistro,
-
-            nivelRiscoNoEncerramento:
-              intervencao
-                .nivelRiscoNoEncerramento,
-
-            pontuacaoNoEncerramento:
-              intervencao
-                .pontuacaoNoEncerramento,
-
-            indicadoresNoEncerramento:
-              intervencao
-                .indicadoresNoEncerramento,
-          });
-
-        eventos.push({
-          id:
-            `intervencao-${intervencao.id}-encerramento`,
-
-          tipo:
-            "INTERVENCAO_ENCERRADA",
-
-          data:
-            intervencao
-              .concluidoEm
-              .toISOString(),
-
-          intervencaoId:
-            intervencao.id,
-
-          tipoIntervencao:
-            intervencao.tipo,
-
-          canal:
-            intervencao.canal,
-
-          status:
-            intervencao.status,
-
-          observacao:
-            intervencao
-              .observacao,
-
-          resultado:
-            intervencao
-              .resultado,
-
-          risco: {
-            nivel:
-              intervencao
-                .nivelRiscoNoEncerramento,
-
-            pontuacao:
-              intervencao
-                .pontuacaoNoEncerramento,
-
-            cobertura:
-              intervencao
-                .coberturaNoEncerramento,
-
-            confiabilidade:
-              intervencao
-                .confiabilidadeNoEncerramento,
-          },
-
-          indicadores:
-            intervencao
-              .indicadoresNoEncerramento,
-
-          evolucao,
-        });
-      }
-    }
-
-    /*
-     * Timeline mais recente primeiro.
-     */
-    eventos.sort(
-      (
-        a,
-        b
-      ) =>
-        new Date(
-          b.data
-        ).getTime() -
-        new Date(
-          a.data
-        ).getTime()
-    );
-
-    return NextResponse.json({
-      ok:
-        true,
-
-      aluno,
-
-      resumo: {
-        intervencoes:
-          intervencoes.length,
-
-        eventos:
-          eventos.length,
-
-        abertas:
-          intervencoes.filter(
+        const eventos:
+            EventoTimeline[] =
+            [];
+
+        for (
+            const intervencao
+            of intervencoes
+        ) {
+            /*
+             * 1. REGISTRO DA INTERVENÇÃO
+             */
+            eventos.push({
+                id:
+                    `intervencao-${intervencao.id}-registro`,
+
+                tipo:
+                    "INTERVENCAO_REGISTRADA",
+
+                data:
+                    intervencao
+                        .criadoEm
+                        .toISOString(),
+
+                intervencaoId:
+                    intervencao.id,
+
+                tipoIntervencao:
+                    intervencao.tipo,
+
+                canal:
+                    intervencao.canal,
+
+                status:
+                    null,
+
+                observacao:
+                    intervencao
+                        .observacao,
+
+                resultado:
+                    null,
+
+                risco: {
+                    nivel:
+                        intervencao
+                            .nivelRiscoNoRegistro,
+
+                    pontuacao:
+                        intervencao
+                            .pontuacaoNoRegistro,
+
+                    cobertura:
+                        intervencao
+                            .coberturaNoRegistro,
+
+                    confiabilidade:
+                        intervencao
+                            .confiabilidadeNoRegistro,
+                },
+
+                indicadores:
+                    intervencao
+                        .indicadoresNoRegistro,
+
+                evolucao:
+                    null,
+            });
+
+            /*
+             * 2. RETORNO PROGRAMADO
+             *
+             * Isso representa a agenda conhecida
+             * atualmente. Não afirmamos que houve
+             * contato nessa data.
+             */
+            if (
+                intervencao.retornoEm
+            ) {
+                eventos.push({
+                    id:
+                        `intervencao-${intervencao.id}-retorno`,
+
+                    tipo:
+                        "RETORNO_AGENDADO",
+
+                    data:
+                        intervencao
+                            .retornoEm
+                            .toISOString(),
+
+                    intervencaoId:
+                        intervencao.id,
+
+                    tipoIntervencao:
+                        intervencao.tipo,
+
+                    canal:
+                        intervencao.canal,
+
+                    status:
+                        null,
+
+                    observacao:
+                        intervencao
+                            .observacao,
+
+                    resultado:
+                        null,
+
+                    risco:
+                        null,
+
+                    indicadores:
+                        null,
+
+                    evolucao:
+                        null,
+                });
+            }
+
+            /*
+             * 3. ENCERRAMENTO
+             */
+            if (
+                intervencao.concluidoEm
+            ) {
+                const evolucao =
+                    avaliarEvolucaoIntervencao({
+                        nivelRiscoNoRegistro:
+                            intervencao
+                                .nivelRiscoNoRegistro,
+
+                        pontuacaoNoRegistro:
+                            intervencao
+                                .pontuacaoNoRegistro,
+
+                        indicadoresNoRegistro:
+                            intervencao
+                                .indicadoresNoRegistro,
+
+                        nivelRiscoNoEncerramento:
+                            intervencao
+                                .nivelRiscoNoEncerramento,
+
+                        pontuacaoNoEncerramento:
+                            intervencao
+                                .pontuacaoNoEncerramento,
+
+                        indicadoresNoEncerramento:
+                            intervencao
+                                .indicadoresNoEncerramento,
+                    });
+
+                eventos.push({
+                    id:
+                        `intervencao-${intervencao.id}-encerramento`,
+
+                    tipo:
+                        "INTERVENCAO_ENCERRADA",
+
+                    data:
+                        intervencao
+                            .concluidoEm
+                            .toISOString(),
+
+                    intervencaoId:
+                        intervencao.id,
+
+                    tipoIntervencao:
+                        intervencao.tipo,
+
+                    canal:
+                        intervencao.canal,
+
+                    status:
+                        intervencao.status,
+
+                    observacao:
+                        intervencao
+                            .observacao,
+
+                    resultado:
+                        intervencao
+                            .resultado,
+
+                    risco: {
+                        nivel:
+                            intervencao
+                                .nivelRiscoNoEncerramento,
+
+                        pontuacao:
+                            intervencao
+                                .pontuacaoNoEncerramento,
+
+                        cobertura:
+                            intervencao
+                                .coberturaNoEncerramento,
+
+                        confiabilidade:
+                            intervencao
+                                .confiabilidadeNoEncerramento,
+                    },
+
+                    indicadores:
+                        intervencao
+                            .indicadoresNoEncerramento,
+
+                    evolucao,
+                });
+            }
+        }
+
+        /*
+         * Timeline mais recente primeiro.
+         */
+        eventos.sort(
             (
-              item
+                a,
+                b
             ) =>
-              item.status ===
-                "REGISTRADA" ||
-              item.status ===
-                "AGUARDANDO_RETORNO" ||
-              item.status ===
-                "EM_ACOMPANHAMENTO"
-          ).length,
+                new Date(
+                    b.data
+                ).getTime() -
+                new Date(
+                    a.data
+                ).getTime()
+        );
 
-        encerradas:
-          intervencoes.filter(
-            (
-              item
-            ) =>
-              item.status ===
-                "RESOLVIDA" ||
-              item.status ===
-                "CANCELADA"
-          ).length,
-      },
+        return NextResponse.json({
+            ok:
+                true,
 
-      eventos,
-    });
-  }
-  catch (error) {
-    console.error(
-      "[STUDENT_SUCCESS_ALUNO_TIMELINE]",
-      error
-    );
+            aluno,
 
-    return NextResponse.json(
-      {
-        error:
-          "Erro ao carregar histórico do aluno",
-      },
-      {
-        status: 500,
-      }
-    );
-  }
+            resumo: {
+                intervencoes:
+                    intervencoes.length,
+
+                eventos:
+                    eventos.length,
+
+                abertas:
+                    intervencoes.filter(
+                        (
+                            item
+                        ) =>
+                            item.status ===
+                            "REGISTRADA" ||
+                            item.status ===
+                            "AGUARDANDO_RETORNO" ||
+                            item.status ===
+                            "EM_ACOMPANHAMENTO"
+                    ).length,
+
+                encerradas:
+                    intervencoes.filter(
+                        (
+                            item
+                        ) =>
+                            item.status ===
+                            "RESOLVIDA" ||
+                            item.status ===
+                            "CANCELADA"
+                    ).length,
+            },
+
+            eventos,
+        });
+    }
+    catch (error) {
+        console.error(
+            "[STUDENT_SUCCESS_ALUNO_TIMELINE]",
+            error
+        );
+
+        return NextResponse.json(
+            {
+                error:
+                    "Erro ao carregar histórico do aluno",
+            },
+            {
+                status: 500,
+            }
+        );
+    }
 }

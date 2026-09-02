@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import {
   type FormEvent,
   useEffect,
@@ -163,15 +164,15 @@ type TipoFiltro = "TODOS" | EventoTimeline["tipo"];
 
 const TIPOS_INTERACAO: Array<{
   valor: TipoInteracao;
-  nome: string;
+  chave: string;
   icone: string;
 }> = [
-    { valor: "WHATSAPP", nome: "WhatsApp", icone: "💬" },
-    { valor: "LIGACAO", nome: "Ligação", icone: "📞" },
-    { valor: "EMAIL", nome: "E-mail", icone: "✉️" },
-    { valor: "REUNIAO", nome: "Reunião", icone: "👥" },
-    { valor: "OBSERVACAO", nome: "Observação", icone: "📝" },
-  ];
+  { valor: "WHATSAPP", chave: "whatsapp", icone: "💬" },
+  { valor: "LIGACAO", chave: "call", icone: "📞" },
+  { valor: "EMAIL", chave: "email", icone: "✉️" },
+  { valor: "REUNIAO", chave: "meeting", icone: "👥" },
+  { valor: "OBSERVACAO", chave: "note", icone: "📝" },
+];
 
 const TIPOS_QUE_REGISTRAM_CONTATO = new Set<string>([
   "WHATSAPP",
@@ -182,127 +183,259 @@ const TIPOS_QUE_REGISTRAM_CONTATO = new Set<string>([
 
 const FILTROS_EVENTO: Array<{
   valor: TipoFiltro;
-  nome: string;
+  chave: string;
 }> = [
-    { valor: "TODOS", nome: "Tudo" },
-    { valor: "INTERACAO", nome: "Contatos" },
-    { valor: "MOVIMENTACAO_FUNIL", nome: "Funil" },
-    { valor: "TAREFA", nome: "Tarefas" },
-    { valor: "TRANSFERENCIA", nome: "Transferências" },
-    { valor: "CONVERSAO", nome: "Conversão" },
-  ];
+  { valor: "TODOS", chave: "all" },
+  { valor: "INTERACAO", chave: "contacts" },
+  { valor: "MOVIMENTACAO_FUNIL", chave: "funnel" },
+  { valor: "TAREFA", chave: "tasks" },
+  { valor: "TRANSFERENCIA", chave: "transfers" },
+  { valor: "CONVERSAO", chave: "conversion" },
+];
 
 const EVENTOS_VISUAIS: Record<
   EventoTimeline["tipo"],
-  { icone: string; nome: string }
+  { icone: string; chave: string }
 > = {
-  CRIACAO: { icone: "✨", nome: "Criação" },
-  INTERACAO: { icone: "💬", nome: "Contato" },
-  MOVIMENTACAO_FUNIL: { icone: "↗", nome: "Funil" },
-  TRANSFERENCIA: { icone: "⇄", nome: "Transferência" },
-  TAREFA: { icone: "✓", nome: "Tarefa" },
-  PERDA: { icone: "×", nome: "Perda" },
-  ARQUIVAMENTO: { icone: "📦", nome: "Arquivamento" },
-  RESTAURACAO: { icone: "♻", nome: "Restauração" },
-  CONVERSAO: { icone: "🎓", nome: "Conversão" },
+  CRIACAO: { icone: "✨", chave: "creation" },
+  INTERACAO: { icone: "💬", chave: "contact" },
+  MOVIMENTACAO_FUNIL: { icone: "↗", chave: "funnel" },
+  TRANSFERENCIA: { icone: "⇄", chave: "transfer" },
+  TAREFA: { icone: "✓", chave: "task" },
+  PERDA: { icone: "×", chave: "loss" },
+  ARQUIVAMENTO: { icone: "📦", chave: "archiving" },
+  RESTAURACAO: { icone: "♻", chave: "restoration" },
+  CONVERSAO: { icone: "🎓", chave: "conversion" },
 };
 
-function formatarDataHora(valor?: string | null) {
+const ROTULOS_ENUM: Record<string, string> = {
+  BAIXA: "enum.low",
+  MEDIA: "enum.medium",
+  ALTA: "enum.high",
+  URGENTE: "enum.urgent",
+  NOVO: "enum.new",
+  NOVA: "enum.new",
+  EM_ATENDIMENTO: "enum.inService",
+  QUALIFICADO: "enum.qualified",
+  QUALIFICADA: "enum.qualified",
+  CONVERTIDO: "enum.converted",
+  CONVERTIDA: "enum.converted",
+  PERDIDO: "enum.lost",
+  PERDIDA: "enum.lost",
+  ARQUIVADO: "enum.archived",
+  ARQUIVADA: "enum.archived",
+  ATIVO: "enum.active",
+  ATIVA: "enum.active",
+  INATIVO: "enum.inactive",
+  INATIVA: "enum.inactive",
+  PENDENTE: "enum.pending",
+  CONCLUIDO: "enum.completed",
+  CONCLUIDA: "enum.completed",
+  CANCELADO: "enum.cancelled",
+  CANCELADA: "enum.cancelled",
+  WHATSAPP: "interactionTypes.whatsapp",
+  LIGACAO: "interactionTypes.call",
+  EMAIL: "interactionTypes.email",
+  REUNIAO: "interactionTypes.meeting",
+  OBSERVACAO: "interactionTypes.note",
+};
+
+function formatarDataHora(
+  valor: string | null | undefined,
+  locale: string
+) {
   if (!valor) return "—";
 
   const data = new Date(valor);
 
   if (Number.isNaN(data.getTime())) return "—";
 
-  return data.toLocaleString("pt-BR", {
+  return new Intl.DateTimeFormat(locale, {
     dateStyle: "short",
     timeStyle: "short",
-  });
+  }).format(data);
 }
 
-function formatarData(valor?: string | null) {
+function formatarData(
+  valor: string | null | undefined,
+  locale: string
+) {
   if (!valor) return "—";
 
   const data = new Date(valor);
 
   if (Number.isNaN(data.getTime())) return "—";
 
-  return data.toLocaleDateString("pt-BR");
+  return new Intl.DateTimeFormat(locale, {
+    dateStyle: "short",
+  }).format(data);
 }
 
-function formatarMoeda(valor?: number | null) {
-  if (valor === null || valor === undefined || Number.isNaN(valor)) {
-    return "R$ 0,00";
+function formatarMoeda(
+  valor: number | null | undefined,
+  locale: string
+) {
+  if (
+    valor === null ||
+    valor === undefined ||
+    Number.isNaN(valor)
+  ) {
+    return new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: "BRL",
+    }).format(0);
   }
 
-  return valor.toLocaleString("pt-BR", {
+  return new Intl.NumberFormat(locale, {
     style: "currency",
     currency: "BRL",
-  });
+  }).format(valor);
 }
 
-function formatarRotulo(valor?: string | null) {
-  if (!valor) return "Não informado";
-
-  return valor
-    .toLowerCase()
-    .replaceAll("_", " ")
-    .replace(/(^|\s)\S/g, (letra) => letra.toUpperCase());
-}
-
-function obterTelefoneWhatsapp(telefone?: string | null) {
-  const numeros = String(telefone ?? "").replace(/\D/g, "");
+function obterTelefoneWhatsapp(
+  telefone?: string | null
+) {
+  const numeros = String(
+    telefone ?? ""
+  ).replace(/\D/g, "");
 
   if (!numeros) return null;
-  if (numeros.startsWith("55")) return numeros;
 
-  return `55${numeros}`;
+  if (numeros.startsWith("00")) {
+    return numeros.slice(2);
+  }
+
+  return numeros;
 }
 
 function textoMetadado(valor: unknown) {
-  return typeof valor === "string" && valor.trim() ? valor.trim() : null;
-}
-
-function detalheEvento(evento: EventoTimeline) {
-  if (evento.tipo === "MOVIMENTACAO_FUNIL") {
-    const anterior = textoMetadado(evento.metadados.etapaAnteriorNome);
-    const nova = textoMetadado(evento.metadados.etapaNovaNome);
-
-    if (anterior && nova) return `${anterior} → ${nova}`;
-  }
-
-  if (evento.tipo === "TRANSFERENCIA") {
-    const anterior = textoMetadado(
-      evento.metadados.responsavelAnteriorNome
-    );
-    const novo = textoMetadado(evento.metadados.responsavelNovoNome);
-
-    if (anterior || novo) {
-      return `${anterior ?? "Sem responsável"} → ${novo ?? "Sem responsável"}`;
-    }
-
-    const equipeAnterior = textoMetadado(
-      evento.metadados.equipeAnteriorNome
-    );
-    const equipeNova = textoMetadado(evento.metadados.equipeNovaNome);
-
-    if (equipeAnterior || equipeNova) {
-      return `${equipeAnterior ?? "Sem equipe"} → ${equipeNova ?? "Sem equipe"}`;
-    }
-  }
-
-  if (evento.tipo === "TAREFA") {
-    const data = textoMetadado(evento.metadados.agendadaPara);
-
-    if (data) return `Agendada para ${formatarDataHora(data)}`;
-  }
-
-  return null;
+  return typeof valor === "string" &&
+    valor.trim()
+    ? valor.trim()
+    : null;
 }
 
 export default function Lead360Page() {
+  const t = useTranslations("AdminCommercialLead360");
+  const locale = useLocale();
   const params = useParams();
   const leadId = String(params?.id ?? "");
+
+  function formatarRotulo(
+    valor?: string | null
+  ) {
+    if (!valor) {
+      return t("common.notProvided");
+    }
+
+    const normalizado = String(valor)
+      .trim()
+      .toUpperCase();
+
+    const chave = ROTULOS_ENUM[normalizado];
+
+    if (chave) {
+      return t(chave);
+    }
+
+    return String(valor)
+      .toLowerCase()
+      .replaceAll("_", " ")
+      .replace(
+        /(^|\s)\S/g,
+        (letra) => letra.toUpperCase()
+      );
+  }
+
+  function detalheEvento(
+    evento: EventoTimeline
+  ) {
+    if (
+      evento.tipo ===
+      "MOVIMENTACAO_FUNIL"
+    ) {
+      const anterior = textoMetadado(
+        evento.metadados
+          .etapaAnteriorNome
+      );
+
+      const nova = textoMetadado(
+        evento.metadados
+          .etapaNovaNome
+      );
+
+      if (anterior && nova) {
+        return `${anterior} → ${nova}`;
+      }
+    }
+
+    if (
+      evento.tipo ===
+      "TRANSFERENCIA"
+    ) {
+      const anterior = textoMetadado(
+        evento.metadados
+          .responsavelAnteriorNome
+      );
+
+      const novo = textoMetadado(
+        evento.metadados
+          .responsavelNovoNome
+      );
+
+      if (anterior || novo) {
+        return `${
+          anterior ??
+          t("common.noResponsible")
+        } → ${
+          novo ??
+          t("common.noResponsible")
+        }`;
+      }
+
+      const equipeAnterior =
+        textoMetadado(
+          evento.metadados
+            .equipeAnteriorNome
+        );
+
+      const equipeNova =
+        textoMetadado(
+          evento.metadados
+            .equipeNovaNome
+        );
+
+      if (equipeAnterior || equipeNova) {
+        return `${
+          equipeAnterior ??
+          t("common.noTeam")
+        } → ${
+          equipeNova ??
+          t("common.noTeam")
+        }`;
+      }
+    }
+
+    if (evento.tipo === "TAREFA") {
+      const data = textoMetadado(
+        evento.metadados.agendadaPara
+      );
+
+      if (data) {
+        return t(
+          "timeline.scheduledFor",
+          {
+            date: formatarDataHora(
+              data,
+              locale
+            ),
+          }
+        );
+      }
+    }
+
+    return null;
+  }
 
   const [dados, setDados] = useState<RespostaTimeline | null>(null);
   const [pagina, setPagina] = useState(1);
@@ -328,7 +461,7 @@ export default function Lead360Page() {
 
   useEffect(() => {
     if (!leadId || !/^\d+$/.test(leadId)) {
-      setErro("O identificador do lead é inválido.");
+      setErro(t("errors.invalidLeadId"));
       setCarregandoInicial(false);
       return;
     }
@@ -355,7 +488,7 @@ export default function Lead360Page() {
 
         if (!resposta.ok || !payload?.success) {
           throw new Error(
-            payload?.error ?? "Não foi possível carregar a ficha do lead."
+            payload?.error ?? t("errors.loadLead")
           );
         }
 
@@ -372,7 +505,7 @@ export default function Lead360Page() {
         setErro(
           error instanceof Error
             ? error.message
-            : "Não foi possível carregar a ficha do lead."
+            : t("errors.loadLead")
         );
       } finally {
         if (!controlador.signal.aborted) {
@@ -387,7 +520,7 @@ export default function Lead360Page() {
     return () => {
       controlador.abort();
     };
-  }, [atualizacao, leadId, pagina]);
+  }, [atualizacao, leadId, pagina, t]);
 
   useEffect(() => {
     if (!toast) return;
@@ -448,7 +581,7 @@ export default function Lead360Page() {
     const descricao = descricaoInteracao.trim();
 
     if (!descricao) {
-      setErroInteracao("Descreva o contato ou a observação realizada.");
+      setErroInteracao(t("interaction.validationDescription"));
       return;
     }
 
@@ -481,7 +614,7 @@ export default function Lead360Page() {
 
       if (!resposta.ok) {
         throw new Error(
-          payload?.error ?? "Não foi possível registrar a interação."
+          payload?.error ?? t("interaction.errorRegister")
         );
       }
 
@@ -491,13 +624,13 @@ export default function Lead360Page() {
       setAtualizacao((valor) => valor + 1);
       setToast({
         tipo: "sucesso",
-        mensagem: "Interação registrada na linha do tempo.",
+        mensagem: t("interaction.successRegistered"),
       });
     } catch (error) {
       setErroInteracao(
         error instanceof Error
           ? error.message
-          : "Não foi possível registrar a interação."
+          : t("interaction.errorRegister")
       );
     } finally {
       setSalvandoInteracao(false);
@@ -509,8 +642,8 @@ export default function Lead360Page() {
       <main className="lead360-page">
         <div className="lead360-container lead360-loading">
           <div className="lead360-spinner" />
-          <strong>Montando a Ficha 360°...</strong>
-          <span>Reunindo contatos, funil, tarefas e matrícula.</span>
+          <strong>{t("loading.title")}</strong>
+          <span>{t("loading.description")}</span>
         </div>
 
         <EstilosLead360 />
@@ -524,8 +657,8 @@ export default function Lead360Page() {
         <div className="lead360-container">
           <section className="lead360-surface lead360-empty-page">
             <div className="lead360-empty-icon">!</div>
-            <h1>Não foi possível abrir a Ficha 360°</h1>
-            <p>{erro || "O lead não foi encontrado."}</p>
+            <h1>{t("empty.title")}</h1>
+            <p>{erro || t("empty.notFound")}</p>
 
             <div className="lead360-row-actions">
               <button
@@ -533,14 +666,14 @@ export default function Lead360Page() {
                 className="lead360-button lead360-button-primary"
                 onClick={() => setAtualizacao((valor) => valor + 1)}
               >
-                Tentar novamente
+                {t("actions.tryAgain")}
               </button>
 
               <Link
                 href="/admin/comercial/pipeline"
                 className="lead360-button lead360-button-secondary"
               >
-                Voltar ao Pipeline
+                {t("actions.backToPipeline")}
               </Link>
             </div>
           </section>
@@ -589,12 +722,16 @@ export default function Lead360Page() {
         <header className="lead360-surface lead360-header">
           <div className="lead360-header-copy">
             <div className="lead360-breadcrumb">
-              Comercial <span>/</span> Leads <span>/</span> Ficha 360°
+              {t("breadcrumb.commercial")} <span>/</span>{" "}
+              {t("breadcrumb.leads")} <span>/</span>{" "}
+              {t("breadcrumb.lead360")}
             </div>
 
             <div className="lead360-title-row">
               <div>
-                <div className="lead360-eyebrow">Lead #{lead.id}</div>
+                <div className="lead360-eyebrow">
+                  {t("header.leadNumber", { id: lead.id })}
+                </div>
                 <h1>{lead.nome}</h1>
               </div>
 
@@ -605,10 +742,7 @@ export default function Lead360Page() {
               </span>
             </div>
 
-            <p>
-              Histórico comercial completo, dados de atendimento e situação da
-              oportunidade em um só lugar.
-            </p>
+            <p>{t("header.description")}</p>
           </div>
 
           <div className="lead360-header-actions">
@@ -616,14 +750,14 @@ export default function Lead360Page() {
               href="/admin/comercial/pipeline"
               className="lead360-button lead360-button-secondary"
             >
-              ← Pipeline
+              {t("actions.pipeline")}
             </Link>
 
             <Link
               href="/admin/leads"
               className="lead360-button lead360-button-secondary"
             >
-              Lista de leads
+              {t("actions.leadList")}
             </Link>
 
             <button
@@ -632,7 +766,9 @@ export default function Lead360Page() {
               onClick={() => setAtualizacao((valor) => valor + 1)}
               className="lead360-button lead360-button-secondary"
             >
-              {atualizando ? "Atualizando..." : "Atualizar"}
+              {atualizando
+                ? t("actions.refreshing")
+                : t("actions.refresh")}
             </button>
 
             {permissoes.podeInteragir ? (
@@ -641,7 +777,7 @@ export default function Lead360Page() {
                 onClick={() => abrirModalInteracao()}
                 className="lead360-button lead360-button-primary"
               >
-                + Registrar interação
+                {t("actions.registerInteraction")}
               </button>
             ) : null}
           </div>
@@ -653,26 +789,36 @@ export default function Lead360Page() {
           <article className="lead360-surface lead360-summary-card">
             <div className="lead360-summary-icon">🧭</div>
             <div>
-              <span>Etapa atual</span>
-              <strong>{lead.etapa?.nome ?? "Sem etapa definida"}</strong>
-              <small>{lead.funil?.nome ?? "Funil não definido"}</small>
+              <span>{t("summary.currentStage")}</span>
+              <strong>
+                {lead.etapa?.nome ?? t("common.noStage")}
+              </strong>
+              <small>
+                {lead.funil?.nome ?? t("common.noFunnel")}
+              </small>
             </div>
           </article>
 
           <article className="lead360-surface lead360-summary-card">
             <div className="lead360-summary-icon">👤</div>
             <div>
-              <span>Responsável</span>
-              <strong>{lead.responsavel?.nome ?? "Não atribuído"}</strong>
-              <small>{lead.equipe?.nome ?? "Sem equipe comercial"}</small>
+              <span>{t("summary.responsible")}</span>
+              <strong>
+                {lead.responsavel?.nome ?? t("common.unassigned")}
+              </strong>
+              <small>
+                {lead.equipe?.nome ?? t("common.noSalesTeam")}
+              </small>
             </div>
           </article>
 
           <article className="lead360-surface lead360-summary-card">
             <div className="lead360-summary-icon">💰</div>
             <div>
-              <span>Valor estimado</span>
-              <strong>{formatarMoeda(lead.valorEstimado)}</strong>
+              <span>{t("summary.estimatedValue")}</span>
+              <strong>
+                {formatarMoeda(lead.valorEstimado, locale)}
+              </strong>
               <small>{formatarRotulo(lead.status)}</small>
             </div>
           </article>
@@ -680,10 +826,14 @@ export default function Lead360Page() {
           <article className="lead360-surface lead360-summary-card">
             <div className="lead360-summary-icon">📅</div>
             <div>
-              <span>Próxima ação</span>
-              <strong>{formatarDataHora(lead.proximoContatoEm)}</strong>
+              <span>{t("summary.nextAction")}</span>
+              <strong>
+                {formatarDataHora(lead.proximoContatoEm, locale)}
+              </strong>
               <small>
-                {resumo.tarefasPendentes} tarefa(s) pendente(s)
+                {t("summary.pendingTasks", {
+                  count: resumo.tarefasPendentes,
+                })}
               </small>
             </div>
           </article>
@@ -693,8 +843,10 @@ export default function Lead360Page() {
           <div className="lead360-main-column">
             <section className="lead360-surface lead360-contact-card">
               <div>
-                <div className="lead360-section-kicker">Contato rápido</div>
-                <h2>Fale com o interessado</h2>
+                <div className="lead360-section-kicker">
+                  {t("quickContact.kicker")}
+                </div>
+                <h2>{t("quickContact.title")}</h2>
                 <p>
                   {lead.email}
                   {lead.telefone ? ` · ${lead.telefone}` : ""}
@@ -718,7 +870,7 @@ export default function Lead360Page() {
                     href={`tel:${lead.telefone}`}
                     className="lead360-button lead360-button-secondary"
                   >
-                    Ligar
+                    {t("quickContact.call")}
                   </a>
                 ) : null}
 
@@ -726,7 +878,7 @@ export default function Lead360Page() {
                   href={`mailto:${lead.email}`}
                   className="lead360-button lead360-button-secondary"
                 >
-                  E-mail
+                  {t("quickContact.email")}
                 </a>
 
                 {permissoes.podeInteragir ? (
@@ -735,7 +887,7 @@ export default function Lead360Page() {
                     onClick={() => abrirModalInteracao("OBSERVACAO")}
                     className="lead360-button lead360-button-secondary"
                   >
-                    Adicionar observação
+                    {t("quickContact.addNote")}
                   </button>
                 ) : null}
               </div>
@@ -745,16 +897,18 @@ export default function Lead360Page() {
               <div className="lead360-section-header">
                 <div>
                   <div className="lead360-section-kicker">
-                    {resumo.totalEventos} evento(s) registrado(s)
+                    {t("timeline.eventCount", {
+                      count: resumo.totalEventos,
+                    })}
                   </div>
-                  <h2>Linha do tempo comercial</h2>
-                  <p>
-                    Contatos, movimentações, tarefas e decisões em ordem
-                    cronológica.
-                  </p>
+                  <h2>{t("timeline.title")}</h2>
+                  <p>{t("timeline.description")}</p>
                 </div>
 
-                <div className="lead360-filter-row" aria-label="Filtrar eventos">
+                <div
+                  className="lead360-filter-row"
+                  aria-label={t("timeline.filterAria")}
+                >
                   {FILTROS_EVENTO.map((item) => (
                     <button
                       key={item.valor}
@@ -762,7 +916,7 @@ export default function Lead360Page() {
                       onClick={() => setFiltro(item.valor)}
                       className={filtro === item.valor ? "is-active" : ""}
                     >
-                      {item.nome}
+                      {t(`timeline.filters.${item.chave}`)}
                     </button>
                   ))}
                 </div>
@@ -787,12 +941,15 @@ export default function Lead360Page() {
                         <div className="lead360-event-heading">
                           <div>
                             <span className="lead360-event-type">
-                              {visual.nome} · {formatarRotulo(evento.subtipo)}
+                              {t(`timeline.eventTypes.${visual.chave}`)} ·{" "}
+                              {formatarRotulo(evento.subtipo)}
                             </span>
                             <h3>{evento.titulo}</h3>
                           </div>
 
-                          <time>{formatarDataHora(evento.ocorridoEm)}</time>
+                          <time>
+                            {formatarDataHora(evento.ocorridoEm, locale)}
+                          </time>
                         </div>
 
                         {detalhe ? (
@@ -804,8 +961,10 @@ export default function Lead360Page() {
                         <div className="lead360-event-footer">
                           <span>
                             {evento.usuario?.nome
-                              ? `Registrado por ${evento.usuario.nome}`
-                              : "Registro automático do sistema"}
+                              ? t("timeline.registeredBy", {
+                                  name: evento.usuario.nome,
+                                })
+                              : t("timeline.systemRecord")}
                           </span>
                         </div>
                       </div>
@@ -816,15 +975,18 @@ export default function Lead360Page() {
                 {eventosVisiveis.length === 0 ? (
                   <div className="lead360-timeline-empty">
                     <span>⌛</span>
-                    <strong>Nenhum evento deste tipo nesta página</strong>
-                    <p>Selecione outro filtro ou navegue pelas páginas.</p>
+                    <strong>{t("timeline.emptyTitle")}</strong>
+                    <p>{t("timeline.emptyDescription")}</p>
                   </div>
                 ) : null}
               </div>
 
               <footer className="lead360-pagination">
                 <span>
-                  Página {paginacao.pagina} de {paginacao.totalPaginas}
+                  {t("pagination.page", {
+                    current: paginacao.pagina,
+                    total: paginacao.totalPaginas,
+                  })}
                 </span>
 
                 <div>
@@ -834,7 +996,7 @@ export default function Lead360Page() {
                     onClick={() => setPagina((valor) => Math.max(1, valor - 1))}
                     className="lead360-button lead360-button-secondary"
                   >
-                    Anterior
+                    {t("pagination.previous")}
                   </button>
 
                   <button
@@ -843,7 +1005,7 @@ export default function Lead360Page() {
                     onClick={() => setPagina((valor) => valor + 1)}
                     className="lead360-button lead360-button-secondary"
                   >
-                    Próxima
+                    {t("pagination.next")}
                   </button>
                 </div>
               </footer>
@@ -852,92 +1014,128 @@ export default function Lead360Page() {
 
           <aside className="lead360-side-column">
             <section className="lead360-surface lead360-side-card">
-              <div className="lead360-section-kicker">Situação atual</div>
-              <h2>Resumo comercial</h2>
+              <div className="lead360-section-kicker">
+                {t("commercialSummary.kicker")}
+              </div>
+              <h2>{t("commercialSummary.title")}</h2>
 
               <dl className="lead360-data-list">
                 <div>
-                  <dt>Status</dt>
+                  <dt>{t("commercialSummary.status")}</dt>
                   <dd>{formatarRotulo(lead.status)}</dd>
                 </div>
                 <div>
-                  <dt>Etapa</dt>
-                  <dd>{lead.etapa?.nome ?? "Não definida"}</dd>
+                  <dt>{t("commercialSummary.stage")}</dt>
+                  <dd>
+                    {lead.etapa?.nome ?? t("common.notDefined")}
+                  </dd>
                 </div>
                 <div>
-                  <dt>Funil</dt>
-                  <dd>{lead.funil?.nome ?? "Não definido"}</dd>
+                  <dt>{t("commercialSummary.funnel")}</dt>
+                  <dd>
+                    {lead.funil?.nome ?? t("common.notDefined")}
+                  </dd>
                 </div>
                 <div>
-                  <dt>Responsável</dt>
-                  <dd>{lead.responsavel?.nome ?? "Não atribuído"}</dd>
+                  <dt>{t("commercialSummary.responsible")}</dt>
+                  <dd>
+                    {lead.responsavel?.nome ?? t("common.unassigned")}
+                  </dd>
                 </div>
                 <div>
-                  <dt>Equipe</dt>
-                  <dd>{lead.equipe?.nome ?? "Não atribuída"}</dd>
+                  <dt>{t("commercialSummary.team")}</dt>
+                  <dd>
+                    {lead.equipe?.nome ?? t("common.unassigned")}
+                  </dd>
                 </div>
               </dl>
             </section>
 
             <section className="lead360-surface lead360-side-card">
-              <div className="lead360-section-kicker">Interesse</div>
-              <h2>Curso e unidade</h2>
+              <div className="lead360-section-kicker">
+                {t("interest.kicker")}
+              </div>
+              <h2>{t("interest.title")}</h2>
 
               <dl className="lead360-data-list">
                 <div>
-                  <dt>Curso</dt>
-                  <dd>{lead.curso?.nome ?? lead.interesse ?? "Não informado"}</dd>
+                  <dt>{t("interest.course")}</dt>
+                  <dd>
+                    {lead.curso?.nome ??
+                      lead.interesse ??
+                      t("common.notProvided")}
+                  </dd>
                 </div>
                 <div>
-                  <dt>Polo</dt>
-                  <dd>{lead.polo?.nome ?? "Não informado"}</dd>
+                  <dt>{t("interest.campus")}</dt>
+                  <dd>
+                    {lead.polo?.nome ?? t("common.notProvided")}
+                  </dd>
                 </div>
                 <div>
-                  <dt>Empresa / instituição</dt>
-                  <dd>{lead.instituicaoNome ?? "Não informada"}</dd>
+                  <dt>{t("interest.organization")}</dt>
+                  <dd>
+                    {lead.instituicaoNome ?? t("common.notProvided")}
+                  </dd>
                 </div>
                 <div>
-                  <dt>Origem</dt>
+                  <dt>{t("interest.source")}</dt>
                   <dd>{formatarRotulo(lead.origem)}</dd>
                 </div>
               </dl>
 
               {lead.observacoes ? (
                 <div className="lead360-note">
-                  <strong>Observações iniciais</strong>
+                  <strong>{t("interest.initialNotes")}</strong>
                   <p>{lead.observacoes}</p>
                 </div>
               ) : null}
             </section>
 
             <section className="lead360-surface lead360-side-card">
-              <div className="lead360-section-kicker">Evolução</div>
-              <h2>Marcos do relacionamento</h2>
+              <div className="lead360-section-kicker">
+                {t("milestones.kicker")}
+              </div>
+              <h2>{t("milestones.title")}</h2>
 
               <div className="lead360-milestones">
-                <Marco titulo="Lead criado" data={marcos.criadoEm} concluido />
                 <Marco
-                  titulo="Primeiro contato"
+                  titulo={t("milestones.created")}
+                  data={marcos.criadoEm}
+                  concluido
+                  locale={locale}
+                  pendente={t("milestones.notRecorded")}
+                />
+                <Marco
+                  titulo={t("milestones.firstContact")}
                   data={primeiroContatoExibido}
                   concluido={Boolean(primeiroContatoExibido)}
+                  locale={locale}
+                  pendente={t("milestones.notRecorded")}
                 />
                 <Marco
-                  titulo="Qualificado"
+                  titulo={t("milestones.qualified")}
                   data={marcos.qualificadoEm}
                   concluido={Boolean(marcos.qualificadoEm)}
+                  locale={locale}
+                  pendente={t("milestones.notRecorded")}
                 />
                 <Marco
-                  titulo="Convertido"
+                  titulo={t("milestones.converted")}
                   data={marcos.convertidoEm}
                   concluido={Boolean(marcos.convertidoEm)}
+                  locale={locale}
+                  pendente={t("milestones.notRecorded")}
                 />
               </div>
             </section>
 
             {lead.matricula ? (
               <section className="lead360-surface lead360-side-card lead360-matricula-card">
-                <div className="lead360-section-kicker">Conversão concluída</div>
-                <h2>Matrícula vinculada</h2>
+                <div className="lead360-section-kicker">
+                  {t("enrollment.kicker")}
+                </div>
+                <h2>{t("enrollment.title")}</h2>
 
                 <div className="lead360-matricula-number">
                   {lead.matricula.numeroMatricula ?? `#${lead.matricula.id}`}
@@ -945,14 +1143,16 @@ export default function Lead360Page() {
 
                 <dl className="lead360-data-list">
                   <div>
-                    <dt>Status</dt>
+                    <dt>{t("commercialSummary.status")}</dt>
                     <dd>{formatarRotulo(lead.matricula.status)}</dd>
                   </div>
                   <div>
-                    <dt>Convertido em</dt>
+                    <dt>{t("enrollment.convertedAt")}</dt>
                     <dd>
                       {formatarData(
-                        lead.matricula.confirmadaEm ?? lead.matricula.createdAt
+                        lead.matricula.confirmadaEm ??
+                          lead.matricula.createdAt,
+                        locale
                       )}
                     </dd>
                   </div>
@@ -962,18 +1162,20 @@ export default function Lead360Page() {
                   href={`/admin/matriculas?matriculaId=${lead.matricula.id}`}
                   className="lead360-button lead360-button-primary lead360-full-button"
                 >
-                  Abrir matrícula
+                  {t("enrollment.open")}
                 </Link>
               </section>
             ) : null}
 
             {lead.motivoPerda ? (
               <section className="lead360-surface lead360-side-card lead360-loss-card">
-                <div className="lead360-section-kicker">Oportunidade perdida</div>
+                <div className="lead360-section-kicker">
+                  {t("loss.kicker")}
+                </div>
                 <h2>{lead.motivoPerda.nome}</h2>
                 <p>
                   {lead.motivoPerda.observacao ??
-                    "Nenhuma observação complementar registrada."}
+                    t("loss.noAdditionalNote")}
                 </p>
               </section>
             ) : null}
@@ -1000,17 +1202,23 @@ export default function Lead360Page() {
             <header>
               <div>
                 <div className="lead360-section-kicker">
-                  Histórico comercial
+                  {t("interactionModal.kicker")}
                 </div>
-                <h2 id="lead360-modal-title">Registrar nova interação</h2>
-                <p>O registro ficará visível na Ficha 360° de {lead.nome}.</p>
+                <h2 id="lead360-modal-title">
+                  {t("interactionModal.title")}
+                </h2>
+                <p>
+                  {t("interactionModal.description", {
+                    name: lead.nome,
+                  })}
+                </p>
               </div>
 
               <button
                 type="button"
                 disabled={salvandoInteracao}
                 onClick={fecharModalInteracao}
-                aria-label="Fechar"
+                aria-label={t("actions.close")}
                 className="lead360-modal-close"
               >
                 ×
@@ -1019,7 +1227,7 @@ export default function Lead360Page() {
 
             <form onSubmit={registrarInteracao}>
               <fieldset disabled={salvandoInteracao}>
-                <legend>Tipo de interação</legend>
+                <legend>{t("interactionModal.type")}</legend>
 
                 <div className="lead360-interaction-types">
                   {TIPOS_INTERACAO.map((tipo) => (
@@ -1032,13 +1240,13 @@ export default function Lead360Page() {
                       }
                     >
                       <span>{tipo.icone}</span>
-                      {tipo.nome}
+                      {t(`interactionTypes.${tipo.chave}`)}
                     </button>
                   ))}
                 </div>
 
                 <label htmlFor="lead360-descricao-interacao">
-                  Descrição da interação *
+                  {t("interactionModal.descriptionLabel")}
                 </label>
 
                 <textarea
@@ -1050,7 +1258,7 @@ export default function Lead360Page() {
                   rows={6}
                   maxLength={5000}
                   autoFocus
-                  placeholder="Ex.: conversamos sobre valores, o interessado pediu retorno na próxima semana..."
+                  placeholder={t("interactionModal.placeholder")}
                 />
 
                 <div className="lead360-character-count">
@@ -1069,7 +1277,7 @@ export default function Lead360Page() {
                   onClick={fecharModalInteracao}
                   className="lead360-button lead360-button-secondary"
                 >
-                  Cancelar
+                  {t("actions.cancel")}
                 </button>
 
                 <button
@@ -1078,8 +1286,8 @@ export default function Lead360Page() {
                   className="lead360-button lead360-button-primary"
                 >
                   {salvandoInteracao
-                    ? "Registrando..."
-                    : "Registrar interação"}
+                    ? t("actions.registering")
+                    : t("actions.registerInteractionPlain")}
                 </button>
               </footer>
             </form>
@@ -1105,17 +1313,25 @@ function Marco({
   titulo,
   data,
   concluido,
+  locale,
+  pendente,
 }: {
   titulo: string;
   data: string | null;
   concluido: boolean;
+  locale: string;
+  pendente: string;
 }) {
   return (
     <div className={`lead360-milestone ${concluido ? "is-done" : ""}`}>
       <div className="lead360-milestone-dot">{concluido ? "✓" : ""}</div>
       <div>
         <strong>{titulo}</strong>
-        <span>{concluido ? formatarDataHora(data) : "Ainda não registrado"}</span>
+        <span>
+          {concluido
+            ? formatarDataHora(data, locale)
+            : pendente}
+        </span>
       </div>
     </div>
   );
@@ -1139,6 +1355,12 @@ function EstilosLead360() {
         --l360-primary-text: #ffffff;
         --l360-input: #ffffff;
         --l360-overlay: rgba(15, 23, 42, 0.62);
+        --l360-error-bg: #fef2f2;
+        --l360-error-text: #991b1b;
+        --l360-error-border: #fca5a5;
+        --l360-success-bg: #ecfdf5;
+        --l360-success-text: #065f46;
+        --l360-success-border: #34d399;
       }
 
       html[data-theme="dark"] .lead360-page {
@@ -1155,6 +1377,12 @@ function EstilosLead360() {
         --l360-primary-text: #04140f;
         --l360-input: #0d1727;
         --l360-overlay: rgba(2, 6, 23, 0.82);
+        --l360-error-bg: rgba(69, 10, 10, 0.72);
+        --l360-error-text: #fecaca;
+        --l360-error-border: #991b1b;
+        --l360-success-bg: rgba(6, 78, 59, 0.55);
+        --l360-success-text: #d1fae5;
+        --l360-success-border: #047857;
       }
 
       html[data-theme="system"] .lead360-page {
@@ -1172,23 +1400,35 @@ function EstilosLead360() {
         --l360-primary-text: #ffffff;
         --l360-input: #ffffff;
         --l360-overlay: rgba(15, 23, 42, 0.62);
+        --l360-error-bg: #fef2f2;
+        --l360-error-text: #991b1b;
+        --l360-error-border: #fca5a5;
+        --l360-success-bg: #ecfdf5;
+        --l360-success-text: #065f46;
+        --l360-success-border: #34d399;
       }
 
       @media (prefers-color-scheme: dark) {
         html[data-theme="system"] .lead360-page {
-          --l360-page: #07101f;
-          --l360-surface: #111b2b;
-          --l360-soft: #1a2638;
-          --l360-text: #f8fafc;
-          --l360-muted: #b8c4d4;
-          --l360-border: #334155;
-          --l360-border-strong: #475569;
-          --l360-shadow: 0 16px 40px rgba(0, 0, 0, 0.24);
+          --l360-page: #262626;
+          --l360-surface: #1f1f1f;
+          --l360-soft: #303030;
+          --l360-text: #fafafa;
+          --l360-muted: #c4c4c4;
+          --l360-border: #4b4b4b;
+          --l360-border-strong: #626262;
+          --l360-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
           --l360-primary: #10b981;
           --l360-primary-hover: #34d399;
           --l360-primary-text: #04140f;
-          --l360-input: #0d1727;
-          --l360-overlay: rgba(2, 6, 23, 0.82);
+          --l360-input: #303030;
+          --l360-overlay: rgba(0, 0, 0, 0.72);
+          --l360-error-bg: rgba(69, 10, 10, 0.62);
+          --l360-error-text: #fecaca;
+          --l360-error-border: #991b1b;
+          --l360-success-bg: rgba(6, 78, 59, 0.48);
+          --l360-success-text: #d1fae5;
+          --l360-success-border: #047857;
         }
       }
 
@@ -1207,6 +1447,12 @@ function EstilosLead360() {
         --l360-primary-text: #ffffff;
         --l360-input: #ffffff;
         --l360-overlay: rgba(15, 23, 42, 0.62);
+        --l360-error-bg: #fef2f2;
+        --l360-error-text: #991b1b;
+        --l360-error-border: #fca5a5;
+        --l360-success-bg: #ecfdf5;
+        --l360-success-text: #065f46;
+        --l360-success-border: #34d399;
         min-height: 100vh;
         background: var(--l360-page);
         color: var(--l360-text);
@@ -1785,10 +2031,10 @@ function EstilosLead360() {
 
       .lead360-inline-error,
       .lead360-form-error {
-        border: 1px solid #fca5a5;
+        border: 1px solid var(--l360-error-border);
         border-radius: 12px;
-        background: #fef2f2;
-        color: #991b1b;
+        background: var(--l360-error-bg);
+        color: var(--l360-error-text);
         padding: 12px 14px;
         font-size: 12px;
         font-weight: 750;
@@ -2034,15 +2280,15 @@ function EstilosLead360() {
       }
 
       .lead360-toast-sucesso {
-        border-color: #34d399;
-        background: #ecfdf5;
-        color: #065f46;
+        border-color: var(--l360-success-border);
+        background: var(--l360-success-bg);
+        color: var(--l360-success-text);
       }
 
       .lead360-toast-erro {
-        border-color: #fca5a5;
-        background: #fef2f2;
-        color: #991b1b;
+        border-color: var(--l360-error-border);
+        background: var(--l360-error-bg);
+        color: var(--l360-error-text);
       }
 
       @media (max-width: 1050px) {
