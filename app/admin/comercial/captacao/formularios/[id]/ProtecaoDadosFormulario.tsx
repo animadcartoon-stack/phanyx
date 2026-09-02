@@ -7,6 +7,10 @@ import {
     useState,
 } from "react";
 
+import {
+    useTranslations,
+} from "next-intl";
+
 type RespostaLgpd = {
     success: true;
 
@@ -47,6 +51,8 @@ type Props = {
 
     temaEscuro: boolean;
 
+    temaAzul: boolean;
+
     onAtualizado?:
         () =>
             | void
@@ -58,8 +64,14 @@ export default function ProtecaoDadosFormulario({
     podeGerenciar,
     arquivado,
     temaEscuro,
+    temaAzul,
     onAtualizado,
 }: Props) {
+    const t =
+        useTranslations(
+            "AdminCommercialForms"
+        );
+
     const [
         dados,
         setDados,
@@ -111,34 +123,46 @@ export default function ProtecaoDadosFormulario({
         useState("");
 
     const card =
-        temaEscuro
-            ? "border-slate-800 bg-slate-900"
-            : "border-slate-200 bg-white";
+        temaAzul
+            ? "border-blue-950 bg-[#0b1220]"
+            : temaEscuro
+                ? "border-neutral-700 bg-neutral-900"
+                : "border-slate-200 bg-white";
 
     const subCard =
-        temaEscuro
-            ? "border-slate-800 bg-slate-950"
-            : "border-slate-200 bg-slate-50";
+        temaAzul
+            ? "border-blue-900 bg-[#0f1a33]"
+            : temaEscuro
+                ? "border-neutral-700 bg-neutral-800"
+                : "border-slate-200 bg-slate-50";
 
     const titulo =
-        temaEscuro
-            ? "text-white"
-            : "text-slate-900";
+        temaAzul
+            ? "text-blue-50"
+            : temaEscuro
+                ? "text-white"
+                : "text-slate-900";
 
     const texto =
-        temaEscuro
-            ? "text-slate-300"
-            : "text-slate-700";
+        temaAzul
+            ? "text-blue-100"
+            : temaEscuro
+                ? "text-neutral-200"
+                : "text-slate-700";
 
     const muted =
-        temaEscuro
-            ? "text-slate-400"
-            : "text-slate-500";
+        temaAzul
+            ? "text-blue-200/70"
+            : temaEscuro
+                ? "text-neutral-400"
+                : "text-slate-500";
 
     const input =
-        temaEscuro
-            ? "border-slate-700 bg-slate-950 text-white placeholder:text-slate-500"
-            : "border-slate-300 bg-white text-slate-900 placeholder:text-slate-400";
+        temaAzul
+            ? "border-blue-900 bg-blue-950/70 text-blue-50 placeholder:text-blue-200/50"
+            : temaEscuro
+                ? "border-neutral-600 bg-neutral-800 text-neutral-100 placeholder:text-neutral-400"
+                : "border-slate-300 bg-white text-slate-900 placeholder:text-slate-400";
 
     const carregar =
         useCallback(
@@ -150,7 +174,7 @@ export default function ProtecaoDadosFormulario({
                     formularioId <= 0
                 ) {
                     setErro(
-                        "Formulário inválido."
+                        t("protection.errors.invalidForm")
                     );
 
                     setCarregando(
@@ -208,7 +232,7 @@ export default function ProtecaoDadosFormulario({
                                     ? json.error
                                     : null
                             ) ||
-                            "Não foi possível carregar a proteção de dados."
+                            t("protection.errors.load")
                         );
                     }
 
@@ -241,7 +265,7 @@ export default function ProtecaoDadosFormulario({
                         error instanceof
                             Error
                             ? error.message
-                            : "Não foi possível carregar a proteção de dados."
+                            : t("protection.errors.load")
                     );
                 } finally {
                     setCarregando(
@@ -289,7 +313,7 @@ export default function ProtecaoDadosFormulario({
             !textoConsentimento.trim()
         ) {
             setErro(
-                "Informe a mensagem de autorização que será mostrada ao interessado."
+                t("protection.validation.consentText")
             );
 
             return;
@@ -364,13 +388,13 @@ export default function ProtecaoDadosFormulario({
             ) {
                 throw new Error(
                     json.error ||
-                    "Não foi possível salvar a proteção de dados."
+                    t("protection.errors.save")
                 );
             }
 
             setMensagem(
                 json.message ||
-                "Proteção de dados atualizada com sucesso."
+                t("protection.success.saved")
             );
 
             await carregar();
@@ -383,7 +407,7 @@ export default function ProtecaoDadosFormulario({
                 error instanceof
                     Error
                     ? error.message
-                    : "Não foi possível salvar a proteção de dados."
+                    : t("protection.errors.save")
             );
         } finally {
             setSalvando(
@@ -406,14 +430,14 @@ export default function ProtecaoDadosFormulario({
                         <h2
                             className={`text-lg font-bold ${titulo}`}
                         >
-                            Proteção de dados
+                            {t("protection.title")}
                         </h2>
                     </div>
 
                     <p
                         className={`mt-1 text-sm ${muted}`}
                     >
-                        Defina como o interessado será informado sobre o uso dos dados enviados.
+                        {t("protection.description")}
                     </p>
                 </div>
 
@@ -439,8 +463,8 @@ export default function ProtecaoDadosFormulario({
                             {dados
                                 .lgpd
                                 .configurado
-                                ? "✓ Configurado"
-                                : "Precisa revisar"}
+                                ? t("protection.configured")
+                                : t("protection.needsReview")}
                         </span>
                     )}
             </div>
@@ -449,7 +473,7 @@ export default function ProtecaoDadosFormulario({
                 <div
                     className={`mt-5 rounded-2xl border p-5 text-sm ${subCard} ${muted}`}
                 >
-                    Carregando proteção de dados...
+                    {t("protection.loading")}
                 </div>
             ) : erro &&
               !dados ? (
@@ -467,7 +491,7 @@ export default function ProtecaoDadosFormulario({
                         }
                         className={`mt-4 rounded-xl border px-4 py-2 text-sm font-semibold ${input}`}
                     >
-                        Tentar novamente
+                        {t("common.tryAgain")}
                     </button>
                 </div>
             ) : (
@@ -518,13 +542,13 @@ export default function ProtecaoDadosFormulario({
                             <p
                                 className={`font-semibold ${titulo}`}
                             >
-                                Pedir autorização para usar os dados e entrar em contato
+                                {t("protection.requireConsent.title")}
                             </p>
 
                             <p
                                 className={`mt-1 text-sm ${muted}`}
                             >
-                                O interessado precisará marcar uma opção de concordância antes de enviar o formulário.
+                                {t("protection.requireConsent.description")}
                             </p>
                         </div>
                     </label>
@@ -537,7 +561,7 @@ export default function ProtecaoDadosFormulario({
                                 <p
                                     className={`text-sm font-semibold ${titulo}`}
                                 >
-                                    👁️ Como aparecerá para o interessado
+                                    👁️ {t("protection.preview.title")}
                                 </p>
 
                                 <div
@@ -564,7 +588,7 @@ export default function ProtecaoDadosFormulario({
                                         <p
                                             className={`mt-3 pl-7 text-xs ${muted}`}
                                         >
-                                            🔗 Política de Privacidade disponível para consulta
+                                            🔗 {t("protection.preview.privacyAvailable")}
                                         </p>
                                     )}
                                 </div>
@@ -574,7 +598,7 @@ export default function ProtecaoDadosFormulario({
                                 <label
                                     className={`text-sm font-semibold ${titulo}`}
                                 >
-                                    Mensagem de autorização
+                                    {t("protection.consentMessage.label")}
                                 </label>
 
                                 <textarea
@@ -604,7 +628,7 @@ export default function ProtecaoDadosFormulario({
                                 <p
                                     className={`mt-1.5 text-xs ${muted}`}
                                 >
-                                    O PHANYX já preparou uma mensagem inicial. Altere somente se a instituição precisar de outro texto.
+                                    {t("protection.consentMessage.help")}
                                 </p>
                             </div>
 
@@ -612,11 +636,11 @@ export default function ProtecaoDadosFormulario({
                                 <label
                                     className={`text-sm font-semibold ${titulo}`}
                                 >
-                                    Link da Política de Privacidade{" "}
+                                    {t("protection.privacyUrl.label")}{" "}
                                     <span
                                         className={`font-normal ${muted}`}
                                     >
-                                        Opcional
+                                        {t("common.optional")}
                                     </span>
                                 </label>
 
@@ -646,18 +670,20 @@ export default function ProtecaoDadosFormulario({
                                 <p
                                     className={`mt-1.5 text-xs ${muted}`}
                                 >
-                                    Se a instituição possuir uma página de privacidade, informe o endereço aqui.
+                                    {t("protection.privacyUrl.help")}
                                 </p>
                             </div>
 
                             <div
                                 className={
-                                    temaEscuro
-                                        ? "rounded-2xl border border-blue-900 bg-blue-950/40 p-4 text-sm text-blue-200"
-                                        : "rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800"
+                                    temaAzul
+                                        ? "rounded-2xl border border-blue-800 bg-blue-950/60 p-4 text-sm text-blue-100"
+                                        : temaEscuro
+                                            ? "rounded-2xl border border-neutral-600 bg-neutral-800 p-4 text-sm text-neutral-200"
+                                            : "rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800"
                                 }
                             >
-                                🔒 Quando o interessado enviar o formulário, o PHANYX guardará a autorização junto com o envio.
+                                🔒 {t("protection.auditNotice")}
                             </div>
                         </>
                     ) : (
@@ -668,7 +694,7 @@ export default function ProtecaoDadosFormulario({
                                     : "rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800"
                             }
                         >
-                            A autorização não será mostrada ao interessado. Desative esta opção somente quando a instituição já tiver definido internamente como fará o tratamento desses dados.
+                            {t("protection.disabledNotice")}
                         </div>
                     )}
 
@@ -676,7 +702,7 @@ export default function ProtecaoDadosFormulario({
                         <p
                             className={`text-sm ${muted}`}
                         >
-                            Este formulário está arquivado e não pode mais ser alterado.
+                            {t("protection.archivedNotice")}
                         </p>
                     )}
 
@@ -688,11 +714,17 @@ export default function ProtecaoDadosFormulario({
                                     disabled={
                                         salvando
                                     }
-                                    className="rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                                    className={
+                                        temaAzul
+                                            ? "rounded-xl bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-60"
+                                            : temaEscuro
+                                                ? "rounded-xl bg-neutral-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-neutral-600 disabled:cursor-not-allowed disabled:opacity-60"
+                                                : "rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                                    }
                                 >
                                     {salvando
-                                        ? "Salvando..."
-                                        : "Salvar proteção de dados"}
+                                        ? t("common.saving")
+                                        : t("protection.save")}
                                 </button>
                             </div>
                         )}

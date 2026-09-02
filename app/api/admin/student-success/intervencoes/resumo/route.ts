@@ -1,6 +1,13 @@
 import {
+  NextRequest,
   NextResponse,
 } from "next/server";
+
+import type {
+  Prisma,
+  StatusIntervencaoStudentSuccess,
+  TipoIntervencaoStudentSuccess,
+} from "@prisma/client";
 
 import {
   prisma,
@@ -21,6 +28,42 @@ import {
 const AMOSTRA_MINIMA_EFETIVIDADE =
   5;
 
+const STATUS_VALIDOS =
+  [
+    "REGISTRADA",
+    "AGUARDANDO_RETORNO",
+    "EM_ACOMPANHAMENTO",
+    "RESOLVIDA",
+    "CANCELADA",
+  ] as const;
+
+const TIPOS_VALIDOS =
+  [
+    "CONTATO",
+    "ORIENTACAO",
+    "REUNIAO",
+    "ENCAMINHAMENTO",
+    "ACOMPANHAMENTO",
+    "OUTRO",
+  ] as const;
+
+function valorPermitido<
+  T extends
+  readonly string[]
+>(
+  valor:
+    string,
+  opcoes:
+    T
+): valor is T[number] {
+  return (
+    opcoes as
+    readonly string[]
+  ).includes(
+    valor
+  );
+}
+
 function arredondar(
   valor:
     number,
@@ -40,7 +83,10 @@ function arredondar(
   );
 }
 
-export async function GET() {
+export async function GET(
+  request:
+    NextRequest
+) {
   try {
     const user =
       await getUserFromToken();
@@ -81,13 +127,257 @@ export async function GET() {
     const instituicaoId =
       acesso.instituicaoId;
 
+    /*
+     * FILTROS
+     *
+     * O frontend enviará:
+     *
+     * status
+     * tipo
+     * inicio
+     * fim
+     *
+     * As datas são enviadas em ISO já
+     * considerando o horário local do
+     * usuário.
+     *
+     * Exemplo:
+     *
+     * ?status=RESOLVIDA
+     * &tipo=CONTATO
+     * &inicio=2026-08-01T03:00:00.000Z
+     * &fim=2026-09-01T03:00:00.000Z
+     */
+
+    const parametros =
+      request.nextUrl
+        .searchParams;
+
+    const status =
+      parametros
+        .get(
+          "status"
+        )
+        ?.trim() ||
+      null;
+
+    const tipo =
+      parametros
+        .get(
+          "tipo"
+        )
+        ?.trim() ||
+      null;
+
+    const inicioTexto =
+      parametros
+        .get(
+          "inicio"
+        )
+        ?.trim() ||
+      null;
+
+    const fimTexto =
+      parametros
+        .get(
+          "fim"
+        )
+        ?.trim() ||
+      null;
+
+    /*
+     * STATUS
+     */
+
+    if (
+      status &&
+      !valorPermitido(
+        status,
+        STATUS_VALIDOS
+      )
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Status de intervenção inválido",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    /*
+     * TIPO
+     */
+
+    if (
+      tipo &&
+      !valorPermitido(
+        tipo,
+        TIPOS_VALIDOS
+      )
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Tipo de intervenção inválido",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    /*
+     * PERÍODO
+     *
+     * O fim é exclusivo.
+     *
+     * Exemplo:
+     *
+     * início de 02/09
+     * até início de 03/09
+     *
+     * representa todo o dia 02/09.
+     */
+
+    let inicio:
+      Date |
+      null =
+      null;
+
+    let fim:
+      Date |
+      null =
+      null;
+
+    if (
+      inicioTexto
+    ) {
+      const data =
+        new Date(
+          inicioTexto
+        );
+
+      if (
+        Number.isNaN(
+          data.getTime()
+        )
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "Data inicial inválida",
+          },
+          {
+            status: 400,
+          }
+        );
+      }
+
+      inicio =
+        data;
+    }
+
+    if (
+      fimTexto
+    ) {
+      const data =
+        new Date(
+          fimTexto
+        );
+
+      if (
+        Number.isNaN(
+          data.getTime()
+        )
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "Data final inválida",
+          },
+          {
+            status: 400,
+          }
+        );
+      }
+
+      fim =
+        data;
+    }
+
+    if (
+      inicio &&
+      fim &&
+      fim.getTime() <=
+      inicio.getTime()
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "O fim do período deve ser posterior ao início",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    /*
+     * WHERE
+     */
+
+    const where:
+      Prisma.StudentSuccessIntervencaoWhereInput =
+    {
+      instituicaoId,
+    };
+
+    if (
+      status
+    ) {
+      where.status =
+        status as
+        StatusIntervencaoStudentSuccess;
+    }
+
+    if (
+      tipo
+    ) {
+      where.tipo =
+        tipo as
+        TipoIntervencaoStudentSuccess;
+    }
+
+    if (
+      inicio ||
+      fim
+    ) {
+      where.criadoEm =
+        {};
+
+      if (
+        inicio
+      ) {
+        where.criadoEm.gte =
+          inicio;
+      }
+
+      if (
+        fim
+      ) {
+        where.criadoEm.lt =
+          fim;
+      }
+    }
+
     const intervencoes =
       await prisma
         .studentSuccessIntervencao
         .findMany({
-          where: {
-            instituicaoId,
-          },
+          where,
 
           select: {
             id:
@@ -97,6 +387,9 @@ export async function GET() {
               true,
 
             status:
+              true,
+
+            tipo:
               true,
 
             criadoEm:
@@ -124,6 +417,10 @@ export async function GET() {
               true,
           },
         });
+
+    /*
+     * ACOMPANHAMENTO
+     */
 
     const registradas =
       intervencoes.filter(
@@ -174,6 +471,10 @@ export async function GET() {
       registradas +
       aguardandoRetorno +
       emAcompanhamento;
+
+    /*
+     * EFETIVIDADE
+     */
 
     let evolucaoPositiva =
       0;
@@ -277,6 +578,10 @@ export async function GET() {
         )
         : null;
 
+    /*
+     * TEMPO MÉDIO DE RESOLUÇÃO
+     */
+
     const duracoesEmDias =
       resolvidas
         .filter(
@@ -290,7 +595,9 @@ export async function GET() {
             item
           ) => {
             const inicio =
-              item.criadoEm.getTime();
+              item
+                .criadoEm
+                .getTime();
 
             const fim =
               item
@@ -334,6 +641,28 @@ export async function GET() {
     return NextResponse.json({
       ok:
         true,
+
+      /*
+       * Retornamos também os filtros
+       * aplicados. Isso ajuda a validar
+       * o comportamento da API e poderá
+       * ser útil no frontend.
+       */
+      filtros: {
+        status,
+
+        tipo,
+
+        inicio:
+          inicio
+            ?.toISOString() ??
+          null,
+
+        fim:
+          fim
+            ?.toISOString() ??
+          null,
+      },
 
       acompanhamento: {
         total:

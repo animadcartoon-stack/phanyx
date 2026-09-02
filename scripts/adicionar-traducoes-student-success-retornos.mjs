@@ -27,6 +27,8 @@ const traducoes = {
 
     viewStudent: "Ver aluno",
     update: "Atualizar",
+
+    showAll: "Mostrar todos",
   },
 
   "pt-PT": {
@@ -54,6 +56,8 @@ const traducoes = {
 
     viewStudent: "Ver aluno",
     update: "Atualizar",
+
+    showAll: "Mostrar todos",
   },
 
   "en-US": {
@@ -81,6 +85,8 @@ const traducoes = {
 
     viewStudent: "View student",
     update: "Update",
+
+    showAll: "Show all",
   },
 
   "es-ES": {
@@ -108,6 +114,8 @@ const traducoes = {
 
     viewStudent: "Ver alumno",
     update: "Actualizar",
+
+    showAll: "Mostrar todos",
   },
 
   "fr-FR": {
@@ -135,6 +143,8 @@ const traducoes = {
 
     viewStudent: "Voir l'étudiant",
     update: "Mettre à jour",
+
+    showAll: "Tout afficher",
   },
 };
 

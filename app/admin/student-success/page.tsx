@@ -51,6 +51,35 @@ type StatusIntervencao =
   | "RESOLVIDA"
   | "CANCELADA";
 
+type FiltroRetorno =
+  | "TODOS"
+  | "ATRASADOS"
+  | "HOJE"
+  | "PROXIMOS_7_DIAS"
+  | "SEM_RETORNO";
+
+type FiltroPrioridade =
+  | "TODOS"
+  | "HOJE"
+  | "ATRASADOS"
+  | "PIORA"
+  | "SEM_RETORNO";
+
+type PeriodoIntervencoes =
+  | "TODOS"
+  | "HOJE"
+  | "ULTIMOS_7_DIAS"
+  | "ULTIMOS_30_DIAS"
+  | "PERSONALIZADO";
+
+type FiltroStatusIntervencao =
+  | "TODOS"
+  | StatusIntervencao;
+
+type FiltroTipoIntervencao =
+  | "TODOS"
+  | TipoIntervencao;
+
 type StudentSuccessIntervencao = {
   id: number;
 
@@ -472,6 +501,109 @@ type RetornosStudentSuccessResponse = {
   RetornoStudentSuccess[];
 };
 
+type PrioridadeIntervencaoAberta = {
+  id: number;
+
+  alunoId: number;
+
+  tipo:
+  TipoIntervencao;
+
+  canal:
+  CanalIntervencao;
+
+  status:
+  StatusIntervencao;
+
+  observacao:
+  string;
+
+  retornoEm:
+  | string
+  | null;
+
+  criadoEm:
+  string;
+
+  atualizadoEm:
+  string;
+
+  aluno: {
+    id: number;
+
+    nome: string;
+
+    matricula:
+    | string
+    | null;
+  };
+};
+
+type PrioridadePioraIntervencao = {
+  id: number;
+
+  alunoId: number;
+
+  tipo:
+  TipoIntervencao;
+
+  canal:
+  CanalIntervencao;
+
+  status:
+  StatusIntervencao;
+
+  observacao:
+  string;
+
+  resultado:
+  | string
+  | null;
+
+  criadoEm:
+  string;
+
+  concluidoEm:
+  | string
+  | null;
+
+  aluno: {
+    id: number;
+
+    nome: string;
+
+    matricula:
+    | string
+    | null;
+  };
+
+  evolucao:
+  unknown;
+};
+
+type PrioridadesStudentSuccessResponse = {
+  ok: boolean;
+
+  resumo: {
+    abertas: number;
+
+    comRetorno: number;
+
+    semRetorno: number;
+
+    pioraAposIntervencao: number;
+  };
+
+  comRetorno:
+  PrioridadeIntervencaoAberta[];
+
+  semRetorno:
+  PrioridadeIntervencaoAberta[];
+
+  pioraAposIntervencao:
+  PrioridadePioraIntervencao[];
+};
+
 function CardResumo({
   valor,
   titulo,
@@ -622,6 +754,50 @@ function telefoneParaLink(
   );
 }
 
+function calcularDiasSemAtualizacao(
+  data:
+    string
+) {
+  const agora =
+    new Date();
+
+  const atualizadoEm =
+    new Date(
+      data
+    );
+
+  const inicioHoje =
+    new Date(
+      agora.getFullYear(),
+      agora.getMonth(),
+      agora.getDate()
+    );
+
+  const inicioAtualizacao =
+    new Date(
+      atualizadoEm.getFullYear(),
+      atualizadoEm.getMonth(),
+      atualizadoEm.getDate()
+    );
+
+  const diferenca =
+    inicioHoje.getTime() -
+    inicioAtualizacao.getTime();
+
+  return Math.max(
+    0,
+    Math.floor(
+      diferenca /
+      (
+        1000 *
+        60 *
+        60 *
+        24
+      )
+    )
+  );
+}
+
 export default function AdminStudentSuccessPage() {
   const t =
     useTranslations(
@@ -715,6 +891,36 @@ export default function AdminStudentSuccessPage() {
     setRetornoIntervencao,
   ] =
     useState("");
+
+  const [
+    prioridades,
+    setPrioridades,
+  ] =
+    useState<PrioridadesStudentSuccessResponse | null>(
+      null
+    );
+
+  const [
+    filtroPrioridades,
+    setFiltroPrioridades,
+  ] =
+    useState<FiltroPrioridade>(
+      "TODOS"
+    );
+
+  const [
+    carregandoPrioridades,
+    setCarregandoPrioridades,
+  ] =
+    useState(true);
+
+  const [
+    erroPrioridades,
+    setErroPrioridades,
+  ] =
+    useState<string | null>(
+      null
+    );
 
   const [
     intervencoes,
@@ -831,6 +1037,42 @@ export default function AdminStudentSuccessPage() {
     );
 
   const [
+    periodoIntervencoes,
+    setPeriodoIntervencoes,
+  ] =
+    useState<PeriodoIntervencoes>(
+      "TODOS"
+    );
+
+  const [
+    filtroStatusIntervencoes,
+    setFiltroStatusIntervencoes,
+  ] =
+    useState<FiltroStatusIntervencao>(
+      "TODOS"
+    );
+
+  const [
+    filtroTipoIntervencoes,
+    setFiltroTipoIntervencoes,
+  ] =
+    useState<FiltroTipoIntervencao>(
+      "TODOS"
+    );
+
+  const [
+    dataInicialIntervencoes,
+    setDataInicialIntervencoes,
+  ] =
+    useState("");
+
+  const [
+    dataFinalIntervencoes,
+    setDataFinalIntervencoes,
+  ] =
+    useState("");
+
+  const [
     carregandoResumoIntervencoes,
     setCarregandoResumoIntervencoes,
   ] =
@@ -864,6 +1106,14 @@ export default function AdminStudentSuccessPage() {
   ] =
     useState<string | null>(
       null
+    );
+
+  const [
+    filtroRetornos,
+    setFiltroRetornos,
+  ] =
+    useState<FiltroRetorno>(
+      "TODOS"
     );
 
   const carregarDados =
@@ -1119,9 +1369,171 @@ export default function AdminStudentSuccessPage() {
           );
 
           try {
+            const parametros =
+              new URLSearchParams();
+
+            if (
+              filtroStatusIntervencoes !==
+              "TODOS"
+            ) {
+              parametros.set(
+                "status",
+                filtroStatusIntervencoes
+              );
+            }
+
+            if (
+              filtroTipoIntervencoes !==
+              "TODOS"
+            ) {
+              parametros.set(
+                "tipo",
+                filtroTipoIntervencoes
+              );
+            }
+
+            /*
+             * Datas sempre calculadas no horário
+             * local do navegador.
+             *
+             * O backend recebe ISO em UTC,
+             * mas representando corretamente o
+             * início/fim do dia local do usuário.
+             */
+            const hoje =
+              new Date();
+
+            const inicioHoje =
+              new Date(
+                hoje.getFullYear(),
+                hoje.getMonth(),
+                hoje.getDate()
+              );
+
+            const inicioAmanha =
+              new Date(
+                inicioHoje
+              );
+
+            inicioAmanha.setDate(
+              inicioAmanha.getDate() +
+              1
+            );
+
+            let inicioPeriodo:
+              Date |
+              null =
+              null;
+
+            let fimPeriodo:
+              Date |
+              null =
+              null;
+
+            if (
+              periodoIntervencoes ===
+              "HOJE"
+            ) {
+              inicioPeriodo =
+                inicioHoje;
+
+              fimPeriodo =
+                inicioAmanha;
+            }
+
+            if (
+              periodoIntervencoes ===
+              "ULTIMOS_7_DIAS"
+            ) {
+              inicioPeriodo =
+                new Date(
+                  inicioHoje
+                );
+
+              inicioPeriodo.setDate(
+                inicioPeriodo.getDate() -
+                6
+              );
+
+              fimPeriodo =
+                inicioAmanha;
+            }
+
+            if (
+              periodoIntervencoes ===
+              "ULTIMOS_30_DIAS"
+            ) {
+              inicioPeriodo =
+                new Date(
+                  inicioHoje
+                );
+
+              inicioPeriodo.setDate(
+                inicioPeriodo.getDate() -
+                29
+              );
+
+              fimPeriodo =
+                inicioAmanha;
+            }
+
+            if (
+              periodoIntervencoes ===
+              "PERSONALIZADO"
+            ) {
+              if (
+                dataInicialIntervencoes
+              ) {
+                inicioPeriodo =
+                  new Date(
+                    `${dataInicialIntervencoes}T00:00:00`
+                  );
+              }
+
+              if (
+                dataFinalIntervencoes
+              ) {
+                fimPeriodo =
+                  new Date(
+                    `${dataFinalIntervencoes}T00:00:00`
+                  );
+
+                fimPeriodo.setDate(
+                  fimPeriodo.getDate() +
+                  1
+                );
+              }
+            }
+
+            if (
+              inicioPeriodo
+            ) {
+              parametros.set(
+                "inicio",
+                inicioPeriodo.toISOString()
+              );
+            }
+
+            if (
+              fimPeriodo
+            ) {
+              parametros.set(
+                "fim",
+                fimPeriodo.toISOString()
+              );
+            }
+
+            const query =
+              parametros.toString();
+
+            const url =
+              query
+                ? `/api/admin/student-success/intervencoes/resumo?${query}`
+                : "/api/admin/student-success/intervencoes/resumo";
+
             const resposta =
               await fetch(
-                "/api/admin/student-success/intervencoes/resumo",
+                url,
                 {
                   credentials:
                     "include",
@@ -1192,6 +1604,11 @@ export default function AdminStudentSuccessPage() {
     },
     [
       versaoIntervencoes,
+      periodoIntervencoes,
+      filtroStatusIntervencoes,
+      filtroTipoIntervencoes,
+      dataInicialIntervencoes,
+      dataFinalIntervencoes,
       t,
     ]
   );
@@ -1291,6 +1708,97 @@ export default function AdminStudentSuccessPage() {
     [
       versaoIntervencoes,
       t,
+    ]
+  );
+
+  useEffect(
+    () => {
+      let cancelado =
+        false;
+
+      const carregarPrioridades =
+        async () => {
+          setCarregandoPrioridades(
+            true
+          );
+
+          setErroPrioridades(
+            null
+          );
+
+          try {
+            const resposta =
+              await fetch(
+                "/api/admin/student-success/intervencoes/prioridades",
+                {
+                  credentials:
+                    "include",
+
+                  cache:
+                    "no-store",
+                }
+              );
+
+            const json =
+              (
+                await resposta.json()
+              ) as PrioridadesStudentSuccessResponse;
+
+            if (
+              !resposta.ok ||
+              !json?.ok
+            ) {
+              throw new Error(
+                "PRIORITIES_LOAD_ERROR"
+              );
+            }
+
+            if (
+              !cancelado
+            ) {
+              setPrioridades(
+                json
+              );
+            }
+          }
+          catch (error) {
+            console.error(
+              "[STUDENT_SUCCESS_PRIORITIES]",
+              error
+            );
+
+            if (
+              !cancelado
+            ) {
+              setPrioridades(
+                null
+              );
+
+              setErroPrioridades(
+                "PRIORITIES_LOAD_ERROR"
+              );
+            }
+          }
+          finally {
+            if (
+              !cancelado
+            ) {
+              setCarregandoPrioridades(
+                false
+              );
+            }
+          }
+        };
+
+      void carregarPrioridades();
+
+      return () => {
+        cancelado =
+          true;
+      };
+    },
+    [
+      versaoIntervencoes,
     ]
   );
 
@@ -1406,6 +1914,321 @@ export default function AdminStudentSuccessPage() {
       ]
     );
 
+  const prioridadesClassificadas =
+    useMemo(
+      () => {
+        const agora =
+          new Date();
+
+        const inicioHoje =
+          new Date(
+            agora.getFullYear(),
+            agora.getMonth(),
+            agora.getDate()
+          );
+
+        const inicioAmanha =
+          new Date(
+            inicioHoje
+          );
+
+        inicioAmanha.setDate(
+          inicioAmanha.getDate() +
+          1
+        );
+
+        const atrasados:
+          PrioridadeIntervencaoAberta[] =
+          [];
+
+        const hoje:
+          PrioridadeIntervencaoAberta[] =
+          [];
+
+        for (
+          const intervencao
+          of prioridades
+            ?.comRetorno ??
+          []
+        ) {
+          if (
+            !intervencao.retornoEm
+          ) {
+            continue;
+          }
+
+          const retorno =
+            new Date(
+              intervencao.retornoEm
+            );
+
+          if (
+            retorno <
+            inicioHoje
+          ) {
+            atrasados.push(
+              intervencao
+            );
+
+            continue;
+          }
+
+          if (
+            retorno <
+            inicioAmanha
+          ) {
+            hoje.push(
+              intervencao
+            );
+          }
+        }
+
+        return {
+          atrasados,
+
+          hoje,
+
+          semRetorno:
+            prioridades
+              ?.semRetorno ??
+            [],
+
+          pioraAposIntervencao:
+            prioridades
+              ?.pioraAposIntervencao ??
+            [],
+
+          maisAntigaSemRetorno:
+            prioridades
+              ?.semRetorno
+            ?.[0] ??
+            null,
+        };
+      },
+      [
+        prioridades,
+      ]
+    );
+
+  const alternarFiltroPrioridades =
+    (
+      filtro:
+        Exclude<
+          FiltroPrioridade,
+          "TODOS"
+        >
+    ) => {
+      setFiltroPrioridades(
+        (
+          atual
+        ) =>
+          atual === filtro
+            ? "TODOS"
+            : filtro
+      );
+    };
+
+  const existeFiltroPrioridadeAtivo =
+    filtroPrioridades !==
+    "TODOS";
+
+  const prioridadeFiltradaVazia =
+    filtroPrioridades ===
+      "HOJE"
+      ? prioridadesClassificadas
+        .hoje.length ===
+      0
+
+      : filtroPrioridades ===
+        "ATRASADOS"
+        ? prioridadesClassificadas
+          .atrasados
+          .length ===
+        0
+
+        : filtroPrioridades ===
+          "PIORA"
+          ? prioridadesClassificadas
+            .pioraAposIntervencao
+            .length ===
+          0
+
+          : filtroPrioridades ===
+            "SEM_RETORNO"
+            ? prioridadesClassificadas
+              .semRetorno
+              .length ===
+            0
+
+            : prioridadesClassificadas
+              .hoje.length ===
+            0 &&
+            prioridadesClassificadas
+              .atrasados
+              .length ===
+            0 &&
+            prioridadesClassificadas
+              .pioraAposIntervencao
+              .length ===
+            0 &&
+            prioridadesClassificadas
+              .semRetorno
+              .length ===
+            0;
+
+  const quantidadeGruposPrioridadeVisiveis =
+    [
+      filtroPrioridades ===
+        "TODOS" ||
+        filtroPrioridades ===
+        "HOJE"
+        ? prioridadesClassificadas
+          .hoje.length
+        : 0,
+
+      filtroPrioridades ===
+        "TODOS" ||
+        filtroPrioridades ===
+        "ATRASADOS"
+        ? prioridadesClassificadas
+          .atrasados.length
+        : 0,
+
+      filtroPrioridades ===
+        "TODOS" ||
+        filtroPrioridades ===
+        "PIORA"
+        ? prioridadesClassificadas
+          .pioraAposIntervencao
+          .length
+        : 0,
+
+      filtroPrioridades ===
+        "TODOS" ||
+        filtroPrioridades ===
+        "SEM_RETORNO"
+        ? prioridadesClassificadas
+          .semRetorno.length
+        : 0,
+    ].filter(
+      (
+        quantidade
+      ) =>
+        quantidade >
+        0
+    ).length;
+
+  const gruposRetornos =
+    [
+      {
+        chave:
+          "ATRASADOS" as const,
+
+        titulo:
+          t(
+            "intervention.returns.overdue"
+          ),
+
+        itens:
+          retornosClassificados
+            .atrasados,
+
+        classe:
+          "phanyx-student-success-return-group-overdue",
+      },
+
+      {
+        chave:
+          "HOJE" as const,
+
+        titulo:
+          t(
+            "intervention.returns.today"
+          ),
+
+        itens:
+          retornosClassificados
+            .hoje,
+
+        classe:
+          "phanyx-student-success-return-group-today",
+      },
+
+      {
+        chave:
+          "PROXIMOS_7_DIAS" as const,
+
+        titulo:
+          t(
+            "intervention.returns.next7Days"
+          ),
+
+        itens:
+          retornosClassificados
+            .proximos7Dias,
+
+        classe:
+          "phanyx-student-success-return-group-upcoming",
+      },
+
+      {
+        chave:
+          "SEM_RETORNO" as const,
+
+        titulo:
+          t(
+            "intervention.returns.unscheduled"
+          ),
+
+
+        itens:
+          retornosClassificados
+            .semRetorno,
+
+        classe:
+          "phanyx-student-success-return-group-unscheduled",
+      },
+    ];
+
+  const gruposRetornosVisiveis =
+    filtroRetornos ===
+      "TODOS"
+      ? gruposRetornos
+      : gruposRetornos.filter(
+        (
+          grupo
+        ) =>
+          grupo.chave ===
+          filtroRetornos
+      );
+
+  const filtroRetornosVazio =
+    gruposRetornosVisiveis.every(
+      (
+        grupo
+      ) =>
+        grupo.itens.length ===
+        0
+    );
+
+  const alternarFiltroRetornos =
+    (
+      filtro:
+        Exclude<
+          FiltroRetorno,
+          "TODOS"
+        >
+    ) => {
+      setFiltroRetornos(
+        (
+          atual
+        ) =>
+          atual === filtro
+            ? "TODOS"
+            : filtro
+      );
+    };
+
   /*
    * Mostramos aqui:
    *
@@ -1517,8 +2340,10 @@ export default function AdminStudentSuccessPage() {
 
   const atualizarIntervencaoDaFila =
     async (
-      retorno:
-        RetornoStudentSuccess
+      retorno: {
+        id: number;
+        alunoId: number;
+      }
     ) => {
       const aluno =
         dados?.alunos.find(
@@ -2957,6 +3782,37 @@ export default function AdminStudentSuccessPage() {
       );
     };
 
+  const limparFiltrosIntervencoes =
+    () => {
+      setPeriodoIntervencoes(
+        "TODOS"
+      );
+
+      setFiltroStatusIntervencoes(
+        "TODOS"
+      );
+
+      setFiltroTipoIntervencoes(
+        "TODOS"
+      );
+
+      setDataInicialIntervencoes(
+        ""
+      );
+
+      setDataFinalIntervencoes(
+        ""
+      );
+    };
+
+  const existemFiltrosIntervencoes =
+    periodoIntervencoes !==
+    "TODOS" ||
+    filtroStatusIntervencoes !==
+    "TODOS" ||
+    filtroTipoIntervencoes !==
+    "TODOS";
+
   const resumo =
     dados?.resumo;
 
@@ -3316,6 +4172,456 @@ export default function AdminStudentSuccessPage() {
                 "intervention.dashboard.description"
               )}
             </p>
+          </div>
+
+          <div
+            className="
+    phanyx-student-success-management-filters
+    mt-5
+    rounded-2xl
+    border
+    p-4
+  "
+          >
+            <div
+              className="
+      flex
+      flex-col
+      gap-3
+      lg:flex-row
+      lg:items-start
+      lg:justify-between
+    "
+            >
+              <div>
+                <h3
+                  className="
+          phanyx-student-success-management-filters-title
+          text-sm
+          font-bold
+        "
+                >
+                  {t(
+                    "intervention.dashboard.filters.title"
+                  )}
+                </h3>
+
+                <p
+                  className="
+          phanyx-student-success-management-filters-description
+          mt-1
+          text-xs
+        "
+                >
+                  {t(
+                    "intervention.dashboard.filters.description"
+                  )}
+                </p>
+              </div>
+
+              {existemFiltrosIntervencoes ? (
+                <button
+                  type="button"
+                  onClick={
+                    limparFiltrosIntervencoes
+                  }
+                  className="
+          phanyx-student-success-management-clear
+          inline-flex
+          shrink-0
+          items-center
+          justify-center
+          rounded-lg
+          border
+          px-3
+          py-2
+          text-xs
+          font-bold
+          transition
+        "
+                >
+                  ×{" "}
+                  {t(
+                    "intervention.dashboard.filters.clear"
+                  )}
+                </button>
+              ) : null}
+            </div>
+
+            <div
+              className="
+      mt-4
+      grid
+      gap-4
+      md:grid-cols-2
+      xl:grid-cols-3
+    "
+            >
+              {/* PERÍODO */}
+              <label
+                className="
+        block
+      "
+              >
+                <span
+                  className="
+          phanyx-student-success-management-filter-label
+          mb-1.5
+          block
+          text-xs
+          font-bold
+        "
+                >
+                  {t(
+                    "intervention.dashboard.filters.period"
+                  )}
+                </span>
+
+                <select
+                  value={
+                    periodoIntervencoes
+                  }
+                  onChange={
+                    (
+                      event
+                    ) => {
+                      const valor =
+                        event.target
+                          .value as PeriodoIntervencoes;
+
+                      setPeriodoIntervencoes(
+                        valor
+                      );
+
+                      if (
+                        valor !==
+                        "PERSONALIZADO"
+                      ) {
+                        setDataInicialIntervencoes(
+                          ""
+                        );
+
+                        setDataFinalIntervencoes(
+                          ""
+                        );
+                      }
+                    }
+                  }
+                  className="
+          phanyx-student-success-management-filter-field
+          w-full
+          rounded-xl
+          border
+          px-3
+          py-2.5
+          text-sm
+          font-semibold
+          outline-none
+        "
+                >
+                  <option value="TODOS">
+                    {t(
+                      "intervention.dashboard.filters.allPeriods"
+                    )}
+                  </option>
+
+                  <option value="HOJE">
+                    {t(
+                      "intervention.dashboard.filters.today"
+                    )}
+                  </option>
+
+                  <option value="ULTIMOS_7_DIAS">
+                    {t(
+                      "intervention.dashboard.filters.last7Days"
+                    )}
+                  </option>
+
+                  <option value="ULTIMOS_30_DIAS">
+                    {t(
+                      "intervention.dashboard.filters.last30Days"
+                    )}
+                  </option>
+
+                  <option value="PERSONALIZADO">
+                    {t(
+                      "intervention.dashboard.filters.custom"
+                    )}
+                  </option>
+                </select>
+              </label>
+
+              {/* STATUS */}
+              <label
+                className="
+        block
+      "
+              >
+                <span
+                  className="
+          phanyx-student-success-management-filter-label
+          mb-1.5
+          block
+          text-xs
+          font-bold
+        "
+                >
+                  {t(
+                    "intervention.dashboard.filters.status"
+                  )}
+                </span>
+
+                <select
+                  value={
+                    filtroStatusIntervencoes
+                  }
+                  onChange={
+                    (
+                      event
+                    ) =>
+                      setFiltroStatusIntervencoes(
+                        event.target
+                          .value as FiltroStatusIntervencao
+                      )
+                  }
+                  className="
+          phanyx-student-success-management-filter-field
+          w-full
+          rounded-xl
+          border
+          px-3
+          py-2.5
+          text-sm
+          font-semibold
+          outline-none
+        "
+                >
+                  <option value="TODOS">
+                    {t(
+                      "intervention.dashboard.filters.allStatuses"
+                    )}
+                  </option>
+
+                  {[
+                    "REGISTRADA",
+                    "AGUARDANDO_RETORNO",
+                    "EM_ACOMPANHAMENTO",
+                    "RESOLVIDA",
+                    "CANCELADA",
+                  ].map(
+                    (
+                      status
+                    ) => (
+                      <option
+                        key={
+                          status
+                        }
+                        value={
+                          status
+                        }
+                      >
+                        {t(
+                          `intervention.statuses.${status}`
+                        )}
+                      </option>
+                    )
+                  )}
+                </select>
+              </label>
+
+              {/* TIPO */}
+              <label
+                className="
+        block
+      "
+              >
+                <span
+                  className="
+          phanyx-student-success-management-filter-label
+          mb-1.5
+          block
+          text-xs
+          font-bold
+        "
+                >
+                  {t(
+                    "intervention.dashboard.filters.type"
+                  )}
+                </span>
+
+                <select
+                  value={
+                    filtroTipoIntervencoes
+                  }
+                  onChange={
+                    (
+                      event
+                    ) =>
+                      setFiltroTipoIntervencoes(
+                        event.target
+                          .value as FiltroTipoIntervencao
+                      )
+                  }
+                  className="
+          phanyx-student-success-management-filter-field
+          w-full
+          rounded-xl
+          border
+          px-3
+          py-2.5
+          text-sm
+          font-semibold
+          outline-none
+        "
+                >
+                  <option value="TODOS">
+                    {t(
+                      "intervention.dashboard.filters.allTypes"
+                    )}
+                  </option>
+
+                  {[
+                    "CONTATO",
+                    "ORIENTACAO",
+                    "REUNIAO",
+                    "ENCAMINHAMENTO",
+                    "ACOMPANHAMENTO",
+                    "OUTRO",
+                  ].map(
+                    (
+                      tipo
+                    ) => (
+                      <option
+                        key={
+                          tipo
+                        }
+                        value={
+                          tipo
+                        }
+                      >
+                        {t(
+                          `intervention.types.${tipo}`
+                        )}
+                      </option>
+                    )
+                  )}
+                </select>
+              </label>
+            </div>
+
+            {periodoIntervencoes ===
+              "PERSONALIZADO" ? (
+              <div
+                className="
+        mt-4
+        grid
+        gap-4
+        md:grid-cols-2
+      "
+              >
+                <label
+                  className="
+          block
+        "
+                >
+                  <span
+                    className="
+            phanyx-student-success-management-filter-label
+            mb-1.5
+            block
+            text-xs
+            font-bold
+          "
+                  >
+                    {t(
+                      "intervention.dashboard.filters.startDate"
+                    )}
+                  </span>
+
+                  <input
+                    type="date"
+                    value={
+                      dataInicialIntervencoes
+                    }
+                    max={
+                      dataFinalIntervencoes ||
+                      undefined
+                    }
+                    onChange={
+                      (
+                        event
+                      ) =>
+                        setDataInicialIntervencoes(
+                          event.target
+                            .value
+                        )
+                    }
+                    className="
+            phanyx-student-success-management-filter-field
+            w-full
+            rounded-xl
+            border
+            px-3
+            py-2.5
+            text-sm
+            font-semibold
+            outline-none
+          "
+                  />
+                </label>
+
+                <label
+                  className="
+          block
+        "
+                >
+                  <span
+                    className="
+            phanyx-student-success-management-filter-label
+            mb-1.5
+            block
+            text-xs
+            font-bold
+          "
+                  >
+                    {t(
+                      "intervention.dashboard.filters.endDate"
+                    )}
+                  </span>
+
+                  <input
+                    type="date"
+                    value={
+                      dataFinalIntervencoes
+                    }
+                    min={
+                      dataInicialIntervencoes ||
+                      undefined
+                    }
+                    onChange={
+                      (
+                        event
+                      ) =>
+                        setDataFinalIntervencoes(
+                          event.target
+                            .value
+                        )
+                    }
+                    className="
+            phanyx-student-success-management-filter-field
+            w-full
+            rounded-xl
+            border
+            px-3
+            py-2.5
+            text-sm
+            font-semibold
+            outline-none
+          "
+                  />
+                </label>
+              </div>
+            ) : null}
           </div>
 
           {carregandoResumoIntervencoes ? (
@@ -3790,6 +5096,865 @@ export default function AdminStudentSuccessPage() {
           ) : null}
         </section>
 
+        {/* PRIORIDADES DO ACOMPANHAMENTO */}
+        <section
+          className="
+    phanyx-student-success-priorities
+    rounded-2xl
+    border
+    p-5
+  "
+        >
+          <div>
+            <h2
+              className="
+        phanyx-student-success-priorities-title
+        text-lg
+        font-bold
+      "
+            >
+              {t(
+                "intervention.priorities.title"
+              )}
+            </h2>
+
+            <p
+              className="
+        phanyx-student-success-priorities-description
+        mt-1
+        text-sm
+      "
+            >
+              {t(
+                "intervention.priorities.description"
+              )}
+            </p>
+          </div>
+
+          {carregandoPrioridades ? (
+            <div
+              className="
+        phanyx-student-success-priorities-state
+        mt-4
+        rounded-xl
+        border
+        p-4
+        text-sm
+        font-semibold
+      "
+            >
+              {t(
+                "intervention.priorities.loading"
+              )}
+            </div>
+          ) : erroPrioridades ? (
+            <div
+              className="
+        mt-4
+        rounded-xl
+        border
+        border-red-300
+        bg-red-50
+        p-4
+        text-sm
+        font-semibold
+        text-red-800
+      "
+            >
+              {t(
+                "intervention.priorities.error"
+              )}
+            </div>
+          ) : (
+            <>
+              {/* RESUMO DAS PRIORIDADES */}
+              {/* RESUMO DAS PRIORIDADES */}
+              <div
+                className="
+    mt-5
+    grid
+    gap-3
+    sm:grid-cols-2
+    xl:grid-cols-4
+  "
+              >
+                <button
+                  type="button"
+                  aria-pressed={
+                    filtroPrioridades ===
+                    "HOJE"
+                  }
+                  onClick={() =>
+                    alternarFiltroPrioridades(
+                      "HOJE"
+                    )
+                  }
+                  className="
+      phanyx-student-success-priority-summary
+      phanyx-student-success-priority-summary-button
+      phanyx-student-success-priority-today
+      relative
+      rounded-xl
+      border
+      p-4
+      text-left
+      transition
+    "
+                >
+                  <div
+                    className="
+        text-2xl
+        font-bold
+      "
+                  >
+                    {
+                      prioridadesClassificadas
+                        .hoje.length
+                    }
+                  </div>
+
+                  <div
+                    className="
+        mt-1
+        text-sm
+        font-bold
+      "
+                  >
+                    {t(
+                      "intervention.priorities.today"
+                    )}
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  aria-pressed={
+                    filtroPrioridades ===
+                    "ATRASADOS"
+                  }
+                  onClick={() =>
+                    alternarFiltroPrioridades(
+                      "ATRASADOS"
+                    )
+                  }
+                  className="
+      phanyx-student-success-priority-summary
+      phanyx-student-success-priority-summary-button
+      phanyx-student-success-priority-overdue
+      relative
+      rounded-xl
+      border
+      p-4
+      text-left
+      transition
+    "
+                >
+                  <div
+                    className="
+        text-2xl
+        font-bold
+      "
+                  >
+                    {
+                      prioridadesClassificadas
+                        .atrasados.length
+                    }
+                  </div>
+
+                  <div
+                    className="
+        mt-1
+        text-sm
+        font-bold
+      "
+                  >
+                    {t(
+                      "intervention.priorities.overdue"
+                    )}
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  aria-pressed={
+                    filtroPrioridades ===
+                    "PIORA"
+                  }
+                  onClick={() =>
+                    alternarFiltroPrioridades(
+                      "PIORA"
+                    )
+                  }
+                  className="
+      phanyx-student-success-priority-summary
+      phanyx-student-success-priority-summary-button
+      phanyx-student-success-priority-worsened
+      relative
+      rounded-xl
+      border
+      p-4
+      text-left
+      transition
+    "
+                >
+                  <div
+                    className="
+        text-2xl
+        font-bold
+      "
+                  >
+                    {
+                      prioridadesClassificadas
+                        .pioraAposIntervencao
+                        .length
+                    }
+                  </div>
+
+                  <div
+                    className="
+        mt-1
+        text-sm
+        font-bold
+      "
+                  >
+                    {t(
+                      "intervention.priorities.worsened"
+                    )}
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  aria-pressed={
+                    filtroPrioridades ===
+                    "SEM_RETORNO"
+                  }
+                  onClick={() =>
+                    alternarFiltroPrioridades(
+                      "SEM_RETORNO"
+                    )
+                  }
+                  className="
+      phanyx-student-success-priority-summary
+      phanyx-student-success-priority-summary-button
+      phanyx-student-success-priority-unscheduled
+      relative
+      rounded-xl
+      border
+      p-4
+      text-left
+      transition
+    "
+                >
+                  <div
+                    className="
+        text-2xl
+        font-bold
+      "
+                  >
+                    {
+                      prioridadesClassificadas
+                        .semRetorno.length
+                    }
+                  </div>
+
+                  <div
+                    className="
+        mt-1
+        text-sm
+        font-bold
+      "
+                  >
+                    {t(
+                      "intervention.priorities.unscheduled"
+                    )}
+                  </div>
+                </button>
+              </div>
+
+              {existeFiltroPrioridadeAtivo ? (
+                <div
+                  className="
+      mt-3
+      flex
+      justify-end
+    "
+                >
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setFiltroPrioridades(
+                        "TODOS"
+                      )
+                    }
+                    className="
+        phanyx-student-success-priority-clear-filter
+        rounded-lg
+        border
+        px-3
+        py-2
+        text-xs
+        font-bold
+        transition
+      "
+                  >
+                    ×{" "}
+                    {t(
+                      "intervention.priorities.showAll"
+                    )}
+                  </button>
+                </div>
+              ) : null}
+
+              {prioridadeFiltradaVazia ? (
+                <div
+                  className="
+            phanyx-student-success-priorities-state
+            mt-4
+            rounded-xl
+            border
+            p-4
+            text-sm
+            font-semibold
+          "
+                >
+                  {t(
+                    "intervention.priorities.empty"
+                  )}
+                </div>
+              ) : (
+                <div
+                  className={[
+                    "mt-5 grid gap-4",
+
+                    quantidadeGruposPrioridadeVisiveis ===
+                      1
+                      ? "grid-cols-1"
+                      : "xl:grid-cols-2",
+                  ].join(
+                    " "
+                  )}
+                >
+                  {[
+                    {
+                      chave:
+                        "today",
+
+                      filtro:
+                        "HOJE" as const,
+
+                      titulo:
+                        t(
+                          "intervention.priorities.today"
+                        ),
+
+                      descricao:
+                        t(
+                          "intervention.priorities.todayDescription"
+                        ),
+
+                      itens:
+                        prioridadesClassificadas
+                          .hoje,
+
+                      classe:
+                        "phanyx-student-success-priority-group-today",
+
+                      piora:
+                        false,
+                    },
+
+                    {
+                      chave:
+                        "overdue",
+
+                      filtro:
+                        "HOJE" as const,
+
+
+                      titulo:
+                        t(
+                          "intervention.priorities.overdue"
+                        ),
+
+                      descricao:
+                        t(
+                          "intervention.priorities.overdueDescription"
+                        ),
+
+                      itens:
+                        prioridadesClassificadas
+                          .atrasados,
+
+                      classe:
+                        "phanyx-student-success-priority-group-overdue",
+
+                      piora:
+                        false,
+                    },
+
+                    {
+                      chave:
+                        "unscheduled",
+
+                      filtro:
+                        "HOJE" as const,
+
+
+                      titulo:
+                        t(
+                          "intervention.priorities.unscheduled"
+                        ),
+
+                      descricao:
+                        t(
+                          "intervention.priorities.unscheduledDescription"
+                        ),
+
+                      itens:
+                        prioridadesClassificadas
+                          .semRetorno,
+
+                      classe:
+                        "phanyx-student-success-priority-group-unscheduled",
+
+                      piora:
+                        false,
+                    },
+                  ]
+                    .filter(
+                      (
+                        grupo
+                      ) =>
+                        grupo.itens.length >
+                        0 &&
+                        (
+                          filtroPrioridades ===
+                          "TODOS" ||
+                          filtroPrioridades ===
+                          grupo.filtro
+                        )
+                    ).filter(
+                      (
+                        grupo
+                      ) =>
+                        grupo.itens.length >
+                        0
+                    )
+                    .map(
+                      (
+                        grupo
+                      ) => (
+                        <div
+                          key={
+                            grupo.chave
+                          }
+                          className={[
+                            "phanyx-student-success-priority-group rounded-xl border p-4",
+                            grupo.classe,
+                          ].join(
+                            " "
+                          )}
+                        >
+                          <h3
+                            className="
+                      text-sm
+                      font-bold
+                    "
+                          >
+                            {
+                              grupo.titulo
+                            }
+                          </h3>
+
+                          <p
+                            className="
+                      phanyx-student-success-priority-muted
+                      mt-1
+                      text-xs
+                    "
+                          >
+                            {
+                              grupo.descricao
+                            }
+                          </p>
+
+                          <div
+                            className="
+                      mt-3
+                      space-y-3
+                    "
+                          >
+                            {grupo.itens.map(
+                              (
+                                item
+                              ) => (
+                                <article
+                                  key={
+                                    item.id
+                                  }
+                                  className="
+                            phanyx-student-success-priority-item
+                            rounded-xl
+                            border
+                            p-3
+                          "
+                                >
+                                  <div
+                                    className="
+                              flex
+                              flex-wrap
+                              items-start
+                              justify-between
+                              gap-2
+                            "
+                                  >
+                                    <div>
+                                      <div
+                                        className="
+                                  phanyx-student-success-priority-student
+                                  font-bold
+                                "
+                                      >
+                                        {
+                                          item
+                                            .aluno
+                                            .nome
+                                        }
+                                      </div>
+
+                                      {item
+                                        .aluno
+                                        .matricula ? (
+                                        <div
+                                          className="
+                                    phanyx-student-success-priority-muted
+                                    mt-0.5
+                                    text-xs
+                                  "
+                                        >
+                                          {
+                                            item
+                                              .aluno
+                                              .matricula
+                                          }
+                                        </div>
+                                      ) : null}
+                                    </div>
+
+                                    <span
+                                      className="
+                                phanyx-student-success-priority-status
+                                rounded-full
+                                border
+                                px-2.5
+                                py-1
+                                text-xs
+                                font-bold
+                              "
+                                    >
+                                      {t(
+                                        `intervention.statuses.${item.status}`
+                                      )}
+                                    </span>
+                                  </div>
+
+                                  <div
+                                    className="
+                              phanyx-student-success-priority-muted
+                              mt-3
+                              text-xs
+                            "
+                                  >
+                                    {item.retornoEm ? (
+                                      <>
+                                        {t(
+                                          grupo.chave ===
+                                            "overdue"
+                                            ? "intervention.priorities.overdueSince"
+                                            : "intervention.priorities.scheduledFor"
+                                        )}
+                                        :{" "}
+
+                                        {new Intl.DateTimeFormat(
+                                          undefined,
+                                          {
+                                            dateStyle:
+                                              "medium",
+                                          }
+                                        ).format(
+                                          new Date(
+                                            item.retornoEm
+                                          )
+                                        )}
+                                      </>
+                                    ) : (
+                                      <>
+                                        {t(
+                                          "intervention.priorities.withoutDate"
+                                        )}
+
+                                        {" · "}
+
+                                        {calcularDiasSemAtualizacao(
+                                          item.atualizadoEm
+                                        ) === 0
+                                          ? t(
+                                            "intervention.priorities.updatedToday"
+                                          )
+                                          : t(
+                                            "intervention.priorities.daysWithoutUpdate",
+                                            {
+                                              count:
+                                                calcularDiasSemAtualizacao(
+                                                  item.atualizadoEm
+                                                ),
+                                            }
+                                          )}
+                                      </>
+                                    )}
+                                  </div>
+
+                                  <div
+                                    className="
+                              mt-3
+                              grid
+                              gap-2
+                              sm:grid-cols-2
+                            "
+                                  >
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        abrirAlunoDaFila(
+                                          item.alunoId
+                                        )
+                                      }
+                                      className="
+                                phanyx-student-success-priority-view
+                                rounded-lg
+                                border
+                                px-3
+                                py-2
+                                text-xs
+                                font-bold
+                                transition
+                              "
+                                    >
+                                      {t(
+                                        "intervention.priorities.viewStudent"
+                                      )}
+                                    </button>
+
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        void atualizarIntervencaoDaFila(
+                                          item
+                                        )
+                                      }
+                                      className="
+                                phanyx-student-success-priority-update
+                                rounded-lg
+                                border
+                                px-3
+                                py-2
+                                text-xs
+                                font-bold
+                                transition
+                              "
+                                    >
+                                      {t(
+                                        "intervention.priorities.update"
+                                      )}
+                                    </button>
+                                  </div>
+                                </article>
+                              )
+                            )}
+                          </div>
+                        </div>
+                      )
+                    )}
+
+                  {/* PIORA APÓS INTERVENÇÃO */}
+                  {(
+                    filtroPrioridades ===
+                    "TODOS" ||
+                    filtroPrioridades ===
+                    "PIORA"
+                  ) &&
+                    prioridadesClassificadas
+                      .pioraAposIntervencao
+                      .length >
+                    0 ? (
+                    <div
+                      className="
+                phanyx-student-success-priority-group
+                phanyx-student-success-priority-group-worsened
+                rounded-xl
+                border
+                p-4
+              "
+                    >
+                      <h3
+                        className="
+                  text-sm
+                  font-bold
+                "
+                      >
+                        {t(
+                          "intervention.priorities.worsened"
+                        )}
+                      </h3>
+
+                      <p
+                        className="
+                  phanyx-student-success-priority-muted
+                  mt-1
+                  text-xs
+                "
+                      >
+                        {t(
+                          "intervention.priorities.worsenedDescription"
+                        )}
+                      </p>
+
+                      <div
+                        className="
+                  mt-3
+                  space-y-3
+                "
+                      >
+                        {prioridadesClassificadas
+                          .pioraAposIntervencao
+                          .map(
+                            (
+                              item
+                            ) => (
+                              <article
+                                key={
+                                  item.id
+                                }
+                                className="
+                          phanyx-student-success-priority-item
+                          rounded-xl
+                          border
+                          p-3
+                        "
+                              >
+                                <div
+                                  className="
+                            phanyx-student-success-priority-student
+                            font-bold
+                          "
+                                >
+                                  {
+                                    item
+                                      .aluno
+                                      .nome
+                                  }
+                                </div>
+
+                                {item
+                                  .aluno
+                                  .matricula ? (
+                                  <div
+                                    className="
+                              phanyx-student-success-priority-muted
+                              mt-0.5
+                              text-xs
+                            "
+                                  >
+                                    {
+                                      item
+                                        .aluno
+                                        .matricula
+                                    }
+                                  </div>
+                                ) : null}
+
+                                <div
+                                  className="
+                            phanyx-student-success-priority-warning
+                            mt-3
+                            rounded-lg
+                            border
+                            px-3
+                            py-2
+                            text-xs
+                            font-semibold
+                          "
+                                >
+                                  ⚠{" "}
+                                  {t(
+                                    "intervention.priorities.needsReview"
+                                  )}
+                                </div>
+
+                                {item.concluidoEm ? (
+                                  <div
+                                    className="
+                              phanyx-student-success-priority-muted
+                              mt-2
+                              text-xs
+                            "
+                                  >
+                                    {t(
+                                      "intervention.priorities.completedAt"
+                                    )}
+                                    :{" "}
+
+                                    {new Intl.DateTimeFormat(
+                                      undefined,
+                                      {
+                                        dateStyle:
+                                          "medium",
+                                      }
+                                    ).format(
+                                      new Date(
+                                        item.concluidoEm
+                                      )
+                                    )}
+                                  </div>
+                                ) : null}
+
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    abrirAlunoDaFila(
+                                      item.alunoId
+                                    )
+                                  }
+                                  className="
+                            phanyx-student-success-priority-view
+                            mt-3
+                            w-full
+                            rounded-lg
+                            border
+                            px-3
+                            py-2
+                            text-xs
+                            font-bold
+                            transition
+                          "
+                                >
+                                  {t(
+                                    "intervention.priorities.viewStudent"
+                                  )}
+                                </button>
+                              </article>
+                            )
+                          )}
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              )}
+            </>
+          )}
+        </section>
+
         {/* RETORNOS E ACOMPANHAMENTOS */}
         <section
           className="
@@ -3861,29 +6026,43 @@ export default function AdminStudentSuccessPage() {
           ) : (
             <>
               {/* RESUMO */}
+
               <div
                 className="
-                  mt-5
-                  grid
-                  gap-3
-                  sm:grid-cols-2
-                  xl:grid-cols-4
-                "
+    mt-5
+    grid
+    gap-3
+    sm:grid-cols-2
+    xl:grid-cols-4
+  "
               >
-                <div
+                <button
+                  type="button"
+                  aria-pressed={
+                    filtroRetornos ===
+                    "ATRASADOS"
+                  }
+                  onClick={() =>
+                    alternarFiltroRetornos(
+                      "ATRASADOS"
+                    )
+                  }
                   className="
-                    phanyx-student-success-return-summary
-                    phanyx-student-success-return-overdue
-                    rounded-xl
-                    border
-                    p-4
-                  "
+      phanyx-student-success-return-summary
+      phanyx-student-success-return-summary-button
+      phanyx-student-success-return-overdue
+      rounded-xl
+      border
+      p-4
+      text-left
+      transition
+    "
                 >
                   <div
                     className="
-                      text-2xl
-                      font-bold
-                    "
+        text-2xl
+        font-bold
+      "
                   >
                     {
                       retornosClassificados
@@ -3894,31 +6073,44 @@ export default function AdminStudentSuccessPage() {
 
                   <div
                     className="
-                      mt-1
-                      text-sm
-                      font-bold
-                    "
+        mt-1
+        text-sm
+        font-bold
+      "
                   >
                     {t(
                       "intervention.returns.overdue"
                     )}
                   </div>
-                </div>
+                </button>
 
-                <div
+                <button
+                  type="button"
+                  aria-pressed={
+                    filtroRetornos ===
+                    "HOJE"
+                  }
+                  onClick={() =>
+                    alternarFiltroRetornos(
+                      "HOJE"
+                    )
+                  }
                   className="
-                    phanyx-student-success-return-summary
-                    phanyx-student-success-return-today
-                    rounded-xl
-                    border
-                    p-4
-                  "
+      phanyx-student-success-return-summary
+      phanyx-student-success-return-summary-button
+      phanyx-student-success-return-today
+      rounded-xl
+      border
+      p-4
+      text-left
+      transition
+    "
                 >
                   <div
                     className="
-                      text-2xl
-                      font-bold
-                    "
+        text-2xl
+        font-bold
+      "
                   >
                     {
                       retornosClassificados
@@ -3929,31 +6121,44 @@ export default function AdminStudentSuccessPage() {
 
                   <div
                     className="
-                      mt-1
-                      text-sm
-                      font-bold
-                    "
+        mt-1
+        text-sm
+        font-bold
+      "
                   >
                     {t(
                       "intervention.returns.today"
                     )}
                   </div>
-                </div>
+                </button>
 
-                <div
+                <button
+                  type="button"
+                  aria-pressed={
+                    filtroRetornos ===
+                    "PROXIMOS_7_DIAS"
+                  }
+                  onClick={() =>
+                    alternarFiltroRetornos(
+                      "PROXIMOS_7_DIAS"
+                    )
+                  }
                   className="
-                    phanyx-student-success-return-summary
-                    phanyx-student-success-return-upcoming
-                    rounded-xl
-                    border
-                    p-4
-                  "
+      phanyx-student-success-return-summary
+      phanyx-student-success-return-summary-button
+      phanyx-student-success-return-upcoming
+      rounded-xl
+      border
+      p-4
+      text-left
+      transition
+    "
                 >
                   <div
                     className="
-                      text-2xl
-                      font-bold
-                    "
+        text-2xl
+        font-bold
+      "
                   >
                     {
                       retornosClassificados
@@ -3964,31 +6169,44 @@ export default function AdminStudentSuccessPage() {
 
                   <div
                     className="
-                      mt-1
-                      text-sm
-                      font-bold
-                    "
+        mt-1
+        text-sm
+        font-bold
+      "
                   >
                     {t(
                       "intervention.returns.next7Days"
                     )}
                   </div>
-                </div>
+                </button>
 
-                <div
+                <button
+                  type="button"
+                  aria-pressed={
+                    filtroRetornos ===
+                    "SEM_RETORNO"
+                  }
+                  onClick={() =>
+                    alternarFiltroRetornos(
+                      "SEM_RETORNO"
+                    )
+                  }
                   className="
-                    phanyx-student-success-return-summary
-                    phanyx-student-success-return-unscheduled
-                    rounded-xl
-                    border
-                    p-4
-                  "
+      phanyx-student-success-return-summary
+      phanyx-student-success-return-summary-button
+      phanyx-student-success-return-unscheduled
+      rounded-xl
+      border
+      p-4
+      text-left
+      transition
+    "
                 >
                   <div
                     className="
-                      text-2xl
-                      font-bold
-                    "
+        text-2xl
+        font-bold
+      "
                   >
                     {
                       retornosClassificados
@@ -3999,31 +6217,67 @@ export default function AdminStudentSuccessPage() {
 
                   <div
                     className="
-                      mt-1
-                      text-sm
-                      font-bold
-                    "
+        mt-1
+        text-sm
+        font-bold
+      "
                   >
                     {t(
                       "intervention.returns.unscheduled"
                     )}
+
                   </div>
-                </div>
+                </button>
               </div>
 
+              {filtroRetornos !==
+                "TODOS" ? (
+                <div
+                  className="
+      mt-3
+      flex
+      justify-end
+    "
+                >
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setFiltroRetornos(
+                        "TODOS"
+                      )
+                    }
+                    className="
+        phanyx-student-success-return-clear-filter
+        inline-flex
+        items-center
+        justify-center
+        rounded-lg
+        border
+        px-3
+        py-2
+        text-xs
+        font-bold
+        transition
+      "
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="
+          mr-1.5
+        "
+                    >
+                      ×
+                    </span>
+
+                    {t(
+                      "intervention.returns.showAll"
+                    )}
+                  </button>
+                </div>
+              ) : null}
+
               {/* FILA */}
-              {retornosClassificados
-                .atrasados.length ===
-                0 &&
-                retornosClassificados
-                  .hoje.length ===
-                0 &&
-                retornosClassificados
-                  .proximos7Dias.length ===
-                0 &&
-                retornosClassificados
-                  .semRetorno.length ===
-                0 ? (
+              {filtroRetornosVazio ? (
                 <div
                   className="
                     phanyx-student-success-returns-empty
@@ -4041,89 +6295,30 @@ export default function AdminStudentSuccessPage() {
                 </div>
               ) : (
                 <div
-                  className="
-                    mt-5
-                    grid
-                    gap-4
-                    xl:grid-cols-2
-                  "
+                  className={[
+                    "mt-5 grid gap-4",
+
+                    gruposRetornosVisiveis
+                      .filter(
+                        (
+                          grupo
+                        ) =>
+                          grupo.itens.length >
+                          0
+                      )
+                      .length === 1
+                      ? "grid-cols-1"
+                      : "xl:grid-cols-2",
+                  ].join(
+                    " "
+                  )}
                 >
-                  {[
-                    {
-                      chave:
-                        "atrasados",
-
-                      titulo:
-                        t(
-                          "intervention.returns.overdue"
-                        ),
-
-                      itens:
-                        retornosClassificados
-                          .atrasados,
-
-                      classe:
-                        "phanyx-student-success-return-group-overdue",
-                    },
-
-                    {
-                      chave:
-                        "hoje",
-
-                      titulo:
-                        t(
-                          "intervention.returns.today"
-                        ),
-
-                      itens:
-                        retornosClassificados
-                          .hoje,
-
-                      classe:
-                        "phanyx-student-success-return-group-today",
-                    },
-
-                    {
-                      chave:
-                        "proximos",
-
-                      titulo:
-                        t(
-                          "intervention.returns.next7Days"
-                        ),
-
-                      itens:
-                        retornosClassificados
-                          .proximos7Dias,
-
-                      classe:
-                        "phanyx-student-success-return-group-upcoming",
-                    },
-
-                    {
-                      chave:
-                        "sem-retorno",
-
-                      titulo:
-                        t(
-                          "intervention.returns.unscheduled"
-                        ),
-
-                      itens:
-                        retornosClassificados
-                          .semRetorno,
-
-                      classe:
-                        "phanyx-student-success-return-group-unscheduled",
-                    },
-                  ]
+                  {gruposRetornosVisiveis
                     .filter(
                       (
                         grupo
                       ) =>
-                        grupo
-                          .itens
-                          .length >
+                        grupo.itens.length >
                         0
                     )
                     .map(

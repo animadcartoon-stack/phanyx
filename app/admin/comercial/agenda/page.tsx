@@ -671,8 +671,10 @@ export default function AgendaComercialPage() {
             : t("errors.load")
         );
       } finally {
-        setCarregandoInicial(false);
-        setAtualizando(false);
+        if (!controlador.signal.aborted) {
+          setCarregandoInicial(false);
+          setAtualizando(false);
+        }
       }
     }
 

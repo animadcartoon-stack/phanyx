@@ -33094,3 +33094,1376 @@ html[data-theme="light"]
   background-color: #f1f5f9 !important;
   color: #0f172a !important;
 }
+
+/* STUDENT SUCCESS — FILTRO DOS RETORNOS */
+
+.phanyx-student-success-return-summary-button {
+  cursor: pointer;
+}
+
+.phanyx-student-success-return-summary-button:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.3) !important;
+  outline-offset: 3px;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-return-summary-button[aria-pressed="true"] {
+  box-shadow:
+    0 0 0 3px #ffffff,
+    0 0 0 6px #2563eb !important;
+
+  transform: translateY(-1px);
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-return-summary-button[aria-pressed="true"] {
+  box-shadow:
+    0 0 0 3px #0f172a,
+    0 0 0 6px #60a5fa !important;
+
+  transform: translateY(-1px);
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-return-summary-button[aria-pressed="true"] {
+  box-shadow:
+    0 0 0 3px #303030,
+    0 0 0 6px #6ea8ff !important;
+
+  transform: translateY(-1px);
+}
+
+.phanyx-student-success-return-summary-button:hover {
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   STUDENT SUCCESS — FILTROS DA FILA DE RETORNOS
+   ========================================================= */
+
+.phanyx-student-success-return-summary-button {
+  cursor: pointer;
+  position: relative;
+}
+
+.phanyx-student-success-return-summary-button:hover {
+  transform: translateY(-1px);
+}
+
+.phanyx-student-success-return-summary-button:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.3) !important;
+  outline-offset: 3px;
+}
+
+/* LIGHT — SELECIONADO */
+
+html[data-theme="light"]
+  .phanyx-student-success-return-summary-button[aria-pressed="true"] {
+  box-shadow:
+    0 0 0 2px #ffffff,
+    0 0 0 5px #2563eb !important;
+
+  transform: translateY(-1px);
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-return-summary-button[aria-pressed="true"]::after {
+  content: "✓";
+
+  position: absolute;
+  top: 10px;
+  right: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 22px;
+  height: 22px;
+
+  border-radius: 9999px;
+
+  background: #2563eb;
+  color: #ffffff;
+
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* DARK — SELECIONADO */
+
+html[data-theme="dark"]
+  .phanyx-student-success-return-summary-button[aria-pressed="true"] {
+  box-shadow:
+    0 0 0 2px #0f172a,
+    0 0 0 5px #60a5fa !important;
+
+  transform: translateY(-1px);
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-return-summary-button[aria-pressed="true"]::after {
+  content: "✓";
+
+  position: absolute;
+  top: 10px;
+  right: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 22px;
+  height: 22px;
+
+  border-radius: 9999px;
+
+  background: #60a5fa;
+  color: #0f172a;
+
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* SYSTEM — SELECIONADO */
+
+html[data-theme="system"]
+  .phanyx-student-success-return-summary-button[aria-pressed="true"] {
+  box-shadow:
+    0 0 0 2px #303030,
+    0 0 0 5px #6ea8ff !important;
+
+  transform: translateY(-1px);
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-return-summary-button[aria-pressed="true"]::after {
+  content: "✓";
+
+  position: absolute;
+  top: 10px;
+  right: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 22px;
+  height: 22px;
+
+  border-radius: 9999px;
+
+  background: #6ea8ff;
+  color: #1f2937;
+
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* =========================================================
+   PHANYX — ATIVIDADE EXTERNA — EQUIPE
+   TEMA CLARO
+   ========================================================= */
+
+html[data-theme="light"] .phanyx-equipe-atividade {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-equipe-card,
+html[data-theme="light"] .phanyx-equipe-resumo {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-equipe-form,
+html[data-theme="light"] .phanyx-equipe-member,
+html[data-theme="light"] .phanyx-equipe-empty {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-equipe-principal {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-equipe-input {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 0.875rem;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  padding: 0.75rem 0.875rem;
+  font-size: 0.875rem;
+  outline: none;
+}
+
+html[data-theme="light"] .phanyx-equipe-input::placeholder {
+  color: #94a3b8 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-equipe-input:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+html[data-theme="light"] .phanyx-equipe-primary {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .phanyx-equipe-primary:hover {
+  background: #1d4ed8 !important;
+}
+
+html[data-theme="light"] .phanyx-equipe-cancel {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+html[data-theme="light"] .phanyx-equipe-cancel:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-equipe-chip {
+  background: #eff6ff !important;
+  border-color: #bfdbfe !important;
+  color: #1d4ed8 !important;
+}
+
+html[data-theme="light"] .phanyx-equipe-chip-principal {
+  background: #ecfdf5 !important;
+  border-color: #a7f3d0 !important;
+  color: #047857 !important;
+}
+
+html[data-theme="light"] .phanyx-equipe-atividade .text-slate-950,
+html[data-theme="light"] .phanyx-equipe-atividade .text-slate-900 {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-equipe-atividade .text-slate-700,
+html[data-theme="light"] .phanyx-equipe-atividade .text-slate-600 {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-equipe-atividade .text-slate-500 {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+
+/* =========================================================
+   PHANYX — ATIVIDADE EXTERNA — EQUIPE
+   CAMPOS + SELECT PERSONALIZADO
+   ========================================================= */
+
+/* CAMPOS */
+
+.phanyx-equipe-input {
+  display: block !important;
+  width: 100% !important;
+  min-height: 44px !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+  border-radius: 0.875rem !important;
+  padding: 0.75rem 0.875rem !important;
+  font-size: 0.875rem !important;
+  line-height: 1.4 !important;
+  outline: none !important;
+}
+
+textarea.phanyx-equipe-input {
+  width: 100% !important;
+  min-height: 100px !important;
+  resize: vertical !important;
+}
+
+
+/* SELECT PHANYX */
+
+.phanyx-select {
+  position: relative !important;
+  width: 100% !important;
+}
+
+.phanyx-select-trigger {
+  display: flex !important;
+  width: 100% !important;
+  min-height: 44px !important;
+
+  align-items: center !important;
+  justify-content: space-between !important;
+
+  gap: 0.75rem !important;
+
+  border: 1px solid !important;
+  border-radius: 0.875rem !important;
+
+  padding: 0.7rem 0.875rem !important;
+
+  text-align: left !important;
+
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+
+  cursor: pointer !important;
+  outline: none !important;
+}
+
+
+/* MENU ABERTO */
+
+.phanyx-select-menu {
+  position: absolute !important;
+
+  left: 0 !important;
+  right: 0 !important;
+  top: calc(100% + 6px) !important;
+
+  z-index: 9999 !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+
+  width: 100% !important;
+  max-height: 300px !important;
+
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+
+  padding: 6px !important;
+
+  border: 1px solid !important;
+  border-radius: 0.875rem !important;
+
+  box-shadow:
+    0 16px 32px rgba(15, 23, 42, 0.18),
+    0 4px 12px rgba(15, 23, 42, 0.1) !important;
+}
+
+
+/* CADA OPÇÃO */
+
+.phanyx-select-option {
+  display: flex !important;
+
+  width: 100% !important;
+
+  flex: 0 0 auto !important;
+
+  align-items: center !important;
+  justify-content: space-between !important;
+
+  gap: 12px !important;
+
+  border: 0 !important;
+  border-radius: 0.65rem !important;
+
+  padding: 10px 12px !important;
+
+  text-align: left !important;
+
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  line-height: 1.35 !important;
+
+  white-space: normal !important;
+
+  cursor: pointer !important;
+
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+
+.phanyx-select-option > span:first-child {
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+}
+
+.phanyx-select-option > span:last-child {
+  flex: 0 0 auto !important;
+}
+
+
+/* =========================================================
+   CLARO
+   ========================================================= */
+
+html[data-theme="light"] .phanyx-select-trigger {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-select-menu {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .phanyx-select-option {
+  background: transparent !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-select-option:hover {
+  background: #f1f5f9 !important;
+}
+
+html[data-theme="light"] .phanyx-select-option.is-selected {
+  background: #eff6ff !important;
+  color: #1d4ed8 !important;
+  font-weight: 800 !important;
+}
+
+html[data-theme="light"] .phanyx-select-option.is-disabled {
+  color: #94a3b8 !important;
+  opacity: 0.55 !important;
+  cursor: not-allowed !important;
+}
+
+
+/* =========================================================
+   ESCURO
+   ========================================================= */
+
+html[data-theme="dark"] .phanyx-equipe-input {
+  background: #0f172a !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-equipe-input::placeholder {
+  color: #94a3b8 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] .phanyx-select-trigger {
+  background: #0f172a !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-select-menu {
+  background: #0f172a !important;
+  border-color: #475569 !important;
+}
+
+html[data-theme="dark"] .phanyx-select-option {
+  background: transparent !important;
+  color: #e2e8f0 !important;
+}
+
+html[data-theme="dark"] .phanyx-select-option:hover {
+  background: #1e293b !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-select-option.is-selected {
+  background: #172554 !important;
+  color: #bfdbfe !important;
+  font-weight: 800 !important;
+}
+
+html[data-theme="dark"] .phanyx-select-option.is-disabled {
+  color: #64748b !important;
+  opacity: 0.55 !important;
+  cursor: not-allowed !important;
+}
+
+
+/* =========================================================
+   SISTEMA COM WINDOWS ESCURO
+   ========================================================= */
+
+@media (prefers-color-scheme: dark) {
+
+  html[data-theme="system"] .phanyx-equipe-input {
+    background: #0f172a !important;
+    border-color: #475569 !important;
+    color: #f8fafc !important;
+  }
+
+  html[data-theme="system"] .phanyx-equipe-input::placeholder {
+    color: #94a3b8 !important;
+    opacity: 1 !important;
+  }
+
+  html[data-theme="system"] .phanyx-select-trigger {
+    background: #0f172a !important;
+    border-color: #475569 !important;
+    color: #f8fafc !important;
+  }
+
+  html[data-theme="system"] .phanyx-select-menu {
+    background: #0f172a !important;
+    border-color: #475569 !important;
+  }
+
+  html[data-theme="system"] .phanyx-select-option {
+    background: transparent !important;
+    color: #e2e8f0 !important;
+  }
+
+  html[data-theme="system"] .phanyx-select-option:hover {
+    background: #1e293b !important;
+    color: #ffffff !important;
+  }
+
+  html[data-theme="system"] .phanyx-select-option.is-selected {
+    background: #172554 !important;
+    color: #bfdbfe !important;
+    font-weight: 800 !important;
+  }
+
+  html[data-theme="system"] .phanyx-select-option.is-disabled {
+    color: #64748b !important;
+    opacity: 0.55 !important;
+    cursor: not-allowed !important;
+  }
+}
+
+
+/* =========================================================
+   SISTEMA COM WINDOWS CLARO
+   ========================================================= */
+
+@media (prefers-color-scheme: light) {
+
+  html[data-theme="system"] .phanyx-equipe-input {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+  }
+
+  html[data-theme="system"] .phanyx-equipe-input::placeholder {
+    color: #94a3b8 !important;
+    opacity: 1 !important;
+  }
+
+  html[data-theme="system"] .phanyx-select-trigger {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+  }
+
+  html[data-theme="system"] .phanyx-select-menu {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+  }
+
+  html[data-theme="system"] .phanyx-select-option {
+    background: transparent !important;
+    color: #0f172a !important;
+  }
+
+  html[data-theme="system"] .phanyx-select-option:hover {
+    background: #f1f5f9 !important;
+  }
+
+  html[data-theme="system"] .phanyx-select-option.is-selected {
+    background: #eff6ff !important;
+    color: #1d4ed8 !important;
+    font-weight: 800 !important;
+  }
+
+  html[data-theme="system"] .phanyx-select-option.is-disabled {
+    color: #94a3b8 !important;
+    opacity: 0.55 !important;
+    cursor: not-allowed !important;
+  }
+}
+
+/* =========================================================
+   STUDENT SUCCESS — LIMPAR FILTRO DE RETORNOS
+   ========================================================= */
+
+html[data-theme="light"]
+  .phanyx-student-success-return-clear-filter {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-return-clear-filter:hover {
+  background: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-return-clear-filter {
+  background: #0f172a !important;
+  border-color: #475569 !important;
+  color: #e2e8f0 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-return-clear-filter:hover {
+  background: #1e293b !important;
+  border-color: #64748b !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-return-clear-filter {
+  background: #303030 !important;
+  border-color: #666666 !important;
+  color: #f3f4f6 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-return-clear-filter:hover {
+  background: #3d3d3d !important;
+  border-color: #818181 !important;
+  color: #ffffff !important;
+}
+
+.phanyx-student-success-return-clear-filter:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.3) !important;
+  outline-offset: 2px;
+}
+
+/* =========================================================
+   PHANYX — ATIVIDADES EXTERNAS / EQUIPE
+   TEMA SISTEMA ESCURO — CINZAS NEUTROS
+   Azul somente para ações e destaques
+   ========================================================= */
+
+@media (prefers-color-scheme: dark) {
+
+  /* -------------------------------------------------------
+     ÁREA DA EQUIPE
+     ------------------------------------------------------- */
+
+  html[data-theme="system"] .phanyx-equipe-atividade {
+    color: #f5f5f5 !important;
+  }
+
+  /* Cards principais */
+  html[data-theme="system"] .phanyx-equipe-card,
+  html[data-theme="system"] .phanyx-equipe-resumo {
+    background: #242424 !important;
+    border-color: #525252 !important;
+    color: #f5f5f5 !important;
+  }
+
+  /* Formulário */
+  html[data-theme="system"] .phanyx-equipe-form {
+    background: #454545 !important;
+    border-color: #5f5f5f !important;
+    color: #ffffff !important;
+  }
+
+  /* Cards internos */
+  html[data-theme="system"] .phanyx-equipe-member,
+  html[data-theme="system"] .phanyx-equipe-empty {
+    background: #303030 !important;
+    border-color: #5a5a5a !important;
+    color: #f5f5f5 !important;
+  }
+
+  /* Responsável principal */
+  html[data-theme="system"] .phanyx-equipe-principal {
+    background: #282828 !important;
+    border-color: #555555 !important;
+    color: #ffffff !important;
+  }
+
+
+  /* -------------------------------------------------------
+     INPUTS / BUSCAS / TEXTAREA
+     ------------------------------------------------------- */
+
+  html[data-theme="system"] .phanyx-equipe-input {
+    background: #303030 !important;
+    border-color: #666666 !important;
+    color: #ffffff !important;
+  }
+
+  html[data-theme="system"] .phanyx-equipe-input::placeholder {
+    color: #b5b5b5 !important;
+    opacity: 1 !important;
+  }
+
+  html[data-theme="system"] .phanyx-equipe-input:hover {
+    background: #353535 !important;
+    border-color: #777777 !important;
+  }
+
+  html[data-theme="system"] .phanyx-equipe-input:focus {
+    background: #303030 !important;
+    border-color: #8a8a8a !important;
+
+    box-shadow:
+      0 0 0 3px rgba(255, 255, 255, 0.08) !important;
+  }
+
+
+  /* -------------------------------------------------------
+     SELECT PERSONALIZADO
+     ------------------------------------------------------- */
+
+  html[data-theme="system"] .phanyx-select-trigger {
+    background: #303030 !important;
+    border-color: #666666 !important;
+    color: #ffffff !important;
+  }
+
+  html[data-theme="system"] .phanyx-select-trigger:hover {
+    background: #383838 !important;
+    border-color: #777777 !important;
+  }
+
+  html[data-theme="system"] .phanyx-select-trigger:focus {
+    background: #303030 !important;
+    border-color: #8a8a8a !important;
+
+    box-shadow:
+      0 0 0 3px rgba(255, 255, 255, 0.08) !important;
+  }
+
+
+  /* Menu aberto */
+  html[data-theme="system"] .phanyx-select-menu {
+    background: #282828 !important;
+    border-color: #5f5f5f !important;
+
+    box-shadow:
+      0 18px 40px rgba(0, 0, 0, 0.38) !important;
+  }
+
+
+  /* Opções */
+  html[data-theme="system"] .phanyx-select-option {
+    background: transparent !important;
+    color: #f5f5f5 !important;
+  }
+
+  html[data-theme="system"] .phanyx-select-option:hover {
+    background: #3a3a3a !important;
+    color: #ffffff !important;
+  }
+
+  /* Selecionado: CINZA, não azul */
+  html[data-theme="system"] .phanyx-select-option.is-selected {
+    background: #444444 !important;
+    color: #ffffff !important;
+    font-weight: 800 !important;
+  }
+
+  html[data-theme="system"] .phanyx-select-option.is-disabled {
+    background: transparent !important;
+    color: #8a8a8a !important;
+    opacity: 0.6 !important;
+    cursor: not-allowed !important;
+  }
+
+
+  /* -------------------------------------------------------
+     CHIPS
+     ------------------------------------------------------- */
+
+  html[data-theme="system"] .phanyx-equipe-chip {
+    background: #353535 !important;
+    border-color: #626262 !important;
+    color: #f1f1f1 !important;
+  }
+
+  html[data-theme="system"] .phanyx-equipe-chip-principal {
+    background: #35453d !important;
+    border-color: #52705f !important;
+    color: #d1fae5 !important;
+  }
+
+
+  /* -------------------------------------------------------
+     TEXTOS
+     ------------------------------------------------------- */
+
+  html[data-theme="system"] .phanyx-equipe-atividade .text-slate-950,
+  html[data-theme="system"] .phanyx-equipe-atividade .text-slate-900,
+  html[data-theme="system"] .phanyx-equipe-atividade .text-slate-800,
+  html[data-theme="system"] .phanyx-equipe-atividade .text-slate-700 {
+    color: #ffffff !important;
+  }
+
+  html[data-theme="system"] .phanyx-equipe-atividade .text-slate-600,
+  html[data-theme="system"] .phanyx-equipe-atividade .text-slate-500 {
+    color: #c5c5c5 !important;
+    opacity: 1 !important;
+  }
+}
+
+/* =========================================================
+   PHANYX — EQUIPE
+   SISTEMA ESCURO — REMOVE CONTORNO AZUL DOS SELECTS
+   ========================================================= */
+
+@media (prefers-color-scheme: dark) {
+
+  /* Remove qualquer fundo azul do invólucro */
+  html[data-theme="system"] .phanyx-select {
+    background: transparent !important;
+    border: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* Campo fechado */
+  html[data-theme="system"] .phanyx-select-trigger {
+    background: #292929 !important;
+    border-color: #5a5a5a !important;
+    color: #ffffff !important;
+
+    box-shadow: none !important;
+  }
+
+  html[data-theme="system"] .phanyx-select-trigger:hover {
+    background: #303030 !important;
+    border-color: #707070 !important;
+  }
+
+  /* Quando estiver aberto / focado:
+     contorno cinza, nunca azul */
+  html[data-theme="system"] .phanyx-select-trigger:focus,
+  html[data-theme="system"] .phanyx-select-trigger:focus-visible {
+    background: #292929 !important;
+    border-color: #787878 !important;
+
+    outline: none !important;
+
+    box-shadow:
+      0 0 0 2px rgba(255, 255, 255, 0.07) !important;
+  }
+
+  /* Menu aberto */
+  html[data-theme="system"] .phanyx-select-menu {
+    background: #242424 !important;
+    border-color: #555555 !important;
+  }
+
+  /* Opções */
+  html[data-theme="system"] .phanyx-select-option {
+    background: transparent !important;
+    color: #f5f5f5 !important;
+  }
+
+  html[data-theme="system"] .phanyx-select-option:hover {
+    background: #353535 !important;
+    color: #ffffff !important;
+  }
+
+  /* Selecionado também cinza */
+  html[data-theme="system"] .phanyx-select-option.is-selected {
+    background: #414141 !important;
+    color: #ffffff !important;
+  }
+}
+
+/* =========================================================
+   STUDENT SUCCESS — FILTROS GERENCIAIS
+   ========================================================= */
+
+html[data-theme="light"]
+  .phanyx-student-success-management-filters {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-management-filters-title {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-management-filters-description {
+  color: #64748b !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-management-filter-label {
+  color: #334155 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-management-filter-field {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-management-filter-field:focus {
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-management-clear {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-management-clear:hover {
+  background: #f1f5f9 !important;
+}
+
+
+/* DARK */
+
+html[data-theme="dark"]
+  .phanyx-student-success-management-filters {
+  background: #111827 !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-management-filters-title {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-management-filters-description {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-management-filter-label {
+  color: #e2e8f0 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-management-filter-field {
+  background: #0f172a !important;
+  border-color: #475569 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-management-filter-field:focus {
+  border-color: #60a5fa !important;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15) !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-management-clear {
+  background: #0f172a !important;
+  border-color: #475569 !important;
+  color: #e2e8f0 !important;
+}
+
+
+/* SYSTEM */
+
+html[data-theme="system"]
+  .phanyx-student-success-management-filters {
+  background: #383838 !important;
+  border-color: #5f5f5f !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-management-filters-title {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-management-filters-description {
+  color: #e5e7eb !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-management-filter-label {
+  color: #f3f4f6 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-management-filter-field {
+  background: #303030 !important;
+  border-color: #686868 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-management-filter-field:focus {
+  border-color: #6ea8ff !important;
+  box-shadow: 0 0 0 3px rgba(110, 168, 255, 0.17) !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-management-clear {
+  background: #303030 !important;
+  border-color: #686868 !important;
+  color: #ffffff !important;
+}
+
+/* =========================================================
+   STUDENT SUCCESS — PRIORIDADES
+   ========================================================= */
+
+html[data-theme="light"]
+  .phanyx-student-success-priorities {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-priorities-title,
+html[data-theme="light"]
+  .phanyx-student-success-priority-student {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-priorities-description,
+html[data-theme="light"]
+  .phanyx-student-success-priority-muted {
+  color: #64748b !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-priority-summary,
+html[data-theme="light"]
+  .phanyx-student-success-priority-group {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-priority-today {
+  background: #fffbeb !important;
+  border-color: #fcd34d !important;
+  color: #92400e !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-priority-overdue {
+  background: #fef2f2 !important;
+  border-color: #fca5a5 !important;
+  color: #991b1b !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-priority-worsened {
+  background: #fff7ed !important;
+  border-color: #fdba74 !important;
+  color: #9a3412 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-priority-unscheduled {
+  background: #eff6ff !important;
+  border-color: #93c5fd !important;
+  color: #1e40af !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-priority-item {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-priority-view {
+  background: #ffffff !important;
+  border-color: #93c5fd !important;
+  color: #1d4ed8 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-priority-update {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-priority-status {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-priority-warning {
+  background: #fff7ed !important;
+  border-color: #fdba74 !important;
+  color: #9a3412 !important;
+}
+
+
+/* DARK */
+
+html[data-theme="dark"]
+  .phanyx-student-success-priorities {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-priorities-title,
+html[data-theme="dark"]
+  .phanyx-student-success-priority-student {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-priorities-description,
+html[data-theme="dark"]
+  .phanyx-student-success-priority-muted {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-priority-summary,
+html[data-theme="dark"]
+  .phanyx-student-success-priority-group,
+html[data-theme="dark"]
+  .phanyx-student-success-priority-item {
+  background: #111827 !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-priority-today {
+  background: #451a03 !important;
+  border-color: #92400e !important;
+  color: #fde68a !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-priority-overdue {
+  background: #450a0a !important;
+  border-color: #991b1b !important;
+  color: #fecaca !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-priority-worsened {
+  background: #431407 !important;
+  border-color: #c2410c !important;
+  color: #fed7aa !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-priority-unscheduled {
+  background: #172554 !important;
+  border-color: #1d4ed8 !important;
+  color: #bfdbfe !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-priority-view {
+  background: #0f172a !important;
+  border-color: #3b82f6 !important;
+  color: #bfdbfe !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-priority-update {
+  background: #2563eb !important;
+  border-color: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-priority-status {
+  background: #0f172a !important;
+  border-color: #475569 !important;
+  color: #e2e8f0 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-priority-warning {
+  background: #431407 !important;
+  border-color: #c2410c !important;
+  color: #fed7aa !important;
+}
+
+
+/* SYSTEM */
+
+html[data-theme="system"]
+  .phanyx-student-success-priorities {
+  background: #303030 !important;
+  border-color: #5f5f5f !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-priorities-title,
+html[data-theme="system"]
+  .phanyx-student-success-priority-student {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-priorities-description,
+html[data-theme="system"]
+  .phanyx-student-success-priority-muted {
+  color: #e5e7eb !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-priority-summary,
+html[data-theme="system"]
+  .phanyx-student-success-priority-group,
+html[data-theme="system"]
+  .phanyx-student-success-priority-item {
+  background: #383838 !important;
+  border-color: #5f5f5f !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-priority-today {
+  background: #4b3718 !important;
+  border-color: #a67c31 !important;
+  color: #fef3c7 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-priority-overdue {
+  background: #4b2222 !important;
+  border-color: #a34a4a !important;
+  color: #fee2e2 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-priority-worsened {
+  background: #4b2b1c !important;
+  border-color: #a85f35 !important;
+  color: #ffedd5 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-priority-unscheduled {
+  background: #253755 !important;
+  border-color: #4f78b8 !important;
+  color: #dbeafe !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-priority-view {
+  background: #303030 !important;
+  border-color: #5b8bd9 !important;
+  color: #dbeafe !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-priority-update {
+  background: #2563eb !important;
+  border-color: #4f78b8 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-priority-status {
+  background: #303030 !important;
+  border-color: #686868 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-priority-warning {
+  background: #4b2b1c !important;
+  border-color: #a85f35 !important;
+  color: #ffedd5 !important;
+}
+
+.phanyx-student-success-priority-view:hover,
+.phanyx-student-success-priority-update:hover {
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   STUDENT SUCCESS — FILTRO DAS PRIORIDADES
+   ========================================================= */
+
+.phanyx-student-success-priority-summary-button {
+  cursor: pointer;
+}
+
+.phanyx-student-success-priority-summary-button:hover {
+  transform: translateY(-1px);
+}
+
+.phanyx-student-success-priority-summary-button:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.3) !important;
+  outline-offset: 3px;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-priority-summary-button[aria-pressed="true"] {
+  box-shadow:
+    0 0 0 2px #ffffff,
+    0 0 0 5px #2563eb !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-priority-summary-button[aria-pressed="true"] {
+  box-shadow:
+    0 0 0 2px #0f172a,
+    0 0 0 5px #60a5fa !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-priority-summary-button[aria-pressed="true"] {
+  box-shadow:
+    0 0 0 2px #303030,
+    0 0 0 5px #6ea8ff !important;
+}
+
+.phanyx-student-success-priority-summary-button[aria-pressed="true"]::after {
+  content: "✓";
+  position: absolute;
+  top: 10px;
+  right: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 22px;
+  height: 22px;
+
+  border-radius: 9999px;
+
+  background: #2563eb;
+  color: #ffffff;
+
+  font-size: 12px;
+  font-weight: 800;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-priority-clear-filter {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-priority-clear-filter {
+  background: #0f172a !important;
+  border-color: #475569 !important;
+  color: #e2e8f0 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-priority-clear-filter {
+  background: #303030 !important;
+  border-color: #686868 !important;
+  color: #ffffff !important;
+}

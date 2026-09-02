@@ -13,6 +13,7 @@ import {
 } from "next-intl";
 import ParticipantesAtividadeExterna from "@/components/admin/atividades-externas/ParticipantesAtividadeExterna";
 import AutorizacoesAtividadeExterna from "@/components/admin/atividades-externas/AutorizacoesAtividadeExterna";
+import EquipeAtividadeExterna from "@/components/admin/atividades-externas/EquipeAtividadeExterna";
 
 type Responsavel = {
     id: number;
@@ -862,7 +863,7 @@ export default function AtividadeExternaDetalhePage() {
                         </div>
                     </div>
 
-        <div className="p-5 sm:p-6">
+       <div className="p-5 sm:p-6">
 
   {abaAtiva === "overview" ? (
     <VisaoGeral
@@ -881,6 +882,11 @@ export default function AtividadeExternaDetalhePage() {
     <AutorizacoesAtividadeExterna
       atividadeId={atividade.id}
       onAutorizacoesAlteradas={carregar}
+    />
+  ) : abaAtiva === "team" ? (
+    <EquipeAtividadeExterna
+      atividadeId={atividade.id}
+      onEquipeAlterada={carregar}
     />
   ) : (
     <AreaEmPreparacao

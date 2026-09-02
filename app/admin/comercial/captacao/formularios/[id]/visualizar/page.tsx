@@ -6,6 +6,10 @@ import {
     useState,
 } from "react";
 
+import {
+    useTranslations,
+} from "next-intl";
+
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import type {
@@ -13,6 +17,11 @@ import type {
 } from "libphonenumber-js";
 
 import CampoTelefoneInternacional from "@/components/comercial/captacao/CampoTelefoneInternacional";
+
+type Tema =
+    | "light"
+    | "dark"
+    | "system";
 
 type Campo = {
     id: number;
@@ -183,6 +192,11 @@ function transformarOpcoes(
 }
 
 export default function VisualizarFormularioCaptacaoPage() {
+    const t =
+        useTranslations(
+            "AdminCommercialForms"
+        );
+
     const params =
         useParams();
 
@@ -210,6 +224,12 @@ export default function VisualizarFormularioCaptacaoPage() {
         setErro,
     ] =
         useState("");
+
+    const [
+        temaEscolhido,
+        setTemaEscolhido,
+    ] =
+        useState<Tema>("light");
 
     const [
         temaEscuro,
@@ -241,29 +261,57 @@ export default function VisualizarFormularioCaptacaoPage() {
     >({});
 
     useEffect(() => {
-        function calcularTema() {
-            const tema =
-                localStorage.getItem(
-                    "phanyx_tema"
-                ) ||
-                "system";
+        const root =
+            document.documentElement;
 
-            const sistemaEscuro =
-                window.matchMedia(
-                    "(prefers-color-scheme: dark)"
-                ).matches;
+        function calcularTema() {
+            const escolha =
+                root.dataset
+                    .themeChoice;
+
+            const temaSalvo =
+                (
+                    escolha === "light" ||
+                    escolha === "dark" ||
+                    escolha === "system"
+                )
+                    ? escolha
+                    : (
+                        localStorage.getItem(
+                            "phanyx_tema"
+                        ) ||
+                        "light"
+                    );
+
+            setTemaEscolhido(
+                temaSalvo as Tema
+            );
 
             setTemaEscuro(
-                tema === "dark" ||
-                (
-                    tema ===
-                    "system" &&
-                    sistemaEscuro
+                root.classList.contains(
+                    "dark"
                 )
             );
         }
 
         calcularTema();
+
+        const observador =
+            new MutationObserver(
+                calcularTema
+            );
+
+        observador.observe(
+            root,
+            {
+                attributes: true,
+                attributeFilter: [
+                    "class",
+                    "data-theme",
+                    "data-theme-choice",
+                ],
+            }
+        );
 
         const media =
             window.matchMedia(
@@ -281,6 +329,8 @@ export default function VisualizarFormularioCaptacaoPage() {
         );
 
         return () => {
+            observador.disconnect();
+
             media.removeEventListener(
                 "change",
                 calcularTema
@@ -301,7 +351,7 @@ export default function VisualizarFormularioCaptacaoPage() {
             formularioId <= 0
         ) {
             setErro(
-                "Formulário inválido."
+                t("preview.errors.invalidForm")
             );
 
             setCarregando(
@@ -357,7 +407,7 @@ export default function VisualizarFormularioCaptacaoPage() {
                                 ? json.error
                                 : null
                         ) ||
-                        "Não foi possível carregar a pré-visualização."
+                        t("preview.errors.load")
                     );
                 }
 
@@ -371,7 +421,7 @@ export default function VisualizarFormularioCaptacaoPage() {
                     error instanceof
                         Error
                         ? error.message
-                        : "Não foi possível carregar a pré-visualização."
+                        : t("preview.errors.load")
                 );
             } finally {
                 setCarregando(
@@ -383,41 +433,59 @@ export default function VisualizarFormularioCaptacaoPage() {
         void carregar();
     }, [formularioId]);
 
+    const temaAzul =
+        temaEscolhido ===
+        "dark";
+
     const c = {
         pagina:
-            temaEscuro
-                ? "bg-slate-950 text-white"
-                : "bg-slate-100 text-slate-900",
+            temaAzul
+                ? "bg-[#020b2a] text-blue-50"
+                : temaEscuro
+                    ? "bg-neutral-950 text-neutral-100"
+                    : "bg-slate-100 text-slate-900",
 
         card:
-            temaEscuro
-                ? "border-slate-800 bg-slate-900"
-                : "border-slate-200 bg-white",
+            temaAzul
+                ? "border-blue-950 bg-[#0b1220]"
+                : temaEscuro
+                    ? "border-neutral-700 bg-neutral-900"
+                    : "border-slate-200 bg-white",
 
         titulo:
-            temaEscuro
-                ? "text-white"
-                : "text-slate-900",
+            temaAzul
+                ? "text-blue-50"
+                : temaEscuro
+                    ? "text-white"
+                    : "text-slate-900",
 
         texto:
-            temaEscuro
-                ? "text-slate-300"
-                : "text-slate-700",
+            temaAzul
+                ? "text-blue-100"
+                : temaEscuro
+                    ? "text-neutral-200"
+                    : "text-slate-700",
 
         muted:
-            temaEscuro
-                ? "text-slate-400"
-                : "text-slate-500",
+            temaAzul
+                ? "text-blue-200/70"
+                : temaEscuro
+                    ? "text-neutral-400"
+                    : "text-slate-500",
 
         input:
-            temaEscuro
-                ? "border-slate-700 bg-slate-950 text-white placeholder:text-slate-500"
-                : "border-slate-300 bg-white text-slate-900 placeholder:text-slate-400",
+            temaAzul
+                ? "border-blue-900 bg-blue-950/70 text-blue-50 placeholder:text-blue-200/50"
+                : temaEscuro
+                    ? "border-neutral-600 bg-neutral-800 text-neutral-100 placeholder:text-neutral-400"
+                    : "border-slate-300 bg-white text-slate-900 placeholder:text-slate-400",
 
         secundario:
-            temaEscuro
-                ? "border-slate-700 text-slate-200 hover:bg-slate-800"
-                : "border-slate-300 text-slate-700 hover:bg-slate-50",
+            temaAzul
+                ? "border-blue-900 bg-[#0f1a33] text-blue-50 hover:bg-[#162447]"
+                : temaEscuro
+                    ? "border-neutral-600 bg-neutral-800 text-neutral-100 hover:bg-neutral-700"
+                    : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50",
     };
 
     function obterOpcoes(
@@ -498,7 +566,7 @@ export default function VisualizarFormularioCaptacaoPage() {
                 className={`min-h-screen p-6 ${c.pagina}`}
             >
                 <div className="mx-auto max-w-4xl">
-                    Carregando pré-visualização...
+                    {t("preview.loading")}
                 </div>
             </main>
         );
@@ -517,14 +585,14 @@ export default function VisualizarFormularioCaptacaoPage() {
                 >
                     <p className="font-semibold text-red-600">
                         {erro ||
-                            "Formulário não encontrado."}
+                            t("preview.errors.notFound")}
                     </p>
 
                     <Link
                         href={`/admin/comercial/captacao/formularios/${formularioId}`}
                         className={`mt-4 inline-flex rounded-xl border px-4 py-2 text-sm font-semibold ${c.secundario}`}
                     >
-                        ← Voltar
+                        ← {t("common.back")}
                     </Link>
                 </div>
             </main>
@@ -569,19 +637,21 @@ export default function VisualizarFormularioCaptacaoPage() {
             <div className="mx-auto max-w-4xl space-y-5">
                 <div
                     className={
-                        temaEscuro
-                            ? "rounded-2xl border border-blue-900 bg-blue-950/40 px-4 py-3 text-sm text-blue-200"
-                            : "rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800"
+                        temaAzul
+                            ? "rounded-2xl border border-blue-800 bg-blue-950/60 px-4 py-3 text-sm text-blue-100"
+                            : temaEscuro
+                                ? "rounded-2xl border border-neutral-600 bg-neutral-800 px-4 py-3 text-sm text-neutral-200"
+                                : "rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800"
                     }
                 >
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <p className="font-semibold">
-                                👁️ Pré-visualização
+                                👁️ {t("preview.banner.title")}
                             </p>
 
                             <p className="mt-1">
-                                Você está vendo como este formulário aparecerá para o interessado. Nenhuma resposta será enviada.
+                                {t("preview.banner.description")}
                             </p>
                         </div>
 
@@ -589,7 +659,7 @@ export default function VisualizarFormularioCaptacaoPage() {
                             href={`/admin/comercial/captacao/formularios/${formularioId}`}
                             className={`shrink-0 rounded-xl border px-4 py-2 text-sm font-semibold ${c.secundario}`}
                         >
-                            ← Voltar à configuração
+                            ← {t("preview.banner.backToConfig")}
                         </Link>
                     </div>
                 </div>
@@ -597,7 +667,15 @@ export default function VisualizarFormularioCaptacaoPage() {
                 <section
                     className={`overflow-hidden rounded-3xl border shadow-sm ${c.card}`}
                 >
-                    <div className="border-b border-slate-200 p-6 sm:p-8">
+                    <div
+                        className={
+                            temaAzul
+                                ? "border-b border-blue-950 p-6 sm:p-8"
+                                : temaEscuro
+                                    ? "border-b border-neutral-700 p-6 sm:p-8"
+                                    : "border-b border-slate-200 p-6 sm:p-8"
+                        }
+                    >
                         <h1
                             className={`text-2xl font-bold sm:text-3xl ${c.titulo}`}
                         >
@@ -637,18 +715,18 @@ export default function VisualizarFormularioCaptacaoPage() {
                                 }
                             >
                                 <p className="font-semibold">
-                                    ✓ Simulação concluída
+                                    ✓ {t("preview.simulation.title")}
                                 </p>
 
                                 <p className="mt-1 text-sm">
                                     {dados
                                         .formulario
                                         .mensagemSucesso ||
-                                        "Seus dados foram recebidos com sucesso."}
+                                        t("preview.defaultSuccess")}
                                 </p>
 
                                 <p className="mt-2 text-xs opacity-80">
-                                    Esta foi apenas uma pré-visualização. Nenhum lead foi criado.
+                                    {t("preview.simulation.notice")}
                                 </p>
                             </div>
                         )}
@@ -749,6 +827,12 @@ export default function VisualizarFormularioCaptacaoPage() {
                                                             className={
                                                                 comum
                                                             }
+                                                            style={{
+                                                                colorScheme:
+                                                                    temaEscuro
+                                                                        ? "dark"
+                                                                        : "light",
+                                                            }}
                                                         >
                                                             <option
                                                                 value=""
@@ -757,7 +841,7 @@ export default function VisualizarFormularioCaptacaoPage() {
                                                                 }
                                                             >
                                                                 {campo.placeholder ||
-                                                                    "Selecione uma opção"}
+                                                                    t("preview.selectOption")}
                                                             </option>
 
                                                             {opcoes.map(
@@ -826,7 +910,7 @@ export default function VisualizarFormularioCaptacaoPage() {
                                                             required={
                                                                 campo.obrigatorio
                                                             }
-                                                            placeholder="Digite seu telefone"
+                                                            placeholder={t("preview.phonePlaceholder")}
                                                             onChange={(
                                                                 valor,
                                                                 pais
@@ -907,7 +991,7 @@ export default function VisualizarFormularioCaptacaoPage() {
                                                             >
                                                                 {campo.tipo ===
                                                                     "TELEFONE"
-                                                                    ? "Informe seu telefone com DDD."
+                                                                    ? t("preview.phoneHelp")
                                                                     : campo.textoAjuda}
                                                             </p>
                                                         )}
@@ -937,7 +1021,7 @@ export default function VisualizarFormularioCaptacaoPage() {
                                             {dados
                                                 .formulario
                                                 .textoConsentimento ||
-                                                "Autorizo o uso dos dados informados neste formulário para atendimento relacionado ao meu interesse."}
+                                                t("preview.defaultConsent")}
                                         </span>
                                     </label>
 
@@ -954,7 +1038,7 @@ export default function VisualizarFormularioCaptacaoPage() {
                                                 rel="noreferrer"
                                                 className="mt-3 inline-flex pl-7 text-sm font-semibold text-blue-600 hover:underline"
                                             >
-                                                Consultar Política de Privacidade
+                                                {t("preview.privacyPolicy")}
                                             </a>
                                         )}
                                 </div>
@@ -962,15 +1046,21 @@ export default function VisualizarFormularioCaptacaoPage() {
 
                         <button
                             type="submit"
-                            className="mt-7 w-full rounded-xl border border-slate-900 !bg-slate-900 px-5 py-3 text-sm font-semibold !text-white shadow-sm transition hover:!bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                            className={
+                                temaAzul
+                                    ? "mt-7 w-full rounded-xl border border-blue-700 bg-blue-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-60"
+                                    : temaEscuro
+                                        ? "mt-7 w-full rounded-xl border border-neutral-700 bg-neutral-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-neutral-600 disabled:cursor-not-allowed disabled:opacity-60"
+                                        : "mt-7 w-full rounded-xl border border-slate-900 bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                            }
                         >
-                            Enviar formulário
+                            {t("preview.submit")}
                         </button>
 
                         <p
                             className={`mt-3 text-center text-xs ${c.muted}`}
                         >
-                            Pré-visualização administrativa — nenhum dado será enviado.
+                            {t("preview.footer")}
                         </p>
                     </form>
                 </section>

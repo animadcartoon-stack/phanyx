@@ -6,8 +6,14 @@ import {
     useCallback,
     useEffect,
     useMemo,
+    useRef,
     useState,
 } from "react";
+
+import {
+    useLocale,
+    useTranslations,
+} from "next-intl";
 
 type Tema =
     | "light"
@@ -187,10 +193,11 @@ const FORMULARIO_INICIAL:
 };
 
 function formatarNumero(
-    valor: number
+    valor: number,
+    locale: string
 ) {
     return new Intl.NumberFormat(
-        "pt-BR"
+        locale
     ).format(
         Number(valor || 0)
     );
@@ -200,7 +207,8 @@ function formatarDataHora(
     valor:
         | string
         | null
-        | undefined
+        | undefined,
+    locale: string
 ) {
     if (!valor) {
         return "—";
@@ -218,7 +226,7 @@ function formatarDataHora(
     }
 
     return new Intl.DateTimeFormat(
-        "pt-BR",
+        locale,
         {
             timeZone:
                 "America/Sao_Paulo",
@@ -239,30 +247,6 @@ function formatarDataHora(
                 "2-digit",
         }
     ).format(data);
-}
-
-function nomeStatus(
-    status: string
-) {
-    const mapa:
-        Record<string, string> = {
-        RASCUNHO:
-            "Rascunho",
-
-        PUBLICADO:
-            "Publicado",
-
-        PAUSADO:
-            "Pausado",
-
-        ARQUIVADO:
-            "Arquivado",
-    };
-
-    return (
-        mapa[status] ??
-        status
-    );
 }
 
 function classesStatus(
@@ -301,7 +285,176 @@ function classesStatus(
         : "border-violet-200 bg-violet-50 text-violet-700";
 }
 
+type OpcaoFiltro = {
+    value: string;
+    label: string;
+};
+
+function SeletorFiltroTema({
+    value,
+    options,
+    onChange,
+    temaEscuro,
+    temaAzul,
+}: {
+    value: string;
+    options: OpcaoFiltro[];
+    onChange: (value: string) => void;
+    temaEscuro: boolean;
+    temaAzul: boolean;
+}) {
+    const [
+        aberto,
+        setAberto,
+    ] = useState(false);
+
+    const ref =
+        useRef<HTMLDivElement>(
+            null
+        );
+
+    useEffect(() => {
+        function fecharAoClicarFora(
+            event: MouseEvent
+        ) {
+            if (
+                ref.current &&
+                !ref.current.contains(
+                    event.target as Node
+                )
+            ) {
+                setAberto(false);
+            }
+        }
+
+        document.addEventListener(
+            "mousedown",
+            fecharAoClicarFora
+        );
+
+        return () => {
+            document.removeEventListener(
+                "mousedown",
+                fecharAoClicarFora
+            );
+        };
+    }, []);
+
+    const selecionada =
+        options.find(
+            (option) =>
+                option.value ===
+                value
+        ) ?? options[0];
+
+    return (
+        <div
+            ref={ref}
+            className="relative mt-1"
+        >
+            <button
+                type="button"
+                onClick={() =>
+                    setAberto(
+                        (atual) =>
+                            !atual
+                    )
+                }
+                className={`flex w-full items-center justify-between gap-3 rounded-xl border px-3 py-2.5 text-left text-sm ${temaAzul
+                    ? "border-blue-900 bg-blue-950/70 text-blue-50"
+                    : temaEscuro
+                        ? "border-neutral-500 bg-neutral-700 text-white"
+                        : "border-slate-300 bg-white text-slate-900"
+                    }`}
+            >
+                <span>
+                    {
+                        selecionada
+                            ?.label
+                    }
+                </span>
+
+                <span
+                    aria-hidden="true"
+                    className="text-xs"
+                >
+                    {aberto
+                        ? "▲"
+                        : "▼"}
+                </span>
+            </button>
+
+            {aberto && (
+                <div
+                    className={`absolute left-0 right-0 top-full z-[100] mt-1 max-h-64 overflow-y-auto rounded-xl border p-1 shadow-2xl ${temaAzul
+                        ? "border-blue-900 bg-blue-950"
+                        : temaEscuro
+                            ? "border-neutral-500 bg-neutral-700"
+                            : "border-slate-300 bg-white"
+                        }`}
+                >
+                    {options.map(
+                        (option) => {
+                            const ativa =
+                                option.value ===
+                                value;
+
+                            return (
+                                <button
+                                    key={
+                                        option.value
+                                    }
+                                    type="button"
+                                    onClick={() => {
+                                        onChange(
+                                            option.value
+                                        );
+
+                                        setAberto(
+                                            false
+                                        );
+                                    }}
+                                    className={`block w-full rounded-lg px-3 py-2 text-left text-sm ${temaAzul
+                                        ? ativa
+                                            ? "bg-blue-800 text-white"
+                                            : "text-blue-50 hover:bg-blue-900"
+                                        : temaEscuro
+                                            ? ativa
+                                                ? "bg-neutral-500 text-white"
+                                                : "text-neutral-100 hover:bg-neutral-600"
+                                            : ativa
+                                                ? "bg-slate-200 text-slate-950"
+                                                : "text-slate-900 hover:bg-slate-100"
+                                        }`}
+                                >
+                                    {
+                                        option.label
+                                    }
+                                </button>
+                            );
+                        }
+                    )}
+                </div>
+            )}
+        </div>
+    );
+}
+
 export default function FormulariosCaptacaoPage() {
+    const t =
+        useTranslations(
+            "AdminCommercialForms"
+        );
+
+    const locale =
+        useLocale();
+
+    const [
+        temaEscolhido,
+        setTemaEscolhido,
+    ] =
+        useState<Tema>("light");
+
     const [
         temaEscuro,
         setTemaEscuro,
@@ -406,35 +559,56 @@ export default function FormulariosCaptacaoPage() {
         );
 
     useEffect(() => {
-        function calcularTema() {
-            const tema =
-                (
-                    localStorage.getItem(
-                        "phanyx_tema"
-                    ) ||
-                    "system"
-                ) as Tema;
+        const root =
+            document.documentElement;
 
-            const sistemaEscuro =
-                window.matchMedia(
-                    "(prefers-color-scheme: dark)"
-                ).matches;
+        function calcularTema() {
+            const escolha =
+                root.dataset
+                    .themeChoice;
+
+            const temaSalvo =
+                (
+                    escolha === "light" ||
+                    escolha === "dark" ||
+                    escolha === "system"
+                )
+                    ? escolha
+                    : (
+                        localStorage.getItem(
+                            "phanyx_tema"
+                        ) ||
+                        "light"
+                    );
+
+            setTemaEscolhido(
+                temaSalvo as Tema
+            );
 
             setTemaEscuro(
-                tema === "dark" ||
-                (
-                    tema ===
-                    "system" &&
-                    sistemaEscuro
+                root.classList.contains(
+                    "dark"
                 )
             );
         }
 
         calcularTema();
 
-        window.addEventListener(
-            "storage",
-            calcularTema
+        const observador =
+            new MutationObserver(
+                calcularTema
+            );
+
+        observador.observe(
+            root,
+            {
+                attributes: true,
+                attributeFilter: [
+                    "class",
+                    "data-theme",
+                    "data-theme-choice",
+                ],
+            }
         );
 
         const media =
@@ -447,14 +621,21 @@ export default function FormulariosCaptacaoPage() {
             calcularTema
         );
 
+        window.addEventListener(
+            "storage",
+            calcularTema
+        );
+
         return () => {
-            window.removeEventListener(
-                "storage",
-                calcularTema
-            );
+            observador.disconnect();
 
             media.removeEventListener(
                 "change",
+                calcularTema
+            );
+
+            window.removeEventListener(
+                "storage",
                 calcularTema
             );
         };
@@ -479,58 +660,131 @@ export default function FormulariosCaptacaoPage() {
             );
     }, [toast]);
 
+    const temaAzul =
+        temaEscolhido ===
+        "dark";
+
     const c =
         useMemo(
             () => ({
                 pagina:
-                    temaEscuro
-                        ? "bg-slate-950 text-slate-100"
-                        : "bg-slate-100 text-slate-900",
+                    temaAzul
+                        ? "bg-[#020b2a] text-blue-50"
+                        : temaEscuro
+                            ? "bg-neutral-950 text-neutral-100"
+                            : "bg-slate-100 text-slate-900",
 
                 card:
-                    temaEscuro
-                        ? "border-slate-800 bg-slate-900"
-                        : "border-slate-200 bg-white",
+                    temaAzul
+                        ? "border-blue-950 bg-[#0b1220]"
+                        : temaEscuro
+                            ? "border-neutral-700 bg-neutral-900"
+                            : "border-slate-200 bg-white",
 
                 subCard:
-                    temaEscuro
-                        ? "border-slate-800 bg-slate-950"
-                        : "border-slate-200 bg-slate-50",
+                    temaAzul
+                        ? "border-blue-900 bg-[#0f1a33]"
+                        : temaEscuro
+                            ? "border-neutral-700 bg-neutral-800"
+                            : "border-slate-200 bg-slate-50",
 
                 titulo:
-                    temaEscuro
-                        ? "text-white"
-                        : "text-slate-900",
+                    temaAzul
+                        ? "text-blue-50"
+                        : temaEscuro
+                            ? "text-white"
+                            : "text-slate-900",
 
                 texto:
-                    temaEscuro
-                        ? "text-slate-300"
-                        : "text-slate-700",
+                    temaAzul
+                        ? "text-blue-100"
+                        : temaEscuro
+                            ? "text-neutral-200"
+                            : "text-slate-700",
 
                 muted:
-                    temaEscuro
-                        ? "text-slate-400"
-                        : "text-slate-500",
+                    temaAzul
+                        ? "text-blue-200/70"
+                        : temaEscuro
+                            ? "text-neutral-400"
+                            : "text-slate-500",
 
                 divisoria:
-                    temaEscuro
-                        ? "border-slate-800"
-                        : "border-slate-200",
+                    temaAzul
+                        ? "border-blue-950"
+                        : temaEscuro
+                            ? "border-neutral-700"
+                            : "border-slate-200",
 
                 input:
-                    temaEscuro
-                        ? "border-slate-700 bg-slate-950 text-white placeholder:text-slate-500"
-                        : "border-slate-300 bg-white text-slate-900 placeholder:text-slate-400",
+                    temaAzul
+                        ? "border-blue-900 bg-blue-950/70 text-blue-50 placeholder:text-blue-200/50"
+                        : temaEscuro
+                            ? "border-neutral-600 bg-neutral-800 text-neutral-100 placeholder:text-neutral-400"
+                            : "border-slate-300 bg-white text-slate-900 placeholder:text-slate-400",
+
+                inputFiltro:
+                    temaAzul
+                        ? "border-blue-900 bg-blue-950/70 text-blue-50 placeholder:text-blue-200/50"
+                        : temaEscuro
+                            ? "border-neutral-500 bg-neutral-700 text-white placeholder:text-neutral-300"
+                            : "border-slate-300 bg-white text-slate-900 placeholder:text-slate-400",
 
                 botaoSecundario:
-                    temaEscuro
-                        ? "border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-800"
-                        : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50",
+                    temaAzul
+                        ? "border-blue-900 bg-[#0f1a33] text-blue-50 hover:bg-[#162447]"
+                        : temaEscuro
+                            ? "border-neutral-600 bg-neutral-800 text-neutral-100 hover:bg-neutral-700"
+                            : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50",
+
+                botaoPrimario:
+                    temaAzul
+                        ? "bg-blue-700 text-white hover:bg-blue-600"
+                        : temaEscuro
+                            ? "bg-neutral-700 text-white hover:bg-neutral-600"
+                            : "bg-slate-900 text-white hover:bg-slate-800",
+
+                divide:
+                    temaAzul
+                        ? "divide-blue-950"
+                        : temaEscuro
+                            ? "divide-neutral-700"
+                            : "divide-slate-200",
             }),
             [
+                temaAzul,
                 temaEscuro,
             ]
         );
+
+    function nomeStatusUi(
+        status: string
+    ) {
+        switch (status) {
+            case "RASCUNHO":
+                return t(
+                    "shared.statuses.draft"
+                );
+
+            case "PUBLICADO":
+                return t(
+                    "shared.statuses.published"
+                );
+
+            case "PAUSADO":
+                return t(
+                    "shared.statuses.paused"
+                );
+
+            case "ARQUIVADO":
+                return t(
+                    "shared.statuses.archived"
+                );
+
+            default:
+                return status;
+        }
+    }
 
     const carregar =
         useCallback(
@@ -672,7 +926,7 @@ export default function FormulariosCaptacaoPage() {
                                 json as
                                 RespostaErro
                             ).error ||
-                            "Não foi possível carregar os formulários de captação."
+                            t("list.errors.load")
                         );
                     }
 
@@ -686,7 +940,7 @@ export default function FormulariosCaptacaoPage() {
                         error instanceof
                             Error
                             ? error.message
-                            : "Não foi possível carregar os formulários de captação."
+                            : t("list.errors.load")
                     );
                 } finally {
                     setCarregando(
@@ -940,7 +1194,7 @@ export default function FormulariosCaptacaoPage() {
 
         if (!nome) {
             setErroFormulario(
-                "Informe o nome interno do formulário."
+                t("list.validation.internalName")
             );
 
             return;
@@ -948,7 +1202,7 @@ export default function FormulariosCaptacaoPage() {
 
         if (!titulo) {
             setErroFormulario(
-                "Informe o título que será exibido para o interessado."
+                t("list.validation.publicTitle")
             );
 
             return;
@@ -1084,7 +1338,7 @@ export default function FormulariosCaptacaoPage() {
             ) {
                 throw new Error(
                     json.error ||
-                    "Não foi possível criar o formulário."
+                    t("list.errors.create")
                 );
             }
 
@@ -1098,7 +1352,7 @@ export default function FormulariosCaptacaoPage() {
 
                 mensagem:
                     json.message ||
-                    "Formulário criado como rascunho.",
+                    t("list.success.createdDraft"),
             });
 
             await carregar({
@@ -1112,7 +1366,7 @@ export default function FormulariosCaptacaoPage() {
                 error instanceof
                     Error
                     ? error.message
-                    : "Não foi possível criar o formulário."
+                    : t("list.errors.create")
             );
         } finally {
             setSalvando(
@@ -1178,8 +1432,7 @@ export default function FormulariosCaptacaoPage() {
                     <h1
                         className={`mt-4 text-xl font-bold ${c.titulo}`}
                     >
-                        Não foi possível
-                        carregar os formulários
+                        {t("list.loadError.title")}
                     </h1>
 
                     <p
@@ -1195,7 +1448,7 @@ export default function FormulariosCaptacaoPage() {
                         }
                         className={`mt-5 rounded-xl border px-4 py-2 text-sm font-semibold ${c.botaoSecundario}`}
                     >
-                        Tentar novamente
+                        {t("common.tryAgain")}
                     </button>
                 </div>
             </div>
@@ -1245,26 +1498,19 @@ export default function FormulariosCaptacaoPage() {
                                 href="/admin/comercial/captacao"
                                 className={`text-sm font-semibold ${c.muted}`}
                             >
-                                ← Central de
-                                Captação
+                                {t("common.backToLeadGenerationCenter")}
                             </Link>
 
                             <h1
                                 className={`mt-3 text-2xl font-bold sm:text-3xl ${c.titulo}`}
                             >
-                                📝 Formulários de
-                                captação
+                                📝 {t("list.header.title")}
                             </h1>
 
                             <p
                                 className={`mt-2 max-w-3xl text-sm leading-6 ${c.texto}`}
                             >
-                                Crie formulários
-                                públicos para receber
-                                interessados e
-                                encaminhá-los
-                                automaticamente ao
-                                processo comercial.
+                                {t("list.header.description")}
                             </p>
                         </div>
 
@@ -1296,8 +1542,8 @@ export default function FormulariosCaptacaoPage() {
                                 className={`rounded-xl border px-4 py-2.5 text-sm font-semibold transition disabled:opacity-60 ${c.botaoSecundario}`}
                             >
                                 {atualizando
-                                    ? "Atualizando..."
-                                    : "↻ Atualizar"}
+                                    ? t("common.refreshing")
+                                    : t("common.refresh")}
                             </button>
 
                             {dados
@@ -1308,9 +1554,9 @@ export default function FormulariosCaptacaoPage() {
                                         onClick={
                                             abrirNovoFormulario
                                         }
-                                        className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+                                        className={`rounded-xl px-4 py-2.5 text-sm font-semibold transition ${c.botaoPrimario}`}
                                     >
-                                        + Novo formulário
+                                        {t("list.header.newForm")}
                                     </button>
                                 )}
                         </div>
@@ -1321,7 +1567,7 @@ export default function FormulariosCaptacaoPage() {
                     {[
                         {
                             nome:
-                                "Total",
+                                t("list.summary.total"),
 
                             valor:
                                 dados.resumo
@@ -1330,7 +1576,7 @@ export default function FormulariosCaptacaoPage() {
 
                         {
                             nome:
-                                "Publicados",
+                                t("list.summary.published"),
 
                             valor:
                                 dados.resumo
@@ -1339,7 +1585,7 @@ export default function FormulariosCaptacaoPage() {
 
                         {
                             nome:
-                                "Rascunhos",
+                                t("list.summary.drafts"),
 
                             valor:
                                 dados.resumo
@@ -1348,7 +1594,7 @@ export default function FormulariosCaptacaoPage() {
 
                         {
                             nome:
-                                "Pausados",
+                                t("list.summary.paused"),
 
                             valor:
                                 dados.resumo
@@ -1376,7 +1622,8 @@ export default function FormulariosCaptacaoPage() {
                                     className={`mt-2 text-3xl font-bold ${c.titulo}`}
                                 >
                                     {formatarNumero(
-                                        item.valor
+                                        item.valor,
+                                        locale
                                     )}
                                 </p>
                             </div>
@@ -1397,7 +1644,7 @@ export default function FormulariosCaptacaoPage() {
                             <label
                                 className={`text-xs font-semibold ${c.muted}`}
                             >
-                                Buscar
+                                {t("common.search")}
                             </label>
 
                             <input
@@ -1414,8 +1661,8 @@ export default function FormulariosCaptacaoPage() {
                                             .value
                                     )
                                 }
-                                placeholder="Nome, título ou identificador"
-                                className={`mt-1 w-full rounded-xl border px-3 py-2.5 text-sm ${c.input}`}
+                                placeholder={t("list.filters.searchPlaceholder")}
+                                className={`mt-1 w-full rounded-xl border px-3 py-2.5 text-sm ${c.inputFiltro}`}
                             />
                         </div>
 
@@ -1423,193 +1670,202 @@ export default function FormulariosCaptacaoPage() {
                             <label
                                 className={`text-xs font-semibold ${c.muted}`}
                             >
-                                Canal
+                                {t("common.channel")}
                             </label>
 
-                            <select
+                            <SeletorFiltroTema
                                 value={
                                     canalFiltro
                                 }
-                                onChange={(
-                                    event
-                                ) =>
-                                    setCanalFiltro(
-                                        event
-                                            .target
-                                            .value
-                                    )
+                                onChange={
+                                    setCanalFiltro
                                 }
-                                className={`mt-1 w-full rounded-xl border px-3 py-2.5 text-sm ${c.input}`}
-                            >
-                                <option value="">
-                                    Todos
-                                </option>
+                                temaEscuro={
+                                    temaEscuro
+                                }
+                                temaAzul={
+                                    temaAzul
+                                }
+                                options={[
+                                    {
+                                        value: "",
+                                        label:
+                                            t(
+                                                "common.all"
+                                            ),
+                                    },
 
-                                {dados
-                                    .referencias
-                                    .canais
-                                    .map(
-                                        (
-                                            canal
-                                        ) => (
-                                            <option
-                                                key={
-                                                    canal.id
-                                                }
-                                                value={
-                                                    canal.id
-                                                }
-                                            >
-                                                {
-                                                    canal.nome
-                                                }
-                                            </option>
-                                        )
-                                    )}
-                            </select>
+                                    ...dados
+                                        .referencias
+                                        .canais
+                                        .map(
+                                            (
+                                                canal
+                                            ) => ({
+                                                value:
+                                                    String(
+                                                        canal.id
+                                                    ),
+
+                                                label:
+                                                    canal.nome,
+                                            })
+                                        ),
+                                ]}
+                            />
                         </div>
 
                         <div>
                             <label
                                 className={`text-xs font-semibold ${c.muted}`}
                             >
-                                Campanha
+                                {t("common.campaign")}
                             </label>
 
-                            <select
+                            <SeletorFiltroTema
                                 value={
                                     campanhaFiltro
                                 }
-                                onChange={(
-                                    event
-                                ) =>
-                                    setCampanhaFiltro(
-                                        event
-                                            .target
-                                            .value
-                                    )
+                                onChange={
+                                    setCampanhaFiltro
                                 }
-                                className={`mt-1 w-full rounded-xl border px-3 py-2.5 text-sm ${c.input}`}
-                            >
-                                <option value="">
-                                    Todas
-                                </option>
+                                temaEscuro={
+                                    temaEscuro
+                                }
+                                temaAzul={
+                                    temaAzul
+                                }
+                                options={[
+                                    {
+                                        value: "",
+                                        label:
+                                            t(
+                                                "common.all"
+                                            ),
+                                    },
 
-                                {dados
-                                    .referencias
-                                    .campanhas
-                                    .map(
-                                        (
-                                            campanha
-                                        ) => (
-                                            <option
-                                                key={
-                                                    campanha.id
-                                                }
-                                                value={
-                                                    campanha.id
-                                                }
-                                            >
-                                                {
-                                                    campanha.nome
-                                                }
-                                            </option>
-                                        )
-                                    )}
-                            </select>
+                                    ...dados
+                                        .referencias
+                                        .campanhas
+                                        .map(
+                                            (
+                                                campanha
+                                            ) => ({
+                                                value:
+                                                    String(
+                                                        campanha.id
+                                                    ),
+
+                                                label:
+                                                    campanha.nome,
+                                            })
+                                        ),
+                                ]}
+                            />
                         </div>
 
                         <div>
                             <label
                                 className={`text-xs font-semibold ${c.muted}`}
                             >
-                                Status
+                                {t("common.status")}
                             </label>
 
-                            <select
+                            <SeletorFiltroTema
                                 value={
                                     statusFiltro
                                 }
-                                onChange={(
-                                    event
-                                ) =>
-                                    setStatusFiltro(
-                                        event
-                                            .target
-                                            .value
-                                    )
+                                onChange={
+                                    setStatusFiltro
                                 }
-                                className={`mt-1 w-full rounded-xl border px-3 py-2.5 text-sm ${c.input}`}
-                            >
-                                <option value="">
-                                    Todos
-                                </option>
+                                temaEscuro={
+                                    temaEscuro
+                                }
+                                temaAzul={
+                                    temaAzul
+                                }
+                                options={[
+                                    {
+                                        value: "",
+                                        label:
+                                            t(
+                                                "common.all"
+                                            ),
+                                    },
 
-                                {dados
-                                    .statusDisponiveis
-                                    .map(
-                                        (
-                                            status
-                                        ) => (
-                                            <option
-                                                key={
-                                                    status
-                                                }
-                                                value={
-                                                    status
-                                                }
-                                            >
-                                                {nomeStatus(
-                                                    status
-                                                )}
-                                            </option>
-                                        )
-                                    )}
-                            </select>
+                                    ...dados
+                                        .statusDisponiveis
+                                        .map(
+                                            (
+                                                status
+                                            ) => ({
+                                                value:
+                                                    status,
+
+                                                label:
+                                                    nomeStatusUi(
+                                                        status
+                                                    ),
+                                            })
+                                        ),
+                                ]}
+                            />
                         </div>
 
                         <div>
                             <label
                                 className={`text-xs font-semibold ${c.muted}`}
                             >
-                                Situação
+                                {t("common.availability")}
                             </label>
 
-                            <select
+                            <SeletorFiltroTema
                                 value={
                                     ativoFiltro
                                 }
-                                onChange={(
-                                    event
-                                ) =>
-                                    setAtivoFiltro(
-                                        event
-                                            .target
-                                            .value
-                                    )
+                                onChange={
+                                    setAtivoFiltro
                                 }
-                                className={`mt-1 w-full rounded-xl border px-3 py-2.5 text-sm ${c.input}`}
-                            >
-                                <option value="">
-                                    Todos
-                                </option>
-
-                                <option value="true">
-                                    Ativos
-                                </option>
-
-                                <option value="false">
-                                    Inativos
-                                </option>
-                            </select>
+                                temaEscuro={
+                                    temaEscuro
+                                }
+                                temaAzul={
+                                    temaAzul
+                                }
+                                options={[
+                                    {
+                                        value: "",
+                                        label:
+                                            t(
+                                                "common.all"
+                                            ),
+                                    },
+                                    {
+                                        value:
+                                            "true",
+                                        label:
+                                            t(
+                                                "shared.statuses.activePlural"
+                                            ),
+                                    },
+                                    {
+                                        value:
+                                            "false",
+                                        label:
+                                            t(
+                                                "shared.statuses.inactivePlural"
+                                            ),
+                                    },
+                                ]}
+                            />
                         </div>
 
                         <div className="flex items-end gap-2 md:col-span-2 xl:col-span-5 xl:justify-end">
                             <button
                                 type="submit"
-                                className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800"
+                                className={`rounded-xl px-4 py-2.5 text-sm font-semibold ${c.botaoPrimario}`}
                             >
-                                Filtrar
+                                {t("common.filter")}
                             </button>
 
                             <button
@@ -1619,7 +1875,7 @@ export default function FormulariosCaptacaoPage() {
                                 }
                                 className={`rounded-xl border px-4 py-2.5 text-sm font-semibold ${c.botaoSecundario}`}
                             >
-                                Limpar
+                                {t("common.clear")}
                             </button>
                         </div>
                     </form>
@@ -1634,22 +1890,20 @@ export default function FormulariosCaptacaoPage() {
                         <h2
                             className={`text-lg font-bold ${c.titulo}`}
                         >
-                            Formulários cadastrados
+                            {t("list.registered.title")}
                         </h2>
 
                         <p
                             className={`mt-1 text-sm ${c.muted}`}
                         >
-                            {formatarNumero(
-                                dados.formularios
-                                    .length
-                            )}{" "}
-                            resultado
-                            {dados.formularios
-                                .length === 1
-                                ? ""
-                                : "s"}{" "}
-                            nesta consulta.
+                            {t(
+                                "list.registered.results",
+                                {
+                                    count:
+                                        dados.formularios
+                                            .length,
+                                }
+                            )}
                         </p>
                     </div>
 
@@ -1663,17 +1917,13 @@ export default function FormulariosCaptacaoPage() {
                             <p
                                 className={`mt-3 font-semibold ${c.titulo}`}
                             >
-                                Nenhum formulário
-                                encontrado
+                                {t("list.empty.title")}
                             </p>
 
                             <p
                                 className={`mt-1 text-sm ${c.muted}`}
                             >
-                                Crie o primeiro
-                                formulário de
-                                captação ou altere os
-                                filtros.
+                                {t("list.empty.description")}
                             </p>
 
                             {dados
@@ -1684,14 +1934,14 @@ export default function FormulariosCaptacaoPage() {
                                         onClick={
                                             abrirNovoFormulario
                                         }
-                                        className="mt-5 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800"
+                                        className={`mt-5 rounded-xl px-4 py-2.5 text-sm font-semibold ${c.botaoPrimario}`}
                                     >
-                                        + Criar formulário
+                                        {t("list.empty.create")}
                                     </button>
                                 )}
                         </div>
                     ) : (
-                        <div className="divide-y divide-slate-200">
+                        <div className={`divide-y ${c.divide}`}>
                             {dados.formularios.map(
                                 (
                                     item
@@ -1719,7 +1969,7 @@ export default function FormulariosCaptacaoPage() {
                                                             temaEscuro
                                                         )}`}
                                                     >
-                                                        {nomeStatus(
+                                                        {nomeStatusUi(
                                                             item.status
                                                         )}
                                                     </span>
@@ -1732,7 +1982,7 @@ export default function FormulariosCaptacaoPage() {
                                                                     : "rounded-full border border-slate-200 bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600"
                                                             }
                                                         >
-                                                            Inativo
+                                                            {t("shared.statuses.inactive")}
                                                         </span>
                                                     )}
                                                     {dados
@@ -1742,7 +1992,7 @@ export default function FormulariosCaptacaoPage() {
                                                                 href={`/admin/comercial/captacao/formularios/${item.id}`}
                                                                 className={`ml-1 rounded-lg border px-3 py-1 text-xs font-semibold transition ${c.botaoSecundario}`}
                                                             >
-                                                                ⚙️ Configurar formulário
+                                                                ⚙️ {t("list.item.configure")}
                                                             </Link>
                                                         )}
                                                 </div>
@@ -1750,7 +2000,7 @@ export default function FormulariosCaptacaoPage() {
                                                 <p
                                                     className={`mt-1 text-sm ${c.muted}`}
                                                 >
-                                                    Nome interno:{" "}
+                                                    {t("list.item.internalName")}:{" "}
                                                     {
                                                         item.nome
                                                     }
@@ -1760,28 +2010,28 @@ export default function FormulariosCaptacaoPage() {
                                                     <span
                                                         className={`text-sm ${c.texto}`}
                                                     >
-                                                        Canal:{" "}
+                                                        {t("common.channel")}:{" "}
                                                         {item
                                                             .canal
                                                             ?.nome ||
-                                                            "Sem canal"}
+                                                            t("list.item.noChannel")}
                                                     </span>
 
                                                     <span
                                                         className={`text-sm ${c.texto}`}
                                                     >
-                                                        Campanha:{" "}
+                                                        {t("common.campaign")}:{" "}
                                                         {item
                                                             .campanha
                                                             ?.nome ||
-                                                            "Sem campanha"}
+                                                            t("list.item.noCampaign")}
                                                     </span>
                                                 </div>
 
                                                 <p
                                                     className={`mt-2 text-xs ${c.muted}`}
                                                 >
-                                                    Identificador:
+                                                    {t("list.item.identifier")}:
                                                     /{
                                                         item.slug
                                                     }
@@ -1801,7 +2051,7 @@ export default function FormulariosCaptacaoPage() {
                                                     <span
                                                         className={`rounded-xl border px-3 py-2 text-xs ${c.subCard}`}
                                                     >
-                                                        Versão{" "}
+                                                        {t("list.item.version")}{" "}
                                                         {
                                                             item.versao
                                                         }
@@ -1811,16 +2061,17 @@ export default function FormulariosCaptacaoPage() {
                                                         className={`rounded-xl border px-3 py-2 text-xs ${c.subCard}`}
                                                     >
                                                         {item.exigeConsentimento
-                                                            ? "🛡️ LGPD exigida"
-                                                            : "LGPD não exigida"}
+                                                            ? `🛡️ ${t("list.item.lgpdRequired")}`
+                                                            : t("list.item.lgpdNotRequired")}
                                                     </span>
 
                                                     <span
                                                         className={`rounded-xl border px-3 py-2 text-xs ${c.subCard}`}
                                                     >
-                                                        Atualizado em{" "}
+                                                        {t("list.item.updatedAt")}{" "}
                                                         {formatarDataHora(
-                                                            item.atualizadoEm
+                                                            item.atualizadoEm,
+                                                            locale
                                                         )}
                                                     </span>
                                                 </div>
@@ -1830,7 +2081,7 @@ export default function FormulariosCaptacaoPage() {
                                                 {[
                                                     {
                                                         nome:
-                                                            "Campos",
+                                                            t("list.item.counters.fields"),
 
                                                         valor:
                                                             item
@@ -1840,7 +2091,7 @@ export default function FormulariosCaptacaoPage() {
 
                                                     {
                                                         nome:
-                                                            "Submissões",
+                                                            t("list.item.counters.submissions"),
 
                                                         valor:
                                                             item
@@ -1850,7 +2101,7 @@ export default function FormulariosCaptacaoPage() {
 
                                                     {
                                                         nome:
-                                                            "Regras",
+                                                            t("list.item.counters.rules"),
 
                                                         valor:
                                                             item
@@ -1860,7 +2111,7 @@ export default function FormulariosCaptacaoPage() {
 
                                                     {
                                                         nome:
-                                                            "Integrações",
+                                                            t("list.item.counters.integrations"),
 
                                                         valor:
                                                             item
@@ -1881,7 +2132,8 @@ export default function FormulariosCaptacaoPage() {
                                                                 className={`text-lg font-bold ${c.titulo}`}
                                                             >
                                                                 {formatarNumero(
-                                                                    contador.valor
+                                                                    contador.valor,
+                                                                    locale
                                                                 )}
                                                             </p>
 
@@ -1927,17 +2179,13 @@ export default function FormulariosCaptacaoPage() {
                                 <h2
                                     className={`text-xl font-bold ${c.titulo}`}
                                 >
-                                    Novo formulário de
-                                    captação
+                                    {t("list.modal.title")}
                                 </h2>
 
                                 <p
                                     className={`mt-1 text-sm ${c.muted}`}
                                 >
-                                    Comece pelas
-                                    informações básicas.
-                                    O formulário será
-                                    salvo como rascunho.
+                                    {t("list.modal.description")}
                                 </p>
                             </div>
 
@@ -1950,7 +2198,7 @@ export default function FormulariosCaptacaoPage() {
                                     salvando
                                 }
                                 className={`flex h-9 w-9 items-center justify-center rounded-xl border text-lg ${c.botaoSecundario}`}
-                                aria-label="Fechar"
+                                aria-label={t("common.close")}
                             >
                                 ×
                             </button>
@@ -1983,32 +2231,24 @@ export default function FormulariosCaptacaoPage() {
                                         : "rounded-2xl border border-violet-200 bg-violet-50 px-4 py-3 text-sm text-violet-800"
                                 }
                             >
-                                📝 Este formulário
-                                será criado como
+                                📝 {t("list.modal.draftNoticePrefix")}{" "}
                                 <strong>
-                                    {" "}
-                                    Rascunho
+                                    {t("shared.statuses.draft")}
                                 </strong>
-                                . Depois vamos
-                                configurar campos,
-                                LGPD, automações e
-                                publicação.
+                                {t("list.modal.draftNoticeSuffix")}
                             </div>
 
                             <div>
                                 <label
                                     className={`text-sm font-semibold ${c.titulo}`}
                                 >
-                                    Nome interno *
+                                    {t("list.modal.internalName")} *
                                 </label>
 
                                 <p
                                     className={`mt-1 text-xs ${c.muted}`}
                                 >
-                                    Nome utilizado pela
-                                    equipe para
-                                    identificar o
-                                    formulário.
+                                    {t("list.modal.internalNameHelp")}
                                 </p>
 
                                 <input
@@ -2029,7 +2269,7 @@ export default function FormulariosCaptacaoPage() {
                                                 .value
                                         )
                                     }
-                                    placeholder="Ex.: Formulário Vestibular 2027"
+                                    placeholder={t("list.modal.internalNamePlaceholder")}
                                     className={`mt-2 w-full rounded-xl border px-3 py-2.5 text-sm ${c.input}`}
                                     required
                                 />
@@ -2039,16 +2279,13 @@ export default function FormulariosCaptacaoPage() {
                                 <label
                                     className={`text-sm font-semibold ${c.titulo}`}
                                 >
-                                    Título exibido para
-                                    o interessado *
+                                    {t("list.modal.publicTitle")} *
                                 </label>
 
                                 <p
                                     className={`mt-1 text-xs ${c.muted}`}
                                 >
-                                    Este é o título que
-                                    a pessoa verá ao
-                                    abrir o formulário.
+                                    {t("list.modal.publicTitleHelp")}
                                 </p>
 
                                 <input
@@ -2069,7 +2306,7 @@ export default function FormulariosCaptacaoPage() {
                                                 .value
                                         )
                                     }
-                                    placeholder="Ex.: Inscreva-se para o Vestibular 2027"
+                                    placeholder={t("list.modal.publicTitlePlaceholder")}
                                     className={`mt-2 w-full rounded-xl border px-3 py-2.5 text-sm ${c.input}`}
                                     required
                                 />
@@ -2080,7 +2317,7 @@ export default function FormulariosCaptacaoPage() {
                                     <label
                                         className={`text-sm font-semibold ${c.titulo}`}
                                     >
-                                        Canal
+                                        {t("common.channel")}
                                     </label>
 
                                     <select
@@ -2098,10 +2335,15 @@ export default function FormulariosCaptacaoPage() {
                                             )
                                         }
                                         className={`mt-2 w-full rounded-xl border px-3 py-2.5 text-sm ${c.input}`}
+                                        style={{
+                                            colorScheme:
+                                                temaEscuro
+                                                    ? "dark"
+                                                    : "light",
+                                        }}
                                     >
                                         <option value="">
-                                            Sem canal
-                                            específico
+                                            {t("list.modal.noSpecificChannel")}
                                         </option>
 
                                         {dados
@@ -2132,7 +2374,7 @@ export default function FormulariosCaptacaoPage() {
                                     <label
                                         className={`text-sm font-semibold ${c.titulo}`}
                                     >
-                                        Campanha
+                                        {t("common.campaign")}
                                     </label>
 
                                     <select
@@ -2150,10 +2392,15 @@ export default function FormulariosCaptacaoPage() {
                                             )
                                         }
                                         className={`mt-2 w-full rounded-xl border px-3 py-2.5 text-sm ${c.input}`}
+                                        style={{
+                                            colorScheme:
+                                                temaEscuro
+                                                    ? "dark"
+                                                    : "light",
+                                        }}
                                     >
                                         <option value="">
-                                            Sem campanha
-                                            específica
+                                            {t("list.modal.noSpecificCampaign")}
                                         </option>
 
                                         {campanhasFormulario.map(
@@ -2182,7 +2429,7 @@ export default function FormulariosCaptacaoPage() {
                                 <label
                                     className={`text-sm font-semibold ${c.titulo}`}
                                 >
-                                    Identificador
+                                    {t("list.modal.identifier")}
                                 </label>
 
                                 <input
@@ -2203,16 +2450,14 @@ export default function FormulariosCaptacaoPage() {
                                                 .value
                                         )
                                     }
-                                    placeholder="Opcional — gerado pelo nome"
+                                    placeholder={t("list.modal.identifierPlaceholder")}
                                     className={`mt-2 w-full rounded-xl border px-3 py-2.5 text-sm ${c.input}`}
                                 />
 
                                 <p
                                     className={`mt-1 text-xs ${c.muted}`}
                                 >
-                                    Se ficar vazio, o
-                                    PHANYX gera
-                                    automaticamente.
+                                    {t("list.modal.identifierHelp")}
                                 </p>
                             </div>
 
@@ -2220,7 +2465,7 @@ export default function FormulariosCaptacaoPage() {
                                 <label
                                     className={`text-sm font-semibold ${c.titulo}`}
                                 >
-                                    Descrição
+                                    {t("common.description")}
                                 </label>
 
                                 <textarea
@@ -2239,7 +2484,7 @@ export default function FormulariosCaptacaoPage() {
                                                 .value
                                         )
                                     }
-                                    placeholder="Explique brevemente o objetivo deste formulário."
+                                    placeholder={t("list.modal.descriptionPlaceholder")}
                                     className={`mt-2 w-full rounded-xl border px-3 py-2.5 text-sm ${c.input}`}
                                 />
                             </div>
@@ -2257,7 +2502,7 @@ export default function FormulariosCaptacaoPage() {
                                     }
                                     className={`rounded-xl border px-4 py-2.5 text-sm font-semibold disabled:opacity-60 ${c.botaoSecundario}`}
                                 >
-                                    Cancelar
+                                    {t("common.cancel")}
                                 </button>
 
                                 <button
@@ -2265,11 +2510,11 @@ export default function FormulariosCaptacaoPage() {
                                     disabled={
                                         salvando
                                     }
-                                    className="rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                                    className={`rounded-xl px-5 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${c.botaoPrimario}`}
                                 >
                                     {salvando
-                                        ? "Criando..."
-                                        : "Criar rascunho"}
+                                        ? t("common.creating")
+                                        : t("list.modal.createDraft")}
                                 </button>
                             </div>
                         </form>

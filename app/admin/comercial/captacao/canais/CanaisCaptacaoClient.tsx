@@ -2,1184 +2,2196 @@
 
 import Link from "next/link";
 import {
-    FormEvent,
-    useCallback,
-    useEffect,
-    useState,
+  FormEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
 } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
-type ContadoresCanal = {
+type Tema =
+  | "light"
+  | "dark"
+  | "system";
+
+type Canal = {
+  id: number;
+  nome: string;
+  slug: string;
+  descricao: string | null;
+  tipo: string;
+  cor: string;
+  icone: string | null;
+  padrao: boolean;
+  ativo: boolean;
+  criadoEm: string;
+  atualizadoEm: string;
+
+  _count: {
     campanhas: number;
     formularios: number;
     submissoes: number;
     regrasDistribuicao: number;
     integracoes: number;
+  };
 };
 
-type Canal = {
-    id: number;
-    nome: string;
-    slug: string;
-    descricao: string | null;
-    tipo: string;
-    cor: string | null;
-    icone: string | null;
-    padrao: boolean;
-    ativo: boolean;
-    criadoEm: string;
-    atualizadoEm: string;
-    _count: ContadoresCanal;
-};
+type RespostaCanais = {
+  success: true;
 
-type Resumo = {
+  permissoes: {
+    podeVer: boolean;
+    podeGerenciar: boolean;
+  };
+
+  tiposDisponiveis: string[];
+
+  resumo: {
     total: number;
     ativos: number;
     inativos: number;
     padrao: Canal | null;
+  };
+
+  canais: Canal[];
 };
 
-type RespostaLista = {
-    success: boolean;
-    error?: string;
-    permissoes?: {
-        podeVer: boolean;
-        podeGerenciar: boolean;
-    };
-    tiposDisponiveis?: string[];
-    resumo?: Resumo;
-    canais?: Canal[];
+type RespostaErro = {
+  success?: false;
+  error?: string;
+  codigo?: string;
 };
 
 type FormularioCanal = {
-    nome: string;
-    slug: string;
-    descricao: string;
-    tipo: string;
-    cor: string;
-    icone: string;
-    padrao: boolean;
-    ativo: boolean;
+  nome: string;
+  slug: string;
+  descricao: string;
+  tipo: string;
+  cor: string;
+  icone: string;
+  padrao: boolean;
+  ativo: boolean;
 };
 
 const FORMULARIO_INICIAL: FormularioCanal = {
-    nome: "",
-    slug: "",
-    descricao: "",
-    tipo: "SITE",
-    cor: "#64748B",
+  nome: "",
+  slug: "",
+  descricao: "",
+  tipo: "SITE",
+  cor: "#64748B",
+  icone: "",
+  padrao: false,
+  ativo: true,
+};
+
+const OPCOES_ICONES_CANAL = [
+  {
+    valor: "",
+    icone: "✨",
+    chave: "icons.automatic",
+  },
+  {
+    valor: "🌐",
+    icone: "🌐",
+    chave: "icons.site",
+  },
+  {
+    valor: "🖥️",
+    icone: "🖥️",
+    chave: "icons.landingPage",
+  },
+  {
+    valor: "📝",
+    icone: "📝",
+    chave: "icons.form",
+  },
+  {
+    valor: "📘",
+    icone: "📘",
+    chave: "icons.meta",
+  },
+  {
+    valor: "🔎",
+    icone: "🔎",
+    chave: "icons.google",
+  },
+  {
+    valor: "💬",
+    icone: "💬",
+    chave: "icons.whatsapp",
+  },
+  {
+    valor: "📱",
+    icone: "📱",
+    chave: "icons.socialNetworks",
+  },
+  {
+    valor: "📞",
+    icone: "📞",
+    chave: "icons.phone",
+  },
+  {
+    valor: "✉️",
+    icone: "✉️",
+    chave: "icons.email",
+  },
+  {
+    valor: "🤝",
+    icone: "🤝",
+    chave: "icons.referral",
+  },
+  {
+    valor: "🎪",
+    icone: "🎪",
+    chave: "icons.event",
+  },
+  {
+    valor: "🔗",
+    icone: "🔗",
+    chave: "icons.partnership",
+  },
+  {
+    valor: "🎯",
+    icone: "🎯",
+    chave: "icons.campaign",
+  },
+  {
+    valor: "📤",
+    icone: "📤",
+    chave: "icons.import",
+  },
+  {
+    valor: "⚙️",
+    icone: "⚙️",
+    chave: "icons.api",
+  },
+  {
+    valor: "📡",
     icone: "📡",
-    padrao: false,
-    ativo: true,
-};
-
-const LABELS_TIPO: Record<string, string> = {
-    SITE: "Site",
-    LANDING_PAGE: "Landing page",
-    FORMULARIO: "Formulário",
-    META_ADS: "Meta Ads",
-    GOOGLE_ADS: "Google Ads",
-    WHATSAPP: "WhatsApp",
-    INDICACAO: "Indicação",
-    EVENTO: "Evento",
-    PARCERIA: "Parceria",
-    IMPORTACAO: "Importação",
-    API: "API",
-    OUTRO: "Outro",
-};
-
-const ICONES_CANAL = [
-    { valor: "🌐", nome: "Site" },
-    { valor: "🎯", nome: "Landing page" },
-    { valor: "📝", nome: "Formulário" },
-    { valor: "📣", nome: "Anúncios" },
-    { valor: "🔎", nome: "Pesquisa" },
-    { valor: "💬", nome: "WhatsApp" },
-    { valor: "🤝", nome: "Indicação" },
-    { valor: "🎪", nome: "Evento" },
-    { valor: "🏢", nome: "Parceria" },
-    { valor: "📥", nome: "Importação" },
-    { valor: "🔌", nome: "API" },
-    { valor: "📡", nome: "Captação" },
-    { valor: "📱", nome: "Celular" },
-    { valor: "📧", nome: "E-mail" },
-    { valor: "🔗", nome: "Link" },
-    { valor: "📍", nome: "Local" },
+    chave: "icons.integration",
+  },
+  {
+    valor: "🏫",
+    icone: "🏫",
+    chave: "icons.institutional",
+  },
+  {
+    valor: "👥",
+    icone: "👥",
+    chave: "icons.people",
+  },
+  {
+    valor: "📣",
+    icone: "📣",
+    chave: "icons.promotion",
+  },
 ];
 
-const ICONE_POR_TIPO: Record<string, string> = {
-    SITE: "🌐",
-    LANDING_PAGE: "🎯",
-    FORMULARIO: "📝",
-    META_ADS: "📣",
-    GOOGLE_ADS: "🔎",
-    WHATSAPP: "💬",
-    INDICACAO: "🤝",
-    EVENTO: "🎪",
-    PARCERIA: "🏢",
-    IMPORTACAO: "📥",
-    API: "🔌",
-    OUTRO: "📡",
-};
-
-function labelTipo(tipo: string) {
-    return (
-        LABELS_TIPO[tipo] ??
-        tipo
-            .replaceAll("_", " ")
-            .toLowerCase()
-    );
+function formatarNumero(
+  valor: number,
+  locale: string
+) {
+  return new Intl.NumberFormat(
+    locale
+  ).format(
+    Number(valor || 0)
+  );
 }
 
-export default function CanaisCaptacaoClient({
-    podeGerenciarInicial,
+function formatarData(
+  valor: string,
+  locale: string
+) {
+  const data =
+    new Date(valor);
+
+  if (
+    Number.isNaN(
+      data.getTime()
+    )
+  ) {
+    return "—";
+  }
+
+  return new Intl.DateTimeFormat(
+    locale,
+    {
+      timeZone:
+        "America/Sao_Paulo",
+
+      day:
+        "2-digit",
+
+      month:
+        "2-digit",
+
+      year:
+        "numeric",
+
+      hour:
+        "2-digit",
+
+      minute:
+        "2-digit",
+    }
+  ).format(data);
+}
+
+const CHAVES_TIPO: Record<string, string> = {
+  SITE: "types.site",
+  LANDING_PAGE: "types.landingPage",
+  FORMULARIO: "types.form",
+  META_ADS: "types.metaAds",
+  GOOGLE_ADS: "types.googleAds",
+  WHATSAPP: "types.whatsapp",
+  INDICACAO: "types.referral",
+  EVENTO: "types.event",
+  PARCERIA: "types.partnership",
+  IMPORTACAO: "types.import",
+  API: "types.api",
+  OUTRO: "types.other",
+};
+
+function iconeTipo(
+  tipo: string
+) {
+  const mapa:
+    Record<
+      string,
+      string
+    > = {
+    SITE:
+      "🌐",
+
+    LANDING_PAGE:
+      "🖥️",
+
+    FORMULARIO:
+      "📝",
+
+    META_ADS:
+      "📘",
+
+    GOOGLE_ADS:
+      "🔎",
+
+    WHATSAPP:
+      "💬",
+
+    INDICACAO:
+      "🤝",
+
+    EVENTO:
+      "🎪",
+
+    PARCERIA:
+      "🔗",
+
+    IMPORTACAO:
+      "📤",
+
+    API:
+      "⚙️",
+
+    OUTRO:
+      "📡",
+  };
+
+  return (
+    mapa[tipo] ??
+    "📡"
+  );
+}
+
+type OpcaoSeletor = {
+  valor: string;
+  rotulo: string;
+};
+
+function SeletorCinza({
+  valor,
+  opcoes,
+  aoAlterar,
+  temaEscuro,
+  temaAzul,
+  margem = "mt-1",
 }: {
-    podeGerenciarInicial: boolean;
+  valor: string;
+  opcoes: OpcaoSeletor[];
+  aoAlterar: (valor: string) => void;
+  temaEscuro: boolean;
+  temaAzul: boolean;
+  margem?: string;
 }) {
-    const [canais, setCanais] =
-        useState<Canal[]>([]);
+  const [aberto, setAberto] = useState(false);
+  const raizRef = useRef<HTMLDivElement>(null);
+  const selecionada =
+    opcoes.find((opcao) => opcao.valor === valor) ?? opcoes[0];
 
-    const [resumo, setResumo] =
-        useState<Resumo>({
-            total: 0,
-            ativos: 0,
-            inativos: 0,
-            padrao: null,
-        });
+  useEffect(() => {
+    if (!aberto) return;
 
-    const [
-        tiposDisponiveis,
-        setTiposDisponiveis,
-    ] = useState<string[]>([]);
+    function fecharFora(event: MouseEvent) {
+      if (
+        raizRef.current &&
+        !raizRef.current.contains(event.target as Node)
+      ) {
+        setAberto(false);
+      }
+    }
 
-    const [
-        podeGerenciar,
-        setPodeGerenciar,
-    ] = useState(
-        podeGerenciarInicial
+    function fecharEscape(event: globalThis.KeyboardEvent) {
+      if (event.key === "Escape") setAberto(false);
+    }
+
+    document.addEventListener("mousedown", fecharFora);
+    document.addEventListener("keydown", fecharEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", fecharFora);
+      document.removeEventListener("keydown", fecharEscape);
+    };
+  }, [aberto]);
+
+  return (
+    <div ref={raizRef} className={`relative ${margem}`}>
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={aberto}
+        onClick={() => setAberto((atual) => !atual)}
+        className={`flex w-full items-center justify-between gap-3 rounded-xl border px-3 py-2.5 text-left text-sm outline-none focus:ring-2 focus:ring-neutral-400 ${temaAzul
+          ? "border-blue-900 bg-blue-950/70 text-blue-50"
+          : temaEscuro
+            ? "border-neutral-600 bg-neutral-800 text-neutral-100"
+            : "border-slate-300 bg-slate-50 text-slate-900"
+          }`}
+      >
+        <span className="min-w-0 truncate">{selecionada?.rotulo ?? "—"}</span>
+        <span
+          aria-hidden="true"
+          className={`shrink-0 text-[10px] transition-transform ${aberto ? "rotate-180" : ""
+            }`}
+        >
+          ▼
+        </span>
+      </button>
+
+      {aberto && (
+        <div
+          role="listbox"
+          className={`absolute left-0 right-0 top-full z-[160] mt-1 max-h-64 overflow-y-auto rounded-xl border p-1 shadow-2xl ${temaAzul
+            ? "border-blue-900 bg-blue-950"
+            : temaEscuro
+              ? "border-neutral-600 bg-neutral-800"
+              : "border-slate-300 bg-neutral-100"
+            }`}
+        >
+          {opcoes.map((opcao) => {
+            const ativa = opcao.valor === valor;
+
+            return (
+              <button
+                key={`${opcao.valor}-${opcao.rotulo}`}
+                type="button"
+                role="option"
+                aria-selected={ativa}
+                onClick={() => {
+                  aoAlterar(opcao.valor);
+                  setAberto(false);
+                }}
+                className={`block w-full rounded-lg px-3 py-2 text-left text-sm ${temaAzul
+                    ? ativa
+                      ? "bg-blue-900 text-white"
+                      : "bg-blue-950 text-blue-50 hover:bg-blue-900/70"
+                    : temaEscuro
+                      ? ativa
+                        ? "bg-neutral-600 text-white"
+                        : "bg-neutral-800 text-neutral-100 hover:bg-neutral-700"
+                      : ativa
+                        ? "bg-neutral-300 text-neutral-950"
+                        : "bg-neutral-100 text-neutral-950 hover:bg-neutral-200"
+                  }`}
+              >
+                {opcao.rotulo}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function CanaisCaptacaoClient() {
+  const t = useTranslations("AdminCommercialChannels");
+  const locale = useLocale();
+
+  function rotuloTipo(tipo: string) {
+    const chave = CHAVES_TIPO[tipo];
+    return chave ? t(chave) : tipo;
+  }
+  const [
+    temaEscuro,
+    setTemaEscuro,
+  ] =
+    useState(false);
+
+  const [
+    temaEscolhido,
+    setTemaEscolhido,
+  ] =
+    useState<Tema>("light");
+
+  const [
+    dados,
+    setDados,
+  ] =
+    useState<RespostaCanais | null>(
+      null
     );
 
-    const [busca, setBusca] =
-        useState("");
+  const [
+    carregando,
+    setCarregando,
+  ] =
+    useState(true);
 
-    const [filtroTipo, setFiltroTipo] =
-        useState("");
+  const [
+    atualizando,
+    setAtualizando,
+  ] =
+    useState(false);
 
-    const [filtroAtivo, setFiltroAtivo] =
-        useState("");
+  const [
+    salvando,
+    setSalvando,
+  ] =
+    useState(false);
 
-    const [carregando, setCarregando] =
-        useState(true);
+  const [
+    erro,
+    setErro,
+  ] =
+    useState("");
 
-    const [salvando, setSalvando] =
-        useState(false);
+  const [
+    busca,
+    setBusca,
+  ] =
+    useState("");
 
-    const [
-        canalEmProcessamento,
-        setCanalEmProcessamento,
-    ] = useState<number | null>(null);
+  const [
+    tipoFiltro,
+    setTipoFiltro,
+  ] =
+    useState("");
 
-    const [erro, setErro] =
-        useState("");
+  const [
+    ativoFiltro,
+    setAtivoFiltro,
+  ] =
+    useState("");
 
-    const [sucesso, setSucesso] =
-        useState("");
+  const [
+    modalNovoAberto,
+    setModalNovoAberto,
+  ] =
+    useState(false);
 
-    const [modalAberto, setModalAberto] =
-        useState(false);
+  const [
+    canalEditando,
+    setCanalEditando,
+  ] =
+    useState<Canal | null>(
+      null
+    );
 
-    const [canalEditando, setCanalEditando] =
-        useState<Canal | null>(null);
+  const [
+    formulario,
+    setFormulario,
+  ] =
+    useState<FormularioCanal>(
+      FORMULARIO_INICIAL
+    );
 
-    const [formulario, setFormulario] =
-        useState<FormularioCanal>(
-            FORMULARIO_INICIAL
-        );
+  const [
+    erroFormulario,
+    setErroFormulario,
+  ] =
+    useState("");
 
-    const carregarCanais =
-        useCallback(async () => {
-            try {
-                setCarregando(true);
-                setErro("");
+  const [
+    toast,
+    setToast,
+  ] =
+    useState<{
+      tipo:
+      | "sucesso"
+      | "erro";
 
-                const query =
-                    new URLSearchParams();
+      mensagem:
+      string;
+    } | null>(
+      null
+    );
 
-                if (busca.trim()) {
-                    query.set(
-                        "busca",
-                        busca.trim()
-                    );
-                }
+  useEffect(() => {
+    const root =
+      document.documentElement;
 
-                if (filtroTipo) {
-                    query.set(
-                        "tipo",
-                        filtroTipo
-                    );
-                }
+    function calcularTema() {
+      const escolha =
+        document.documentElement
+          .dataset
+          .themeChoice;
 
-                if (filtroAtivo) {
-                    query.set(
-                        "ativo",
-                        filtroAtivo
-                    );
-                }
+      const temaSalvo =
+        (
+          escolha === "light" ||
+          escolha === "dark" ||
+          escolha === "system"
+        )
+          ? escolha
+          : (
+            localStorage.getItem(
+              "phanyx_tema"
+            ) ||
+            "light"
+          );
 
-                const url =
-                    query.toString()
-                        ? `/api/admin/comercial/captacao/canais?${query.toString()}`
-                        : "/api/admin/comercial/captacao/canais";
+      setTemaEscolhido(
+        temaSalvo as Tema
+      );
 
-                const res = await fetch(url, {
-                    cache: "no-store",
-                    credentials: "include",
-                });
+      setTemaEscuro(
+        document
+          .documentElement
+          .classList
+          .contains("dark")
+      );
+    }
+    calcularTema();
 
-                const data =
-                    (await res
-                        .json()
-                        .catch(() => null)) as
-                    | RespostaLista
-                    | null;
+    const observador =
+      new MutationObserver(() => {
+        calcularTema();
+      });
 
-                if (!res.ok) {
-                    throw new Error(
-                        data?.error ||
-                        "Não foi possível carregar os canais."
-                    );
-                }
+    observador.observe(
+      root,
+      {
+        attributes: true,
+        attributeFilter: [
+          "class",
+          "data-theme",
+          "data-theme-choice",
+        ],
+      }
+    );
 
-                setCanais(
-                    Array.isArray(data?.canais)
-                        ? data!.canais!
-                        : []
-                );
+    const media =
+      window.matchMedia(
+        "(prefers-color-scheme: dark)"
+      );
 
-                if (data?.resumo) {
-                    setResumo(data.resumo);
-                }
+    media.addEventListener(
+      "change",
+      calcularTema
+    );
 
-                setTiposDisponiveis(
-                    Array.isArray(
-                        data?.tiposDisponiveis
-                    )
-                        ? data!.tiposDisponiveis!
-                        : []
-                );
+    window.addEventListener(
+      "storage",
+      calcularTema
+    );
 
-                if (
-                    typeof data?.permissoes
-                        ?.podeGerenciar ===
-                    "boolean"
-                ) {
-                    setPodeGerenciar(
-                        data.permissoes
-                            .podeGerenciar
-                    );
-                }
-            } catch (error) {
-                setErro(
-                    error instanceof Error
-                        ? error.message
-                        : "Não foi possível carregar os canais."
-                );
-            } finally {
-                setCarregando(false);
-            }
-        }, [
-            busca,
-            filtroAtivo,
-            filtroTipo,
-        ]);
+    return () => {
+      observador.disconnect();
 
-    useEffect(() => {
-        const timer = window.setTimeout(
-            () => {
-                carregarCanais();
-            },
-            250
-        );
+      media.removeEventListener(
+        "change",
+        calcularTema
+      );
 
-        return () =>
-            window.clearTimeout(timer);
-    }, [carregarCanais]);
+      window.removeEventListener(
+        "storage",
+        calcularTema
+      );
+    };
+  }, []);
 
-    function abrirNovoCanal() {
-        setCanalEditando(null);
-
-        setFormulario({
-            ...FORMULARIO_INICIAL,
-        });
-
-        setErro("");
-        setSucesso("");
-        setModalAberto(true);
+  useEffect(() => {
+    if (!toast) {
+      return;
     }
 
-    function abrirEdicao(
-        canal: Canal
-    ) {
-        setCanalEditando(canal);
+    const timer =
+      setTimeout(
+        () => {
+          setToast(null);
+        },
+        3500
+      );
 
-        setFormulario({
-            nome: canal.nome,
-            slug: canal.slug,
-            descricao:
-                canal.descricao ?? "",
-            tipo: canal.tipo,
-            cor:
-                canal.cor ?? "#64748B",
-            icone:
-                canal.icone ?? "📡",
-            padrao: canal.padrao,
-            ativo: canal.ativo,
-        });
+    return () =>
+      clearTimeout(
+        timer
+      );
+  }, [toast]);
 
-        setErro("");
-        setSucesso("");
-        setModalAberto(true);
-    }
+  const temaAzul =
+    temaEscolhido === "dark";
 
-    function fecharModal() {
-        if (salvando) return;
+  const c =
+    useMemo(
+      () => ({
+        pagina:
+          temaAzul
+            ? "bg-[#020b2a] text-blue-50"
+            : temaEscuro
+              ? "bg-neutral-950 text-neutral-100"
+              : "bg-slate-100 text-slate-900",
 
-        setModalAberto(false);
-        setCanalEditando(null);
-    }
+        card:
+          temaAzul
+            ? "border-blue-950 bg-[#0b1220]"
+            : temaEscuro
+              ? "border-neutral-700 bg-neutral-900"
+              : "border-slate-200 bg-white",
 
-    async function salvarCanal(
-        event: FormEvent
-    ) {
-        event.preventDefault();
+        subCard:
+          temaAzul
+            ? "border-blue-900 bg-[#0f1a33]"
+            : temaEscuro
+              ? "border-neutral-700 bg-neutral-800"
+              : "border-slate-200 bg-slate-50",
 
+        titulo:
+          temaAzul
+            ? "text-blue-50"
+            : temaEscuro
+              ? "text-white"
+              : "text-slate-900",
+
+        texto:
+          temaAzul
+            ? "text-blue-100"
+            : temaEscuro
+              ? "text-neutral-200"
+              : "text-slate-700",
+
+        muted:
+          temaAzul
+            ? "text-blue-200/70"
+            : temaEscuro
+              ? "text-neutral-400"
+              : "text-slate-500",
+
+        divisoria:
+          temaAzul
+            ? "border-blue-950"
+            : temaEscuro
+              ? "border-neutral-700"
+              : "border-slate-200",
+
+        input:
+          temaAzul
+            ? "border-blue-900 bg-blue-950/70 text-blue-50 placeholder:text-blue-200/50"
+            : temaEscuro
+              ? "border-neutral-600 bg-neutral-800 text-white placeholder:text-neutral-400"
+              : "border-slate-300 bg-white text-slate-900 placeholder:text-slate-400",
+
+        botaoSecundario:
+          temaAzul
+            ? "border-blue-900 bg-[#0f1a33] text-blue-50 hover:bg-[#162447]"
+            : temaEscuro
+              ? "border-neutral-600 bg-neutral-800 text-neutral-100 hover:bg-neutral-700"
+              : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50",
+
+        botaoPrimario:
+          temaEscuro
+            ? "bg-emerald-500 text-white hover:bg-emerald-400"
+            : "bg-slate-900 text-white hover:bg-slate-800",
+      }),
+      [
+        temaEscuro,
+        temaAzul,
+      ]
+    );
+
+  const carregar =
+    useCallback(
+      async (
+        opcoes?: {
+          silencioso?: boolean;
+          busca?: string;
+          tipo?: string;
+          ativo?: string;
+        }
+      ) => {
         try {
-            setSalvando(true);
-            setErro("");
-            setSucesso("");
+          if (
+            opcoes
+              ?.silencioso
+          ) {
+            setAtualizando(
+              true
+            );
+          } else {
+            setCarregando(
+              true
+            );
+          }
 
-            const editando =
-                Boolean(canalEditando);
+          setErro("");
 
-            const url =
-                canalEditando
-                    ? `/api/admin/comercial/captacao/canais/${canalEditando.id}`
-                    : "/api/admin/comercial/captacao/canais";
+          const params =
+            new URLSearchParams();
 
-            const res = await fetch(url, {
+          const buscaAtual =
+            opcoes?.busca ??
+            busca;
+
+          const tipoAtual =
+            opcoes?.tipo ??
+            tipoFiltro;
+
+          const ativoAtual =
+            opcoes?.ativo ??
+            ativoFiltro;
+
+          if (
+            buscaAtual.trim()
+          ) {
+            params.set(
+              "busca",
+              buscaAtual.trim()
+            );
+          }
+
+          if (
+            tipoAtual
+          ) {
+            params.set(
+              "tipo",
+              tipoAtual
+            );
+          }
+
+          if (
+            ativoAtual
+          ) {
+            params.set(
+              "ativo",
+              ativoAtual
+            );
+          }
+
+          const query =
+            params.toString();
+
+          const resposta =
+            await fetch(
+              `/api/admin/comercial/captacao/canais${query
+                ? `?${query}`
+                : ""
+              }`,
+              {
                 method:
-                    editando
-                        ? "PATCH"
-                        : "POST",
+                  "GET",
 
-                credentials: "include",
-
-                headers: {
-                    "Content-Type":
-                        "application/json",
-                },
-
-                body: JSON.stringify({
-                    nome:
-                        formulario.nome,
-                    slug:
-                        formulario.slug ||
-                        undefined,
-                    descricao:
-                        formulario.descricao,
-                    tipo:
-                        formulario.tipo,
-                    cor:
-                        formulario.cor,
-                    icone:
-                        formulario.icone,
-                    padrao:
-                        formulario.padrao,
-                    ativo:
-                        formulario.ativo,
-                }),
-            });
-
-            const data =
-                await res
-                    .json()
-                    .catch(() => null);
-
-            if (!res.ok) {
-                throw new Error(
-                    data?.error ||
-                    "Não foi possível salvar o canal."
-                );
-            }
-
-            setSucesso(
-                editando
-                    ? "Canal atualizado com sucesso."
-                    : "Canal criado com sucesso."
+                cache:
+                  "no-store",
+              }
             );
 
-            setModalAberto(false);
-            setCanalEditando(null);
+          const json =
+            (
+              await resposta
+                .json()
+                .catch(
+                  () => ({})
+                )
+            ) as
+            | RespostaCanais
+            | RespostaErro;
 
-            await carregarCanais();
-        } catch (error) {
-            setErro(
-                error instanceof Error
-                    ? error.message
-                    : "Não foi possível salvar o canal."
+          if (
+            !resposta.ok ||
+            !(
+              "success" in
+              json
+            ) ||
+            json.success !==
+            true
+          ) {
+            throw new Error(
+              (
+                json as
+                RespostaErro
+              ).error ||
+              t("errors.load")
             );
+          }
+
+          setDados(
+            json
+          );
+        } catch (
+        error
+        ) {
+          setErro(
+            error instanceof
+              Error
+              ? error.message
+              : t("errors.load")
+          );
         } finally {
-            setSalvando(false);
+          setCarregando(
+            false
+          );
+
+          setAtualizando(
+            false
+          );
         }
+      },
+      [
+        busca,
+        tipoFiltro,
+        ativoFiltro,
+        t,
+      ]
+    );
+
+  useEffect(() => {
+    void carregar();
+  }, []);
+
+  function abrirNovoCanal() {
+    const primeiroTipo =
+      dados
+        ?.tiposDisponiveis
+      ?.[0] ??
+      "SITE";
+
+    setCanalEditando(
+      null
+    );
+
+    setFormulario({
+      ...FORMULARIO_INICIAL,
+
+      tipo:
+        primeiroTipo,
+    });
+
+    setErroFormulario(
+      ""
+    );
+
+    setModalNovoAberto(
+      true
+    );
+  }
+
+  function abrirEditarCanal(
+    canal: Canal
+  ) {
+    setCanalEditando(
+      canal
+    );
+
+    setFormulario({
+      nome:
+        canal.nome,
+
+      slug:
+        canal.slug,
+
+      descricao:
+        canal.descricao ??
+        "",
+
+      tipo:
+        canal.tipo,
+
+      cor:
+        canal.cor ||
+        "#64748B",
+
+      icone:
+        canal.icone ??
+        "",
+
+      padrao:
+        canal.padrao,
+
+      ativo:
+        canal.ativo,
+    });
+
+    setErroFormulario(
+      ""
+    );
+
+    setModalNovoAberto(
+      true
+    );
+  }
+
+  function fecharNovoCanal() {
+    if (salvando) {
+      return;
     }
 
-    async function atualizarCanal(
-        canal: Canal,
-        alteracoes: Record<
-            string,
-            unknown
-        >,
-        mensagem: string
+    setModalNovoAberto(
+      false
+    );
+
+    setCanalEditando(
+      null
+    );
+
+    setErroFormulario(
+      ""
+    );
+  }
+  function atualizarFormulario<
+    K extends keyof FormularioCanal
+  >(
+    campo: K,
+    valor:
+      FormularioCanal[K]
+  ) {
+    setFormulario(
+      (
+        atual
+      ) => ({
+        ...atual,
+        [campo]:
+          valor,
+      })
+    );
+
+    if (
+      erroFormulario
     ) {
-        try {
-            setCanalEmProcessamento(
-                canal.id
-            );
+      setErroFormulario(
+        ""
+      );
+    }
+  }
 
-            setErro("");
-            setSucesso("");
+  async function salvarCanal(
+    event:
+      FormEvent<HTMLFormElement>
+  ) {
+    event.preventDefault();
 
-            const res = await fetch(
-                `/api/admin/comercial/captacao/canais/${canal.id}`,
-                {
-                    method: "PATCH",
-                    credentials: "include",
-                    headers: {
-                        "Content-Type":
-                            "application/json",
-                    },
-                    body: JSON.stringify(
-                        alteracoes
-                    ),
-                }
-            );
+    const nome =
+      formulario
+        .nome
+        .trim();
 
-            const data =
-                await res
-                    .json()
-                    .catch(() => null);
+    if (!nome) {
+      setErroFormulario(
+        t("errors.nameRequired")
+      );
 
-            if (!res.ok) {
-                throw new Error(
-                    data?.error ||
-                    "Não foi possível atualizar o canal."
-                );
-            }
-
-            setSucesso(mensagem);
-
-            await carregarCanais();
-        } catch (error) {
-            setErro(
-                error instanceof Error
-                    ? error.message
-                    : "Não foi possível atualizar o canal."
-            );
-        } finally {
-            setCanalEmProcessamento(
-                null
-            );
-        }
+      return;
     }
 
+    if (
+      !formulario.tipo
+    ) {
+      setErroFormulario(
+        t("errors.typeRequired")
+      );
+
+      return;
+    }
+
+    try {
+      setSalvando(
+        true
+      );
+
+      setErroFormulario(
+        ""
+      );
+
+      const editando =
+        Boolean(
+          canalEditando
+        );
+
+      const url =
+        canalEditando
+          ? `/api/admin/comercial/captacao/canais/${canalEditando.id}`
+          : "/api/admin/comercial/captacao/canais";
+
+      const resposta =
+        await fetch(
+          url,
+          {
+            method:
+              editando
+                ? "PATCH"
+                : "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                nome,
+
+                tipo:
+                  formulario.tipo,
+
+                descricao:
+                  formulario
+                    .descricao
+                    .trim() ||
+                  null,
+
+                slug:
+                  formulario
+                    .slug
+                    .trim() ||
+                  null,
+
+                icone:
+                  formulario
+                    .icone
+                    .trim() ||
+                  null,
+
+                cor:
+                  formulario.cor,
+
+                padrao:
+                  formulario.padrao,
+
+                ativo:
+                  formulario.ativo,
+              }),
+          }
+        );
+
+      const json =
+        (
+          await resposta
+            .json()
+            .catch(
+              () => ({})
+            )
+        ) as {
+          success?:
+          boolean;
+
+          message?:
+          string;
+
+          error?:
+          string;
+        };
+
+      if (
+        !resposta.ok ||
+        json.success !==
+        true
+      ) {
+        throw new Error(
+          json.error ||
+          (
+            editando
+              ? t("errors.update")
+              : t("errors.create")
+          )
+        );
+      }
+
+      setModalNovoAberto(
+        false
+      );
+
+      setCanalEditando(
+        null
+      );
+
+      setToast({
+        tipo:
+          "sucesso",
+
+        mensagem:
+          json.message ||
+          (
+            editando
+              ? t("success.updated")
+              : t("success.created")
+          ),
+      });
+
+      await carregar({
+        silencioso:
+          true,
+      });
+    } catch (
+    error
+    ) {
+      setErroFormulario(
+        error instanceof
+          Error
+          ? error.message
+          : t("errors.save")
+      );
+    } finally {
+      setSalvando(
+        false
+      );
+    }
+  }
+
+  function aplicarFiltros(
+    event:
+      FormEvent<HTMLFormElement>
+  ) {
+    event.preventDefault();
+
+    void carregar();
+  }
+
+  function limparFiltros() {
+    setBusca("");
+    setTipoFiltro("");
+    setAtivoFiltro("");
+
+    void carregar({
+      busca: "",
+      tipo: "",
+      ativo: "",
+    });
+  }
+
+  if (
+    carregando &&
+    !dados
+  ) {
     return (
-        <div className="phanyx-captacao-canais-page mx-auto w-full max-w-7xl space-y-6">
-            <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-                    <div>
-                        <Link
-                            href="/admin/comercial/captacao"
-                            className="text-sm font-bold text-blue-600 hover:underline dark:text-blue-400"
-                        >
-                            ← Central de Captação
-                        </Link>
+      <div
+        className={`min-h-screen p-6 ${c.pagina}`}
+      >
+        <div className="mx-auto max-w-7xl space-y-5">
+          <div
+            className={`h-32 animate-pulse rounded-3xl border ${c.card}`}
+          />
 
-                        <h1 className="mt-2 text-3xl font-black text-slate-950 dark:text-white">
-                            Canais de captação
-                        </h1>
-
-                        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
-                            Configure as origens pelas
-                            quais os leads entram no
-                            PHANYX.
-                        </p>
-                    </div>
-
-                    {podeGerenciar && (
-                        <button
-                            type="button"
-                            onClick={abrirNovoCanal}
-                            className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-blue-700"
-                        >
-                            + Novo canal
-                        </button>
-                    )}
-                </div>
-            </header>
-
-            <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                <article className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                    <p className="text-sm font-semibold text-slate-500">
-                        Total
-                    </p>
-                    <p className="mt-2 text-3xl font-black text-slate-950 dark:text-white">
-                        {resumo.total}
-                    </p>
-                </article>
-
-                <article className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                    <p className="text-sm font-semibold text-slate-500">
-                        Ativos
-                    </p>
-                    <p className="mt-2 text-3xl font-black text-slate-950 dark:text-white">
-                        {resumo.ativos}
-                    </p>
-                </article>
-
-                <article className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                    <p className="text-sm font-semibold text-slate-500">
-                        Inativos
-                    </p>
-                    <p className="mt-2 text-3xl font-black text-slate-950 dark:text-white">
-                        {resumo.inativos}
-                    </p>
-                </article>
-
-                <article className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                    <p className="text-sm font-semibold text-slate-500">
-                        Canal padrão
-                    </p>
-                    <p className="mt-2 truncate text-lg font-black text-slate-950 dark:text-white">
-                        {resumo.padrao?.nome ??
-                            "Não definido"}
-                    </p>
-                </article>
-            </section>
-
-            {(erro || sucesso) && (
+          <div className="grid gap-4 sm:grid-cols-3">
+            {Array.from({
+              length: 3,
+            }).map(
+              (
+                _,
+                index
+              ) => (
                 <div
-                    className={`rounded-2xl border px-4 py-3 text-sm font-semibold ${erro
-                        ? "border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300"
-                        : "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300"
-                        }`}
-                >
-                    {erro || sucesso}
-                </div>
+                  key={
+                    index
+                  }
+                  className={`h-28 animate-pulse rounded-3xl border ${c.card}`}
+                />
+              )
             )}
+          </div>
 
-            <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                <div className="grid gap-3 lg:grid-cols-[1fr_220px_180px]">
-                    <input
-                        value={busca}
-                        onChange={(e) =>
-                            setBusca(
-                                e.target.value
-                            )
-                        }
-                        placeholder="Buscar por nome, descrição ou identificador..."
-                        className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-950 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                    />
+          <div
+            className={`h-96 animate-pulse rounded-3xl border ${c.card}`}
+          />
+        </div>
+      </div>
+    );
+  }
 
-                    <select
-                        value={filtroTipo}
-                        onChange={(e) =>
-                            setFiltroTipo(
-                                e.target.value
-                            )
-                        }
-                        className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                    >
-                        <option value="">
-                            Todos os tipos
-                        </option>
+  if (
+    erro &&
+    !dados
+  ) {
+    return (
+      <div
+        className={`min-h-screen p-6 ${c.pagina}`}
+      >
+        <div
+          className={`mx-auto max-w-2xl rounded-3xl border p-6 shadow-sm ${c.card}`}
+        >
+          <div className="text-3xl">
+            ⚠️
+          </div>
 
-                        {tiposDisponiveis.map(
-                            (tipo) => (
-                                <option
-                                    key={tipo}
-                                    value={tipo}
-                                >
-                                    {labelTipo(tipo)}
-                                </option>
-                            )
-                        )}
-                    </select>
+          <h1
+            className={`mt-4 text-xl font-bold ${c.titulo}`}
+          >
+            {t("errorPage.title")}
+          </h1>
 
-                    <select
-                        value={filtroAtivo}
-                        onChange={(e) =>
-                            setFiltroAtivo(
-                                e.target.value
-                            )
-                        }
-                        className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                    >
-                        <option value="">
-                            Todos
-                        </option>
-                        <option value="true">
-                            Ativos
-                        </option>
-                        <option value="false">
-                            Inativos
-                        </option>
-                    </select>
-                </div>
-            </section>
+          <p
+            className={`mt-2 text-sm ${c.texto}`}
+          >
+            {erro}
+          </p>
 
-            <section className="space-y-3">
-                {carregando ? (
-                    <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                        Carregando canais...
-                    </div>
-                ) : canais.length === 0 ? (
-                    <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center dark:border-slate-700 dark:bg-slate-950">
-                        <p className="text-3xl">
-                            📡
-                        </p>
+          <button
+            type="button"
+            onClick={() =>
+              void carregar()
+            }
+            className={`mt-5 rounded-xl border px-4 py-2 text-sm font-semibold ${c.botaoSecundario}`}
+          >
+            {t("errorPage.retry")}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
-                        <h2 className="mt-3 text-lg font-black text-slate-950 dark:text-white">
-                            Nenhum canal encontrado
-                        </h2>
+  if (!dados) {
+    return null;
+  }
 
-                        <p className="mt-2 text-sm text-slate-500">
-                            Cadastre a primeira origem
-                            de leads da instituição.
-                        </p>
-                    </div>
-                ) : (
-                    canais.map((canal) => (
-                        <article
-                            key={canal.id}
-                            className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950"
-                        >
-                            <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
-                                <div className="flex min-w-0 gap-4">
-                                    <div
-                                        className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-2xl"
-                                        style={{
-                                            backgroundColor:
-                                                `${canal.cor || "#64748B"}18`,
-                                            border:
-                                                `1px solid ${canal.cor || "#64748B"}40`,
-                                        }}
-                                    >
-                                        {canal.icone ||
-                                            "📡"}
-                                    </div>
+  return (
+    <div
+      className={`min-h-screen p-4 sm:p-6 ${c.pagina}`}
+    >
+      {toast && (
+        <div className="fixed right-5 top-5 z-[120]">
+          <div
+            className={
+              toast.tipo ===
+                "sucesso"
+                ? (
+                  temaEscuro
+                    ? "rounded-2xl border border-emerald-800 bg-emerald-950 px-4 py-3 text-sm font-medium text-emerald-200 shadow-xl"
+                    : "rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800 shadow-xl"
+                )
+                : (
+                  temaEscuro
+                    ? "rounded-2xl border border-red-900 bg-red-950 px-4 py-3 text-sm font-medium text-red-200 shadow-xl"
+                    : "rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700 shadow-xl"
+                )
+            }
+          >
+            {
+              toast.mensagem
+            }
+          </div>
+        </div>
+      )}
 
-                                    <div className="min-w-0">
-                                        <div className="flex flex-wrap items-center gap-2">
-                                            <h2 className="text-lg font-black text-slate-950 dark:text-white">
-                                                {canal.nome}
-                                            </h2>
+      <div className="mx-auto max-w-7xl space-y-6">
+        <section
+          className={`rounded-3xl border p-5 shadow-sm sm:p-6 ${c.card}`}
+        >
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <Link
+                href="/admin/comercial/captacao"
+                className={`text-sm font-semibold ${c.muted}`}
+              >
+                {t("header.back")}
+              </Link>
 
-                                            {canal.padrao && (
-                                                <span className="rounded-full bg-blue-100 px-2.5 py-1 text-xs font-bold text-blue-700 dark:bg-blue-950 dark:text-blue-300">
-                                                    Padrão
-                                                </span>
-                                            )}
+              <h1
+                className={`mt-3 text-2xl font-bold sm:text-3xl ${c.titulo}`}
+              >
+                {t("header.title")}
+              </h1>
 
-                                            <span
-                                                className={`rounded-full px-2.5 py-1 text-xs font-bold ${canal.ativo
-                                                    ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
-                                                    : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
-                                                    }`}
-                                            >
-                                                {canal.ativo
-                                                    ? "Ativo"
-                                                    : "Inativo"}
-                                            </span>
-                                        </div>
+              <p
+                className={`mt-2 max-w-3xl text-sm leading-6 ${c.texto}`}
+              >
+                {t("header.description")}
+              </p>
+            </div>
 
-                                        <p className="mt-1 text-sm font-semibold text-slate-500">
-                                            {labelTipo(
-                                                canal.tipo
-                                            )}{" "}
-                                            · {canal.slug}
-                                        </p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() =>
+                  void carregar({
+                    silencioso:
+                      true,
+                  })
+                }
+                disabled={
+                  atualizando
+                }
+                className={`rounded-xl border px-4 py-2.5 text-sm font-semibold transition disabled:opacity-60 ${c.botaoSecundario}`}
+              >
+                {atualizando
+                  ? t("common.refreshing")
+                  : t("common.refresh")}
+              </button>
 
-                                        {canal.descricao && (
-                                            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
-                                                {
-                                                    canal.descricao
-                                                }
-                                            </p>
-                                        )}
-
-                                        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
-                                            <span>
-                                                {
-                                                    canal._count
-                                                        .campanhas
-                                                }{" "}
-                                                campanhas
-                                            </span>
-                                            <span>
-                                                {
-                                                    canal._count
-                                                        .formularios
-                                                }{" "}
-                                                formulários
-                                            </span>
-                                            <span>
-                                                {
-                                                    canal._count
-                                                        .submissoes
-                                                }{" "}
-                                                submissões
-                                            </span>
-                                            <span>
-                                                {
-                                                    canal._count
-                                                        .integracoes
-                                                }{" "}
-                                                integrações
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {podeGerenciar && (
-                                    <div className="flex flex-wrap gap-2">
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                abrirEdicao(
-                                                    canal
-                                                )
-                                            }
-                                            className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900"
-                                        >
-                                            Editar
-                                        </button>
-
-                                        {!canal.padrao &&
-                                            canal.ativo && (
-                                                <button
-                                                    type="button"
-                                                    disabled={
-                                                        canalEmProcessamento ===
-                                                        canal.id
-                                                    }
-                                                    onClick={() =>
-                                                        atualizarCanal(
-                                                            canal,
-                                                            {
-                                                                padrao:
-                                                                    true,
-                                                            },
-                                                            `"${canal.nome}" definido como canal padrão.`
-                                                        )
-                                                    }
-                                                    className="rounded-xl border border-blue-200 px-4 py-2 text-sm font-bold text-blue-700 transition hover:bg-blue-50 disabled:opacity-50 dark:border-blue-900 dark:text-blue-300"
-                                                >
-                                                    Definir padrão
-                                                </button>
-                                            )}
-
-                                        <button
-                                            type="button"
-                                            disabled={
-                                                canalEmProcessamento ===
-                                                canal.id
-                                            }
-                                            onClick={() =>
-                                                atualizarCanal(
-                                                    canal,
-                                                    {
-                                                        ativo:
-                                                            !canal.ativo,
-                                                    },
-                                                    canal.ativo
-                                                        ? `"${canal.nome}" foi desativado.`
-                                                        : `"${canal.nome}" foi ativado.`
-                                                )
-                                            }
-                                            className={`rounded-xl px-4 py-2 text-sm font-bold transition disabled:opacity-50 ${canal.ativo
-                                                ? "border border-amber-200 text-amber-700 hover:bg-amber-50 dark:border-amber-900 dark:text-amber-300"
-                                                : "bg-emerald-600 text-white hover:bg-emerald-700"
-                                                }`}
-                                        >
-                                            {canal.ativo
-                                                ? "Desativar"
-                                                : "Ativar"}
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        </article>
-                    ))
+              {dados
+                .permissoes
+                .podeGerenciar && (
+                  <button
+                    type="button"
+                    onClick={
+                      abrirNovoCanal
+                    }
+                    className={`rounded-xl px-4 py-2.5 text-sm font-semibold transition ${c.botaoPrimario}`}
+                  >
+                    {t("header.newChannel")}
+                  </button>
                 )}
-            </section>
+            </div>
+          </div>
+        </section>
 
-            {modalAberto && (
-                <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/50 p-4">
-                    <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-950">
-                        <div className="border-b border-slate-200 p-6 dark:border-slate-800">
-                            <h2 className="text-xl font-black text-slate-950 dark:text-white">
-                                {canalEditando
-                                    ? "Editar canal"
-                                    : "Novo canal de captação"}
-                            </h2>
+        {erro && (
+          <div
+            className={
+              temaEscuro
+                ? "rounded-2xl border border-amber-900 bg-amber-950/50 px-4 py-3 text-sm text-amber-200"
+                : "rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"
+            }
+          >
+            {erro}
+          </div>
+        )}
 
-                            <p className="mt-1 text-sm text-slate-500">
-                                Configure como essa origem
-                                será identificada na
-                                Central de Captação.
-                            </p>
+        <section className="grid gap-4 sm:grid-cols-3">
+          <div
+            className={`rounded-3xl border p-5 shadow-sm ${c.card}`}
+          >
+            <p
+              className={`text-sm ${c.muted}`}
+            >
+              {t("summary.total")}
+            </p>
+
+            <p
+              className={`mt-2 text-3xl font-bold ${c.titulo}`}
+            >
+              {formatarNumero(
+                dados.resumo.total,
+                locale
+              )}
+            </p>
+          </div>
+
+          <div
+            className={`rounded-3xl border p-5 shadow-sm ${c.card}`}
+          >
+            <p
+              className={`text-sm ${c.muted}`}
+            >
+              {t("summary.active")}
+            </p>
+
+            <p
+              className={`mt-2 text-3xl font-bold ${c.titulo}`}
+            >
+              {formatarNumero(
+                dados.resumo.ativos,
+                locale
+              )}
+            </p>
+          </div>
+
+          <div
+            className={`rounded-3xl border p-5 shadow-sm ${c.card}`}
+          >
+            <p
+              className={`text-sm ${c.muted}`}
+            >
+              {t("summary.default")}
+            </p>
+
+            <p
+              className={`mt-2 truncate text-lg font-bold ${c.titulo}`}
+            >
+              {dados.resumo
+                .padrao
+                ?.nome ||
+                t("summary.notDefined")}
+            </p>
+          </div>
+        </section>
+
+        <section
+          className={`rounded-3xl border p-5 shadow-sm sm:p-6 ${c.card}`}
+        >
+          <form
+            onSubmit={
+              aplicarFiltros
+            }
+            className="grid gap-3 lg:grid-cols-[1fr_220px_180px_auto]"
+          >
+            <div>
+              <label
+                className={`text-xs font-semibold ${c.muted}`}
+              >
+                {t("filters.search")}
+              </label>
+
+              <input
+                type="text"
+                value={busca}
+                onChange={(
+                  event
+                ) =>
+                  setBusca(
+                    event
+                      .target
+                      .value
+                  )
+                }
+                placeholder={t("filters.searchPlaceholder")}
+                className={`mt-1 w-full rounded-xl border px-3 py-2.5 text-sm outline-none focus:border-slate-500 ${c.input}`}
+              />
+            </div>
+
+            <div>
+              <label
+                className={`text-xs font-semibold ${c.muted}`}
+              >
+                {t("filters.type")}
+              </label>
+
+              <SeletorCinza
+                valor={tipoFiltro}
+                aoAlterar={setTipoFiltro}
+                temaEscuro={temaEscuro}
+                temaAzul={temaAzul}
+                opcoes={[
+                  {
+                    valor: "",
+                    rotulo: t("common.all"),
+                  },
+                  ...dados.tiposDisponiveis.map((tipo) => ({
+                    valor: tipo,
+                    rotulo: rotuloTipo(tipo),
+                  })),
+                ]}
+              />
+            </div>
+
+            <div>
+              <label
+                className={`text-xs font-semibold ${c.muted}`}
+              >
+                {t("filters.situation")}
+              </label>
+
+              <SeletorCinza
+                valor={ativoFiltro}
+                aoAlterar={setAtivoFiltro}
+                temaEscuro={temaEscuro}
+                temaAzul={temaAzul}
+                opcoes={[
+                  {
+                    valor: "",
+                    rotulo: t("common.all"),
+                  },
+                  {
+                    valor: "true",
+                    rotulo: t("filters.active"),
+                  },
+                  {
+                    valor: "false",
+                    rotulo: t("filters.inactive"),
+                  },
+                ]}
+              />
+            </div>
+
+            <div className="flex items-end gap-2">
+              <button
+                type="submit"
+                className={`rounded-xl px-4 py-2.5 text-sm font-semibold transition ${c.botaoPrimario}`}
+              >
+                {t("filters.apply")}
+              </button>
+
+              <button
+                type="button"
+                onClick={
+                  limparFiltros
+                }
+                className={`rounded-xl border px-4 py-2.5 text-sm font-semibold ${c.botaoSecundario}`}
+              >
+                {t("filters.clear")}
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <section
+          className={`overflow-hidden rounded-3xl border shadow-sm ${c.card}`}
+        >
+          <div
+            className={`border-b p-5 sm:p-6 ${c.divisoria}`}
+          >
+            <h2
+              className={`text-lg font-bold ${c.titulo}`}
+            >
+              {t("list.title")}
+            </h2>
+
+            <p
+              className={`mt-1 text-sm ${c.muted}`}
+            >
+              {formatarNumero(
+                dados.canais.length,
+                locale
+              )}{" "}
+              {t("list.results", {
+                count: dados.canais.length,
+              })}
+            </p>
+          </div>
+
+          {dados.canais
+            .length === 0 ? (
+            <div className="p-10 text-center">
+              <div className="text-4xl">
+                📡
+              </div>
+
+              <p
+                className={`mt-3 font-semibold ${c.titulo}`}
+              >
+                {t("list.emptyTitle")}
+              </p>
+
+              <p
+                className={`mt-1 text-sm ${c.muted}`}
+              >
+                {t("list.emptyDescription")}
+              </p>
+
+              {dados
+                .permissoes
+                .podeGerenciar && (
+                  <button
+                    type="button"
+                    onClick={
+                      abrirNovoCanal
+                    }
+                    className={`mt-5 rounded-xl px-4 py-2.5 text-sm font-semibold transition ${c.botaoPrimario}`}
+                  >
+                    {t("list.createChannel")}
+                  </button>
+                )}
+            </div>
+          ) : (
+            <div className={`divide-y ${temaEscuro ? "divide-neutral-700" : "divide-slate-200"}`}>
+              {dados.canais.map(
+                (
+                  canal
+                ) => (
+                  <article
+                    key={
+                      canal.id
+                    }
+                    className="p-5 sm:p-6"
+                  >
+                    <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+                      <div className="flex min-w-0 gap-4">
+                        <div
+                          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border text-xl ${c.subCard}`}
+                          style={{
+                            borderColor:
+                              canal.cor,
+                          }}
+                        >
+                          {canal.icone ||
+                            iconeTipo(
+                              canal.tipo
+                            )}
                         </div>
 
-                        <form
-                            onSubmit={salvarCanal}
-                            className="space-y-5 p-6"
-                        >
-                            <div className="grid gap-4 md:grid-cols-2">
-                                <label className="space-y-2">
-                                    <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
-                                        Nome *
-                                    </span>
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h3
+                              className={`text-lg font-bold ${c.titulo}`}
+                            >
+                              {
+                                canal.nome
+                              }
+                            </h3>
 
-                                    <input
-                                        required
-                                        maxLength={150}
-                                        value={
-                                            formulario.nome
-                                        }
-                                        onChange={(e) =>
-                                            setFormulario(
-                                                (atual) => ({
-                                                    ...atual,
-                                                    nome:
-                                                        e.target
-                                                            .value,
-                                                })
-                                            )
-                                        }
-                                        placeholder="Ex.: Site institucional"
-                                        className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                                    />
-                                </label>
+                            {canal.padrao && (
+                              <span
+                                className={
+                                  temaEscuro
+                                    ? "rounded-full border border-amber-800 bg-amber-950/60 px-2.5 py-1 text-xs font-semibold text-amber-300"
+                                    : "rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800"
+                                }
+                              >
+                                {t("statuses.default")}
+                              </span>
+                            )}
 
-                                <label className="space-y-2">
-                                    <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
-                                        Tipo *
-                                    </span>
+                            <span
+                              className={
+                                canal.ativo
+                                  ? (
+                                    temaEscuro
+                                      ? "rounded-full border border-emerald-800 bg-emerald-950/60 px-2.5 py-1 text-xs font-semibold text-emerald-300"
+                                      : "rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700"
+                                  )
+                                  : (
+                                    temaEscuro
+                                      ? "rounded-full border border-neutral-600 bg-neutral-800 px-2.5 py-1 text-xs font-semibold text-neutral-200"
+                                      : "rounded-full border border-slate-200 bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600"
+                                  )
+                              }
+                            >
+                              {canal.ativo
+                                ? t("statuses.active")
+                                : t("statuses.inactive")}
+                            </span>
 
-                                    <select
-                                        required
-                                        value={
-                                            formulario.tipo
-                                        }
-                                        onChange={(e) => {
-                                            const novoTipo =
-                                                e.target.value;
-
-                                            setFormulario(
-                                                (atual) => ({
-                                                    ...atual,
-                                                    tipo: novoTipo,
-                                                    icone:
-                                                        ICONE_POR_TIPO[
-                                                        novoTipo
-                                                        ] || "📡",
-                                                })
-                                            );
-                                        }}
-                                        className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                                    >
-                                        {(tiposDisponiveis
-                                            .length
-                                            ? tiposDisponiveis
-                                            : Object.keys(
-                                                LABELS_TIPO
-                                            )
-                                        ).map((tipo) => (
-                                            <option
-                                                key={tipo}
-                                                value={tipo}
-                                            >
-                                                {labelTipo(
-                                                    tipo
-                                                )}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </label>
-                            </div>
-
-                            <label className="block space-y-2">
-                                <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
-                                    Identificador
-                                </span>
-
-                                <input
-                                    value={
-                                        formulario.slug
-                                    }
-                                    onChange={(e) =>
-                                        setFormulario(
-                                            (atual) => ({
-                                                ...atual,
-                                                slug:
-                                                    e.target
-                                                        .value,
-                                            })
-                                        )
-                                    }
-                                    placeholder="Gerado automaticamente pelo nome"
-                                    className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                                />
-                            </label>
-
-                            <label className="block space-y-2">
-                                <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
-                                    Descrição
-                                </span>
-
-                                <textarea
-                                    maxLength={3000}
-                                    rows={4}
-                                    value={
-                                        formulario.descricao
-                                    }
-                                    onChange={(e) =>
-                                        setFormulario(
-                                            (atual) => ({
-                                                ...atual,
-                                                descricao:
-                                                    e.target
-                                                        .value,
-                                            })
-                                        )
-                                    }
-                                    placeholder="Descreva a origem e quando ela é utilizada."
-                                    className="w-full resize-none rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                                />
-                            </label>
-
-                            <div className="grid gap-4 md:grid-cols-2">
-                                <div className="space-y-2">
-                                    <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
-                                        Ícone
-                                    </span>
-
-                                    <div className="rounded-2xl border border-slate-200 p-3 dark:border-slate-700">
-                                        <div className="grid grid-cols-4 gap-2 sm:grid-cols-8">
-                                            {ICONES_CANAL.map((icone) => {
-                                                const selecionado =
-                                                    formulario.icone ===
-                                                    icone.valor;
-
-                                                return (
-                                                    <button
-                                                        key={icone.valor}
-                                                        type="button"
-                                                        title={icone.nome}
-                                                        aria-label={
-                                                            `Selecionar ícone ${icone.nome}`
-                                                        }
-                                                        aria-pressed={selecionado}
-                                                        onClick={() =>
-                                                            setFormulario(
-                                                                (atual) => ({
-                                                                    ...atual,
-                                                                    icone:
-                                                                        icone.valor,
-                                                                })
-                                                            )
-                                                        }
-                                                        className={`flex h-12 items-center justify-center rounded-xl border text-2xl transition ${selecionado
-                                                            ? "border-blue-500 bg-blue-50 ring-2 ring-blue-200 dark:bg-blue-950/40"
-                                                            : "border-slate-200 bg-white hover:border-blue-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800"
-                                                            }`}
-                                                    >
-                                                        {icone.valor}
-                                                    </button>
-                                                );
-                                            })}
-                                        </div>
-
-                                        <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
-                                            <span>Selecionado:</span>
-
-                                            <span className="text-xl">
-                                                {formulario.icone || "📡"}
-                                            </span>
-
-                                            <span>
-                                                Clique em uma opção acima para alterar.
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <label className="space-y-2">
-                                    <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
-                                        Cor
-                                    </span>
-
-                                    <div className="flex gap-2">
-                                        <input
-                                            type="color"
-                                            value={
-                                                formulario.cor
-                                            }
-                                            onChange={(e) =>
-                                                setFormulario(
-                                                    (atual) => ({
-                                                        ...atual,
-                                                        cor:
-                                                            e.target
-                                                                .value
-                                                                .toUpperCase(),
-                                                    })
-                                                )
-                                            }
-                                            className="h-12 w-14 rounded-xl border border-slate-300 bg-white p-1 dark:border-slate-700 dark:bg-slate-900"
-                                        />
-
-                                        <input
-                                            value={
-                                                formulario.cor
-                                            }
-                                            onChange={(e) =>
-                                                setFormulario(
-                                                    (atual) => ({
-                                                        ...atual,
-                                                        cor:
-                                                            e.target
-                                                                .value,
-                                                    })
-                                                )
-                                            }
-                                            maxLength={7}
-                                            placeholder="#64748B"
-                                            className="min-w-0 flex-1 rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm uppercase text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                                        />
-                                    </div>
-                                </label>
-                            </div>
-
-                            <div className="grid gap-3 md:grid-cols-2">
-                                <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-slate-200 p-4 dark:border-slate-800">
-                                    <input
-                                        type="checkbox"
-                                        checked={
-                                            formulario.padrao
-                                        }
-                                        onChange={(e) =>
-                                            setFormulario(
-                                                (atual) => ({
-                                                    ...atual,
-                                                    padrao:
-                                                        e.target
-                                                            .checked,
-                                                    ativo:
-                                                        e.target
-                                                            .checked
-                                                            ? true
-                                                            : atual.ativo,
-                                                })
-                                            )
-                                        }
-                                        className="mt-1 h-4 w-4"
-                                    />
-
-                                    <span>
-                                        <strong className="block text-sm text-slate-950 dark:text-white">
-                                            Canal padrão
-                                        </strong>
-
-                                        <span className="mt-1 block text-xs leading-5 text-slate-500">
-                                            Será usado quando
-                                            nenhuma origem mais
-                                            específica for
-                                            informada.
-                                        </span>
-                                    </span>
-                                </label>
-
-                                <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-slate-200 p-4 dark:border-slate-800">
-                                    <input
-                                        type="checkbox"
-                                        checked={
-                                            formulario.ativo
-                                        }
-                                        disabled={
-                                            formulario.padrao
-                                        }
-                                        onChange={(e) =>
-                                            setFormulario(
-                                                (atual) => ({
-                                                    ...atual,
-                                                    ativo:
-                                                        e.target
-                                                            .checked,
-                                                    padrao:
-                                                        !e.target
-                                                            .checked
-                                                            ? false
-                                                            : atual.padrao,
-                                                })
-                                            )
-                                        }
-                                        className="mt-1 h-4 w-4"
-                                    />
-
-                                    <span>
-                                        <strong className="block text-sm text-slate-950 dark:text-white">
-                                            Canal ativo
-                                        </strong>
-
-                                        <span className="mt-1 block text-xs leading-5 text-slate-500">
-                                            Canais inativos
-                                            permanecem no
-                                            histórico, mas não
-                                            devem receber novas
-                                            entradas.
-                                        </span>
-                                    </span>
-                                </label>
-                            </div>
-
-                            <div className="flex flex-col-reverse gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:justify-end dark:border-slate-800">
+                            {dados
+                              .permissoes
+                              .podeGerenciar && (
                                 <button
-                                    type="button"
-                                    onClick={fecharModal}
-                                    disabled={salvando}
-                                    className="rounded-2xl border border-slate-300 px-5 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900"
+                                  type="button"
+                                  onClick={() =>
+                                    abrirEditarCanal(
+                                      canal
+                                    )
+                                  }
+                                  className={`ml-1 rounded-lg border px-3 py-1 text-xs font-semibold transition ${c.botaoSecundario}`}
                                 >
-                                    Cancelar
+                                  {t("common.edit")}
                                 </button>
+                              )}
+                          </div>
 
-                                <button
-                                    type="submit"
-                                    disabled={
-                                        salvando ||
-                                        !formulario.nome.trim()
-                                    }
-                                    className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-                                >
-                                    {salvando
-                                        ? "Salvando..."
-                                        : canalEditando
-                                            ? "Salvar alterações"
-                                            : "Criar canal"}
-                                </button>
+                          <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1">
+                            <span
+                              className={`text-sm ${c.texto}`}
+                            >
+                              {rotuloTipo(
+                                canal.tipo
+                              )}
+                            </span>
+
+                            <span
+                              className={`text-sm ${c.muted}`}
+                            >
+                              /{
+                                canal.slug
+                              }
+                            </span>
+                          </div>
+
+                          {canal.descricao && (
+                            <p
+                              className={`mt-3 max-w-3xl text-sm leading-6 ${c.texto}`}
+                            >
+                              {
+                                canal.descricao
+                              }
+                            </p>
+                          )}
+
+                          <p
+                            className={`mt-3 text-xs ${c.muted}`}
+                          >
+                            {t("card.updatedAt", {
+                              date: formatarData(
+                                canal.atualizadoEm,
+                                locale
+                              ),
+                            })}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-5 xl:w-[520px]">
+                        {[
+                          {
+                            nome:
+                              t("counts.campaigns"),
+
+                            valor:
+                              canal
+                                ._count
+                                .campanhas,
+                          },
+
+                          {
+                            nome:
+                              t("counts.forms"),
+
+                            valor:
+                              canal
+                                ._count
+                                .formularios,
+                          },
+
+                          {
+                            nome:
+                              t("counts.submissions"),
+
+                            valor:
+                              canal
+                                ._count
+                                .submissoes,
+                          },
+
+                          {
+                            nome:
+                              t("counts.rules"),
+
+                            valor:
+                              canal
+                                ._count
+                                .regrasDistribuicao,
+                          },
+
+                          {
+                            nome:
+                              t("counts.integrations"),
+
+                            valor:
+                              canal
+                                ._count
+                                .integracoes,
+                          },
+                        ].map(
+                          (
+                            item
+                          ) => (
+                            <div
+                              key={
+                                item.nome
+                              }
+                              className={`rounded-xl border p-3 text-center ${c.subCard}`}
+                            >
+                              <p
+                                className={`text-lg font-bold ${c.titulo}`}
+                              >
+                                {formatarNumero(
+                                  item.valor,
+                                  locale
+                                )}
+                              </p>
+
+                              <p
+                                className={`mt-1 text-[11px] ${c.muted}`}
+                              >
+                                {
+                                  item.nome
+                                }
+                              </p>
                             </div>
-                        </form>
+                          )
+                        )}
+                      </div>
                     </div>
+                  </article>
+                )
+              )}
+            </div>
+          )}
+        </section>
+      </div>
+
+      {modalNovoAberto && (
+        <div
+          className="fixed inset-0 z-[110] flex items-center justify-center bg-black/70 p-4"
+          onMouseDown={(
+            event
+          ) => {
+            if (
+              event.target ===
+              event.currentTarget
+            ) {
+              fecharNovoCanal();
+            }
+          }}
+        >
+          <div
+            className={`max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl border p-5 shadow-2xl sm:p-6 ${c.card}`}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2
+                  className={`text-xl font-bold ${c.titulo}`}
+                >
+                  {canalEditando
+                    ? t("modal.editTitle")
+                    : t("modal.newTitle")}
+                </h2>
+
+                <p
+                  className={`mt-1 text-sm ${c.muted}`}
+                >
+                  {canalEditando
+                    ? t("modal.editDescription")
+                    : t("modal.newDescription")}
+                </p>
+
+              </div>
+
+              <button
+                type="button"
+                onClick={
+                  fecharNovoCanal
+                }
+                disabled={
+                  salvando
+                }
+                className={`flex h-9 w-9 items-center justify-center rounded-xl border text-lg ${c.botaoSecundario}`}
+                aria-label={t("common.close")}
+              >
+                ×
+              </button>
+            </div>
+
+            <form
+              onSubmit={
+                salvarCanal
+              }
+              className="mt-6 space-y-5"
+            >
+              {erroFormulario && (
+                <div
+                  className={
+                    temaEscuro
+                      ? "rounded-2xl border border-red-900 bg-red-950/60 px-4 py-3 text-sm text-red-300"
+                      : "rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+                  }
+                >
+                  {
+                    erroFormulario
+                  }
                 </div>
-            )}
+              )}
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label
+                    className={`text-sm font-semibold ${c.titulo}`}
+                  >
+                    {t("modal.name")} *
+                  </label>
+
+                  <input
+                    type="text"
+                    maxLength={
+                      150
+                    }
+                    value={
+                      formulario.nome
+                    }
+                    onChange={(
+                      event
+                    ) =>
+                      atualizarFormulario(
+                        "nome",
+                        event
+                          .target
+                          .value
+                      )
+                    }
+                    placeholder={t("modal.namePlaceholder")}
+                    className={`mt-2 w-full rounded-xl border px-3 py-2.5 text-sm outline-none focus:border-slate-500 ${c.input}`}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label
+                    className={`text-sm font-semibold ${c.titulo}`}
+                  >
+                    {t("modal.type")} *
+                  </label>
+
+                  <SeletorCinza
+                    margem="mt-2"
+                    valor={formulario.tipo}
+                    aoAlterar={(valor) =>
+                      atualizarFormulario("tipo", valor)
+                    }
+                    temaEscuro={temaEscuro}
+                    temaAzul={temaAzul}
+                    opcoes={dados.tiposDisponiveis.map((tipo) => ({
+                      valor: tipo,
+                      rotulo: rotuloTipo(tipo),
+                    }))}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label
+                  className={`text-sm font-semibold ${c.titulo}`}
+                >
+                  {t("modal.description")}
+                </label>
+
+                <textarea
+                  rows={4}
+                  maxLength={
+                    3000
+                  }
+                  value={
+                    formulario.descricao
+                  }
+                  onChange={(
+                    event
+                  ) =>
+                    atualizarFormulario(
+                      "descricao",
+                      event
+                        .target
+                        .value
+                    )
+                  }
+                  placeholder={t("modal.descriptionPlaceholder")}
+                  className={`mt-2 w-full rounded-xl border px-3 py-2.5 text-sm outline-none focus:border-slate-500 ${c.input}`}
+                />
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label
+                    className={`text-sm font-semibold ${c.titulo}`}
+                  >
+                    {t("modal.slug")}
+                  </label>
+
+                  <input
+                    type="text"
+                    value={
+                      formulario.slug
+                    }
+                    onChange={(
+                      event
+                    ) =>
+                      atualizarFormulario(
+                        "slug",
+                        event
+                          .target
+                          .value
+                      )
+                    }
+                    placeholder={t("modal.slugPlaceholder")}
+                    className={`mt-2 w-full rounded-xl border px-3 py-2.5 text-sm outline-none focus:border-slate-500 ${c.input}`}
+                  />
+
+                  <p
+                    className={`mt-1 text-xs ${c.muted}`}
+                  >
+                    {t("modal.slugHelp")}
+                  </p>
+                </div>
+
+
+              </div>
+
+              <div>
+                <label
+                  className={`text-sm font-semibold ${c.titulo}`}
+                >
+                  {t("modal.icon")}
+                </label>
+
+                <SeletorCinza
+                  margem="mt-2"
+                  valor={formulario.icone}
+                  aoAlterar={(valor) =>
+                    atualizarFormulario("icone", valor)
+                  }
+                  temaEscuro={temaEscuro}
+                  temaAzul={temaAzul}
+                  opcoes={OPCOES_ICONES_CANAL.map((opcao) => ({
+                    valor: opcao.valor,
+                    rotulo: `${opcao.icone} ${t(opcao.chave)}`,
+                  }))}
+                />
+
+                <p
+                  className={`mt-1 text-xs ${c.muted}`}
+                >
+                  {formulario.icone
+                    ? t("modal.iconSelected", {
+                      icon: formulario.icone,
+                    })
+                    : t("modal.iconAutomatic", {
+                      icon: iconeTipo(formulario.tipo),
+                    })}
+                </p>
+              </div>
+
+              <div>
+                <label
+                  className={`text-sm font-semibold ${c.titulo}`}
+                >
+                  {t("modal.color")}
+                </label>
+
+                <div className="mt-2 flex items-center gap-3">
+                  <input
+                    type="color"
+                    value={
+                      formulario.cor
+                    }
+                    onChange={(
+                      event
+                    ) =>
+                      atualizarFormulario(
+                        "cor",
+                        event
+                          .target
+                          .value
+                          .toUpperCase()
+                      )
+                    }
+                    className="h-11 w-14 cursor-pointer rounded-xl border border-slate-300 bg-transparent p-1"
+                  />
+
+                  <input
+                    type="text"
+                    value={
+                      formulario.cor
+                    }
+                    onChange={(
+                      event
+                    ) =>
+                      atualizarFormulario(
+                        "cor",
+                        event
+                          .target
+                          .value
+                      )
+                    }
+                    maxLength={
+                      7
+                    }
+                    className={`w-32 rounded-xl border px-3 py-2.5 text-sm uppercase outline-none ${c.input}`}
+                  />
+                </div>
+              </div>
+
+              <div
+                className={`space-y-3 rounded-2xl border p-4 ${c.subCard}`}
+              >
+                <label className="flex cursor-pointer items-start gap-3">
+                  <input
+                    type="checkbox"
+                    checked={
+                      formulario.padrao
+                    }
+                    onChange={(
+                      event
+                    ) =>
+                      atualizarFormulario(
+                        "padrao",
+                        event
+                          .target
+                          .checked
+                      )
+                    }
+                    className="mt-1 h-4 w-4"
+                  />
+
+                  <div>
+                    <p
+                      className={`text-sm font-semibold ${c.titulo}`}
+                    >
+                      {t("modal.defaultChannel")}
+                    </p>
+
+                    <p
+                      className={`mt-1 text-xs ${c.muted}`}
+                    >
+                      {t("modal.defaultHelp")}
+                    </p>
+                  </div>
+                </label>
+
+                <label className="flex cursor-pointer items-start gap-3">
+                  <input
+                    type="checkbox"
+                    checked={
+                      formulario.ativo
+                    }
+                    onChange={(
+                      event
+                    ) =>
+                      atualizarFormulario(
+                        "ativo",
+                        event
+                          .target
+                          .checked
+                      )
+                    }
+                    className="mt-1 h-4 w-4"
+                  />
+
+                  <div>
+                    <p
+                      className={`text-sm font-semibold ${c.titulo}`}
+                    >
+                      {t("modal.activeChannel")}
+                    </p>
+
+                    <p
+                      className={`mt-1 text-xs ${c.muted}`}
+                    >
+                      {t("modal.activeHelp")}
+                    </p>
+                  </div>
+                </label>
+              </div>
+
+              <div
+                className={`flex flex-col-reverse gap-3 border-t pt-5 sm:flex-row sm:justify-end ${c.divisoria}`}
+              >
+                <button
+                  type="button"
+                  onClick={
+                    fecharNovoCanal
+                  }
+                  disabled={
+                    salvando
+                  }
+                  className={`rounded-xl border px-4 py-2.5 text-sm font-semibold disabled:opacity-60 ${c.botaoSecundario}`}
+                >
+                  {t("common.cancel")}
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={
+                    salvando
+                  }
+                  className={`rounded-xl px-5 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${c.botaoPrimario}`}
+                >
+                  {salvando
+                    ? t("common.saving")
+                    : canalEditando
+                      ? t("common.saveChanges")
+                      : t("common.createChannel")}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-    );
+      )}
+    </div>
+  );
 }

@@ -116,17 +116,6 @@ function formatarData(valor: string | null | undefined, locale: string) {
   }).format(data);
 }
 
-function formatarPlano(codigo: string | null | undefined, locale: string) {
-  if (!codigo) return "—";
-
-  return codigo
-    .replace(/^BIBLIOTECA_/, "")
-    .replaceAll("_", " ")
-    .toLocaleLowerCase(locale)
-    .replace(/(^|\s)\p{L}/gu, (letra) =>
-      letra.toLocaleUpperCase(locale)
-    );
-}
 
 function classeStatus(status?: string | null) {
   switch (String(status || "").toUpperCase()) {
@@ -180,8 +169,72 @@ async function lerResposta(resposta: Response, mensagemInvalida: string) {
   return resposta.json();
 }
 
+function chaveErroApi(codigo: unknown):
+  | "errors.apiUnauthorized"
+  | "errors.apiInvalidInstitution"
+  | "errors.apiNoPermission"
+  | "errors.apiImpersonationBlocked"
+  | "errors.apiInvalidRequest"
+  | "errors.apiInvalidPlan"
+  | "errors.apiInstitutionNotFound"
+  | "errors.apiMissingTaxId"
+  | "errors.apiMissingEmail"
+  | "errors.apiMissingBillingName"
+  | "errors.apiAlreadyActive"
+  | "errors.apiSuspended"
+  | "errors.apiNotAllowed"
+  | "errors.apiDuplicateSubscription"
+  | null {
+  switch (String(codigo || "").toUpperCase()) {
+    case "NAO_AUTENTICADO":
+      return "errors.apiUnauthorized";
+
+    case "INSTITUICAO_INVALIDA":
+      return "errors.apiInvalidInstitution";
+
+    case "SEM_PERMISSAO":
+      return "errors.apiNoPermission";
+
+    case "CONTRATACAO_BLOQUEADA_IMPERSONACAO":
+      return "errors.apiImpersonationBlocked";
+
+    case "JSON_INVALIDO":
+      return "errors.apiInvalidRequest";
+
+    case "PLANO_INVALIDO":
+      return "errors.apiInvalidPlan";
+
+    case "INSTITUICAO_NAO_ENCONTRADA":
+      return "errors.apiInstitutionNotFound";
+
+    case "CPF_CNPJ_NAO_CADASTRADO":
+      return "errors.apiMissingTaxId";
+
+    case "EMAIL_NAO_CADASTRADO":
+      return "errors.apiMissingEmail";
+
+    case "NOME_COBRANCA_INVALIDO":
+      return "errors.apiMissingBillingName";
+
+    case "BIBLIOTECA_JA_ATIVA":
+      return "errors.apiAlreadyActive";
+
+    case "BIBLIOTECA_SUSPENSA":
+      return "errors.apiSuspended";
+
+    case "CONTRATACAO_NAO_PERMITIDA":
+      return "errors.apiNotAllowed";
+
+    case "CONTRATACAO_BIBLIOTECA_DUPLICADA":
+      return "errors.apiDuplicateSubscription";
+
+    default:
+      return null;
+  }
+}
 function CartaoPlano({
   plano,
+  nomePlano,
   planoAtual,
   bloqueado,
   aoSelecionar,
@@ -190,6 +243,7 @@ function CartaoPlano({
   traduzirRecurso,
 }: {
   plano: PlanoBiblioteca;
+  nomePlano: string;
   planoAtual: boolean;
   bloqueado: boolean;
   aoSelecionar: (plano: PlanoBiblioteca) => void;
@@ -225,7 +279,7 @@ function CartaoPlano({
         </p>
 
         <h2 className="mt-2 text-2xl font-black text-slate-950 dark:text-white">
-          {plano.nome}
+          {nomePlano}
         </h2>
       </div>
 
@@ -305,10 +359,18 @@ export default function BibliotecaContratacaoPage() {
         | RespostaErro;
 
       if (!resposta.ok || !("ok" in corpo)) {
-        const mensagem =
-          "error" in corpo && typeof corpo.error === "string"
-            ? corpo.error
-            : t("errors.loadPlans");
+        const codigoErro =
+          "codigo" in corpo &&
+          typeof corpo.codigo === "string"
+            ? corpo.codigo
+            : undefined;
+
+        const chaveErro =
+          chaveErroApi(codigoErro);
+
+        const mensagem = chaveErro
+          ? t(chaveErro)
+          : t("errors.loadPlans");
 
         throw new Error(
           mensagem
@@ -385,25 +447,64 @@ export default function BibliotecaContratacaoPage() {
     }
   }
 
+  function nomePlanoTraduzido(
+    codigo?: string | null
+  ) {
+    switch (
+      String(codigo || "").toUpperCase()
+    ) {
+      case "BIBLIOTECA_ESSENCIAL":
+        return t("planNames.essential");
+
+      case "BIBLIOTECA_PROFISSIONAL":
+        return t("planNames.professional");
+
+      case "BIBLIOTECA_AVANCADA":
+        return t("planNames.advanced");
+
+      default:
+        return t("planNames.unknown");
+    }
+  }
   function recursoTraduzido(recurso: string) {
     const normalizado = recurso
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
-      .toLocaleLowerCase("pt-BR");
+      .toLocaleLowerCase("pt-BR")
+      .trim();
 
-    if (normalizado.includes("armazen")) return t("features.storage");
-    if (normalizado.includes("relatorio")) return t("features.reports");
-    if (normalizado.includes("emprest")) return t("features.loans");
-    if (normalizado.includes("reserva")) return t("features.reservations");
-    if (normalizado.includes("acervo")) return t("features.collection");
-    if (normalizado.includes("suporte")) return t("features.support");
-    if (normalizado.includes("usuario") || normalizado.includes("aluno")) {
-      return t("features.users");
+    switch (normalizado) {
+      case "biblioteca fisica e digital":
+        return t("features.physicalDigital");
+
+      case "livros, artigos, pesquisas e documentos":
+        return t("features.booksResearch");
+
+      case "videos, audios e documentarios":
+        return t("features.media");
+
+      case "prateleiras virtuais":
+        return t("features.virtualShelves");
+
+      case "emprestimos, reservas e renovacoes":
+        return t("features.circulation");
+
+      case "favoritos e progresso de leitura":
+        return t("features.favoritesProgress");
+
+      case "recomendacoes academicas":
+        return t("features.academicRecommendations");
+
+      case "operador da biblioteca":
+        return t("features.libraryOperator");
+
+      case "relatorios e auditoria":
+        return t("features.reportsAudit");
+
+      default:
+        return t("features.includedFeature");
     }
-
-    return recurso;
   }
-
   const estilos = (
     <style jsx global>{`
       html[data-theme="system"] .phanyx-biblioteca-contratacao-page {
@@ -488,7 +589,9 @@ export default function BibliotecaContratacaoPage() {
 
       if (!resposta.ok) {
         throw new Error(
-          corpo?.error || t("errors.startSubscription")
+          chaveErroApi(corpo?.codigo)
+            ? t(chaveErroApi(corpo?.codigo)!)
+            : t("errors.startSubscription")
         );
       }
 
@@ -629,7 +732,7 @@ export default function BibliotecaContratacaoPage() {
                     </div>
 
                     <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
-                      {t("current.plan", { plan: formatarPlano(dados.modulo.plano, locale) })}
+                      {t("current.plan", { plan: nomePlanoTraduzido(dados.modulo.plano) })}
                     </p>
 
                     {dados.modulo.cortesia ? (
@@ -718,7 +821,7 @@ export default function BibliotecaContratacaoPage() {
 
                     <p className="mt-2 text-sm leading-6 text-amber-900 dark:text-amber-200">
                       {t("pending.summary", {
-                        plan: formatarPlano(contratacaoPendente.plano, locale),
+                        plan: nomePlanoTraduzido(contratacaoPendente.plano),
                         price: formatarMoeda(contratacaoPendente.valorMensal, locale),
                       })}
                     </p>
@@ -773,6 +876,9 @@ export default function BibliotecaContratacaoPage() {
                     <CartaoPlano
                       key={plano.codigo}
                       plano={plano}
+                      nomePlano={nomePlanoTraduzido(
+                        plano.codigo
+                      )}
                       planoAtual={planoAtual}
                       bloqueado={bloqueado}
                       aoSelecionar={setPlanoSelecionado}
@@ -828,7 +934,9 @@ export default function BibliotecaContratacaoPage() {
             </p>
 
             <h2 id="titulo-confirmar-plano" className="mt-2 text-2xl font-black">
-              {planoSelecionado.nome}
+              {nomePlanoTraduzido(
+                planoSelecionado.codigo
+              )}
             </h2>
 
             <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">

@@ -4105,7 +4105,24 @@
         "loading": "Carregando indicadores...",
         "error": "Não foi possível carregar os indicadores das intervenções.",
         "sampleInsufficient": "Amostra insuficiente · {count, plural, one {# intervenção mensurável} other {# intervenções mensuráveis}}",
-        "lessThanOneDay": "< 1 dia"
+        "lessThanOneDay": "< 1 dia",
+        "filters": {
+          "title": "Filtros do acompanhamento",
+          "description": "Analise as intervenções por período, status e tipo.",
+          "period": "Período",
+          "allPeriods": "Todos os períodos",
+          "today": "Hoje",
+          "last7Days": "Últimos 7 dias",
+          "last30Days": "Últimos 30 dias",
+          "custom": "Personalizado",
+          "status": "Status",
+          "allStatuses": "Todos os status",
+          "type": "Tipo de intervenção",
+          "allTypes": "Todos os tipos",
+          "startDate": "Data inicial",
+          "endDate": "Data final",
+          "clear": "Limpar filtros"
+        }
       },
       "returns": {
         "title": "Retornos e acompanhamentos",
@@ -4121,7 +4138,34 @@
         "loading": "Carregando retornos...",
         "error": "Não foi possível carregar os retornos.",
         "viewStudent": "Ver aluno",
-        "update": "Atualizar"
+        "update": "Atualizar",
+        "showAll": "Mostrar todos"
+      },
+      "priorities": {
+        "title": "Prioridades do acompanhamento",
+        "description": "Veja rapidamente os casos que exigem atenção da equipe.",
+        "today": "Ação para hoje",
+        "overdue": "Retornos atrasados",
+        "worsened": "Piora observada após intervenção",
+        "updatedToday": "Atualizado hoje",
+        "daysWithoutUpdate": "{count, plural, one {Há # dia sem atualização} other {Há # dias sem atualização}}",
+        "unscheduled": "Sem retorno programado",
+        "todayDescription": "Intervenções com retorno previsto para hoje.",
+        "overdueDescription": "Intervenções cuja data de retorno já passou.",
+        "worsenedDescription": "Alunos com evolução acadêmica negativa observada após uma intervenção.",
+        "unscheduledDescription": "Intervenções abertas que ainda não possuem data de retorno.",
+        "empty": "Nenhuma prioridade operacional identificada neste momento.",
+        "loading": "Carregando prioridades...",
+        "error": "Não foi possível carregar as prioridades.",
+        "scheduledFor": "Retorno previsto",
+        "overdueSince": "Retorno previsto para",
+        "withoutDate": "Sem data de retorno",
+        "lastUpdate": "Última atualização",
+        "completedAt": "Intervenção encerrada em",
+        "viewStudent": "Ver aluno",
+        "update": "Atualizar acompanhamento",
+        "needsReview": "Requer nova avaliação da equipe",
+        "showAll": "Mostrar todos"
       }
     }
   },
@@ -4616,7 +4660,21 @@
       "loadPlans": "Não foi possível carregar os planos da Biblioteca Virtual.",
       "checkoutUnavailable": "O link de pagamento não está disponível. Atualize a página ou gere uma nova contratação.",
       "startSubscription": "Não foi possível iniciar a contratação da Biblioteca Virtual.",
-      "loadSubscriptionTitle": "Não foi possível carregar a contratação"
+      "loadSubscriptionTitle": "Não foi possível carregar a contratação",
+      "apiUnauthorized": "Sua sessão não está autorizada. Entre novamente para continuar.",
+      "apiInvalidInstitution": "Não foi possível identificar uma instituição válida para este usuário.",
+      "apiNoPermission": "Você não possui permissão para contratar a Biblioteca Virtual.",
+      "apiImpersonationBlocked": "Não é permitido contratar módulos durante uma sessão de suporte por impersonação.",
+      "apiInvalidRequest": "Os dados da contratação são inválidos.",
+      "apiInvalidPlan": "Selecione um plano válido para a Biblioteca Virtual.",
+      "apiInstitutionNotFound": "A instituição não foi encontrada ou está inativa.",
+      "apiMissingTaxId": "Cadastre um CPF ou CNPJ válido nas configurações da instituição antes de contratar a biblioteca.",
+      "apiMissingEmail": "Cadastre um e-mail válido nas configurações da instituição antes de contratar a biblioteca.",
+      "apiMissingBillingName": "Cadastre o nome ou a razão social da instituição antes de contratar a biblioteca.",
+      "apiAlreadyActive": "A Biblioteca Virtual já está ativa para esta instituição.",
+      "apiSuspended": "A Biblioteca Virtual está suspensa. Regularize ou reative a contratação existente antes de iniciar uma nova.",
+      "apiNotAllowed": "A situação atual da biblioteca não permite iniciar uma nova contratação.",
+      "apiDuplicateSubscription": "Já existe uma contratação da Biblioteca Virtual em andamento. Atualize a página para continuar."
     },
     "success": {
       "created": "Contratação criada. Atualize a página para consultar o pagamento."
@@ -4643,6 +4701,12 @@
     "plans": {
       "title": "Planos disponíveis",
       "description": "Todos os planos incluem os recursos completos da Biblioteca Virtual."
+    },
+    "planNames": {
+      "essential": "Biblioteca Essencial",
+      "professional": "Biblioteca Profissional",
+      "advanced": "Biblioteca Avançada",
+      "unknown": "Plano não identificado"
     },
     "planCard": {
       "featured": "Mais escolhido",
@@ -4687,7 +4751,17 @@
       "reservations": "Gestão de reservas",
       "collection": "Gestão completa do acervo",
       "support": "Suporte especializado",
-      "users": "Acesso para a comunidade acadêmica"
+      "users": "Acesso para a comunidade acadêmica",
+      "physicalDigital": "Biblioteca física e digital",
+      "booksResearch": "Livros, artigos, pesquisas e documentos",
+      "media": "Vídeos, áudios e documentários",
+      "virtualShelves": "Prateleiras virtuais",
+      "circulation": "Empréstimos, reservas e renovações",
+      "favoritesProgress": "Favoritos e progresso de leitura",
+      "academicRecommendations": "Recomendações acadêmicas",
+      "libraryOperator": "Operador da biblioteca",
+      "reportsAudit": "Relatórios e auditoria",
+      "includedFeature": "Recurso incluído"
     }
   },
   "AdminLibraryCollection": {
@@ -5852,6 +5926,830 @@
       "start": "Iniciar",
       "complete": "Concluir",
       "reopen": "Reabrir"
+    }
+  },
+  "AdminCommercialCampaigns": {
+    "common": {
+      "all": "Todos",
+      "edit": "✏️ Editar",
+      "close": "Fechar",
+      "cancel": "Cancelar"
+    },
+    "statuses": {
+      "draft": "Rascunho",
+      "scheduled": "Agendada",
+      "active": "Ativa",
+      "paused": "Pausada",
+      "ended": "Encerrada",
+      "archived": "Arquivada",
+      "unknown": "Status não informado"
+    },
+    "statusDescriptions": {
+      "draft": "A campanha está sendo preparada e ainda não está em execução.",
+      "scheduled": "A campanha está programada para execução no período definido.",
+      "active": "A campanha está em execução e pode receber novas captações.",
+      "paused": "A campanha foi interrompida temporariamente e poderá ser retomada.",
+      "ended": "A campanha foi finalizada e permanece disponível apenas para histórico e análise.",
+      "archived": "A campanha foi arquivada e permanece preservada no histórico.",
+      "unknown": "Situação atual da campanha."
+    },
+    "errors": {
+      "load": "Não foi possível carregar as campanhas.",
+      "nameRequired": "Informe o nome da campanha.",
+      "invalidDateRange": "A data final não pode ser anterior à data inicial.",
+      "update": "Não foi possível atualizar a campanha.",
+      "create": "Não foi possível cadastrar a campanha.",
+      "save": "Não foi possível salvar a campanha."
+    },
+    "success": {
+      "updated": "Campanha atualizada com sucesso.",
+      "created": "Campanha criada com sucesso."
+    },
+    "errorPage": {
+      "title": "Não foi possível carregar as campanhas",
+      "retry": "Tentar novamente"
+    },
+    "header": {
+      "back": "← Central de Captação",
+      "title": "📣 Campanhas de captação",
+      "description": "Organize campanhas, períodos, orçamento e parâmetros UTM das ações de captação.",
+      "refreshing": "Atualizando...",
+      "refresh": "↻ Atualizar",
+      "newCampaign": "+ Nova campanha"
+    },
+    "summary": {
+      "total": "Total",
+      "active": "Ativas",
+      "scheduled": "Agendadas",
+      "paused": "Pausadas"
+    },
+    "filters": {
+      "search": "Buscar",
+      "searchPlaceholder": "Nome, código, descrição ou UTM",
+      "channel": "Canal",
+      "status": "Status",
+      "situation": "Situação",
+      "active": "Ativas",
+      "inactive": "Inativas",
+      "apply": "Filtrar",
+      "clear": "Limpar"
+    },
+    "list": {
+      "title": "Campanhas cadastradas",
+      "results": "{count, plural, =0 {Nenhum resultado nesta consulta.} one {# resultado nesta consulta.} other {# resultados nesta consulta.}}",
+      "emptyTitle": "Nenhuma campanha encontrada",
+      "emptyDescription": "Cadastre a primeira campanha ou altere os filtros.",
+      "createCampaign": "+ Cadastrar campanha"
+    },
+    "card": {
+      "inactive": "Inativa",
+      "code": "Código",
+      "channel": "Canal",
+      "noChannel": "Sem canal",
+      "forms": "Formulários",
+      "submissions": "Submissões",
+      "rules": "Regras",
+      "integrations": "Integrações"
+    },
+    "modal": {
+      "editTitle": "Editar campanha de captação",
+      "newTitle": "Nova campanha de captação",
+      "editDescription": "Atualize as informações e configurações desta campanha.",
+      "newDescription": "Configure a origem, o período e o rastreamento da campanha.",
+      "name": "Nome",
+      "namePlaceholder": "Ex.: Vestibular 2027",
+      "channel": "Canal",
+      "noSpecificChannel": "Sem canal específico",
+      "code": "Código",
+      "codePlaceholder": "Opcional — gerado pelo nome",
+      "codeExample": "Exemplo: VESTIBULAR_2027",
+      "status": "Status",
+      "description": "Descrição",
+      "descriptionPlaceholder": "Objetivo e contexto da campanha.",
+      "startDate": "Data inicial",
+      "endDate": "Data final",
+      "budget": "Orçamento",
+      "budgetPlaceholder": "Ex.: 2500,00",
+      "currency": "Moeda",
+      "destinationUrl": "URL de destino",
+      "destinationUrlHelp": "Página para onde o anúncio, botão ou link da campanha direcionará o interessado.",
+      "destinationUrlPlaceholder": "Ex.: https://www.suaescola.com.br/vestibular",
+      "notes": "Observações",
+      "notesPlaceholder": "Informações internas sobre a campanha.",
+      "campaignSituation": "Situação da campanha",
+      "statusAvailabilityHelp": "O PHANYX ajusta automaticamente a disponibilidade da campanha de acordo com o status selecionado.",
+      "saving": "Salvando...",
+      "saveChanges": "Salvar alterações",
+      "createCampaign": "Cadastrar campanha"
+    },
+    "currencies": {
+      "BRL": "BRL — Real",
+      "USD": "USD — Dólar",
+      "EUR": "EUR — Euro"
+    },
+    "tracking": {
+      "title": "🔎 Rastreamento da campanha",
+      "optional": "Opcional",
+      "description": "Identifique de onde vieram os leads. Configure apenas se esta campanha utilizar links rastreados.",
+      "info": "💡 Estes campos são usados para saber qual anúncio, rede social, link ou divulgação trouxe cada interessado. Se você não utiliza esse tipo de rastreamento, pode deixar tudo vazio.",
+      "source": "Origem do tráfego",
+      "sourceHelp": "De onde a pessoa veio. Ex.: Facebook, Google, Instagram ou site.",
+      "sourcePlaceholder": "Ex.: facebook",
+      "medium": "Meio de divulgação",
+      "mediumHelp": "Como o conteúdo foi divulgado. Ex.: anúncio, banner, e-mail ou rede social.",
+      "mediumPlaceholder": "Ex.: banner",
+      "campaign": "Identificador da campanha",
+      "campaignHelp": "Nome usado para identificar esta campanha nos links rastreados.",
+      "campaignPlaceholder": "Ex.: vestibular_2027",
+      "content": "Variação do anúncio",
+      "contentHelp": "Diferencie banners, vídeos ou anúncios da mesma campanha.",
+      "contentPlaceholder": "Ex.: banner_principal",
+      "term": "Palavra-chave",
+      "termHelp": "Usado principalmente em campanhas de pesquisa. Pode ficar vazio.",
+      "termPlaceholder": "Ex.: curso_teologia",
+      "technicalField": "Campo técnico: {field}"
+    }
+  },
+  "AdminExternalActivityTeam": {
+    "title": "Equipe",
+    "description": "Organize os profissionais e acompanhantes responsáveis pela atividade externa.",
+    "loading": "Carregando equipe...",
+    "loadError": "Não foi possível carregar a equipe.",
+    "retry": "Tentar novamente",
+    "summary": {
+      "total": "Membros",
+      "principal": "Responsável principal"
+    },
+    "current": {
+      "title": "Equipe da atividade",
+      "count": "{count, plural, =0 {Nenhum membro} =1 {1 membro} other {# membros}}",
+      "empty": "Nenhum membro foi adicionado à equipe."
+    },
+    "add": {
+      "title": "Adicionar membro",
+      "description": "Selecione um professor, funcionário ou cadastre um acompanhante externo.",
+      "open": "Adicionar membro",
+      "cancel": "Cancelar",
+      "save": "Adicionar à equipe",
+      "saving": "Adicionando..."
+    },
+    "form": {
+      "type": "Tipo de membro",
+      "role": "Função na atividade",
+      "person": "Pessoa",
+      "selectPerson": "Selecione uma pessoa",
+      "principal": "Responsável principal",
+      "principalDescription": "Define esta pessoa como principal responsável pela equipe.",
+      "name": "Nome",
+      "email": "E-mail",
+      "phone": "Telefone",
+      "observation": "Observação",
+      "namePlaceholder": "Nome completo",
+      "emailPlaceholder": "email@exemplo.com",
+      "phonePlaceholder": "Telefone",
+      "observationPlaceholder": "Informações adicionais sobre a função deste membro..."
+    },
+    "member": {
+      "principal": "Principal",
+      "noEmail": "E-mail não informado",
+      "noPhone": "Telefone não informado"
+    },
+    "types": {
+      "PROFESSOR": "Professor",
+      "FUNCIONARIO": "Funcionário",
+      "ACOMPANHANTE_EXTERNO": "Acompanhante externo",
+      "RESPONSAVEL_VOLUNTARIO": "Responsável voluntário",
+      "GUIA": "Guia",
+      "OUTRO": "Outro"
+    },
+    "roles": {
+      "RESPONSAVEL_GERAL": "Responsável geral",
+      "COORDENADOR": "Coordenador",
+      "SUPERVISOR": "Supervisor",
+      "MONITOR": "Monitor",
+      "PRIMEIROS_SOCORROS": "Primeiros socorros",
+      "ACOMPANHANTE": "Acompanhante",
+      "OUTRO": "Outro"
+    },
+    "groups": {
+      "professors": "Professores",
+      "employees": "Funcionários",
+      "external": "Pessoas externas"
+    },
+    "messages": {
+      "added": "Membro adicionado à equipe com sucesso.",
+      "addError": "Não foi possível adicionar o membro.",
+      "duplicate": "Esta pessoa já faz parte da equipe."
+    }
+  },
+  "AdminCommercialChannels": {
+    "common": {
+      "all": "Todos",
+      "cancel": "Cancelar",
+      "close": "Fechar",
+      "createChannel": "Cadastrar canal",
+      "edit": "✏️ Editar",
+      "refresh": "↻ Atualizar",
+      "refreshing": "Atualizando...",
+      "saveChanges": "Salvar alterações",
+      "saving": "Salvando..."
+    },
+    "types": {
+      "site": "Site",
+      "landingPage": "Landing page",
+      "form": "Formulário",
+      "metaAds": "Meta Ads",
+      "googleAds": "Google Ads",
+      "whatsapp": "WhatsApp",
+      "referral": "Indicação",
+      "event": "Evento",
+      "partnership": "Parceria",
+      "import": "Importação",
+      "api": "API",
+      "other": "Outro"
+    },
+    "icons": {
+      "automatic": "Automático",
+      "site": "Site",
+      "landingPage": "Landing page",
+      "form": "Formulário",
+      "meta": "Meta / Facebook",
+      "google": "Google",
+      "whatsapp": "WhatsApp",
+      "socialNetworks": "Redes sociais",
+      "phone": "Telefone",
+      "email": "E-mail",
+      "referral": "Indicação",
+      "event": "Evento",
+      "partnership": "Parceria",
+      "campaign": "Campanha",
+      "import": "Importação",
+      "api": "API",
+      "integration": "Integração",
+      "institutional": "Institucional",
+      "people": "Pessoas",
+      "promotion": "Divulgação"
+    },
+    "errors": {
+      "load": "Não foi possível carregar os canais.",
+      "nameRequired": "Informe o nome do canal.",
+      "typeRequired": "Selecione o tipo do canal.",
+      "update": "Não foi possível atualizar o canal.",
+      "create": "Não foi possível cadastrar o canal.",
+      "save": "Não foi possível salvar o canal."
+    },
+    "success": {
+      "updated": "Canal atualizado com sucesso.",
+      "created": "Canal criado com sucesso."
+    },
+    "errorPage": {
+      "title": "Não foi possível carregar os canais",
+      "retry": "Tentar novamente"
+    },
+    "header": {
+      "back": "← Central de Captação",
+      "title": "📡 Canais de captação",
+      "description": "Organize as origens pelas quais os leads chegam à instituição.",
+      "newChannel": "+ Novo canal"
+    },
+    "summary": {
+      "total": "Total de canais",
+      "active": "Canais ativos",
+      "default": "Canal padrão",
+      "notDefined": "Não definido"
+    },
+    "filters": {
+      "search": "Buscar",
+      "searchPlaceholder": "Nome, descrição ou identificador",
+      "type": "Tipo",
+      "situation": "Situação",
+      "active": "Ativos",
+      "inactive": "Inativos",
+      "apply": "Filtrar",
+      "clear": "Limpar"
+    },
+    "list": {
+      "title": "Canais cadastrados",
+      "results": "{count, plural, one {resultado nesta consulta.} other {resultados nesta consulta.}}",
+      "emptyTitle": "Nenhum canal encontrado",
+      "emptyDescription": "Cadastre o primeiro canal ou altere os filtros da consulta.",
+      "createChannel": "+ Cadastrar canal"
+    },
+    "statuses": {
+      "default": "Padrão",
+      "active": "Ativo",
+      "inactive": "Inativo"
+    },
+    "card": {
+      "updatedAt": "Atualizado em {date}"
+    },
+    "counts": {
+      "campaigns": "Campanhas",
+      "forms": "Formulários",
+      "submissions": "Submissões",
+      "rules": "Regras",
+      "integrations": "Integrações"
+    },
+    "modal": {
+      "editTitle": "Editar canal de captação",
+      "newTitle": "Novo canal de captação",
+      "editDescription": "Atualize as configurações deste canal.",
+      "newDescription": "Defina uma origem pela qual os leads poderão chegar.",
+      "name": "Nome",
+      "namePlaceholder": "Ex.: Site institucional",
+      "type": "Tipo",
+      "description": "Descrição",
+      "descriptionPlaceholder": "Explique como este canal é utilizado.",
+      "slug": "Identificador personalizado",
+      "slugPlaceholder": "Opcional — gerado pelo nome",
+      "slugHelp": "Se ficar vazio, o PHANYX gera automaticamente.",
+      "icon": "Ícone",
+      "iconSelected": "Selecionado: {icon}",
+      "iconAutomatic": "Automático: {icon}",
+      "color": "Cor de identificação",
+      "defaultChannel": "Canal padrão",
+      "defaultHelp": "Ao marcar, este canal substitui qualquer outro canal padrão da instituição.",
+      "activeChannel": "Canal ativo",
+      "activeHelp": "Canais inativos permanecem no histórico, mas deixam de ser usados nas novas configurações."
+    }
+  },
+  "AdminCommercialDistribution": {
+    "loading": "Carregando regras de distribuição...",
+    "header": {
+      "back": "← Central de Captação",
+      "title": "Distribuição de leads",
+      "description": "Defina automaticamente quem deve receber cada novo interessado. O PHANYX verifica as regras assim que o lead entra na Central de Captação.",
+      "newRule": "+ Nova regra"
+    },
+    "common": {
+      "refresh": "↻ Atualizar",
+      "refreshing": "Atualizando...",
+      "edit": "Editar",
+      "close": "Fechar",
+      "cancel": "Cancelar",
+      "saving": "Salvando...",
+      "creating": "Criando...",
+      "saveChanges": "Salvar alterações",
+      "createRule": "Criar regra"
+    },
+    "summary": {
+      "total": "Total",
+      "totalHelp": "Regras cadastradas",
+      "active": "Ativas",
+      "activeHelp": "Distribuindo novos leads",
+      "inactive": "Inativas",
+      "inactiveHelp": "Temporariamente pausadas"
+    },
+    "filters": {
+      "search": "Buscar",
+      "searchPlaceholder": "Nome, campanha, curso, equipe...",
+      "onlyActive": "Mostrar somente regras ativas"
+    },
+    "list": {
+      "title": "Regras cadastradas",
+      "results": "{count, plural, =0 {Nenhuma regra encontrada} one {# regra encontrada} other {# regras encontradas}}.",
+      "emptyTitle": "Nenhuma regra encontrada",
+      "emptyDescription": "Crie uma regra para o PHANYX distribuir automaticamente os próximos interessados.",
+      "createFirst": "+ Criar primeira regra"
+    },
+    "statuses": {
+      "active": "Ativa",
+      "inactive": "Inativa"
+    },
+    "rule": {
+      "howToDistribute": "Como distribuir",
+      "destination": "Destino",
+      "whenApplies": "Quando esta regra se aplica",
+      "allNewLeads": "Todos os novos leads",
+      "noSpecificDestination": "Sem destino específico"
+    },
+    "criteria": {
+      "channel": "Canal: {name}",
+      "campaign": "Campanha: {name}",
+      "form": "Formulário: {name}",
+      "course": "Curso: {name}",
+      "unit": "Unidade: {name}"
+    },
+    "modal": {
+      "kicker": "DISTRIBUIÇÃO AUTOMÁTICA",
+      "newTitle": "Nova regra de distribuição",
+      "newDescription": "Diga ao PHANYX quais interessados esta regra atende e para onde eles devem ser encaminhados.",
+      "editTitle": "Editar regra de distribuição",
+      "editDescription": "Atualize os critérios e defina como os próximos interessados desta regra serão encaminhados.",
+      "identify": {
+        "title": "Identifique a regra",
+        "description": "Use um nome que sua equipe reconheça facilmente."
+      },
+      "ruleName": "Nome da regra",
+      "ruleNamePlaceholder": "Ex.: Leads do Vestibular 2027",
+      "activeRule": "Regra ativa",
+      "activeRuleHelp": "O PHANYX utilizará esta regra nas próximas captações.",
+      "pausedRule": "Regra pausada",
+      "pausedRuleHelp": "Novos leads não serão distribuídos por esta regra enquanto ela estiver pausada.",
+      "criteria": {
+        "title": "Quando esta regra deve ser usada?",
+        "description": "Você pode combinar informações. Campos deixados em branco valem para qualquer opção."
+      },
+      "distribution": {
+        "title": "Como o PHANYX deve distribuir?",
+        "description": "Escolha apenas como deseja trabalhar. A parte técnica fica por conta do sistema."
+      }
+    },
+    "fields": {
+      "channel": "Canal",
+      "campaign": "Campanha",
+      "form": "Formulário",
+      "course": "Curso",
+      "unit": "Unidade",
+      "owner": "Quem deve receber estes leads?",
+      "team": "Qual equipe receberá estes leads?"
+    },
+    "options": {
+      "anyChannel": "Qualquer canal",
+      "anyCampaign": "Qualquer campanha",
+      "anyForm": "Qualquer formulário",
+      "anyCourse": "Qualquer curso",
+      "anyUnit": "Qualquer unidade",
+      "selectPerson": "Selecione uma pessoa",
+      "selectTeam": "Selecione uma equipe"
+    },
+    "strategies": {
+      "roundRobin": {
+        "name": "Revezamento entre a equipe",
+        "description": "O PHANYX alterna os novos interessados entre os membros da equipe."
+      },
+      "lowestLoad": {
+        "name": "Quem tem menos leads",
+        "description": "O PHANYX direciona o novo interessado para quem está com menos leads em atendimento."
+      },
+      "random": {
+        "name": "Distribuição aleatória",
+        "description": "Os novos interessados são distribuídos aleatoriamente entre os membros disponíveis."
+      },
+      "fixedOwner": {
+        "name": "Pessoa específica",
+        "description": "Todos os leads desta regra são direcionados para a mesma pessoa."
+      },
+      "teamQueue": {
+        "name": "Encaminhar para a equipe",
+        "description": "O lead entra na equipe e pode ser assumido posteriormente por um integrante."
+      },
+      "manual": {
+        "name": "Distribuição manual",
+        "description": "O lead fica disponível para que o responsável seja definido manualmente."
+      }
+    },
+    "success": {
+      "created": "Regra de distribuição criada com sucesso.",
+      "updated": "Regra de distribuição atualizada com sucesso."
+    },
+    "errors": {
+      "load": "Não foi possível carregar as regras de distribuição.",
+      "save": "Não foi possível salvar a regra de distribuição."
+    }
+  },
+  "AdminCommercialForms": {
+    "common": {
+      "all": "Todos",
+      "availability": "Situação",
+      "back": "Voltar",
+      "backToLeadGenerationCenter": "← Central de Captação",
+      "campaign": "Campanha",
+      "cancel": "Cancelar",
+      "channel": "Canal",
+      "clear": "Limpar",
+      "close": "Fechar",
+      "creating": "Criando...",
+      "description": "Descrição",
+      "edit": "Editar",
+      "filter": "Filtrar",
+      "optional": "Opcional",
+      "refresh": "↻ Atualizar",
+      "refreshing": "Atualizando...",
+      "saveChanges": "Salvar alterações",
+      "saving": "Salvando...",
+      "search": "Buscar",
+      "status": "Status",
+      "tryAgain": "Tentar novamente"
+    },
+    "shared": {
+      "required": "Obrigatório",
+      "statuses": {
+        "activePlural": "Ativos",
+        "archived": "Arquivado",
+        "draft": "Rascunho",
+        "inactive": "Inativo",
+        "inactivePlural": "Inativos",
+        "paused": "Pausado",
+        "published": "Publicado"
+      },
+      "widths": {
+        "custom": "Tamanho personalizado",
+        "full": "Linha inteira",
+        "half": "Metade da linha",
+        "quarter": "Um quarto",
+        "third": "Um terço"
+      },
+      "fieldTypes": {
+        "shortText": "Texto curto",
+        "longText": "Texto longo",
+        "email": "E-mail",
+        "phone": "Telefone / WhatsApp",
+        "number": "Número",
+        "date": "Data",
+        "singleSelect": "Seleção única",
+        "multiSelect": "Seleção múltipla",
+        "checkbox": "Caixa de seleção",
+        "consent": "Consentimento",
+        "hidden": "Campo oculto"
+      },
+      "mappings": {
+        "name": "Nome do interessado",
+        "email": "E-mail",
+        "phone": "Telefone / WhatsApp",
+        "organization": "Instituição / empresa",
+        "role": "Cargo / função",
+        "interest": "Interesse",
+        "notes": "Observações",
+        "courseInterest": "Curso de interesse",
+        "unitInterest": "Polo de interesse",
+        "consent": "Consentimento LGPD",
+        "custom": "Campo personalizado"
+      }
+    },
+    "list": {
+      "header": {
+        "title": "Formulários de captação",
+        "description": "Crie formulários públicos para receber interessados e encaminhá-los automaticamente ao processo comercial.",
+        "newForm": "+ Novo formulário"
+      },
+      "summary": {
+        "total": "Total",
+        "published": "Publicados",
+        "drafts": "Rascunhos",
+        "paused": "Pausados"
+      },
+      "filters": {
+        "searchPlaceholder": "Nome, título ou identificador"
+      },
+      "registered": {
+        "title": "Formulários cadastrados",
+        "results": "{count, plural, =0 {Nenhum resultado nesta consulta.} one {# resultado nesta consulta.} other {# resultados nesta consulta.}}"
+      },
+      "empty": {
+        "title": "Nenhum formulário encontrado",
+        "description": "Crie o primeiro formulário de captação ou altere os filtros.",
+        "create": "+ Criar formulário"
+      },
+      "item": {
+        "configure": "Configurar formulário",
+        "internalName": "Nome interno",
+        "noChannel": "Sem canal",
+        "noCampaign": "Sem campanha",
+        "identifier": "Identificador",
+        "version": "Versão",
+        "lgpdRequired": "LGPD exigida",
+        "lgpdNotRequired": "LGPD não exigida",
+        "updatedAt": "Atualizado em",
+        "counters": {
+          "fields": "Campos",
+          "submissions": "Submissões",
+          "rules": "Regras",
+          "integrations": "Integrações"
+        }
+      },
+      "loadError": {
+        "title": "Não foi possível carregar os formulários"
+      },
+      "errors": {
+        "load": "Não foi possível carregar os formulários de captação.",
+        "create": "Não foi possível criar o formulário."
+      },
+      "validation": {
+        "internalName": "Informe o nome interno do formulário.",
+        "publicTitle": "Informe o título que será exibido para o interessado."
+      },
+      "success": {
+        "createdDraft": "Formulário criado como rascunho."
+      },
+      "modal": {
+        "title": "Novo formulário de captação",
+        "description": "Comece pelas informações básicas. O formulário será salvo como rascunho.",
+        "draftNoticePrefix": "Este formulário será criado como",
+        "draftNoticeSuffix": ". Depois vamos configurar campos, LGPD, automações e publicação.",
+        "internalName": "Nome interno",
+        "internalNameHelp": "Nome utilizado pela equipe para identificar o formulário.",
+        "internalNamePlaceholder": "Ex.: Formulário Vestibular 2027",
+        "publicTitle": "Título exibido para o interessado",
+        "publicTitleHelp": "Este é o título que a pessoa verá ao abrir o formulário.",
+        "publicTitlePlaceholder": "Ex.: Inscreva-se para o Vestibular 2027",
+        "noSpecificChannel": "Sem canal específico",
+        "noSpecificCampaign": "Sem campanha específica",
+        "identifier": "Identificador",
+        "identifierPlaceholder": "Opcional — gerado pelo nome",
+        "identifierHelp": "Se ficar vazio, o PHANYX gera automaticamente.",
+        "descriptionPlaceholder": "Explique brevemente o objetivo deste formulário.",
+        "createDraft": "Criar rascunho"
+      }
+    },
+    "config": {
+      "header": {
+        "back": "← Formulários de captação",
+        "title": "Configurar formulário",
+        "version": "Versão"
+      },
+      "actions": {
+        "preview": "Pré-visualizar",
+        "publish": "Publicar formulário",
+        "openPublic": "Abrir formulário",
+        "copyLink": "Copiar link",
+        "addField": "Adicionar campo"
+      },
+      "summary": {
+        "total": "Total de campos",
+        "active": "Campos ativos",
+        "required": "Obrigatórios"
+      },
+      "fields": {
+        "title": "Campos do formulário",
+        "description": "Os campos aparecem para o interessado na ordem abaixo.",
+        "emptyTitle": "Nenhum campo configurado",
+        "emptyDescription": "Adicione os campos que o interessado deverá preencher.",
+        "addFirst": "Adicionar primeiro campo",
+        "moveUp": "Mover para cima",
+        "moveDown": "Mover para baixo",
+        "moveUpAria": "Mover {name} para cima",
+        "moveDownAria": "Mover {name} para baixo"
+      },
+      "loadError": {
+        "title": "Não foi possível abrir o formulário"
+      },
+      "errors": {
+        "invalidForm": "Formulário inválido.",
+        "loadFields": "Não foi possível carregar os campos.",
+        "publish": "Não foi possível publicar o formulário.",
+        "copyLink": "Não foi possível copiar o link. Tente novamente.",
+        "reorder": "Não foi possível alterar a ordem dos campos.",
+        "saveField": "Não foi possível salvar o campo.",
+        "addField": "Não foi possível adicionar o campo."
+      },
+      "success": {
+        "published": "Formulário publicado com sucesso.",
+        "linkCopied": "Link do formulário copiado.",
+        "reordered": "Ordem dos campos atualizada.",
+        "fieldUpdated": "Campo atualizado com sucesso.",
+        "fieldAdded": "Campo adicionado com sucesso."
+      },
+      "publish": {
+        "title": "Publicar formulário?",
+        "description": "Depois de publicar, pessoas com o link poderão preencher e enviar seus dados.",
+        "reviewItems": "Antes de publicar, revise os itens abaixo.",
+        "publishing": "Publicando...",
+        "publishNow": "Publicar agora"
+      },
+      "validation": {
+        "fieldLabel": "Informe o nome exibido para este campo.",
+        "optionRequired": "Informe pelo menos uma opção para este campo."
+      },
+      "fieldModal": {
+        "editTitle": "Editar campo",
+        "addTitle": "Adicionar campo",
+        "editDescription": "Ajuste como esta informação será solicitada ao interessado.",
+        "addDescription": "Defina o que o interessado deverá informar.",
+        "mappingLabel": "Qual informação você quer pedir?",
+        "mappingHelp": "Escolha a informação que deseja solicitar. O PHANYX configura automaticamente como ela será usada.",
+        "previewTitle": "Como aparecerá para o interessado",
+        "previewHelp": "O PHANYX preparou este campo automaticamente.",
+        "autoUnit": "Unidade selecionada automaticamente",
+        "previewNotSaved": "Pré-visualização. A escolha feita aqui não será salva.",
+        "customizeAppearance": "Personalizar como aparece",
+        "displayLabel": "Pergunta ou nome exibido",
+        "width": "Tamanho na tela",
+        "placeholderLabel": "Exemplo mostrado no campo",
+        "placeholderHelp": "Exemplo para ajudar no preenchimento",
+        "helpLabel": "Orientação para quem vai preencher",
+        "answerType": "Que tipo de resposta deseja receber?",
+        "autoListTitle": "Lista atualizada automaticamente",
+        "autoCourseDescription": "O PHANYX exibirá automaticamente os cursos ativos da instituição. Você não precisa cadastrar as opções manualmente.",
+        "autoUnitDescription": "O PHANYX verificará as unidades disponíveis automaticamente. Se houver apenas uma, ela será selecionada sem perguntar ao interessado. Se houver várias, o formulário mostrará as opções para escolha.",
+        "options": "Opções",
+        "optionsHelp": "Digite uma opção por linha.",
+        "optionsPlaceholder": "Opção 1\nOpção 2\nOpção 3",
+        "requiredTitle": "Preenchimento obrigatório",
+        "requiredHelp": "O interessado não poderá enviar o formulário sem preencher este campo.",
+        "technicalSettings": "Configurações técnicas",
+        "technicalHelp": "Esta área normalmente não precisa ser alterada.",
+        "internalKey": "Identificador interno",
+        "internalKeyPlaceholder": "Gerada automaticamente",
+        "internalKeyHelp": "O PHANYX usa este identificador internamente. Evite alterá-lo depois que o formulário começar a receber respostas.",
+        "customQuestionPlaceholder": "Ex.: Como podemos ajudar?",
+        "fillHere": "Preencha aqui",
+        "noUnits": "Nenhuma unidade ativa está disponível no momento.",
+        "adding": "Adicionando..."
+      },
+      "defaults": {
+        "name": {
+          "label": "Nome completo",
+          "placeholder": "Digite seu nome completo"
+        },
+        "email": {
+          "help": "Informe um e-mail válido para receber nosso contato."
+        },
+        "phone": {
+          "placeholder": "(11) 98765-4321",
+          "help": "Informe seu número com DDD. Ex.: (11) 98765-4321"
+        },
+        "organization": {
+          "placeholder": "Digite o nome da instituição ou empresa"
+        },
+        "role": {
+          "placeholder": "Ex.: Diretor, coordenador, professor"
+        },
+        "interest": {
+          "label": "O que você procura?",
+          "placeholder": "Conte brevemente o que você procura"
+        },
+        "notes": {
+          "label": "Mensagem ou observações",
+          "placeholder": "Escreva aqui se quiser acrescentar alguma informação"
+        },
+        "course": {
+          "placeholder": "Selecione um curso",
+          "help": "Escolha o curso sobre o qual deseja receber informações."
+        },
+        "unit": {
+          "label": "Onde você prefere estudar?",
+          "placeholder": "Selecione uma unidade",
+          "help": "Escolha a unidade ou polo de sua preferência."
+        },
+        "consent": {
+          "label": "Li e concordo com a Política de Privacidade",
+          "help": "O consentimento é necessário para o tratamento dos dados informados."
+        }
+      }
+    },
+    "protection": {
+      "title": "Proteção de dados",
+      "description": "Defina como o interessado será informado sobre o uso dos dados enviados.",
+      "configured": "✓ Configurado",
+      "needsReview": "Precisa revisar",
+      "loading": "Carregando proteção de dados...",
+      "requireConsent": {
+        "title": "Pedir autorização para usar os dados e entrar em contato",
+        "description": "O interessado precisará marcar uma opção de concordância antes de enviar o formulário."
+      },
+      "preview": {
+        "title": "Como aparecerá para o interessado",
+        "privacyAvailable": "Política de Privacidade disponível para consulta"
+      },
+      "consentMessage": {
+        "label": "Mensagem de autorização",
+        "help": "O PHANYX já preparou uma mensagem inicial. Altere somente se a instituição precisar de outro texto."
+      },
+      "privacyUrl": {
+        "label": "Link da Política de Privacidade",
+        "help": "Se a instituição possuir uma página de privacidade, informe o endereço aqui."
+      },
+      "auditNotice": "Quando o interessado enviar o formulário, o PHANYX guardará a autorização junto com o envio.",
+      "disabledNotice": "A autorização não será mostrada ao interessado. Desative esta opção somente quando a instituição já tiver definido internamente como fará o tratamento desses dados.",
+      "archivedNotice": "Este formulário está arquivado e não pode mais ser alterado.",
+      "save": "Salvar proteção de dados",
+      "errors": {
+        "invalidForm": "Formulário inválido.",
+        "load": "Não foi possível carregar a proteção de dados.",
+        "save": "Não foi possível salvar a proteção de dados."
+      },
+      "validation": {
+        "consentText": "Informe a mensagem de autorização que será mostrada ao interessado."
+      },
+      "success": {
+        "saved": "Proteção de dados atualizada com sucesso."
+      }
+    },
+    "preview": {
+      "loading": "Carregando pré-visualização...",
+      "errors": {
+        "invalidForm": "Formulário inválido.",
+        "load": "Não foi possível carregar a pré-visualização.",
+        "notFound": "Formulário não encontrado."
+      },
+      "banner": {
+        "title": "Pré-visualização",
+        "description": "Você está vendo como este formulário aparecerá para o interessado. Nenhuma resposta será enviada.",
+        "backToConfig": "Voltar à configuração"
+      },
+      "simulation": {
+        "title": "Simulação concluída",
+        "notice": "Esta foi apenas uma pré-visualização. Nenhum lead foi criado."
+      },
+      "defaultSuccess": "Seus dados foram recebidos com sucesso.",
+      "selectOption": "Selecione uma opção",
+      "phonePlaceholder": "Digite seu telefone",
+      "phoneHelp": "Informe seu telefone com DDD.",
+      "defaultConsent": "Autorizo o uso dos dados informados neste formulário para atendimento relacionado ao meu interesse.",
+      "privacyPolicy": "Consultar Política de Privacidade",
+      "submit": "Enviar formulário",
+      "footer": "Pré-visualização administrativa — nenhum dado será enviado."
     }
   }
 }

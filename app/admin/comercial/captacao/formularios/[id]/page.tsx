@@ -9,6 +9,10 @@ import {
     useMemo,
     useState,
 } from "react";
+
+import {
+    useTranslations,
+} from "next-intl";
 import { useParams } from "next/navigation";
 
 type Tema =
@@ -137,120 +141,6 @@ const CAMPO_INICIAL:
         "",
 };
 
-function nomeTipo(
-    tipo: string
-) {
-    const mapa:
-        Record<string, string> = {
-        TEXTO_CURTO:
-            "Texto curto",
-
-        TEXTO_LONGO:
-            "Texto longo",
-
-        EMAIL:
-            "E-mail",
-
-        TELEFONE:
-            "Telefone / WhatsApp",
-
-        NUMERO:
-            "Número",
-
-        DATA:
-            "Data",
-
-        SELECAO_UNICA:
-            "Seleção única",
-
-        SELECAO_MULTIPLA:
-            "Seleção múltipla",
-
-        CHECKBOX:
-            "Caixa de seleção",
-
-        CONSENTIMENTO:
-            "Consentimento",
-
-        OCULTO:
-            "Campo oculto",
-    };
-
-    return (
-        mapa[tipo] ??
-        tipo
-    );
-}
-
-function nomeMapeamento(
-    valor: string
-) {
-    const mapa:
-        Record<string, string> = {
-        NOME:
-            "Nome do interessado",
-
-        EMAIL:
-            "E-mail",
-
-        TELEFONE:
-            "Telefone / WhatsApp",
-
-        INSTITUICAO_NOME:
-            "Instituição / empresa",
-
-        CARGO:
-            "Cargo / função",
-
-        INTERESSE:
-            "Interesse",
-
-        OBSERVACOES:
-            "Observações",
-
-        CURSO_INTERESSE_ID:
-            "Curso de interesse",
-
-        POLO_INTERESSE_ID:
-            "Polo de interesse",
-
-        CONSENTIMENTO:
-            "Consentimento LGPD",
-
-        PERSONALIZADO:
-            "Campo personalizado",
-    };
-
-    return (
-        mapa[valor] ??
-        valor
-    );
-}
-
-function nomeStatus(
-    status: string
-) {
-    const mapa:
-        Record<string, string> = {
-        RASCUNHO:
-            "Rascunho",
-
-        PUBLICADO:
-            "Publicado",
-
-        PAUSADO:
-            "Pausado",
-
-        ARQUIVADO:
-            "Arquivado",
-    };
-
-    return (
-        mapa[status] ??
-        status
-    );
-}
-
 function ehCampoComOpcoesManuais(
     tipo: string,
     mapeamento: string
@@ -324,6 +214,11 @@ function ehCampoConhecidoPhanyx(
 }
 
 export default function ConfigurarFormularioCaptacaoPage() {
+    const t =
+        useTranslations(
+            "AdminCommercialForms"
+        );
+
     const params =
         useParams();
 
@@ -331,6 +226,12 @@ export default function ConfigurarFormularioCaptacaoPage() {
         Number(
             params.id
         );
+
+    const [
+        temaEscolhido,
+        setTemaEscolhido,
+    ] =
+        useState<Tema>("light");
 
     const [
         temaEscuro,
@@ -435,35 +336,56 @@ export default function ConfigurarFormularioCaptacaoPage() {
     ] = useState<string[]>([]);
 
     useEffect(() => {
-        function calcularTema() {
-            const tema =
-                (
-                    localStorage.getItem(
-                        "phanyx_tema"
-                    ) ||
-                    "system"
-                ) as Tema;
+        const root =
+            document.documentElement;
 
-            const sistemaEscuro =
-                window.matchMedia(
-                    "(prefers-color-scheme: dark)"
-                ).matches;
+        function calcularTema() {
+            const escolha =
+                root.dataset
+                    .themeChoice;
+
+            const temaSalvo =
+                (
+                    escolha === "light" ||
+                    escolha === "dark" ||
+                    escolha === "system"
+                )
+                    ? escolha
+                    : (
+                        localStorage.getItem(
+                            "phanyx_tema"
+                        ) ||
+                        "light"
+                    );
+
+            setTemaEscolhido(
+                temaSalvo as Tema
+            );
 
             setTemaEscuro(
-                tema === "dark" ||
-                (
-                    tema ===
-                    "system" &&
-                    sistemaEscuro
+                root.classList.contains(
+                    "dark"
                 )
             );
         }
 
         calcularTema();
 
-        window.addEventListener(
-            "storage",
-            calcularTema
+        const observador =
+            new MutationObserver(
+                calcularTema
+            );
+
+        observador.observe(
+            root,
+            {
+                attributes: true,
+                attributeFilter: [
+                    "class",
+                    "data-theme",
+                    "data-theme-choice",
+                ],
+            }
         );
 
         const media =
@@ -476,14 +398,21 @@ export default function ConfigurarFormularioCaptacaoPage() {
             calcularTema
         );
 
+        window.addEventListener(
+            "storage",
+            calcularTema
+        );
+
         return () => {
-            window.removeEventListener(
-                "storage",
-                calcularTema
-            );
+            observador.disconnect();
 
             media.removeEventListener(
                 "change",
+                calcularTema
+            );
+
+            window.removeEventListener(
+                "storage",
                 calcularTema
             );
         };
@@ -508,58 +437,251 @@ export default function ConfigurarFormularioCaptacaoPage() {
             );
     }, [toast]);
 
+    const temaAzul =
+        temaEscolhido ===
+        "dark";
+
     const c =
         useMemo(
             () => ({
                 pagina:
-                    temaEscuro
-                        ? "bg-slate-950 text-slate-100"
-                        : "bg-slate-100 text-slate-900",
+                    temaAzul
+                        ? "bg-[#020b2a] text-blue-50"
+                        : temaEscuro
+                            ? "bg-neutral-950 text-neutral-100"
+                            : "bg-slate-100 text-slate-900",
 
                 card:
-                    temaEscuro
-                        ? "border-slate-800 bg-slate-900"
-                        : "border-slate-200 bg-white",
+                    temaAzul
+                        ? "border-blue-950 bg-[#0b1220]"
+                        : temaEscuro
+                            ? "border-neutral-700 bg-neutral-900"
+                            : "border-slate-200 bg-white",
 
                 subCard:
-                    temaEscuro
-                        ? "border-slate-800 bg-slate-950"
-                        : "border-slate-200 bg-slate-50",
+                    temaAzul
+                        ? "border-blue-900 bg-[#0f1a33]"
+                        : temaEscuro
+                            ? "border-neutral-700 bg-neutral-800"
+                            : "border-slate-200 bg-slate-50",
 
                 titulo:
-                    temaEscuro
-                        ? "text-white"
-                        : "text-slate-900",
+                    temaAzul
+                        ? "text-blue-50"
+                        : temaEscuro
+                            ? "text-white"
+                            : "text-slate-900",
 
                 texto:
-                    temaEscuro
-                        ? "text-slate-300"
-                        : "text-slate-700",
+                    temaAzul
+                        ? "text-blue-100"
+                        : temaEscuro
+                            ? "text-neutral-200"
+                            : "text-slate-700",
 
                 muted:
-                    temaEscuro
-                        ? "text-slate-400"
-                        : "text-slate-500",
+                    temaAzul
+                        ? "text-blue-200/70"
+                        : temaEscuro
+                            ? "text-neutral-400"
+                            : "text-slate-500",
 
                 divisoria:
-                    temaEscuro
-                        ? "border-slate-800"
-                        : "border-slate-200",
+                    temaAzul
+                        ? "border-blue-950"
+                        : temaEscuro
+                            ? "border-neutral-700"
+                            : "border-slate-200",
 
                 input:
-                    temaEscuro
-                        ? "border-slate-700 bg-slate-950 text-white placeholder:text-slate-500"
-                        : "border-slate-300 bg-white text-slate-900 placeholder:text-slate-400",
+                    temaAzul
+                        ? "border-blue-900 bg-blue-950/70 text-blue-50 placeholder:text-blue-200/50"
+                        : temaEscuro
+                            ? "border-neutral-600 bg-neutral-800 text-neutral-100 placeholder:text-neutral-400"
+                            : "border-slate-300 bg-white text-slate-900 placeholder:text-slate-400",
 
                 botaoSecundario:
-                    temaEscuro
-                        ? "border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-800"
-                        : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50",
+                    temaAzul
+                        ? "border-blue-900 bg-[#0f1a33] text-blue-50 hover:bg-[#162447]"
+                        : temaEscuro
+                            ? "border-neutral-600 bg-neutral-800 text-neutral-100 hover:bg-neutral-700"
+                            : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50",
+
+                botaoPrimario:
+                    temaAzul
+                        ? "bg-blue-700 text-white hover:bg-blue-600"
+                        : temaEscuro
+                            ? "bg-neutral-700 text-white hover:bg-neutral-600"
+                            : "bg-slate-900 text-white hover:bg-slate-800",
             }),
             [
+                temaAzul,
                 temaEscuro,
             ]
         );
+
+    function nomeTipoUi(
+        tipo: string
+    ) {
+        switch (tipo) {
+            case "TEXTO_CURTO":
+                return t(
+                    "shared.fieldTypes.shortText"
+                );
+            case "TEXTO_LONGO":
+                return t(
+                    "shared.fieldTypes.longText"
+                );
+            case "EMAIL":
+                return t(
+                    "shared.fieldTypes.email"
+                );
+            case "TELEFONE":
+                return t(
+                    "shared.fieldTypes.phone"
+                );
+            case "NUMERO":
+                return t(
+                    "shared.fieldTypes.number"
+                );
+            case "DATA":
+                return t(
+                    "shared.fieldTypes.date"
+                );
+            case "SELECAO_UNICA":
+                return t(
+                    "shared.fieldTypes.singleSelect"
+                );
+            case "SELECAO_MULTIPLA":
+                return t(
+                    "shared.fieldTypes.multiSelect"
+                );
+            case "CHECKBOX":
+                return t(
+                    "shared.fieldTypes.checkbox"
+                );
+            case "CONSENTIMENTO":
+                return t(
+                    "shared.fieldTypes.consent"
+                );
+            case "OCULTO":
+                return t(
+                    "shared.fieldTypes.hidden"
+                );
+            default:
+                return tipo;
+        }
+    }
+
+    function nomeMapeamentoUi(
+        valor: string
+    ) {
+        switch (valor) {
+            case "NOME":
+                return t(
+                    "shared.mappings.name"
+                );
+            case "EMAIL":
+                return t(
+                    "shared.mappings.email"
+                );
+            case "TELEFONE":
+                return t(
+                    "shared.mappings.phone"
+                );
+            case "INSTITUICAO_NOME":
+                return t(
+                    "shared.mappings.organization"
+                );
+            case "CARGO":
+                return t(
+                    "shared.mappings.role"
+                );
+            case "INTERESSE":
+                return t(
+                    "shared.mappings.interest"
+                );
+            case "OBSERVACOES":
+                return t(
+                    "shared.mappings.notes"
+                );
+            case "CURSO_INTERESSE_ID":
+                return t(
+                    "shared.mappings.courseInterest"
+                );
+            case "POLO_INTERESSE_ID":
+                return t(
+                    "shared.mappings.unitInterest"
+                );
+            case "CONSENTIMENTO":
+                return t(
+                    "shared.mappings.consent"
+                );
+            case "PERSONALIZADO":
+                return t(
+                    "shared.mappings.custom"
+                );
+            default:
+                return valor;
+        }
+    }
+
+    function nomeStatusUi(
+        status: string
+    ) {
+        switch (status) {
+            case "RASCUNHO":
+                return t(
+                    "shared.statuses.draft"
+                );
+            case "PUBLICADO":
+                return t(
+                    "shared.statuses.published"
+                );
+            case "PAUSADO":
+                return t(
+                    "shared.statuses.paused"
+                );
+            case "ARQUIVADO":
+                return t(
+                    "shared.statuses.archived"
+                );
+            default:
+                return status;
+        }
+    }
+
+    function nomeLarguraUi(
+        largura: number
+    ) {
+        if (largura === 12) {
+            return t(
+                "shared.widths.full"
+            );
+        }
+
+        if (largura === 6) {
+            return t(
+                "shared.widths.half"
+            );
+        }
+
+        if (largura === 4) {
+            return t(
+                "shared.widths.third"
+            );
+        }
+
+        if (largura === 3) {
+            return t(
+                "shared.widths.quarter"
+            );
+        }
+
+        return t(
+            "shared.widths.custom"
+        );
+    }
 
     const carregar =
         useCallback(
@@ -574,7 +696,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                     formularioId <= 0
                 ) {
                     setErro(
-                        "Formulário inválido."
+                        t("config.errors.invalidForm")
                     );
 
                     setCarregando(
@@ -636,7 +758,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                 json as
                                 RespostaErro
                             ).error ||
-                            "Não foi possível carregar os campos."
+                            t("config.errors.loadFields")
                         );
                     }
 
@@ -650,7 +772,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                         error instanceof
                             Error
                             ? error.message
-                            : "Não foi possível carregar os campos."
+                            : t("config.errors.loadFields")
                     );
                 } finally {
                     setCarregando(
@@ -771,7 +893,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                     );
 
                     setErroPublicacao(
-                        "Antes de publicar, revise os itens abaixo."
+                        t("config.publish.reviewItems")
                     );
 
                     return;
@@ -779,7 +901,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
 
                 throw new Error(
                     json.error ||
-                    "Não foi possível publicar o formulário."
+                    t("config.errors.publish")
                 );
             }
 
@@ -788,7 +910,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
             );
 
             setToast(
-                "Formulário publicado com sucesso."
+                t("config.success.published")
             );
 
             await carregar(true);
@@ -797,7 +919,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                 error instanceof
                     Error
                     ? error.message
-                    : "Não foi possível publicar o formulário."
+                    : t("config.errors.publish")
             );
         } finally {
             setPublicando(false);
@@ -822,11 +944,11 @@ export default function ConfigurarFormularioCaptacaoPage() {
             );
 
             setToast(
-                "Link do formulário copiado."
+                t("config.success.linkCopied")
             );
         } catch {
             setErro(
-                "Não foi possível copiar o link. Tente novamente."
+                t("config.errors.copyLink")
             );
         }
     }
@@ -1022,12 +1144,12 @@ export default function ConfigurarFormularioCaptacaoPage() {
             ) {
                 throw new Error(
                     json.error ||
-                    "Não foi possível alterar a ordem dos campos."
+                    t("config.errors.reorder")
                 );
             }
 
             setToast(
-                "Ordem dos campos atualizada."
+                t("config.success.reordered")
             );
 
             await carregar(
@@ -1037,7 +1159,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
             setToast(
                 error instanceof Error
                     ? error.message
-                    : "Não foi possível alterar a ordem dos campos."
+                    : t("config.errors.reorder")
             );
         } finally {
             setReordenandoCampoId(
@@ -1086,10 +1208,10 @@ export default function ConfigurarFormularioCaptacaoPage() {
                     "TEXTO_CURTO",
 
                 rotulo:
-                    "Nome completo",
+                    t("config.defaults.name.label"),
 
                 placeholder:
-                    "Digite seu nome completo",
+                    t("config.defaults.name.placeholder"),
 
                 textoAjuda:
                     "",
@@ -1109,13 +1231,13 @@ export default function ConfigurarFormularioCaptacaoPage() {
                     "EMAIL",
 
                 rotulo:
-                    "E-mail",
+                    t("shared.mappings.email"),
 
                 placeholder:
                     "nome@exemplo.com",
 
                 textoAjuda:
-                    "Informe um e-mail válido para receber nosso contato.",
+                    t("config.defaults.email.help"),
 
                 mascara:
                     "",
@@ -1132,16 +1254,16 @@ export default function ConfigurarFormularioCaptacaoPage() {
                     "TELEFONE",
 
                 rotulo:
-                    "Telefone / WhatsApp",
+                    t("shared.mappings.phone"),
 
                 placeholder:
-                    "(11) 98765-4321",
+                    t("config.defaults.phone.placeholder"),
 
                 textoAjuda:
-                    "Informe seu número com DDD. Ex.: (11) 98765-4321",
+                    t("config.defaults.phone.help"),
 
                 mascara:
-                    "(00) 00000-0000",
+                    "",
 
                 /*
                  * Telefone pode ser
@@ -1160,10 +1282,10 @@ export default function ConfigurarFormularioCaptacaoPage() {
                     "TEXTO_CURTO",
 
                 rotulo:
-                    "Instituição / empresa",
+                    t("shared.mappings.organization"),
 
                 placeholder:
-                    "Digite o nome da instituição ou empresa",
+                    t("config.defaults.organization.placeholder"),
 
                 textoAjuda:
                     "",
@@ -1183,10 +1305,10 @@ export default function ConfigurarFormularioCaptacaoPage() {
                     "TEXTO_CURTO",
 
                 rotulo:
-                    "Cargo / função",
+                    t("shared.mappings.role"),
 
                 placeholder:
-                    "Ex.: Diretor, coordenador, professor",
+                    t("config.defaults.role.placeholder"),
 
                 textoAjuda:
                     "",
@@ -1206,10 +1328,10 @@ export default function ConfigurarFormularioCaptacaoPage() {
                     "TEXTO_CURTO",
 
                 rotulo:
-                    "O que você procura?",
+                    t("config.defaults.interest.label"),
 
                 placeholder:
-                    "Conte brevemente o que você procura",
+                    t("config.defaults.interest.placeholder"),
 
                 textoAjuda:
                     "",
@@ -1229,10 +1351,10 @@ export default function ConfigurarFormularioCaptacaoPage() {
                     "TEXTO_LONGO",
 
                 rotulo:
-                    "Mensagem ou observações",
+                    t("config.defaults.notes.label"),
 
                 placeholder:
-                    "Escreva aqui se quiser acrescentar alguma informação",
+                    t("config.defaults.notes.placeholder"),
 
                 textoAjuda:
                     "",
@@ -1252,13 +1374,13 @@ export default function ConfigurarFormularioCaptacaoPage() {
                     "SELECAO_UNICA",
 
                 rotulo:
-                    "Curso de interesse",
+                    t("shared.mappings.courseInterest"),
 
                 placeholder:
-                    "Selecione um curso",
+                    t("config.defaults.course.placeholder"),
 
                 textoAjuda:
-                    "Escolha o curso sobre o qual deseja receber informações.",
+                    t("config.defaults.course.help"),
 
                 mascara:
                     "",
@@ -1275,13 +1397,13 @@ export default function ConfigurarFormularioCaptacaoPage() {
                     "SELECAO_UNICA",
 
                 rotulo:
-                    "Onde você prefere estudar?",
+                    t("config.defaults.unit.label"),
 
                 placeholder:
-                    "Selecione uma unidade",
+                    t("config.defaults.unit.placeholder"),
 
                 textoAjuda:
-                    "Escolha a unidade ou polo de sua preferência.",
+                    t("config.defaults.unit.help"),
 
                 mascara:
                     "",
@@ -1298,13 +1420,13 @@ export default function ConfigurarFormularioCaptacaoPage() {
                     "CONSENTIMENTO",
 
                 rotulo:
-                    "Li e concordo com a Política de Privacidade",
+                    t("config.defaults.consent.label"),
 
                 placeholder:
                     "",
 
                 textoAjuda:
-                    "O consentimento é necessário para o tratamento dos dados informados.",
+                    t("config.defaults.consent.help"),
 
                 mascara:
                     "",
@@ -1357,7 +1479,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
 
         if (!rotulo) {
             setErroFormulario(
-                "Informe o nome exibido para este campo."
+                t("config.validation.fieldLabel")
             );
 
             return;
@@ -1401,7 +1523,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                     0
                 ) {
                     throw new Error(
-                        "Informe pelo menos uma opção para este campo."
+                        t("config.validation.optionRequired")
                     );
                 }
             }
@@ -1504,7 +1626,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
             ) {
                 throw new Error(
                     json.error ||
-                    "Não foi possível salvar o campo."
+                    t("config.errors.saveField")
                 );
             }
 
@@ -1516,8 +1638,8 @@ export default function ConfigurarFormularioCaptacaoPage() {
                 json.message ||
                 (
                     campoEmEdicao
-                        ? "Campo atualizado com sucesso."
-                        : "Campo adicionado com sucesso."
+                        ? t("config.success.fieldUpdated")
+                        : t("config.success.fieldAdded")
                 )
             );
 
@@ -1531,7 +1653,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                 error instanceof
                     Error
                     ? error.message
-                    : "Não foi possível adicionar o campo."
+                    : t("config.errors.addField")
             );
 
         } finally {
@@ -1570,7 +1692,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                     <h1
                         className={`text-xl font-bold ${c.titulo}`}
                     >
-                        Não foi possível abrir o formulário
+                        {t("config.loadError.title")}
                     </h1>
 
                     <p
@@ -1583,7 +1705,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                         href="/admin/comercial/captacao/formularios"
                         className={`mt-5 inline-flex rounded-xl border px-4 py-2 text-sm font-semibold ${c.botaoSecundario}`}
                     >
-                        Voltar
+                        {t("common.back")}
                     </Link>
                 </div>
             </div>
@@ -1614,13 +1736,13 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                 href="/admin/comercial/captacao/formularios"
                                 className={`text-sm font-semibold ${c.muted}`}
                             >
-                                ← Formulários de captação
+                                {t("config.header.back")}
                             </Link>
 
                             <h1
                                 className={`mt-3 text-2xl font-bold sm:text-3xl ${c.titulo}`}
                             >
-                                ⚙️ Configurar formulário
+                                ⚙️ {t("config.header.title")}
                             </h1>
 
                             <p
@@ -1637,7 +1759,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                 <span
                                     className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${c.subCard}`}
                                 >
-                                    {nomeStatus(
+                                    {nomeStatusUi(
                                         dados
                                             .formulario
                                             .status
@@ -1647,7 +1769,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                 <span
                                     className={`rounded-full border px-2.5 py-1 text-xs ${c.subCard}`}
                                 >
-                                    Versão{" "}
+                                    {t("config.header.version")}{" "}
                                     {
                                         dados
                                             .formulario
@@ -1674,7 +1796,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                 target="_blank"
                                 className={`rounded-xl border px-4 py-2.5 text-sm font-semibold ${c.botaoSecundario}`}
                             >
-                                👁️ Pré-visualizar
+                                👁️ {t("config.actions.preview")}
                             </Link>
 
                             {dados.permissoes
@@ -1692,7 +1814,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                         }
                                         className="rounded-xl bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800"
                                     >
-                                        🚀 Publicar formulário
+                                        🚀 {t("config.actions.publish")}
                                     </button>
                                 )}
 
@@ -1706,7 +1828,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                             rel="noreferrer"
                                             className="rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
                                         >
-                                            🌐 Abrir formulário
+                                            🌐 {t("config.actions.openPublic")}
                                         </a>
 
                                         <button
@@ -1716,7 +1838,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                             }
                                             className={`rounded-xl border px-4 py-2.5 text-sm font-semibold ${c.botaoSecundario}`}
                                         >
-                                            📋 Copiar link
+                                            📋 {t("config.actions.copyLink")}
                                         </button>
                                     </>
                                 )}
@@ -1734,8 +1856,8 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                 className={`rounded-xl border px-4 py-2.5 text-sm font-semibold ${c.botaoSecundario}`}
                             >
                                 {atualizando
-                                    ? "Atualizando..."
-                                    : "↻ Atualizar"}
+                                    ? t("common.refreshing")
+                                    : t("common.refresh")}
                             </button>
 
                             {dados
@@ -1749,9 +1871,9 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                         onClick={
                                             abrirNovoCampo
                                         }
-                                        className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800"
+                                        className={`rounded-xl px-4 py-2.5 text-sm font-semibold ${c.botaoPrimario}`}
                                     >
-                                        + Adicionar campo
+                                        + {t("config.actions.addField")}
                                     </button>
                                 )}
                         </div>
@@ -1774,6 +1896,9 @@ export default function ConfigurarFormularioCaptacaoPage() {
                     temaEscuro={
                         temaEscuro
                     }
+                    temaAzul={
+                        temaAzul
+                    }
                     onAtualizado={() =>
                         carregar(true)
                     }
@@ -1786,7 +1911,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                         <p
                             className={`text-sm ${c.muted}`}
                         >
-                            Total de campos
+                            {t("config.summary.total")}
                         </p>
 
                         <p
@@ -1806,7 +1931,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                         <p
                             className={`text-sm ${c.muted}`}
                         >
-                            Campos ativos
+                            {t("config.summary.active")}
                         </p>
 
                         <p
@@ -1826,7 +1951,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                         <p
                             className={`text-sm ${c.muted}`}
                         >
-                            Obrigatórios
+                            {t("config.summary.required")}
                         </p>
 
                         <p
@@ -1850,13 +1975,13 @@ export default function ConfigurarFormularioCaptacaoPage() {
                         <h2
                             className={`text-lg font-bold ${c.titulo}`}
                         >
-                            Campos do formulário
+                            {t("config.fields.title")}
                         </h2>
 
                         <p
                             className={`mt-1 text-sm ${c.muted}`}
                         >
-                            Os campos aparecem para o interessado na ordem abaixo.
+                            {t("config.fields.description")}
                         </p>
                     </div>
 
@@ -1870,13 +1995,13 @@ export default function ConfigurarFormularioCaptacaoPage() {
                             <p
                                 className={`mt-3 font-semibold ${c.titulo}`}
                             >
-                                Nenhum campo configurado
+                                {t("config.fields.emptyTitle")}
                             </p>
 
                             <p
                                 className={`mt-1 text-sm ${c.muted}`}
                             >
-                                Adicione os campos que o interessado deverá preencher.
+                                {t("config.fields.emptyDescription")}
                             </p>
 
                             {dados
@@ -1887,9 +2012,9 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                         onClick={
                                             abrirNovoCampo
                                         }
-                                        className="mt-5 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800"
+                                        className={`mt-5 rounded-xl px-4 py-2.5 text-sm font-semibold ${c.botaoPrimario}`}
                                     >
-                                        + Adicionar primeiro campo
+                                        + {t("config.fields.addFirst")}
                                     </button>
                                 )}
                         </div>
@@ -1928,7 +2053,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
 
                                                         {campo.obrigatorio && (
                                                             <span className="rounded-full border border-red-200 bg-red-50 px-2 py-0.5 text-[11px] font-semibold text-red-700">
-                                                                Obrigatório
+                                                                {t("shared.required")}
                                                             </span>
                                                         )}
 
@@ -1936,7 +2061,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                                             <span
                                                                 className={`rounded-full border px-2 py-0.5 text-[11px] ${c.muted}`}
                                                             >
-                                                                Inativo
+                                                                {t("shared.statuses.inactive")}
                                                             </span>
                                                         )}
                                                     </div>
@@ -1944,27 +2069,21 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                                     <p
                                                         className={`mt-1 text-xs ${c.muted}`}
                                                     >
-                                                        {nomeTipo(
+                                                        {nomeTipoUi(
                                                             campo.tipo
                                                         )}
 
                                                         {" • "}
 
-                                                        {nomeMapeamento(
+                                                        {nomeMapeamentoUi(
                                                             campo.mapeamento
                                                         )}
 
                                                         {" • "}
 
-                                                        {campo.largura === 12
-                                                            ? "Linha inteira"
-                                                            : campo.largura === 6
-                                                                ? "Metade da linha"
-                                                                : campo.largura === 4
-                                                                    ? "Um terço da linha"
-                                                                    : campo.largura === 3
-                                                                        ? "Um quarto da linha"
-                                                                        : "Tamanho personalizado"}
+                                                        {nomeLarguraUi(
+                                                            campo.largura
+                                                        )}
                                                     </p>
 
                                                     {campo.textoAjuda && (
@@ -1999,8 +2118,8 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                                             reordenandoCampoId !==
                                                             null
                                                         }
-                                                        title="Mover para cima"
-                                                        aria-label={`Mover ${campo.rotulo} para cima`}
+                                                        title={t("config.fields.moveUp")}
+                                                        aria-label={t("config.fields.moveUpAria", {name: campo.rotulo})}
                                                         className={`flex h-9 w-9 items-center justify-center rounded-xl border text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-40 ${c.botaoSecundario}`}
                                                     >
                                                         ↑
@@ -2021,8 +2140,8 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                                             reordenandoCampoId !==
                                                             null
                                                         }
-                                                        title="Mover para baixo"
-                                                        aria-label={`Mover ${campo.rotulo} para baixo`}
+                                                        title={t("config.fields.moveDown")}
+                                                        aria-label={t("config.fields.moveDownAria", {name: campo.rotulo})}
                                                         className={`flex h-9 w-9 items-center justify-center rounded-xl border text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-40 ${c.botaoSecundario}`}
                                                     >
                                                         ↓
@@ -2041,7 +2160,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                                         }
                                                         className={`rounded-xl border px-3 py-2 text-sm font-semibold transition disabled:opacity-50 ${c.botaoSecundario}`}
                                                     >
-                                                        ✏️ Editar
+                                                        ✏️ {t("common.edit")}
                                                     </button>
                                                 </div>
                                             )}
@@ -2067,16 +2186,13 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                 <h2
                                     className={`text-lg font-bold ${c.titulo}`}
                                 >
-                                    Publicar formulário?
+                                    {t("config.publish.title")}
                                 </h2>
 
                                 <p
                                     className={`mt-2 text-sm leading-6 ${c.texto}`}
                                 >
-                                    Depois de publicar,
-                                    pessoas com o link
-                                    poderão preencher e
-                                    enviar seus dados.
+                                    {t("config.publish.description")}
                                 </p>
                             </div>
                         </div>
@@ -2127,7 +2243,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                 }
                                 className={`rounded-xl border px-4 py-2.5 text-sm font-semibold disabled:opacity-60 ${c.botaoSecundario}`}
                             >
-                                Cancelar
+                                {t("common.cancel")}
                             </button>
 
                             <button
@@ -2141,8 +2257,8 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                 className="rounded-xl bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
                             >
                                 {publicando
-                                    ? "Publicando..."
-                                    : "Publicar agora"}
+                                    ? t("config.publish.publishing")
+                                    : t("config.publish.publishNow")}
                             </button>
                         </div>
                     </div>
@@ -2172,16 +2288,16 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                     className={`text-xl font-bold ${c.titulo}`}
                                 >
                                     {campoEmEdicao
-                                        ? "Editar campo"
-                                        : "Adicionar campo"}
+                                        ? t("config.fieldModal.editTitle")
+                                        : t("config.fieldModal.addTitle")}
                                 </h2>
 
                                 <p
                                     className={`mt-1 text-sm ${c.muted}`}
                                 >
                                     {campoEmEdicao
-                                        ? "Ajuste como esta informação será solicitada ao interessado."
-                                        : "Defina o que o interessado deverá informar."}
+                                        ? t("config.fieldModal.editDescription")
+                                        : t("config.fieldModal.addDescription")}
                                 </p>
                             </div>
 
@@ -2214,7 +2330,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                 <label
                                     className={`text-sm font-semibold ${c.titulo}`}
                                 >
-                                    Qual informação você quer pedir?
+                                    {t("config.fieldModal.mappingLabel")}
                                 </label>
 
                                 <select
@@ -2232,6 +2348,12 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                         )
                                     }
                                     className={`mt-2 w-full rounded-xl border px-3 py-2.5 text-sm ${c.input}`}
+                                    style={{
+                                        colorScheme:
+                                            temaEscuro
+                                                ? "dark"
+                                                : "light",
+                                    }}
                                 >
                                     {dados
                                         .mapeamentosDisponiveis
@@ -2255,7 +2377,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                                         item
                                                     }
                                                 >
-                                                    {nomeMapeamento(
+                                                    {nomeMapeamentoUi(
                                                         item
                                                     )}
                                                 </option>
@@ -2266,7 +2388,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                 <p
                                     className={`mt-1 text-xs ${c.muted}`}
                                 >
-                                    Escolha a informação que deseja solicitar. O PHANYX configura automaticamente como ela será usada.
+                                    {t("config.fieldModal.mappingHelp")}
                                 </p>
                             </div>
 
@@ -2301,13 +2423,13 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                                 <p
                                                     className={`text-sm font-semibold ${c.titulo}`}
                                                 >
-                                                    Como aparecerá para o interessado
+                                                    {t("config.fieldModal.previewTitle")}
                                                 </p>
 
                                                 <p
                                                     className={`mt-0.5 text-xs ${c.muted}`}
                                                 >
-                                                    O PHANYX preparou este campo automaticamente.
+                                                    {t("config.fieldModal.previewHelp")}
                                                 </p>
                                             </div>
                                         </div>
@@ -2359,7 +2481,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                                                         : "mt-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-800"
                                                                 }
                                                             >
-                                                                ⚠️ Nenhuma unidade ativa está disponível no momento.
+                                                                ⚠️ {t("config.fieldModal.noUnits")}
                                                             </div>
                                                         ) : dados.referencias.polos.length ===
                                                             1 ? (
@@ -2367,7 +2489,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                                                 className={`mt-2 rounded-xl border px-3 py-3 text-sm ${c.input}`}
                                                             >
                                                                 <p className={`text-xs ${c.muted}`}>
-                                                                    Unidade selecionada automaticamente
+                                                                    {t("config.fieldModal.autoUnit")}
                                                                 </p>
 
                                                                 <p
@@ -2384,12 +2506,18 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                                                 <select
                                                                     defaultValue=""
                                                                     className={`mt-2 w-full cursor-pointer rounded-xl border px-3 py-2.5 text-sm ${c.input}`}
+                                                                    style={{
+                                                                        colorScheme:
+                                                                            temaEscuro
+                                                                                ? "dark"
+                                                                                : "light",
+                                                                    }}
                                                                 >
                                                                     <option
                                                                         value=""
                                                                         disabled
                                                                     >
-                                                                        Selecione uma unidade
+                                                                        {t("config.defaults.unit.placeholder")}
                                                                     </option>
 
                                                                     {dados.referencias.polos.map(
@@ -2407,7 +2535,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                                                 <p
                                                                     className={`mt-1.5 text-xs ${c.muted}`}
                                                                 >
-                                                                    Pré-visualização. A escolha feita aqui não será salva.
+                                                                    {t("config.fieldModal.previewNotSaved")}
                                                                 </p>
                                                             </div>
                                                         )
@@ -2423,7 +2551,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                                                 }
                                                             >
                                                                 {formularioCampo.placeholder ||
-                                                                    "Preencha aqui"}
+                                                                    t("config.fieldModal.fillHere")}
                                                             </span>
                                                         </div>
                                                     )}
@@ -2448,7 +2576,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                         <summary
                                             className={`cursor-pointer px-4 py-3 text-sm font-semibold ${c.titulo}`}
                                         >
-                                            Personalizar como aparece
+                                            {t("config.fieldModal.customizeAppearance")}
                                         </summary>
 
 
@@ -2460,7 +2588,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                                 <label
                                                     className={`text-sm font-semibold ${c.titulo}`}
                                                 >
-                                                    Pergunta ou nome exibido
+                                                    {t("config.fieldModal.displayLabel")}
                                                 </label>
 
                                                 <input
@@ -2482,7 +2610,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                                 <label
                                                     className={`text-sm font-semibold ${c.titulo}`}
                                                 >
-                                                    Tamanho na tela
+                                                    {t("config.fieldModal.width")}
                                                 </label>
 
                                                 <select
@@ -2498,19 +2626,19 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                                     className={`mt-2 w-full rounded-xl border px-3 py-2.5 text-sm ${c.input}`}
                                                 >
                                                     <option value="12">
-                                                        Linha inteira
+                                                        {t("shared.widths.full")}
                                                     </option>
 
                                                     <option value="6">
-                                                        Metade da linha
+                                                        {t("shared.widths.half")}
                                                     </option>
 
                                                     <option value="4">
-                                                        Um terço
+                                                        {t("shared.widths.third")}
                                                     </option>
 
                                                     <option value="3">
-                                                        Um quarto
+                                                        {t("shared.widths.quarter")}
                                                     </option>
                                                 </select>
                                             </div>
@@ -2522,7 +2650,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                                             <label
                                                                 className={`text-sm font-semibold ${c.titulo}`}
                                                             >
-                                                                Exemplo mostrado no campo
+                                                                {t("config.fieldModal.placeholderLabel")}
                                                             </label>
 
                                                             <input
@@ -2544,7 +2672,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                                             <label
                                                                 className={`text-sm font-semibold ${c.titulo}`}
                                                             >
-                                                                Orientação para quem vai preencher
+                                                                {t("config.fieldModal.helpLabel")}
                                                             </label>
 
                                                             <textarea
@@ -2572,7 +2700,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                         <label
                                             className={`text-sm font-semibold ${c.titulo}`}
                                         >
-                                            Pergunta ou nome exibido *
+                                            {t("config.fieldModal.displayLabel")} *
                                         </label>
 
                                         <input
@@ -2586,7 +2714,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                                     event.target.value
                                                 )
                                             }
-                                            placeholder="Ex.: Como podemos ajudar?"
+                                            placeholder={t("config.fieldModal.customQuestionPlaceholder")}
                                             className={`mt-2 w-full rounded-xl border px-3 py-2.5 text-sm ${c.input}`}
                                             required
                                         />
@@ -2597,7 +2725,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                             <label
                                                 className={`text-sm font-semibold ${c.titulo}`}
                                             >
-                                                Que tipo de resposta deseja receber?
+                                                {t("config.fieldModal.answerType")}
                                             </label>
 
                                             <select
@@ -2618,7 +2746,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                                             key={tipo}
                                                             value={tipo}
                                                         >
-                                                            {nomeTipo(tipo)}
+                                                            {nomeTipoUi(tipo)}
                                                         </option>
                                                     )
                                                 )}
@@ -2629,7 +2757,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                             <label
                                                 className={`text-sm font-semibold ${c.titulo}`}
                                             >
-                                                Tamanho na tela
+                                                {t("config.fieldModal.width")}
                                             </label>
 
                                             <select
@@ -2645,19 +2773,19 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                                 className={`mt-2 w-full rounded-xl border px-3 py-2.5 text-sm ${c.input}`}
                                             >
                                                 <option value="12">
-                                                    Linha inteira
+                                                    {t("shared.widths.full")}
                                                 </option>
 
                                                 <option value="6">
-                                                    Metade da linha
+                                                    {t("shared.widths.half")}
                                                 </option>
 
                                                 <option value="4">
-                                                    Um terço
+                                                    {t("shared.widths.third")}
                                                 </option>
 
                                                 <option value="3">
-                                                    Um quarto
+                                                    {t("shared.widths.quarter")}
                                                 </option>
                                             </select>
                                         </div>
@@ -2667,7 +2795,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                         <label
                                             className={`text-sm font-semibold ${c.titulo}`}
                                         >
-                                            Exemplo para ajudar no preenchimento
+                                            {t("config.fieldModal.placeholderHelp")}
                                         </label>
 
                                         <input
@@ -2681,7 +2809,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                                     event.target.value
                                                 )
                                             }
-                                            placeholder="Opcional"
+                                            placeholder={t("common.optional")}
                                             className={`mt-2 w-full rounded-xl border px-3 py-2.5 text-sm ${c.input}`}
                                         />
                                     </div>
@@ -2690,7 +2818,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                         <label
                                             className={`text-sm font-semibold ${c.titulo}`}
                                         >
-                                            Orientação para quem vai preencher
+                                            {t("config.fieldModal.helpLabel")}
                                         </label>
 
                                         <textarea
@@ -2704,7 +2832,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                                     event.target.value
                                                 )
                                             }
-                                            placeholder="Opcional"
+                                            placeholder={t("common.optional")}
                                             className={`mt-2 w-full rounded-xl border px-3 py-2.5 text-sm ${c.input}`}
                                         />
                                     </div>
@@ -2725,14 +2853,14 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                         }
                                     >
                                         <p className="font-semibold">
-                                            ✓ Lista atualizada automaticamente
+                                            ✓ {t("config.fieldModal.autoListTitle")}
                                         </p>
 
                                         <p className="mt-1 leading-6">
                                             {formularioCampo.mapeamento ===
                                                 "CURSO_INTERESSE_ID"
-                                                ? "O PHANYX exibirá automaticamente os cursos ativos da instituição. Você não precisa cadastrar as opções manualmente."
-                                                : "O PHANYX verificará as unidades disponíveis automaticamente. Se houver apenas uma, ela será selecionada sem perguntar ao interessado. Se houver várias, o formulário mostrará as opções para escolha."}
+                                                ? t("config.fieldModal.autoCourseDescription")
+                                                : t("config.fieldModal.autoUnitDescription")}
                                         </p>
                                     </div>
                                 )}
@@ -2745,13 +2873,13 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                         <label
                                             className={`text-sm font-semibold ${c.titulo}`}
                                         >
-                                            Opções
+                                            {t("config.fieldModal.options")}
                                         </label>
 
                                         <p
                                             className={`mt-1 text-xs ${c.muted}`}
                                         >
-                                            Digite uma opção por linha.
+                                            {t("config.fieldModal.optionsHelp")}
                                         </p>
 
                                         <textarea
@@ -2770,7 +2898,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                                         .value
                                                 )
                                             }
-                                            placeholder={"Opção 1\nOpção 2\nOpção 3"}
+                                            placeholder={t("config.fieldModal.optionsPlaceholder")}
                                             className={`mt-2 w-full rounded-xl border px-3 py-2.5 text-sm ${c.input}`}
                                         />
                                     </div>
@@ -2802,13 +2930,13 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                     <p
                                         className={`text-sm font-semibold ${c.titulo}`}
                                     >
-                                        Preenchimento obrigatório
+                                        {t("config.fieldModal.requiredTitle")}
                                     </p>
 
                                     <p
                                         className={`mt-1 text-xs ${c.muted}`}
                                     >
-                                        O interessado não poderá enviar o formulário sem preencher este campo.
+                                        {t("config.fieldModal.requiredHelp")}
                                     </p>
                                 </div>
                             </label>
@@ -2819,13 +2947,13 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                 <summary
                                     className={`cursor-pointer text-sm font-semibold ${c.titulo}`}
                                 >
-                                    Configurações técnicas
+                                    {t("config.fieldModal.technicalSettings")}
                                 </summary>
 
                                 <p
                                     className={`mb-4 text-xs leading-5 ${c.muted}`}
                                 >
-                                    Esta área normalmente não precisa ser alterada.
+                                    {t("config.fieldModal.technicalHelp")}
                                 </p>
 
                                 <div className="mt-4 space-y-4">
@@ -2833,7 +2961,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                         <label
                                             className={`text-xs font-semibold ${c.titulo}`}
                                         >
-                                            Identificador interno
+                                            {t("config.fieldModal.internalKey")}
                                         </label>
 
                                         <input
@@ -2852,13 +2980,13 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                                         .value
                                                 )
                                             }
-                                            placeholder="Gerada automaticamente"
+                                            placeholder={t("config.fieldModal.internalKeyPlaceholder")}
                                             className={`mt-1 w-full rounded-xl border px-3 py-2.5 text-sm ${c.input}`}
                                         />
                                         <p
                                             className={`mt-1 text-xs ${c.muted}`}
                                         >
-                                            O PHANYX usa este identificador internamente. Evite alterá-lo depois que o formulário começar a receber respostas.
+                                            {t("config.fieldModal.internalKeyHelp")}
                                         </p>
                                     </div>
 
@@ -2878,7 +3006,7 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                     }
                                     className={`rounded-xl border px-4 py-2.5 text-sm font-semibold ${c.botaoSecundario}`}
                                 >
-                                    Cancelar
+                                    {t("common.cancel")}
                                 </button>
 
                                 <button
@@ -2886,18 +3014,18 @@ export default function ConfigurarFormularioCaptacaoPage() {
                                     disabled={
                                         salvando
                                     }
-                                    className="rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-60"
+                                    className={`rounded-xl px-5 py-2.5 text-sm font-semibold disabled:opacity-60 ${c.botaoPrimario}`}
                                 >
                                     {salvando
                                         ? (
                                             campoEmEdicao
-                                                ? "Salvando..."
-                                                : "Adicionando..."
+                                                ? t("common.saving")
+                                                : t("config.fieldModal.adding")
                                         )
                                         : (
                                             campoEmEdicao
-                                                ? "Salvar alterações"
-                                                : "Adicionar campo"
+                                                ? t("common.saveChanges")
+                                                : t("config.actions.addField")
                                         )}
                                 </button>
                             </div>
