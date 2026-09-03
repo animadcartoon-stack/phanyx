@@ -9256,10 +9256,19 @@ export default function AdminStudentSuccessPage() {
                                 "intervention.timeline.closed"
                               );
 
-                        const classificacao =
-                          evento.evolucao
-                            ?.classificacao ??
-                          null;
+                        const possuiFotografiaAcademica =
+                          evento.risco !==
+                          null &&
+                          (
+                            evento.risco.nivel !==
+                            null ||
+                            evento.risco.pontuacao !==
+                            null ||
+                            evento.risco.cobertura !==
+                            null ||
+                            evento.risco.confiabilidade !==
+                            null
+                          );
 
                         const podeAtualizar =
                           registrada &&
@@ -9504,7 +9513,8 @@ export default function AdminStudentSuccessPage() {
                               ) : null}
 
                               {/* FOTOGRAFIA ACADÊMICA */}
-                              {evento.risco ? (
+                              {possuiFotografiaAcademica &&
+                                evento.risco ? (
                                 <div
                                   className="
                       phanyx-student-success-timeline-snapshot
@@ -9691,65 +9701,6 @@ export default function AdminStudentSuccessPage() {
                                       evento.resultado
                                     }
                                   </p>
-                                </div>
-                              ) : null}
-
-                              {/* EVOLUÇÃO */}
-                              {encerrada &&
-                                classificacao ? (
-                                <div
-                                  className={[
-                                    "phanyx-student-success-timeline-evolution mt-4 rounded-xl border px-3 py-2 text-xs font-bold",
-
-                                    classificacao ===
-                                      "POSITIVA"
-                                      ? "phanyx-student-success-timeline-evolution-positive"
-                                      : classificacao ===
-                                        "NEGATIVA"
-                                        ? "phanyx-student-success-timeline-evolution-negative"
-                                        : classificacao ===
-                                          "NEUTRA"
-                                          ? "phanyx-student-success-timeline-evolution-neutral"
-                                          : "phanyx-student-success-timeline-evolution-unavailable",
-                                  ].join(
-                                    " "
-                                  )}
-                                >
-                                  <span
-                                    aria-hidden="true"
-                                  >
-                                    {classificacao ===
-                                      "POSITIVA"
-                                      ? "✓ "
-                                      : classificacao ===
-                                        "NEGATIVA"
-                                        ? "⚠ "
-                                        : "• "}
-                                  </span>
-
-                                  {t(
-                                    "intervention.timeline.evolution"
-                                  )}
-                                  :{" "}
-
-                                  {classificacao ===
-                                    "POSITIVA"
-                                    ? t(
-                                      "intervention.timeline.positive"
-                                    )
-                                    : classificacao ===
-                                      "NEGATIVA"
-                                      ? t(
-                                        "intervention.timeline.negative"
-                                      )
-                                      : classificacao ===
-                                        "NEUTRA"
-                                        ? t(
-                                          "intervention.timeline.neutral"
-                                        )
-                                        : t(
-                                          "intervention.timeline.notMeasurable"
-                                        )}
                                 </div>
                               ) : null}
 

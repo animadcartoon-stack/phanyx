@@ -964,6 +964,9 @@ export default function TransporteAtividadeExterna({
               false
             )
           }
+          onCadastrosAlterados={
+            carregar
+          }
         />
       ) : null}
 

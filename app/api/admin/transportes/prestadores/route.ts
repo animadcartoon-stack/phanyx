@@ -4,12 +4,22 @@ import {
 } from "@prisma/client";
 
 import {
+  getCountries,
+  type CountryCode,
+} from "libphonenumber-js";
+
+import {
   NextRequest,
   NextResponse,
 } from "next/server";
 
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
+
+import {
+  normalizarTelefoneE164,
+  telefoneValidoInternacional,
+} from "@/lib/internacionalizacao/telefone";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -104,7 +114,7 @@ async function obterContextoUsuario(): Promise<
       funcionario &&
       funcionario.ativo &&
       funcionario.statusFuncionario ===
-        "ATIVO"
+      "ATIVO"
     ) {
       const permissoes =
         new Set([
@@ -206,6 +216,188 @@ function converterData(
   return data;
 }
 
+const PAISES_VALIDOS =
+  new Set<CountryCode>(
+    getCountries()
+  );
+
+function converterPais(
+  valor: unknown
+): CountryCode | null | undefined {
+  if (
+    valor === null ||
+    valor === undefined ||
+    valor === ""
+  ) {
+    return null;
+  }
+
+  if (
+    typeof valor !== "string"
+  ) {
+    return undefined;
+  }
+
+  const codigo =
+    valor
+      .trim()
+      .toUpperCase() as CountryCode;
+
+  if (
+    !PAISES_VALIDOS.has(
+      codigo
+    )
+  ) {
+    return undefined;
+  }
+
+  return codigo;
+}
+
+function codigoPostalValido(
+  valor: string,
+  pais: CountryCode | null
+) {
+  if (!valor.trim()) {
+    return true;
+  }
+
+  if (!pais) {
+    return false;
+  }
+
+  const limpo =
+    valor
+      .toUpperCase()
+      .replace(
+        /[^A-Z0-9 -]/g,
+        ""
+      );
+
+  const digitos =
+    limpo.replace(
+      /\D/g,
+      ""
+    );
+
+  if (pais === "BR") {
+    return (
+      digitos.length === 8
+    );
+  }
+
+  if (pais === "PT") {
+    return (
+      digitos.length === 7
+    );
+  }
+
+  if (pais === "US") {
+    return (
+      digitos.length === 5 ||
+      digitos.length === 9
+    );
+  }
+
+  if (
+    pais === "ES" ||
+    pais === "FR"
+  ) {
+    return (
+      digitos.length === 5
+    );
+  }
+
+  const tamanho =
+    limpo.replace(
+      /\s/g,
+      ""
+    ).length;
+
+  return (
+    tamanho >= 3 &&
+    tamanho <= 16
+  );
+}
+
+function normalizarTelefoneOpcional(
+  valor: unknown,
+  pais: CountryCode | null
+): {
+  valor: string | null;
+  erro?: string;
+} {
+  const texto =
+    limparTexto(
+      valor,
+      80
+    );
+
+  if (!texto) {
+    return {
+      valor: null,
+    };
+  }
+
+  /*
+   * Se vier número local,
+   * precisamos saber o país.
+   *
+   * Se vier +55..., +351...,
+   * a própria biblioteca
+   * identifica o país.
+   */
+  if (
+    !pais &&
+    !texto.startsWith("+")
+  ) {
+    return {
+      valor: null,
+      erro:
+        "PAIS_TELEFONE_OBRIGATORIO",
+    };
+  }
+
+  /*
+   * Quando começa com +,
+   * o país base é ignorado
+   * pelo parser internacional.
+   */
+  const paisBase =
+    pais ?? "BR";
+
+  if (
+    !telefoneValidoInternacional(
+      texto,
+      paisBase
+    )
+  ) {
+    return {
+      valor: null,
+      erro:
+        "TELEFONE_INVALIDO",
+    };
+  }
+
+  const e164 =
+    normalizarTelefoneE164(
+      texto,
+      paisBase
+    );
+
+  if (!e164) {
+    return {
+      valor: null,
+      erro:
+        "TELEFONE_INVALIDO",
+    };
+  }
+
+  return {
+    valor: e164,
+  };
+}
+
 export async function GET() {
   try {
     const usuario =
@@ -241,7 +433,15 @@ export async function GET() {
 
             tipo: true,
 
+            paisCodigo: true,
             pais: true,
+            codigoPostal: true,
+
+            endereco: true,
+            numero: true,
+            complemento: true,
+            bairro: true,
+
             regiao: true,
             cidade: true,
 
@@ -323,13 +523,13 @@ export async function GET() {
           "ERRO_INTERNO",
 
         ...(process.env.NODE_ENV !==
-        "production"
+          "production"
           ? {
-              detalhe:
-                error instanceof Error
-                  ? error.message
-                  : String(error),
-            }
+            detalhe:
+              error instanceof Error
+                ? error.message
+                : String(error),
+          }
           : {}),
       },
       {
@@ -441,7 +641,7 @@ export async function POST(
       String(
         corpo
           ?.verificacaoTransporteEstudantil ||
-          "NAO_VERIFICADO"
+        "NAO_VERIFICADO"
       ).trim();
 
     if (
@@ -456,6 +656,138 @@ export async function POST(
           ok: false,
           error:
             "VERIFICACAO_INVALIDA",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const paisCodigo =
+      converterPais(
+        corpo?.paisCodigo
+      );
+
+    if (
+      paisCodigo === undefined
+    ) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error:
+            "PAIS_INVALIDO",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const codigoPostal =
+      limparTexto(
+        corpo?.codigoPostal,
+        32
+      );
+
+    if (
+      codigoPostal &&
+      !codigoPostalValido(
+        codigoPostal,
+        paisCodigo
+      )
+    ) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error:
+            "CODIGO_POSTAL_INVALIDO",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const paisTelefone =
+      converterPais(
+        corpo?.paisTelefone
+      );
+
+    if (
+      paisTelefone === undefined
+    ) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error:
+            "PAIS_TELEFONE_INVALIDO",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const paisTelefoneResponsavel =
+      converterPais(
+        corpo?.paisTelefoneResponsavel
+      );
+
+    if (
+      paisTelefoneResponsavel ===
+      undefined
+    ) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error:
+            "PAIS_TELEFONE_RESPONSAVEL_INVALIDO",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const telefone =
+      normalizarTelefoneOpcional(
+        corpo?.telefone,
+        paisTelefone ??
+        paisCodigo
+      );
+
+    if (telefone.erro) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error:
+            telefone.erro,
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const telefoneResponsavel =
+      normalizarTelefoneOpcional(
+        corpo
+          ?.telefoneResponsavelContato,
+        paisTelefoneResponsavel ??
+        paisCodigo
+      );
+
+    if (
+      telefoneResponsavel.erro
+    ) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error:
+            telefoneResponsavel.erro ===
+              "TELEFONE_INVALIDO"
+              ? "TELEFONE_RESPONSAVEL_INVALIDO"
+              : "PAIS_TELEFONE_RESPONSAVEL_OBRIGATORIO",
         },
         {
           status: 400,
@@ -524,10 +856,38 @@ export async function POST(
             tipo:
               tipoTexto as TipoPrestadorTransporte,
 
+            paisCodigo,
+
             pais:
               limparTexto(
                 corpo?.pais,
                 120
+              ),
+
+            codigoPostal,
+
+            endereco:
+              limparTexto(
+                corpo?.endereco,
+                300
+              ),
+
+            numero:
+              limparTexto(
+                corpo?.numero,
+                80
+              ),
+
+            complemento:
+              limparTexto(
+                corpo?.complemento,
+                200
+              ),
+
+            bairro:
+              limparTexto(
+                corpo?.bairro,
+                160
               ),
 
             regiao:
@@ -543,10 +903,7 @@ export async function POST(
               ),
 
             telefone:
-              limparTexto(
-                corpo?.telefone,
-                80
-              ),
+              telefone.valor,
 
             email:
               limparTexto(
@@ -568,11 +925,7 @@ export async function POST(
               ),
 
             telefoneResponsavelContato:
-              limparTexto(
-                corpo
-                  ?.telefoneResponsavelContato,
-                80
-              ),
+  telefoneResponsavel.valor,
 
             emailResponsavelContato:
               limparTexto(
@@ -659,13 +1012,13 @@ export async function POST(
           "ERRO_INTERNO",
 
         ...(process.env.NODE_ENV !==
-        "production"
+          "production"
           ? {
-              detalhe:
-                error instanceof Error
-                  ? error.message
-                  : String(error),
-            }
+            detalhe:
+              error instanceof Error
+                ? error.message
+                : String(error),
+          }
           : {}),
       },
       {

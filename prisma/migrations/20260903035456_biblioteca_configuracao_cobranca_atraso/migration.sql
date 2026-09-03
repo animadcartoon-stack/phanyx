@@ -1,0 +1,6 @@
+ALTER TABLE "BibliotecaConfiguracao"
+ADD COLUMN "cobrarMultaPorAtraso" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN "valorMultaPorDia" DECIMAL(10,2) NOT NULL DEFAULT 0,
+ADD COLUMN "diasCarenciaAtraso" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN "limiteMultaPorAtraso" DECIMAL(10,2),
+ADD COLUMN "diasVencimentoCobranca" INTEGER NOT NULL DEFAULT 7;

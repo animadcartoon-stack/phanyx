@@ -35252,3 +35252,11 @@ html[data-theme="system"]
 .phanyx-student-success-timeline-update:hover {
   transform: translateY(-1px);
 }
+
+.phanyx-config-certificado-page[data-cert-theme="dark"] .phanyx-cert-upload-title {
+  color: #93c5fd !important;
+}
+
+.phanyx-config-certificado-page[data-cert-theme="system-dark"] .phanyx-cert-upload-title {
+  color: #bfdbfe !important;
+}

@@ -5837,9 +5837,14 @@ model BibliotecaConfiguracao {
   limiteRenovacoes     Int @default(1)
   limiteEmprestimos    Int @default(3)
 
-  notificarVencimento       Boolean @default(true)
-  diasAvisoAntesVencimento  Int     @default(2)
-  bloquearAlunoComPendencia Boolean @default(false)
+  notificarVencimento       Boolean  @default(true)
+  diasAvisoAntesVencimento  Int      @default(2)
+  bloquearAlunoComPendencia Boolean  @default(false)
+  cobrarMultaPorAtraso      Boolean  @default(false)
+  valorMultaPorDia          Decimal  @default(0) @db.Decimal(10, 2)
+  diasCarenciaAtraso        Int      @default(0)
+  limiteMultaPorAtraso      Decimal? @db.Decimal(10, 2)
+  diasVencimentoCobranca    Int      @default(7)
 
   logoUrl             String?
   bannerUrl           String?
@@ -9815,9 +9820,17 @@ model PrestadorTransporte {
 
   tipo TipoPrestadorTransporte
 
-  pais   String?
-  regiao String?
+  paisCodigo   String? @db.VarChar(2)
+  pais         String?
+  codigoPostal String?
+
+  endereco    String?
+  numero      String?
+  complemento String?
+  bairro      String?
+
   cidade String?
+  regiao String?
 
   telefone String?
   email    String?

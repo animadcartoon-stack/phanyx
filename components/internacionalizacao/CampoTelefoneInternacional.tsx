@@ -258,7 +258,7 @@ export default function CampoTelefoneInternacional({
               (atual) => !atual
             )
           }
-          className="flex shrink-0 items-center gap-2 rounded-l-xl border-r border-slate-300 px-3 py-3 text-left text-sm font-medium text-slate-800 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:text-slate-100 dark:hover:bg-slate-800"
+          className="flex shrink-0 items-center gap-2 rounded-l-xl border-r border-slate-300 bg-white px-3 py-3 text-left text-sm font-medium text-slate-800 transition hover:!bg-slate-100 hover:!text-slate-950 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:!bg-slate-800 dark:hover:!text-white"
           aria-expanded={aberto}
           aria-haspopup="listbox"
           aria-label={t(

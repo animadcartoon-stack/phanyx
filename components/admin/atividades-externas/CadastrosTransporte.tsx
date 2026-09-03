@@ -2,32 +2,74 @@
 
 import {
   useEffect,
+  useMemo,
+  useRef,
   useState,
 } from "react";
 
-import { useTranslations } from "next-intl";
+import {
+  useLocale,
+  useTranslations,
+} from "next-intl";
+
+import {
+  getCountries,
+  type CountryCode,
+} from "libphonenumber-js";
+
+import CampoTelefoneInternacional from "@/components/internacionalizacao/CampoTelefoneInternacional";
 
 type AbaCadastro =
   | "prestadores"
   | "veiculos"
   | "condutores";
 
+type TipoPrestador =
+  | "RODOVIARIO"
+  | "AEREO"
+  | "FERROVIARIO"
+  | "MARITIMO"
+  | "MOBILIDADE_AUTONOMA"
+  | "MULTIMODAL"
+  | "OUTRO";
+
+type VerificacaoEstudantil =
+  | "NAO_VERIFICADO"
+  | "VERIFICADO"
+  | "NAO_AUTORIZADO"
+  | "NAO_APLICAVEL";
+
 type Prestador = {
   id: number;
   nome: string;
   nomeFantasia?: string | null;
-  tipo: string;
+  tipo: TipoPrestador;
+
+  pais?: string | null;
+  regiao?: string | null;
+  cidade?: string | null;
+
+  telefone?: string | null;
+  email?: string | null;
+
   ativo: boolean;
 };
 
 type Veiculo = {
   id: number;
+
   nomeIdentificacao?: string | null;
+
   tipo: string;
+
   marca?: string | null;
   modelo?: string | null;
   placa?: string | null;
-  capacidadePassageiros?: number | null;
+
+  capacidadePassageiros?:
+  | number
+  | null;
+
   ativo: boolean;
 
   prestadorTransporte?: {
@@ -39,10 +81,15 @@ type Veiculo = {
 
 type Condutor = {
   id: number;
+
   nome: string;
+
   tipo: string;
+
   telefone?: string | null;
+
   numeroLicenca?: string | null;
+
   ativo: boolean;
 
   prestadorTransporte?: {
@@ -52,11 +99,418 @@ type Condutor = {
   } | null;
 };
 
+type FormularioPrestador = {
+  nome: string;
+  nomeFantasia: string;
+
+  tipo: TipoPrestador;
+
+  paisCodigo: CountryCode;
+  pais: string;
+
+  codigoPostal: string;
+
+  endereco: string;
+  numero: string;
+  complemento: string;
+  bairro: string;
+
+  cidade: string;
+  regiao: string;
+
+  telefone: string;
+  paisTelefone: CountryCode;
+
+  email: string;
+  site: string;
+
+  responsavelContato: string;
+
+  telefoneResponsavelContato:
+  string;
+
+  paisTelefoneResponsavel:
+  CountryCode;
+
+  emailResponsavelContato:
+  string;
+
+  tipoDocumento: string;
+  numeroDocumento: string;
+
+  numeroLicenca: string;
+  licencaValidaAte: string;
+
+  numeroApolice: string;
+  seguroValidoAte: string;
+
+  verificacaoTransporteEstudantil:
+  VerificacaoEstudantil;
+
+  permiteSubcontratacao:
+  boolean;
+
+  observacao: string;
+};
+
+type OpcaoSelect = {
+  value: string;
+  label: string;
+};
+
+const TIPOS_PRESTADOR:
+  TipoPrestador[] = [
+    "RODOVIARIO",
+    "AEREO",
+    "FERROVIARIO",
+    "MARITIMO",
+    "MOBILIDADE_AUTONOMA",
+    "MULTIMODAL",
+    "OUTRO",
+  ];
+
+const VERIFICACOES:
+  VerificacaoEstudantil[] = [
+    "NAO_VERIFICADO",
+    "VERIFICADO",
+    "NAO_AUTORIZADO",
+    "NAO_APLICAVEL",
+  ];
+
+const PAIS_POR_LOCALE:
+  Record<string, CountryCode> = {
+  "pt-BR": "BR",
+  "pt-PT": "PT",
+  "en-US": "US",
+  "es-ES": "ES",
+  "fr-FR": "FR",
+};
+
+function paisInicial(
+  locale: string
+): CountryCode {
+  return (
+    PAIS_POR_LOCALE[
+    locale
+    ] ?? "BR"
+  );
+}
+
+function nomeDoPais(
+  codigo: CountryCode,
+  locale: string
+) {
+  try {
+    const nomes =
+      new Intl.DisplayNames(
+        [locale],
+        {
+          type: "region",
+        }
+      );
+
+    return (
+      nomes.of(codigo) ||
+      codigo
+    );
+  } catch {
+    return codigo;
+  }
+}
+
+function criarFormularioPrestadorInicial(
+  locale: string
+): FormularioPrestador {
+  const codigo =
+    paisInicial(locale);
+
+  return {
+    nome: "",
+    nomeFantasia: "",
+
+    tipo: "RODOVIARIO",
+
+    paisCodigo: codigo,
+    pais: nomeDoPais(
+      codigo,
+      locale
+    ),
+
+    codigoPostal: "",
+
+    endereco: "",
+    numero: "",
+    complemento: "",
+    bairro: "",
+
+    cidade: "",
+    regiao: "",
+
+    telefone: "",
+    paisTelefone: codigo,
+
+    email: "",
+    site: "",
+
+    responsavelContato: "",
+
+    telefoneResponsavelContato:
+      "",
+
+    paisTelefoneResponsavel:
+      codigo,
+
+    emailResponsavelContato:
+      "",
+
+    tipoDocumento: "",
+    numeroDocumento: "",
+
+    numeroLicenca: "",
+    licencaValidaAte: "",
+
+    numeroApolice: "",
+    seguroValidoAte: "",
+
+    verificacaoTransporteEstudantil:
+      "NAO_VERIFICADO",
+
+    permiteSubcontratacao:
+      false,
+
+    observacao: "",
+  };
+}
+
+function formatarCodigoPostal(
+  valor: string,
+  pais: CountryCode
+) {
+  const limpo =
+    valor
+      .toUpperCase()
+      .replace(
+        /[^A-Z0-9 -]/g,
+        ""
+      );
+
+  const digitos =
+    limpo.replace(
+      /\D/g,
+      ""
+    );
+
+  if (pais === "BR") {
+    return digitos
+      .slice(0, 8)
+      .replace(
+        /^(\d{5})(\d)/,
+        "$1-$2"
+      );
+  }
+
+  if (pais === "PT") {
+    return digitos
+      .slice(0, 7)
+      .replace(
+        /^(\d{4})(\d)/,
+        "$1-$2"
+      );
+  }
+
+  if (pais === "US") {
+    return digitos
+      .slice(0, 9)
+      .replace(
+        /^(\d{5})(\d)/,
+        "$1-$2"
+      );
+  }
+
+  if (
+    pais === "ES" ||
+    pais === "FR"
+  ) {
+    return digitos.slice(
+      0,
+      5
+    );
+  }
+
+  return limpo
+    .replace(
+      /\s+/g,
+      " "
+    )
+    .slice(0, 16);
+}
+
+function SelectCadastro({
+  value,
+  onChange,
+  options,
+}: {
+  value: string;
+
+  onChange: (
+    value: string
+  ) => void;
+
+  options: OpcaoSelect[];
+}) {
+  const [
+    aberto,
+    setAberto,
+  ] = useState(false);
+
+  const ref =
+    useRef<HTMLDivElement>(
+      null
+    );
+
+  useEffect(() => {
+    function fecharFora(
+      event: MouseEvent
+    ) {
+      if (
+        ref.current &&
+        !ref.current.contains(
+          event.target as Node
+        )
+      ) {
+        setAberto(false);
+      }
+    }
+
+    document.addEventListener(
+      "mousedown",
+      fecharFora
+    );
+
+    return () =>
+      document.removeEventListener(
+        "mousedown",
+        fecharFora
+      );
+  }, []);
+
+  const selecionada =
+    options.find(
+      (option) =>
+        option.value === value
+    );
+
+  return (
+    <div
+      ref={ref}
+      className="phanyx-transporte-select relative"
+    >
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={aberto}
+        onClick={() =>
+          setAberto(
+            (atual) => !atual
+          )
+        }
+        className="phanyx-transporte-select-trigger flex min-h-[44px] w-full items-center justify-between gap-3 rounded-xl border px-3.5 py-2.5 text-left text-sm font-medium"
+      >
+        <span className="truncate">
+          {
+            selecionada?.label
+          }
+        </span>
+
+        <span
+          aria-hidden="true"
+          className={[
+            "shrink-0 text-[10px] transition-transform",
+            aberto
+              ? "rotate-180"
+              : "",
+          ].join(" ")}
+        >
+          ▼
+        </span>
+      </button>
+
+      {aberto ? (
+        <div
+          role="listbox"
+          className="phanyx-transporte-select-menu absolute left-0 right-0 top-[calc(100%+6px)] z-[100] max-h-72 overflow-y-auto rounded-xl border p-1.5 shadow-xl"
+        >
+          {options.map(
+            (option) => {
+              const ativo =
+                option.value ===
+                value;
+
+              return (
+                <button
+                  key={
+                    option.value
+                  }
+                  type="button"
+                  role="option"
+                  aria-selected={
+                    ativo
+                  }
+                  onClick={() => {
+                    onChange(
+                      option.value
+                    );
+
+                    setAberto(
+                      false
+                    );
+                  }}
+                  className={[
+                    "phanyx-transporte-select-option",
+                    ativo
+                      ? "is-selected"
+                      : "",
+                  ]
+                    .filter(
+                      Boolean
+                    )
+                    .join(" ")}
+                >
+                  <span>
+                    {
+                      option.label
+                    }
+                  </span>
+
+                  {ativo ? (
+                    <span>
+                      ✓
+                    </span>
+                  ) : null}
+                </button>
+              );
+            }
+          )}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export default function CadastrosTransporte({
   onFechar,
+  onCadastrosAlterados,
 }: {
   onFechar: () => void;
+
+  onCadastrosAlterados?: () =>
+    | void
+    | Promise<void>;
 }) {
+
+  const locale =
+    useLocale();
+
   const t =
     useTranslations(
       "AdminExternalActivityTransport"
@@ -95,8 +549,66 @@ export default function CadastrosTransporte({
     setCondutores,
   ] = useState<Condutor[]>([]);
 
-  const [erro, setErro] =
-    useState("");
+  const [
+    formularioPrestadorAberto,
+    setFormularioPrestadorAberto,
+  ] = useState(false);
+
+  const [
+    salvandoPrestador,
+    setSalvandoPrestador,
+  ] = useState(false);
+
+  const [
+    formularioPrestador,
+    setFormularioPrestador,
+  ] =
+    useState<FormularioPrestador>(
+      () =>
+        criarFormularioPrestadorInicial(
+          locale
+        )
+    );
+
+  const paises =
+    useMemo(
+      () =>
+        getCountries()
+          .map(
+            (codigo) => ({
+              value:
+                codigo,
+
+              label:
+                nomeDoPais(
+                  codigo,
+                  locale
+                ),
+            })
+          )
+          .sort(
+            (a, b) =>
+              a.label.localeCompare(
+                b.label,
+                locale,
+                {
+                  sensitivity:
+                    "base",
+                }
+              )
+          ),
+      [locale]
+    );
+
+  const [
+    erro,
+    setErro,
+  ] = useState("");
+
+  const [
+    sucesso,
+    setSucesso,
+  ] = useState("");
 
   async function carregar() {
     setCarregando(true);
@@ -145,8 +657,9 @@ export default function CadastrosTransporte({
         !dadosPrestadores?.ok
       ) {
         throw new Error(
-          dadosPrestadores?.error ||
-            "ERRO_PRESTADORES"
+          dadosPrestadores
+            ?.error ||
+          "ERRO_PRESTADORES"
         );
       }
 
@@ -155,8 +668,9 @@ export default function CadastrosTransporte({
         !dadosVeiculos?.ok
       ) {
         throw new Error(
-          dadosVeiculos?.error ||
-            "ERRO_VEICULOS"
+          dadosVeiculos
+            ?.error ||
+          "ERRO_VEICULOS"
         );
       }
 
@@ -165,8 +679,9 @@ export default function CadastrosTransporte({
         !dadosCondutores?.ok
       ) {
         throw new Error(
-          dadosCondutores?.error ||
-            "ERRO_CONDUTORES"
+          dadosCondutores
+            ?.error ||
+          "ERRO_CONDUTORES"
         );
       }
 
@@ -174,10 +689,10 @@ export default function CadastrosTransporte({
         Boolean(
           dadosPrestadores
             .podeGerenciar &&
-            dadosVeiculos
-              .podeGerenciar &&
-            dadosCondutores
-              .podeGerenciar
+          dadosVeiculos
+            .podeGerenciar &&
+          dadosCondutores
+            .podeGerenciar
         )
       );
 
@@ -207,13 +722,261 @@ export default function CadastrosTransporte({
         )
       );
     } finally {
-      setCarregando(false);
+      setCarregando(
+        false
+      );
     }
   }
 
   useEffect(() => {
     void carregar();
   }, []);
+
+  function alterarPrestador<
+    K extends keyof FormularioPrestador
+  >(
+    campo: K,
+    valor: FormularioPrestador[K]
+  ) {
+    setFormularioPrestador(
+      (atual) => ({
+        ...atual,
+        [campo]: valor,
+      })
+    );
+  }
+
+  async function salvarPrestador() {
+    setErro("");
+    setSucesso("");
+
+    if (
+      !formularioPrestador
+        .nome
+        .trim()
+    ) {
+      setErro(
+        t(
+          "registrations.errors.providerNameRequired"
+        )
+      );
+
+      return;
+    }
+
+    setSalvandoPrestador(
+      true
+    );
+
+    try {
+      const resposta =
+        await fetch(
+          "/api/admin/transportes/prestadores",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body: JSON.stringify({
+              nome:
+                formularioPrestador
+                  .nome,
+
+              nomeFantasia:
+                formularioPrestador
+                  .nomeFantasia,
+
+              tipo:
+                formularioPrestador
+                  .tipo,
+
+              paisCodigo:
+                formularioPrestador
+                  .paisCodigo,
+
+              pais:
+                formularioPrestador
+                  .pais,
+
+              codigoPostal:
+                formularioPrestador
+                  .codigoPostal,
+
+              endereco:
+                formularioPrestador
+                  .endereco,
+
+              numero:
+                formularioPrestador
+                  .numero,
+
+              complemento:
+                formularioPrestador
+                  .complemento,
+
+              bairro:
+                formularioPrestador
+                  .bairro,
+
+              regiao:
+                formularioPrestador
+                  .regiao,
+
+              cidade:
+                formularioPrestador
+                  .cidade,
+
+              telefone:
+                formularioPrestador
+                  .telefone,
+
+              paisTelefone:
+                formularioPrestador
+                  .paisTelefone,
+
+              email:
+                formularioPrestador
+                  .email,
+
+              site:
+                formularioPrestador
+                  .site,
+
+              responsavelContato:
+                formularioPrestador
+                  .responsavelContato,
+
+              telefoneResponsavelContato:
+                formularioPrestador
+                  .telefoneResponsavelContato,
+
+              paisTelefoneResponsavel:
+                formularioPrestador
+                  .paisTelefoneResponsavel,
+
+              emailResponsavelContato:
+                formularioPrestador
+                  .emailResponsavelContato,
+
+              tipoDocumento:
+                formularioPrestador
+                  .tipoDocumento,
+
+              numeroDocumento:
+                formularioPrestador
+                  .numeroDocumento,
+
+              numeroLicenca:
+                formularioPrestador
+                  .numeroLicenca,
+
+              licencaValidaAte:
+                formularioPrestador
+                  .licencaValidaAte ||
+                null,
+
+              numeroApolice:
+                formularioPrestador
+                  .numeroApolice,
+
+              seguroValidoAte:
+                formularioPrestador
+                  .seguroValidoAte ||
+                null,
+
+              verificacaoTransporteEstudantil:
+                formularioPrestador
+                  .verificacaoTransporteEstudantil,
+
+              permiteSubcontratacao:
+                formularioPrestador
+                  .permiteSubcontratacao,
+
+              observacao:
+                formularioPrestador
+                  .observacao,
+            }),
+          }
+        );
+
+      const dados =
+        await resposta.json();
+
+      if (
+        !resposta.ok ||
+        !dados?.ok
+      ) {
+        const codigo =
+          String(
+            dados?.error || ""
+          );
+
+        if (
+          codigo ===
+          "NOME_OBRIGATORIO"
+        ) {
+          throw new Error(
+            "NOME_OBRIGATORIO"
+          );
+        }
+
+        throw new Error(
+          codigo ||
+          "ERRO_SALVAR"
+        );
+      }
+
+      setFormularioPrestador(
+        criarFormularioPrestadorInicial(
+          locale
+        )
+      );
+
+      setFormularioPrestadorAberto(
+        false
+      );
+
+      setSucesso(
+        t(
+          "registrations.success.providerCreated"
+        )
+      );
+
+      await carregar();
+
+      await onCadastrosAlterados?.();
+    } catch (error) {
+      console.error(
+        "[CADASTROS_TRANSPORTE_PRESTADOR_POST]",
+        error
+      );
+
+      if (
+        error instanceof Error &&
+        error.message ===
+        "NOME_OBRIGATORIO"
+      ) {
+        setErro(
+          t(
+            "registrations.errors.providerNameRequired"
+          )
+        );
+      } else {
+        setErro(
+          t(
+            "registrations.errors.saveProvider"
+          )
+        );
+      }
+    } finally {
+      setSalvandoPrestador(
+        false
+      );
+    }
+  }
 
   return (
     <div className="phanyx-transporte-cadastros rounded-2xl border p-4 sm:p-5">
@@ -236,7 +999,7 @@ export default function CadastrosTransporte({
         <button
           type="button"
           onClick={onFechar}
-          className="rounded-xl border px-4 py-2.5 text-sm font-extrabold"
+          className="phanyx-transporte-secondary-button rounded-xl border px-4 py-2.5 text-sm font-extrabold"
         >
           {t(
             "registrations.close"
@@ -250,11 +1013,14 @@ export default function CadastrosTransporte({
             abaAtiva ===
             "prestadores"
           }
-          onClick={() =>
+          onClick={() => {
             setAbaAtiva(
               "prestadores"
-            )
-          }
+            );
+
+            setErro("");
+            setSucesso("");
+          }}
         >
           🏢{" "}
           {t(
@@ -268,11 +1034,18 @@ export default function CadastrosTransporte({
             abaAtiva ===
             "veiculos"
           }
-          onClick={() =>
+          onClick={() => {
             setAbaAtiva(
               "veiculos"
-            )
-          }
+            );
+
+            setFormularioPrestadorAberto(
+              false
+            );
+
+            setErro("");
+            setSucesso("");
+          }}
         >
           🚐{" "}
           {t(
@@ -286,11 +1059,18 @@ export default function CadastrosTransporte({
             abaAtiva ===
             "condutores"
           }
-          onClick={() =>
+          onClick={() => {
             setAbaAtiva(
               "condutores"
-            )
-          }
+            );
+
+            setFormularioPrestadorAberto(
+              false
+            );
+
+            setErro("");
+            setSucesso("");
+          }}
         >
           🧑‍✈️{" "}
           {t(
@@ -306,6 +1086,12 @@ export default function CadastrosTransporte({
         </div>
       ) : null}
 
+      {sucesso ? (
+        <div className="phanyx-transporte-success mt-4 rounded-xl border p-3 text-sm font-semibold">
+          {sucesso}
+        </div>
+      ) : null}
+
       {carregando ? (
         <div className="phanyx-transporte-empty mt-4 rounded-xl border p-6 text-sm">
           {t(
@@ -314,12 +1100,744 @@ export default function CadastrosTransporte({
         </div>
       ) : abaAtiva ===
         "prestadores" ? (
-        <ListaPrestadores
-          itens={prestadores}
-          vazio={t(
-            "registrations.empty.providers"
-          )}
-        />
+        <div className="mt-4 space-y-4">
+          {podeGerenciar ? (
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => {
+                  setErro("");
+                  setSucesso("");
+
+                  setFormularioPrestadorAberto(
+                    (atual) =>
+                      !atual
+                  );
+                }}
+                className="rounded-xl bg-blue-700 px-4 py-2.5 text-sm font-extrabold text-white shadow-sm hover:bg-blue-800"
+              >
+                {formularioPrestadorAberto
+                  ? t(
+                    "registrations.actions.cancel"
+                  )
+                  : t(
+                    "registrations.actions.addProvider"
+                  )}
+              </button>
+            </div>
+          ) : null}
+
+          {formularioPrestadorAberto ? (
+            <div className="phanyx-transporte-form rounded-2xl border p-4 sm:p-5">
+              <div>
+                <h4 className="text-lg font-black">
+                  {t(
+                    "registrations.providerForm.title"
+                  )}
+                </h4>
+
+                <p className="mt-1 text-sm opacity-75">
+                  {t(
+                    "registrations.providerForm.description"
+                  )}
+                </p>
+              </div>
+
+              <SecaoFormulario
+                titulo={`🏢 ${t(
+                  "registrations.providerForm.sections.identification"
+                )}`}
+              >
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <CampoCadastro
+                    label={t(
+                      "registrations.providerForm.name"
+                    )}
+                    obrigatorio
+                  >
+                    <input
+                      value={
+                        formularioPrestador
+                          .nome
+                      }
+                      onChange={(e) =>
+                        alterarPrestador(
+                          "nome",
+                          e.target.value
+                        )
+                      }
+                      className="phanyx-transporte-input"
+                    />
+                  </CampoCadastro>
+
+                  <CampoCadastro
+                    label={t(
+                      "registrations.providerForm.tradeName"
+                    )}
+                  >
+                    <input
+                      value={
+                        formularioPrestador
+                          .nomeFantasia
+                      }
+                      onChange={(e) =>
+                        alterarPrestador(
+                          "nomeFantasia",
+                          e.target.value
+                        )
+                      }
+                      className="phanyx-transporte-input"
+                    />
+                  </CampoCadastro>
+
+                  <CampoCadastro
+                    label={t(
+                      "registrations.providerForm.type"
+                    )}
+                    obrigatorio
+                  >
+                    <SelectCadastro
+                      value={
+                        formularioPrestador
+                          .tipo
+                      }
+                      onChange={(
+                        valor
+                      ) =>
+                        alterarPrestador(
+                          "tipo",
+                          valor as TipoPrestador
+                        )
+                      }
+                      options={TIPOS_PRESTADOR.map(
+                        (tipo) => ({
+                          value:
+                            tipo,
+
+                          label:
+                            t(
+                              `registrations.providerTypes.${tipo}`
+                            ),
+                        })
+                      )}
+                    />
+                  </CampoCadastro>
+                </div>
+              </SecaoFormulario>
+
+              <SecaoFormulario
+                titulo={`📍 ${t(
+                  "registrations.providerForm.sections.location"
+                )}`}
+              >
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <CampoCadastro
+                    label={t(
+                      "registrations.providerForm.country"
+                    )}
+                  >
+                    <SelectCadastro
+                      value={
+                        formularioPrestador
+                          .paisCodigo
+                      }
+                      onChange={(
+                        valor
+                      ) => {
+                        const codigo =
+                          valor as CountryCode;
+
+                        alterarPrestador(
+                          "paisCodigo",
+                          codigo
+                        );
+
+                        alterarPrestador(
+                          "pais",
+                          nomeDoPais(
+                            codigo,
+                            locale
+                          )
+                        );
+
+                        alterarPrestador(
+                          "codigoPostal",
+                          formatarCodigoPostal(
+                            formularioPrestador
+                              .codigoPostal,
+                            codigo
+                          )
+                        );
+                      }}
+                      options={paises}
+                    />
+                  </CampoCadastro>
+
+                  <CampoCadastro
+                    label={t(
+                      "registrations.providerForm.postalCode"
+                    )}
+                  >
+                    <input
+                      autoComplete="postal-code"
+                      value={
+                        formularioPrestador
+                          .codigoPostal
+                      }
+                      onChange={(e) =>
+                        alterarPrestador(
+                          "codigoPostal",
+                          formatarCodigoPostal(
+                            e.target.value,
+                            formularioPrestador
+                              .paisCodigo
+                          )
+                        )
+                      }
+                      className="phanyx-transporte-input"
+                    />
+                  </CampoCadastro>
+
+                  <div className="lg:col-span-2">
+                    <CampoCadastro
+                      label={t(
+                        "registrations.providerForm.street"
+                      )}
+                    >
+                      <input
+                        autoComplete="street-address"
+                        value={
+                          formularioPrestador
+                            .endereco
+                        }
+                        onChange={(e) =>
+                          alterarPrestador(
+                            "endereco",
+                            e.target.value
+                          )
+                        }
+                        className="phanyx-transporte-input"
+                      />
+                    </CampoCadastro>
+                  </div>
+
+                  <CampoCadastro
+                    label={t(
+                      "registrations.providerForm.number"
+                    )}
+                  >
+                    <input
+                      value={
+                        formularioPrestador
+                          .numero
+                      }
+                      onChange={(e) =>
+                        alterarPrestador(
+                          "numero",
+                          e.target.value
+                        )
+                      }
+                      className="phanyx-transporte-input"
+                    />
+                  </CampoCadastro>
+
+                  <CampoCadastro
+                    label={t(
+                      "registrations.providerForm.complement"
+                    )}
+                  >
+                    <input
+                      value={
+                        formularioPrestador
+                          .complemento
+                      }
+                      onChange={(e) =>
+                        alterarPrestador(
+                          "complemento",
+                          e.target.value
+                        )
+                      }
+                      className="phanyx-transporte-input"
+                    />
+                  </CampoCadastro>
+
+                  <CampoCadastro
+                    label={t(
+                      "registrations.providerForm.district"
+                    )}
+                  >
+                    <input
+                      value={
+                        formularioPrestador
+                          .bairro
+                      }
+                      onChange={(e) =>
+                        alterarPrestador(
+                          "bairro",
+                          e.target.value
+                        )
+                      }
+                      className="phanyx-transporte-input"
+                    />
+                  </CampoCadastro>
+
+                  <CampoCadastro
+                    label={t(
+                      "registrations.providerForm.city"
+                    )}
+                  >
+                    <input
+                      autoComplete="address-level2"
+                      value={
+                        formularioPrestador
+                          .cidade
+                      }
+                      onChange={(e) =>
+                        alterarPrestador(
+                          "cidade",
+                          e.target.value
+                        )
+                      }
+                      className="phanyx-transporte-input"
+                    />
+                  </CampoCadastro>
+
+                  <CampoCadastro
+                    label={t(
+                      "registrations.providerForm.region"
+                    )}
+                  >
+                    <input
+                      autoComplete="address-level1"
+                      value={
+                        formularioPrestador
+                          .regiao
+                      }
+                      onChange={(e) =>
+                        alterarPrestador(
+                          "regiao",
+                          e.target.value
+                        )
+                      }
+                      className="phanyx-transporte-input"
+                    />
+                  </CampoCadastro>
+                </div>
+              </SecaoFormulario>
+
+              <SecaoFormulario
+                titulo={`☎️ ${t(
+                  "registrations.providerForm.sections.contact"
+                )}`}
+              >
+                <div className="grid gap-4 lg:grid-cols-3">
+                  <CampoCadastro
+                    label={t(
+                      "registrations.providerForm.phone"
+                    )}
+                  >
+                    <CampoTelefoneInternacional
+                      id="prestador-transporte-telefone"
+                      value={
+                        formularioPrestador
+                          .telefone
+                      }
+                      pais={
+                        formularioPrestador
+                          .paisTelefone
+                      }
+                      onChange={(
+                        valor,
+                        pais
+                      ) =>
+                        setFormularioPrestador(
+                          (atual) => ({
+                            ...atual,
+                            telefone:
+                              valor,
+                            paisTelefone:
+                              pais,
+                          })
+                        )
+                      }
+                    />
+                  </CampoCadastro>
+
+                  <CampoCadastro
+                    label={t(
+                      "registrations.providerForm.email"
+                    )}
+                  >
+                    <input
+                      type="email"
+                      value={
+                        formularioPrestador
+                          .email
+                      }
+                      onChange={(e) =>
+                        alterarPrestador(
+                          "email",
+                          e.target.value
+                        )
+                      }
+                      className="phanyx-transporte-input"
+                    />
+                  </CampoCadastro>
+
+                  <CampoCadastro
+                    label={t(
+                      "registrations.providerForm.site"
+                    )}
+                  >
+                    <input
+                      value={
+                        formularioPrestador
+                          .site
+                      }
+                      onChange={(e) =>
+                        alterarPrestador(
+                          "site",
+                          e.target.value
+                        )
+                      }
+                      className="phanyx-transporte-input"
+                    />
+                  </CampoCadastro>
+
+                  <CampoCadastro
+                    label={t(
+                      "registrations.providerForm.contactPerson"
+                    )}
+                  >
+                    <input
+                      value={
+                        formularioPrestador
+                          .responsavelContato
+                      }
+                      onChange={(e) =>
+                        alterarPrestador(
+                          "responsavelContato",
+                          e.target.value
+                        )
+                      }
+                      className="phanyx-transporte-input"
+                    />
+                  </CampoCadastro>
+
+                  <CampoCadastro
+                    label={t(
+                      "registrations.providerForm.contactPhone"
+                    )}
+                  >
+                    <CampoTelefoneInternacional
+                      id="prestador-transporte-telefone-responsavel"
+                      value={
+                        formularioPrestador
+                          .telefoneResponsavelContato
+                      }
+                      pais={
+                        formularioPrestador
+                          .paisTelefoneResponsavel
+                      }
+                      onChange={(
+                        valor,
+                        pais
+                      ) =>
+                        setFormularioPrestador(
+                          (atual) => ({
+                            ...atual,
+
+                            telefoneResponsavelContato:
+                              valor,
+
+                            paisTelefoneResponsavel:
+                              pais,
+                          })
+                        )
+                      }
+                    />
+                  </CampoCadastro>
+
+                  <CampoCadastro
+                    label={t(
+                      "registrations.providerForm.contactEmail"
+                    )}
+                  >
+                    <input
+                      type="email"
+                      value={
+                        formularioPrestador
+                          .emailResponsavelContato
+                      }
+                      onChange={(e) =>
+                        alterarPrestador(
+                          "emailResponsavelContato",
+                          e.target.value
+                        )
+                      }
+                      className="phanyx-transporte-input"
+                    />
+                  </CampoCadastro>
+                </div>
+              </SecaoFormulario>
+
+              <SecaoFormulario
+                titulo={`📋 ${t(
+                  "registrations.providerForm.sections.compliance"
+                )}`}
+              >
+                <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
+                  <CampoCadastro
+                    label={t(
+                      "registrations.providerForm.documentType"
+                    )}
+                  >
+                    <input
+                      value={
+                        formularioPrestador
+                          .tipoDocumento
+                      }
+                      onChange={(e) =>
+                        alterarPrestador(
+                          "tipoDocumento",
+                          e.target.value
+                        )
+                      }
+                      className="phanyx-transporte-input"
+                    />
+                  </CampoCadastro>
+
+                  <CampoCadastro
+                    label={t(
+                      "registrations.providerForm.documentNumber"
+                    )}
+                  >
+                    <input
+                      value={
+                        formularioPrestador
+                          .numeroDocumento
+                      }
+                      onChange={(e) =>
+                        alterarPrestador(
+                          "numeroDocumento",
+                          e.target.value
+                        )
+                      }
+                      className="phanyx-transporte-input"
+                    />
+                  </CampoCadastro>
+
+                  <CampoCadastro
+                    label={t(
+                      "registrations.providerForm.studentVerification"
+                    )}
+                  >
+                    <SelectCadastro
+                      value={
+                        formularioPrestador
+                          .verificacaoTransporteEstudantil
+                      }
+                      onChange={(
+                        valor
+                      ) =>
+                        alterarPrestador(
+                          "verificacaoTransporteEstudantil",
+                          valor as VerificacaoEstudantil
+                        )
+                      }
+                      options={VERIFICACOES.map(
+                        (
+                          status
+                        ) => ({
+                          value:
+                            status,
+
+                          label:
+                            t(
+                              `registrations.studentVerification.${status}`
+                            ),
+                        })
+                      )}
+                    />
+                  </CampoCadastro>
+
+                  <CampoCadastro
+                    label={t(
+                      "registrations.providerForm.licenseNumber"
+                    )}
+                  >
+                    <input
+                      value={
+                        formularioPrestador
+                          .numeroLicenca
+                      }
+                      onChange={(e) =>
+                        alterarPrestador(
+                          "numeroLicenca",
+                          e.target.value
+                        )
+                      }
+                      className="phanyx-transporte-input"
+                    />
+                  </CampoCadastro>
+
+                  <CampoCadastro
+                    label={t(
+                      "registrations.providerForm.licenseExpiry"
+                    )}
+                  >
+                    <input
+                      type="date"
+                      value={
+                        formularioPrestador
+                          .licencaValidaAte
+                      }
+                      onChange={(e) =>
+                        alterarPrestador(
+                          "licencaValidaAte",
+                          e.target.value
+                        )
+                      }
+                      className="phanyx-transporte-input"
+                    />
+                  </CampoCadastro>
+
+                  <div />
+
+                  <CampoCadastro
+                    label={t(
+                      "registrations.providerForm.policyNumber"
+                    )}
+                  >
+                    <input
+                      value={
+                        formularioPrestador
+                          .numeroApolice
+                      }
+                      onChange={(e) =>
+                        alterarPrestador(
+                          "numeroApolice",
+                          e.target.value
+                        )
+                      }
+                      className="phanyx-transporte-input"
+                    />
+                  </CampoCadastro>
+
+                  <CampoCadastro
+                    label={t(
+                      "registrations.providerForm.insuranceExpiry"
+                    )}
+                  >
+                    <input
+                      type="date"
+                      value={
+                        formularioPrestador
+                          .seguroValidoAte
+                      }
+                      onChange={(e) =>
+                        alterarPrestador(
+                          "seguroValidoAte",
+                          e.target.value
+                        )
+                      }
+                      className="phanyx-transporte-input"
+                    />
+                  </CampoCadastro>
+                </div>
+
+                <label className="phanyx-transporte-local mt-4 flex cursor-pointer items-start gap-3 rounded-xl border p-3">
+                  <input
+                    type="checkbox"
+                    checked={
+                      formularioPrestador
+                        .permiteSubcontratacao
+                    }
+                    onChange={(e) =>
+                      alterarPrestador(
+                        "permiteSubcontratacao",
+                        e.target.checked
+                      )
+                    }
+                    className="mt-1 h-4 w-4 accent-blue-600"
+                  />
+
+                  <div>
+                    <div className="text-sm font-extrabold">
+                      {t(
+                        "registrations.providerForm.allowsSubcontracting"
+                      )}
+                    </div>
+
+                    <div className="mt-0.5 text-xs opacity-70">
+                      {t(
+                        "registrations.providerForm.allowsSubcontractingHelp"
+                      )}
+                    </div>
+                  </div>
+                </label>
+              </SecaoFormulario>
+
+              <div className="mt-4">
+                <CampoCadastro
+                  label={t(
+                    "registrations.providerForm.notes"
+                  )}
+                >
+                  <textarea
+                    rows={3}
+                    value={
+                      formularioPrestador
+                        .observacao
+                    }
+                    onChange={(e) =>
+                      alterarPrestador(
+                        "observacao",
+                        e.target.value
+                      )
+                    }
+                    className="phanyx-transporte-input min-h-[96px] resize-y"
+                  />
+                </CampoCadastro>
+              </div>
+
+              <div className="mt-5 flex justify-end">
+                <button
+                  type="button"
+                  disabled={
+                    salvandoPrestador
+                  }
+                  onClick={() =>
+                    void salvarPrestador()
+                  }
+                  className="rounded-xl bg-blue-700 px-5 py-3 text-sm font-extrabold text-white shadow-sm hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {salvandoPrestador
+                    ? t(
+                      "registrations.actions.saving"
+                    )
+                    : t(
+                      "registrations.actions.saveProvider"
+                    )}
+                </button>
+              </div>
+            </div>
+          ) : null}
+
+          <ListaPrestadores
+            itens={prestadores}
+            vazio={t(
+              "registrations.empty.providers"
+            )}
+            traduzirTipo={(
+              tipo
+            ) =>
+              t(
+                `registrations.providerTypes.${tipo}`
+              )
+            }
+          />
+        </div>
       ) : abaAtiva ===
         "veiculos" ? (
         <ListaVeiculos
@@ -336,14 +1854,6 @@ export default function CadastrosTransporte({
           )}
         />
       )}
-
-      {podeGerenciar ? (
-        <div className="mt-4 text-xs font-semibold opacity-60">
-          {t(
-            "registrations.managementAvailable"
-          )}
-        </div>
-      ) : null}
     </div>
   );
 }
@@ -373,12 +1883,60 @@ function BotaoAba({
   );
 }
 
+function CampoCadastro({
+  label,
+  obrigatorio = false,
+  children,
+}: {
+  label: string;
+  obrigatorio?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-1.5 block text-xs font-black">
+        {label}
+
+        {obrigatorio ? (
+          <span className="ml-1 text-red-500">
+            *
+          </span>
+        ) : null}
+      </span>
+
+      {children}
+    </label>
+  );
+}
+
+function SecaoFormulario({
+  titulo,
+  children,
+}: {
+  titulo: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="phanyx-transporte-local mt-4 rounded-2xl border p-4">
+      <h5 className="mb-4 text-sm font-black">
+        {titulo}
+      </h5>
+
+      {children}
+    </div>
+  );
+}
+
 function ListaPrestadores({
   itens,
   vazio,
+  traduzirTipo,
 }: {
   itens: Prestador[];
   vazio: string;
+  traduzirTipo: (
+    tipo: TipoPrestador
+  ) => string;
 }) {
   if (!itens.length) {
     return (
@@ -389,22 +1947,64 @@ function ListaPrestadores({
   }
 
   return (
-    <div className="mt-4 space-y-2">
-      {itens.map((item) => (
-        <div
-          key={item.id}
-          className="phanyx-transporte-registration-item rounded-xl border p-3"
-        >
-          <div className="font-extrabold">
-            {item.nomeFantasia ||
-              item.nome}
-          </div>
+    <div className="space-y-2">
+      {itens.map(
+        (item) => {
+          const local = [
+            item.cidade,
+            item.regiao,
+            item.pais,
+          ]
+            .filter(Boolean)
+            .join(", ");
 
-          <div className="mt-1 text-xs opacity-70">
-            {item.tipo}
-          </div>
-        </div>
-      ))}
+          return (
+            <div
+              key={item.id}
+              className="phanyx-transporte-registration-item rounded-xl border p-3"
+            >
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <div className="font-extrabold">
+                    {item.nomeFantasia ||
+                      item.nome}
+                  </div>
+
+                  {item.nomeFantasia ? (
+                    <div className="mt-0.5 text-xs opacity-65">
+                      {item.nome}
+                    </div>
+                  ) : null}
+                </div>
+
+                <span className="phanyx-transporte-chip rounded-full border px-2.5 py-1 text-xs font-bold">
+                  {traduzirTipo(
+                    item.tipo
+                  )}
+                </span>
+              </div>
+
+              {local ? (
+                <div className="mt-2 text-xs opacity-70">
+                  📍 {local}
+                </div>
+              ) : null}
+
+              {item.telefone ||
+                item.email ? (
+                <div className="mt-1 text-xs opacity-70">
+                  {[
+                    item.telefone,
+                    item.email,
+                  ]
+                    .filter(Boolean)
+                    .join(" • ")}
+                </div>
+              ) : null}
+            </div>
+          );
+        }
+      )}
     </div>
   );
 }
@@ -426,28 +2026,30 @@ function ListaVeiculos({
 
   return (
     <div className="mt-4 space-y-2">
-      {itens.map((item) => (
-        <div
-          key={item.id}
-          className="phanyx-transporte-registration-item rounded-xl border p-3"
-        >
-          <div className="font-extrabold">
-            {item.nomeIdentificacao ||
-              item.placa ||
-              item.tipo}
-          </div>
+      {itens.map(
+        (item) => (
+          <div
+            key={item.id}
+            className="phanyx-transporte-registration-item rounded-xl border p-3"
+          >
+            <div className="font-extrabold">
+              {item.nomeIdentificacao ||
+                item.placa ||
+                item.tipo}
+            </div>
 
-          <div className="mt-1 text-xs opacity-70">
-            {[
-              item.marca,
-              item.modelo,
-              item.placa,
-            ]
-              .filter(Boolean)
-              .join(" • ")}
+            <div className="mt-1 text-xs opacity-70">
+              {[
+                item.marca,
+                item.modelo,
+                item.placa,
+              ]
+                .filter(Boolean)
+                .join(" • ")}
+            </div>
           </div>
-        </div>
-      ))}
+        )
+      )}
     </div>
   );
 }
@@ -469,20 +2071,22 @@ function ListaCondutores({
 
   return (
     <div className="mt-4 space-y-2">
-      {itens.map((item) => (
-        <div
-          key={item.id}
-          className="phanyx-transporte-registration-item rounded-xl border p-3"
-        >
-          <div className="font-extrabold">
-            {item.nome}
-          </div>
+      {itens.map(
+        (item) => (
+          <div
+            key={item.id}
+            className="phanyx-transporte-registration-item rounded-xl border p-3"
+          >
+            <div className="font-extrabold">
+              {item.nome}
+            </div>
 
-          <div className="mt-1 text-xs opacity-70">
-            {item.tipo}
+            <div className="mt-1 text-xs opacity-70">
+              {item.tipo}
+            </div>
           </div>
-        </div>
-      ))}
+        )
+      )}
     </div>
   );
 }
@@ -493,7 +2097,7 @@ function EstadoVazio({
   texto: string;
 }) {
   return (
-    <div className="phanyx-transporte-empty mt-4 rounded-xl border p-8 text-center">
+    <div className="phanyx-transporte-empty rounded-xl border p-8 text-center">
       <div className="text-3xl">
         📭
       </div>
