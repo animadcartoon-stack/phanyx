@@ -640,6 +640,11 @@ export default function AdminShell({
     "biblioteca.catalogo.ver"
   );
 
+  const podeGerenciarConfiguracoesBiblioteca =
+    podeAcessar(
+      "biblioteca.configuracoes.gerenciar"
+    );
+
   const podeGerenciarEmailInstitucional =
     podeAcessar("integracoes.email.gerenciar");
 
@@ -1198,6 +1203,17 @@ export default function AdminShell({
                             )}
                           >
                             📚 {tNav("collection")}
+                          </Link>
+                        )}
+
+                        {podeGerenciarConfiguracoesBiblioteca && (
+                          <Link
+                            href="/admin/biblioteca/configuracoes"
+                            className={getLinkClass(
+                              "/admin/biblioteca/configuracoes"
+                            )}
+                          >
+                            ⚙️ {tNav("settings")}
                           </Link>
                         )}
                       </div>
@@ -1769,12 +1785,32 @@ export default function AdminShell({
                       </Link>
                     )}
                     {podeVerBiblioteca && (
-                      <Link
-                        href="/admin/biblioteca"
-                        className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                      >
-                        📚 {tNav("virtualLibrary")}
-                      </Link>
+                      <>
+                        <Link
+                          href="/admin/biblioteca"
+                          className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                        >
+                          📚 {tNav("virtualLibrary")}
+                        </Link>
+
+                        {podeVerAcervoBiblioteca && (
+                          <Link
+                            href="/admin/biblioteca/acervo"
+                            className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                          >
+                            📖 {tNav("collection")}
+                          </Link>
+                        )}
+
+                        {podeGerenciarConfiguracoesBiblioteca && (
+                          <Link
+                            href="/admin/biblioteca/configuracoes"
+                            className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                          >
+                            ⚙️ {tNav("settings")}
+                          </Link>
+                        )}
+                      </>
                     )}
                   </div>
                 )}

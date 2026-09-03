@@ -5359,7 +5359,41 @@ export default function ConfiguracaoCertificadoPage() {
   }
 
   function nomeDaCamada(campo: CampoCertificado, index: number) {
-    if (campo.nomeCamada?.trim()) return campo.nomeCamada;
+    const nomeCamadaSalvo = campo.nomeCamada?.trim();
+
+    if (nomeCamadaSalvo) {
+      const nomesSistemaFormaLivreCriando = [
+        "Forma livre em criação",
+        "Freeform being created",
+        "Forma libre en creación",
+        "Forme libre en cours de création",
+      ];
+
+      const nomesSistemaFormaLivre = [
+        "Forma livre",
+        "Freeform",
+        "Forma libre",
+        "Forme libre",
+      ];
+
+      if (
+        nomesSistemaFormaLivreCriando.includes(
+          nomeCamadaSalvo
+        )
+      ) {
+        return tr("freeForm.layerCreating");
+      }
+
+      if (
+        nomesSistemaFormaLivre.includes(
+          nomeCamadaSalvo
+        )
+      ) {
+        return tr("freeForm.layerName");
+      }
+
+      return nomeCamadaSalvo;
+    }
 
     if (campo.tipo === "TEXTO_LIVRE") {
       return tr("layers.textNumbered", { number: index + 1 });
@@ -6368,114 +6402,6 @@ export default function ConfiguracaoCertificadoPage() {
       )}
 
       <style jsx global>{`
-        [data-texto-livre-id]::selection,
-        [data-texto-livre-id] *::selection {
-          background: rgba(37, 99, 235, 0.35);
-          color: inherit;
-        }
-
-        .phanyx-config-certificado-page[data-cert-theme="dark"] {
-          color: #f8fafc;
-        }
-
-        .phanyx-config-certificado-page[data-cert-theme="dark"] > div:not([data-cert-canvas]),
-        .phanyx-config-certificado-page[data-cert-theme="dark"] > section,
-        .phanyx-config-certificado-page[data-cert-theme="dark"] .phanyx-cert-modelos-lista,
-        .phanyx-config-certificado-page[data-cert-theme="dark"] .phanyx-cert-modelo-menu,
-        .phanyx-config-certificado-page[data-cert-theme="dark"] .phanyx-cert-modelo-seletor {
-          border-color: #23466f !important;
-        }
-
-        .phanyx-config-certificado-page[data-cert-theme="dark"] > div.rounded-3xl.bg-white,
-        .phanyx-config-certificado-page[data-cert-theme="dark"] > section.bg-white {
-          background: #0b1f3a !important;
-        }
-
-        .phanyx-config-certificado-page[data-cert-theme="dark"] > div.rounded-3xl.bg-white .bg-slate-50:not([data-cert-canvas] *),
-        .phanyx-config-certificado-page[data-cert-theme="dark"] > section.bg-white > div.grid > aside,
-        .phanyx-config-certificado-page[data-cert-theme="dark"] > section.bg-white > div.grid > main {
-          background-color: #102a4c !important;
-        }
-
-        .phanyx-config-certificado-page[data-cert-theme="dark"] > div.rounded-3xl.bg-white .bg-white:not([data-cert-canvas]):not([data-cert-canvas] *),
-        .phanyx-config-certificado-page[data-cert-theme="dark"] > section.bg-white .bg-white:not([data-cert-canvas]):not([data-cert-canvas] *) {
-          background-color: #0f2746 !important;
-        }
-
-        .phanyx-config-certificado-page[data-cert-theme="dark"] > div.rounded-3xl.bg-white .text-slate-900:not([data-cert-canvas] *),
-        .phanyx-config-certificado-page[data-cert-theme="dark"] > div.rounded-3xl.bg-white .text-slate-800:not([data-cert-canvas] *),
-        .phanyx-config-certificado-page[data-cert-theme="dark"] > div.rounded-3xl.bg-white .text-slate-700:not([data-cert-canvas] *),
-        .phanyx-config-certificado-page[data-cert-theme="dark"] > section.bg-white .text-slate-900:not([data-cert-canvas] *),
-        .phanyx-config-certificado-page[data-cert-theme="dark"] > section.bg-white .text-slate-800:not([data-cert-canvas] *),
-        .phanyx-config-certificado-page[data-cert-theme="dark"] > section.bg-white .text-slate-700:not([data-cert-canvas] *) {
-          color: #f8fafc !important;
-        }
-
-        .phanyx-config-certificado-page[data-cert-theme="dark"] > div.rounded-3xl.bg-white .text-slate-600:not([data-cert-canvas] *),
-        .phanyx-config-certificado-page[data-cert-theme="dark"] > div.rounded-3xl.bg-white .text-slate-500:not([data-cert-canvas] *),
-        .phanyx-config-certificado-page[data-cert-theme="dark"] > section.bg-white .text-slate-600:not([data-cert-canvas] *),
-        .phanyx-config-certificado-page[data-cert-theme="dark"] > section.bg-white .text-slate-500:not([data-cert-canvas] *) {
-          color: #bfd2e8 !important;
-        }
-
-        .phanyx-config-certificado-page[data-cert-theme="system-dark"] {
-          color: #fafafa;
-        }
-
-        .phanyx-config-certificado-page[data-cert-theme="system-dark"] > div:not([data-cert-canvas]),
-        .phanyx-config-certificado-page[data-cert-theme="system-dark"] > section,
-        .phanyx-config-certificado-page[data-cert-theme="system-dark"] .phanyx-cert-modelos-lista,
-        .phanyx-config-certificado-page[data-cert-theme="system-dark"] .phanyx-cert-modelo-menu,
-        .phanyx-config-certificado-page[data-cert-theme="system-dark"] .phanyx-cert-modelo-seletor {
-          border-color: #3f3f46 !important;
-        }
-
-        .phanyx-config-certificado-page[data-cert-theme="system-dark"] > div.rounded-3xl.bg-white,
-        .phanyx-config-certificado-page[data-cert-theme="system-dark"] > section.bg-white {
-          background: #18181b !important;
-        }
-
-        .phanyx-config-certificado-page[data-cert-theme="system-dark"] > div.rounded-3xl.bg-white .bg-slate-50:not([data-cert-canvas] *),
-        .phanyx-config-certificado-page[data-cert-theme="system-dark"] > section.bg-white > div.grid > aside,
-        .phanyx-config-certificado-page[data-cert-theme="system-dark"] > section.bg-white > div.grid > main {
-          background-color: #27272a !important;
-        }
-
-        .phanyx-config-certificado-page[data-cert-theme="system-dark"] > div.rounded-3xl.bg-white .bg-white:not([data-cert-canvas]):not([data-cert-canvas] *),
-        .phanyx-config-certificado-page[data-cert-theme="system-dark"] > section.bg-white .bg-white:not([data-cert-canvas]):not([data-cert-canvas] *) {
-          background-color: #202024 !important;
-        }
-
-        .phanyx-config-certificado-page[data-cert-theme="system-dark"] > div.rounded-3xl.bg-white .text-slate-900:not([data-cert-canvas] *),
-        .phanyx-config-certificado-page[data-cert-theme="system-dark"] > div.rounded-3xl.bg-white .text-slate-800:not([data-cert-canvas] *),
-        .phanyx-config-certificado-page[data-cert-theme="system-dark"] > div.rounded-3xl.bg-white .text-slate-700:not([data-cert-canvas] *),
-        .phanyx-config-certificado-page[data-cert-theme="system-dark"] > section.bg-white .text-slate-900:not([data-cert-canvas] *),
-        .phanyx-config-certificado-page[data-cert-theme="system-dark"] > section.bg-white .text-slate-800:not([data-cert-canvas] *),
-        .phanyx-config-certificado-page[data-cert-theme="system-dark"] > section.bg-white .text-slate-700:not([data-cert-canvas] *) {
-          color: #fafafa !important;
-        }
-
-        .phanyx-config-certificado-page[data-cert-theme="system-dark"] > div.rounded-3xl.bg-white .text-slate-600:not([data-cert-canvas] *),
-        .phanyx-config-certificado-page[data-cert-theme="system-dark"] > div.rounded-3xl.bg-white .text-slate-500:not([data-cert-canvas] *),
-        .phanyx-config-certificado-page[data-cert-theme="system-dark"] > section.bg-white .text-slate-600:not([data-cert-canvas] *),
-        .phanyx-config-certificado-page[data-cert-theme="system-dark"] > section.bg-white .text-slate-500:not([data-cert-canvas] *) {
-          color: #a1a1aa !important;
-        }
-
-        .phanyx-config-certificado-page[data-cert-theme="dark"]
-  .phanyx-cert-upload-title {
-  color: #60a5fa !important;
-  font-weight: 900 !important;
-}
-
-.phanyx-config-certificado-page[data-cert-theme="system-dark"]
-  .phanyx-cert-upload-title {
-  color: #93c5fd !important;
-  font-weight: 900 !important;
-}
-      `}</style>
-
-      <style jsx global>{`
   [data-texto-livre-id]::selection,
   [data-texto-livre-id] *::selection {
     background: rgba(37, 99, 235, 0.35);
@@ -6707,6 +6633,79 @@ export default function ConfiguracaoCertificadoPage() {
     .phanyx-certificado-toolbar {
     color: white;
   }
+
+  /* TÍTULO ADICIONAR PNG/JPEG */
+
+.phanyx-config-certificado-page[data-cert-theme="dark"]
+  .phanyx-cert-upload-title {
+  color: #60a5fa !important;
+  font-weight: 900 !important;
+}
+
+.phanyx-config-certificado-page[data-cert-theme="system-dark"]
+  .phanyx-cert-upload-title {
+  color: #93c5fd !important;
+  font-weight: 900 !important;
+}
+
+   /* TAMANHO DA CAIXA — contraste independente do dark: do Tailwind */
+
+.phanyx-cert-box-size {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+.phanyx-cert-box-size-title {
+  color: #1e293b !important;
+}
+
+.phanyx-cert-box-size-label {
+  color: #475569 !important;
+}
+
+.phanyx-cert-box-size-hint {
+  color: #64748b !important;
+}
+
+/* Escuro PHANYX */
+
+.phanyx-config-certificado-page[data-cert-theme="dark"]
+  .phanyx-cert-box-size {
+  background: var(--cert-surface-2) !important;
+  border-color: var(--cert-border) !important;
+}
+
+.phanyx-config-certificado-page[data-cert-theme="dark"]
+  .phanyx-cert-box-size-title {
+  color: #ffffff !important;
+}
+
+.phanyx-config-certificado-page[data-cert-theme="dark"]
+  .phanyx-cert-box-size-label,
+.phanyx-config-certificado-page[data-cert-theme="dark"]
+  .phanyx-cert-box-size-hint {
+  color: #dbeafe !important;
+}
+
+/* Sistema escuro */
+
+.phanyx-config-certificado-page[data-cert-theme="system-dark"]
+  .phanyx-cert-box-size {
+  background: #1c1c1f !important;
+  border-color: #3f3f46 !important;
+}
+
+.phanyx-config-certificado-page[data-cert-theme="system-dark"]
+  .phanyx-cert-box-size-title {
+  color: #fafafa !important;
+}
+
+.phanyx-config-certificado-page[data-cert-theme="system-dark"]
+  .phanyx-cert-box-size-label,
+.phanyx-config-certificado-page[data-cert-theme="system-dark"]
+  .phanyx-cert-box-size-hint {
+  color: #d4d4d8 !important;
+}
 `}</style>
 
       {mensagemSucesso && (
@@ -11906,8 +11905,8 @@ export default function ConfiguracaoCertificadoPage() {
                       </div>
 
                       {campoSelecionado && (
-                        <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-950">
-                          <p className="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-200">
+                        <div className="phanyx-cert-box-size rounded-2xl border border-slate-200 bg-white p-4">
+                          <p className="phanyx-cert-box-size-title mb-3 text-sm font-bold">
                             {tr("fieldOptions.boxSize")}
                           </p>
 
@@ -11938,7 +11937,7 @@ export default function ConfiguracaoCertificadoPage() {
                             </label>
 
                             <label className="block">
-                              <span className="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400">
+                              <span className="phanyx-cert-box-size-label mb-1 block text-xs font-semibold">
                                 {tr("common.height")}
                               </span>
 
@@ -11963,7 +11962,7 @@ export default function ConfiguracaoCertificadoPage() {
                             </label>
                           </div>
 
-                          <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
+                          <p className="phanyx-cert-box-size-hint mt-2 text-xs leading-5">
                             {tr("fieldOptions.widthHint")}
                           </p>
                         </div>

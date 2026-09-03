@@ -1,7 +1,10 @@
 "use client";
 
-
-import { useState } from "react";
+import {
+  useState,
+  type MouseEvent as ReactMouseEvent,
+} from "react";
+import { useTranslations } from "next-intl";
 
 type PontoForma = {
   id: string;
@@ -48,7 +51,9 @@ type Props = {
   onFechar: () => void;
   onMover: (posicao: { x: number; y: number }) => void;
   onAtualizarCampo: (campo: CampoForma) => void;
-  setMostrarHandlesForma?: (valor: boolean | ((prev: boolean) => boolean)) => void;
+  setMostrarHandlesForma?: (
+    valor: boolean | ((prev: boolean) => boolean),
+  ) => void;
   onOpenArray?: () => void;
   zIndex?: number;
   onTrazerParaFrente?: () => void;
@@ -57,7 +62,10 @@ type Props = {
 function gerarPathComCantosArredondados(campo: CampoForma) {
   const pontos = campo.pontosForma || [];
   const cantos = campo.cantosArredondados || {};
-  const raioPadrao = Math.max(0, Math.min(45, campo.raioBorda || 0));
+  const raioPadrao = Math.max(
+    0,
+    Math.min(45, campo.raioBorda || 0),
+  );
 
   if (pontos.length < 3) return "";
 
@@ -66,10 +74,45 @@ function gerarPathComCantosArredondados(campo: CampoForma) {
       return raioPadrao;
     }
 
-    if (index === 0) return Math.max(0, Math.min(45, cantos.topoEsquerdo ?? raioPadrao));
-    if (index === 1) return Math.max(0, Math.min(45, cantos.topoDireito ?? raioPadrao));
-    if (index === 2) return Math.max(0, Math.min(45, cantos.baixoDireito ?? raioPadrao));
-    if (index === 3) return Math.max(0, Math.min(45, cantos.baixoEsquerdo ?? raioPadrao));
+    if (index === 0) {
+      return Math.max(
+        0,
+        Math.min(
+          45,
+          cantos.topoEsquerdo ?? raioPadrao,
+        ),
+      );
+    }
+
+    if (index === 1) {
+      return Math.max(
+        0,
+        Math.min(
+          45,
+          cantos.topoDireito ?? raioPadrao,
+        ),
+      );
+    }
+
+    if (index === 2) {
+      return Math.max(
+        0,
+        Math.min(
+          45,
+          cantos.baixoDireito ?? raioPadrao,
+        ),
+      );
+    }
+
+    if (index === 3) {
+      return Math.max(
+        0,
+        Math.min(
+          45,
+          cantos.baixoEsquerdo ?? raioPadrao,
+        ),
+      );
+    }
 
     return raioPadrao;
   };
@@ -77,7 +120,8 @@ function gerarPathComCantosArredondados(campo: CampoForma) {
   let d = "";
 
   for (let i = 0; i < pontos.length; i++) {
-    const anterior = pontos[(i - 1 + pontos.length) % pontos.length];
+    const anterior =
+      pontos[(i - 1 + pontos.length) % pontos.length];
     const atual = pontos[i];
     const proximo = pontos[(i + 1) % pontos.length];
 
@@ -89,21 +133,42 @@ function gerarPathComCantosArredondados(campo: CampoForma) {
       } else {
         d += ` L ${atual.x} ${atual.y}`;
       }
+
       continue;
     }
 
-    const distAnterior = Math.hypot(atual.x - anterior.x, atual.y - anterior.y);
-    const distProximo = Math.hypot(proximo.x - atual.x, proximo.y - atual.y);
+    const distAnterior = Math.hypot(
+      atual.x - anterior.x,
+      atual.y - anterior.y,
+    );
+    const distProximo = Math.hypot(
+      proximo.x - atual.x,
+      proximo.y - atual.y,
+    );
 
-    if (distAnterior === 0 || distProximo === 0) continue;
+    if (distAnterior === 0 || distProximo === 0) {
+      continue;
+    }
 
-    const r = Math.min(raio, distAnterior / 2, distProximo / 2);
+    const r = Math.min(
+      raio,
+      distAnterior / 2,
+      distProximo / 2,
+    );
 
-    const inicioX = atual.x + ((anterior.x - atual.x) / distAnterior) * r;
-    const inicioY = atual.y + ((anterior.y - atual.y) / distAnterior) * r;
+    const inicioX =
+      atual.x +
+      ((anterior.x - atual.x) / distAnterior) * r;
+    const inicioY =
+      atual.y +
+      ((anterior.y - atual.y) / distAnterior) * r;
 
-    const fimX = atual.x + ((proximo.x - atual.x) / distProximo) * r;
-    const fimY = atual.y + ((proximo.y - atual.y) / distProximo) * r;
+    const fimX =
+      atual.x +
+      ((proximo.x - atual.x) / distProximo) * r;
+    const fimY =
+      atual.y +
+      ((proximo.y - atual.y) / distProximo) * r;
 
     if (i === 0) {
       d += `M ${inicioX} ${inicioY}`;
@@ -118,21 +183,41 @@ function gerarPathComCantosArredondados(campo: CampoForma) {
   return d;
 }
 
-function gerarPontosEstrela(pontas: number, raioInterno = 22, raioExterno = 44): PontoForma[] {
+function gerarPontosEstrela(
+  pontas: number,
+  raioInterno = 22,
+  raioExterno = 44,
+): PontoForma[] {
   const total = Math.max(3, pontas) * 2;
 
-  return Array.from({ length: total }).map((_, i) => {
-    const externo = i % 2 === 0;
-    const angulo = (Math.PI * 2 * i) / total - Math.PI / 2;
-    const raio = externo ? raioExterno : raioInterno;
+  return Array.from({ length: total }).map(
+    (_, i) => {
+      const externo = i % 2 === 0;
+      const angulo =
+        (Math.PI * 2 * i) / total -
+        Math.PI / 2;
+      const raio = externo
+        ? raioExterno
+        : raioInterno;
 
-    return {
-      id: `p-${Date.now()}-${i}`,
-      x: Number((50 + Math.cos(angulo) * raio).toFixed(2)),
-      y: Number((50 + Math.sin(angulo) * raio).toFixed(2)),
-      tipo: "reto",
-    };
-  });
+      return {
+        id: `p-${Date.now()}-${i}`,
+        x: Number(
+          (
+            50 +
+            Math.cos(angulo) * raio
+          ).toFixed(2),
+        ),
+        y: Number(
+          (
+            50 +
+            Math.sin(angulo) * raio
+          ).toFixed(2),
+        ),
+        tipo: "reto",
+      };
+    },
+  );
 }
 
 export default function FloatingShapeInspector({
@@ -147,53 +232,138 @@ export default function FloatingShapeInspector({
   zIndex,
   onTrazerParaFrente,
 }: Props) {
-  if (!aberto || !campo || campo.tipo !== "FORMA") return null;
+  const t = useTranslations(
+    "AdminCertificateEditor",
+  );
 
-  const pontasAtuais = campo.forma === "ESTRELA"
-    ? Math.max(3, Math.floor((campo.pontosForma?.length || 10) / 2))
-    : 0;
+  /*
+   * Hook sempre executado antes de qualquer return.
+   * Isso evita "Rendered more hooks than during the previous render".
+   */
+  const [alvoCantos, setAlvoCantos] =
+    useState<
+      | "todos"
+      | "cima"
+      | "baixo"
+      | "esquerda"
+      | "direita"
+    >("todos");
 
-  const raioInternoAtual = Number((campo as any).raioInterno ?? 22);
-  const raioExternoAtual = Number((campo as any).raioExterno ?? 44);
+  if (
+    !aberto ||
+    !campo ||
+    campo.tipo !== "FORMA"
+  ) {
+    return null;
+  }
 
-  function atualizarCampoBasico(chave: keyof CampoForma, valor: any) {
+  const pontasAtuais =
+    campo.forma === "ESTRELA"
+      ? Math.max(
+          3,
+          Math.floor(
+            (campo.pontosForma?.length || 10) /
+              2,
+          ),
+        )
+      : 0;
+
+  const raioInternoAtual = Number(
+    (campo as any).raioInterno ?? 22,
+  );
+  const raioExternoAtual = Number(
+    (campo as any).raioExterno ?? 44,
+  );
+
+  const ehEstrela =
+    campo.forma === "ESTRELA";
+  const ehRetanguloOuQuadrado =
+    campo.forma === "RETANGULO" ||
+    campo.forma === "QUADRADO";
+  const ehTriangulo =
+    campo.forma === "TRIANGULO";
+  const ehCirculo =
+    campo.forma === "CIRCULO";
+
+  void gerarPathComCantosArredondados;
+  void ehCirculo;
+
+  function rotuloForma(
+    forma?: string | null,
+  ) {
+    switch (forma) {
+      case "RETANGULO":
+        return t("shapes.RETANGULO");
+      case "QUADRADO":
+        return t("shapes.QUADRADO");
+      case "CIRCULO":
+        return t("shapes.CIRCULO");
+      case "LINHA":
+        return t("shapes.LINHA");
+      case "ESTRELA":
+        return t("shapes.ESTRELA");
+      case "TRIANGULO":
+        return t("shapes.TRIANGULO");
+      case "SETA":
+        return t("shapes.SETA");
+      case "LOSANGO":
+        return t("shapes.LOSANGO");
+      case "LIVRE":
+        return t("shapes.LIVRE");
+      default:
+        return t("layers.shape");
+    }
+  }
+
+  function atualizarCampoBasico(
+    chave: keyof CampoForma,
+    valor: any,
+  ) {
     onAtualizarCampo({
       ...campo,
       [chave]: valor,
     } as any);
   }
 
-  const ehEstrela = campo.forma === "ESTRELA";
-  const ehRetanguloOuQuadrado =
-    campo.forma === "RETANGULO" || campo.forma === "QUADRADO";
-  const ehTriangulo = campo.forma === "TRIANGULO";
-  const ehCirculo = campo.forma === "CIRCULO";
-
-  const [alvoCantos, setAlvoCantos] = useState<
-    "todos" | "cima" | "baixo" | "esquerda" | "direita"
-  >("todos");
-
   function valorAtualDosCantos() {
-    const cantos = (campo as any).cantosArredondados || {};
+    const cantos =
+      (campo as any).cantosArredondados ||
+      {};
 
     if (alvoCantos === "todos") {
       return campo.raioBorda || 0;
     }
 
     if (alvoCantos === "cima") {
-      return cantos.topoEsquerdo ?? cantos.topoDireito ?? 0;
+      return (
+        cantos.topoEsquerdo ??
+        cantos.topoDireito ??
+        0
+      );
     }
 
     if (alvoCantos === "baixo") {
-      return cantos.baixoEsquerdo ?? cantos.baixoDireito ?? 0;
+      return (
+        cantos.baixoEsquerdo ??
+        cantos.baixoDireito ??
+        0
+      );
     }
 
     if (alvoCantos === "esquerda") {
-      return cantos.topoEsquerdo ?? cantos.baixoEsquerdo ?? 0;
+      return (
+        cantos.topoEsquerdo ??
+        cantos.baixoEsquerdo ??
+        0
+      );
     }
 
     if (alvoCantos === "direita") {
-      return cantos.topoDireito ?? cantos.baixoDireito ?? 0;
+      return (
+        cantos.topoDireito ??
+        cantos.baixoDireito ??
+        0
+      );
     }
 
     return 0;
@@ -210,43 +380,77 @@ export default function FloatingShapeInspector({
       | "topoDireito"
       | "baixoDireito"
       | "baixoEsquerdo",
-    valor: number
+    valor: number,
   ) {
-    const pontos = campo.pontosForma || [];
+    const pontos =
+      campo.pontosForma || [];
 
-    const deveCurvar = (ponto: PontoForma, index: number) => {
+    const deveCurvar = (
+      ponto: PontoForma,
+      index: number,
+    ) => {
       if (alvo === "todos") return true;
 
-      if (alvo === "cima") return ponto.y <= 50;
-      if (alvo === "baixo") return ponto.y >= 50;
-      if (alvo === "esquerda") return ponto.x <= 50;
-      if (alvo === "direita") return ponto.x >= 50;
+      if (alvo === "cima") {
+        return ponto.y <= 50;
+      }
 
-      if (alvo === "topoEsquerdo") return index === 0;
-      if (alvo === "topoDireito") return index === 1;
-      if (alvo === "baixoDireito") return index === 2;
-      if (alvo === "baixoEsquerdo") return index === 3;
+      if (alvo === "baixo") {
+        return ponto.y >= 50;
+      }
+
+      if (alvo === "esquerda") {
+        return ponto.x <= 50;
+      }
+
+      if (alvo === "direita") {
+        return ponto.x >= 50;
+      }
+
+      if (alvo === "topoEsquerdo") {
+        return index === 0;
+      }
+
+      if (alvo === "topoDireito") {
+        return index === 1;
+      }
+
+      if (alvo === "baixoDireito") {
+        return index === 2;
+      }
+
+      if (alvo === "baixoEsquerdo") {
+        return index === 3;
+      }
 
       return false;
     };
 
-    const novosPontos = pontos.map((ponto, index) => {
-      if (!deveCurvar(ponto, index)) return ponto;
+    const novosPontos = pontos.map(
+      (ponto, index) => {
+        if (!deveCurvar(ponto, index)) {
+          return ponto;
+        }
 
-      if (valor <= 0) {
-        return {
-          ...ponto,
-          tipo: "reto" as const,
-          handleMode: "quebrado" as const,
-          inX: undefined,
-          inY: undefined,
-          outX: undefined,
-          outY: undefined,
-        };
-      }
+        if (valor <= 0) {
+          return {
+            ...ponto,
+            tipo: "reto" as const,
+            handleMode:
+              "quebrado" as const,
+            inX: undefined,
+            inY: undefined,
+            outX: undefined,
+            outY: undefined,
+          };
+        }
 
-      return criarTangenteSimetrica(ponto, valor);
-    });
+        return criarTangenteSimetrica(
+          ponto,
+          valor,
+        );
+      },
+    );
 
     onAtualizarCampo({
       ...campo,
@@ -256,7 +460,9 @@ export default function FloatingShapeInspector({
     } as any);
   }
 
-  function iniciarArraste(e: React.MouseEvent<HTMLDivElement>) {
+  function iniciarArraste(
+    e: ReactMouseEvent<HTMLDivElement>,
+  ) {
     e.preventDefault();
     e.stopPropagation();
 
@@ -266,18 +472,36 @@ export default function FloatingShapeInspector({
 
     const mover = (ev: MouseEvent) => {
       onMover({
-        x: original.x + ev.clientX - inicioX,
-        y: original.y + ev.clientY - inicioY,
+        x:
+          original.x +
+          ev.clientX -
+          inicioX,
+        y:
+          original.y +
+          ev.clientY -
+          inicioY,
       });
     };
 
     const soltar = () => {
-      window.removeEventListener("mousemove", mover);
-      window.removeEventListener("mouseup", soltar);
+      window.removeEventListener(
+        "mousemove",
+        mover,
+      );
+      window.removeEventListener(
+        "mouseup",
+        soltar,
+      );
     };
 
-    window.addEventListener("mousemove", mover);
-    window.addEventListener("mouseup", soltar);
+    window.addEventListener(
+      "mousemove",
+      mover,
+    );
+    window.addEventListener(
+      "mouseup",
+      soltar,
+    );
   }
 
   function atualizarEstrela(opcoes: {
@@ -285,11 +509,18 @@ export default function FloatingShapeInspector({
     raioInterno?: number;
     raioExterno?: number;
   }) {
-    if (campo.forma !== "ESTRELA") return;
+    if (campo.forma !== "ESTRELA") {
+      return;
+    }
 
-    const novasPontas = opcoes.pontas ?? pontasAtuais;
-    const novoRaioInterno = opcoes.raioInterno ?? raioInternoAtual;
-    const novoRaioExterno = opcoes.raioExterno ?? raioExternoAtual;
+    const novasPontas =
+      opcoes.pontas ?? pontasAtuais;
+    const novoRaioInterno =
+      opcoes.raioInterno ??
+      raioInternoAtual;
+    const novoRaioExterno =
+      opcoes.raioExterno ??
+      raioExternoAtual;
 
     onAtualizarCampo({
       ...campo,
@@ -300,27 +531,32 @@ export default function FloatingShapeInspector({
       pontosForma: gerarPontosEstrela(
         novasPontas,
         novoRaioInterno,
-        novoRaioExterno
+        novoRaioExterno,
       ),
     } as any);
   }
 
   function criarTangenteSimetrica(
     ponto: PontoForma,
-    intensidade: number
+    intensidade: number,
   ): PontoForma {
     const centroX = 50;
     const centroY = 50;
 
     const anguloRadial = Math.atan2(
       ponto.y - centroY,
-      ponto.x - centroX
+      ponto.x - centroX,
     );
 
-    const anguloTangente = anguloRadial + Math.PI / 2;
+    const anguloTangente =
+      anguloRadial + Math.PI / 2;
 
-    const dx = Math.cos(anguloTangente) * intensidade;
-    const dy = Math.sin(anguloTangente) * intensidade;
+    const dx =
+      Math.cos(anguloTangente) *
+      intensidade;
+    const dy =
+      Math.sin(anguloTangente) *
+      intensidade;
 
     return {
       ...ponto,
@@ -335,46 +571,56 @@ export default function FloatingShapeInspector({
 
   function arredondarGrupoEstrela(
     grupo: "internos" | "externos",
-    intensidade: number
+    intensidade: number,
   ) {
-    if (campo.forma !== "ESTRELA") return;
+    if (campo.forma !== "ESTRELA") {
+      return;
+    }
 
-    const pontos = campo.pontosForma || [];
+    const pontos =
+      campo.pontosForma || [];
 
     onAtualizarCampo({
       ...campo,
-      pontosForma: pontos.map((ponto, index) => {
-        const externo = index % 2 === 0;
-        const pertence =
-          grupo === "externos"
-            ? externo
-            : !externo;
+      pontosForma: pontos.map(
+        (ponto, index) => {
+          const externo =
+            index % 2 === 0;
+          const pertence =
+            grupo === "externos"
+              ? externo
+              : !externo;
 
-        if (!pertence) return ponto;
+          if (!pertence) {
+            return ponto;
+          }
 
-        if (intensidade <= 0) {
-          return {
-            ...ponto,
-            tipo: "reto",
-            inX: undefined,
-            inY: undefined,
-            outX: undefined,
-            outY: undefined,
-          };
-        }
+          if (intensidade <= 0) {
+            return {
+              ...ponto,
+              tipo: "reto",
+              inX: undefined,
+              inY: undefined,
+              outX: undefined,
+              outY: undefined,
+            };
+          }
 
-        return criarTangenteSimetrica(
-          ponto,
-          intensidade
-        );
-      }),
+          return criarTangenteSimetrica(
+            ponto,
+            intensidade,
+          );
+        },
+      ),
     } as any);
   }
 
-  function classeBotaoAlvo(alvo: typeof alvoCantos) {
+  function classeBotaoAlvo(
+    alvo: typeof alvoCantos,
+  ) {
     return alvoCantos === alvo
-      ? "rounded-lg border border-blue-600 bg-blue-600 px-2 py-1 text-xs font-semibold text-white"
-      : "rounded-lg border bg-white px-2 py-1 text-xs font-semibold hover:bg-slate-50";
+      ? "rounded-lg border border-blue-400 bg-blue-600 px-2 py-1 text-xs font-black !text-white shadow-sm"
+      : "rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-bold text-slate-800 hover:bg-slate-50 dark:border-slate-500 dark:bg-slate-900/40 dark:text-slate-100 dark:hover:bg-slate-800";
   }
 
   return (
@@ -393,17 +639,23 @@ export default function FloatingShapeInspector({
         e.stopPropagation();
         onTrazerParaFrente?.();
       }}
-      onClick={(e) => e.stopPropagation()}
+      onClick={(e) =>
+        e.stopPropagation()
+      }
     >
       <div
         onMouseDown={iniciarArraste}
         className="flex cursor-move items-center justify-between rounded-t-2xl bg-blue-600 px-4 py-3 text-white"
       >
-        <strong className="text-sm">Opções da forma</strong>
+        <strong className="text-sm">
+          {t("shapeInspector.title")}
+        </strong>
 
         <button
           type="button"
           onClick={onFechar}
+          aria-label={t("common.close")}
+          title={t("common.close")}
           className="rounded-full bg-white/20 px-2 py-1 text-xs hover:bg-white/30"
         >
           ✕
@@ -413,38 +665,53 @@ export default function FloatingShapeInspector({
       <div className="h-[calc(100%-52px)] space-y-4 overflow-y-auto p-4 text-sm text-slate-700">
         <button
           type="button"
-          onClick={() => setMostrarHandlesForma?.((prev) => !prev)}
-          className="w-full rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-bold uppercase tracking-wide text-blue-700 hover:bg-blue-100"
+          onClick={() =>
+            setMostrarHandlesForma?.(
+              (prev) => !prev,
+            )
+          }
+          className="w-full rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-black uppercase tracking-wide text-blue-700 hover:bg-blue-100 dark:border-blue-300 dark:bg-slate-900/40 dark:text-blue-300 dark:hover:bg-slate-800"
         >
-          Mostrar / ocultar pontos de edição
+          {t(
+            "shapeInspector.showHidePoints",
+          )}
         </button>
+
         <button
           type="button"
           onClick={onOpenArray}
-          className="w-full rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-bold uppercase tracking-wide text-blue-700 hover:bg-blue-100"
+          className="w-full rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-black uppercase tracking-wide text-blue-700 hover:bg-blue-100 dark:border-blue-300 dark:bg-slate-900/40 dark:text-blue-300 dark:hover:bg-slate-800"
         >
-          🔁 Array / Multiplicar
+          ▣{" "}
+          {t(
+            "shapeInspector.arrayMultiply",
+          )}
         </button>
+
         <div>
           <p className="mb-1 text-xs font-bold uppercase tracking-wide text-slate-500">
-            Tipo
+            {t("shapeInspector.type")}
           </p>
-          <div className="rounded-xl border bg-slate-50 px-3 py-2">
-            {campo.forma || "Forma"}
+
+          <div className="rounded-xl border bg-slate-50 px-3 py-2 font-semibold">
+            {rotuloForma(campo.forma)}
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
             <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-              Largura
+              {t("common.width")}
             </p>
 
             <input
               type="number"
               value={campo.largura || 160}
               onChange={(e) =>
-                atualizarCampoBasico("largura", Number(e.target.value))
+                atualizarCampoBasico(
+                  "largura",
+                  Number(e.target.value),
+                )
               }
               className="w-full rounded-xl border px-3 py-2"
             />
@@ -452,14 +719,17 @@ export default function FloatingShapeInspector({
 
           <div>
             <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-              Altura
+              {t("common.height")}
             </p>
 
             <input
               type="number"
               value={campo.altura || 160}
               onChange={(e) =>
-                atualizarCampoBasico("altura", Number(e.target.value))
+                atualizarCampoBasico(
+                  "altura",
+                  Number(e.target.value),
+                )
               }
               className="w-full rounded-xl border px-3 py-2"
             />
@@ -467,8 +737,10 @@ export default function FloatingShapeInspector({
         </div>
 
         <div className="mt-4">
-          <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-            Virar forma
+          <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-300">
+            {t(
+              "shapeInspector.flipShape",
+            )}
           </p>
 
           <div className="grid grid-cols-2 gap-2">
@@ -480,13 +752,19 @@ export default function FloatingShapeInspector({
                   flipX: !campo.flipX,
                 } as any)
               }
-              className={`rounded-xl border px-3 py-2 text-xs font-bold transition ${campo.flipX
-                  ? "border-blue-300 bg-blue-600 text-white"
-                  : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
-                }`}
-              title="Virar horizontalmente"
+              className={`rounded-xl border px-3 py-2 text-xs font-bold transition ${
+                campo.flipX
+                  ? "border-blue-300 bg-blue-600 !text-white"
+                  : "border-slate-300 bg-white text-slate-800 hover:bg-slate-50 dark:border-slate-500 dark:bg-slate-900/40 dark:text-slate-100 dark:hover:bg-slate-800"
+              }`}
+              title={t(
+                "shapeInspector.flipHorizontalTitle",
+              )}
             >
-              ↔ Horizontal
+              ↔{" "}
+              {t(
+                "shapeInspector.horizontal",
+              )}
             </button>
 
             <button
@@ -497,21 +775,30 @@ export default function FloatingShapeInspector({
                   flipY: !campo.flipY,
                 } as any)
               }
-              className={`rounded-xl border px-3 py-2 text-xs font-bold transition ${campo.flipY
-                  ? "border-blue-300 bg-blue-600 text-white"
-                  : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
-                }`}
-              title="Virar verticalmente"
+              className={`rounded-xl border px-3 py-2 text-xs font-bold transition ${
+                campo.flipY
+                  ? "border-blue-300 bg-blue-600 !text-white"
+                  : "border-slate-300 bg-white text-slate-800 hover:bg-slate-50 dark:border-slate-500 dark:bg-slate-900/40 dark:text-slate-100 dark:hover:bg-slate-800"
+              }`}
+              title={t(
+                "shapeInspector.flipVerticalTitle",
+              )}
             >
-              ↕ Vertical
+              ↕{" "}
+              {t(
+                "shapeInspector.vertical",
+              )}
             </button>
           </div>
         </div>
 
-        {(ehRetanguloOuQuadrado || ehTriangulo) && (
-          <div className="mt-4 rounded-2xl border border-blue-100 bg-blue-50/50 p-3">
-            <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-              Arredondamento dos cantos
+        {(ehRetanguloOuQuadrado ||
+          ehTriangulo) && (
+          <div className="mt-4 rounded-2xl border border-blue-100 bg-blue-50/50 p-3 dark:border-slate-400 dark:bg-slate-300/80">
+            <p className="mb-2 text-xs font-black uppercase tracking-wide !text-slate-800">
+              {t(
+                "shapeAppearance.cornerRadius",
+              )}
             </p>
 
             <input
@@ -520,7 +807,10 @@ export default function FloatingShapeInspector({
               max={50}
               value={valorAtualDosCantos()}
               onChange={(e) =>
-                aplicarArredondamentoCantos(alvoCantos, Number(e.target.value))
+                aplicarArredondamentoCantos(
+                  alvoCantos,
+                  Number(e.target.value),
+                )
               }
               className="w-full"
             />
@@ -530,78 +820,131 @@ export default function FloatingShapeInspector({
                 type="button"
                 onClick={() => {
                   setAlvoCantos("todos");
-                  aplicarArredondamentoCantos("todos", valorAtualDosCantos() || 20);
+                  aplicarArredondamentoCantos(
+                    "todos",
+                    valorAtualDosCantos() ||
+                      20,
+                  );
                 }}
-                className={classeBotaoAlvo("todos")}
+                className={classeBotaoAlvo(
+                  "todos",
+                )}
               >
-                Todos
+                {t(
+                  "shapeInspector.cornerAll",
+                )}
               </button>
 
               <button
                 type="button"
                 onClick={() => {
                   setAlvoCantos("cima");
-                  aplicarArredondamentoCantos("cima", 20);
+                  aplicarArredondamentoCantos(
+                    "cima",
+                    20,
+                  );
                 }}
-                className={classeBotaoAlvo("cima")}
+                className={classeBotaoAlvo(
+                  "cima",
+                )}
               >
-                Só cima
+                {t(
+                  "shapeInspector.cornerTop",
+                )}
               </button>
 
               <button
                 type="button"
                 onClick={() => {
                   setAlvoCantos("baixo");
-                  aplicarArredondamentoCantos("baixo", 20);
+                  aplicarArredondamentoCantos(
+                    "baixo",
+                    20,
+                  );
                 }}
-                className={classeBotaoAlvo("baixo")}
+                className={classeBotaoAlvo(
+                  "baixo",
+                )}
               >
-                Só baixo
+                {t(
+                  "shapeInspector.cornerBottom",
+                )}
               </button>
 
               <button
                 type="button"
                 onClick={() => {
                   setAlvoCantos("esquerda");
-                  aplicarArredondamentoCantos("esquerda", 20);
+                  aplicarArredondamentoCantos(
+                    "esquerda",
+                    20,
+                  );
                 }}
-                className={classeBotaoAlvo("esquerda")}
+                className={classeBotaoAlvo(
+                  "esquerda",
+                )}
               >
-                Só esquerda
+                {t(
+                  "shapeInspector.cornerLeft",
+                )}
               </button>
 
               <button
                 type="button"
                 onClick={() => {
                   setAlvoCantos("direita");
-                  aplicarArredondamentoCantos("direita", 20);
+                  aplicarArredondamentoCantos(
+                    "direita",
+                    20,
+                  );
                 }}
-                className={classeBotaoAlvo("direita")}
+                className={classeBotaoAlvo(
+                  "direita",
+                )}
               >
-                Só direita
+                {t(
+                  "shapeInspector.cornerRight",
+                )}
               </button>
 
               <button
                 type="button"
-                onClick={() => aplicarArredondamentoCantos(alvoCantos, 0)}
-                className="rounded-lg border bg-white px-2 py-1 text-xs font-semibold text-red-600 hover:bg-red-50"
+                onClick={() =>
+                  aplicarArredondamentoCantos(
+                    alvoCantos,
+                    0,
+                  )
+                }
+                className="rounded-lg border border-red-300 bg-white px-2 py-1 text-xs font-black !text-red-600 hover:bg-red-50 dark:border-red-700 dark:bg-slate-900/70 dark:!text-red-400 dark:hover:bg-slate-800"
               >
-                Pontudo
+                {t(
+                  "shapeInspector.cornerSharp",
+                )}
               </button>
             </div>
           </div>
         )}
+
         {campo.forma === "ESTRELA" && (
           <div>
             <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-              Quantidade de pontas
+              {t(
+                "shapeInspector.starPoints",
+              )}
             </p>
 
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => atualizarEstrela({ pontas: Math.max(3, pontasAtuais - 1) })}
-                className="h-9 w-9 rounded-xl border bg-white font-bold hover:bg-slate-50"
+                onClick={() =>
+                  atualizarEstrela({
+                    pontas: Math.max(
+                      3,
+                      pontasAtuais - 1,
+                    ),
+                  })
+                }
+                className="h-9 w-9 rounded-xl border bg-white font-bold hover:bg-slate-50 dark:border-slate-500 dark:bg-slate-900/40 dark:text-slate-100 dark:hover:bg-slate-800"
               >
                 −
               </button>
@@ -612,8 +955,13 @@ export default function FloatingShapeInspector({
 
               <button
                 type="button"
-                onClick={() => atualizarEstrela({ pontas: pontasAtuais + 1 })}
-                className="h-9 w-9 rounded-xl border bg-white font-bold hover:bg-slate-50"
+                onClick={() =>
+                  atualizarEstrela({
+                    pontas:
+                      pontasAtuais + 1,
+                  })
+                }
+                className="h-9 w-9 rounded-xl border bg-white font-bold hover:bg-slate-50 dark:border-slate-500 dark:bg-slate-900/40 dark:text-slate-100 dark:hover:bg-slate-800"
               >
                 +
               </button>
@@ -624,7 +972,13 @@ export default function FloatingShapeInspector({
               min={3}
               max={40}
               value={pontasAtuais}
-              onChange={(e) => atualizarEstrela({ pontas: Number(e.target.value) })}
+              onChange={(e) =>
+                atualizarEstrela({
+                  pontas: Number(
+                    e.target.value,
+                  ),
+                })
+              }
               className="mt-3 w-full"
             />
           </div>
@@ -634,7 +988,9 @@ export default function FloatingShapeInspector({
           <>
             <div className="mt-4">
               <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-                Raio externo / tamanho das pontas
+                {t(
+                  "shapeInspector.outerRadius",
+                )}
               </p>
 
               <input
@@ -643,7 +999,11 @@ export default function FloatingShapeInspector({
                 max={120}
                 value={raioExternoAtual}
                 onChange={(e) =>
-                  atualizarEstrela({ raioExterno: Number(e.target.value) })
+                  atualizarEstrela({
+                    raioExterno: Number(
+                      e.target.value,
+                    ),
+                  })
                 }
                 className="w-full"
               />
@@ -651,7 +1011,9 @@ export default function FloatingShapeInspector({
 
             <div className="mt-4">
               <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-                Raio interno / profundidade
+                {t(
+                  "shapeInspector.innerRadius",
+                )}
               </p>
 
               <input
@@ -660,7 +1022,11 @@ export default function FloatingShapeInspector({
                 max={42}
                 value={raioInternoAtual}
                 onChange={(e) =>
-                  atualizarEstrela({ raioInterno: Number(e.target.value) })
+                  atualizarEstrela({
+                    raioInterno: Number(
+                      e.target.value,
+                    ),
+                  })
                 }
                 className="w-full"
               />
@@ -668,7 +1034,9 @@ export default function FloatingShapeInspector({
 
             <div className="mt-4">
               <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-                Arredondamento interno
+                {t(
+                  "shapeInspector.innerRounding",
+                )}
               </p>
 
               <input
@@ -679,7 +1047,7 @@ export default function FloatingShapeInspector({
                 onChange={(e) =>
                   arredondarGrupoEstrela(
                     "internos",
-                    Number(e.target.value)
+                    Number(e.target.value),
                   )
                 }
                 className="w-full"
@@ -688,7 +1056,9 @@ export default function FloatingShapeInspector({
 
             <div className="mt-4">
               <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-                Arredondamento das pontas
+                {t(
+                  "shapeInspector.tipRounding",
+                )}
               </p>
 
               <input
@@ -699,7 +1069,7 @@ export default function FloatingShapeInspector({
                 onChange={(e) =>
                   arredondarGrupoEstrela(
                     "externos",
-                    Number(e.target.value)
+                    Number(e.target.value),
                   )
                 }
                 className="w-full"
@@ -710,16 +1080,20 @@ export default function FloatingShapeInspector({
 
         <div>
           <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-            Preenchimento
+            {t("shapeAppearance.fill")}
           </p>
 
           <input
             type="color"
-            value={campo.preenchimentoCor || "#1d4ed8"}
+            value={
+              campo.preenchimentoCor ||
+              "#1d4ed8"
+            }
             onChange={(e) =>
               onAtualizarCampo({
                 ...campo,
-                preenchimentoCor: e.target.value,
+                preenchimentoCor:
+                  e.target.value,
                 mostrarPreenchimento: true,
               })
             }
@@ -729,16 +1103,22 @@ export default function FloatingShapeInspector({
 
         <div>
           <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-            Contorno
+            {t(
+              "shapeAppearance.outline",
+            )}
           </p>
 
           <input
             type="color"
-            value={campo.contornoCor || "#1d4ed8"}
+            value={
+              campo.contornoCor ||
+              "#1d4ed8"
+            }
             onChange={(e) =>
               onAtualizarCampo({
                 ...campo,
-                contornoCor: e.target.value,
+                contornoCor:
+                  e.target.value,
                 mostrarContorno: true,
               })
             }
@@ -748,18 +1128,24 @@ export default function FloatingShapeInspector({
 
         <div>
           <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-            Espessura do contorno
+            {t(
+              "shapeAppearance.outlineThickness",
+            )}
           </p>
 
           <input
             type="range"
             min={1}
             max={20}
-            value={campo.contornoEspessura || 2}
+            value={
+              campo.contornoEspessura || 2
+            }
             onChange={(e) =>
               onAtualizarCampo({
                 ...campo,
-                contornoEspessura: Number(e.target.value),
+                contornoEspessura: Number(
+                  e.target.value,
+                ),
                 mostrarContorno: true,
               })
             }
@@ -769,7 +1155,9 @@ export default function FloatingShapeInspector({
 
         <div>
           <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-            Transparência
+            {t(
+              "shapeAppearance.transparency",
+            )}
           </p>
 
           <input
@@ -781,7 +1169,9 @@ export default function FloatingShapeInspector({
             onChange={(e) =>
               onAtualizarCampo({
                 ...campo,
-                opacity: Number(e.target.value),
+                opacity: Number(
+                  e.target.value,
+                ),
               })
             }
             className="w-full"

@@ -246,6 +246,7 @@ model Instituicao {
   bibliotecaManutencoesExemplares BibliotecaManutencaoExemplar[]
 
   studentSuccessIntervencoes StudentSuccessIntervencao[]
+  studentSuccessAnalises     StudentSuccessAnaliseHistorico[]
 
   bibliotecaEmprestimos BibliotecaEmprestimo[]
   bibliotecaRenovacoes  BibliotecaRenovacao[]
@@ -439,7 +440,8 @@ model User {
   etapasFunisComerciaisArquivadas    EtapaFunilComercial[]    @relation("EtapaFunilComercialArquivadaPor")
   etapasFunisComerciaisRestauradas   EtapaFunilComercial[]    @relation("EtapaFunilComercialRestauradaPor")
 
-  studentSuccessIntervencoesCriadas StudentSuccessIntervencao[] @relation("StudentSuccessIntervencaoCriadaPor")
+  studentSuccessIntervencoesCriadas StudentSuccessIntervencao[]      @relation("StudentSuccessIntervencaoCriadaPor")
+  studentSuccessAnalisesExecutadas  StudentSuccessAnaliseHistorico[] @relation("StudentSuccessAnaliseExecutadaPor")
 
   motivosPerdaComerciaisCriados     MotivoPerdaComercial[] @relation("MotivoPerdaComercialCriadoPor")
   motivosPerdaComerciaisAtualizados MotivoPerdaComercial[] @relation("MotivoPerdaComercialAtualizadoPor")
@@ -688,6 +690,7 @@ model Aluno {
   restricoesRematricula          RestricaoRematriculaAluno[]
   historicosRestricaoRematricula RestricaoRematriculaHistorico[]
   studentSuccessIntervencoes     StudentSuccessIntervencao[]
+  studentSuccessAnalises         StudentSuccessAnaliseHistorico[]
 
   participacoesAtividadesExternas AtividadeExternaParticipante[]
 
@@ -7578,6 +7581,64 @@ model StudentSuccessIntervencao {
   @@index([instituicaoId, alunoId, criadoEm])
 }
 
+model StudentSuccessAnaliseHistorico {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+  alunoId       Int
+
+  origem OrigemAnaliseStudentSuccess @default(AUTOMATICA)
+
+  executadoPorId Int?
+
+  // Versão das regras que produziram
+  // esta fotografia acadêmica.
+  versaoMotor String @default("v1")
+
+  // Resultado da análise.
+  nivelRisco String
+
+  pontuacaoRisco Int?
+
+  pontuacaoBruta Int?
+
+  maximoDisponivel Int?
+
+  coberturaPercentual Int
+
+  confiabilidade String
+
+  // Explicabilidade completa do cálculo.
+  componentes       Json?
+  fatoresPrincipais Json?
+
+  // Fotografia dos dados acadêmicos
+  // utilizados no cálculo.
+  indicadores Json?
+
+  // Representação estável do estado acadêmico.
+  //
+  // Será usada para evitar gravar várias
+  // fotografias idênticas consecutivas.
+  assinaturaEstado String
+
+  analisadoEm DateTime @default(now())
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  aluno Aluno @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+
+  executadoPor User? @relation("StudentSuccessAnaliseExecutadaPor", fields: [executadoPorId], references: [id], onDelete: SetNull)
+
+  @@index([instituicaoId])
+  @@index([alunoId])
+  @@index([executadoPorId])
+  @@index([origem])
+  @@index([nivelRisco])
+  @@index([analisadoEm])
+  @@index([instituicaoId, alunoId, analisadoEm])
+  @@index([instituicaoId, nivelRisco, analisadoEm])
+}
+
 model CondutorTransporte {
   id            Int @id @default(autoincrement())
   instituicaoId Int
@@ -9369,6 +9430,13 @@ enum TipoIntervencaoStudentSuccess {
   ENCAMINHAMENTO
   ACOMPANHAMENTO
   OUTRO
+}
+
+enum OrigemAnaliseStudentSuccess {
+  INICIAL
+  AUTOMATICA
+  MANUAL
+  ALTERACAO_ACADEMICA
 }
 
 enum CanalIntervencaoStudentSuccess {

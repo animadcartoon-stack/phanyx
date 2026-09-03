@@ -5,6 +5,11 @@ import {
 } from "@prisma/client";
 
 import {
+  getCountries,
+  type CountryCode,
+} from "libphonenumber-js";
+
+import {
   NextRequest,
   NextResponse,
 } from "next/server";
@@ -198,6 +203,44 @@ function inteiroOpcional(
   }
 
   return numero;
+}
+
+const PAISES_VALIDOS =
+  new Set<CountryCode>(
+    getCountries()
+  );
+
+function paisOpcional(
+  valor: unknown
+): CountryCode | null | undefined {
+  if (
+    valor === null ||
+    valor === undefined ||
+    valor === ""
+  ) {
+    return null;
+  }
+
+  if (
+    typeof valor !== "string"
+  ) {
+    return undefined;
+  }
+
+  const codigo =
+    valor
+      .trim()
+      .toUpperCase() as CountryCode;
+
+  if (
+    !PAISES_VALIDOS.has(
+      codigo
+    )
+  ) {
+    return undefined;
+  }
+
+  return codigo;
 }
 
 export async function GET() {
@@ -575,6 +618,26 @@ export async function POST(
         prestador.id;
     }
 
+    const paisRegistro =
+  paisOpcional(
+    corpo?.paisRegistro
+  );
+
+if (
+  paisRegistro === undefined
+) {
+  return NextResponse.json(
+    {
+      ok: false,
+      error:
+        "PAIS_REGISTRO_INVALIDO",
+    },
+    {
+      status: 400,
+    }
+  );
+}
+
     const ano =
       inteiroOpcional(
         corpo?.ano
@@ -674,11 +737,7 @@ export async function POST(
                 80
               ),
 
-            paisRegistro:
-              limparTexto(
-                corpo?.paisRegistro,
-                120
-              ),
+            paisRegistro,
 
             identificadorExterno:
               limparTexto(

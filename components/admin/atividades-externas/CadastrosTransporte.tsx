@@ -55,19 +55,97 @@ type Prestador = {
   ativo: boolean;
 };
 
+type TipoVeiculo =
+  | "ONIBUS"
+  | "MICRO_ONIBUS"
+  | "VAN"
+  | "AUTOMOVEL"
+  | "SUV"
+  | "MINIVAN"
+  | "CAMINHAO_ADAPTADO"
+  | "AERONAVE"
+  | "TREM"
+  | "METRO"
+  | "BONDE"
+  | "BARCO"
+  | "FERRY"
+  | "EMBARCACAO"
+  | "BICICLETA"
+  | "VEICULO_AUTONOMO"
+  | "OUTRO";
+
+type TipoConducao =
+  | "HUMANA"
+  | "ADAS"
+  | "AUTOMATIZADA_SUPERVISIONADA"
+  | "AUTONOMA"
+  | "SUPERVISAO_REMOTA"
+  | "MISTA"
+  | "NAO_APLICAVEL";
+
 type Veiculo = {
   id: number;
 
-  nomeIdentificacao?: string | null;
+  prestadorTransporteId?:
+  | number
+  | null;
 
-  tipo: string;
+  nomeIdentificacao?:
+  | string
+  | null;
+
+  tipo: TipoVeiculo;
 
   marca?: string | null;
   modelo?: string | null;
+  ano?: number | null;
+
   placa?: string | null;
+
+  paisRegistro?:
+  | string
+  | null;
+
+  identificadorExterno?:
+  | string
+  | null;
 
   capacidadePassageiros?:
   | number
+  | null;
+
+  acessivelPcd: boolean;
+
+  tipoConducao:
+  TipoConducao;
+
+  sistemaConducao?:
+  | string
+  | null;
+
+  versaoSoftware?:
+  | string
+  | null;
+
+  possuiRastreamento:
+  boolean;
+
+  possuiTelemetria:
+  boolean;
+
+  trackingProvider?:
+  | string
+  | null;
+
+  externalVehicleId?:
+  | string
+  | null;
+
+  autorizadoTransporteEstudantil:
+  VerificacaoEstudantil;
+
+  observacao?:
+  | string
   | null;
 
   ativo: boolean;
@@ -75,7 +153,9 @@ type Veiculo = {
   prestadorTransporte?: {
     id: number;
     nome: string;
-    nomeFantasia?: string | null;
+    nomeFantasia?:
+    | string
+    | null;
   } | null;
 };
 
@@ -153,6 +233,111 @@ type FormularioPrestador = {
   observacao: string;
 };
 
+type FormularioVeiculo = {
+  prestadorTransporteId:
+  string;
+
+  nomeIdentificacao:
+  string;
+
+  tipo: TipoVeiculo;
+
+  marca: string;
+  modelo: string;
+  ano: string;
+
+  placa: string;
+
+  paisRegistro:
+  CountryCode;
+
+  identificadorExterno:
+  string;
+
+  capacidadePassageiros:
+  string;
+
+  acessivelPcd: boolean;
+
+  tipoConducao:
+  TipoConducao;
+
+  sistemaConducao:
+  string;
+
+  versaoSoftware:
+  string;
+
+  possuiRastreamento:
+  boolean;
+
+  possuiTelemetria:
+  boolean;
+
+  trackingProvider:
+  string;
+
+  externalVehicleId:
+  string;
+
+  autorizadoTransporteEstudantil:
+  VerificacaoEstudantil;
+
+  observacao: string;
+};
+
+function criarFormularioVeiculoInicial(
+  locale: string
+): FormularioVeiculo {
+  return {
+    prestadorTransporteId:
+      "",
+
+    nomeIdentificacao:
+      "",
+
+    tipo: "ONIBUS",
+
+    marca: "",
+    modelo: "",
+    ano: "",
+
+    placa: "",
+
+    paisRegistro:
+      paisInicial(locale),
+
+    identificadorExterno:
+      "",
+
+    capacidadePassageiros:
+      "",
+
+    acessivelPcd: false,
+
+    tipoConducao:
+      "HUMANA",
+
+    sistemaConducao: "",
+    versaoSoftware: "",
+
+    possuiRastreamento:
+      false,
+
+    possuiTelemetria:
+      false,
+
+    trackingProvider: "",
+
+    externalVehicleId: "",
+
+    autorizadoTransporteEstudantil:
+      "NAO_VERIFICADO",
+
+    observacao: "",
+  };
+}
+
 type OpcaoSelect = {
   value: string;
   label: string;
@@ -174,6 +359,38 @@ const VERIFICACOES:
     "NAO_VERIFICADO",
     "VERIFICADO",
     "NAO_AUTORIZADO",
+    "NAO_APLICAVEL",
+  ];
+
+const TIPOS_VEICULO:
+  TipoVeiculo[] = [
+    "ONIBUS",
+    "MICRO_ONIBUS",
+    "VAN",
+    "AUTOMOVEL",
+    "SUV",
+    "MINIVAN",
+    "CAMINHAO_ADAPTADO",
+    "AERONAVE",
+    "TREM",
+    "METRO",
+    "BONDE",
+    "BARCO",
+    "FERRY",
+    "EMBARCACAO",
+    "BICICLETA",
+    "VEICULO_AUTONOMO",
+    "OUTRO",
+  ];
+
+const TIPOS_CONDUCAO:
+  TipoConducao[] = [
+    "HUMANA",
+    "ADAS",
+    "AUTOMATIZADA_SUPERVISIONADA",
+    "AUTONOMA",
+    "SUPERVISAO_REMOTA",
+    "MISTA",
     "NAO_APLICAVEL",
   ];
 
@@ -363,10 +580,51 @@ function SelectCadastro({
     setAberto,
   ] = useState(false);
 
+  const [
+    termoBusca,
+    setTermoBusca,
+  ] = useState("");
+
   const ref =
     useRef<HTMLDivElement>(
       null
     );
+
+  const timeoutBuscaRef =
+    useRef<number | null>(
+      null
+    );
+
+  function normalizarBusca(
+    valor: string
+  ) {
+    return valor
+      .normalize("NFD")
+      .replace(
+        /[\u0300-\u036f]/g,
+        ""
+      )
+      .toLocaleLowerCase();
+  }
+
+  function limparBuscaDepois() {
+    if (
+      timeoutBuscaRef.current !==
+      null
+    ) {
+      window.clearTimeout(
+        timeoutBuscaRef.current
+      );
+    }
+
+    timeoutBuscaRef.current =
+      window.setTimeout(
+        () => {
+          setTermoBusca("");
+        },
+        1200
+      );
+  }
 
   useEffect(() => {
     function fecharFora(
@@ -379,6 +637,7 @@ function SelectCadastro({
         )
       ) {
         setAberto(false);
+        setTermoBusca("");
       }
     }
 
@@ -387,11 +646,21 @@ function SelectCadastro({
       fecharFora
     );
 
-    return () =>
+    return () => {
       document.removeEventListener(
         "mousedown",
         fecharFora
       );
+
+      if (
+        timeoutBuscaRef.current !==
+        null
+      ) {
+        window.clearTimeout(
+          timeoutBuscaRef.current
+        );
+      }
+    };
   }, []);
 
   const selecionada =
@@ -400,20 +669,129 @@ function SelectCadastro({
         option.value === value
     );
 
+  const termoNormalizado =
+    normalizarBusca(
+      termoBusca
+    );
+
+  const opcoesVisiveis =
+    termoNormalizado
+      ? options.filter(
+          (option) => {
+            const label =
+              normalizarBusca(
+                option.label
+              );
+
+            const valor =
+              normalizarBusca(
+                option.value
+              );
+
+            return (
+              label.startsWith(
+                termoNormalizado
+              ) ||
+              valor.startsWith(
+                termoNormalizado
+              )
+            );
+          }
+        )
+      : options;
+
+  function tratarTecla(
+    event:
+      React.KeyboardEvent<HTMLDivElement>
+  ) {
+    if (!aberto) {
+      return;
+    }
+
+    if (
+      event.key === "Escape"
+    ) {
+      event.preventDefault();
+
+      setAberto(false);
+      setTermoBusca("");
+
+      return;
+    }
+
+    if (
+      event.key ===
+      "Backspace"
+    ) {
+      event.preventDefault();
+
+      setTermoBusca(
+        (atual) =>
+          atual.slice(
+            0,
+            -1
+          )
+      );
+
+      limparBuscaDepois();
+
+      return;
+    }
+
+    if (
+      event.ctrlKey ||
+      event.metaKey ||
+      event.altKey
+    ) {
+      return;
+    }
+
+    if (
+      event.key.length !== 1
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+
+    setTermoBusca(
+      (atual) =>
+        `${atual}${event.key}`
+    );
+
+    limparBuscaDepois();
+  }
+
   return (
     <div
       ref={ref}
+      onKeyDown={
+        tratarTecla
+      }
       className="phanyx-transporte-select relative"
     >
       <button
         type="button"
         aria-haspopup="listbox"
         aria-expanded={aberto}
-        onClick={() =>
+        onClick={() => {
           setAberto(
-            (atual) => !atual
-          )
-        }
+            (atual) => {
+              const proximo =
+                !atual;
+
+              if (
+                !proximo
+              ) {
+                setTermoBusca(
+                  ""
+                );
+              }
+
+              return proximo;
+            }
+          );
+        }}
         className="phanyx-transporte-select-trigger flex min-h-[44px] w-full items-center justify-between gap-3 rounded-xl border px-3.5 py-2.5 text-left text-sm font-medium"
       >
         <span className="truncate">
@@ -429,7 +807,9 @@ function SelectCadastro({
             aberto
               ? "rotate-180"
               : "",
-          ].join(" ")}
+          ]
+            .filter(Boolean)
+            .join(" ")}
         >
           ▼
         </span>
@@ -440,7 +820,13 @@ function SelectCadastro({
           role="listbox"
           className="phanyx-transporte-select-menu absolute left-0 right-0 top-[calc(100%+6px)] z-[100] max-h-72 overflow-y-auto rounded-xl border p-1.5 shadow-xl"
         >
-          {options.map(
+          {termoBusca ? (
+            <div className="mb-1 rounded-lg border px-3 py-2 text-xs font-bold opacity-70">
+              🔎 {termoBusca}
+            </div>
+          ) : null}
+
+          {opcoesVisiveis.map(
             (option) => {
               const ativo =
                 option.value ===
@@ -463,6 +849,10 @@ function SelectCadastro({
 
                     setAberto(
                       false
+                    );
+
+                    setTermoBusca(
+                      ""
                     );
                   }}
                   className={[
@@ -566,6 +956,27 @@ export default function CadastrosTransporte({
     useState<FormularioPrestador>(
       () =>
         criarFormularioPrestadorInicial(
+          locale
+        )
+    );
+
+  const [
+    formularioVeiculoAberto,
+    setFormularioVeiculoAberto,
+  ] = useState(false);
+
+  const [
+    salvandoVeiculo,
+    setSalvandoVeiculo,
+  ] = useState(false);
+
+  const [
+    formularioVeiculo,
+    setFormularioVeiculo,
+  ] =
+    useState<FormularioVeiculo>(
+      () =>
+        criarFormularioVeiculoInicial(
           locale
         )
     );
@@ -739,6 +1150,20 @@ export default function CadastrosTransporte({
     valor: FormularioPrestador[K]
   ) {
     setFormularioPrestador(
+      (atual) => ({
+        ...atual,
+        [campo]: valor,
+      })
+    );
+  }
+
+  function alterarVeiculo<
+    K extends keyof FormularioVeiculo
+  >(
+    campo: K,
+    valor: FormularioVeiculo[K]
+  ) {
+    setFormularioVeiculo(
       (atual) => ({
         ...atual,
         [campo]: valor,
@@ -978,6 +1403,165 @@ export default function CadastrosTransporte({
     }
   }
 
+  async function salvarVeiculo() {
+    setErro("");
+    setSucesso("");
+
+    setSalvandoVeiculo(
+      true
+    );
+
+    try {
+      const resposta =
+        await fetch(
+          "/api/admin/transportes/veiculos",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body: JSON.stringify({
+              prestadorTransporteId:
+                formularioVeiculo
+                  .prestadorTransporteId ||
+                null,
+
+              nomeIdentificacao:
+                formularioVeiculo
+                  .nomeIdentificacao,
+
+              tipo:
+                formularioVeiculo
+                  .tipo,
+
+              marca:
+                formularioVeiculo
+                  .marca,
+
+              modelo:
+                formularioVeiculo
+                  .modelo,
+
+              ano:
+                formularioVeiculo
+                  .ano ||
+                null,
+
+              placa:
+                formularioVeiculo
+                  .placa,
+
+              paisRegistro:
+                formularioVeiculo
+                  .paisRegistro,
+
+              identificadorExterno:
+                formularioVeiculo
+                  .identificadorExterno,
+
+              capacidadePassageiros:
+                formularioVeiculo
+                  .capacidadePassageiros ||
+                null,
+
+              acessivelPcd:
+                formularioVeiculo
+                  .acessivelPcd,
+
+              tipoConducao:
+                formularioVeiculo
+                  .tipoConducao,
+
+              sistemaConducao:
+                formularioVeiculo
+                  .sistemaConducao,
+
+              versaoSoftware:
+                formularioVeiculo
+                  .versaoSoftware,
+
+              possuiRastreamento:
+                formularioVeiculo
+                  .possuiRastreamento,
+
+              possuiTelemetria:
+                formularioVeiculo
+                  .possuiTelemetria,
+
+              trackingProvider:
+                formularioVeiculo
+                  .trackingProvider,
+
+              externalVehicleId:
+                formularioVeiculo
+                  .externalVehicleId,
+
+              autorizadoTransporteEstudantil:
+                formularioVeiculo
+                  .autorizadoTransporteEstudantil,
+
+              observacao:
+                formularioVeiculo
+                  .observacao,
+            }),
+          }
+        );
+
+      const dados =
+        await resposta.json();
+
+      if (
+        !resposta.ok ||
+        !dados?.ok
+      ) {
+        throw new Error(
+          String(
+            dados?.error ||
+            "ERRO_SALVAR_VEICULO"
+          )
+        );
+      }
+
+      setFormularioVeiculo(
+        criarFormularioVeiculoInicial(
+          locale
+        )
+      );
+
+      setFormularioVeiculoAberto(
+        false
+      );
+
+      setSucesso(
+        t(
+          "registrations.success.vehicleCreated"
+        )
+      );
+
+      await carregar();
+
+      await onCadastrosAlterados?.();
+    } catch (error) {
+      console.error(
+        "[CADASTROS_TRANSPORTE_VEICULO_POST]",
+        error
+      );
+
+      setErro(
+        t(
+          "registrations.errors.saveVehicle"
+        )
+      );
+    } finally {
+      setSalvandoVeiculo(
+        false
+      );
+    }
+  }
+
   return (
     <div className="phanyx-transporte-cadastros rounded-2xl border p-4 sm:p-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -1016,6 +1600,10 @@ export default function CadastrosTransporte({
           onClick={() => {
             setAbaAtiva(
               "prestadores"
+            );
+
+            setFormularioVeiculoAberto(
+              false
             );
 
             setErro("");
@@ -1062,6 +1650,10 @@ export default function CadastrosTransporte({
           onClick={() => {
             setAbaAtiva(
               "condutores"
+            );
+
+            setFormularioVeiculoAberto(
+              false
             );
 
             setFormularioPrestadorAberto(
@@ -1840,12 +2432,626 @@ export default function CadastrosTransporte({
         </div>
       ) : abaAtiva ===
         "veiculos" ? (
-        <ListaVeiculos
-          itens={veiculos}
-          vazio={t(
-            "registrations.empty.vehicles"
-          )}
-        />
+        <div className="mt-4 space-y-4">
+          {podeGerenciar ? (
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => {
+                  setErro("");
+                  setSucesso("");
+
+                  setFormularioVeiculoAberto(
+                    (atual) =>
+                      !atual
+                  );
+                }}
+                className="rounded-xl bg-blue-700 px-4 py-2.5 text-sm font-extrabold text-white shadow-sm hover:bg-blue-800"
+              >
+                {formularioVeiculoAberto
+                  ? t(
+                    "registrations.actions.cancel"
+                  )
+                  : t(
+                    "registrations.actions.addVehicle"
+                  )}
+              </button>
+            </div>
+          ) : null}
+
+          {formularioVeiculoAberto ? (
+            <div className="phanyx-transporte-form rounded-2xl border p-4 sm:p-5">
+              <div>
+                <h4 className="text-lg font-black">
+                  {t(
+                    "registrations.vehicleForm.title"
+                  )}
+                </h4>
+
+                <p className="mt-1 text-sm opacity-75">
+                  {t(
+                    "registrations.vehicleForm.description"
+                  )}
+                </p>
+              </div>
+
+              <SecaoFormulario
+                titulo={`🚐 ${t(
+                  "registrations.vehicleForm.sections.identification"
+                )}`}
+              >
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <CampoCadastro
+                    label={t(
+                      "registrations.vehicleForm.provider"
+                    )}
+                  >
+                    <SelectCadastro
+                      value={
+                        formularioVeiculo
+                          .prestadorTransporteId
+                      }
+                      onChange={(
+                        valor
+                      ) =>
+                        alterarVeiculo(
+                          "prestadorTransporteId",
+                          valor
+                        )
+                      }
+                      options={[
+                        {
+                          value: "",
+                          label: t(
+                            "registrations.vehicleForm.noProvider"
+                          ),
+                        },
+                        ...prestadores
+                          .filter(
+                            (prestador) =>
+                              prestador.ativo
+                          )
+                          .map(
+                            (
+                              prestador
+                            ) => ({
+                              value:
+                                String(
+                                  prestador.id
+                                ),
+
+                              label:
+                                prestador
+                                  .nomeFantasia ||
+                                prestador.nome,
+                            })
+                          ),
+                      ]}
+                    />
+                  </CampoCadastro>
+
+                  <CampoCadastro
+                    label={t(
+                      "registrations.vehicleForm.name"
+                    )}
+                  >
+                    <input
+                      value={
+                        formularioVeiculo
+                          .nomeIdentificacao
+                      }
+                      onChange={(e) =>
+                        alterarVeiculo(
+                          "nomeIdentificacao",
+                          e.target.value
+                        )
+                      }
+                      className="phanyx-transporte-input"
+                    />
+                  </CampoCadastro>
+
+                  <CampoCadastro
+                    label={t(
+                      "registrations.vehicleForm.type"
+                    )}
+                    obrigatorio
+                  >
+                    <SelectCadastro
+                      value={
+                        formularioVeiculo
+                          .tipo
+                      }
+                      onChange={(
+                        valor
+                      ) =>
+                        alterarVeiculo(
+                          "tipo",
+                          valor as TipoVeiculo
+                        )
+                      }
+                      options={TIPOS_VEICULO.map(
+                        (tipo) => ({
+                          value: tipo,
+
+                          label: t(
+                            `registrations.vehicleTypes.${tipo}`
+                          ),
+                        })
+                      )}
+                    />
+                  </CampoCadastro>
+                </div>
+              </SecaoFormulario>
+
+              <SecaoFormulario
+                titulo={`🌍 ${t(
+                  "registrations.vehicleForm.sections.registration"
+                )}`}
+              >
+                <div className="grid gap-4 lg:grid-cols-3">
+                  <CampoCadastro
+                    label={t(
+                      "registrations.vehicleForm.registrationCountry"
+                    )}
+                  >
+                    <SelectCadastro
+                      value={
+                        formularioVeiculo
+                          .paisRegistro
+                      }
+                      onChange={(
+                        valor
+                      ) =>
+                        alterarVeiculo(
+                          "paisRegistro",
+                          valor as CountryCode
+                        )
+                      }
+                      options={paises}
+                    />
+                  </CampoCadastro>
+
+                  <CampoCadastro
+                    label={t(
+                      "registrations.vehicleForm.plate"
+                    )}
+                  >
+                    <input
+                      value={
+                        formularioVeiculo
+                          .placa
+                      }
+                      onChange={(e) =>
+                        alterarVeiculo(
+                          "placa",
+                          e.target.value
+                        )
+                      }
+                      className="phanyx-transporte-input"
+                    />
+                  </CampoCadastro>
+
+                  <CampoCadastro
+                    label={t(
+                      "registrations.vehicleForm.externalIdentifier"
+                    )}
+                  >
+                    <input
+                      value={
+                        formularioVeiculo
+                          .identificadorExterno
+                      }
+                      onChange={(e) =>
+                        alterarVeiculo(
+                          "identificadorExterno",
+                          e.target.value
+                        )
+                      }
+                      className="phanyx-transporte-input"
+                    />
+                  </CampoCadastro>
+                </div>
+              </SecaoFormulario>
+
+              <SecaoFormulario
+                titulo={`🚌 ${t(
+                  "registrations.vehicleForm.sections.vehicle"
+                )}`}
+              >
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                  <CampoCadastro
+                    label={t(
+                      "registrations.vehicleForm.brand"
+                    )}
+                  >
+                    <input
+                      value={
+                        formularioVeiculo
+                          .marca
+                      }
+                      onChange={(e) =>
+                        alterarVeiculo(
+                          "marca",
+                          e.target.value
+                        )
+                      }
+                      className="phanyx-transporte-input"
+                    />
+                  </CampoCadastro>
+
+                  <CampoCadastro
+                    label={t(
+                      "registrations.vehicleForm.model"
+                    )}
+                  >
+                    <input
+                      value={
+                        formularioVeiculo
+                          .modelo
+                      }
+                      onChange={(e) =>
+                        alterarVeiculo(
+                          "modelo",
+                          e.target.value
+                        )
+                      }
+                      className="phanyx-transporte-input"
+                    />
+                  </CampoCadastro>
+
+                  <CampoCadastro
+                    label={t(
+                      "registrations.vehicleForm.year"
+                    )}
+                  >
+                    <input
+                      type="number"
+                      min="1800"
+                      max="2200"
+                      value={
+                        formularioVeiculo
+                          .ano
+                      }
+                      onChange={(e) =>
+                        alterarVeiculo(
+                          "ano",
+                          e.target.value
+                        )
+                      }
+                      className="phanyx-transporte-input"
+                    />
+                  </CampoCadastro>
+
+                  <CampoCadastro
+                    label={t(
+                      "registrations.vehicleForm.capacity"
+                    )}
+                  >
+                    <input
+                      type="number"
+                      min="0"
+                      value={
+                        formularioVeiculo
+                          .capacidadePassageiros
+                      }
+                      onChange={(e) =>
+                        alterarVeiculo(
+                          "capacidadePassageiros",
+                          e.target.value
+                        )
+                      }
+                      className="phanyx-transporte-input"
+                    />
+                  </CampoCadastro>
+                </div>
+
+                <label className="phanyx-transporte-local mt-4 flex cursor-pointer items-start gap-3 rounded-xl border p-3">
+                  <input
+                    type="checkbox"
+                    checked={
+                      formularioVeiculo
+                        .acessivelPcd
+                    }
+                    onChange={(e) =>
+                      alterarVeiculo(
+                        "acessivelPcd",
+                        e.target.checked
+                      )
+                    }
+                    className="mt-1 h-4 w-4 accent-blue-600"
+                  />
+
+                  <div>
+                    <div className="text-sm font-extrabold">
+                      {t(
+                        "registrations.vehicleForm.accessible"
+                      )}
+                    </div>
+
+                    <div className="mt-0.5 text-xs opacity-70">
+                      {t(
+                        "registrations.vehicleForm.accessibleHelp"
+                      )}
+                    </div>
+                  </div>
+                </label>
+
+                <div className="mt-4">
+                  <CampoCadastro
+                    label={t(
+                      "registrations.vehicleForm.studentVerification"
+                    )}
+                  >
+                    <SelectCadastro
+                      value={
+                        formularioVeiculo
+                          .autorizadoTransporteEstudantil
+                      }
+                      onChange={(
+                        valor
+                      ) =>
+                        alterarVeiculo(
+                          "autorizadoTransporteEstudantil",
+                          valor as VerificacaoEstudantil
+                        )
+                      }
+                      options={VERIFICACOES.map(
+                        (
+                          status
+                        ) => ({
+                          value:
+                            status,
+
+                          label:
+                            t(
+                              `registrations.studentVerification.${status}`
+                            ),
+                        })
+                      )}
+                    />
+                  </CampoCadastro>
+                </div>
+              </SecaoFormulario>
+
+              <SecaoFormulario
+                titulo={`⚙️ ${t(
+                  "registrations.vehicleForm.sections.technology"
+                )}`}
+              >
+                <div className="grid gap-4 lg:grid-cols-3">
+                  <CampoCadastro
+                    label={t(
+                      "registrations.vehicleForm.drivingType"
+                    )}
+                  >
+                    <SelectCadastro
+                      value={
+                        formularioVeiculo
+                          .tipoConducao
+                      }
+                      onChange={(
+                        valor
+                      ) =>
+                        alterarVeiculo(
+                          "tipoConducao",
+                          valor as TipoConducao
+                        )
+                      }
+                      options={TIPOS_CONDUCAO.map(
+                        (
+                          tipo
+                        ) => ({
+                          value:
+                            tipo,
+
+                          label:
+                            t(
+                              `registrations.drivingTypes.${tipo}`
+                            ),
+                        })
+                      )}
+                    />
+                  </CampoCadastro>
+
+                  <CampoCadastro
+                    label={t(
+                      "registrations.vehicleForm.drivingSystem"
+                    )}
+                  >
+                    <input
+                      value={
+                        formularioVeiculo
+                          .sistemaConducao
+                      }
+                      onChange={(e) =>
+                        alterarVeiculo(
+                          "sistemaConducao",
+                          e.target.value
+                        )
+                      }
+                      className="phanyx-transporte-input"
+                    />
+                  </CampoCadastro>
+
+                  <CampoCadastro
+                    label={t(
+                      "registrations.vehicleForm.softwareVersion"
+                    )}
+                  >
+                    <input
+                      value={
+                        formularioVeiculo
+                          .versaoSoftware
+                      }
+                      onChange={(e) =>
+                        alterarVeiculo(
+                          "versaoSoftware",
+                          e.target.value
+                        )
+                      }
+                      className="phanyx-transporte-input"
+                    />
+                  </CampoCadastro>
+                </div>
+
+                <div className="mt-4 grid gap-3 lg:grid-cols-2">
+                  <label className="phanyx-transporte-local flex cursor-pointer items-start gap-3 rounded-xl border p-3">
+                    <input
+                      type="checkbox"
+                      checked={
+                        formularioVeiculo
+                          .possuiRastreamento
+                      }
+                      onChange={(e) =>
+                        alterarVeiculo(
+                          "possuiRastreamento",
+                          e.target.checked
+                        )
+                      }
+                      className="mt-1 h-4 w-4 accent-blue-600"
+                    />
+
+                    <div className="text-sm font-extrabold">
+                      {t(
+                        "registrations.vehicleForm.tracking"
+                      )}
+                    </div>
+                  </label>
+
+                  <label className="phanyx-transporte-local flex cursor-pointer items-start gap-3 rounded-xl border p-3">
+                    <input
+                      type="checkbox"
+                      checked={
+                        formularioVeiculo
+                          .possuiTelemetria
+                      }
+                      onChange={(e) =>
+                        alterarVeiculo(
+                          "possuiTelemetria",
+                          e.target.checked
+                        )
+                      }
+                      className="mt-1 h-4 w-4 accent-blue-600"
+                    />
+
+                    <div className="text-sm font-extrabold">
+                      {t(
+                        "registrations.vehicleForm.telemetry"
+                      )}
+                    </div>
+                  </label>
+                </div>
+
+                <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                  <CampoCadastro
+                    label={t(
+                      "registrations.vehicleForm.trackingProvider"
+                    )}
+                  >
+                    <input
+                      value={
+                        formularioVeiculo
+                          .trackingProvider
+                      }
+                      onChange={(e) =>
+                        alterarVeiculo(
+                          "trackingProvider",
+                          e.target.value
+                        )
+                      }
+                      className="phanyx-transporte-input"
+                    />
+                  </CampoCadastro>
+
+                  <CampoCadastro
+                    label={t(
+                      "registrations.vehicleForm.externalVehicleId"
+                    )}
+                  >
+                    <input
+                      value={
+                        formularioVeiculo
+                          .externalVehicleId
+                      }
+                      onChange={(e) =>
+                        alterarVeiculo(
+                          "externalVehicleId",
+                          e.target.value
+                        )
+                      }
+                      className="phanyx-transporte-input"
+                    />
+                  </CampoCadastro>
+                </div>
+              </SecaoFormulario>
+
+              <div className="mt-4">
+                <CampoCadastro
+                  label={t(
+                    "registrations.vehicleForm.notes"
+                  )}
+                >
+                  <textarea
+                    rows={3}
+                    value={
+                      formularioVeiculo
+                        .observacao
+                    }
+                    onChange={(e) =>
+                      alterarVeiculo(
+                        "observacao",
+                        e.target.value
+                      )
+                    }
+                    className="phanyx-transporte-input min-h-[96px] resize-y"
+                  />
+                </CampoCadastro>
+              </div>
+
+              <div className="mt-5 flex justify-end">
+                <button
+                  type="button"
+                  disabled={
+                    salvandoVeiculo
+                  }
+                  onClick={() =>
+                    void salvarVeiculo()
+                  }
+                  className="rounded-xl bg-blue-700 px-5 py-3 text-sm font-extrabold text-white shadow-sm hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {salvandoVeiculo
+                    ? t(
+                      "registrations.actions.saving"
+                    )
+                    : t(
+                      "registrations.actions.saveVehicle"
+                    )}
+                </button>
+              </div>
+            </div>
+          ) : null}
+
+          <ListaVeiculos
+            itens={veiculos}
+            vazio={t(
+              "registrations.empty.vehicles"
+            )}
+            traduzirTipo={(
+              tipo
+            ) =>
+              t(
+                `registrations.vehicleTypes.${tipo}`
+              )
+            }
+            traduzirConducao={(
+              tipo
+            ) =>
+              t(
+                `registrations.drivingTypes.${tipo}`
+              )
+            }
+          />
+        </div>
       ) : (
         <ListaCondutores
           itens={condutores}
@@ -2012,9 +3218,19 @@ function ListaPrestadores({
 function ListaVeiculos({
   itens,
   vazio,
+  traduzirTipo,
+  traduzirConducao,
 }: {
   itens: Veiculo[];
   vazio: string;
+
+  traduzirTipo: (
+    tipo: TipoVeiculo
+  ) => string;
+
+  traduzirConducao: (
+    tipo: TipoConducao
+  ) => string;
 }) {
   if (!itens.length) {
     return (
@@ -2025,27 +3241,106 @@ function ListaVeiculos({
   }
 
   return (
-    <div className="mt-4 space-y-2">
+    <div className="space-y-2">
       {itens.map(
         (item) => (
           <div
             key={item.id}
             className="phanyx-transporte-registration-item rounded-xl border p-3"
           >
-            <div className="font-extrabold">
-              {item.nomeIdentificacao ||
-                item.placa ||
-                item.tipo}
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <div className="font-extrabold">
+                  {item.nomeIdentificacao ||
+                    item.placa ||
+                    traduzirTipo(
+                      item.tipo
+                    )}
+                </div>
+
+                {item.prestadorTransporte ? (
+                  <div className="mt-0.5 text-xs opacity-65">
+                    {
+                      item
+                        .prestadorTransporte
+                        .nomeFantasia ||
+                      item
+                        .prestadorTransporte
+                        .nome
+                    }
+                  </div>
+                ) : null}
+              </div>
+
+              <span className="phanyx-transporte-chip rounded-full border px-2.5 py-1 text-xs font-bold">
+                {traduzirTipo(
+                  item.tipo
+                )}
+              </span>
             </div>
 
-            <div className="mt-1 text-xs opacity-70">
-              {[
-                item.marca,
-                item.modelo,
-                item.placa,
-              ]
-                .filter(Boolean)
-                .join(" • ")}
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs opacity-75">
+              {item.marca ||
+                item.modelo ||
+                item.ano ? (
+                <span>
+                  🚐{" "}
+                  {[
+                    item.marca,
+                    item.modelo,
+                    item.ano,
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                </span>
+              ) : null}
+
+              {item.placa ? (
+                <span>
+                  🪪{" "}
+                  {item.paisRegistro
+                    ? `${item.paisRegistro} • `
+                    : ""}
+                  {item.placa}
+                </span>
+              ) : null}
+
+              {item.capacidadePassageiros !==
+                null &&
+                item.capacidadePassageiros !==
+                undefined ? (
+                <span>
+                  👥{" "}
+                  {
+                    item.capacidadePassageiros
+                  }
+                </span>
+              ) : null}
+
+              <span>
+                ⚙️{" "}
+                {traduzirConducao(
+                  item.tipoConducao
+                )}
+              </span>
+
+              {item.acessivelPcd ? (
+                <span>
+                  ♿ PCD
+                </span>
+              ) : null}
+
+              {item.possuiRastreamento ? (
+                <span>
+                  📍 GPS
+                </span>
+              ) : null}
+
+              {item.possuiTelemetria ? (
+                <span>
+                  📡 Telemetria
+                </span>
+              ) : null}
             </div>
           </div>
         )

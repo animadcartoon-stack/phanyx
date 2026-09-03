@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -35259,4 +35261,418 @@ html[data-theme="system"]
 
 .phanyx-config-certificado-page[data-cert-theme="system-dark"] .phanyx-cert-upload-title {
   color: #bfdbfe !important;
+}
+
+/* =========================================================
+   BIBLIOTECA VIRTUAL
+   CONFIGURAÇÕES
+   ========================================================= */
+
+.bib-settings-page {
+  min-height: 100vh;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+/* ---------------------------------------------------------
+   Tema claro
+   --------------------------------------------------------- */
+
+html:not(.dark) .bib-settings-page {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* Títulos principais dos cards */
+html:not(.dark) .bib-settings-page h2 {
+  color: #0f172a !important;
+}
+
+/* Labels de formulário */
+html:not(.dark) .bib-settings-page label {
+  color: #0f172a;
+}
+
+html:not(.dark) .bib-settings-page label > span {
+  color: #0f172a;
+}
+
+/* Títulos internos dos toggles */
+html:not(.dark) .bib-settings-page label span.font-black {
+  color: #0f172a !important;
+}
+
+/* Textos auxiliares */
+html:not(.dark) .bib-settings-page label small,
+html:not(.dark) .bib-settings-page label span.text-slate-500,
+html:not(.dark) .bib-settings-page label span.text-slate-600,
+html:not(.dark) .bib-settings-page p.text-slate-500,
+html:not(.dark) .bib-settings-page p.text-slate-600 {
+  color: #475569 !important;
+}
+
+/* Descrições das seções */
+html:not(.dark) .bib-settings-page section > p,
+html:not(.dark) .bib-settings-page section > div > p:not(.text-indigo-700):not(.text-amber-700) {
+  color: #475569 !important;
+}
+
+/* Cards */
+html:not(.dark) .bib-settings-page section {
+  color: #0f172a;
+}
+
+/* Inputs */
+html:not(.dark) .bib-settings-page input,
+html:not(.dark) .bib-settings-page textarea,
+html:not(.dark) .bib-settings-page select {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html:not(.dark) .bib-settings-page input::placeholder,
+html:not(.dark) .bib-settings-page textarea::placeholder {
+  color: #64748b !important;
+  opacity: 1;
+}
+
+/* Inputs desativados */
+html:not(.dark) .bib-settings-page input:disabled,
+html:not(.dark) .bib-settings-page textarea:disabled,
+html:not(.dark) .bib-settings-page select:disabled {
+  background: #f1f5f9 !important;
+  color: #64748b !important;
+}
+
+/* ---------------------------------------------------------
+   Multas e cobranças — tema claro
+   --------------------------------------------------------- */
+
+html:not(.dark) .bib-settings-fines {
+  background: linear-gradient(
+    135deg,
+    #fffbeb 0%,
+    #ffffff 100%
+  ) !important;
+
+  border-color: #f59e0b !important;
+  color: #0f172a !important;
+}
+
+html:not(.dark) .bib-settings-fines h2 {
+  color: #0f172a !important;
+}
+
+html:not(.dark) .bib-settings-fines > div > p {
+  color: #475569 !important;
+}
+
+html:not(.dark) .bib-settings-fines > div > p:first-child {
+  color: #b45309 !important;
+}
+
+/* Toggle principal de multa */
+html:not(.dark) .bib-settings-fines label {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #fde68a !important;
+}
+
+html:not(.dark) .bib-settings-fines label span {
+  color: #0f172a !important;
+}
+
+html:not(.dark) .bib-settings-fines label span.text-slate-500,
+html:not(.dark) .bib-settings-fines label span.text-slate-600 {
+  color: #475569 !important;
+}
+
+/* ---------------------------------------------------------
+   Botões — tema claro
+   --------------------------------------------------------- */
+
+html:not(.dark) .bib-settings-page a {
+  color: #1e293b;
+}
+
+html:not(.dark) .bib-settings-page a.border-slate-300 {
+  background: #ffffff !important;
+  color: #1e293b !important;
+  border-color: #cbd5e1 !important;
+}
+
+html:not(.dark) .bib-settings-page a.border-slate-300:hover {
+  background: #f1f5f9 !important;
+}
+
+/* ---------------------------------------------------------
+   Tema escuro
+   --------------------------------------------------------- */
+
+html.dark .bib-settings-page {
+  background: #020617 !important;
+  color: #f8fafc !important;
+}
+
+html.dark .bib-settings-fines {
+  background: linear-gradient(
+    135deg,
+    rgba(69, 26, 3, 0.45) 0%,
+    #0f172a 100%
+  ) !important;
+
+  border-color: #92400e !important;
+  color: #f8fafc !important;
+}
+
+html.dark .bib-settings-fines h2 {
+  color: #ffffff !important;
+}
+
+html.dark .bib-settings-fines > div > p:not(:first-child) {
+  color: #cbd5e1 !important;
+}
+
+/* ---------------------------------------------------------
+   Acessibilidade / foco
+   --------------------------------------------------------- */
+
+.bib-settings-page input:focus,
+.bib-settings-page textarea:focus,
+.bib-settings-page select:focus,
+.bib-settings-page button:focus-visible,
+.bib-settings-page a:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+}
+
+/* =========================================================
+   BIBLIOTECA — CONFIGURAÇÕES
+   TEMA SISTEMA
+   ========================================================= */
+
+/*
+ * Quando "Sistema" acompanha um sistema operacional escuro,
+ * usamos fundo neutro, sem o azul-marinho do tema escuro.
+ */
+html[data-theme="system"].dark .bib-settings-page {
+  background: #18181b !important;
+  color: #f8fafc !important;
+}
+
+/*
+ * Fundo neutro também na área externa entre os cards.
+ */
+html[data-theme="system"].dark .bib-settings-page > div {
+  background: transparent !important;
+}
+
+/* =========================================================
+   BIBLIOTECA — CONFIGURAÇÕES
+   CONTRASTE DE TEXTOS
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   CLARO + SISTEMA CLARO
+   Cards normais
+   --------------------------------------------------------- */
+
+html[data-theme="light"]
+  .bib-settings-page
+  form
+  section:not(.bib-settings-fines)
+  h2,
+html[data-theme="system"]:not(.dark)
+  .bib-settings-page
+  form
+  section:not(.bib-settings-fines)
+  h2 {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .bib-settings-page
+  form
+  section:not(.bib-settings-fines)
+  .font-black,
+html[data-theme="system"]:not(.dark)
+  .bib-settings-page
+  form
+  section:not(.bib-settings-fines)
+  .font-black {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .bib-settings-page
+  form
+  section:not(.bib-settings-fines)
+  .text-slate-600,
+html[data-theme="system"]:not(.dark)
+  .bib-settings-page
+  form
+  section:not(.bib-settings-fines)
+  .text-slate-600 {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .bib-settings-page
+  form
+  section:not(.bib-settings-fines)
+  .text-slate-500,
+html[data-theme="system"]:not(.dark)
+  .bib-settings-page
+  form
+  section:not(.bib-settings-fines)
+  .text-slate-500 {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+
+/* ---------------------------------------------------------
+   HERO
+   O fundo continua escuro, portanto textos ficam claros
+   --------------------------------------------------------- */
+
+
+
+.bib-settings-page header .text-slate-600 {
+  color: #e2e8f0 !important;
+}
+
+.bib-settings-page header .text-slate-500 {
+  color: #bfdbfe !important;
+}
+
+/* Botão "Voltar para a Biblioteca" */
+.bib-settings-page header a {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+/* ---------------------------------------------------------
+   MULTAS E COBRANÇAS
+   Mantém o card escuro como está
+   --------------------------------------------------------- */
+
+.bib-settings-fines h2 {
+  color: #ffffff !important;
+}
+
+.bib-settings-fines > div:first-child .text-slate-600 {
+  color: #e2e8f0 !important;
+}
+
+/*
+ * Labels dos quatro campos financeiros.
+ * Não afeta o toggle branco que fica acima.
+ */
+.bib-settings-fines
+  > .grid
+  > label
+  > span.font-black {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.bib-settings-fines
+  > .grid
+  > label
+  > span.text-slate-500 {
+  color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+/*
+ * CampoNumero também está dentro da grade,
+ * mas sua estrutura começa por label.
+ */
+.bib-settings-fines
+  > .grid
+  label
+  > span.font-black {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.bib-settings-fines
+  > .grid
+  label
+  > span.text-slate-500 {
+  color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+/* O toggle da multa continua branco e precisa de texto escuro */
+.bib-settings-fines
+  > div:not(.grid)
+  label
+  .font-black {
+  color: #0f172a !important;
+}
+
+.bib-settings-fines
+  > div:not(.grid)
+  label
+  .text-slate-600 {
+  color: #475569 !important;
+}
+/* =========================================================
+   BIBLIOTECA CONFIGURACOES HERO SISTEMA CINZA
+   ========================================================= */
+
+html[data-theme="system"] .bib-settings-page > div > header {
+  background: #2f2f2f !important;
+  background-color: #2f2f2f !important;
+  background-image: none !important;
+  border-color: #4b4b4b !important;
+}
+
+html[data-theme="system"] .bib-settings-page > div > header > div {
+  background: #2f2f2f !important;
+  background-color: #2f2f2f !important;
+  background-image: none !important;
+}
+
+html[data-theme="system"] .bib-settings-page > div > header h1 {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .bib-settings-page > div > header .text-slate-600 {
+  color: #e5e7eb !important;
+}
+
+html[data-theme="system"] .bib-settings-page > div > header .text-slate-500 {
+  color: #cbd5e1 !important;
+}
+
+/* Biblioteca Configurações — placeholder legível no Sistema */
+html[data-theme="system"] .bib-settings-page input::placeholder,
+html[data-theme="system"] .bib-settings-page textarea::placeholder {
+  color: #a3a3a3 !important;
+  -webkit-text-fill-color: #a3a3a3 !important;
+  opacity: 1 !important;
+}
+/* =========================================================
+   BIBLIOTECA CONFIGURACOES TITULO HERO DEFINITIVO
+   ========================================================= */
+
+/* Claro: hero claro, título escuro */
+html[data-theme="light"] .bib-settings-page header h1 {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+/* Escuro e Sistema: hero escuro/cinza, título branco */
+html[data-theme="dark"] .bib-settings-page header h1,
+html[data-theme="system"] .bib-settings-page header h1 {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
 }

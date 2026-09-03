@@ -31,6 +31,7 @@ type EventoTimeline = {
     string;
 
     tipo:
+    | "ANALISE_ACADEMICA"
     | "INTERVENCAO_REGISTRADA"
     | "RETORNO_AGENDADO"
     | "INTERVENCAO_ENCERRADA";
@@ -38,14 +39,21 @@ type EventoTimeline = {
     data:
     string;
 
+    /*
+     * Eventos acadêmicos não pertencem
+     * necessariamente a uma intervenção.
+     */
     intervencaoId:
-    number;
+    number | null;
+
+    analiseHistoricoId:
+    number | null;
 
     tipoIntervencao:
-    string;
+    string | null;
 
     canal:
-    string;
+    string | null;
 
     status:
     string | null;
@@ -56,11 +64,40 @@ type EventoTimeline = {
     resultado:
     string | null;
 
+    /*
+     * Informações exclusivas das
+     * fotografias acadêmicas persistidas.
+     */
+    origemAnalise:
+    string | null;
+
+    versaoMotor:
+    string | null;
+
+    executadoPor:
+    | {
+        id:
+        number;
+
+        nome:
+        string;
+
+        email:
+        string | null;
+    }
+    | null;
+
     risco: {
         nivel:
         string | null;
 
         pontuacao:
+        number | null;
+
+        pontuacaoBruta:
+        number | null;
+
+        maximoDisponivel:
         number | null;
 
         cobertura:
@@ -71,6 +108,12 @@ type EventoTimeline = {
     } | null;
 
     indicadores:
+    unknown;
+
+    componentes:
+    unknown;
+
+    fatoresPrincipais:
     unknown;
 
     evolucao:
@@ -187,9 +230,11 @@ export async function GET(
         }
 
         /*
-         * Usamos apenas dados realmente
-         * persistidos nas intervenções.
+         * =====================================================
+         * 1. INTERVENÇÕES
+         * =====================================================
          */
+
         const intervencoes =
             await prisma
                 .studentSuccessIntervencao
@@ -265,16 +310,227 @@ export async function GET(
                     },
                 });
 
+        /*
+         * =====================================================
+         * 2. FOTOGRAFIAS / REANÁLISES ACADÊMICAS
+         * =====================================================
+         *
+         * Aqui entram somente análises realmente
+         * persistidas pelo Student Success.
+         *
+         * Abrir a página não cria evento.
+         */
+
+        const analisesAcademicas =
+            await prisma
+                .studentSuccessAnaliseHistorico
+                .findMany({
+                    where: {
+                        instituicaoId,
+
+                        alunoId,
+                    },
+
+                    orderBy: [
+                        {
+                            analisadoEm:
+                                "asc",
+                        },
+
+                        {
+                            id:
+                                "asc",
+                        },
+                    ],
+
+                    select: {
+                        id:
+                            true,
+
+                        origem:
+                            true,
+
+                        versaoMotor:
+                            true,
+
+                        nivelRisco:
+                            true,
+
+                        pontuacaoRisco:
+                            true,
+
+                        pontuacaoBruta:
+                            true,
+
+                        maximoDisponivel:
+                            true,
+
+                        coberturaPercentual:
+                            true,
+
+                        confiabilidade:
+                            true,
+
+                        componentes:
+                            true,
+
+                        fatoresPrincipais:
+                            true,
+
+                        indicadores:
+                            true,
+
+                        analisadoEm:
+                            true,
+
+                        executadoPor: {
+                            select: {
+                                id:
+                                    true,
+
+                                nome:
+                                    true,
+
+                                email:
+                                    true,
+                            },
+                        },
+                    },
+                });
+
         const eventos:
             EventoTimeline[] =
             [];
+
+        /*
+         * =====================================================
+         * 3. EVENTOS DAS ANÁLISES ACADÊMICAS
+         * =====================================================
+         */
+
+        for (
+            const analise
+            of analisesAcademicas
+        ) {
+            eventos.push({
+                id:
+                    `analise-${analise.id}`,
+
+                tipo:
+                    "ANALISE_ACADEMICA",
+
+                data:
+                    analise
+                        .analisadoEm
+                        .toISOString(),
+
+                intervencaoId:
+                    null,
+
+                analiseHistoricoId:
+                    analise.id,
+
+                tipoIntervencao:
+                    null,
+
+                canal:
+                    null,
+
+                status:
+                    null,
+
+                observacao:
+                    null,
+
+                resultado:
+                    null,
+
+                origemAnalise:
+                    analise.origem,
+
+                versaoMotor:
+                    analise.versaoMotor,
+
+                executadoPor:
+                    analise.executadoPor
+                        ? {
+                            id:
+                                analise
+                                    .executadoPor
+                                    .id,
+
+                            nome:
+                                analise
+                                    .executadoPor
+                                    .nome,
+
+                            email:
+                                analise
+                                    .executadoPor
+                                    .email ??
+                                null,
+                        }
+                        : null,
+
+                risco: {
+                    nivel:
+                        analise
+                            .nivelRisco,
+
+                    pontuacao:
+                        analise
+                            .pontuacaoRisco,
+
+                    pontuacaoBruta:
+                        analise
+                            .pontuacaoBruta,
+
+                    maximoDisponivel:
+                        analise
+                            .maximoDisponivel,
+
+                    cobertura:
+                        analise
+                            .coberturaPercentual,
+
+                    confiabilidade:
+                        analise
+                            .confiabilidade,
+                },
+
+                indicadores:
+                    analise
+                        .indicadores,
+
+                componentes:
+                    analise
+                        .componentes,
+
+                fatoresPrincipais:
+                    analise
+                        .fatoresPrincipais,
+
+                evolucao:
+                    null,
+            });
+        }
+
+        /*
+         * =====================================================
+         * 4. EVENTOS DAS INTERVENÇÕES
+         * =====================================================
+         */
 
         for (
             const intervencao
             of intervencoes
         ) {
             /*
-             * 1. REGISTRO DA INTERVENÇÃO
+             * 4.1 REGISTRO DA INTERVENÇÃO
+             *
+             * Não usamos o status atual como se
+             * ele fosse o status histórico no
+             * momento do registro.
              */
             eventos.push({
                 id:
@@ -290,6 +546,9 @@ export async function GET(
 
                 intervencaoId:
                     intervencao.id,
+
+                analiseHistoricoId:
+                    null,
 
                 tipoIntervencao:
                     intervencao.tipo,
@@ -307,6 +566,15 @@ export async function GET(
                 resultado:
                     null,
 
+                origemAnalise:
+                    null,
+
+                versaoMotor:
+                    null,
+
+                executadoPor:
+                    null,
+
                 risco: {
                     nivel:
                         intervencao
@@ -315,6 +583,12 @@ export async function GET(
                     pontuacao:
                         intervencao
                             .pontuacaoNoRegistro,
+
+                    pontuacaoBruta:
+                        null,
+
+                    maximoDisponivel:
+                        null,
 
                     cobertura:
                         intervencao
@@ -329,16 +603,21 @@ export async function GET(
                     intervencao
                         .indicadoresNoRegistro,
 
+                componentes:
+                    null,
+
+                fatoresPrincipais:
+                    null,
+
                 evolucao:
                     null,
             });
 
             /*
-             * 2. RETORNO PROGRAMADO
+             * 4.2 RETORNO PROGRAMADO
              *
-             * Isso representa a agenda conhecida
-             * atualmente. Não afirmamos que houve
-             * contato nessa data.
+             * Isso representa uma agenda conhecida.
+             * Não significa que o contato aconteceu.
              */
             if (
                 intervencao.retornoEm
@@ -358,6 +637,9 @@ export async function GET(
                     intervencaoId:
                         intervencao.id,
 
+                    analiseHistoricoId:
+                        null,
+
                     tipoIntervencao:
                         intervencao.tipo,
 
@@ -374,10 +656,25 @@ export async function GET(
                     resultado:
                         null,
 
+                    origemAnalise:
+                        null,
+
+                    versaoMotor:
+                        null,
+
+                    executadoPor:
+                        null,
+
                     risco:
                         null,
 
                     indicadores:
+                        null,
+
+                    componentes:
+                        null,
+
+                    fatoresPrincipais:
                         null,
 
                     evolucao:
@@ -386,7 +683,7 @@ export async function GET(
             }
 
             /*
-             * 3. ENCERRAMENTO
+             * 4.3 ENCERRAMENTO
              */
             if (
                 intervencao.concluidoEm
@@ -433,6 +730,9 @@ export async function GET(
                     intervencaoId:
                         intervencao.id,
 
+                    analiseHistoricoId:
+                        null,
+
                     tipoIntervencao:
                         intervencao.tipo,
 
@@ -450,6 +750,15 @@ export async function GET(
                         intervencao
                             .resultado,
 
+                    origemAnalise:
+                        null,
+
+                    versaoMotor:
+                        null,
+
+                    executadoPor:
+                        null,
+
                     risco: {
                         nivel:
                             intervencao
@@ -458,6 +767,12 @@ export async function GET(
                         pontuacao:
                             intervencao
                                 .pontuacaoNoEncerramento,
+
+                        pontuacaoBruta:
+                            null,
+
+                        maximoDisponivel:
+                            null,
 
                         cobertura:
                             intervencao
@@ -472,25 +787,54 @@ export async function GET(
                         intervencao
                             .indicadoresNoEncerramento,
 
+                    componentes:
+                        null,
+
+                    fatoresPrincipais:
+                        null,
+
                     evolucao,
                 });
             }
         }
 
         /*
-         * Timeline mais recente primeiro.
+         * =====================================================
+         * 5. ORDENAÇÃO CRONOLÓGICA
+         * =====================================================
+         *
+         * Mais recente primeiro, mantendo
+         * o comportamento atual do drawer.
          */
+
         eventos.sort(
             (
                 a,
                 b
-            ) =>
-                new Date(
-                    b.data
-                ).getTime() -
-                new Date(
-                    a.data
-                ).getTime()
+            ) => {
+                const diferenca =
+                    new Date(
+                        b.data
+                    ).getTime() -
+                    new Date(
+                        a.data
+                    ).getTime();
+
+                if (
+                    diferenca !==
+                    0
+                ) {
+                    return diferenca;
+                }
+
+                /*
+                 * Critério estável para dois
+                 * eventos no mesmo milissegundo.
+                 */
+                return b.id.localeCompare(
+                    a.id
+                );
+            }
         );
 
         return NextResponse.json({
@@ -502,6 +846,9 @@ export async function GET(
             resumo: {
                 intervencoes:
                     intervencoes.length,
+
+                analisesAcademicas:
+                    analisesAcademicas.length,
 
                 eventos:
                     eventos.length,
