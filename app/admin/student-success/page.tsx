@@ -8942,61 +8942,240 @@ export default function AdminStudentSuccessPage() {
                   )}
                 </button>
               </section>
+              {/* LINHA DO TEMPO DO ALUNO */}
               <section
                 className="
-    phanyx-student-success-history
+    phanyx-student-success-timeline
     mt-6
   "
               >
                 <div
                   className="
-      mb-3
+      mb-4
       flex
-      items-center
-      justify-between
+      flex-col
       gap-3
+      sm:flex-row
+      sm:items-start
+      sm:justify-between
     "
                 >
-                  <h3
-                    className="
-        text-sm
-        font-bold
-        uppercase
-        tracking-wide
-      "
-                  >
-                    {t(
-                      "intervention.history.title"
-                    )}
-                  </h3>
+                  <div>
+                    <h3
+                      className="
+          phanyx-student-success-timeline-title
+          text-sm
+          font-bold
+          uppercase
+          tracking-wide
+        "
+                    >
+                      {t(
+                        "intervention.timeline.title"
+                      )}
+                    </h3>
 
-                  {!carregandoIntervencoes ? (
+                    <p
+                      className="
+          phanyx-student-success-timeline-description
+          mt-1
+          text-xs
+          leading-5
+        "
+                    >
+                      {t(
+                        "intervention.timeline.description"
+                      )}
+                    </p>
+                  </div>
+
+                  {!carregandoTimeline &&
+                    resumoTimeline ? (
                     <span
                       className="
+          phanyx-student-success-timeline-count
+          inline-flex
+          shrink-0
+          items-center
+          justify-center
+          rounded-full
+          border
+          px-2.5
+          py-1
           text-xs
-          font-semibold
+          font-bold
         "
                     >
                       {
-                        intervencoes.length
+                        resumoTimeline
+                          .eventos
                       }
                     </span>
                   ) : null}
                 </div>
 
-                {carregandoIntervencoes ? (
+                {/* RESUMO */}
+                {!carregandoTimeline &&
+                  resumoTimeline ? (
                   <div
                     className="
-        phanyx-student-success-history-empty
+        mb-5
+        grid
+        grid-cols-2
+        gap-2
+        sm:grid-cols-4
+      "
+                  >
+                    <div
+                      className="
+          phanyx-student-success-timeline-summary
+          rounded-xl
+          border
+          p-3
+        "
+                    >
+                      <div
+                        className="
+            text-lg
+            font-bold
+          "
+                      >
+                        {
+                          resumoTimeline
+                            .intervencoes
+                        }
+                      </div>
+
+                      <div
+                        className="
+            mt-0.5
+            text-[11px]
+            font-semibold
+          "
+                      >
+                        {t(
+                          "intervention.timeline.summaryInterventions"
+                        )}
+                      </div>
+                    </div>
+
+                    <div
+                      className="
+          phanyx-student-success-timeline-summary
+          rounded-xl
+          border
+          p-3
+        "
+                    >
+                      <div
+                        className="
+            text-lg
+            font-bold
+          "
+                      >
+                        {
+                          resumoTimeline
+                            .eventos
+                        }
+                      </div>
+
+                      <div
+                        className="
+            mt-0.5
+            text-[11px]
+            font-semibold
+          "
+                      >
+                        {t(
+                          "intervention.timeline.summaryEvents"
+                        )}
+                      </div>
+                    </div>
+
+                    <div
+                      className="
+          phanyx-student-success-timeline-summary
+          rounded-xl
+          border
+          p-3
+        "
+                    >
+                      <div
+                        className="
+            text-lg
+            font-bold
+          "
+                      >
+                        {
+                          resumoTimeline
+                            .abertas
+                        }
+                      </div>
+
+                      <div
+                        className="
+            mt-0.5
+            text-[11px]
+            font-semibold
+          "
+                      >
+                        {t(
+                          "intervention.timeline.summaryOpen"
+                        )}
+                      </div>
+                    </div>
+
+                    <div
+                      className="
+          phanyx-student-success-timeline-summary
+          rounded-xl
+          border
+          p-3
+        "
+                    >
+                      <div
+                        className="
+            text-lg
+            font-bold
+          "
+                      >
+                        {
+                          resumoTimeline
+                            .encerradas
+                        }
+                      </div>
+
+                      <div
+                        className="
+            mt-0.5
+            text-[11px]
+            font-semibold
+          "
+                      >
+                        {t(
+                          "intervention.timeline.summaryClosed"
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+
+                {carregandoTimeline ? (
+                  <div
+                    className="
+        phanyx-student-success-timeline-state
         rounded-xl
         border
         p-4
         text-sm
+        font-semibold
       "
                   >
-                    ...
+                    {t(
+                      "intervention.timeline.loading"
+                    )}
                   </div>
-                ) : erroIntervencoes ? (
+                ) : erroTimeline ? (
                   <div
                     className="
         rounded-xl
@@ -9005,18 +9184,22 @@ export default function AdminStudentSuccessPage() {
         bg-red-50
         p-4
         text-sm
+        font-semibold
         text-red-800
+        dark:border-red-900
+        dark:bg-red-950/30
+        dark:text-red-200
       "
                   >
-                    {
-                      erroIntervencoes
-                    }
+                    {t(
+                      "intervention.timeline.error"
+                    )}
                   </div>
-                ) : intervencoes.length ===
+                ) : timeline.length ===
                   0 ? (
                   <div
                     className="
-        phanyx-student-success-history-empty
+        phanyx-student-success-timeline-state
         rounded-xl
         border
         p-4
@@ -9024,320 +9207,592 @@ export default function AdminStudentSuccessPage() {
       "
                   >
                     {t(
-                      "intervention.history.empty"
+                      "intervention.timeline.empty"
                     )}
                   </div>
                 ) : (
                   <div
                     className="
-        space-y-3
+        relative
+        space-y-0
       "
                   >
-                    {intervencoes.map(
+                    {timeline.map(
                       (
-                        intervencao
-                      ) => (
-                        <article
-                          key={
-                            intervencao.id
-                          }
-                          className="
-              phanyx-student-success-history-card
-              rounded-xl
-              border
-              p-4
-            "
-                        >
+                        evento,
+                        indice
+                      ) => {
+                        const intervencao =
+                          intervencoes.find(
+                            (
+                              item
+                            ) =>
+                              item.id ===
+                              evento.intervencaoId
+                          );
+
+                        const encerrada =
+                          evento.tipo ===
+                          "INTERVENCAO_ENCERRADA";
+
+                        const retorno =
+                          evento.tipo ===
+                          "RETORNO_AGENDADO";
+
+                        const registrada =
+                          evento.tipo ===
+                          "INTERVENCAO_REGISTRADA";
+
+                        const tituloEvento =
+                          registrada
+                            ? t(
+                              "intervention.timeline.registered"
+                            )
+                            : retorno
+                              ? t(
+                                "intervention.timeline.returnScheduled"
+                              )
+                              : t(
+                                "intervention.timeline.closed"
+                              );
+
+                        const classificacao =
+                          evento.evolucao
+                            ?.classificacao ??
+                          null;
+
+                        const podeAtualizar =
+                          registrada &&
+                          intervencao &&
+                          intervencao.status !==
+                          "RESOLVIDA" &&
+                          intervencao.status !==
+                          "CANCELADA";
+
+                        return (
                           <div
+                            key={
+                              evento.id
+                            }
                             className="
+                phanyx-student-success-timeline-row
+                relative
                 flex
-                flex-wrap
-                items-start
-                justify-between
-                gap-2
+                gap-3
+                pb-5
               "
                           >
-                            <div>
+                            {/* LINHA VERTICAL */}
+                            {indice <
+                              timeline.length -
+                              1 ? (
+                              <div
+                                className="
+                    phanyx-student-success-timeline-line
+                    absolute
+                    bottom-0
+                    left-[15px]
+                    top-8
+                    w-px
+                  "
+                                aria-hidden="true"
+                              />
+                            ) : null}
+
+                            {/* MARCADOR */}
+                            <div
+                              className={[
+                                "phanyx-student-success-timeline-dot relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-xs font-bold",
+
+                                registrada
+                                  ? "phanyx-student-success-timeline-dot-registered"
+                                  : retorno
+                                    ? "phanyx-student-success-timeline-dot-return"
+                                    : "phanyx-student-success-timeline-dot-closed",
+                              ].join(
+                                " "
+                              )}
+                              aria-hidden="true"
+                            >
+                              {registrada
+                                ? "+"
+                                : retorno
+                                  ? "↗"
+                                  : "✓"}
+                            </div>
+
+                            {/* EVENTO */}
+                            <article
+                              className="
+                  phanyx-student-success-timeline-card
+                  min-w-0
+                  flex-1
+                  rounded-xl
+                  border
+                  p-4
+                "
+                            >
                               <div
                                 className="
                     flex
-                    flex-wrap
-                    items-center
+                    flex-col
                     gap-2
+                    sm:flex-row
+                    sm:items-start
+                    sm:justify-between
                   "
                               >
-                                <span
+                                <div
                                   className="
-                      phanyx-student-success-history-type
-                      text-sm
-                      font-bold
+                      min-w-0
                     "
                                 >
-                                  {t(
-                                    `intervention.types.${intervencao.tipo}`
-                                  )}
-                                </span>
+                                  <div
+                                    className="
+                        phanyx-student-success-timeline-event-title
+                        font-bold
+                      "
+                                  >
+                                    {
+                                      tituloEvento
+                                    }
+                                  </div>
 
-                                <span>
-                                  ·
-                                </span>
+                                  <div
+                                    className="
+                        phanyx-student-success-timeline-muted
+                        mt-1
+                        text-xs
+                        font-semibold
+                      "
+                                  >
+                                    {t(
+                                      `intervention.types.${evento.tipoIntervencao}`
+                                    )}
 
-                                <span
+                                    {" · "}
+
+                                    {t(
+                                      `intervention.channels.${evento.canal}`
+                                    )}
+                                  </div>
+                                </div>
+
+                                <time
+                                  dateTime={
+                                    evento.data
+                                  }
                                   className="
-                      text-sm
+                      phanyx-student-success-timeline-date
+                      shrink-0
+                      text-xs
+                      font-semibold
+                    "
+                                >
+                                  {new Intl.DateTimeFormat(
+                                    undefined,
+                                    {
+                                      dateStyle:
+                                        "medium",
+
+                                      timeStyle:
+                                        "short",
+                                    }
+                                  ).format(
+                                    new Date(
+                                      evento.data
+                                    )
+                                  )}
+                                </time>
+                              </div>
+
+                              {/* STATUS SOMENTE QUANDO HISTORICAMENTE CONHECIDO */}
+                              {evento.status ? (
+                                <div
+                                  className="
+                      mt-3
+                    "
+                                >
+                                  <span
+                                    className="
+                        phanyx-student-success-timeline-status
+                        inline-flex
+                        rounded-full
+                        border
+                        px-2.5
+                        py-1
+                        text-xs
+                        font-bold
+                      "
+                                  >
+                                    {t(
+                                      `intervention.statuses.${evento.status}`
+                                    )}
+                                  </span>
+                                </div>
+                              ) : null}
+
+                              {/* RETORNO PROGRAMADO */}
+                              {retorno ? (
+                                <div
+                                  className="
+                      phanyx-student-success-timeline-scheduled
+                      mt-3
+                      rounded-lg
+                      border
+                      px-3
+                      py-2
+                      text-xs
                       font-semibold
                     "
                                 >
                                   {t(
-                                    `intervention.channels.${intervencao.canal}`
+                                    "intervention.timeline.scheduledFor"
                                   )}
-                                </span>
-                              </div>
+                                  :{" "}
 
-                              <div
-                                className="
-                    mt-2
-                  "
-                              >
-                                <span
+                                  {new Intl.DateTimeFormat(
+                                    undefined,
+                                    {
+                                      dateStyle:
+                                        "long",
+                                    }
+                                  ).format(
+                                    new Date(
+                                      evento.data
+                                    )
+                                  )}
+                                </div>
+                              ) : null}
+
+                              {/* OBSERVAÇÃO */}
+                              {evento.observacao &&
+                                !retorno ? (
+                                <div
                                   className="
-                      phanyx-student-success-history-status
-                      inline-flex
-                      rounded-full
+                      mt-3
+                    "
+                                >
+                                  <div
+                                    className="
+                        phanyx-student-success-timeline-label
+                        text-[11px]
+                        font-bold
+                        uppercase
+                        tracking-wide
+                      "
+                                  >
+                                    {t(
+                                      "intervention.timeline.observation"
+                                    )}
+                                  </div>
+
+                                  <p
+                                    className="
+                        phanyx-student-success-timeline-text
+                        mt-1
+                        whitespace-pre-wrap
+                        text-sm
+                        leading-5
+                      "
+                                  >
+                                    {
+                                      evento.observacao
+                                    }
+                                  </p>
+                                </div>
+                              ) : null}
+
+                              {/* FOTOGRAFIA ACADÊMICA */}
+                              {evento.risco ? (
+                                <div
+                                  className="
+                      phanyx-student-success-timeline-snapshot
+                      mt-4
+                      rounded-xl
                       border
-                      px-2.5
-                      py-1
-                      text-xs
+                      p-3
+                    "
+                                >
+                                  <div
+                                    className="
+                        phanyx-student-success-timeline-label
+                        text-[11px]
+                        font-bold
+                        uppercase
+                        tracking-wide
+                      "
+                                  >
+                                    {t(
+                                      "intervention.timeline.academicSnapshot"
+                                    )}
+                                  </div>
+
+                                  <div
+                                    className="
+                        mt-3
+                        grid
+                        grid-cols-2
+                        gap-3
+                      "
+                                  >
+                                    <div>
+                                      <div
+                                        className="
+                            phanyx-student-success-timeline-muted
+                            text-[11px]
+                            font-semibold
+                          "
+                                      >
+                                        {t(
+                                          "intervention.timeline.risk"
+                                        )}
+                                      </div>
+
+                                      <div
+                                        className="
+                            mt-0.5
+                            text-xs
+                            font-bold
+                          "
+                                      >
+                                        {evento
+                                          .risco
+                                          .nivel
+                                          ? t(
+                                            `levels.${evento.risco.nivel as NivelRisco}`
+                                          )
+                                          : "—"}
+                                      </div>
+                                    </div>
+
+                                    <div>
+                                      <div
+                                        className="
+                            phanyx-student-success-timeline-muted
+                            text-[11px]
+                            font-semibold
+                          "
+                                      >
+                                        {t(
+                                          "intervention.timeline.score"
+                                        )}
+                                      </div>
+
+                                      <div
+                                        className="
+                            mt-0.5
+                            text-xs
+                            font-bold
+                          "
+                                      >
+                                        {evento
+                                          .risco
+                                          .pontuacao ??
+                                          "—"}
+                                      </div>
+                                    </div>
+
+                                    <div>
+                                      <div
+                                        className="
+                            phanyx-student-success-timeline-muted
+                            text-[11px]
+                            font-semibold
+                          "
+                                      >
+                                        {t(
+                                          "intervention.timeline.coverage"
+                                        )}
+                                      </div>
+
+                                      <div
+                                        className="
+                            mt-0.5
+                            text-xs
+                            font-bold
+                          "
+                                      >
+                                        {evento
+                                          .risco
+                                          .cobertura !==
+                                          null
+                                          ? `${evento.risco.cobertura}%`
+                                          : "—"}
+                                      </div>
+                                    </div>
+
+                                    <div>
+                                      <div
+                                        className="
+                            phanyx-student-success-timeline-muted
+                            text-[11px]
+                            font-semibold
+                          "
+                                      >
+                                        {t(
+                                          "intervention.timeline.reliability"
+                                        )}
+                                      </div>
+
+                                      <div
+                                        className="
+                            mt-0.5
+                            text-xs
+                            font-bold
+                          "
+                                      >
+                                        {evento
+                                          .risco
+                                          .confiabilidade
+                                          ? t(
+                                            `reliability.${evento.risco.confiabilidade as Confiabilidade}`
+                                          )
+                                          : "—"}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              ) : null}
+
+                              {/* RESULTADO */}
+                              {evento.resultado ? (
+                                <div
+                                  className="
+                      phanyx-student-success-timeline-result
+                      mt-4
+                      rounded-xl
+                      border
+                      p-3
+                    "
+                                >
+                                  <div
+                                    className="
+                        text-[11px]
+                        font-bold
+                        uppercase
+                        tracking-wide
+                      "
+                                  >
+                                    {t(
+                                      "intervention.timeline.result"
+                                    )}
+                                  </div>
+
+                                  <p
+                                    className="
+                        mt-1
+                        whitespace-pre-wrap
+                        text-sm
+                        leading-5
+                      "
+                                  >
+                                    {
+                                      evento.resultado
+                                    }
+                                  </p>
+                                </div>
+                              ) : null}
+
+                              {/* EVOLUÇÃO */}
+                              {encerrada &&
+                                classificacao ? (
+                                <div
+                                  className={[
+                                    "phanyx-student-success-timeline-evolution mt-4 rounded-xl border px-3 py-2 text-xs font-bold",
+
+                                    classificacao ===
+                                      "POSITIVA"
+                                      ? "phanyx-student-success-timeline-evolution-positive"
+                                      : classificacao ===
+                                        "NEGATIVA"
+                                        ? "phanyx-student-success-timeline-evolution-negative"
+                                        : classificacao ===
+                                          "NEUTRA"
+                                          ? "phanyx-student-success-timeline-evolution-neutral"
+                                          : "phanyx-student-success-timeline-evolution-unavailable",
+                                  ].join(
+                                    " "
+                                  )}
+                                >
+                                  <span
+                                    aria-hidden="true"
+                                  >
+                                    {classificacao ===
+                                      "POSITIVA"
+                                      ? "✓ "
+                                      : classificacao ===
+                                        "NEGATIVA"
+                                        ? "⚠ "
+                                        : "• "}
+                                  </span>
+
+                                  {t(
+                                    "intervention.timeline.evolution"
+                                  )}
+                                  :{" "}
+
+                                  {classificacao ===
+                                    "POSITIVA"
+                                    ? t(
+                                      "intervention.timeline.positive"
+                                    )
+                                    : classificacao ===
+                                      "NEGATIVA"
+                                      ? t(
+                                        "intervention.timeline.negative"
+                                      )
+                                      : classificacao ===
+                                        "NEUTRA"
+                                        ? t(
+                                          "intervention.timeline.neutral"
+                                        )
+                                        : t(
+                                          "intervention.timeline.notMeasurable"
+                                        )}
+                                </div>
+                              ) : null}
+
+                              {/* COMPARAÇÃO COMPLETA JÁ EXISTENTE */}
+                              {encerrada &&
+                                intervencao ? (
+                                renderComparacaoAcademica(
+                                  intervencao
+                                )
+                              ) : null}
+
+                              {/* ATUALIZAÇÃO SOMENTE PARA INTERVENÇÃO ABERTA */}
+                              {podeAtualizar &&
+                                intervencao ? (
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    abrirAtualizacaoIntervencao(
+                                      intervencao
+                                    )
+                                  }
+                                  className="
+                      phanyx-student-success-timeline-update
+                      mt-4
+                      w-full
+                      rounded-xl
+                      border
+                      px-3
+                      py-2
+                      text-sm
                       font-bold
+                      transition
                     "
                                 >
                                   {t(
-                                    `intervention.statuses.${intervencao.status}`
+                                    "intervention.history.update"
                                   )}
-                                </span>
-                              </div>
-                            </div>
-
-                            <span
-                              className="
-                  phanyx-student-success-history-date
-                  text-xs
-                "
-                            >
-                              {new Intl.DateTimeFormat(
-                                undefined,
-                                {
-                                  dateStyle:
-                                    "short",
-
-                                  timeStyle:
-                                    "short",
-                                }
-                              ).format(
-                                new Date(
-                                  intervencao.criadoEm
-                                )
-                              )}
-                            </span>
+                                </button>
+                              ) : null}
+                            </article>
                           </div>
-
-                          <p
-                            className="
-                phanyx-student-success-history-observation
-                mt-3
-                whitespace-pre-wrap
-                text-sm
-              "
-                          >
-                            {
-                              intervencao.observacao
-                            }
-                          </p>
-
-                          <div
-                            className="
-                phanyx-student-success-history-meta
-                mt-3
-                space-y-1
-                border-t
-                pt-3
-                text-xs
-              "
-                          >
-                            {intervencao
-                              .criadoPor
-                              ?.nome ? (
-                              <p>
-                                <strong>
-                                  {t(
-                                    "intervention.history.registeredBy"
-                                  )}
-                                  :
-                                </strong>{" "}
-                                {
-                                  intervencao
-                                    .criadoPor
-                                    .nome
-                                }
-                              </p>
-                            ) : null}
-
-                            <p>
-                              <strong>
-                                {t(
-                                  "intervention.history.recordedAt"
-                                )}
-                                :
-                              </strong>{" "}
-                              {new Intl.DateTimeFormat(
-                                undefined,
-                                {
-                                  dateStyle:
-                                    "medium",
-
-                                  timeStyle:
-                                    "short",
-                                }
-                              ).format(
-                                new Date(
-                                  intervencao.criadoEm
-                                )
-                              )}
-                            </p>
-
-                            {intervencao.retornoEm ? (
-                              <p>
-                                <strong>
-                                  {t(
-                                    "intervention.history.returnScheduled"
-                                  )}
-                                  :
-                                </strong>{" "}
-                                {new Intl.DateTimeFormat(
-                                  undefined,
-                                  {
-                                    dateStyle:
-                                      "medium",
-                                  }
-                                ).format(
-                                  new Date(
-                                    intervencao.retornoEm
-                                  )
-                                )}
-                              </p>
-                            ) : null}
-
-                            <p>
-                              <strong>
-                                {t(
-                                  "drawer.dataCoverage"
-                                )}
-                                :
-                              </strong>{" "}
-                              {
-                                intervencao.coberturaNoRegistro
-                              }
-                              %
-                            </p>
-                          </div>
-                          {intervencao.resultado ? (
-                            <div
-                              className="
-      phanyx-student-success-history-result
-      mt-3
-      rounded-xl
-      border
-      p-3
-    "
-                            >
-                              <div
-                                className="
-        text-xs
-        font-bold
-        uppercase
-        tracking-wide
-      "
-                              >
-                                {t(
-                                  "intervention.history.result"
-                                )}
-                              </div>
-
-                              <p
-                                className="
-        mt-1
-        whitespace-pre-wrap
-        text-sm
-      "
-                              >
-                                {
-                                  intervencao.resultado
-                                }
-                              </p>
-                            </div>
-                          ) : null}
-
-                          {renderComparacaoAcademica(
-                            intervencao
-                          )}
-
-                          {intervencao.concluidoEm ? (
-                            <p
-                              className="
-      phanyx-student-success-history-completed
-      mt-2
-      text-xs
-    "
-                            >
-                              <strong>
-                                {t(
-                                  "intervention.history.completedAt"
-                                )}
-                                :
-                              </strong>{" "}
-                              {new Intl.DateTimeFormat(
-                                undefined,
-                                {
-                                  dateStyle:
-                                    "medium",
-
-                                  timeStyle:
-                                    "short",
-                                }
-                              ).format(
-                                new Date(
-                                  intervencao.concluidoEm
-                                )
-                              )}
-                            </p>
-                          ) : null}
-
-                          <button
-                            type="button"
-                            onClick={() =>
-                              abrirAtualizacaoIntervencao(
-                                intervencao
-                              )
-                            }
-                            className="
-    phanyx-student-success-history-update-button
-    mt-3
-    w-full
-    rounded-xl
-    border
-    px-3
-    py-2
-    text-sm
-    font-bold
-    transition
-  "
-                          >
-                            {t(
-                              "intervention.history.update"
-                            )}
-                          </button>
-                        </article>
-                      )
+                        );
+                      }
                     )}
                   </div>
                 )}

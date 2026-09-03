@@ -34808,3 +34808,447 @@ html[data-theme="system"].dark
   textarea::placeholder {
   color: #a3a3a3 !important;
 }
+
+/* =========================================================
+   PHANYX — CADASTROS DE TRANSPORTE
+   ========================================================= */
+
+.phanyx-transporte-cadastros {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.phanyx-transporte-registration-item {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.phanyx-transporte-tab,
+.phanyx-transporte-secondary-button {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.phanyx-transporte-tab:hover,
+.phanyx-transporte-secondary-button:hover {
+  background: #f1f5f9;
+}
+
+
+/* ESCURO */
+
+html[data-theme="dark"] .phanyx-transporte-cadastros {
+  background: #242424;
+  border-color: #525252;
+  color: #f5f5f5;
+}
+
+html[data-theme="dark"] .phanyx-transporte-registration-item,
+html[data-theme="dark"] .phanyx-transporte-tab,
+html[data-theme="dark"] .phanyx-transporte-secondary-button {
+  background: #303030;
+  border-color: #5a5a5a;
+  color: #f5f5f5;
+}
+
+html[data-theme="dark"] .phanyx-transporte-tab:hover,
+html[data-theme="dark"] .phanyx-transporte-secondary-button:hover {
+  background: #3a3a3a;
+}
+
+
+/* SISTEMA ESCURO — CINZAS NEUTROS */
+
+@media (prefers-color-scheme: dark) {
+  html[data-theme="system"] .phanyx-transporte-cadastros {
+    background: #242424;
+    border-color: #525252;
+    color: #f5f5f5;
+  }
+
+  html[data-theme="system"] .phanyx-transporte-registration-item,
+  html[data-theme="system"] .phanyx-transporte-tab,
+  html[data-theme="system"] .phanyx-transporte-secondary-button {
+    background: #303030;
+    border-color: #5a5a5a;
+    color: #f5f5f5;
+  }
+
+  html[data-theme="system"] .phanyx-transporte-tab:hover,
+  html[data-theme="system"] .phanyx-transporte-secondary-button:hover {
+    background: #3a3a3a;
+  }
+}
+
+/* =========================================================
+   STUDENT SUCCESS — TIMELINE DO ALUNO
+   ========================================================= */
+
+html[data-theme="light"]
+  .phanyx-student-success-timeline-title,
+html[data-theme="light"]
+  .phanyx-student-success-timeline-event-title {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-timeline-description,
+html[data-theme="light"]
+  .phanyx-student-success-timeline-muted,
+html[data-theme="light"]
+  .phanyx-student-success-timeline-date {
+  color: #64748b !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-timeline-count,
+html[data-theme="light"]
+  .phanyx-student-success-timeline-summary,
+html[data-theme="light"]
+  .phanyx-student-success-timeline-state,
+html[data-theme="light"]
+  .phanyx-student-success-timeline-card {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-timeline-summary {
+  background: #f8fafc !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-timeline-line {
+  background: #cbd5e1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-timeline-dot-registered {
+  background: #eff6ff !important;
+  border-color: #60a5fa !important;
+  color: #1d4ed8 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-timeline-dot-return {
+  background: #fffbeb !important;
+  border-color: #f59e0b !important;
+  color: #92400e !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-timeline-dot-closed {
+  background: #ecfdf5 !important;
+  border-color: #34d399 !important;
+  color: #047857 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-timeline-status,
+html[data-theme="light"]
+  .phanyx-student-success-timeline-snapshot {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-timeline-scheduled {
+  background: #fffbeb !important;
+  border-color: #fde68a !important;
+  color: #92400e !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-timeline-result {
+  background: #eff6ff !important;
+  border-color: #bfdbfe !important;
+  color: #1e3a8a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-timeline-label {
+  color: #475569 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-timeline-text {
+  color: #334155 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-timeline-evolution-positive {
+  background: #ecfdf5 !important;
+  border-color: #a7f3d0 !important;
+  color: #065f46 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-timeline-evolution-negative {
+  background: #fef2f2 !important;
+  border-color: #fecaca !important;
+  color: #991b1b !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-timeline-evolution-neutral,
+html[data-theme="light"]
+  .phanyx-student-success-timeline-evolution-unavailable {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #475569 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-student-success-timeline-update {
+  background: #ffffff !important;
+  border-color: #93c5fd !important;
+  color: #1d4ed8 !important;
+}
+
+
+/* DARK */
+
+html[data-theme="dark"]
+  .phanyx-student-success-timeline-title,
+html[data-theme="dark"]
+  .phanyx-student-success-timeline-event-title {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-timeline-description,
+html[data-theme="dark"]
+  .phanyx-student-success-timeline-muted,
+html[data-theme="dark"]
+  .phanyx-student-success-timeline-date {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-timeline-count,
+html[data-theme="dark"]
+  .phanyx-student-success-timeline-summary,
+html[data-theme="dark"]
+  .phanyx-student-success-timeline-state,
+html[data-theme="dark"]
+  .phanyx-student-success-timeline-card {
+  background: #111827 !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-timeline-line {
+  background: #475569 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-timeline-dot-registered {
+  background: #172554 !important;
+  border-color: #3b82f6 !important;
+  color: #bfdbfe !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-timeline-dot-return {
+  background: #451a03 !important;
+  border-color: #d97706 !important;
+  color: #fde68a !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-timeline-dot-closed {
+  background: #052e16 !important;
+  border-color: #059669 !important;
+  color: #a7f3d0 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-timeline-status,
+html[data-theme="dark"]
+  .phanyx-student-success-timeline-snapshot {
+  background: #0f172a !important;
+  border-color: #475569 !important;
+  color: #e2e8f0 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-timeline-scheduled {
+  background: #451a03 !important;
+  border-color: #92400e !important;
+  color: #fde68a !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-timeline-result {
+  background: #172554 !important;
+  border-color: #1d4ed8 !important;
+  color: #dbeafe !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-timeline-label {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-timeline-text {
+  color: #e2e8f0 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-timeline-evolution-positive {
+  background: #052e16 !important;
+  border-color: #047857 !important;
+  color: #a7f3d0 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-timeline-evolution-negative {
+  background: #450a0a !important;
+  border-color: #991b1b !important;
+  color: #fecaca !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-timeline-evolution-neutral,
+html[data-theme="dark"]
+  .phanyx-student-success-timeline-evolution-unavailable {
+  background: #0f172a !important;
+  border-color: #475569 !important;
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-student-success-timeline-update {
+  background: #0f172a !important;
+  border-color: #3b82f6 !important;
+  color: #bfdbfe !important;
+}
+
+
+/* SYSTEM */
+
+html[data-theme="system"]
+  .phanyx-student-success-timeline-title,
+html[data-theme="system"]
+  .phanyx-student-success-timeline-event-title {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-timeline-description,
+html[data-theme="system"]
+  .phanyx-student-success-timeline-muted,
+html[data-theme="system"]
+  .phanyx-student-success-timeline-date {
+  color: #e5e7eb !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-timeline-count,
+html[data-theme="system"]
+  .phanyx-student-success-timeline-summary,
+html[data-theme="system"]
+  .phanyx-student-success-timeline-state,
+html[data-theme="system"]
+  .phanyx-student-success-timeline-card {
+  background: #383838 !important;
+  border-color: #5f5f5f !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-timeline-line {
+  background: #686868 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-timeline-dot-registered {
+  background: #253755 !important;
+  border-color: #4f78b8 !important;
+  color: #dbeafe !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-timeline-dot-return {
+  background: #4b3718 !important;
+  border-color: #a67c31 !important;
+  color: #fef3c7 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-timeline-dot-closed {
+  background: #1f4535 !important;
+  border-color: #4c9872 !important;
+  color: #d1fae5 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-timeline-status,
+html[data-theme="system"]
+  .phanyx-student-success-timeline-snapshot {
+  background: #303030 !important;
+  border-color: #686868 !important;
+  color: #f3f4f6 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-timeline-scheduled {
+  background: #4b3718 !important;
+  border-color: #a67c31 !important;
+  color: #fef3c7 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-timeline-result {
+  background: #253755 !important;
+  border-color: #4f78b8 !important;
+  color: #dbeafe !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-timeline-label,
+html[data-theme="system"]
+  .phanyx-student-success-timeline-text {
+  color: #f3f4f6 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-timeline-evolution-positive {
+  background: #1f4535 !important;
+  border-color: #4c9872 !important;
+  color: #d1fae5 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-timeline-evolution-negative {
+  background: #4b2222 !important;
+  border-color: #a34a4a !important;
+  color: #fee2e2 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-timeline-evolution-neutral,
+html[data-theme="system"]
+  .phanyx-student-success-timeline-evolution-unavailable {
+  background: #303030 !important;
+  border-color: #686868 !important;
+  color: #e5e7eb !important;
+}
+
+html[data-theme="system"]
+  .phanyx-student-success-timeline-update {
+  background: #303030 !important;
+  border-color: #5b8bd9 !important;
+  color: #dbeafe !important;
+}
+
+.phanyx-student-success-timeline-update:hover {
+  transform: translateY(-1px);
+}

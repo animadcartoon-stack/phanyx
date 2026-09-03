@@ -1189,8 +1189,7 @@
       "addSegment": "+ Añadir trayecto",
       "cancel": "Cancelar",
       "saveSegment": "Añadir trayecto",
-      "saving": "Guardando...",
-      "registrations": "Registros de transporte"
+      "saving": "Guardando..."
     },
     "summary": {
       "segments": "Trayectos",
@@ -1274,26 +1273,6 @@
       "BICICLETA": "Bicicleta",
       "CAMINHADA": "A pie",
       "OUTRO": "Otro"
-    },
-    "registrations": {
-      "title": "Registros de transporte",
-      "description": "Gestione proveedores, vehículos y conductores disponibles para las actividades externas.",
-      "close": "Cerrar",
-      "loading": "Cargando registros...",
-      "managementAvailable": "Tiene permiso para gestionar estos registros.",
-      "tabs": {
-        "providers": "Proveedores",
-        "vehicles": "Vehículos",
-        "drivers": "Conductores"
-      },
-      "empty": {
-        "providers": "No hay proveedores de transporte registrados.",
-        "vehicles": "No hay vehículos registrados.",
-        "drivers": "No hay conductores registrados."
-      },
-      "errors": {
-        "load": "No se pudieron cargar los registros de transporte."
-      }
     }
   },
   "ProfessorLayout": {
@@ -4281,33 +4260,6 @@
         "update": "Actualizar seguimiento",
         "needsReview": "Requiere una nueva evaluación del equipo",
         "showAll": "Mostrar todos"
-      },
-      "timeline": {
-        "title": "Cronología del estudiante",
-        "description": "Siga cronológicamente las intervenciones, seguimientos programados y cierres registrados.",
-        "loading": "Cargando cronología...",
-        "error": "No fue posible cargar la cronología.",
-        "empty": "Todavía no hay eventos registrados para este estudiante.",
-        "summaryInterventions": "Intervenciones",
-        "summaryEvents": "Eventos",
-        "summaryOpen": "Abiertas",
-        "summaryClosed": "Cerradas",
-        "registered": "Intervención registrada",
-        "returnScheduled": "Seguimiento programado",
-        "closed": "Intervención cerrada",
-        "academicSnapshot": "Fotografía académica",
-        "risk": "Riesgo",
-        "score": "Puntuación",
-        "coverage": "Cobertura",
-        "reliability": "Confiabilidad",
-        "observation": "Observación",
-        "result": "Resultado",
-        "evolution": "Evolución observada",
-        "positive": "Evolución positiva",
-        "negative": "Evolución negativa",
-        "neutral": "Sin cambio académico medible",
-        "notMeasurable": "Evolución aún no medible",
-        "scheduledFor": "Programado para"
       }
     }
   },
@@ -8848,16 +8800,6 @@
     },
     "models": {
       "dateUnavailable": "Fecha no disponible"
-    },
-    "loading": "Cargando el editor de certificados...",
-    "toast": {
-      "errorTitle": "No se pudo completar",
-      "successTitle": "Todo listo"
-    },
-    "freeForm": {
-      "creationCancelled": "Creación de la forma libre cancelada.",
-      "created": "Forma libre creada. Ahora puede editar puntos y tangentes.",
-      "pointCreated": "Punto {count} creado."
     }
   }
 }

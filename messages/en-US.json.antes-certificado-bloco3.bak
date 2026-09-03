@@ -1189,8 +1189,7 @@
       "addSegment": "+ Add segment",
       "cancel": "Cancel",
       "saveSegment": "Add segment",
-      "saving": "Saving...",
-      "registrations": "Transportation records"
+      "saving": "Saving..."
     },
     "summary": {
       "segments": "Segments",
@@ -1274,26 +1273,6 @@
       "BICICLETA": "Bicycle",
       "CAMINHADA": "Walking",
       "OUTRO": "Other"
-    },
-    "registrations": {
-      "title": "Transportation records",
-      "description": "Manage transportation providers, vehicles, and drivers available for off-site activities.",
-      "close": "Close",
-      "loading": "Loading records...",
-      "managementAvailable": "You have permission to manage these records.",
-      "tabs": {
-        "providers": "Providers",
-        "vehicles": "Vehicles",
-        "drivers": "Drivers"
-      },
-      "empty": {
-        "providers": "No transportation providers registered.",
-        "vehicles": "No vehicles registered.",
-        "drivers": "No drivers registered."
-      },
-      "errors": {
-        "load": "Transportation records could not be loaded."
-      }
     }
   },
   "ProfessorLayout": {
@@ -4282,33 +4261,6 @@
         "update": "Update follow-up",
         "needsReview": "Requires a new team review",
         "showAll": "Show all"
-      },
-      "timeline": {
-        "title": "Student timeline",
-        "description": "Follow recorded interventions, scheduled follow-ups, and closures chronologically.",
-        "loading": "Loading timeline...",
-        "error": "The timeline could not be loaded.",
-        "empty": "There are no recorded events for this student yet.",
-        "summaryInterventions": "Interventions",
-        "summaryEvents": "Events",
-        "summaryOpen": "Open",
-        "summaryClosed": "Closed",
-        "registered": "Intervention registered",
-        "returnScheduled": "Follow-up scheduled",
-        "closed": "Intervention closed",
-        "academicSnapshot": "Academic snapshot",
-        "risk": "Risk",
-        "score": "Score",
-        "coverage": "Coverage",
-        "reliability": "Reliability",
-        "observation": "Observation",
-        "result": "Result",
-        "evolution": "Observed progress",
-        "positive": "Positive progress",
-        "negative": "Negative progress",
-        "neutral": "No measurable academic change",
-        "notMeasurable": "Progress not yet measurable",
-        "scheduledFor": "Scheduled for"
       }
     }
   },
@@ -8857,16 +8809,6 @@
     },
     "models": {
       "dateUnavailable": "Date unavailable"
-    },
-    "loading": "Loading certificate editor...",
-    "toast": {
-      "errorTitle": "Unable to complete",
-      "successTitle": "Done"
-    },
-    "freeForm": {
-      "creationCancelled": "Freeform shape creation cancelled.",
-      "created": "Freeform shape created. You can now edit points and tangents.",
-      "pointCreated": "Point {count} created."
     }
   }
 }

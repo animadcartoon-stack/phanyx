@@ -1189,8 +1189,7 @@
       "addSegment": "+ Ajouter un trajet",
       "cancel": "Annuler",
       "saveSegment": "Ajouter le trajet",
-      "saving": "Enregistrement...",
-      "registrations": "Registres de transport"
+      "saving": "Enregistrement..."
     },
     "summary": {
       "segments": "Trajets",
@@ -1274,26 +1273,6 @@
       "BICICLETA": "Vélo",
       "CAMINHADA": "Marche",
       "OUTRO": "Autre"
-    },
-    "registrations": {
-      "title": "Registres de transport",
-      "description": "Gérez les prestataires, véhicules et conducteurs disponibles pour les activités extérieures.",
-      "close": "Fermer",
-      "loading": "Chargement des registres...",
-      "managementAvailable": "Vous êtes autorisé à gérer ces registres.",
-      "tabs": {
-        "providers": "Prestataires",
-        "vehicles": "Véhicules",
-        "drivers": "Conducteurs"
-      },
-      "empty": {
-        "providers": "Aucun prestataire de transport enregistré.",
-        "vehicles": "Aucun véhicule enregistré.",
-        "drivers": "Aucun conducteur enregistré."
-      },
-      "errors": {
-        "load": "Impossible de charger les registres de transport."
-      }
     }
   },
   "ProfessorLayout": {
@@ -4281,33 +4260,6 @@
         "update": "Mettre à jour le suivi",
         "needsReview": "Nécessite une nouvelle évaluation de l'équipe",
         "showAll": "Tout afficher"
-      },
-      "timeline": {
-        "title": "Chronologie de l'élève",
-        "description": "Suivez chronologiquement les interventions, suivis programmés et clôtures enregistrés.",
-        "loading": "Chargement de la chronologie...",
-        "error": "Impossible de charger la chronologie.",
-        "empty": "Aucun événement n'est encore enregistré pour cet élève.",
-        "summaryInterventions": "Interventions",
-        "summaryEvents": "Événements",
-        "summaryOpen": "Ouvertes",
-        "summaryClosed": "Clôturées",
-        "registered": "Intervention enregistrée",
-        "returnScheduled": "Suivi programmé",
-        "closed": "Intervention clôturée",
-        "academicSnapshot": "Instantané académique",
-        "risk": "Risque",
-        "score": "Score",
-        "coverage": "Couverture",
-        "reliability": "Fiabilité",
-        "observation": "Observation",
-        "result": "Résultat",
-        "evolution": "Évolution observée",
-        "positive": "Évolution positive",
-        "negative": "Évolution négative",
-        "neutral": "Aucun changement académique mesurable",
-        "notMeasurable": "Évolution pas encore mesurable",
-        "scheduledFor": "Programmé pour"
       }
     }
   },
@@ -8828,16 +8780,16 @@
       "MESTRADO": "Master",
       "DOUTORADO": "Doctorat",
       "TECNICO": "Formation technique",
-      "CURSO_LIVRE": "Formation libre",
+      "CURSO_LIVRE": "Cours libre",
       "OFICINA": "Atelier",
       "ENSINO_MEDIO": "Enseignement secondaire",
       "ENSINO_FUNDAMENTAL": "Enseignement primaire",
       "EDUCACAO_INFANTIL": "Éducation de la petite enfance",
       "PRE_ESCOLA": "Préscolaire",
-      "EXTENSAO": "Formation d'extension",
-      "CAPACITACAO": "Perfectionnement professionnel",
+      "EXTENSAO": "Formation continue",
+      "CAPACITACAO": "Perfectionnement",
       "TREINAMENTO": "Formation",
-      "EJA": "Éducation des adultes",
+      "EJA": "Éducation des jeunes et des adultes",
       "OUTRO": "Autre"
     },
     "paper": {
@@ -8848,16 +8800,6 @@
     },
     "models": {
       "dateUnavailable": "Date indisponible"
-    },
-    "loading": "Chargement de l’éditeur de certificats...",
-    "toast": {
-      "errorTitle": "Impossible de terminer",
-      "successTitle": "Terminé"
-    },
-    "freeForm": {
-      "creationCancelled": "Création de la forme libre annulée.",
-      "created": "Forme libre créée. Vous pouvez maintenant modifier les points et les tangentes.",
-      "pointCreated": "Point {count} créé."
     }
   }
 }

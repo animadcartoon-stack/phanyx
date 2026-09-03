@@ -1189,8 +1189,7 @@
       "addSegment": "+ Adicionar trajeto",
       "cancel": "Cancelar",
       "saveSegment": "Adicionar trajeto",
-      "saving": "A guardar...",
-      "registrations": "Registos de transporte"
+      "saving": "A guardar..."
     },
     "summary": {
       "segments": "Trajetos",
@@ -1274,26 +1273,6 @@
       "BICICLETA": "Bicicleta",
       "CAMINHADA": "Caminhada",
       "OUTRO": "Outro"
-    },
-    "registrations": {
-      "title": "Registos de transporte",
-      "description": "Gira prestadores, veículos e condutores disponíveis para as atividades externas.",
-      "close": "Fechar",
-      "loading": "A carregar registos...",
-      "managementAvailable": "Tem permissão para gerir estes registos.",
-      "tabs": {
-        "providers": "Prestadores",
-        "vehicles": "Veículos",
-        "drivers": "Condutores"
-      },
-      "empty": {
-        "providers": "Nenhum prestador de transporte registado.",
-        "vehicles": "Nenhum veículo registado.",
-        "drivers": "Nenhum condutor registado."
-      },
-      "errors": {
-        "load": "Não foi possível carregar os registos de transporte."
-      }
     }
   },
   "ProfessorLayout": {
@@ -4281,33 +4260,6 @@
         "update": "Atualizar acompanhamento",
         "needsReview": "Requer nova avaliação da equipa",
         "showAll": "Mostrar todos"
-      },
-      "timeline": {
-        "title": "Linha temporal do aluno",
-        "description": "Acompanhe cronologicamente as intervenções, retornos programados e encerramentos registados.",
-        "loading": "A carregar a linha temporal...",
-        "error": "Não foi possível carregar a linha temporal.",
-        "empty": "Ainda não existem eventos registados para este aluno.",
-        "summaryInterventions": "Intervenções",
-        "summaryEvents": "Eventos",
-        "summaryOpen": "Abertas",
-        "summaryClosed": "Encerradas",
-        "registered": "Intervenção registada",
-        "returnScheduled": "Retorno programado",
-        "closed": "Intervenção encerrada",
-        "academicSnapshot": "Fotografia académica",
-        "risk": "Risco",
-        "score": "Pontuação",
-        "coverage": "Cobertura",
-        "reliability": "Confiabilidade",
-        "observation": "Observação",
-        "result": "Resultado",
-        "evolution": "Evolução observada",
-        "positive": "Evolução positiva",
-        "negative": "Evolução negativa",
-        "neutral": "Sem alteração académica mensurável",
-        "notMeasurable": "Evolução ainda não mensurável",
-        "scheduledFor": "Programado para"
       }
     }
   },
@@ -8820,7 +8772,7 @@
   "AdminCertificateEditor": {
     "modalities": {
       "GERAL": "Geral",
-      "BACHARELADO": "Licenciatura",
+      "BACHARELADO": "Bacharelato",
       "LICENCIATURA": "Licenciatura",
       "TECNOLOGO": "Curso Tecnológico",
       "POS_GRADUACAO": "Pós-graduação",
@@ -8832,12 +8784,12 @@
       "OFICINA": "Oficina",
       "ENSINO_MEDIO": "Ensino Secundário",
       "ENSINO_FUNDAMENTAL": "Ensino Básico",
-      "EDUCACAO_INFANTIL": "Educação Pré-escolar",
-      "PRE_ESCOLA": "Pré-escola",
+      "EDUCACAO_INFANTIL": "Educação Infantil",
+      "PRE_ESCOLA": "Pré-escolar",
       "EXTENSAO": "Extensão",
       "CAPACITACAO": "Capacitação",
       "TREINAMENTO": "Formação",
-      "EJA": "Educação de Adultos",
+      "EJA": "EJA",
       "OUTRO": "Outro"
     },
     "paper": {
@@ -8848,16 +8800,6 @@
     },
     "models": {
       "dateUnavailable": "Data não disponível"
-    },
-    "loading": "A carregar o editor de certificados...",
-    "toast": {
-      "errorTitle": "Não foi possível concluir",
-      "successTitle": "Concluído"
-    },
-    "freeForm": {
-      "creationCancelled": "Criação da forma livre cancelada.",
-      "created": "Forma livre criada. Agora pode editar pontos e tangentes.",
-      "pointCreated": "Ponto {count} criado."
     }
   }
 }

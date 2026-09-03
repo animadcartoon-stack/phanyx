@@ -1189,7 +1189,8 @@
       "addSegment": "+ Adicionar trecho",
       "cancel": "Cancelar",
       "saveSegment": "Adicionar trecho",
-      "saving": "Salvando..."
+      "saving": "Salvando...",
+      "registrations": "Cadastros de transporte"
     },
     "summary": {
       "segments": "Trechos",
@@ -1273,6 +1274,26 @@
       "BICICLETA": "Bicicleta",
       "CAMINHADA": "Caminhada",
       "OUTRO": "Outro"
+    },
+    "registrations": {
+      "title": "Cadastros de transporte",
+      "description": "Gerencie prestadores, veículos e condutores disponíveis para as atividades externas.",
+      "close": "Fechar",
+      "loading": "Carregando cadastros...",
+      "managementAvailable": "Você possui permissão para gerenciar estes cadastros.",
+      "tabs": {
+        "providers": "Prestadores",
+        "vehicles": "Veículos",
+        "drivers": "Condutores"
+      },
+      "empty": {
+        "providers": "Nenhum prestador de transporte cadastrado.",
+        "vehicles": "Nenhum veículo cadastrado.",
+        "drivers": "Nenhum condutor cadastrado."
+      },
+      "errors": {
+        "load": "Não foi possível carregar os cadastros de transporte."
+      }
     }
   },
   "ProfessorLayout": {
@@ -4260,6 +4281,33 @@
         "update": "Atualizar acompanhamento",
         "needsReview": "Requer nova avaliação da equipe",
         "showAll": "Mostrar todos"
+      },
+      "timeline": {
+        "title": "Linha do tempo do aluno",
+        "description": "Acompanhe cronologicamente as intervenções, retornos programados e encerramentos registrados.",
+        "loading": "Carregando linha do tempo...",
+        "error": "Não foi possível carregar a linha do tempo.",
+        "empty": "Ainda não existem eventos registrados para este aluno.",
+        "summaryInterventions": "Intervenções",
+        "summaryEvents": "Eventos",
+        "summaryOpen": "Abertas",
+        "summaryClosed": "Encerradas",
+        "registered": "Intervenção registrada",
+        "returnScheduled": "Retorno programado",
+        "closed": "Intervenção encerrada",
+        "academicSnapshot": "Fotografia acadêmica",
+        "risk": "Risco",
+        "score": "Pontuação",
+        "coverage": "Cobertura",
+        "reliability": "Confiabilidade",
+        "observation": "Observação",
+        "result": "Resultado",
+        "evolution": "Evolução observada",
+        "positive": "Evolução positiva",
+        "negative": "Evolução negativa",
+        "neutral": "Sem alteração acadêmica mensurável",
+        "notMeasurable": "Evolução ainda não mensurável",
+        "scheduledFor": "Programado para"
       }
     }
   },
@@ -8767,6 +8815,49 @@
     "errors": {
       "load": "Não foi possível carregar o relatório comercial.",
       "loadGeneric": "Erro ao carregar relatório comercial."
+    }
+  },
+  "AdminCertificateEditor": {
+    "modalities": {
+      "GERAL": "Geral",
+      "BACHARELADO": "Bacharelado",
+      "LICENCIATURA": "Licenciatura",
+      "TECNOLOGO": "Tecnólogo",
+      "POS_GRADUACAO": "Pós-graduação",
+      "MBA": "MBA",
+      "MESTRADO": "Mestrado",
+      "DOUTORADO": "Doutorado",
+      "TECNICO": "Curso Técnico",
+      "CURSO_LIVRE": "Curso Livre",
+      "OFICINA": "Oficina",
+      "ENSINO_MEDIO": "Ensino Médio",
+      "ENSINO_FUNDAMENTAL": "Ensino Fundamental",
+      "EDUCACAO_INFANTIL": "Educação Infantil",
+      "PRE_ESCOLA": "Pré-escola",
+      "EXTENSAO": "Extensão",
+      "CAPACITACAO": "Capacitação",
+      "TREINAMENTO": "Treinamento",
+      "EJA": "EJA",
+      "OUTRO": "Outro"
+    },
+    "paper": {
+      "orientation": {
+        "landscape": "Paisagem",
+        "portrait": "Retrato"
+      }
+    },
+    "models": {
+      "dateUnavailable": "Data não disponível"
+    },
+    "loading": "Carregando editor de certificados...",
+    "toast": {
+      "errorTitle": "Não foi possível concluir",
+      "successTitle": "Tudo certo"
+    },
+    "freeForm": {
+      "creationCancelled": "Criação da forma livre cancelada.",
+      "created": "Forma livre criada. Agora você pode editar pontos e tangentes.",
+      "pointCreated": "Ponto {count} criado."
     }
   }
 }

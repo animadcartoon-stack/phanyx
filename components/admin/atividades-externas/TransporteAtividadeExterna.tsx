@@ -11,6 +11,8 @@ import {
   useTranslations,
 } from "next-intl";
 
+import CadastrosTransporte from "@/components/admin/atividades-externas/CadastrosTransporte";
+
 type TipoModal =
   | "ONIBUS"
   | "MICRO_ONIBUS"
@@ -481,6 +483,11 @@ export default function TransporteAtividadeExterna({
   ] = useState(false);
 
   const [
+    cadastrosAbertos,
+    setCadastrosAbertos,
+  ] = useState(false);
+
+  const [
     formulario,
     setFormulario,
   ] =
@@ -517,7 +524,7 @@ export default function TransporteAtividadeExterna({
       ) {
         throw new Error(
           dados.error ||
-            "ERRO_CARREGAR"
+          "ERRO_CARREGAR"
         );
       }
 
@@ -708,18 +715,18 @@ export default function TransporteAtividadeExterna({
                 formulario
                   .partidaPrevista
                   ? new Date(
-                      formulario
-                        .partidaPrevista
-                    ).toISOString()
+                    formulario
+                      .partidaPrevista
+                  ).toISOString()
                   : null,
 
               chegadaPrevista:
                 formulario
                   .chegadaPrevista
                   ? new Date(
-                      formulario
-                        .chegadaPrevista
-                    ).toISOString()
+                    formulario
+                      .chegadaPrevista
+                  ).toISOString()
                   : null,
 
               numeroReferencia:
@@ -756,7 +763,7 @@ export default function TransporteAtividadeExterna({
 
         throw new Error(
           codigo ||
-            "ERRO_SALVAR"
+          "ERRO_SALVAR"
         );
       }
 
@@ -807,26 +814,26 @@ export default function TransporteAtividadeExterna({
 
   const opcoesPrestadores:
     OpcaoSelect[] = [
-    {
-      value: "",
-      label: t(
-        "form.noProvider"
-      ),
-    },
-
-    ...prestadores.map(
-      (prestador) => ({
-        value: String(
-          prestador.id
+      {
+        value: "",
+        label: t(
+          "form.noProvider"
         ),
+      },
 
-        label:
-          prestador
-            .nomeFantasia ||
-          prestador.nome,
-      })
-    ),
-  ];
+      ...prestadores.map(
+        (prestador) => ({
+          value: String(
+            prestador.id
+          ),
+
+          label:
+            prestador
+              .nomeFantasia ||
+            prestador.nome,
+        })
+      ),
+    ];
 
   if (carregando) {
     return (
@@ -850,25 +857,49 @@ export default function TransporteAtividadeExterna({
         </div>
 
         {podeGerenciar ? (
-          <button
-            type="button"
-            onClick={() => {
-              setErro("");
-              setSucesso("");
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setErro("");
+                setSucesso("");
 
-              setFormularioAberto(
-                (atual) =>
-                  !atual
-              );
-            }}
-            className="rounded-xl bg-blue-700 px-4 py-3 text-sm font-extrabold text-white shadow-sm hover:bg-blue-800"
-          >
-            {formularioAberto
-              ? t("actions.cancel")
-              : t(
+                setCadastrosAbertos(
+                  (atual) => !atual
+                );
+
+                setFormularioAberto(
+                  false
+                );
+              }}
+              className="phanyx-transporte-secondary-button rounded-xl border px-4 py-3 text-sm font-extrabold"
+            >
+              {t("actions.registrations")}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setErro("");
+                setSucesso("");
+
+                setFormularioAberto(
+                  (atual) => !atual
+                );
+
+                setCadastrosAbertos(
+                  false
+                );
+              }}
+              className="rounded-xl bg-blue-700 px-4 py-3 text-sm font-extrabold text-white shadow-sm hover:bg-blue-800"
+            >
+              {formularioAberto
+                ? t("actions.cancel")
+                : t(
                   "actions.addSegment"
                 )}
-          </button>
+            </button>
+          </div>
         ) : null}
       </div>
 
@@ -925,6 +956,16 @@ export default function TransporteAtividadeExterna({
           icone="👥"
         />
       </div>
+
+      {cadastrosAbertos ? (
+        <CadastrosTransporte
+          onFechar={() =>
+            setCadastrosAbertos(
+              false
+            )
+          }
+        />
+      ) : null}
 
       {formularioAberto ? (
         <div className="phanyx-transporte-form rounded-2xl border p-4 sm:p-5">
@@ -1362,11 +1403,11 @@ export default function TransporteAtividadeExterna({
             >
               {salvando
                 ? t(
-                    "actions.saving"
-                  )
+                  "actions.saving"
+                )
                 : t(
-                    "actions.saveSegment"
-                  )}
+                  "actions.saveSegment"
+                )}
             </button>
           </div>
         </div>

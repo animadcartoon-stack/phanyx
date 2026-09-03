@@ -5,10 +5,8 @@ import FormaVetorial from "./components/FormaVetorial";
 import FloatingShapeInspector from "./components/FloatingShapeInspector";
 import PhanyxToast from "@/components/ui/PhanyxToast";
 import CertificadoRender from "@/components/certificados/CertificadoRender";
-import { useLocale, useTranslations } from "next-intl";
 
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
-
 
 type CampoCertificado = {
   id: number;
@@ -686,35 +684,7 @@ function criarPontosIniciaisForma(forma?: CampoCertificado["forma"]) {
   return null;
 }
 
-type TemaEditorCertificado = "light" | "dark" | "system";
-
-type ModoVisualEditorCertificado =
-  | "light"
-  | "dark"
-  | "system-dark";
-
 export default function ConfiguracaoCertificadoPage() {
-  const locale = useLocale();
-  const t = useTranslations("AdminCertificateEditor");
-
-  const [temaAtual, setTemaAtual] =
-    useState<TemaEditorCertificado>("light");
-
-  const [sistemaEscuro, setSistemaEscuro] = useState(false);
-
-  const temaAzul = temaAtual === "dark";
-
-  const temaEscuro =
-    temaAtual === "dark" ||
-    (temaAtual === "system" && sistemaEscuro);
-
-  const modoVisual: ModoVisualEditorCertificado =
-    temaAtual === "dark"
-      ? "dark"
-      : temaAtual === "system" && sistemaEscuro
-        ? "system-dark"
-        : "light";
-
   const moldurasPaisagem = [
     "/molduras-certificado/modo-paisagem/moldura-01.png",
     "/molduras-certificado/modo-paisagem/moldura-02.png",
@@ -750,90 +720,6 @@ export default function ConfiguracaoCertificadoPage() {
     "/figuras/figura-12.png",
     "/figuras/figura-13.png",
   ];
-
-  useEffect(() => {
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
-
-    function lerTemaAtual() {
-      const escolhaSalva = String(
-        localStorage.getItem("phanyx_tema") ||
-        document.documentElement.dataset.themeChoice ||
-        "light",
-      ).toLowerCase();
-
-      const escolha: TemaEditorCertificado =
-        escolhaSalva === "dark"
-          ? "dark"
-          : escolhaSalva === "system"
-            ? "system"
-            : "light";
-
-      setTemaAtual(escolha);
-      setSistemaEscuro(media.matches);
-    }
-
-    lerTemaAtual();
-
-    const observer = new MutationObserver(lerTemaAtual);
-
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: [
-        "class",
-        "data-theme",
-        "data-theme-choice",
-      ],
-    });
-
-    const aoMudarPreferenciaSistema = () => {
-      setSistemaEscuro(media.matches);
-    };
-
-    const aoMudarStorage = (evento: StorageEvent) => {
-      if (!evento.key || evento.key === "phanyx_tema") {
-        lerTemaAtual();
-      }
-    };
-
-    const aoMudarTemaPhanyx = () => {
-      lerTemaAtual();
-    };
-
-    media.addEventListener("change", aoMudarPreferenciaSistema);
-    window.addEventListener("storage", aoMudarStorage);
-    window.addEventListener(
-      "phanyx-theme-change",
-      aoMudarTemaPhanyx,
-    );
-
-    return () => {
-      observer.disconnect();
-
-      media.removeEventListener(
-        "change",
-        aoMudarPreferenciaSistema,
-      );
-
-      window.removeEventListener("storage", aoMudarStorage);
-
-      window.removeEventListener(
-        "phanyx-theme-change",
-        aoMudarTemaPhanyx,
-      );
-    };
-  }, []);
-
-  function traduzirModalidadeCertificado(valor: unknown) {
-    const modalidade = String(valor || "GERAL").toUpperCase();
-
-    const modalidadeValida = MODALIDADES_CERTIFICADO.some(
-      (item) => item.valor === modalidade,
-    )
-      ? (modalidade as ModalidadeCertificadoValor)
-      : "GERAL";
-
-    return t(`modalities.${modalidadeValida}`);
-  }
 
   const [menuContexto, setMenuContexto] = useState<{
     x: number;
@@ -1245,7 +1131,7 @@ export default function ConfiguracaoCertificadoPage() {
                 camposAtuais.filter((campo) => campo.id !== -999999),
               );
 
-              setMensagemSucesso(t("freeForm.creationCancelled"));
+              setMensagemSucesso("Criação da forma livre cancelada.");
               setTimeout(() => setMensagemSucesso(""), 1500);
 
               return [];
@@ -1392,7 +1278,9 @@ export default function ConfiguracaoCertificadoPage() {
       selecionarCampoUnico(novoId);
       setModoFormaLivre(false);
       setPontosFormaLivre([]);
-      setMensagemSucesso(t("freeForm.created"));
+      setMensagemSucesso(
+        "Forma livre criada. Agora você pode editar pontos e tangentes.",
+      );
 
       return true;
     }
@@ -1404,11 +1292,7 @@ export default function ConfiguracaoCertificadoPage() {
       criarCampoPreviewFormaLivre(proximosPontos),
     ]);
 
-    setMensagemSucesso(
-      t("freeForm.pointCreated", {
-        count: proximosPontos.length,
-      }),
-    );
+    setMensagemSucesso(`Ponto ${proximosPontos.length} criado.`);
 
     return true;
   }
@@ -2907,11 +2791,6 @@ export default function ConfiguracaoCertificadoPage() {
   ]);
 
   const baseCanvas = TAMANHOS_PAPEL[tamanhoPapel][orientacao];
-
-  const labelPapelAtual = `${tamanhoPapel} ${orientacao === "retrato"
-    ? t("paper.orientation.portrait")
-    : t("paper.orientation.landscape")
-    }`;
 
   const fitZoom = useMemo(() => {
     const margemHorizontal = 90;
@@ -6105,7 +5984,7 @@ export default function ConfiguracaoCertificadoPage() {
   if (carregando) {
     return (
       <div className="p-6 text-sm text-slate-500">
-        {t("loading")}
+        Carregando editor de certificados...
       </div>
     );
   }
@@ -6276,7 +6155,7 @@ export default function ConfiguracaoCertificadoPage() {
         <div className="mb-4">
           <PhanyxToast
             tipo="erro"
-            titulo={t("toast.errorTitle")}
+            titulo="Não foi possível concluir"
             mensagem={mensagemErro}
             onClose={() => setMensagemErro("")}
           />
@@ -6295,7 +6174,7 @@ export default function ConfiguracaoCertificadoPage() {
         <div className="mb-4">
           <PhanyxToast
             tipo="sucesso"
-            titulo={t("toast.successTitle")}
+            titulo="Tudo certo"
             mensagem={mensagemSucesso}
             onClose={() => setMensagemSucesso("")}
           />
@@ -6676,14 +6555,17 @@ export default function ConfiguracaoCertificadoPage() {
               modelosFiltradosOrdenados.map((modelo: any) => {
                 const selecionado = Number(modelo.id) === Number(modeloAtivoId);
 
-                const modalidadeLabel = traduzirModalidadeCertificado(
-                  modelo?.modalidade,
-                );
+                const modalidadeLabel =
+                  MODALIDADES_CERTIFICADO.find(
+                    (item) =>
+                      String(item.valor) ===
+                      String(modelo?.modalidade || "GERAL"),
+                  )?.label || "Geral";
 
                 const ultimaAlteracao =
                   Number(modelo?._ultimaAlteracaoTimestamp || 0) > 0
                     ? new Date(modelo._ultimaAlteracaoTimestamp).toLocaleString(
-                      locale,
+                      "pt-BR",
                       {
                         day: "2-digit",
                         month: "2-digit",
@@ -6692,7 +6574,7 @@ export default function ConfiguracaoCertificadoPage() {
                         minute: "2-digit",
                       },
                     )
-                    : t("models.dateUnavailable");
+                    : "Data não disponível";
 
                 return (
                   <button
@@ -6811,7 +6693,7 @@ export default function ConfiguracaoCertificadoPage() {
                   >
                     {MODALIDADES_CERTIFICADO.map((item) => (
                       <option key={item.valor} value={item.valor}>
-                        {traduzirModalidadeCertificado(item.valor)}
+                        {item.label}
                       </option>
                     ))}
                   </select>
@@ -7042,7 +6924,7 @@ export default function ConfiguracaoCertificadoPage() {
                 : "bg-white/20 text-white hover:bg-white/30"
                 }`}
             >
-              {t("paper.orientation.landscape")}
+              Paisagem
             </button>
 
             <button
@@ -7053,7 +6935,7 @@ export default function ConfiguracaoCertificadoPage() {
                 : "bg-white/20 text-white hover:bg-white/30"
                 }`}
             >
-              {t("paper.orientation.portrait")}
+              Retrato
             </button>
 
             <button
@@ -10549,7 +10431,7 @@ export default function ConfiguracaoCertificadoPage() {
                 Página 1 de 1
               </span>
               <span className="phanyx-cert-editor-status-pill">
-                {labelPapelAtual}
+                {baseCanvas.label}
               </span>
               <span className="phanyx-cert-editor-status-pill">
                 Zoom {zoom}%
@@ -13843,7 +13725,7 @@ export default function ConfiguracaoCertificadoPage() {
                 >
                   {MODALIDADES_CERTIFICADO.map((item) => (
                     <option key={item.valor} value={item.valor}>
-                      {traduzirModalidadeCertificado(item.valor)}
+                      {item.label}
                     </option>
                   ))}
                 </select>
@@ -14104,7 +13986,10 @@ export default function ConfiguracaoCertificadoPage() {
                         </p>
 
                         <p className="mt-1 text-xs font-bold uppercase tracking-wide !text-slate-500 dark:!text-slate-400">
-                          {traduzirModalidadeCertificado(modelo?.modalidade)}
+                          {String(modelo?.modalidade || "GERAL").replace(
+                            /_/g,
+                            " ",
+                          )}
                         </p>
 
                         {modelo?.descricao && (
