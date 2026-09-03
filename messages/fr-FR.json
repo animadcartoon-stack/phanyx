@@ -18,8 +18,8 @@
   "AdminDashboard": {
     "profile": "Profil administratif",
     "institutionPanel": "Tableau de bord de l'établissement",
-    "title": "Tableau de bord administratif",
-    "description": "Gérez les activités académiques, financières, documentaires et opérationnelles de votre établissement en un seul endroit.",
+    "title": "Tableau de bord de l’étudiant",
+    "description": "Vue d’ensemble de votre parcours académique",
     "searchPlaceholder": "Rechercher des étudiants, enseignants, cours, matières, classes ou inscriptions...",
     "guidedTutorial": "Tutoriel guidé",
     "firstSteps": "Premiers pas",
@@ -97,7 +97,12 @@
     "employeePhotoAlt": "Employé",
     "uploadingPhoto": "Envoi en cours...",
     "changePhoto": "Modifier la photo",
-    "unnamed": "Sans nom"
+    "unnamed": "Sans nom",
+    "cards": {
+      "subjects": "Matières",
+      "semesters": "Semestres",
+      "certificates": "Certificats"
+    }
   },
   "AdminNavigation": {
     "adminPanel": "Tableau de bord administratif",
@@ -4434,7 +4439,20 @@
         "negative": "Évolution négative",
         "neutral": "Aucun changement académique mesurable",
         "notMeasurable": "Évolution pas encore mesurable",
-        "scheduledFor": "Programmé pour"
+        "scheduledFor": "Programmé pour",
+        "summaryAnalyses": "Analyses",
+        "academicInitial": "Analyse académique initiale",
+        "academicManual": "Réanalyse académique manuelle",
+        "academicAutomatic": "Réanalyse académique automatique",
+        "academicChange": "Réanalyse après une modification académique",
+        "academicAnalysis": "Analyse académique",
+        "academicIndicators": "Indicateurs académiques",
+        "classesAnalyzed": "Cours analysés",
+        "assessmentsAnalyzed": "Évaluations analysées",
+        "pendingActivities": "Activités en retard",
+        "mainSignals": "Signaux principaux",
+        "pendingSignal": "{count, plural, =0 {Aucune activité en retard sans remise} one {# activité en retard sans remise} other {# activités en retard sans remise}}",
+        "executedBy": "Effectuée par"
       }
     }
   },
@@ -10185,6 +10203,506 @@
     "modelTypesImage": {
       "photo": "Photo",
       "logo": "Logo"
+    }
+  },
+  "AdminCourses": {
+    "common": {
+      "saving": "Enregistrement...",
+      "adding": "Ajout...",
+      "deleting": "Suppression...",
+      "cancel": "Annuler",
+      "delete": "Supprimer",
+      "restore": "Restaurer",
+      "understood": "Compris",
+      "openWithArrow": "▼ Ouvrir",
+      "closeWithArrow": "▲ Fermer",
+      "code": "Code",
+      "course": "Cours",
+      "description": "Description",
+      "modality": "Type / modalité du cours",
+      "semesters": "Semestres",
+      "enrollmentValue": "Frais d'inscription",
+      "monthlyValue": "Mensualité",
+      "installments": "Échéances",
+      "poles": "Sites",
+      "status": "Statut",
+      "notInformed": "Non renseigné",
+      "notInformedFeminine": "Non renseignée"
+    },
+    "status": {
+      "active": "Actif",
+      "inactive": "Inactif"
+    },
+    "filters": {
+      "active": "Actifs",
+      "deleted": "Supprimés",
+      "all": "Tous"
+    },
+    "modalities": {
+      "GERAL": "Général",
+      "BACHARELADO": "Licence",
+      "LICENCIATURA": "Licence d'enseignement",
+      "TECNOLOGO": "Diplôme technologique",
+      "POS_GRADUACAO": "Post-diplôme",
+      "MBA": "MBA",
+      "MESTRADO": "Master",
+      "DOUTORADO": "Doctorat",
+      "TECNICO": "Formation Technique",
+      "CURSO_LIVRE": "Cours Libre",
+      "OFICINA": "Atelier",
+      "ENSINO_MEDIO": "Enseignement Secondaire",
+      "ENSINO_FUNDAMENTAL": "Enseignement Primaire",
+      "EDUCACAO_INFANTIL": "Éducation de la Petite Enfance",
+      "PRE_ESCOLA": "Préscolaire",
+      "EXTENSAO": "Formation d'Extension",
+      "CAPACITACAO": "Perfectionnement",
+      "TREINAMENTO": "Formation",
+      "EJA": "Éducation des Adultes",
+      "OUTRO": "Autre"
+    },
+    "list": {
+      "header": {
+        "title": "Cours",
+        "description": "Créez et gérez les cours de l'établissement.",
+        "backDashboard": "Retour au tableau de bord"
+      },
+      "create": {
+        "title": "Nouveau Cours",
+        "namePlaceholder": "Nom du cours",
+        "codePlaceholder": "Code du cours",
+        "descriptionPlaceholder": "Description",
+        "semestersPlaceholder": "Nombre de semestres",
+        "enrollmentValuePlaceholder": "Frais d'inscription",
+        "monthlyValuePlaceholder": "Mensualité",
+        "installmentsPlaceholder": "Nombre d'échéances",
+        "modalityHelp": "Cette information détermine le modèle de certificat qui sera utilisé pour le cours.",
+        "saveCourse": "Enregistrer le cours",
+        "poles": {
+          "label": "Sites où ce cours sera proposé",
+          "selectedCount": "{count, plural, one {# sélectionné} other {# sélectionnés}}",
+          "none": "Aucun site n'est enregistré. Si l'établissement ne travaille pas avec des sites, vous pouvez laisser ce champ vide pour le moment.",
+          "help": "Le cours reste rattaché à l'établissement, mais peut être proposé sur autant de sites que nécessaire."
+        }
+      },
+      "registered": {
+        "title": "Cours enregistrés",
+        "searchPlaceholder": "Rechercher par nom, code, description, montants, échéances ou sites",
+        "loading": "Chargement des cours...",
+        "empty": "Aucun cours trouvé pour cette recherche."
+      },
+      "cards": {
+        "noPoles": "Aucun site associé",
+        "courseId": "ID du cours",
+        "createdAt": "Créé le",
+        "createdBy": "Créé par",
+        "deletedAt": "Supprimé le",
+        "deletedBy": "Supprimé par",
+        "restoreUntil": "Disponible pour restauration jusqu'au",
+        "lastRestoreDay": "⚠️ Dernier jour pour restaurer. Ce cours ne sera plus disponible après le {date}.",
+        "restoreWindow": "Les cours supprimés restent disponibles pour restauration pendant 3 jours maximum. Passé ce délai, ils pourront être supprimés définitivement du système."
+      },
+      "actions": {
+        "viewStructure": "Voir la structure",
+        "buildCurriculum": "Construire le programme",
+        "editPoles": "Modifier les sites/unités"
+      },
+      "editPoles": {
+        "title": "Modifier les sites et unités",
+        "noActivePoles": "Aucun site actif disponible.",
+        "help": "Lorsqu'une unité indépendante est décochée, le cours y sera retiré et désactivé sans supprimer l'historique.",
+        "save": "Enregistrer les sites"
+      },
+      "deleteModal": {
+        "title": "Supprimer le cours",
+        "confirmation": "Voulez-vous vraiment supprimer le cours <strong>{course}</strong> ?",
+        "help": "Le cours sera uniquement archivé et pourra être restauré ultérieurement.",
+        "deleteCourse": "Supprimer le cours"
+      }
+    },
+    "detail": {
+      "loading": "Chargement du cours...",
+      "notFound": "Cours introuvable.",
+      "header": {
+        "title": "Structure du Cours",
+        "description": "Créez les semestres et associez les matières de chaque semestre.",
+        "backCourses": "Retour aux Cours"
+      },
+      "network": {
+        "receivedTitle": "Cours reçu du réseau",
+        "synced": "Structure synchronisée",
+        "publishedBy": "Ce cours a été publié par <strong>{institution}</strong>.",
+        "otherInstitution": "un autre établissement du réseau",
+        "controlledByOrigin": "Le nom, le code, la description, la modalité, les semestres, les matières et les charges académiques sont contrôlés par l'établissement d'origine.",
+        "localConfiguration": "Cette unité peut uniquement configurer les frais d'inscription, la mensualité, les échéances et les données opérationnelles locales, telles que les classes, enseignants, horaires, places et inscriptions.",
+        "originCourse": "Cours d'origine",
+        "originId": "ID d'origine",
+        "editRestriction": "Pour ce cours reçu du réseau, cette unité peut uniquement modifier les frais d'inscription, la mensualité et le nombre d'échéances.",
+        "academicStructureReceived": "Structure académique reçue",
+        "academicStructureHelp": "Les semestres de ce cours sont publiés et synchronisés par l'établissement d'origine. Cette unité peut les consulter, mais ne peut pas créer de nouveaux semestres ni modifier le programme."
+      },
+      "courseForm": {
+        "namePlaceholder": "Nom du cours",
+        "semestersCount": "Nombre de semestres du cours",
+        "activeCourse": "Cours actif",
+        "descriptionPlaceholder": "Description du cours",
+        "saveLocalValues": "Enregistrer les valeurs locales",
+        "saveChanges": "Enregistrer les modifications",
+        "configureLocalValues": "Configurer les valeurs locales",
+        "editCourse": "Modifier le cours"
+      },
+      "courseInfo": {
+        "expectedSemesters": "Nombre prévu de semestres"
+      },
+      "semesters": {
+        "addTitle": "Ajouter un semestre",
+        "numberPlaceholder": "Numéro du semestre",
+        "titlePlaceholder": "Titre du semestre",
+        "descriptionPlaceholder": "Description du semestre",
+        "addButton": "Ajouter un semestre",
+        "none": "Aucun semestre n'est encore enregistré pour ce cours.",
+        "semesterLabel": "Semestre {number}",
+        "minimumWorkload": "Charge minimale autorisée pour le semestre (heures)",
+        "maximumWorkload": "Charge maximale autorisée pour le semestre (heures)",
+        "saveWorkload": "Enregistrer la charge"
+      },
+      "subjects": {
+        "linkedTitle": "Matières déjà associées",
+        "noneLinked": "Aucune matière n'est encore associée.",
+        "noneRegistered": "Aucune matière enregistrée.",
+        "readOnlyNetwork": "Programme reçu du réseau — lecture seule.",
+        "updateSemester": "Mettre à jour les matières du semestre {number}"
+      }
+    },
+    "messages": {
+      "coursePolesUpdated": "Sites du cours mis à jour avec succès.",
+      "courseCreated": "Cours créé avec succès !",
+      "courseDeleted": "Cours supprimé avec succès. Il pourra être restauré ultérieurement.",
+      "courseRestored": "Cours restauré avec succès.",
+      "localValuesUpdated": "Valeurs locales mises à jour avec succès !",
+      "courseUpdated": "Cours mis à jour avec succès !",
+      "semesterCreated": "Semestre créé avec succès !",
+      "subjectsSaved": "Matières du semestre {semester} enregistrées avec succès !",
+      "workloadSaved": "Charge horaire enregistrée avec succès !"
+    },
+    "errors": {
+      "loadCourses": "Impossible de charger les cours.",
+      "loadPoles": "Impossible de charger les sites.",
+      "updateCoursePoles": "Impossible de mettre à jour les sites du cours.",
+      "createCourse": "Impossible de créer le cours.",
+      "deleteCourse": "Impossible de supprimer le cours.",
+      "restoreCourse": "Impossible de restaurer le cours.",
+      "couldNotSave": "Impossible d'enregistrer",
+      "loadSubjects": "Impossible de charger les matières.",
+      "loadCourseSemesters": "Impossible de charger les semestres du cours.",
+      "loadCourseData": "Impossible de charger les données du cours.",
+      "editCourse": "Impossible de modifier le cours.",
+      "createSemester": "Impossible de créer le semestre.",
+      "saveSubjects": "Impossible d'enregistrer les matières.",
+      "saveWorkload": "Impossible d'enregistrer la charge horaire."
+    },
+    "validation": {
+      "workloadRequired": "Renseignez la charge minimale et la charge maximale avant d'enregistrer.",
+      "workloadPositive": "La charge minimale et la charge maximale doivent être supérieures à zéro.",
+      "workloadOrder": "La charge minimale ne peut pas être supérieure à la charge maximale."
+    }
+  },
+  "AdminDepartments": {
+    "title": "Départements",
+    "newDepartment": {
+      "title": "Nouveau département",
+      "namePlaceholder": "Nom du département",
+      "slugPlaceholder": "Slug public (facultatif)",
+      "rolesTitle": "Postes du département",
+      "rolesDescription": "Facultatif. Ajoutez dès maintenant les postes existant dans ce département.",
+      "create": "Créer le département"
+    },
+    "list": {
+      "title": "Liste des départements",
+      "slug": "Slug"
+    },
+    "common": {
+      "name": "Nom",
+      "slug": "Slug",
+      "status": "Statut",
+      "active": "Actif",
+      "inactive": "Inactif",
+      "save": "Enregistrer",
+      "saving": "Enregistrement...",
+      "creating": "Création...",
+      "deleting": "Suppression...",
+      "cancel": "Annuler",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "remove": "Retirer",
+      "deactivate": "Désactiver",
+      "reactivate": "Réactiver"
+    },
+    "roles": {
+      "title": "Postes",
+      "close": "Fermer les postes",
+      "add": "+ Ajouter un poste",
+      "newRole": "+ Nouveau poste",
+      "role": "Poste",
+      "fallbackName": "Poste",
+      "namePlaceholder": "Nom du poste",
+      "examplePlaceholder": "Ex. : Commercial",
+      "departmentTitle": "Postes de {name}",
+      "departmentDescription": "Ajoutez les postes existant dans ce département.",
+      "loading": "Chargement des postes...",
+      "empty": "Aucun poste enregistré dans ce département.",
+      "active": "Poste actif",
+      "linkedEmployees": "{count, plural, =0 {Aucun employé associé} =1 {1 employé associé} other {# employés associés}}"
+    },
+    "permissions": {
+      "link": "Autorisations"
+    },
+    "roleStatusModal": {
+      "deactivateTitle": "Désactiver le poste",
+      "reactivateTitle": "Réactiver le poste",
+      "deactivateDescription": "Le poste ne sera plus proposé pour de nouvelles associations, mais les employés déjà associés ne seront pas supprimés.",
+      "reactivateDescription": "Le poste sera de nouveau disponible pour de nouvelles associations.",
+      "confirmDeactivate": "Confirmer la désactivation",
+      "confirmReactivate": "Confirmer la réactivation"
+    },
+    "deleteModal": {
+      "title": "Confirmer la suppression",
+      "question": "Voulez-vous vraiment supprimer le département « {name} » ?",
+      "questionPrefix": "Voulez-vous vraiment supprimer le département",
+      "warning": "Cette action est irréversible.",
+      "confirm": "Confirmer la suppression"
+    },
+    "messages": {
+      "departmentCreated": "Département créé avec succès.",
+      "departmentUpdated": "Département mis à jour avec succès.",
+      "departmentDeleted": "Département supprimé avec succès.",
+      "roleCreated": "Poste créé avec succès.",
+      "roleUpdated": "Poste mis à jour avec succès.",
+      "roleDeactivated": "Poste désactivé avec succès.",
+      "roleReactivated": "Poste réactivé avec succès."
+    },
+    "errors": {
+      "createDepartment": "Impossible de créer le département.",
+      "updateDepartment": "Impossible de mettre à jour le département.",
+      "deleteDepartment": "Impossible de supprimer le département.",
+      "loadRoles": "Impossible de charger les postes.",
+      "roleNameRequired": "Saisissez le nom du poste.",
+      "createRole": "Impossible de créer le poste.",
+      "updateRole": "Impossible de mettre à jour le poste.",
+      "changeRoleStatus": "Impossible de modifier le statut du poste."
+    },
+    "permissionsPage": {
+      "back": "← Retour aux Départements",
+      "title": "Autorisations du Département — {name}",
+      "description": "Définissez les zones et fonctions accessibles aux employés de ce département. Les autorisations sont organisées par domaine pour faciliter la gestion.",
+      "sectionTitle": "Autorisations par domaine",
+      "selectedLabel": "Sélectionnées",
+      "save": "Enregistrer les autorisations",
+      "groupSelected": "{selected} sur {total} sélectionnées",
+      "selectAllGroup": "Tout sélectionner dans ce domaine",
+      "clearGroup": "Effacer ce domaine",
+      "permissionGenericDescription": "Accorde cette autorisation PHANYX : {permission}.",
+      "messages": {
+        "saved": "Autorisations enregistrées avec succès."
+      },
+      "errors": {
+        "load": "Impossible de charger les autorisations.",
+        "save": "Impossible d’enregistrer les autorisations."
+      },
+      "common": {
+        "saving": "Enregistrement..."
+      },
+      "groups": {
+        "geral": {
+          "name": "Général / Tableau de bord",
+          "description": "Accès généraux au tableau de bord administratif."
+        },
+        "assinatura": {
+          "name": "Abonnement PHANYX",
+          "description": "Forfait, tarifs, facturation et résiliation de l’abonnement de l’établissement."
+        },
+        "apoio-docente": {
+          "name": "Support Enseignant",
+          "description": "Publications académiques, ressources, travaux et soutien aux activités des enseignants."
+        },
+        "academico": {
+          "name": "Académique",
+          "description": "Étudiants, enseignants, cursus, groupes, inscriptions, matières et gestion académique."
+        },
+        "biblioteca": {
+          "name": "Bibliothèque Numérique",
+          "description": "Catalogue, circulation, fichiers, licences, stockage, rapports et administration de la bibliothèque."
+        },
+        "comercial": {
+          "name": "Commercial",
+          "description": "Entonnoirs, prospects, opportunités, tâches, commerciaux, objectifs, ventes, commissions et rapports."
+        },
+        "financeiro": {
+          "name": "Finances",
+          "description": "Encaissements, caisse, impayés, rapports financiers et facturation."
+        },
+        "rh": {
+          "name": "Personnel / RH",
+          "description": "Employés, départements, pointage, bulletins de paie, congés, examens, départs et documents RH."
+        },
+        "controle-acesso": {
+          "name": "Contrôle d’accès",
+          "description": "Badges, modèles, émission, visiteurs, entrées et sorties."
+        },
+        "documentos": {
+          "name": "Documents",
+          "description": "Certificats, contrats, documents, modèles, signatures et validations."
+        },
+        "comunicacao": {
+          "name": "Communication",
+          "description": "Réunions, anniversaires, réclamations, messages et communication interne."
+        },
+        "configuracoes": {
+          "name": "Paramètres / Intégrations",
+          "description": "Paramètres de l’établissement, intégrations et ressources administratives."
+        },
+        "outros": {
+          "name": "Autres autorisations",
+          "description": "Autorisations qui ne sont pas encore classées dans un groupe précis."
+        }
+      },
+      "permissionTerms": {
+        "modules": {
+          "dashboard": "Tableau de bord",
+          "subscription": "Abonnement PHANYX",
+          "students": "Étudiants",
+          "enrollments": "Inscriptions",
+          "academic": "Académique",
+          "publications": "Publications",
+          "materials": "Ressources",
+          "assignments": "Travaux",
+          "classes": "Groupes",
+          "subjects": "Matières",
+          "teachers": "Enseignants",
+          "library": "Bibliothèque Numérique",
+          "subscriptionManagement": "Abonnement",
+          "catalog": "Catalogue",
+          "files": "Fichiers",
+          "storage": "Stockage",
+          "circulation": "Circulation",
+          "loans": "Emprunts",
+          "renewals": "Renouvellements",
+          "reservations": "Réservations",
+          "shelves": "Rayonnages",
+          "reviews": "Évaluations",
+          "recommendations": "Recommandations",
+          "licenses": "Licences",
+          "operators": "Opérateurs",
+          "settings": "Paramètres",
+          "reports": "Rapports",
+          "audit": "Audit",
+          "sales": "Commercial",
+          "funnels": "Entonnoirs",
+          "leads": "Prospects",
+          "tasks": "Tâches",
+          "salespeople": "Commerciaux",
+          "teams": "Équipes",
+          "goals": "Objectifs",
+          "salesTransactions": "Ventes",
+          "commissions": "Commissions",
+          "integrations": "Intégrations",
+          "email": "E-mail",
+          "whatsapp": "WhatsApp",
+          "finance": "Finances",
+          "cashRegister": "Caisse",
+          "documents": "Documents",
+          "certificates": "Certificats",
+          "employees": "Employés",
+          "departments": "Départements",
+          "hr": "RH",
+          "timeTracking": "Pointage",
+          "mobile": "Mobile",
+          "badges": "Badges",
+          "templates": "Modèles",
+          "visitors": "Visiteurs",
+          "meetings": "Réunions",
+          "ombudsman": "Réclamations",
+          "birthdays": "Anniversaires",
+          "receipts": "Encaissements",
+          "delinquency": "Impayés",
+          "closing": "Clôture",
+          "permissions": "Autorisations",
+          "hiring": "Embauches",
+          "terminations": "Départs",
+          "occurrences": "Incidents",
+          "history": "Historique",
+          "archived": "Archives",
+          "payslips": "Bulletins de paie",
+          "vacations": "Congés",
+          "exams": "Examens",
+          "roles": "Postes",
+          "salaryRanges": "Grilles salariales",
+          "indicators": "Indicateurs",
+          "benefits": "Avantages",
+          "timeBank": "Banque d’heures"
+        },
+        "actions": {
+          "access": "Accéder",
+          "view": "Voir",
+          "create": "Créer",
+          "edit": "Modifier",
+          "delete": "Supprimer",
+          "cancel": "Annuler",
+          "manage": "Gérer",
+          "publish": "Publier",
+          "attach": "Joindre",
+          "select": "Sélectionner",
+          "upload": "Téléverser",
+          "download": "Télécharger",
+          "archive": "Archiver",
+          "restore": "Restaurer",
+          "moderate": "Modérer",
+          "export": "Exporter",
+          "interact": "Enregistrer des interactions",
+          "assign": "Attribuer",
+          "convert": "Convertir",
+          "move": "Déplacer",
+          "transfer": "Transférer",
+          "complete": "Terminer",
+          "approve": "Approuver",
+          "calculate": "Calculer",
+          "issue": "Émettre",
+          "print": "Imprimer",
+          "generate": "Générer",
+          "receive": "Encaisser",
+          "open": "Ouvrir",
+          "close": "Fermer",
+          "configure": "Configurer",
+          "adjust": "Ajuster",
+          "sign": "Signer",
+          "block": "Bloquer",
+          "reply": "Répondre",
+          "viewAll": "Voir tout",
+          "recordLoss": "Enregistrer une perte",
+          "registerEntry": "Enregistrer l’entrée",
+          "registerExit": "Enregistrer la sortie",
+          "linkSalesperson": "Associer un commercial",
+          "sendToHr": "Envoyer aux RH",
+          "editTemplate": "Modifier le modèle",
+          "generateWhatsAppLinks": "Générer des liens WhatsApp",
+          "exportPdf": "Exporter en PDF",
+          "exportExcel": "Exporter vers Excel",
+          "archiveOccurrences": "Archiver les incidents",
+          "archivePayslips": "Archiver les bulletins de paie",
+          "archiveVacations": "Archiver les congés",
+          "archiveExams": "Archiver les examens",
+          "archiveTerminations": "Archiver les départs",
+          "archiveHrDocuments": "Archiver les documents RH",
+          "restoreArchived": "Restaurer les archives",
+          "documentTemplates": "Modèles de documents",
+          "generateDocuments": "Générer des documents",
+          "editTimeEntries": "Ajuster les pointages",
+          "timeTrackingIntegrations": "Intégrations de pointage",
+          "generatePayslips": "Générer les bulletins de paie",
+          "signPayslips": "Signer les bulletins de paie",
+          "deletePayslips": "Supprimer les bulletins de paie",
+          "approveVacations": "Approuver les congés"
+        }
+      }
     }
   }
 }

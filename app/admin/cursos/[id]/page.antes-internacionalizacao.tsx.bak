@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useLocale, useTranslations } from "next-intl";
 
 type Disciplina = {
   id: number;
@@ -33,28 +32,41 @@ type ModalidadeCertificado =
   | "EJA"
   | "OUTRO";
 
-const OPCOES_MODALIDADE_CERTIFICADO: ModalidadeCertificado[] = [
-  "GERAL",
-  "BACHARELADO",
-  "LICENCIATURA",
-  "TECNOLOGO",
-  "POS_GRADUACAO",
-  "MBA",
-  "MESTRADO",
-  "DOUTORADO",
-  "TECNICO",
-  "CURSO_LIVRE",
-  "OFICINA",
-  "ENSINO_MEDIO",
-  "ENSINO_FUNDAMENTAL",
-  "EDUCACAO_INFANTIL",
-  "PRE_ESCOLA",
-  "EXTENSAO",
-  "CAPACITACAO",
-  "TREINAMENTO",
-  "EJA",
-  "OUTRO",
-];
+const OPCOES_MODALIDADE_CERTIFICADO: {
+  valor: ModalidadeCertificado;
+  rotulo: string;
+}[] = [
+    { valor: "GERAL", rotulo: "Geral" },
+    { valor: "BACHARELADO", rotulo: "Bacharelado" },
+    { valor: "LICENCIATURA", rotulo: "Licenciatura" },
+    { valor: "TECNOLOGO", rotulo: "Tecnólogo" },
+    { valor: "POS_GRADUACAO", rotulo: "Pós-graduação" },
+    { valor: "MBA", rotulo: "MBA" },
+    { valor: "MESTRADO", rotulo: "Mestrado" },
+    { valor: "DOUTORADO", rotulo: "Doutorado" },
+    { valor: "TECNICO", rotulo: "Curso Técnico" },
+    { valor: "CURSO_LIVRE", rotulo: "Curso Livre" },
+    { valor: "OFICINA", rotulo: "Oficina" },
+    { valor: "ENSINO_MEDIO", rotulo: "Ensino Médio" },
+    { valor: "ENSINO_FUNDAMENTAL", rotulo: "Ensino Fundamental" },
+    { valor: "EDUCACAO_INFANTIL", rotulo: "Educação Infantil" },
+    { valor: "PRE_ESCOLA", rotulo: "Pré-escola" },
+    { valor: "EXTENSAO", rotulo: "Extensão" },
+    { valor: "CAPACITACAO", rotulo: "Capacitação" },
+    { valor: "TREINAMENTO", rotulo: "Treinamento" },
+    { valor: "EJA", rotulo: "EJA" },
+    { valor: "OUTRO", rotulo: "Outro" },
+  ];
+
+function obterRotuloModalidade(
+  valor?: ModalidadeCertificado | null
+) {
+  return (
+    OPCOES_MODALIDADE_CERTIFICADO.find(
+      (opcao) => opcao.valor === valor
+    )?.rotulo || "Geral"
+  );
+}
 
 type Curso = {
   id: number;
@@ -104,17 +116,8 @@ type CursoSemestre = {
 
 type FeedbackTipo = "sucesso" | "erro" | "";
 
-function formatarMoeda(valor: number, localeAtual: string) {
-  return Number(valor || 0).toLocaleString(localeAtual, {
-    style: "currency",
-    currency: "BRL",
-  });
-}
-
 export default function CursoDetalhePage() {
   const params = useParams();
-  const t = useTranslations("AdminCourses");
-  const locale = useLocale();
   const cursoId = Number(params.id);
 
   const [curso, setCurso] = useState<Curso | null>(null);
@@ -174,7 +177,7 @@ export default function CursoDetalhePage() {
     });
 
     if (!res.ok) {
-      throw new Error(t("errors.loadCourses"));
+      throw new Error("Erro ao carregar cursos");
     }
 
     const cursos: Curso[] = await res.json();
@@ -218,7 +221,7 @@ export default function CursoDetalhePage() {
     });
 
     if (!res.ok) {
-      throw new Error(t("errors.loadSubjects"));
+      throw new Error("Erro ao carregar disciplinas");
     }
 
     const data = await res.json();
@@ -235,7 +238,7 @@ export default function CursoDetalhePage() {
 
     if (!res.ok) {
       console.error("Erro ao carregar semestres do curso:", data);
-      throw new Error(t("errors.loadCourseSemesters"));
+      throw new Error(data?.detalhe || data?.error || "Erro ao carregar semestres do curso");
     }
 
     const lista: CursoSemestre[] = Array.isArray(data) ? data : [];
@@ -260,7 +263,7 @@ export default function CursoDetalhePage() {
       await Promise.all([carregarCurso(), carregarDisciplinas(), carregarSemestres()]);
     } catch (error) {
       console.error("Erro ao carregar dados do curso:", error);
-      mostrarFeedback("erro", t("errors.loadCourseData"));
+      mostrarFeedback("erro", "Erro ao carregar dados do curso");
     } finally {
       setLoading(false);
     }
@@ -310,20 +313,21 @@ export default function CursoDetalhePage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(t("errors.editCourse"));
+        throw new Error(data.error || "Erro ao editar curso");
       }
 
       await carregarCurso();
       setEditandoCurso(false);
       mostrarFeedback(
         "sucesso",
-        cursoRecebidoDaRede
-          ? t("messages.localValuesUpdated")
-          : t("messages.courseUpdated")
+        data?.mensagem ||
+        (cursoRecebidoDaRede
+          ? "Valores locais atualizados com sucesso!"
+          : "Curso atualizado com sucesso!")
       );
     } catch (error: any) {
       console.error("Erro ao editar curso:", error);
-      mostrarFeedback("erro", error?.message || t("errors.editCourse"));
+      mostrarFeedback("erro", error?.message || "Erro ao editar curso");
     } finally {
       setSalvandoCurso(false);
     }
@@ -355,7 +359,7 @@ export default function CursoDetalhePage() {
 
       if (!res.ok) {
         console.error("Erro ao criar semestre:", data);
-        throw new Error(t("errors.createSemester"));
+        throw new Error(data?.detalhe || data?.error || "Erro ao criar semestre");
       }
 
       setNovoSemestre({
@@ -382,10 +386,10 @@ export default function CursoDetalhePage() {
       }));
 
       await carregarSemestres();
-      mostrarFeedback("sucesso", t("messages.semesterCreated"));
+      mostrarFeedback("sucesso", "Semestre criado com sucesso!");
     } catch (error: any) {
       console.error("Erro ao criar semestre:", error);
-      mostrarFeedback("erro", error?.message || t("errors.createSemester"));
+      mostrarFeedback("erro", error?.message || "Erro ao criar semestre");
     } finally {
       setCriandoSemestre(false);
     }
@@ -428,20 +432,14 @@ export default function CursoDetalhePage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(t("errors.saveSubjects"));
+        throw new Error(data.error || "Erro ao salvar disciplinas");
       }
 
       await carregarSemestres();
-      mostrarFeedback(
-        "sucesso",
-        t("messages.subjectsSaved", {
-          semester:
-            semestres.find((s) => s.id === cursoSemestreId)?.numero ?? "",
-        })
-      );
+      mostrarFeedback("sucesso", `Disciplinas do semestre ${semestres.find((s) => s.id === cursoSemestreId)?.numero ?? ""} salvas com sucesso!`);
     } catch (error: any) {
       console.error("Erro ao salvar disciplinas:", error);
-      mostrarFeedback("erro", error?.message || t("errors.saveSubjects"));
+      mostrarFeedback("erro", error?.message || "Erro ao salvar disciplinas");
     } finally {
       setSalvandoSemestreId(null);
     }
@@ -460,7 +458,7 @@ export default function CursoDetalhePage() {
         semestre.cargaMaxima === undefined;
 
       if (cargaMinimaVazia || cargaMaximaVazia) {
-        mostrarFeedback("erro", t("validation.workloadRequired"));
+        mostrarFeedback("erro", "Preencha a carga mínima e a carga máxima antes de salvar.");
         return;
       }
 
@@ -473,12 +471,12 @@ export default function CursoDetalhePage() {
         cargaMinimaNumero <= 0 ||
         cargaMaximaNumero <= 0
       ) {
-        mostrarFeedback("erro", t("validation.workloadPositive"));
+        mostrarFeedback("erro", "A carga mínima e a carga máxima precisam ser maiores que zero.");
         return;
       }
 
       if (cargaMinimaNumero > cargaMaximaNumero) {
-        mostrarFeedback("erro", t("validation.workloadOrder"));
+        mostrarFeedback("erro", "A carga mínima não pode ser maior que a carga máxima.");
         return;
       }
       setSalvandoSemestreId(semestre.id);
@@ -501,15 +499,15 @@ export default function CursoDetalhePage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(t("errors.saveWorkload"));
+        throw new Error(data?.error || "Erro ao salvar carga horária");
       }
 
       await carregarSemestres();
 
-      mostrarFeedback("sucesso", t("messages.workloadSaved"));
+      mostrarFeedback("sucesso", "Carga horária salva com sucesso!");
     } catch (error: any) {
       console.error("Erro ao salvar carga horária:", error);
-      mostrarFeedback("erro", error?.message || t("errors.saveWorkload"));
+      mostrarFeedback("erro", error?.message || "Erro ao salvar carga horária");
     } finally {
       setSalvandoSemestreId(null);
     }
@@ -528,11 +526,11 @@ export default function CursoDetalhePage() {
       : "";
 
   if (loading) {
-    return <p className="text-gray-500">{t("detail.loading")}</p>;
+    return <p className="text-gray-500">Carregando curso...</p>;
   }
 
   if (!curso) {
-    return <p className="text-red-600">{t("detail.notFound")}</p>;
+    return <p className="text-red-600">Curso não encontrado.</p>;
   }
 
   return (
@@ -551,10 +549,10 @@ export default function CursoDetalhePage() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
-            🎓 {t("detail.header.title")}
+            🎓 Estrutura do Curso
           </h1>
           <p className="text-gray-600">
-            {t("detail.header.description")}
+            Cadastre os semestres e vincule as disciplinas de cada semestre.
           </p>
         </div>
 
@@ -562,7 +560,7 @@ export default function CursoDetalhePage() {
           href="/admin/cursos"
           className="bg-gray-800 text-white px-4 py-2 rounded-lg"
         >
-          {t("detail.header.backCourses")}
+          Voltar para Cursos
         </Link>
       </div>
 
@@ -572,35 +570,43 @@ export default function CursoDetalhePage() {
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="text-lg font-bold text-blue-950 dark:text-blue-100">
-                  {t("detail.network.receivedTitle")}
+                  Curso recebido da rede
                 </h2>
 
                 <span className="rounded-full border border-blue-300 bg-white px-3 py-1 text-xs font-bold text-blue-800 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-200">
-                  {t("detail.network.synced")}
+                  Estrutura sincronizada
                 </span>
               </div>
 
               <p className="mt-2 text-sm leading-6 text-blue-900 dark:text-blue-200">
-                {t.rich("detail.network.publishedBy", {
-                  institution:
-                    curso.publicacaoRedeDestino?.instituicaoOrigem?.nome ||
-                    t("detail.network.otherInstitution"),
-                  strong: (chunks) => <strong>{chunks}</strong>,
-                })}
+                Este curso foi publicado por{" "}
+                <strong>
+                  {curso.publicacaoRedeDestino
+                    ?.instituicaoOrigem?.nome ||
+                    "outra instituição da rede"}
+                </strong>
+                .
               </p>
 
               <p className="mt-2 text-sm leading-6 text-blue-900 dark:text-blue-200">
-                {t("detail.network.controlledByOrigin")}
+                Nome, código, descrição, modalidade,
+                semestres, disciplinas e cargas
+                acadêmicas são controlados pela
+                instituição de origem.
               </p>
 
               <p className="mt-2 text-sm leading-6 text-blue-900 dark:text-blue-200">
-                {t("detail.network.localConfiguration")}
+                Esta unidade pode configurar somente
+                matrícula, mensalidade, parcelas e os
+                dados operacionais locais, como
+                turmas, professores, horários, vagas
+                e matrículas.
               </p>
             </div>
 
             <div className="shrink-0 rounded-xl border border-blue-200 bg-white p-3 text-sm text-slate-700 dark:border-blue-800 dark:bg-slate-950 dark:text-slate-300">
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                {t("detail.network.originCourse")}
+                Curso de origem
               </p>
 
               <p className="mt-1 font-bold">
@@ -610,7 +616,7 @@ export default function CursoDetalhePage() {
               </p>
 
               <p className="mt-1 text-xs">
-                {t("detail.network.originId")}:{" "}
+                ID de origem:{" "}
                 {curso.publicacaoRedeDestino
                   ?.cursoOrigemId}
               </p>
@@ -626,7 +632,10 @@ export default function CursoDetalhePage() {
               <div className="space-y-4">
                 {cursoRecebidoDaRede && (
                   <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm leading-6 text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200">
-                    {t("detail.network.editRestriction")}
+                    Neste curso recebido da rede, somente os
+                    valores de matrícula, mensalidade e
+                    quantidade de parcelas podem ser
+                    alterados por esta unidade.
                   </div>
                 )}
                 <input
@@ -637,13 +646,13 @@ export default function CursoDetalhePage() {
                     setFormCurso({ ...formCurso, nome: e.target.value })
                   }
                   className={`w-full rounded-lg border px-4 py-2 text-2xl font-semibold ${classeCampoAcademico}`}
-                  placeholder={t("detail.courseForm.namePlaceholder")}
+                  placeholder="Nome do curso"
                 />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="mb-1 block text-sm font-medium text-gray-700">
-                      {t("common.code")}
+                      Código do curso
                     </label>
                     <input
                       disabled={cursoRecebidoDaRede}
@@ -659,7 +668,7 @@ export default function CursoDetalhePage() {
 
                   <div>
                     <label className="mb-1 block text-sm font-medium text-gray-700">
-                      {t("common.modality")}
+                      Tipo / modalidade do curso
                     </label>
 
                     <select
@@ -672,11 +681,11 @@ export default function CursoDetalhePage() {
                             e.target.value as ModalidadeCertificado,
                         })
                       }
-                      className={`phanyx-curso-modalidade-select phanyx-course-native-select w-full rounded-lg border px-4 py-2 ${classeCampoAcademico}`}
+                      className={`phanyx-curso-modalidade-select w-full rounded-lg border px-4 py-2 ${classeCampoAcademico}`}
                     >
-                      {OPCOES_MODALIDADE_CERTIFICADO.map((valor) => (
-                        <option key={valor} value={valor}>
-                          {t(`modalities.${valor}`)}
+                      {OPCOES_MODALIDADE_CERTIFICADO.map((opcao) => (
+                        <option key={opcao.valor} value={opcao.valor}>
+                          {opcao.rotulo}
                         </option>
                       ))}
                     </select>
@@ -684,7 +693,7 @@ export default function CursoDetalhePage() {
 
                   <div>
                     <label className="mb-1 block text-sm font-medium text-gray-700">
-                      {t("detail.courseForm.semestersCount")}
+                      Quantidade de semestres do curso
                     </label>
                     <input
                       disabled={cursoRecebidoDaRede}
@@ -703,7 +712,7 @@ export default function CursoDetalhePage() {
 
                   <div>
                     <label className="mb-1 block text-sm font-medium text-gray-700">
-                      {t("common.enrollmentValue")}
+                      Valor da matrícula
                     </label>
                     <input
                       type="number"
@@ -722,7 +731,7 @@ export default function CursoDetalhePage() {
 
                   <div>
                     <label className="mb-1 block text-sm font-medium text-gray-700">
-                      {t("common.monthlyValue")}
+                      Valor da mensalidade
                     </label>
                     <input
                       type="number"
@@ -741,7 +750,7 @@ export default function CursoDetalhePage() {
 
                   <div>
                     <label className="mb-1 block text-sm font-medium text-gray-700">
-                      {t("common.installments")}
+                      Quantidade de parcelas
                     </label>
                     <input
                       type="number"
@@ -772,7 +781,7 @@ export default function CursoDetalhePage() {
                         })
                       }
                     />
-                    {t("detail.courseForm.activeCourse")}
+                    Curso ativo
                   </label>
                 </div>
 
@@ -784,7 +793,7 @@ export default function CursoDetalhePage() {
                   }
                   className={`w-full rounded-lg border px-4 py-2 ${classeCampoAcademico}`}
                   rows={4}
-                  placeholder={t("detail.courseForm.descriptionPlaceholder")}
+                  placeholder="Descrição do curso"
                 />
 
                 <div className="flex gap-3">
@@ -795,10 +804,10 @@ export default function CursoDetalhePage() {
                     className="bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
                   >
                     {salvandoCurso
-                      ? t("common.saving")
+                      ? "Salvando..."
                       : cursoRecebidoDaRede
-                        ? t("detail.courseForm.saveLocalValues")
-                        : t("detail.courseForm.saveChanges")}
+                        ? "Salvar valores locais"
+                        : "Salvar alterações"}
                   </button>
 
                   <button
@@ -806,7 +815,7 @@ export default function CursoDetalhePage() {
                     onClick={() => setEditandoCurso(false)}
                     className="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg"
                   >
-                    {t("common.cancel")}
+                    Cancelar
                   </button>
                 </div>
               </div>
@@ -823,37 +832,37 @@ export default function CursoDetalhePage() {
                 </button>
 
                 <div className="mt-3 space-y-1 text-sm text-gray-700">
-                  <p>{t("common.code")}: {curso.codigo || t("common.notInformed")}</p>
+                  <p>Código: {curso.codigo || "Não informado"}</p>
 
                   <p>
-                    {t("common.modality")}:{" "}
-                    {t(`modalities.${curso.modalidadeCertificado || "GERAL"}`)}
+                    Tipo/modalidade:{" "}
+                    {obterRotuloModalidade(curso.modalidadeCertificado)}
                   </p>
 
-                  <p>{t("common.description")}: {curso.descricao || t("common.notInformedFeminine")}</p>
+                  <p>Descrição: {curso.descricao || "Não informada"}</p>
                   <p>
-                    {t("detail.courseInfo.expectedSemesters")}:{" "}
-                    {curso.quantidadeSemestres ?? t("common.notInformed")}
+                    Quantidade prevista de semestres:{" "}
+                    {curso.quantidadeSemestres ?? "Não informado"}
                   </p>
                   <p>
-                    {t("common.enrollmentValue")}:{" "}
+                    Matrícula:{" "}
                     {curso.valorMatricula != null
-                      ? formatarMoeda(curso.valorMatricula, locale)
-                      : t("common.notInformed")}
+                      ? `R$ ${curso.valorMatricula.toFixed(2)}`
+                      : "Não informado"}
                   </p>
                   <p>
-                    {t("common.monthlyValue")}:{" "}
+                    Mensalidade:{" "}
                     {curso.valorMensalidade != null
-                      ? formatarMoeda(curso.valorMensalidade, locale)
-                      : t("common.notInformed")}
+                      ? `R$ ${curso.valorMensalidade.toFixed(2)}`
+                      : "Não informado"}
                   </p>
                   <p>
-                    {t("common.installments")}:{" "}
+                    Parcelas:{" "}
                     {curso.quantidadeParcelas != null
                       ? curso.quantidadeParcelas
-                      : t("common.notInformed")}
+                      : "Não informado"}
                   </p>
-                  <p>{t("common.status")}: {curso.ativo ? t("status.active") : t("status.inactive")}</p>
+                  <p>Status: {curso.ativo ? "Ativo" : "Inativo"}</p>
                 </div>
               </>
             )}
@@ -866,8 +875,8 @@ export default function CursoDetalhePage() {
               className="bg-blue-600 text-white px-4 py-2 rounded-lg"
             >
               {cursoRecebidoDaRede
-                ? t("detail.courseForm.configureLocalValues")
-                : t("detail.courseForm.editCourse")}
+                ? "Configurar valores locais"
+                : "Editar curso"}
             </button>
           ) : null}
         </div>
@@ -876,16 +885,20 @@ export default function CursoDetalhePage() {
       {cursoRecebidoDaRede ? (
         <div className="rounded-xl border border-slate-300 bg-slate-50 p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/60">
           <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
-            {t("detail.network.academicStructureReceived")}
+            Estrutura acadêmica recebida
           </h3>
 
           <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
-            {t("detail.network.academicStructureHelp")}
+            Os semestres deste curso são publicados
+            e sincronizados pela instituição de
+            origem. Esta unidade pode consultá-los,
+            mas não pode criar novos semestres nem
+            alterar a matriz curricular.
           </p>
         </div>
       ) : (
         <div className="bg-white border rounded-xl p-6 shadow-sm">
-          <h3 className="text-xl font-semibold mb-4">+ {t("detail.semesters.addTitle")}</h3>
+          <h3 className="text-xl font-semibold mb-4">+ Adicionar semestre</h3>
 
           <form
             onSubmit={criarSemestre}
@@ -893,7 +906,7 @@ export default function CursoDetalhePage() {
           >
             <input
               type="number"
-              placeholder={t("detail.semesters.numberPlaceholder")}
+              placeholder="Número do semestre"
               className="border rounded-lg px-4 py-2"
               value={novoSemestre.numero}
               onChange={(e) =>
@@ -904,7 +917,7 @@ export default function CursoDetalhePage() {
 
             <input
               type="text"
-              placeholder={t("detail.semesters.titlePlaceholder")}
+              placeholder="Título do semestre"
               className="border rounded-lg px-4 py-2"
               value={novoSemestre.titulo}
               onChange={(e) =>
@@ -914,7 +927,7 @@ export default function CursoDetalhePage() {
 
             <input
               type="text"
-              placeholder={t("detail.semesters.descriptionPlaceholder")}
+              placeholder="Descrição do semestre"
               className="border rounded-lg px-4 py-2"
               value={novoSemestre.descricao}
               onChange={(e) =>
@@ -928,7 +941,7 @@ export default function CursoDetalhePage() {
                 disabled={criandoSemestre}
                 className="bg-purple-600 text-white px-5 py-2 rounded-lg disabled:opacity-50"
               >
-                {criandoSemestre ? t("common.adding") : t("detail.semesters.addButton")}
+                {criandoSemestre ? "Adicionando..." : "Adicionar semestre"}
               </button>
             </div>
           </form>
@@ -938,7 +951,7 @@ export default function CursoDetalhePage() {
       {semestresOrdenados.length === 0 ? (
         <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
           <p className="text-yellow-800">
-            {t("detail.semesters.none")}
+            Nenhum semestre cadastrado ainda para este curso.
           </p>
         </div>
       ) : (
@@ -961,12 +974,12 @@ export default function CursoDetalhePage() {
                 className="mb-4 flex w-full items-center justify-between rounded-lg border bg-slate-50 px-4 py-3 text-left"
               >
                 <span className="font-bold text-gray-900">
-                  {t("detail.semesters.semesterLabel", { number: semestre.numero })}
+                  Semestre {semestre.numero}
                   {semestre.titulo ? ` - ${semestre.titulo}` : ""}
                 </span>
 
                 <span className="text-sm text-gray-500">
-                  {semestresAbertos[semestre.id] ? t("common.closeWithArrow") : t("common.openWithArrow")}
+                  {semestresAbertos[semestre.id] ? "▲ Fechar" : "▼ Abrir"}
                 </span>
               </button>
               {semestresAbertos[semestre.id] && (
@@ -978,7 +991,7 @@ export default function CursoDetalhePage() {
 
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            {t("detail.semesters.minimumWorkload")}
+                            Carga mínima permitida no semestre (horas)
                           </label>
                           <input
                             type="number"
@@ -1005,7 +1018,7 @@ export default function CursoDetalhePage() {
 
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            {t("detail.semesters.maximumWorkload")}
+                            Carga máxima permitida no semestre (horas)
                           </label>
                           <input
                             type="number"
@@ -1032,7 +1045,7 @@ export default function CursoDetalhePage() {
 
                       </div>
 
-                      {t("detail.semesters.semesterLabel", { number: semestre.numero })}
+                      Semestre {semestre.numero}
                       {semestre.titulo ? ` - ${semestre.titulo}` : ""}
                     </h3>
 
@@ -1045,12 +1058,12 @@ export default function CursoDetalhePage() {
 
                   <div className="mb-5">
                     <h4 className="text-sm font-semibold text-gray-700 mb-2">
-                      {t("detail.subjects.linkedTitle")}
+                      Disciplinas já vinculadas
                     </h4>
 
                     {semestre.disciplinas.length === 0 ? (
                       <p className="text-sm text-gray-500">
-                        {t("detail.subjects.noneLinked")}
+                        Nenhuma disciplina vinculada ainda.
                       </p>
                     ) : (
                       <div className="flex flex-wrap gap-2">
@@ -1067,12 +1080,12 @@ export default function CursoDetalhePage() {
                   </div>
 
                   {disciplinas.length === 0 ? (
-                    <p className="text-gray-500">{t("detail.subjects.noneRegistered")}</p>
+                    <p className="text-gray-500">Nenhuma disciplina cadastrada.</p>
                   ) : (
                     <>
                       {cursoRecebidoDaRede && (
                         <div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-200">
-                          {t("detail.subjects.readOnlyNetwork")}
+                          Grade recebida da rede — somente leitura.
                         </div>
                       )}
 
@@ -1116,7 +1129,7 @@ export default function CursoDetalhePage() {
                                     {disciplina.nome}
                                   </p>
                                   <p className="text-sm text-gray-500">
-                                    {t("common.code")}: {disciplina.codigo || t("common.notInformed")}
+                                    Código: {disciplina.codigo || "Não informado"}
                                   </p>
                                 </div>
                               </div>
@@ -1135,10 +1148,8 @@ export default function CursoDetalhePage() {
                               className="bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
                             >
                               {salvandoSemestreId === semestre.id
-                                ? t("common.saving")
-                                : t("detail.subjects.updateSemester", {
-                                    number: semestre.numero,
-                                  })}
+                                ? "Salvando..."
+                                : `Atualizar disciplinas do semestre ${semestre.numero}`}
                             </button>
 
                             <button
@@ -1147,7 +1158,7 @@ export default function CursoDetalhePage() {
                               disabled={salvandoSemestreId === semestre.id}
                               className="ml-2 bg-green-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
                             >
-                              {salvandoSemestreId === semestre.id ? t("common.saving") : t("detail.semesters.saveWorkload")}
+                              {salvandoSemestreId === semestre.id ? "Salvando..." : "Salvar carga"}
                             </button>
                           </div>
                         )}
@@ -1161,32 +1172,6 @@ export default function CursoDetalhePage() {
           );
         })
       )}
-      <style jsx global>{`
-        html[data-theme-choice="system"][data-theme="dark"]
-          .phanyx-course-native-select,
-        html[data-theme-choice="system"][data-theme="dark"]
-          .phanyx-course-native-select option,
-        html[data-theme="system"].dark
-          .phanyx-course-native-select,
-        html[data-theme="system"].dark
-          .phanyx-course-native-select option {
-          background-color: #18181b !important;
-          color: #fafafa !important;
-        }
-
-        html[data-theme-choice="system"][data-theme="light"]
-          .phanyx-course-native-select,
-        html[data-theme-choice="system"][data-theme="light"]
-          .phanyx-course-native-select option,
-        html[data-theme="system"]:not(.dark)
-          .phanyx-course-native-select,
-        html[data-theme="system"]:not(.dark)
-          .phanyx-course-native-select option {
-          background-color: #ffffff !important;
-          color: #0f172a !important;
-        }
-      `}</style>
-
     </div>
   );
 }

@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { useLocale, useTranslations } from "next-intl";
 
 type Polo = {
   id: number;
@@ -39,27 +38,30 @@ type ModalidadeCertificado =
   | "EJA"
   | "OUTRO";
 
-const OPCOES_MODALIDADE_CERTIFICADO: ModalidadeCertificado[] = [
-  "GERAL",
-  "BACHARELADO",
-  "LICENCIATURA",
-  "TECNOLOGO",
-  "POS_GRADUACAO",
-  "MBA",
-  "MESTRADO",
-  "DOUTORADO",
-  "TECNICO",
-  "CURSO_LIVRE",
-  "OFICINA",
-  "ENSINO_MEDIO",
-  "ENSINO_FUNDAMENTAL",
-  "EDUCACAO_INFANTIL",
-  "PRE_ESCOLA",
-  "EXTENSAO",
-  "CAPACITACAO",
-  "TREINAMENTO",
-  "EJA",
-  "OUTRO",
+const OPCOES_MODALIDADE_CERTIFICADO: {
+  valor: ModalidadeCertificado;
+  rotulo: string;
+}[] = [
+  { valor: "GERAL", rotulo: "Geral" },
+  { valor: "BACHARELADO", rotulo: "Bacharelado" },
+  { valor: "LICENCIATURA", rotulo: "Licenciatura" },
+  { valor: "TECNOLOGO", rotulo: "Tecnólogo" },
+  { valor: "POS_GRADUACAO", rotulo: "Pós-graduação" },
+  { valor: "MBA", rotulo: "MBA" },
+  { valor: "MESTRADO", rotulo: "Mestrado" },
+  { valor: "DOUTORADO", rotulo: "Doutorado" },
+  { valor: "TECNICO", rotulo: "Curso Técnico" },
+  { valor: "CURSO_LIVRE", rotulo: "Curso Livre" },
+  { valor: "OFICINA", rotulo: "Oficina" },
+  { valor: "ENSINO_MEDIO", rotulo: "Ensino Médio" },
+  { valor: "ENSINO_FUNDAMENTAL", rotulo: "Ensino Fundamental" },
+  { valor: "EDUCACAO_INFANTIL", rotulo: "Educação Infantil" },
+  { valor: "PRE_ESCOLA", rotulo: "Pré-escola" },
+  { valor: "EXTENSAO", rotulo: "Extensão" },
+  { valor: "CAPACITACAO", rotulo: "Capacitação" },
+  { valor: "TREINAMENTO", rotulo: "Treinamento" },
+  { valor: "EJA", rotulo: "EJA" },
+  { valor: "OUTRO", rotulo: "Outro" },
 ];
 
 type Curso = {
@@ -110,8 +112,6 @@ type FeedbackTipo = "sucesso" | "erro" | "";
 
 export default function AdminCursosPage() {
   const searchParams = useSearchParams();
-  const t = useTranslations("AdminCourses");
-  const locale = useLocale();
 
   const [cursos, setCursos] = useState<Curso[]>([]);
   const [polos, setPolos] = useState<Polo[]>([]);
@@ -167,27 +167,16 @@ const [salvandoPolosCurso, setSalvandoPolosCurso] =
     setFeedback(mensagem);
   }
 
-function formatarDataHora(
-  data: string | null | undefined,
-  localeAtual: string,
-  naoInformado: string
-) {
-  if (!data) return naoInformado;
+function formatarDataHoraBR(data?: string | null) {
+  if (!data) return "Não informado";
 
   const d = new Date(data);
 
-  if (Number.isNaN(d.getTime())) return naoInformado;
+  if (Number.isNaN(d.getTime())) return "Não informado";
 
-  return d.toLocaleString(localeAtual, {
+  return d.toLocaleString("pt-BR", {
     dateStyle: "short",
     timeStyle: "short",
-  });
-}
-
-function formatarMoeda(valor: number, localeAtual: string) {
-  return Number(valor || 0).toLocaleString(localeAtual, {
-    style: "currency",
-    currency: "BRL",
   });
 }
 
@@ -218,7 +207,7 @@ function estaNoUltimoDia(data?: string | null) {
       });
 
       if (!res.ok) {
-        throw new Error(t("errors.loadCourses"));
+        throw new Error("Erro ao carregar cursos");
       }
 
       const data = await res.json();
@@ -244,7 +233,8 @@ function estaNoUltimoDia(data?: string | null) {
 
     if (!res.ok) {
       throw new Error(
-        t("errors.loadPoles")
+        data?.error ||
+          "Erro ao carregar polos"
       );
     }
 
@@ -355,7 +345,8 @@ async function salvarPolosDoCurso() {
 
     if (!res.ok) {
       throw new Error(
-        t("errors.updateCoursePoles")
+        data?.error ||
+          "Erro ao atualizar os polos do curso."
       );
     }
 
@@ -366,11 +357,13 @@ async function salvarPolosDoCurso() {
 
     mostrarFeedback(
       "sucesso",
-      t("messages.coursePolesUpdated")
+      data?.mensagem ||
+        "Polos do curso atualizados com sucesso."
     );
   } catch (error: any) {
     setModalErro(
-      error?.message || t("errors.updateCoursePoles")
+      error?.message ||
+        "Erro ao atualizar os polos do curso."
     );
   } finally {
     setSalvandoPolosCurso(false);
@@ -415,7 +408,7 @@ async function salvarPolosDoCurso() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(t("errors.createCourse"));
+        throw new Error(data.error || "Erro ao criar curso");
       }
 
       setForm({
@@ -432,10 +425,10 @@ async function salvarPolosDoCurso() {
       setPolosAbertos(false);
 
       await carregarCursos();
-      mostrarFeedback("sucesso", t("messages.courseCreated"));
+      mostrarFeedback("sucesso", "Curso criado com sucesso!");
     } catch (error: any) {
       console.error("Erro ao criar curso:", error);
-      setModalErro(error?.message || t("errors.createCourse"));
+      setModalErro(error?.message || "Erro ao criar curso");
     } finally {
       setCriando(false);
     }
@@ -461,21 +454,21 @@ async function confirmarExclusaoCurso() {
     const data = await res.json();
 
     if (!res.ok) {
-      throw new Error(t("errors.deleteCourse"));
+      throw new Error(data?.error || "Erro ao excluir curso.");
     }
 
     await carregarCursos();
 
     mostrarFeedback(
       "sucesso",
-      t("messages.courseDeleted")
+      "Curso excluído com sucesso. Ele pode ser restaurado depois."
     );
 
     setCursoParaExcluir(null);
   } catch (error: any) {
     mostrarFeedback(
       "erro",
-      error?.message || t("errors.deleteCourse")
+      error?.message || "Erro ao excluir curso."
     );
   } finally {
     setExcluindoCurso(false);
@@ -494,13 +487,13 @@ async function restaurarCurso(id: number) {
     const data = await res.json();
 
     if (!res.ok) {
-      throw new Error(t("errors.restoreCourse"));
+      throw new Error(data?.error || "Erro ao restaurar curso.");
     }
 
     await carregarCursos();
-    mostrarFeedback("sucesso", t("messages.courseRestored"));
+    mostrarFeedback("sucesso", "Curso restaurado com sucesso.");
   } catch (error: any) {
-    mostrarFeedback("erro", error?.message || t("errors.restoreCourse"));
+    mostrarFeedback("erro", error?.message || "Erro ao restaurar curso.");
   }
 }
 
@@ -544,7 +537,7 @@ if (!termoTexto) return cursosPorStatus;
       const quantidadeParcelas = String(curso.quantidadeParcelas ?? "")
         .toLowerCase()
         .trim();
-      const ativo = curso.ativo ? t("status.active").toLowerCase() : t("status.inactive").toLowerCase();
+      const ativo = curso.ativo ? "ativo" : "inativo";
       const polosTexto = String(
         curso.cursosPolos?.map((item) => item.polo?.nome || "").join(" | ") || ""
       )
@@ -575,7 +568,7 @@ if (!termoTexto) return cursosPorStatus;
             quantidadeParcelasNumerico.includes(termoNumerico)))
       );
     });
-  }, [cursos, busca, filtroStatus, t]);
+  }, [cursos, busca, filtroStatus]);
 
   return (
     <div className="space-y-8">
@@ -593,9 +586,9 @@ if (!termoTexto) return cursosPorStatus;
 
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">🎓 {t("list.header.title")}</h1>
+          <h1 className="text-3xl font-bold text-gray-900">🎓 Cursos</h1>
           <p className="text-gray-600">
-            {t("list.header.description")}
+            Cadastre e gerencie os cursos da instituição
           </p>
         </div>
 
@@ -603,12 +596,12 @@ if (!termoTexto) return cursosPorStatus;
           href="/admin"
           className="rounded-lg bg-gray-800 px-4 py-2 text-white"
         >
-          {t("list.header.backDashboard")}
+          Voltar ao Painel
         </Link>
       </div>
 
       <div className="rounded-xl border bg-white p-6 shadow-sm">
-        <h2 className="mb-4 text-xl font-semibold">{t("list.create.title")}</h2>
+        <h2 className="mb-4 text-xl font-semibold">Novo Curso</h2>
 
         <form
           onSubmit={criarCurso}
@@ -616,7 +609,7 @@ if (!termoTexto) return cursosPorStatus;
         >
           <input
             type="text"
-            placeholder={t("list.create.namePlaceholder")}
+            placeholder="Nome do curso"
             className="rounded-lg border px-4 py-2"
             value={form.nome}
             onChange={(e) => setForm({ ...form, nome: e.target.value })}
@@ -625,7 +618,7 @@ if (!termoTexto) return cursosPorStatus;
 
           <input
             type="text"
-            placeholder={t("list.create.codePlaceholder")}
+            placeholder="Código do curso"
             className="rounded-lg border px-4 py-2"
             value={form.codigo}
             onChange={(e) => setForm({ ...form, codigo: e.target.value })}
@@ -633,7 +626,7 @@ if (!termoTexto) return cursosPorStatus;
 
 <div className="md:col-span-2">
   <label className="mb-1 block text-sm font-medium">
-    {t("common.modality")}
+    Tipo / modalidade do curso
   </label>
 
   <select
@@ -645,22 +638,23 @@ if (!termoTexto) return cursosPorStatus;
           e.target.value as ModalidadeCertificado,
       })
     }
-    className="phanyx-curso-modalidade-select phanyx-course-native-select w-full rounded-lg border px-4 py-2"
+    className="phanyx-curso-modalidade-select w-full rounded-lg border px-4 py-2"
   >
-    {OPCOES_MODALIDADE_CERTIFICADO.map((valor) => (
-      <option key={valor} value={valor}>
-        {t(`modalities.${valor}`)}
+    {OPCOES_MODALIDADE_CERTIFICADO.map((opcao) => (
+      <option key={opcao.valor} value={opcao.valor}>
+        {opcao.rotulo}
       </option>
     ))}
   </select>
 
   <p className="mt-1 text-xs text-gray-500">
-    {t("list.create.modalityHelp")}
+    Essa informação define qual modelo de certificado será usado para
+    o curso.
   </p>
 </div>
 
           <textarea
-            placeholder={t("list.create.descriptionPlaceholder")}
+            placeholder="Descrição"
             className="rounded-lg border px-4 py-2 md:col-span-2"
             value={form.descricao}
             onChange={(e) => setForm({ ...form, descricao: e.target.value })}
@@ -669,7 +663,7 @@ if (!termoTexto) return cursosPorStatus;
 
           <input
             type="number"
-            placeholder={t("list.create.semestersPlaceholder")}
+            placeholder="Quantidade de semestres"
             className="rounded-lg border px-4 py-2"
             value={form.quantidadeSemestres}
             onChange={(e) =>
@@ -680,7 +674,7 @@ if (!termoTexto) return cursosPorStatus;
           <input
             type="number"
             step="0.01"
-            placeholder={t("list.create.enrollmentValuePlaceholder")}
+            placeholder="Valor da matrícula"
             className="rounded-lg border px-4 py-2"
             value={form.valorMatricula}
             onChange={(e) =>
@@ -691,7 +685,7 @@ if (!termoTexto) return cursosPorStatus;
           <input
             type="number"
             step="0.01"
-            placeholder={t("list.create.monthlyValuePlaceholder")}
+            placeholder="Valor da mensalidade"
             className="rounded-lg border px-4 py-2"
             value={form.valorMensalidade}
             onChange={(e) =>
@@ -701,7 +695,7 @@ if (!termoTexto) return cursosPorStatus;
 
           <input
             type="number"
-            placeholder={t("list.create.installmentsPlaceholder")}
+            placeholder="Quantidade de parcelas"
             className="rounded-lg border px-4 py-2"
             value={form.quantidadeParcelas}
             onChange={(e) =>
@@ -716,15 +710,13 @@ if (!termoTexto) return cursosPorStatus;
               className="flex w-full items-center justify-between rounded-lg border px-4 py-3 text-left"
             >
               <span className="font-medium text-gray-800">
-                {t("list.create.poles.label")}
+                Polos onde este curso será ofertado
                 {polosSelecionados.length > 0
-                  ? ` (${t("list.create.poles.selectedCount", {
-                      count: polosSelecionados.length,
-                    })})`
+                  ? ` (${polosSelecionados.length} selecionado(s))`
                   : ""}
               </span>
               <span className="text-sm text-gray-500">
-                {polosAbertos ? t("common.closeWithArrow") : t("common.openWithArrow")}
+                {polosAbertos ? "▲ Fechar" : "▼ Abrir"}
               </span>
             </button>
 
@@ -732,7 +724,8 @@ if (!termoTexto) return cursosPorStatus;
               <div className="mt-2 max-h-52 overflow-auto rounded-lg border p-3">
                 {polos.length === 0 ? (
                   <p className="text-sm text-gray-500">
-                    {t("list.create.poles.none")}
+                    Nenhum polo cadastrado. Se a instituição não trabalhar com polos,
+                    você pode deixar sem seleção por enquanto.
                   </p>
                 ) : (
                   <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
@@ -758,7 +751,7 @@ if (!termoTexto) return cursosPorStatus;
             )}
 
             <p className="mt-1 text-xs text-slate-500">
-              {t("list.create.poles.help")}
+              O curso continua sendo da instituição, mas pode ser ofertado em quantos polos desejar.
             </p>
           </div>
 
@@ -768,7 +761,7 @@ if (!termoTexto) return cursosPorStatus;
               disabled={criando}
               className="rounded-lg bg-purple-600 px-5 py-2 text-white disabled:opacity-50"
             >
-              {criando ? t("common.saving") : t("list.create.saveCourse")}
+              {criando ? "Salvando..." : "Salvar Curso"}
             </button>
           </div>
         </form>
@@ -776,11 +769,11 @@ if (!termoTexto) return cursosPorStatus;
 
       <div className="rounded-xl border bg-white p-6 shadow-sm">
         <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <h2 className="text-xl font-semibold">{t("list.registered.title")}</h2>
+          <h2 className="text-xl font-semibold">Cursos cadastrados</h2>
 
           <input
             type="text"
-            placeholder={t("list.registered.searchPlaceholder")}
+            placeholder="Buscar por nome, código, descrição, valores, parcelas ou polos"
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             className="w-full rounded-lg border p-2 md:w-[460px]"
@@ -791,19 +784,19 @@ if (!termoTexto) return cursosPorStatus;
   onChange={(e) =>
     setFiltroStatus(e.target.value as "ATIVOS" | "EXCLUIDOS" | "TODOS")
   }
-  className="phanyx-course-native-select w-full rounded-lg border p-2 md:w-[180px]"
+  className="w-full rounded-lg border p-2 md:w-[180px]"
 >
-  <option value="ATIVOS">{t("filters.active")}</option>
-  <option value="EXCLUIDOS">{t("filters.deleted")}</option>
-  <option value="TODOS">{t("filters.all")}</option>
+  <option value="ATIVOS">Ativos</option>
+  <option value="EXCLUIDOS">Excluídos</option>
+  <option value="TODOS">Todos</option>
 </select>
 
         </div>
 
         {loading ? (
-          <p className="text-gray-500">{t("list.registered.loading")}</p>
+          <p className="text-gray-500">Carregando cursos...</p>
         ) : cursosFiltrados.length === 0 ? (
-          <p className="text-gray-500">{t("list.registered.empty")}</p>
+          <p className="text-gray-500">Nenhum curso encontrado para essa busca.</p>
         ) : (
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             {cursosFiltrados.map((curso) => (
@@ -819,7 +812,7 @@ if (!termoTexto) return cursosPorStatus;
 
                     {curso.codigo ? (
                       <p className="text-sm text-gray-500">
-                        {t("common.code")}: {curso.codigo}
+                        Código: {curso.codigo}
                       </p>
                     ) : null}
 
@@ -831,49 +824,49 @@ if (!termoTexto) return cursosPorStatus;
 
                     <div className="mt-3 space-y-1 text-sm text-gray-700">
                       <p>
-                        {t("common.semesters")}:{" "}
+                        Semestres:{" "}
                         {curso.quantidadeSemestres != null
                           ? curso.quantidadeSemestres
-                          : t("common.notInformed")}
+                          : "Não informado"}
                       </p>
                       <p>
-                        {t("common.enrollmentValue")}:{" "}
+                        Matrícula:{" "}
                         {curso.valorMatricula != null
-                          ? formatarMoeda(curso.valorMatricula, locale)
-                          : t("common.notInformed")}
+                          ? `R$ ${curso.valorMatricula.toFixed(2)}`
+                          : "Não informado"}
                       </p>
                       <p>
-                        {t("common.monthlyValue")}:{" "}
+                        Mensalidade:{" "}
                         {curso.valorMensalidade != null
-                          ? formatarMoeda(curso.valorMensalidade, locale)
-                          : t("common.notInformed")}
+                          ? `R$ ${curso.valorMensalidade.toFixed(2)}`
+                          : "Não informado"}
                       </p>
                       <p>
-                        {t("common.installments")}:{" "}
+                        Parcelas:{" "}
                         {curso.quantidadeParcelas != null
                           ? curso.quantidadeParcelas
-                          : t("common.notInformed")}
+                          : "Não informado"}
                       </p>
                       <p>
-                        {t("common.poles")}:{" "}
+                        Polos:{" "}
                         {curso.cursosPolos && curso.cursosPolos.length > 0
                           ? curso.cursosPolos
                               .map((item) => item.polo?.nome)
                               .filter(Boolean)
                               .join(", ")
-                          : t("list.cards.noPoles")}
+                          : "Sem polos vinculados"}
                       </p>
 
 <p>
-  {t("list.cards.courseId")}: {curso.id}
+  ID do curso: {curso.id}
 </p>
 
 <p>
-  {t("list.cards.createdAt")}: {formatarDataHora(curso.createdAt, locale, t("common.notInformed"))}
+  Criado em: {formatarDataHoraBR(curso.createdAt)}
 </p>
 
 <p>
-  {t("list.cards.createdBy")}: {curso.criadoPor?.nome || t("common.notInformed")}
+  Criado por: {curso.criadoPor?.nome || "Não informado"}
 </p>
 
 {!curso.ativo && (() => {
@@ -882,16 +875,16 @@ if (!termoTexto) return cursosPorStatus;
   return (
     <>
       <p>
-        {t("list.cards.deletedAt")}: {formatarDataHora(curso.excluidoEm, locale, t("common.notInformed"))}
+        Excluído em: {formatarDataHoraBR(curso.excluidoEm)}
       </p>
 
       <p>
-        {t("list.cards.deletedBy")}: {curso.excluidoPor?.nome || t("common.notInformed")}
+        Excluído por: {curso.excluidoPor?.nome || "Não informado"}
       </p>
 
       <p>
-        {t("list.cards.restoreUntil")}:{" "}
-        {formatarDataHora(expiraCurso, locale, t("common.notInformed"))}
+        Disponível para restauração até:{" "}
+        {formatarDataHoraBR(expiraCurso)}
       </p>
 
       <div
@@ -902,14 +895,10 @@ if (!termoTexto) return cursosPorStatus;
         }`}
       >
         {estaNoUltimoDia(expiraCurso)
-          ? t("list.cards.lastRestoreDay", {
-              date: formatarDataHora(
-                expiraCurso,
-                locale,
-                t("common.notInformed")
-              ),
-            })
-          : t("list.cards.restoreWindow")}
+          ? `⚠️ Último dia para restaurar. Este curso não estará mais disponível após ${formatarDataHoraBR(
+              expiraCurso
+            )}.`
+          : "Cursos excluídos ficam disponíveis para restauração por até 3 dias. Após esse prazo, poderão ser removidos definitivamente do sistema."}
       </div>
     </>
   );
@@ -923,8 +912,8 @@ if (!termoTexto) return cursosPorStatus;
     className="inline-block rounded-lg bg-blue-600 px-4 py-2 text-white"
   >
     {curso.publicacaoRedeDestino
-      ? t("list.actions.viewStructure")
-      : t("list.actions.buildCurriculum")}
+      ? "Ver estrutura"
+      : "Montar grade curricular"}
   </Link>
 
   {!curso.publicacaoRedeDestino && curso.ativo && (
@@ -933,7 +922,7 @@ if (!termoTexto) return cursosPorStatus;
       onClick={() => abrirEdicaoPolos(curso)}
       className="rounded-lg bg-slate-700 px-4 py-2 text-white hover:bg-slate-800"
     >
-      {t("list.actions.editPoles")}
+      Editar polos/unidades
     </button>
   )}
 
@@ -944,7 +933,7 @@ if (!termoTexto) return cursosPorStatus;
         onClick={() => setCursoParaExcluir(curso)}
         className="rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700"
       >
-        {t("common.delete")}
+        Excluir
       </button>
     ) : (
       <button
@@ -952,7 +941,7 @@ if (!termoTexto) return cursosPorStatus;
         onClick={() => restaurarCurso(curso.id)}
         className="rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700"
       >
-        {t("common.restore")}
+        Restaurar
       </button>
     ))}
 </div>
@@ -965,7 +954,7 @@ if (!termoTexto) return cursosPorStatus;
                         : "bg-red-100 text-red-700"
                     }`}
                   >
-                    {curso.ativo ? t("status.active") : t("status.inactive")}
+                    {curso.ativo ? "Ativo" : "Inativo"}
                   </span>
                 </div>
               </div>
@@ -978,11 +967,11 @@ if (!termoTexto) return cursosPorStatus;
   <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4">
     <div className="phanyx-curso-ofertas-modal w-full max-w-xl rounded-3xl border p-6 shadow-2xl">
       <h3 className="phanyx-curso-ofertas-titulo text-xl font-bold">
-        {t("list.editPoles.title")}
+        Editar polos e unidades
       </h3>
 
       <p className="phanyx-curso-ofertas-subtitulo mt-2 text-sm">
-        {t("common.course")}:{" "}
+        Curso:{" "}
         <strong className="phanyx-curso-ofertas-nome">
           {cursoEditandoPolos.nome}
         </strong>
@@ -991,7 +980,7 @@ if (!termoTexto) return cursosPorStatus;
       <div className="phanyx-curso-ofertas-lista mt-5 max-h-72 overflow-auto rounded-xl border p-3">
         {polos.length === 0 ? (
           <p className="phanyx-curso-ofertas-vazio text-sm">
-            {t("list.editPoles.noActivePoles")}
+            Nenhum polo ativo disponível.
           </p>
         ) : (
           <div className="space-y-2">
@@ -1024,7 +1013,8 @@ if (!termoTexto) return cursosPorStatus;
       </div>
 
       <p className="phanyx-curso-ofertas-ajuda mt-3 text-xs leading-5">
-        {t("list.editPoles.help")}
+        Ao desmarcar uma unidade independente, o curso será
+        retirado e desativado nela, sem apagar o histórico.
       </p>
 
       <div className="mt-6 flex justify-end gap-3">
@@ -1037,7 +1027,7 @@ if (!termoTexto) return cursosPorStatus;
           disabled={salvandoPolosCurso}
           className="phanyx-curso-ofertas-cancelar rounded-xl border px-4 py-2 font-medium disabled:opacity-50"
         >
-          {t("common.cancel")}
+          Cancelar
         </button>
 
         <button
@@ -1047,8 +1037,8 @@ if (!termoTexto) return cursosPorStatus;
           className="phanyx-curso-ofertas-salvar rounded-xl px-4 py-2 font-semibold disabled:opacity-50"
         >
           {salvandoPolosCurso
-            ? t("common.saving")
-            : t("list.editPoles.save")}
+            ? "Salvando..."
+            : "Salvar polos"}
         </button>
       </div>
     </div>
@@ -1060,20 +1050,19 @@ if (!termoTexto) return cursosPorStatus;
     <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
       <div className="mb-4">
         <h3 className="text-xl font-bold text-slate-900">
-          {t("list.deleteModal.title")}
+          Excluir curso
         </h3>
 
         <p className="mt-2 text-sm text-slate-600">
-          {t.rich("list.deleteModal.confirmation", {
-            course: cursoParaExcluir.nome,
-            strong: (chunks) => (
-              <span className="font-semibold">{chunks}</span>
-            ),
-          })}
+          Deseja realmente excluir o curso{" "}
+          <span className="font-semibold">
+            {cursoParaExcluir.nome}
+          </span>
+          ?
         </p>
 
         <p className="mt-2 text-xs text-slate-500">
-          {t("list.deleteModal.help")}
+          O curso será apenas arquivado e poderá ser restaurado depois.
         </p>
       </div>
 
@@ -1084,7 +1073,7 @@ if (!termoTexto) return cursosPorStatus;
           disabled={excluindoCurso}
           className="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 hover:bg-slate-50"
         >
-          {t("common.cancel")}
+          Cancelar
         </button>
 
         <button
@@ -1093,7 +1082,7 @@ if (!termoTexto) return cursosPorStatus;
           disabled={excluindoCurso}
           className="rounded-xl bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-700 disabled:opacity-50"
         >
-          {excluindoCurso ? t("common.deleting") : t("list.deleteModal.deleteCourse")}
+          {excluindoCurso ? "Excluindo..." : "Excluir curso"}
         </button>
       </div>
     </div>
@@ -1104,7 +1093,7 @@ if (!termoTexto) return cursosPorStatus;
     <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
       <div className="mb-4">
         <h3 className="text-xl font-bold text-red-700">
-          {t("errors.couldNotSave")}
+          Não foi possível salvar
         </h3>
 
         <p className="mt-3 text-sm text-slate-700">
@@ -1118,38 +1107,12 @@ if (!termoTexto) return cursosPorStatus;
           onClick={() => setModalErro("")}
           className="rounded-xl bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700"
         >
-          {t("common.understood")}
+          Entendi
         </button>
       </div>
     </div>
   </div>
 )}
-      <style jsx global>{`
-        html[data-theme-choice="system"][data-theme="dark"]
-          .phanyx-course-native-select,
-        html[data-theme-choice="system"][data-theme="dark"]
-          .phanyx-course-native-select option,
-        html[data-theme="system"].dark
-          .phanyx-course-native-select,
-        html[data-theme="system"].dark
-          .phanyx-course-native-select option {
-          background-color: #18181b !important;
-          color: #fafafa !important;
-        }
-
-        html[data-theme-choice="system"][data-theme="light"]
-          .phanyx-course-native-select,
-        html[data-theme-choice="system"][data-theme="light"]
-          .phanyx-course-native-select option,
-        html[data-theme="system"]:not(.dark)
-          .phanyx-course-native-select,
-        html[data-theme="system"]:not(.dark)
-          .phanyx-course-native-select option {
-          background-color: #ffffff !important;
-          color: #0f172a !important;
-        }
-      `}</style>
-
     </div>
   );
 }

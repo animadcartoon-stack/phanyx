@@ -159,23 +159,83 @@ type Veiculo = {
   } | null;
 };
 
+type TipoCondutor =
+  | "MOTORISTA"
+  | "PILOTO"
+  | "MAQUINISTA"
+  | "COMANDANTE_EMBARCACAO"
+  | "OPERADOR"
+  | "OPERADOR_REMOTO"
+  | "SUPERVISOR_AUTONOMO"
+  | "OUTRO";
+
 type Condutor = {
   id: number;
 
+  prestadorTransporteId?:
+    | number
+    | null;
+
   nome: string;
 
-  tipo: string;
+  tipo: TipoCondutor;
 
-  telefone?: string | null;
+  telefone?:
+    | string
+    | null;
 
-  numeroLicenca?: string | null;
+  email?:
+    | string
+    | null;
+
+  paisDocumento?:
+    | string
+    | null;
+
+  tipoDocumento?:
+    | string
+    | null;
+
+  numeroDocumento?:
+    | string
+    | null;
+
+  numeroLicenca?:
+    | string
+    | null;
+
+  categoriaLicenca?:
+    | string
+    | null;
+
+  licencaValidaAte?:
+    | string
+    | null;
+
+  autorizadoTransporteEstudantil:
+    VerificacaoEstudantil;
+
+  contatoEmergencia?:
+    | string
+    | null;
+
+  telefoneEmergencia?:
+    | string
+    | null;
+
+  observacao?:
+    | string
+    | null;
 
   ativo: boolean;
 
   prestadorTransporte?: {
     id: number;
     nome: string;
-    nomeFantasia?: string | null;
+
+    nomeFantasia?:
+      | string
+      | null;
   } | null;
 };
 
@@ -286,6 +346,53 @@ type FormularioVeiculo = {
   observacao: string;
 };
 
+type FormularioCondutor = {
+  prestadorTransporteId:
+    string;
+
+  nome: string;
+
+  tipo: TipoCondutor;
+
+  telefone: string;
+
+  paisTelefone:
+    CountryCode;
+
+  email: string;
+
+  paisDocumento:
+    CountryCode;
+
+  tipoDocumento: string;
+
+  numeroDocumento:
+    string;
+
+  numeroLicenca:
+    string;
+
+  categoriaLicenca:
+    string;
+
+  licencaValidaAte:
+    string;
+
+  autorizadoTransporteEstudantil:
+    VerificacaoEstudantil;
+
+  contatoEmergencia:
+    string;
+
+  telefoneEmergencia:
+    string;
+
+  paisTelefoneEmergencia:
+    CountryCode;
+
+  observacao: string;
+};
+
 function criarFormularioVeiculoInicial(
   locale: string
 ): FormularioVeiculo {
@@ -333,6 +440,54 @@ function criarFormularioVeiculoInicial(
 
     autorizadoTransporteEstudantil:
       "NAO_VERIFICADO",
+
+    observacao: "",
+  };
+}
+
+function criarFormularioCondutorInicial(
+  locale: string
+): FormularioCondutor {
+  const codigo =
+    paisInicial(locale);
+
+  return {
+    prestadorTransporteId:
+      "",
+
+    nome: "",
+
+    tipo: "MOTORISTA",
+
+    telefone: "",
+
+    paisTelefone:
+      codigo,
+
+    email: "",
+
+    paisDocumento:
+      codigo,
+
+    tipoDocumento: "",
+
+    numeroDocumento: "",
+
+    numeroLicenca: "",
+
+    categoriaLicenca: "",
+
+    licencaValidaAte: "",
+
+    autorizadoTransporteEstudantil:
+      "NAO_VERIFICADO",
+
+    contatoEmergencia: "",
+
+    telefoneEmergencia: "",
+
+    paisTelefoneEmergencia:
+      codigo,
 
     observacao: "",
   };
@@ -402,6 +557,18 @@ const PAIS_POR_LOCALE:
   "es-ES": "ES",
   "fr-FR": "FR",
 };
+
+const TIPOS_CONDUTOR:
+  TipoCondutor[] = [
+  "MOTORISTA",
+  "PILOTO",
+  "MAQUINISTA",
+  "COMANDANTE_EMBARCACAO",
+  "OPERADOR",
+  "OPERADOR_REMOTO",
+  "SUPERVISOR_AUTONOMO",
+  "OUTRO",
+];
 
 function paisInicial(
   locale: string
@@ -981,6 +1148,27 @@ export default function CadastrosTransporte({
         )
     );
 
+    const [
+  formularioCondutorAberto,
+  setFormularioCondutorAberto,
+] = useState(false);
+
+const [
+  salvandoCondutor,
+  setSalvandoCondutor,
+] = useState(false);
+
+const [
+  formularioCondutor,
+  setFormularioCondutor,
+] =
+  useState<FormularioCondutor>(
+    () =>
+      criarFormularioCondutorInicial(
+        locale
+      )
+  );
+
   const paises =
     useMemo(
       () =>
@@ -1170,6 +1358,21 @@ export default function CadastrosTransporte({
       })
     );
   }
+
+  function alterarCondutor<
+  K extends keyof FormularioCondutor
+>(
+  campo: K,
+  valor:
+    FormularioCondutor[K]
+) {
+  setFormularioCondutor(
+    (atual) => ({
+      ...atual,
+      [campo]: valor,
+    })
+  );
+}
 
   async function salvarPrestador() {
     setErro("");

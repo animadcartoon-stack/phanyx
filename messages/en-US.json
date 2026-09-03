@@ -18,8 +18,8 @@
   "AdminDashboard": {
     "profile": "Administrative profile",
     "institutionPanel": "Institution dashboard",
-    "title": "Administrative Dashboard",
-    "description": "Manage your institution's academic, financial, document and operational activities in one place.",
+    "title": "Student Dashboard",
+    "description": "Overview of your academic journey",
     "searchPlaceholder": "Search students, teachers, courses, subjects, classes or enrollments...",
     "guidedTutorial": "Guided tutorial",
     "firstSteps": "Getting started",
@@ -97,7 +97,12 @@
     "employeePhotoAlt": "Employee",
     "uploadingPhoto": "Uploading...",
     "changePhoto": "Change photo",
-    "unnamed": "No name"
+    "unnamed": "No name",
+    "cards": {
+      "subjects": "Subjects",
+      "semesters": "Semesters",
+      "certificates": "Certificates"
+    }
   },
   "AdminNavigation": {
     "adminPanel": "Administrative Dashboard",
@@ -4435,7 +4440,20 @@
         "negative": "Negative progress",
         "neutral": "No measurable academic change",
         "notMeasurable": "Progress not yet measurable",
-        "scheduledFor": "Scheduled for"
+        "scheduledFor": "Scheduled for",
+        "summaryAnalyses": "Analyses",
+        "academicInitial": "Initial academic analysis",
+        "academicManual": "Manual academic reanalysis",
+        "academicAutomatic": "Automatic academic reanalysis",
+        "academicChange": "Reanalysis after academic change",
+        "academicAnalysis": "Academic analysis",
+        "academicIndicators": "Academic indicators",
+        "classesAnalyzed": "Classes analyzed",
+        "assessmentsAnalyzed": "Assessments analyzed",
+        "pendingActivities": "Overdue activities",
+        "mainSignals": "Main signals",
+        "pendingSignal": "{count, plural, =0 {No overdue activity without submission} one {# overdue activity without submission} other {# overdue activities without submission}}",
+        "executedBy": "Performed by"
       }
     }
   },
@@ -10194,6 +10212,506 @@
     "modelTypesImage": {
       "photo": "Photo",
       "logo": "Logo"
+    }
+  },
+  "AdminCourses": {
+    "common": {
+      "saving": "Saving...",
+      "adding": "Adding...",
+      "deleting": "Deleting...",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "restore": "Restore",
+      "understood": "Got it",
+      "openWithArrow": "▼ Open",
+      "closeWithArrow": "▲ Close",
+      "code": "Code",
+      "course": "Course",
+      "description": "Description",
+      "modality": "Course type / modality",
+      "semesters": "Semesters",
+      "enrollmentValue": "Enrollment fee",
+      "monthlyValue": "Monthly fee",
+      "installments": "Installments",
+      "poles": "Campuses",
+      "status": "Status",
+      "notInformed": "Not provided",
+      "notInformedFeminine": "Not provided"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "filters": {
+      "active": "Active",
+      "deleted": "Deleted",
+      "all": "All"
+    },
+    "modalities": {
+      "GERAL": "General",
+      "BACHARELADO": "Bachelor's Degree",
+      "LICENCIATURA": "Teaching Degree",
+      "TECNOLOGO": "Technology Degree",
+      "POS_GRADUACAO": "Postgraduate",
+      "MBA": "MBA",
+      "MESTRADO": "Master's Degree",
+      "DOUTORADO": "Doctorate",
+      "TECNICO": "Technical Course",
+      "CURSO_LIVRE": "Open Course",
+      "OFICINA": "Workshop",
+      "ENSINO_MEDIO": "High School",
+      "ENSINO_FUNDAMENTAL": "Elementary School",
+      "EDUCACAO_INFANTIL": "Early Childhood Education",
+      "PRE_ESCOLA": "Preschool",
+      "EXTENSAO": "Extension Course",
+      "CAPACITACAO": "Professional Development",
+      "TREINAMENTO": "Training",
+      "EJA": "Adult Education",
+      "OUTRO": "Other"
+    },
+    "list": {
+      "header": {
+        "title": "Courses",
+        "description": "Create and manage the institution's courses.",
+        "backDashboard": "Back to Dashboard"
+      },
+      "create": {
+        "title": "New Course",
+        "namePlaceholder": "Course name",
+        "codePlaceholder": "Course code",
+        "descriptionPlaceholder": "Description",
+        "semestersPlaceholder": "Number of semesters",
+        "enrollmentValuePlaceholder": "Enrollment fee",
+        "monthlyValuePlaceholder": "Monthly fee",
+        "installmentsPlaceholder": "Number of installments",
+        "modalityHelp": "This information determines which certificate template will be used for the course.",
+        "saveCourse": "Save Course",
+        "poles": {
+          "label": "Campuses where this course will be offered",
+          "selectedCount": "{count, plural, one {# selected} other {# selected}}",
+          "none": "No campus has been registered. If the institution does not work with campuses, you can leave this unselected for now.",
+          "help": "The course still belongs to the institution, but it can be offered at as many campuses as needed."
+        }
+      },
+      "registered": {
+        "title": "Registered courses",
+        "searchPlaceholder": "Search by name, code, description, fees, installments, or campuses",
+        "loading": "Loading courses...",
+        "empty": "No course found for this search."
+      },
+      "cards": {
+        "noPoles": "No campuses linked",
+        "courseId": "Course ID",
+        "createdAt": "Created at",
+        "createdBy": "Created by",
+        "deletedAt": "Deleted at",
+        "deletedBy": "Deleted by",
+        "restoreUntil": "Available for restoration until",
+        "lastRestoreDay": "⚠️ Last day to restore. This course will no longer be available after {date}.",
+        "restoreWindow": "Deleted courses remain available for restoration for up to 3 days. After that period, they may be permanently removed from the system."
+      },
+      "actions": {
+        "viewStructure": "View structure",
+        "buildCurriculum": "Build curriculum",
+        "editPoles": "Edit campuses/units"
+      },
+      "editPoles": {
+        "title": "Edit campuses and units",
+        "noActivePoles": "No active campus available.",
+        "help": "When an independent unit is unchecked, the course will be removed and disabled there without deleting its history.",
+        "save": "Save campuses"
+      },
+      "deleteModal": {
+        "title": "Delete course",
+        "confirmation": "Do you really want to delete the course <strong>{course}</strong>?",
+        "help": "The course will only be archived and can be restored later.",
+        "deleteCourse": "Delete course"
+      }
+    },
+    "detail": {
+      "loading": "Loading course...",
+      "notFound": "Course not found.",
+      "header": {
+        "title": "Course Structure",
+        "description": "Create semesters and link the subjects for each semester.",
+        "backCourses": "Back to Courses"
+      },
+      "network": {
+        "receivedTitle": "Course received from the network",
+        "synced": "Synchronized structure",
+        "publishedBy": "This course was published by <strong>{institution}</strong>.",
+        "otherInstitution": "another institution in the network",
+        "controlledByOrigin": "Name, code, description, modality, semesters, subjects, and academic workloads are controlled by the institution of origin.",
+        "localConfiguration": "This unit can configure only the enrollment fee, monthly fee, installments, and local operational data such as classes, teachers, schedules, seats, and enrollments.",
+        "originCourse": "Origin course",
+        "originId": "Origin ID",
+        "editRestriction": "For this course received from the network, this unit can change only the enrollment fee, monthly fee, and number of installments.",
+        "academicStructureReceived": "Academic structure received",
+        "academicStructureHelp": "The semesters in this course are published and synchronized by the institution of origin. This unit can view them but cannot create new semesters or change the curriculum."
+      },
+      "courseForm": {
+        "namePlaceholder": "Course name",
+        "semestersCount": "Number of course semesters",
+        "activeCourse": "Active course",
+        "descriptionPlaceholder": "Course description",
+        "saveLocalValues": "Save local values",
+        "saveChanges": "Save changes",
+        "configureLocalValues": "Configure local values",
+        "editCourse": "Edit course"
+      },
+      "courseInfo": {
+        "expectedSemesters": "Expected number of semesters"
+      },
+      "semesters": {
+        "addTitle": "Add semester",
+        "numberPlaceholder": "Semester number",
+        "titlePlaceholder": "Semester title",
+        "descriptionPlaceholder": "Semester description",
+        "addButton": "Add semester",
+        "none": "No semester has been registered for this course yet.",
+        "semesterLabel": "Semester {number}",
+        "minimumWorkload": "Minimum workload allowed in the semester (hours)",
+        "maximumWorkload": "Maximum workload allowed in the semester (hours)",
+        "saveWorkload": "Save workload"
+      },
+      "subjects": {
+        "linkedTitle": "Subjects already linked",
+        "noneLinked": "No subject linked yet.",
+        "noneRegistered": "No subjects registered.",
+        "readOnlyNetwork": "Curriculum received from the network — read only.",
+        "updateSemester": "Update subjects for semester {number}"
+      }
+    },
+    "messages": {
+      "coursePolesUpdated": "Course campuses updated successfully.",
+      "courseCreated": "Course created successfully!",
+      "courseDeleted": "Course deleted successfully. It can be restored later.",
+      "courseRestored": "Course restored successfully.",
+      "localValuesUpdated": "Local values updated successfully!",
+      "courseUpdated": "Course updated successfully!",
+      "semesterCreated": "Semester created successfully!",
+      "subjectsSaved": "Subjects for semester {semester} saved successfully!",
+      "workloadSaved": "Workload saved successfully!"
+    },
+    "errors": {
+      "loadCourses": "Unable to load courses.",
+      "loadPoles": "Unable to load campuses.",
+      "updateCoursePoles": "Unable to update the course campuses.",
+      "createCourse": "Unable to create the course.",
+      "deleteCourse": "Unable to delete the course.",
+      "restoreCourse": "Unable to restore the course.",
+      "couldNotSave": "Unable to save",
+      "loadSubjects": "Unable to load subjects.",
+      "loadCourseSemesters": "Unable to load course semesters.",
+      "loadCourseData": "Unable to load course data.",
+      "editCourse": "Unable to edit the course.",
+      "createSemester": "Unable to create the semester.",
+      "saveSubjects": "Unable to save subjects.",
+      "saveWorkload": "Unable to save the workload."
+    },
+    "validation": {
+      "workloadRequired": "Fill in the minimum and maximum workload before saving.",
+      "workloadPositive": "The minimum and maximum workload must be greater than zero.",
+      "workloadOrder": "The minimum workload cannot be greater than the maximum workload."
+    }
+  },
+  "AdminDepartments": {
+    "title": "Departments",
+    "newDepartment": {
+      "title": "New department",
+      "namePlaceholder": "Department name",
+      "slugPlaceholder": "Public slug (optional)",
+      "rolesTitle": "Department roles",
+      "rolesDescription": "Optional. Add the roles that exist in this department now.",
+      "create": "Create department"
+    },
+    "list": {
+      "title": "Department list",
+      "slug": "Slug"
+    },
+    "common": {
+      "name": "Name",
+      "slug": "Slug",
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "save": "Save",
+      "saving": "Saving...",
+      "creating": "Creating...",
+      "deleting": "Deleting...",
+      "cancel": "Cancel",
+      "edit": "Edit",
+      "delete": "Delete",
+      "remove": "Remove",
+      "deactivate": "Deactivate",
+      "reactivate": "Reactivate"
+    },
+    "roles": {
+      "title": "Roles",
+      "close": "Close roles",
+      "add": "+ Add role",
+      "newRole": "+ New role",
+      "role": "Role",
+      "fallbackName": "Role",
+      "namePlaceholder": "Role name",
+      "examplePlaceholder": "E.g.: Sales representative",
+      "departmentTitle": "Roles in {name}",
+      "departmentDescription": "Add the roles that exist in this department.",
+      "loading": "Loading roles...",
+      "empty": "No roles have been added to this department.",
+      "active": "Active role",
+      "linkedEmployees": "{count, plural, =0 {No employees linked} =1 {1 employee linked} other {# employees linked}}"
+    },
+    "permissions": {
+      "link": "Permissions"
+    },
+    "roleStatusModal": {
+      "deactivateTitle": "Deactivate role",
+      "reactivateTitle": "Reactivate role",
+      "deactivateDescription": "The role will no longer appear for new assignments, but employees already linked to it will not be removed.",
+      "reactivateDescription": "The role will become available for new assignments again.",
+      "confirmDeactivate": "Confirm deactivation",
+      "confirmReactivate": "Confirm reactivation"
+    },
+    "deleteModal": {
+      "title": "Confirm deletion",
+      "question": "Are you sure you want to delete the department “{name}”?",
+      "questionPrefix": "Are you sure you want to delete the department",
+      "warning": "This action cannot be undone.",
+      "confirm": "Confirm deletion"
+    },
+    "messages": {
+      "departmentCreated": "Department created successfully.",
+      "departmentUpdated": "Department updated successfully.",
+      "departmentDeleted": "Department deleted successfully.",
+      "roleCreated": "Role created successfully.",
+      "roleUpdated": "Role updated successfully.",
+      "roleDeactivated": "Role deactivated successfully.",
+      "roleReactivated": "Role reactivated successfully."
+    },
+    "errors": {
+      "createDepartment": "Unable to create the department.",
+      "updateDepartment": "Unable to update the department.",
+      "deleteDepartment": "Unable to delete the department.",
+      "loadRoles": "Unable to load roles.",
+      "roleNameRequired": "Enter the role name.",
+      "createRole": "Unable to create the role.",
+      "updateRole": "Unable to update the role.",
+      "changeRoleStatus": "Unable to change the role status."
+    },
+    "permissionsPage": {
+      "back": "← Back to Departments",
+      "title": "Department Permissions — {name}",
+      "description": "Define which areas and functions employees in this department can access. Permissions are organized by area for easier management.",
+      "sectionTitle": "Permissions by area",
+      "selectedLabel": "Selected",
+      "save": "Save permissions",
+      "groupSelected": "{selected} of {total} selected",
+      "selectAllGroup": "Select all in this area",
+      "clearGroup": "Clear this area",
+      "permissionGenericDescription": "Grants this PHANYX permission: {permission}.",
+      "messages": {
+        "saved": "Permissions saved successfully."
+      },
+      "errors": {
+        "load": "Unable to load permissions.",
+        "save": "Unable to save permissions."
+      },
+      "common": {
+        "saving": "Saving..."
+      },
+      "groups": {
+        "geral": {
+          "name": "General / Dashboard",
+          "description": "General access to the administrative dashboard."
+        },
+        "assinatura": {
+          "name": "PHANYX Subscription",
+          "description": "Institution plan, pricing, billing, and subscription cancellation."
+        },
+        "apoio-docente": {
+          "name": "Teacher Support",
+          "description": "Academic publications, materials, assignments, and support for teacher activities."
+        },
+        "academico": {
+          "name": "Academic",
+          "description": "Students, teachers, courses, classes, enrollments, subjects, and academic management."
+        },
+        "biblioteca": {
+          "name": "Digital Library",
+          "description": "Catalog, circulation, files, licenses, storage, reports, and library administration."
+        },
+        "comercial": {
+          "name": "Sales",
+          "description": "Funnels, leads, opportunities, tasks, salespeople, goals, sales, commissions, and reports."
+        },
+        "financeiro": {
+          "name": "Finance",
+          "description": "Payments, cash register, delinquency, financial reports, and billing."
+        },
+        "rh": {
+          "name": "Staff / HR",
+          "description": "Employees, departments, time tracking, payslips, vacations, exams, terminations, and HR documents."
+        },
+        "controle-acesso": {
+          "name": "Access Control",
+          "description": "Badges, templates, issuance, visitors, entry, and exit."
+        },
+        "documentos": {
+          "name": "Documents",
+          "description": "Certificates, contracts, documents, templates, signatures, and validations."
+        },
+        "comunicacao": {
+          "name": "Communication",
+          "description": "Meetings, birthdays, feedback, messages, and internal communication."
+        },
+        "configuracoes": {
+          "name": "Settings / Integrations",
+          "description": "Institution settings, integrations, and administrative resources."
+        },
+        "outros": {
+          "name": "Other permissions",
+          "description": "Permissions not yet classified into a specific group."
+        }
+      },
+      "permissionTerms": {
+        "modules": {
+          "dashboard": "Dashboard",
+          "subscription": "PHANYX Subscription",
+          "students": "Students",
+          "enrollments": "Enrollments",
+          "academic": "Academic",
+          "publications": "Publications",
+          "materials": "Materials",
+          "assignments": "Assignments",
+          "classes": "Classes",
+          "subjects": "Subjects",
+          "teachers": "Teachers",
+          "library": "Digital Library",
+          "subscriptionManagement": "Subscription",
+          "catalog": "Catalog",
+          "files": "Files",
+          "storage": "Storage",
+          "circulation": "Circulation",
+          "loans": "Loans",
+          "renewals": "Renewals",
+          "reservations": "Reservations",
+          "shelves": "Shelves",
+          "reviews": "Reviews",
+          "recommendations": "Recommendations",
+          "licenses": "Licenses",
+          "operators": "Operators",
+          "settings": "Settings",
+          "reports": "Reports",
+          "audit": "Audit",
+          "sales": "Sales",
+          "funnels": "Funnels",
+          "leads": "Leads",
+          "tasks": "Tasks",
+          "salespeople": "Salespeople",
+          "teams": "Teams",
+          "goals": "Goals",
+          "salesTransactions": "Sales",
+          "commissions": "Commissions",
+          "integrations": "Integrations",
+          "email": "Email",
+          "whatsapp": "WhatsApp",
+          "finance": "Finance",
+          "cashRegister": "Cash Register",
+          "documents": "Documents",
+          "certificates": "Certificates",
+          "employees": "Employees",
+          "departments": "Departments",
+          "hr": "HR",
+          "timeTracking": "Time Tracking",
+          "mobile": "Mobile",
+          "badges": "Badges",
+          "templates": "Templates",
+          "visitors": "Visitors",
+          "meetings": "Meetings",
+          "ombudsman": "Feedback & Complaints",
+          "birthdays": "Birthdays",
+          "receipts": "Receipts",
+          "delinquency": "Delinquency",
+          "closing": "Closing",
+          "permissions": "Permissions",
+          "hiring": "Hiring",
+          "terminations": "Terminations",
+          "occurrences": "Occurrences",
+          "history": "History",
+          "archived": "Archived Records",
+          "payslips": "Payslips",
+          "vacations": "Vacations",
+          "exams": "Exams",
+          "roles": "Roles",
+          "salaryRanges": "Salary Ranges",
+          "indicators": "Indicators",
+          "benefits": "Benefits",
+          "timeBank": "Time Bank"
+        },
+        "actions": {
+          "access": "Access",
+          "view": "View",
+          "create": "Create",
+          "edit": "Edit",
+          "delete": "Delete",
+          "cancel": "Cancel",
+          "manage": "Manage",
+          "publish": "Publish",
+          "attach": "Attach",
+          "select": "Select",
+          "upload": "Upload",
+          "download": "Download",
+          "archive": "Archive",
+          "restore": "Restore",
+          "moderate": "Moderate",
+          "export": "Export",
+          "interact": "Record interactions",
+          "assign": "Assign",
+          "convert": "Convert",
+          "move": "Move",
+          "transfer": "Transfer",
+          "complete": "Complete",
+          "approve": "Approve",
+          "calculate": "Calculate",
+          "issue": "Issue",
+          "print": "Print",
+          "generate": "Generate",
+          "receive": "Receive",
+          "open": "Open",
+          "close": "Close",
+          "configure": "Configure",
+          "adjust": "Adjust",
+          "sign": "Sign",
+          "block": "Block",
+          "reply": "Reply",
+          "viewAll": "View all",
+          "recordLoss": "Record lost opportunity",
+          "registerEntry": "Register entry",
+          "registerExit": "Register exit",
+          "linkSalesperson": "Link salesperson",
+          "sendToHr": "Send to HR",
+          "editTemplate": "Edit template",
+          "generateWhatsAppLinks": "Generate WhatsApp links",
+          "exportPdf": "Export PDF",
+          "exportExcel": "Export Excel",
+          "archiveOccurrences": "Archive occurrences",
+          "archivePayslips": "Archive payslips",
+          "archiveVacations": "Archive vacations",
+          "archiveExams": "Archive exams",
+          "archiveTerminations": "Archive terminations",
+          "archiveHrDocuments": "Archive HR documents",
+          "restoreArchived": "Restore archived records",
+          "documentTemplates": "Document templates",
+          "generateDocuments": "Generate documents",
+          "editTimeEntries": "Edit time entries",
+          "timeTrackingIntegrations": "Time tracking integrations",
+          "generatePayslips": "Generate payslips",
+          "signPayslips": "Sign payslips",
+          "deletePayslips": "Delete payslips",
+          "approveVacations": "Approve vacations"
+        }
+      }
     }
   }
 }

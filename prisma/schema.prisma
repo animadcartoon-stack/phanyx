@@ -912,6 +912,8 @@ model LancamentoFinanceiro {
   movimentosCaixa MovimentoCaixa[]
   pagamentos      Pagamento[]
 
+  bibliotecaEmprestimoMulta BibliotecaEmprestimo? @relation("BibliotecaEmprestimoMultaLancamento")
+
   @@index([instituicaoId])
   @@index([alunoId])
   @@index([matriculaId])
@@ -7132,6 +7134,8 @@ model BibliotecaEmprestimo {
   multaGerada         Boolean  @default(false)
   valorMultaCalculado Decimal? @db.Decimal(10, 2)
 
+  multaLancamentoFinanceiroId Int? @unique
+
   registradoPorId Int?
   devolvidoPorId  Int?
   canceladoPorId  Int?
@@ -7150,7 +7154,8 @@ model BibliotecaEmprestimo {
   devolvidoPor  User? @relation("BibliotecaEmprestimoDevolvidoPor", fields: [devolvidoPorId], references: [id], onDelete: SetNull)
   canceladoPor  User? @relation("BibliotecaEmprestimoCanceladoPor", fields: [canceladoPorId], references: [id], onDelete: SetNull)
 
-  renovacoes BibliotecaRenovacao[]
+  multaLancamentoFinanceiro LancamentoFinanceiro? @relation("BibliotecaEmprestimoMultaLancamento", fields: [multaLancamentoFinanceiroId], references: [id], onDelete: SetNull)
+  renovacoes                BibliotecaRenovacao[]
 
   @@unique([id, instituicaoId])
   @@index([instituicaoId])

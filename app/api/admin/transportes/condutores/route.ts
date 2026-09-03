@@ -4,6 +4,16 @@ import {
 } from "@prisma/client";
 
 import {
+  getCountries,
+  type CountryCode,
+} from "libphonenumber-js";
+
+import {
+  normalizarTelefoneE164,
+  telefoneValidoInternacional,
+} from "@/lib/internacionalizacao/telefone";
+
+import {
   NextRequest,
   NextResponse,
 } from "next/server";
@@ -178,6 +188,7 @@ function limparTexto(
 function converterData(
   valor: unknown
 ): Date | null | undefined {
+
   if (
     valor === null ||
     valor === undefined ||
@@ -204,6 +215,112 @@ function converterData(
   }
 
   return data;
+}
+
+const PAISES_VALIDOS =
+  new Set<CountryCode>(
+    getCountries()
+  );
+
+function converterPais(
+  valor: unknown
+):
+  | CountryCode
+  | null
+  | undefined {
+  if (
+    valor === null ||
+    valor === undefined ||
+    valor === ""
+  ) {
+    return null;
+  }
+
+  if (
+    typeof valor !== "string"
+  ) {
+    return undefined;
+  }
+
+  const codigo =
+    valor
+      .trim()
+      .toUpperCase() as CountryCode;
+
+  if (
+    !PAISES_VALIDOS.has(
+      codigo
+    )
+  ) {
+    return undefined;
+  }
+
+  return codigo;
+}
+
+function normalizarTelefoneOpcional(
+  valor: unknown,
+  pais: CountryCode | null
+): {
+  valor: string | null;
+  erro?: string;
+} {
+  const texto =
+    limparTexto(
+      valor,
+      80
+    );
+
+  if (!texto) {
+    return {
+      valor: null,
+    };
+  }
+
+  if (
+    !pais &&
+    !texto.startsWith("+")
+  ) {
+    return {
+      valor: null,
+      erro:
+        "PAIS_TELEFONE_OBRIGATORIO",
+    };
+  }
+
+  const paisBase =
+    pais ?? "BR";
+
+  if (
+    !telefoneValidoInternacional(
+      texto,
+      paisBase
+    )
+  ) {
+    return {
+      valor: null,
+      erro:
+        "TELEFONE_INVALIDO",
+    };
+  }
+
+  const telefone =
+    normalizarTelefoneE164(
+      texto,
+      paisBase
+    );
+
+  if (!telefone) {
+    return {
+      valor: null,
+      erro:
+        "TELEFONE_INVALIDO",
+    };
+  }
+
+  return {
+    valor: telefone,
+  };
 }
 
 export async function GET() {
@@ -487,6 +604,110 @@ export async function POST(
       );
     }
 
+    const paisDocumento =
+  converterPais(
+    corpo?.paisDocumento
+  );
+
+if (
+  paisDocumento ===
+  undefined
+) {
+  return NextResponse.json(
+    {
+      ok: false,
+      error:
+        "PAIS_DOCUMENTO_INVALIDO",
+    },
+    {
+      status: 400,
+    }
+  );
+}
+
+const paisTelefone =
+  converterPais(
+    corpo?.paisTelefone
+  );
+
+if (
+  paisTelefone ===
+  undefined
+) {
+  return NextResponse.json(
+    {
+      ok: false,
+      error:
+        "PAIS_TELEFONE_INVALIDO",
+    },
+    {
+      status: 400,
+    }
+  );
+}
+
+const telefone =
+  normalizarTelefoneOpcional(
+    corpo?.telefone,
+    paisTelefone
+  );
+
+if (telefone.erro) {
+  return NextResponse.json(
+    {
+      ok: false,
+      error:
+        telefone.erro,
+    },
+    {
+      status: 400,
+    }
+  );
+}
+
+const paisTelefoneEmergencia =
+  converterPais(
+    corpo
+      ?.paisTelefoneEmergencia
+  );
+
+if (
+  paisTelefoneEmergencia ===
+  undefined
+) {
+  return NextResponse.json(
+    {
+      ok: false,
+      error:
+        "PAIS_TELEFONE_EMERGENCIA_INVALIDO",
+    },
+    {
+      status: 400,
+    }
+  );
+}
+
+const telefoneEmergencia =
+  normalizarTelefoneOpcional(
+    corpo?.telefoneEmergencia,
+    paisTelefoneEmergencia
+  );
+
+if (
+  telefoneEmergencia.erro
+) {
+  return NextResponse.json(
+    {
+      ok: false,
+      error:
+        telefoneEmergencia.erro,
+    },
+    {
+      status: 400,
+    }
+  );
+}
+
     const licencaValidaAte =
       converterData(
         corpo?.licencaValidaAte
@@ -596,10 +817,7 @@ export async function POST(
               tipoTexto as TipoCondutorTransporte,
 
             telefone:
-              limparTexto(
-                corpo?.telefone,
-                80
-              ),
+  telefone.valor,
 
             email:
               limparTexto(
@@ -607,11 +825,7 @@ export async function POST(
                 320
               ),
 
-            paisDocumento:
-              limparTexto(
-                corpo?.paisDocumento,
-                120
-              ),
+            paisDocumento,
 
             tipoDocumento:
               limparTexto(
@@ -649,10 +863,7 @@ export async function POST(
               ),
 
             telefoneEmergencia:
-              limparTexto(
-                corpo?.telefoneEmergencia,
-                80
-              ),
+  telefoneEmergencia.valor,
 
             observacao:
               limparTexto(

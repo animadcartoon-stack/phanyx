@@ -459,6 +459,293 @@ export async function POST(
               agora
             );
 
+            /*
+ * Apuração financeira da multa por atraso.
+ *
+ * A devolução nunca depende da existência
+ * de um aluno financeiro. Para usuários que
+ * não sejam alunos, a multa pode ser calculada,
+ * mas não gera lançamento estudantil.
+ */
+let valorMultaCalculado:
+  number | null = null;
+
+let multaGerada =
+  false;
+
+let multaLancamentoFinanceiroId:
+  number | null = null;
+
+let diasAtrasoCobrados =
+  0;
+
+if (diasAtraso > 0) {
+  const configuracaoMulta =
+    await transacao
+      .bibliotecaConfiguracao
+      .findUnique({
+        where: {
+          instituicaoId:
+            contexto.instituicaoId,
+        },
+
+        select: {
+          cobrarMultaPorAtraso:
+            true,
+
+          valorMultaPorDia:
+            true,
+
+          diasCarenciaAtraso:
+            true,
+
+          limiteMultaPorAtraso:
+            true,
+
+          diasVencimentoCobranca:
+            true,
+        },
+      });
+
+  if (
+    configuracaoMulta
+      ?.cobrarMultaPorAtraso
+  ) {
+    diasAtrasoCobrados =
+      Math.max(
+        0,
+        diasAtraso -
+          configuracaoMulta
+            .diasCarenciaAtraso
+      );
+
+    const valorMultaPorDia =
+      Number(
+        configuracaoMulta
+          .valorMultaPorDia
+      );
+
+    if (
+      diasAtrasoCobrados > 0 &&
+      Number.isFinite(
+        valorMultaPorDia
+      ) &&
+      valorMultaPorDia > 0
+    ) {
+      /*
+       * O cálculo é feito em centavos
+       * para evitar erros de ponto flutuante.
+       */
+      const valorDiaCentavos =
+        Math.round(
+          valorMultaPorDia *
+            100
+        );
+
+      let valorMultaCentavos =
+        valorDiaCentavos *
+        diasAtrasoCobrados;
+
+      if (
+        configuracaoMulta
+          .limiteMultaPorAtraso !==
+        null
+      ) {
+        const limiteCentavos =
+          Math.round(
+            Number(
+              configuracaoMulta
+                .limiteMultaPorAtraso
+            ) * 100
+          );
+
+        if (
+          Number.isFinite(
+            limiteCentavos
+          ) &&
+          limiteCentavos >= 0
+        ) {
+          valorMultaCentavos =
+            Math.min(
+              valorMultaCentavos,
+              limiteCentavos
+            );
+        }
+      }
+
+      if (
+        valorMultaCentavos > 0
+      ) {
+        valorMultaCalculado =
+          valorMultaCentavos /
+          100;
+
+        /*
+         * BibliotecaEmprestimo aponta para User,
+         * enquanto LancamentoFinanceiro exige Aluno.
+         */
+        const aluno =
+          await transacao
+            .aluno
+            .findFirst({
+              where: {
+                userId:
+                  emprestimo.usuarioId,
+
+                instituicaoId:
+                  contexto.instituicaoId,
+              },
+
+              select: {
+                id: true,
+                nome: true,
+              },
+            });
+
+        if (aluno) {
+          const vencimentoCobranca =
+            new Date(agora);
+
+          vencimentoCobranca.setDate(
+            vencimentoCobranca.getDate() +
+              configuracaoMulta
+                .diasVencimentoCobranca
+          );
+
+          const lancamento =
+            await transacao
+              .lancamentoFinanceiro
+              .create({
+                data: {
+                  instituicaoId:
+                    contexto.instituicaoId,
+
+                  alunoId:
+                    aluno.id,
+
+                  tipo:
+                    "TAXA",
+
+                  descricao:
+                    `Multa por atraso na Biblioteca - empréstimo #${emprestimo.id}`,
+
+                  valorOriginal:
+                    valorMultaCalculado,
+
+                  valorFinal:
+                    valorMultaCalculado,
+
+                  valorPago:
+                    0,
+
+                  descontoValor:
+                    0,
+
+                  jurosValor:
+                    0,
+
+                  multaValor:
+                    0,
+
+                  vencimento:
+                    vencimentoCobranca,
+
+                  status:
+                    "PENDENTE",
+
+                  observacao:
+                    `Gerado automaticamente pela Biblioteca. ` +
+                    `Atraso: ${diasAtraso} dia(s). ` +
+                    `Carência: ${configuracaoMulta.diasCarenciaAtraso} dia(s). ` +
+                    `Dias cobrados: ${diasAtrasoCobrados}.`,
+                },
+
+                select: {
+                  id: true,
+                },
+              });
+
+          multaLancamentoFinanceiroId =
+            lancamento.id;
+
+          multaGerada =
+            true;
+
+          await transacao
+            .historicoCobranca
+            .create({
+              data: {
+                instituicaoId:
+                  contexto.instituicaoId,
+
+                alunoId:
+                  aluno.id,
+
+                alunoNome:
+                  aluno.nome,
+
+                lancamentoFinanceiroId:
+                  lancamento.id,
+
+                responsavelId:
+                  usuario.id,
+
+                canal:
+                  "SISTEMA",
+
+                acao:
+                  "BIBLIOTECA_MULTA_ATRASO_GERADA",
+
+                observacao:
+                  `Multa de biblioteca gerada para o empréstimo #${emprestimo.id}.`,
+
+                metadata: {
+                  origem:
+                    "BIBLIOTECA",
+
+                  emprestimoId:
+                    emprestimo.id,
+
+                  exemplarId:
+                    exemplar.id,
+
+                  usuarioEmprestimoId:
+                    emprestimo.usuarioId,
+
+                  diasAtraso,
+
+                  diasCarencia:
+                    configuracaoMulta
+                      .diasCarenciaAtraso,
+
+                  diasAtrasoCobrados,
+
+                  valorMultaPorDia,
+
+                  limiteMulta:
+                    configuracaoMulta
+                      .limiteMultaPorAtraso !==
+                    null
+                      ? Number(
+                          configuracaoMulta
+                            .limiteMultaPorAtraso
+                        )
+                      : null,
+
+                  valorMultaCalculado,
+
+                  vencimentoCobranca:
+                    vencimentoCobranca
+                      .toISOString(),
+                },
+              },
+            });
+        }
+      }
+    }
+  }
+}
+
           const emprestimoAtualizado =
             await transacao
               .bibliotecaEmprestimo
@@ -481,10 +768,16 @@ export async function POST(
                   observacaoDevolucao,
 
                   diasAtrasoCalculado:
-                    diasAtraso,
+  diasAtraso,
 
-                  devolvidoPorId:
-                    usuario.id,
+valorMultaCalculado,
+
+multaGerada,
+
+multaLancamentoFinanceiroId,
+
+devolvidoPorId:
+  usuario.id,
                 },
 
                 select: {
@@ -511,6 +804,15 @@ export async function POST(
 
                   diasAtrasoCalculado:
                     true,
+
+                    valorMultaCalculado:
+  true,
+
+multaGerada:
+  true,
+
+multaLancamentoFinanceiroId:
+  true,
                 },
               });
 
@@ -589,6 +891,14 @@ export async function POST(
                   condicao,
 
                   diasAtraso,
+
+                  diasAtrasoCobrados,
+
+valorMultaCalculado,
+
+multaGerada,
+
+multaLancamentoFinanceiroId,
                 },
 
                 metadados: {
@@ -609,6 +919,19 @@ export async function POST(
 
                   usuarioEmprestimoId:
                     emprestimo.usuarioId,
+
+                    multa: {
+  diasAtraso,
+
+  diasAtrasoCobrados,
+
+  valorMultaCalculado,
+
+  multaGerada,
+
+  lancamentoFinanceiroId:
+    multaLancamentoFinanceiroId,
+},
                 },
 
                 ip,
@@ -617,12 +940,26 @@ export async function POST(
             });
 
           return {
-            emprestimo:
-              emprestimoAtualizado,
+  emprestimo:
+    emprestimoAtualizado,
 
-            exemplar:
-              exemplarAtualizado,
-          };
+  exemplar:
+    exemplarAtualizado,
+
+  multa: {
+    diasAtraso,
+
+    diasAtrasoCobrados,
+
+    valorMultaCalculado,
+
+    gerada:
+      multaGerada,
+
+    lancamentoFinanceiroId:
+      multaLancamentoFinanceiroId,
+  },
+};
         },
         {
           maxWait: 5_000,
@@ -641,6 +978,9 @@ export async function POST(
 
       exemplar:
         resultado.exemplar,
+
+        multa:
+  resultado.multa,
     });
   } catch (erro) {
     return responderErro(

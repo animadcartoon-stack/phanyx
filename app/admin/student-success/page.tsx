@@ -605,6 +605,7 @@ type PrioridadesStudentSuccessResponse = {
 };
 
 type TipoEventoTimeline =
+  | "ANALISE_ACADEMICA"
   | "INTERVENCAO_REGISTRADA"
   | "RETORNO_AGENDADO"
   | "INTERVENCAO_ENCERRADA";
@@ -719,8 +720,11 @@ type TimelineStudentSuccessResponse = {
     null;
   };
 
-  resumo: {
+    resumo: {
     intervencoes:
+    number;
+
+    analisesAcademicas:
     number;
 
     eventos:

@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { PERMISSOES_PHANYX } from "@/lib/permissoes-phanyx";
 import Link from "next/link";
-import { useLocale, useTranslations } from "next-intl";
 
 type PermissaoPhanyx = {
   chave: string;
@@ -16,23 +15,31 @@ type GrupoPermissoes = {
   nome: string;
   icone: string;
   descricao: string;
-  prefixos: readonly string[];
+  prefixos: string[];
 };
 
-const GRUPOS_PERMISSOES_BASE = [
+const GRUPOS_PERMISSOES: GrupoPermissoes[] = [
   {
     id: "geral",
+    nome: "Geral / Dashboard",
     icone: "🏠",
+    descricao: "Acessos gerais do painel administrativo.",
     prefixos: ["dashboard", "painel", "perfil"],
   },
   {
     id: "assinatura",
+    nome: "Assinatura PHANYX",
     icone: "💳",
+    descricao:
+      "Plano, valores, forma de cobrança e cancelamento da assinatura da instituição.",
     prefixos: ["assinatura"],
   },
   {
     id: "apoio-docente",
+    nome: "Apoio Docente",
     icone: "🧑‍🏫",
+    descricao:
+      "Publicações acadêmicas, materiais, trabalhos e apoio às ações dos professores.",
     prefixos: [
       "academico.publicacoes",
       "academico.materiais",
@@ -45,7 +52,10 @@ const GRUPOS_PERMISSOES_BASE = [
   },
   {
     id: "academico",
+    nome: "Acadêmico",
     icone: "🎓",
+    descricao:
+      "Alunos, professores, cursos, turmas, matrículas, disciplinas e gestão acadêmica.",
     prefixos: [
       "alunos",
       "professores",
@@ -60,19 +70,20 @@ const GRUPOS_PERMISSOES_BASE = [
       "substituicoes-docentes",
     ],
   },
-  {
-    id: "biblioteca",
-    icone: "📚",
-    prefixos: ["biblioteca"],
-  },
-  {
+    {
     id: "comercial",
+    nome: "Comercial",
     icone: "📈",
+    descricao:
+  "Funis, leads, oportunidades, tarefas, vendedores, metas, vendas, matrículas, comissões e relatórios.",
     prefixos: ["comercial"],
   },
   {
     id: "financeiro",
+    nome: "Financeiro",
     icone: "💰",
+    descricao:
+      "Recebimentos, caixa, inadimplentes, relatórios financeiros e cobranças.",
     prefixos: [
       "financeiro",
       "caixa",
@@ -85,7 +96,10 @@ const GRUPOS_PERMISSOES_BASE = [
   },
   {
     id: "rh",
+    nome: "Pessoal / RH",
     icone: "👥",
+    descricao:
+      "Funcionários, departamentos, ponto, holerites, férias, exames, rescisões e documentos de RH.",
     prefixos: [
       "rh",
       "funcionarios",
@@ -101,12 +115,18 @@ const GRUPOS_PERMISSOES_BASE = [
   },
   {
     id: "controle-acesso",
+    nome: "Controle de Acesso",
     icone: "🚪",
+    descricao:
+      "Crachás, edição de crachás, modelos, emissão, visitantes, entrada e saída.",
     prefixos: ["crachas", "visitantes", "controle-acesso", "controle_acesso"],
   },
   {
     id: "documentos",
+    nome: "Documentos",
     icone: "📄",
+    descricao:
+      "Certificados, contratos, documentos, modelos, assinaturas e validações.",
     prefixos: [
       "documentos",
       "certificados",
@@ -119,7 +139,10 @@ const GRUPOS_PERMISSOES_BASE = [
   },
   {
     id: "comunicacao",
+    nome: "Comunicação",
     icone: "💬",
+    descricao:
+      "Reuniões, aniversariantes, ouvidoria, mensagens, WhatsApp e comunicação interna.",
     prefixos: [
       "comunicacao",
       "reunioes",
@@ -132,159 +155,21 @@ const GRUPOS_PERMISSOES_BASE = [
   },
   {
     id: "configuracoes",
+    nome: "Configurações / Integrações",
     icone: "⚙️",
+    descricao:
+      "Configurações da instituição, integrações e recursos administrativos.",
     prefixos: ["configuracoes", "integracoes", "google", "reputacao", "ads"],
   },
-] as const;
+];
 
-const GRUPO_OUTROS_BASE = {
+const GRUPO_OUTROS: GrupoPermissoes = {
   id: "outros",
+  nome: "Outras permissões",
   icone: "🧩",
-  prefixos: [] as const,
+  descricao: "Permissões ainda não classificadas em um grupo específico.",
+  prefixos: [],
 };
-
-const ROTULOS_SEGMENTOS: Record<string, string> = {
-  dashboard: "dashboard",
-  assinatura: "subscription",
-  alunos: "students",
-  matriculas: "enrollments",
-  academico: "academic",
-  publicacoes: "publications",
-  materiais: "materials",
-  trabalhos: "assignments",
-  turmas: "classes",
-  disciplinas: "subjects",
-  professores: "teachers",
-  biblioteca: "library",
-  contratacao: "subscriptionManagement",
-  catalogo: "catalog",
-  arquivos: "files",
-  armazenamento: "storage",
-  circulacao: "circulation",
-  emprestimos: "loans",
-  renovacoes: "renewals",
-  reservas: "reservations",
-  prateleiras: "shelves",
-  avaliacoes: "reviews",
-  recomendacoes: "recommendations",
-  licencas: "licenses",
-  operadores: "operators",
-  configuracoes: "settings",
-  relatorios: "reports",
-  auditoria: "audit",
-  comercial: "sales",
-  funis: "funnels",
-  leads: "leads",
-  tarefas: "tasks",
-  vendedores: "salespeople",
-  equipes: "teams",
-  metas: "goals",
-  vendas: "salesTransactions",
-  comissoes: "commissions",
-  integracoes: "integrations",
-  email: "email",
-  whatsapp: "whatsapp",
-  financeiro: "finance",
-  caixa: "cashRegister",
-  documentos: "documents",
-  certificados: "certificates",
-  funcionarios: "employees",
-  departamentos: "departments",
-  rh: "hr",
-  ponto: "timeTracking",
-  mobile: "mobile",
-  crachas: "badges",
-  modelos: "templates",
-  visitantes: "visitors",
-  reunioes: "meetings",
-  ouvidoria: "ombudsman",
-  aniversariantes: "birthdays",
-  recebimentos: "receipts",
-  inadimplentes: "delinquency",
-  fechamento: "closing",
-  permissoes: "permissions",
-  admissoes: "hiring",
-  desligamentos: "terminations",
-  ocorrencias: "occurrences",
-  historico: "history",
-  arquivados: "archived",
-  holerites: "payslips",
-  ferias: "vacations",
-  exames: "exams",
-  rescisoes: "terminations",
-  cargos: "roles",
-  salarios: "salaryRanges",
-  indicadores: "indicators",
-  beneficios: "benefits",
-  banco_horas: "timeBank",
-};
-
-const ROTULOS_ACOES: Record<string, string> = {
-  ver: "view",
-  criar: "create",
-  editar: "edit",
-  excluir: "delete",
-  cancelar: "cancel",
-  gerenciar: "manage",
-  publicar: "publish",
-  anexar: "attach",
-  selecionar: "select",
-  upload: "upload",
-  download: "download",
-  arquivar: "archive",
-  restaurar: "restore",
-  moderar: "moderate",
-  exportar: "export",
-  interagir: "interact",
-  atribuir: "assign",
-  converter: "convert",
-  movimentar: "move",
-  transferir: "transfer",
-  concluir: "complete",
-  aprovar: "approve",
-  calcular: "calculate",
-  emitir: "issue",
-  imprimir: "print",
-  gerar: "generate",
-  receber: "receive",
-  abrir: "open",
-  fechar: "close",
-  configurar: "configure",
-  ajustar: "adjust",
-  assinar: "sign",
-  bloquear: "block",
-  responder: "reply",
-};
-
-const ROTULOS_ACOES_COMPOSTAS: Record<string, string> = {
-  ver_todos: "viewAll",
-  ver_todas: "viewAll",
-  registrar_perda: "recordLoss",
-  registrar_entrada: "registerEntry",
-  registrar_saida: "registerExit",
-  vincular_vendedor: "linkSalesperson",
-  enviar_rh: "sendToHr",
-  editar_template: "editTemplate",
-  gerar_links_whatsapp: "generateWhatsAppLinks",
-  exportar_pdf: "exportPdf",
-  exportar_excel: "exportExcel",
-  arquivar_ocorrencias: "archiveOccurrences",
-  arquivar_holerites: "archivePayslips",
-  arquivar_ferias: "archiveVacations",
-  arquivar_exames: "archiveExams",
-  arquivar_rescisoes: "archiveTerminations",
-  arquivar_documentos: "archiveHrDocuments",
-  restaurar_arquivados: "restoreArchived",
-  documentos_modelos: "documentTemplates",
-  documentos_gerar: "generateDocuments",
-  ponto_editar: "editTimeEntries",
-  ponto_integracoes: "timeTrackingIntegrations",
-  holerites_gerar: "generatePayslips",
-  holerites_assinar: "signPayslips",
-  holerites_excluir: "deletePayslips",
-  ferias_aprovar: "approveVacations",
-};
-
 
 function normalizarTexto(valor: string) {
   return String(valor || "")
@@ -311,14 +196,10 @@ function pertenceAoGrupo(permissao: PermissaoPhanyx, grupo: GrupoPermissoes) {
   });
 }
 
-function encontrarGrupo(
-  permissao: PermissaoPhanyx,
-  grupos: GrupoPermissoes[],
-  grupoOutros: GrupoPermissoes
-) {
+function encontrarGrupo(permissao: PermissaoPhanyx) {
   return (
-    grupos.find((grupo) => pertenceAoGrupo(permissao, grupo)) ||
-    grupoOutros
+    GRUPOS_PERMISSOES.find((grupo) => pertenceAoGrupo(permissao, grupo)) ||
+    GRUPO_OUTROS
   );
 }
 
@@ -328,104 +209,6 @@ export default function DepartamentoPermissoesPage({
   params: { id: string };
 }) {
   const departamentoId = params.id;
-  const t = useTranslations("AdminDepartments.permissionsPage");
-  const tr = t as any;
-  const locale = useLocale();
-
-  const gruposPermissoes = useMemo<GrupoPermissoes[]>(
-    () =>
-      GRUPOS_PERMISSOES_BASE.map((grupo) => ({
-        id: grupo.id,
-        icone: grupo.icone,
-        prefixos: grupo.prefixos,
-        nome: tr(`groups.${grupo.id}.name`),
-        descricao: tr(`groups.${grupo.id}.description`),
-      })),
-    [t]
-  );
-
-  const grupoOutros = useMemo<GrupoPermissoes>(
-    () => ({
-      id: GRUPO_OUTROS_BASE.id,
-      icone: GRUPO_OUTROS_BASE.icone,
-      prefixos: GRUPO_OUTROS_BASE.prefixos,
-      nome: t("groups.outros.name"),
-      descricao: t("groups.outros.description"),
-    }),
-    [t]
-  );
-
-  function rotuloSegmento(segmento: string) {
-    const chave = ROTULOS_SEGMENTOS[segmento];
-
-    return chave
-      ? tr(`permissionTerms.modules.${chave}`)
-      : segmento.replace(/_/g, " ");
-  }
-
-  function rotuloAcao(segmentos: string[]) {
-    if (segmentos.length === 0) {
-      return t("permissionTerms.actions.access");
-    }
-
-    const composta = segmentos.join("_");
-    const chaveComposta = ROTULOS_ACOES_COMPOSTAS[composta];
-
-    if (chaveComposta) {
-      return tr(`permissionTerms.actions.${chaveComposta}`);
-    }
-
-    const ultima = segmentos[segmentos.length - 1];
-    const chave = ROTULOS_ACOES[ultima];
-
-    if (chave) {
-      return tr(`permissionTerms.actions.${chave}`);
-    }
-
-    return segmentos
-      .map((segmento) => rotuloSegmento(segmento))
-      .join(" / ");
-  }
-
-  function traduzirPermissao(permissao: PermissaoPhanyx): PermissaoPhanyx {
-    if (locale === "pt-BR") {
-      return permissao;
-    }
-
-    const partes = permissao.chave.split(".");
-    const modulo = rotuloSegmento(partes[0] || permissao.chave);
-    const restante = partes.slice(1);
-
-    const doisUltimos = restante.slice(-2).join("_");
-    const usaDoisSegmentos =
-      restante.length >= 2 &&
-      Boolean(ROTULOS_ACOES_COMPOSTAS[doisUltimos]);
-
-    const segmentosAcao = usaDoisSegmentos
-      ? restante.slice(-2)
-      : restante.slice(-1);
-
-    const submodulos = usaDoisSegmentos
-      ? restante.slice(0, -2)
-      : restante.slice(0, -1);
-
-    const acao = rotuloAcao(segmentosAcao);
-
-    const contexto = submodulos
-      .map((segmento) => rotuloSegmento(segmento))
-      .filter(Boolean)
-      .join(" / ");
-
-    const nome = contexto
-      ? `${modulo} - ${contexto} - ${acao}`
-      : `${modulo} - ${acao}`;
-
-    return {
-      ...permissao,
-      nome,
-      descricao: t("permissionGenericDescription", { permission: nome }),
-    };
-  }
 
   const [selecionadas, setSelecionadas] = useState<string[]>([]);
   const [nomeDepartamento, setNomeDepartamento] = useState("");
@@ -447,7 +230,7 @@ export default function DepartamentoPermissoesPage({
       }
     >();
 
-    [...gruposPermissoes, grupoOutros].forEach((grupo) => {
+    [...GRUPOS_PERMISSOES, GRUPO_OUTROS].forEach((grupo) => {
       mapa.set(grupo.id, {
         grupo,
         permissoes: [],
@@ -455,16 +238,11 @@ export default function DepartamentoPermissoesPage({
     });
 
     (PERMISSOES_PHANYX as readonly PermissaoPhanyx[]).forEach((permissao) => {
-      const permissaoTraduzida = traduzirPermissao(permissao);
-      const grupo = encontrarGrupo(
-        permissao,
-        gruposPermissoes,
-        grupoOutros
-      );
+      const grupo = encontrarGrupo(permissao);
       const item = mapa.get(grupo.id);
 
       if (item) {
-        item.permissoes.push(permissaoTraduzida);
+        item.permissoes.push(permissao);
       }
     });
 
@@ -472,11 +250,11 @@ export default function DepartamentoPermissoesPage({
       .map((item) => ({
         ...item,
         permissoes: item.permissoes.sort((a, b) =>
-          a.nome.localeCompare(b.nome, locale)
+          a.nome.localeCompare(b.nome, "pt-BR")
         ),
       }))
       .filter((item) => item.permissoes.length > 0);
-  }, [gruposPermissoes, grupoOutros, locale, t]);
+  }, []);
 
   async function carregarPermissoes() {
     try {
@@ -490,8 +268,7 @@ export default function DepartamentoPermissoesPage({
       const data = await res.json();
 
       if (!res.ok) {
-        console.error("Erro da API ao carregar permissões:", data?.error);
-        throw new Error(t("errors.load"));
+        throw new Error(data?.error || "Erro ao carregar permissões.");
       }
 
       setNomeDepartamento(data?.departamento?.nome || "");
@@ -504,7 +281,7 @@ export default function DepartamentoPermissoesPage({
           : []
       );
     } catch (error: any) {
-      setErro(error?.message || t("errors.load"));
+      setErro(error?.message || "Erro ao carregar permissões.");
     }
   }
 
@@ -556,13 +333,12 @@ export default function DepartamentoPermissoesPage({
       const data = await res.json();
 
       if (!res.ok) {
-        console.error("Erro da API ao salvar permissões:", data?.error);
-        throw new Error(t("errors.save"));
+        throw new Error(data?.error || "Erro ao salvar permissões.");
       }
 
-      setMensagem(t("messages.saved"));
+      setMensagem("Permissões salvas com sucesso.");
     } catch (error: any) {
-      setErro(error?.message || t("errors.save"));
+      setErro(error?.message || "Erro ao salvar permissões.");
     } finally {
       setLoading(false);
     }
@@ -579,15 +355,17 @@ export default function DepartamentoPermissoesPage({
           href="/admin/departamentos"
           className="mb-4 inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
         >
-          {t("back")}
+          ← Voltar para Departamentos
         </Link>
 
         <h1 className="text-2xl font-black text-slate-950 dark:text-white">
-          🔐 {t("title", { name: nomeDepartamento || "" })}
+          🔐 Permissões do Departamento {nomeDepartamento || ""}
         </h1>
 
         <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-          {t("description")}
+          Defina quais áreas e funções os funcionários deste departamento
+          poderão acessar. As permissões estão organizadas por área para
+          facilitar o uso.
         </p>
       </div>
 
@@ -607,11 +385,11 @@ export default function DepartamentoPermissoesPage({
         <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="text-sm font-black uppercase tracking-[0.18em] text-blue-700 dark:text-blue-300">
-              {t("sectionTitle")}
+              Permissões por setor
             </p>
 
             <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-              {t("selectedLabel")}:{" "}
+              Selecionadas:{" "}
               <strong className="text-slate-950 dark:text-white">
                 {selecionadas.length}
               </strong>
@@ -624,7 +402,7 @@ export default function DepartamentoPermissoesPage({
             disabled={loading}
             className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-blue-700 disabled:bg-slate-400"
           >
-            {loading ? t("common.saving") : t("save")}
+            {loading ? "Salvando..." : "Salvar permissões"}
           </button>
         </div>
 
@@ -660,7 +438,8 @@ export default function DepartamentoPermissoesPage({
                       </p>
 
                       <p className="mt-2 text-xs font-semibold text-blue-700 dark:text-blue-300">
-                        {t("groupSelected", { selected: totalSelecionadasNoGrupo, total: permissoes.length })}
+                        {totalSelecionadasNoGrupo} de {permissoes.length}{" "}
+                        selecionada(s)
                       </p>
                     </div>
                   </div>
@@ -678,7 +457,7 @@ export default function DepartamentoPermissoesPage({
                         onClick={() => marcarGrupo(permissoes)}
                         className="rounded-xl border border-blue-300 bg-blue-50 px-4 py-2 text-sm font-bold text-blue-700 transition hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950/50 dark:text-blue-200 dark:hover:bg-blue-950"
                       >
-                        {t("selectAllGroup")}
+                        Marcar todas deste setor
                       </button>
 
                       <button
@@ -686,7 +465,7 @@ export default function DepartamentoPermissoesPage({
                         onClick={() => limparGrupo(permissoes)}
                         className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
                       >
-                        {t("clearGroup")}
+                        Limpar este setor
                       </button>
                     </div>
 
@@ -739,87 +518,10 @@ export default function DepartamentoPermissoesPage({
             disabled={loading}
             className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-blue-700 disabled:bg-slate-400"
           >
-            {loading ? t("common.saving") : t("save")}
+            {loading ? "Salvando..." : "Salvar permissões"}
           </button>
         </div>
       </div>
-
-      <style jsx global>{`
-        .phanyx-departamento-permissoes-page {
-          color: #0f172a;
-        }
-
-        html[data-theme-choice="dark"]
-          .phanyx-departamento-permissoes-page,
-        html[data-theme="dark"]:not([data-theme-choice="system"])
-          .phanyx-departamento-permissoes-page {
-          color: #f8fafc;
-        }
-
-        html[data-theme-choice="dark"]
-          .phanyx-departamento-permissoes-page [class*="bg-white"],
-        html[data-theme="dark"]:not([data-theme-choice="system"])
-          .phanyx-departamento-permissoes-page [class*="bg-white"] {
-          background-color: #0b2a57 !important;
-          border-color: #2d5aa0 !important;
-        }
-
-        html[data-theme-choice="system"][data-theme="dark"]
-          .phanyx-departamento-permissoes-page,
-        html[data-theme="system"].dark
-          .phanyx-departamento-permissoes-page {
-          color: #fafafa;
-        }
-
-        html[data-theme-choice="system"][data-theme="dark"]
-          .phanyx-departamento-permissoes-page [class*="bg-white"],
-        html[data-theme="system"].dark
-          .phanyx-departamento-permissoes-page [class*="bg-white"] {
-          background-color: #18181b !important;
-          border-color: #3f3f46 !important;
-        }
-
-        html[data-theme-choice="system"][data-theme="dark"]
-          .phanyx-departamento-permissoes-page [class*="bg-slate-50"],
-        html[data-theme="system"].dark
-          .phanyx-departamento-permissoes-page [class*="bg-slate-50"] {
-          background-color: #202024 !important;
-          border-color: #52525b !important;
-        }
-
-        html[data-theme-choice="system"][data-theme="dark"]
-          .phanyx-departamento-permissoes-page [class*="bg-blue-50"],
-        html[data-theme-choice="system"][data-theme="dark"]
-          .phanyx-departamento-permissoes-page [class*="dark:bg-blue-950"],
-        html[data-theme="system"].dark
-          .phanyx-departamento-permissoes-page [class*="bg-blue-50"],
-        html[data-theme="system"].dark
-          .phanyx-departamento-permissoes-page [class*="dark:bg-blue-950"] {
-          background-color: #262626 !important;
-        }
-
-        html[data-theme-choice="system"][data-theme="dark"]
-          .phanyx-departamento-permissoes-page [class*="text-slate-950"],
-        html[data-theme-choice="system"][data-theme="dark"]
-          .phanyx-departamento-permissoes-page [class*="dark:text-white"],
-        html[data-theme="system"].dark
-          .phanyx-departamento-permissoes-page [class*="text-slate-950"],
-        html[data-theme="system"].dark
-          .phanyx-departamento-permissoes-page [class*="dark:text-white"] {
-          color: #fafafa !important;
-        }
-
-        html[data-theme-choice="system"][data-theme="dark"]
-          .phanyx-departamento-permissoes-page [class*="text-slate-600"],
-        html[data-theme-choice="system"][data-theme="dark"]
-          .phanyx-departamento-permissoes-page [class*="text-slate-300"],
-        html[data-theme="system"].dark
-          .phanyx-departamento-permissoes-page [class*="text-slate-600"],
-        html[data-theme="system"].dark
-          .phanyx-departamento-permissoes-page [class*="text-slate-300"] {
-          color: #d4d4d8 !important;
-        }
-      `}</style>
     </div>
   );
 }
