@@ -404,7 +404,7 @@ export default function BibliotecaConfiguracoesPage() {
           ) {
             throw new Error(
               dados.code ||
-                "LOAD_FAILED"
+              "LOAD_FAILED"
             );
           }
 
@@ -612,7 +612,7 @@ export default function BibliotecaConfiguracoesPage() {
       ) {
         throw new Error(
           dados.code ||
-            "SAVE_FAILED"
+          "SAVE_FAILED"
         );
       }
 
@@ -1426,11 +1426,11 @@ export default function BibliotecaConfiguracoesPage() {
                   <p className="text-sm font-black !text-slate-950 dark:!text-white">
                     {alterado
                       ? t(
-                          "actions.unsaved"
-                        )
+                        "actions.unsaved"
+                      )
                       : t(
-                          "actions.saved"
-                        )}
+                        "actions.saved"
+                      )}
                   </p>
 
                   <p className="mt-1 text-xs !text-slate-500 dark:!text-slate-400">
@@ -1473,15 +1473,14 @@ export default function BibliotecaConfiguracoesPage() {
                       !alterado ||
                       salvando
                     }
-                    className="inline-flex min-h-11 items-center justify-center rounded-xl bg-indigo-700 px-6 py-2 text-sm font-black text-white transition hover:bg-indigo-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-indigo-600 dark:hover:bg-indigo-500"
-                  >
+                    className="inline-flex min-h-11 items-center justify-center rounded-xl bg-indigo-700 px-6 py-2 text-sm font-black !text-white [-webkit-text-fill-color:#fff] transition hover:bg-indigo-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-indigo-600 dark:hover:bg-indigo-500"                  >
                     {salvando
                       ? t(
-                          "actions.saving"
-                        )
+                        "actions.saving"
+                      )
                       : t(
-                          "actions.save"
-                        )}
+                        "actions.save"
+                      )}
                   </button>
                 </div>
               </div>
@@ -1496,7 +1495,7 @@ export default function BibliotecaConfiguracoesPage() {
           className={[
             "fixed bottom-5 right-5 z-50 flex max-w-md items-start gap-4 rounded-2xl border px-5 py-4 shadow-2xl",
             toast.tipo ===
-            "sucesso"
+              "sucesso"
               ? "border-emerald-300 bg-emerald-50 text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-100"
               : "border-red-300 bg-red-50 text-red-950 dark:border-red-800 dark:bg-red-950 dark:text-red-100",
           ].join(" ")}
